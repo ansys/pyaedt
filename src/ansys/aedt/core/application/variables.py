@@ -1372,7 +1372,10 @@ class VariableManager(object):
     @pyaedt_function_handler()
     def _get_var_list_from_aedt(self, desktop_object):
         var_list = []
-        if self._app._is_object_oriented_enabled() and self._app.design_type != "Maxwell Circuit":
+        if self._app._is_object_oriented_enabled() and self._app.design_type not in [
+            "Maxwell Circuit",
+            "Circuit Netlist",
+        ]:
             # To retrieve local variables
             try:
                 v = list(self._app.get_oo_object(self._app.odesign, "LocalVariables").GetPropNames())
@@ -1390,7 +1393,9 @@ class VariableManager(object):
             except AttributeError:
                 v = []
             var_list += v
-        var_list += [i for i in list(desktop_object.GetVariables()) if i not in var_list]
+
+        if "GetVariables" in desktop_object.__dir__():
+            var_list += [i for i in list(desktop_object.GetVariables()) if i not in var_list]
         var_list += [i for i in list(self._app.oproject.GetArrayVariables()) if i not in var_list]
         return var_list
 

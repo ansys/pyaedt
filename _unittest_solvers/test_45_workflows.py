@@ -162,7 +162,33 @@ class TestClass:
         local_scratch.copyfolder(os.path.join(solver_local_path, "example_models", "T45", "ANSYS-HSD_V1.aedb"),
                                  file_path)
 
-        assert main({"is_test": True, "aedb_path": file_path, "configuration_path": configuration_path})
+        main(is_test=True, execute={
+            "aedt_load": [
+                {"project_file": file_path,
+                 "file_cfg_path": configuration_path,
+                 "file_save_path": file_path.replace(".aedb", "_1.aedt")}
+            ],
+            "aedt_export": [
+                {"project_file": file_path,
+                 "file_path_save": configuration_path.replace(".json", "_1.json")}
+            ],
+            "active_load": [],
+            "active_export": [],
+            "siwave_load": [],
+            "siwave_export": [],
+        })
+
+        main(is_test=True, execute={
+            "aedt_load": [],
+            "aedt_export": [],
+            "active_load": [{"project_file": file_path,
+                             "file_cfg_path": configuration_path,
+                             "file_save_path": file_path.replace(".aedb", "_1.aedt")}],
+            "active_export": [{"project_file": file_path,
+                               "file_path_save": configuration_path.replace(".json", "_1.json")}],
+            "siwave_load": [],
+            "siwave_export": [],
+        })
 
     def test_08_advanced_fields_calculator_non_general(self, add_app):
         aedtapp = add_app(application=ansys.aedt.core.Hfss,
@@ -179,13 +205,13 @@ class TestClass:
             "assignment": "",
             "assignment_type": ["Line"],
             "operations": ["Fundamental_Quantity('E')",
-                            "Operation('Real')",
-                            "Operation('Tangent')",
-                            "Operation('Dot')",
-                            "EnterLine('assignment')",
-                            "Operation('LineValue')",
-                            "Operation('Integrate')",
-                            "Operation('CmplxR')"],
+                           "Operation('Real')",
+                           "Operation('Tangent')",
+                           "Operation('Dot')",
+                           "EnterLine('assignment')",
+                           "Operation('LineValue')",
+                           "Operation('Integrate')",
+                           "Operation('CmplxR')"],
             "report": ["Data Table", "Rectangular Plot"],
         }
 
@@ -209,6 +235,12 @@ class TestClass:
         assert isinstance(aedtapp.post.fields_calculator.expression_names, list)
         name = aedtapp.post.fields_calculator.add_expression("voltage_line", "Polyline1")
         assert name == "Voltage_Line"
+        file_path = os.path.join(aedtapp.working_directory, "my_expr.fld")
+        assert aedtapp.post.fields_calculator.calculator_write("voltage_line", file_path, aedtapp.nominal_adaptive)
+        assert not aedtapp.post.fields_calculator.calculator_write("voltage_line", file_path, "invalid_setup")
+        assert not aedtapp.post.fields_calculator.calculator_write("invalid", file_path, aedtapp.nominal_adaptive)
+        invalid_file_path = os.path.join(aedtapp.working_directory, "my_expr.invalid")
+        assert not aedtapp.post.fields_calculator.calculator_write("voltage_line", invalid_file_path, aedtapp.nominal_adaptive)
         name2 = aedtapp.post.fields_calculator.add_expression("voltage_line", "Polyline1")
         assert name == name2
         assert not aedtapp.post.fields_calculator.expression_plot("voltage_line_invented", "Polyline1", [name])
@@ -376,3 +408,33 @@ class TestClass:
         assert main({"is_test": True, "file_path": file_path})
         assert len(aedtapp.modeler.object_list) == 3
         aedtapp.close_project()
+
+    def test_15_import_asc(self, local_scratch, add_app):
+        aedtapp = add_app("Circuit", application=ansys.aedt.core.Circuit)
+        file_path = os.path.join(local_path, "example_models", "T21", "butter.asc")
+        from ansys.aedt.core.workflows.circuit.import_schematic import main
+        assert main({"is_test": True, "asc_file": file_path})
+        aedtapp.close_project()
+
+    @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
+    def test_16_arbitrary_waveport(self, local_scratch):
+        from ansys.aedt.core.workflows.hfss3dlayout.generate_arbitrary_wave_ports import main
+        import tempfile
+
+        file_path = os.path.join(local_scratch.path, "waveport.aedb")
+
+        temp_dir = tempfile.TemporaryDirectory(suffix=".arbitrary_waveport_test")
+
+        local_scratch.copyfolder(os.path.join(solver_local_path, "example_models",
+                                              "T45",
+                                              "waveport.aedb"), file_path)
+
+        assert main({"is_test": True,
+                     "working_path": temp_dir.name,
+                     "source_path": file_path,
+                     "mounting_side": "top"
+                     })
+
+        assert os.path.isfile(os.path.join(temp_dir.name, "wave_port.a3dcomp"))
+
+        temp_dir.cleanup()

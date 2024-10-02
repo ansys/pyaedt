@@ -33,10 +33,10 @@ from ansys.aedt.core import Maxwell2d
 from ansys.aedt.core import Q2d
 from ansys.aedt.core import Q3d
 from ansys.aedt.core.generic.general_methods import is_linux
-from ansys.aedt.core.generic.pdf import AnsysReport
-from ansys.aedt.core.generic.plot import _parse_aedtplt
-from ansys.aedt.core.generic.plot import _parse_streamline
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.visualization.plot.pdf import AnsysReport
+from ansys.aedt.core.visualization.plot.pyvista import _parse_aedtplt
+from ansys.aedt.core.visualization.plot.pyvista import _parse_streamline
 import pandas as pd
 import pytest
 
@@ -152,7 +152,7 @@ class TestClass:
             plot_type="3D Polar Plot",
             context=context,
         )
-        assert field_test.post.create_report(
+        plot = field_test.post.create_report(
             "db(GainTotal)",
             field_test.nominal_adaptive,
             variations=variations,
@@ -161,6 +161,11 @@ class TestClass:
             report_category="Far Fields",
             plot_type="3D Polar Plot",
             context="3D",
+        )
+        assert plot
+        assert plot.export_config(os.path.join(self.local_scratch.path, f"{plot.plot_name}.json"))
+        assert field_test.post.create_report_from_configuration(
+            os.path.join(self.local_scratch.path, f"{plot.plot_name}.json"), solution_name=field_test.nominal_adaptive
         )
         report = AnsysReport()
         report.create()
@@ -194,6 +199,18 @@ class TestClass:
         )
         new_report4.report_type = "Data Table"
         assert new_report4.create()
+
+        local_path = os.path.dirname(os.path.realpath(__file__))
+        template = os.path.join(local_path, "example_models", test_subfolder, "template.rpt")
+        if not config["NonGraphical"]:
+            assert new_report4.apply_report_template(template)
+            template2 = os.path.join(local_path, "example_models", test_subfolder, "template_invented.rpt")
+            assert not new_report4.apply_report_template(template2)
+            template3 = os.path.join(local_path, "example_models", test_subfolder, "template.csv")
+            assert not new_report4.apply_report_template(template3)
+            assert not new_report4.apply_report_template(template3, property_type="Dummy")
+
+        assert field_test.post.create_report_from_configuration(template)
 
     def test_09_manipulate_report_C(self, field_test):
         variations = field_test.available_variations.nominal_w_values_dict
@@ -312,7 +329,13 @@ class TestClass:
         assert new_report.create()
         data1 = circuit_test.post.get_solution_data(["dB(S(Port1,Port1))", "dB(S(Port1,Port2))"], "LNA")
         assert data1.primary_sweep == "Freq"
-        assert circuit_test.post.create_report(["V(net_11)"], "Transient", "Time")
+        plot = circuit_test.post.create_report(["V(net_11)"], "Transient", "Time")
+        assert plot
+        assert plot.export_config(os.path.join(self.local_scratch.path, f"{plot.plot_name}.json"))
+        assert circuit_test.post.create_report_from_configuration(
+            os.path.join(self.local_scratch.path, f"{plot.plot_name}.json"), solution_name="Transient"
+        )
+
         data11 = circuit_test.post.get_solution_data(setup_sweep_name="LNA", math_formula="dB")
         assert data11.primary_sweep == "Freq"
         assert "dB(S(Port2,Port1))" in data11.expressions
@@ -336,6 +359,10 @@ class TestClass:
         assert new_report.create()
         new_report = circuit_test.post.reports_by_category.spectral(["dB(V(net_11))"])
         assert new_report.create()
+        assert plot.export_config(os.path.join(self.local_scratch.path, f"{new_report.plot_name}.json"))
+        assert circuit_test.post.create_report_from_configuration(
+            os.path.join(self.local_scratch.path, f"{new_report.plot_name}.json"), solution_name="Transient"
+        )
         new_report = circuit_test.post.reports_by_category.spectral(["dB(V(net_11))", "dB(V(Port1))"], "Transient")
         new_report.window = "Kaiser"
         new_report.adjust_coherent_gain = False

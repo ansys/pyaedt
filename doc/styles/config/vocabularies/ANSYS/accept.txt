@@ -8,6 +8,7 @@ airgap
 (?i)Ansys
 API
 autosave
+brd
 busbar
 busbars
 Bz
@@ -33,16 +34,19 @@ file_path
 getters
 globals
 [Gg]RPC
+HDM
 HFSS
 Huray
 Icepak
 IronPython
 [Ll]ayout
 limitilines
+LSF
 matplotlib
 Maxwell 2D
 Maxwell 3D
 Maxwell Circuit
+mcm
 [Mm]echanical
 multiphysics
 multiplot
@@ -56,6 +60,7 @@ numpydoc
 padstack
 padstacks
 parametrics
+PDF
 PMs
 [Pp]olyline
 polylines

@@ -29,9 +29,9 @@ import uuid
 from _unittest.conftest import config
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import read_json
-from ansys.aedt.core.generic.plot import _parse_aedtplt
-from ansys.aedt.core.generic.plot import _parse_streamline
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.visualization.plot.pyvista import _parse_aedtplt
+from ansys.aedt.core.visualization.plot.pyvista import _parse_streamline
 import pytest
 
 if config["desktopVersion"] > "2022.2":
@@ -297,7 +297,12 @@ class TestClass:
         assert not self.aedtapp.post.rename_report("invalid", "MyNewScattering")
 
     def test_09_manipulate_report(self):
-        assert self.aedtapp.post.create_report("dB(S(1,1))")
+        plot = self.aedtapp.post.create_report("dB(S(1,1))")
+        assert plot
+        assert plot.export_config(os.path.join(self.local_scratch.path, f"{plot.plot_name}.json"))
+        assert self.aedtapp.post.create_report_from_configuration(
+            os.path.join(self.local_scratch.path, f"{plot.plot_name}.json"), solution_name=self.aedtapp.nominal_sweep
+        )
         assert self.aedtapp.post.create_report(
             expressions="MaxMagDeltaS",
             variations={"Pass": ["All"]},
@@ -596,6 +601,95 @@ class TestClass:
             image_format="jpg",
         )
         assert os.path.exists(plot_obj.image_file)
+        assert plot_obj.range_min is None
+        assert plot_obj.range_max is None
+        plot_obj_1 = self.aedtapp.post.plot_field(
+            "Vector_E",
+            cutlist,
+            "CutPlane",
+            setup=setup_name,
+            intrinsics=intrinsic,
+            mesh_on_fields=False,
+            view="isometric",
+            show=False,
+            export_path=self.local_scratch.path,
+            image_format="jpg",
+            log_scale=False,
+        )
+        assert os.path.exists(plot_obj_1.image_file)
+        assert plot_obj_1.range_min is None
+        assert plot_obj_1.range_max is None
+        plot_obj_2 = self.aedtapp.post.plot_field(
+            "Vector_E",
+            cutlist,
+            "CutPlane",
+            setup=setup_name,
+            intrinsics=intrinsic,
+            mesh_on_fields=False,
+            view="isometric",
+            show=False,
+            export_path=self.local_scratch.path,
+            image_format="jpg",
+            log_scale=False,
+            scale_min=0,
+            scale_max=10e6,
+        )
+        assert os.path.exists(plot_obj_2.image_file)
+        assert plot_obj_2.range_min == 0
+        assert plot_obj_2.range_max == 10e6
+        plot_obj_3 = self.aedtapp.post.plot_field(
+            "Vector_E",
+            cutlist,
+            "CutPlane",
+            setup=setup_name,
+            intrinsics=intrinsic,
+            mesh_on_fields=False,
+            view="isometric",
+            show=False,
+            export_path=self.local_scratch.path,
+            image_format="jpg",
+            log_scale=True,
+            scale_min=0,
+            scale_max=10e6,
+        )
+        assert os.path.exists(plot_obj_3.image_file)
+        assert plot_obj_3.range_min is None
+        assert plot_obj_3.range_max is None
+        plot_obj_4 = self.aedtapp.post.plot_field(
+            "Vector_E",
+            cutlist,
+            "CutPlane",
+            setup=setup_name,
+            intrinsics=intrinsic,
+            mesh_on_fields=False,
+            view="isometric",
+            show=False,
+            export_path=self.local_scratch.path,
+            image_format="jpg",
+            log_scale=True,
+            scale_min=10e6,
+            scale_max=0,
+        )
+        assert os.path.exists(plot_obj_4.image_file)
+        assert plot_obj_4.range_min is None
+        assert plot_obj_4.range_max is None
+        plot_obj_5 = self.aedtapp.post.plot_field(
+            "Vector_E",
+            cutlist,
+            "CutPlane",
+            setup=setup_name,
+            intrinsics=intrinsic,
+            mesh_on_fields=False,
+            view="isometric",
+            show=False,
+            export_path=self.local_scratch.path,
+            image_format="jpg",
+            log_scale=False,
+            scale_min=0,
+        )
+        assert os.path.exists(plot_obj_5.image_file)
+        assert plot_obj_5.range_min is None
+        assert plot_obj_5.range_max is None
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_15_export_plot(self):

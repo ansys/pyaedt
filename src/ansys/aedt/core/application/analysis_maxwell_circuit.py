@@ -34,12 +34,12 @@ class AnalysisMaxwellCircuit(Analysis):
 
     Parameters
     ----------
-    projectname : str, optional
+    project : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open.  The default is ``None``, in which
         case an attempt is made to get an active project. If no
         projects are present, an empty project is created.
-    designname : str, optional
+    design : str, optional
         Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
@@ -47,7 +47,7 @@ class AnalysisMaxwellCircuit(Analysis):
         Version of AEDT to use. The default is ``None``. If ``None``,
         the active setup is used or the latest installed version is
         used.
-    NG : bool, optional
+    non_graphical : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default
         is ``False``, in which case AEDT is launched in the graphical mode.
     new_desktop : bool, optional
@@ -70,8 +70,8 @@ class AnalysisMaxwellCircuit(Analysis):
     def __init__(
         self,
         application,
-        projectname,
-        designname,
+        project,
+        design,
         version=None,
         non_graphical=False,
         new_desktop=False,
@@ -85,8 +85,8 @@ class AnalysisMaxwellCircuit(Analysis):
         Analysis.__init__(
             self,
             application,
-            projectname,
-            designname,
+            project,
+            design,
             None,
             None,
             version,

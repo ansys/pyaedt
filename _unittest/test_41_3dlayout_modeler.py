@@ -32,7 +32,7 @@ from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
-from ansys.aedt.core.generic.pdf import AnsysReport
+from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 import pytest
 
 test_subfolder = "T41"
@@ -369,6 +369,39 @@ class TestClass:
         setup2.props["AdvancedSettings"]["OrderBasis"] = 2
         setup2.props["PercentRefinementPerPass"] = 17
         assert setup2.update()
+        assert setup2.use_matrix_convergence(
+            entry_selection=0,
+            ignore_phase_when_mag_is_less_than=0.015,
+            all_diagonal_entries=True,
+            max_delta=0.03,
+            max_delta_phase=8,
+            custom_entries=None,
+        )
+        assert setup2.use_matrix_convergence(
+            entry_selection=1,
+            ignore_phase_when_mag_is_less_than=0.025,
+            all_diagonal_entries=True,
+            max_delta=0.023,
+            max_delta_phase=18,
+            custom_entries=None,
+            all_offdiagonal_entries=False,
+        )
+        assert setup2.use_matrix_convergence(
+            entry_selection=1,
+            ignore_phase_when_mag_is_less_than=0.025,
+            all_diagonal_entries=True,
+            max_delta=0.023,
+            max_delta_phase=18,
+            custom_entries=None,
+        )
+        assert setup2.use_matrix_convergence(
+            entry_selection=2,
+            ignore_phase_when_mag_is_less_than=0.01,
+            all_diagonal_entries=True,
+            max_delta=0.01,
+            max_delta_phase=8,
+            custom_entries=[["1", "2", 0.03, 4]],
+        )
 
     def test_16_disable_enable_setup(self):
         setup_name = "RFBoardSetup3"
@@ -874,3 +907,8 @@ class TestClass:
 
     def test_98_geom_check(self):
         assert self.aedtapp.modeler.geometry_check_and_fix_all()
+
+    def test_99_export_on_completion(self, add_app, local_scratch):
+        aedtapp = add_app(project_name="test_99", application=Hfss3dLayout)
+        assert aedtapp.export_touchstone_on_completion()
+        assert aedtapp.export_touchstone_on_completion(export=True, output_dir=self.local_scratch.path)

@@ -26,7 +26,6 @@ from __future__ import absolute_import
 
 import ast
 import codecs
-from collections import OrderedDict
 import csv
 import datetime
 import difflib
@@ -47,6 +46,7 @@ import traceback
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.constants import CSS4_COLORS
+from ansys.aedt.core.generic.settings import inner_project_settings  # noqa: F401
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.misc.misc import installed_versions
 
@@ -91,11 +91,11 @@ def _write_mes(mes_text):
 
 def _get_args_dicts(func, args, kwargs):
     if int(sys.version[0]) > 2:
-        args_name = list(OrderedDict.fromkeys(inspect.getfullargspec(func)[0] + list(kwargs.keys())))
-        args_dict = OrderedDict(list(itertools.zip_longest(args_name, args)) + list(kwargs.items()))
+        args_name = list(dict.fromkeys(inspect.getfullargspec(func)[0] + list(kwargs.keys())))
+        args_dict = dict(list(itertools.zip_longest(args_name, args)) + list(kwargs.items()))
     else:
-        args_name = list(OrderedDict.fromkeys(inspect.getargspec(func)[0] + list(kwargs.keys())))
-        args_dict = OrderedDict(list(itertools.izip(args_name, args)) + list(kwargs.iteritems()))
+        args_name = list(dict.fromkeys(inspect.getargspec(func)[0] + list(kwargs.keys())))
+        args_dict = dict(list(itertools.izip(args_name, args)) + list(kwargs.iteritems()))
     return args_dict
 
 
@@ -510,7 +510,7 @@ def read_json(fn):
 
 
 @pyaedt_function_handler()
-def read_toml(file_path):
+def read_toml(file_path):  # pragma: no cover
     """Read a TOML file and return as a dictionary.
 
     Parameters
@@ -523,7 +523,11 @@ def read_toml(file_path):
     dict
         Parsed TOML file as a dictionary.
     """
-    import pytomlpp as tomllib
+    current_version = sys.version_info[:2]
+    if current_version < (3, 12):
+        import pytomlpp as tomllib
+    else:
+        import tomllib
 
     with open_file(file_path, "rb") as fb:
         return tomllib.load(fb)
@@ -1319,7 +1323,11 @@ def number_aware_string_key(s):
 
 @pyaedt_function_handler()
 def _create_toml_file(input_dict, full_toml_path):
-    import pytomlpp as tomllib
+    current_version = sys.version_info[:2]
+    if current_version < (3, 12):
+        import pytomlpp as tomllib
+    else:
+        import tomllib
 
     if not os.path.exists(os.path.dirname(full_toml_path)):
         os.makedirs(os.path.dirname(full_toml_path))
@@ -1385,7 +1393,7 @@ def write_configuration_file(input_data, output_file):
     if ext == ".json":
         return _create_json_file(input_data, output_file)
     elif ext == ".toml":
-        return _create_toml_file(OrderedDict(input_data), output_file)
+        return _create_toml_file(input_data, output_file)
 
 
 # @pyaedt_function_handler()
@@ -1994,11 +2002,11 @@ class PropsManager(object):
             return True, dict_in, f[0]
         else:
             for v in list(dict_in.values()):
-                if isinstance(v, (dict, OrderedDict)):
+                if isinstance(v, dict):
                     out_val = self._recursive_search(v, key, matching_percentage)
                     if out_val:
                         return out_val
-                elif isinstance(v, list) and isinstance(v[0], (dict, OrderedDict)):
+                elif isinstance(v, list) and isinstance(v[0], dict):
                     for val in v:
                         out_val = self._recursive_search(val, key, matching_percentage)
                         if out_val:
@@ -2014,7 +2022,7 @@ class PropsManager(object):
             else:
                 name = k
             available_list.append(name)
-            if isinstance(v, (dict, OrderedDict)):
+            if isinstance(v, dict):
                 available_list.extend(self._recursive_list(v, name))
         return available_list
 
@@ -2072,7 +2080,7 @@ def _arg2dict(arg, dict_out):
             dict_out[arg[0][5:]] = list(arg[1:])
     elif arg[0][:5] == "NAME:":
         top_key = arg[0][5:]
-        dict_in = OrderedDict()
+        dict_in = {}
         i = 1
         while i < len(arg):
             if arg[i][0][:5] == "NAME:" and (

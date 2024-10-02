@@ -26,8 +26,6 @@
 
 from __future__ import absolute_import  # noreorder
 
-from collections import OrderedDict
-
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -246,27 +244,25 @@ class Mechanical(FieldAnalysis3D, object):
         else:
             intr = []
 
-        argparam = OrderedDict({})
+        argparam = {}
         for el in self.available_variations.nominal_w_values_dict:
             argparam[el] = self.available_variations.nominal_w_values_dict[el]
 
         for el in parameters:
             argparam[el] = el
 
-        props = OrderedDict(
-            {
-                "Objects": allObjects,
-                "allObjects": False,
-                "Project": projname,
-                "projname": "ElectronicsDesktop",
-                "Design": design,
-                "Soln": setup + " : " + sweep,
-                "Params": argparam,
-                "ForceSourceToSolve": True,
-                "PreservePartnerSoln": True,
-                "PathRelativeTo": "TargetProject",
-            }
-        )
+        props = {
+            "Objects": allObjects,
+            "allObjects": False,
+            "Project": projname,
+            "projname": "ElectronicsDesktop",
+            "Design": design,
+            "Soln": setup + " : " + sweep,
+            "Params": argparam,
+            "ForceSourceToSolve": True,
+            "PreservePartnerSoln": True,
+            "PathRelativeTo": "TargetProject",
+        }
         if intr:
             props["Intrinsics"] = intr
             props["SurfaceOnly"] = surfaces
@@ -345,27 +341,25 @@ class Mechanical(FieldAnalysis3D, object):
             allObjects = self.modeler.object_names
         else:
             allObjects = object_list[:]
-        argparam = OrderedDict({})
+        argparam = {}
         for el in self.available_variations.nominal_w_values_dict:
             argparam[el] = self.available_variations.nominal_w_values_dict[el]
 
         for el in parameters:
             argparam[el] = el
 
-        props = OrderedDict(
-            {
-                "Objects": allObjects,
-                "Uniform": False,
-                "Project": projname,
-                "Product": "ElectronicsDesktop",
-                "Design": design,
-                "Soln": setup + " : " + sweep,
-                "Params": argparam,
-                "ForceSourceToSolve": True,
-                "PreservePartnerSoln": True,
-                "PathRelativeTo": "TargetProject",
-            }
-        )
+        props = {
+            "Objects": allObjects,
+            "Uniform": False,
+            "Project": projname,
+            "Product": "ElectronicsDesktop",
+            "Design": design,
+            "Soln": setup + " : " + sweep,
+            "Params": argparam,
+            "ForceSourceToSolve": True,
+            "PreservePartnerSoln": True,
+            "PathRelativeTo": "TargetProject",
+        }
 
         name = generate_unique_name("ThermalLink")
         bound = BoundaryObject(self, name, props, "ThermalCondition")
@@ -680,6 +674,53 @@ class Mechanical(FieldAnalysis3D, object):
             self._boundaries[bound.name] = bound
             return bound
         return False
+
+    @pyaedt_function_handler()
+    def assign_2way_coupling(self, setup=None, number_of_iterations=2):
+        """Assign two-way coupling to a setup.
+
+        Parameters
+        ----------
+        setup : str, optional
+            Name of the setup. The default is ``None``, in which case the active setup is used.
+        number_of_iterations : int, optional
+            Number of iterations. The default is ``2``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AddTwoWayCoupling
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Mechanical
+        >>> mech = Mechanical()
+        >>> setup = mech.create_setup()
+        >>> mech.assign_2way_coupling(setup.name, 1)
+        >>> mech.release_desktop()
+
+        """
+        if not setup:
+            if self.setups:
+                setup = self.setups[0].name
+            else:
+                self.logger.error("Setup is not defined.")
+                return False
+
+        self.oanalysis.AddTwoWayCoupling(
+            setup,
+            [
+                "NAME:Options",
+                "NumCouplingIters:=",
+                number_of_iterations,
+            ],
+        )
+        return True
 
     @pyaedt_function_handler(setupname="name", setuptype="setup_type")
     def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):

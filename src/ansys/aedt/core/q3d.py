@@ -26,7 +26,6 @@
 
 from __future__ import absolute_import  # noreorder
 
-from collections import OrderedDict
 import os
 import re
 import warnings
@@ -726,7 +725,7 @@ class QExtractor(FieldAnalysis3D, object):
                     length_setting,
                     length,
                     matrix_type,
-                    export_ac_dc_res,
+                    0,
                     precision,
                     field_width,
                     use_sci_notation,
@@ -749,6 +748,7 @@ class QExtractor(FieldAnalysis3D, object):
                     g_unit,
                     freq,
                     matrix_type,
+                    0,
                     export_ac_dc_res,
                     precision,
                     field_width,
@@ -1316,6 +1316,7 @@ class Q3d(QExtractor, object):
         aedt_process_id=None,
         remove_lock=False,
     ):
+        self.is3d = True
         QExtractor.__init__(
             self,
             "Q3D Extractor",
@@ -1496,7 +1497,7 @@ class Q3d(QExtractor, object):
             objects = self.modeler.convert_to_selections(
                 [int(i) for i in list(self.oboundary.GetExcitationAssignment(net))], True
             )
-            props = OrderedDict({"Objects": objects})
+            props = dict({"Objects": objects})
             bound = BoundaryObject(self, net, props, "SignalNet")
             self._boundaries[bound.name] = bound
         if new_nets:
@@ -1543,7 +1544,7 @@ class Q3d(QExtractor, object):
         assignment = self.modeler.convert_to_selections(assignment, True)
         if not net_name:
             net_name = generate_unique_name("Net")
-        props = OrderedDict({"Objects": assignment})
+        props = dict({"Objects": assignment})
         type_bound = "SignalNet"
         if net_type.lower() == "ground":
             type_bound = "GroundNet"
@@ -1639,9 +1640,9 @@ class Q3d(QExtractor, object):
                 sheets.append(object_name)
 
         if is_face:
-            props = OrderedDict({"Faces": sheets})
+            props = dict({"Faces": sheets})
         else:
-            props = OrderedDict({"Objects": sheets})
+            props = dict({"Objects": sheets})
 
         if terminal_type == "current":
             terminal_str = "UniformCurrent"
@@ -1708,9 +1709,7 @@ class Q3d(QExtractor, object):
         if not net_name:
             net_name = assignment
         if a:
-            props = OrderedDict(
-                {"Faces": [a], "ParentBndID": assignment, "TerminalType": "ConstantVoltage", "Net": net_name}
-            )
+            props = dict({"Faces": [a], "ParentBndID": assignment, "TerminalType": "ConstantVoltage", "Net": net_name})
             bound = BoundaryObject(self, name, props, "Sink")
             if bound.create():
                 self._boundaries[bound.name] = bound
@@ -1758,9 +1757,9 @@ class Q3d(QExtractor, object):
             sink_name = generate_unique_name("Sink")
         assignment = self.modeler.convert_to_selections(assignment, True)[0]
         if isinstance(assignment, int):
-            props = OrderedDict({"Faces": [assignment]})
+            props = dict({"Faces": [assignment]})
         else:
-            props = OrderedDict({"Objects": [assignment]})
+            props = dict({"Objects": [assignment]})
         if object_name:
             props["ParentBndID"] = object_name
 
@@ -2063,13 +2062,153 @@ class Q3d(QExtractor, object):
             name = generate_unique_name("Thin_Cond")
         if isinstance(thickness, (float, int)):
             thickness = str(thickness) + self.modeler.model_units
-        props = OrderedDict({"Objects": new_ass, "Material": material, "Thickness": thickness})
+        props = dict({"Objects": new_ass, "Material": material, "Thickness": thickness})
 
         bound = BoundaryObject(self, name, props, "ThinConductor")
         if bound.create():
             self._boundaries[bound.name] = bound
             return bound
         return False  # pragma: no cover
+
+    @pyaedt_function_handler()
+    def get_mutual_coupling(
+        self, source1, sink1, source2, sink2, calculation="ACL", setup_sweep_name=None, variations=None
+    ):
+        """Get mutual coupling between two terminals.
+        User has to provide the pair, source and sink of each terminal. If the provided sinks are not part of the
+        original matrix, a new matrix will be created.
+
+        Parameters
+        ----------
+        source1 : str
+            First element source.
+        sink1 : str
+            First element sink.
+        source2 : str
+            Second element source.
+        sink2 : str
+            Second element sink.
+        calculation : str, optional
+            Calculation type.
+            Available options are: ``"ACL"``, ``"ACR"``, ``"DCL"``, ``"DCR"``.
+            The default is ``"ACL"``.
+        setup_sweep_name : str, optional
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
+        variations : dict, optional
+            Dictionary of all families including the primary sweep.
+            The default is ``None`` which uses all variations of the setup.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.solutions.SolutionData` or bool
+            Solution Data object if successful, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> from pyaedt import Q3d
+        >>> aedtapp = Q3d()
+        >>> data = aedtapp.modeler.get_mutual_coupling("a1", "a2", "b1", "b2", calculation="DCL")
+        """
+        if setup_sweep_name is None:
+            setup_sweep_name = self.nominal_sweep
+
+        if calculation not in ["ACL", "ACR", "DCL", "DCR"]:
+            self.logger.error("Calculation type not valid.")
+            return False
+
+        if not variations:
+            variations = self.available_variations.all
+
+        assignment = {}
+
+        for net in self.nets:
+            source_name = "source_1"
+            sources = self.net_sources(net)
+            sinks = self.net_sinks(net)
+            assignment[net] = {}
+
+            if source1 in sources or source1 in sinks:
+                assignment[net][source_name] = source1
+                source_name = "source_2"
+            if sink1 in sources or sink1 in sinks:
+                assignment[net]["sink"] = sink1
+            if source2 in sources or source2 in sinks:
+                assignment[net][source_name] = source2
+            if sink2 in sources or sink2 in sinks:
+                assignment[net]["sink"] = sink2
+
+        move_sink = []
+        is_new_matrix = True
+        matrix_name = "Original"
+
+        sources = []
+        sinks = []
+
+        expression = calculation + "("
+
+        for net_name, net_props in assignment.items():
+
+            expression += net_name
+
+            if "source_1" not in net_props or "sink" not in net_props:
+                self.logger.error("Sources and sinks passed not valid.")
+                return False
+
+            sources.append(self.net_sources(net_name))
+            sinks.append(self.net_sinks(net_name))
+
+            source = net_props["source_1"]
+            sink = net_props["sink"]
+
+            expression += ":"
+            expression += source
+            expression += ","
+
+            if "Sink" not in [self.excitation_objects[source].type, self.excitation_objects[sink].type]:
+                move_sink.append(sink)
+            elif self.excitation_objects[sink].type == "Source":
+                move_sink.append(sink)
+
+            if "source_2" in net_props:
+                # Both sources in the same net
+                source = net_props["source_2"]
+                expression += net_name
+                expression += ":"
+                expression += source
+                expression += ","
+                break
+        expression = expression[:-1]
+        expression += ")"
+
+        if move_sink:
+            sources = [item for sublist in sources for item in sublist]
+            sinks = [item for sublist in sinks for item in sublist]
+            all_terminals = sources + sinks
+            for q3d_matrix in self.matrices:
+                matrix_available_sources = self.omatrix.ListReduceMatrixReducedSources(q3d_matrix.name, False)
+                matrix_source_list = [element.split(":")[1] for element in matrix_available_sources]
+                matrix_sink_list = list(set(all_terminals).symmetric_difference(set(matrix_source_list)))
+                for initial_sink in sinks:
+                    if initial_sink in matrix_sink_list:
+                        matrix_sink_list.remove(initial_sink)
+                if sorted(matrix_sink_list) == sorted(move_sink):
+                    is_new_matrix = False
+                    matrix_name = q3d_matrix.name
+                    break
+        else:
+            is_new_matrix = False
+
+        if is_new_matrix:
+            matrix = self.insert_reduced_matrix("MoveSink", move_sink)
+            matrix_name = matrix.name
+
+        data = self.post.get_solution_data(
+            expressions=expression, context=matrix_name, variations=variations, setup_sweep_name=setup_sweep_name
+        )
+        return data
 
 
 class Q2d(QExtractor, object):
@@ -2181,6 +2320,7 @@ class Q2d(QExtractor, object):
         aedt_process_id=None,
         remove_lock=False,
     ):
+        self.is3d = False
         QExtractor.__init__(
             self,
             "2D Extractor",
@@ -2326,7 +2466,7 @@ class Q2d(QExtractor, object):
                 t_list.append(t_obj.faces[0].area / perimeter)
             thickness = sum(t_list) / len(t_list)
 
-        props = OrderedDict({"Objects": obj_names, "SolveOption": solve_option, "Thickness": str(thickness) + units})
+        props = dict({"Objects": obj_names, "SolveOption": solve_option, "Thickness": str(thickness) + units})
 
         bound = BoundaryObject(self, name, props, conductor_type)
         if bound.create():
@@ -2369,7 +2509,7 @@ class Q2d(QExtractor, object):
 
         a = self.modeler.convert_to_selections(assignment, True)
 
-        props = OrderedDict({"Edges": a, "UseCoating": False, "Radius": ra, "Ratio": str(ratio)})
+        props = dict({"Edges": a, "UseCoating": False, "Radius": ra, "Ratio": str(ratio)})
 
         bound = BoundaryObject(self, name, props, "Finite Conductivity")
         if bound.create():
@@ -2394,7 +2534,7 @@ class Q2d(QExtractor, object):
             objects = self.modeler.convert_to_selections(
                 [int(k) for k in list(self.oboundary.GetExcitationAssignment(new_nets[i]))], True
             )
-            props = OrderedDict({"Objects": objects})
+            props = dict({"Objects": objects})
             bound = BoundaryObject(self, new_nets[i], props, new_nets[i + 1])
             self._boundaries[bound.name] = bound
             i += 2

@@ -26,7 +26,6 @@
 
 from __future__ import absolute_import  # noreorder
 
-from collections import OrderedDict
 import io
 import os
 import re
@@ -42,6 +41,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import read_configuration_file
 from ansys.aedt.core.generic.general_methods import write_configuration_file
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modules.boundary import BoundaryObject
 from ansys.aedt.core.modules.boundary import MaxwellParameters
@@ -346,7 +346,7 @@ class Maxwell(object):
         elif self.solution_type in ["EddyCurrent", "Magnetostatic"]:
             if self.solution_type == "Magnetostatic":
                 if group_sources:
-                    if isinstance(group_sources, (dict, OrderedDict)):
+                    if isinstance(group_sources, dict):
                         new_group = group_sources.copy()
                         for element in new_group:
                             if not all(item in assignment for item in group_sources[element]):
@@ -403,15 +403,13 @@ class Maxwell(object):
                 return False
 
             if group_sources and self.solution_type in ["EddyCurrent", "Magnetostatic"]:
-                props = OrderedDict(
-                    {"MatrixEntry": OrderedDict({"MatrixEntry": []}), "MatrixGroup": OrderedDict({"MatrixGroup": []})}
-                )
+                props = dict({"MatrixEntry": dict({"MatrixEntry": []}), "MatrixGroup": dict({"MatrixGroup": []})})
             else:
-                props = OrderedDict({"MatrixEntry": OrderedDict({"MatrixEntry": []}), "MatrixGroup": []})
+                props = dict({"MatrixEntry": dict({"MatrixEntry": []}), "MatrixGroup": []})
 
             for element in range(len(assignment)):
                 if self.solution_type == "Magnetostatic" and self.design_type == "Maxwell 2D":
-                    prop = OrderedDict(
+                    prop = dict(
                         {
                             "Source": assignment[element],
                             "NumberOfTurns": turns[element],
@@ -419,9 +417,9 @@ class Maxwell(object):
                         }
                     )
                 elif self.solution_type == "EddyCurrent":
-                    prop = OrderedDict({"Source": assignment[element], "ReturnPath": return_path[element]})
+                    prop = dict({"Source": assignment[element], "ReturnPath": return_path[element]})
                 else:
-                    prop = OrderedDict({"Source": assignment[element], "NumberOfTurns": turns[element]})
+                    prop = dict({"Source": assignment[element], "NumberOfTurns": turns[element]})
                 props["MatrixEntry"]["MatrixEntry"].append(prop)
 
             if group_sources:
@@ -433,9 +431,7 @@ class Maxwell(object):
                     for element in group_sources:
                         source_list = ",".join(group_sources[element])
                         # GroundSources
-                        prop = OrderedDict(
-                            {"GroupName": element, "NumberOfBranches": branches[cont], "Sources": source_list}
-                        )
+                        prop = dict({"GroupName": element, "NumberOfBranches": branches[cont], "Sources": source_list})
                         props["MatrixGroup"]["MatrixGroup"].append(prop)
                         cont += 1
 
@@ -733,14 +729,14 @@ class Maxwell(object):
         assignment = self.modeler.convert_to_selections(assignment, True)
         if self.is3d:
             if type(assignment[0]) is int:
-                props = OrderedDict(
+                props = dict(
                     {
                         "Faces": assignment,
                         "Current": amplitude,
                     }
                 )
             else:
-                props = OrderedDict(
+                props = dict(
                     {
                         "Objects": assignment,
                         "Current": amplitude,
@@ -759,7 +755,7 @@ class Maxwell(object):
             props["Point out of terminal"] = swap_direction
         else:
             if type(assignment[0]) is str:
-                props = OrderedDict({"Objects": assignment, "Current": amplitude, "IsPositive": swap_direction})
+                props = dict({"Objects": assignment, "Current": amplitude, "IsPositive": swap_direction})
             else:
                 self.logger.warning("Input must be a 2D object.")
                 return False
@@ -844,7 +840,7 @@ class Maxwell(object):
         if not motion_name:
             motion_name = generate_unique_name("Motion")
         object_list = self.modeler.convert_to_selections(assignment, True)
-        props = OrderedDict(
+        props = dict(
             {
                 "Move Type": "Translate",
                 "Coordinate System": coordinate_system,
@@ -942,7 +938,7 @@ class Maxwell(object):
         names = list(self.omodelsetup.GetMotionSetupNames())
         motion_name = "MotionSetup" + str(len(names) + 1)
         object_list = self.modeler.convert_to_selections(assignment, True)
-        props = OrderedDict(
+        props = dict(
             {
                 "Move Type": "Rotate",
                 "Coordinate System": coordinate_system,
@@ -999,16 +995,16 @@ class Maxwell(object):
         assignment = self.modeler.convert_to_selections(assignment, True)
 
         if self.design_type == "Maxwell 2D":
-            props = OrderedDict({"Objects": assignment, "Value": amplitude})
+            props = dict({"Objects": assignment, "Value": amplitude})
         else:
             if len(assignment) == 1:
                 if isinstance(assignment[0], str) and assignment[0] in self.modeler.object_names:
-                    props = OrderedDict({"Objects": assignment, "Voltage": amplitude})
+                    props = dict({"Objects": assignment, "Voltage": amplitude})
                 else:
-                    props = OrderedDict({"Faces": assignment, "Value": amplitude})
+                    props = dict({"Faces": assignment, "Value": amplitude})
             else:
                 object_names_set = set(self.modeler.object_names)
-                props = OrderedDict({"Faces": [], "Objects": [], "Voltage": amplitude})
+                props = dict({"Faces": [], "Objects": [], "Voltage": amplitude})
                 for element in assignment:
                     if isinstance(element, str) and element in object_names_set:
                         props["Objects"].append(element)
@@ -1055,8 +1051,86 @@ class Maxwell(object):
             name = generate_unique_name("VoltageDrop")
         assignment = self.modeler.convert_to_selections(assignment, True)
 
-        props = OrderedDict({"Faces": assignment, "Voltage Drop": amplitude, "Point out of terminal": swap_direction})
+        props = dict({"Faces": assignment, "Voltage Drop": amplitude, "Point out of terminal": swap_direction})
         bound = BoundaryObject(self, name, props, "VoltageDrop")
+        if bound.create():
+            self._boundaries[bound.name] = bound
+            return bound
+        return False
+
+    @pyaedt_function_handler()
+    def assign_floating(self, assignment, charge_value=0, name=None):
+        """Assign floating excitation to model conductors at unknown potentials
+        and specify the total charge on the conductor.
+
+        Parameters
+        ----------
+        assignment : list of int, :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`,
+                    :class:`ansys.aedt.core.modeler.elements_3d.FacePrimitive` or str
+            List of objects or faces to assign the excitation to.
+        charge_value : int, float, optional
+            Charge value.
+            If not provided, The default is ``0``.
+        name : str, optional
+            Name of the excitation.
+            If not provided, a random name with prefix "Floating" will be generated.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+            Boundary object.
+            ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.AssignFloating
+
+        Examples
+        --------
+        Assign a floating excitation for a Maxwell 2d Electrostatic design
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(version="2024.2")
+        >>> m2d.solution_type = SOLUTIONS.Maxwell2d.ElectroStaticXY
+        >>> rect = self.aedtapp.modeler.create_rectangle([0, 0, 0], [3, 1], name="Rectangle1")
+        >>> floating = self.aedtapp.assign_floating(assignment=rect, charge_value=3, name="floating_test")
+        >>> m2d.release_desktop(True, True)
+
+        Assign a floating excitation for a Maxwell 3d Electrostatic design providing an object
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(version="2024.2")
+        >>> m3d.solution_type = SOLUTIONS.Maxwell3d.ElectroStatic
+        >>> box = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box1")
+        >>> floating = self.aedtapp.assign_floating(assignment=box, charge_value=3)
+        Assign a floating excitation providing a list of faces
+        >>> floating1 = self.aedtapp.assign_floating(assignment=[box.faces[0], box.faces[1]], charge_value=3)
+        >>> m3d.release_desktop(True, True)
+        """
+        if self.solution_type not in ["Electrostatic", "ElectricTransient"]:  # pragma : no cover
+            self.logger.error(
+                "Assign floating excitation is only valid for electrostatic or electric transient solvers."
+            )
+            return False
+
+        if not isinstance(assignment, list):
+            assignment = [assignment]
+
+        if isinstance(charge_value, (int, float)):
+            charge_value = str(charge_value)
+
+        if self.dim == "3D" and all([isinstance(a, FacePrimitive) for a in assignment]):
+            assignment_type = "Faces"
+        else:
+            assignment_type = "Objects"
+
+        assignment = self.modeler.convert_to_selections(assignment, True)
+
+        props = dict({assignment_type: assignment, "Value": charge_value})
+
+        if not name:
+            name = generate_unique_name("Floating")
+
+        bound = BoundaryObject(self, name, props, "Floating")
         if bound.create():
             self._boundaries[bound.name] = bound
             return bound
@@ -1119,7 +1193,7 @@ class Maxwell(object):
         if not name:
             name = generate_unique_name("Winding")
 
-        props = OrderedDict(
+        props = dict(
             {
                 "Type": winding_type,
                 "IsSolid": is_solid,
@@ -1215,12 +1289,12 @@ class Maxwell(object):
 
         if type(assignment[0]) is str:
             if self.modeler._is3d:
-                props2 = OrderedDict(
+                props2 = dict(
                     {"Objects": assignment, "Conductor number": str(conductors_number), "Point out of terminal": point}
                 )
                 bound = BoundaryObject(self, name, props2, "CoilTerminal")
             else:
-                props2 = OrderedDict(
+                props2 = dict(
                     {
                         "Objects": assignment,
                         "Conductor number": str(conductors_number),
@@ -1230,7 +1304,7 @@ class Maxwell(object):
                 bound = BoundaryObject(self, name, props2, "Coil")
         else:
             if self.modeler._is3d:
-                props2 = OrderedDict(
+                props2 = dict(
                     {"Faces": assignment, "Conductor number": str(conductors_number), "Point out of terminal": point}
                 )
                 bound = BoundaryObject(self, name, props2, "CoilTerminal")
@@ -1302,7 +1376,7 @@ class Maxwell(object):
             if not force_name:
                 force_name = generate_unique_name("Force")
             if self.design_type == "Maxwell 3D":
-                prop = OrderedDict(
+                prop = dict(
                     {
                         "Name": force_name,
                         "Reference CS": coordinate_system,
@@ -1311,7 +1385,7 @@ class Maxwell(object):
                     }
                 )
             else:
-                prop = OrderedDict(
+                prop = dict(
                     {
                         "Name": force_name,
                         "Reference CS": coordinate_system,
@@ -1372,7 +1446,7 @@ class Maxwell(object):
             if not torque_name:
                 torque_name = generate_unique_name("Torque")
             if self.design_type == "Maxwell 3D":
-                prop = OrderedDict(
+                prop = dict(
                     {
                         "Name": torque_name,
                         "Is Virtual": is_virtual,
@@ -1383,7 +1457,7 @@ class Maxwell(object):
                     }
                 )
             else:
-                prop = OrderedDict(
+                prop = dict(
                     {
                         "Name": torque_name,
                         "Coordinate System": coordinate_system,
@@ -1493,8 +1567,8 @@ class Maxwell(object):
         Parameters
         ----------
         assignment : list
-            List IDs or :class:`ansys.aedt.core.modeler.Object3d.EdgePrimitive` or
-            :class:`ansys.aedt.core.modeler.Object3d.FacePrimitive`.
+            List IDs or :class:`ansys.aedt.core.modeler.elements_3d.EdgePrimitive` or
+            :class:`ansys.aedt.core.modeler.elements_3d.FacePrimitive`.
         symmetry_name : str, optional
             Name of the symmetry.
         is_odd : bool, optional
@@ -1519,10 +1593,10 @@ class Maxwell(object):
             if assignment:
                 if self.design_type == "Maxwell 2D":
                     assignment = self.modeler.convert_to_selections(assignment, True)
-                    prop = OrderedDict({"Name": symmetry_name, "Edges": assignment, "IsOdd": is_odd})
+                    prop = dict({"Name": symmetry_name, "Edges": assignment, "IsOdd": is_odd})
                 else:
                     assignment = self.modeler.convert_to_selections(assignment, True)
-                    prop = OrderedDict({"Name": symmetry_name, "Faces": assignment, "IsOdd": is_odd})
+                    prop = dict({"Name": symmetry_name, "Faces": assignment, "IsOdd": is_odd})
             else:
                 msg = "At least one edge must be provided."
                 ValueError(msg)
@@ -1610,9 +1684,9 @@ class Maxwell(object):
                         current_density_group_names = []
                         for x in range(0, len(objects_list)):
                             current_density_group_names.append(current_density_name + "_{}".format(str(x + 1)))
-                        props = OrderedDict({})
+                        props = {}
                         props["items"] = current_density_group_names
-                        props[current_density_group_names[0]] = OrderedDict(
+                        props[current_density_group_names[0]] = dict(
                             {
                                 "Objects": objects_list,
                                 "Phase": phase,
@@ -1625,7 +1699,7 @@ class Maxwell(object):
                         )
                         bound = BoundaryObject(self, current_density_group_names[0], props, "CurrentDensityGroup")
                     else:
-                        props = OrderedDict(
+                        props = dict(
                             {
                                 "Objects": objects_list,
                                 "Phase": phase,
@@ -1642,9 +1716,9 @@ class Maxwell(object):
                         current_density_group_names = []
                         for x in range(0, len(objects_list)):
                             current_density_group_names.append(current_density_name + "_{}".format(str(x + 1)))
-                        props = OrderedDict({})
+                        props = {}
                         props["items"] = current_density_group_names
-                        props[current_density_group_names[0]] = OrderedDict(
+                        props[current_density_group_names[0]] = dict(
                             {
                                 "Objects": objects_list,
                                 "Phase": phase,
@@ -1654,7 +1728,7 @@ class Maxwell(object):
                         )
                         bound = BoundaryObject(self, current_density_group_names[0], props, "CurrentDensityGroup")
                     else:
-                        props = OrderedDict(
+                        props = dict(
                             {
                                 "Objects": objects_list,
                                 "Phase": phase,
@@ -2032,9 +2106,9 @@ class Maxwell(object):
             return False
         odesign = self.desktop_class.active_design(self.oproject, schematic_design_name)
         oeditor = odesign.SetActiveEditor("SchematicEditor")
-        if is_linux and settings.aedt_version == "2024.1":
+        if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
             time.sleep(1)
-            self.odesktop.CloseAllWindows()
+            self.desktop_class.close_windows()
         comps = oeditor.GetAllComponents()
         sources_array = []
         sources_type_array = []
@@ -2435,12 +2509,12 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                     current_density_group_names = []
                     for x in range(0, len(objects_list)):
                         current_density_group_names.append(current_density_name + "_{}".format(str(x + 1)))
-                    props = OrderedDict({})
+                    props = {}
                     props["items"] = current_density_group_names
-                    props[current_density_group_names[0]] = OrderedDict({"Objects": objects_list})
+                    props[current_density_group_names[0]] = dict({"Objects": objects_list})
                     bound = BoundaryObject(self, current_density_group_names[0], props, "CurrentDensityTerminalGroup")
                 else:
-                    props = OrderedDict({"Objects": objects_list})
+                    props = dict({"Objects": objects_list})
                     bound = BoundaryObject(self, current_density_name, props, "CurrentDensityTerminal")
 
                 if bound.create():
@@ -2587,21 +2661,21 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                 raise ValueError("Vector must contain 3 elements for x, y and z coordinates.")
             elif len(u_vector_pos_coordinates_slave) != 3:
                 raise ValueError("Vector must contain 3 elements for x, y and z coordinates.")
-            u_master_vector_coordinates = OrderedDict(
+            u_master_vector_coordinates = dict(
                 {
                     "Coordinate System": "Global",
                     "Origin": u_vector_origin_coordinates_master,
                     "UPos": u_vector_pos_coordinates_master,
                 }
             )
-            props2 = OrderedDict(
+            props2 = dict(
                 {"Faces": independent, "CoordSysVector": u_master_vector_coordinates, "ReverseV": reverse_master}
             )
             bound = BoundaryObject(self, bound_name_m, props2, "Independent")
             if bound.create():
                 self._boundaries[bound.name] = bound
 
-                u_slave_vector_coordinates = OrderedDict(
+                u_slave_vector_coordinates = dict(
                     {
                         "Coordinate System": "Global",
                         "Origin": u_vector_origin_coordinates_slave,
@@ -2609,7 +2683,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                     }
                 )
 
-                props2 = OrderedDict(
+                props2 = dict(
                     {
                         "Faces": dependent,
                         "CoordSysVector": u_slave_vector_coordinates,
@@ -2744,16 +2818,14 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             if include_no_layer:
                 layers = layers[:] + ["<no-layer>"]
             if nets_layers_props:
-                nets_layers_props.append(OrderedDict({key: OrderedDict({"LayerSet": layers})}))
+                nets_layers_props.append(dict({key: dict({"LayerSet": layers})}))
             else:
-                nets_layers_props = [OrderedDict({key: OrderedDict({"LayerSet": layers})})]
+                nets_layers_props = [dict({key: dict({"LayerSet": layers})})]
 
-        props = OrderedDict(
+        props = dict(
             {
                 "Reference CS": coordinate_system,
-                "NetsAndLayersChoices": OrderedDict(
-                    {component_name: OrderedDict({"NetLayerSetMap": nets_layers_props})}
-                ),
+                "NetsAndLayersChoices": dict({component_name: dict({"NetLayerSetMap": nets_layers_props})}),
             }
         )
         bound = MaxwellParameters(self, force_name, props, "LayoutForce")
@@ -2819,13 +2891,13 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         assignment = self.modeler.convert_to_selections(assignment, True)
         if not bound_name:
             bound_name = generate_unique_name("TangentialHField")
-        props = OrderedDict(
+        props = dict(
             {
                 "Faces": assignment,
             }
         )
         if isinstance(assignment[0], str):
-            props = OrderedDict(
+            props = dict(
                 {
                     "Objects": assignment,
                 }
@@ -2842,7 +2914,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             if not u_pos:
                 u_pos = self.oeditor.GetEdgePositionAtNormalizedParameter(edges[0], 1)
 
-        props["CoordSysVector"] = OrderedDict({"Coordinate System": coordinate_system, "Origin": origin, "UPos": u_pos})
+        props["CoordSysVector"] = dict({"Coordinate System": coordinate_system, "Origin": origin, "UPos": u_pos})
         props["ReverseV"] = reverse
         bound = BoundaryObject(self, bound_name, props, "Tangential H Field")
         if bound.create():
@@ -2878,7 +2950,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         assignment = self.modeler.convert_to_selections(assignment, True)
         if not boundary:
             boundary = generate_unique_name("ZeroTangentialHField")
-        props = OrderedDict(
+        props = dict(
             {
                 "Faces": assignment,
             }
@@ -3162,7 +3234,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         if not boundary:
             boundary = generate_unique_name("Balloon")
 
-        props2 = OrderedDict({"Edges": assignment})
+        props2 = dict({"Edges": assignment})
         bound = BoundaryObject(self, boundary, props2, "Balloon")
 
         if bound.create():
@@ -3212,9 +3284,9 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         if not boundary:
             boundary = generate_unique_name("Vector")
         if type(assignment[0]) is str:
-            props2 = OrderedDict({"Objects": assignment, "Value": str(vector_value), "CoordinateSystem": ""})
+            props2 = dict({"Objects": assignment, "Value": str(vector_value), "CoordinateSystem": ""})
         else:
-            props2 = OrderedDict({"Edges": assignment, "Value": str(vector_value), "CoordinateSystem": ""})
+            props2 = dict({"Edges": assignment, "Value": str(vector_value), "CoordinateSystem": ""})
         bound = BoundaryObject(self, boundary, props2, "Vector Potential")
 
         if bound.create():
@@ -3263,12 +3335,12 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         else:
             bound_name_m = boundary
             bound_name_s = boundary + "_dep"
-        props2 = OrderedDict({"Edges": independent, "ReverseV": reverse_master})
+        props2 = dict({"Edges": independent, "ReverseV": reverse_master})
         bound = BoundaryObject(self, bound_name_m, props2, "Independent")
         if bound.create():
             self._boundaries[bound.name] = bound
 
-            props2 = OrderedDict(
+            props2 = dict(
                 {
                     "Edges": dependent,
                     "ReverseU": reverse_slave,
@@ -3322,7 +3394,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         if not boundary:
             boundary = generate_unique_name("EndConnection")
 
-        props = OrderedDict(
+        props = dict(
             {
                 "Objects": assignment,
                 "ResistanceValue": self.modeler._arg_with_dim(resistance, "ohm"),

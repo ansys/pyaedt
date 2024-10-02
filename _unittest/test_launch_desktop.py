@@ -24,6 +24,7 @@
 
 from _unittest.conftest import config
 from ansys.aedt.core import Circuit
+from ansys.aedt.core import CircuitNetlist
 from ansys.aedt.core import Hfss
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import Icepak
@@ -97,3 +98,8 @@ class TestClass:
         aedtapp = Maxwell3d()
         assert aedtapp.design_type == "Maxwell 3D"
         assert aedtapp.solution_type == "Magnetostatic"
+
+    def test_run_desktop_circuit_netlist(self):
+        aedtapp = CircuitNetlist()
+        assert aedtapp.design_type == "Circuit Netlist"
+        assert aedtapp.solution_type == ""

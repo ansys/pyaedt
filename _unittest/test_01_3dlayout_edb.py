@@ -244,6 +244,9 @@ class TestClass:
         assert nets["GND"].name == "GND"
         assert len(nets) > 0
         assert len(nets["GND"].components) > 0
+        local_png1 = os.path.join(self.local_scratch.path, "test1.png")
+        nets["AVCC_1V3"].plot(save_plot=local_png1, show=False)
+        assert os.path.exists(local_png1)
 
     def test_07a_nets_count(self):
         nets = self.aedtapp.modeler.nets
@@ -377,11 +380,10 @@ class TestClass:
         solution_data = self.dcir_example_project.get_dcir_solution_data("SIwaveDCIR1", "Sources", "Voltage")
         assert self.dcir_example_project.post.available_report_quantities(is_siwave_dc=True, context="")
         assert self.dcir_example_project.post.create_report(
-            self.dcir_example_project.post.available_report_quantities(is_siwave_dc=True, context="RL")[0],
+            self.dcir_example_project.post.available_report_quantities(is_siwave_dc=True, context="Vias")[0],
             domain="DCIR",
             context="RL",
         )
-        assert isinstance(self.dcir_example_project.get_dcir_element_data_loop_resistance("SIwaveDCIR1"), pd.DataFrame)
         assert isinstance(self.dcir_example_project.get_dcir_element_data_current_source("SIwaveDCIR1"), pd.DataFrame)
 
     def test_20_change_options(self):
@@ -415,5 +417,6 @@ class TestClass:
         assert self.aedtapp.create_ports_on_component_by_nets(comp.name, nets)
         assert self.aedtapp.create_pec_on_component_by_nets(comp.name, "GND")
 
+    @pytest.mark.skipif(config["desktopVersion"] <= "2024.1", reason="Introduced in 2024R1")
     def test_24_open_ic_mode_design(self):
         assert self.ic_mode_design.ic_mode

@@ -68,6 +68,40 @@ class TestClass:
         setup1.disable()
         setup1.enable()
 
+        assert setup1.use_matrix_convergence(
+            entry_selection=0,
+            ignore_phase_when_mag_is_less_than=0.015,
+            all_diagonal_entries=True,
+            max_delta=0.03,
+            max_delta_phase=8,
+            custom_entries=None,
+        )
+        assert setup1.use_matrix_convergence(
+            entry_selection=1,
+            ignore_phase_when_mag_is_less_than=0.025,
+            all_diagonal_entries=True,
+            max_delta=0.023,
+            max_delta_phase=18,
+            custom_entries=None,
+            all_offdiagonal_entries=False,
+        )
+        assert setup1.use_matrix_convergence(
+            entry_selection=1,
+            ignore_phase_when_mag_is_less_than=0.025,
+            all_diagonal_entries=True,
+            max_delta=0.023,
+            max_delta_phase=18,
+            custom_entries=None,
+        )
+        assert setup1.use_matrix_convergence(
+            entry_selection=2,
+            ignore_phase_when_mag_is_less_than=0.01,
+            all_diagonal_entries=True,
+            max_delta=0.01,
+            max_delta_phase=8,
+            custom_entries=[["1", "2", 0.03, 4]],
+        )
+
     def test_01b_create_hfss_sweep(self):
         self.aedtapp.save_project()
         setup1 = self.aedtapp.get_setup("My_HFSS_Setup")
@@ -205,7 +239,7 @@ class TestClass:
         calculation = "db(S(1,1))"
         new_setup = self.aedtapp.create_setup("MyOptimSetup")
         new_setup.props["Frequency"] = "2.5GHz"
-        sweep = new_setup.create_linear_step_sweep(freqstart=2, freqstop=10, step_size=0.1)
+        sweep = new_setup.create_linear_step_sweep(start_frequency=2, stop_frequency=10, step_size=0.1)
         setup2 = self.aedtapp.optimizations.add(
             calculation, ranges={"Freq": "2.5GHz"}, solution="{} : {}".format(new_setup.name, sweep.name)
         )
@@ -247,7 +281,7 @@ class TestClass:
         calculation = "db(S(1,1))"
         new_setup = self.aedtapp.create_setup("MyDOESetup")
         new_setup.props["Frequency"] = "2.5GHz"
-        sweep = new_setup.create_linear_step_sweep(freqstart=2, freqstop=10, step_size=0.1)
+        sweep = new_setup.create_linear_step_sweep(start_frequency=2, stop_frequency=10, step_size=0.1)
         setup2 = self.aedtapp.optimizations.add(
             calculation,
             ranges={"Freq": "2.5GHz"},
@@ -273,7 +307,7 @@ class TestClass:
     def test_28A_create_optislang(self):
         new_setup = self.aedtapp.create_setup("MyOptisSetup")
         new_setup.props["Frequency"] = "2.5GHz"
-        sweep = new_setup.create_linear_step_sweep(freqstart=2, freqstop=10, step_size=0.1)
+        sweep = new_setup.create_linear_step_sweep(start_frequency=2, stop_frequency=10, step_size=0.1)
         setup1 = self.aedtapp.optimizations.add(
             calculation=None,
             ranges=None,
@@ -299,7 +333,7 @@ class TestClass:
     def test_28B_create_dx(self):
         new_setup = self.aedtapp.create_setup("MyDXSetup")
         new_setup.props["Frequency"] = "2.5GHz"
-        sweep = new_setup.create_linear_step_sweep(freqstart=2, freqstop=10, step_size=0.1)
+        sweep = new_setup.create_linear_step_sweep(start_frequency=2, stop_frequency=10, step_size=0.1)
         setup1 = self.aedtapp.optimizations.add(
             None,
             ranges=None,
@@ -325,7 +359,7 @@ class TestClass:
         calculation = "db(S(1,1))"
         new_setup = self.aedtapp.create_setup("MySensiSetup")
         new_setup.props["Frequency"] = "2.5GHz"
-        sweep = new_setup.create_linear_step_sweep(freqstart=2, freqstop=10, step_size=0.1)
+        sweep = new_setup.create_linear_step_sweep(start_frequency=2, stop_frequency=10, step_size=0.1)
         setup2 = self.aedtapp.optimizations.add(
             calculation,
             ranges={"Freq": "2.5GHz"},
@@ -342,7 +376,7 @@ class TestClass:
         calculation = "db(S(1,1))"
         new_setup = self.aedtapp.create_setup("MyStatisticsetup")
         new_setup.props["Frequency"] = "2.5GHz"
-        sweep = new_setup.create_linear_step_sweep(freqstart=2, freqstop=10, step_size=0.1)
+        sweep = new_setup.create_linear_step_sweep(start_frequency=2, stop_frequency=10, step_size=0.1)
         setup2 = self.aedtapp.optimizations.add(
             calculation,
             ranges={"Freq": "2.5GHz"},

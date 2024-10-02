@@ -31,6 +31,7 @@ have the app automatically initialize it to the latest installed AEDT version.
 
 from __future__ import absolute_import  # noreorder
 
+import atexit
 import datetime
 import gc
 import os
@@ -94,6 +95,8 @@ def launch_aedt(full_path, non_graphical, port, student_version, first_run=True)
             command.append("-ng")
         if settings.wait_for_license:
             command.append("-waitforlicense")
+        if settings.aedt_log_file:
+            command.extend(["-Logfile", settings.aedt_log_file])
         my_env = os.environ.copy()
         for env, val in settings.aedt_environment_variables.items():
             my_env[env] = val
@@ -174,6 +177,8 @@ def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
             command.append("-ng")
         if settings.wait_for_license:
             command.append("-waitforlicense")
+        if settings.aedt_log_file:
+            command.extend(["-Logfile", settings.aedt_log_file])
     else:  # pragma: no cover
         command = settings.custom_lsf_command.split(" ")
         command.append("-grpcsrv")
@@ -445,7 +450,7 @@ class Desktop(object):
     machine : str, optional
         Machine name to connect the oDesktop session to. This parameter works only in 2022 R2
         and later. The remote server must be up and running with the command
-        `"ansysedt.exe -grpcsrv portnum"`. If the machine is `"localhost"`, the server also
+        ``"ansysedt.exe -grpcsrv portnum"``. If the machine is `"localhost"`, the server also
         starts if not present.
     port : int, optional
         Port number on which to start the oDesktop communication on the already existing server.
@@ -474,6 +479,7 @@ class Desktop(object):
     PyAEDT INFO: Python version ...
     >>> hfss = ansys.aedt.core.Hfss(design="HFSSDesign1")
     PyAEDT INFO: No project is defined. Project...
+
     """
 
     # _sessions = {}
@@ -539,6 +545,8 @@ class Desktop(object):
         port=0,
         aedt_process_id=None,
     ):
+        # Used to track whether desktop release must be performed at exit or not.
+        self.__closed = False
         if _desktop_sessions and version is None:
             version = list(_desktop_sessions.values())[-1].aedt_version_id
         if aedt_process_id:  # pragma no cover
@@ -716,6 +724,9 @@ class Desktop(object):
         # save the current desktop session in the database
         _desktop_sessions[self.aedt_process_id] = self
 
+        # Register the desktop closure to be called at exit.
+        atexit.register(self.close_desktop)
+
     def __enter__(self):
         return self
 
@@ -725,6 +736,7 @@ class Desktop(object):
             err = self._exception(ex_value, ex_traceback)
         if self.close_on_exit or not is_ironpython:
             self.release_desktop(close_projects=self.close_on_exit, close_on_exit=self.close_on_exit)
+            self.__closed = True
 
     @pyaedt_function_handler()
     def __getitem__(self, project_design_name):
@@ -794,9 +806,9 @@ class Desktop(object):
             active_design = project_object.GetActiveDesign()
         else:
             active_design = project_object.SetActiveDesign(name)
-        if is_linux and settings.aedt_version == "2024.1" and design_type == "Circuit Design":
+        if is_linux and settings.aedt_version == "2024.1" and design_type == "Circuit Design":  # pragma: no cover
             time.sleep(1)
-            self.odesktop.CloseAllWindows()
+            self.close_windows()
         return active_design
 
     @pyaedt_function_handler()
@@ -819,9 +831,9 @@ class Desktop(object):
             active_project = self.odesktop.GetActiveProject()
         else:
             active_project = self.odesktop.SetActiveProject(name)
-        if is_linux and settings.aedt_version == "2024.1":
+        if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
             time.sleep(1)
-            self.odesktop.CloseAllWindows()
+            self.close_windows()
         return active_project
 
     @property
@@ -832,6 +844,23 @@ class Desktop(object):
             return installed_versions()[version_key]
         except Exception:  # pragma: no cover
             return installed_versions()[version_key + "CL"]
+
+    @pyaedt_function_handler()
+    def close_windows(self):
+        """Close all windows.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesktop.CloseAllWindows
+        """
+        self.odesktop.CloseAllWindows()
+        return True
 
     @property
     def current_version(self):
@@ -1636,6 +1665,7 @@ class Desktop(object):
             self.__dict__.pop(a, None)
 
         gc.collect()
+        self.__closed = True
         return result
 
     def close_desktop(self):
@@ -1655,6 +1685,9 @@ class Desktop(object):
         >>> desktop.close_desktop() # doctest: +SKIP
 
         """
+        if self.__closed is True:  # pragma: no cover
+            return
+
         return self.release_desktop(close_projects=True, close_on_exit=True)
 
     def enable_autosave(self):

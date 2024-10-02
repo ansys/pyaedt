@@ -22,12 +22,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from collections import OrderedDict
 from decimal import Decimal
 import math
 import random
 import re
 import string
+import unicodedata
 
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import read_json
@@ -85,12 +85,12 @@ def _tuple2dict(t, d):
         if k in d:
             if not isinstance(d[k], list):
                 d[k] = [d[k]]
-            d1 = OrderedDict()
+            d1 = {}
             for tt in v:
                 _tuple2dict(tt, d1)
             d[k].append(d1)
         else:
-            d[k] = OrderedDict()
+            d[k] = {}
             for tt in v:
                 _tuple2dict(tt, d[k])
     else:
@@ -134,13 +134,13 @@ def _dict2arg(d, arg_out):
             else:
                 arg_out.append(k + ":=")
                 arg_out.append([i for i in v])
-        elif isinstance(v, (OrderedDict, dict)):
+        elif isinstance(v, dict):
             arg = ["NAME:" + k]
             _dict2arg(v, arg)
             arg_out.append(arg)
         elif v is None:
             arg_out.append(["NAME:" + k])
-        elif isinstance(v, list) and len(v) > 0 and isinstance(v[0], (OrderedDict, dict)):
+        elif isinstance(v, list) and len(v) > 0 and isinstance(v[0], dict):
             for el in v:
                 arg = ["NAME:" + k]
                 _dict2arg(el, arg)
@@ -167,7 +167,7 @@ def _arg2dict(arg, dict_out):
             dict_out[arg[0][5:]] = list(arg[1:])
     elif arg[0][:5] == "NAME:":
         top_key = arg[0][5:]
-        dict_in = OrderedDict()
+        dict_in = {}
         i = 1
         while i < len(arg):
             if arg[i][0][:5] == "NAME:" and (
@@ -655,3 +655,42 @@ def float_units(val_str, units=""):
 
     val = val / unit_val[units]
     return val
+
+
+@pyaedt_function_handler()
+def normalize_string_format(text):
+
+    equivalence_table = {
+        "$": "S",
+        "€": "E",
+        "£": "L",
+        "@": "at",
+        "&": "and",
+    }
+
+    def _remove_accents(input_str):
+        # Normalize the input string to decompose accents and diacritics
+        nfkd_form = unicodedata.normalize("NFKD", input_str)
+        # Filter out diacritical marks (combining characters)
+        return "".join([c for c in nfkd_form if not unicodedata.combining(c)])
+
+    # Step 1: Remove accents and diacritics
+    text = _remove_accents(text)
+
+    # Step 2: Replace specific characters like " ", "-", " -", "- ", " - ", and multiple spaces with "_"
+    text = re.sub(r"[\s\-]+", "_", text)
+
+    # Step 3: Replace using the equivalence table
+    for a, b in equivalence_table.items():
+        text = text.replace(a, b)
+
+    # Step 4: Remove unsupported characters, keeping only letters, numbers, and underscores
+    text = re.sub(r"[^a-zA-Z0-9_]", "", text)
+
+    # Step 5: Replace multiple underscores with a single underscore
+    text = re.sub(r"_+", "_", text)
+
+    # Finally, remove leading or trailing underscores
+    text = text.strip("_")
+
+    return text

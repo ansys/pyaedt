@@ -31,7 +31,6 @@ calls to AEDT modules like the modeler, mesh, postprocessing, and setup.
 
 from __future__ import absolute_import  # noreorder
 
-from collections import OrderedDict
 import os
 import re
 import shutil
@@ -190,7 +189,17 @@ class Analysis(Design, object):
         """
         if not self._native_components:
             self._native_components = self._get_native_data()
-        return {nc.component_name: nc for nc in self._native_components}
+        return {nc.name: nc for nc in self._native_components}
+
+    @property
+    def native_component_names(self):
+        """Native component names.
+
+        Returns
+        -------
+        list
+        """
+        return self.modeler.user_defined_component_names
 
     @property
     def output_variables(self):
@@ -239,7 +248,7 @@ class Analysis(Design, object):
 
         """
         if not self._setups:
-            if self.design_type != "Maxwell Circuit":
+            if self.design_type not in ["Maxwell Circuit", "Circuit Netlist"]:
                 self._setups = [self.get_setup(setup_name) for setup_name in self.setup_names]
         return self._setups
 
@@ -427,7 +436,9 @@ class Analysis(Design, object):
 
         >>> oModule.GetSetups
         """
-        setups = self.oanalysis.GetSetups()
+        setups = []
+        if self.oanalysis and "GetSetups" in self.oanalysis.__dir__():
+            setups = self.oanalysis.GetSetups()
         if setups:
             return list(setups)
         return []
@@ -446,7 +457,10 @@ class Analysis(Design, object):
 
         >>> oModule.GetSetups
         """
-        return self.oanalysis.GetSetups()
+        setup_names = []
+        if self.oanalysis and "GetSetups" in self.oanalysis.__dir__():
+            setup_names = self.oanalysis.GetSetups()
+        return setup_names
 
     @property
     def SimulationSetupTypes(self):
@@ -1032,12 +1046,12 @@ class Analysis(Design, object):
             data_vals = self.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
                 "SubModelDefinitions"
             ]["NativeComponentDefinition"]
-            if not isinstance(data_vals, list) and isinstance(data_vals, (OrderedDict, dict)):
+            if not isinstance(data_vals, list) and isinstance(data_vals, dict):
                 data_vals = [data_vals]
             for ds in data_vals:
                 try:
                     component_name = "undefined"
-                    if isinstance(ds, (OrderedDict, dict)):
+                    if isinstance(ds, dict):
                         component_type = ds["NativeComponentDefinitionProvider"]["Type"]
                         component_name = ds["BasicComponentInfo"]["ComponentName"]
                         if component_type == "PCB":
@@ -1383,7 +1397,7 @@ class Analysis(Design, object):
             # Handle the situation when ports have not been defined.
 
             if not self.excitations and "MaxDeltaS" in setup.props:
-                new_dict = OrderedDict()
+                new_dict = {}
                 setup.auto_update = False
                 for k, v in setup.props.items():
                     if k == "MaxDeltaS":
@@ -1797,17 +1811,17 @@ class Analysis(Design, object):
         start = time.time()
         set_custom_dso = False
         active_config = self._desktop.GetRegistryString(r"Desktop/ActiveDSOConfigurations/" + self.design_type)
-        if acf_file:
+        if acf_file:  # pragma: no cover
             self._desktop.SetRegistryFromFile(acf_file)
-            name = ""
+            acf_name = ""
             with open_file(acf_file, "r") as f:
                 lines = f.readlines()
                 for line in lines:
                     if "ConfigName" in line:
-                        name = line.strip().split("=")[1]
+                        acf_name = line.strip().split("=")[1].strip("'")
                         break
-            if name:
-                success = self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, name)
+            if acf_name:
+                success = self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, acf_name)
                 if success:
                     set_custom_dso = True
         elif self.design_type not in ["RMxprtSolution", "ModelCreation"] and (gpus or tasks or cores):
@@ -1919,7 +1933,7 @@ class Analysis(Design, object):
         else:
             try:
                 self.logger.info("Solving Optimetrics")
-                self.ooptimetrics.solve_setup(name)
+                self.ooptimetrics.SolveSetup(name)
             except Exception:  # pragma: no cover
                 if set_custom_dso and active_config:
                     self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)

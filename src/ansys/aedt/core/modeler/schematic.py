@@ -553,9 +553,9 @@ class ModelerNexxim(ModelerCircuit):
         >>> oEditor.SetActiveUnits
         """
         active_units = self.layouteditor.GetActiveUnits()
-        if is_linux and settings.aedt_version == "2024.1":
+        if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
             time.sleep(1)
-            self._app.odesktop.CloseAllWindows()
+            self._app.desktop_class.close_windows()
         return active_units
 
     @property

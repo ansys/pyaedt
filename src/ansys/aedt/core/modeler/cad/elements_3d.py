@@ -24,8 +24,6 @@
 
 from __future__ import absolute_import
 
-from collections import OrderedDict
-
 from ansys.aedt.core.generic.general_methods import _dim_arg
 from ansys.aedt.core.generic.general_methods import clamp
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -68,13 +66,13 @@ def _dict2arg(d, arg_out):
             else:
                 arg_out.append(k + ":=")
                 arg_out.append([i for i in v])
-        elif isinstance(v, (OrderedDict, dict)):
+        elif isinstance(v, dict):
             arg = ["NAME:" + k]
             _dict2arg(v, arg)
             arg_out.append(arg)
         elif v is None:
             arg_out.append(["NAME:" + k])
-        elif isinstance(v, list) and len(v) > 0 and isinstance(v[0], (OrderedDict, dict)):
+        elif isinstance(v, list) and len(v) > 0 and isinstance(v[0], dict):
             for el in v:
                 arg = ["NAME:" + k]
                 _dict2arg(el, arg)
@@ -1365,23 +1363,23 @@ class Plane(object):
         return self._primitives._change_plane_property(vPropChange, self.name)
 
 
-class HistoryProps(OrderedDict):
+class HistoryProps(dict):
     """Manages an object's history properties."""
 
     def __setitem__(self, key, value):
-        OrderedDict.__setitem__(self, key, value)
+        dict.__setitem__(self, key, value)
         if self._pyaedt_child.auto_update:
             self._pyaedt_child.update_property(key, value)
 
     def __init__(self, child_object, props):
-        OrderedDict.__init__(self)
+        dict.__init__(self)
         if props:
             for key, value in props.items():
-                OrderedDict.__setitem__(self, key, value)
+                dict.__setitem__(self, key, value)
         self._pyaedt_child = child_object
 
     def _setitem_without_update(self, key, value):
-        OrderedDict.__setitem__(self, key, value)
+        dict.__setitem__(self, key, value)
 
 
 class BinaryTreeNode:
@@ -1426,13 +1424,43 @@ class BinaryTreeNode:
             del self.children[name]
         else:
             self.props = {}
-            for p in self.child_object.GetPropNames():
+            if settings.aedt_version >= "2024.2":
                 try:
-                    self.props[p] = self.child_object.GetPropValue(p)
+                    props = self._get_data_model()
+                    for p in self.child_object.GetPropNames():
+                        if p in props:
+                            self.props[p] = props[p]
+                        else:
+                            self.props[p] = None
                 except Exception:
-                    self.props[p] = None
+                    for p in self.child_object.GetPropNames():
+                        try:
+                            self.props[p] = self.child_object.GetPropValue(p)
+                        except Exception:
+                            self.props[p] = None
+            else:
+                for p in self.child_object.GetPropNames():
+                    try:
+                        self.props[p] = self.child_object.GetPropValue(p)
+                    except Exception:
+                        self.props[p] = None
             self.props = HistoryProps(self, self.props)
         self.command = self.props.get("Command", "")
+
+    def _get_data_model(self):
+        import ast
+
+        input_str = self.child_object.GetDataModel(-1, 1, 1).replace("false", "False").replace("true", "True")
+        props_list = ast.literal_eval(input_str)
+        props = {}
+        for prop in props_list["properties"]:
+            if "value" in prop:
+                props[prop["name"]] = prop["value"]
+            elif "values" in prop:
+                props[prop["name"]] = prop["values"]
+            else:
+                props[prop["name"]] = None
+        return props
 
     def update_property(self, prop_name, prop_value):
         """Update the property of the binary tree node.

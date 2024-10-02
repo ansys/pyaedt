@@ -7,6 +7,20 @@ This page describes the breaking changes expected in the upcoming major version 
 These changes include the deprecation of certain function argument names and the restructuring
 of the codebase.
 
+Python version deprecation
+--------------------------
+
+Please be advised that, with the release of version 1.0 of PyAEDT, support for Python versions
+3.8 and 3.9 is no longer provided. This decision has been made in order to align with the
+Python Scientific Community's best practices and for security reasons. It is important to note
+that many packages within the Scientific Python Community have dropped support for these Python
+versions a while ago. Therefore, dropping support for these versions is also a step towards
+maintaining compatibility, enhancing security and taking full advantage of these scientific
+packages.
+
+For further information on this topic, see
+`SPEC 0000 <https://scientific-python.org/specs/spec-0000>`_ .
+
 Deprecation of function argument names
 --------------------------------------
 
@@ -29,10 +43,10 @@ Restructuring of the codebase
 -----------------------------
 
 To facilitate the maintenance of PyAEDT and to adhere to PyAnsys' guidelines, the codebase
-is being restructured. The sources are to be moved from ``pyaedt`` to ``src.ansys.aedt``
+is being restructured. The sources are to be moved from ``pyaedt`` to ``ansys.aedt.core``
 to improve the organization and maintainability of the codebase.
 
-The changes to the structure follow:
+The changes follow the structure below:
 
 .. code-block:: text
 
@@ -49,8 +63,9 @@ The changes to the structure follow:
     src/
     └── ansys/
         └── aedt/
-            ├── application/
-            ├── ...
+            └── core/
+                ├── application/
+                ├── ...
 
 When migrating to major release `1.0`, please update any references or imports in your project
 accordingly. An example of migration is shown below:
@@ -65,7 +80,7 @@ accordingly. An example of migration is shown below:
 
 .. code-block:: python
 
-    from ansys.aedt import Circuit
+    from ansys.aedt.core import Circuit
 
 Python files renaming
 ---------------------
@@ -161,7 +176,7 @@ The following table list the name changes with the old and new paths:
 +----------------------------------------------------------------+--------------------------------------------------------------------------+
 | pyaedt\\modules\\OptimetricsTemplates.py                       | src\\ansys\\aedt\\core\\modules\\optimetrics_templates.py                |
 +----------------------------------------------------------------+--------------------------------------------------------------------------+
-| pyaedt\\modules\\PostProcessor.py                              | src\\ansys\\aedt\\core\\modules\\post_processor.py                       |
+| pyaedt\\modules\\PostProcessor.py                              | src\\ansys\\aedt\\core\\modules\\post_general.py                         |
 +----------------------------------------------------------------+--------------------------------------------------------------------------+
 | pyaedt\\modules\\SetupTemplates.py                             | src\\ansys\\aedt\\core\\modules\\setup_templates.py                      |
 +----------------------------------------------------------------+--------------------------------------------------------------------------+
@@ -175,8 +190,8 @@ Other changes in release 1.0
 
 In addition to the major changes described earlier, modifications are continuously performed to
 improve the quality of the project, its maintainability, its documentation, and
-to ensure users' need are met as efficiently as possible. This includes ensuring
-consistent argument names, improving data encapsulation, strengthening CI/CD, and extracting
-examples to a dedicated project.
+to ensure users' needs are met as efficiently as possible. This includes ensuring
+consistent argument names, improving data encapsulation, strengthening CI/CD, and migrate
+examples to a different repository.
 
 For more information on the status of the 1.0 release, see `PyAEDT Milestone <https://github.com/ansys/pyaedt/milestone/3>`_ .

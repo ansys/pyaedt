@@ -24,7 +24,6 @@
 
 from __future__ import absolute_import
 
-from collections import OrderedDict
 import os
 import re
 
@@ -488,7 +487,7 @@ class ComponentArray(object):
                 array_matrix_active.append(active_passive)
             elif element_data == start_str:
                 capture_data = True
-        res = OrderedDict()
+        res = {}
         res["component"] = components
         res["active"] = array_matrix_active
         res["rotation"] = array_matrix_rotation
@@ -713,7 +712,7 @@ class ComponentArray(object):
         for c in components_map:
             m = re.search(r"'(\d+)'=(\d+)", c)
             components[int(m.group(1))] = component_id[int(m.group(2))]
-        res = OrderedDict()
+        res = {}
         res["component"] = components
         res["active"] = props["ArrayDefinition"]["ArrayObject"]["Active"]["matrix"]
         res["rotation"] = props["ArrayDefinition"]["ArrayObject"]["Rotation"]["matrix"]
@@ -767,13 +766,12 @@ class CellArray(object):
         self.__row = row + 1
         self.__col = col + 1
         self.__array_obj = array_obj
-        self.__cell_props = OrderedDict(
-            {
-                "component": array_props["cells"][row][col],
-                "active": array_props["active"][row][col],
-                "rotation": array_props["rotation"][row][col],
-            }
-        )
+        self.__cell_props = {
+            "component": array_props["cells"][row][col],
+            "active": array_props["active"][row][col],
+            "rotation": array_props["rotation"][row][col],
+        }
+
         self.__rotation = self.__cell_props["rotation"]
         self.__is_active = self.__cell_props["active"]
 

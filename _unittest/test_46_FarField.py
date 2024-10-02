@@ -25,7 +25,7 @@
 import os
 import shutil
 
-from ansys.aedt.core.generic.farfield_visualization import FfdSolutionData
+from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
 
 # from _unittest.conftest import config
 from matplotlib.figure import Figure

@@ -36,6 +36,8 @@ PyAEDT app to get access to all modules and methods. Available apps are:
 - EMIT
 - Circuit
 - `TwinBuilder <https://www.ansys.com/products/digital-twin/ansys-twin-builder>`_
+- `FilterSolutions <https://www.ansys.com/products/electronics/ansys-nuhertz-filtersolutions>`_
+
 
 All other classes and methods are inherited into the app class.
 The desktop app is implicitly launched in any of the other applications.
@@ -88,7 +90,6 @@ Example with ``Desktop`` class implicit initialization:
    Boundaries
    Mesh
    Setup
-   Post
    Visualization
    DesktopMessenger
    Optimetrics

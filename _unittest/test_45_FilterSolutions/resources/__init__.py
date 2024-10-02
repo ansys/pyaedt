@@ -23,3 +23,4 @@
 # SOFTWARE.
 
 from .resources import read_resource_file
+from .resources import resource_path
