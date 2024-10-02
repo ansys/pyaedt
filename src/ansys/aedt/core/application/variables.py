@@ -990,7 +990,7 @@ class VariableManager(object):
             Text to display for the design property or project variable in the
             ``Properties`` window. The default is ``None``.
         sweep : bool, optional
-            Allows designate variables to include in solution indexing as a way to
+            Allows you to designate variables to include in solution indexing as a way to
             permit faster post-processing.
             Variables with the Sweep check box cleared are not used in solution indexing.
             The default is ``True``.
