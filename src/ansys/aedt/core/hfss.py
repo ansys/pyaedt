@@ -5887,10 +5887,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Whether to overwrite FFD files. The default is ``True``.
         link_to_hfss : bool, optional
             Whether to return an instance of the
-            :class:`ansys.aedt.core.generic.farfield_explorerf.FfdSolutionDataExporter` class,
+            :class:`ansys.aedt.core.visualization.advanced.farfield_exporter.FfdSolutionDataExporter` class,
             which requires a connection to an instance of the :class:`Hfss` class.
             The default is `` True``. If ``False``, returns an instance of
-            :class:`ansys.aedt.core.generic.farfield_explorer.FfdSolutionData` class, which is
+            :class:`ansys.aedt.core.visualization.advanced.farfield_visualization.FfdSolutionData` class, which is
             independent of the running HFSS instance.
         export_touchstone : bool, optional
             Whether to export touchstone file. The default is ``False``.
@@ -5899,7 +5899,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.generic.farfield_visualization.FfdSolutionDataExporter`
+        :class:`ansys.aedt.core.visualization.advanced.farfield_exporter.FfdSolutionDataExporter`
             SolutionData object.
 
         Examples
@@ -5970,6 +5970,102 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             return ffd
         elif metadata_file:
             return FfdSolutionData(input_file=metadata_file)
+        else:  # pragma: no cover
+            self.logger.error("Farfield solution data could not be exported.")
+            return False
+
+    @pyaedt_function_handler()
+    def get_rcs_data(
+        self,
+        frequencies=None,
+        setup=None,
+        expression="ComplexMonostaticRCSTheta",
+        variations=None,
+        overwrite=True,
+        link_to_hfss=True,
+        variation_name=None,
+    ):
+        """Export the radar cross-section data and return an
+        instance of the ``RcsSolutionDataExporter`` object.
+
+        Parameters
+        ----------
+        frequencies : float, list, optional
+            Frequency value or list of frequencies to compute the data. The default is ``None,`` in which case
+            all available frequencies are computed.
+        setup : str, optional
+            Name of the setup to use. The default is ``None,`` in which case ``nominal_adaptive`` is used.
+        expression : str, optional
+            Monostatic expression name. The default value is ``"ComplexMonostaticRCSTheta"``.
+        variations : dict, optional
+            Variation dictionary. The default is ``None``, in which case the nominal variation is exported.
+        overwrite : bool, optional
+            Whether to overwrite metadata files. The default is ``True``.
+        link_to_hfss : bool, optional
+            Whether to return an instance of the
+            :class:`ansys.aedt.core.visualization.post.rcs_exporter.MonostaticRCSExporter` class,
+            which requires a connection to an instance of the :class:`Hfss` class.
+            The default is `` True``. If ``False``, returns an instance of
+            :class:`ansys.aedt.core.visualization.advanced.rcs_visualization.MonostaticRCSData` class, which is
+            independent of the running HFSS instance.
+        variation_name : str, optional
+            Variation name. The default is ``None``, in which case the nominal variation is added.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.post.rcs_exporter.MonostaticRCSExporter`
+            SolutionData object.
+
+        Examples
+        --------
+        The method :func:`get_antenna_data` is used to export the farfield of each element of the design.
+
+        Open a design and create the objects.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> ffdata = hfss.get_rcs_data()
+        >>> ffdata.farfield_data.plot_cut(primary_sweep="theta",theta=0,is_polar=False)
+        """
+        from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
+        from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
+
+        if not variations:
+            variations = self.available_variations.nominal_w_values_dict_w_dependent
+        if not setup:
+            setup = self.nominal_adaptive
+
+        if setup in self.existing_analysis_sweeps and not frequencies:
+            rcs_data = self.__app.post.get_solution_data(
+                expressions=expression,
+                variations=variations,
+                setup_sweep_name=setup,
+                report_category="Monostatic RCS",
+            )
+            if rcs_data and getattr(rcs_data, "primary_sweep_values", None) is not None:
+                frequencies = rcs_data.primary_sweep_values
+                frequency_units = self.odesktop.GetDefaultUnit("Frequency")
+                frequencies = [str(freq) + frequency_units for freq in frequencies]
+
+        if not frequencies:  # pragma: no cover
+            self.logger.info("Frequencies could not be obtained.")
+            return False
+
+        rcs = MonostaticRCSExporter(
+            self,
+            setup_name=setup,
+            frequencies=frequencies,
+            expression=expression,
+            variations=variations,
+            overwrite=overwrite,
+        )
+
+        metadata = rcs.export_rcs()
+
+        if link_to_hfss:
+            return rcs
+        elif metadata:
+            return MonostaticRCSData(input_file=metadata)
         else:  # pragma: no cover
             self.logger.error("Farfield solution data could not be exported.")
             return False
