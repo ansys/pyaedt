@@ -34,6 +34,6 @@ class TestClass:
                                  file_path)
 
         edbapp = ansys.aedt.core.Edb(file_path, edbversion="2024.2")
-        for i in edbapp.padstack_defs:
-            i.GetData().GetLayerNames()
+        for i in list(edbapp._db.PadstackDefs):
+            print(i.GetData().GetLayerNames())
         edbapp.close()
