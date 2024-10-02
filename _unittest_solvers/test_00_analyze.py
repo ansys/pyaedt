@@ -349,6 +349,7 @@ class TestClass:
     def test_04b_3dl_analyze_setup(self):
         assert self.hfss3dl_solve.export_touchstone_on_completion(export=False)
         assert self.hfss3dl_solve.export_touchstone_on_completion(export=True)
+        assert self.hfss3dl_solve.set_export_touchstone()
         assert self.hfss3dl_solve.analyze_setup("Setup1", cores=4, blocking=False)
         assert self.hfss3dl_solve.are_there_simulations_running
         assert self.hfss3dl_solve.stop_simulations()
@@ -377,8 +378,10 @@ class TestClass:
         assert len(files) > 0
 
     def test_04f_3dl_set_export_touchstone(self):
-        assert self.hfss3dl_solve.set_export_touchstone(True)
-        assert self.hfss3dl_solve.set_export_touchstone(False)
+        assert self.hfss3dl_solve.export_touchstone_on_completion(True)
+        assert self.hfss3dl_solve.export_touchstone_on_completion(False)
+        if config["desktopVersion"] > "2024.2":
+            assert self.hfss3dl_solve.set_export_touchstone()
 
     def test_04g_3dl_get_all_sparameter_list(self):
         assert self.hfss3dl_solve.get_all_sparameter_list == ["S(Port1,Port1)", "S(Port1,Port2)", "S(Port2,Port2)"]

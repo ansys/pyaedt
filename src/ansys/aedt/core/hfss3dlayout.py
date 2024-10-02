@@ -187,6 +187,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             remove_lock=remove_lock,
         )
         ScatteringMethods.__init__(self, self)
+        self.onetwork_data_explorer = self.odesktop.GetTool("NdExplorer")
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
@@ -893,16 +894,16 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             traces, sweep_name, variations=variations, report_category=solution_data, plot_name=plot
         )
 
-    @pyaedt_function_handler(export_dir="output_dir")
-    def set_export_touchstone(self, activate, output_dir=""):
-        """Export the Touchstone file automatically if the simulation is successful.
+    @pyaedt_function_handler(activate="export", export_dir="output_dir")
+    def export_touchstone_on_completion(self, export=True, output_dir=""):
+        """Enable or disable the automatic export of the touchstone file after completing frequency sweep.
 
         Parameters
         ----------
-        activate : bool
-            Whether to export the Touchstone file after the simulation.
-        export_dir str, optional
-            Path to export the Touchstone file to. The default is ``""``.
+        export : bool, optional
+            Whether to export the Touchstone file after the simulation. The default is ``True``.
+        output_dir : str, optional
+            Path to the directory of exported file. The default is the project path.
 
         Returns
         -------
@@ -914,18 +915,148 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         >>> oDesign.DesignOptions
         """
-        settings = []
-        if activate:
-            settings.append("NAME:options")
-            settings.append("ExportAfterSolve:=")
-            settings.append(True)
-            settings.append("ExportDir:=")
-            settings.append(output_dir)
-        elif not activate:
-            settings.append("NAME:options")
-            settings.append("ExportAfterSolve:=")
-            settings.append(False)
-        self.odesign.DesignOptions(settings, 0)
+        touchstone_settings = []
+        if export:
+            touchstone_settings.append("NAME:options")
+            touchstone_settings.append("ExportAfterSolve:=")
+            touchstone_settings.append(True)
+            touchstone_settings.append("ExportDir:=")
+            touchstone_settings.append(output_dir)
+        elif not export:
+            touchstone_settings.append("NAME:options")
+            touchstone_settings.append("ExportAfterSolve:=")
+            touchstone_settings.append(False)
+        self.odesign.DesignOptions(touchstone_settings, 0)
+        return True
+
+    @pyaedt_function_handler()
+    def set_export_touchstone(
+        self,
+        file_format="TouchStone1.0",
+        enforce_passivity=True,
+        enforce_causality=False,
+        use_common_ground=True,
+        show_gamma_comments=True,
+        renormalize=False,
+        impedance=50.0,
+        fitting_error=0.5,
+        maximum_poles=1000,
+        passivity_type="PassivityByPerturbation",
+        column_fitting_type="Matrix",
+        state_space_fitting="IterativeRational",
+        relative_error_tolerance=True,
+        ensure_accurate_fit=False,
+        touchstone_output="MA",
+        units="GHz",
+        precision=11,
+    ):  # pragma: no cover
+        """Set or disable the automatic export of the touchstone file after completing frequency sweep.
+
+        Parameters
+        ----------
+        file_format : str, optional
+            Touchstone format. Available options are: ``"TouchStone1.0"``, and ``"TouchStone2.0"``.
+            The default is ``"TouchStone1.0"``.
+        enforce_passivity : bool, optional
+            Enforce passivity. The default is ``True``.
+        enforce_causality : bool, optional
+            Enforce causality. The default is ``False``.
+        use_common_ground : bool, optional
+            Use common ground. The default is ``True``.
+        show_gamma_comments : bool, optional
+            Show gamma comments. The default is ``True``.
+        renormalize : bool, optional
+            Renormalize. The default is ``False``.
+        impedance : float, optional
+            Impedance in ohms. The default is ``50.0``.
+        fitting_error : float, optional
+            Fitting error. The default is ``0.5``.
+        maximum_poles : int, optional
+            Maximum number of poles. The default is ``10000``.
+        passivity_type : str, optional
+            Passivity type. Available options are: ``"PassivityByPerturbation"``, ``"IteratedFittingOfPV"``,
+            ``"IteratedFittingOfPVLF"``, and ``"ConvexOptimization"``.
+        column_fitting_type : str, optional
+            Column fitting type. Available options are: ``"Matrix"``, `"Column"``, and `"Entry"``.
+        state_space_fitting : str, optional
+            State space fitting algorithm. Available options are: ``"IterativeRational"``, `"TWA"``, and `"FastFit"``.
+        relative_error_tolerance : bool, optional
+            Relative error tolerance. The default is ``True``.
+        ensure_accurate_fit : bool, optional
+            Ensure accurate impedance fit. The default is ``False``.
+        touchstone_output : str, optional
+            Touchstone output format. Available options are: ``"MA"`` for magnitude and phase in ``deg``,
+            ``"RI"`` for real and imaginary part, and ``"DB"`` for magnitude in ``dB`` and phase in ``deg``.
+        units : str, optional
+            Frequency units. The default is ``"GHz"``.
+        precision : int, optional
+            Touchstone precision. The default is ``11``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oTool.SetExportTouchstoneOptions
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dlayout
+        >>> layout = Hfss3dlayout()
+        >>> layout.export_touchstone_on_completion()
+        >>> layout.export_touchstone_on_completion()
+
+
+        """
+        if settings.aedt_version < "2025.1":
+            self.logger.warning("Working from 2025 R1.")
+            return False
+        preferences = "Planar EM\\"
+        design_name = self.design_name
+
+        props = [
+            "NAME:SpiceData",
+            "SpiceType:=",
+            file_format,
+            "EnforcePassivity:=",
+            enforce_passivity,
+            "EnforceCausality:=",
+            enforce_causality,
+            "UseCommonGround:=",
+            use_common_ground,
+            "ShowGammaComments:=",
+            show_gamma_comments,
+            "Renormalize:=",
+            renormalize,
+            "RenormImpedance:=",
+            impedance,
+            "FittingError:=",
+            fitting_error,
+            "MaxPoles:=",
+            maximum_poles,
+            "PassivityType:=",
+            passivity_type,
+            "ColumnFittingType:=",
+            column_fitting_type,
+            "SSFittingType:=",
+            state_space_fitting,
+            "RelativeErrorToleranc:=",
+            relative_error_tolerance,
+            "EnsureAccurateZfit:=",
+            ensure_accurate_fit,
+            "TouchstoneFormat:=",
+            touchstone_output,
+            "TouchstoneUnits:=",
+            units,
+            "TouchStonePrecision:=",
+            precision,
+            "SubcircuitName:=",
+            "",
+        ]
+
+        self.onetwork_data_explorer.SetExportTouchstoneOptions(preferences, design_name, props)
         return True
 
     @pyaedt_function_handler()

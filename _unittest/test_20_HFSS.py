@@ -984,8 +984,8 @@ class TestClass:
         assert props
 
     def test_35_set_export_touchstone(self):
-        assert self.aedtapp.set_export_touchstone(True)
-        assert self.aedtapp.set_export_touchstone(False)
+        assert self.aedtapp.export_touchstone_on_completion(True)
+        assert self.aedtapp.export_touchstone_on_completion(False)
 
     def test_36_assign_radiation_to_objects(self):
         self.aedtapp.modeler.create_box([-100, -100, -100], [200, 200, 200], name="Rad_box")
@@ -1717,4 +1717,4 @@ class TestClass:
         aedtapp = add_app(project_name="test_70")
         assert aedtapp.export_touchstone_on_completion()
         assert aedtapp.export_touchstone_on_completion(export=True, output_dir=self.local_scratch.path)
-        assert aedtapp.set_export_touchstone()
+        assert aedtapp.export_touchstone_on_completion()
