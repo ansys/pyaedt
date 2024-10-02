@@ -85,10 +85,22 @@ class FieldsCalculator:
 
     def __init__(self, app):
         self.expression_catalog = read_configuration_file(
-            os.path.join(ansys.aedt.core.__path__[0], "misc", "expression_catalog.toml")
+            os.path.join(
+                ansys.aedt.core.__path__[0],
+                "visualization",
+                "post",
+                "fields_calculator_files",
+                "expression_catalog.toml",
+            )
         )
         self.expression_schema = read_configuration_file(
-            os.path.join(ansys.aedt.core.__path__[0], "misc", "fields_calculator.schema.json")
+            os.path.join(
+                ansys.aedt.core.__path__[0],
+                "visualization",
+                "post",
+                "fields_calculator_files",
+                "fields_calculator.schema.json",
+            )
         )
         self.__app = app
         self.design_type = app.design_type
