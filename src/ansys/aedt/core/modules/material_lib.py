@@ -854,11 +854,15 @@ class Materials(object):
                     self.logger.warning("Material %s already exists. Renaming to %s", el, newname)
                 else:
                     newname = el
-                newmat = Material(self, newname, val, material_update=False)
-                newmat.update()
-                newmat._material_update = True
-                self.material_keys[newname] = newmat
-                materials_added.append(newmat)
+                try:
+                    newmat = Material(self, newname, val, material_update=False)
+                    newmat.update()
+                    newmat._material_update = True
+                    self.material_keys[newname] = newmat
+                    materials_added.append(newmat)
+                except KeyError as e:
+                    self.logger.error(f"Failed to import material {el!r} from {input_file!r}: key error on {e}")
+                    raise e
         else:
             for mat_name in data:
                 invalid_names = ["$base_index$", "$index$"]
