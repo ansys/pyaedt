@@ -117,6 +117,9 @@ def environment_variables(oDesktop):
             "{}/common/mono/Linux64/lib64".format(edt_root),
             "{}".format(edt_root),
         ]
+        if version < "2023.2":
+            ld_library_path_dirs_to_add.append("{}/Delcross".format(edt_root))
+
         os.environ["LD_LIBRARY_PATH"] = ":".join(ld_library_path_dirs_to_add) + ":" + os.getenv("LD_LIBRARY_PATH", "")
         if version > "2023.1":
             os.environ["TCL_LIBRARY"] = os.path.join(
