@@ -3447,7 +3447,7 @@ class Design(AedtObjects):
         >>> oProject.InsertDesign
         """
         self._close_edb()
-        self._init_design(
+        return self._init_design(
             project_name=self.project_name if self.project_name else generate_unique_name("Project"),
             design_name=name,
             solution_type=solution_type if solution_type else self.solution_type,
