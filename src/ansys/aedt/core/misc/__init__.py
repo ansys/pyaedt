@@ -25,4 +25,5 @@
 from ansys.aedt.core.misc.misc import current_student_version
 from ansys.aedt.core.misc.misc import current_version
 from ansys.aedt.core.misc.misc import installed_versions
+from ansys.aedt.core.misc.misc import is_safe_path
 from ansys.aedt.core.misc.misc import list_installed_ansysem

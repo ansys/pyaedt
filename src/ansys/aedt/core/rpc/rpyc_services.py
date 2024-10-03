@@ -14,7 +14,7 @@ from ansys.aedt.core.generic.general_methods import env_path
 from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core import is_windows
-from ansys.aedt.core.misc.misc import is_safe_path
+from ansys.aedt.core.misc import is_safe_path
 
 if is_linux and is_ironpython:
     import subprocessdotnet as subprocess  # nosec
