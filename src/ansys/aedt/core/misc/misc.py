@@ -27,7 +27,7 @@
 import os
 import warnings
 
-# import src.ansys.aedt.core.generic.constants
+from ansys.aedt.core.generic.constants import CURRENT_STABLE_AEDT_VERSION
 
 
 def list_installed_ansysem():
@@ -50,7 +50,7 @@ def list_installed_ansysem():
 def installed_versions():
     """Get the installed AEDT versions.
 
-    This method returns a dictionary, with version as the key and installation path
+    This method returns a dictionary, with the version as the key and installation path
     as the value."""
 
     return_dict = {}
@@ -92,17 +92,19 @@ def installed_versions():
 def current_version():
     """Get the current stable AEDT version."""
     try:
-        stable_versions = [v for v in installed_versions() if v]
-        return list(installed_versions().keys())[0]
-    except (NameError, IndexError):
+        stable_versions = [v for v in installed_versions() if float(v[:6]) <= CURRENT_STABLE_AEDT_VERSION]
+        return stable_versions[0]
+    except (NameError, IndexError, ValueError):
         return ""
 
 
 def current_student_version():
-    """Get the current AEDT student version."""
-    for version_key in installed_versions():
-        if "SV" in version_key:
-            return version_key
+    """Get the current stable AEDT student version."""
+    stable_student_versions = [
+        v for v in installed_versions() if float(v[:6]) <= CURRENT_STABLE_AEDT_VERSION and "SV" in v
+    ]
+    if stable_student_versions:
+        return stable_student_versions[0]
     return ""
 
 

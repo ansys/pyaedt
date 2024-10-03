@@ -28,7 +28,7 @@ from enum import unique
 import math
 import warnings
 
-CURRENT_STABLE_AEDT_VERSION = "2024.2"
+CURRENT_STABLE_AEDT_VERSION = 2024.2
 
 RAD2DEG = 180.0 / math.pi
 DEG2RAD = math.pi / 180
