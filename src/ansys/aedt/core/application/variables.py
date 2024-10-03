@@ -1386,10 +1386,10 @@ class VariableManager(object):
         ]:
             # To retrieve local variables
             try:
-                design_vars = list(self._app.get_oo_object(self._app.odesign, "LocalVariables").GetPropNames())
+                v = list(self._app.get_oo_object(self._app.odesign, "LocalVariables").GetPropNames())
             except AttributeError:
-                design_vars = []
-            var_list += design_vars
+                v = []
+            var_list += v
         if self._app._is_object_oriented_enabled() and self._app.design_type in [
             "Circuit Design",
             "Twin Builder",
@@ -1397,10 +1397,10 @@ class VariableManager(object):
         ]:
             # To retrieve Parameter Default Variables
             try:
-                design_vars = list(self._app.get_oo_object(self._app.odesign, "DefinitionParameters").GetPropNames())
+                v = list(self._app.get_oo_object(self._app.odesign, "DefinitionParameters").GetPropNames())
             except AttributeError:
-                design_vars = []
-            var_list += design_vars
+                v = []
+            var_list += v
 
         if "GetVariables" in desktop_object.__dir__():
             var_list += [i for i in list(desktop_object.GetVariables()) if i not in var_list]
