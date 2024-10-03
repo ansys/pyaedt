@@ -16,11 +16,9 @@ import os
 
 # PyAEDT Packages
 import ansys.aedt.core
-from ansys.aedt.core import Icepak
-from ansys.aedt.core import Desktop
 from ansys.aedt.core import Hfss3dLayout
-from ansys.aedt.core.modules.boundary import BoundaryObject
-
+from ansys.aedt.core import settings
+settings.enable_debug_grpc_api_logger = True
 ##########################################################
 # Set AEDT version
 # ~~~~~~~~~~~~~~~~

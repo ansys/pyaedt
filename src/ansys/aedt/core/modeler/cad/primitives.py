@@ -261,6 +261,7 @@ class GeometryModeler(Modeler):
         self._points = []
         self._unclassified = []
         self._all_object_names = []
+        self._model_units = None
         self._object_names_to_ids = {}
         self.objects = Objects(self, "o")
         self.user_defined_components = Objects(self, "u")
@@ -429,12 +430,15 @@ class GeometryModeler(Modeler):
         >>> oEditor.GetModelUnits
         >>> oEditor.SetModelUnits
         """
-        return self.oeditor.GetModelUnits()
+        if not self._model_units:
+            self._model_units = self.oeditor.GetModelUnits()
+        return self._model_units
 
     @model_units.setter
     def model_units(self, units):
         assert units in AEDT_UNITS["Length"], "Invalid units string {0}.".format(units)
         self.oeditor.SetModelUnits(["NAME:Units Parameter", "Units:=", units, "Rescale:=", False])
+        self._model_units = units
 
     @property
     def selections(self):
