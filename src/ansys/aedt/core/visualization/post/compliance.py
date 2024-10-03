@@ -929,7 +929,6 @@ class VirtualCompliance:
                         test_value = limit_v["ypoints"][yy]
                         range_value, x_value, result_value = self._check_test_value(result_range, ypoints, hatch_above)
                         units = limit_v.get("yunits", "")
-                        xunits = limit_v.get("xunits", "")
                         mystr = f"Zone  {zones}"
                         font_table.append([None, [255, 0, 0]] if result_value == "FAIL" else ["", None])
                         pass_fail_table.append(

@@ -86,7 +86,7 @@ class TestClass(object):
         for plot in aedtapp.post.plots[::]:
             try:
                 plot.export_config(f"{compliance_folder}\\report_{plot.plot_name}.json")
-            except:
+            except Exception:
                 print(f"Failed to generate {plot.plot_name}")
 
         vc.add_report_from_folder(f"{compliance_folder}", design_name="Circuit1", group_plots=True,
