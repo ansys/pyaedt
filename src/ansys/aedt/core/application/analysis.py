@@ -1177,8 +1177,9 @@ class Analysis(Design, object):
             """Nominal."""
             families = []
             for el in self.variables:
-                families.append(el + ":=")
-                families.append(["Nominal"])
+                if el in list(self.nominal_w_values_dict.keys()):
+                    families.append(el + ":=")
+                    families.append(["Nominal"])
             return families
 
         @property
@@ -1200,8 +1201,9 @@ class Analysis(Design, object):
             """
             families = []
             for k, v in list(self._app.variable_manager.independent_variables.items()):
-                families.append(k + ":=")
-                families.append([v.expression])
+                if v.sweep:
+                    families.append(k + ":=")
+                    families.append([v.expression])
             return families
 
         @property
@@ -1223,7 +1225,8 @@ class Analysis(Design, object):
             """
             families = {}
             for k, v in list(self._app.variable_manager.independent_variables.items()):
-                families[k] = v.expression
+                if v.sweep:
+                    families[k] = v.expression
 
             return families
 

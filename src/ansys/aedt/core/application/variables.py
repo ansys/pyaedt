@@ -1387,11 +1387,6 @@ class VariableManager(object):
             # To retrieve local variables
             try:
                 design_vars = list(self._app.get_oo_object(self._app.odesign, "LocalVariables").GetPropNames())
-                design_vars = [
-                    v
-                    for v in design_vars
-                    if self._app.odesign.GetChildObject("Variables/{}".format(v)).GetPropValue("Sweep")
-                ]
             except AttributeError:
                 design_vars = []
             var_list += design_vars
