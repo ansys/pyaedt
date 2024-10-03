@@ -1248,7 +1248,8 @@ class Analysis(Design, object):
             >>> oDesign.GetNominalVariation"""
             families = {}
             for k, v in list(self._app.variable_manager.variables.items()):
-                families[k] = v.expression
+                if v.sweep:
+                    families[k] = v.expression
 
             return families
 
