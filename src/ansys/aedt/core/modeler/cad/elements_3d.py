@@ -1426,6 +1426,12 @@ class BinaryTreeNode:
 
     @property
     def props(self):
+        """Properties data.
+
+        Returns
+        -------
+        :class:``ansys.aedt.coree.modeler.cad.elements_3d.HistoryProps``
+        """
         if self._props is None:
             self._props = {}
             if settings.aedt_version >= "2024.2":
@@ -1453,6 +1459,12 @@ class BinaryTreeNode:
 
     @property
     def command(self):
+        """Command of the modeler hystory if available.
+
+        Returns
+        -------
+        str
+        """
         return self.props.get("Command", "")
 
     def _get_data_model(self):
