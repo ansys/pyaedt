@@ -46,8 +46,7 @@ enabling straightforward and efficient automation in your workflow.
         It describes how the methods work and the parameters that can be used.
 
     .. grid-item-card:: Examples :fa:`scroll`
-        :link: examples/index
-        :link-type: doc
+        :link: https://examples.aedt.docs.pyansys.com/
 
         Explore examples that show how to use PyAEDT to perform different types of simulations.
 
@@ -59,6 +58,7 @@ enabling straightforward and efficient automation in your workflow.
 
         Learn how to contribute to the PyAEDT codebase or documentation.
 
+
 .. toctree::
     :hidden:
 
@@ -66,4 +66,3 @@ enabling straightforward and efficient automation in your workflow.
     Getting_started/index
     User_guide/index
     API/index
-    examples/index
