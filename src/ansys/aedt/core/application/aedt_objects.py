@@ -335,7 +335,7 @@ class AedtObjects(object):
 
         Returns
         -------
-        :attr:`ansys.aedt.core.modules.post_processor.PostProcessor.ofieldsreporter`
+        :attr:`ansys.aedt.core.modules.post_general.PostProcessor.ofieldsreporter`
 
         References
         ----------
@@ -362,7 +362,7 @@ class AedtObjects(object):
 
         Returns
         -------
-        :attr:`ansys.aedt.core.modules.post_processor.PostProcessor.oreportsetup`
+        :attr:`ansys.aedt.core.modules.post_general.PostProcessor.oreportsetup`
 
         References
         ----------

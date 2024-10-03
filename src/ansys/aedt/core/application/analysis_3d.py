@@ -184,20 +184,14 @@ class FieldAnalysis3D(Analysis, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.advanced_post_processing.PostProcessor`
+        :class:`ansys.aedt.core.visualization.post.post_common_3d.PostProcessor3D` or
+        :class:`ansys.aedt.core.visualization.post.post_icepak.PostProcessorIcepak`
             PostProcessor object.
         """
         if self._post is None and self._odesign:
-            self.logger.reset_timer()
-            if is_ironpython:  # pragma: no cover
-                from ansys.aedt.core.modules.post_processor import PostProcessor
-            elif self.design_type == "Icepak":
-                from ansys.aedt.core.modules.advanced_post_processing import IcepakPostProcessor as PostProcessor
-            else:
-                from ansys.aedt.core.modules.advanced_post_processing import PostProcessor
-            self._post = PostProcessor(self)
-            self.logger.info_timer("Post class has been initialized!")
+            from ansys.aedt.core.visualization.post import post_processor
 
+            self._post = post_processor(self)
         return self._post
 
     @property
@@ -497,9 +491,11 @@ class FieldAnalysis3D(Analysis, object):
                     or original_design_type == dest_design_type
                 ):
                     new_udc_list.append(udc)
-                for part_id in design.modeler.user_defined_components[udc].parts:
-                    if design.modeler.user_defined_components[udc].parts[part_id].name in body_list:
-                        body_list.remove(design.modeler.user_defined_components[udc].parts[part_id].name)
+                parts = design.modeler.user_defined_components[udc].parts
+                for part_id in parts:
+                    part_name = parts[part_id].name
+                    if part_name in body_list:
+                        body_list.remove(part_name)
 
         selection_list = []
         udc_selection = []
@@ -1093,7 +1089,7 @@ class FieldAnalysis3D(Analysis, object):
         """
         if password is None:
             password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
-        native_comp_names = [nc.component_name for _, nc in self.native_components.items()]
+        native_comp_names = [nc.definition_name for nc in self.native_components.values()]
         if not components:
             components = [
                 key
@@ -1109,6 +1105,7 @@ class FieldAnalysis3D(Analysis, object):
 
         for cmp in components:
             comp = self.modeler.user_defined_components[cmp]
+            # TODO: Call edit_definition only once
             target_cs = self.modeler._create_reference_cs_from_3dcomp(comp, password=password)
             app = comp.edit_definition(password=password)
             for var, val in comp.parameters.items():
@@ -1118,7 +1115,8 @@ class FieldAnalysis3D(Analysis, object):
             monitor_cache = {}
             if self.design_type == "Icepak":
                 objs_monitors = [part.name for _, part in comp.parts.items()]
-                for mon_name, mon_obj in self.monitor.all_monitors.items():
+                all_monitors = self.monitor.all_monitors.items()
+                for _, mon_obj in all_monitors:
                     obj_name = mon_obj.properties["Geometry Assignment"]
                     if obj_name in objs_monitors:
                         monitor_cache.update({mon_obj.name: mon_obj.properties})
@@ -1155,7 +1153,7 @@ class FieldAnalysis3D(Analysis, object):
                             m_type, m_obj, dict_in["monitor"][monitor_obj]["Quantity"], monitor_obj
                         ):  # pragma: no cover
                             return False
-            app.oproject.Close()
+            app.close_project()
 
         if not self.design_type == "Icepak":
             self.mesh._refresh_mesh_operations()
@@ -1262,7 +1260,7 @@ class FieldAnalysis3D(Analysis, object):
             List of layers in the DXF file.
         """
         layer_names = []
-        with open_file(file_path) as f:
+        with open_file(file_path, encoding="utf8") as f:
             lines = f.readlines()
             indices = self._find_indices(lines, "AcDbLayerTableRecord\n")
             for idx in indices:

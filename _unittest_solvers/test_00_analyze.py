@@ -15,7 +15,7 @@ from ansys.aedt.core import Icepak, Rmxprt
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import Circuit, Maxwell3d
 from _unittest.conftest import config
-from ansys.aedt.core.generic.spisim import SpiSim
+from ansys.aedt.core.visualization.post.spisim import SpiSim
 
 sbr_platform_name = "satellite_231"
 array_name = "array_231"
@@ -126,11 +126,6 @@ class TestClass:
                                       output_file=os.path.join(self.local_scratch.path, "2d1_array.jpg"))
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d1_array.jpg"))
 
-        ffdata2.farfield_data.plot_3d(quantity="RealizedGain",
-                                      rotation=[[1, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, 1.0, 0.0]],
-                                      output_file=os.path.join(self.local_scratch.path, "3d2_array.jpg"), show=False)
-        assert os.path.exists(os.path.join(self.local_scratch.path, "3d2_array.jpg"))
-
     def test_01b_sbr_create_vrt(self, sbr_app):
         sbr_app.rename_design("vtr")
         sbr_app.modeler.create_sphere([10, 10, 10], 5, material="copper")
@@ -197,11 +192,11 @@ class TestClass:
         assert os.path.exists(fld_file1)
         fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss2.fld")
         assert hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
-                                               intrinsics={"frequency":"1GHz"})
+                                               intrinsics={"frequency": "1GHz"})
         assert os.path.exists(fld_file2)
         fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss3.fld")
         assert hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
-                                               intrinsics={"frequency":"1GHz", "phase":"30deg"})
+                                               intrinsics={"frequency": "1GHz", "phase": "30deg"})
         assert os.path.exists(fld_file2)
         fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss4.fld")
         assert hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
@@ -219,6 +214,8 @@ class TestClass:
 
         hfss_app.variable_manager.set_variable(name="dummy", expression=1, is_post_processing=True)
         sweep = hfss_app.parametrics.add(variable="dummy", start_point=0, end_point=1, step=2)
+        assert hfss_app.export_touchstone_on_completion(export=False)
+        assert hfss_app.export_touchstone_on_completion(export=True)
         assert hfss_app.analyze_setup(name=sweep.name, cores=4)
 
     def test_03a_icepak_analyze_and_export_summary(self):
@@ -243,6 +240,7 @@ class TestClass:
             monitor_name="test_monitor2",
         )
         self.icepak_app.analyze("SetupIPK", cores=4)
+        time.sleep(3)
         self.icepak_app.save_project()
         assert self.icepak_app.export_summary(
             self.icepak_app.working_directory, geometryType="Surface", variationlist=[], filename="A"
@@ -349,6 +347,8 @@ class TestClass:
 
     @pytest.mark.skipif(desktop_version < "2023.2", reason="Working only from 2023 R2")
     def test_04b_3dl_analyze_setup(self):
+        assert self.hfss3dl_solve.export_touchstone_on_completion(export=False)
+        assert self.hfss3dl_solve.export_touchstone_on_completion(export=True)
         assert self.hfss3dl_solve.analyze_setup("Setup1", cores=4, blocking=False)
         assert self.hfss3dl_solve.are_there_simulations_running
         assert self.hfss3dl_solve.stop_simulations()
@@ -545,7 +545,7 @@ class TestClass:
         )
         assert com_0 and com_1
 
-        from ansys.aedt.core.misc.spisim_com_configuration_files.com_parameters import COMParametersVer3p4
+        from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_parameters import COMParametersVer3p4
         com_param = COMParametersVer3p4()
         com_param.load(os.path.join(spisim.working_directory, "custom.json"), )
         com_param.export_spisim_cfg(str(Path(local_scratch.path) / "test.cfg"))

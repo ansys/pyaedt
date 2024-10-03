@@ -33,7 +33,7 @@ import pytest
 
 small_number = 1e-10  # Used for checking equivalence.
 
-from ansys.aedt.core.generic.near_field_import import convert_nearfield_data
+from ansys.aedt.core.visualization.advanced.misc import convert_nearfield_data
 
 test_subfolder = "T20"
 
@@ -127,11 +127,11 @@ class TestClass:
         )
         args = {
             "mat": "aluminum",
-            "usethickness": True,
+            "use_thickness": True,
             "thickness": "0.5mm",
-            "istwoside": True,
-            "issheelElement": True,  # TODO: Is "sheelElement" a typo in native API?
-            "usehuray": True,
+            "is_two_side": True,
+            "is_shell_element": True,  # TODO: Is "sheelElement" a typo in native API?
+            "use_huray": True,
             "radius": "0.75um",
             "ratio": "3",
         }
@@ -1432,7 +1432,7 @@ class TestClass:
         assert self.aedtapp.modeler.import_nastran(example_project2, decimation=0.1, preview=True, save_only_stl=True)
         assert self.aedtapp.modeler.import_nastran(example_project2, decimation=0.5)
         example_project = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "sphere.stl")
-        from ansys.aedt.core.modules.solutions import simplify_stl
+        from ansys.aedt.core.visualization.advanced.misc import simplify_stl
 
         out = simplify_stl(example_project, decimation=0.8)
         assert os.path.exists(out)
@@ -1703,3 +1703,9 @@ class TestClass:
         assert new_plane_wave.name in aedtapp.excitations
 
         aedtapp.close_project(save=False)
+
+    def test_70_export_on_completion(self, add_app, local_scratch):
+        aedtapp = add_app(project_name="test_70")
+        assert aedtapp.export_touchstone_on_completion()
+        assert aedtapp.export_touchstone_on_completion(export=True, output_dir=self.local_scratch.path)
+        assert aedtapp.set_export_touchstone()

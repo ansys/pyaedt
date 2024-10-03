@@ -112,7 +112,7 @@ This code creates the previous PDF report:
 
 .. code:: python
 
-    from ansys.aedt.core.generic.pdf import AnsysReport
+    from ansys.aedt.core.visualization.plot.pdf import AnsysReport
     import os
     report = AnsysReport()
     report.aedt_version = "2024R2"

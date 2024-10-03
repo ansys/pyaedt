@@ -35,6 +35,7 @@ file_path
 getters
 globals
 [Gg]RPC
+HDM
 HFSS
 Huray
 Icepak
@@ -60,6 +61,7 @@ numpydoc
 padstack
 padstacks
 parametrics
+PDF
 PMs
 [Pp]olyline
 polylines

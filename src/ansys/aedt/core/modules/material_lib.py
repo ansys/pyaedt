@@ -47,6 +47,7 @@ from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.material import MatProperties
 from ansys.aedt.core.modules.material import Material
 from ansys.aedt.core.modules.material import SurfaceMaterial
+from ansys.aedt.core.modules.material_workbench import MaterialWorkbench
 
 
 class Materials(object):
@@ -169,10 +170,14 @@ class Materials(object):
         def get_mat_list(file_name):
             mats = []
             _begin_search = re.compile(r"^\$begin '(.+)'")
-            with open_file(file_name, "r") as aedt_fh:
+            with open_file(file_name, "rb") as aedt_fh:
                 raw_lines = aedt_fh.read().splitlines()
                 for line in raw_lines:
-                    b = _begin_search.search(line)
+                    try:
+                        ascii_line = line.decode("utf-8")
+                    except UnicodeDecodeError:
+                        continue
+                    b = _begin_search.search(ascii_line)
                     if b:  # walk down a level
                         mats.append(b.group(1))
             return mats
@@ -331,7 +336,6 @@ class Materials(object):
         >>> oMaterialManager.GetData
 
         """
-        name = name
         self.logger.info("Adding new material to the Project Library: " + name)
         if name.lower() in self.material_keys:
             self.logger.warning("Warning. The material is already in the database. Change or edit the name.")
@@ -339,10 +343,11 @@ class Materials(object):
         elif self._get_aedt_case_name(name):
             return self._aedmattolibrary(self._get_aedt_case_name(name))
         else:
-            material = Material(self, name, properties, material_update=True)
-            material._update_material()
+            material = Material(self, name, properties, material_update=False)
+            material.update()
+            material._material_update = True
             if material:
-                self.logger.info("Material has been added. Edit it to update in Desktop.")
+                self.logger.info("Material has been added in Desktop.")
                 self.material_keys[name.lower()] = material
                 self._mats.append(name)
                 return self.material_keys[name.lower()]
@@ -454,7 +459,6 @@ class Materials(object):
         mat_dict = self._create_mat_project_vars(matsweep)
 
         newmat = Material(self, name, material_update=False)
-        newmat._update_material()
         index = "$ID" + name
         newmat.is_sweep_material = True
         self._app[index] = 0
@@ -534,7 +538,6 @@ class Materials(object):
         if not name:
             name = material + "_clone"
         new_material = Material(self, name, material._props, material_update=False)
-        new_material._update_material()
 
         # Parameterize material properties if these were passed.
         if properties:
@@ -698,7 +701,6 @@ class Materials(object):
         value_iterator = iter(values_view)
         first_value = next(value_iterator)
         newmat = Material(self, matname, first_value, material_update=False)
-        newmat._update_material()
         newmat._material_update = True
         self.material_keys[matname.lower()] = newmat
         return self.material_keys[matname.lower()]
@@ -852,11 +854,15 @@ class Materials(object):
                     self.logger.warning("Material %s already exists. Renaming to %s", el, newname)
                 else:
                     newname = el
-                newmat = Material(self, newname, val, material_update=True)
-                newmat._update_material()
-                # newmat.update()
-                self.material_keys[newname] = newmat
-                materials_added.append(newmat)
+                try:
+                    newmat = Material(self, newname, val, material_update=False)
+                    newmat.update()
+                    newmat._material_update = True
+                    self.material_keys[newname] = newmat
+                    materials_added.append(newmat)
+                except KeyError as e:
+                    self.logger.error(f"Failed to import material {el!r} from {input_file!r}: key error on {e}")
+                    raise e
         else:
             for mat_name in data:
                 invalid_names = ["$base_index$", "$index$"]
@@ -869,8 +875,6 @@ class Materials(object):
                     newname = mat_name
 
                 newmat = self.add_material(newname, properties=data[mat_name])
-                newmat._props = data[mat_name]
-                newmat._update_material()
                 materials_added.append(newmat)
         return materials_added
 
@@ -921,9 +925,9 @@ class Materials(object):
                     and not (isinstance(val[keys.index(prop)], float) and math.isnan(val[keys.index(prop)]))
                 ):
                     props[prop] = float(val[keys.index(prop)])
-            new_material = Material(self, newname, props, material_update=True)
-            new_material._update_material()
-            # new_material.update()
+            new_material = Material(self, newname, props, material_update=False)
+            new_material.update()
+            new_material._material_update = True
             self.material_keys[newname] = new_material
             materials_added.append(new_material)
 
@@ -944,3 +948,34 @@ class Materials(object):
         >>> oDefinitionManager.GetInUseProjectMaterialNames
         """
         return self.odefinition_manager.GetInUseProjectMaterialNames()
+
+    @pyaedt_function_handler
+    def import_materials_from_workbench(self, input_file, name_suffix=None):
+        """Import and create materials from Workbench Engineering Data XML file.
+
+        Parameters
+        ----------
+        input_file : str
+            Full path and name for the XML file.
+
+        name_suffix : str, None, optional
+            String containing the suffix to be applied to the imported material names.
+            The default is ``None``, in which case "_wb" is used.
+            Set it to ``""`` to maintain in AEDT the same name as in Workbench.
+
+        Returns
+        -------
+        List of :class:`ansys.aedt.core.modules.material.Material`
+
+        """
+        # create an instance of the class
+        mat_wb = MaterialWorkbench(self._app)
+        # set the name suffix if any
+        if name_suffix:
+            mat_wb.mat_name_suffix = name_suffix
+        # check if the xml file exists
+        if not os.path.isfile(input_file):
+            self.logger.error(f"The file specified does not exist: {input_file}")
+            return False
+        # import the materials in the xml
+        return mat_wb.import_materials_from_workbench(input_file)

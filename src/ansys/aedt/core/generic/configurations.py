@@ -1161,7 +1161,6 @@ class Configurations(object):
                 else:
                     newname = el
                 newmat = Material(self._app, el, val, material_update=True)
-                newmat._update_material()
                 if newmat:
                     self._app.materials.material_keys[newname] = newmat
                 else:  # pragma: no cover
@@ -1172,14 +1171,6 @@ class Configurations(object):
             for name, props in dict_in["coordinatesystems"].items():
                 if not self._update_coordinate_systems(name, props):  # pragma: no cover
                     self.results.import_coordinate_systems = False
-
-        # if self.options.import_face_coordinate_systems and dict_in.get("facecoordinatesystems", None):
-        #     self.results.import_face_coordinate_systems = True
-        #     for name, props in dict_in["facecoordinatesystems"].items():
-        #         self._convert_objects(dict_in["facecoordinatesystems"][name], dict_in["general"]["object_mapping"])
-        #         if not self._update_face_coordinate_systems(name, props):
-        #             self.results.import_face_coordinate_systems = False
-
         # Only set global CS in the appropriate context.
         if self._app.design_type not in [
             "HFSS 3D Layout Design",
@@ -2027,27 +2018,48 @@ class ConfigurationsIcepak(Configurations):
             self._app.modeler.refresh_all_ids()
             old_objs = list(self._app.modeler.user_defined_components.keys())
             if operation_dict["Props"]["Command"] == "Move":
-                obj.move(
-                    [decompose_variable_value(operation_dict["Props"]["Move Vector"][2 * i + 1])[0] for i in range(3)]
-                )
+                if len(operation_dict["Props"]["Move Vector"]) == 6:
+                    operation_list = [
+                        decompose_variable_value(operation_dict["Props"]["Move Vector"][2 * i + 1])[0] for i in range(3)
+                    ]
+                else:
+                    operation_list = [
+                        decompose_variable_value(operation_dict["Props"]["Move Vector"][i])[0] for i in range(3)
+                    ]
+                obj.move(operation_list)
             elif operation_dict["Props"]["Command"] == "Rotate":
                 rotation = decompose_variable_value(operation_dict["Props"]["Angle"])
                 obj.rotate(operation_dict["Props"]["Axis"], angle=rotation[0], units=rotation[1])
             elif operation_dict["Props"]["Command"] == "Mirror":
-                obj.mirror(
-                    [
+                if len(operation_dict["Props"]["Base Position"]) == 6:
+                    base_list = [
                         decompose_variable_value(operation_dict["Props"]["Base Position"][2 * i + 1])[0]
                         for i in range(3)
-                    ],
-                    [
+                    ]
+                    normal_list = [
                         decompose_variable_value(operation_dict["Props"]["Normal Position"][2 * i + 1])[0]
                         for i in range(3)
-                    ],
-                )
+                    ]
+
+                else:
+                    base_list = [
+                        decompose_variable_value(operation_dict["Props"]["Base Position"][i])[0] for i in range(3)
+                    ]
+                    normal_list = [
+                        decompose_variable_value(operation_dict["Props"]["Normal Position"][i])[0] for i in range(3)
+                    ]
+
+                obj.mirror(base_list, normal_list)
             elif operation_dict["Props"]["Command"] == "DuplicateAlongLine":
+                if len(operation_dict["Props"]["Vector"]) == 6:
+                    vector_list = [
+                        decompose_variable_value(operation_dict["Props"]["Vector"][2 * i + 1])[0] for i in range(3)
+                    ]
+                else:
+                    vector_list = [decompose_variable_value(operation_dict["Props"]["Vector"][i])[0] for i in range(3)]
                 new_objs = obj.duplicate_along_line(
-                    [decompose_variable_value(operation_dict["Props"]["Vector"][2 * i + 1])[0] for i in range(3)],
-                    nclones=operation_dict["Props"]["Total Number"],
+                    vector_list,
+                    clones=operation_dict["Props"]["Total Number"],
                     attach_object=operation_dict["Props"]["Attach To Original Object"],
                 )
             elif operation_dict["Props"]["Command"] == "DuplicateAroundAxis":
@@ -2056,15 +2068,26 @@ class ConfigurationsIcepak(Configurations):
                     operation_dict["Props"]["Axis"], angle=rotation[0], clones=operation_dict["Props"]["Total Number"]
                 )
             elif operation_dict["Props"]["Command"] == "DuplicateMirror":
-                new_objs = obj.duplicate_and_mirror(
-                    origin=[
+                if len(operation_dict["Props"]["Base Position"]) == 6:
+                    base_list = [
                         decompose_variable_value(operation_dict["Props"]["Base Position"][2 * i + 1])[0]
                         for i in range(3)
-                    ],
-                    vector=[
+                    ]
+                    normal_list = [
                         decompose_variable_value(operation_dict["Props"]["Normal Position"][2 * i + 1])[0]
                         for i in range(3)
-                    ],
+                    ]
+
+                else:
+                    base_list = [
+                        decompose_variable_value(operation_dict["Props"]["Base Position"][i])[0] for i in range(3)
+                    ]
+                    normal_list = [
+                        decompose_variable_value(operation_dict["Props"]["Normal Position"][i])[0] for i in range(3)
+                    ]
+                new_objs = obj.duplicate_and_mirror(
+                    base_list,
+                    normal_list,
                 )
             else:  # pragma: no cover
                 raise ValueError("Operation not supported")

@@ -146,7 +146,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
     Create an instance of Circuit using the 2023 R2 student version and open
     the specified project, which is named ``"myfile.aedt"``.
 
-    >>> hfss = Circuit(version="2023.2", project="myfile.aedt", student_version=True)
+    >>> aedtapp = Circuit(version="2023.2", project="myfile.aedt", student_version=True)
 
     """
 
@@ -1610,7 +1610,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                     except Exception:
                         print("failed to get pin2")
                 if pin1 and pin2:
-                    pin1.connect_to_component(component_pin=pin2, use_wire=False)
+                    pin1.connect_to_component(assignment=pin2, use_wire=False)
             for model_name, ports in ports.items():
                 if any(cmp for cmp in list(self.modeler.schematic.components.values()) if model_name in cmp.name):
                     model = next(

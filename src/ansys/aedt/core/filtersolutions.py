@@ -46,12 +46,11 @@ class FilterSolutions:
 
     Parameters
     ----------
-    version: str, optional
+    version : str, optional
         Version of AEDT in ``xxxx.x`` format. The default is ``None``.
-    implementation_type: FilterImplementation, optional
+    implementation_type : FilterImplementation, optional
         Technology used to implement the filter. The default is ``LUMPED``.
         The ``FilterImplementation`` enum provides the list of implementations.
-
 
     Examples
     --------

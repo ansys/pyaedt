@@ -511,6 +511,10 @@ class MeshSettings(object):
             if k in ["MaxElementSizeX", "MaxElementSizeY", "MaxElementSizeZ", "MinGapX", "MinGapY", "MinGapZ"]:
                 v = _dim_arg(v, getattr(self._mesh_class, "_model_units"))
             out.append(v)
+        out.append(
+            "UserSpecifiedSettings:=",
+        )
+        out.append("MeshRegionResolution" in self.keys())
         return out
 
     def parse_settings_as_dictionary(self):
@@ -764,6 +768,7 @@ class MeshRegion(MeshRegionCommon):
                 objects = [objects]
             if (
                 objects[0] not in self._app.modeler.user_defined_components
+                and self._app.modeler[objects[0]]
                 and self._app.modeler[objects[0]].history().command == "CreateSubRegion"
             ):
                 self._assignment = objects[0]
@@ -945,7 +950,6 @@ class MeshRegion(MeshRegionCommon):
             return False
         args = ["NAME:" + self.name, "Enable:=", self.enable]
         args += self.settings.parse_settings_as_args()
-        args += ["UserSpecifiedSettings:=", not self.manual_settings]
         args += self._parse_assignment_value()
         self._app.omeshmodule.AssignMeshRegion(args)
         self._app.mesh.meshregions.append(self)

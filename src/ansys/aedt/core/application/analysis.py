@@ -189,7 +189,17 @@ class Analysis(Design, object):
         """
         if not self._native_components:
             self._native_components = self._get_native_data()
-        return {nc.component_name: nc for nc in self._native_components}
+        return {nc.name: nc for nc in self._native_components}
+
+    @property
+    def native_component_names(self):
+        """Native component names.
+
+        Returns
+        -------
+        list
+        """
+        return self.modeler.user_defined_component_names
 
     @property
     def output_variables(self):
@@ -1801,17 +1811,17 @@ class Analysis(Design, object):
         start = time.time()
         set_custom_dso = False
         active_config = self._desktop.GetRegistryString(r"Desktop/ActiveDSOConfigurations/" + self.design_type)
-        if acf_file:
+        if acf_file:  # pragma: no cover
             self._desktop.SetRegistryFromFile(acf_file)
-            name = ""
+            acf_name = ""
             with open_file(acf_file, "r") as f:
                 lines = f.readlines()
                 for line in lines:
                     if "ConfigName" in line:
-                        name = line.strip().split("=")[1]
+                        acf_name = line.strip().split("=")[1].strip("'")
                         break
-            if name:
-                success = self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, name)
+            if acf_name:
+                success = self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, acf_name)
                 if success:
                     set_custom_dso = True
         elif self.design_type not in ["RMxprtSolution", "ModelCreation"] and (gpus or tasks or cores):

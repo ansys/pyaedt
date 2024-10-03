@@ -84,7 +84,7 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
     def __init__(self):
         super().__init__()
 
-        self.geometry("600x300")
+        self.geometry("310x300")
         self.title("EDB Configuration 2.0")
 
         self.status = tk.StringVar(value="")
@@ -112,10 +112,10 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
         col_width = [50, 20, 30]
 
         # Section 1
-        self.label_version = ttk.Label(self, text=f"AEDT {version}")
-        self.label_version.grid(row=0, column=0)
-        label = ttk.Label(self, textvariable=self.status)
-        label.grid(row=0, column=1)
+        # self.label_version = ttk.Label(self, text=f"AEDT {version}")
+        # self.label_version.grid(row=0, column=0)
+        # label = ttk.Label(self, textvariable=self.status)
+        # label.grid(row=0, column=1)
 
         # Section 2
         s2_start_row = 1
@@ -133,13 +133,13 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
 
         # Siwave
         label_project_file = tk.Label(self, width=col_width[2], height=1, textvariable=self.selected_project_file)
-        label_project_file.grid(row=s3_start_row, column=2)
+        label_project_file.grid(row=s3_start_row + 1, column=0)
 
         # Apply cfg
         button = ttk.Button(
             self, text="Select and Apply Configuration", width=col_width[0], command=self.call_apply_cfg_file
         )
-        button.grid(row=s3_start_row + 2, column=0)
+        button.grid(row=s3_start_row + 3, column=0)
 
         # Export cfg
         button = ttk.Button(self, text="Export Configuration", width=col_width[0], command=self.call_export_cfg)
@@ -150,13 +150,13 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
             file_path = filedialog.askopenfilename(
                 initialdir="/",
                 title="Select File",
-                filetypes=(("Electronics Desktop", "*.aedt"),),
+                filetypes=(("Electronics Desktop", "*.aedt"), ("Electronics Database", "*.def")),
             )
         elif self.selected_app_option.get() == "SIwave":
             file_path = filedialog.askopenfilename(
                 initialdir="/",
                 title="Select File",
-                filetypes=(("SIwave project", "*.siw"),),
+                filetypes=(("SIwave project", "*.siw"), ("Electronics Database", "*.def")),
             )
         else:
             file_path = None
@@ -164,6 +164,8 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
         if not file_path:
             return
         else:
+            if file_path.endswith(".def"):
+                file_path = Path(file_path).parent
             self.selected_project_file_path = file_path
             self.selected_project_file.set(Path(file_path).parts[-1])
 
@@ -313,9 +315,12 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
         }
 
     def execute_load(self):
-        desktop = self.desktop
-        self.execute()
-        desktop.release_desktop(False, False)
+        if self.selected_app_option.get() == "Active Design":
+            desktop = self.desktop
+            self.execute()
+            desktop.release_desktop(False, False)
+        else:
+            self.execute()
         messagebox.showinfo("Information", "Done!")
 
     def execute_export(self, file_path):
@@ -363,8 +368,16 @@ class ConfigureEdbBackend:
         fdir = Path(file_save_path).parent
         fname = Path(file_save_path).stem
         siw = Siwave(specified_version=version)
-        siw.open_project(str(project_file))
-        siw.load_configuration(file_cfg_path)
+        if str(project_file).endswith(".aedb"):
+            edbapp = Edb(str(project_file), edbversion=version)
+            edbapp.configuration.load(file_cfg_path)
+            edbapp.configuration.run()
+            edbapp.save_as(str(Path(file_save_path).with_suffix(".aedb")))
+            edbapp.close()
+            siw.import_edb(Path(file_save_path).with_suffix(".aedb"))
+        else:
+            siw.open_project(str(project_file))
+            siw.load_configuration(file_cfg_path)
         siw.save_project(fdir, fname)
         siw.quit_application()
 
