@@ -61,6 +61,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         self._app = app
         self._edb = None
         self.logger.info("Loading Modeler.")
+        self._model_units = None
         Modeler.__init__(self, app)
         self.logger.info("Modeler loaded.")
         self.logger.info("EDB loaded.")
@@ -176,12 +177,15 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         >>> oEditor.GetActiveUnits
         >>> oEditor.SetActiveUnits
         """
-        return self.oeditor.GetActiveUnits()
+        if not self._model_units:
+            self._model_units = self.oeditor.GetActiveUnits()
+        return self._model_units
 
     @model_units.setter
     def model_units(self, units):
         assert units in AEDT_UNITS["Length"], "Invalid units string {0}.".format(units)
         self.oeditor.SetActiveUnits(units)
+        self._model_units = units
 
     @property
     def primitives(self):
