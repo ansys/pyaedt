@@ -99,7 +99,7 @@ class TestClass(object):
                 ["X1_A5_PCIe_Gen4_RX1_P", "X1_A6_PCIe_Gen4_RX1_N", "U1_AR25_PCIe_Gen4_RX1_P",
                  "U1_AP25_PCIe_Gen4_RX1_N"], [7, 8, 18, 17]], pass_fail=True, pass_fail_criteria=3, name="ERL")
         vc.save_configuration(f"{compliance_folder}\\main.json")
-        assert os.path.exists(f"{compliance_folder}\\main.json")
+        assert os.path.exists(os.path.join(compliance_folder, "main.json"))
         v = VirtualCompliance(aedtapp.desktop_class, template)
         assert v.create_compliance_report()
 
