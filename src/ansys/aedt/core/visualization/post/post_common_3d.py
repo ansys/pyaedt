@@ -490,12 +490,13 @@ class PostProcessor3D(PostProcessorCommon):
             self.ofieldsreporter.CalcOp(scalar_function)
 
         if not variations:
-            variations = self._app.available_variations.nominal_w_values_dict
+            variations = self._app.available_variations.nominal_w_values_dict_w_dependent
 
         variation = []
         for el, value in variations.items():
-            variation.append(el + ":=")
-            variation.append(value)
+            if self._app.variable_manager.variables[el].sweep:
+                variation.append(el + ":=")
+                variation.append(value)
 
         variation.extend(intrinsics)
 
@@ -670,12 +671,13 @@ class PostProcessor3D(PostProcessorCommon):
             return False
 
         if not variations:
-            variations = self._app.available_variations.nominal_w_values_dict
+            variations = self._app.available_variations.nominal_w_values_dict_w_dependent
 
         variation = []
         for el, value in variations.items():
-            variation.append(el + ":=")
-            variation.append(value)
+            if self._app.variable_manager.variables[el].sweep:
+                variation.append(el + ":=")
+                variation.append(value)
         variation.extend(intrinsics)
 
         export_options = [
@@ -838,12 +840,13 @@ class PostProcessor3D(PostProcessorCommon):
             self.ofieldsreporter.CopyNamedExprToStack(quantity)
 
         if not variations:
-            variations = self._app.available_variations.nominal_w_values_dict
+            variations = self._app.available_variations.nominal_w_values_dict_w_dependent
 
         variation = []
         for el, value in variations.items():
-            variation.append(el + ":=")
-            variation.append(value)
+            if self._app.variable_manager.variables[el].sweep:
+                variation.append(el + ":=")
+                variation.append(value)
         variation.extend(intrinsics)
 
         if not sample_points_file and not sample_points:

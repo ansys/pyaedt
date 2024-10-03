@@ -1177,19 +1177,18 @@ class Analysis(Design, object):
             """Nominal."""
             families = []
             for el in self.variables:
-                if el in list(self.nominal_w_values_dict.keys()):
-                    families.append(el + ":=")
-                    families.append(["Nominal"])
+                families.append(el + ":=")
+                families.append(["Nominal"])
             return families
 
         @property
         def nominal_w_values(self):
-            """Nominal with values.
+            """Nominal independent with values in a list.
 
             Returns
             -------
-            dict
-                Dictionary of nominal variations with expressions.
+            list
+                List of nominal independent variations with expressions.
 
             References
             ----------
@@ -1201,9 +1200,8 @@ class Analysis(Design, object):
             """
             families = []
             for k, v in list(self._app.variable_manager.independent_variables.items()):
-                if v.sweep:
-                    families.append(k + ":=")
-                    families.append([v.expression])
+                families.append(k + ":=")
+                families.append([v.expression])
             return families
 
         @property
@@ -1225,19 +1223,18 @@ class Analysis(Design, object):
             """
             families = {}
             for k, v in list(self._app.variable_manager.independent_variables.items()):
-                if v.sweep:
-                    families[k] = v.expression
+                families[k] = v.expression
 
             return families
 
         @property
         def nominal_w_values_dict_w_dependent(self):
-            """Nominal  with values in a dictionary.
+            """Nominal independent and dependent with values in a dictionary.
 
             Returns
             -------
             dict
-                Dictionary of nominal variations with values.
+                Dictionary of nominal independent and dependent variations with values.
 
             References
             ----------
@@ -1248,8 +1245,7 @@ class Analysis(Design, object):
             >>> oDesign.GetNominalVariation"""
             families = {}
             for k, v in list(self._app.variable_manager.variables.items()):
-                if v.sweep:
-                    families[k] = v.expression
+                families[k] = v.expression
 
             return families
 
