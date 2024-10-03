@@ -115,7 +115,6 @@ def environment_variables(oDesktop):
             "{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root),
             "{}/commonfiles/CPython/3_10/linx64/Release/python/lib".format(edt_root),
             "{}/common/mono/Linux64/lib64".format(edt_root),
-            "{}/Delcross".format(edt_root),
             "{}".format(edt_root),
         ]
         os.environ["LD_LIBRARY_PATH"] = ":".join(ld_library_path_dirs_to_add) + ":" + os.getenv("LD_LIBRARY_PATH", "")
