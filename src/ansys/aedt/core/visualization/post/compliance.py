@@ -21,7 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
+import copy
 import os.path
 from pathlib import Path
 import time
@@ -32,10 +32,12 @@ from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import read_configuration_file
 from ansys.aedt.core.generic.general_methods import read_csv
+from ansys.aedt.core.generic.general_methods import write_configuration_file
 from ansys.aedt.core.generic.general_methods import write_csv
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 from ansys.aedt.core.visualization.post.spisim import SpiSim
+from pyedb.generic.constants import unit_converter
 
 default_keys = [
     "file",
@@ -64,6 +66,8 @@ class CommonTemplate:
         self.traces = report.get("traces", [])
         self.pass_fail = report.get("pass_fail", False)
         self.group_plots = report.get("group_plots", False)
+        self._project_name = None
+        self.project = report.get("project", None)
 
     @property
     def name(self):
@@ -74,6 +78,33 @@ class CommonTemplate:
         str
         """
         return self._name
+
+    @property
+    def project_name(self):
+        """Project name.
+
+        Returns
+        -------
+        str
+        """
+        if self._project_name:
+            return self._project_name
+        if self.project and self.project.endswith(".aedt"):
+            return os.path.split(os.path.splitext(self.project)[0])[-1]
+        return
+
+    @project_name.setter
+    def project_name(self, val):
+        self._project_name = val
+
+    @property
+    def project(self):
+        """Project path."""
+        return self._project
+
+    @project.setter
+    def project(self, val):
+        self._project = val
 
     @property
     def report_type(self):
@@ -204,6 +235,170 @@ class ParametersTemplate(CommonTemplate):
         self._pass_fail_criteria = val
 
 
+class VirtualComplianceGenerator:
+    """Class to generate a Virtual Compliance configuration."""
+
+    def __init__(self, compliance_name, project_name, specification_folder=None):
+        self.config = {
+            "general": {
+                "name": compliance_name,
+                "version": "1.0",
+                "add_project_info": True,
+                "add_specs_info": True if specification_folder else False,
+                "project_info_keys": [
+                    "file",
+                    "power",
+                    "buffer",
+                    "trise",
+                    "tfall",
+                    "UIorBPSValue",
+                    "BitPattern",
+                    "R",
+                    "L",
+                    "C",
+                    "DC",
+                    "V1",
+                    "V2",
+                    "TD",
+                ],
+                "specs_folder": specification_folder if specification_folder else "",
+                "delete_after_export": True,
+                "project": project_name,
+                "use_portrait": True,
+            },
+            "parameters": [],
+            "reports": [],
+        }
+
+    @pyaedt_function_handler()
+    def add_erl_parameters(
+        self, design_name, config_file, traces, pins, pass_fail, pass_fail_criteria=0, name="ERL", project=None
+    ):
+        """Add Com parameters computed by SpiSim into the configuration.
+
+        Parameters
+        ----------
+        design_name : str
+            Design name.
+        config_file : str
+            Full path to ``cfg`` file.
+        traces : list
+            List of traces to compute com parameters.
+        pins : list
+            List of list containing input pints and output pins on which compute com parameters.
+            Pins can be names or numbers.
+        pass_fail : bool
+            Whether if to compute pass fail on this parameter or not.
+            If True, then the parameter ``pass_fail_criteria`` has to be set accordingly.
+        pass_fail_criteria : float
+            If the criteria is greater
+        name : str, optional
+            Name of the report.
+        project : str, optional
+            Full path to the project to use for the computation of this report.
+            If ``None`` the default project will be used.
+        """
+        pars = {
+            "name": name,
+            "design_name": design_name,
+            "config": config_file,
+            "traces": traces,
+            "trace_pins": pins,
+            "pass_fail": pass_fail,
+            "pass_fail_criteria": pass_fail_criteria,
+        }
+        if project:
+            pars["project"] = project
+        self.config["parameters"].append(pars)
+
+    @pyaedt_function_handler()
+    def add_report(self, design_name, config_file, traces, report_type, pass_fail, group_plots, name, project=None):
+        """Add Com parameters computed by SpiSim into the configuration.
+
+        Parameters
+        ----------
+        design_name : str
+            Design name.
+        config_file : str
+            Full path to ``cfg`` file.
+        traces : list
+            List of traces to compute com parameters.
+        report_type : str
+            Report Type.
+        pass_fail : bool
+            Whether if to compute pass fail on this parameter or not.
+        group_plots : bool
+           Whether if to group all the traces in the same plot or not.
+        name : str, optional
+            Name of the report.
+        project : str, optional
+            Full path to the project to use for the computation of this report.
+            If ``None`` the default project will be used.
+        """
+        pars = {
+            "name": name,
+            "design_name": design_name,
+            "type": report_type,
+            "config": config_file,
+            "traces": traces,
+            "pass_fail": pass_fail,
+            "group_plots": group_plots,
+        }
+        if project:
+            pars["project"] = project
+        self.config["reports"].append(pars)
+
+    @pyaedt_function_handler()
+    def add_report_from_folder(self, input_folder, design_name, group_plots=False, project=None):
+        """Add multiple reports from a folder.
+
+        Parameters
+        ----------
+        input_folder : str
+            Full path to the folder containing configuration files.
+        design_name : str
+            Name of design to apply the configuration.
+        group_plots : bool
+            Whether to group plot traces or not.
+        """
+        input_reports = search_files(input_folder, "*.json")
+        for input_report in input_reports:
+            conf = read_configuration_file(input_report)
+            if "limitLines" in conf and conf["limitLines"] or "eye_mask" in conf:
+                pass_fail = True
+            else:
+                pass_fail = False
+            expr = list(conf["expressions"].keys()) if conf.get("expressions", []) else []
+            rep_type = conf.get("report_category", "frequency").lower()
+            name = conf.get("plot_name", generate_unique_name("Report"))
+            self.add_report(
+                design_name,
+                input_report,
+                traces=expr,
+                report_type=rep_type,
+                pass_fail=pass_fail,
+                group_plots=group_plots,
+                name=name,
+                project=project,
+            )
+
+    @pyaedt_function_handler()
+    def save_configuration(self, output_file):
+        """Save the configuration to a json file.
+
+        Parameters
+        ----------
+        output_file : str
+            Full path of the output file.
+
+        Returns
+        -------
+        bool
+            ``True`` if export is successful, ``False`` if not.
+        """
+        return write_configuration_file(self.config, output_file)
+
+
 class VirtualCompliance:
     """Provides automatic report generation with pass/fail criteria on virtual compliance.
 
@@ -213,8 +408,7 @@ class VirtualCompliance:
         Desktop object.
     template : str
         Full path to the template. Supported formats are JSON and TOML.
-    project_path : str, optional
-        Full path to the project. If a path is provided, the project field inside the template is ignored.
+
     """
 
     def __init__(self, desktop, template):
@@ -233,6 +427,7 @@ class VirtualCompliance:
         self._parse_template()
         self._desktop_class = desktop
 
+    @pyaedt_function_handler()
     @pyaedt_function_handler()
     def load_project(self):
         """Open the aedt project in Electronics Desktop.
@@ -463,9 +658,14 @@ class VirtualCompliance:
             design_name = template_report.design_name
             report_type = template_report.report_type
             group = template_report.group_plots
+            if template_report.project_name:
+                if template_report.project_name not in self._desktop_class.project_list():
+                    self._desktop_class.load_project(template_report.project)
+            else:
+                template_report.project_name = self._project_name
             if _design and _design.design_name != design_name or _design is None:
                 try:
-                    _design = get_pyaedt_app(self._project_name, design_name)
+                    _design = get_pyaedt_app(template_report.project_name, design_name)
                 except Exception:  # pragma: no cover
                     self._desktop_class.logger.error(f"Failed to retrieve design {design_name}")
                     continue
@@ -478,8 +678,17 @@ class VirtualCompliance:
                 pdf_report.add_section()
                 pdf_report.add_chapter("Compliance Results")
                 start = False
-            if group and report_type in ["frequency", "time"]:
-                local_config["expressions"] = {trace: {} for trace in traces}
+            if group and report_type in ["standard", "frequency", "time"]:
+                new_dict = {}
+                for trace in traces:
+                    if local_config.get("expressions", {}):
+                        if isinstance(local_config["expressions"], dict):
+                            if trace in local_config["expressions"]:
+                                new_dict[trace] = local_config["expressions"][trace]
+                            else:
+                                new_dict[trace] = {}
+
+                local_config["expressions"] = new_dict
                 image_name = name
                 sw_name = self._get_sweep_name(_design, local_config.get("solution_name", None))
                 _design.logger.info(f"Creating report {name}")
@@ -520,7 +729,9 @@ class VirtualCompliance:
                             time.sleep(1)
                             sleep_time -= 1
                 if (
-                    pass_fail and report_type in ["frequency", "time"] and local_config.get("limitLines", None)
+                    pass_fail
+                    and report_type in ["standard", "frequency", "time"]
+                    and local_config.get("limitLines", None)
                 ):  # pragma: no cover
                     _design.logger.info("Checking lines violations")
                     table = self._add_lna_violations(aedt_report, pdf_report, image_name, local_config)
@@ -529,15 +740,25 @@ class VirtualCompliance:
                     aedt_report.delete()
                 _design.logger.info(f"Successfully parsed report {name}")
             else:
+                legacy_local_config = copy.deepcopy(local_config)
                 for trace in traces:
-                    local_config["expressions"] = {trace: {}}
+                    if local_config.get("expressions", {}):
+                        if isinstance(local_config["expressions"], dict):
+                            if trace in legacy_local_config["expressions"]:
+                                local_config["expressions"] = {trace: legacy_local_config["expressions"][trace]}
+                            elif len(legacy_local_config["expressions"]) == 1:
+                                local_config["expressions"] = {
+                                    trace: list(legacy_local_config["expressions"].values())[-1]
+                                }
+                            else:
+                                local_config["expressions"] = {trace: {}}
                     image_name = name + f"_{trace}"
                     sw_name = self._get_sweep_name(_design, local_config.get("solution_name", None))
                     _design.logger.info(f"Creating report {name} for trace {trace}")
                     aedt_report = _design.post.create_report_from_configuration(
                         report_settings=local_config, solution_name=sw_name
                     )
-                    if report_type != "contour eye diagram":
+                    if report_type != "contour eye diagram" and "3D" not in local_config["report_type"]:
                         aedt_report.hide_legend()
                     time.sleep(1)
                     out = _design.post.export_report_to_jpg(self._output_folder, aedt_report.plot_name)
@@ -571,6 +792,7 @@ class VirtualCompliance:
                                 time.sleep(1)
                                 sleep_time -= 1
                         if pass_fail:
+                            table = None
                             if report_type in ["frequency", "time"] and local_config.get("limitLines", None):
                                 _design.logger.info("Checking lines violations")
                                 table = self._add_lna_violations(aedt_report, pdf_report, image_name, local_config)
@@ -587,12 +809,19 @@ class VirtualCompliance:
                                 table = self._add_contour_eye_diagram_violations(
                                     aedt_report, pdf_report, image_name, local_config
                                 )
-                            write_csv(os.path.join(self._output_folder, f"{name}{trace}_pass_fail.csv"), table)
-
+                            if table:  # pragma: no cover
+                                write_csv(os.path.join(self._output_folder, f"{name}{trace}_pass_fail.csv"), table)
+                            else:
+                                _design.logger.warning(f"Failed to compute violation for chart {name}{trace}")
                         if report_type in ["eye diagram", "statistical eye"]:
                             _design.logger.info("Adding eye measurements.")
                             table = self._add_eye_measurement(aedt_report, pdf_report, image_name)
-                            write_csv(os.path.join(self._output_folder, f"{name}{trace}_eye_meas.csv"), table)
+                            write_csv(
+                                os.path.join(
+                                    self._output_folder, f"{name}{trace}_eye_meas.csv".replace("<", "").replace(">", "")
+                                ),
+                                table,
+                            )
                         if self.local_config.get("delete_after_export", True):
                             aedt_report.delete()
                         _design.logger.info(f"Successfully parsed report {name} for trace {trace}")
@@ -666,17 +895,27 @@ class VirtualCompliance:
             self._desktop_class.logger.error(msg)
             return pass_fail_table
         for trace_name in trace_data.expressions:
-            trace_values = [(k[0], v) for k, v in trace_data.full_matrix_real_imag[0][trace_name].items()]
+            trace_values = [(k[-1], v) for k, v in trace_data.full_matrix_real_imag[0][trace_name].items()]
             for limit_v in local_config["limitLines"].values():
                 yy = 0
                 zones = 0
-                while yy < len(limit_v["xpoints"]) - 1:
-                    if limit_v["xpoints"][yy] != limit_v["xpoints"][yy + 1]:
+                if trace_data.primary_sweep == "Freq":
+                    default = "Hz"
+                else:
+                    default = "s"
+                limit_x = unit_converter(
+                    values=limit_v["xpoints"],
+                    unit_system=trace_data.primary_sweep,
+                    input_units=default if limit_v.get("xunits", "") == "" else limit_v["xunits"],
+                    output_units=trace_data.units_sweeps[trace_data.primary_sweep],
+                )
+                while yy < len(limit_x) - 1:
+                    if limit_x[yy] != limit_x[yy + 1]:
                         zones += 1
-                        result_range = self._get_frequency_range(
-                            trace_values, limit_v["xpoints"][yy], limit_v["xpoints"][yy + 1]
-                        )
+                        result_range = self._get_frequency_range(trace_values, limit_x[yy], limit_x[yy + 1])
                         freq = [i[0] for i in result_range]
+                        if not freq:
+                            return False
                         slope = (limit_v["ypoints"][yy + 1] - limit_v["ypoints"][yy]) / (freq[-1] - freq[0])
                         ypoints = []
                         for i in range(len(freq)):
@@ -689,8 +928,8 @@ class VirtualCompliance:
                             hatch_above = True
                         test_value = limit_v["ypoints"][yy]
                         range_value, x_value, result_value = self._check_test_value(result_range, ypoints, hatch_above)
-                        units = limit_v.get("y_units", "")
-                        xunits = limit_v.get("x_units", "")
+                        units = limit_v.get("yunits", "")
+                        xunits = limit_v.get("xunits", "")
                         mystr = f"Zone  {zones}"
                         font_table.append([None, [255, 0, 0]] if result_value == "FAIL" else ["", None])
                         pass_fail_table.append(
@@ -700,7 +939,7 @@ class VirtualCompliance:
                                 "Upper Limit" if hatch_above else "Lower Limit",
                                 f"{test_value}{units}",
                                 f"{range_value}{units}",
-                                f"{x_value}{xunits}",
+                                f"{x_value}{trace_data.units_sweeps[trace_data.primary_sweep]}",
                                 result_value,
                             ]
                         )
@@ -721,7 +960,7 @@ class VirtualCompliance:
             msg = "Failed to get Solution Data. Check if the design is solved or the report data are correct."
             self._desktop_class.logger.error(msg)
             return
-        mag_data = {i: k for i, k in sols.full_matrix_real_imag[0][sols.expressions[0]].items() if k > 0}
+        mag_data = [i for i, k in sols.full_matrix_real_imag[0][sols.expressions[0]].items() if k > 0]
         # mag_data is a dictionary. The key isa tuple (__AMPLITUDE, __UI), and the value is the eye value.
         mystr = "Eye Mask Violation:"
         result_value = "PASS"
@@ -866,7 +1105,7 @@ class VirtualCompliance:
                 continue
             designs.append(design_name)
             if _design and _design.design_name != design_name or _design is None:
-                _design = get_pyaedt_app(self._project_name, design_name)
+                _design = get_pyaedt_app(template_report.project_name, design_name)
             report.add_project_info(_design)
 
             report.add_empty_line(3)
