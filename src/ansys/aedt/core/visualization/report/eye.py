@@ -47,7 +47,6 @@ class AMIConturEyeDiagram(CommonReport):
         self._props["context"]["variations"]["__Amplitude"] = ["All"]
         self._props["context"]["variations"]["__EyeOpening"] = ["0"]
         self._props["context"]["primary_sweep"] = "__UnitInterval"
-        self._props["context"]["secondary_sweep"] = "__Amplitude"
         self.quantity_type = 0
         self.min_latch_overlay = "0"
         self.noise_floor = "1e-16"
@@ -553,6 +552,8 @@ class AMIEyeDiagram(CommonReport):
                     new_exprs.append("{}AfterChannel<".format(expr_head) + expr + ".int_ami_rx>")
                 elif qtype == 3:
                     new_exprs.append("{}AfterProbe<".format(expr_head) + expr + ".int_ami_rx>")
+            else:
+                new_exprs.append(expr)
         return new_exprs
 
     @property
