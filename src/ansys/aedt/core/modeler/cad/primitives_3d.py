@@ -2685,14 +2685,7 @@ class Primitives3D(GeometryModeler):
         else:
             union_polyline2 = []
         union_polyline = union_polyline1 + union_polyline2
-        list_positions2 = []
-        for i, p in enumerate(union_polyline):
-            if i == 0:
-                list_positions2.extend(self.get_vertices_of_line(p))
-            else:
-                list_positions2.extend(self.get_vertices_of_line(p)[1:])
         self.delete(union_polyline)
-        # del list_positions[0]
 
         if sep_layer:
             for i in range(4):
