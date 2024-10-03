@@ -82,6 +82,7 @@ class TestClass(object):
             json.dump(data, f, indent=4)
             f.truncate()
         compliance_folder = os.path.join(local_scratch.path, "vc")
+        os.makedirs(compliance_folder, exist_ok=True)
         vc = VirtualComplianceGenerator("Test_full", "Diff_Via")
         for plot in aedtapp.post.plots[::]:
             try:
