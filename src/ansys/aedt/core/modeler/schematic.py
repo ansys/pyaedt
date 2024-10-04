@@ -23,9 +23,7 @@
 # SOFTWARE.
 
 import random
-import sys
 import time
-import warnings
 
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.general_methods import is_linux
