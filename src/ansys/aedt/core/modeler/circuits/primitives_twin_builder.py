@@ -521,7 +521,7 @@ class TwinBuilderComponents(CircuitComponents):
 
     @pyaedt_function_handler()
     def update_quantity_value(self, component_name, name, value, netlist_units=""):
-        """Create and place a new component based on a .sml file.
+        """Change the property value of a component.
 
         Parameters
         ----------
@@ -532,7 +532,7 @@ class TwinBuilderComponents(CircuitComponents):
         value : str
             Value of the quantity.
         netlist_units : str, optional
-            Value of the quantity.
+            Value of the netlist unit.
 
         Returns
         -------
@@ -543,10 +543,9 @@ class TwinBuilderComponents(CircuitComponents):
         --------
         >>> from ansys.aedt.core import TwinBuilder
         >>> tb = TwinBuilder(version="2025.1")
-        >>> input_file = os.path.join("Your path", "test.sml")
-        >>> model = "Thermal_ROM_SML"
-        >>> outputs = "Input1_InternalHeatGeneration,Input2_HeatFlow,Output1_Temp1,Output2_Temp2"
-        >>> tb.modeler.schematic.create_component_from_sml(input_file=model, model=model, outputs=outputs)
+        >>> G = 0.00254
+        >>> source1 = tb.modeler.schematic.create_component("source1", "", "Simplorer Elements\\Basic Elements\\Tools\\Time Functions:DATAPAIRS", [20 * G, 29 * G])
+        >>> tb.modeler.schematic.update_quantity_value(source1.composed_name, "PERIO", "0")
         >>> tb.release_desktop(False, False)
         """
         try:
