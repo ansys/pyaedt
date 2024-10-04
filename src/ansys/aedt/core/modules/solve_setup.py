@@ -3385,7 +3385,7 @@ class SetupHFSSAuto(Setup, object):
 
 
 class SetupSBR(Setup, object):
-    """Initializes, creates, and updates an HFSS SBR+ or  HFSS Auto setup.
+    """Initializes, creates, and updates an HFSS SBR+ or HFSS Auto setup.
 
     Parameters
     ----------
