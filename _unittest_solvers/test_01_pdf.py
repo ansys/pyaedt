@@ -90,9 +90,8 @@ class TestClass(object):
             except Exception:
                 print(f"Failed to generate {plot.plot_name}")
 
-        vc.add_report_from_folder(f"{compliance_folder}", design_name="Circuit1", group_plots=True,
-                                  project=aedtapp.project_file)
-        vc.add_report_from_folder(f"{compliance_folder}", design_name="Circuit1", group_plots=True,
+        vc.add_report_from_folder(os.path.join(local_path, "example_models", test_subfolder, "compliance"),
+                                  design_name="Circuit1", group_plots=True,
                                   project=aedtapp.project_file)
         vc.add_erl_parameters(design_name=aedtapp.design_name, config_file=f"{compliance_folder}\\config.cfg",
                               traces=["RX1", "RX3"], pins=[
