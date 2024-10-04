@@ -481,7 +481,7 @@ class TwinBuilderComponents(CircuitComponents):
         self,
         input_file,
         model,
-        outputs,
+        pins_names,
     ):
         """Create and place a new component based on a .sml file.
 
@@ -491,8 +491,8 @@ class TwinBuilderComponents(CircuitComponents):
             Path to .sml file.
         model : str
             Model name to import.
-        outputs : str
-            List of output names.
+        pins_names : str
+            List of model pins names.
 
         Returns
         -------
@@ -505,14 +505,14 @@ class TwinBuilderComponents(CircuitComponents):
         >>> tb = TwinBuilder(version="2025.1")
         >>> input_file = os.path.join("Your path", "test.sml")
         >>> model = "Thermal_ROM_SML"
-        >>> outputs = "Input1_InternalHeatGeneration,Input2_HeatFlow,Output1_Temp1,Output2_Temp2"
-        >>> tb.modeler.schematic.create_component_from_sml(input_file=model, model=model, outputs=outputs)
+        >>> pins_names = "Input1_InternalHeatGeneration,Input2_HeatFlow,Output1_Temp1,Output2_Temp2"
+        >>> tb.modeler.schematic.create_component_from_sml(input_file=model, model=model, pins_names=pins_names)
         >>> tb.release_desktop(False, False)
         """
         arg = ["NAME:Options", "Mode:=", 1]
         arg2 = ["NAME:Models", model + ":=", [True]]
 
-        arg3 = ["NAME:Components", model + ":=", [True, True, model, True, outputs.lower(), outputs.lower()]]
+        arg3 = ["NAME:Components", model + ":=", [True, True, model, True, pins_names.lower(), pins_names.lower()]]
 
         arg.append(arg2)
         arg.append(arg3)
