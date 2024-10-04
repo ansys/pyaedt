@@ -209,9 +209,9 @@ class TestClass:
         input_file = local_scratch.copyfile(
             os.path.join(local_path, "../_unittest/example_models", test_subfolder, "Thermal_ROM_SML.sml")
         )
-        outputs = "Input1_InternalHeatGeneration,Input2_HeatFlow,Output1_Temp1,Output2_Temp2"
+        pins_names = "Input1_InternalHeatGeneration,Input2_HeatFlow,Output1_Temp1,Output2_Temp2"
         assert self.aedtapp.modeler.schematic.create_component_from_sml(
-            input_file=input_file, model="Thermal_ROM_SML", outputs=outputs
+            input_file=input_file, model="Thermal_ROM_SML", pins_names=pins_names
         )
         rom1 = self.aedtapp.modeler.schematic.create_component("ROM1", "", "Thermal_ROM_SML")
 
