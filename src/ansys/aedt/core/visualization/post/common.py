@@ -1673,7 +1673,10 @@ class PostProcessorCommon(object):
                     else:
                         props_out[k] = v
 
-            if props.get("context", {"context": {}}).get("secondary_sweep", "") == "":
+            if (
+                props.get("context", {"context": {}}).get("secondary_sweep", "") == ""
+                and props.get("report_type", "") != "Rectangular Contour Plot"
+            ):
                 report._props["context"]["secondary_sweep"] = ""
             _update_props(props, report._props)
             for el, k in self._app.available_variations.nominal_w_values_dict.items():
