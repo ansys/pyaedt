@@ -8,7 +8,7 @@ import pytest
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic import constants as consts
 
-if (3,7) < sys.version_info <(3, 12):
+if (3, 7) < sys.version_info < (3, 12) or ( (3,9) < sys.version_info < (3,13) and config["desktopVersion"] > "2024.2" ):
     from ansys.aedt.core import Emit
     from ansys.aedt.core import generate_unique_project_name
     from ansys.aedt.core.emit_core.emit_constants import EmiCategoryFilter
@@ -30,7 +30,8 @@ def aedtapp(add_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Emit API fails on linux.")
-@pytest.mark.skipif(sys.version_info < (3,8) or sys.version_info >=(3, 12), reason="Emit API is only available for Python 3.8+.")
+@pytest.mark.skipif(sys.version_info < (3,10), reason="Emit API is only available for Python 3.10+.")
+@pytest.mark.skipif(sys.version_info > (3,12) and config["desktopVersion"] < "2025.1", reason="Emit API is only available for Python 3.12 in AEDT version 2025.1 and later.")
 class TestClass:
 
     @pytest.fixture(autouse=True)
@@ -58,6 +59,9 @@ class TestClass:
                 assert self.aedtapp.results is not None
             elif sys.version_info.major == 3 and sys.version_info.minor == 11:
                 assert str(type(self.aedtapp._emit_api)) == "<class 'EmitApiPython311.EmitApi'>"
+                assert self.aedtapp.results is not None
+            elif sys.version_info.major == 3 and sys.version_info.minor == 12:
+                assert str(type(self.aedtapp._emit_api)) == "<class 'EmitApiPython312.EmitApi'>"
                 assert self.aedtapp.results is not None
 
     @pytest.mark.skipif(config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2021.2")
@@ -694,16 +698,14 @@ class TestClass:
     )
     def test_13_static_type_generation(self):
         domain = self.aedtapp.results.interaction_domain()
-        if sys.version_info < (3, 8):
+        if sys.version_info < (3, 10):
             py_version = "EmitApiPython"
-        elif sys.version_info < (3, 9):
-            py_version = "EmitApiPython38"
-        elif sys.version_info < (3, 10):
-            py_version = "EmitApiPython39"
         elif sys.version_info < (3, 11):
             py_version = "EmitApiPython310"
         elif sys.version_info < (3, 12):
             py_version = "EmitApiPython311"
+        elif sys.version_info < (3, 13):
+            py_version = "EmitApiPython312"
         assert str(type(domain)) == "<class '{}.InteractionDomain'>".format(py_version)
 
         # assert str(type(TxRxMode)) == "<class '{}.tx_rx_mode'>".format(py_version)
@@ -937,8 +939,12 @@ class TestClass:
         assert len(radiosRX) == 2
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1" or TEST_REVIEW_FLAG,
+        config["desktopVersion"] <= "2023.1",
         reason="Skipped on versions earlier than 2023.2",
+    )
+    @pytest.mark.skipif(
+        TEST_REVIEW_FLAG,
+        reason="Test under review",
     )
     def test_18_interference_scripts_no_filter(self, add_app):
         self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)
@@ -998,8 +1004,12 @@ class TestClass:
         assert protection_power_matrix == expected_protection_power
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1" or TEST_REVIEW_FLAG,
+        config["desktopVersion"] <= "2023.1",
         reason="Skipped on versions earlier than 2023.2",
+    )
+    @pytest.mark.skipif(
+        TEST_REVIEW_FLAG,
+        reason="Test under review",
     )
     def test_20_interference_filtering(self, add_app):
         self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)

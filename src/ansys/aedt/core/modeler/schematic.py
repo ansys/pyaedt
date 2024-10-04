@@ -33,11 +33,8 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.cad.modeler import Modeler
 
-if (3, 8) < sys.version_info < (3, 12):
-    from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
-    from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
-else:  # pragma: no cover
-    warnings.warn("Emit API is only available for Python 3.8+,<3.12.")
+from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
+from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import Wire
 from ansys.aedt.core.modeler.circuits.primitives_maxwell_circuit import MaxwellCircuitComponents
