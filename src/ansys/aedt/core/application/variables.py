@@ -964,6 +964,7 @@ class VariableManager(object):
         read_only=False,
         hidden=False,
         description=None,
+        sweep=True,
         overwrite=True,
         is_post_processing=False,
         circuit_parameter=True,
@@ -988,6 +989,11 @@ class VariableManager(object):
         description : str, optional
             Text to display for the design property or project variable in the
             ``Properties`` window. The default is ``None``.
+        sweep : bool, optional
+            Allows you to designate variables to include in solution indexing as a way to
+            permit faster post-processing.
+            Variables with the Sweep check box cleared are not used in solution indexing.
+            The default is ``True``.
         overwrite : bool, optional
             Whether to overwrite an existing value for the design
             property or project variable. The default is ``False``, in
@@ -1128,6 +1134,8 @@ class VariableManager(object):
                                     read_only,
                                     "Hidden:=",
                                     hidden,
+                                    "Sweep:=",
+                                    sweep,
                                 ],
                             ],
                         ],
@@ -1178,6 +1186,8 @@ class VariableManager(object):
                                 read_only,
                                 "Hidden:=",
                                 hidden,
+                                "Sweep:=",
+                                sweep,
                             ],
                         ],
                     ],
@@ -1441,6 +1451,7 @@ class Variable(object):
         app=None,
         readonly=False,
         hidden=False,
+        sweep=True,
         description=None,
         postprocessing=False,
         circuit_parameter=True,
@@ -1451,6 +1462,7 @@ class Variable(object):
         self._app = app
         self._readonly = readonly
         self._hidden = hidden
+        self._sweep = sweep
         self._postprocessing = postprocessing
         self._circuit_parameter = circuit_parameter
         self._description = description
@@ -1503,6 +1515,7 @@ class Variable(object):
                 self._expression,
                 read_only=self._readonly,
                 hidden=self._hidden,
+                sweep=self._sweep,
                 description=self._description,
                 is_post_processing=self._postprocessing,
                 circuit_parameter=self._circuit_parameter,
@@ -1714,6 +1727,21 @@ class Variable(object):
             self._hidden = fallback_val
             if self._app:
                 self._app.logger.error('Failed to update property "hidden".')
+
+    @property
+    def sweep(self):
+        """Sweep flag value."""
+        self._sweep = self._get_prop_val("Sweep")
+        return self._sweep
+
+    @sweep.setter
+    def sweep(self, value):
+        fallback_val = self._sweep
+        self._sweep = value
+        if not self._update_var():
+            self._sweep = fallback_val
+            if self._app:
+                self._app.logger.error('Failed to update property "sweep".')
 
     @property
     def description(self):

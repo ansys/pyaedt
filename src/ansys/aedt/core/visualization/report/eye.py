@@ -47,6 +47,7 @@ class AMIConturEyeDiagram(CommonReport):
         self._props["context"]["variations"]["__Amplitude"] = ["All"]
         self._props["context"]["variations"]["__EyeOpening"] = ["0"]
         self._props["context"]["primary_sweep"] = "__UnitInterval"
+        self._props["context"]["secondary_sweep"] = "__Amplitude"
         self.quantity_type = 0
         self.min_latch_overlay = "0"
         self.noise_floor = "1e-16"
@@ -120,17 +121,6 @@ class AMIConturEyeDiagram(CommonReport):
     @quantity_type.setter
     def quantity_type(self, value):
         self._props["quantity_type"] = value
-
-    @property
-    def report_category(self):
-        """Report category.
-
-        Returns
-        -------
-        str
-            Report category.
-        """
-        return self._props["report_category"]
 
     @property
     def _context(self):
@@ -552,6 +542,8 @@ class AMIEyeDiagram(CommonReport):
                     new_exprs.append("{}AfterChannel<".format(expr_head) + expr + ".int_ami_rx>")
                 elif qtype == 3:
                     new_exprs.append("{}AfterProbe<".format(expr_head) + expr + ".int_ami_rx>")
+                else:
+                    new_exprs.append(expr)
             else:
                 new_exprs.append(expr)
         return new_exprs
@@ -580,6 +572,11 @@ class AMIEyeDiagram(CommonReport):
         str
             Report category.
         """
+        if self._is_created:
+            try:
+                return self.properties.props["Report Type"]
+            except Exception:
+                return self._props["report_category"]
         return self._props["report_category"]
 
     @report_category.setter

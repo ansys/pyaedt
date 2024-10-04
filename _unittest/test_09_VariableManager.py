@@ -158,12 +158,15 @@ class TestClass:
         eval_p3_nom = v._app.get_evaluated_value("p3")
         assert isclose(eval_p3_nom, 0.0002)
         v_app = self.aedtapp.variable_manager
-        assert v_app["p1"].read_only == False
+        assert v_app["p1"].sweep
+        v_app["p1"].sweep = False
+        assert not v_app["p1"].sweep
+        assert not v_app["p1"].read_only
         v_app["p1"].read_only = True
-        assert v_app["p1"].read_only == True
-        assert v_app["p1"].hidden == False
+        assert v_app["p1"].read_only
+        assert not v_app["p1"].hidden
         v_app["p1"].hidden = True
-        assert v_app["p1"].hidden == True
+        assert v_app["p1"].hidden
         assert v_app["p2"].description == ""
         v_app["p2"].description = "myvar"
         assert v_app["p2"].description == "myvar"

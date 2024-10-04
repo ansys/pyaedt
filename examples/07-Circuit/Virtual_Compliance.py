@@ -185,6 +185,7 @@ v.reports["common mode return losses"].traces = return_comm
 v.reports["eye1"].traces = eye_curve_tx
 v.reports["eye3"].traces = eye_curve_tx
 v.reports["tdr from circuit"].traces = tdr_probe_name
+v.parameters = {}
 v.parameters["erl"].trace_pins = [
     ["X1.A5.PCIe_Gen4_RX1_P", "X1.A6.PCIe_Gen4_RX1_N", "U1.AR25.PCIe_Gen4_RX1_P", "U1.AP25.PCIe_Gen4_RX1_N"],
     [7, 8, 18, 17]]
