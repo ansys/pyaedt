@@ -494,8 +494,9 @@ class PostProcessor3D(PostProcessorCommon):
 
         variation = []
         for el, value in variations.items():
-            variation.append(el + ":=")
-            variation.append(value)
+            if self._app.variable_manager.variables[el].sweep:
+                variation.append(el + ":=")
+                variation.append(value)
 
         variation.extend(intrinsics)
 
@@ -674,8 +675,9 @@ class PostProcessor3D(PostProcessorCommon):
 
         variation = []
         for el, value in variations.items():
-            variation.append(el + ":=")
-            variation.append(value)
+            if self._app.variable_manager.variables[el].sweep:
+                variation.append(el + ":=")
+                variation.append(value)
         variation.extend(intrinsics)
 
         export_options = [
@@ -842,8 +844,9 @@ class PostProcessor3D(PostProcessorCommon):
 
         variation = []
         for el, value in variations.items():
-            variation.append(el + ":=")
-            variation.append(value)
+            if self._app.variable_manager.variables[el].sweep:
+                variation.append(el + ":=")
+                variation.append(value)
         variation.extend(intrinsics)
 
         if not sample_points_file and not sample_points:

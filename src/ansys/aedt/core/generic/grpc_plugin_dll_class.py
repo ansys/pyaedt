@@ -111,7 +111,7 @@ class AedtObjWrapper:
 
     def __Invoke__(self, funcName, argv):
         if settings.enable_debug_grpc_api_logger:
-            settings.logger.debug("{} {}".format(funcName, argv))
+            settings.logger.debug(" {}{}".format(funcName, argv))
         try:
             if (settings.use_multi_desktop and funcName not in exclude_list) or funcName in inclusion_list:
                 self.dllapi.recreate_application(True)

@@ -630,7 +630,7 @@ class CommonReport(object):
             try:
                 return self.properties.props["Report Type"]
             except Exception:
-                return self._props["report_type"]
+                return self._props["report_category"]
         return self._props["report_category"]
 
     @report_category.setter
