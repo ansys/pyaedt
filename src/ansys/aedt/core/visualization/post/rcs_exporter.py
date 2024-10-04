@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import copy
 import json
 import os
 import shutil
@@ -111,7 +112,7 @@ class MonostaticRCSExporter:
         self.__metadata_file = ""
         self.__frequency_unit = self.__app.odesktop.GetDefaultUnit("Frequency")
 
-        self.__column_name = self.expression
+        self.__column_name = copy.deepcopy(self.expression)
         self.__phi_column_name = "ComplexMonostaticRCSPhi"
 
     @property
@@ -208,9 +209,10 @@ class MonostaticRCSExporter:
             df = data.full_matrix_real_imag[0] + complex(0, 1) * data.full_matrix_real_imag[1]
             df.index.names = [*data.variations[0].keys(), *data.intrinsics.keys()]
             df = df.reset_index(level=[*data.variations[0].keys()], drop=True)
-            df = unit_converter(
-                df, unit_system="Length", input_units=data.units_data[self.expression], output_units="meter"
-            )
+            expression = self.expression
+            if isinstance(self.expression, list):
+                expression = self.expression[0]
+            df = unit_converter(df, unit_system="Length", input_units=data.units_data[expression], output_units="meter")
 
             df.rename(
                 columns={
