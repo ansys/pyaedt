@@ -28,7 +28,6 @@ from unittest import mock
 from ansys.aedt.core.misc import current_student_version
 from ansys.aedt.core.misc import current_version
 from ansys.aedt.core.misc import installed_versions
-from ansys.aedt.core.misc import is_safe_path
 from ansys.aedt.core.misc import list_installed_ansysem
 import pytest
 
@@ -99,23 +98,3 @@ def test_current_student_version(mock_os_environ):
         assert current_student_version() == "2024.2SV"
     with mock.patch("ansys.aedt.core.misc.misc.CURRENT_STABLE_AEDT_VERSION", 2023.2):
         assert current_student_version() == ""
-
-
-@pytest.mark.parametrize(
-    "path, allowed_extensions, expected",
-    [
-        ("/path/to/file.txt", [".txt", ".pdf"], True),
-        ("/path/to/file.exe", [".txt", ".pdf"], False),
-        ("/path/to/file.txt", None, True),
-        ("/path/to/file.txt", [".pdf"], False),
-        ("/path/;rm -rf /file.txt", [".txt"], False),
-    ],
-)
-def test_is_safe_path(path, allowed_extensions, expected):
-    """Test the is_safe_path function."""
-    with mock.patch("os.path.exists", return_value=True), mock.patch("os.path.isfile", return_value=True):
-        assert is_safe_path(path, allowed_extensions) == expected
-
-    # Test case for an invalid path
-    with mock.patch("os.path.exists", return_value=False):
-        assert not is_safe_path("/invalid/path/file.txt", [".txt"])

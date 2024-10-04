@@ -106,21 +106,3 @@ def current_student_version():
     if stable_student_versions:
         return stable_student_versions[0]
     return ""
-
-
-def is_safe_path(path, allowed_extensions=None):
-    """Validate if a path is safe to use."""
-    # Ensure path is an existing file or directory
-    if not os.path.exists(path) or not os.path.isfile(path):
-        return False
-
-    # Restrict to allowed file extensions:
-    if allowed_extensions:
-        if not any(path.endswith(extension) for extension in allowed_extensions):
-            return False
-
-    # Ensure path does not contain dangerous characters
-    if any(char in path for char in (";", "|", "&", "$", "<", ">", "`")):
-        return False
-
-    return True

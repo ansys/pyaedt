@@ -22,7 +22,27 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from ansys.aedt.core.misc.misc import current_student_version
-from ansys.aedt.core.misc.misc import current_version
-from ansys.aedt.core.misc.misc import installed_versions
-from ansys.aedt.core.misc.misc import list_installed_ansysem
+from unittest import mock
+
+from ansys.aedt.core.generic.filesystem import is_safe_path
+import pytest
+
+
+@pytest.mark.parametrize(
+    "path, allowed_extensions, expected",
+    [
+        ("/path/to/file.txt", [".txt", ".pdf"], True),
+        ("/path/to/file.exe", [".txt", ".pdf"], False),
+        ("/path/to/file.txt", None, True),
+        ("/path/to/file.txt", [".pdf"], False),
+        ("/path/;rm -rf /file.txt", [".txt"], False),
+    ],
+)
+def test_is_safe_path(path, allowed_extensions, expected):
+    """Test the is_safe_path function."""
+    with mock.patch("os.path.exists", return_value=True), mock.patch("os.path.isfile", return_value=True):
+        assert is_safe_path(path, allowed_extensions) == expected
+
+    # Test case for an invalid path
+    with mock.patch("os.path.exists", return_value=False):
+        assert not is_safe_path("/invalid/path/file.txt", [".txt"])
