@@ -544,7 +544,8 @@ class TwinBuilderComponents(CircuitComponents):
         >>> from ansys.aedt.core import TwinBuilder
         >>> tb = TwinBuilder(version="2025.1")
         >>> G = 0.00254
-        >>> source1 = tb.modeler.schematic.create_component("source1", "", "Simplorer Elements\\Basic Elements\\Tools\\Time Functions:DATAPAIRS", [20 * G, 29 * G])
+        >>> modelpath = "Simplorer Elements\\Basic Elements\\Tools\\Time Functions:DATAPAIRS"
+        >>> source1 = tb.modeler.schematic.create_component("source1", "", modelpath, [20 * G, 29 * G])
         >>> tb.modeler.schematic.update_quantity_value(source1.composed_name, "PERIO", "0")
         >>> tb.release_desktop(False, False)
         """
