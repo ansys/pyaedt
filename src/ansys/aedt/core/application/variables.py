@@ -1186,6 +1186,8 @@ class VariableManager(object):
                                 read_only,
                                 "Hidden:=",
                                 hidden,
+                                "Sweep:=",
+                                sweep,
                             ],
                         ],
                     ],
