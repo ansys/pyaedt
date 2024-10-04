@@ -475,3 +475,111 @@ class TwinBuilderComponents(CircuitComponents):
             id.set_property("PERIO", 1)
 
         return id
+
+    @pyaedt_function_handler()
+    def create_component_from_sml(
+        self,
+        input_file,
+        model,
+        outputs,
+    ):
+        """Create and place a new component based on a .sml file.
+
+        Parameters
+        ----------
+        input_file : str
+            Path to .sml file.
+        model : str
+            Model name to import.
+        outputs : str
+            List of output names.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import TwinBuilder
+        >>> tb = TwinBuilder(version="2025.1")
+        >>> input_file = os.path.join("Your path", "test.sml")
+        >>> model = "Thermal_ROM_SML"
+        >>> outputs = "Input1_InternalHeatGeneration,Input2_HeatFlow,Output1_Temp1,Output2_Temp2"
+        >>> tb.modeler.schematic.create_component_from_sml(input_file=model, model=model, outputs=outputs)
+        >>> tb.release_desktop(False, False)
+        """
+        arg = ["NAME:Options", "Mode:=", 1]
+        arg2 = ["NAME:Models", model + ":=", [True]]
+
+        arg3 = ["NAME:Components", model + ":=", [True, True, model, True, outputs.lower(), outputs.lower()]]
+
+        arg.append(arg2)
+        arg.append(arg3)
+        self.o_component_manager.ImportModelsFromFile(input_file, arg)
+        return True
+
+    @pyaedt_function_handler()
+    def update_quantity_value(self, component_name, name, value, netlist_units=""):
+        """Create and place a new component based on a .sml file.
+
+        Parameters
+        ----------
+        component_name : str
+            Component name.
+        name : str
+            Property name.
+        value : str
+            Value of the quantity.
+        netlist_units : str, optional
+            Value of the quantity.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import TwinBuilder
+        >>> tb = TwinBuilder(version="2025.1")
+        >>> input_file = os.path.join("Your path", "test.sml")
+        >>> model = "Thermal_ROM_SML"
+        >>> outputs = "Input1_InternalHeatGeneration,Input2_HeatFlow,Output1_Temp1,Output2_Temp2"
+        >>> tb.modeler.schematic.create_component_from_sml(input_file=model, model=model, outputs=outputs)
+        >>> tb.release_desktop(False, False)
+        """
+        try:
+            self.oeditor.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:Quantities",
+                        ["NAME:PropServers", component_name],
+                        [
+                            "NAME:ChangedProps",
+                            [
+                                "NAME:" + name,
+                                "OverridingDef:=",
+                                True,
+                                "Value:=",
+                                value,
+                                "NetlistUnits:=",
+                                netlist_units,
+                                "ShowPin:=",
+                                False,
+                                "Display:=",
+                                False,
+                                "Sweep:=",
+                                False,
+                                "SDB:=",
+                                False,
+                            ],
+                        ],
+                    ],
+                ]
+            )
+            return True
+        except Exception:  # pragma: no cover
+            self.logger.warning("Property %s has not been edited. Check if readonly.", name)
+            return False
