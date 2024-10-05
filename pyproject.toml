@@ -71,52 +71,21 @@ dotnet = [
     "dotnetcore2==3.1.23; platform_system=='Linux'",
     "pywin32>=303; platform_system=='Windows'",
 ]
+
 doc = [
     "ansys-sphinx-theme>=0.10.0,<1.1",
-    "ipython>=8.13.0,<8.28",
-    "joblib>=1.3.0,<1.5",
-    "jupyterlab>=4.0.0,<4.3",
-    "matplotlib>=3.5.0,<3.10",
-    "nbsphinx>=0.9.0,<0.10",
-    "numpydoc>=1.5.0,<1.9",
-    "openpyxl>=3.0.0,<3.2",
-    "osmnx>=1.1.0,<1.10",
-    "pypandoc>=1.10.0,<1.14",
-    #"pytest-sphinx",
-    "pyvista[io]>=0.38.0,<0.45",
-    "recommonmark",
-    "scikit-rf>=0.30.0,<1.4",
-    "Sphinx>=7.1.0,<8.1",
-    # NOTE: latest compatible version for Python 3.8 is 2021.3.14
-    "sphinx-autobuild==2021.3.14; python_version == '3.8'",
-    "sphinx-autobuild==2024.9.19; python_version > '3.8'",
-    #"sphinx-autodoc-typehints",
-    "sphinx-copybutton>=0.5.0,<0.6",
-    "sphinx-gallery>=0.14.0,<0.18",
-    #"sphinx-notfound-page",
-    "sphinx_design>=0.4.0,<0.7",
-    #"sphinxcontrib-websupport",
-    "SRTM.py",
-    "utm",
-]
-doc-no-examples = [
-    "ansys-sphinx-theme>=0.10.0,<1.1",
     "numpydoc>=1.5.0,<1.9",
     "recommonmark",
     "Sphinx>=7.1.0,<8.1",
     # NOTE: latest compatible version for Python 3.8 is 2021.3.14
     "sphinx-autobuild==2021.3.14; python_version == '3.8'",
     "sphinx-autobuild==2024.9.19; python_version > '3.8'",
-    #"sphinx-autodoc-typehints",
     "sphinx-copybutton>=0.5.0,<0.6",
     "sphinx-gallery>=0.14.0,<0.18",
-    #"sphinx-notfound-page",
-    #"sphinxcontrib-websupport",
     "sphinx_design>=0.4.0,<0.7",
-    "matplotlib>=3.5.0,<3.10",
-    "scikit-rf>=0.30.0,<1.4",
     "pyvista[io]>=0.38.0,<0.45",
 ]
+
 all = [
     "matplotlib>=3.5.0,<3.10",
     "numpy>=1.20.0,<2",
