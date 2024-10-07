@@ -238,38 +238,37 @@ class MonostaticRCSData(object):
         data_freq = self.monostatic_data
 
         curves = []
-        if primary_sweep.lower() == "IWavePhi":
+        all_secondary_sweep_value = None
+        if primary_sweep.lower() == "iwavephi":
             x_key = "IWavePhi"
             y_key = "IWaveTheta"
-
-            x = self.incident_wave_theta
+            x = self.incident_wave_phi
+            if isinstance(secondary_sweep_value, str) and secondary_sweep_value == "all":
+                all_secondary_sweep_value = self.incident_wave_theta
         else:
             x_key = "IWaveTheta"
             y_key = "IWavePhi"
-            x = self.incident_wave_phi
+            x = self.incident_wave_theta
+            if isinstance(secondary_sweep_value, str) and secondary_sweep_value == "all":
+                all_secondary_sweep_value = self.incident_wave_phi
         if is_polar:
             x = [i * 2 * math.pi / 360 for i in x]
-        if secondary_sweep_value == "all":
-            # TODO
-            pass
-            # for el in data[y_key]:
-            #     idx = self.__find_nearest(data[y_key], el)
-            #     y = temp[idx]
-            #     y = conversion_function(y, quantity_format)
-            #     if not isinstance(y, np.ndarray):  # pragma: no cover
-            #         raise Exception("Format of quantity is wrong.")
-            #     curves.append([x, y, "{}={}".format(y_key, el)])
-        elif isinstance(secondary_sweep_value, list):
-            list_inserted = []
-            for el in secondary_sweep_value:
-                data = data_freq.xs(key=secondary_sweep_value, level=x_key)
-                y = conversion_function(data, quantity_format)
+        if all_secondary_sweep_value is not None:
+            for el in all_secondary_sweep_value:
+                data = data_freq.xs(key=el, level=y_key)
+                y = conversion_function(data.values, quantity_format)
                 if not isinstance(y, np.ndarray):  # pragma: no cover
                     raise Exception("Format of quantity is wrong.")
                 curves.append([x, y, "{}={}".format(y_key, el)])
-                list_inserted.append(theta_idx)
+        elif isinstance(secondary_sweep_value, np.ndarray) or isinstance(secondary_sweep_value, list):
+            for el in secondary_sweep_value:
+                data = data_freq.xs(key=el, level=y_key)
+                y = conversion_function(data.values, quantity_format)
+                if not isinstance(y, np.ndarray):  # pragma: no cover
+                    raise Exception("Format of quantity is wrong.")
+                curves.append([x, y, "{}={}".format(y_key, el)])
         else:
-            y = data_freq.xs(key=secondary_sweep_value, level=x_key)
+            y = data_freq.xs(key=secondary_sweep_value, level=y_key)
             y = conversion_function(y.values, quantity_format)
             if not isinstance(y, np.ndarray):  # pragma: no cover
                 raise Exception("Wrong format quantity.")
