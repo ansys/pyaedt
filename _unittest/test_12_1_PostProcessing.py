@@ -106,8 +106,8 @@ class TestClass:
         inner = self.aedtapp.modeler.objects_by_name["inner"]
         inner.solve_inside = True
         inner_plot = self.aedtapp.post.create_fieldplot_volume("inner", "Vector_E", setup_name, intrinsic)
-        self.aedtapp.analyze(self.aedtapp.active_setup)
         assert inner_plot
+        self.aedtapp.analyze(self.aedtapp.active_setup)
         export_status = self.aedtapp.post.export_field_plot(
             plot_name=inner_plot.name, output_dir=self.aedtapp.working_directory, file_format="case"
         )
