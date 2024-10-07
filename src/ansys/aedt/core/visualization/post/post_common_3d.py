@@ -424,7 +424,7 @@ class PostProcessor3D(PostProcessorCommon):
         Returns
         -------
         float
-            ``True`` when successful, ``False`` when failed.
+            Scalar field value.
 
         References
         ----------
@@ -930,8 +930,8 @@ class PostProcessor3D(PostProcessorCommon):
 
         Returns
         -------
-        str
-            File path when successful.
+        str or bool
+            File path when successful or ``False`` when it fails.
 
         References
         ----------
@@ -1753,14 +1753,23 @@ class PostProcessor3D(PostProcessorCommon):
 
         Returns
         -------
-        :class:``ansys.aedt.core.modules.solutions.FieldPlot``
-            Plot object.
+        :class:``ansys.aedt.core.modules.solutions.FieldPlot`` or bool
+            Plot object or ``False`` if it fails.
 
         References
         ----------
 
         >>> oModule.CreateFieldPlot
         """
+        assignment = self.modeler.convert_to_selections(assignment, True)
+
+        for a in assignment:
+            if a not in list(self.modeler.objects_by_name.keys()):
+                self.logger.error("{} does not exist in current design".format(a))
+                return False
+            elif self.modeler.objects_by_name[a].is_conductor and not self.modeler.objects_by_name[a].solve_inside:
+                self.logger.warning("Solve inside is unchecked for {} object.".format(a))
+                return False
         intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
 
         if plot_name and plot_name in list(self.field_plots.keys()):

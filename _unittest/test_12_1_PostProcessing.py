@@ -102,7 +102,17 @@ class TestClass:
         plot1.update()
         assert self.aedtapp.post.field_plots[plot1.name].IsoVal == "Tone"
         assert plot1.change_plot_scale(min_value, "30000", scale_levels=50)
-        assert self.aedtapp.post.create_fieldplot_volume("inner", "Vector_E", setup_name, intrinsic)
+        assert not self.aedtapp.post.create_fieldplot_volume("inner", "Vector_E", setup_name, intrinsic)
+        inner = self.aedtapp.modeler.objects_by_name["inner"]
+        inner.solve_inside = True
+        inner_plot = self.aedtapp.post.create_fieldplot_volume("inner", "Vector_E", setup_name, intrinsic)
+        self.aedtapp.analyze(self.aedtapp.active_setup)
+        assert inner_plot
+        export_status = self.aedtapp.post.export_field_plot(
+            plot_name=inner_plot.name, output_dir=self.aedtapp.working_directory, file_format="case"
+        )
+        assert export_status
+        assert os.path.splitext(export_status)[1] == ".case"
         assert self.aedtapp.post.create_fieldplot_surface(
             self.aedtapp.modeler["outer"].faces[0].id, "Mag_E", setup_name, intrinsic
         )
@@ -124,6 +134,7 @@ class TestClass:
         min_value = self.aedtapp.post.get_scalar_field_value(
             "E", "Minimum", setup_name, intrinsics="5GHz", is_vector=True
         )
+        assert isinstance(min_value, float)
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_01_Animate_plt(self):
@@ -175,20 +186,17 @@ class TestClass:
         assert os.path.exists(plot2.export_image(os.path.join(self.local_scratch.path, "test_x.jpg")))
 
     def test_03_create_scattering(self):
-        setup_name = "Setup1 : Sweep"
         portnames = ["1", "2"]
         assert self.aedtapp.create_scattering("MyTestScattering")
         setup_name = "Setup2 : Sweep"
         assert not self.aedtapp.create_scattering("MyTestScattering2", setup_name, portnames, portnames)
 
     def test_03_get_solution_data(self):
-        self.aedtapp.analyze(self.aedtapp.active_setup)
         trace_names = []
         portnames = ["1", "2"]
         for el in portnames:
             for el2 in portnames:
                 trace_names.append("S(" + el + "," + el2 + ")")
-        cxt = ["Domain:=", "Sweep"]
         families = {"Freq": ["All"]}
         for el in self.aedtapp.available_variations.nominal_w_values_dict:
             families[el] = self.aedtapp.available_variations.nominal_w_values_dict[el]
