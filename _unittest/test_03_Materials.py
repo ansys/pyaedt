@@ -22,7 +22,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import builtins
+import logging
 import os
+from unittest.mock import mock_open
 
 from _unittest.conftest import config
 from _unittest.conftest import local_path
@@ -30,9 +33,26 @@ from ansys.aedt.core import Icepak
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.modules.material import MatProperties
 from ansys.aedt.core.modules.material import SurfMatProperties
+from mock import patch
 import pytest
 
 test_subfolder = "T03"
+
+MISSING_RGB_MATERIALS = b"""
+{
+    "materials": {
+        "copper_5540": {
+            "AttachedData": {
+                "MatAppearanceData": {
+                    "property_data": "appearance_data"
+                }
+            },
+            "permeability": "0.999991",
+            "conductivity": "58000000"
+        }
+    }
+}
+"""
 
 
 @pytest.fixture(scope="class")
@@ -527,3 +547,15 @@ class TestClass:
             self.testapp2.materials.material_keys["84zn_12ag_4au_imp"].thermal_expansion_coefficient.thermalmodifier
             == "pwl($TM_84Zn_12Ag_4Au_imp_thermal_expansion_coefficient, Temp)"
         )
+
+    @patch.object(builtins, "open", new_callable=mock_open, read_data=MISSING_RGB_MATERIALS)
+    def test_17_json_missing_rgb(self, _mock_file_open, caplog: pytest.LogCaptureFixture):
+        input_path = os.path.join(local_path, "example_models", test_subfolder, "mats.json")
+        with pytest.raises(KeyError):
+            self.aedtapp.materials.import_materials_from_file(input_path)
+        assert [
+            record
+            for record in caplog.records
+            if record.levelno == logging.ERROR
+            and record.message == f"Failed to import material 'copper_5540' from {input_path!r}: key error on 'Red'"
+        ]
