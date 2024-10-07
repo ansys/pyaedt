@@ -51,8 +51,8 @@ def deprecation_warning():
 
     warnings.showwarning = custom_show_warning
 
-    current_version = sys.version_info[:2]
-    if current_version <= LATEST_DEPRECATED_PYTHON_VERSION:
+    current_python_version = sys.version_info[:2]
+    if current_python_version <= LATEST_DEPRECATED_PYTHON_VERSION:
         warnings.warn(PYTHON_VERSION_WARNING, FutureWarning)
 
     # Restore warnings showwarning
@@ -110,6 +110,3 @@ from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import online_help
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.misc import current_student_version
-from ansys.aedt.core.misc import current_version
-from ansys.aedt.core.misc import installed_versions

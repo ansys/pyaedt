@@ -38,7 +38,7 @@ from ansys.aedt.core import Q2d
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Mechanical
-from ansys.aedt.core.misc import list_installed_ansysem
+from ansys.aedt.core.generic.aedt_versions import aedt_versions
 
 
 class FileManagement(object):
@@ -1136,7 +1136,7 @@ class ServiceManager(rpyc.Service):
             if os.getenv("PYAEDT_SERVER_AEDT_PATH",""):
                 ansysem_path = os.getenv("PYAEDT_SERVER_AEDT_PATH","")
             else:
-                aa = list_installed_ansysem()
+                aa = aedt_versions.list_installed_ansysem
                 if aa:
                     ansysem_path = os.environ[aa[0]]
                 else:

@@ -28,8 +28,8 @@ import os
 import re
 import subprocess
 
+from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.misc.misc import installed_versions
 import matplotlib.pyplot as plt
 import numpy as np
 import skrf as rf
@@ -500,7 +500,7 @@ def check_touchstone_files(input_dir="", passivity=True, causality=True):
     sNpFiles = find_touchstone_files(input_dir)
     if not sNpFiles:
         return out
-    aedt_install_folder = list(installed_versions().values())[0]
+    aedt_install_folder = list(aedt_versions.installed_versions.values())[0]
     for snpf in sNpFiles:
         out[snpf] = []
         if os.name == "nt":
