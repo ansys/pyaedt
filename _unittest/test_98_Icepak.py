@@ -34,8 +34,8 @@ from ansys.aedt.core.modules.boundary import PCBSettingsDeviceParts
 from ansys.aedt.core.modules.boundary import PCBSettingsPackageParts
 from ansys.aedt.core.modules.mesh_icepak import MeshRegion
 from ansys.aedt.core.modules.setup_templates import SetupKeys
-from ansys.aedt.core.modules.solutions import FolderPlotSettings
-from ansys.aedt.core.modules.solutions import SpecifiedScale
+from ansys.aedt.core.visualization.post.field_data import FolderPlotSettings
+from ansys.aedt.core.visualization.post.field_data import SpecifiedScale
 import pytest
 
 test_subfolder = "T98"
@@ -277,7 +277,7 @@ class TestClass:
         pcb_mesh_region.MinGapZ = 1
         assert pcb_mesh_region.update()
         if settings.aedt_version > "2023.2":
-            assert pcb_mesh_region.assignment.padding_values == ["0"] * 6
+            assert [str(i) for i in pcb_mesh_region.assignment.padding_values] == ["0"] * 6
             assert pcb_mesh_region.assignment.padding_types == ["Percentage Offset"] * 6
             pcb_mesh_region.assignment.negative_x_padding = 1
             pcb_mesh_region.assignment.positive_x_padding = 1
@@ -293,10 +293,10 @@ class TestClass:
             pcb_mesh_region.assignment.positive_z_padding_type = "Transverse Percentage Offset"
             assert pcb_mesh_region.assignment.negative_x_padding == "1mm"
             assert pcb_mesh_region.assignment.positive_x_padding == "1mm"
-            assert pcb_mesh_region.assignment.negative_y_padding == "1"
+            assert str(pcb_mesh_region.assignment.negative_y_padding) == "1"
             assert pcb_mesh_region.assignment.positive_y_padding == "1mm"
             assert pcb_mesh_region.assignment.negative_z_padding == "1mm"
-            assert pcb_mesh_region.assignment.positive_z_padding == "1"
+            assert str(pcb_mesh_region.assignment.positive_z_padding) == "1"
             assert pcb_mesh_region.assignment.negative_x_padding_type == "Absolute Offset"
             assert pcb_mesh_region.assignment.positive_x_padding_type == "Absolute Position"
             assert pcb_mesh_region.assignment.negative_y_padding_type == "Transverse Percentage Offset"
@@ -1867,7 +1867,14 @@ class TestClass:
         g_m_r = self.aedtapp.mesh.global_mesh_region
         assert g_m_r
         assert g_m_r.global_region.object.name == "Region"
-        assert g_m_r.global_region.padding_values == ["50", "50", "50", "50", "50", "50"]
+        assert g_m_r.global_region.padding_values == [
+            "50",
+            "50",
+            "50",
+            "50",
+            "50",
+            "50",
+        ] or g_m_r.global_region.padding_values == [50, 50, 50, 50, 50, 50]
         assert g_m_r.global_region.padding_types == [
             "Percentage Offset",
             "Percentage Offset",

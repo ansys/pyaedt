@@ -1386,6 +1386,7 @@ class BinaryTreeNode:
     """Manages an object's history structure."""
 
     def __init__(self, node, child_object, first_level=False, get_child_obj_arg=None, root_name=None):
+        self._props = None
         if not root_name:
             root_name = node
         saved_root_name = node if first_level else root_name
@@ -1418,19 +1419,68 @@ class BinaryTreeNode:
                     )
         if first_level:
             self.child_object = self.children[name].child_object
-            self.props = self.children[name].props
+            self._props = self.children[name]._props
             if name == "CreatePolyline:1":
                 self.segments = self.children[name].children
             del self.children[name]
-        else:
-            self.props = {}
-            for p in self.child_object.GetPropNames():
+
+    @property
+    def props(self):
+        """Properties data.
+
+        Returns
+        -------
+        :class:``ansys.aedt.coree.modeler.cad.elements_3d.HistoryProps``
+        """
+        if self._props is None:
+            self._props = {}
+            if settings.aedt_version >= "2024.2":
                 try:
-                    self.props[p] = self.child_object.GetPropValue(p)
+                    props = self._get_data_model()
+                    for p in self.child_object.GetPropNames():
+                        if p in props:
+                            self._props[p] = props[p]
+                        else:
+                            self._props[p] = None
                 except Exception:
-                    self.props[p] = None
-            self.props = HistoryProps(self, self.props)
-        self.command = self.props.get("Command", "")
+                    for p in self.child_object.GetPropNames():
+                        try:
+                            self._props[p] = self.child_object.GetPropValue(p)
+                        except Exception:
+                            self._props[p] = None
+            else:
+                for p in self.child_object.GetPropNames():
+                    try:
+                        self._props[p] = self.child_object.GetPropValue(p)
+                    except Exception:
+                        self._props[p] = None
+            self._props = HistoryProps(self, self._props)
+        return self._props
+
+    @property
+    def command(self):
+        """Command of the modeler hystory if available.
+
+        Returns
+        -------
+        str
+        """
+        return self.props.get("Command", "")
+
+    def _get_data_model(self):
+        import ast
+
+        input_str = self.child_object.GetDataModel(-1, 1, 1).replace("false", "False").replace("true", "True")
+        props_list = ast.literal_eval(input_str)
+        props = {}
+        for prop in props_list["properties"]:
+            if "value" in prop:
+                props[prop["name"]] = prop["value"]
+            elif "values" in prop:
+                props[prop["name"]] = prop["values"]
+            else:
+                props[prop["name"]] = None
+        return props
 
     def update_property(self, prop_name, prop_value):
         """Update the property of the binary tree node.

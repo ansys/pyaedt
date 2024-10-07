@@ -449,7 +449,7 @@ class Part(object):
         if self["duplicate_vector"]:
             d_vect = [float(i) for i in self["duplicate_vector"]]
             duplicate_result = app.modeler.duplicate_along_line(
-                aedt_objects[0], d_vect, nclones=int(self["duplicate_number"]), is_3d_comp=True
+                aedt_objects[0], d_vect, clones=int(self["duplicate_number"]), is_3d_comp=True
             )
             if duplicate_result[0]:
                 for d in duplicate_result[1]:

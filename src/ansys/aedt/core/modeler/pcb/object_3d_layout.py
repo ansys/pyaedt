@@ -844,6 +844,58 @@ class Nets3DLayout(object):
         geo = [i for i in self._oeditor.FindObjects("Net", self.name) if i not in comps]
         return geo
 
+    @pyaedt_function_handler()
+    def plot(
+        self,
+        layers=None,
+        show_legend=True,
+        save_plot=None,
+        outline=None,
+        size=(2000, 1000),
+        plot_components_on_top=False,
+        plot_components_on_bottom=False,
+        show=True,
+    ):
+        """Plot a Net to Matplotlib 2D Chart.
+
+        Parameters
+        ----------
+        layers : str, list, optional
+            Name of the layers to include in the plot. If ``None`` all the signal layers will be considered.
+        show_legend : bool, optional
+            If ``True`` the legend is shown in the plot. (default)
+            If ``False`` the legend is not shown.
+        save_plot : str, optional
+            If a path is specified the plot will be saved in this location.
+            If ``save_plot`` is provided, the ``show`` parameter is ignored.
+        outline : list, optional
+            List of points of the outline to plot.
+        size : tuple, int, optional
+            Image size in pixel (width, height). Default value is ``(2000, 1000)``
+        plot_components_on_top : bool, optional
+            If ``True``  the components placed on top layer are plotted.
+            If ``False`` the components are not plotted. (default)
+            If nets and/or layers is specified, only the components belonging to the specified nets/layers are plotted.
+        plot_components_on_bottom : bool, optional
+            If ``True``  the components placed on bottom layer are plotted.
+            If ``False`` the components are not plotted. (default)
+            If nets and/or layers is specified, only the components belonging to the specified nets/layers are plotted.
+        show : bool, optional
+            Whether to show the plot or not. Default is `True`.
+        """
+        return self._primitives.edb.nets.plot(
+            self.name,
+            layers=layers,
+            color_by_net=False,
+            show_legend=show_legend,
+            save_plot=save_plot,
+            outline=outline,
+            size=size,
+            plot_components_on_top=plot_components_on_top,
+            plot_components_on_bottom=plot_components_on_bottom,
+            show=show,
+        )
+
 
 class Pins3DLayout(Object3DLayout, object):
     """Contains the pins in HFSS 3D Layout."""

@@ -16,7 +16,7 @@ The available argument is: ``file_path``.
 
 CSV file example:
 
-:download:`CSV File example <../../Resources/icepak_classic_powermap.csv>`
+:download:`CSV File example <../../../Resources/icepak_classic_powermap.csv>`
 
 
 

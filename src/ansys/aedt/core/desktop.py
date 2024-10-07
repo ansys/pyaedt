@@ -450,7 +450,7 @@ class Desktop(object):
     machine : str, optional
         Machine name to connect the oDesktop session to. This parameter works only in 2022 R2
         and later. The remote server must be up and running with the command
-        `"ansysedt.exe -grpcsrv portnum"`. If the machine is `"localhost"`, the server also
+        ``"ansysedt.exe -grpcsrv portnum"``. If the machine is `"localhost"`, the server also
         starts if not present.
     port : int, optional
         Port number on which to start the oDesktop communication on the already existing server.
@@ -479,6 +479,7 @@ class Desktop(object):
     PyAEDT INFO: Python version ...
     >>> hfss = ansys.aedt.core.Hfss(design="HFSSDesign1")
     PyAEDT INFO: No project is defined. Project...
+
     """
 
     # _sessions = {}
@@ -1685,7 +1686,6 @@ class Desktop(object):
 
         """
         if self.__closed is True:  # pragma: no cover
-            self.log.debug("Connection is already closed. Ignoring request.")
             return
 
         return self.release_desktop(close_projects=True, close_on_exit=True)

@@ -14,7 +14,10 @@ The following sections provide further clarification.
 You can launch extensions in standalone mode from the console or a Python script.
 
 Pre-installed extensions
-~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------
+
+Project extensions
+~~~~~~~~~~~~~~~~~~
 
 Pre-installed extensions are available at project level so they are available for all AEDT applications.
 They are small automated workflow with a simple UI.
@@ -24,53 +27,64 @@ They are small automated workflow with a simple UI.
    .. grid-item-card:: Import Nastran
             :link: pyaedt_extensions_doc/project/import_nastran
             :link-type: doc
+            :margin: 2 2 0 0
 
             Import a Nastran or STL file in any 3D modeler application.
+
 
    .. grid-item-card:: Configure Layout
             :link: pyaedt_extensions_doc/project/configure_edb
             :link-type: doc
+            :margin: 2 2 0 0
 
             Configure layout for PCB & package analysis.
+
 
    .. grid-item-card:: Advanced Fields Calculator
             :link: pyaedt_extensions_doc/project/advanced_fields_calculator
             :link-type: doc
+            :margin: 2 2 0 0
 
             Lear how to use the Advanced Fields Calculator.
+
 
    .. grid-item-card:: Kernel converter
             :link: pyaedt_extensions_doc/project/kernel_convert
             :link-type: doc
+            :margin: 2 2 0 0
 
             Lear how to convert projects from 2022R2 to newer versions.
 
 
-.. toctree::
-   :hidden:
-   :maxdepth: 2
-
-   pyaedt_extensions_doc/project
-   pyaedt_extensions_doc/hfss3dlayout
-
 HFSS 3D Layout extensions
--------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
    .. grid-item-card:: Parametrize Layout
             :link: pyaedt_extensions_doc/hfss3dlayout/parametrize_edb
             :link-type: doc
+            :margin: 2 2 0 0
 
             Learn how to parametrize a full aedb.
 
+
    .. grid-item-card:: Generate arbitrary wave ports
-            :link: pyaedt_extensions_doc/project/arbitrary_wave_port
+            :link: pyaedt_extensions_doc/hfss3dlayout/arbitrary_wave_port
             :link-type: doc
+            :margin: 2 2 0 0
 
             Generate arbitrary wave ports in HFSS
 
 
+.. toctree::
+   :hidden:
+   :maxdepth: 1
+
+   pyaedt_extensions_doc/project/index
+   pyaedt_extensions_doc/hfss3dlayout/index
+
+
 Open source toolkits
-~~~~~~~~~~~~~~~~~~~~
+--------------------
 
 Open source toolkits are available at application level.
 They are complex workflows where backend and frontend are split.
@@ -82,7 +96,7 @@ Here are some links to existing toolkits:
 
 
 Custom extensions
-~~~~~~~~~~~~~~~~~
+-----------------
 
 Custom extensions are custom workflows (Python script) that can be installed both at project and application level.
 From the Extension manager select the target destination:

@@ -1,1 +1,1 @@
-from ansys.aedt.core.generic.report_file_parser import *
+from ansys.aedt.core.visualization.advanced.misc import parse_rdat_file
