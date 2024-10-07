@@ -104,6 +104,7 @@ class MonostaticRCSExporter:
             self.frequencies = [frequencies]
         else:
             self.frequencies = frequencies
+        self.data_file = None
 
         # Private
         self.__app = app
@@ -183,8 +184,8 @@ class MonostaticRCSExporter:
         if not self.variation_name:
             self.variation_name = variation
 
-        file_name = f"{name}.{output_format}"
-        full_path = os.path.join(export_path, file_name)
+        file_name = f"{name}_{self.variation_name}.{output_format}"
+        self.data_file = os.path.join(export_path, file_name)
         pyaedt_metadata_file = os.path.join(export_path, f"{metadata_name}_{self.variation_name}.json")
 
         # Create directory or check if files already exist
@@ -209,10 +210,9 @@ class MonostaticRCSExporter:
             df = data.full_matrix_real_imag[0] + complex(0, 1) * data.full_matrix_real_imag[1]
             df.index.names = [*data.variations[0].keys(), *data.intrinsics.keys()]
             df = df.reset_index(level=[*data.variations[0].keys()], drop=True)
-            expression = self.expression
-            if isinstance(self.expression, list):
-                expression = self.expression[0]
-            df = unit_converter(df, unit_system="Length", input_units=data.units_data[expression], output_units="meter")
+            df = unit_converter(
+                df, unit_system="Length", input_units=data.units_data[self.expression], output_units="meter"
+            )
 
             df.rename(
                 columns={
@@ -222,21 +222,21 @@ class MonostaticRCSExporter:
 
             if output_format == "h5":
                 try:
-                    df.to_hdf(full_path, key="df", mode="w", format="table")
+                    df.to_hdf(self.data_file, key="df", mode="w", format="table")
                 except ImportError as e:  # pragma: no cover
                     self.__app.logger.error(f"PyTables is not installed: {e}")
                     return False
             else:
-                df.to_pickle(full_path)
+                df.to_pickle(self.data_file)
 
-            if not os.path.isfile(full_path):  # pragma: no cover
+            if not os.path.isfile(self.data_file):  # pragma: no cover
                 self.__app.logger.error("RCS data file not exported.")
                 return False
         else:
             self.__app.logger.info("Using existing RCS file.")
 
         # Export geometry
-        if os.path.isfile(full_path):
+        if os.path.isfile(self.data_file):
             geometry_path = os.path.join(export_path, "geometry")
             if not os.path.exists(geometry_path):
                 os.mkdir(geometry_path)
