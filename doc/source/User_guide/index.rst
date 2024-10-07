@@ -6,7 +6,7 @@ User guide
 
 This section provides brief tutorials for helping you understand how to use PyAEDT effectively.
 
-For end-to-end examples, see `Examples <https://aedt.docs.pyansys.com/version/stable/examples>`_.
+For end-to-end examples, see `Examples <https://examples.aedt.docs.pyansys.com>`_.
 
 
 .. grid:: 2

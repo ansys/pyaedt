@@ -27,9 +27,7 @@ REM End of CICD dedicated setup
 if "%1" == "" goto help
 if "%1" == "clean" goto clean
 if "%1" == "html" goto html
-if "%1" == "html-no-examples" goto html-no-examples
 if "%1" == "pdf" goto pdf
-if "%1" == "pdf-no-examples" goto pdf-no-examples
 
 %SPHINXBUILD% >NUL 2>NUL
 if errorlevel 9009 (
@@ -59,23 +57,7 @@ for /d /r %SOURCEDIR% %%d in (_autosummary) do @if exist "%%d" rmdir /s /q "%%d"
 goto end
 
 :html
-echo Building HTML pages with examples
-set PYAEDT_DOC_RUN_EXAMPLES=1
-set PYAEDT_DOC_USE_GIF=1
-::FIXME: currently linkcheck freezes and further investigation must be performed
-::%SPHINXBUILD% -M linkcheck %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %LINKCHECKOPTS% %O%
-%SPHINXBUILD% -M html %SOURCEDIR% %BUILDDIR%
-echo
-echo "Build finished. The HTML pages are in %BUILDDIR%."
-goto end
-
-:html-no-examples
-echo Building HTML pages without examples
-set PYAEDT_DOC_RUN_EXAMPLES=0
-set PYAEDT_DOC_USE_GIF=1
-if not exist "source\examples" mkdir "source\examples"
-echo Examples> source\examples\index.rst
-echo ========> source\examples\index.rst
+echo Building HTML pages
 ::FIXME: currently linkcheck freezes and further investigation must be performed
 ::%SPHINXBUILD% -M linkcheck %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %LINKCHECKOPTS% %O%
 %SPHINXBUILD% -M html %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
@@ -84,25 +66,7 @@ echo "Build finished. The HTML pages are in %BUILDDIR%."
 goto end
 
 :pdf
-echo Building PDF pages with examples
-set PYAEDT_DOC_RUN_EXAMPLES=1
-set PYAEDT_DOC_USE_GIF=0
-%SPHINXBUILD% -M latex %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
-cd "%BUILDDIR%\latex"
-for %%f in (*.tex) do (
-xelatex "%%f" --interaction=nonstopmode)
-echo "Build finished. The PDF pages are in %BUILDDIR%."
-goto end
-
-:pdf-no-examples
-echo Building PDF pages without examples
-set PYAEDT_DOC_RUN_EXAMPLES=0
-set PYAEDT_DOC_USE_GIF=0
-if not exist "source\examples" mkdir "source\examples"
-echo Examples> source\examples\index.rst
-echo ========> source\examples\index.rst
-::FIXME: currently linkcheck freezes and further investigation must be performed
-::%SPHINXBUILD% -M linkcheck %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %LINKCHECKOPTS% %O%
+echo Building PDF pages
 %SPHINXBUILD% -M latex %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
 cd "%BUILDDIR%\latex"
 for %%f in (*.tex) do (
