@@ -1753,8 +1753,8 @@ class PostProcessor3D(PostProcessorCommon):
 
         Returns
         -------
-        :class:``ansys.aedt.core.modules.solutions.FieldPlot`` or bool
-            Plot object or ``False`` if it fails.
+        :class:``ansys.aedt.core.modules.solutions.FieldPlot``
+            Plot object.
 
         References
         ----------
@@ -1763,20 +1763,23 @@ class PostProcessor3D(PostProcessorCommon):
         """
         assignment = self.modeler.convert_to_selections(assignment, True)
 
+        list_type = "ObjList"
         for a in assignment:
             if a not in list(self.modeler.objects_by_name.keys()):
                 self.logger.error("{} does not exist in current design".format(a))
                 return False
             elif self.modeler.objects_by_name[a].is_conductor and not self.modeler.objects_by_name[a].solve_inside:
-                self.logger.warning("Solve inside is unchecked for {} object.".format(a))
-                return False
+                self.logger.warning(
+                    "Solve inside is unchecked for {} object. Creating a surface plot instead.".format(a)
+                )
+                list_type = "FacesList"
         intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
 
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
         return self._create_fieldplot(
-            assignment, quantity, setup, intrinsics, "ObjList", plot_name, field_type=field_type
+            assignment, quantity, setup, intrinsics, list_type, plot_name, field_type=field_type
         )
 
     @pyaedt_function_handler(fileName="file_name", plotName="plot_name", foldername="folder_name")
