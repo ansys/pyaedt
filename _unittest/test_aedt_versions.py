@@ -29,6 +29,12 @@ from ansys.aedt.core.generic.aedt_versions import AedtVersions
 import pytest
 
 
+@pytest.fixture(scope="module", autouse=True)
+def desktop():
+    """Override the desktop fixture to DO NOT open the Desktop when running this test class"""
+    return
+
+
 @pytest.fixture
 def mock_os_environ():
     """Fixture to mock os.environ."""
@@ -121,3 +127,20 @@ def test_latest_version_1(mock_os_environ, aedt_versions):
 def test_latest_version_2(mock_os_environ, aedt_versions):
     """Test the current_student_version function."""
     assert aedt_versions.latest_version == "2025.1"
+
+
+def test_get_version_env_variable(aedt_versions):
+    # Test case 1: Version < 20, release < 3
+    version_id = "2018.2"
+    expected_output = "ANSYSEM_ROOT192"
+    assert aedt_versions.get_version_env_variable(version_id) == expected_output
+
+    # Test case 2: Version < 20, release >= 3
+    version_id = "2019.3"
+    expected_output = "ANSYSEM_ROOT195"
+    assert aedt_versions.get_version_env_variable(version_id) == expected_output
+
+    # Test case 3: Version >= 20
+    version_id = "2023.2"
+    expected_output = "ANSYSEM_ROOT232"
+    assert aedt_versions.get_version_env_variable(version_id) == expected_output
