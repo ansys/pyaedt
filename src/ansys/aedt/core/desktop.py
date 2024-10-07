@@ -63,8 +63,6 @@ else:
     import subprocess
 
 from ansys.aedt.core import __version__
-
-# from ansys.aedt.core.misc import current_student_version
 from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.desktop_sessions import _desktop_sessions
 from ansys.aedt.core.generic.desktop_sessions import _edb_sessions
@@ -373,39 +371,6 @@ def run_process(command, bufsize=None):
         return subprocess.call(command, bufsize=bufsize)
     else:
         return subprocess.call(command)
-
-
-def get_version_env_variable(version_id):
-    """Get the environment variable for the AEDT version.
-
-    Parameters
-    ----------
-    version_id : str
-        Full AEDT version number. For example, ``"2021.2"``.
-
-    Returns
-    -------
-    str
-        Environment variable for the version.
-
-    Examples
-    --------
-    >>> from ansys.aedt.core import desktop
-    >>> desktop.get_version_env_variable("2021.2")
-    'ANSYSEM_ROOT212'
-
-    """
-    version_env_var = "ANSYSEM_ROOT"
-    values = version_id.split(".")
-    version = int(values[0][2:])
-    release = int(values[1])
-    if version < 20:  # pragma no cover
-        if release < 3:
-            version += 1
-        else:
-            release += 2
-    version_env_var += str(version) + str(release)
-    return version_env_var
 
 
 def is_student_version(oDesktop):
@@ -1832,8 +1797,9 @@ class Desktop(object):
         except Exception:
             return False
 
+    @staticmethod
     @pyaedt_function_handler()
-    def get_available_toolkits(self):
+    def get_available_toolkits():
         """Get toolkit ready for installation.
 
         Returns
@@ -1843,7 +1809,7 @@ class Desktop(object):
         """
         from ansys.aedt.core.workflows.customize_automation_tab import available_toolkits
 
-        return list(available_toolkits.keys())
+        return list(available_toolkits().keys())
 
     @pyaedt_function_handler()
     def submit_job(
