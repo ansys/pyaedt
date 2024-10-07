@@ -109,3 +109,15 @@ def test_current_student_version_1(mock_os_environ, aedt_versions):
 def test_current_student_version_2(mock_os_environ, aedt_versions):
     """Test the current_student_version function."""
     assert aedt_versions.current_student_version == ""
+
+
+@mock.patch("ansys.aedt.core.generic.aedt_versions.CURRENT_STABLE_AEDT_VERSION", 2024.2)
+def test_latest_version_1(mock_os_environ, aedt_versions):
+    """Test the current_student_version function."""
+    assert aedt_versions.latest_version == "2025.1"
+
+
+@mock.patch("ansys.aedt.core.generic.aedt_versions.CURRENT_STABLE_AEDT_VERSION", 2023.2)
+def test_latest_version_2(mock_os_environ, aedt_versions):
+    """Test the current_student_version function."""
+    assert aedt_versions.latest_version == "2025.1"

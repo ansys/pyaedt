@@ -43,6 +43,7 @@ class AedtVersions:
         self._stable_versions = None
         self._current_version = None
         self._current_student_version = None
+        self._latest_version = None
 
     @property
     def list_installed_ansysem(self):
@@ -138,6 +139,16 @@ class AedtVersions:
             else:
                 self._current_student_version = ""
         return self._current_student_version
+
+    @property
+    def latest_version(self):
+        """Get the latest AEDT version, even if it is pre-release."""
+        if self._latest_version is None:
+            try:
+                self._latest_version = list(self.installed_versions.keys())[0]
+            except (NameError, IndexError):
+                self._latest_version = ""
+        return self._latest_version
 
 
 aedt_versions = AedtVersions()
