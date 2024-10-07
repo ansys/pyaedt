@@ -31,7 +31,7 @@ def aedtapp(add_app):
 
 @pytest.mark.skipif(is_linux, reason="Emit API fails on linux.")
 @pytest.mark.skipif(sys.version_info < (3,10), reason="Emit API is only available for Python 3.10+.")
-@pytest.mark.skipif(sys.version_info > (3,12) and config["desktopVersion"] < "2025.1", reason="Emit API is only available for Python 3.12 in AEDT version 2025.1 and later.")
+@pytest.mark.skipif(sys.version_info > (3,11) and config["desktopVersion"] < "2025.1", reason="Emit API is only available for Python 3.12 in AEDT version 2025.1 and later.")
 class TestClass:
 
     @pytest.fixture(autouse=True)
@@ -45,24 +45,8 @@ class TestClass:
         assert self.aedtapp.modeler
         assert self.aedtapp.oanalysis is None
         if self.aedtapp._aedt_version > "2023.1":
-            if sys.version_info.major == 3 and sys.version_info.minor == 7:
-                assert str(type(self.aedtapp._emit_api)) == "<class 'EmitApiPython.EmitApi'>"
-                assert self.aedtapp.results is not None
-            elif sys.version_info.major == 3 and sys.version_info.minor == 8:
-                assert str(type(self.aedtapp._emit_api)) == "<class 'EmitApiPython38.EmitApi'>"
-                assert self.aedtapp.results is not None
-            elif sys.version_info.major == 3 and sys.version_info.minor == 9:
-                assert str(type(self.aedtapp._emit_api)) == "<class 'EmitApiPython39.EmitApi'>"
-                assert self.aedtapp.results is not None
-            elif sys.version_info.major == 3 and sys.version_info.minor == 10:
-                assert str(type(self.aedtapp._emit_api)) == "<class 'EmitApiPython310.EmitApi'>"
-                assert self.aedtapp.results is not None
-            elif sys.version_info.major == 3 and sys.version_info.minor == 11:
-                assert str(type(self.aedtapp._emit_api)) == "<class 'EmitApiPython311.EmitApi'>"
-                assert self.aedtapp.results is not None
-            elif sys.version_info.major == 3 and sys.version_info.minor == 12:
-                assert str(type(self.aedtapp._emit_api)) == "<class 'EmitApiPython312.EmitApi'>"
-                assert self.aedtapp.results is not None
+            assert str(type(self.aedtapp._emit_api)) == f"<class 'EmitApiPython{sys.version_info.major}{sys.version_info.minor}.EmitApi'>"
+            assert self.aedtapp.results is not None
 
     @pytest.mark.skipif(config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2021.2")
     def test_02_create_components(self, add_app):
@@ -698,14 +682,9 @@ class TestClass:
     )
     def test_13_static_type_generation(self):
         domain = self.aedtapp.results.interaction_domain()
-        if sys.version_info < (3, 10):
-            py_version = "EmitApiPython"
-        elif sys.version_info < (3, 11):
-            py_version = "EmitApiPython310"
-        elif sys.version_info < (3, 12):
-            py_version = "EmitApiPython311"
-        elif sys.version_info < (3, 13):
-            py_version = "EmitApiPython312"
+        py_version = "EmitApiPython"
+        if sys.version_info > (3, 9):
+            py_version = f"EmitApiPython{sys.version_info[0]}{sys.version_info[1]}"
         assert str(type(domain)) == "<class '{}.InteractionDomain'>".format(py_version)
 
         # assert str(type(TxRxMode)) == "<class '{}.tx_rx_mode'>".format(py_version)

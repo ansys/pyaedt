@@ -23,7 +23,9 @@
 # SOFTWARE.
 
 import random
+import sys
 import time
+import warnings
 
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.general_methods import is_linux
@@ -32,8 +34,13 @@ from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.cad.modeler import Modeler
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import Wire
-from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
-from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
+
+if (3,8) < sys.version_info < (3,13):
+    from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
+    from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
+else: # pragma: no cover
+    warnings.warn("EMIT API is only available for Python 3.9-3.12.")
+
 from ansys.aedt.core.modeler.circuits.primitives_maxwell_circuit import MaxwellCircuitComponents
 from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
 from ansys.aedt.core.modeler.circuits.primitives_twin_builder import TwinBuilderComponents
