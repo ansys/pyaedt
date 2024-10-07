@@ -1349,6 +1349,7 @@ def _create_toml_file(input_dict, full_toml_path):
     new_dict = _dict_toml(input_dict)
     with open_file(full_toml_path, "w") as fp:
         tomllib.dump(new_dict, fp)
+    settings.logger.info(f"{full_toml_path} correctly created.")
     return True
 
 
@@ -1370,6 +1371,7 @@ def _create_json_file(json_dict, full_json_path):
         with open_file(full_json_path, "w") as file:
             file.write(filedata)
         os.remove(temp_path)
+    settings.logger.info(f"{full_json_path} correctly created.")
     return True
 
 
