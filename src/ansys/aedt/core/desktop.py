@@ -63,6 +63,9 @@ else:
     import subprocess
 
 from ansys.aedt.core import __version__
+
+# from ansys.aedt.core.misc import current_student_version
+from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.desktop_sessions import _desktop_sessions
 from ansys.aedt.core.generic.desktop_sessions import _edb_sessions
 from ansys.aedt.core.generic.general_methods import active_sessions
@@ -74,9 +77,6 @@ from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.misc import current_student_version
-from ansys.aedt.core.misc import current_version
-from ansys.aedt.core.misc import installed_versions
 
 pathname = os.path.dirname(__file__)
 
@@ -841,9 +841,9 @@ class Desktop(object):
         """Installation path for AEDT."""
         version_key = settings.aedt_version
         try:
-            return installed_versions()[version_key]
+            return self.installed_versions[version_key]
         except Exception:  # pragma: no cover
-            return installed_versions()[version_key + "CL"]
+            return self.installed_versions[version_key + "CL"]
 
     @pyaedt_function_handler()
     def close_windows(self):
@@ -865,17 +865,17 @@ class Desktop(object):
     @property
     def current_version(self):
         """Current AEDT version."""
-        return current_version()
+        return aedt_versions.current_version
 
     @property
     def current_student_version(self):
         """Current AEDT student  version."""
-        return current_student_version()
+        return aedt_versions.current_student_version
 
     @property
     def installed_versions(self):
         """Dictionary of AEDT versions installed on the system and their installation paths."""
-        return installed_versions()
+        return aedt_versions.installed_versions
 
     def _init_desktop(self):
         # run it after the settings.non_graphical is set
@@ -885,21 +885,17 @@ class Desktop(object):
         settings.aedt_install_dir = self.odesktop.GetExeDir()
 
     def _assert_version(self, specified_version, student_version):
-        # avoid evaluating the env variables multiple times
-        self_current_version = self.current_version
-        self_current_student_version = self.current_student_version
-
-        if current_version == "":
+        if self.current_version == "":
             raise Exception("AEDT is not installed on your system. Install AEDT version 2022 R2 or higher.")
         if not specified_version:
-            if student_version and self_current_student_version:
-                specified_version = self_current_student_version
-            elif student_version and self_current_version:
-                specified_version = self_current_version
+            if student_version and self.current_student_version:
+                specified_version = self.current_student_version
+            elif student_version and self.current_version:
+                specified_version = self.current_version
                 student_version = False
                 self.logger.warning("AEDT Student Version not found on the system. Using regular version.")
             else:
-                specified_version = self_current_version
+                specified_version = self.current_version
                 if "SV" in specified_version:
                     student_version = True
                     self.logger.warning("Only AEDT Student Version found on the system. Using Student Version.")
@@ -1082,7 +1078,7 @@ class Desktop(object):
 
             if settings.use_multi_desktop:
                 os.environ["DesktopPluginPyAEDT"] = os.path.join(
-                    list(installed_versions().values())[0], "PythonFiles", "DesktopPlugin"
+                    list(self.installed_versions.values())[0], "PythonFiles", "DesktopPlugin"
                 )
             self.grpc_plugin = AEDT(os.environ["DesktopPluginPyAEDT"])
             oapp = self.grpc_plugin.CreateAedtApplication(machine, port, non_graphical, new_session)
