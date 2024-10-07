@@ -475,3 +475,116 @@ class TwinBuilderComponents(CircuitComponents):
             id.set_property("PERIO", 1)
 
         return id
+
+    @pyaedt_function_handler()
+    def create_component_from_sml(
+        self,
+        input_file,
+        model,
+        pins_names,
+    ):
+        """Create and place a new component based on a .sml file.
+
+        Parameters
+        ----------
+        input_file : str
+            Path to .sml file.
+        model : str
+            Model name to import.
+        pins_names : list
+            List of model pins names.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import TwinBuilder
+        >>> tb = TwinBuilder(version="2025.1")
+        >>> input_file = os.path.join("Your path", "test.sml")
+        >>> model = "Thermal_ROM_SML"
+        >>> pins_names = ["Input1_InternalHeatGeneration", "Input2_HeatFlow", "Output1_Temp1,Output2_Temp2"]
+        >>> tb.modeler.schematic.create_component_from_sml(input_file=model, model=model, pins_names=pins_names)
+        >>> tb.release_desktop(False, False)
+        """
+        pins_names_str = ",".join(pins_names)
+        arg = ["NAME:Options", "Mode:=", 1]
+        arg2 = ["NAME:Models", model + ":=", [True]]
+
+        arg3 = [
+            "NAME:Components",
+            model + ":=",
+            [True, True, model, True, pins_names_str.lower(), pins_names_str.lower()],
+        ]
+
+        arg.append(arg2)
+        arg.append(arg3)
+        self.o_component_manager.ImportModelsFromFile(input_file, arg)
+        return True
+
+    @pyaedt_function_handler()
+    def update_quantity_value(self, component_name, name, value, netlist_units=""):
+        """Change the property value of a component.
+
+        Parameters
+        ----------
+        component_name : str
+            Component name.
+        name : str
+            Property name.
+        value : str
+            Value of the quantity.
+        netlist_units : str, optional
+            Value of the netlist unit.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import TwinBuilder
+        >>> tb = TwinBuilder(version="2025.1")
+        >>> G = 0.00254
+        >>> modelpath = "Simplorer Elements\\Basic Elements\\Tools\\Time Functions:DATAPAIRS"
+        >>> source1 = tb.modeler.schematic.create_component("source1", "", modelpath, [20 * G, 29 * G])
+        >>> tb.modeler.schematic.update_quantity_value(source1.composed_name, "PERIO", "0")
+        >>> tb.release_desktop(False, False)
+        """
+        try:
+            self.oeditor.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:Quantities",
+                        ["NAME:PropServers", component_name],
+                        [
+                            "NAME:ChangedProps",
+                            [
+                                "NAME:" + name,
+                                "OverridingDef:=",
+                                True,
+                                "Value:=",
+                                value,
+                                "NetlistUnits:=",
+                                netlist_units,
+                                "ShowPin:=",
+                                False,
+                                "Display:=",
+                                False,
+                                "Sweep:=",
+                                False,
+                                "SDB:=",
+                                False,
+                            ],
+                        ],
+                    ],
+                ]
+            )
+            return True
+        except Exception:  # pragma: no cover
+            self.logger.warning(f"Property {name} has not been edited. Check if readonly.")
+            return False
