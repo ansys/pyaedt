@@ -1841,7 +1841,7 @@ class Desktop(object):
         list
             List of toolkit names.
         """
-        from ansys.aedt.core.misc.install_extra_toolkits import available_toolkits
+        from ansys.aedt.core.workflows.customize_automation_tab import available_toolkits
 
         return list(available_toolkits.keys())
 
