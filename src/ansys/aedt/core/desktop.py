@@ -850,7 +850,7 @@ class Desktop(object):
         settings.aedt_install_dir = self.odesktop.GetExeDir()
 
     def _assert_version(self, specified_version, student_version):
-        if self.current_version == "":
+        if self.current_version == "" and aedt_versions.latest_version == "":
             raise Exception("AEDT is not installed on your system. Install AEDT version 2022 R2 or higher.")
         if not specified_version:
             if student_version and self.current_student_version:
@@ -860,7 +860,10 @@ class Desktop(object):
                 student_version = False
                 self.logger.warning("AEDT Student Version not found on the system. Using regular version.")
             else:
-                specified_version = self.current_version
+                if self.current_version != "":
+                    specified_version = self.current_version
+                else:
+                    specified_version = aedt_versions.latest_version
                 if "SV" in specified_version:
                     student_version = True
                     self.logger.warning("Only AEDT Student Version found on the system. Using Student Version.")
