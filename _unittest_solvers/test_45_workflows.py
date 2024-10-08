@@ -6,6 +6,7 @@ import ansys.aedt.core
 from ansys.aedt.core.generic.settings import is_linux
 from _unittest.conftest import local_path
 from _unittest_solvers.conftest import local_path as solver_local_path
+from _unittest_solvers.conftest import desktop_version
 
 push_project = "push_excitation"
 export_3d_project = "export"
@@ -294,11 +295,16 @@ class TestClass:
 
         from ansys.aedt.core.workflows.project.advanced_fields_calculator import main
 
-        assert main({"is_test": True,
-                     "setup": "Setup1 : LastAdaptive",
-                     "calculation": "voltage_drop",
-                     "assignment": ["Face9", "inner"]})
-
+        if desktop_version > "2024.2":
+            assert main({"is_test": True,
+                         "setup": "Setup1 : LastAdaptive",
+                         "calculation": "voltage_drop_2025",
+                         "assignment": ["Face9", "inner"]})
+        else:
+            assert main({"is_test": True,
+                         "setup": "Setup1 : LastAdaptive",
+                         "calculation": "voltage_drop",
+                         "assignment": ["Face9", "inner"]})
         assert len(aedtapp.post.ofieldsreporter.GetChildNames()) == 2
 
         aedtapp.close_project(aedtapp.project_name)

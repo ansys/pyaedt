@@ -1298,7 +1298,7 @@ class FfdSolutionData(object):
             p.add_text("Show Geometry", position=(70, 75), color=text_color, font_size=10)
 
         if output_file:
-            p.show(auto_close=False, screenshot=output_file, full_screen=True)
+            p.show(auto_close=True, screenshot=output_file, full_screen=True)
         elif show:  # pragma: no cover
             p.show(auto_close=False, interactive=True)
         return p

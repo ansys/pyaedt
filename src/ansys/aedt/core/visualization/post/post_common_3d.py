@@ -150,6 +150,17 @@ class PostProcessor3D(PostProcessorCommon):
         """
         return self._app.ofieldsreporter
 
+    @property
+    def field_plot_names(self):
+        """Fields plot names.
+
+        Returns
+        -------
+        str
+            Field plot names.
+        """
+        return self._app.ofieldsreporter.GetChildNames()
+
     @pyaedt_function_handler()
     def _get_base_name(self, setup):
         setups_data = self._app.design_properties["FieldsReporter"]["FieldsPlotManagerID"]
