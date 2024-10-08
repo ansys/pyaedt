@@ -223,3 +223,11 @@ class TestClass:
         source1 = self.aedtapp.modeler.schematic.create_component("source1", "", modelpath)
 
         assert self.aedtapp.modeler.schematic.update_property_value(source1.composed_name, "CH_DATA", "1")
+
+    def test_18_create_subsheet(self, local_scratch):
+        self.aedtapp.insert_design("SML")
+        self.aedtapp.create_subsheet('subsheet','parentsheet')
+
+        assert 'parentsheet' in self.design_list
+        self.set_active_design('parentsheet')
+        assert len(self.odesign.GetSubDesigns()) > 0

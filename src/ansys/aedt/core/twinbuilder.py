@@ -351,6 +351,38 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         )
         return True
 
+    @pyaedt_function_handler()
+    def create_subsheet(self, subsheet, parentdesign):
+        """Create a subsheet from a parent design. If the parent design does not exist, it will add at top level. Nested
+        subsheets are currently not supported.
+
+        Parameters
+        ----------
+        subsheet : str
+            Name of the subsheet.
+        parentdesign : str
+            Name of the parent design.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import TwinBuilder
+        >>> tb = TwinBuilder(version="2025.1")
+        >>> tb.create_subsheet('subsheet', 'parentdesign')
+        """
+        try:
+            if parentdesign not in self.design_list:
+                self.insert_design(name=parentdesign)
+            self.odesign.InsertDesign("Twin Builder", subsheet, "", parentdesign+":U1")
+            return True
+        except Exception:  # pragma: no cover
+            self.logger.warning(f"The Subsheet {subsheet} has not been created.")
+            return False
+
     @pyaedt_function_handler(setup_name="setup", sweep_name="sweep")
     def add_q3d_dynamic_component(
         self,
