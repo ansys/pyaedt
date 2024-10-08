@@ -115,7 +115,7 @@ jobs:
         run: |
           python doc/print_errors.py
 
-      - name: Upload HTML documentation without  artifact
+      - name: Upload HTML documentation
         uses: actions/upload-artifact@v4
         with:
           name: documentation-html
