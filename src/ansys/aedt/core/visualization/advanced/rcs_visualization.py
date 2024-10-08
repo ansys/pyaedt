@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import json
+import math
 
 # import math
 import os
@@ -108,8 +109,21 @@ class MonostaticRCSData(object):
 
         self.__monostatic_file = os.path.join(self.output_dir, self.metadata["monostatic_file"])
 
+        self.__data_conversion_function = "dB10"
+        self.__window = "Flat"
+        self.__window_size = 1024
+
         if not os.path.isfile(self.__monostatic_file):  # pragma: no cover
             raise Exception("Monostatic file invalid.")
+
+        self.rcs_index_names = {
+            "RCS": ["IWavePhi", "IWaveTheta"],
+            "Range Profile": ["Range", "IWavePhi", "IWaveTheta"],
+            "Waterfall": ["Range", "IWavePhi", "IWaveTheta"],
+            "2D ISAR": ["Down-range", "Cross-range"],
+            "3D ISAR": ["Down-range", "Cross-range1", "Cross-range2"],
+        }
+        self.rcs_column_names = ["data"]
 
         # Load farfield data
         is_rcs_loaded = self.__init_rcs()
@@ -180,13 +194,110 @@ class MonostaticRCSData(object):
         else:  # pragma: no cover
             self.__logger.error("Frequency not available.")
 
+    @property
+    def data_conversion_function(self):
+        """RCS data conversion function.
+        The available functions are:
+
+        - `"dB10"`: Converts the data to decibels using base 10 logarithm.
+        - `"dB20"`: Converts the data to decibels using base 20 logarithm.
+        - `"abs"`: Computes the absolute value of the data.
+        - `"real"`: Computes the real part of the data.
+        - `"imag"`: Computes the imaginary part of the data.
+        - `"norm"`: Normalizes the data to have values between 0 and 1.
+        - `"ang"`: Computes the phase angle of the data in radians.
+        - `"ang_deg"`: Computes the phase angle of the data in degrees.
+        """
+        return self.__data_conversion_function
+
+    @data_conversion_function.setter
+    def data_conversion_function(self, val):
+        available_functions = ["dB10", "dB20", "abs", "real", "imag", "norm", "ang", "ang_deg"]
+        if val in available_functions:
+            self.__data_conversion_function = val
+
+    @property
+    def window(self):
+        """Window function.
+        The available functions are: Options are ``"Flat"``, ``"Hamming``", and ``"Hann"``.
+        """
+        return self.__window
+
+    @window.setter
+    def window(self, val):
+        available_functions = ["Flat", "Hamming", "Hann"]
+        if val in available_functions:
+            self.__window = val
+
+    @property
+    def window_size(self):
+        """Window size."""
+        return self.__window_size
+
+    @window_size.setter
+    def window_size(self, val):
+        self.__window_size = val
+
+    @property
+    def rcs(self):
+        """RCS data."""
+        data = self.monostatic_data
+        data_numpy = self.monostatic_data.to_numpy()
+        data_numpy = conversion_function(data_numpy, self.data_conversion_function)
+        data = data.astype(data_numpy.dtype)
+        data[:] = data_numpy
+        return data
+
+    @property
+    def range_profile(self):
+        """Range profile."""
+        data = self.monostatic_data
+        win_range, _ = self.window_function(window=self.window, size=len(self.frequencies))
+        nfreq = len(self.frequencies)
+        for freq_cont, freq in enumerate(self.frequencies):
+            self.frequency = freq
+            data = self.monostatic_data
+            windowed_data = data * win_range[freq_cont]
+            sf_upsample = self.window_size / nfreq
+
+        data_numpy = self.monostatic_data.to_numpy()
+        data_numpy = conversion_function(data_numpy, self.data_conversion_function)
+        data = data.astype(data_numpy.dtype)
+        data[:] = data_numpy
+        return data
+
+    @staticmethod
+    def window_function(window="Flat", size=512):
+        """Window function.
+
+        Parameters
+        ----------
+        window : str, optional.
+            Window function. The default is ``"Flat"``. Options are ``"Flat"``, ``"Hamming``", and ``"Hann"``.
+        size : int, optional
+            Window size. The default is ``512``.
+
+        Returns
+        -------
+        tuple
+            Data windowed and data sum.
+        """
+        if window == "Hann":
+            win = np.hanning(size)
+        elif window == "Hamming":
+            win = np.hamming(size)
+        else:
+            win = np.ones(size)
+        win_sum = np.sum(win)
+        win *= size / win_sum
+        return win, win_sum
+
     @pyaedt_function_handler()
     def plot_rcs(
         self,
         primary_sweep="IWavePhi",
         secondary_sweep_value=0,
         title="Monostatic RCS",
-        quantity_format="dB10",
         output_file=None,
         show=True,
         is_polar=False,
@@ -203,10 +314,6 @@ class MonostaticRCSData(object):
             `"all"`, a single value float, or a list of float values.
         title : str, optional
             Plot title. The default is ``"RectangularPlot"``.
-        quantity_format : str, optional
-            Conversion data function.
-            Available functions are: ``"abs"``, ``"ang"``, ``"dB10"``, ``"dB20"``, ``"deg"``, ``"imag"``, ``"norm"``,
-            and ``"real"``.
         output_file : str, optional
             Full path for the image file. The default is ``None``, in which case an image in not exported.
         show : bool, optional
@@ -235,7 +342,7 @@ class MonostaticRCSData(object):
         >>> data.plot_cut(theta=20)
         """
 
-        data_freq = self.monostatic_data
+        data_freq = self.rcs
 
         curves = []
         all_secondary_sweep_value = None
@@ -256,20 +363,20 @@ class MonostaticRCSData(object):
         if all_secondary_sweep_value is not None:
             for el in all_secondary_sweep_value:
                 data = data_freq.xs(key=el, level=y_key)
-                y = conversion_function(data.values, quantity_format)
+                y = data.values
                 if not isinstance(y, np.ndarray):  # pragma: no cover
                     raise Exception("Format of quantity is wrong.")
                 curves.append([x, y, "{}={}".format(y_key, el)])
         elif isinstance(secondary_sweep_value, np.ndarray) or isinstance(secondary_sweep_value, list):
             for el in secondary_sweep_value:
                 data = data_freq.xs(key=el, level=y_key)
-                y = conversion_function(data.values, quantity_format)
+                y = data.values
                 if not isinstance(y, np.ndarray):  # pragma: no cover
                     raise Exception("Format of quantity is wrong.")
                 curves.append([x, y, "{}={}".format(y_key, el)])
         else:
-            y = data_freq.xs(key=secondary_sweep_value, level=y_key)
-            y = conversion_function(y.values, quantity_format)
+            data = data_freq.xs(key=secondary_sweep_value, level=y_key)
+            y = data.values
             if not isinstance(y, np.ndarray):  # pragma: no cover
                 raise Exception("Wrong format quantity.")
             curves.append([x, y, "{}={}".format(y_key, secondary_sweep_value)])
@@ -423,3 +530,17 @@ class MonostaticRCSData(object):
             model_pv.close()
 
         return obj_meshes
+
+    @pyaedt_function_handler()
+    def __get_new_dataframe(self, values=None, index_names=None, indexes=None):
+        """Create new RCS DataFrame."""
+        if indexes is None:
+            indexes = []
+        if index_names is None:
+            index_names = []
+        my_index = pd.MultiIndex.from_tuples(indexes, names=index_names)
+        if values is None:
+            df = pd.DataFrame(index=my_index, columns=self.rcs_column_names)
+        else:
+            df = pd.DataFrame(values, index=my_index, columns=self.rcs_column_names)
+        return df
