@@ -103,6 +103,11 @@ class TwinBuilderComponents(CircuitComponents):
             self._components_catalog = ComponentCatalog(self)
         return self._components_catalog
 
+    @property
+    def o_simmodel_manager(self):
+        """Simulation models manager object."""
+        return self.o_definition_manager.GetManager("SimModel")
+
     @pyaedt_function_handler(compname="name")
     def create_resistor(self, name=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
         """Create a resistor.
