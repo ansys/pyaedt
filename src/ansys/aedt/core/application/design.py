@@ -58,7 +58,7 @@ from ansys.aedt.core.application.variables import VariableManager
 from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.desktop import _init_desktop_from_design
 from ansys.aedt.core.desktop import exception_to_desktop
-from ansys.aedt.core.desktop import get_version_env_variable
+from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import unit_system
 from ansys.aedt.core.generic.data_handlers import variation_string_to_dict
@@ -625,7 +625,7 @@ class Design(AedtObjects):
 
         >>> oDesktop.GetVersion()
         """
-        return get_version_env_variable(self.desktop_class.aedt_version_id)
+        return aedt_versions.get_version_env_variable(self._aedt_version)
 
     @property
     def _aedt_version(self):

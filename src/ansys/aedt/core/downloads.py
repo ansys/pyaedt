@@ -29,11 +29,11 @@ import shutil
 import tempfile
 import zipfile
 
+from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
-from ansys.aedt.core.misc import list_installed_ansysem
 
 if is_ironpython:
     import urllib
@@ -84,7 +84,7 @@ def _retrieve_file(url, name, directory, destination=None, local_paths=None):
         command = "wget {} -O {}".format(url, local_path)
         os.system(command)
     elif is_ironpython:
-        versions = list_installed_ansysem()
+        versions = aedt_versions.list_installed_ansysem
         if versions:
             cpython = os.listdir(os.path.join(os.getenv(versions[0]), "commonfiles", "CPython"))
             command = (

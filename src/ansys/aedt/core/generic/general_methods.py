@@ -45,10 +45,10 @@ import time
 import traceback
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger
+from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.constants import CSS4_COLORS
 from ansys.aedt.core.generic.settings import inner_project_settings  # noqa: F401
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.misc.misc import installed_versions
 
 is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
 is_linux = os.name == "posix"
@@ -523,8 +523,8 @@ def read_toml(file_path):  # pragma: no cover
     dict
         Parsed TOML file as a dictionary.
     """
-    current_version = sys.version_info[:2]
-    if current_version < (3, 12):
+    current_python_version = sys.version_info[:2]
+    if current_python_version < (3, 12):
         import pytomlpp as tomllib
     else:
         import tomllib
@@ -987,9 +987,9 @@ def available_license_feature(
     feature : str
         Feature increment name. The default is the ``"electronics_desktop"``.
     input_dir : str, optional
-        AEDT installation path. The default is ``None``, in which
-        case the first identified AEDT installation from :func:`ansys.aedt.core.misc.misc.installed_versions` method
-        is taken.
+        AEDT installation path. The default is ``None``, in which case the first identified AEDT
+        installation from :func:`ansys.aedt.core.generic.aedt_versions.installed_versions`
+        method is taken.
     port : int, optional
         Server port number.
     name : str, optional
@@ -1003,7 +1003,7 @@ def available_license_feature(
     import subprocess  # nosec B404
 
     if not input_dir:
-        input_dir = list(installed_versions().values())[0]
+        input_dir = list(aedt_versions.installed_versions.values())[0]
 
     if is_linux:
         ansysli_util_path = os.path.join(input_dir, "licensingclient", "linx64", "lmutil")
@@ -1323,8 +1323,8 @@ def number_aware_string_key(s):
 
 @pyaedt_function_handler()
 def _create_toml_file(input_dict, full_toml_path):
-    current_version = sys.version_info[:2]
-    if current_version < (3, 12):
+    current_python_version = sys.version_info[:2]
+    if current_python_version < (3, 12):
         import pytomlpp as tomllib
     else:
         import tomllib
