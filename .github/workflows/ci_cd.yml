@@ -116,7 +116,7 @@ jobs:
           python doc/print_errors.py
 
       - name: Upload HTML documentation without  artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: documentation-html
           path: doc/_build/html
@@ -127,7 +127,7 @@ jobs:
           make -C doc pdf
 
       - name: Upload PDF documentation
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: documentation-pdf
           path: doc/_build/latex/PyAEDT-Documentation-*.pdf
@@ -187,7 +187,7 @@ jobs:
           flags: system,solver
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pytest-solver-results
           path: junit/test-results.xml
@@ -245,7 +245,7 @@ jobs:
           flags: system,solver
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pytest-solver-results
           path: junit/test-results.xml
@@ -310,7 +310,7 @@ jobs:
           flags: system
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pytest-results
           path: junit/test-results.xml
@@ -380,7 +380,7 @@ jobs:
           flags: system,solver
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pytest-solver-results
           path: junit/test-results.xml
