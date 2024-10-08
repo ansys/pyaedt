@@ -88,6 +88,22 @@ assignment = ""
 assignment_type = ["Line", "Face", "Sheet", "Solid"]
 constants = {"vrm"= 3.3}
 operations = ["Fundamental_Quantity('dcvPhi')",
+    "Scalar_Function(FuncValue='vrm')",
+	"Operation('+')"]
+dependent_expressions = []
+report = ["Field_3D"]
+
+[voltage_drop_2025]
+name = "Voltage_Drop"
+description = "Voltage drop in Q3D"
+design_type = ["Q3D Extractor"]
+fields_type = ["DC R/L Fields"]
+solution_type = ""
+primary_sweep = "Freq"
+assignment = ""
+assignment_type = ["Line", "Face", "Sheet", "Solid"]
+constants = {"vrm"= 3.3}
+operations = ["Fundamental_Quantity('dcvPhi')",
 	"Operation('Real')",
     "Scalar_Function(FuncValue='vrm')",
 	"Operation('+')"]
