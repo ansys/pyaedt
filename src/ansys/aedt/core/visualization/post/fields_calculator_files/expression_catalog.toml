@@ -1,0 +1,442 @@
+# Voltage
+
+[voltage_line]
+name = "Voltage_Line"
+description = "Voltage drop along a line"
+design_type = ["HFSS", "Q3D Extractor"]
+fields_type = ["Fields", "CG Fields"]
+solution_type = ""
+primary_sweep = "Freq"
+assignment = ""
+assignment_type = ["Line"]
+operations = ["Fundamental_Quantity('E')",
+    "Operation('Real')",
+    "Operation('Tangent')",
+    "Operation('Dot')",
+    "EnterLine('assignment')",
+    "Operation('LineValue')",
+	"Operation('Integrate')",
+	"Operation('CmplxR')",
+	"Fundamental_Quantity('E')",
+	"Operation('Imag')",
+	"Operation('Tangent')",
+	"Operation('Dot')",
+	"EnterLine('assignment')",
+	"Operation('LineValue')",
+	"Operation('Integrate')",
+	"Operation('CmplxI')",
+	"Operation('+')"]
+dependent_expressions = []
+report = ["Data Table", "Rectangular Plot"]
+
+[voltage_line_time]
+name = "Voltage_Line"
+description = "Voltage drop along a line"
+design_type = ["HFSS"]
+fields_type = ["Fields"]
+solution_type = "Transient"
+primary_sweep = "Time"
+assignment = ""
+assignment_type = ["Line"]
+operations = ["Fundamental_Quantity('E_t')",
+    "Operation('Tangent')",
+    "Operation('Dot')",
+    "EnterLine('assignment')",
+    "Operation('LineValue')",
+	"Operation('Integrate')"
+]
+dependent_expressions = []
+report = ["Data Table", "Rectangular Plot"]
+
+[voltage_line_maxwell]
+name = "Voltage_Line"
+description = "Voltage drop along a line"
+design_type = ["Maxwell 3D"]
+fields_type = ["Fields"]
+solution_type = ""
+primary_sweep = "Freq"
+assignment = ""
+assignment_type = ["Line"]
+operations = ["NameOfExpression('<Ex,Ey,Ez>')",
+    "Operation('Real')",
+    "Operation('Tangent')",
+    "Operation('Dot')",
+    "EnterLine('assignment')",
+    "Operation('LineValue')",
+	"Operation('Integrate')",
+	"Operation('CmplxR')",
+	"NameOfExpression('<Ex,Ey,Ez>')",
+	"Operation('Imag')",
+	"Operation('Tangent')",
+	"Operation('Dot')",
+	"EnterLine('assignment')",
+	"Operation('LineValue')",
+	"Operation('Integrate')",
+	"Operation('CmplxI')",
+	"Operation('+')"]
+dependent_expressions = []
+report = ["Data Table", "Rectangular Plot"]
+
+[voltage_drop]
+name = "Voltage_Drop"
+description = "Voltage drop in Q3D"
+design_type = ["Q3D Extractor"]
+fields_type = ["DC R/L Fields"]
+solution_type = ""
+primary_sweep = "Freq"
+assignment = ""
+assignment_type = ["Line", "Face", "Sheet", "Solid"]
+constants = {"vrm"= 3.3}
+operations = ["Fundamental_Quantity('dcvPhi')",
+    "Scalar_Function(FuncValue='vrm')",
+	"Operation('+')"]
+dependent_expressions = []
+report = ["Field_3D"]
+
+[voltage_drop_2025]
+name = "Voltage_Drop"
+description = "Voltage drop in Q3D"
+design_type = ["Q3D Extractor"]
+fields_type = ["DC R/L Fields"]
+solution_type = ""
+primary_sweep = "Freq"
+assignment = ""
+assignment_type = ["Line", "Face", "Sheet", "Solid"]
+constants = {"vrm"= 3.3}
+operations = ["Fundamental_Quantity('dcvPhi')",
+	"Operation('Real')",
+    "Scalar_Function(FuncValue='vrm')",
+	"Operation('+')"]
+dependent_expressions = []
+report = ["Field_3D"]
+
+# Current
+
+[current_line]
+name = "Current_Line"
+description = "Current along a line"
+design_type = ["HFSS", "Q3D Extractor"]
+fields_type = ["Fields", "CG Fields"]
+solution_type = ""
+primary_sweep = "Freq"
+assignment = ""
+assignment_type = ["Line"]
+operations = ["NameOfExpression('<Hx,Hy,Hz>')",
+    "Operation('Real')",
+    "Operation('Tangent')",
+    "Operation('Dot')",
+    "EnterLine('assignment')",
+    "Operation('LineValue')",
+	"Operation('Integrate')",
+	"Operation('CmplxR')",
+	"NameOfExpression('<Hx,Hy,Hz>')",
+	"Operation('Imag')",
+	"Operation('Tangent')",
+	"Operation('Dot')",
+	"EnterLine('assignment')",
+	"Operation('LineValue')",
+	"Operation('Integrate')",
+	"Operation('CmplxI')",
+	"Operation('+')"]
+dependent_expressions = []
+report = ["Data Table", "Rectangular Plot"]
+
+[current_line_time]
+name = "Current_Line"
+description = "Current along a line"
+design_type = ["HFSS"]
+fields_type = ["Fields"]
+solution_type = "Transient"
+primary_sweep = "Time"
+assignment = ""
+assignment_type = ["Line"]
+operations = ["Fundamental_Quantity('H_t')",
+    "Operation('Tangent')",
+    "Operation('Dot')",
+    "EnterLine('assignment')",
+    "Operation('LineValue')",
+	"Operation('Integrate')"]
+dependent_expressions = []
+report = ["Data Table", "Rectangular Plot"]
+
+# Power
+
+[power_flow]
+name = "Power_Flow"
+description = "Power flow through a surface"
+design_type = ["HFSS"]
+fields_type = ["Fields"]
+solution_type = ""
+primary_sweep = "Freq"
+assignment = ""
+assignment_type = ["Sheet", "Solid"]
+operations = ["NameOfExpression('Poynting')",
+    "Operation('Real')",
+	"Operation('Normal')",
+	"Operation('Dot')",
+	"EnterSurface('assignment')",
+	"Operation('SurfaceValue')",
+	"Operation('Integrate')"]
+dependent_expressions = []
+report = ["Data Table", "Rectangular Plot"]
+
+# Misc
+
+[wave_impedance_x]
+name = "Wave_Impedance_X"
+description = "Wave impedance along a line in X"
+design_type = ["HFSS"]
+fields_type = ["Fields"]
+solution_type = ""
+primary_sweep = "Freq"
+assignment = ""
+assignment_type = ["Line"]
+operations = ["Fundamental_Quantity('E')",
+    "Operation('Smooth')",
+	"Operation('CmplxMag')",
+	"Vector_Constant(1, 0, 0)",
+	"Operation('Cross')",
+	"Operation('Mag')",
+	"NameOfExpression('<Hx,Hy,Hz>')",
+	"Operation('Smooth')",
+	"Operation('CmplxMag')",
+	"Vector_Constant(1, 0, 0)",
+	"Operation('Cross')",
+	"Operation('Mag')",
+	"Operation('/')"
+]
+dependent_expressions = []
+report = ["Data Table", "Rectangular Plot"]
+
+[wave_impedance_y]
+name = "Wave_Impedance_Y"
+description = "Wave impedance along a line in Y"
+design_type = ["HFSS"]
+fields_type = ["Fields"]
+solution_type = ""
+primary_sweep = "Freq"
+assignment = ""
+assignment_type = ["Line"]
+operations = ["Fundamental_Quantity('E')",
+    "Operation('Smooth')",
+	"Operation('CmplxMag')",
+	"Vector_Constant(0, 1, 0)",
+	"Operation('Cross')",
+	"Operation('Mag')",
+	"NameOfExpression('<Hx,Hy,Hz>')",
+	"Operation('Smooth')",
+	"Operation('CmplxMag')",
+	"Vector_Constant(0, 1, 0)",
+	"Operation('Cross')",
+	"Operation('Mag')",
+	"Operation('/')"
+]
+dependent_expressions = []
+report = ["Data Table", "Rectangular Plot"]
+
+[wave_impedance_z]
+name = "Wave_Impedance_Z"
+description = "Wave impedance along a line in Z"
+design_type = ["HFSS"]
+fields_type = ["Fields"]
+solution_type = ""
+primary_sweep = "Freq"
+assignment = ""
+assignment_type = ["Line"]
+operations = ["Fundamental_Quantity('E')",
+    "Operation('Smooth')",
+	"Operation('CmplxMag')",
+	"Vector_Constant(0, 0, 1)",
+	"Operation('Cross')",
+	"Operation('Mag')",
+	"NameOfExpression('<Hx,Hy,Hz>')",
+	"Operation('Smooth')",
+	"Operation('CmplxMag')",
+	"Vector_Constant(0, 0, 1)",
+	"Operation('Cross')",
+	"Operation('Mag')",
+	"Operation('/')"
+]
+dependent_expressions = []
+report = ["Data Table", "Rectangular Plot"]
+
+[h_field_minimum_x_position]
+name = "HField_minimum_x_position"
+description = "H field minimum X position"
+design_type = ["HFSS", "Maxwell 3D"]
+fields_type = ["Fields"]
+solution_type = ""
+primary_sweep = "Freq"
+assignment = ""
+assignment_type = ["Sheet", "Solid"]
+operations = ["NameOfExpression('<Hx,Hy,Hz>')",
+	"Operation('Mag')",
+	"EnterSurface('assignment')",
+	"Operation('SurfaceValue')",
+	"Operation('MinPos')",
+	"Operation('ScalarX')",
+]
+dependent_expressions = []
+report = ["Rectangular Plot"]
+
+[h_field_minimum_y_position]
+name = "HField_minimum_y_position"
+description = "H field minimum Y position"
+design_type = ["HFSS", "Maxwell 3D"]
+fields_type = ["Fields"]
+solution_type = ""
+primary_sweep = "Freq"
+assignment = ""
+assignment_type = ["Sheet", "Solid"]
+operations = ["NameOfExpression('<Hx,Hy,Hz>')",
+	"Operation('Mag')",
+	"EnterSurface('assignment')",
+	"Operation('SurfaceValue')",
+	"Operation('MinPos')",
+	"Operation('ScalarY')",
+]
+dependent_expressions = []
+report = ["Rectangular Plot"]
+
+[h_field_minimum_z_position]
+name = "HField_minimum_z_position"
+description = "H field minimum Z position"
+design_type = ["HFSS", "Maxwell 3D"]
+fields_type = ["Fields"]
+solution_type = ""
+primary_sweep = "Freq"
+assignment = ""
+assignment_type = ["Sheet", "Solid"]
+operations = ["NameOfExpression('<Hx,Hy,Hz>')",
+	"Operation('Mag')",
+	"EnterSurface('assignment')",
+	"Operation('SurfaceValue')",
+	"Operation('MinPos')",
+	"Operation('ScalarZ')",
+]
+dependent_expressions = []
+report = ["Rectangular Plot"]
+
+
+# Electrostatic
+
+[electric_charge]
+name = "Electric_Charge"
+description = "Total electric charge on a surface"
+design_type = ["Maxwell 3D"]
+fields_type = ["Fields"]
+solution_type = ""
+primary_sweep = "Freq"
+assignment = ""
+assignment_type = ["Sheet", "Solid"]
+operations = ["NameOfExpression('<Dx,Dy,Dz>')",
+	"Operation('Normal')",
+	"Operation('Dot')",
+	"EnterSurface('assignment')",
+	"Operation('SurfaceValue')",
+	"Operation('Integrate')"]
+dependent_expressions = []
+report = ["Data Table", "Rectangular Plot"]
+
+[e_line]
+name = "E_Line"
+description = "E field tangential component along a line"
+design_type = ["Maxwell 2D"]
+fields_type = ["Fields"]
+solution_type = ""
+primary_sweep = "Distance"
+assignment = ""
+assignment_type = ["Line"]
+operations = ["NameOfExpression('<Ex,Ey,0>')",
+	"Operation('Tangent')",
+	"Operation('Dot')"]
+dependent_expressions = []
+report = ["Data Table", "Rectangular Plot"]
+
+[b_radial]
+name = "Radial_Component_Magnetic_Field"
+description = "Radial component of magnetic field"
+design_type = ["Maxwell 2D"]
+fields_type = ["Fields"]
+solution_type = ""
+primary_sweep = "Distance"
+assignment = ""
+assignment_type = ["Line"]
+operations = ["Fundamental_Quantity('B')",
+	"Operation('ScalarX')",
+	"Scalar_Function(FuncValue='PHI')",
+	"Operation('UMathFunc', 'Cos')",
+	"Operation('*')",
+	"Fundamental_Quantity('B')",
+	"Operation('ScalarY')",
+	"Scalar_Function(FuncValue='PHI')",
+	"Operation('UMathFunc', 'Sin')",
+	"Operation('*')",
+	"Operation('+')"]
+dependent_expressions = []
+report = ["Data Table", "Rectangular Plot"]
+
+[b_tangential]
+name = "Tangential_Component_Magnetic_Field"
+description = "Tangential component of magnetic field"
+design_type = ["Maxwell 2D"]
+fields_type = ["Fields"]
+solution_type = ""
+primary_sweep = "Distance"
+assignment = ""
+assignment_type = ["Line"]
+operations = ["Fundamental_Quantity('B')",
+	"Operation('ScalarX')",
+	"Scalar_Function(FuncValue='PHI')",
+	"Operation('UMathFunc', 'Sin')",
+	"Operation('*')",
+	"Operation('Neg')",
+	"Fundamental_Quantity('B')",
+	"Operation('ScalarY')",
+	"Scalar_Function(FuncValue='PHI')",
+	"Operation('UMathFunc', 'Cos')",
+	"Operation('*')",
+	"Operation('+')"]
+dependent_expressions = []
+report = ["Data Table", "Rectangular Plot"]
+
+[radial_stress_tensor]
+name = "Radial_Stress_Tensor"
+description = "Radial stress tensor"
+design_type = ["Maxwell 2D"]
+fields_type = ["Fields"]
+solution_type = ""
+primary_sweep = "Distance"
+assignment = ""
+assignment_type = ["Line"]
+dependent_expressions = ["b_radial", "b_tangential"]
+operations = ["NameOfExpression('b_radial')",
+	"NameOfExpression('b_radial')",
+	"Operation('*')",
+	"NameOfExpression('b_tangential')",
+	"NameOfExpression('b_tangential')",
+	"Operation('*')",
+	"Operation('Neg')",
+	"Operation('+')",
+	"Scalar_Constant(1.25664e-06)",
+	"Operation('/')",
+	"Scalar_Constant(2)",
+	"Operation('/')"]
+report = ["Data Table", "Rectangular Plot"]
+
+[tangential_stress_tensor]
+name = "Tangential_Stress_Tensor"
+description = "Tangential stress tensor"
+design_type = ["Maxwell 2D"]
+fields_type = ["Fields"]
+solution_type = ""
+primary_sweep = "Distance"
+assignment = ""
+assignment_type = ["Line"]
+dependent_expressions = ["b_radial", "b_tangential"]
+operations = ["NameOfExpression('b_radial')",
+	"NameOfExpression('b_tangential')",
+	"Operation('*')",
+	"Scalar_Constant(1.25664e-06)",
+	"Operation('/')"]
+report = ["Data Table", "Rectangular Plot"]

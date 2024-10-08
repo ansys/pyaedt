@@ -624,9 +624,9 @@ class CircuitComponent(object):
             elif not pins:
                 return []
             for pin in pins:
-                if self._circuit_components._app.design_type:
+                if self._circuit_components._app.design_type != "Twin Builder":
                     self._pins.append(CircuitPins(self, pin, idx))
-                elif pin not in list(self.parameters.keys()):
+                elif pin == "VAL" or pin not in self.parameters.keys():
                     self._pins.append(CircuitPins(self, pin, idx))
                 idx += 1
         except AttributeError:
