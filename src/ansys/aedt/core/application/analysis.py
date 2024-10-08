@@ -1183,12 +1183,12 @@ class Analysis(Design, object):
 
         @property
         def nominal_w_values(self):
-            """Nominal with values.
+            """Nominal independent with values in a list.
 
             Returns
             -------
-            dict
-                Dictionary of nominal variations with expressions.
+            list
+                List of nominal independent variations with expressions.
 
             References
             ----------
@@ -1229,12 +1229,12 @@ class Analysis(Design, object):
 
         @property
         def nominal_w_values_dict_w_dependent(self):
-            """Nominal  with values in a dictionary.
+            """Nominal independent and dependent with values in a dictionary.
 
             Returns
             -------
             dict
-                Dictionary of nominal variations with values.
+                Dictionary of nominal independent and dependent variations with values.
 
             References
             ----------

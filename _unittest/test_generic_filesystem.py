@@ -22,17 +22,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import sys
-from unittest.mock import patch
-import warnings
+from unittest import mock
 
-from ansys.aedt.core import LATEST_DEPRECATED_PYTHON_VERSION
-from ansys.aedt.core import PYTHON_VERSION_WARNING
-from ansys.aedt.core import deprecation_warning
-from pyaedt import ALIAS_WARNING
+from ansys.aedt.core.generic.filesystem import is_safe_path
 import pytest
-
-VALID_PYTHON_VERSION = (LATEST_DEPRECATED_PYTHON_VERSION[0], LATEST_DEPRECATED_PYTHON_VERSION[1] + 1)
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -41,31 +34,21 @@ def desktop():
     return
 
 
-@patch.object(warnings, "warn")
-def test_deprecation_warning_with_deprecated_python_version(mock_warn, monkeypatch):
-    """Test that python version warning is triggered."""
-    monkeypatch.setattr(sys, "version_info", LATEST_DEPRECATED_PYTHON_VERSION)
+@pytest.mark.parametrize(
+    "path, allowed_extensions, expected",
+    [
+        ("/path/to/file.txt", [".txt", ".pdf"], True),
+        ("/path/to/file.exe", [".txt", ".pdf"], False),
+        ("/path/to/file.txt", None, True),
+        ("/path/to/file.txt", [".pdf"], False),
+        ("/path/;rm -rf /file.txt", [".txt"], False),
+    ],
+)
+def test_is_safe_path(path, allowed_extensions, expected):
+    """Test the is_safe_path function."""
+    with mock.patch("os.path.exists", return_value=True), mock.patch("os.path.isfile", return_value=True):
+        assert is_safe_path(path, allowed_extensions) == expected
 
-    deprecation_warning()
-
-    mock_warn.assert_called_once_with(PYTHON_VERSION_WARNING, FutureWarning)
-
-
-@patch.object(warnings, "warn")
-def test_deprecation_warning_with_valid_python_version(mock_warn, monkeypatch):
-    """Test that python version warning is not triggered."""
-    monkeypatch.setattr(sys, "version_info", VALID_PYTHON_VERSION)
-
-    deprecation_warning()
-
-    mock_warn.assert_not_called()
-
-
-def test_alias_deprecation_warning():
-    """Test that pyaedt alias  warning is triggered."""
-    import importlib
-
-    import pyaedt
-
-    with pytest.warns(FutureWarning, match=ALIAS_WARNING):
-        importlib.reload(pyaedt)
+    # Test case for an invalid path
+    with mock.patch("os.path.exists", return_value=False):
+        assert not is_safe_path("/invalid/path/file.txt", [".txt"])

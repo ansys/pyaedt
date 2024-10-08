@@ -123,17 +123,6 @@ class AMIConturEyeDiagram(CommonReport):
         self._props["quantity_type"] = value
 
     @property
-    def report_category(self):
-        """Report category.
-
-        Returns
-        -------
-        str
-            Report category.
-        """
-        return self._props["report_category"]
-
-    @property
     def _context(self):
         if self.primary_sweep == "__InitialTime":
             cid = 55824
@@ -553,6 +542,10 @@ class AMIEyeDiagram(CommonReport):
                     new_exprs.append("{}AfterChannel<".format(expr_head) + expr + ".int_ami_rx>")
                 elif qtype == 3:
                     new_exprs.append("{}AfterProbe<".format(expr_head) + expr + ".int_ami_rx>")
+                else:
+                    new_exprs.append(expr)
+            else:
+                new_exprs.append(expr)
         return new_exprs
 
     @property
@@ -579,6 +572,11 @@ class AMIEyeDiagram(CommonReport):
         str
             Report category.
         """
+        if self._is_created:
+            try:
+                return self.properties.props["Report Type"]
+            except Exception:
+                return self._props["report_category"]
         return self._props["report_category"]
 
     @report_category.setter
