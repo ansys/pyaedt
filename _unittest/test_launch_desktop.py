@@ -90,7 +90,7 @@ class TestClass:
         assert aedtapp.solution_type == "Magnetostatic"
 
     def test_run_desktop_hfss(self):
-        aedtapp = Hfss()
+        aedtapp = Hfss(solution_type="Terminal")
         assert aedtapp.design_type == "HFSS"
         assert "Terminal" in aedtapp.solution_type
 
@@ -103,3 +103,10 @@ class TestClass:
         aedtapp = CircuitNetlist()
         assert aedtapp.design_type == "Circuit Netlist"
         assert aedtapp.solution_type == ""
+
+    def test_run_desktop_settings(self):
+        aedtapp = Hfss()
+        assert aedtapp.desktop_class.disable_optimetrics()
+        assert aedtapp.get_registry_key_int("Desktop/Settings/ProjectOptions/EnableLegacyOptimetricsTools") == 0
+        assert aedtapp.desktop_class.enable_optimetrics()
+        assert aedtapp.get_registry_key_int("Desktop/Settings/ProjectOptions/EnableLegacyOptimetricsTools") == 1
