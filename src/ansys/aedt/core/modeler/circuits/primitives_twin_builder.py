@@ -591,5 +591,5 @@ class TwinBuilderComponents(CircuitComponents):
             )
             return True
         except Exception:  # pragma: no cover
-            self.logger.warning(f"Property {name} has not been edited. Check if readonly.")
+            self.logger.warning(f"Quantity {name} has not been edited. Check if readonly.")
             return False
