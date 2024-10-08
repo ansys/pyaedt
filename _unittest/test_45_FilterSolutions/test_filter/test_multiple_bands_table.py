@@ -91,7 +91,7 @@ class TestClass:
             == "Either no value is set for this band or the rowIndex must be greater than zero and less than row count"
         )
 
-    def test_clear_table():
+    def test_clear_table(self):
         design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         design.attributes.filter_multiple_bands_enabled = True
         # There are 2 rows in the table by default
