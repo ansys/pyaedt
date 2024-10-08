@@ -94,8 +94,11 @@ class TestClass:
     def test_clear_table():
         design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         design.attributes.filter_multiple_bands_enabled = True
+        # There are 2 rows in the table by default
+        assert design.multiple_bands_table.row_count == 2
         design.multiple_bands_table.clear_table()
         assert design.multiple_bands_table.row_count == 0
+        # Check if the table is empty for all 7 rows
         for i in range(7):
             with pytest.raises(RuntimeError) as info:
                 design.multiple_bands_table.row(i)
