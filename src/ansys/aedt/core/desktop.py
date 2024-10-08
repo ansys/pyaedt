@@ -1715,6 +1715,7 @@ class Desktop(object):
         try:
             return self.change_registry_key("Desktop/Settings/ProjectOptions/EnableLegacyOptimetricsTools", 1)
         except Exception:
+            self.logger.error("Failed to enable optimetrics.")
             return False
 
     def disable_optimetrics(self):  # pragma: no cover
@@ -1729,6 +1730,7 @@ class Desktop(object):
         try:
             return self.change_registry_key("Desktop/Settings/ProjectOptions/EnableLegacyOptimetricsTools", 0)
         except Exception:
+            self.logger.error("Failed to disable optimetrics.")
             return False
 
     def change_registry_key(self, key_full_name, key_value):

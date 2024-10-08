@@ -1011,7 +1011,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         """
         if settings.aedt_version < "2025.1":
-            self.logger.warning("Working from 2025 R1.")
+            self.logger.warning("Touchstone export setup aborted. This method is available from AEDT 2025.1.")
             return False
         preferences = "Planar EM\\"
         design_name = self.design_name

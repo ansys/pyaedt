@@ -1501,6 +1501,8 @@ class Primitives3D(GeometryModeler):
                             + "}"
                     )
             except KeyError:  # TODO: fix reading AEDT
+                # This exception occurs when the expected key (i.e., FaceKeyIDMap, EdgeKeyIDMap, etc.) is not found.
+                # It attempts to fall back to a different way of extracting the data.
                 for key, mon in part["Operations"]["Operation"]["OperationIdentity"].items():
                     if i in key:
                         keyarr = key.split("(")
@@ -1511,6 +1513,9 @@ class Primitives3D(GeometryModeler):
                         )
                         break
             except TypeError:
+                # This exception handles the case where "part['Operations']['Operation']" might not be a dictionary,
+                # but instead a list. This happens when multiple operations are involved, and the structure is
+                # different.
                 for id in part["Operations"]["Operation"]:
                     op_id = id.get("OperationIdentity", {})
                     try:
@@ -1522,6 +1527,8 @@ class Primitives3D(GeometryModeler):
                                 + "}"
                         )
                     except KeyError:
+                        # Handle case where the specific map (FaceKeyIDMap, EdgeKeyIDMap, etc.)
+                        # is still missing in the current operation.
                         for key, mon in op_id.items():
                             if i in key:
                                 keyarr = key.split("(")
