@@ -531,14 +531,14 @@ class TwinBuilderComponents(CircuitComponents):
 
     @pyaedt_function_handler()
     def update_quantity_value(self, component_name, name, value, netlist_units=""):
-        """Change the property value of a component.
+        """Change the quantity value of a component.
 
         Parameters
         ----------
         component_name : str
             Component name.
         name : str
-            Property name.
+            Quantity name.
         value : str
             Value of the quantity.
         netlist_units : str, optional
