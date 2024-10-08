@@ -593,3 +593,68 @@ class TwinBuilderComponents(CircuitComponents):
         except Exception:  # pragma: no cover
             self.logger.warning(f"Quantity {name} has not been edited. Check if readonly.")
             return False
+
+    @pyaedt_function_handler()
+    def update_property_value(self, component_name, name, value, netlist_units=""):
+        """Change the property value of a component.
+
+        Parameters
+        ----------
+        component_name : str
+            Component name.
+        name : str
+            Property name.
+        value : str
+            Value of the property.
+        netlist_units : str, optional
+            Value of the netlist unit.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import TwinBuilder
+        >>> tb = TwinBuilder(version="2025.1")
+        >>> G = 0.00254
+        >>> modelpath = "Simplorer Elements\\Basic Elements\\Tools\\Time Functions:DATAPAIRS"
+        >>> source1 = tb.modeler.schematic.create_component("source1", "", modelpath, [20 * G, 29 * G])
+        >>> tb.modeler.schematic.update_property_value(source1.composed_name, "CH_DATA", "1")
+        >>> tb.release_desktop(False, False)
+        """
+        try:
+            self.oeditor.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:PassedParameterTab",
+                        ["NAME:PropServers", component_name],
+                        [
+                            "NAME:ChangedProps",
+                            [
+                                "NAME:" + name,
+                                "OverridingDef:=",
+                                True,
+                                "Value:=",
+                                value,
+                                "NetlistUnits:=",
+                                netlist_units,
+                                "ShowPin:=",
+                                False,
+                                "Display:=",
+                                False,
+                                "Sweep:=",
+                                False,
+                                "SDB:=",
+                                False,
+                            ],
+                        ],
+                    ],
+                ]
+            )
+            return True
+        except Exception:  # pragma: no cover
+            self.logger.warning(f"Property {name} has not been edited. Check if readonly.")
+            return False
