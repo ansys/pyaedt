@@ -377,7 +377,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         try:
             if parentdesign not in self.design_list:
                 self.insert_design(name=parentdesign)
-            self.odesign.InsertDesign("Twin Builder", subsheet, "", parentdesign+":U1")
+            self.odesign.InsertDesign("Twin Builder", subsheet, "", parentdesign + ":U1")
             return True
         except Exception:  # pragma: no cover
             self.logger.warning(f"The Subsheet {subsheet} has not been created.")

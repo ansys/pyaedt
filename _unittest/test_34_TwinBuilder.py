@@ -226,8 +226,8 @@ class TestClass:
 
     def test_18_create_subsheet(self, local_scratch):
         self.aedtapp.insert_design("SML")
-        self.aedtapp.create_subsheet('subsheet','parentsheet')
+        self.aedtapp.create_subsheet("subsheet", "parentsheet")
 
-        assert 'parentsheet' in self.design_list
-        self.set_active_design('parentsheet')
+        assert "parentsheet" in self.design_list
+        self.set_active_design("parentsheet")
         assert len(self.odesign.GetSubDesigns()) > 0
