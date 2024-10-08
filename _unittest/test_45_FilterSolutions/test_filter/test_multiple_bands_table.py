@@ -90,3 +90,16 @@ class TestClass:
             info.value.args[0]
             == "Either no value is set for this band or the rowIndex must be greater than zero and less than row count"
         )
+
+    def test_clear_table():
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_multiple_bands_enabled = True
+        design.multiple_bands_table.clear_table()
+        assert design.multiple_bands_table.row_count == 0
+        for i in range(7):
+            with pytest.raises(RuntimeError) as info:
+                design.multiple_bands_table.row(i)
+            assert (
+                info.value.args[0] == "Either no value is set for this band or the rowIndex must be greater than "
+                "zero and less than row count"
+            )
