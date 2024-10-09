@@ -1,0 +1,6 @@
+﻿plot\_polar\_chart
+==================
+
+.. currentmodule:: ansys.aedt.core.visualization.plot.matplotlib
+
+.. autofunction:: plot_polar_chart
