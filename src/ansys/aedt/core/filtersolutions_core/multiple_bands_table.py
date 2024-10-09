@@ -166,3 +166,8 @@ class MultipleBandsTable:
         """
         status = self._dll.removeMultipleBandsTableRow(row_index)
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+
+    def clear_table(self):
+        """Remove all rows from the multiple bands table."""
+        for i in range(self.row_count - 1, -1, -1):
+            self.remove_row(i)

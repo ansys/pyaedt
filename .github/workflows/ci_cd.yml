@@ -115,8 +115,8 @@ jobs:
         run: |
           python doc/print_errors.py
 
-      - name: Upload HTML documentation without  artifact
-        uses: actions/upload-artifact@v3
+      - name: Upload HTML documentation
+        uses: actions/upload-artifact@v4
         with:
           name: documentation-html
           path: doc/_build/html
@@ -127,7 +127,7 @@ jobs:
           make -C doc pdf
 
       - name: Upload PDF documentation
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: documentation-pdf
           path: doc/_build/latex/PyAEDT-Documentation-*.pdf
@@ -187,9 +187,9 @@ jobs:
           flags: system,solver
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: pytest-solver-results
+          name: pytest-solver-windows
           path: junit/test-results.xml
         if: ${{ always() }}
 
@@ -245,9 +245,9 @@ jobs:
           flags: system,solver
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: pytest-solver-results
+          name: pytest-solver-linux
           path: junit/test-results.xml
         if: ${{ always() }}
 
@@ -310,9 +310,9 @@ jobs:
           flags: system
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: pytest-results
+          name: pytest-windows
           path: junit/test-results.xml
         if: ${{ always() }}
 
@@ -380,9 +380,9 @@ jobs:
           flags: system,solver
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: pytest-solver-results
+          name: pytest-linux
           path: junit/test-results.xml
         if: ${{ always() }}
 

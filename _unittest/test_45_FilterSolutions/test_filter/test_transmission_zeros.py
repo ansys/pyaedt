@@ -69,13 +69,13 @@ class TestClass:
         assert info.value.args[0] == self.input_value_blank_msg
         design.transmission_zeros_bandwidth.append_row("1600M")
         assert design.transmission_zeros_bandwidth.row(0) == ("1600M", "")
-        design.transmission_zeros_bandwidth.clear_row()
+        design.transmission_zeros_bandwidth.clear_table()
         design.transmission_zeros_bandwidth.append_row(zero="1600M", position="2")
         assert design.transmission_zeros_bandwidth.row(0) == ("1600M", "2")
-        design.transmission_zeros_bandwidth.clear_row()
+        design.transmission_zeros_bandwidth.clear_table()
         design.transmission_zeros_ratio.append_row("1.6")
         assert design.transmission_zeros_ratio.row(0) == ("1.6", "")
-        design.transmission_zeros_ratio.clear_row()
+        design.transmission_zeros_ratio.clear_table()
         design.transmission_zeros_ratio.append_row(zero="1.6", position="2")
         assert design.transmission_zeros_ratio.row(0) == ("1.6", "2")
 
@@ -97,7 +97,7 @@ class TestClass:
         assert design.transmission_zeros_bandwidth.row(0) == ("1600M", "")
         design.transmission_zeros_bandwidth.insert_row(0, zero="1600M", position="2")
         assert design.transmission_zeros_bandwidth.row(0) == ("1600M", "2")
-        design.transmission_zeros_bandwidth.clear_row()
+        design.transmission_zeros_bandwidth.clear_table()
         design.transmission_zeros_ratio.insert_row(0, "1.6")
         assert design.transmission_zeros_ratio.row(0) == ("1.6", "")
         design.transmission_zeros_ratio.insert_row(0, zero="1.6", position="2")
@@ -114,17 +114,17 @@ class TestClass:
             design.transmission_zeros_bandwidth.row(0)
         assert info.value.args[0] == self.no_transmission_zero_msg
 
-    def test_clear_row(self):
+    def test_clear_table(self):
         design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         design.transmission_zeros_bandwidth.insert_row(0, zero="1600M", position="2")
         assert design.transmission_zeros_bandwidth.row(0) == ("1600M", "2")
-        design.transmission_zeros_bandwidth.clear_row()
+        design.transmission_zeros_bandwidth.clear_table()
         with pytest.raises(RuntimeError) as info:
             design.transmission_zeros_bandwidth.row(0)
         assert info.value.args[0] == self.no_transmission_zero_msg
         design.transmission_zeros_ratio.insert_row(0, zero="1.6", position="2")
         assert design.transmission_zeros_ratio.row(0) == ("1.6", "2")
-        design.transmission_zeros_ratio.clear_row()
+        design.transmission_zeros_ratio.clear_table()
         with pytest.raises(RuntimeError) as info:
             design.transmission_zeros_ratio.row(0)
         assert info.value.args[0] == self.no_transmission_zero_msg
