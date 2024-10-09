@@ -292,9 +292,6 @@ class TestClass:
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "MagEfieldCyl.fld"))
 
-    # @pytest.mark.skipif(
-    #     config["NonGraphical"], reason="Skipped because it cannot run on build machine in non-graphical mode"
-    # )
     def test_07_copydata(self):
         assert self.aedtapp.post.copy_report_data("MyTestScattering")
 
