@@ -29,9 +29,9 @@ import tempfile
 import time
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
+from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.misc import list_installed_ansysem
 
 # import sys
 from ansys.aedt.core.rpc.rpyc_services import FileManagement
@@ -170,7 +170,7 @@ def pyaedt_service_manager(port=17878, aedt_version=None, student_version=False)
         return False
     if port1 != port:
         logger.info("Port {} is already in use. Starting the server on port {}.".format(port, port1))
-    aa = list_installed_ansysem()
+    aa = aedt_versions.list_installed_ansysem
     if aedt_version:
         if student_version:
             v = "ANSYSEMSV_ROOT{}".format(aedt_version[-4:].replace(".", ""))
@@ -240,7 +240,7 @@ def launch_server(port=18000, ansysem_path=None, non_graphical=False, threaded=T
     if port1 != port:
         logger.info("Port {} is already in use. Starting the server on port {}.".format(port, port1))
     if not ansysem_path:
-        aa = list_installed_ansysem()
+        aa = aedt_versions.list_installed_ansysem
         if aa:
             ansysem_path = os.environ[aa[0]]
         else:

@@ -30,13 +30,13 @@ from struct import unpack
 import subprocess  # nosec
 
 from ansys.aedt.core import generate_unique_name
+from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.general_methods import env_value
 from ansys.aedt.core.generic.general_methods import generate_unique_folder_name
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.misc import current_version
 from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_parameters import COMParametersVer3p4
 from numpy import float64
 from numpy import zeros
@@ -50,7 +50,7 @@ class SpiSim:
         if settings.aedt_version:
             self.desktop_install_dir = os.environ[env_value(settings.aedt_version)]
         else:
-            self.desktop_install_dir = os.environ[env_value(current_version())]
+            self.desktop_install_dir = os.environ[env_value(aedt_versions.current_version)]
         self.logger = settings.logger
         self._working_directory = ""
 

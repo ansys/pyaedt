@@ -1206,24 +1206,8 @@ class ModelPlotter(CommonPlotter):
             )
 
     @pyaedt_function_handler()
-    def plot(self, export_image_path=None, show=True):
-        """Plot the current available Data. With `s` key a screenshot is saved in export_image_path or in tempdir.
-
-        Parameters
-        ----------
-
-        export_image_path : str, optional
-            Path to image to save. Default is None
-        show : bool, optional
-            Whether to display the pyvista plot.
-            When False, a :class::pyvista.Plotter object is created
-            and assigned to the pv property so that it can be
-            modified further. Default is True.
-
-        Returns
-        -------
-        bool
-        """
+    def populate_pyvista_object(self):
+        """Populate pyvista object with geometry and fields added to the model plotter."""
         self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
         self.pv.enable_ssao()
         self.pv.enable_parallel_projection()
@@ -1322,6 +1306,27 @@ class ModelPlotter(CommonPlotter):
         else:
             self.pv.isometric_view()
         self.pv.camera.zoom(self.zoom)
+
+    @pyaedt_function_handler()
+    def plot(self, export_image_path=None, show=True):
+        """Plot the current available Data. With `s` key a screenshot is saved in export_image_path or in tempdir.
+
+        Parameters
+        ----------
+
+        export_image_path : str, optional
+            Path to image to save. Default is None
+        show : bool, optional
+            Whether to display the pyvista plot.
+            When False, a :class::pyvista.Plotter object is created
+            and assigned to the pv property so that it can be
+            modified further. Default is True.
+
+        Returns
+        -------
+        bool
+        """
+        self.populate_pyvista_object()
         if export_image_path:
             path_image = os.path.dirname(export_image_path)
             root_name, format = os.path.splitext(os.path.basename(export_image_path))

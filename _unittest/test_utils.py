@@ -39,6 +39,12 @@ SETTINGS_ENABLE_ERROR_HANDLER = settings.enable_error_handler
 ERROR_MESSAGE = "Dummy message."
 
 
+@pytest.fixture(scope="module", autouse=True)
+def desktop():
+    """Override the desktop fixture to DO NOT open the Desktop when running this test class"""
+    return
+
+
 @pyaedt_function_handler(deprecated_arg="trigger_exception")
 def foo(trigger_exception=True):
     """Some dummy function used for testing."""

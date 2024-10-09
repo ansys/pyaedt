@@ -4460,42 +4460,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         )
         return True
 
-    @pyaedt_function_handler()
-    def set_export_touchstone(self, activate, export_dir=""):
-        """Set automatic export of the Touchstone file after simulation.
-
-        Parameters
-        ----------
-        activate : bool
-            Whether to export the Touchstone file after simulation finishes.
-        export_dir : str, optional
-            Directory to export the Touchstone file to. The default is ``""``,
-            in which case the Touchstone file is exported to the working directory.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-
-        >>> oDesign.SetDesignSettings
-        """
-        settings = []
-        if activate:
-            settings.append("NAME:Design Settings Data")
-            settings.append("Export After Simulation:=")
-            settings.append(True)
-            settings.append("Export Dir:=")
-            settings.append(export_dir)
-        elif not activate:
-            settings.append("NAME:Design Settings Data")
-            settings.append("Export After Simulation:=")
-            settings.append(False)
-        self.odesign.SetDesignSettings(settings)
-        return True
-
     @pyaedt_function_handler(obh_names="assignment", boundary_name="name")
     def assign_radiation_boundary_to_objects(self, assignment, name=None):
         """Assign a radiation boundary to one or more objects (usually airbox objects).
@@ -7062,7 +7026,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         Parameters
         ----------
         export : bool, optional
-            Whether to enable the export.
+            Whether to export the Touchstone file after the simulation.
             The default is ``True``.
         output_dir : str, optional
             Path to the directory of exported file. The default is the project path.
@@ -7163,7 +7127,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.export_touchstone_on_completion()
-        >>> hfss.set_export_touchstone()
+        >>> hfss.export_touchstone_on_completion()
 
 
         """
