@@ -4203,6 +4203,26 @@ class Design(AedtObjects):
         self.odesktop.SetTempDirectory(path)
         return True
 
+    @pyaedt_function_handler()
+    def edit_notes(self, text):
+        """Edit notes.
+
+        Parameters
+        ----------
+        text : str
+            Notes to be inserted.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if not isinstance(text, str):
+            self.logger.error("Text is not valid.")
+            return False
+        self.odesign.EditNotes(text)
+        return True
+
 
 class DesignSettings:
     """Get design settings for the current AEDT app.
