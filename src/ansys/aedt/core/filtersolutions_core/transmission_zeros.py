@@ -241,7 +241,7 @@ class TransmissionZeros:
         status = self._dll.removeTransmissionZerosTableRow(row_index, self.table_format_to_bool())
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
-    def clear_row(self):
+    def clear_table(self):
         """Clear all entries in the transmission zeros table."""
         status = self._dll.clearTransmissionZerosTableRow(self.table_format_to_bool())
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)

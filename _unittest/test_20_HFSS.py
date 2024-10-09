@@ -676,8 +676,14 @@ class TestClass:
         self.aedtapp.insert_design("test_12")
         box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "perfect1", "Copper")
         box2 = self.aedtapp.modeler.create_box([0, 0, 10], [10, 10, 5], "perfect2", "copper")
-        pe = self.aedtapp.create_perfecth_from_objects("perfect1", "perfect2", self.aedtapp.AxisDir.ZPos)
-        ph = self.aedtapp.create_perfecte_from_objects("perfect1", "perfect2", self.aedtapp.AxisDir.ZNeg)
+
+        ph = self.aedtapp.create_perfecth_from_objects(
+            box1.name, box2.name, self.aedtapp.AxisDir.ZNeg, is_boundary_on_plane=False
+        )
+
+        pe = self.aedtapp.create_perfecte_from_objects(
+            box1.name, box2.name, self.aedtapp.AxisDir.ZNeg, is_boundary_on_plane=False
+        )
         assert pe.name in self.aedtapp.modeler.get_boundaries_name()
         assert pe.update()
         assert ph.name in self.aedtapp.modeler.get_boundaries_name()
@@ -978,8 +984,8 @@ class TestClass:
         assert props
 
     def test_35_set_export_touchstone(self):
-        assert self.aedtapp.set_export_touchstone(True)
-        assert self.aedtapp.set_export_touchstone(False)
+        assert self.aedtapp.export_touchstone_on_completion(True)
+        assert self.aedtapp.export_touchstone_on_completion(False)
 
     def test_36_assign_radiation_to_objects(self):
         self.aedtapp.modeler.create_box([-100, -100, -100], [200, 200, 200], name="Rad_box")
@@ -1567,12 +1573,15 @@ class TestClass:
         array.cells[0][1].component = array.component_names[3]
         assert array.cells[0][1].component == array.component_names[3]
 
-        hfss_array.component_array["A1"].name = "Array_new"
-        assert hfss_array.component_array_names[0] == "Array_new"
-        hfss_array.component_array["Array_new"].name = "A1"
+        name = "Array_new"
+        hfss_array.component_array["A1"].name = name
+        assert hfss_array.component_array_names[0] == name
 
+        if config["desktopVersion"] < "2025.1":
+            name = "A1"
+            hfss_array.component_array["Array_new"].name = name
         omodel = hfss_array.get_oo_object(hfss_array.odesign, "Model")
-        oarray = hfss_array.get_oo_object(omodel, "A1")
+        oarray = hfss_array.get_oo_object(omodel, name)
 
         assert array.visible
         array.visible = False
@@ -1708,4 +1717,4 @@ class TestClass:
         aedtapp = add_app(project_name="test_70")
         assert aedtapp.export_touchstone_on_completion()
         assert aedtapp.export_touchstone_on_completion(export=True, output_dir=self.local_scratch.path)
-        assert aedtapp.set_export_touchstone()
+        assert aedtapp.export_touchstone_on_completion()
