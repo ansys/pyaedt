@@ -1611,8 +1611,6 @@ class PostProcessor3D(PostProcessorCommon):
         ----------
         >>> oModule.CreateFieldPlot
         """
-        if intrinsics is None:
-            intrinsics = {}
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
