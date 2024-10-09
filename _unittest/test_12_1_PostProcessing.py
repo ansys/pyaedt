@@ -104,14 +104,12 @@ class TestClass:
         assert self.aedtapp.post.field_plots[plot1.name].IsoVal == "Tone"
         assert plot1.change_plot_scale(min_value, "30000", scale_levels=50)
         assert not self.aedtapp.post.create_fieldplot_volume("invalid", "Vector_E", setup_name, intrinsic)
-        assert self.aedtapp.post.create_fieldplot_volume("inner", "Vector_E", setup_name, intrinsic)
-        inner = self.aedtapp.modeler.objects_by_name["inner"]
-        inner.solve_inside = True
-        inner_plot = self.aedtapp.post.create_fieldplot_volume("inner", "Vector_E", setup_name, intrinsic)
-        assert inner_plot
-        # self.aedtapp.analyze(self.aedtapp.active_setup)
+        assert self.aedtapp.post.create_fieldplot_volume("inner", quantity_name, setup_name, intrinsic)
+
+        volume_plot = self.aedtapp.post.create_fieldplot_volume("NewObject_IJD39Q", "Vector_E", setup_name, intrinsic)
+
         export_status = self.aedtapp.post.export_field_plot(
-            plot_name=inner_plot.name, output_dir=self.aedtapp.working_directory, file_format="case"
+            plot_name=volume_plot.name, output_dir=self.aedtapp.working_directory, file_format="case"
         )
         assert export_status
         assert os.path.splitext(export_status)[1] == ".case"
