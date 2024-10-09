@@ -8,7 +8,10 @@ import pytest
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic import constants as consts
 
-if (3, 7) < sys.version_info < (3, 12) or ( (3,9) < sys.version_info < (3,13) and config["desktopVersion"] > "2024.2" ):
+# Prior to 2025R1, the Emit API supported Python 3.8,3.9,3.10,3.11
+# Starting with 2025R1, the Emit API supports Python 3.10,3.11,3.12
+if ( ( (3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2025.1" ) or 
+    ( (3,10) <= sys.version_info[0:2] <= (3,12) and config["desktopVersion"] > "2024.2" ) ):
     from ansys.aedt.core import Emit
     from ansys.aedt.core import generate_unique_project_name
     from ansys.aedt.core.emit_core.emit_constants import EmiCategoryFilter
@@ -29,9 +32,9 @@ def aedtapp(add_app):
     return app
 
 
-@pytest.mark.skipif(is_linux, reason="Emit API fails on linux.")
-@pytest.mark.skipif(sys.version_info < (3,10), reason="Emit API is only available for Python 3.10+.")
-@pytest.mark.skipif(sys.version_info > (3,11) and config["desktopVersion"] < "2025.1", reason="Emit API is only available for Python 3.12 in AEDT version 2025.1 and later.")
+@pytest.mark.skipif(is_linux, reason="Emit API is not supported on linux.")
+@pytest.mark.skipif((sys.version_info < (3,8) or sys.version_info > (3,11)) and config["desktopVersion"] < "2025.1", reason="Emit API is only available for Python 3.8-3.11 in AEDT versions 2024.2 and prior.")
+@pytest.mark.skipif((sys.version_info < (3,10) or sys.version_info > (3,12)) and config["desktopVersion"] > "2024.2", reason="Emit API is only available for Python 3.10-3.12 in AEDT versions 2025.1 and later.")
 class TestClass:
 
     @pytest.fixture(autouse=True)
@@ -682,9 +685,7 @@ class TestClass:
     )
     def test_13_static_type_generation(self):
         domain = self.aedtapp.results.interaction_domain()
-        py_version = "EmitApiPython"
-        if sys.version_info > (3, 9):
-            py_version = f"EmitApiPython{sys.version_info[0]}{sys.version_info[1]}"
+        py_version = f"EmitApiPython{sys.version_info[0]}{sys.version_info[1]}"
         assert str(type(domain)) == "<class '{}.InteractionDomain'>".format(py_version)
 
         # assert str(type(TxRxMode)) == "<class '{}.tx_rx_mode'>".format(py_version)
