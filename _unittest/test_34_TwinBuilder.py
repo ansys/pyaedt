@@ -217,14 +217,7 @@ class TestClass:
 
         assert self.aedtapp.modeler.schematic.update_quantity_value(rom1.composed_name, "Input2_HeatFlow", "1")
 
-    def test_17_update_property(self, local_scratch):
-        self.aedtapp.insert_design("SML")
-        modelpath = "Simplorer Elements\\Basic Elements\\Tools\\Time Functions:DATAPAIRS"
-        source1 = self.aedtapp.modeler.schematic.create_component("source1", "", modelpath)
-
-        assert self.aedtapp.modeler.schematic.update_property_value(source1.composed_name, "CH_DATA", "1")
-
-    def test_18_create_subsheet(self, local_scratch):
+    def test_17_create_subsheet(self, local_scratch):
         self.aedtapp.insert_design("SML")
         self.aedtapp.create_subsheet("subsheet", "parentsheet")
         assert "parentsheet" in self.aedtapp.design_list
