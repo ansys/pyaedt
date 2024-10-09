@@ -162,7 +162,7 @@ class MonostaticRCSExporter:
         return solution_data
 
     @pyaedt_function_handler()
-    def export_rcs(self, name="monostatic_data", metadata_name="pyaedt_rcs_metadata", output_format="pkl"):
+    def export_rcs(self, name="rcs_data", metadata_name="pyaedt_rcs_metadata", output_format="pkl"):
         """Export RCS solution data."""
 
         # Output directory
@@ -217,7 +217,8 @@ class MonostaticRCSExporter:
             df.rename(
                 columns={
                     self.expression: self.column_name,
-                }
+                },
+                inplace=True,
             )
 
             if output_format == "h5":

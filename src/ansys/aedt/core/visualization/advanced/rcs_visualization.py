@@ -89,10 +89,12 @@ class MonostaticRCSData(object):
         self.__frequency = None
         self.__freq_index = 0
         self.__model_units = "meter"
-        self.__monostatic_data = None
+        self.__name = None
 
         self.__incident_wave_theta = None
         self.__incident_wave_phi = None
+        self.__available_incident_wave_theta = None
+        self.__available_incident_wave_phi = None
 
         self.__frequencies = []
 
@@ -140,6 +142,12 @@ class MonostaticRCSData(object):
         return self.__metadata
 
     @property
+    def name(self):
+        """Antenna metadata."""
+        self.__name = self.__raw_data.columns[0]
+        return self.__name
+
+    @property
     def input_file(self):
         """Input file."""
         return self.__input_file
@@ -158,24 +166,48 @@ class MonostaticRCSData(object):
         return self.__frequencies
 
     @property
-    def incident_wave_theta(self):
-        """Incident wave Theta."""
+    def available_incident_wave_theta(self):
+        """Available incident wave Theta."""
         if "IWaveTheta" in self.__raw_data.index.names:
             self.__incident_wave_theta = np.unique(np.array(self.__raw_data.index.get_level_values("IWaveTheta")))
         return self.__incident_wave_theta
 
     @property
-    def incident_wave_phi(self):
-        """Incident wave Phi."""
-        if "IWaveTheta" in self.__raw_data.index.names:
+    def incident_wave_theta(self):
+        """Active incident wave Theta."""
+        if not self.__incident_wave_theta:
+            self.__incident_wave_theta = self.available_incident_wave_theta[0]
+        return self.__incident_wave_theta
+
+    @incident_wave_theta.setter
+    def incident_wave_theta(self, val):
+        """Active incident wave Theta."""
+        if val in self.available_incident_wave_theta:
+            self.__incident_wave_theta = val
+        else:
+            self.__logger.error("Value not available.")
+
+    @property
+    def available_incident_wave_phi(self):
+        """Available incident wave Phi."""
+        if "IWavePhi" in self.__raw_data.index.names:
             self.__incident_wave_phi = np.unique(np.array(self.__raw_data.index.get_level_values("IWavePhi")))
         return self.__incident_wave_phi
 
     @property
-    def monostatic_data(self):
-        """Monostatic RCS data."""
-        self.__monostatic_data = self.__raw_data.xs(key=self.frequency, level="Freq")
-        return self.__monostatic_data
+    def incident_wave_phi(self):
+        """Active incident wave Phi."""
+        if not self.__incident_wave_phi:
+            self.__incident_wave_phi = self.available_incident_wave_phi[0]
+        return self.__incident_wave_phi
+
+    @incident_wave_phi.setter
+    def incident_wave_phi(self, val):
+        """Active incident wave Phi."""
+        if val in self.available_incident_wave_phi:
+            self.__incident_wave_phi = val
+        else:
+            self.__logger.error("Value not available.")
 
     @property
     def frequency(self):
@@ -241,30 +273,47 @@ class MonostaticRCSData(object):
     @property
     def rcs(self):
         """RCS data."""
-        data = self.monostatic_data
-        data_numpy = self.monostatic_data.to_numpy()
-        data_numpy = conversion_function(data_numpy, self.data_conversion_function)
-        data = data.astype(data_numpy.dtype)
-        data[:] = data_numpy
-        return data
+        data = self.__raw_data.xs(key=self.frequency, level="Freq")
+        data_converted = conversion_function(data[self.name], self.data_conversion_function)
+        return data_converted
 
     @property
     def range_profile(self):
         """Range profile."""
-        data = self.monostatic_data
-        win_range, _ = self.window_function(window=self.window, size=len(self.frequencies))
-        nfreq = len(self.frequencies)
-        for freq_cont, freq in enumerate(self.frequencies):
-            self.frequency = freq
-            data = self.monostatic_data
-            windowed_data = data * win_range[freq_cont]
-            sf_upsample = self.window_size / nfreq
+        # Data by frequency
+        data = self.__raw_data[self.name]
+        data_freq = data.loc[:, self.incident_wave_phi, self.incident_wave_theta]
 
-        data_numpy = self.monostatic_data.to_numpy()
-        data_numpy = conversion_function(data_numpy, self.data_conversion_function)
-        data = data.astype(data_numpy.dtype)
-        data[:] = data_numpy
-        return data
+        # Take needed properties
+        size = self.window_size
+        nfreq = len(self.frequencies)
+
+        # Compute window
+        win_range, _ = self.window_function(self.window, nfreq)
+        windowed_data = data_freq * win_range
+
+        # Peroform FFT
+        sf_upsample = self.window_size / nfreq
+        windowed_data = np.fft.fftshift(sf_upsample * np.fft.ifft(windowed_data.to_numpy(), n=size))
+
+        # Convert data to conversion function
+        windowed_data_converted = conversion_function(windowed_data, self.data_conversion_function)
+
+        df = (
+            unit_converter((self.frequencies[1] - self.frequencies[0]), "Frequency", self.frequency_units, "Hz") * 1.0e9
+        )  # TODO make this automatic!
+        pd_t = 1.0 / df
+        dt = pd_t / size
+        c0 = 299792458
+        range_norm = dt * np.linspace(start=-0.5 * size, stop=0.5 * size - 1, num=size) / 2 * c0
+
+        phis = np.ones(range_norm.size) * self.incident_wave_phi
+        thetas = np.ones(range_norm.size) * self.incident_wave_theta
+        indexes = zip(range_norm, phis, thetas)
+
+        index_names = self.rcs_index_names["Range Profile"]
+
+        return self.__get_new_dataframe(values=windowed_data_converted, indexes=indexes, index_names=index_names)
 
     @staticmethod
     def window_function(window="Flat", size=512):
@@ -296,7 +345,7 @@ class MonostaticRCSData(object):
     def plot_rcs(
         self,
         primary_sweep="IWavePhi",
-        secondary_sweep_value=0,
+        secondary_sweep_value=None,
         title="Monostatic RCS",
         output_file=None,
         show=True,
@@ -345,19 +394,28 @@ class MonostaticRCSData(object):
         data_freq = self.rcs
 
         curves = []
-        all_secondary_sweep_value = None
+        all_secondary_sweep_value = secondary_sweep_value
         if primary_sweep.lower() == "iwavephi":
             x_key = "IWavePhi"
             y_key = "IWaveTheta"
-            x = self.incident_wave_phi
+            x = self.available_incident_wave_phi
             if isinstance(secondary_sweep_value, str) and secondary_sweep_value == "all":
+                all_secondary_sweep_value = self.available_incident_wave_theta
+            elif secondary_sweep_value is None:
                 all_secondary_sweep_value = self.incident_wave_theta
+
         else:
             x_key = "IWaveTheta"
             y_key = "IWavePhi"
-            x = self.incident_wave_theta
+            x = self.available_incident_wave_theta
             if isinstance(secondary_sweep_value, str) and secondary_sweep_value == "all":
+                all_secondary_sweep_value = self.available_incident_wave_phi
+            elif secondary_sweep_value is None:
                 all_secondary_sweep_value = self.incident_wave_phi
+
+        if not isinstance(all_secondary_sweep_value, np.ndarray) and not isinstance(all_secondary_sweep_value, list):
+            all_secondary_sweep_value = [all_secondary_sweep_value]
+
         if is_polar:
             x = [i * 2 * math.pi / 360 for i in x]
         if all_secondary_sweep_value is not None:
@@ -367,19 +425,6 @@ class MonostaticRCSData(object):
                 if not isinstance(y, np.ndarray):  # pragma: no cover
                     raise Exception("Format of quantity is wrong.")
                 curves.append([x, y, "{}={}".format(y_key, el)])
-        elif isinstance(secondary_sweep_value, np.ndarray) or isinstance(secondary_sweep_value, list):
-            for el in secondary_sweep_value:
-                data = data_freq.xs(key=el, level=y_key)
-                y = data.values
-                if not isinstance(y, np.ndarray):  # pragma: no cover
-                    raise Exception("Format of quantity is wrong.")
-                curves.append([x, y, "{}={}".format(y_key, el)])
-        else:
-            data = data_freq.xs(key=secondary_sweep_value, level=y_key)
-            y = data.values
-            if not isinstance(y, np.ndarray):  # pragma: no cover
-                raise Exception("Wrong format quantity.")
-            curves.append([x, y, "{}={}".format(y_key, secondary_sweep_value)])
 
         if is_polar:
             return plot_polar_chart(
@@ -401,6 +446,79 @@ class MonostaticRCSData(object):
                 show_legend=show_legend,
                 show=show,
             )
+
+    @pyaedt_function_handler()
+    def plot_range_profile(
+        self,
+        title="Range profile",
+        output_file=None,
+        show=True,
+        show_legend=True,
+    ):
+        """Create a 2D plot of the monostatic RCS.
+
+        Parameters
+        ----------
+        primary_sweep : str, optional.
+            X-axis variable. The default is ``"IWavePhi"``. Options are ``"IWavePhi"`` and ``"IWaveTheta"``.
+        secondary_sweep_value : float, list, string, optional
+            List of cuts on the secondary sweep to plot. The default is ``0``. Options are
+            `"all"`, a single value float, or a list of float values.
+        title : str, optional
+            Plot title. The default is ``"RectangularPlot"``.
+        output_file : str, optional
+            Full path for the image file. The default is ``None``, in which case an image in not exported.
+        show : bool, optional
+            Whether to show the plot. The default is ``True``.
+            If ``False``, the Matplotlib instance of the plot is shown.
+        is_polar : bool, optional
+            Whether this plot is a polar plot. The default is ``True``.
+        show_legend : bool, optional
+            Whether to display the legend or not. The default is ``True``.
+
+        Returns
+        -------
+        :class:`matplotlib.pyplot.Figure`
+            Matplotlib figure object.
+            If ``show=True``, a Matplotlib figure instance of the plot is returned.
+            If ``show=False``, the plotted curve is returned.
+
+        Examples
+        --------
+        >>> import pyaedt
+        >>> app = pyaedt.Hfss(version="2023.2", design="Antenna")
+        >>> setup_name = "Setup1 : LastAdaptive"
+        >>> frequencies = [77e9]
+        >>> sphere = "3D"
+        >>> data = app.get_antenna_data(frequencies,setup_name,sphere)
+        >>> data.plot_cut(theta=20)
+        """
+
+        data_range_profile = self.range_profile
+
+        ranges = np.unique(data_range_profile.index.get_level_values("Range"))
+        phis = np.unique(data_range_profile.index.get_level_values("IWavePhi"))
+        thetas = np.unique(data_range_profile.index.get_level_values("IWaveTheta"))
+
+        curves = []
+        n_range = len(ranges)
+        n_phi = len(phis)
+        n_theta = len(thetas)
+        values = data_range_profile["data"].to_numpy()
+        values = values.reshape((n_range, n_phi, n_theta), order="F")
+        y = values[:, 0, 0]
+        legend = f"Phi={np.round(phis[0], 3)} Theta={np.round(thetas[0], 3)}"
+        curves.append([ranges.tolist(), y.tolist(), legend])
+
+        return plot_2d_chart(
+            curves,
+            xlabel="Range (m)",
+            ylabel=f"Range Profile ({self.data_conversion_function})",
+            title=title,
+            snapshot_path=output_file,
+            show_legend=show_legend,
+            show=show,
+        )
 
     @pyaedt_function_handler()
     def __init_rcs(self):
