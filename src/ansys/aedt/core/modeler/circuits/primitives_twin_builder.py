@@ -103,6 +103,11 @@ class TwinBuilderComponents(CircuitComponents):
             self._components_catalog = ComponentCatalog(self)
         return self._components_catalog
 
+    @property
+    def o_simmodel_manager(self):
+        """Simulation models manager object."""
+        return self.o_definition_manager.GetManager("SimModel")
+
     @pyaedt_function_handler(compname="name")
     def create_resistor(self, name=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
         """Create a resistor.
@@ -526,14 +531,14 @@ class TwinBuilderComponents(CircuitComponents):
 
     @pyaedt_function_handler()
     def update_quantity_value(self, component_name, name, value, netlist_units=""):
-        """Change the property value of a component.
+        """Change the quantity value of a component.
 
         Parameters
         ----------
         component_name : str
             Component name.
         name : str
-            Property name.
+            Quantity name.
         value : str
             Value of the quantity.
         netlist_units : str, optional
@@ -586,5 +591,5 @@ class TwinBuilderComponents(CircuitComponents):
             )
             return True
         except Exception:  # pragma: no cover
-            self.logger.warning(f"Property {name} has not been edited. Check if readonly.")
+            self.logger.warning(f"Quantity {name} has not been edited. Check if readonly.")
             return False

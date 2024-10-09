@@ -216,3 +216,9 @@ class TestClass:
         rom1 = self.aedtapp.modeler.schematic.create_component("ROM1", "", "Thermal_ROM_SML")
 
         assert self.aedtapp.modeler.schematic.update_quantity_value(rom1.composed_name, "Input2_HeatFlow", "1")
+
+    def test_17_create_subsheet(self, local_scratch):
+        self.aedtapp.insert_design("SML")
+        self.aedtapp.create_subsheet("subsheet", "parentsheet")
+        assert "parentsheet" in self.aedtapp.design_list
+        assert len(self.aedtapp.odesign.GetSubDesigns()) > 0
