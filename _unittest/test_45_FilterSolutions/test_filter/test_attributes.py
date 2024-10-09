@@ -108,20 +108,20 @@ class TestClass:
             design.attributes.diplexer_type = diplexer_type
             assert design.attributes.diplexer_type == diplexer_type
 
-    def test_order(self):
+    def test_filter_order(self):
         design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        assert design.attributes.order == 5
+        assert design.attributes.filter_order == 5
 
         with pytest.raises(RuntimeError) as info:
-            design.attributes.order = 0
+            design.attributes.filter_order = 0
         assert info.value.args[0] == "The minimum order is 1"
 
         for i in range(1, 22):
-            design.attributes.order = i
-            assert design.attributes.order == i
+            design.attributes.filter_order = i
+            assert design.attributes.filter_order == i
 
         with pytest.raises(RuntimeError) as info:
-            design.attributes.order = 22
+            design.attributes.filter_order = 22
         assert info.value.args[0] == "The maximum order is 21"
 
     def test_minimum_order_stop_band_att(self):
@@ -158,9 +158,9 @@ class TestClass:
 
     def test_minimum_order(self):
         design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        assert design.attributes.order == 5
+        assert design.attributes.filter_order == 5
         design.attributes.ideal_minimum_order
-        assert design.attributes.order == 3
+        assert design.attributes.filter_order == 3
 
     def test_pass_band_definition(self):
         design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
@@ -404,7 +404,7 @@ class TestClass:
     def test_even_order(self):
         design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         design.attributes.filter_type = FilterType.ELLIPTIC
-        design.attributes.order = 4
+        design.attributes.filter_order = 4
         assert design.attributes.even_order
         design.attributes.even_order = False
         assert design.attributes.even_order is False
@@ -412,7 +412,7 @@ class TestClass:
     def test_even_order_refl_zero(self):
         design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         design.attributes.filter_type = FilterType.ELLIPTIC
-        design.attributes.order = 4
+        design.attributes.filter_order = 4
         assert design.attributes.even_order_refl_zero
         design.attributes.even_order_refl_zero = False
         assert design.attributes.even_order_refl_zero is False
@@ -420,7 +420,7 @@ class TestClass:
     def test_even_order_trn_zero(self):
         design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         design.attributes.filter_type = FilterType.ELLIPTIC
-        design.attributes.order = 4
+        design.attributes.filter_order = 4
         assert design.attributes.even_order_trn_zero
         design.attributes.even_order_trn_zero = False
         assert design.attributes.even_order_trn_zero is False
