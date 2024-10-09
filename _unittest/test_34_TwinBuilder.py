@@ -230,4 +230,4 @@ class TestClass:
 
         assert "parentsheet" in self.design_list
         self.set_active_design("parentsheet")
-        assert len(self.odesign.GetSubDesigns()) > 0
+        assert len(self.aedtapp.odesign.GetSubDesigns()) > 0
