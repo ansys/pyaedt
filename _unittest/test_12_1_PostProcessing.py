@@ -290,6 +290,7 @@ class TestClass:
             is_vector=False,
             intrinsics="5GHz",
         )
+
         assert os.path.exists(os.path.join(self.local_scratch.path, "MagEfieldCyl.fld"))
 
     def test_07_copydata(self):
