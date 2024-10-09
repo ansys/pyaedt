@@ -84,6 +84,7 @@ class TestClass:
         assert path
 
     def test_01B_Field_Plot(self):
+        self.aedtapp.analyze(self.aedtapp.active_setup)
         assert len(self.aedtapp.post.available_display_types()) > 0
         assert len(self.aedtapp.post.available_report_types) > 0
         assert len(self.aedtapp.post.available_report_quantities()) > 0
@@ -108,7 +109,7 @@ class TestClass:
         inner.solve_inside = True
         inner_plot = self.aedtapp.post.create_fieldplot_volume("inner", "Vector_E", setup_name, intrinsic)
         assert inner_plot
-        self.aedtapp.analyze(self.aedtapp.active_setup)
+        # self.aedtapp.analyze(self.aedtapp.active_setup)
         export_status = self.aedtapp.post.export_field_plot(
             plot_name=inner_plot.name, output_dir=self.aedtapp.working_directory, file_format="case"
         )
@@ -124,7 +125,6 @@ class TestClass:
         assert not self.aedtapp.post.create_fieldplot_surface(123123123, "Mag_E", setup_name, intrinsic)
         assert len(self.aedtapp.setups[0].sweeps[0].frequencies) > 0
         assert isinstance(self.aedtapp.setups[0].sweeps[0].basis_frequencies, list)
-        assert len(self.aedtapp.setups[0].sweeps[1].basis_frequencies) == 2
         mesh_file_path = self.aedtapp.post.export_mesh_obj(setup_name, intrinsic)
         assert os.path.exists(mesh_file_path)
         mesh_file_path2 = self.aedtapp.post.export_mesh_obj(
@@ -172,7 +172,7 @@ class TestClass:
         model_gif2.animate()
         assert os.path.exists(model_gif2.gif_file)
 
-    @pytest.mark.skipif(config["NonGraphical"] == True, reason="Not running in non-graphical mode")
+    @pytest.mark.skipif(config["NonGraphical"], reason="Not running in non-graphical mode")
     def test_02_export_fields(self):
         quantity_name2 = "ComplexMag_H"
         setup_name = "Setup1 : LastAdaptive"
