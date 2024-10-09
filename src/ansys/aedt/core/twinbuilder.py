@@ -352,15 +352,15 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         return True
 
     @pyaedt_function_handler()
-    def create_subsheet(self, subsheet, parentdesign):
+    def create_subsheet(self, name, design_name):
         """Create a subsheet from a parent design. If the parent design does not exist, it will add at top level. Nested
         subsheets are currently not supported.
 
         Parameters
         ----------
-        subsheet : str
+        name : str
             Name of the subsheet.
-        parentdesign : str
+        design_name : str
             Name of the parent design.
 
         Returns
@@ -375,12 +375,12 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         >>> tb.create_subsheet('subsheet', 'parentdesign')
         """
         try:
-            if parentdesign not in self.design_list:
-                self.insert_design(name=parentdesign)
-            self.odesign.InsertDesign("Twin Builder", subsheet, "", parentdesign + ":U1")
+            if design_name not in self.design_list:
+                self.insert_design(name=design_name)
+            self.odesign.InsertDesign("Twin Builder", name, "", design_name + ":U1")
             return True
         except Exception:  # pragma: no cover
-            self.logger.warning(f"The Subsheet {subsheet} has not been created.")
+            self.logger.warning(f"The Subsheet {name} has not been created.")
             return False
 
     @pyaedt_function_handler(setup_name="setup", sweep_name="sweep")
