@@ -68,7 +68,7 @@ def aedtapp(add_app, local_scratch):
         for line in temp:
             if not found:
                 if "Filter_Board.aedt" in line.decode("utf-8"):
-                    line = "\t\t\t\tfilename='{}'\n".format(test_lkd_project.replace("\\", "/")).encode()
+                    line = f"\t\t\t\tfilename='{test_lkd_project.replace(chr(92), '/')}'\n".encode()
                     found = True
             outf.write(line + b"\n")
 

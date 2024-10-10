@@ -120,7 +120,7 @@ class TestClass:
 
         ffdata.farfield_data.plot_cut(quantity="RealizedGain", primary_sweep="theta", secondary_sweep_value=[75],
                                       theta=20,
-                                      title="Azimuth at {}Hz".format(ffdata.farfield_data.frequency),
+                                      title=f"Azimuth at {ffdata.farfield_data.frequency}Hz",
                                       quantity_format="dB10",
                                       show=False,
                                       output_file=os.path.join(self.local_scratch.path, "2d1_array.jpg"))
@@ -410,7 +410,7 @@ class TestClass:
         ports = myedb.pins
         tx = ports
         rx = ports
-        insertions = ["dB(S({},{}))".format(i.name, j.name) for i, j in zip(tx, rx)]
+        insertions = [f"dB(S({i.name},{j.name}))" for i, j in zip(tx, rx)]
         assert circuit_app.post.create_report(insertions, circuit_app.nominal_adaptive, report_category="Standard",
                                               plot_type="Rectangular Plot", subdesign_id=myedb.id)
         new_report = circuit_app.post.reports_by_category.standard(insertions)

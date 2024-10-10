@@ -704,17 +704,17 @@ class TestClass:
             py_version = "EmitApiPython310"
         elif sys.version_info < (3, 12):
             py_version = "EmitApiPython311"
-        assert str(type(domain)) == "<class '{}.InteractionDomain'>".format(py_version)
+        assert str(type(domain)) == f"<class '{py_version}.InteractionDomain'>"
 
         # assert str(type(TxRxMode)) == "<class '{}.tx_rx_mode'>".format(py_version)
-        assert str(type(TxRxMode.RX)) == "<class '{}.tx_rx_mode'>".format(py_version)
-        assert str(type(TxRxMode.TX)) == "<class '{}.tx_rx_mode'>".format(py_version)
-        assert str(type(TxRxMode.BOTH)) == "<class '{}.tx_rx_mode'>".format(py_version)
+        assert str(type(TxRxMode.RX)) == f"<class '{py_version}.tx_rx_mode'>"
+        assert str(type(TxRxMode.TX)) == f"<class '{py_version}.tx_rx_mode'>"
+        assert str(type(TxRxMode.BOTH)) == f"<class '{py_version}.tx_rx_mode'>"
         # assert str(type(ResultType)) == "<class '{}.result_type'>".format(py_version)
-        assert str(type(ResultType.SENSITIVITY)) == "<class '{}.result_type'>".format(py_version)
-        assert str(type(ResultType.EMI)) == "<class '{}.result_type'>".format(py_version)
-        assert str(type(ResultType.DESENSE)) == "<class '{}.result_type'>".format(py_version)
-        assert str(type(ResultType.POWER_AT_RX)) == "<class '{}.result_type'>".format(py_version)
+        assert str(type(ResultType.SENSITIVITY)) == f"<class '{py_version}.result_type'>"
+        assert str(type(ResultType.EMI)) == f"<class '{py_version}.result_type'>"
+        assert str(type(ResultType.DESENSE)) == f"<class '{py_version}.result_type'>"
+        assert str(type(ResultType.POWER_AT_RX)) == f"<class '{py_version}.result_type'>"
 
     @pytest.mark.skipif(config["desktopVersion"] <= "2023.1", reason="Skipped on versions earlier than 2023.2")
     def test_14_version(self, add_app):

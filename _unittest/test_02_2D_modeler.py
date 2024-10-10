@@ -94,7 +94,7 @@ class TestClass:
         for m in materials:
             material_array.append('"' + m + '"')
         s = ", ".join(material_array)
-        self.aedtapp["Materials"] = "[{}]".format(s)
+        self.aedtapp["Materials"] = f"[{s}]"
         material_index = 1
         rect1 = self.aedtapp.modeler.create_rectangle(
             origin=[0, 0, 0], sizes=[6, 12], name="rect1", material=f"Materials[{material_index}]"
@@ -107,7 +107,7 @@ class TestClass:
             origin=[0, 0, 0],
             sizes=[6, 12],
             name="rect3",
-            material="Materials[if(disp<={} && {}<=disp+{}-1,0,1)]".format(2, 2, 10),
+            material=f"Materials[if(disp<={2} && {2}<=disp+{10}-1,0,1)]",
         )
         assert rect3.material_name == materials[0]
 
