@@ -330,8 +330,8 @@ class IdealResponse:
     def frequency_response(
         self,
         y_axis_parameter=FrequencyResponseColumn.MAGNITUDE_DB,
-        minimum_frequency="200 MHz",
-        maximum_frequency="5 GHz",
+        minimum_frequency=None,
+        maximum_frequency=None,
         vsg_analysis_enabled=False,
     ):
         """Get the ideal filter frequency response for the given parameters.
@@ -341,9 +341,9 @@ class IdealResponse:
         y_axis_parameter: `FrequencyResponseColumn`, optional
              Frequency response column to return. The default is the frequency response magnitude in dB.
         minimum_frequency: str, optional
-            The default is ``200 MHz``.
+            The default is ``None``.
         maximum_frequency: str, optional
-            The default is ``5 GHz``.
+            The default is ``None``.
         vsg_analysis_enabled: bool, optional
             The default is ``False``.
 
@@ -354,8 +354,11 @@ class IdealResponse:
             of the defined frequency ranges, and the second is a
             list of the requested parameters.
         """
-        self.graph_setup.minimum_frequency = minimum_frequency
-        self.graph_setup.maximum_frequency = maximum_frequency
+
+        if minimum_frequency is not None:
+            minimum_frequency = self.graph_setup.minimum_frequency
+        if maximum_frequency is not None:
+            maximum_frequency = self.graph_setup.maximum_frequency
         self.vsg_analysis_enabled = vsg_analysis_enabled
         frequency = self._frequency_response_getter(FrequencyResponseColumn.FREQUENCY)
         frequency_hz = []
@@ -367,8 +370,8 @@ class IdealResponse:
     def time_response(
         self,
         y_axis_parameter=TimeResponseColumn.STEP_RESPONSE,
-        minimum_time="0 s",
-        maximum_time="10 ns",
+        minimum_time=None,
+        maximum_time=None,
         vsg_analysis_enabled=False,
     ):
         """Get the ideal filter time response for the given parameters.
@@ -378,9 +381,9 @@ class IdealResponse:
         y_axis_parameter: `TimeResponseColumn`, optional
             Time response column to get. The default is the step time response.
         minimum_time: str, optional
-            The default is ``0 s``.
+            The default is ``None``.
         maximum_time: str, optional
-            The default is ``10 ns``.
+            The default is ``None``.
         vsg_analysis_enabled: bool, optional
             The default is ``False``.
 
@@ -391,8 +394,10 @@ class IdealResponse:
             of the defined time ranges, and the second is a
             list of the requested parameters.
         """
-        self.graph_setup.minimum_time = minimum_time
-        self.graph_setup.maximum_time = maximum_time
+        if minimum_time is not None:
+            minimum_time = self.graph_setup.minimum_time
+        if maximum_time is not None:
+            maximum_time = self.graph_setup.maximum_time
         self.vsg_analysis_enabled = vsg_analysis_enabled
         time = self._time_response_getter(TimeResponseColumn.TIME)
         parameter = self._time_response_getter(y_axis_parameter)
@@ -401,8 +406,8 @@ class IdealResponse:
     def s_parameters(
         self,
         y_axis_parameter=SParametersResponseColumn.S21_DB,
-        minimum_frequency="200 MHz",
-        maximum_frequency="5 GHz",
+        minimum_frequency=None,
+        maximum_frequency=None,
     ):
         """Get the ideal filter S parameters response for the given parameters.
 
@@ -411,9 +416,9 @@ class IdealResponse:
         y_axis_parameter: `SParametersResponseColumn`, optional
             S parameter's response column to get. The default is the S21 parameter response in dB.
         minimum_frequency: str, optional
-            The default is ``200 MHz``.
+            The default is ``None``.
         maximum_frequency: str, optional
-            The default is ``5 GHz``.
+            The default is ``None``.
         vsg_analysis_enabled: bool, optional
             The default is ``False``.
 
@@ -424,8 +429,10 @@ class IdealResponse:
             of the defined frequency ranges, and the second is a
             list of the requested parameters.
         """
-        self.graph_setup.minimum_frequency = minimum_frequency
-        self.graph_setup.maximum_frequency = maximum_frequency
+        if minimum_frequency is not None:
+            minimum_frequency = self.graph_setup.minimum_frequency
+        if maximum_frequency is not None:
+            maximum_frequency = self.graph_setup.maximum_frequency
         frequency = self._sparamaters_response_getter(SParametersResponseColumn.FREQUENCY)
         frequency_hz = []
         for freq in frequency:
