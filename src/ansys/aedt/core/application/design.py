@@ -4210,7 +4210,7 @@ class Design(AedtObjects):
         Parameters
         ----------
         text : str
-            Notes to be inserted.
+            Text to be added in the design notes.
 
         Returns
         -------
