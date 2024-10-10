@@ -4207,6 +4207,8 @@ class Design(AedtObjects):
     def edit_notes(self, text):
         """Edit notes.
 
+        Notes are used to document aspects of designs only.
+
         Parameters
         ----------
         text : str
@@ -4216,6 +4218,18 @@ class Design(AedtObjects):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesign.EditNotes()
+
+        Examples
+        --------
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d()
+        >>> m3d.edit_notes("This is an example.")
         """
         if not isinstance(text, str):
             self.logger.error("Input type of edit_notes is not valid.")
