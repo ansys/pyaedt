@@ -4218,7 +4218,7 @@ class Design(AedtObjects):
             ``True`` when successful, ``False`` when failed.
         """
         if not isinstance(text, str):
-            self.logger.error("Text is not valid.")
+            self.logger.error("Input type of edit_notes is not valid.")
             return False
         self.odesign.EditNotes(text)
         return True
