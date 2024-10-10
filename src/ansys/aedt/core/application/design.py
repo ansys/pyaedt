@@ -4203,6 +4203,40 @@ class Design(AedtObjects):
         self.odesktop.SetTempDirectory(path)
         return True
 
+    @pyaedt_function_handler()
+    def edit_notes(self, text):
+        """Edit notes.
+
+        Notes are used to document aspects of designs only.
+
+        Parameters
+        ----------
+        text : str
+            Text to be added in the design notes.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesign.EditNotes()
+
+        Examples
+        --------
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d()
+        >>> m3d.edit_notes("This is an example.")
+        """
+        if not isinstance(text, str):
+            self.logger.error("Input type of edit_notes is not valid.")
+            return False
+        self.odesign.EditNotes(text)
+        return True
+
 
 class DesignSettings:
     """Get design settings for the current AEDT app.

@@ -498,3 +498,7 @@ class TestClass:
         assert not os.path.exists(new_parent_dir)
         self.aedtapp.save_project(file_name=new_project)
         assert os.path.isfile(new_project)
+
+    def test_43_edit_notes(self):
+        assert self.aedtapp.edit_notes("this a test")
+        assert not self.aedtapp.edit_notes(1)
