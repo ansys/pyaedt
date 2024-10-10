@@ -511,10 +511,7 @@ class MeshSettings(object):
             if k in ["MaxElementSizeX", "MaxElementSizeY", "MaxElementSizeZ", "MinGapX", "MinGapY", "MinGapZ"]:
                 v = _dim_arg(v, getattr(self._mesh_class, "_model_units"))
             out.append(v)
-        out.append(
-            "UserSpecifiedSettings:=",
-        )
-        out.append("MeshRegionResolution" in self.keys())
+        out += ["UserSpecifiedSettings:=", getattr(self._mesh_class, "manual_settings")]
         return out
 
     def parse_settings_as_dictionary(self):
