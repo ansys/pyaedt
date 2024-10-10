@@ -171,7 +171,7 @@ class TestClass:
         img1 = os.path.join(self.local_scratch.path, "contour.jpg")
         assert ffdata.farfield_data.plot_contour(
             quantity="RealizedGain",
-            title="Contour at {}Hz".format(ffdata.farfield_data.frequency),
+            title=f"Contour at {ffdata.farfield_data.frequency}Hz",
             output_file=img1,
             show=False,
         )
@@ -186,7 +186,7 @@ class TestClass:
             quantity="RealizedGain",
             primary_sweep="theta",
             secondary_sweep_value=[-180, -75, 75],
-            title="Azimuth at {}Hz".format(ffdata.farfield_data.frequency),
+            title=f"Azimuth at {ffdata.farfield_data.frequency}Hz",
             output_file=img2,
             show=False,
         )
@@ -197,7 +197,7 @@ class TestClass:
             quantity="RealizedGain",
             primary_sweep="phi",
             secondary_sweep_value=30,
-            title="Azimuth at {}Hz".format(ffdata.farfield_data.frequency),
+            title=f"Azimuth at {ffdata.farfield_data.frequency}Hz",
             output_file=img3,
             show=False,
         )
@@ -208,7 +208,7 @@ class TestClass:
             quantity="RealizedGain",
             primary_sweep="phi",
             secondary_sweep_value=30,
-            title="Azimuth at {}Hz".format(ffdata.farfield_data.frequency),
+            title=f"Azimuth at {ffdata.farfield_data.frequency}Hz",
             output_file=img3_polar,
             show=False,
             is_polar=True,
