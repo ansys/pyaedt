@@ -45,16 +45,24 @@ second_modelithics_resistor = "Vishay -> RES_VIS_0603_001 D11"
 
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
-@pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
+@pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
 class TestClass:
     def test_modelithics_inductor_list_count(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
+        with pytest.raises(RuntimeError) as info:
+            lumpdesign.export_to_aedt.modelithics_capacitor_list_count
+        assert info.value.args[0] == "The part library is not set to Modelithics"
+        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         assert lumpdesign.export_to_aedt.modelithics_inductor_list_count == 116
 
     def test_modelithics_inductor_list(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
+        with pytest.raises(RuntimeError) as info:
+            lumpdesign.export_to_aedt.modelithics_inductor_list(0)
+        assert info.value.args[0] == "The part library is not set to Modelithics"
+        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         with pytest.raises(RuntimeError) as info:
             lumpdesign.export_to_aedt.modelithics_inductor_list(-1)
         assert info.value.args[0] == "The Modelithics inductor at the given index is not available"
@@ -66,6 +74,10 @@ class TestClass:
         lumpdesign.export_to_aedt._open_aedt_export()
         with pytest.raises(RuntimeError) as info:
             lumpdesign.export_to_aedt.modelithics_inductor_selection
+        assert info.value.args[0] == "The part library is not set to Modelithics"
+        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
+        with pytest.raises(RuntimeError) as info:
+            lumpdesign.export_to_aedt.modelithics_inductor_selection
         assert info.value.args[0] == "No Modelithics inductor is selected"
         lumpdesign.export_to_aedt.modelithics_inductor_selection = first_modelithics_inductor
         assert lumpdesign.export_to_aedt.modelithics_inductor_selection == first_modelithics_inductor
@@ -73,6 +85,10 @@ class TestClass:
     def test_modelithics_inductor_family_list_count(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
+        with pytest.raises(RuntimeError) as info:
+            lumpdesign.export_to_aedt.modelithics_inductor_family_list_count
+        assert info.value.args[0] == "The part library is not set to Modelithics"
+        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         assert lumpdesign.export_to_aedt.modelithics_inductor_family_list_count == 0
         lumpdesign.export_to_aedt.modelithics_inductor_add_family(second_modelithics_inductor)
         assert lumpdesign.export_to_aedt.modelithics_inductor_family_list_count == 1
@@ -82,6 +98,10 @@ class TestClass:
     def test_modelithics_inductor_family_list(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
+        with pytest.raises(RuntimeError) as info:
+            lumpdesign.export_to_aedt.modelithics_inductor_family_list(0)
+        assert info.value.args[0] == "The part library is not set to Modelithics"
+        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         with pytest.raises(RuntimeError) as info:
             lumpdesign.export_to_aedt.modelithics_inductor_family_list(0)
         assert info.value.args[0] == "The Modelithics inductor family at the given index is not available"
@@ -94,6 +114,10 @@ class TestClass:
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
         with pytest.raises(RuntimeError) as info:
+            lumpdesign.export_to_aedt.modelithics_inductor_add_family(second_modelithics_inductor)
+        assert info.value.args[0] == "The part library is not set to Modelithics"
+        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
+        with pytest.raises(RuntimeError) as info:
             lumpdesign.export_to_aedt.modelithics_inductor_family_list(0)
         assert info.value.args[0] == "The Modelithics inductor family at the given index is not available"
         lumpdesign.export_to_aedt.modelithics_inductor_add_family(second_modelithics_inductor)
@@ -104,6 +128,9 @@ class TestClass:
     def test_modelithics_inductor_family_list_remove_family(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
+        with pytest.raises(RuntimeError) as info:
+            lumpdesign.export_to_aedt.modelithics_inductor_remove_family(second_modelithics_inductor)
+        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         with pytest.raises(RuntimeError) as info:
             lumpdesign.export_to_aedt.modelithics_inductor_family_list(0)
         assert info.value.args[0] == "The Modelithics inductor family at the given index is not available"
@@ -116,11 +143,19 @@ class TestClass:
     def test_modelithics_capacitor_list_count(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
+        with pytest.raises(RuntimeError) as info:
+            lumpdesign.export_to_aedt.modelithics_capacitor_list_count
+        assert info.value.args[0] == "The part library is not set to Modelithics"
+        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         assert lumpdesign.export_to_aedt.modelithics_capacitor_list_count == 140
 
     def test_modelithics_capacitor_list(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
+        with pytest.raises(RuntimeError) as info:
+            lumpdesign.export_to_aedt.modelithics_capacitor_list(0)
+        assert info.value.args[0] == "The part library is not set to Modelithics"
+        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         with pytest.raises(RuntimeError) as info:
             lumpdesign.export_to_aedt.modelithics_capacitor_list(-1)
         assert info.value.args[0] == "The Modelithics capacitor at the given index is not available"
@@ -132,6 +167,10 @@ class TestClass:
         lumpdesign.export_to_aedt._open_aedt_export()
         with pytest.raises(RuntimeError) as info:
             lumpdesign.export_to_aedt.modelithics_capacitor_selection
+        assert info.value.args[0] == "The part library is not set to Modelithics"
+        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
+        with pytest.raises(RuntimeError) as info:
+            lumpdesign.export_to_aedt.modelithics_capacitor_selection
         assert info.value.args[0] == "No Modelithics capacitor is selected"
         lumpdesign.export_to_aedt.modelithics_capacitor_selection = first_modelithics_capacitor
         assert lumpdesign.export_to_aedt.modelithics_capacitor_selection == first_modelithics_capacitor
@@ -139,6 +178,10 @@ class TestClass:
     def test_modelithics_capacitor_family_list_count(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
+        with pytest.raises(RuntimeError) as info:
+            lumpdesign.export_to_aedt.modelithics_capacitor_family_list_count
+        assert info.value.args[0] == "The part library is not set to Modelithics"
+        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         assert lumpdesign.export_to_aedt.modelithics_capacitor_family_list_count == 0
         lumpdesign.export_to_aedt.modelithics_capacitor_add_family(first_modelithics_capacitor)
         assert lumpdesign.export_to_aedt.modelithics_capacitor_family_list_count == 1
@@ -148,6 +191,10 @@ class TestClass:
     def test_modelithics_capacitor_family_list(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
+        with pytest.raises(RuntimeError) as info:
+            lumpdesign.export_to_aedt.modelithics_capacitor_family_list(0)
+        assert info.value.args[0] == "The part library is not set to Modelithics"
+        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         with pytest.raises(RuntimeError) as info:
             lumpdesign.export_to_aedt.modelithics_capacitor_family_list(0)
         assert info.value.args[0] == "The Modelithics capacitor family at the given index is not available"
@@ -160,6 +207,10 @@ class TestClass:
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
         with pytest.raises(RuntimeError) as info:
+            lumpdesign.export_to_aedt.modelithics_capacitor_add_family(first_modelithics_capacitor)
+        assert info.value.args[0] == "The part library is not set to Modelithics"
+        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
+        with pytest.raises(RuntimeError) as info:
             lumpdesign.export_to_aedt.modelithics_capacitor_family_list(0)
         assert info.value.args[0] == "The Modelithics capacitor family at the given index is not available"
         lumpdesign.export_to_aedt.modelithics_capacitor_add_family(first_modelithics_capacitor)
@@ -170,6 +221,10 @@ class TestClass:
     def test_modelithics_capacitor_family_list_remove_family(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
+        with pytest.raises(RuntimeError) as info:
+            lumpdesign.export_to_aedt.modelithics_capacitor_remove_family(second_modelithics_capacitor)
+            assert info.value.args[0] == "The part library is not set to Modelithics"
+        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         with pytest.raises(RuntimeError) as info:
             lumpdesign.export_to_aedt.modelithics_capacitor_family_list(0)
         assert info.value.args[0] == "The Modelithics capacitor family at the given index is not available"
@@ -182,11 +237,19 @@ class TestClass:
     def test_modelithics_resistor_list_count(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
+        with pytest.raises(RuntimeError) as info:
+            lumpdesign.export_to_aedt.modelithics_resistor_list_count
+        assert info.value.args[0] == "The part library is not set to Modelithics"
+        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         assert lumpdesign.export_to_aedt.modelithics_resistor_list_count == 39
 
     def test_modelithics_resistor_list(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
+        with pytest.raises(RuntimeError) as info:
+            lumpdesign.export_to_aedt.modelithics_resistor_list(0)
+        assert info.value.args[0] == "The part library is not set to Modelithics"
+        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         with pytest.raises(RuntimeError) as info:
             lumpdesign.export_to_aedt.modelithics_resistor_list(-1)
         assert info.value.args[0] == "The Modelithics resistor at the given index is not available"
@@ -198,6 +261,10 @@ class TestClass:
         lumpdesign.export_to_aedt._open_aedt_export()
         with pytest.raises(RuntimeError) as info:
             lumpdesign.export_to_aedt.modelithics_resistor_selection
+        assert info.value.args[0] == "The part library is not set to Modelithics"
+        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
+        with pytest.raises(RuntimeError) as info:
+            lumpdesign.export_to_aedt.modelithics_resistor_selection
         assert info.value.args[0] == "No Modelithics resistor is selected"
         lumpdesign.export_to_aedt.modelithics_resistor_selection = first_modelithics_resistor
         assert lumpdesign.export_to_aedt.modelithics_resistor_selection == first_modelithics_resistor
@@ -205,6 +272,10 @@ class TestClass:
     def test_modelithics_resistor_family_list_count(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
+        with pytest.raises(RuntimeError) as info:
+            lumpdesign.export_to_aedt.modelithics_resistor_family_list_count
+        assert info.value.args[0] == "The part library is not set to Modelithics"
+        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         assert lumpdesign.export_to_aedt.modelithics_resistor_family_list_count == 0
         lumpdesign.export_to_aedt.modelithics_resistor_add_family(first_modelithics_resistor)
         assert lumpdesign.export_to_aedt.modelithics_resistor_family_list_count == 1
@@ -214,6 +285,10 @@ class TestClass:
     def test_modelithics_resistor_family_list(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
+        with pytest.raises(RuntimeError) as info:
+            lumpdesign.export_to_aedt.modelithics_resistor_family_list(0)
+        assert info.value.args[0] == "The part library is not set to Modelithics"
+        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         with pytest.raises(RuntimeError) as info:
             lumpdesign.export_to_aedt.modelithics_resistor_family_list(0)
         assert info.value.args[0] == "The Modelithics resistor family at the given index is not available"
@@ -226,6 +301,10 @@ class TestClass:
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
         with pytest.raises(RuntimeError) as info:
+            lumpdesign.export_to_aedt.modelithics_resistor_add_family(first_modelithics_resistor)
+        assert info.value.args[0] == "The part library is not set to Modelithics"
+        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
+        with pytest.raises(RuntimeError) as info:
             lumpdesign.export_to_aedt.modelithics_resistor_family_list(0)
         assert info.value.args[0] == "The Modelithics resistor family at the given index is not available"
         lumpdesign.export_to_aedt.modelithics_resistor_add_family(first_modelithics_resistor)
@@ -236,6 +315,10 @@ class TestClass:
     def test_modelithics_resistor_family_list_remove_family(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
+        with pytest.raises(RuntimeError) as info:
+            lumpdesign.export_to_aedt.modelithics_resistor_remove_family(second_modelithics_resistor)
+        assert info.value.args[0] == "The part library is not set to Modelithics"
+        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         with pytest.raises(RuntimeError) as info:
             lumpdesign.export_to_aedt.modelithics_resistor_family_list(0)
         assert info.value.args[0] == "The Modelithics resistor family at the given index is not available"
@@ -367,7 +450,7 @@ class TestClass:
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
         lumpdesign.export_to_aedt.load_library_parts_config(resource_path("library_parts.cfg"))
-        assert lumpdesign.export_to_aedt.part_libraries == PartLibraries.MODELITHICS
+        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         assert lumpdesign.export_to_aedt.substrate_er == "4.5"
         assert lumpdesign.export_to_aedt.substrate_resistivity == "5.8E+07 "
         assert lumpdesign.export_to_aedt.substrate_conductor_thickness == "500 nm"

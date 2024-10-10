@@ -145,7 +145,7 @@ class TestClass:
         assert "var_test" in self.aedtapp.variable_manager.design_variable_names
         assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"
 
-    def test_19_add_dynamic_link(self, add_app):
+    def test_15_add_dynamic_link(self, add_app):
         tb = add_app(application=TwinBuilder, project_name=self.dynamic_link, design_name="CableSystem", just_open=True)
         assert tb.add_q3d_dynamic_component(
             "Q2D_ArmouredCableExample", "2D_Extractor_Cable", "MySetupAuto", "sweep1", "Original", model_depth="100mm"
@@ -203,3 +203,22 @@ class TestClass:
             tb.add_q3d_dynamic_component(
                 "invalid", "2D_Extractor_Cable", "MySetupAuto", "sweep1", "Original", model_depth="100mm"
             )
+
+    def test_16_add_sml_component(self, local_scratch):
+        self.aedtapp.insert_design("SML")
+        input_file = local_scratch.copyfile(
+            os.path.join(local_path, "../_unittest/example_models", test_subfolder, "Thermal_ROM_SML.sml")
+        )
+        pins_names = ["Input1_InternalHeatGeneration", "Input2_HeatFlow", "Output1_Temp1,Output2_Temp2"]
+        assert self.aedtapp.modeler.schematic.create_component_from_sml(
+            input_file=input_file, model="Thermal_ROM_SML", pins_names=pins_names
+        )
+        rom1 = self.aedtapp.modeler.schematic.create_component("ROM1", "", "Thermal_ROM_SML")
+
+        assert self.aedtapp.modeler.schematic.update_quantity_value(rom1.composed_name, "Input2_HeatFlow", "1")
+
+    def test_17_create_subsheet(self, local_scratch):
+        self.aedtapp.insert_design("SML")
+        self.aedtapp.create_subsheet("subsheet", "parentsheet")
+        assert "parentsheet" in self.aedtapp.design_list
+        assert len(self.aedtapp.odesign.GetSubDesigns()) > 0

@@ -88,6 +88,7 @@ assignment = ""
 assignment_type = ["Line", "Face", "Sheet", "Solid"]
 constants = {"vrm"= 3.3}
 operations = ["Fundamental_Quantity('dcvPhi')",
+	"Operation('Real')",
     "Scalar_Function(FuncValue='vrm')",
 	"Operation('+')"]
 dependent_expressions = []

@@ -262,4 +262,5 @@ If you are looking for Virtual Compliance post processing, you should use this s
    :toctree: _autosummary
    :nosignatures:
 
+   VirtualComplianceGenerator
    VirtualCompliance

@@ -35,6 +35,12 @@ import pytest
 VALID_PYTHON_VERSION = (LATEST_DEPRECATED_PYTHON_VERSION[0], LATEST_DEPRECATED_PYTHON_VERSION[1] + 1)
 
 
+@pytest.fixture(scope="module", autouse=True)
+def desktop():
+    """Override the desktop fixture to DO NOT open the Desktop when running this test class"""
+    return
+
+
 @patch.object(warnings, "warn")
 def test_deprecation_warning_with_deprecated_python_version(mock_warn, monkeypatch):
     """Test that python version warning is triggered."""

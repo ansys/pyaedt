@@ -1,0 +1,57 @@
+{
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string",
+            "default": "default_name"
+        },
+        "description": {
+            "type": "string",
+            "default": "default_description"
+        },
+        "design_type": {
+            "type": "array",
+            "items": {"type": "string"},
+            "default": ["HFSS"]
+        },
+        "fields_type": {
+            "type": "array",
+            "items": {"type": "string"},
+            "default": ["Fields"]
+        },
+        "solution_type": {
+            "type": "string",
+            "default": ""
+        },
+        "primary_sweep": {
+            "type": "string",
+            "default": "Freq"
+        },
+        "assignment": {
+            "type": "string",
+            "default": ""
+        },
+        "assignment_type": {
+            "type": "array",
+            "items": {"type": "string"},
+            "default": ["Line"]
+        },
+        "operations": {
+            "type": "array",
+            "items": {"type": "string"},
+            "default": [],
+            "minItems": 0
+        },
+        "dependent_expressions": {
+            "type": "array",
+            "items": {"type": "string"},
+            "default": []
+        },
+        "report": {
+            "type": "array",
+            "items": {"type": "string"},
+            "default": ["Data Table"]
+        }
+    },
+    "required": ["design_type", "fields_type", "primary_sweep", "assignment_type", "operations"]
+}
