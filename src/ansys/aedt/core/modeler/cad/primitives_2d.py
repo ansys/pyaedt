@@ -113,7 +113,7 @@ class Primitives2D(GeometryModeler, object):
         vArg1.append("ZCenter:="), vArg1.append(ZCenter)
         vArg1.append("Radius:="), vArg1.append(Radius)
         vArg1.append("WhichAxis:="), vArg1.append(szAxis)
-        vArg1.append("NumSegments:="), vArg1.append("{}".format(num_sides))
+        vArg1.append("NumSegments:="), vArg1.append(f"{num_sides}")
 
         vArg2 = self._default_object_attributes(name=name, material=material, flags="NonModel#" if non_model else "")
         new_object_name = self.oeditor.CreateCircle(vArg1, vArg2)

@@ -273,7 +273,7 @@ class PyaedtServiceWindows(rpyc.Service):
         else:
             return "Wrong file or wrong commands."
         if not is_safe_path(script_file):
-            return "Script file {} not safe.".format(script_file)
+            return f"Script file {script_file} not safe."
         executable = "ansysedt.exe"
         if is_linux and not ansysem_path and not env_path(aedt_version):
             ansysem_path = os.getenv("PYAEDT_SERVER_AEDT_PATH", "")
@@ -299,7 +299,7 @@ class PyaedtServiceWindows(rpyc.Service):
                 p = subprocess.Popen(command)  # nosec
                 p.wait()
             except subprocess.CalledProcessError as e:
-                msg = "Command failed with error: {}".format(e)
+                msg = f"Command failed with error: {e}"
                 logger.error(msg)
                 return msg
             return "Script Executed."
@@ -897,7 +897,7 @@ class GlobalService(rpyc.Service):
             print("Error. No ports are available.")
             return False
         elif port in sessions:
-            print("AEDT Session already opened on port {}.".format(port))
+            print(f"AEDT Session already opened on port {port}.")
             return True
         ansysem_path = os.getenv("PYAEDT_SERVER_AEDT_PATH", "")
         if is_linux:
@@ -943,7 +943,7 @@ class GlobalService(rpyc.Service):
             else:
                 s.close()
                 timeout = 0
-        print("Service has started on port {}".format(port))
+        print(f"Service has started on port {port}")
         return port
 
     @property

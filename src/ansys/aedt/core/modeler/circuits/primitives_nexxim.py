@@ -199,18 +199,16 @@ class NexximComponents(CircuitComponents):
             name = generate_unique_name("Circuit")
 
         if nested_subcircuit_id:
-            parent_name = "{}:{}:{}".format(
-                self._app.design_name.split("/")[0], nested_subcircuit_id, random.randint(1, 10000)
-            )
+            parent_name = f"{self._app.design_name.split('/')[0]}:{nested_subcircuit_id}:{random.randint(1, 10000)}"
         else:
-            parent_name = "{}:{}".format(self._app.design_name.split("/")[0], ":U" + str(random.randint(1, 10000)))
+            parent_name = f'{self._app.design_name.split("/")[0]}:{":U" + str(random.randint(1, 10000))}'
 
         self._app.odesign.InsertDesign("Circuit Design", name, "", parent_name)
         if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
             time.sleep(1)
             self._app.desktop_class.close_windows()
         if nested_subcircuit_id:
-            pname = "{}:{}".format(self._app.design_name.split("/")[0], nested_subcircuit_id)
+            pname = f"{self._app.design_name.split('/')[0]}:{nested_subcircuit_id}"
             odes = self._app.desktop_class.active_design(self._app.oproject, pname)
             oed = odes.SetActiveEditor("SchematicEditor")
             if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
@@ -1377,9 +1375,9 @@ class NexximComponents(CircuitComponents):
             spicesintax += name + " "
         for el, val in zip(parameters, values):
             if "MOD" in el:
-                spicesintax += "@{} ".format(el)
+                spicesintax += f"@{el} "
             else:
-                spicesintax += "{}=@{} ".format(el, el)
+                spicesintax += f"{el}=@{el} "
 
         arg3 = [
             "NAME:CosimDefinitions",

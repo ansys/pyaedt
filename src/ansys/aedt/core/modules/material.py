@@ -744,7 +744,7 @@ class MatProperty(object):
         >>> mat1.add_thermal_modifier_dataset("$ds1")
         """
 
-        formula = "pwl({}, Temp)".format(dataset)
+        formula = f"pwl({dataset}, Temp)"
         self._property_value[index].thermalmodifier = formula
         return self._add_thermal_modifier(formula, index)
 
@@ -1237,7 +1237,7 @@ class MatProperty(object):
         >>> mat1.add_spatial_modifier_dataset("$ds1")
         """
 
-        formula = "clp({}, X,Y,Z)".format(dataset)
+        formula = f"clp({dataset}, X,Y,Z)"
         self._property_value[index].spatialmodifier = formula
         return self._add_spatial_modifier(formula, index)
 
@@ -2163,7 +2163,7 @@ class Material(CommonMaterial, object):
         self._props["magnetic_coercivity"] = dict(
             {
                 "property_type": "VectorProperty",
-                "Magnitude": "{}A_per_meter".format(value),
+                "Magnitude": f"{value}A_per_meter",
                 "DirComp1": str(x),
                 "DirComp2": str(y),
                 "DirComp3": str(z),
@@ -2250,7 +2250,7 @@ class Material(CommonMaterial, object):
             props["CoefficientSetupData"]["property_data"] = "coreloss_data"
             props["CoefficientSetupData"]["coefficient_setup"] = coefficient_setup
             frequency = list(points_at_frequency.keys())[0]
-            props["CoefficientSetupData"]["Frequency"] = "{}Hz".format(frequency)
+            props["CoefficientSetupData"]["Frequency"] = f"{frequency}Hz"
             props["CoefficientSetupData"]["Thickness"] = thickness
             props["CoefficientSetupData"]["Conductivity"] = str(conductivity)
             points = [i for p in points_at_frequency[frequency] for i in p]
@@ -2266,7 +2266,7 @@ class Material(CommonMaterial, object):
                 points = [i for p in points_at_frequency[freq] for i in p]
                 one_curve = dict(
                     {
-                        "Frequency": "{}Hz".format(freq),
+                        f"Frequency": "{freq}Hz",
                         "Coordinates": dict({"DimUnits": ["", ""], "Points": points}),
                     }
                 )
@@ -2396,7 +2396,7 @@ class Material(CommonMaterial, object):
             self._props["AttachedData"]["CoefficientSetupData"]["property_data"] = "coreloss_data"
             self._props["AttachedData"]["CoefficientSetupData"]["coefficient_setup"] = coefficient_setup
             frequency = list(points_at_frequency.keys())[0]
-            self._props["AttachedData"]["CoefficientSetupData"]["Frequency"] = "{}Hz".format(frequency)
+            self._props["AttachedData"]["CoefficientSetupData"]["Frequency"] = f"{frequency}Hz"
             self._props["AttachedData"]["CoefficientSetupData"]["Thickness"] = thickness
             self._props["AttachedData"]["CoefficientSetupData"]["Conductivity"] = str(conductivity)
             points = [i for p in points_at_frequency[frequency] for i in p]
@@ -2414,7 +2414,7 @@ class Material(CommonMaterial, object):
                 points = [i for p in points_at_frequency[freq] for i in p]
                 one_curve = dict(
                     {
-                        "Frequency": "{}Hz".format(freq),
+                        "Frequency": f"{freq}Hz",
                         "Coordinates": dict({"DimUnits": ["", ""], "Points": points}),
                     }
                 )
@@ -2509,11 +2509,11 @@ class Material(CommonMaterial, object):
             self._props.pop("core_loss_hkc", None)
             self._props.pop("core_loss_curves", None)
             self._props["core_loss_type"]["Choice"] = "Hysteresis Model"
-        self._props["core_loss_hci"] = "{}A_per_meter".format(hci)
-        self._props["core_loss_br"] = "{}tesla".format(br)
+        self._props["core_loss_hci"] = f"{hci}A_per_meter"
+        self._props["core_loss_br"] = f"{br}tesla"
         self._props["core_loss_hkc"] = str(hkc)
         self._props["core_loss_kdc"] = str(kdc)
-        self._props["core_loss_equiv_cut_depth"] = "{}meter".format(cut_depth)
+        self._props["core_loss_equiv_cut_depth"] = f"{cut_depth}meter"
         return self.update()
 
     @pyaedt_function_handler()
@@ -2546,11 +2546,11 @@ class Material(CommonMaterial, object):
             self._props.pop("core_loss_hkc", None)
             self._props.pop("core_loss_curves", None)
             self._props["core_loss_type"]["Choice"] = "Power Ferrite"
-        self._props["core_loss_cm"] = "{}A_per_meter".format(cm)
-        self._props["core_loss_x"] = "{}tesla".format(x)
+        self._props["core_loss_cm"] = f"{cm}A_per_meter"
+        self._props["core_loss_x"] = f"{x}tesla"
         self._props["core_loss_y"] = str(y)
         self._props["core_loss_kdc"] = str(kdc)
-        self._props["core_loss_equiv_cut_depth"] = "{}meter".format(cut_depth)
+        self._props["core_loss_equiv_cut_depth"] = f"{cut_depth}meter"
         return self.update()
 
     @pyaedt_function_handler(point_list="points", punit="units")
@@ -2592,12 +2592,12 @@ class Material(CommonMaterial, object):
             self._props.pop("core_loss_curves", None)
             self._props["core_loss_type"]["Choice"] = "B-P Curve"
         self._props["core_loss_kdc"] = str(kdc)
-        self._props["core_loss_equiv_cut_depth"] = "{}meter".format(cut_depth)
+        self._props["core_loss_equiv_cut_depth"] = f"{cut_depth}meter"
         self._props["core_loss_curves"] = {}
         self._props["core_loss_curves"]["property_type"] = "nonlinear"
         self._props["core_loss_curves"]["PUnit"] = units
         self._props["core_loss_curves"]["BUnit"] = bunit
-        self._props["core_loss_curves"]["Frequency"] = "{}Hz".format(frequency)
+        self._props["core_loss_curves"]["Frequency"] = f"{frequency}Hz"
         self._props["core_loss_curves"]["Thickness"] = thickness
         self._props["core_loss_curves"]["IsTemperatureDependent"] = False
 
@@ -2767,15 +2767,11 @@ class Material(CommonMaterial, object):
         """
 
         # K = f"({dk} * {df} - {sigma_dc} / (2 * pi * {i_freq} * e0)) / atan({freq_hi} / {i_freq})"
-        K = "({} * {} - {} / (2 * pi * {} * e0)) / atan({} / {})".format(
-            dk, df, sigma_dc, frequency, freq_hi, frequency
-        )
-        epsilon_inf = "({} - {} / 2 * ln({}**2 / {}**2 + 1))".format(dk, K, freq_hi, frequency)
-        freq_low = "({} / exp(10 * {} * {} / ({})))".format(freq_hi, df, epsilon_inf, K)
-        ds_er = "{} + {} / 2 * ln(({}**2 + Freq**2) / ({}**2 + Freq**2))".format(epsilon_inf, K, freq_hi, freq_low)
-        cond = "{} + 2 * pi * Freq * e0 * ({}) * (atan(Freq / ({})) - atan(Freq / {}))".format(
-            sigma_dc, K, freq_low, freq_hi
-        )
+        K = f"({dk} * {df} - {sigma_dc} / (2 * pi * {frequency} * e0)) / atan({freq_hi} / {frequency})"
+        epsilon_inf = f"({dk} - {K} / 2 * ln({freq_hi}**2 / {frequency}**2 + 1))"
+        freq_low = f"({freq_hi} / exp(10 * {df} * {epsilon_inf} / ({K})))"
+        ds_er = "{epsilon_inf} + {K} / 2 * ln(({freq_hi}**2 + Freq**2) / ({freq_low}**2 + Freq**2))"
+        cond = "{sigma_dc} + 2 * pi * Freq * e0 * ({K}) * (atan(Freq / ({freq_low})) - atan(Freq / {freq_hi}))"
         # ds_tande = "{} / (e0 * {} * 2 * pi * Freq)".format(cond, ds_er)
 
         self.conductivity = cond

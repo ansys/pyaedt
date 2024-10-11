@@ -1106,7 +1106,7 @@ class Point(object):
             except TypeError:
                 color_tuple = None
         else:
-            msg_text = "Invalid color input {} for object {}.".format(color_value, self._name)
+            msg_text = f"Invalid color input {color_value} for object {self._name}."
             self._primitives.logger.warning(msg_text)
 
     @property
@@ -1310,7 +1310,7 @@ class Plane(object):
             except TypeError:
                 color_tuple = None
         else:
-            msg_text = "Invalid color input {} for object {}.".format(color_value, self._name)
+            msg_text = f"Invalid color input {color_value} for object {self._name}."
             self._primitives.logger.warning(msg_text)
 
     @property

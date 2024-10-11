@@ -1879,12 +1879,10 @@ def tech_to_control_file(file_path, units="nm", output_file=None):
             line_split = line.split()
             if len(line_split) == 5:
                 layerID, layer_name, _, elevation, layer_height = line.split()
-                x = '      <Layer Color="{}" GDSIIVia="{}" Name="{}" TargetLayer="{}" Thickness="{}"'.format(
-                    vals[id_layer],
-                    "true" if layer_name.lower().startswith("v") else "false",
-                    layerID,
-                    layer_name,
-                    layer_height,
+                x = (
+                    f'      <Layer Color="{vals[id_layer]}" '
+                    f'GDSIIVia="{"true" if layer_name.lower().startswith("v") else "false"}" '
+                    f'Name="{layerID}" TargetLayer="{layer_name}" Thickness="{layer_height}"'
                 )
                 x += ' Type="conductor"/>'
                 result.append(x)
