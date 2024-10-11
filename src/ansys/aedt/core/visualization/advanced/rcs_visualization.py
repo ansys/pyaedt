@@ -340,112 +340,6 @@ class MonostaticRCSData(object):
         return win, win_sum
 
     @pyaedt_function_handler()
-    def plot_rcs(
-        self,
-        primary_sweep="IWavePhi",
-        secondary_sweep_value=None,
-        title="Monostatic RCS",
-        output_file=None,
-        show=True,
-        is_polar=False,
-        show_legend=True,
-    ):
-        """Create a 2D plot of the monostatic RCS.
-
-        Parameters
-        ----------
-        primary_sweep : str, optional.
-            X-axis variable. The default is ``"IWavePhi"``. Options are ``"IWavePhi"`` and ``"IWaveTheta"``.
-        secondary_sweep_value : float, list, string, optional
-            List of cuts on the secondary sweep to plot. The default is ``0``. Options are
-            `"all"`, a single value float, or a list of float values.
-        title : str, optional
-            Plot title. The default is ``"RectangularPlot"``.
-        output_file : str, optional
-            Full path for the image file. The default is ``None``, in which case an image in not exported.
-        show : bool, optional
-            Whether to show the plot. The default is ``True``.
-            If ``False``, the Matplotlib instance of the plot is shown.
-        is_polar : bool, optional
-            Whether this plot is a polar plot. The default is ``True``.
-        show_legend : bool, optional
-            Whether to display the legend or not. The default is ``True``.
-
-        Returns
-        -------
-        :class:`matplotlib.pyplot.Figure`
-            Matplotlib figure object.
-            If ``show=True``, a Matplotlib figure instance of the plot is returned.
-            If ``show=False``, the plotted curve is returned.
-
-        Examples
-        --------
-        >>> import pyaedt
-        >>> app = pyaedt.Hfss(version="2023.2", design="Antenna")
-        >>> setup_name = "Setup1 : LastAdaptive"
-        >>> frequencies = [77e9]
-        >>> sphere = "3D"
-        >>> data = app.get_antenna_data(frequencies,setup_name,sphere)
-        >>> data.plot_cut(theta=20)
-        """
-
-        data_freq = self.rcs
-
-        curves = []
-        all_secondary_sweep_value = secondary_sweep_value
-        if primary_sweep.lower() == "iwavephi":
-            x_key = "IWavePhi"
-            y_key = "IWaveTheta"
-            x = self.available_incident_wave_phi
-            if isinstance(secondary_sweep_value, str) and secondary_sweep_value == "all":
-                all_secondary_sweep_value = self.available_incident_wave_theta
-            elif secondary_sweep_value is None:
-                all_secondary_sweep_value = self.incident_wave_theta
-
-        else:
-            x_key = "IWaveTheta"
-            y_key = "IWavePhi"
-            x = self.available_incident_wave_theta
-            if isinstance(secondary_sweep_value, str) and secondary_sweep_value == "all":
-                all_secondary_sweep_value = self.available_incident_wave_phi
-            elif secondary_sweep_value is None:
-                all_secondary_sweep_value = self.incident_wave_phi
-
-        if not isinstance(all_secondary_sweep_value, np.ndarray) and not isinstance(all_secondary_sweep_value, list):
-            all_secondary_sweep_value = [all_secondary_sweep_value]
-
-        if is_polar:
-            x = [i * 2 * math.pi / 360 for i in x]
-        if all_secondary_sweep_value is not None:
-            for el in all_secondary_sweep_value:
-                data = data_freq.xs(key=el, level=y_key)
-                y = data.values
-                if not isinstance(y, np.ndarray):  # pragma: no cover
-                    raise Exception("Format of quantity is wrong.")
-                curves.append([x, y, "{}={}".format(y_key, el)])
-
-        if is_polar:
-            return plot_polar_chart(
-                curves,
-                xlabel=x_key,
-                ylabel="RCS",
-                title=title,
-                snapshot_path=output_file,
-                show_legend=show_legend,
-                show=show,
-            )
-        else:
-            return plot_2d_chart(
-                curves,
-                xlabel=x_key,
-                ylabel="RCS",
-                title=title,
-                snapshot_path=output_file,
-                show_legend=show_legend,
-                show=show,
-            )
-
-    @pyaedt_function_handler()
     def __init_rcs(self):
         """Load monostatic radar cross-section data.
 
@@ -552,7 +446,7 @@ class MonostaticRCSPlotter(object):
         return [self.__x_min, self.__x_max, self.__y_min, self.__y_max, self.__z_min, self.__z_max]
 
     @pyaedt_function_handler()
-    def plot_2d_range_profile(
+    def plot_range_profile(
         self,
         title="Range profile",
         output_file=None,
@@ -608,6 +502,112 @@ class MonostaticRCSPlotter(object):
             show_legend=show_legend,
             show=show,
         )
+
+    @pyaedt_function_handler()
+    def plot_rcs(
+        self,
+        primary_sweep="IWavePhi",
+        secondary_sweep_value=None,
+        title="Monostatic RCS",
+        output_file=None,
+        show=True,
+        is_polar=False,
+        show_legend=True,
+    ):
+        """Create a 2D plot of the monostatic RCS.
+
+        Parameters
+        ----------
+        primary_sweep : str, optional.
+            X-axis variable. The default is ``"IWavePhi"``. Options are ``"IWavePhi"`` and ``"IWaveTheta"``.
+        secondary_sweep_value : float, list, string, optional
+            List of cuts on the secondary sweep to plot. The default is ``0``. Options are
+            `"all"`, a single value float, or a list of float values.
+        title : str, optional
+            Plot title. The default is ``"RectangularPlot"``.
+        output_file : str, optional
+            Full path for the image file. The default is ``None``, in which case an image in not exported.
+        show : bool, optional
+            Whether to show the plot. The default is ``True``.
+            If ``False``, the Matplotlib instance of the plot is shown.
+        is_polar : bool, optional
+            Whether this plot is a polar plot. The default is ``True``.
+        show_legend : bool, optional
+            Whether to display the legend or not. The default is ``True``.
+
+        Returns
+        -------
+        :class:`matplotlib.pyplot.Figure`
+            Matplotlib figure object.
+            If ``show=True``, a Matplotlib figure instance of the plot is returned.
+            If ``show=False``, the plotted curve is returned.
+
+        Examples
+        --------
+        >>> import pyaedt
+        >>> app = pyaedt.Hfss(version="2023.2", design="Antenna")
+        >>> setup_name = "Setup1 : LastAdaptive"
+        >>> frequencies = [77e9]
+        >>> sphere = "3D"
+        >>> data = app.get_antenna_data(frequencies,setup_name,sphere)
+        >>> data.plot_cut(theta=20)
+        """
+
+        data_freq = self.rcs_data.rcs
+
+        curves = []
+        all_secondary_sweep_value = secondary_sweep_value
+        if primary_sweep.lower() == "iwavephi":
+            x_key = "IWavePhi"
+            y_key = "IWaveTheta"
+            x = self.rcs_data.available_incident_wave_phi
+            if isinstance(secondary_sweep_value, str) and secondary_sweep_value == "all":
+                all_secondary_sweep_value = self.rcs_data.available_incident_wave_theta
+            elif secondary_sweep_value is None:
+                all_secondary_sweep_value = self.rcs_data.incident_wave_theta
+
+        else:
+            x_key = "IWaveTheta"
+            y_key = "IWavePhi"
+            x = self.rcs_data.available_incident_wave_theta
+            if isinstance(secondary_sweep_value, str) and secondary_sweep_value == "all":
+                all_secondary_sweep_value = self.rcs_data.available_incident_wave_phi
+            elif secondary_sweep_value is None:
+                all_secondary_sweep_value = self.rcs_data.incident_wave_phi
+
+        if not isinstance(all_secondary_sweep_value, np.ndarray) and not isinstance(all_secondary_sweep_value, list):
+            all_secondary_sweep_value = [all_secondary_sweep_value]
+
+        if is_polar:
+            x = [i * 2 * math.pi / 360 for i in x]
+        if all_secondary_sweep_value is not None:
+            for el in all_secondary_sweep_value:
+                data = data_freq.xs(key=el, level=y_key)
+                y = data.values
+                if not isinstance(y, np.ndarray):  # pragma: no cover
+                    raise Exception("Format of quantity is wrong.")
+                curves.append([x, y, "{}={}".format(y_key, el)])
+
+        if is_polar:
+            return plot_polar_chart(
+                curves,
+                xlabel=x_key,
+                ylabel="RCS",
+                title=title,
+                snapshot_path=output_file,
+                show_legend=show_legend,
+                show=show,
+            )
+        else:
+            return plot_2d_chart(
+                curves,
+                xlabel=x_key,
+                ylabel="RCS",
+                title=title,
+                snapshot_path=output_file,
+                show_legend=show_legend,
+                show=show,
+            )
 
     @pyaedt_function_handler()
     def plot_scene(self, show=True, plotter=None):
