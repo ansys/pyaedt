@@ -43,9 +43,6 @@ from ansys.tools.visualization_interface.backends.pyvista import PyVistaBackend
 import pandas as pd
 from scipy import spatial
 
-np = None
-pv = None
-
 try:
     import numpy as np
 except ImportError:  # pragma: no cover
