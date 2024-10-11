@@ -342,10 +342,10 @@ class IdealResponse:
              Frequency response column to return. The default is the frequency response magnitude in dB.
         minimum_frequency: str, optional
             Minimum frequency to set for the frequency response.
-            The default is ``None``.
+            If the minimum frequency is not set, the minimum frequency is set to 200 MHz.
         maximum_frequency: str, optional
             Maximum frequency to set for the frequency response.
-            The default is ``None``.
+            If the maximum frequency is not set, the maximum frequency is set to 5 GHz.
         vsg_analysis_enabled: bool, optional
             The default is ``False``.
 
@@ -384,10 +384,10 @@ class IdealResponse:
             Time response column to get. The default is the step time response.
         minimum_time: str, optional
             Minimum time to set for the time response.
-            The default is ``None``.
+            If the minimum time is not set, the minimum time is set to 0.
         maximum_time: str, optional
             Maximum time to set for the time response.
-            The default is ``None``.
+            If the maximum time is not set, the maximum time is set to 10 ns.
         vsg_analysis_enabled: bool, optional
             The default is ``False``.
 
@@ -421,10 +421,10 @@ class IdealResponse:
             S parameter's response column to get. The default is the S21 parameter response in dB.
         minimum_frequency: str, optional
             Minimum frequency to set for the S parameters response.
-            The default is ``None``.
+            If the minimum frequency is not set, the minimum frequency is set to 200 MHz.
         maximum_frequency: str, optional
             Maximum frequency to set for the S parameters response.
-            The default is ``None``.
+            If the maximum frequency is not set, the maximum frequency is set to 5 GHz.
         vsg_analysis_enabled: bool, optional
             The default is ``False``.
 
