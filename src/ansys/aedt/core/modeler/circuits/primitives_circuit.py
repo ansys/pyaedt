@@ -1263,7 +1263,7 @@ class CircuitComponents(object):
 
     @pyaedt_function_handler()
     def create_page(self,name):
-        """Add a new page to circuit schematic.
+        """Adds a new page to circuit schematic.
 
         Parameters
         """
@@ -1271,7 +1271,7 @@ class CircuitComponents(object):
 
     @pyaedt_function_handler()
     def select_page(self,name):
-        """Add a new page to circuit schematic.
+        """Adds a new page to circuit schematic.
 
         Parameters
         """
