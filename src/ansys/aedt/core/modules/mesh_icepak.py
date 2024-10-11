@@ -1195,7 +1195,7 @@ class IcepakMesh(object):
         """
         level_order = {}
         for obj in mesh_order:
-            if mesh_order[obj] not in level_order.keys():
+            if mesh_order[obj] not in level_order:
                 level_order[mesh_order[obj]] = []
             level_order[mesh_order[obj]].append(obj)
         list_meshops = []
