@@ -1261,6 +1261,21 @@ class CircuitComponents(object):
         except Exception:
             return False
 
+    @pyaedt_function_handler()
+    def create_page(self,name):
+        """Adds a new page to circuit schematic.
+
+        Parameters
+        """
+        self.oeditor.CreatePage (name)
+
+    @pyaedt_function_handler()
+    def select_page(self,name):
+        """Adds a new page to circuit schematic.
+
+        Parameters
+        """
+        self.oeditor.SelectPage (name)
 
 class ComponentInfo(object):
     """Manages Circuit Catalog info."""

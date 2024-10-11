@@ -284,3 +284,88 @@ class MaxwellCircuitComponents(CircuitComponents):
         )
         id.set_property("Name", name)
         return id
+
+
+    @pyaedt_function_handler(compname="name")
+    def create_ISin(self,name=None,value=1,location=None, angle=0, use_instance_id_netlist=False):
+        """Create a sinusoidal current source.
+
+        Parameters
+        ----------
+        name : str, optional
+            Name of the current source. The default is ``None``.
+        value : float, optional
+            Value for the amplitude of current. The default is ``1``.
+        location : list of float, optional
+            Position on the X axis and Y axis.
+        angle : float, optional
+            Angle of rotation in degrees. The default is ``0``.
+        use_instance_id_netlist : bool, optional
+            Whether to use the instance ID in the net list or not. The default is ``False``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+            Circuit Component Object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
+        """
+        if location is None:
+            location = []
+        id = self.create_component(
+            name,
+            component_library="Sources",
+            component_name="ISin",
+            location=location,
+            angle=angle,
+            use_instance_id_netlist=use_instance_id_netlist,
+        )
+
+        id.set_property("Ia", value)
+        id.set_property("Name", name)
+        return id
+
+    @pyaedt_function_handler(compname="name")
+    def create_VSin(self,name=None,value=1,location=None, angle=0, use_instance_id_netlist=False):
+        """Create a sinusoidal voltage source.
+
+        Parameters
+        ----------
+        name : str, optional
+            Name of the voltage source. The default is ``None``.
+        value : float, optional
+            Value for the amplitude of voltage. The default is ``1``.
+        location : list of float, optional
+            Position on the X axis and Y axis.
+        angle : float, optional
+            Angle of rotation in degrees. The default is ``0``.
+        use_instance_id_netlist : bool, optional
+            Whether to use the instance ID in the net list or not. The default is ``False``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+            Circuit Component Object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
+        """
+        if location is None:
+            location = []
+        id = self.create_component(
+            name,
+            component_library="Sources",
+            component_name="VSin",
+            location=location,
+            angle=angle,
+            use_instance_id_netlist=use_instance_id_netlist,
+        )
+
+        id.set_property("Va", value)
+        id.set_property("Name", name)
+        return id
