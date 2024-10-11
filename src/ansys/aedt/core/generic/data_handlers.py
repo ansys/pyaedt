@@ -274,11 +274,11 @@ def format_decimals(el):
 
     """
     if float(el) > 1000:
-        num = "{:,.0f}".format(Decimal(el))
+        num = f"{Decimal(el):,.0f}"
     elif float(el) > 1:
-        num = "{:,.3f}".format(Decimal(el))
+        num = f"{Decimal(el):,.3f}"
     else:
-        num = "{:.3E}".format(Decimal(el))
+        num = f"{Decimal(el):.3E}"
     return num
 
 
