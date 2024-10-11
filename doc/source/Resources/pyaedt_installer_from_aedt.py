@@ -34,10 +34,10 @@ def run_pyinstaller_from_c_python(oDesktop):
     if is_student_version(oDesktop):
         command.append("--student")
     if is_linux:
-        command.extend([f"'--edt_root=\"{edt_root}\"'", f"'--python_version=\"{python_version}\"'"])
+        command.extend([f'--edt_root="{edt_root}"', f'--python_version="{python_version}"'])
 
     if wheelpyaedt:
-        command.extend([f"'--wheel=\"{wheelpyaedt}\"'"])
+        command.extend([f'--wheel="{wheelpyaedt}"'])
 
     oDesktop.AddMessage("", "", 0, "Installing PyAEDT.")
     if is_windows:
@@ -87,13 +87,13 @@ def run_pyinstaller_from_c_python(oDesktop):
         if version <= "231":
             f.write("from pyaedt.workflows.installer.pyaedt_installer import add_pyaedt_to_aedt\n")
             f.write(
-                f"'add_pyaedt_to_aedt(aedt_version=\"{oDesktop.GetVersion()[:6]}\", personallib=r\"{oDesktop.GetPersonalLibDirectory()}\")\n'")
+                f'add_pyaedt_to_aedt(aedt_version="{oDesktop.GetVersion()[:6]}", personallib=r"{oDesktop.GetPersonalLibDirectory()}")\n')
         else:
             f.write("from ansys.aedt.core.workflows.installer.pyaedt_installer import add_pyaedt_to_aedt\n")
             f.write(
-                f"'add_pyaedt_to_aedt(aedt_version=\"{oDesktop.GetVersion()[:6]}\", personal_lib=r\"{oDesktop.GetPersonalLibDirectory()}\")\n'")
+                f'add_pyaedt_to_aedt(aedt_version="{oDesktop.GetVersion()[:6]}", personal_lib=r"{oDesktop.GetPersonalLibDirectory()}")\n')
 
-    command = f"'\"{python_exe}\" \"{python_script}\"'"
+    command = f'"{python_exe}" "{python_script}"'
     oDesktop.AddMessage("", "", 0, "Configuring PyAEDT panels in automation tab.")
     ret_code = os.system(command)
     if ret_code != 0:
@@ -168,9 +168,9 @@ def install_pyaedt():
     if not os.path.exists(venv_dir):
 
         if args.version == "231":
-            run_command(f"'\"{sys.executable}\" -m venv \"{venv_dir}\" --system-site-packages'")
+            run_command(f'"{sys.executable}" -m venv "{venv_dir}" --system-site-packages')
         else:
-            run_command(f"'\"{sys.executable}\" -m venv \"{venv_dir}\"'")
+            run_command(f'"{sys.executable}" -m venv "{venv_dir}"')
 
         if args.wheel and os.path.exists(args.wheel):
             wheel_pyaedt = args.wheel
@@ -188,29 +188,29 @@ def install_pyaedt():
                 unzipped_path = wheel_pyaedt
             if args.version <= "231":
                 run_command(
-                    f"'\"{pip_exe}\" install --no-cache-dir --no-index --find-links={unzipped_path} pyaedt[all,dotnet]'")
+                    f'"{pip_exe}" install --no-cache-dir --no-index --find-links={unzipped_path} pyaedt[all,dotnet]')
             else:
                 run_command(
-                    f"'\"{pip_exe}\" install --no-cache-dir --no-index --find-links={unzipped_path} pyaedt[installer]'")
+                    f'"{pip_exe}" install --no-cache-dir --no-index --find-links={unzipped_path} pyaedt[installer]')
 
         else:
-            run_command(f"'\"{python_exe}\" -m pip install --upgrade pip'")
-            run_command(f"'\"{pip_exe}\" --default-timeout=1000 install wheel'")
+            run_command(f'"{python_exe}" -m pip install --upgrade pip')
+            run_command(f'"{pip_exe}" --default-timeout=1000 install wheel')
             # run_command(
             # '"{}" --default-timeout=1000 install git+https://github.com/ansys/pyaedt.git@main'.format(pip_exe))
             if args.version <= "231":
-                run_command(f"'\"{pip_exe}\" --default-timeout=1000 install pyaedt[all]==\"0.9.0\"'")
-                run_command(f"'\"{pip_exe}\" --default-timeout=1000 install jupyterlab'")
-                run_command(f"'\"{pip_exe}\" --default-timeout=1000 install ipython -U'")
-                run_command(f"'\"{pip_exe}\" --default-timeout=1000 install ipyvtklink'")
+                run_command(f'"{pip_exe}" --default-timeout=1000 install pyaedt[all]=="0.9.0"')
+                run_command(f'"{pip_exe}" --default-timeout=1000 install jupyterlab')
+                run_command(f'"{pip_exe}" --default-timeout=1000 install ipython -U')
+                run_command(f'"{pip_exe}" --default-timeout=1000 install ipyvtklink')
             else:
-                run_command(f"'\"{pip_exe}\" --default-timeout=1000 install pyaedt[installer]'")
+                run_command(f'"{pip_exe}" --default-timeout=1000 install pyaedt[installer]')
 
         if args.version == "231":
-            run_command(f"'\"{pip_exe}\" uninstall -y pywin32'")
+            run_command(f'"{pip_exe}" uninstall -y pywin32')
 
     else:
-        run_command(f"'\"{pip_exe}\" uninstall --yes pyaedt'")
+        run_command(f'"{pip_exe}" uninstall --yes pyaedt')
 
         if args.wheel and os.path.exists(args.wheel):
             wheel_pyaedt = args.wheel
@@ -223,19 +223,17 @@ def install_pyaedt():
                 # Extract all contents to a directory. (You can specify a different extraction path if needed.)
                 zip_ref.extractall(unzipped_path)
             if args.version <= "231":
-                run_command(f"'\"{pip_exe}\" install --no-cache-dir --no-index --find-links={unzipped_path} pyaedt["
-                            f"all]==\"0.9.0\"'")
+                run_command(f'"{pip_exe}" install --no-cache-dir --no-index --find-links={unzipped_path} pyaedt["all]=="0.9.0"')
             else:
-                run_command(f"'\"{pip_exe}\" install --no-cache-dir --no-index --find-links={unzipped_path} pyaedt["
-                            f"installer]'")
+                run_command(f'"{pip_exe}" install --no-cache-dir --no-index --find-links={unzipped_path} pyaedt["installer]')
         else:
             if args.version <= "231":
-                run_command(f"'\"{pip_exe}\" --default-timeout=1000 install pyaedt[all]==\"0.9.0\"'")
-                run_command(f"'\"{pip_exe}\" --default-timeout=1000 install jupyterlab'")
-                run_command(f"'\"{pip_exe}\" --default-timeout=1000 install ipython -U'")
-                run_command(f"'\"{pip_exe}\" --default-timeout=1000 install ipyvtklink'")
+                run_command(f'"{pip_exe}" --default-timeout=1000 install pyaedt[all]=="0.9.0"')
+                run_command(f'"{pip_exe}" --default-timeout=1000 install jupyterlab')
+                run_command(f'"{pip_exe}" --default-timeout=1000 install ipython -U')
+                run_command(f'"{pip_exe}" --default-timeout=1000 install ipyvtklink')
             else:
-                run_command(f"'\"{pip_exe}\" --default-timeout=1000 install pyaedt[installer]'")
+                run_command(f'"{pip_exe}" --default-timeout=1000 install pyaedt[installer]')
     sys.exit(0)
 
 
@@ -249,7 +247,7 @@ def is_student_version(oDesktop):
 
 def run_command(command):
     if is_windows:
-        command = f"'\"{command}\"'"
+        command = f'"{command}"'
     ret_code = os.system(command)
     return ret_code
 
