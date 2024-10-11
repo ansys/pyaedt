@@ -142,7 +142,7 @@ def init_scratch():
     try:
         shutil.rmtree(test_folder, ignore_errors=True)
     except Exception as e:
-        print("Failed to delete {test_folder}. Reason: {e}")
+        print(f"Failed to delete {test_folder}. Reason: {e}")
 
 
 @pytest.fixture(scope="module", autouse=True)
