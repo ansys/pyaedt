@@ -41,7 +41,6 @@ from ansys.tools.visualization_interface import MeshObjectPlot
 from ansys.tools.visualization_interface import Plotter
 from ansys.tools.visualization_interface.backends.pyvista import PyVistaBackend
 import pandas as pd
-from scipy import spatial
 
 try:
     import numpy as np
@@ -513,10 +512,9 @@ class MonostaticRCSPlotter(object):
         self.__logger = logger
         self.__model_units = "meter"
 
-        self.__all_scene_actors = {"model": {}, "annotations": {}, "results": {}, "plotter": {}}
-
-        self.__all_scene_actors["plotter"]["model_added"] = False
-
+        # Scene properties
+        self.show_geometry = True
+        self.__all_scene_actors = {"model": {}, "annotations": {}, "results": {}}
         self.__x_max, self.__x_min, self.__y_max, self.__y_min, self.__z_max, self.__z_min = 0, 0, 0, 0, 0, 0
 
         # Get geometries
@@ -525,29 +523,8 @@ class MonostaticRCSPlotter(object):
             obj_meshes = self.__get_geometry()
             self.__all_scene_actors["model"] = obj_meshes
 
-        self.get_model_extent()
-
-        # Quarintine
-
-        self.previous_transform = np.eye(4)  # used to keep track of previous transform for model rotation
-        self.layout_comps_3d_traces = (
-            {}
-        )  # layout cmps related to 3d plots (trace name entry created below plot settings)
-        self.layout_comps_2d_traces = (
-            {}
-        )  # layout cmps related to 2d plots (trace name entry created below plot settings)
-
-        self.layout_comps_2d_tabs = {}  # keep track of tabs for 2d plots
-        self.layout_comps_geometry = {}  # layout objects created for geometry (cad object entry created when imported)
-
-        self.all_traces_3d_properties = {}  # properties are what is selected in order to generate the data in the plot
-        self.all_traces_3d_attributes = {}  # attributes are what is used to style the data in the plot
-
-        self.all_traces_2d_properties = {}  # properties are what is selected in order to generate the data in the plot
-        self.all_traces_2d_attributes = {}  # attributes are what is used to style the data in the plot
-        self.all_2d_reports = {}  # all matplotlib figures, stored as [trace_name] = [figure,axis]
-
-        self.actor_name_active_editing = None
+        # Get model extent
+        self.__get_model_extent()
 
     @property
     def rcs_data(self):
@@ -572,344 +549,7 @@ class MonostaticRCSPlotter(object):
     @property
     def extents(self):
         """Geometry extents."""
-        return [self.__x_max, self.__x_min, self.__y_max, self.__y_min, self.__z_max, self.__z_min]
-
-    @pyaedt_function_handler()
-    def plot_model(self, show=True, plotter=None):
-        """
-        Plot the 3D model of the current scene using PyVista.
-
-        This method visualizes the 3D model using a ``Plotter`` object. If no plotter is provided, it creates a new
-        ``Plotter`` with a ``PyVistaBackend`` allowing for interaction like object picking.
-        It iterates over the geometry (actors) in the scene,
-        adding them to the plotter with specified color and opacity. Optionally, it can return
-        the ``plotter`` object without rendering the plot, allowing for additional customization before display.
-
-        Parameters
-        ----------
-        show : bool, optional
-            Whether to immediately display the plot. If ``True``, the plot will be displayed using ``plotter.show()``.
-            If ``False``, the ``plotter`` object is returned for further customization before rendering.
-            The default is ``True``.
-        plotter : pyvista.Plotter, optional
-            A pre-configured PyVista plotter to use for visualization. If not provided, a new plotter will be created
-            with a ``PyVistaBackend`` allowing interaction with the model.
-
-        Returns
-        -------
-        pyvista.Plotter or None
-            Returns the ``plotter`` object if ``show`` is set to ``False``. If ``show`` is ``True``,
-            the plot is displayed and no value is returned.
-        """
-        if not plotter:
-            pv_backend = PyVistaBackend(allow_picking=True, plot_picked_names=True)
-            plotter = Plotter(backend=pv_backend)
-
-        for geo in self.all_scene_actors["model"].values():
-            self.__add_mesh(geo, plotter, "model")
-            self.all_scene_actors["plotter"]["model_added"] = True
-        if show:
-            plotter.show()
-        else:
-            return plotter
-
-    @pyaedt_function_handler()
-    def plot_range_profile_settings(
-        self, show=True, plotter=None, size_range=10, range_resolution=0.1, tick_color="#000000"
-    ):
-        if not plotter:
-            pv_backend = PyVistaBackend(allow_picking=True, plot_picked_names=True)
-            plotter = Plotter(backend=pv_backend)
-
-        # Compute parameters
-        range_max = size_range - range_resolution
-        range_num = int(np.round(size_range / range_resolution))
-        distance_range = np.linspace(0, range_max, range_num)
-        distance_range -= distance_range[range_num // 2]
-        range_first = -distance_range[0]
-        range_last = -distance_range[-1]
-        z_mid = self.extents[4] + (self.extents[5] - self.extents[4]) / 2
-        num_ticks = int(size_range / range_resolution)
-        # Using 5% of total range length
-        tick_length = size_range * 0.05
-
-        if not "range_profile" in self.all_scene_actors["annotations"].keys():
-            self.all_scene_actors["annotations"]["range_profile"] = {}
-
-        # Main red line
-        main_line = pv.Line(
-            pointa=(range_first, self.extents[3] * 10, z_mid), pointb=(range_last, self.extents[3] * 10, z_mid)
-        )
-        annotation_name = "main_line"
-
-        main_line_object = SceneMeshObject()
-        main_line_object.name = annotation_name
-        main_line_object.color = "red"
-        main_line_object.line_width = 5
-        main_line_object.mesh = main_line
-
-        main_line_mesh = MeshObjectPlot(main_line_object, main_line_object.get_mesh())
-        self.all_scene_actors["annotations"]["range_profile"][annotation_name] = main_line_mesh
-        self.__add_mesh(main_line_mesh, plotter, "annotations")
-
-        # Ticks
-        tick_lines = pv.PolyData()
-        for tick in range(num_ticks + 1):  # create line with tick marks
-            if tick % 1 == 0:  # only do every nth tick
-                tick_pos_start = (range_first - range_resolution * tick, self.extents[3] * 10, z_mid)
-                tick_pos_end = (range_first - range_resolution * tick, self.extents[3] * 10 + tick_length, z_mid)
-                tick_lines += pv.Line(pointa=tick_pos_start, pointb=tick_pos_end)
-
-        annotation_name = "ticks"
-        tick_lines_object = SceneMeshObject()
-        tick_lines_object.name = annotation_name
-        tick_lines_object.color = tick_color
-        tick_lines_object.line_width = 2
-        tick_lines_object.mesh = tick_lines
-
-        tick_lines_mesh = MeshObjectPlot(tick_lines_object, tick_lines_object.get_mesh())
-        self.all_scene_actors["annotations"]["range_profile"][annotation_name] = tick_lines_mesh
-        self.__add_mesh(tick_lines_mesh, plotter, "annotations")
-
-        start_geo = pv.Disc(
-            center=(range_last, self.extents[3] * 10, z_mid), outer=tick_length, inner=0, normal=(-1, 0, 0), c_res=12
-        )
-
-        annotation_name = "disc"
-        start_geo_object = SceneMeshObject()
-        start_geo_object.name = annotation_name
-        start_geo_object.color = "red"
-        start_geo_object.line_width = 5
-        start_geo_object.mesh = start_geo
-
-        disc_geo_mesh = MeshObjectPlot(start_geo_object, start_geo_object.get_mesh())
-        self.all_scene_actors["annotations"]["range_profile"][annotation_name] = disc_geo_mesh
-        self.__add_mesh(disc_geo_mesh, plotter, "annotations")
-
-        end_geo = pv.Cone(
-            center=(range_first, self.extents[3] * 10, z_mid),
-            direction=(-1, 0, 0),
-            radius=tick_length,
-            height=tick_length * 2,
-            resolution=12,
-        )
-        annotation_name = "cone"
-        end_geo_object = SceneMeshObject()
-        end_geo_object.name = annotation_name
-        end_geo_object.color = "green"
-        end_geo_object.line_width = 5
-        end_geo_object.mesh = end_geo
-
-        end_geo_mesh = MeshObjectPlot(end_geo_object, end_geo_object.get_mesh())
-        self.all_scene_actors["annotations"]["range_profile"][annotation_name] = disc_geo_mesh
-        self.__add_mesh(end_geo_mesh, plotter, "annotations")
-
-        if show:
-            plotter.show()
-        else:
-            return plotter
-
-    @pyaedt_function_handler()
-    def plot_3d_scene(self, show=True, plotter=None):
-        if not plotter:
-            pv_backend = PyVistaBackend(allow_picking=True, plot_picked_names=True)
-            plotter = Plotter(backend=pv_backend)
-        else:
-            if getattr(plotter, "clear", None):
-                plotter.clear()
-            elif getattr(plotter, "_backend", None):
-                plotter._backend.pv_interface.scene.clear()
-
-        if self.all_scene_actors["plotter"]["model_added"]:
-            for geo in self.all_scene_actors["model"].values():
-                self.__add_mesh(geo, plotter, "model")
-
-        for annotations in self.all_scene_actors["annotations"]:
-            for annotation in self.all_scene_actors["annotations"][annotations].values():
-                self.__add_mesh(annotation, plotter, "annotations")
-
-        for all_scene_results in self.all_scene_actors["results"]:
-            for result_actor in self.all_scene_actors["results"][all_scene_results]:
-                self.__add_mesh(result_actor["actor"], plotter, "results")
-
-        if show:
-            plotter.show()
-        else:
-            return plotter
-
-    @pyaedt_function_handler()
-    def plot_3d_range_profile(
-        self,
-        show=True,
-        plotter=None,
-        plot_type="Line",
-        radius_offset=0,
-        waterfall=False,
-        color_bar="jet",
-    ):
-        # categories = ["jet", "jet_r", "magma", "magma_r", "nipy_spectral", "coolwarm", "viridis", "gray", "gray_r",
-        #               "seismic", "winter", "bone",
-        #               "blue", "green", "black", "red"]
-
-        if not plotter:
-            pv_backend = PyVistaBackend(allow_picking=True, plot_picked_names=True)
-            plotter = Plotter(backend=pv_backend)
-
-        data_range_profile = self.rcs_data.range_profile
-
-        min_height_for_renorm, max_height_for_renorm = get_min_max_height_window(plotter)
-
-        new_data = self.stretch_data(
-            data_range_profile, m=max_height_for_renorm - min_height_for_renorm, b=min_height_for_renorm
-        )
-
-        ranges = np.unique(new_data.index.get_level_values("Range"))
-        phis = np.unique(new_data.index.get_level_values("IWavePhi"))
-        thetas = np.unique(new_data.index.get_level_values("IWaveTheta"))
-
-        add_offset = 0.0 if not waterfall else ranges[-1]
-
-        cosphis = np.cos(np.radians(phis))
-        sinphis = np.sin(np.radians(phis))
-        sinthetas = np.sin(np.radians(thetas))
-        xpos = (-ranges + radius_offset + add_offset) * cosphis * sinthetas
-        ypos = (-ranges + radius_offset + add_offset) * sinphis * sinthetas
-        zpos = None
-        plot_data = new_data["data"].to_numpy()
-
-        # cpos = new_data['data'].to_numpy()
-
-        cpos = data_range_profile["data"].to_numpy()
-
-        actor = self.get_pyvista_actor(
-            xpos,
-            ypos,
-            zpos,
-            plot_data,
-            cpos,
-            plot_type=plot_type,
-            plotter=plotter,
-            scene_actors=self.all_scene_actors["model"],
-            data_conversion_function=self.rcs_data.data_conversion_function,
-        )
-
-        all_results_actors = list(self.all_scene_actors["results"].keys())
-
-        options = {"line_width": 1.0}
-        scalar_dict = dict(color="#000000", title="Range Profile")
-        options["scalar_bar_args"] = scalar_dict
-
-        if any(color_bar in x for x in ["blue", "green", "black", "red"]):
-            options["color"] = color_bar
-        else:
-            options["cmap"] = color_bar
-
-        self.__add_mesh(actor, plotter, options)
-
-        if "range_profile" not in all_results_actors:
-            self.all_scene_actors["results"]["range_profile"] = []
-
-        self.all_scene_actors["results"]["range_profile"].append({"actor": actor, "options": options})
-
-        if show:
-            plotter.show()
-        else:
-            return plotter
-
-    @staticmethod
-    def get_pyvista_actor(
-        xpos,
-        ypos,
-        zpos,
-        plot_data,
-        cpos,
-        plot_type="Line",
-        data_conversion_function="",
-        plotter=None,
-        scene_actors=None,
-        shape=None,
-    ):
-        if plotter is None:
-            return None
-
-        plot_type_lower = plot_type.lower()
-        actor = None
-
-        if (
-            plot_type_lower == "line"
-            or plot_type_lower == "ribbon"
-            or plot_type_lower == "rotated"
-            or plot_type_lower == "extruded"
-        ):
-            xyz_pos = np.stack((xpos, ypos, plot_data)).T
-            actor = pv.lines_from_points(xyz_pos)
-            actor[data_conversion_function] = cpos
-            if plot_type_lower == "ribbon":
-                norm_vect = [0, 0, 1]
-                min_width_for_renorm, max_width_for_renorm = get_min_max_width_window(plotter)
-                geo_width = max_width_for_renorm - min_width_for_renorm
-                actor = actor.ribbon(width=geo_width / 2, normal=norm_vect)
-            elif plot_type_lower == "rotated":
-                v = xyz_pos[-1] - xyz_pos[0]
-                v_hat = v / np.linalg.norm(v)
-                actor.extrude_rotate(rotation_axis=v_hat, capping=True, inplace=True)
-            elif plot_type_lower == "extruded":
-                plane = pv.Plane(
-                    center=(actor.center[0], actor.center[1], actor.bounds[4]),
-                    direction=(0, 0, -1),
-                    i_size=actor.bounds[1] - actor.bounds[0],
-                    j_size=actor.bounds[3] - actor.bounds[2],
-                )
-                actor.extrude_trim((0, 0, -1.0), plane, inplace=True)
-        elif "donut" in plot_type_lower or "disk" in plot_type_lower:
-            if "relief" not in plot_type_lower:
-                plot_data = plot_data * 0 + model_center[2]
-            actor = pv.StructuredGrid(xpos.reshape(shape), ypos.reshape(shape), plot_data.reshape(shape))
-            actor[data_conversion_function] = np.ndarray.flatten(cpos.reshape(shape), order="F")
-        elif plot_type_lower == "plane v" or plot_type_lower == "plane h":
-            zpos = np.zeros(shape=plot_data.shape)
-            xyz_pos = np.stack((xpos, ypos, zpos)).T
-            actor = pv.lines_from_points(xyz_pos)
-            actor[data_conversion_function] = cpos
-            if plot_type_lower == "plane v":
-                min_height_for_renorm, max_height_for_renorm = get_min_max_height_window(plotter)
-                geo_width = max_height_for_renorm - min_height_for_renorm
-                norm_vect = normal = [0, 1, 0]
-            else:
-                min_width_for_renorm, max_width_for_renorm = get_min_max_width_window(plotter)
-                geo_width = max_width_for_renorm - min_width_for_renorm
-                norm_vect = normal = [0, 0, 1]
-            actor = actor.ribbon(width=geo_width / 2, normal=norm_vect)
-        elif plot_type_lower == "plane" or plot_type_lower == "relief":
-            actor = pv.StructuredGrid(xpos.reshape(shape), ypos.reshape(shape), plot_data.reshape(shape))
-            actor[data_conversion_function] = cpos.reshape(shape).flatten(order="F")
-        elif plot_type_lower == "projection":
-            if scene_actors is None:
-                return None
-            actor = pv.PolyData()
-            for model_actor in scene_actors:
-                mesh = model_actor[0]
-                xypoints = mesh.points
-                xpos_ypos = np.column_stack((xpos, ypos, plot_data))
-                _, all_indices2 = find_nearest_neighbors(xpos_ypos, xypoints)
-                distances, all_indices = spatial.KDTree(xpos_ypos).query(xypoints)
-                mag_for_color = np.ndarray.flatten(cpos[all_indices])
-                if not mesh.__class__.__name__ == "PolyData":
-                    # need to convert dataset from UnstructuredGrid to PolyData for GLTF file
-                    mesh_triangulated = mesh.triangulate()
-                    model_actor[0] = pv.PolyData(mesh_triangulated.points, mesh_triangulated.cells)
-                else:
-                    # need to clear data for OBJ file
-                    model_actor[0].clear_data()
-                model_actor[0][data_conversion_function] = mag_for_color
-                actor += model_actor[0]
-        elif plot_type_lower == "point cloud" or plot_type_lower == "isosurface" or plot_type_lower == "plane cut":
-            x = list(sorted(np.unique(xpos)))
-            y = list(sorted(np.unique(ypos)))
-            z = list(sorted(np.unique(zpos)))
-            actor = pv.RectilinearGrid(x, y, z)
-            actor[data_conversion_function] = cpos
-        return actor
+        return [self.__x_min, self.__x_max, self.__y_min, self.__y_max, self.__z_min, self.__z_max]
 
     @pyaedt_function_handler()
     def plot_2d_range_profile(
@@ -969,9 +609,384 @@ class MonostaticRCSPlotter(object):
             show=show,
         )
 
+    @pyaedt_function_handler()
+    def plot_scene(self, show=True, plotter=None):
+        """
+        Plot the 3D scene including models, annotations, and results in a PyVista plotter.
+
+        This method visualizes the 3D scene by rendering the mesh objects under the "model",
+        "annotations", and "results" categories stored in `self.all_scene_actors`. The meshes
+        are rendered using the specified `plotter` or a default PyVista plotter if none is provided.
+        If a plotter is supplied and supports clearing, the scene is cleared before rendering.
+
+
+        Parameters
+        ----------
+        show : bool, optional
+            Whether to immediately display the plot. If ``True``, the plot will be displayed using ``plotter.show()``.
+            If ``False``, the ``plotter`` object is returned for further customization before rendering.
+            The default is ``True``.
+        plotter : pyvista.Plotter, optional
+            A pre-configured PyVista plotter to use for visualization. If not provided, a new plotter will be created
+            with a ``PyVistaBackend`` allowing interaction with the model.
+
+        Returns
+        -------
+        pyvista.Plotter or None
+            Returns the ``plotter`` object if ``show`` is set to ``False``. If ``show`` is ``True``,
+            the plot is displayed and no value is returned.
+        """
+        if not plotter:
+            pv_backend = PyVistaBackend(allow_picking=True, plot_picked_names=True)
+            plotter = Plotter(backend=pv_backend)
+        else:
+            if getattr(plotter, "clear", None):
+                plotter.clear()
+            elif getattr(plotter, "_backend", None):
+                plotter._backend.pv_interface.scene.clear()
+
+        if self.show_geometry:
+            for geo in self.all_scene_actors["model"].values():
+                self.__add_mesh(geo, plotter, "model")
+
+        for annotations in self.all_scene_actors["annotations"]:
+            for annotation in self.all_scene_actors["annotations"][annotations].values():
+                if annotation.custom_object.show:
+                    self.__add_mesh(annotation, plotter, "annotations")
+
+        for all_scene_results in self.all_scene_actors["results"]:
+            for result_actor in self.all_scene_actors["results"][all_scene_results].values():
+                if result_actor.custom_object.show:
+                    self.__add_mesh(result_actor, plotter, "results")
+
+        if show:
+            plotter.show()
+        else:
+            return plotter
+
+    @pyaedt_function_handler()
+    def add_range_profile_settings(self, size_range=10, range_resolution=0.1, tick_color="#000000"):
+        # Compute parameters
+        range_max = size_range - range_resolution
+        range_num = int(np.round(size_range / range_resolution))
+        distance_range = np.linspace(0, range_max, range_num)
+        distance_range -= distance_range[range_num // 2]
+        range_first = -distance_range[0]
+        range_last = -distance_range[-1]
+        z_mid = self.extents[5] + (self.extents[4] - self.extents[5]) / 2
+        num_ticks = int(size_range / range_resolution)
+        # Using 5% of total range length
+        tick_length = size_range * 0.05
+
+        if "range_profile" not in self.all_scene_actors["annotations"].keys():
+            self.all_scene_actors["annotations"]["range_profile"] = {}
+
+        # Main red line
+        main_line = pv.Line(
+            pointa=(range_first, self.extents[2] * 10, z_mid), pointb=(range_last, self.extents[2] * 10, z_mid)
+        )
+        annotation_name = "main_line"
+
+        main_line_object = SceneMeshObject()
+        main_line_object.name = annotation_name
+        main_line_object.color = "red"
+        main_line_object.line_width = 5
+        main_line_object.mesh = main_line
+
+        main_line_mesh = MeshObjectPlot(main_line_object, main_line_object.get_mesh())
+        self.all_scene_actors["annotations"]["range_profile"][annotation_name] = main_line_mesh
+
+        # Ticks
+        tick_lines = pv.PolyData()
+        for tick in range(num_ticks + 1):  # create line with tick marks
+            if tick % 1 == 0:  # only do every nth tick
+                tick_pos_start = (range_first - range_resolution * tick, self.extents[2] * 10, z_mid)
+                tick_pos_end = (range_first - range_resolution * tick, self.extents[2] * 10 + tick_length, z_mid)
+                tick_lines += pv.Line(pointa=tick_pos_start, pointb=tick_pos_end)
+
+        annotation_name = "ticks"
+        tick_lines_object = SceneMeshObject()
+        tick_lines_object.name = annotation_name
+        tick_lines_object.color = tick_color
+        tick_lines_object.line_width = 2
+        tick_lines_object.mesh = tick_lines
+
+        tick_lines_mesh = MeshObjectPlot(tick_lines_object, tick_lines_object.get_mesh())
+        self.all_scene_actors["annotations"]["range_profile"][annotation_name] = tick_lines_mesh
+
+        start_geo = pv.Disc(
+            center=(range_last, self.extents[2] * 10, z_mid), outer=tick_length, inner=0, normal=(-1, 0, 0), c_res=12
+        )
+
+        annotation_name = "disc"
+        start_geo_object = SceneMeshObject()
+        start_geo_object.name = annotation_name
+        start_geo_object.color = "red"
+        start_geo_object.line_width = 5
+        start_geo_object.mesh = start_geo
+
+        disc_geo_mesh = MeshObjectPlot(start_geo_object, start_geo_object.get_mesh())
+        self.all_scene_actors["annotations"]["range_profile"][annotation_name] = disc_geo_mesh
+
+        end_geo = pv.Cone(
+            center=(range_first, self.extents[2] * 10, z_mid),
+            direction=(-1, 0, 0),
+            radius=tick_length,
+            height=tick_length * 2,
+            resolution=12,
+        )
+        annotation_name = "cone"
+        end_geo_object = SceneMeshObject()
+        end_geo_object.name = annotation_name
+        end_geo_object.color = "green"
+        end_geo_object.line_width = 5
+        end_geo_object.mesh = end_geo
+
+        end_geo_mesh = MeshObjectPlot(end_geo_object, end_geo_object.get_mesh())
+        self.all_scene_actors["annotations"]["range_profile"][annotation_name] = end_geo_mesh
+
+    @pyaedt_function_handler()
+    def add_range_profile(
+        self,
+        plot_type="Line",
+        radius_offset=0,
+        waterfall=False,
+        color_bar="jet",
+    ):
+        """
+        Add the 3D range profile.
+        """
+        # categories = ["jet", "jet_r", "magma", "magma_r", "nipy_spectral", "coolwarm", "viridis", "gray", "gray_r",
+        #               "seismic", "winter", "bone",
+        #               "blue", "green", "black", "red"]
+        data_range_profile = self.rcs_data.range_profile
+
+        new_data = self.stretch_data(
+            data_range_profile, scaling_factor=self.extents[5] - self.extents[4], offset=self.extents[4]
+        )
+
+        ranges = np.unique(new_data.index.get_level_values("Range"))
+        phis = np.unique(new_data.index.get_level_values("IWavePhi"))
+        thetas = np.unique(new_data.index.get_level_values("IWaveTheta"))
+
+        add_offset = 0.0 if not waterfall else ranges[-1]
+
+        cosphis = np.cos(np.radians(phis))
+        sinphis = np.sin(np.radians(phis))
+        sinthetas = np.sin(np.radians(thetas))
+        xpos = (-ranges + radius_offset + add_offset) * cosphis * sinthetas
+        ypos = (-ranges + radius_offset + add_offset) * sinphis * sinthetas
+        zpos = None
+        plot_data = new_data["data"].to_numpy()
+
+        cpos = data_range_profile["data"].to_numpy()
+
+        actor = self._get_pyvista_rcs_actor(
+            xpos,
+            ypos,
+            zpos,
+            plot_data,
+            cpos,
+            plot_type=plot_type,
+            scene_actors=self.all_scene_actors["model"],
+            data_conversion_function=self.rcs_data.data_conversion_function,
+            extents=self.extents,
+        )
+
+        all_results_actors = list(self.all_scene_actors["results"].keys())
+
+        if "range_profile" not in all_results_actors:
+            self.all_scene_actors["results"]["range_profile"] = {}
+
+        index = 0
+        while f"range_profile_{index}" in self.all_scene_actors["results"]["range_profile"]:
+            index += 1
+
+        range_profile_name = f"range_profile_{index}"
+
+        range_profile_object = SceneMeshObject()
+        range_profile_object.name = range_profile_name
+        range_profile_object.line_width = 1.0
+
+        scalar_dict = dict(color="#000000", title="Range Profile")
+        range_profile_object.scalar_dict = scalar_dict
+
+        if any(color_bar in x for x in ["blue", "green", "black", "red"]):
+            range_profile_object.color = color_bar
+        else:
+            range_profile_object.cmap = color_bar
+
+        range_profile_object.mesh = actor
+
+        range_profile_mesh = MeshObjectPlot(range_profile_object, range_profile_object.get_mesh())
+
+        self.all_scene_actors["results"]["range_profile"][range_profile_name] = range_profile_mesh
+
+    @pyaedt_function_handler()
+    def clear_scene(self, first_level=None, second_level=None, name=None):
+        if not first_level:
+            self.all_scene_actors["annotations"] = {}
+            self.all_scene_actors["results"] = {}
+        elif first_level == "model":
+            self.__logger.warning("Model can not be cleared. Set 'show_geometry' to False.")
+            return False
+        elif first_level in ["annotations", "results"]:
+            if not second_level:
+                self.all_scene_actor[first_level] = {}
+            elif second_level in self.all_scene_actors[first_level].keys():
+                if not name:
+                    self.all_scene_actor[first_level][second_level] = {}
+                elif name in self.all_scene_actors[first_level][second_level].keys():
+                    del self.all_scene_actors[first_level][second_level][name]
+        return True
+
+    @pyaedt_function_handler()
+    def _get_pyvista_rcs_actor(
+        self,
+        xpos,
+        ypos,
+        zpos,
+        plot_data,
+        cpos,
+        plot_type="Line",
+        data_conversion_function="",
+        scene_actors=None,
+        shape=None,
+        extents=None,
+    ):
+        if extents is None:
+            extents = [0, 10, 0, 10, 0, 10]
+
+        plot_type_lower = plot_type.lower()
+        actor = None
+
+        if (
+            plot_type_lower == "line"
+            or plot_type_lower == "ribbon"
+            or plot_type_lower == "rotated"
+            or plot_type_lower == "extruded"
+        ):
+            xyz_pos = np.stack((xpos, ypos, plot_data)).T
+            actor = pv.lines_from_points(xyz_pos)
+            actor[data_conversion_function] = cpos
+            if plot_type_lower == "ribbon":
+                norm_vect = [0, 0, 1]
+                # min_width_for_renorm, max_width_for_renorm = get_min_max_width_window(plotter)
+                x_max, x_min = max(extents[0], extents[1]), min(extents[0], extents[1])
+                y_max, y_min = max(extents[2], extents[3]), min(extents[2], extents[3])
+                radius_max = max([abs(x_max), abs(x_min), abs(y_max), abs(y_min)])
+                min_width_for_renorm = -radius_max
+                max_width_for_renorm = radius_max
+                geo_width = max_width_for_renorm - min_width_for_renorm
+                actor = actor.ribbon(width=geo_width / 2, normal=norm_vect)
+            elif plot_type_lower == "rotated":
+                v = xyz_pos[-1] - xyz_pos[0]
+                v_hat = v / np.linalg.norm(v)
+                actor.extrude_rotate(rotation_axis=v_hat, capping=True, inplace=True)
+            elif plot_type_lower == "extruded":
+                plane = pv.Plane(
+                    center=(actor.center[0], actor.center[1], actor.bounds[4]),
+                    direction=(0, 0, -1),
+                    i_size=actor.bounds[1] - actor.bounds[0],
+                    j_size=actor.bounds[3] - actor.bounds[2],
+                )
+                actor.extrude_trim((0, 0, -1.0), plane, inplace=True)
+        elif "donut" in plot_type_lower or "disk" in plot_type_lower:
+            if "relief" not in plot_type_lower:
+                plot_data = plot_data * 0 + model_center[2]
+            actor = pv.StructuredGrid(xpos.reshape(shape), ypos.reshape(shape), plot_data.reshape(shape))
+            actor[data_conversion_function] = np.ndarray.flatten(cpos.reshape(shape), order="F")
+        elif plot_type_lower == "plane v" or plot_type_lower == "plane h":
+            zpos = np.zeros(shape=plot_data.shape)
+            xyz_pos = np.stack((xpos, ypos, zpos)).T
+            actor = pv.lines_from_points(xyz_pos)
+            actor[data_conversion_function] = cpos
+            if plot_type_lower == "plane v":
+                # min_height_for_renorm, max_height_for_renorm = get_min_max_height_window(plotter)
+                geo_width = extents[5] - extents[4]
+                norm_vect = [0, 1, 0]
+            else:
+                # min_width_for_renorm, max_width_for_renorm = get_min_max_width_window(plotter)
+                x_max, x_min = max(extents[0], extents[1]), min(extents[0], extents[1])
+                y_max, y_min = max(extents[2], extents[3]), min(extents[2], extents[3])
+                radius_max = max([abs(x_max), abs(x_min), abs(y_max), abs(y_min)])
+                min_width_for_renorm = -radius_max
+                max_width_for_renorm = radius_max
+                geo_width = max_width_for_renorm - min_width_for_renorm
+                norm_vect = [0, 0, 1]
+            actor = actor.ribbon(width=geo_width / 2, normal=norm_vect)
+        elif plot_type_lower == "plane" or plot_type_lower == "relief":
+            actor = pv.StructuredGrid(xpos.reshape(shape), ypos.reshape(shape), plot_data.reshape(shape))
+            actor[data_conversion_function] = cpos.reshape(shape).flatten(order="F")
+        elif plot_type_lower == "projection":
+            if scene_actors is None:
+                return None
+            actor = pv.PolyData()
+            for model_actor in scene_actors.values():
+                mesh = model_actor.custom_object.get_mesh()
+                xypoints = mesh.points
+                xpos_ypos = np.column_stack((xpos, ypos, plot_data))
+                _, all_indices = self.find_nearest_neighbors(xpos_ypos, xypoints)
+                mag_for_color = np.ndarray.flatten(cpos[all_indices])
+                if not mesh.__class__.__name__ == "PolyData":
+                    mesh_triangulated = mesh.triangulate()
+                    model_actor.custom_object.mesh = pv.PolyData(mesh_triangulated.points, mesh_triangulated.cells)
+                else:
+                    model_actor.custom_object.mesh.clear_data()
+                model_actor.custom_object.mesh[data_conversion_function] = mag_for_color
+                actor += model_actor.custom_object.mesh
+        elif plot_type_lower == "point cloud" or plot_type_lower == "isosurface" or plot_type_lower == "plane cut":
+            x = list(sorted(np.unique(xpos)))
+            y = list(sorted(np.unique(ypos)))
+            z = list(sorted(np.unique(zpos)))
+            actor = pv.RectilinearGrid(x, y, z)
+            actor[data_conversion_function] = cpos
+        return actor
+
     @staticmethod
-    def stretch_data(data, m, b):
-        return (data - data.min()) / (data.max() - data.min()) * m + b
+    def stretch_data(data, scaling_factor, offset):
+        """
+        Stretches and scales the input data to a specified range.
+
+        This method normalizes the input data between its minimum and maximum values and then applies
+        a linear transformation using the formula: ``scaled_data = (data - min) / (max - min) * m + b``.
+        The parameters ``m`` and ``b`` control the scaling and shifting of the normalized data.
+
+        Parameters
+        ----------
+        data : numpy.ndarray or pandas.Series
+            The input data array or series to be stretched.
+        scaling_factor : float
+            The scaling factor applied to the normalized data.
+        offset : float
+            The offset added to the scaled data after normalization.
+
+        Returns
+        -------
+        numpy.ndarray or pandas.Series
+            Transformed data
+
+        Example:
+        -------
+        >>> data = np.array([1, 2, 3, 4, 5])
+        >>> stretched_data = stretch_data(data,2,1)
+        >>> print(stretched_data)
+        [1.  1.5 2.  2.5 3. ]
+        """
+        return (data - data.min()) / (data.max() - data.min()) * scaling_factor + offset
+
+    @staticmethod
+    def find_nearest_neighbors(xpos_ypos, xypoints):
+        # Calculate squared Euclidean distance between each point in xypoints and xpos_ypos
+        distances = np.sqrt(((xpos_ypos[:, np.newaxis] - xypoints) ** 2).sum(axis=2))
+
+        # Find the index of the nearest neighbor for each query point in xypoints
+        all_indices = np.argmin(distances, axis=0)
+
+        # Get the distance for each query point (optional, can be removed if not needed)
+        nearest_distances = np.min(distances, axis=0)
+
+        return nearest_distances, all_indices
 
     @staticmethod
     def __add_mesh(mesh_object, plotter, mesh_type="results"):
@@ -990,35 +1005,25 @@ class MonostaticRCSPlotter(object):
         elif getattr(plotter, "add_mesh", None):
             plotter.add_mesh(mesh_object.mesh, **options)
 
-    @staticmethod
-    def increment_name(base_name, existing_names):
-        if not isinstance(existing_names, list):
-            existing_names = list(existing_names)
-        if base_name in existing_names:
-            # split the name into a list of words
-            name_list = base_name.split(" ")
-            # check if the last word is a number
-            if name_list[-1].isdigit():
-                # if it is, increment it
-                name_list[-1] = str(int(name_list[-1]) + 1)
-            else:
-                # if it isn't, add a 2 to the end
-                name_list.append("2")
-            # join the list back into a string
-            base_name = " ".join(name_list)
-            # check if the new name is in the list of all tab names
-        return base_name
-
     @pyaedt_function_handler()
-    def get_model_extent(self):
+    def __get_model_extent(self):
+        """
+        Calculate the 3D extent of the model by evaluating the bounding box dimensions
+        of each mesh object in the scene.
+
+        This method retrieves the maximum and minimum coordinates in the x, y, and z
+        directions for all mesh objects stored under the "model" key in `self.all_scene_actors`.
+        The bounding box of each mesh is assessed, and the overall bounds for the entire
+        model are determined by taking the min/max values from these individual bounding boxes.
+        """
         x_max, x_min, y_max, y_min, z_max, z_min = [], [], [], [], [], []
 
         if len(self.all_scene_actors["model"]) == 0:
-            x_max = [0]
+            x_max = [10]
             x_min = [0]
-            y_max = [0]
+            y_max = [10]
             y_min = [0]
-            z_max = [0]
+            z_max = [10]
             z_min = [0]
         for each in self.all_scene_actors["model"].values():
             x_max.append(each.mesh.bounds[1])
@@ -1073,72 +1078,146 @@ class MonostaticRCSPlotter(object):
 
 
 class SceneMeshObject:
+    """
+    A class representing a custom 3D mesh object with visualization properties.
+
+    This class defines a 3D mesh object with customizable properties.
+    It provides methods to retrieve the mesh, its associated rendering options, and annotation properties for
+    visualization in PyVista.
+
+    """
+
     def __init__(self):
         self.name = "CustomObject"
         self.opacity = 1.0
-        self.color = "red"
+        self.color = None
+        self.color_map = "jet"
         self.line_width = 1.0
-        self.mesh = pv.Cube()
+        self.scalar_dict = dict(color="#000000", title="Dummy")
+        self.__mesh = pv.Cube()
+        self.show = True
+        self._original_points = self.mesh.points.copy()
+        self.__z_offset = 0.0
+        self.__scale_factor = 1.0
+
+    @property
+    def mesh(self):
+        return self.__mesh
+
+    @mesh.setter
+    def mesh(self, val):
+        self.__mesh = val
+        self._original_points = val.points.copy()
+
+    @property
+    def z_offset(self):
+        return self.__z_offset
+
+    @z_offset.setter
+    def z_offset(self, val):
+        translation_distance = val
+
+        # Calculate the new points by applying the translation to the original points
+        new_points = self._original_points.copy()
+        new_points[:, 2] += translation_distance  # Apply Z translation
+
+        # Update the mesh with the new points
+        self.__mesh.points = new_points
+        self.__z_offset = val
+
+    @property
+    def scale_factor(self):
+        """Get the current scale factor."""
+        return self.__scale_factor
+
+    @scale_factor.setter
+    def scale_factor(self, val):
+        """Set a new scale factor and update the mesh accordingly."""
+        scale_factor = val
+
+        # Calculate the center of the mesh for scaling
+        center = self.__mesh.points.mean(axis=0)  # Center of the original mesh
+
+        # Calculate the new points by scaling relative to the original points and the mesh center
+        new_points = self.__mesh.points.copy()
+        new_points = center + (new_points - center) * scale_factor  # Apply scaling from the center
+
+        # Update the mesh with the new points
+        self.mesh.points = new_points
+        self.__scale_factor = val  # Update the scale factor
+
+    def reset_scene(self):
+        """Reset the mesh to its original position and size."""
+        self.mesh.points = self._original_points.copy()  # Restore the original points
+        self.__z_offset = 0.0  # Reset the Z-offset
+        self.__scale_factor = 1.0  # Reset the scale factor
 
     def get_mesh(self):
+        """Retrieve the mesh object.
+
+        Returns
+        -------
+        pyvista.PolyData or pyvista.UnstructuredGrid
+            The mesh object representing the 3D geometry.
+        """
         return self.mesh
 
+    def show(self):
+        """Show mesh."""
+        return self.show
+
     def name(self):
+        """Name."""
         return self.name
 
     def line_width(self):
+        """Line width."""
         return self.name
 
     def opacity(self):
+        """Opacity."""
         return self.opacity
 
     def color(self):
+        """Color."""
         return self.color
 
+    def color_map(self):
+        """Color map."""
+        return self.color_map
+
+    def scalar_dict(self):
+        """Scalar bar dict."""
+        return self.scalar_dict
+
     def get_model_options(self):
+        """Retrieve the visualization options for the mesh.
+
+        Returns
+        -------
+        dict
+            A dictionary with the color and opacity settings for rendering the model.
+        """
         return {"color": self.color, "opacity": self.opacity}
 
     def get_annotation_options(self):
+        """Retrieve the annotation options for the mesh.
+
+        Returns
+        -------
+        dict
+            A dictionary with the color and line width settings for annotating the model.
+        """
         return {"color": self.color, "line_width": self.line_width}
 
+    def get_result_options(self):
+        """Retrieve the result options for the mesh.
 
-def find_nearest_neighbors(xpos_ypos, xypoints):
-    # Calculate squared Euclidean distance between each point in xypoints and xpos_ypos
-    distances = np.sqrt(((xpos_ypos[:, np.newaxis] - xypoints) ** 2).sum(axis=2))
-
-    # Find the index of the nearest neighbor for each query point in xypoints
-    all_indices = np.argmin(distances, axis=0)
-
-    # Get the distance for each query point (optional, can be removed if not needed)
-    nearest_distances = np.min(distances, axis=0)
-
-    return nearest_distances, all_indices
-
-
-def get_min_max_height_window(plotter):
-    bounds = None
-    if getattr(plotter, "bounds", None):
-        bounds = plotter.bounds
-    elif getattr(plotter, "_backend", None):
-        bounds = plotter._backend.pv_interface.scene.bounds
-
-    if bounds:
-        return bounds[-2], bounds[-1]
-    else:
-        return 0, 10
-
-
-def get_min_max_width_window(plotter):
-    bounds = None
-    if getattr(plotter, "bounds", None):
-        bounds = plotter.bounds
-    elif getattr(plotter, "_backend", None):
-        bounds = plotter._backend.pv_interface.scene.bounds
-
-    if bounds:
-        x_max, x_min = max(bounds[0], bounds[1]), min(bounds[0], bounds[1])
-        y_max, y_min = max(bounds[2], bounds[3]), min(bounds[2], bounds[3])
-        radius_max = max([abs(x_max), abs(x_min), abs(y_max), abs(y_min)])
-        return -radius_max, radius_max
-    else:
-        return -10, 10
+        Returns
+        -------
+        dict
+            A dictionary with the settings for results the model.
+        """
+        if self.color:
+            return {"color": self.color, "line_width": self.line_width, "scalar_bar_args": self.scalar_dict}
+        return {"cmap": self.color_map, "line_width": self.line_width, "scalar_bar_args": self.scalar_dict}
