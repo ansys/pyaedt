@@ -1501,6 +1501,8 @@ class Primitives3D(GeometryModeler):
                             + "}"
                     )
             except KeyError:  # TODO: fix reading AEDT
+                # This exception occurs when the expected key (i.e., FaceKeyIDMap, EdgeKeyIDMap, etc.) is not found.
+                # It attempts to fall back to a different way of extracting the data.
                 for key, mon in part["Operations"]["Operation"]["OperationIdentity"].items():
                     if i in key:
                         keyarr = key.split("(")
@@ -1510,6 +1512,32 @@ class Primitives3D(GeometryModeler):
                                 + "}"
                         )
                         break
+            except TypeError:
+                # This exception handles the case where "part['Operations']['Operation']" might not be a dictionary,
+                # but instead a list. This happens when multiple operations are involved, and the structure is
+                # different.
+                for id in part["Operations"]["Operation"]:
+                    op_id = id.get("OperationIdentity", {})
+                    try:
+                        dict_str = (
+                                "{"
+                                + ",".join(op_id[i])
+                                .replace("'", '"')
+                                .replace("=", ":")
+                                + "}"
+                        )
+                    except KeyError:
+                        # Handle case where the specific map (FaceKeyIDMap, EdgeKeyIDMap, etc.)
+                        # is still missing in the current operation.
+                        for key, mon in op_id.items():
+                            if i in key:
+                                keyarr = key.split("(")
+                                dict_str = (
+                                        "{"
+                                        + "{}: {}".format(keyarr[1], mon.replace(")", "")).replace("'", '"')
+                                        + "}"
+                                )
+                                break
             if dict_str:
                 part_mapping[i] = json.loads(dict_str)
         return part_mapping
@@ -2685,14 +2713,7 @@ class Primitives3D(GeometryModeler):
         else:
             union_polyline2 = []
         union_polyline = union_polyline1 + union_polyline2
-        list_positions2 = []
-        for i, p in enumerate(union_polyline):
-            if i == 0:
-                list_positions2.extend(self.get_vertices_of_line(p))
-            else:
-                list_positions2.extend(self.get_vertices_of_line(p)[1:])
         self.delete(union_polyline)
-        # del list_positions[0]
 
         if sep_layer:
             for i in range(4):

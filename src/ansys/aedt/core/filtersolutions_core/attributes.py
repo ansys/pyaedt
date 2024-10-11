@@ -749,7 +749,7 @@ class Attributes:
         )
 
     @property
-    def order(self) -> int:
+    def filter_order(self) -> int:
         """Order of the filter. The default is ``5``.
 
         Returns
@@ -761,9 +761,9 @@ class Attributes:
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
         return int(order.value)
 
-    @order.setter
-    def order(self, order: int):
-        status = self._dll.setOrder(order)
+    @filter_order.setter
+    def filter_order(self, filter_order: int):
+        status = self._dll.setOrder(filter_order)
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
     @property

@@ -629,7 +629,7 @@ class AedtLogger(object):
         self._messages.append([message_type, msg1, self.project_name, self.design_name])
         if not (self._log_on_file or self._log_on_screen) or not self._global:
             return
-        if len(message_text) > 250:
+        if len(message_text) > 250 and message_type < 3:
             message_text = message_text[:250] + "..."
         if message_type == 0:
             self._global.info(message_text, *args, **kwargs)
@@ -922,7 +922,7 @@ class AedtLogger(object):
 
     def debug(self, msg, *args, **kwargs):
         """Write a debug message to the global logger."""
-        if not settings.enable_debug_logger or not settings.enable_logger:
+        if not (settings.enable_debug_logger or settings.enable_debug_grpc_api_logger) or not settings.enable_logger:
             return
         if args:
             try:
@@ -931,7 +931,8 @@ class AedtLogger(object):
                 msg1 = msg
         else:
             msg1 = msg
-        self._log_on_dekstop(0, msg1, "Global")
+        if not settings.enable_debug_grpc_api_logger:
+            self._log_on_dekstop(0, msg1, "Global")
         return self._log_on_handler(3, msg, *args, **kwargs)
 
     @property

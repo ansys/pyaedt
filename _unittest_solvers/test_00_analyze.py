@@ -23,7 +23,7 @@ test_solve = "test_solve"
 original_project_name = "ANSYS-HSD_V1"
 transient = "Transient_StrandedWindings"
 
-if config["desktopVersion"] > "2022.2":
+if desktop_version > "2022.2":
     component = "Circ_Patch_5GHz_232.a3dcomp"
 else:
     component = "Circ_Patch_5GHz.a3dcomp"
@@ -162,7 +162,7 @@ class TestClass:
         hfss_app.insert_design("Array_simple_resuts", "Modal")
         from ansys.aedt.core.generic.general_methods import read_json
 
-        if config["desktopVersion"] > "2023.1":
+        if desktop_version > "2023.1":
             dict_in = read_json(os.path.join(local_path, "example_models", test_subfolder, "array_simple_232.json"))
             dict_in["Circ_Patch_5GHz_232_1"] = os.path.join(local_path, "example_models", test_subfolder, component)
             dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz_232_1"}
@@ -349,6 +349,10 @@ class TestClass:
     def test_04b_3dl_analyze_setup(self):
         assert self.hfss3dl_solve.export_touchstone_on_completion(export=False)
         assert self.hfss3dl_solve.export_touchstone_on_completion(export=True)
+        if desktop_version > "2024.2":
+            assert self.hfss3dl_solve.set_export_touchstone()
+        else:
+            assert not self.hfss3dl_solve.set_export_touchstone()
         assert self.hfss3dl_solve.analyze_setup("Setup1", cores=4, blocking=False)
         assert self.hfss3dl_solve.are_there_simulations_running
         assert self.hfss3dl_solve.stop_simulations()
@@ -377,8 +381,10 @@ class TestClass:
         assert len(files) > 0
 
     def test_04f_3dl_set_export_touchstone(self):
-        assert self.hfss3dl_solve.set_export_touchstone(True)
-        assert self.hfss3dl_solve.set_export_touchstone(False)
+        assert self.hfss3dl_solve.export_touchstone_on_completion(True)
+        assert self.hfss3dl_solve.export_touchstone_on_completion(False)
+        if desktop_version > "2024.2":
+            assert self.hfss3dl_solve.set_export_touchstone()
 
     def test_04g_3dl_get_all_sparameter_list(self):
         assert self.hfss3dl_solve.get_all_sparameter_list == ["S(Port1,Port1)", "S(Port1,Port2)", "S(Port2,Port2)"]

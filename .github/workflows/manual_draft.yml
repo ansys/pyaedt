@@ -88,7 +88,7 @@ jobs:
           flags: system,solver
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pytest-solver-results
           path: junit/test-results.xml
@@ -145,7 +145,7 @@ jobs:
           flags: system,solver
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pytest-solver-results
           path: junit/test-results.xml
@@ -210,7 +210,7 @@ jobs:
           flags: system
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pytest-results
           path: junit/test-results.xml
@@ -279,7 +279,7 @@ jobs:
           flags: system,solver
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pytest-solver-results
           path: junit/test-results.xml

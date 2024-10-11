@@ -14,7 +14,7 @@ from ansys.aedt.core.generic.general_methods import env_path
 from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core import is_windows
-from ansys.aedt.core.misc.misc import is_safe_path
+from ansys.aedt.core.generic.filesystem import is_safe_path
 
 if is_linux and is_ironpython:
     import subprocessdotnet as subprocess  # nosec
@@ -38,7 +38,7 @@ from ansys.aedt.core import Q2d
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Mechanical
-from ansys.aedt.core.misc import list_installed_ansysem
+from ansys.aedt.core.generic.aedt_versions import aedt_versions
 
 
 class FileManagement(object):
@@ -1136,7 +1136,7 @@ class ServiceManager(rpyc.Service):
             if os.getenv("PYAEDT_SERVER_AEDT_PATH",""):
                 ansysem_path = os.getenv("PYAEDT_SERVER_AEDT_PATH","")
             else:
-                aa = list_installed_ansysem()
+                aa = aedt_versions.list_installed_ansysem
                 if aa:
                     ansysem_path = os.environ[aa[0]]
                 else:

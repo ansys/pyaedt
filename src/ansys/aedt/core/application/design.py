@@ -58,7 +58,7 @@ from ansys.aedt.core.application.variables import VariableManager
 from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.desktop import _init_desktop_from_design
 from ansys.aedt.core.desktop import exception_to_desktop
-from ansys.aedt.core.desktop import get_version_env_variable
+from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import unit_system
 from ansys.aedt.core.generic.data_handlers import variation_string_to_dict
@@ -237,6 +237,7 @@ class Design(AedtObjects):
     ):
         self._design_name = None
         self._project_name = None
+        self._project_path = None
         self.__t = None
         if (
             not is_ironpython
@@ -624,7 +625,7 @@ class Design(AedtObjects):
 
         >>> oDesktop.GetVersion()
         """
-        return get_version_env_variable(self.desktop_class.aedt_version_id)
+        return aedt_versions.get_version_env_variable(self._aedt_version)
 
     @property
     def _aedt_version(self):
@@ -653,15 +654,16 @@ class Design(AedtObjects):
         >>> hfss = Hfss()
         >>> hfss.design_name = 'new_design'
         """
+        if self._design_name:
+            return self._design_name
         from ansys.aedt.core.generic.general_methods import _retry_ntimes
 
         if not self.odesign:
             return None
         self._design_name = _retry_ntimes(5, self.odesign.GetName)
         if ";" in self._design_name:
-            return self._design_name.split(";")[1]
-        else:
-            return self._design_name
+            self._design_name = self._design_name.split(";")[1]
+        return self._design_name
 
     @design_name.setter
     def design_name(self, new_name):
@@ -684,7 +686,7 @@ class Design(AedtObjects):
                 timeout -= timestep
                 if timeout < 0:
                     raise RuntimeError("Timeout reached while checking design renaming.")
-        self._design_name = new_name
+            self._design_name = new_name
 
     @property
     def design_list(self):
@@ -739,9 +741,12 @@ class Design(AedtObjects):
 
         >>> oProject.GetName
         """
+        if self._project_name:
+            return self._project_name
         if self.oproject:
             try:
                 self._project_name = self.oproject.GetName()
+                self._project_path = None
                 return self._project_name
             except Exception:
                 return None
@@ -778,9 +783,9 @@ class Design(AedtObjects):
 
         >>> oProject.GetPath
         """
-        if self.oproject:
-            return self.oproject.GetPath()
-        return None
+        if not self._project_path and self.oproject:
+            self._project_path = self.oproject.GetPath()
+        return self._project_path
 
     @property
     def project_time_stamp(self):
@@ -1154,6 +1159,7 @@ class Design(AedtObjects):
         ):
             self.set_oo_property_value(self.odesign, "Design Settings", "Design Mode/IC", self._ic_mode)
             self.desktop_class.active_design(self.oproject, des_name)
+        self._design_name = None
 
     @property
     def oproject(self):
@@ -1278,6 +1284,8 @@ class Design(AedtObjects):
                     self._oproject = self.desktop_class.active_project(new_project_list[0])
             self._add_handler()
             self.logger.info("Project %s has been created.", self._oproject.GetName())
+        self._project_name = None
+        self._project_path = None
 
     def _add_handler(self):
         if (
@@ -3560,6 +3568,7 @@ class Design(AedtObjects):
         >>> oDesign.RenameDesignInstance
         """
         self._odesign.RenameDesignInstance(self.design_name, name)
+        self._design_name = None
         if save:
             self.oproject.Save()
             self._project_dictionary = None
@@ -3802,6 +3811,8 @@ class Design(AedtObjects):
             self.modeler.refresh_all_ids()
             self.modeler._refresh_all_ids_from_aedt_file()
             self.mesh._refresh_mesh_operations()
+        self._project_name = None
+        self._project_path = None
         msg_text = "Project {0} Saved correctly".format(self.project_name)
         self.logger.info(msg_text)
         return True
