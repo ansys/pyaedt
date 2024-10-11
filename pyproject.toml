@@ -99,6 +99,7 @@ all = [
     "scikit-rf>=0.30.0,<1.4",
     "SRTM.py",
     "utm",
+    "ansys-tools-visualization-interface"
 ]
 installer = [
     "matplotlib>=3.5.0,<3.10",
@@ -115,6 +116,7 @@ installer = [
     "jupyterlab>=3.6.0,<4.3",
     "ipython>=7.30.0,<8.29",
     "ipyvtklink>=0.2.0,<0.2.4",
+    "ansys-tools-visualization-interface"
 ]
 
 [tool.setuptools.dynamic]

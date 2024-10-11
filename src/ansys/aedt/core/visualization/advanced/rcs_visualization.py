@@ -30,14 +30,18 @@ import os
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.application.variables import decompose_variable_value
-from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.general_methods import conversion_function
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.visualization.plot.matplotlib import plot_2d_chart
 from ansys.aedt.core.visualization.plot.matplotlib import plot_polar_chart
+from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
+from ansys.tools.visualization_interface import MeshObjectPlot
+from ansys.tools.visualization_interface import Plotter
+from ansys.tools.visualization_interface.backends.pyvista import PyVistaBackend
 import pandas as pd
+from scipy import spatial
 
 np = None
 pv = None
@@ -292,16 +296,14 @@ class MonostaticRCSData(object):
         win_range, _ = self.window_function(self.window, nfreq)
         windowed_data = data_freq * win_range
 
-        # Peroform FFT
+        # Perform FFT
         sf_upsample = self.window_size / nfreq
         windowed_data = np.fft.fftshift(sf_upsample * np.fft.ifft(windowed_data.to_numpy(), n=size))
 
         # Convert data to conversion function
         windowed_data_converted = conversion_function(windowed_data, self.data_conversion_function)
 
-        df = (
-            unit_converter((self.frequencies[1] - self.frequencies[0]), "Frequency", self.frequency_units, "Hz") * 1.0e9
-        )  # TODO make this automatic!
+        df = unit_converter((self.frequencies[1] - self.frequencies[0]), "Freq", self.frequency_units, "Hz")
         pd_t = 1.0 / df
         dt = pd_t / size
         c0 = 299792458
@@ -448,79 +450,6 @@ class MonostaticRCSData(object):
             )
 
     @pyaedt_function_handler()
-    def plot_range_profile(
-        self,
-        title="Range profile",
-        output_file=None,
-        show=True,
-        show_legend=True,
-    ):
-        """Create a 2D plot of the monostatic RCS.
-
-        Parameters
-        ----------
-        primary_sweep : str, optional.
-            X-axis variable. The default is ``"IWavePhi"``. Options are ``"IWavePhi"`` and ``"IWaveTheta"``.
-        secondary_sweep_value : float, list, string, optional
-            List of cuts on the secondary sweep to plot. The default is ``0``. Options are
-            `"all"`, a single value float, or a list of float values.
-        title : str, optional
-            Plot title. The default is ``"RectangularPlot"``.
-        output_file : str, optional
-            Full path for the image file. The default is ``None``, in which case an image in not exported.
-        show : bool, optional
-            Whether to show the plot. The default is ``True``.
-            If ``False``, the Matplotlib instance of the plot is shown.
-        is_polar : bool, optional
-            Whether this plot is a polar plot. The default is ``True``.
-        show_legend : bool, optional
-            Whether to display the legend or not. The default is ``True``.
-
-        Returns
-        -------
-        :class:`matplotlib.pyplot.Figure`
-            Matplotlib figure object.
-            If ``show=True``, a Matplotlib figure instance of the plot is returned.
-            If ``show=False``, the plotted curve is returned.
-
-        Examples
-        --------
-        >>> import pyaedt
-        >>> app = pyaedt.Hfss(version="2023.2", design="Antenna")
-        >>> setup_name = "Setup1 : LastAdaptive"
-        >>> frequencies = [77e9]
-        >>> sphere = "3D"
-        >>> data = app.get_antenna_data(frequencies,setup_name,sphere)
-        >>> data.plot_cut(theta=20)
-        """
-
-        data_range_profile = self.range_profile
-
-        ranges = np.unique(data_range_profile.index.get_level_values("Range"))
-        phis = np.unique(data_range_profile.index.get_level_values("IWavePhi"))
-        thetas = np.unique(data_range_profile.index.get_level_values("IWaveTheta"))
-
-        curves = []
-        n_range = len(ranges)
-        n_phi = len(phis)
-        n_theta = len(thetas)
-        values = data_range_profile["data"].to_numpy()
-        values = values.reshape((n_range, n_phi, n_theta), order="F")
-        y = values[:, 0, 0]
-        legend = f"Phi={np.round(phis[0], 3)} Theta={np.round(thetas[0], 3)}"
-        curves.append([ranges.tolist(), y.tolist(), legend])
-
-        return plot_2d_chart(
-            curves,
-            xlabel="Range (m)",
-            ylabel=f"Range Profile ({self.data_conversion_function})",
-            title=title,
-            snapshot_path=output_file,
-            show_legend=show_legend,
-            show=show,
-        )
-
-    @pyaedt_function_handler()
     def __init_rcs(self):
         """Load monostatic radar cross-section data.
 
@@ -542,114 +471,6 @@ class MonostaticRCSData(object):
         return True
 
     @pyaedt_function_handler()
-    def __get_geometry(self, off_screen=False):
-        """Get 3D meshes."""
-        model_info = self.metadata["model_info"]
-        obj_meshes = []
-        if self.__is_array:
-            non_array_geometry = model_info.copy()
-            components_info = self.__component_objects
-            array_dimension = self.__array_dimension
-            first_value = next(iter(model_info.values()))
-            sf = AEDT_UNITS["Length"][first_value[3]]
-            self.__model_units = first_value[3]
-            cell_info = self.__cell_position
-
-            for cell_row in cell_info:
-                for cell_col in cell_row:
-                    # Initialize an empty mesh for this component
-                    model_pv = ModelPlotter()
-                    model_pv.off_screen = off_screen
-                    component_name = cell_col[0]
-                    component_info = components_info[component_name]
-                    rotation = cell_col[2]
-                    for component_obj in component_info[1:]:
-                        if component_obj in model_info:
-                            if component_obj in non_array_geometry:
-                                del non_array_geometry[component_obj]
-
-                            cad_path = os.path.join(self.output_dir, model_info[component_obj][0])
-                            if os.path.exists(cad_path):
-                                model_pv.add_object(
-                                    cad_path,
-                                    model_info[component_obj][1],
-                                    model_info[component_obj][2],
-                                    model_info[component_obj][3],
-                                )
-
-                    model_pv.generate_geometry_mesh()
-                    comp_meshes = []
-                    row, col = cell_col[3]
-
-                    # Perpendicular lattice vector
-                    if self.__lattice_vector[0] != 0:
-                        pos_x = (row - 1) * array_dimension[2] - array_dimension[0] / 2 + array_dimension[2] / 2
-                        pos_y = (col - 1) * array_dimension[3] - array_dimension[1] / 2 + array_dimension[3] / 2
-                    else:
-                        pos_y = (row - 1) * array_dimension[2] - array_dimension[0] / 2 + array_dimension[2] / 2
-                        pos_x = (col - 1) * array_dimension[3] - array_dimension[1] / 2 + array_dimension[3] / 2
-
-                    for obj in model_pv.objects:
-                        mesh = obj._cached_polydata
-                        translated_mesh = mesh.copy()
-                        color_cad = [i / 255 for i in obj.color]
-
-                        translated_mesh.translate(
-                            [-component_info[0][0] / sf, -component_info[0][1] / sf, -component_info[0][2] / sf],
-                            inplace=True,
-                        )
-
-                        if rotation != 0:
-                            translated_mesh.rotate_z(rotation, inplace=True)
-
-                        # Translate the mesh to its position
-                        translated_mesh.translate([pos_x / sf, pos_y / sf, component_info[0][2] / sf], inplace=True)
-
-                        comp_meshes.append([translated_mesh, color_cad, obj.opacity])
-
-                    obj_meshes.append(comp_meshes)
-                    model_pv.close()
-
-            obj_meshes = [item for sublist in obj_meshes for item in sublist]
-        else:
-            non_array_geometry = model_info
-
-        if non_array_geometry:  # pragma: no cover
-            model_pv = ModelPlotter()
-            first_value = next(iter(non_array_geometry.values()))
-            sf = AEDT_UNITS["Length"][first_value[3]]
-            self.__model_units = first_value[3]
-            model_pv.off_screen = off_screen
-            for object_in in non_array_geometry.values():
-                cad_path = os.path.join(self.output_dir, object_in[0])
-                if os.path.exists(cad_path):
-                    model_pv.add_object(
-                        cad_path,
-                        object_in[1],
-                        object_in[2],
-                        object_in[3],
-                    )
-                else:
-                    self.logger.warning(f"{cad_path} does not exist.")
-                    return False
-            self.__model_units = first_value[3]
-            model_pv.generate_geometry_mesh()
-            i = 0
-            for obj in model_pv.objects:
-                mesh = obj._cached_polydata
-                translated_mesh = mesh.copy()
-                color_cad = [i / 255 for i in obj.color]
-
-                if len(obj_meshes) > i:
-                    obj_meshes[i][0] += translated_mesh
-                else:
-                    obj_meshes.append([translated_mesh, color_cad, obj.opacity])
-                i += 1
-            model_pv.close()
-
-        return obj_meshes
-
-    @pyaedt_function_handler()
     def __get_new_dataframe(self, values=None, index_names=None, indexes=None):
         """Create new RCS DataFrame."""
         if indexes is None:
@@ -662,3 +483,665 @@ class MonostaticRCSData(object):
         else:
             df = pd.DataFrame(values, index=my_index, columns=self.rcs_column_names)
         return df
+
+
+class MonostaticRCSPlotter(object):
+    """Provides monostatic radar cross-section (RCS) plot functionalities.
+
+    Parameters
+    ----------
+    rcs_data : :class:`ansys.aedt.core.generic.rcs_visualization.MonostaticRCSData`
+        Monostatic RCS data object.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Hfss
+    >>> from ansys.aedt.core.generic.rcs_visualization import MonostaticRCSData
+    >>> from ansys.aedt.core.generic.rcs_visualization import MonostaticRCSPlotter
+    >>> app = Hfss(version="2023.2", design="Antenna")
+    >>> data = app.get_rcs_data()
+    >>> metadata_file = data.metadata_file
+    >>> app.release_desktop()
+    >>> rcs_data = MonostaticRCSData(input_file=metadata_file)
+    >>> rcs_plotter = MonostaticRCSPlotter(rcs_data)
+    """
+
+    def __init__(self, rcs_data):
+
+        # Public
+        self.modeler_window = None
+
+        # Private
+        self.__rcs_data = rcs_data
+        self.__logger = logger
+        self.__model_units = "meter"
+
+        self.__all_scene_actors = {"model": {}, "annotations": {}, "results": {}, "plotter": {}}
+
+        self.__all_scene_actors["plotter"]["model_added"] = False
+
+        self.__x_max, self.__x_min, self.__y_max, self.__y_min, self.__z_max, self.__z_min = 0, 0, 0, 0, 0, 0
+
+        # Get geometries
+        if "model_info" in self.rcs_data.metadata.keys():
+            self.__model_info = self.rcs_data.metadata["model_info"]
+            obj_meshes = self.__get_geometry()
+            self.__all_scene_actors["model"] = obj_meshes
+
+        self.get_model_extent()
+
+        # Quarintine
+
+        self.previous_transform = np.eye(4)  # used to keep track of previous transform for model rotation
+        self.layout_comps_3d_traces = (
+            {}
+        )  # layout cmps related to 3d plots (trace name entry created below plot settings)
+        self.layout_comps_2d_traces = (
+            {}
+        )  # layout cmps related to 2d plots (trace name entry created below plot settings)
+
+        self.layout_comps_2d_tabs = {}  # keep track of tabs for 2d plots
+        self.layout_comps_geometry = {}  # layout objects created for geometry (cad object entry created when imported)
+
+        self.all_traces_3d_properties = {}  # properties are what is selected in order to generate the data in the plot
+        self.all_traces_3d_attributes = {}  # attributes are what is used to style the data in the plot
+
+        self.all_traces_2d_properties = {}  # properties are what is selected in order to generate the data in the plot
+        self.all_traces_2d_attributes = {}  # attributes are what is used to style the data in the plot
+        self.all_2d_reports = {}  # all matplotlib figures, stored as [trace_name] = [figure,axis]
+
+        self.actor_name_active_editing = None
+
+    @property
+    def rcs_data(self):
+        """RCS data object."""
+        return self.__rcs_data
+
+    @property
+    def model_info(self):
+        """Geometry information."""
+        return self.__model_info
+
+    @property
+    def model_units(self):
+        """Model units."""
+        return self.__model_units
+
+    @property
+    def all_scene_actors(self):
+        """All scene actors."""
+        return self.__all_scene_actors
+
+    @property
+    def extents(self):
+        """Geometry extents."""
+        return [self.__x_max, self.__x_min, self.__y_max, self.__y_min, self.__z_max, self.__z_min]
+
+    @pyaedt_function_handler()
+    def plot_model(self, show=True, plotter=None):
+        """
+        Plot the 3D model of the current scene using PyVista.
+
+        This method visualizes the 3D model using a ``Plotter`` object. If no plotter is provided, it creates a new
+        ``Plotter`` with a ``PyVistaBackend`` allowing for interaction like object picking.
+        It iterates over the geometry (actors) in the scene,
+        adding them to the plotter with specified color and opacity. Optionally, it can return
+        the ``plotter`` object without rendering the plot, allowing for additional customization before display.
+
+        Parameters
+        ----------
+        show : bool, optional
+            Whether to immediately display the plot. If ``True``, the plot will be displayed using ``plotter.show()``.
+            If ``False``, the ``plotter`` object is returned for further customization before rendering.
+            The default is ``True``.
+        plotter : pyvista.Plotter, optional
+            A pre-configured PyVista plotter to use for visualization. If not provided, a new plotter will be created
+            with a ``PyVistaBackend`` allowing interaction with the model.
+
+        Returns
+        -------
+        pyvista.Plotter or None
+            Returns the ``plotter`` object if ``show`` is set to ``False``. If ``show`` is ``True``,
+            the plot is displayed and no value is returned.
+        """
+        if not plotter:
+            pv_backend = PyVistaBackend(allow_picking=True, plot_picked_names=True)
+            plotter = Plotter(backend=pv_backend)
+
+        for geo in self.all_scene_actors["model"].values():
+            self.__add_mesh(geo, plotter, "model")
+            self.all_scene_actors["plotter"]["model_added"] = True
+        if show:
+            plotter.show()
+        else:
+            return plotter
+
+    @pyaedt_function_handler()
+    def plot_range_profile_settings(
+        self, show=True, plotter=None, size_range=10, range_resolution=0.1, tick_color="#000000"
+    ):
+        if not plotter:
+            pv_backend = PyVistaBackend(allow_picking=True, plot_picked_names=True)
+            plotter = Plotter(backend=pv_backend)
+
+        # Compute parameters
+        range_max = size_range - range_resolution
+        range_num = int(np.round(size_range / range_resolution))
+        distance_range = np.linspace(0, range_max, range_num)
+        distance_range -= distance_range[range_num // 2]
+        range_first = -distance_range[0]
+        range_last = -distance_range[-1]
+        z_mid = self.extents[4] + (self.extents[5] - self.extents[4]) / 2
+        num_ticks = int(size_range / range_resolution)
+        # Using 5% of total range length
+        tick_length = size_range * 0.05
+
+        if not "range_profile" in self.all_scene_actors["annotations"].keys():
+            self.all_scene_actors["annotations"]["range_profile"] = {}
+
+        # Main red line
+        main_line = pv.Line(
+            pointa=(range_first, self.extents[3] * 10, z_mid), pointb=(range_last, self.extents[3] * 10, z_mid)
+        )
+        annotation_name = "main_line"
+
+        main_line_object = SceneMeshObject()
+        main_line_object.name = annotation_name
+        main_line_object.color = "red"
+        main_line_object.line_width = 5
+        main_line_object.mesh = main_line
+
+        main_line_mesh = MeshObjectPlot(main_line_object, main_line_object.get_mesh())
+        self.all_scene_actors["annotations"]["range_profile"][annotation_name] = main_line_mesh
+        self.__add_mesh(main_line_mesh, plotter, "annotations")
+
+        # Ticks
+        tick_lines = pv.PolyData()
+        for tick in range(num_ticks + 1):  # create line with tick marks
+            if tick % 1 == 0:  # only do every nth tick
+                tick_pos_start = (range_first - range_resolution * tick, self.extents[3] * 10, z_mid)
+                tick_pos_end = (range_first - range_resolution * tick, self.extents[3] * 10 + tick_length, z_mid)
+                tick_lines += pv.Line(pointa=tick_pos_start, pointb=tick_pos_end)
+
+        annotation_name = "ticks"
+        tick_lines_object = SceneMeshObject()
+        tick_lines_object.name = annotation_name
+        tick_lines_object.color = tick_color
+        tick_lines_object.line_width = 2
+        tick_lines_object.mesh = tick_lines
+
+        tick_lines_mesh = MeshObjectPlot(tick_lines_object, tick_lines_object.get_mesh())
+        self.all_scene_actors["annotations"]["range_profile"][annotation_name] = tick_lines_mesh
+        self.__add_mesh(tick_lines_mesh, plotter, "annotations")
+
+        start_geo = pv.Disc(
+            center=(range_last, self.extents[3] * 10, z_mid), outer=tick_length, inner=0, normal=(-1, 0, 0), c_res=12
+        )
+
+        annotation_name = "disc"
+        start_geo_object = SceneMeshObject()
+        start_geo_object.name = annotation_name
+        start_geo_object.color = "red"
+        start_geo_object.line_width = 5
+        start_geo_object.mesh = start_geo
+
+        disc_geo_mesh = MeshObjectPlot(start_geo_object, start_geo_object.get_mesh())
+        self.all_scene_actors["annotations"]["range_profile"][annotation_name] = disc_geo_mesh
+        self.__add_mesh(disc_geo_mesh, plotter, "annotations")
+
+        end_geo = pv.Cone(
+            center=(range_first, self.extents[3] * 10, z_mid),
+            direction=(-1, 0, 0),
+            radius=tick_length,
+            height=tick_length * 2,
+            resolution=12,
+        )
+        annotation_name = "cone"
+        end_geo_object = SceneMeshObject()
+        end_geo_object.name = annotation_name
+        end_geo_object.color = "green"
+        end_geo_object.line_width = 5
+        end_geo_object.mesh = end_geo
+
+        end_geo_mesh = MeshObjectPlot(end_geo_object, end_geo_object.get_mesh())
+        self.all_scene_actors["annotations"]["range_profile"][annotation_name] = disc_geo_mesh
+        self.__add_mesh(end_geo_mesh, plotter, "annotations")
+
+        if show:
+            plotter.show()
+        else:
+            return plotter
+
+    @pyaedt_function_handler()
+    def plot_3d_scene(self, show=True, plotter=None):
+        if not plotter:
+            pv_backend = PyVistaBackend(allow_picking=True, plot_picked_names=True)
+            plotter = Plotter(backend=pv_backend)
+        else:
+            if getattr(plotter, "clear", None):
+                plotter.clear()
+            elif getattr(plotter, "_backend", None):
+                plotter._backend.pv_interface.scene.clear()
+
+        if self.all_scene_actors["plotter"]["model_added"]:
+            for geo in self.all_scene_actors["model"].values():
+                self.__add_mesh(geo, plotter, "model")
+
+        for annotations in self.all_scene_actors["annotations"]:
+            for annotation in self.all_scene_actors["annotations"][annotations].values():
+                self.__add_mesh(annotation, plotter, "annotations")
+
+        for all_scene_results in self.all_scene_actors["results"]:
+            for result_actor in self.all_scene_actors["results"][all_scene_results]:
+                self.__add_mesh(result_actor["actor"], plotter, "results")
+
+        if show:
+            plotter.show()
+        else:
+            return plotter
+
+    @pyaedt_function_handler()
+    def plot_3d_range_profile(
+        self,
+        show=True,
+        plotter=None,
+        plot_type="Line",
+        radius_offset=0,
+        waterfall=False,
+        color_bar="jet",
+    ):
+        # categories = ["jet", "jet_r", "magma", "magma_r", "nipy_spectral", "coolwarm", "viridis", "gray", "gray_r",
+        #               "seismic", "winter", "bone",
+        #               "blue", "green", "black", "red"]
+
+        if not plotter:
+            pv_backend = PyVistaBackend(allow_picking=True, plot_picked_names=True)
+            plotter = Plotter(backend=pv_backend)
+
+        data_range_profile = self.rcs_data.range_profile
+
+        min_height_for_renorm, max_height_for_renorm = get_min_max_height_window(plotter)
+
+        new_data = self.stretch_data(
+            data_range_profile, m=max_height_for_renorm - min_height_for_renorm, b=min_height_for_renorm
+        )
+
+        ranges = np.unique(new_data.index.get_level_values("Range"))
+        phis = np.unique(new_data.index.get_level_values("IWavePhi"))
+        thetas = np.unique(new_data.index.get_level_values("IWaveTheta"))
+
+        add_offset = 0.0 if not waterfall else ranges[-1]
+
+        cosphis = np.cos(np.radians(phis))
+        sinphis = np.sin(np.radians(phis))
+        sinthetas = np.sin(np.radians(thetas))
+        xpos = (-ranges + radius_offset + add_offset) * cosphis * sinthetas
+        ypos = (-ranges + radius_offset + add_offset) * sinphis * sinthetas
+        zpos = None
+        plot_data = new_data["data"].to_numpy()
+
+        # cpos = new_data['data'].to_numpy()
+
+        cpos = data_range_profile["data"].to_numpy()
+
+        actor = self.get_pyvista_actor(
+            xpos,
+            ypos,
+            zpos,
+            plot_data,
+            cpos,
+            plot_type=plot_type,
+            plotter=plotter,
+            scene_actors=self.all_scene_actors["model"],
+            data_conversion_function=self.rcs_data.data_conversion_function,
+        )
+
+        all_results_actors = list(self.all_scene_actors["results"].keys())
+
+        options = {"line_width": 1.0}
+        scalar_dict = dict(color="#000000", title="Range Profile")
+        options["scalar_bar_args"] = scalar_dict
+
+        if any(color_bar in x for x in ["blue", "green", "black", "red"]):
+            options["color"] = color_bar
+        else:
+            options["cmap"] = color_bar
+
+        self.__add_mesh(actor, plotter, options)
+
+        if "range_profile" not in all_results_actors:
+            self.all_scene_actors["results"]["range_profile"] = []
+
+        self.all_scene_actors["results"]["range_profile"].append({"actor": actor, "options": options})
+
+        if show:
+            plotter.show()
+        else:
+            return plotter
+
+    @staticmethod
+    def get_pyvista_actor(
+        xpos,
+        ypos,
+        zpos,
+        plot_data,
+        cpos,
+        plot_type="Line",
+        data_conversion_function="",
+        plotter=None,
+        scene_actors=None,
+        shape=None,
+    ):
+        if plotter is None:
+            return None
+
+        plot_type_lower = plot_type.lower()
+        actor = None
+
+        if (
+            plot_type_lower == "line"
+            or plot_type_lower == "ribbon"
+            or plot_type_lower == "rotated"
+            or plot_type_lower == "extruded"
+        ):
+            xyz_pos = np.stack((xpos, ypos, plot_data)).T
+            actor = pv.lines_from_points(xyz_pos)
+            actor[data_conversion_function] = cpos
+            if plot_type_lower == "ribbon":
+                norm_vect = [0, 0, 1]
+                min_width_for_renorm, max_width_for_renorm = get_min_max_width_window(plotter)
+                geo_width = max_width_for_renorm - min_width_for_renorm
+                actor = actor.ribbon(width=geo_width / 2, normal=norm_vect)
+            elif plot_type_lower == "rotated":
+                v = xyz_pos[-1] - xyz_pos[0]
+                v_hat = v / np.linalg.norm(v)
+                actor.extrude_rotate(rotation_axis=v_hat, capping=True, inplace=True)
+            elif plot_type_lower == "extruded":
+                plane = pv.Plane(
+                    center=(actor.center[0], actor.center[1], actor.bounds[4]),
+                    direction=(0, 0, -1),
+                    i_size=actor.bounds[1] - actor.bounds[0],
+                    j_size=actor.bounds[3] - actor.bounds[2],
+                )
+                actor.extrude_trim((0, 0, -1.0), plane, inplace=True)
+        elif "donut" in plot_type_lower or "disk" in plot_type_lower:
+            if "relief" not in plot_type_lower:
+                plot_data = plot_data * 0 + model_center[2]
+            actor = pv.StructuredGrid(xpos.reshape(shape), ypos.reshape(shape), plot_data.reshape(shape))
+            actor[data_conversion_function] = np.ndarray.flatten(cpos.reshape(shape), order="F")
+        elif plot_type_lower == "plane v" or plot_type_lower == "plane h":
+            zpos = np.zeros(shape=plot_data.shape)
+            xyz_pos = np.stack((xpos, ypos, zpos)).T
+            actor = pv.lines_from_points(xyz_pos)
+            actor[data_conversion_function] = cpos
+            if plot_type_lower == "plane v":
+                min_height_for_renorm, max_height_for_renorm = get_min_max_height_window(plotter)
+                geo_width = max_height_for_renorm - min_height_for_renorm
+                norm_vect = normal = [0, 1, 0]
+            else:
+                min_width_for_renorm, max_width_for_renorm = get_min_max_width_window(plotter)
+                geo_width = max_width_for_renorm - min_width_for_renorm
+                norm_vect = normal = [0, 0, 1]
+            actor = actor.ribbon(width=geo_width / 2, normal=norm_vect)
+        elif plot_type_lower == "plane" or plot_type_lower == "relief":
+            actor = pv.StructuredGrid(xpos.reshape(shape), ypos.reshape(shape), plot_data.reshape(shape))
+            actor[data_conversion_function] = cpos.reshape(shape).flatten(order="F")
+        elif plot_type_lower == "projection":
+            if scene_actors is None:
+                return None
+            actor = pv.PolyData()
+            for model_actor in scene_actors:
+                mesh = model_actor[0]
+                xypoints = mesh.points
+                xpos_ypos = np.column_stack((xpos, ypos, plot_data))
+                _, all_indices2 = find_nearest_neighbors(xpos_ypos, xypoints)
+                distances, all_indices = spatial.KDTree(xpos_ypos).query(xypoints)
+                mag_for_color = np.ndarray.flatten(cpos[all_indices])
+                if not mesh.__class__.__name__ == "PolyData":
+                    # need to convert dataset from UnstructuredGrid to PolyData for GLTF file
+                    mesh_triangulated = mesh.triangulate()
+                    model_actor[0] = pv.PolyData(mesh_triangulated.points, mesh_triangulated.cells)
+                else:
+                    # need to clear data for OBJ file
+                    model_actor[0].clear_data()
+                model_actor[0][data_conversion_function] = mag_for_color
+                actor += model_actor[0]
+        elif plot_type_lower == "point cloud" or plot_type_lower == "isosurface" or plot_type_lower == "plane cut":
+            x = list(sorted(np.unique(xpos)))
+            y = list(sorted(np.unique(ypos)))
+            z = list(sorted(np.unique(zpos)))
+            actor = pv.RectilinearGrid(x, y, z)
+            actor[data_conversion_function] = cpos
+        return actor
+
+    @pyaedt_function_handler()
+    def plot_2d_range_profile(
+        self,
+        title="Range profile",
+        output_file=None,
+        show=True,
+        show_legend=True,
+    ):
+        """Create a 2D plot of the range profile.
+
+        Parameters
+        ----------
+        title : str, optional
+            Plot title. The default is ``"RectangularPlot"``.
+        output_file : str, optional
+            Full path for the image file. The default is ``None``, in which case an image in not exported.
+        show : bool, optional
+            Whether to show the plot. The default is ``True``.
+            If ``False``, the Matplotlib instance of the plot is shown.
+        is_polar : bool, optional
+            Whether this plot is a polar plot. The default is ``True``.
+        show_legend : bool, optional
+            Whether to display the legend or not. The default is ``True``.
+
+        Returns
+        -------
+        :class:`matplotlib.pyplot.Figure`
+            Matplotlib figure object.
+            If ``show=True``, a Matplotlib figure instance of the plot is returned.
+            If ``show=False``, the plotted curve is returned.
+        """
+
+        data_range_profile = self.rcs_data.range_profile
+
+        ranges = np.unique(data_range_profile.index.get_level_values("Range"))
+        phis = np.unique(data_range_profile.index.get_level_values("IWavePhi"))
+        thetas = np.unique(data_range_profile.index.get_level_values("IWaveTheta"))
+
+        curves = []
+        n_range = len(ranges)
+        n_phi = len(phis)
+        n_theta = len(thetas)
+        values = data_range_profile["data"].to_numpy()
+        values = values.reshape((n_range, n_phi, n_theta), order="F")
+        y = values[:, 0, 0]
+        legend = f"Phi={np.round(phis[0], 3)} Theta={np.round(thetas[0], 3)}"
+        curves.append([ranges.tolist(), y.tolist(), legend])
+
+        return plot_2d_chart(
+            curves,
+            xlabel="Range (m)",
+            ylabel=f"Range Profile ({self.rcs_data.data_conversion_function})",
+            title=title,
+            snapshot_path=output_file,
+            show_legend=show_legend,
+            show=show,
+        )
+
+    @staticmethod
+    def stretch_data(data, m, b):
+        return (data - data.min()) / (data.max() - data.min()) * m + b
+
+    @staticmethod
+    def __add_mesh(mesh_object, plotter, mesh_type="results"):
+        """Add a mesh to the plotter with additional options."""
+        if mesh_type == "model":
+            options = mesh_object.custom_object.get_model_options()
+        elif mesh_type == "annotations":
+            options = mesh_object.custom_object.get_annotation_options()
+        else:
+            options = mesh_object.custom_object.get_result_options()
+
+        if options is None:
+            options = {}
+        if getattr(plotter, "plot", None):
+            plotter.plot(mesh_object.mesh, **options)
+        elif getattr(plotter, "add_mesh", None):
+            plotter.add_mesh(mesh_object.mesh, **options)
+
+    @staticmethod
+    def increment_name(base_name, existing_names):
+        if not isinstance(existing_names, list):
+            existing_names = list(existing_names)
+        if base_name in existing_names:
+            # split the name into a list of words
+            name_list = base_name.split(" ")
+            # check if the last word is a number
+            if name_list[-1].isdigit():
+                # if it is, increment it
+                name_list[-1] = str(int(name_list[-1]) + 1)
+            else:
+                # if it isn't, add a 2 to the end
+                name_list.append("2")
+            # join the list back into a string
+            base_name = " ".join(name_list)
+            # check if the new name is in the list of all tab names
+        return base_name
+
+    @pyaedt_function_handler()
+    def get_model_extent(self):
+        x_max, x_min, y_max, y_min, z_max, z_min = [], [], [], [], [], []
+
+        if len(self.all_scene_actors["model"]) == 0:
+            x_max = [0]
+            x_min = [0]
+            y_max = [0]
+            y_min = [0]
+            z_max = [0]
+            z_min = [0]
+        for each in self.all_scene_actors["model"].values():
+            x_max.append(each.mesh.bounds[1])
+            x_min.append(each.mesh.bounds[0])
+            y_max.append(each.mesh.bounds[3])
+            y_min.append(each.mesh.bounds[2])
+            z_max.append(each.mesh.bounds[5])
+            z_min.append(each.mesh.bounds[4])
+        self.__x_max, self.__x_min = max(x_max), min(x_min)
+        self.__y_max, self.__y_min = max(y_max), min(y_min)
+        self.__z_max, self.__z_min = max(z_max), min(z_min)
+
+    @pyaedt_function_handler()
+    def __get_geometry(self, off_screen=False):
+        """Get 3D meshes."""
+        model_info = self.model_info
+        obj_meshes = {}
+        model_pv = ModelPlotter()
+        first_value = next(iter(model_info.values()))
+        self.__model_units = first_value[3]
+        model_pv.off_screen = off_screen
+        for object_in in model_info.values():
+            cad_path = os.path.join(self.rcs_data.output_dir, object_in[0])
+            if os.path.exists(cad_path):
+                model_pv.add_object(
+                    cad_path,
+                    object_in[1],
+                    object_in[2],
+                    object_in[3],
+                )
+            else:
+                self.logger.warning(f"{cad_path} does not exist.")
+                return False
+        self.__model_units = first_value[3]
+        model_pv.generate_geometry_mesh()
+        for obj in model_pv.objects:
+            # mesh = obj._cached_polydata
+            # translated_mesh = mesh.copy()
+            color_cad = [i / 255 for i in obj.color]
+            obj.color = color_cad
+
+            model_object = SceneMeshObject()
+            model_object.color = color_cad
+            model_object.opacity = obj.opacity
+            model_object.name = obj.name
+            model_object.mesh = obj._cached_polydata
+
+            mesh_object = MeshObjectPlot(model_object, model_object.get_mesh())
+            obj_meshes[obj.name] = mesh_object
+        model_pv.close()
+        return obj_meshes
+
+
+class SceneMeshObject:
+    def __init__(self):
+        self.name = "CustomObject"
+        self.opacity = 1.0
+        self.color = "red"
+        self.line_width = 1.0
+        self.mesh = pv.Cube()
+
+    def get_mesh(self):
+        return self.mesh
+
+    def name(self):
+        return self.name
+
+    def line_width(self):
+        return self.name
+
+    def opacity(self):
+        return self.opacity
+
+    def color(self):
+        return self.color
+
+    def get_model_options(self):
+        return {"color": self.color, "opacity": self.opacity}
+
+    def get_annotation_options(self):
+        return {"color": self.color, "line_width": self.line_width}
+
+
+def find_nearest_neighbors(xpos_ypos, xypoints):
+    # Calculate squared Euclidean distance between each point in xypoints and xpos_ypos
+    distances = np.sqrt(((xpos_ypos[:, np.newaxis] - xypoints) ** 2).sum(axis=2))
+
+    # Find the index of the nearest neighbor for each query point in xypoints
+    all_indices = np.argmin(distances, axis=0)
+
+    # Get the distance for each query point (optional, can be removed if not needed)
+    nearest_distances = np.min(distances, axis=0)
+
+    return nearest_distances, all_indices
+
+
+def get_min_max_height_window(plotter):
+    bounds = None
+    if getattr(plotter, "bounds", None):
+        bounds = plotter.bounds
+    elif getattr(plotter, "_backend", None):
+        bounds = plotter._backend.pv_interface.scene.bounds
+
+    if bounds:
+        return bounds[-2], bounds[-1]
+    else:
+        return 0, 10
+
+
+def get_min_max_width_window(plotter):
+    bounds = None
+    if getattr(plotter, "bounds", None):
+        bounds = plotter.bounds
+    elif getattr(plotter, "_backend", None):
+        bounds = plotter._backend.pv_interface.scene.bounds
+
+    if bounds:
+        x_max, x_min = max(bounds[0], bounds[1]), min(bounds[0], bounds[1])
+        y_max, y_min = max(bounds[2], bounds[3]), min(bounds[2], bounds[3])
+        radius_max = max([abs(x_max), abs(x_min), abs(y_max), abs(y_min)])
+        return -radius_max, radius_max
+    else:
+        return -10, 10
