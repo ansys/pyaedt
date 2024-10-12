@@ -78,7 +78,7 @@ doc = [
     "recommonmark",
     "Sphinx>=7.1.0,<8.1",
     # NOTE: latest compatible version for Python 3.8 is 2021.3.14
-    "sphinx-autobuild==2021.3.14; python_version == '3.8'",
+    "sphinx-autobuild==2024.10.3; python_version == '3.8'",
     "sphinx-autobuild==2024.10.3; python_version > '3.8'",
     "sphinx-copybutton>=0.5.0,<0.6",
     "sphinx-gallery>=0.14.0,<0.18",
