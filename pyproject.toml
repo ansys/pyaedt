@@ -76,7 +76,7 @@ doc = [
     "ansys-sphinx-theme>=0.10.0,<1.1",
     "numpydoc>=1.5.0,<1.9",
     "recommonmark",
-    "Sphinx>=7.1.0,<8.1",
+    "Sphinx>=7.1.0,<8.2",
     # NOTE: latest compatible version for Python 3.8 is 2021.3.14
     "sphinx-autobuild==2021.3.14; python_version == '3.8'",
     "sphinx-autobuild==2024.10.3; python_version > '3.8'",
