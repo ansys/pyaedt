@@ -175,7 +175,7 @@ class MonostaticRCSData(object):
     @property
     def incident_wave_theta(self):
         """Active incident wave Theta."""
-        if not self.__incident_wave_theta:
+        if self.__incident_wave_theta is None:
             self.__incident_wave_theta = self.available_incident_wave_theta[0]
         return self.__incident_wave_theta
 
@@ -197,7 +197,7 @@ class MonostaticRCSData(object):
     @property
     def incident_wave_phi(self):
         """Active incident wave Phi."""
-        if not self.__incident_wave_phi:
+        if self.__incident_wave_phi is None:
             self.__incident_wave_phi = self.available_incident_wave_phi[0]
         return self.__incident_wave_phi
 
@@ -663,6 +663,96 @@ class MonostaticRCSPlotter(object):
             plotter.show()
         else:
             return plotter
+
+    @pyaedt_function_handler()
+    def add_rcs(
+        self,
+        plot_type="Line",
+        color_bar="jet",
+        primary_sweep="IWaveTheta",
+        secondary_sweep_value=None,
+    ):
+        """
+        Add the 3D RCS.
+        """
+        data_rcs = self.rcs_data.rcs
+
+        if primary_sweep.lower() == "iwavephi":
+            y_key = "IWaveTheta"
+            if secondary_sweep_value is None:
+                secondary_sweep_value = self.rcs_data.incident_wave_theta
+        else:
+            y_key = "IWavePhi"
+            if secondary_sweep_value is None:
+                secondary_sweep_value = self.rcs_data.incident_wave_phi
+
+        if secondary_sweep_value is None:
+            return False
+
+        data = data_rcs.xs(key=secondary_sweep_value, level=y_key)
+        y = data.values
+        if not isinstance(y, np.ndarray):  # pragma: no cover
+            raise Exception("Format of quantity is wrong.")
+
+        new_data = self.stretch_data(data, scaling_factor=self.extents[5] - self.extents[4], offset=self.extents[4])
+
+        if y_key == "IWavePhi":
+            thetas = np.unique(new_data.index.get_level_values("IWaveTheta"))
+            phis = secondary_sweep_value
+        else:
+            phis = np.unique(new_data.index.get_level_values("IWavePhi"))
+            thetas = secondary_sweep_value
+
+        cosphis = np.cos(np.radians(phis))
+        sinphis = np.sin(np.radians(phis))
+        sinthetas = np.sin(np.radians(thetas))
+        xpos = cosphis * sinthetas
+        ypos = sinphis * sinthetas
+        zpos = None
+        plot_data = new_data.to_numpy()
+
+        cpos = data.to_numpy()
+
+        actor = self._get_pyvista_rcs_actor(
+            xpos,
+            ypos,
+            zpos,
+            plot_data,
+            cpos,
+            plot_type=plot_type,
+            scene_actors=self.all_scene_actors["model"],
+            data_conversion_function=self.rcs_data.data_conversion_function,
+            extents=self.extents,
+        )
+
+        all_results_actors = list(self.all_scene_actors["results"].keys())
+
+        if "rcs" not in all_results_actors:
+            self.all_scene_actors["results"]["rcs"] = {}
+
+        index = 0
+        while f"rcs_{index}" in self.all_scene_actors["results"]["rcs"]:
+            index += 1
+
+        rcs_name = f"rcs_{index}"
+
+        rcs_object = SceneMeshObject()
+        rcs_object.name = rcs_name
+        rcs_object.line_width = 1.0
+
+        scalar_dict = dict(color="#000000", title="Range Profile")
+        rcs_object.scalar_dict = scalar_dict
+
+        if any(color_bar in x for x in ["blue", "green", "black", "red"]):
+            rcs_object.color = color_bar
+        else:
+            rcs_object.cmap = color_bar
+
+        rcs_object.mesh = actor
+
+        rcs_mesh = MeshObjectPlot(rcs_object, rcs_object.get_mesh())
+
+        self.all_scene_actors["results"]["rcs"][rcs_name] = rcs_mesh
 
     @pyaedt_function_handler()
     def add_range_profile_settings(self, size_range=10, range_resolution=0.1, tick_color="#000000"):
