@@ -509,7 +509,7 @@ class MeshSettings(object):
         for k, v in self._instance_settings.items():
             out.append(k + ":=")
             if k in ["MaxElementSizeX", "MaxElementSizeY", "MaxElementSizeZ", "MinGapX", "MinGapY", "MinGapZ"]:
-                v = _dim_arg(v, getattr(self._mesh_class, "_model_units"))
+                v = _dim_arg(v, self._mesh_class._model_units)
             out.append(v)
         out += ["UserSpecifiedSettings:=", getattr(self._mesh_class, "manual_settings")]
         return out
