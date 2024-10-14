@@ -133,16 +133,12 @@ def run_pyinstaller_from_c_python(oDesktop):
         if version <= "231":
             f.write("from pyaedt.workflows.installer.pyaedt_installer import add_pyaedt_to_aedt\n")
             f.write(
-                'add_pyaedt_to_aedt(aedt_version="{}", personallib=r"{}")\n'.format(
-                    oDesktop.GetVersion()[:6], oDesktop.GetPersonalLibDirectory()
-                )
+                f'add_pyaedt_to_aedt(aedt_version="{oDesktop.GetVersion()[:6]}", personallib=r"{oDesktop.GetPersonalLibDirectory()}")\n'
             )
         else:
             f.write("from ansys.aedt.core.workflows.installer.pyaedt_installer import add_pyaedt_to_aedt\n")
             f.write(
-                'add_pyaedt_to_aedt(aedt_version="{}", personal_lib=r"{}")\n'.format(
-                    oDesktop.GetVersion()[:6], oDesktop.GetPersonalLibDirectory()
-                )
+                f'add_pyaedt_to_aedt(aedt_version="{oDesktop.GetVersion()[:6]}", personal_lib=r"{oDesktop.GetPersonalLibDirectory()}")\n'
             )
 
     command = f'"{python_exe}" "{python_script}"'
@@ -206,21 +202,17 @@ def install_pyaedt():
         pip_exe = os.path.join(venv_dir, "bin", "pip")
         os.environ[f"ANSYSEM_ROOT{args.version}"] = args.edt_root
         ld_library_path_dirs_to_add = [
-            "{}/commonfiles/CPython/{}/linx64/Release/python/lib".format(
-                args.edt_root, args.python_version.replace(".", "_")
-            ),
-            "{}/common/mono/Linux64/lib64".format(args.edt_root),
-            "{}".format(args.edt_root),
+            f"{args.edt_root}/commonfiles/CPython/{args.python_version.replace('.', '_')}/linx64/Release/python/lib",
+            f"{args.edt_root}/common/mono/Linux64/lib64",
+            f"{args.edt_root}",
         ]
         if args.version < "232":
             ld_library_path_dirs_to_add.append(f"{args.edt_root}/Delcross")
         os.environ["LD_LIBRARY_PATH"] = ":".join(ld_library_path_dirs_to_add) + ":" + os.getenv("LD_LIBRARY_PATH", "")
-        os.environ["TK_LIBRARY"] = "{}/commonfiles/CPython/{}/linx64/Release/python/lib/tk8.5".format(
-            args.edt_root, args.python_version.replace(".", "_")
-        )
-        os.environ["TCL_LIBRARY"] = "{}/commonfiles/CPython/{}/linx64/Release/python/lib/tcl8.5".format(
-            args.edt_root, args.python_version.replace(".", "_")
-        )
+        os.environ["TK_LIBRARY"] = (f"{args.edt_root}/commonfiles/CPython/{args.python_version.replace('.', '_')}"
+                                    f"/linx64/Release/python/lib/tk8.5")
+        os.environ["TCL_LIBRARY"] = (f"{args.edt_root}/commonfiles/CPython/{args.python_version.replace('.', '_')}"
+                                     f"/linx64/Release/python/lib/tcl8.5")
     response = disclaimer()
     if not response:
         exit(1)
@@ -250,15 +242,11 @@ def install_pyaedt():
                 unzipped_path = wheel_pyaedt
             if args.version <= "231":
                 run_command(
-                    '"{}" install --no-cache-dir --no-index --find-links={} pyaedt[all,dotnet]'.format(
-                        pip_exe, unzipped_path
-                    )
+                    f'"{pip_exe}" install --no-cache-dir --no-index --find-links={unzipped_path} pyaedt[all,dotnet]'
                 )
             else:
                 run_command(
-                    '"{}" install --no-cache-dir --no-index --find-links={} pyaedt[installer]'.format(
-                        pip_exe, unzipped_path
-                    )
+                    f'"{pip_exe}" install --no-cache-dir --no-index --find-links={unzipped_path} pyaedt[installer]'
                 )
 
         else:
@@ -294,15 +282,11 @@ def install_pyaedt():
                 zip_ref.extractall(unzipped_path)
             if args.version <= "231":
                 run_command(
-                    '"{}" install --no-cache-dir --no-index --find-links={} pyaedt[all]=="0.9.0"'.format(
-                        pip_exe, unzipped_path
-                    )
+                    f'"{pip_exe}" install --no-cache-dir --no-index --find-links={unzipped_path} pyaedt[all]=="0.9.0"'
                 )
             else:
                 run_command(
-                    '"{}" install --no-cache-dir --no-index --find-links={} pyaedt[installer]'.format(
-                        pip_exe, unzipped_path
-                    )
+                    f'"{pip_exe}" install --no-cache-dir --no-index --find-links={unzipped_path} pyaedt[installer]'
                 )
         else:
             if args.version <= "231":
