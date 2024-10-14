@@ -687,8 +687,9 @@ class Desktop(object):
         # save the current desktop session in the database
         _desktop_sessions[self.aedt_process_id] = self
 
-        # Register the desktop closure to be called at exit.
-        atexit.register(self.close_desktop)
+        # Register the desktop closure to be called at exit unless asked not not.
+        if close_on_exit:
+            atexit.register(self.close_desktop)
 
     def __enter__(self):
         return self

@@ -65,7 +65,7 @@ def check_file(file_path, oDesktop):
 
 
 def get_linux_terminal():
-    for terminal in ["x-terminal-emulator", "konsole", "xterm", "gnome-terminal", "lxterminal", "mlterm"]:
+    for terminal in ["x-terminal-emulator", "xterm", "gnome-terminal", "lxterminal", "mlterm"]:
         term = which(terminal)
         if term:
             return term

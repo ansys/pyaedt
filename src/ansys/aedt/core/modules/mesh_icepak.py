@@ -509,12 +509,9 @@ class MeshSettings(object):
         for k, v in self._instance_settings.items():
             out.append(k + ":=")
             if k in ["MaxElementSizeX", "MaxElementSizeY", "MaxElementSizeZ", "MinGapX", "MinGapY", "MinGapZ"]:
-                v = _dim_arg(v, getattr(self._mesh_class, "_model_units"))
+                v = _dim_arg(v, self._mesh_class._model_units)
             out.append(v)
-        out.append(
-            "UserSpecifiedSettings:=",
-        )
-        out.append("MeshRegionResolution" in self.keys())
+        out += ["UserSpecifiedSettings:=", self._mesh_class.manual_settings]
         return out
 
     def parse_settings_as_dictionary(self):
@@ -1196,7 +1193,7 @@ class IcepakMesh(object):
         """
         level_order = {}
         for obj in mesh_order:
-            if mesh_order[obj] not in level_order.keys():
+            if mesh_order[obj] not in level_order:
                 level_order[mesh_order[obj]] = []
             level_order[mesh_order[obj]].append(obj)
         list_meshops = []
