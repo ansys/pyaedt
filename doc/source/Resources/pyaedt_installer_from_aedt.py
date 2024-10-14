@@ -1,14 +1,53 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import argparse
 import os
-import sys
 import platform
 import shutil
+import sys
 
 is_iron_python = platform.python_implementation().lower() == "ironpython"
 is_linux = os.name == "posix"
 is_windows = not is_linux
 
 VENV_DIR_PREFIX = ".pyaedt_env"
+
+
+def disclaimer():
+    """Notify users about extra packages."""
+    DISCLAIMER = (
+        "This script will download and install certain third-party software and/or "
+        "open-source software (collectively, 'Third-Party Software'). Such Third-Party "
+        "Software is subject to separate terms and conditions and not the terms of your "
+        "Ansys software license agreement. Ansys does not warrant or support such "
+        "Third-Party Software."
+    )
+    print(DISCLAIMER)
+
+    response = input("Do you want to proceed ? (y/n)").strip().lower()
+    return response == "y"
 
 
 def run_pyinstaller_from_c_python(oDesktop):
@@ -22,11 +61,17 @@ def run_pyinstaller_from_c_python(oDesktop):
     edt_root = os.path.normpath(oDesktop.GetExeDir())
     # CPython interpreter executable
     if is_windows:
-        python_exe = os.path.normpath(os.path.join(edt_root, "commonfiles", "CPython", python_version_new,
-                                                   "winx64", "Release", "python", "python.exe"))
+        python_exe = os.path.normpath(
+            os.path.join(
+                edt_root, "commonfiles", "CPython", python_version_new, "winx64", "Release", "python", "python.exe"
+            )
+        )
     else:
-        python_exe = os.path.normpath(os.path.join(edt_root, "commonfiles", "CPython", python_version_new,
-                                                   "linx64", "Release", "python", "runpython"))
+        python_exe = os.path.normpath(
+            os.path.join(
+                edt_root, "commonfiles", "CPython", python_version_new, "linx64", "Release", "python", "runpython"
+            )
+        )
 
     # Launch this script again from the CPython interpreter. This calls the ``install_pyaedt()`` method,
     # which creates a virtual environment and installs PyAEDT and its dependencies
@@ -42,14 +87,16 @@ def run_pyinstaller_from_c_python(oDesktop):
     oDesktop.AddMessage("", "", 0, "Installing PyAEDT.")
     if is_windows:
         import subprocess
+
         process = subprocess.Popen(" ".join(command))
         process.wait()
         return_code = process.returncode
         err_msg = "There was an error while installing PyAEDT."
     else:
         return_code = run_command(" ".join(command))
-        err_msg = "There was an error while installing PyAEDT. Refer to the Terminal window where AEDT was launched " \
-                  "from."
+        err_msg = (
+            "There was an error while installing PyAEDT. Refer to the Terminal window where AEDT was launched " "from."
+        )
 
     if str(return_code) != "0":
         oDesktop.AddMessage("", "", 2, err_msg)
@@ -69,14 +116,13 @@ def run_pyinstaller_from_c_python(oDesktop):
     if is_linux:
         for dirpath, dirnames, _ in os.walk(venv_dir):
             if "site-packages" in dirnames:
-                pyaedt_path = os.path.normpath(
-                    os.path.join(dirpath, "site-packages", "ansys", "aedt", "core")
-                )
+                pyaedt_path = os.path.normpath(os.path.join(dirpath, "site-packages", "ansys", "aedt", "core"))
                 if os.path.isdir(pyaedt_path):
                     break
 
     # Create Toolkits in PersonalLib
     import tempfile
+
     python_script = os.path.join(tempfile.gettempdir(), "configure_pyaedt.py")
     if os.path.isfile(python_script):
         os.remove(python_script)
@@ -88,12 +134,16 @@ def run_pyinstaller_from_c_python(oDesktop):
             f.write("from pyaedt.workflows.installer.pyaedt_installer import add_pyaedt_to_aedt\n")
             f.write(
                 'add_pyaedt_to_aedt(aedt_version="{}", personallib=r"{}")\n'.format(
-                    oDesktop.GetVersion()[:6], oDesktop.GetPersonalLibDirectory()))
+                    oDesktop.GetVersion()[:6], oDesktop.GetPersonalLibDirectory()
+                )
+            )
         else:
             f.write("from ansys.aedt.core.workflows.installer.pyaedt_installer import add_pyaedt_to_aedt\n")
             f.write(
                 'add_pyaedt_to_aedt(aedt_version="{}", personal_lib=r"{}")\n'.format(
-                    oDesktop.GetVersion()[:6], oDesktop.GetPersonalLibDirectory()))
+                    oDesktop.GetVersion()[:6], oDesktop.GetPersonalLibDirectory()
+                )
+            )
 
     command = r'"{}" "{}"'.format(python_exe, python_script)
     oDesktop.AddMessage("", "", 0, "Configuring PyAEDT panels in automation tab.")
@@ -107,13 +157,18 @@ def run_pyinstaller_from_c_python(oDesktop):
         oDesktop.RefreshToolkitUI()
     msg = "PyAEDT configuration complete."
     if is_linux:
-        msg += " Please ensure Ansys Electronics Desktop is launched in gRPC mode (i.e. launch ansysedt with -grpcsrv" \
-               " argument) to take advantage of the new toolkits."
+        msg += (
+            " Please ensure Ansys Electronics Desktop is launched in gRPC mode (i.e. launch ansysedt with -grpcsrv"
+            " argument) to take advantage of the new toolkits."
+        )
 
     if "GetIsNonGraphical" in oDesktop.__dir__() and not oDesktop.GetIsNonGraphical():
-        from System.Windows.Forms import MessageBox, MessageBoxButtons, MessageBoxIcon
+        from System.Windows.Forms import MessageBox
+        from System.Windows.Forms import MessageBoxButtons
+        from System.Windows.Forms import MessageBoxIcon
+
         oDesktop.AddMessage("", "", 0, msg)
-        MessageBox.Show(msg, 'Info', MessageBoxButtons.OK, MessageBoxIcon.Information)
+        MessageBox.Show(msg, "Info", MessageBoxButtons.OK, MessageBoxIcon.Information)
     oDesktop.AddMessage("", "", 0, "Create a project if the PyAEDT panel is not visible.")
 
 
@@ -151,22 +206,24 @@ def install_pyaedt():
         pip_exe = os.path.join(venv_dir, "bin", "pip")
         os.environ["ANSYSEM_ROOT{}".format(args.version)] = args.edt_root
         ld_library_path_dirs_to_add = [
-            "{}/commonfiles/CPython/{}/linx64/Release/python/lib".format(args.edt_root,
-                                                                         args.python_version.replace(".", "_")),
+            "{}/commonfiles/CPython/{}/linx64/Release/python/lib".format(
+                args.edt_root, args.python_version.replace(".", "_")
+            ),
             "{}/common/mono/Linux64/lib64".format(args.edt_root),
             "{}".format(args.edt_root),
         ]
         if args.version < "232":
             ld_library_path_dirs_to_add.append("{}/Delcross".format(args.edt_root))
         os.environ["LD_LIBRARY_PATH"] = ":".join(ld_library_path_dirs_to_add) + ":" + os.getenv("LD_LIBRARY_PATH", "")
-        os.environ["TK_LIBRARY"] = ("{}/commonfiles/CPython/{}/linx64/Release/python/lib/tk8.5".
-                                    format(args.edt_root,
-                                           args.python_version.replace(
-                                               ".", "_")))
-        os.environ["TCL_LIBRARY"] = ("{}/commonfiles/CPython/{}/linx64/Release/python/lib/tcl8.5".
-                                     format(args.edt_root,
-                                            args.python_version.replace(
-                                                ".", "_")))
+        os.environ["TK_LIBRARY"] = "{}/commonfiles/CPython/{}/linx64/Release/python/lib/tk8.5".format(
+            args.edt_root, args.python_version.replace(".", "_")
+        )
+        os.environ["TCL_LIBRARY"] = "{}/commonfiles/CPython/{}/linx64/Release/python/lib/tcl8.5".format(
+            args.edt_root, args.python_version.replace(".", "_")
+        )
+    response = disclaimer()
+    if not response:
+        exit(1)
 
     if not os.path.exists(venv_dir):
 
@@ -179,11 +236,13 @@ def install_pyaedt():
             wheel_pyaedt = args.wheel
             if wheel_pyaedt.endswith(".zip"):
                 import zipfile
-                unzipped_path = os.path.join(os.path.dirname(wheel_pyaedt),
-                                             os.path.splitext(os.path.basename(wheel_pyaedt))[0])
+
+                unzipped_path = os.path.join(
+                    os.path.dirname(wheel_pyaedt), os.path.splitext(os.path.basename(wheel_pyaedt))[0]
+                )
                 if os.path.exists(unzipped_path):
                     shutil.rmtree(unzipped_path, ignore_errors=True)
-                with zipfile.ZipFile(wheel_pyaedt, 'r') as zip_ref:
+                with zipfile.ZipFile(wheel_pyaedt, "r") as zip_ref:
                     # Extract all contents to a directory. (You can specify a different extraction path if needed.)
                     zip_ref.extractall(unzipped_path)
             else:
@@ -191,12 +250,16 @@ def install_pyaedt():
                 unzipped_path = wheel_pyaedt
             if args.version <= "231":
                 run_command(
-                    '"{}" install --no-cache-dir --no-index --find-links={} pyaedt[all,dotnet]'.format(pip_exe,
-                                                                                                       unzipped_path))
+                    '"{}" install --no-cache-dir --no-index --find-links={} pyaedt[all,dotnet]'.format(
+                        pip_exe, unzipped_path
+                    )
+                )
             else:
                 run_command(
-                    '"{}" install --no-cache-dir --no-index --find-links={} pyaedt[installer]'.format(pip_exe,
-                                                                                                      unzipped_path))
+                    '"{}" install --no-cache-dir --no-index --find-links={} pyaedt[installer]'.format(
+                        pip_exe, unzipped_path
+                    )
+                )
 
         else:
             run_command('"{}" -m pip install --upgrade pip'.format(python_exe))
@@ -220,19 +283,27 @@ def install_pyaedt():
         if args.wheel and os.path.exists(args.wheel):
             wheel_pyaedt = args.wheel
             import zipfile
-            unzipped_path = os.path.join(os.path.dirname(wheel_pyaedt),
-                                         os.path.splitext(os.path.basename(wheel_pyaedt))[0])
+
+            unzipped_path = os.path.join(
+                os.path.dirname(wheel_pyaedt), os.path.splitext(os.path.basename(wheel_pyaedt))[0]
+            )
             if os.path.exists(unzipped_path):
                 shutil.rmtree(unzipped_path, ignore_errors=True)
-            with zipfile.ZipFile(wheel_pyaedt, 'r') as zip_ref:
+            with zipfile.ZipFile(wheel_pyaedt, "r") as zip_ref:
                 # Extract all contents to a directory. (You can specify a different extraction path if needed.)
                 zip_ref.extractall(unzipped_path)
             if args.version <= "231":
-                run_command('"{}" install --no-cache-dir --no-index --find-links={} pyaedt[all]=="0.9.0"'.format(pip_exe,
-                                                                                                               unzipped_path))
+                run_command(
+                    '"{}" install --no-cache-dir --no-index --find-links={} pyaedt[all]=="0.9.0"'.format(
+                        pip_exe, unzipped_path
+                    )
+                )
             else:
-                run_command('"{}" install --no-cache-dir --no-index --find-links={} pyaedt[installer]'.format(pip_exe,
-                                                                                                              unzipped_path))
+                run_command(
+                    '"{}" install --no-cache-dir --no-index --find-links={} pyaedt[installer]'.format(
+                        pip_exe, unzipped_path
+                    )
+                )
         else:
             if args.version <= "231":
                 run_command('"{}" --default-timeout=1000 install pyaedt[all]=="0.9.0"'.format(pip_exe))
