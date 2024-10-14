@@ -152,7 +152,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         if location == None:
             location = []
 
-        id = self.create_component(
+        id =self.create_component(
             name,
             component_library="Passive Elements",
             component_name="Ind",
@@ -194,7 +194,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         """
         if location is None:
             location = []
-        id = self.create_component(
+        id =self.create_component(
             name,
             component_library="Passive Elements",
             component_name="Cap",
@@ -286,7 +286,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         return id
 
     @pyaedt_function_handler(compname="name")
-    def create_ISin(self, name=None, value=1, location=None, angle=0, use_instance_id_netlist=False):
+    def create_isin(self, name=None, value=1, location=None, angle=0, use_instance_id_netlist=False):
         """Create a sinusoidal current source.
 
         Parameters
@@ -328,7 +328,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         return id
 
     @pyaedt_function_handler(compname="name")
-    def create_VSin(self, name=None, value=1, location=None, angle=0, use_instance_id_netlist=False):
+    def create_vsin(self, name=None, value=1, location=None, angle=0, use_instance_id_netlist=False):
         """Create a sinusoidal voltage source.
 
         Parameters
