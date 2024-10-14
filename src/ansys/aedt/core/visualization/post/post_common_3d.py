@@ -435,7 +435,7 @@ class PostProcessor3D(PostProcessorCommon):
         Returns
         -------
         float
-            ``True`` when successful, ``False`` when failed.
+            Scalar field value.
 
         References
         ----------
@@ -941,8 +941,8 @@ class PostProcessor3D(PostProcessorCommon):
 
         Returns
         -------
-        str
-            File path when successful.
+        str or bool
+            File path when successful or ``False`` when it fails.
 
         References
         ----------
@@ -1622,8 +1622,6 @@ class PostProcessor3D(PostProcessorCommon):
         ----------
         >>> oModule.CreateFieldPlot
         """
-        if intrinsics is None:
-            intrinsics = {}
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
@@ -1772,13 +1770,30 @@ class PostProcessor3D(PostProcessorCommon):
 
         >>> oModule.CreateFieldPlot
         """
+        assignment = self.modeler.convert_to_selections(assignment, True)
+
+        list_type = "ObjList"
+        obj_list = []
+        for element in assignment:
+            if element not in list(self.modeler.objects_by_name.keys()):
+                self.logger.error(f"{element} does not exist in current design")
+                return False
+            elif (
+                self.modeler.objects_by_name[element].is_conductor
+                and not self.modeler.objects_by_name[element].solve_inside
+            ):
+                self.logger.warning(f"Solve inside is unchecked for {element} object. Creating a surface plot instead.")
+                list_type = "FacesList"
+                obj_list.extend([face for face in self._app.modeler[element].faces if face.id not in obj_list])
+            else:
+                obj_list.append(element)
         intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
 
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
         return self._create_fieldplot(
-            assignment, quantity, setup, intrinsics, "ObjList", plot_name, field_type=field_type
+            obj_list, quantity, setup, intrinsics, list_type, plot_name, field_type=field_type
         )
 
     @pyaedt_function_handler(fileName="file_name", plotName="plot_name", foldername="folder_name")
