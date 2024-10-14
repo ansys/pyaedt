@@ -152,7 +152,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         if location == None:
             location = []
 
-        id =self.create_component(
+        id = self.create_component(
             name,
             component_library="Passive Elements",
             component_name="Ind",
@@ -194,7 +194,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         """
         if location is None:
             location = []
-        id =self.create_component(
+        id = self.create_component(
             name,
             component_library="Passive Elements",
             component_name="Cap",

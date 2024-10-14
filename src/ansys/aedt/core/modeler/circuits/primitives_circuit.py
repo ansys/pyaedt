@@ -1262,7 +1262,7 @@ class CircuitComponents(object):
             return False
 
     @pyaedt_function_handler()
-    def create_page(self,name):
+    def create_page(self, name):
         """Add a new circuit schematic page.
 
         Parameters
@@ -1284,7 +1284,7 @@ class CircuitComponents(object):
         >>>schematic.create_page (name="NewPageName")
 
         """
-        if not isinstance(name,(str,int,float)):
+        if not isinstance(name, (str, int, float)):
             self.logger.error("Argument 'name' to 'create_page' is not of data type String, Integer or Float.")
             return False
         self.oeditor.CreatePage(name)
