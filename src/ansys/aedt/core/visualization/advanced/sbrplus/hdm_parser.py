@@ -65,7 +65,7 @@ class Parser:
         try:
             self.header = ast.literal_eval(header)
         except (ValueError, SyntaxError) as e:
-            pyaedt_logger.error("Header of file '{}' is not a valid dictionary.".format(filename))
+            pyaedt_logger.error(f"Header of file '{filename}' is not a valid dictionary.")
             raise e
 
         self._read_header()

@@ -1337,9 +1337,7 @@ class ModelPlotter(CommonPlotter):
 
         def s_callback():  # pragma: no cover
             """save screenshots"""
-            exp = os.path.join(
-                path_image, "{}{}{}".format(root_name, datetime.now().strftime("%Y_%M_%d_%H-%M-%S"), format)
-            )
+            exp = os.path.join(path_image, f'{root_name}{datetime.now().strftime("%Y_%M_%d_%H-%M-%S")}{format}')
             self.pv.screenshot(exp, return_img=False)
 
         self.pv.add_key_event("s", s_callback)

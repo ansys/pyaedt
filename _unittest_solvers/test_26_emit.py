@@ -686,7 +686,7 @@ class TestClass:
     def test_13_static_type_generation(self):
         domain = self.aedtapp.results.interaction_domain()
         py_version = f"EmitApiPython{sys.version_info[0]}{sys.version_info[1]}"
-        assert str(type(domain)) == "<class '{}.InteractionDomain'>".format(py_version)
+        assert str(type(domain)) == f"<class '{py_version}.InteractionDomain'>"
 
         # assert str(type(TxRxMode)) == "<class '{}.tx_rx_mode'>".format(py_version)
         assert str(type(TxRxMode.RX)) == f"<class '{py_version}.tx_rx_mode'>"

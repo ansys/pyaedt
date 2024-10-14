@@ -182,7 +182,7 @@ class CSVDataset:
                     found_variable = True
                     break
             if not found_variable:
-                raise KeyError("Input string {} is not a key of the data dictionary.".format(variable))
+                raise KeyError(f"Input string {variable} is not a key of the data dictionary.")
             data_out._data[variable] = self._data[key_string]
             data_out._header.append(variable)
         return data_out
@@ -329,12 +329,12 @@ def _generate_property_validation_errors(property_name, expected, actual):
 
     if isinstance(expected_value, (float, int)) and isinstance(actual_value, (float, int)):
         if not check_numeric_equivalence(expected_value, actual_value, 1e-9):
-            yield "Value Error {0}: Expected {1}, got {2}".format(property_name, expected, actual)
+            yield f"Value Error {property_name}: Expected {expected}, got {actual}"
         if expected_unit != actual_unit:
-            yield "Unit Error {0}: Expected {1}, got {2}".format(property_name, expected_unit, actual_unit)
+            yield f"Unit Error {property_name}: Expected {expected_unit}, got {actual_unit}"
     else:
         if expected != actual:
-            yield "Error {0}: Expected {1}, got {2}".format(property_name, expected, actual)
+            yield f"Error {property_name}: Expected {expected}, got {actual}"
 
 
 @pyaedt_function_handler()
@@ -1076,7 +1076,7 @@ class VariableManager(object):
             ]:
                 tab_name = "DefinitionParameterTab"
             if self._app.design_type in ["HFSS 3D Layout Design", "Circuit Design", "Maxwell Circuit", "Twin Builder"]:
-                prop_server = "Instance:{}".format(desktop_object.GetName())
+                prop_server = f"Instance:{desktop_object.GetName()}"
 
         prop_type = "VariableProp"
         if is_post_processing or "post" in name.lower()[0:5]:
@@ -1102,7 +1102,7 @@ class VariableManager(object):
                     self._logger.clear_messages()
                     return
             except Exception:
-                self._logger.debug("Something went wrong when deleting '{}'.".format(name))
+                self._logger.debug(f"Something went wrong when deleting '{name}'.")
         else:
             raise Exception("Unhandled input type to the design property or project variable.")  # pragma: no cover
 
@@ -1116,7 +1116,7 @@ class VariableManager(object):
                     [
                         "NAME:AllTabs",
                         [
-                            "NAME:{0}".format(tab_name),
+                            f"NAME:{tab_name}",
                             ["NAME:PropServers", prop_server],
                             [
                                 "NAME:NewProps",
@@ -1148,7 +1148,7 @@ class VariableManager(object):
                         [
                             "NAME:AllTabs",
                             [
-                                "NAME:{}".format(tab_name),
+                                f"NAME:{tab_name}",
                                 ["NAME:PropServers", prop_server],
                                 [
                                     "NAME:ChangedProps",
@@ -1172,7 +1172,7 @@ class VariableManager(object):
                 [
                     "NAME:AllTabs",
                     [
-                        "NAME:{}".format(tab_name),
+                        f"NAME:{tab_name}",
                         ["NAME:PropServers", prop_server],
                         [
                             "NAME:ChangedProps",
@@ -1230,8 +1230,8 @@ class VariableManager(object):
                     [
                         "NAME:AllTabs",
                         [
-                            "NAME:{0}VariableTab".format(var_type),
-                            ["NAME:PropServers", "{0}Variables".format(var_type)],
+                            f"NAME:{var_type}VariableTab",
+                            [f"NAME:PropServers", "{var_type}Variables"],
                             ["NAME:DeletedProps", name],
                         ],
                     ]
@@ -1271,8 +1271,8 @@ class VariableManager(object):
                     [
                         "NAME:AllTabs",
                         [
-                            "NAME:{0}VariableTab".format(var_type),
-                            ["NAME:PropServers", "{0}Variables".format(var_type)],
+                            f"NAME:{var_type}VariableTab",
+                            ["NAME:PropServers", f"{var_type}Variables"],
                             ["NAME:DeletedProps", name],
                         ],
                     ]
@@ -1303,7 +1303,7 @@ class VariableManager(object):
         for obj in self._app.modeler.objects.values():
             used = self._find_used_variable_history(obj.history(), name)
         if used:
-            self._logger.warning("{} used in modeler.".format(name))
+            self._logger.warning(f"{name} used in modeler.")
             return used
 
         # Material
@@ -1311,7 +1311,7 @@ class VariableManager(object):
             for _, v in mat._props.items():
                 if isinstance(v, str) and name in re.findall("[$a-zA-Z0-9_]+", v):
                     used = True
-                    self._logger.warning("{} used in the material: {}.".format(name, mat.name))
+                    self._logger.warning(f"{name} used in the material: {mat.name}.")
                     return used
         return used
 
@@ -1481,9 +1481,7 @@ class Variable(object):
         if units:
             if self._units and self._units != specified_units:
                 raise RuntimeError(
-                    "The unit specification {} is inconsistent with the identified units {}.".format(
-                        specified_units, self._units
-                    )
+                    f"The unit specification {specified_units} is inconsistent with the identified units {self._units}."
                 )
             self._units = specified_units
 
@@ -1545,14 +1543,14 @@ class Variable(object):
                 if name == "DefinitionParameters":
                     result = self._app.get_oo_object(self._aedt_obj, name).SetPropValue(prop, val)
                 else:
-                    result = self._app.get_oo_object(
-                        self._aedt_obj, "{}/{}".format(name, self._variable_name)
-                    ).SetPropValue(prop, val)
+                    result = self._app.get_oo_object(self._aedt_obj, f"{name}/{self._variable_name}").SetPropValue(
+                        prop, val
+                    )
                 if result:
                     break
                 i += 1
         except Exception:
-            self._app.logger.debug("Failed to set property '{}' value.".format(prop))
+            self._app.logger.debug(f"Failed to set property '{prop}' value.")
 
     @pyaedt_function_handler()
     def _get_prop_val(self, prop):
@@ -1572,9 +1570,9 @@ class Variable(object):
                     return self._app.get_oo_object(self._aedt_obj, "DefinitionParameters").GetPropValue(prop)
                 else:
                     name = "LocalVariables"
-            return self._app.get_oo_object(self._aedt_obj, "{}/{}".format(name, self._variable_name)).GetPropValue(prop)
+            return self._app.get_oo_object(self._aedt_obj, f"{name}/{self._variable_name}").GetPropValue(prop)
         except Exception:
-            self._app.logger.debug("Failed to get property '{}' value.".format(prop))
+            self._app.logger.debug(f"Failed to get property '{prop}' value.")
 
     @property
     def name(self):
@@ -1770,7 +1768,7 @@ class Variable(object):
         if "$" in self._variable_name:
             return False
         if self._app.design_type in ["HFSS 3D Layout Design", "Circuit Design", "Maxwell Circuit", "Twin Builder"]:
-            prop_server = "Instance:{}".format(self._aedt_obj.GetName())
+            prop_server = f"Instance:{self._aedt_obj.GetName()}"
             return (
                 True
                 if self._variable_name in self._aedt_obj.GetProperties("DefinitionParameterTab", prop_server)
@@ -1866,7 +1864,7 @@ class Variable(object):
         modeler and see ``10.0mm`` returned as the string value.
 
         """
-        return ("{}{}").format(self.numeric_value, self._units)
+        return f"{self.numeric_value}{self._units}"
 
     @pyaedt_function_handler()
     def decompose(self):
@@ -1911,9 +1909,7 @@ class Variable(object):
         new_unit_system = unit_system(units)
         if new_unit_system != self.unit_system:
             raise ValueError(
-                "New unit system {} is inconsistent with the current unit system {}.".format(
-                    new_unit_system, self.unit_system
-                )
+                f"New unit system {new_unit_system} is inconsistent with the current unit system {self.unit_system}."
             )
         self._units = units
         return self
@@ -1943,7 +1939,7 @@ class Variable(object):
         >>> assert v.format("6.2f") == ' 10.00W'
 
         """
-        return ("{0:" + format + "}{1}").format(self.numeric_value, self._units)
+        return f'{self.numeric_value:" + format + "}{self._units}'
 
     @pyaedt_function_handler()
     def __mul__(self, other):
@@ -2002,7 +1998,7 @@ class Variable(object):
                 if not result_units:
                     result_units = _resolve_unit_system(other.unit_system, self.unit_system, "multiply")
 
-        return Variable("{}{}".format(result_value, result_units))
+        return Variable(f"{result_value}{result_units}")
 
     __rmul__ = __mul__
 
@@ -2040,7 +2036,7 @@ class Variable(object):
         result_value = self.value + other.value
         result_units = SI_UNITS[self.unit_system]
         # If the units of the two operands are different, return SI-Units
-        result_variable = Variable("{}{}".format(result_value, result_units))
+        result_variable = Variable(f"{result_value}{result_units}")
 
         # If the units of both operands are the same, return those units
         if self.units == other.units:
@@ -2083,7 +2079,7 @@ class Variable(object):
         result_value = self.value - other.value
         result_units = SI_UNITS[self.unit_system]
         # If the units of the two operands are different, return SI-Units
-        result_variable = Variable("{}{}".format(result_value, result_units))
+        result_variable = Variable(f"{result_value}{result_units}")
 
         # If the units of both operands are the same, return those units
         if self.units == other.units:
@@ -2131,7 +2127,7 @@ class Variable(object):
             result_value = self.value / other.value
             result_units = _resolve_unit_system(self.unit_system, other.unit_system, "divide")
 
-        return Variable("{}{}".format(result_value, result_units))
+        return Variable(f"{result_value}{result_units}")
 
     # Python 2.7 version
     @pyaedt_function_handler()
@@ -2174,7 +2170,7 @@ class Variable(object):
             result_value = other.numeric_value / self.numeric_value
             result_units = _resolve_unit_system(other.unit_system, self.unit_system, "divide")
 
-        return Variable("{}{}".format(result_value, result_units))
+        return Variable(f"{result_value}{result_units}")
 
     # # Python 2.7 version
     # @pyaedt_function_handler()
@@ -2346,7 +2342,7 @@ class DataSet(object):
         >>> oDesign.EditDataset
         """
         if x not in self.x:
-            self._app.logger.error("Value {} is not found.".format(x))
+            self._app.logger.error(f"Value {x} is not found.")
             return False
         id_to_remove = self.x.index(x)
         return self.remove_point_from_index(id_to_remove)
@@ -2378,7 +2374,7 @@ class DataSet(object):
                 self.z.pop(id_to_remove)
                 self.v.pop(id_to_remove)
             return self.update()
-        self._app.logger.error("cannot Remove {} index.".format(id_to_remove))
+        self._app.logger.error(f"cannot Remove {id_to_remove} index.")
         return False
 
     @pyaedt_function_handler()

@@ -159,9 +159,7 @@ class FieldSummary:
         """
         if quantity not in AVAILABLE_QUANTITIES:
             raise AttributeError(
-                "Quantity {} is not supported. Available quantities are:\n{}".format(
-                    quantity, ", ".join(AVAILABLE_QUANTITIES)
-                )
+                f"Quantity {quantity} is not supported. Available quantities are:\n{', '.join(AVAILABLE_QUANTITIES)}"
             )
         if isinstance(normal, list):
             if not isinstance(normal[0], str):
