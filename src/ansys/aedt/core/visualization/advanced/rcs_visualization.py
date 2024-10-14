@@ -1088,15 +1088,18 @@ class SceneMeshObject:
     """
 
     def __init__(self):
+        # Public
         self.name = "CustomObject"
         self.opacity = 1.0
         self.color = None
         self.color_map = "jet"
         self.line_width = 1.0
         self.scalar_dict = dict(color="#000000", title="Dummy")
-        self.__mesh = pv.Cube()
         self.show = True
-        self._original_points = self.mesh.points.copy()
+
+        # Private
+        self.__mesh = pv.Cube()
+        self.__original_points = self.mesh.points.copy()
         self.__z_offset = 0.0
         self.__scale_factor = 1.0
 
@@ -1107,7 +1110,7 @@ class SceneMeshObject:
     @mesh.setter
     def mesh(self, val):
         self.__mesh = val
-        self._original_points = val.points.copy()
+        self.__original_points = val.points.copy()
 
     @property
     def z_offset(self):
@@ -1118,7 +1121,7 @@ class SceneMeshObject:
         translation_distance = val
 
         # Calculate the new points by applying the translation to the original points
-        new_points = self._original_points.copy()
+        new_points = self.__original_points.copy()
         new_points[:, 2] += translation_distance  # Apply Z translation
 
         # Update the mesh with the new points
@@ -1148,7 +1151,7 @@ class SceneMeshObject:
 
     def reset_scene(self):
         """Reset the mesh to its original position and size."""
-        self.mesh.points = self._original_points.copy()  # Restore the original points
+        self.mesh.points = self.__original_points.copy()  # Restore the original points
         self.__z_offset = 0.0  # Reset the Z-offset
         self.__scale_factor = 1.0  # Reset the scale factor
 
