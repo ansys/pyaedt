@@ -154,7 +154,7 @@ class AedtVersions:
     def is_minimum_version_installed(self):
         """Check if the installed AEDT versions satisfy the minimum version requirement"""
         try:
-            return float(self.latest_version) >= MINIMUM_COMPATIBLE_AEDT_VERSION
+            return float(self.latest_version[:6]) >= MINIMUM_COMPATIBLE_AEDT_VERSION
         except ValueError:
             return False
 
@@ -295,6 +295,7 @@ class AedtVersions:
         return output_version
 
     def assert_version(self, specified_version, student_version):
+        """Assert the version to be used to open the Desktop."""
         if self.current_version == "" and self.latest_version == "":
             raise Exception(
                 f"AEDT is not installed on your system. "
@@ -302,7 +303,7 @@ class AedtVersions:
             )
         if not self.is_minimum_version_installed:
             raise Exception(
-                f"PyAEDT requires AEDT version {self.version_to_text(MINIMUM_COMPATIBLE_AEDT_VERSION)} or higher."
+                f"PyAEDT requires AEDT version {self.version_to_text(MINIMUM_COMPATIBLE_AEDT_VERSION)} or higher. "
                 f"Install AEDT version {self.version_to_text(MINIMUM_COMPATIBLE_AEDT_VERSION)} or higher."
             )
         if not specified_version:
@@ -324,13 +325,6 @@ class AedtVersions:
             specified_version += "SV"
         specified_version = self.normalize_version(specified_version)
 
-        if float(specified_version[0:6]) < 2019:
-            raise ValueError("PyAEDT supports AEDT version 2021 R1 and later. Recommended version is 2022 R2 or later.")
-        elif float(specified_version[0:6]) < 2022.2:
-            warnings.warn(
-                """PyAEDT has limited capabilities when used with an AEDT version earlier than 2022 R2.
-                Update your AEDT installation to 2022 R2 or later."""
-            )
         if not (specified_version in self.installed_versions) and not (
             specified_version + "CL" in self.installed_versions
         ):
