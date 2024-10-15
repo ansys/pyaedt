@@ -22,6 +22,7 @@
 # SOFTWARE.
 
 import os
+import sys
 import tkinter as tk
 from tkinter import ttk
 
@@ -56,15 +57,11 @@ if is_windows:
     )
     python_exe = os.path.join(venv_dir, "Scripts", "python.exe")
     package_dir = os.path.join(venv_dir, "Lib", "site-packages")
-    pyaedt_venv_dir = os.path.join(
-        os.environ["APPDATA"], VENV_DIR_PREFIX, "{}".format(python_version.replace(".", "_"))
-    )
 
 else:
     venv_dir = os.path.join(os.environ["HOME"], VENV_DIR_PREFIX, "toolkits_{}".format(python_version.replace(".", "_")))
     python_exe = os.path.join(venv_dir, "bin", "python")
     package_dir = os.path.join(venv_dir, "lib", "site-packages")
-    pyaedt_venv_dir = os.path.join(os.environ["HOME"], VENV_DIR_PREFIX, "{}".format(python_version.replace(".", "_")))
 
 
 def create_toolkit_page(frame, window_name, internal_toolkits):
@@ -286,10 +283,9 @@ def button_is_clicked(
     else:
         if install_action:
             desktop.logger.info("Install {}".format(name))
-            if is_windows:
-                executable_interpreter = os.path.join(pyaedt_venv_dir, "Scripts", "python.exe")
-            else:
-                executable_interpreter = os.path.join(pyaedt_venv_dir, "bin", "python")
+
+            executable_interpreter = sys.executable
+
             if not file:
                 file = os.path.join(
                     os.path.dirname(ansys.aedt.core.workflows.templates.__file__), "extension_template.py"
