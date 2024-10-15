@@ -137,6 +137,11 @@ class MonostaticRCSData(object):
         self.frequency = self.frequencies[0]
 
     @property
+    def raw_data(self):
+        """Antenna data."""
+        return self.__raw_data
+
+    @property
     def metadata(self):
         """Antenna metadata."""
         return self.__metadata
@@ -144,7 +149,7 @@ class MonostaticRCSData(object):
     @property
     def name(self):
         """Antenna metadata."""
-        self.__name = self.__raw_data.columns[0]
+        self.__name = self.raw_data.columns[0]
         return self.__name
 
     @property
@@ -160,17 +165,19 @@ class MonostaticRCSData(object):
     @property
     def frequencies(self):
         """Available frequencies."""
-        if "Freq" in self.__raw_data.index.names:
-            frequencies = np.unique(np.array(self.__raw_data.index.get_level_values("Freq")))
+        if "Freq" in self.raw_data.index.names:
+            frequencies = np.unique(np.array(self.raw_data.index.get_level_values("Freq")))
             self.__frequencies = frequencies.tolist()
         return self.__frequencies
 
     @property
     def available_incident_wave_theta(self):
         """Available incident wave Theta."""
-        if "IWaveTheta" in self.__raw_data.index.names:
-            self.__incident_wave_theta = np.unique(np.array(self.__raw_data.index.get_level_values("IWaveTheta")))
-        return self.__incident_wave_theta
+        if "IWaveTheta" in self.raw_data.index.names:
+            self.__available_incident_wave_theta = np.unique(
+                np.array(self.raw_data.index.get_level_values("IWaveTheta"))
+            )
+        return self.__available_incident_wave_theta
 
     @property
     def incident_wave_theta(self):
@@ -190,9 +197,9 @@ class MonostaticRCSData(object):
     @property
     def available_incident_wave_phi(self):
         """Available incident wave Phi."""
-        if "IWavePhi" in self.__raw_data.index.names:
-            self.__incident_wave_phi = np.unique(np.array(self.__raw_data.index.get_level_values("IWavePhi")))
-        return self.__incident_wave_phi
+        if "IWavePhi" in self.raw_data.index.names:
+            self.__available_incident_wave_phi = np.unique(np.array(self.raw_data.index.get_level_values("IWavePhi")))
+        return self.__available_incident_wave_phi
 
     @property
     def incident_wave_phi(self):
@@ -273,7 +280,7 @@ class MonostaticRCSData(object):
     @property
     def rcs(self):
         """RCS data."""
-        data = self.__raw_data.xs(key=self.frequency, level="Freq")
+        data = self.raw_data.xs(key=self.frequency, level="Freq")
         data_converted = conversion_function(data[self.name], self.data_conversion_function)
         return data_converted
 
@@ -281,7 +288,7 @@ class MonostaticRCSData(object):
     def range_profile(self):
         """Range profile."""
         # Data by frequency
-        data = self.__raw_data[self.name]
+        data = self.data[self.name]
         data_freq = data.loc[:, self.incident_wave_phi, self.incident_wave_theta]
 
         # Take needed properties
@@ -445,6 +452,19 @@ class MonostaticRCSPlotter(object):
         """Geometry extents."""
         return [self.__x_min, self.__x_max, self.__y_min, self.__y_max, self.__z_min, self.__z_max]
 
+    @property
+    def center(self):
+        """Geometry extents."""
+        x_mid = (self.__x_max + self.__x_min) / 2
+        z_mid = (self.__z_max + self.__z_min) / 2
+        y_mid = (self.__y_max + self.__y_min) / 2
+        return np.array([x_mid, y_mid, z_mid])
+
+    @property
+    def radius(self):
+        """Geometry extents."""
+        return max([abs(a) for a in (self.__x_min, self.__x_max, self.__y_min, self.__y_max)])
+
     @pyaedt_function_handler()
     def plot_range_profile(
         self,
@@ -464,8 +484,6 @@ class MonostaticRCSPlotter(object):
         show : bool, optional
             Whether to show the plot. The default is ``True``.
             If ``False``, the Matplotlib instance of the plot is shown.
-        is_polar : bool, optional
-            Whether this plot is a polar plot. The default is ``True``.
         show_legend : bool, optional
             Whether to display the legend or not. The default is ``True``.
 
@@ -507,6 +525,7 @@ class MonostaticRCSPlotter(object):
     def plot_rcs(
         self,
         primary_sweep="IWavePhi",
+        secondary_sweep="IWaveTheta",
         secondary_sweep_value=None,
         title="Monostatic RCS",
         output_file=None,
@@ -519,7 +538,9 @@ class MonostaticRCSPlotter(object):
         Parameters
         ----------
         primary_sweep : str, optional.
-            X-axis variable. The default is ``"IWavePhi"``. Options are ``"IWavePhi"`` and ``"IWaveTheta"``.
+            X-axis variable. The default is ``"IWavePhi"``. Options are ``"Freq"``, ``"IWavePhi"`` and ``"IWaveTheta"``.
+        secondary_sweep : str, optional.
+            X-axis variable. The default is ``"IWavePhi"``. Options are ``"Freq"``, ``"IWavePhi"`` and ``"IWaveTheta"``.
         secondary_sweep_value : float, list, string, optional
             List of cuts on the secondary sweep to plot. The default is ``0``. Options are
             `"all"`, a single value float, or a list of float values.
@@ -541,73 +562,82 @@ class MonostaticRCSPlotter(object):
             Matplotlib figure object.
             If ``show=True``, a Matplotlib figure instance of the plot is returned.
             If ``show=False``, the plotted curve is returned.
-
-        Examples
-        --------
-        >>> import pyaedt
-        >>> app = pyaedt.Hfss(version="2023.2", design="Antenna")
-        >>> setup_name = "Setup1 : LastAdaptive"
-        >>> frequencies = [77e9]
-        >>> sphere = "3D"
-        >>> data = app.get_antenna_data(frequencies,setup_name,sphere)
-        >>> data.plot_cut(theta=20)
         """
-
-        data_freq = self.rcs_data.rcs
 
         curves = []
         all_secondary_sweep_value = secondary_sweep_value
-        if primary_sweep.lower() == "iwavephi":
-            x_key = "IWavePhi"
-            y_key = "IWaveTheta"
-            x = self.rcs_data.available_incident_wave_phi
-            if isinstance(secondary_sweep_value, str) and secondary_sweep_value == "all":
-                all_secondary_sweep_value = self.rcs_data.available_incident_wave_theta
-            elif secondary_sweep_value is None:
-                all_secondary_sweep_value = self.rcs_data.incident_wave_theta
-
+        if primary_sweep.lower() == "freq" or primary_sweep.lower() == "frequency":
+            x_key = "Freq"
+            x = self.rcs_data.frequencies
+            if secondary_sweep == "IWaveTheta":
+                if all_secondary_sweep_value is None:
+                    all_secondary_sweep_value = self.rcs_data.incident_wave_theta
+                data = self.rcs_data.raw_data.xs(key=self.rcs_data.incident_wave_phi, level="IWavePhi")
+                y_key = "IWaveTheta"
+            else:
+                if all_secondary_sweep_value is None:
+                    all_secondary_sweep_value = self.rcs_data.incident_wave_phi
+                data = self.rcs_data.raw_data.xs(key=self.rcs_data.incident_wave_theta, level="IWaveTheta")
+                y_key = "IWavePhi"
+            data = conversion_function(data[self.rcs_data.name], self.rcs_data.data_conversion_function)
         else:
-            x_key = "IWaveTheta"
-            y_key = "IWavePhi"
-            x = self.rcs_data.available_incident_wave_theta
-            if isinstance(secondary_sweep_value, str) and secondary_sweep_value == "all":
-                all_secondary_sweep_value = self.rcs_data.available_incident_wave_phi
-            elif secondary_sweep_value is None:
-                all_secondary_sweep_value = self.rcs_data.incident_wave_phi
+            data = self.rcs_data.rcs
+            if primary_sweep.lower() == "iwavephi":
+                secondary_sweep = "IWaveTheta"
+                x_key = "IWavePhi"
+                y_key = "IWaveTheta"
+                x = self.rcs_data.available_incident_wave_phi
+                if isinstance(secondary_sweep_value, str) and secondary_sweep_value == "all":
+                    all_secondary_sweep_value = self.rcs_data.available_incident_wave_theta
+                elif secondary_sweep_value is None:
+                    all_secondary_sweep_value = self.rcs_data.incident_wave_theta
+            else:
+                secondary_sweep = "IWavePhi"
+                x_key = "IWaveTheta"
+                y_key = "IWavePhi"
+                x = self.rcs_data.available_incident_wave_theta
+                if isinstance(secondary_sweep_value, str) and secondary_sweep_value == "all":
+                    all_secondary_sweep_value = self.rcs_data.available_incident_wave_phi
+                elif secondary_sweep_value is None:
+                    all_secondary_sweep_value = self.rcs_data.incident_wave_phi
 
-        if not isinstance(all_secondary_sweep_value, np.ndarray) and not isinstance(all_secondary_sweep_value, list):
-            all_secondary_sweep_value = [all_secondary_sweep_value]
-
-        if is_polar:
-            x = [i * 2 * math.pi / 360 for i in x]
         if all_secondary_sweep_value is not None:
+            if not isinstance(all_secondary_sweep_value, np.ndarray) and not isinstance(
+                all_secondary_sweep_value, list
+            ):
+                all_secondary_sweep_value = [all_secondary_sweep_value]
+
+            if is_polar:
+                x = [i * 2 * math.pi / 360 for i in x]
+
             for el in all_secondary_sweep_value:
-                data = data_freq.xs(key=el, level=y_key)
-                y = data.values
+                data_sweep = data.xs(key=el, level=y_key)
+                y = data_sweep.values
                 if not isinstance(y, np.ndarray):  # pragma: no cover
                     raise Exception("Format of quantity is wrong.")
                 curves.append([x, y, "{}={}".format(y_key, el)])
 
-        if is_polar:
-            return plot_polar_chart(
-                curves,
-                xlabel=x_key,
-                ylabel="RCS",
-                title=title,
-                snapshot_path=output_file,
-                show_legend=show_legend,
-                show=show,
-            )
-        else:
-            return plot_2d_chart(
-                curves,
-                xlabel=x_key,
-                ylabel="RCS",
-                title=title,
-                snapshot_path=output_file,
-                show_legend=show_legend,
-                show=show,
-            )
+        if curves is not None:
+            if is_polar:
+                return plot_polar_chart(
+                    curves,
+                    xlabel=x_key,
+                    ylabel="RCS",
+                    title=title,
+                    snapshot_path=output_file,
+                    show_legend=show_legend,
+                    show=show,
+                )
+            else:
+                return plot_2d_chart(
+                    curves,
+                    xlabel=x_key,
+                    ylabel="RCS",
+                    title=title,
+                    snapshot_path=output_file,
+                    show_legend=show_legend,
+                    show=show,
+                )
 
     @pyaedt_function_handler()
     def plot_scene(self, show=True, plotter=None):
@@ -669,46 +699,54 @@ class MonostaticRCSPlotter(object):
         self,
         plot_type="Line",
         color_bar="jet",
-        primary_sweep="IWaveTheta",
-        secondary_sweep_value=None,
+        primary_sweep="Freq",
+        active_theta=None,
+        active_phi=None,
+        active_freq=None,
     ):
         """
         Add the 3D RCS.
         """
-        data_rcs = self.rcs_data.rcs
+        if active_theta is None:
+            active_theta = self.rcs_data.incident_wave_theta
+        if active_phi is None:
+            active_phi = self.rcs_data.incident_wave_phi
+        if active_freq is None:
+            active_freq = self.rcs_data.frequency
 
-        if primary_sweep.lower() == "iwavephi":
-            y_key = "IWaveTheta"
-            if secondary_sweep_value is None:
-                secondary_sweep_value = self.rcs_data.incident_wave_theta
+        if primary_sweep.lower() == "freq":
+            data = self.rcs_data.raw_data.xs(key=active_theta, level="IWaveTheta")
+            data = data.xs(key=active_phi, level="IWavePhi")
+            data = conversion_function(data[self.rcs_data.name], self.rcs_data.data_conversion_function)
+            y_key = "Freq"
         else:
-            y_key = "IWavePhi"
-            if secondary_sweep_value is None:
-                secondary_sweep_value = self.rcs_data.incident_wave_phi
+            data_rcs = self.rcs_data.rcs
+            data = data_rcs.xs(key=active_freq, level="Freq")
+            if primary_sweep.lower() == "iwavephi":
+                y_key = "IWaveTheta"
+            else:
+                y_key = "IWavePhi"
 
-        if secondary_sweep_value is None:
-            return False
-
-        data = data_rcs.xs(key=secondary_sweep_value, level=y_key)
         y = data.values
         if not isinstance(y, np.ndarray):  # pragma: no cover
             raise Exception("Format of quantity is wrong.")
 
         new_data = self.stretch_data(data, scaling_factor=self.extents[5] - self.extents[4], offset=self.extents[4])
 
-        if y_key == "IWavePhi":
-            thetas = np.unique(new_data.index.get_level_values("IWaveTheta"))
-            phis = secondary_sweep_value
-        else:
-            phis = np.unique(new_data.index.get_level_values("IWavePhi"))
-            thetas = secondary_sweep_value
+        thetas = self.rcs_data.incident_wave_theta
+        phis = self.rcs_data.incident_wave_phi
+
+        # Stretch frequencies to fit scene
+        freqs = self.rcs_data.frequencies
+        freqs = self.stretch_data(np.array(freqs), scaling_factor=1.0, offset=0.0)
 
         cosphis = np.cos(np.radians(phis))
         sinphis = np.sin(np.radians(phis))
         sinthetas = np.sin(np.radians(thetas))
-        xpos = cosphis * sinthetas
-        ypos = sinphis * sinthetas
+        xpos = np.array(freqs) * cosphis * sinthetas
+        ypos = np.array(freqs) * sinphis * sinthetas
         zpos = None
+
         plot_data = new_data.to_numpy()
 
         cpos = data.to_numpy()
@@ -740,7 +778,7 @@ class MonostaticRCSPlotter(object):
         rcs_object.name = rcs_name
         rcs_object.line_width = 1.0
 
-        scalar_dict = dict(color="#000000", title="Range Profile")
+        scalar_dict = dict(color="#000000", title="RCS")
         rcs_object.scalar_dict = scalar_dict
 
         if any(color_bar in x for x in ["blue", "green", "black", "red"]):
