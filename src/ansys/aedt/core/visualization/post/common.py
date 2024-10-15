@@ -1796,7 +1796,7 @@ class PostProcessorCommon(object):
             except KeyError:
                 pass
             try:
-                props["trace_color"] = line["color"]
+                props["trace_color"] = [i / 255 for i in line["color"]]
             except KeyError:
                 pass
             try:

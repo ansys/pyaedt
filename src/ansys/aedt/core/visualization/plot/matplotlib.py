@@ -1242,10 +1242,6 @@ class ReportPlotter:
         :class:`matplotlib.pyplot.Figure`
             Matplotlib figure object.
         """
-        warnings.warn(
-            "`plot_contour` is deprecated. Use class `ReportPlotter` to initialize and `plot_contour` instead.",
-            DeprecationWarning,
-        )
         tr = self._retrieve_traces(trace)
         if not tr:
             return False
