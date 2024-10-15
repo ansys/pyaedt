@@ -783,6 +783,22 @@ class SolutionData(object):
 
     @pyaedt_function_handler()
     def get_report_plotter(self, curves=None, formula=None, to_radians=False):
+        """Get the `ReportPlotter` on the specified curves.
+
+        Parameters
+        ----------
+        curves : list, str, optional
+            Trace names.
+        formula : str, optional
+            Trace formula. Default is `None` which takes the real part of the trace.
+        to_radians : bool, optional
+            Whether is data has to be converted to radians or not. Default is ``False``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
+            Report plotter class.
+        """
         if not curves:
             curves = [self.active_expression]
         if isinstance(curves, str):

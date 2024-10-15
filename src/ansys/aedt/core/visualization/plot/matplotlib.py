@@ -345,7 +345,7 @@ class ReportPlotter:
 
     @property
     def trace_names(self):
-        """Trace names
+        """Trace names.
 
         Returns
         -------
@@ -453,11 +453,12 @@ class ReportPlotter:
 
     @property
     def grid_color(self):
-        """Grid color
+        """Grid color.
 
         Returns
         -------
         str, list
+            Grid color tuple.
         """
         return self.__grid_color
 
