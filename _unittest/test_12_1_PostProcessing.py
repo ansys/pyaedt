@@ -303,6 +303,11 @@ class TestClass:
         assert self.aedtapp.post.create_report_from_configuration(
             os.path.join(self.local_scratch.path, f"{plot.plot_name}.json"), solution_name=self.aedtapp.nominal_sweep
         )
+        assert self.aedtapp.post.create_report_from_configuration(
+            os.path.join(self.local_scratch.path, f"{plot.plot_name}.json"),
+            solution_name=self.aedtapp.nominal_sweep,
+            matplotlib=True,
+        )
         assert self.aedtapp.post.create_report(
             expressions="MaxMagDeltaS",
             variations={"Pass": ["All"]},
@@ -755,6 +760,7 @@ class TestClass:
         local_path = os.path.dirname(os.path.realpath(__file__))
         dict_vals = read_json(os.path.join(local_path, "example_models", "report_json", "Modal_Report_Simple.json"))
         assert self.aedtapp.post.create_report_from_configuration(report_settings=dict_vals)
+        assert self.aedtapp.post.create_report_from_configuration(report_settings=dict_vals, matplotlib=True)
 
     @pytest.mark.skipif(
         config["desktopVersion"] < "2022.2", reason="Not working in non graphical in version lower than 2022.2"
@@ -763,6 +769,9 @@ class TestClass:
         local_path = os.path.dirname(os.path.realpath(__file__))
         assert self.aedtapp.post.create_report_from_configuration(
             os.path.join(local_path, "example_models", "report_json", "Modal_Report.json")
+        )
+        assert self.aedtapp.post.create_report_from_configuration(
+            os.path.join(local_path, "example_models", "report_json", "Modal_Report.json"), matplotlib=True
         )
 
     def test_74_dynamic_update(self):

@@ -38,6 +38,7 @@ from ansys.aedt.core.generic.data_handlers import _dict_items_to_list_items
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import read_configuration_file
+from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 from ansys.aedt.core.visualization.post.solution_data import SolutionData
 from ansys.aedt.core.visualization.report.constants import TEMPLATES_BY_DESIGN
 import ansys.aedt.core.visualization.report.emi
@@ -1571,7 +1572,9 @@ class PostProcessorCommon(object):
         return solution_data
 
     @pyaedt_function_handler(input_dict="report_settings")
-    def create_report_from_configuration(self, input_file=None, report_settings=None, solution_name=None, name=None):
+    def create_report_from_configuration(
+        self, input_file=None, report_settings=None, solution_name=None, name=None, matplotlib=False
+    ):
         """Create a report based on a JSON file, TOML file, RPT file, or dictionary of properties.
 
         Parameters
@@ -1582,6 +1585,8 @@ class PostProcessorCommon(object):
             Dictionary containing report settings.
         solution_name : str, optional
             Setup name to use.
+        matplotlib : bool, optional
+            Whether if use AEDT or ReportPlotter to generate the plot.
 
         Returns
         -------
@@ -1687,6 +1692,8 @@ class PostProcessorCommon(object):
                 ):
                     report._props["context"]["variations"][el] = k
             _ = report.expressions
+            if matplotlib:
+                return self._report_plotter(report)
             report.create(name)
             if report.report_type != "Data Table":
                 report._update_traces()
@@ -1695,6 +1702,115 @@ class PostProcessorCommon(object):
             return report
         self.logger.error("Failed to create report.")
         return False  # pragma: no cover
+
+    @pyaedt_function_handler()
+    def _report_plotter(self, report):
+        sols = report.get_solution_data()
+        report_plotter = ReportPlotter()
+        report_plotter.title = report._props.get("plot_name", "PyAEDT Report")
+        try:
+            report_plotter.general_back_color = [
+                i / 255 for i in report._props["general"]["appearance"]["background_color"]
+            ]
+        except KeyError:
+            pass
+        try:
+
+            report_plotter.general_plot_color = [i / 255 for i in report._props["general"]["appearance"]["plot_color"]]
+        except KeyError:
+            pass
+        try:
+            report_plotter.grid_enable_major_x = report._props["general"]["grid"]["major_x"]
+        except KeyError:
+            pass
+        try:
+            report_plotter.grid_enable_minor_x = report._props["general"]["grid"]["minor_x"]
+        except KeyError:
+            pass
+        try:
+            report_plotter.grid_enable_major_y = report._props["general"]["grid"]["major_y"]
+        except KeyError:
+            pass
+        try:
+            report_plotter.grid_enable_minor_yi = report._props["general"]["grid"]["minor_y"]
+        except KeyError:
+            pass
+        try:
+            report_plotter.grid_color = [i / 255 for i in report._props["general"]["grid"]["major_color"]]
+        except KeyError:
+            pass
+        try:
+            report_plotter.show_legend = True if report._props["general"]["legend"] else False
+        except KeyError:
+            pass
+        sw = sols.primary_sweep_values
+        for curve in sols.expressions:
+            props = {
+                "x_label": sols.primary_sweep,
+                "y_label": curve,
+            }
+            pp = [i for i in report._props["expressions"] if i["name"] == curve]
+            if pp:
+                pp = pp[0]
+                try:
+                    props["trace_width"] = pp["width"]
+                except:
+                    pass
+                try:
+                    props["trace_color"] = [i / 255 for i in pp["color"]]
+                except:
+                    pass
+                try:
+                    props["fill_symbol"] = pp["fill_symbol"]
+                except:
+                    pass
+                try:
+                    props["symbol_color"] = [i / 255 for i in pp["symbol_color"]]
+                except:
+                    pass
+                try:
+                    styles = ({"Solid": "-", "Dash": "--", "DotDash": "-.", "DotDot": ":"},)
+                    props["trace_style"] = styles[pp["trace_style"]]
+                except:
+                    pass
+                try:
+                    markers = (
+                        {
+                            "Box": ",",
+                            "Circle": "o",
+                            "VerticalUpTriangle": "^",
+                            "VerticalDownTriangle": "v",
+                            "HorizontalLeftTriangle": "<",
+                            "HorizontalRightTriangle": ">",
+                        },
+                    )
+                    props["symbol_style"] = markers[pp["symbol_style"]]
+                except:
+                    pass
+            report_plotter.add_trace([sw, sols.data_real(curve)], 0, properties=props, name=curve)
+        for name, line in report._props.get("limitLines", {}).items():
+            props = {}
+            try:
+                props["trace_width"] = line["width"]
+            except:
+                pass
+            try:
+                props["trace_color"] = line["color"]
+            except:
+                pass
+            report_plotter.add_limit_line([line["x"], line["y"]], 0, properties=props, name=name)
+        if report._props.get("report_type", "Rectangular Plot") == "Rectangular Plot":
+            _ = report_plotter.plot_2d()
+            return report_plotter
+        elif report._props.get("report_type", "Rectangular Plot") == "Polar Plot":
+            _ = report_plotter.plot_polar()
+            return report_plotter
+        elif report._props.get("report_type", "Rectangular Plot") == "Rectangular Contour Plot":
+            _ = report_plotter.plot_contour()
+            return report_plotter
+        elif report._props.get("report_type", "Rectangular Plot") in ["3D Polar Plot", "3D Spherical Plot"]:
+            _ = report_plotter.plot_3d()
+            return report_plotter
 
     @staticmethod
     @pyaedt_function_handler()

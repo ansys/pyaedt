@@ -45,10 +45,7 @@ PyAEDT benefits of `matplotlib <https://matplotlib.org/>`_ package and allows to
    :toctree: _autosummary
    :nosignatures:
 
-   plot_polar_chart
-   plot_3d_chart
-   plot_2d_chart
-   plot_contour
+   ReportPlotter
    is_notebook
 
 

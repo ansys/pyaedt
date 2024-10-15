@@ -26,9 +26,9 @@ import os
 import shutil
 
 from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
+from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
 # from _unittest.conftest import config
-from matplotlib.figure import Figure
 import pytest
 from pyvista.plotting.plotter import Plotter
 
@@ -150,9 +150,9 @@ class TestClass:
         ffdata.plot_cut(output_file=img3, show=False)
         assert os.path.exists(img3)
         curve_2d = ffdata.plot_cut(show=False)
-        assert isinstance(curve_2d, Figure)
+        assert isinstance(curve_2d, ReportPlotter)
         data = ffdata.plot_3d_chart(show=False)
-        assert isinstance(data, Figure)
+        assert isinstance(data, ReportPlotter)
 
         img4 = os.path.join(self.local_scratch.path, "ff_3d1.jpg")
         ffdata.plot_3d(
@@ -161,6 +161,43 @@ class TestClass:
         assert os.path.exists(img4)
         data_pyvista = ffdata.plot_3d(quantity="RealizedGain", show=False, background=[255, 0, 0], show_geometry=False)
         assert isinstance(data_pyvista, Plotter)
+        matplot_lib = ffdata.plot_cut(
+            quantity="RealizedGain",
+            primary_sweep="theta",
+            secondary_sweep_value=[-180, -75, 75],
+            title="Azimuth at {}Hz".format(ffdata.frequency),
+            quantity_format="dB10",
+        )
+
+        matplot_lib.traces_by_index[0].trace_style = "--"
+        matplot_lib.x_scale = "log"
+        _ = matplot_lib.plot_2d()
+
+        matplot_lib.x_scale = "linear"
+        matplot_lib.traces_by_index[0].trace_color = (1, 0, 0)
+        matplot_lib.grid_enable_minor_x = True
+        _ = matplot_lib.plot_2d()
+
+        matplot_lib.traces["Phi=-180"].symbol_style = "v"
+        _ = matplot_lib.plot_2d()
+
+        matplot_lib.apply_style("dark_background")
+        matplot_lib.add_limit_line(
+            [[0, 20, 120], [15, 5, 5]],
+            properties={
+                "trace_color": (1, 0, 0),
+            },
+            name="LimitLine1",
+        )
+        _ = matplot_lib.plot_2d()
+
+        matplot_lib.traces_by_index[0].trace_color = (1, 0, 0)
+        matplot_lib.grid_enable_minor_x = True
+
+        matplot_lib.grid_enable_minor_x = False
+        matplot_lib.grid_enable_minor_y = False
+
+        _ = matplot_lib.plot_2d()
 
     def test_05_antenna_plot(self, array_test):
         ffdata = array_test.get_antenna_data(sphere="3D")

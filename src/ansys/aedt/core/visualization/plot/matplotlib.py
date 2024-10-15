@@ -23,9 +23,10 @@
 # SOFTWARE.
 
 import ast
+import math
 import warnings
 
-from ansys.aedt.core.aedt_logger import pyaedt_logger
+from ansys.aedt.core import settings
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 try:
@@ -40,17 +41,6 @@ try:
     from matplotlib.patches import PathPatch
     from matplotlib.path import Path
     import matplotlib.pyplot as plt
-
-    rc_params = {
-        "axes.titlesize": 26,  # Use these default settings for Matplotlb axes.
-        "axes.labelsize": 20,  # Apply the settings only in this module.
-        "xtick.labelsize": 18,
-        "ytick.labelsize": 18,
-    }
-
-    plt.ioff()
-    default_rc_params = plt.rcParams.copy()
-    plt.rcParams.update(rc_params)
 
 except ImportError:
     warnings.warn(
@@ -70,7 +60,7 @@ def is_notebook():
     """
     try:
         shell = get_ipython().__class__.__name__
-        if shell == "ZMQInteractiveShell":
+        if shell in ["ZMQInteractiveShell"]:
             return True  # Jupyter notebook or qtconsole
         else:
             return False
@@ -78,11 +68,1003 @@ def is_notebook():
         return False  # Probably standard Python interpreter
 
 
+def is_ipython():
+    """Check if pyaedt is running in Jupyter or not.
+
+    Returns
+    -------
+    bool
+    """
+    try:
+        shell = get_ipython().__class__.__name__
+        if shell in ["TerminalInteractiveShell", "SpyderShell"]:
+            return True  # Jupyter notebook or qtconsole
+        else:
+            return False
+    except NameError:
+        return False  # Probably standard Python interpreter
+
+
+class Trace:
+    """Trace class."""
+
+    def __init__(self):
+        self.name = ""
+        self._cartesian_data = None
+        self._spherical_data = None
+        self.x_label = ""
+        self.y_label = ""
+        self.z_label = ""
+        self.__trace_style = "-"
+        self.__trace_width = 1.5
+        self.__trace_color = None
+        self.__symbol_style = ""
+        self.__fill_symbol = False
+        self.__symbol_color = None
+
+    @property
+    def trace_style(self):
+        """Matplotlib trace style.
+
+        Returns
+        -------
+        str
+        """
+        return self.__trace_style
+
+    @property
+    def trace_width(self):
+        """Trace width.
+
+        Returns
+        -------
+        float
+        """
+        return self.__trace_width
+
+    @property
+    def trace_color(self):
+        """Matplotlib trace color. It can be a tuple or a string of allowed colors.
+
+        Returns
+        -------
+        str, list
+        """
+        return self.__trace_color
+
+    @property
+    def symbol_style(self):
+        """Matplotlib symbol style.
+
+        Returns
+        -------
+        str
+        """
+        return self.__symbol_style
+
+    @property
+    def fill_symbol(self):
+        """Fill symbol.
+
+        Returns
+        -------
+        bool
+        """
+        return self.__fill_symbol
+
+    @trace_style.setter
+    def trace_style(self, val):
+        self.__trace_style = val
+
+    @trace_width.setter
+    def trace_width(self, val):
+        self.__trace_width = val
+
+    @trace_color.setter
+    def trace_color(self, val):
+        self.__trace_color = val
+
+    @symbol_style.setter
+    def symbol_style(self, val):
+        self.__symbol_style = val
+
+    @fill_symbol.setter
+    def fill_symbol(self, val):
+        self.__fill_symbol = val
+
+    @property
+    def cartesian_data(self):
+        """Cartesian data [x,y,z].
+
+        Returns
+        -------
+        List[:class:`numpy.array`]
+            List of data.
+        """
+        return self._cartesian_data
+
+    @cartesian_data.setter
+    def cartesian_data(self, val):
+        self._cartesian_data = []
+        for el in val:
+            if isinstance(el, (list, tuple)):
+                self._cartesian_data.append(np.array(el))
+            else:
+                self._cartesian_data.append(el)
+        if len(self._cartesian_data) == 2:
+            self._cartesian_data.append(np.zeros(len(val[-1])))
+        self.car2spherical()
+
+    @property
+    def spherical_data(self):
+        """Spherical data [r, theta, phi]. Angles are in degrees.
+
+        Returns
+        -------
+        List[:class:`numpy.array`]
+            List of data.
+        """
+        return self._spherical_data
+
+    @spherical_data.setter
+    def spherical_data(self, rthetaphi):
+        self._spherical_data = []
+        for el in rthetaphi:
+            if isinstance(el, (list, tuple)):
+                self._spherical_data.append(np.array(el))
+            else:
+                self._spherical_data.append(el)
+        self.spherical2car()
+
+    @pyaedt_function_handler()
+    def car2polar(self, x, y, is_degree=False):
+        """Convert cartesian data to polar.
+
+        Parameters
+        ----------
+        x : list
+            X data.
+        y : list
+            Y data.
+        is_degree : bool, optional
+            Whether to return data in degree or radians.
+
+        Returns
+        -------
+        list, list
+            R and theta.
+        """
+        rate = 1
+        if not is_degree:
+            rate = np.pi / 180
+        rho = np.sqrt(x**2 + y**2)
+        phi = np.arctan2(y, x) * rate
+        return [rho, phi]
+
+    @pyaedt_function_handler()
+    def car2spherical(self):
+        """Convert cartesian data to spherical and assigns to property spherical data."""
+        x = self._cartesian_data[0]
+        y = self._cartesian_data[1]
+        z = self._cartesian_data[2]
+        r = np.sqrt(x * x + y * y + z * z)
+        theta = np.arccos(z / r) * 180 / math.pi  # to degrees
+        phi = np.arctan2(y, x) * 180 / math.pi
+        self._spherical_data = [r, theta, phi]
+
+    @pyaedt_function_handler()
+    def spherical2car(self):
+        """Convert sherical data to cartesian data and assign to cartesian data property."""
+        r = self._spherical_data[0]
+        theta = self._spherical_data[1] * math.pi / 180  # to radian
+        phi = self._spherical_data[2] * math.pi / 180
+        x = r * np.sin(theta) * np.cos(phi)
+        y = r * np.sin(theta) * np.sin(phi)
+        z = r * np.cos(theta)
+        self._cartesian_data = [x, y, z]
+
+    @pyaedt_function_handler()
+    def polar2car(self, r, theta):
+        """Convert polar data to cartesian data.
+
+        Parameters
+        ----------
+        r : list
+        theta : list
+
+        Returns
+        -------
+        list
+            List of [x,y].
+        """
+        x = r * np.cos(np.radians(theta))
+        y = r * np.sin(np.radians(theta))
+        return [x, y]
+
+
+class LimitLine(Trace):
+    """Limit Line class."""
+
+    def __init__(self):
+        Trace.__init__(self)
+        self.hatch_above = True
+
+
+class ReportPlotter:
+    """Matplotlib Report manager."""
+
+    def __init__(self):
+        rc_params = {
+            "axes.titlesize": 26,  # Use these default settings for Matplotlb axes.
+            "axes.labelsize": 20,  # Apply the settings only in this module.
+            "xtick.labelsize": 18,
+            "ytick.labelsize": 18,
+        }
+        self.block = settings.block_figure_plot
+        self._traces = {}
+        self._limit_lines = {}
+        self.plt_params = plt.rcParams
+        self.plt_params.update(rc_params)
+        self.show_legend = True
+        self.title = ""
+        self.fig = None
+        self.ax = None
+        self.__x_scale = "linear"
+        self.__y_scale = "linear"
+        self.__grid_color = (0.8, 0.8, 0.8)
+        self.__grid_enable_major_x = True
+        self.__grid_enable_major_y = True
+        self.__grid_enable_minor_x = False
+        self.__grid_enable_minor_y = True
+        self.__grid_style = "-"
+        self.__general_back_color = (1, 1, 1)
+        self.__general_plot_color = (1, 1, 1)
+        self._style = None
+        self.logo = None
+        self.show_logo = True
+
+    @property
+    def traces(self):
+        """Traces.
+
+        Returns
+        -------
+         Dict[str, :class:`ansys.aedt.core.visualization.plot.matplotlib.Trace`]
+        """
+        return self._traces
+
+    @property
+    def traces_by_index(self):
+        """Traces.
+
+        Returns
+        -------
+         List[:class:`ansys.aedt.core.visualization.plot.matplotlib.Trace`]
+        """
+        return list(self._traces.values())
+
+    @property
+    def trace_names(self):
+        """Trace names
+
+        Returns
+        -------
+        list
+        """
+        return list(self._traces.keys())
+
+    @property
+    def limit_lines(self):
+        """Limit Lines.
+
+        Returns
+        -------
+         Dict[str, :class:`ansys.aedt.core.visualization.plot.matplotlib.LimitLine`]
+        """
+        return self._limit_lines
+
+    @pyaedt_function_handler()
+    def apply_style(self, style_name):
+        """Apply a custom matplotlib style (eg. background_dark).
+
+        Parameters
+        ----------
+        style_name : str
+            Matplotlib style name.
+
+        Returns
+        -------
+        bool
+        """
+        if style_name in plt.style.available:
+            plt.style.use(style_name)
+            self._style = style_name
+        return True
+
+    @property
+    def grid_style(self):
+        """Grid style.
+
+        Returns
+        -------
+        str
+        """
+        return self.__grid_style
+
+    @grid_style.setter
+    def grid_style(self, val):
+        self.__grid_style = val
+
+    @property
+    def grid_enable_major_x(self):
+        """Enable the major grid on x axis.
+
+        Returns
+        -------
+        bool
+        """
+        return self.__grid_enable_major_x
+
+    @grid_enable_major_x.setter
+    def grid_enable_major_x(self, val):
+        self.__grid_enable_major_x = val
+
+    @property
+    def grid_enable_major_y(self):
+        """Enable the major grid on y axis.
+
+        Returns
+        -------
+        bool
+        """
+        return self.__grid_enable_major_y
+
+    @grid_enable_major_y.setter
+    def grid_enable_major_y(self, val):
+        self.__grid_enable_major_y = val
+
+    @property
+    def grid_enable_minor_x(self):
+        """Enable the minor grid on x axis.
+
+        Returns
+        -------
+        bool
+        """
+        return self.__grid_enable_minor_x
+
+    @grid_enable_minor_x.setter
+    def grid_enable_minor_x(self, val):
+        self.__grid_enable_minor_x = val
+
+    @property
+    def grid_enable_minor_y(self):
+        """Enable the minor grid on y axis.
+
+        Returns
+        -------
+        bool
+        """
+        return self.__grid_enable_minor_y
+
+    @grid_enable_minor_y.setter
+    def grid_enable_minor_y(self, val):
+        self.__grid_enable_minor_y = val
+
+    @property
+    def grid_color(self):
+        """Grid color
+
+        Returns
+        -------
+        str, list
+        """
+        return self.__grid_color
+
+    @grid_color.setter
+    def grid_color(self, val):
+        if isinstance(val, (list, tuple)):
+            if any([i for i in val if i > 1]):
+                val = [i / 255 for i in val]
+        self.__grid_color = val
+
+    @property
+    def general_back_color(self):
+        """General background color.
+
+        Returns
+        -------
+        str, list
+        """
+        return self.__general_back_color
+
+    @general_back_color.setter
+    def general_back_color(self, val):
+        if isinstance(val, (list, tuple)):
+            if any([i for i in val if i > 1]):
+                val = [i / 255 for i in val]
+        self.__general_back_color = val
+
+    @property
+    def general_plot_color(self):
+        """General plot color.
+
+        Returns
+        -------
+        str, list
+        """
+        return self.__general_plot_color
+
+    @general_plot_color.setter
+    def general_plot_color(self, val):
+        if isinstance(val, (list, tuple)):
+            if any([i for i in val if i > 1]):
+                val = [i / 255 for i in val]
+        self.__general_plot_color = val
+
+    @property
+    def _has_grid(self):
+        return True if self._has_x_axis or self._has_y_axis else False
+
+    @property
+    def _has_x_axis(self):
+        return True if self.__grid_enable_major_x or self.__grid_enable_minor_x else False
+
+    @property
+    def _has_y_axis(self):
+        return True if self.__grid_enable_major_y or self.__grid_enable_minor_y else False
+
+    @property
+    def _has_major_axis(self):
+        return True if self.__grid_enable_major_x or self.__grid_enable_major_y else False
+
+    @property
+    def _has_minor_axis(self):
+        return True if self.__grid_enable_minor_x or self.__grid_enable_minor_y else False
+
+    # Open an image from a computer
+    @pyaedt_function_handler()
+    def _open_image_local(self):
+        import os
+
+        from PIL import Image
+
+        if not self.logo:
+            self.logo = os.path.join(os.path.dirname(__file__), "../../generic/Ansys.png")
+        image = Image.open(self.logo)  # Open the image
+        image_array = np.array(image)  # Convert to a numpy array
+        return image_array  # Output
+
+    @pyaedt_function_handler()
+    def _update_grid(self):
+        if self._has_x_axis and self._has_y_axis:
+            axis = "both"
+        elif self._has_y_axis:
+            axis = "y"
+        elif self._has_x_axis:
+            axis = "x"
+        else:
+            axis = None
+        if self._has_minor_axis and self._has_major_axis:
+            which = "both"
+        elif self._has_minor_axis:
+            which = "minor"
+        elif self._has_major_axis:
+            which = "major"
+        else:
+            which = None
+        props = {
+            "axes.grid": True if self._has_grid else False,
+            "axes.grid.axis": axis,
+            "axes.grid.which": which,
+            "grid.linestyle": self.__grid_style,
+        }
+        if not self._style:
+            props["figure.facecolor"] = self.__general_back_color
+            props["axes.facecolor"] = self.__general_plot_color
+            props["grid.color"] = self.__grid_color
+
+        self.plt_params.update(props)
+        if self.ax:
+            self.ax.grid(which=which)
+            if self._has_major_axis:
+                self.ax.grid(which="major", color=self.__grid_color)
+            if self._has_major_axis:
+                self.ax.grid(which="minor", color=self.__grid_color)
+            if self._has_minor_axis:
+                if self.__grid_enable_minor_x:
+                    self.ax.xaxis.minorticks_on()
+                if self.__grid_enable_minor_y:
+                    self.ax.yaxis.minorticks_on()
+            self.ax.tick_params(which="minor", grid_linestyle="--")
+
+    @property
+    def y_scale(self):
+        """Y axis scale. It can be linear or log.
+
+        Returns
+        -------
+        str
+        """
+        return self.__y_scale
+
+    @y_scale.setter
+    def y_scale(self, val):
+        self.__y_scale = val
+
+    @property
+    def x_scale(self):
+        """X axis scale. It can be linear or log.
+
+        Returns
+        -------
+        str
+        """
+        return self.__x_scale
+
+    @x_scale.setter
+    def x_scale(self, val):
+        self.__x_scale = val
+
+    @property
+    def interactive(self):
+        """Enable interactive mode.
+
+        Returns
+        -------
+        bool
+        """
+        return plt.isinteractive()
+
+    @interactive.setter
+    def interactive(self, val):
+        if val:
+            plt.ion()
+        else:
+            plt.ioff()
+
+    @pyaedt_function_handler()
+    def add_limit_line(self, plot_data, hatch_above=True, properties=None, name=""):
+        """Add a new limit_line to the chart.
+
+        Parameters
+        ----------
+        plot_data : list
+            Data to be inserted. Data has to be cartesian with x and y.
+        properties : dict, optional
+            Properties of the trace.
+            {x_label:prop,
+            y_label:prop,
+            trace_style : "-",
+            trace_width : 1.5,
+            trace_color : None,
+            symbol_style : 'v',
+            fill_symbol : None,
+            symbol_color : "C0"
+            }
+        name : str
+            Line name.
+
+        Returns
+        -------
+        bool
+        """
+        nt = LimitLine()
+        nt.hatch_above = hatch_above
+        nt.name = name if name else f"Trace_{len(self.traces)}"
+        nt.x_label = properties.get("x_label", "")
+        nt.y_label = properties.get("y_label", "")
+        nt.trace_color = properties.get("trace_color", None)
+        nt.trace_style = properties.get("trace_style", "-")
+        nt.trace_width = properties.get("trace_width", 1.5)
+        nt.symbol_style = properties.get("symbol_style", "")
+        nt.fill_symbol = properties.get("fill_symbol", False)
+        nt.symbol_color = properties.get("symbol_color", None)
+        nt.cartesian_data = plot_data
+        self._limit_lines[nt.name] = nt
+        return True
+
+    @pyaedt_function_handler()
+    def add_trace(self, plot_data, data_type=0, properties=None, name=""):
+        """Add a new trace to the chart.
+
+        Parameters
+        ----------
+        plot_data : list
+            Data to be inserted.
+        data_type : int, optional
+            Data format. ``0`` for cartesian, ``1`` for spherical data.
+        properties : dict, optional
+            Properties of the trace.
+            {x_label:prop,
+            y_label:prop,
+            z_label:prop,
+            trace_style : "-",
+            trace_width : 1.5,
+            trace_color : None,
+            symbol_style : 'v',
+            fill_symbol : None,
+            symbol_color : "C0"
+            }
+        name : str
+            Trace name.
+
+        Returns
+        -------
+        bool
+        """
+        nt = Trace()
+        nt.name = name if name else f"Trace_{len(self.traces)}"
+        nt.x_label = properties.get("x_label", "")
+        nt.y_label = properties.get("y_label", "")
+        nt.z_label = properties.get("z_label", "")
+        nt.trace_color = properties.get("trace_color", None)
+        nt.trace_style = properties.get("trace_style", "-")
+        nt.trace_width = properties.get("trace_width", 1.5)
+        nt.symbol_style = properties.get("symbol_style", "")
+        nt.fill_symbol = properties.get("fill_symbol", False)
+        nt.symbol_color = properties.get("symbol_color", None)
+        if data_type == 0:
+            nt.cartesian_data = plot_data
+        else:
+            nt.spherical_data = plot_data
+        self._traces[nt.name] = nt
+        return True
+
+    @property
+    def size(self):
+        """Figure size.
+
+        Returns
+        -------
+        list
+        """
+        px = self.plt_params["figure.dpi"]  # pixel in inches
+        return [i * px for i in self.plt_params["figure.figsize"]]
+
+    @size.setter
+    def size(self, val, is_pixel=True):
+        if is_pixel:
+            px = 1 / self.plt_params["figure.dpi"]  # pixel in inches
+            self.plt_params["figure.figsize"] = [i * px for i in val]
+        else:
+            self.plt_params["figure.figsize"] = val
+
+    @pyaedt_function_handler()
+    def _plot(self, snapshot_path, show):
+        self.fig.set_size_inches(
+            self.size[0] / self.plt_params["figure.dpi"], self.size[1] / self.plt_params["figure.dpi"]
+        )
+        self._update_grid()
+        if self.show_logo:
+            image_xaxis = 0.9
+            image_yaxis = 0.95
+            image_width = 0.1
+            image_height = 0.05
+            ax_image = self.fig.add_axes([image_xaxis, image_yaxis, image_width, image_height])
+            # Display the image
+            ax_image.imshow(self._open_image_local())
+            ax_image.axis("off")  # Remove axis of the image
+
+        if snapshot_path:
+            self.fig.savefig(snapshot_path)
+        if show:  # pragma: no cover
+            if is_notebook():
+                pass
+            elif is_ipython():
+                self.fig.show()
+            elif self.block:
+                plt.show(block=True)
+            else:
+                plt.show()
+        return self.fig
+
+    def _set_scale(self, x, y):
+        min_y = np.amin(y)
+        max_y = np.amax(y)
+        min_x = np.amin(x)
+        max_x = np.amax(x)
+        if self.y_scale:
+            if not (self.y_scale == "log" and min_y < 0 or max_y < 0):
+                self.ax.set_yscale(self.y_scale)
+        if self.x_scale:
+            if not (self.x_scale == "log" and min_x < 0 or max_x < 0):
+                self.ax.set_xscale(self.x_scale)
+        y_range = max_y - min_y
+        x_range = max_x - min_x
+        if self.y_scale == "log":
+            y_range = -1e-12
+        if self.x_scale == "log":
+            x_range = -1e-12
+        self.ax.set_ylim(min_y - y_range * 0.2, max_y + y_range * 0.2)
+        self.ax.set_xlim(min_x - x_range * 0.2, max_x + x_range * 0.2)
+
+    @pyaedt_function_handler()
+    def _retrieve_traces(self, traces):
+        if traces is None:
+            return self.traces_by_index
+        traces_to_plot = []
+        if isinstance(traces, (int, str)):
+            traces = [traces]
+        try:
+            for tr in traces:
+                if isinstance(tr, int):
+                    traces_to_plot.append(list(self.traces.values())[tr])
+                elif isinstance(tr, str):
+                    traces_to_plot.append(self.traces[tr])
+        except (KeyError, IndexError):
+            settings.logger.error("Failed to retrieve traces")
+            return False
+        return traces_to_plot
+
+    @pyaedt_function_handler()
+    def plot_polar(self, traces=None, to_polar=False, snapshot_path=None, show=True, is_degree=True):
+        """Create a Matplotlib polar plot based on a list of data.
+
+        Parameters
+        ----------
+        traces : int, str, list, optional
+            Trace or traces to be plotted. It can be the trace name, the trace id or a list of those.
+        to_polar : bool, optional
+            Whether if cartesian data has to be converted to polar before the plot or can be used as is.
+        snapshot_path : str
+            Full path to the image file if a snapshot is needed.
+        show : bool, optional
+            Whether to render the figure. The default is ``True``. If ``False``, the
+            figure is not drawn.
+        is_degree : bool, optional
+            Whether if data source are in degree or not. Default is ``True``.
+
+        Returns
+        -------
+        :class:`matplotlib.pyplot.Figure`
+            Matplotlib figure object.
+        """
+        traces_to_plot = self._retrieve_traces(traces)
+        if not traces_to_plot:
+            return False
+
+        self.fig, self.ax = plt.subplots(subplot_kw={"projection": "polar"})
+
+        legend = []
+        i = 0
+        rate = 1
+        if is_degree:
+            rate = np.pi / 180
+        for trace in traces_to_plot:
+            if not to_polar:
+                theta = trace._cartesian_data[0] * rate
+                r = trace._cartesian_data[1]
+            else:
+                theta, r = trace.car2polar(trace._cartesian_data[0], trace._cartesian_data[1], is_degree=is_degree)
+            self.ax.plot(theta, r)
+            self.ax.grid(True)
+            self.ax.set_theta_zero_location("N")
+            self.ax.set_theta_direction(-1)
+            legend.append(trace.name)
+            if i == 0:
+                self.ax.set(xlabel=trace.x_label, ylabel=trace.y_label, title=self.title)
+            i += 1
+
+        if self.show_legend:
+            self.ax.legend(legend, loc="upper right")
+        self._plot(snapshot_path, show)
+        return self.fig
+
+    @pyaedt_function_handler()
+    def plot_3d(self, trace, snapshot_path=None, show=True):
+        """Create a Matplotlib 3D plot based on a list of data.
+
+        Parameters
+        ----------
+        trace : int, str optional
+            Trace index or name on which create the 3D Plot.
+        snapshot_path : str, optional
+            Full path to image file if a snapshot is needed.
+        show : bool, optional
+            Whether to show the plot or return the matplotlib object. Default is `True`.
+
+        Returns
+        -------
+        :class:`matplotlib.pyplot.Figure`
+            Matplotlib figure object.
+        """
+        trace_number = self._retrieve_traces(trace)
+        if not trace_number:
+            return False
+        self.fig, self.ax = plt.subplots(subplot_kw={"projection": "3d"})
+        tr = trace_number[0]
+
+        self.ax.set_xlabel(tr.x_label, labelpad=20)
+        self.ax.set_ylabel(tr.y_label, labelpad=20)
+        self.ax.set_title(tr.z_label)
+        self.ax.plot_surface(
+            tr._cartesian_data[0],
+            tr._cartesian_data[1],
+            tr._cartesian_data[2],
+            rstride=1,
+            cstride=1,
+            cmap=plt.get_cmap("jet"),
+            linewidth=0,
+            antialiased=True,
+            alpha=0.8,
+        )
+
+        self._plot(snapshot_path, show)
+        return self.fig
+
+    @pyaedt_function_handler()
+    def plot_2d(self, traces=None, snapshot_path=None, show=True):
+        """Create a Matplotlib figure based on a list of data.
+
+        Parameters
+        ----------
+        traces : int, str, list, optional
+            Trace or traces to be plotted. It can be the trace name, the trace id or a list of those.
+        snapshot_path : str, optional
+            Full path to image file if a snapshot is needed.
+            The default value is ``None``.
+        show : bool, optional
+            Whether to show the plot or return the matplotlib object. Default is `True`.
+
+        Returns
+        -------
+        :class:`matplotlib.pyplot.Figure`
+            Matplotlib figure object.
+        """
+        traces_to_plot = self._retrieve_traces(traces)
+        if not traces_to_plot:
+            return False
+        self.fig, self.ax = plt.subplots()
+        legend_names = []
+
+        for trace in traces_to_plot:
+            self.ax.plot(
+                trace._cartesian_data[0],
+                trace._cartesian_data[1],
+                f"{trace.symbol_style}{trace.trace_style}",
+                fillstyle="full" if trace.fill_symbol else "none",
+                markeredgecolor=trace.symbol_color,
+                label=trace.name,
+                color=trace.trace_color,
+            )
+            self.ax.set(xlabel=trace.x_label, ylabel=trace.y_label, title=self.title)
+            self._set_scale(trace._cartesian_data[0], trace._cartesian_data[1])
+
+            legend_names.append(trace.name)
+        self._plot_limit_lines()
+
+        if self.show_legend:
+            self.ax.legend(legend_names, loc="upper right")
+
+        self._plot(snapshot_path, show)
+        return self.fig
+
+    @pyaedt_function_handler()
+    def _plot_limit_lines(self, convert_to_radians=False):
+        rate = 1
+        if convert_to_radians:
+            rate = np.pi / 180
+        for _, trace in self.limit_lines.items():
+            min_y = np.amin(trace._cartesian_data[1]) * rate
+            max_y = np.amax(trace._cartesian_data[1]) * rate
+            delta = (max_y - min_y) / 5
+            self.ax.plot(
+                trace._cartesian_data[0] * rate,
+                trace._cartesian_data[1],
+                f"{trace.symbol_style}{trace.trace_style}",
+                fillstyle="full" if trace.fill_symbol else "none",
+                markeredgecolor=trace.symbol_color,
+                label=trace.name,
+                color=trace.trace_color,
+            )
+            if trace.hatch_above:
+                y_data = [i + delta for i in trace._cartesian_data[1]]
+                self.ax.fill_between(
+                    trace._cartesian_data[0] * rate,
+                    trace._cartesian_data[1],
+                    y_data,
+                    alpha=0.3,
+                    color=trace.trace_color,
+                    hatch="/",
+                )
+            else:
+                y_data = [i - delta for i in trace._cartesian_data[1]]
+                self.ax.fill_between(
+                    trace._cartesian_data[0] * rate,
+                    y_data,
+                    trace._cartesian_data[1],
+                    alpha=0.3,
+                    color=trace.trace_color,
+                    hatch="/",
+                )
+
+    @pyaedt_function_handler()
+    def plot_contour(
+        self,
+        trace=0,
+        polar=False,
+        levels=64,
+        max_theta=180,
+        color_bar=None,
+        snapshot_path=None,
+        show=True,
+    ):
+        """Create a Matplotlib figure contour based on a list of data.
+
+        Parameters
+        ----------
+        trace : int, str, optional
+            Trace index on which create the 3D Plot.
+        polar : bool, optional
+            Generate the plot in polar coordinates. The default is ``True``. If ``False``, the plot
+            generated is rectangular.
+        levels : int, optional
+            Color map levels. The default is ``64``.
+        max_theta : float or int, optional
+            Maximum theta angle for plotting. It applies only for polar plots.
+            The default is ``180``, which plots the data for all angles.
+            Setting ``max_theta`` to 90 limits the displayed data to the upper
+            hemisphere, that is (0 < theta < 90).
+        color_bar : str, optional
+            Color bar title. The default is ``None`` in which case the color bar is not included.
+        snapshot_path : str, optional
+            Full path to image file if a snapshot is needed.
+            The default value is ``None``.
+        show : bool, optional
+            Whether to show the plot or return the matplotlib object. Default is ``True``.
+
+        Returns
+        -------
+        :class:`matplotlib.pyplot.Figure`
+            Matplotlib figure object.
+        """
+        warnings.warn(
+            "`plot_contour` is deprecated. Use class `ReportPlotter` to initialize and `plot_contour` instead.",
+            DeprecationWarning,
+        )
+        tr = self._retrieve_traces(trace)
+        if not tr:
+            return False
+        else:
+            tr = tr[0]
+        projection = "polar" if polar else "rectilinear"
+        self.fig, self.ax = plt.subplots(subplot_kw={"projection": projection})
+        self.ax.set_xlabel(tr.x_label)
+        if polar:
+            self.ax.set_rticks(np.linspace(0, max_theta, 3))
+        else:
+            self.ax.set_ylabel(tr.y_label)
+
+        self.ax.set(title=self.title)
+        ph = tr._spherical_data[2]
+        th = tr._spherical_data[1]
+        data_to_plot = tr._spherical_data[0]
+        plt.contourf(
+            ph,
+            th,
+            data_to_plot,
+            levels=levels,
+            cmap="jet",
+        )
+        if color_bar:
+            cbar = plt.colorbar()
+            cbar.set_label(color_bar, rotation=270, labelpad=20)
+
+        self.ax = plt.gca()
+        self.ax.yaxis.set_label_coords(-0.1, 0.5)
+        self._plot(snapshot_path, show)
+        return self.fig
+
+
 @pyaedt_function_handler()
 def plot_polar_chart(
     plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None, show=True
 ):
     """Create a Matplotlib polar plot based on a list of data.
+
+    .. deprecated:: 0.11.1
+        Use :class:`ReportPlotter` instead.
 
     Parameters
     ----------
@@ -107,45 +1089,27 @@ def plot_polar_chart(
 
     Returns
     -------
-    :class:`matplotlib.pyplot.Figure`
-        Matplotlib figure object.
+    :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
+        Matplotlib class object.
     """
-    dpi = 100.0
-    fig, ax = plt.subplots(subplot_kw={"projection": "polar"})
-
-    label_id = 1
-    legend = []
-    for plot_object in plot_data:
-        if len(plot_object) == 3:
-            label = plot_object[2]
-        else:
-            label = "Trace " + str(label_id)
-        theta = np.array(plot_object[0])
-        r = np.array(plot_object[1])
-        ax.plot(theta, r)
-        ax.grid(True)
-        ax.set_theta_zero_location("N")
-        ax.set_theta_direction(-1)
-        legend.append(label)
-        label_id += 1
-
-    ax.set(xlabel=xlabel, ylabel=ylabel, title=title)
-    if show_legend:
-        ax.legend(legend)
-
-    # fig = plt.gcf()
-    fig.set_size_inches(size[0] / dpi, size[1] / dpi)
-    if snapshot_path:
-        fig.savefig(snapshot_path)
-    if show:  # pragma: no cover
-        fig.show()
-    plt.rcParams.update(default_rc_params)
-    return fig
+    new = ReportPlotter()
+    new.size = size
+    new.show_legend = show_legend
+    new.title = title
+    props = {"x_label": xlabel, "y_label": ylabel}
+    for pdata in plot_data:
+        name = pdata[2] if len(pdata) > 2 else "Trace"
+        new.add_trace(pdata[:2], 0, props, name=name)
+    _ = new.plot_polar(traces=None, snapshot_path=snapshot_path, show=show)
+    return new
 
 
 @pyaedt_function_handler()
 def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", snapshot_path=None, show=True):
     """Create a Matplotlib 3D plot based on a list of data.
+
+    .. deprecated:: 0.11.1
+        Use :class:`ReportPlotter` instead.
 
     Parameters
     ----------
@@ -167,37 +1131,22 @@ def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", 
 
     Returns
     -------
-    :class:`matplotlib.pyplot.Figure`
-        Matplotlib figure object.
+    :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
+        Matplotlib class object.
     """
-    dpi = 100.0
-    fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
-    fig.set_size_inches(size[0] / dpi, size[1] / dpi)
-    if isinstance(plot_data[0], np.ndarray):
-        x = plot_data[0]
-        y = plot_data[1]
-        z = plot_data[2]
-    else:
-        theta_grid, phi_grid = np.meshgrid(plot_data[0], plot_data[1])
-        if isinstance(plot_data[2], list):
-            r = np.array(plot_data[2])
-        else:
-            r = plot_data[2]
-        x = r * np.sin(theta_grid) * np.cos(phi_grid)
-        y = r * np.sin(theta_grid) * np.sin(phi_grid)
-        z = r * np.cos(theta_grid)
-
-    ax.set_xlabel(xlabel, labelpad=20)
-    ax.set_ylabel(ylabel, labelpad=20)
-    ax.set_title(title)
-    ax.plot_surface(x, y, z, rstride=1, cstride=1, cmap=plt.get_cmap("jet"), linewidth=0, antialiased=True, alpha=0.8)
-
-    if snapshot_path:
-        fig.savefig(snapshot_path)
-    if show:  # pragma: no cover
-        fig.show()
-    plt.rcParams.update(default_rc_params)
-    return fig
+    warnings.warn(
+        "`plot_3d_chart` is deprecated. Use class `ReportPlotter` to initialize and `plot_3d` instead.",
+        DeprecationWarning,
+    )
+    new = ReportPlotter()
+    new.size = size
+    new.show_legend = False
+    new.title = title
+    props = {"x_label": xlabel, "y_label": ylabel}
+    name = plot_data[3] if len(plot_data) > 3 else "Trace"
+    new.add_trace(plot_data[:3], 2, props, name)
+    _ = new.plot_3d(trace=0, snapshot_path=snapshot_path, show=show)
+    return new
 
 
 @pyaedt_function_handler()
@@ -205,6 +1154,9 @@ def plot_2d_chart(
     plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None, show=True
 ):
     """Create a Matplotlib figure based on a list of data.
+
+    .. deprecated:: 0.11.1
+        Use :class:`ReportPlotter` instead.
 
     Parameters
     ----------
@@ -229,36 +1181,30 @@ def plot_2d_chart(
 
     Returns
     -------
-    :class:`matplotlib.pyplot.Figure`
-        Matplotlib figure object.
+    :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
+        Matplotlib class object.
     """
-    dpi = 100.0
-    fig, ax = plt.subplots()
-    fig.set_size_inches(size[0] / dpi, size[1] / dpi)
-    label_id = 1
-    for plo_obj in plot_data:
-        if isinstance(plo_obj[0], np.ndarray):
-            x = plo_obj[0]
-            y = plo_obj[1]
-        else:
-            x = np.array([i for i, j in zip(plo_obj[0], plo_obj[1]) if j])
-            y = np.array([i for i in plo_obj[1] if i])
-        label = "Plot {}".format(str(label_id))
-        if len(plo_obj) > 2:
-            label = plo_obj[2]
-        ax.plot(x, y, label=label)
-        label_id += 1
+    warnings.warn(
+        "`plot_2d_chart` is deprecated. Use class `ReportPlotter` to initialize and `plot_2d` instead.",
+        DeprecationWarning,
+    )
+    new = ReportPlotter()
+    new.size = size
+    new.show_legend = show_legend
+    new.title = title
+    from ansys.aedt.core.generic.constants import CSS4_COLORS
 
-    ax.set(xlabel=xlabel, ylabel=ylabel, title=title)
-    if show_legend:
-        ax.legend()
-
-    if snapshot_path:
-        fig.savefig(snapshot_path)
-    elif show and not is_notebook():  # pragma: no cover
-        fig.show()
-    plt.rcParams.update(default_rc_params)
-    return fig
+    k = 0
+    for data in plot_data:
+        label = f"{xlabel}_{data[2]}" if len(data) == 3 else xlabel
+        props = {"x_label": label, "y_label": ylabel, "line_color": list(CSS4_COLORS.keys())[k]}
+        k += 1
+        if k == len(list(CSS4_COLORS.keys())):
+            k = 0
+        name = data[2] if len(data) > 2 else "Trace"
+        new.add_trace(data[:2], 0, props, name)
+    _ = new.plot_2d(None, snapshot_path, show)
+    return new
 
 
 @pyaedt_function_handler()
@@ -372,7 +1318,6 @@ def plot_matplotlib(
         plt.savefig(snapshot_path)
     if show:  # pragma: no cover
         plt.show()
-    plt.rcParams.update(default_rc_params)
     return fig
 
 
@@ -391,6 +1336,9 @@ def plot_contour(
     show=True,
 ):
     """Create a Matplotlib figure contour based on a list of data.
+
+    .. deprecated:: 0.11.1
+        Use :class:`ReportPlotter` instead.
 
     Parameters
     ----------
@@ -425,47 +1373,30 @@ def plot_contour(
 
     Returns
     -------
-    :class:`matplotlib.pyplot.Figure`
-        Matplotlib figure object.
+    :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
+        Matplotlib class object.
     """
-
-    dpi = 100.0
-    figsize = (size[0] / dpi, size[1] / dpi)
-
-    projection = "polar" if polar else "rectilinear"
-    fig, ax = plt.subplots(figsize=figsize, subplot_kw={"projection": projection})
-
-    ax.set_xlabel(xlabel)
-    if polar:
-        ax.set_rticks(np.linspace(0, max_theta, 3))
-    else:
-        ax.set_ylabel(ylabel)
-
-    ax.set(xlabel=xlabel, ylabel=ylabel, title=title)
-    if len(plot_data) != 3:  # pragma: no cover
-        pyaedt_logger.error("Input should contain 3 numpy arrays.")
-        return False
-    ph = plot_data[2]
-    th = plot_data[1]
-    data_to_plot = plot_data[0]
-    plt.contourf(
-        ph,
-        th,
-        data_to_plot,
-        levels=levels,
-        cmap="jet",
+    warnings.warn(
+        "`plot_contour` is deprecated. Use class `ReportPlotter` to initialize and `plot_contour` instead.",
+        DeprecationWarning,
     )
+    new = ReportPlotter()
+    new.size = size
+    new.show_legend = False
+    new.title = title
+    props = {
+        "x_label": xlabel,
+        "y_label": ylabel,
+    }
 
-    if color_bar:
-        cbar = plt.colorbar()
-        cbar.set_label(color_bar, rotation=270, labelpad=20)
-
-    ax = plt.gca()
-    ax.yaxis.set_label_coords(-0.1, 0.5)
-
-    if snapshot_path:
-        fig.savefig(snapshot_path)
-    if show:  # pragma: no cover
-        fig.show()
-    plt.rcParams.update(default_rc_params)
-    return fig
+    new.add_trace(plot_data, 2, props)
+    _ = new.plot_contour(
+        trace=0,
+        polar=polar,
+        levels=levels,
+        max_theta=max_theta,
+        color_bar=color_bar,
+        snapshot_path=snapshot_path,
+        show=show,
+    )
+    return new

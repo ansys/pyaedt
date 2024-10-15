@@ -34,9 +34,7 @@ from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import write_csv
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.visualization.plot.matplotlib import plot_2d_chart
-from ansys.aedt.core.visualization.plot.matplotlib import plot_3d_chart
-from ansys.aedt.core.visualization.plot.matplotlib import plot_polar_chart
+from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
 np = None
 pd = None
@@ -766,6 +764,41 @@ class SolutionData(object):
 
         return write_csv(output, list_full, delimiter=delimiter)
 
+    @pyaedt_function_handler()
+    def _get_data_formula(self, curve, formula=None):
+        if not formula or formula == "re":
+            return self.data_real(curve)
+        elif formula == "im":
+            return self.data_imag(curve)
+        elif formula == "db20":
+            return self.data_db20(curve)
+        elif formula == "db10":
+            return self.data_db10(curve)
+        elif formula == "mag":
+            return self.data_magnitude(curve)
+        elif formula == "phasedeg":
+            return curve
+        elif formula == "phaserad":
+            return self.data_phase(curve, True)
+
+    @pyaedt_function_handler()
+    def get_report_plotter(self, curves=None, formula=None, to_radians=False):
+        if not curves:
+            curves = [self.active_expression]
+        if isinstance(curves, str):
+            curves = [curves]
+        data_plot = []
+        if not formula:
+            formula = "re"
+        if to_radians:
+            sw = self.to_radians(self.primary_sweep_values)
+        else:
+            sw = self.primary_sweep_values
+        new = ReportPlotter()
+        for curve in curves:
+            data_plot.append([sw, self._get_data_formula(curve, formula), "{}({})".format(formula, curve)])
+        return new
+
     @pyaedt_function_handler(math_formula="formula", xlabel="x_label", ylabel="y_label")
     def plot(
         self,
@@ -813,48 +846,17 @@ class SolutionData(object):
 
         Returns
         -------
-        :class:`matplotlib.pyplot.Figure`
-            Matplotlib figure object.
+        :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
+            Matplotlib class object.
         """
-        if not curves:
-            curves = [self.active_expression]
-        if isinstance(curves, str):
-            curves = [curves]
-        data_plot = []
-        sweep_name = self.primary_sweep
+        report_plotter = self.get_report_plotter(curves=curves, formula=formula, to_radians=is_polar)
+        report_plotter.show_legend = show_legend
+        report_plotter.title = title
+        report_plotter.size = size
         if is_polar:
-            sw = self.to_radians(self.primary_sweep_values)
+            return report_plotter.plot_polar(snapshot_path=snapshot_path, show=show)
         else:
-            sw = self.primary_sweep_values
-        for curve in curves:
-            if not formula:
-                data_plot.append([sw, self.data_real(curve), curve])
-            elif formula == "re":
-                data_plot.append([sw, self.data_real(curve), "{}({})".format(formula, curve)])
-            elif formula == "im":
-                data_plot.append([sw, self.data_imag(curve), "{}({})".format(formula, curve)])
-            elif formula == "db20":
-                data_plot.append([sw, self.data_db20(curve), "{}({})".format(formula, curve)])
-            elif formula == "db10":
-                data_plot.append([sw, self.data_db10(curve), "{}({})".format(formula, curve)])
-            elif formula == "mag":
-                data_plot.append([sw, self.data_magnitude(curve), "{}({})".format(formula, curve)])
-            elif formula == "phasedeg":
-                data_plot.append([sw, self.data_phase(curve, False), "{}({})".format(formula, curve)])
-            elif formula == "phaserad":
-                data_plot.append([sw, self.data_phase(curve, True), "{}({})".format(formula, curve)])
-        if not x_label:
-            x_label = sweep_name
-        if not y_label:
-            y_label = formula
-        if not title:
-            title = "Simulation Results Plot"
-        if len(data_plot) > 15:
-            show_legend = False
-        if is_polar:
-            return plot_polar_chart(data_plot, size, show_legend, x_label, y_label, title, snapshot_path, show=show)
-        else:
-            return plot_2d_chart(data_plot, size, show_legend, x_label, y_label, title, snapshot_path, show=show)
+            return report_plotter.plot_2d(snapshot_path=snapshot_path, show=show)
 
     @pyaedt_function_handler(xlabel="x_label", ylabel="y_label", math_formula="formula")
     def plot_3d(
@@ -945,7 +947,15 @@ class SolutionData(object):
             y_label = y_axis
         if not title:
             title = "Simulation Results Plot"
-        return plot_3d_chart(data_plot, size, x_label, y_label, title, snapshot_path, show=show)
+
+        new = ReportPlotter()
+        new.size = size
+        new.show_legend = False
+        new.title = title
+        props = {"x_label": x_label, "y_label": y_label}
+        new.add_trace(data_plot, 2, props, curve)
+        _ = new.plot_3d(trace=0, snapshot_path=snapshot_path, show=show)
+        return new
 
     @pyaedt_function_handler()
     def ifft(self, curve_header="NearE", u_axis="_u", v_axis="_v", window=False):
