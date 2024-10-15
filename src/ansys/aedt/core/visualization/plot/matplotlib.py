@@ -85,6 +85,161 @@ def is_ipython():
         return False  # Probably standard Python interpreter
 
 
+class Note:
+    def __init__(self):
+        self._position = (0, 0)
+        self._text = ""
+        self._back_color = None
+        self._background_visibility = None
+        self._border_visibility = None
+        self._border_width = None
+        self._font = "Arial"
+        self._font_size = 12
+        self._italic = False
+        self._bold = False
+        self._color = (0, 0, 0)
+
+    @property
+    def text(self):
+        """Note text.
+
+        Returns
+        -------
+        str
+        """
+        return self._text
+
+    @text.setter
+    def text(self, value):
+        self._text = value
+
+    @property
+    def background_color(self):
+        """Note color.
+
+        Returns
+        -------
+        tuple or list
+        """
+        return self._back_color
+
+    @background_color.setter
+    def background_color(self, value):
+        self._back_color = value
+
+    @property
+    def background_visibility(self):
+        """Note background visibility.
+
+        Returns
+        -------
+        bool
+        """
+        return self._background_visibility
+
+    @background_visibility.setter
+    def background_visibility(self, value):
+        self._background_visibility = value
+
+    @property
+    def border_visibility(self):
+        """Note border visibility.
+
+        Returns
+        -------
+        bool
+        """
+        return self._border_visibility
+
+    @border_visibility.setter
+    def border_visibility(self, value):
+        self._border_visibility = value
+
+    @property
+    def border_width(self):
+        """Note border width.
+
+        Returns
+        -------
+        float
+        """
+        return self._border_width
+
+    @border_width.setter
+    def border_width(self, value):
+        self._border_width = value
+
+    @property
+    def font(self):
+        """Note font.
+
+        Returns
+        -------
+        str
+        """
+        return self._font
+
+    @font.setter
+    def font(self, value):
+        self._font = value
+
+    @property
+    def font_size(self):
+        """Note font size.
+
+        Returns
+        -------
+        bool
+        """
+        return self._font_size
+
+    @font_size.setter
+    def font_size(self, value):
+        self._font_size = value
+
+    @property
+    def color(self):
+        """Note font color.
+
+        Returns
+        -------
+        list
+        """
+        return self._color
+
+    @color.setter
+    def color(self, value):
+        self._color = value
+
+    @property
+    def bold(self):
+        """Note font bold.
+
+        Returns
+        -------
+        bool
+        """
+        return self._bold
+
+    @bold.setter
+    def bold(self, value):
+        self._bold = value
+
+    @property
+    def italic(self):
+        """Note font italic.
+
+        Returns
+        -------
+        bool
+        """
+        return self._italic
+
+    @italic.setter
+    def italic(self, value):
+        self._italic = value
+
+
 class Trace:
     """Trace class."""
 
@@ -303,6 +458,7 @@ class ReportPlotter:
         self.block = settings.block_figure_plot
         self._traces = {}
         self._limit_lines = {}
+        self._notes = []
         self.plt_params = plt.rcParams
         self.plt_params.update(rc_params)
         self.show_legend = True
@@ -624,6 +780,34 @@ class ReportPlotter:
         else:
             plt.ioff()
 
+    def add_note(
+        self,
+        text,
+        position=(0, 1),
+        back_color=None,
+        background_visibility=None,
+        border_visibility=False,
+        border_width=None,
+        font="Arial",
+        font_size=12,
+        italic=False,
+        bold=False,
+        color=(0.2, 0.2, 0.2),
+    ):
+        note = Note()
+        note.text = text
+        note.position = position
+        note.background_color = back_color
+        note.background_visibility = background_visibility
+        note.border_visibility = border_visibility
+        note.border_width = border_width
+        note.font = font
+        note.font_size = font_size
+        note.italic = italic
+        note.bold = bold
+        note.color = color
+        self._notes.append(note)
+
     @pyaedt_function_handler()
     def add_limit_line(self, plot_data, hatch_above=True, properties=None, name=""):
         """Add a new limit_line to the chart.
@@ -934,12 +1118,33 @@ class ReportPlotter:
 
             legend_names.append(trace.name)
         self._plot_limit_lines()
-
+        self._plot_notes()
         if self.show_legend:
             self.ax.legend(legend_names, loc="upper right")
 
         self._plot(snapshot_path, show)
         return self.fig
+
+    @pyaedt_function_handler()
+    def _plot_notes(self):
+        for note in self._notes:
+            t = self.ax.text(
+                note.position[0],
+                note.position[1],
+                note.text,
+                style="italic" if note.italic else "normal",
+                fontweight="bold" if note.bold else "normal",
+                color=note.color if note.color else (0, 0, 0),
+                fontsize=note.font_size if note.font_size else 10,
+                fontfamily=note.font.lower(),
+            )
+            if note.background_color and note.background_visibility:
+                bbox = {
+                    "facecolor": note.background_color,
+                    "alpha": 0.5,
+                    "pad": note.border_width if note.border_width else 1,
+                }
+                t.set_bbox(bbox)
 
     @pyaedt_function_handler()
     def _plot_limit_lines(self, convert_to_radians=False):
