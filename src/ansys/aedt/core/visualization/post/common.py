@@ -1777,16 +1777,14 @@ class PostProcessorCommon(object):
                 except KeyError:
                     pass
                 try:
-                    markers = (
-                        {
-                            "Box": ",",
-                            "Circle": "o",
-                            "VerticalUpTriangle": "^",
-                            "VerticalDownTriangle": "v",
-                            "HorizontalLeftTriangle": "<",
-                            "HorizontalRightTriangle": ">",
-                        },
-                    )
+                    markers = {
+                        "Box": ",",
+                        "Circle": "o",
+                        "VerticalUpTriangle": "^",
+                        "VerticalDownTriangle": "v",
+                        "HorizontalLeftTriangle": "<",
+                        "HorizontalRightTriangle": ">",
+                    }
                     props["symbol_style"] = markers[pp["symbol_style"]]
                 except KeyError:
                     pass
@@ -1801,7 +1799,11 @@ class PostProcessorCommon(object):
                 props["trace_color"] = line["color"]
             except KeyError:
                 pass
-            report_plotter.add_limit_line([line["xpoints"], line["ypoints"]], 0, properties=props, name=name)
+            try:
+                report_plotter.add_limit_line([line["xpoints"], line["ypoints"]], 0, properties=props, name=name)
+            except:
+                self.logger.warning("Equation lines not supported yet.")
+                pass
         if report._props.get("report_type", "Rectangular Plot") == "Rectangular Plot":
             _ = report_plotter.plot_2d()
             return report_plotter
