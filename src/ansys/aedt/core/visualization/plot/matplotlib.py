@@ -24,6 +24,7 @@
 
 import ast
 import math
+import os
 import warnings
 
 from ansys.aedt.core import settings
@@ -953,7 +954,7 @@ class ReportPlotter:
         if show:  # pragma: no cover
             if is_notebook():
                 pass
-            elif is_ipython():
+            elif is_ipython() or "PYTEST_CURRENT_TEST" in os.environ:
                 self.fig.show()
             elif self.block:
                 plt.show(block=True)
