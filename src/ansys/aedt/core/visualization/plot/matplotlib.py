@@ -786,7 +786,6 @@ class ReportPlotter:
         position=(0, 1),
         back_color=None,
         background_visibility=None,
-        border_visibility=False,
         border_width=None,
         font="Arial",
         font_size=12,
@@ -794,12 +793,30 @@ class ReportPlotter:
         bold=False,
         color=(0.2, 0.2, 0.2),
     ):
+        """Add a note to the report.
+
+        Parameters
+        ----------
+        text : str
+        position : list, optional
+        back_color : list, optional
+        background_visibility : bool, optional
+        border_width : float, optional
+        font : str, optional
+        font_size : float, optional
+        italic : bool, optional
+        bold : bool, optional
+        color : list, optional
+
+        Returns
+        -------
+        bool
+        """
         note = Note()
         note.text = text
         note.position = position
         note.background_color = back_color
         note.background_visibility = background_visibility
-        note.border_visibility = border_visibility
         note.border_width = border_width
         note.font = font
         note.font_size = font_size

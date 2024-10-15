@@ -1772,7 +1772,7 @@ class PostProcessorCommon(object):
                 except KeyError:
                     pass
                 try:
-                    styles = ({"Solid": "-", "Dash": "--", "DotDash": "-.", "DotDot": ":"},)
+                    styles = {"Solid": "-", "Dash": "--", "DotDash": "-.", "DotDot": ":"}
                     props["trace_style"] = styles[pp["trace_style"]]
                 except KeyError:
                     pass
