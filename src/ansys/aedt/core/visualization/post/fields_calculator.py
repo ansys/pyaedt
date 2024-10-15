@@ -582,10 +582,9 @@ class FieldsCalculator:
         return True
 
     @pyaedt_function_handler()
-    def calculator_export(
+    def export(
         self,
         quantity,
-        sample_points_file,
         sample_points,
         grid_type,
         solution=None,
@@ -619,8 +618,9 @@ class FieldsCalculator:
                                     specified.
 
         If you want to adopt the first option you must provide either the file containing the grid of points
-        (``sample_points_file``) or provide a list of sample points (``sample_points``) that will be automatically
-        written in a file located in the working directory called "temp_points.pts" and consequently imported.
+        or provide a list of sample points in ``sample_points``. In the latter case, a new file is created
+        in the working directory called "temp_points.pts" that will be automatically written with the data points
+        provided and consequently imported.
         If you want to adopt the second option you must provide the grid type (Cartesian, Cylindrical or Spherical).
         If ``grid_center``, ``grid_start`` or ``grid_stop`` are not provided the default values are used.
 
@@ -628,10 +628,8 @@ class FieldsCalculator:
         ----------
         quantity : str
             Name of the quantity to export.
-        sample_points_file : str
-            Name of the file with sample points.
-        sample_points : list
-            List of the sample points.
+        sample_points : str, list
+            Name of the file with sample points or list of the sample points.
         grid_type : str
             Type of the grid to export. The options are:
             - ``Cartesian``
@@ -699,23 +697,42 @@ class FieldsCalculator:
         bool or str
             The path to the exported field file when successful, ``False`` when failed.
         """
-        if sample_points_file or sample_points:
-            self.__app.post.export_field_plot(
-                quantity=quantity,
-                solution=solution,
-                variations=variations,
-                output_file=output_file,
-                assignment=assignment,
-                objects_type=objects_type,
-                intrinsics=intrinsics,
-                phase=phase,
-                sample_points_file=sample_points_file,
-                sample_points=sample_points,
-                export_with_sample_points=export_with_sample_points,
-                reference_coordinate_system=reference_coordinate_system,
-                export_in_si_system=export_in_si_system,
-                export_field_in_reference=export_field_in_reference,
-            )
+        if sample_points:
+            if isinstance(sample_points, str):
+                self.__app.post.export_field_file(
+                    quantity=quantity,
+                    solution=solution,
+                    variations=variations,
+                    output_file=output_file,
+                    assignment=assignment,
+                    objects_type=objects_type,
+                    intrinsics=intrinsics,
+                    phase=phase,
+                    sample_points_file=sample_points,
+                    export_with_sample_points=export_with_sample_points,
+                    reference_coordinate_system=reference_coordinate_system,
+                    export_in_si_system=export_in_si_system,
+                    export_field_in_reference=export_field_in_reference,
+                )
+            elif isinstance(sample_points, list):
+                self.__app.post.export_field_file(
+                    quantity=quantity,
+                    solution=solution,
+                    variations=variations,
+                    output_file=output_file,
+                    assignment=assignment,
+                    objects_type=objects_type,
+                    intrinsics=intrinsics,
+                    phase=phase,
+                    sample_points=sample_points,
+                    export_with_sample_points=export_with_sample_points,
+                    reference_coordinate_system=reference_coordinate_system,
+                    export_in_si_system=export_in_si_system,
+                    export_field_in_reference=export_field_in_reference,
+                )
+            else:
+                self.__app.logger("Wrong input type for ``sample_points``.")
+                return False
         elif grid_type:
             self.__app.post.export_field_file_on_grid(
                 quantity=quantity,
