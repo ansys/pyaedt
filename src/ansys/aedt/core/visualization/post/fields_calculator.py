@@ -581,6 +581,171 @@ class FieldsCalculator:
         self.ofieldsreporter.CalcStack("clear")
         return True
 
+    @pyaedt_function_handler()
+    def calculator_export(
+        self,
+        quantity,
+        sample_points_file,
+        sample_points,
+        grid_type,
+        solution=None,
+        variations=None,
+        output_file=None,
+        intrinsics=None,
+        phase=None,
+        export_with_sample_points=True,
+        reference_coordinate_system="Global",
+        export_in_si_system=True,
+        export_field_in_reference=True,
+        grid_center=None,
+        grid_start=None,
+        grid_stop=None,
+        grid_step=None,
+        is_vector=False,
+        assignment="AllObjects",
+        objects_type="Vol",
+    ):
+        """Export the field quantity in the top register to a file, mapping it to a grid of points.
+
+        Two options are available for defining the grid points on which to export:
+        -   Input grid points from file : Maps the field quantity to a customized grid of points.
+                                          Before using this command, you must create a file containing the points
+                                          and units.
+        -   Calculate grid points : Maps the field quantity to a three-dimensional Cartesian grid.
+                                    You specify the dimensions and spacing of the grid in the x, y, and z directions,
+                                    with units. The initial units are taken from the model.
+                                    Other grid options are: Cylindrical, in which case rho, phi and z directions must be
+                                    specified, or Spherical, in which case r, theta and phi directions must be
+                                    specified.
+
+        If you want to adopt the first option you must provide either the file containing the grid of points
+        (``sample_points_file``) or provide a list of sample points (``sample_points``) that will be automatically
+        written in a file located in the working directory called "temp_points.pts" and consequently imported.
+        If you want to adopt the second option you must provide the grid type (Cartesian, Cylindrical or Spherical).
+        If ``grid_center``, ``grid_start`` or ``grid_stop`` are not provided the default values are used.
+
+        Parameters
+        ----------
+        quantity : str
+            Name of the quantity to export.
+        sample_points_file : str
+            Name of the file with sample points.
+        sample_points : list
+            List of the sample points.
+        grid_type : str
+            Type of the grid to export. The options are:
+            - ``Cartesian``
+            - ``Cylindrical``
+            - ``Spherical``
+        solution : str, optional
+            Name of the solution in the format ``"solution : sweep"``. The default is ``None``.
+        variations : dict, optional
+            Dictionary of all variation variables with their values.
+            The default is ``None``.
+        output_file : str, optional
+            Full path and name to save the file to.
+            The default is ``None``, in which case the file is exported
+            to the working directory.
+        assignment : str, optional
+            List of objects to export. The default is ``"AllObjects"``.
+        objects_type : str, optional
+            Type of objects to export. The default is ``"Vol"``.
+            Options are ``"Surf"`` for surface and ``"Vol"`` for
+            volume.
+        intrinsics : dict, str, optional
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+            If it is a dictionary, keys depend on the solution type and can be expressed in lower or camel case as:
+            - ``"Freq"`` or ``"Frequency"``
+            - ``"Time"``
+            - ``"Phase"``
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
+        phase : str, optional
+            Field phase. The default is ``None``.
+            This argument is deprecated. Please use ``intrinsics`` and provide the phase as a dictionary key instead.
+        export_with_sample_points : bool, optional
+            Whether to include the sample points in the file to export.
+            The default is ``True``.
+        reference_coordinate_system : str, optional
+            Reference coordinate system in the file to export.
+            The default is ``"Global"``.
+        export_in_si_system : bool, optional
+            Whether the provided sample points are defined in the SI system or model units.
+            The default is ``True``.
+        export_field_in_reference : bool, optional
+            Whether to export the field in reference coordinate system.
+            The default is ``True``.
+        grid_type : str, optional
+            Type of the grid to export. The default is ``"Cartesian"``.
+        grid_center : list, optional
+            The ``[x, y, z]`` coordinates for the center of the grid.
+            The default is ``[0, 0, 0]``. This parameter is disabled if ``gridtype=
+            "Cartesian"``.
+        grid_start : list, optional
+            The ``[x, y, z]`` coordinates for the starting point of the grid.
+            The default is ``[0, 0, 0]``.
+        grid_stop : list, optional
+            The ``[x, y, z]`` coordinates for the stopping point of the grid.
+            The default is ``[0, 0, 0]``.
+        grid_step : list, optional
+            The ``[x, y, z]`` coordinates for the step size of the grid.
+            The default is ``[0, 0, 0]``.
+        is_vector : bool, optional
+            Whether the quantity is a vector. The  default is ``False``.
+        Returns
+        -------
+        bool or str
+            The path to the exported field file when successful, ``False`` when failed.
+        """
+        if sample_points_file or sample_points:
+            self.__app.post.export_field_plot(
+                quantity=quantity,
+                solution=solution,
+                variations=variations,
+                output_file=output_file,
+                assignment=assignment,
+                objects_type=objects_type,
+                intrinsics=intrinsics,
+                phase=phase,
+                sample_points_file=sample_points_file,
+                sample_points=sample_points,
+                export_with_sample_points=export_with_sample_points,
+                reference_coordinate_system=reference_coordinate_system,
+                export_in_si_system=export_in_si_system,
+                export_field_in_reference=export_field_in_reference,
+            )
+        elif grid_type:
+            self.__app.post.export_field_file_on_grid(
+                quantity=quantity,
+                solution=solution,
+                variations=variations,
+                file_name=output_file,
+                grid_type=grid_type,
+                grid_center=grid_center,
+                grid_start=grid_start,
+                grid_stop=grid_stop,
+                grid_step=grid_step,
+                is_vector=is_vector,
+                intrinsics=intrinsics,
+                phase=phase,
+                export_with_sample_points=export_with_sample_points,
+                reference_coordinate_system=reference_coordinate_system,
+                export_in_si_system=export_in_si_system,
+                export_field_in_reference=export_field_in_reference,
+            )
+        else:
+            self.__app.logger.error(
+                "You have to provide at least a path to a file containing the grid of points, "
+                "a sample list of points or the grid type with a three dimensional grid."
+            )
+            return False
+
+        if os.path.exists(output_file):
+            return output_file
+        return False
+
     @staticmethod
     def __has_integer(lst):  # pragma: no cover
         """Check if a list has integers."""
