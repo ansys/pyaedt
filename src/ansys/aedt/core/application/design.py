@@ -625,7 +625,7 @@ class Design(AedtObjects):
 
         >>> oDesktop.GetVersion()
         """
-        return aedt_versions.get_version_env_variable(self._aedt_version)
+        return aedt_versions.env_variable(self._aedt_version)
 
     @property
     def _aedt_version(self):

@@ -31,7 +31,6 @@ import subprocess  # nosec
 
 from ansys.aedt.core import generate_unique_name
 from ansys.aedt.core.generic.aedt_versions import aedt_versions
-from ansys.aedt.core.generic.general_methods import env_value
 from ansys.aedt.core.generic.general_methods import generate_unique_folder_name
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -48,9 +47,9 @@ class SpiSim:
     def __init__(self, touchstone_file=""):
         self.touchstone_file = touchstone_file
         if settings.aedt_version:
-            self.desktop_install_dir = os.environ[env_value(settings.aedt_version)]
+            self.desktop_install_dir = aedt_versions.env_path(settings.aedt_version)
         else:
-            self.desktop_install_dir = os.environ[env_value(aedt_versions.current_version)]
+            self.desktop_install_dir = aedt_versions.env_path(aedt_versions.current_version)
         self.logger = settings.logger
         self._working_directory = ""
 

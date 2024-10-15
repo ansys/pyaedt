@@ -30,7 +30,11 @@ Ideally, it should be the same as ``conftest.default_version``"""
 import os
 import warnings
 
+from ansys.aedt.core.aedt_logger import pyaedt_logger
+from ansys.aedt.core.generic.settings import settings
+
 CURRENT_STABLE_AEDT_VERSION = 2024.2
+MINIMUM_COMPATIBLE_AEDT_VERSION = 2022.2
 
 
 class AedtVersions:
@@ -44,6 +48,7 @@ class AedtVersions:
         self._current_version = None
         self._current_student_version = None
         self._latest_version = None
+        self.logger = pyaedt_logger
 
     @property
     def list_installed_ansysem(self):
@@ -90,11 +95,6 @@ class AedtVersions:
                 try:
                     version = int(current_version_id[0:2])
                     release = int(current_version_id[2])
-                    if version < 20:
-                        if release < 3:
-                            version -= 1
-                        else:
-                            release -= 2
                     if student:
                         v_key = "20{0}.{1}SV".format(version, release)
                     elif client:
@@ -150,38 +150,212 @@ class AedtVersions:
                 self._latest_version = ""
         return self._latest_version
 
-    @staticmethod
-    def get_version_env_variable(version_id):
-        """Get the environment variable for the AEDT version.
+    @property
+    def is_minimum_version_installed(self):
+        """Check if the installed AEDT versions satisfy the minimum version requirement"""
+        try:
+            return float(self.latest_version) >= MINIMUM_COMPATIBLE_AEDT_VERSION
+        except ValueError:
+            return False
+
+    def split_version_and_release(self, input_version):
+        input_version = self.normalize_version(input_version)
+        version = int(input_version[2:4])
+        release = int(input_version[5])
+        return version, release
+
+    def env_variable(self, input_version):
+        """Get the name of the version environment variable for an AEDT version.
 
         Parameters
         ----------
-        version_id : str
-            Full AEDT version number. For example, ``"2021.2"``.
+        input_version : str, float, int
+            AEDT version.
 
         Returns
         -------
         str
-            Environment variable for the version.
+            Name of the version environment variable.
 
         Examples
         --------
-        >>> from ansys.aedt.core import desktop
-        >>> desktop.get_version_env_variable("2021.2")
-        'ANSYSEM_ROOT212'
-
+        >>> env_variable("2024.2")
+        "ANSYSEM_ROOT242"
         """
-        version_env_var = "ANSYSEM_ROOT"
-        values = version_id.split(".")
-        version = int(values[0][2:])
-        release = int(values[1])
-        if version < 20:
-            if release < 3:
-                version += 1
+        version_and_release = self.split_version_and_release(input_version)
+        return f"ANSYSEM_ROOT{version_and_release[0]}{version_and_release[1]}"
+
+    def env_path(self, input_version):
+        """Get the path of the version environment variable for an AEDT version.
+
+        Parameters
+        ----------
+        input_version : str, float, int
+            AEDT version.
+
+        Returns
+        -------
+        str
+            Path of the version environment variable.
+
+        Examples
+        --------
+        >>> env_path("2024.2")
+        "C:/Program Files/ANSYSEM/ANSYSEM2024.2/Win64"
+        """
+        return os.getenv(self.env_variable(input_version))
+
+    def env_variable_student(self, input_version):
+        """Get the name of the version environment variable for an AEDT student version.
+
+        Parameters
+        ----------
+        input_version : str, float, int
+            AEDT student version.
+
+        Returns
+        -------
+        str
+             Name of the student version environment variable.
+
+        Examples
+        --------
+        >>> env_variable_student("2024.2")
+        "ANSYSEMSV_ROOT242"
+        """
+        version_and_release = self.split_version_and_release(input_version)
+        return f"ANSYSEMSV_ROOT{version_and_release[0]}{version_and_release[1]}"
+
+    def env_path_student(self, input_version):
+        """Get the path of the version environment variable for an AEDT student version.
+
+        Parameters
+        ----------
+        input_version : str
+           AEDT student version.
+
+        Returns
+        -------
+        str
+            Path of the student version environment variable.
+
+        Examples
+        --------
+        >>> env_path_student("2024.2")
+        "C:/Program Files/ANSYSEM/ANSYSEM2024.2/Win64"
+        """
+        return os.getenv(self.env_variable_student(input_version))
+
+    def version_to_text(self, version):
+        """Takes a version in any input format supported by `normalize_version` method
+        and returns a string to be used in text messages.
+
+        Parameters
+        ----------
+        version : str, float, int
+            AEDT version in any format.
+
+        Returns
+        -------
+        str
+            Full AEDT version number. For example, ``"2024.2"``."""
+        version, release = self.split_version_and_release(version)
+        return f"20{version} R{release}"
+
+    @staticmethod
+    def normalize_version(input_version):
+        """Converts any input format of the version into a standard string version.
+        Input can be a float (e.g. `2024.2` or `24.2`), int (e.g. `242`),
+        or str (e.g. `"242"`, `"24.2"`, `"2024.2"`).
+        The output will be standard string of the form `"2024.2"`.
+
+        Parameters
+        ----------
+        input_version : str, float, int
+            AEDT version in any format.
+
+        Returns
+        -------
+        str
+            Full AEDT version number. For example, ``"2024.2"``.
+        """
+        output_version = input_version
+        if isinstance(input_version, float):
+            output_version = str(input_version)
+            if len(output_version) == 4:
+                output_version = "20" + output_version
+        elif isinstance(input_version, int):
+            output_version = str(input_version)
+            output_version = "20{}.{}".format(output_version[:2], output_version[-1])
+        elif isinstance(input_version, str):
+            if len(input_version) == 3:
+                output_version = "20{}.{}".format(input_version[:2], input_version[-1])
+            elif len(input_version) == 4:
+                output_version = "20" + input_version
+        return output_version
+
+    def assert_version(self, specified_version, student_version):
+        if self.current_version == "" and self.latest_version == "":
+            raise Exception(
+                f"AEDT is not installed on your system. "
+                f"Install AEDT version {self.version_to_text(MINIMUM_COMPATIBLE_AEDT_VERSION)} or higher."
+            )
+        if not self.is_minimum_version_installed:
+            raise Exception(
+                f"PyAEDT requires AEDT version {self.version_to_text(MINIMUM_COMPATIBLE_AEDT_VERSION)} or higher."
+                f"Install AEDT version {self.version_to_text(MINIMUM_COMPATIBLE_AEDT_VERSION)} or higher."
+            )
+        if not specified_version:
+            if student_version and self.current_student_version:
+                specified_version = self.current_student_version
+            elif student_version and self.current_version:
+                specified_version = self.current_version
+                student_version = False
+                self.logger.warning("AEDT Student Version not found on the system. Using regular version.")
             else:
-                release += 2
-        version_env_var += str(version) + str(release)
-        return version_env_var
+                if self.current_version != "":
+                    specified_version = self.current_version
+                else:
+                    specified_version = aedt_versions.latest_version
+                if "SV" in specified_version:
+                    student_version = True
+                    self.logger.warning("Only AEDT Student Version found on the system. Using Student Version.")
+        elif student_version:
+            specified_version += "SV"
+        specified_version = self.normalize_version(specified_version)
+
+        if float(specified_version[0:6]) < 2019:
+            raise ValueError("PyAEDT supports AEDT version 2021 R1 and later. Recommended version is 2022 R2 or later.")
+        elif float(specified_version[0:6]) < 2022.2:
+            warnings.warn(
+                """PyAEDT has limited capabilities when used with an AEDT version earlier than 2022 R2.
+                Update your AEDT installation to 2022 R2 or later."""
+            )
+        if not (specified_version in self.installed_versions) and not (
+            specified_version + "CL" in self.installed_versions
+        ):
+            raise ValueError(
+                "Specified version {}{} is not installed on your system".format(
+                    specified_version[0:6], " Student Version" if student_version else ""
+                )
+            )
+
+        version_string = "Ansoft.ElectronicsDesktop." + specified_version[0:6]
+        settings.aedt_install_dir = None
+        if specified_version in self.installed_versions:
+            settings.aedt_install_dir = self.installed_versions[specified_version]
+        if settings.remote_rpc_session:
+            try:
+                version_string = "Ansoft.ElectronicsDesktop." + settings.remote_rpc_session.aedt_version[0:6]
+                return (
+                    settings.remote_rpc_session.student_version,
+                    settings.remote_rpc_session.aedt_version,
+                    version_string,
+                )
+            except Exception:
+                return False, "", ""
+
+        return student_version, specified_version, version_string
 
 
 aedt_versions = AedtVersions()

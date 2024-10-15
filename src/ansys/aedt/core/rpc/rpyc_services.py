@@ -9,7 +9,7 @@ import sys
 import time
 
 from ansys.aedt.core import generate_unique_name
-from ansys.aedt.core.generic.general_methods import env_path
+from ansys.aedt.core.generic.aedt_versions import aedt_versions
 
 from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.settings import is_linux
@@ -38,7 +38,6 @@ from ansys.aedt.core import Q2d
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Mechanical
-from ansys.aedt.core.generic.aedt_versions import aedt_versions
 
 
 class FileManagement(object):
@@ -275,11 +274,11 @@ class PyaedtServiceWindows(rpyc.Service):
         if not is_safe_path(script_file):
             return "Script file {} not safe.".format(script_file)
         executable = "ansysedt.exe"
-        if is_linux and not ansysem_path and not env_path(aedt_version):
+        if is_linux and not ansysem_path and not aedt_versions.env_path(aedt_version):
             ansysem_path = os.getenv("PYAEDT_SERVER_AEDT_PATH", "")
-        if env_path(aedt_version) or ansysem_path:
+        if aedt_versions.env_path(aedt_version) or ansysem_path:
             if not ansysem_path:
-                ansysem_path = env_path(aedt_version)
+                ansysem_path = aedt_versions.env_path(aedt_version)
             exe_path = os.path.join(ansysem_path, executable)
             if not is_safe_path(exe_path):
                 return "Ansys EM path not safe."
