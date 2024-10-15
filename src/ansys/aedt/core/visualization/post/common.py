@@ -1586,7 +1586,7 @@ class PostProcessorCommon(object):
         solution_name : str, optional
             Setup name to use.
         matplotlib : bool, optional
-            Whether if use AEDT or ReportPlotter to generate the plot.
+            Whether if use AEDT or ReportPlotter to generate the plot. Eye diagrams are not supported.
 
         Returns
         -------
@@ -1693,7 +1693,10 @@ class PostProcessorCommon(object):
                     report._props["context"]["variations"][el] = k
             _ = report.expressions
             if matplotlib:
-                return self._report_plotter(report)
+                if props.get("report_type", "").lower() in ["eye diagram", "statistical eye"]:  # pragma: no cover
+                    self.logger.warning("Eye Diagrams are not supported by Matplotlib.")
+                else:
+                    return self._report_plotter(report)
             report.create(name)
             if report.report_type != "Data Table":
                 report._update_traces()
@@ -1754,24 +1757,24 @@ class PostProcessorCommon(object):
                 pp = pp[0]
                 try:
                     props["trace_width"] = pp["width"]
-                except:
+                except KeyError:
                     pass
                 try:
                     props["trace_color"] = [i / 255 for i in pp["color"]]
-                except:
+                except KeyError:
                     pass
                 try:
                     props["fill_symbol"] = pp["fill_symbol"]
-                except:
+                except KeyError:
                     pass
                 try:
                     props["symbol_color"] = [i / 255 for i in pp["symbol_color"]]
-                except:
+                except KeyError:
                     pass
                 try:
                     styles = ({"Solid": "-", "Dash": "--", "DotDash": "-.", "DotDot": ":"},)
                     props["trace_style"] = styles[pp["trace_style"]]
-                except:
+                except KeyError:
                     pass
                 try:
                     markers = (
@@ -1785,20 +1788,20 @@ class PostProcessorCommon(object):
                         },
                     )
                     props["symbol_style"] = markers[pp["symbol_style"]]
-                except:
+                except KeyError:
                     pass
             report_plotter.add_trace([sw, sols.data_real(curve)], 0, properties=props, name=curve)
         for name, line in report._props.get("limitLines", {}).items():
             props = {}
             try:
                 props["trace_width"] = line["width"]
-            except:
+            except KeyError:
                 pass
             try:
                 props["trace_color"] = line["color"]
-            except:
+            except KeyError:
                 pass
-            report_plotter.add_limit_line([line["x"], line["y"]], 0, properties=props, name=name)
+            report_plotter.add_limit_line([line["xpoints"], line["ypoints"]], 0, properties=props, name=name)
         if report._props.get("report_type", "Rectangular Plot") == "Rectangular Plot":
             _ = report_plotter.plot_2d()
             return report_plotter

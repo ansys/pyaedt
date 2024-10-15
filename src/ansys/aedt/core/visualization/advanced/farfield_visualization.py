@@ -993,13 +993,12 @@ class FfdSolutionData(object):
         for pdata in curves:
             name = pdata[2] if len(pdata) > 2 else "Trace"
             new.add_trace(pdata[:2], 0, props, name=name)
-        _ = new.plot_polar(traces=None, snapshot_path=output_file, show=show)
         return new
         if is_polar:
-            _ = new.plot_polar(traces=None, snapshot_path=snapshot_path, show=show)
+            _ = new.plot_polar(traces=None, snapshot_path=output_file, show=show)
             return new
         else:
-            _ = new.plot_2d(None, snapshot_path, show)
+            _ = new.plot_2d(None, output_file, show)
             return new
 
     @pyaedt_function_handler()
