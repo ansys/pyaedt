@@ -3000,7 +3000,7 @@ class Matrix(object):
             command = f"""{self._operations[-1]}(SelectionArray[{len(source_names)}: '{"', '".join(source_names)}'],
             OverrideInfo({id_}, '{new_name}'))"""
         else:
-            command = f"{self._operations[-1]}('{', '.join(source_names)}')"
+            command = f"""{self._operations[-1]}('{"', '".join(source_names)}')"""
         return command
 
 
