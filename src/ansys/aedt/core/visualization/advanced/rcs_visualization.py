@@ -697,71 +697,54 @@ class MonostaticRCSPlotter(object):
     @pyaedt_function_handler()
     def add_rcs(
         self,
-        plot_type="Line",
         color_bar="jet",
-        primary_sweep="Freq",
-        active_theta=None,
-        active_phi=None,
-        active_freq=None,
     ):
         """
         Add the 3D RCS.
         """
-        if active_theta is None:
-            active_theta = self.rcs_data.incident_wave_theta
-        if active_phi is None:
-            active_phi = self.rcs_data.incident_wave_phi
-        if active_freq is None:
-            active_freq = self.rcs_data.frequency
-
-        if primary_sweep.lower() == "freq":
-            data = self.rcs_data.raw_data.xs(key=active_theta, level="IWaveTheta")
-            data = data.xs(key=active_phi, level="IWavePhi")
-            data = conversion_function(data[self.rcs_data.name], self.rcs_data.data_conversion_function)
-            y_key = "Freq"
-        else:
-            data_rcs = self.rcs_data.rcs
-            data = data_rcs.xs(key=active_freq, level="Freq")
-            if primary_sweep.lower() == "iwavephi":
-                y_key = "IWaveTheta"
-            else:
-                y_key = "IWavePhi"
-
-        y = data.values
-        if not isinstance(y, np.ndarray):  # pragma: no cover
-            raise Exception("Format of quantity is wrong.")
+        data = self.rcs_data.rcs
 
         new_data = self.stretch_data(data, scaling_factor=self.extents[5] - self.extents[4], offset=self.extents[4])
 
-        thetas = self.rcs_data.incident_wave_theta
-        phis = self.rcs_data.incident_wave_phi
+        if new_data.values.min() < 0:
+            values_renorm = new_data.values + np.abs(new_data.values.min())
+        else:
+            values_renorm = new_data.values
 
-        # Stretch frequencies to fit scene
-        freqs = self.rcs_data.frequencies
-        freqs = self.stretch_data(np.array(freqs), scaling_factor=1.0, offset=0.0)
+        phi = []
+        theta = []
+        values = []
 
-        cosphis = np.cos(np.radians(phis))
-        sinphis = np.sin(np.radians(phis))
-        sinthetas = np.sin(np.radians(thetas))
-        xpos = np.array(freqs) * cosphis * sinthetas
-        ypos = np.array(freqs) * sinphis * sinthetas
-        zpos = None
+        for (phi_val, theta_val), value in data.items():
+            phi.append(np.deg2rad(phi_val))
+            theta.append(np.deg2rad(theta_val))
+            values.append(value)
 
-        plot_data = new_data.to_numpy()
+        unique_phi = np.unique(phi)
+        unique_theta = np.unique(theta)
+        phi_grid, theta_grid = np.meshgrid(unique_phi, unique_theta)
 
-        cpos = data.to_numpy()
+        r = np.zeros(phi_grid.shape)
 
-        actor = self._get_pyvista_rcs_actor(
-            xpos,
-            ypos,
-            zpos,
-            plot_data,
-            cpos,
-            plot_type=plot_type,
-            scene_actors=self.all_scene_actors["model"],
-            data_conversion_function=self.rcs_data.data_conversion_function,
-            extents=self.extents,
-        )
+        # Populate the reshaped array
+        for i, t in enumerate(np.unique(theta)):
+            for j, p in enumerate(np.unique(phi)):
+                # Find the corresponding value for each (phi, theta)
+                idx = np.where((phi == p) & (theta == t))
+                if idx[0].size > 0:
+                    r[i, j] = values_renorm[idx[0][0]]
+
+        x = r * np.sin(theta_grid) * np.cos(phi_grid)
+        y = r * np.sin(theta_grid) * np.sin(phi_grid)
+        z = r * np.cos(theta_grid)
+
+        actor = pv.StructuredGrid(x, y, z)
+        actor.point_data["values"] = data.values
+
+        # plotter = pv.Plotter()
+        # plotter.add_mesh(mesh, scalars="values", cmap="jet")
+        # plotter.add_axes()
+        # plotter.show()
 
         all_results_actors = list(self.all_scene_actors["results"].keys())
 
