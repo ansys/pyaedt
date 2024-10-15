@@ -686,7 +686,9 @@ class MonostaticRCSPlotter(object):
 
         for all_scene_results in self.all_scene_actors["results"]:
             for result_actor in self.all_scene_actors["results"][all_scene_results].values():
-                if result_actor.custom_object.show:
+                if getattr(result_actor, "custom_object", None) and result_actor.custom_object.show:
+                    self.__add_mesh(result_actor, plotter, "results")
+                elif getattr(result_actor, "show", None):
                     self.__add_mesh(result_actor, plotter, "results")
 
         if show:
@@ -770,10 +772,10 @@ class MonostaticRCSPlotter(object):
             rcs_object.cmap = color_bar
 
         rcs_object.mesh = actor
+        #
+        # rcs_mesh = MeshObjectPlot(rcs_object, rcs_object.get_mesh())
 
-        rcs_mesh = MeshObjectPlot(rcs_object, rcs_object.get_mesh())
-
-        self.all_scene_actors["results"]["rcs"][rcs_name] = rcs_mesh
+        self.all_scene_actors["results"]["rcs"][rcs_name] = rcs_object
 
     @pyaedt_function_handler()
     def add_range_profile_settings(self, size_range=10, range_resolution=0.1, tick_color="#000000"):
@@ -1102,17 +1104,32 @@ class MonostaticRCSPlotter(object):
     @staticmethod
     def __add_mesh(mesh_object, plotter, mesh_type="results"):
         """Add a mesh to the plotter with additional options."""
-        if mesh_type == "model":
-            options = mesh_object.custom_object.get_model_options()
-        elif mesh_type == "annotations":
-            options = mesh_object.custom_object.get_annotation_options()
-        else:
-            options = mesh_object.custom_object.get_result_options()
+        options = None
+        if getattr(mesh_object, "custom_object", None):
+            if mesh_type == "model":
+                options = mesh_object.custom_object.get_model_options()
+            elif mesh_type == "annotations":
+                options = mesh_object.custom_object.get_annotation_options()
+            else:
+                options = mesh_object.custom_object.get_result_options()
+
+        # TODO
+        if isinstance(mesh_object.mesh, pv.StructuredGrid):
+            if mesh_type == "model":
+                options = mesh_object.get_model_options()
+            elif mesh_type == "annotations":
+                options = mesh_object.get_annotation_options()
+            else:
+                options = mesh_object.get_result_options()
 
         if options is None:
             options = {}
         if getattr(plotter, "plot", None):
-            plotter.plot(mesh_object.mesh, **options)
+            # TODO
+            if isinstance(mesh_object.mesh, pv.StructuredGrid):
+                plotter._backend.pv_interface.scene.add_mesh(mesh_object.mesh, **options)
+            else:
+                plotter.plot(mesh_object.mesh, **options)
         elif getattr(plotter, "add_mesh", None):
             plotter.add_mesh(mesh_object.mesh, **options)
 
