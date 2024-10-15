@@ -2973,36 +2973,32 @@ class Matrix(object):
     @pyaedt_function_handler()
     def _write_command(self, source_names, new_name, new_source, new_sink):
         if self._operations[-1] == "JoinSeries":
-            command = f"{self._operations[-1]}('{new_name}', '{', '.join(source_names)}')"
+            command = f"""{self._operations[-1]}('{new_name}', '{"', '".join(source_names)}')"""
         elif self._operations[-1] == "JoinParallel":
-            command = f"{self._operations[-1]}('{new_name}', '{new_source}', '{new_sink}', '{', '.join(source_names)}')"
+            command = (
+                f"""{self._operations[-1]}('{new_name}', '{new_source}', '{new_sink}', '{"', '".join(source_names)}')"""
+            )
         elif self._operations[-1] == "JoinSelectedTerminals":
-            command = f"{self._operations[-1]}('', '{', '.join(source_names)}')"
+            command = f"""{self._operations[-1]}('', '{"', '".join(source_names)}')"""
         elif self._operations[-1] == "FloatInfinity":
             command = "FloatInfinity()"
         elif self._operations[-1] == "AddGround":
-            command = (
-                f"{self._operations[-1]}(SelectionArray[{len(source_names)}: "
-                f"'{', '.join(source_names)}'], OverrideInfo())"
-            )
+            command = f"""{self._operations[-1]}(SelectionArray[{len(source_names)}: '{"', '".join(source_names)}'],
+            OverrideInfo())"""
         elif (
             self._operations[-1] == "SetReferenceGround"
             or self._operations[-1] == "SetReferenceGround"
             or self._operations[-1] == "Float"
         ):
-            command = (
-                f"{self._operations[-1]}(SelectionArray[{len(source_names)}: "
-                f"'{', '.join(source_names)}'], OverrideInfo())"
-            )
+            command = f"""{self._operations[-1]}(SelectionArray[{len(source_names)}: '{"', '".join(source_names)}'],
+            OverrideInfo())"""
         elif self._operations[-1] == "Parallel" or self._operations[-1] == "DiffPair":
             id_ = 0
             for el in self._app.boundaries:
                 if el.name == source_names[0]:
                     id_ = self._app.modeler[el.props["Objects"][0]].id
-            command = (
-                f"{self._operations[-1]}(SelectionArray[{len(source_names)}: "
-                f"'{', '.join(source_names)}'], OverrideInfo({id_}, '{new_name}'))"
-            )
+            command = f"""{self._operations[-1]}(SelectionArray[{len(source_names)}: '{"', '".join(source_names)}'],
+            OverrideInfo({id_}, '{new_name}'))"""
         else:
             command = f"{self._operations[-1]}('{', '.join(source_names)}')"
         return command
