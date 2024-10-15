@@ -966,7 +966,7 @@ class FfdSolutionData(object):
                 y = conversion_function(y, quantity_format)
                 if not isinstance(y, np.ndarray):  # pragma: no cover
                     raise Exception("Format of quantity is wrong.")
-                curves.append([x, y, "{}={}".format(y_key, el)])
+                curves.append([x, y, f"{y_key}={el}"])
         elif isinstance(secondary_sweep_value, list):
             list_inserted = []
             for el in secondary_sweep_value:
@@ -976,7 +976,7 @@ class FfdSolutionData(object):
                     y = conversion_function(y, quantity_format)
                     if not isinstance(y, np.ndarray):  # pragma: no cover
                         raise Exception("Format of quantity is wrong.")
-                    curves.append([x, y, "{}={}".format(y_key, el)])
+                    curves.append([x, y, f"{y_key}={el}"])
                     list_inserted.append(theta_idx)
         else:
             theta_idx = self.__find_nearest(data[y_key], secondary_sweep_value)
@@ -984,7 +984,7 @@ class FfdSolutionData(object):
             y = conversion_function(y, quantity_format)
             if not isinstance(y, np.ndarray):  # pragma: no cover
                 raise Exception("Wrong format quantity.")
-            curves.append([x, y, "{}={}".format(y_key, data[y_key][theta_idx])])
+            curves.append([x, y, f"{y_key}={data[y_key][theta_idx]}"])
 
         new = ReportPlotter()
         new.show_legend = show_legend

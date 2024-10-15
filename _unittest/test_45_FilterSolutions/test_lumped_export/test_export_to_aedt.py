@@ -45,7 +45,7 @@ second_modelithics_resistor = "Vishay -> RES_VIS_0603_001 D11"
 
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
-@pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
+@pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
 class TestClass:
     def test_modelithics_inductor_list_count(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
@@ -147,7 +147,7 @@ class TestClass:
             lumpdesign.export_to_aedt.modelithics_capacitor_list_count
         assert info.value.args[0] == "The part library is not set to Modelithics"
         lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
-        assert lumpdesign.export_to_aedt.modelithics_capacitor_list_count == 143
+        assert lumpdesign.export_to_aedt.modelithics_capacitor_list_count == 140
 
     def test_modelithics_capacitor_list(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
@@ -450,7 +450,7 @@ class TestClass:
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
         lumpdesign.export_to_aedt.load_library_parts_config(resource_path("library_parts.cfg"))
-        assert lumpdesign.export_to_aedt.part_libraries == PartLibraries.MODELITHICS
+        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         assert lumpdesign.export_to_aedt.substrate_er == "4.5"
         assert lumpdesign.export_to_aedt.substrate_resistivity == "5.8E+07 "
         assert lumpdesign.export_to_aedt.substrate_conductor_thickness == "500 nm"

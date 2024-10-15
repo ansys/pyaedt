@@ -395,7 +395,7 @@ class Materials(object):
                 material.emissivity.value = emissivity
             material.update()
             material._material_update = True
-            self.logger.info("Material has been added. Edit it to update in Desktop.")
+            self.logger.info("Material has been added.")
             self.surface_material_keys[name.lower()] = material
             return self.surface_material_keys[name.lower()]
 

@@ -176,7 +176,7 @@ class TestClass:
         assert "test" not in self.aedtapp.variable_manager.variables
 
     def test_13_designs(self):
-        assert self.aedtapp._insert_design("HFSS", design_name="TestTransient") == "TestTransient"
+        assert self.aedtapp._insert_design(design_name="TestTransient", design_type="HFSS") == "TestTransient"
         self.aedtapp.delete_design("TestTransient")
         self.aedtapp.insert_design("NewDesign")
 
@@ -498,3 +498,7 @@ class TestClass:
         assert not os.path.exists(new_parent_dir)
         self.aedtapp.save_project(file_name=new_project)
         assert os.path.isfile(new_project)
+
+    def test_43_edit_notes(self):
+        assert self.aedtapp.edit_notes("this a test")
+        assert not self.aedtapp.edit_notes(1)

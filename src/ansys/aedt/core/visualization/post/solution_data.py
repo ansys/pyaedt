@@ -733,20 +733,20 @@ class SolutionData(object):
             elif el in sweep_var:
                 unit = self._original_data[0].GetSweepUnits(el)
             if unit == "":
-                header.append("{}".format(el))
+                header.append(f"{el}")
             else:
-                header.append("{} [{}]".format(el, unit))
+                header.append(f"{el} [{unit}]")
         # header = [el for el in self._sweeps_names]
         for el in self.expressions:
             data_unit = self._original_data[0].GetDataUnits(el)
             if data_unit:
-                data_unit = " [{}]".format(data_unit)
+                data_unit = f" [{data_unit}]"
             if not self.is_real_only(el):
 
-                header.append(el + " (Real){}".format(data_unit))
-                header.append(el + " (Imag){}".format(data_unit))
+                header.append(el + f" (Real){data_unit}")
+                header.append(el + f" (Imag){data_unit}")
             else:
-                header.append(el + "{}".format(data_unit))
+                header.append(el + f"{data_unit}")
 
         list_full = [header]
         for e, v in self._solutions_real[self.active_expression].items():
@@ -812,7 +812,7 @@ class SolutionData(object):
             sw = self.primary_sweep_values
         new = ReportPlotter()
         for curve in curves:
-            data_plot.append([sw, self._get_data_formula(curve, formula), "{}({})".format(formula, curve)])
+            data_plot.append([sw, self._get_data_formula(curve, formula), f"{formula}({curve})"])
         return new
 
     @pyaedt_function_handler(math_formula="formula", xlabel="x_label", ylabel="y_label")
