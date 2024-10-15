@@ -36,29 +36,14 @@ is_windows = not is_linux
 pyaedt_enviroment_variable = "PYAEDT_INTERPRETER"
 
 
-def disclaimer():
-    """Notify users about extra packages."""
-    DISCLAIMER = (
-        "This script will download and install certain third-party software and/or "
-        "open-source software (collectively, 'Third-Party Software'). Such Third-Party "
-        "Software is subject to separate terms and conditions and not the terms of your "
-        "Ansys software license agreement. Ansys does not warrant or support such "
-        "Third-Party Software."
-    )
-    print(DISCLAIMER)
-
-    response = input("Do you want to proceed ? (y/n)").strip().lower()
-    return response == "y"
-
-
 def run_pyinstaller_from_c_python(oDesktop, pyaedt_interpreter):
     # Iron Python script to create PyAEDT panels
-    
+
     # Get AEDT information
     version = oDesktop.GetVersion()[2:6].replace(".", "")
 
     # Add PyAEDT tabs in AEDT
-        
+
     # Create Toolkits in PersonalLib
     import tempfile
     python_script = os.path.join(tempfile.gettempdir(), "configure_pyaedt.py")
@@ -101,10 +86,6 @@ def run_command(command):
 
 if __name__ == "__main__":
 
-    response = disclaimer()
-    if not response:
-        exit(1)
-    
     python_interpreter = os.getenv(pyaedt_enviroment_variable)
     if python_interpreter and not os.path.exists(python_interpreter):
         oDesktop.AddMessage("", "", 2, "Python environment does not exist.")
