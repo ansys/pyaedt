@@ -2266,7 +2266,7 @@ class Material(CommonMaterial, object):
                 points = [i for p in points_at_frequency[freq] for i in p]
                 one_curve = dict(
                     {
-                        f"Frequency": "{freq}Hz",
+                        f"Frequency": f"{freq}Hz",
                         "Coordinates": dict({"DimUnits": ["", ""], "Points": points}),
                     }
                 )
@@ -2770,8 +2770,8 @@ class Material(CommonMaterial, object):
         K = f"({dk} * {df} - {sigma_dc} / (2 * pi * {frequency} * e0)) / atan({freq_hi} / {frequency})"
         epsilon_inf = f"({dk} - {K} / 2 * ln({freq_hi}**2 / {frequency}**2 + 1))"
         freq_low = f"({freq_hi} / exp(10 * {df} * {epsilon_inf} / ({K})))"
-        ds_er = "{epsilon_inf} + {K} / 2 * ln(({freq_hi}**2 + Freq**2) / ({freq_low}**2 + Freq**2))"
-        cond = "{sigma_dc} + 2 * pi * Freq * e0 * ({K}) * (atan(Freq / ({freq_low})) - atan(Freq / {freq_hi}))"
+        ds_er = f"{epsilon_inf} + {K} / 2 * ln(({freq_hi}**2 + Freq**2) / ({freq_low}**2 + Freq**2))"
+        cond = f"{sigma_dc} + 2 * pi * Freq * e0 * ({K}) * (atan(Freq / ({freq_low})) - atan(Freq / {freq_hi}))"
         # ds_tande = "{} / (e0 * {} * 2 * pi * Freq)".format(cond, ds_er)
 
         self.conductivity = cond

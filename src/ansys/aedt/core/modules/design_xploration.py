@@ -261,7 +261,7 @@ class CommonOptimetrics(PropsManager, object):
             sweepdefinition["GoalValue"] = {
                 "GoalValueType": "Independent",
                 "Format": "Real/Imag",
-                f"bG": ["v:=", f"[{goal_value};]"],
+                "bG": ["v:=", f"[{goal_value};]"],
             }
             sweepdefinition["Weight"] = f"[{goal_weight};]"
         return sweepdefinition
