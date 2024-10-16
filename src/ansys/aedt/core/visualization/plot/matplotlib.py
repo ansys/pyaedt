@@ -1084,7 +1084,7 @@ class ReportPlotter:
         if not is_polar:
             self.ax.set_xlabel(tr.x_label, labelpad=20)
             self.ax.set_ylabel(tr.y_label, labelpad=20)
-        self.ax.set_title(tr.z_label)
+        self.ax.set_title(self.title)
         cmap = plt.get_cmap("jet")
         self.ax.plot_surface(
             tr._cartesian_data[0],
