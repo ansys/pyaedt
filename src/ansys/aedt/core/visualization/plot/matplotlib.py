@@ -61,7 +61,7 @@ def is_notebook():
     """
     try:
         shell = get_ipython().__class__.__name__
-        if shell in ["ZMQInteractiveShell"]:
+        if shell in ["ZMQInteractiveShell"]:  # pragma: no cover
             return True  # Jupyter notebook or qtconsole
         else:
             return False
@@ -80,7 +80,7 @@ def is_ipython():
         shell = get_ipython().__class__.__name__
         if shell in ["TerminalInteractiveShell", "SpyderShell"]:
             return True  # Jupyter notebook or qtconsole
-        else:
+        else:  # pragma: no cover
             return False
     except NameError:
         return False  # Probably standard Python interpreter
@@ -683,7 +683,6 @@ class ReportPlotter:
     # Open an image from a computer
     @pyaedt_function_handler()
     def _open_image_local(self):
-        import os
 
         from PIL import Image
 
@@ -1066,6 +1065,8 @@ class ReportPlotter:
             Full path to image file if a snapshot is needed.
         show : bool, optional
             Whether to show the plot or return the matplotlib object. Default is `True`.
+        color_map_limits : list, optional
+            Color map minimum and maximum values.
         is_polar : bool, optional
             Whether if the plot will be polar or not. Polar plot will hide axes and grids. Default is ``True``.
 
@@ -1113,18 +1114,18 @@ class ReportPlotter:
             Y = np.sin(np.arange(-3.14, 3.14, 0.01)) * 1.3 * tr._cartesian_data[0].max()
             self.ax.plot(X, Y, Z, linestyle=":", color=(0, 0, 0))
             self.ax.text(X.max(), Y.max(), mean, "Phi")
-            range = (tr._cartesian_data[2].max() - tr._cartesian_data[2].min()) / 2
+            range_in = (tr._cartesian_data[2].max() - tr._cartesian_data[2].min()) / 2
 
-            X = np.cos(np.arange(-3.14, 3.14, 0.01)) * range
-            Z = (np.sin(np.arange(-3.14, 3.14, 0.01)) * range) + mean
+            X = np.cos(np.arange(-3.14, 3.14, 0.01)) * range_in
+            Z = (np.sin(np.arange(-3.14, 3.14, 0.01)) * range_in) + mean
             mean2 = (tr._cartesian_data[1].max() + tr._cartesian_data[1].min()) / 2
             Y = np.empty(len(Z))
             Y.fill(mean2)
             self.ax.plot(X, Y, Z, color=(0, 0, 0))
             self.ax.text(X.mean(), mean2, Z.min(), "Theta")
 
-            X = np.cos(np.arange(-3.14, 3.14, 0.01)) * range / 2
-            Z = (np.sin(np.arange(-3.14, 3.14, 0.01)) * range / 2) + mean
+            X = np.cos(np.arange(-3.14, 3.14, 0.01)) * range_in / 2
+            Z = (np.sin(np.arange(-3.14, 3.14, 0.01)) * range_in / 2) + mean
             self.ax.plot(X, Y, Z, linestyle=":", color=(0, 0, 0))
             self.ax.set_aspect("equal")
             self.ax.grid(False)

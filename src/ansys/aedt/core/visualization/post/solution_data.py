@@ -806,9 +806,8 @@ class SolutionData(object):
             curves = self.expressions
         if isinstance(curves, str):
             curves = [curves]
-        data_plot = []
         if not formula:
-            formula = "re"
+            formula = "mag"
         if to_radians:
             sw = self.to_radians(self.primary_sweep_values)
         else:

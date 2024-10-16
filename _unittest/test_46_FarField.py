@@ -168,6 +168,15 @@ class TestClass:
             title=f"Azimuth at {ffdata.frequency}Hz",
             quantity_format="dB10",
         )
+        matplot_lib.add_note(
+            "Hello Pyaedt2",
+            [10, -10],
+            color=(1, 1, 0),
+            bold=True,
+            italic=True,
+            back_color=(0, 0, 1),
+            background_visibility=True,
+        )
 
         matplot_lib.traces_by_index[0].trace_style = "--"
         matplot_lib.x_scale = "log"
