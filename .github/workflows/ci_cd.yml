@@ -44,7 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check documentation style
-        uses: ansys/actions/doc-style@v6
+        uses: ansys/actions/doc-style@v8
         with:
          token: ${{ secrets.GITHUB_TOKEN }}
 
