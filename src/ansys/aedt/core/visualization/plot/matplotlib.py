@@ -1092,7 +1092,7 @@ class ReportPlotter:
             antialiased=True,
             alpha=0.8,
         )
-
+        self.ax.set_zlim(max(0, tr._cartesian_data[2].min()), tr._cartesian_data[2].max())
         self._plot(snapshot_path, show)
         return self.fig
 

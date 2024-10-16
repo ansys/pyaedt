@@ -267,7 +267,10 @@ class SolutionData(object):
             _solutions_mag[expr] = {}
             self.units_data[expr] = self.nominal_variation.GetDataUnits(expr)
             if self.enable_pandas_output:
-                _solutions_mag[expr] = np.sqrt(self._solutions_real[expr])
+                _solutions_mag[expr] = np.sqrt(
+                    self._solutions_real[expr] * self._solutions_real[expr]
+                    + self._solutions_imag[expr] * self._solutions_imag[expr]
+                )
             else:
                 for i in self._solutions_real[expr]:
                     _solutions_mag[expr][i] = abs(complex(self._solutions_real[expr][i], self._solutions_imag[expr][i]))
@@ -782,7 +785,7 @@ class SolutionData(object):
             return self.data_phase(curve, True)
 
     @pyaedt_function_handler()
-    def get_report_plotter(self, curves=None, formula=None, to_radians=False):
+    def get_report_plotter(self, curves=None, formula=None, to_radians=False, props=None):
         """Get the `ReportPlotter` on the specified curves.
 
         Parameters
@@ -800,7 +803,7 @@ class SolutionData(object):
             Report plotter class.
         """
         if not curves:
-            curves = [self.active_expression]
+            curves = self.expressions
         if isinstance(curves, str):
             curves = [curves]
         data_plot = []
@@ -812,7 +815,11 @@ class SolutionData(object):
             sw = self.primary_sweep_values
         new = ReportPlotter()
         for curve in curves:
-            data_plot.append([sw, self._get_data_formula(curve, formula), f"{formula}({curve})"])
+            if props is None:
+                props = {"x_label": self.primary_sweep, "y_label": ""}
+            active_intr = ",".join([f"{i}={k}" for i, k in self.active_intrinsic.items() if i != self.primary_sweep])
+            name = f"{formula}({curve})_{active_intr}"
+            new.add_trace([sw, self._get_data_formula(curve, formula)], name=name, properties=props)
         return new
 
     @pyaedt_function_handler(math_formula="formula", xlabel="x_label", ylabel="y_label")
@@ -865,7 +872,8 @@ class SolutionData(object):
         :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
             Matplotlib class object.
         """
-        report_plotter = self.get_report_plotter(curves=curves, formula=formula, to_radians=is_polar)
+        props = {"x_label": x_label, "y_label": y_label}
+        report_plotter = self.get_report_plotter(curves=curves, formula=formula, to_radians=is_polar, props=props)
         report_plotter.show_legend = show_legend
         report_plotter.title = title
         report_plotter.size = size
@@ -926,13 +934,16 @@ class SolutionData(object):
 
         if not formula:
             formula = "mag"
-        theta = self.variation_values(x_axis)
+        theta = [i * math.pi / 180 for i in self.variation_values(x_axis)]
         y_axis_val = self.variation_values(y_axis)
 
         phi = []
         r = []
         for el in y_axis_val:
-            self.active_variation[y_axis] = el
+            if y_axis in self.active_intrinsic:
+                self.active_intrinsic[y_axis] = el
+            else:
+                self.active_variation[y_axis] = el
             phi.append(el * math.pi / 180)
 
             if formula == "re":
@@ -949,27 +960,27 @@ class SolutionData(object):
                 r.append(self.data_phase(curve, False))
             elif formula == "phaserad":
                 r.append(self.data_phase(curve, True))
-        active_sweep = self.active_intrinsic[self.primary_sweep]
-        position = self.variation_values(self.primary_sweep).index(active_sweep)
-        if len(self.variation_values(self.primary_sweep)) > 1:
-            new_r = []
-            for el in r:
-                new_r.append([el[position]])
-            r = new_r
-        data_plot = [theta, phi, r]
+
+        theta_grid, phi_grid = np.meshgrid(theta, phi)
+        r_grid = np.reshape(r, (len(phi), len(theta)))
+
+        x = r_grid * np.sin(theta_grid) * np.cos(phi_grid)
+        y = r_grid * np.sin(theta_grid) * np.sin(phi_grid)
+        z = r_grid * np.cos(theta_grid)
+        data_plot = [x, y, z]
         if not x_label:
             x_label = x_axis
         if not y_label:
             y_label = y_axis
         if not title:
             title = "Simulation Results Plot"
-
         new = ReportPlotter()
         new.size = size
         new.show_legend = False
         new.title = title
         props = {"x_label": x_label, "y_label": y_label}
-        new.add_trace(data_plot, 2, props, curve)
+        new.add_trace(data_plot, 0, props, curve)
+
         _ = new.plot_3d(trace=0, snapshot_path=snapshot_path, show=show)
         return new
 
