@@ -1,11 +1,11 @@
 ci:
     autofix_commit_msg: |
-        MISC: Auto fixes from pre-commit.com hooks
+        CHORE: Auto fixes from pre-commit.com hooks
 
         For more information, see https://pre-commit.ci
     autofix_prs: true
-    autoupdate_branch: 'maint/pre-commit-autoupdate'
-    autoupdate_commit_msg: 'MISC: Pre-commit automatic update'
+    autoupdate_branch: 'chore/pre-commit-autoupdate'
+    autoupdate_commit_msg: 'CHORE: Pre-commit automatic update'
     autoupdate_schedule: weekly
 
 files: |
