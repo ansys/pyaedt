@@ -197,8 +197,10 @@ class TestClass:
         self.aedtapp.set_active_design("HFSSDesign")
         self.aedtapp["w1"] = "10mm"
         self.aedtapp["w2"] = "2mm"
+        assert not self.aedtapp.parametrics.add("invalid", 0.1, 20, 0.2, "LinearStep")
         setup1 = self.aedtapp.parametrics.add("w1", 0.1, 20, 0.2, "LinearStep")
         assert setup1
+        assert not setup1.add_variation("invalid", "0.1mm", 10, 11)
         assert setup1.add_variation("w2", "0.1mm", 10, 11)
         assert setup1.add_variation("w2", start_point="0.2mm", variation_type="SingleValue")
         assert setup1.add_variation("w1", start_point="0.3mm", end_point=5, step=0.2, variation_type="LinearStep")
@@ -229,6 +231,7 @@ class TestClass:
         )
         assert setup1
         assert setup1.add_variation("a2", start_point="0.3mm", end_point=5, step=10, variation_type="LinearCount")
+        assert not setup1.sync_variables(["invalid"], sync_n=1)
         assert setup1.sync_variables(["a1", "a2"], sync_n=1)
         assert setup1.sync_variables(["a1", "a2"], sync_n=0)
         setup1.add_variation("a1", start_point="13mm", variation_type="SingleValue")

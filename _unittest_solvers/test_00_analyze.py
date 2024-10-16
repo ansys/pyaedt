@@ -296,6 +296,8 @@ class TestClass:
         assert d["Mean"]
 
     def test_03b_icepak_get_output_variable(self):
+        with pytest.raises(KeyError):
+            self.icepak_app.get_output_variable("invalid")
         value = self.icepak_app.get_output_variable("OutputVariable1")
         tol = 1e-9
         assert abs(value - 0.5235987755982988) < tol
