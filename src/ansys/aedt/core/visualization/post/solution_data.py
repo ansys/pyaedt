@@ -961,6 +961,13 @@ class SolutionData(object):
             elif formula == "phaserad":
                 r.append(self.data_phase(curve, True))
 
+        min_r = 1e12
+        max_r = -1e12
+        for el in r:
+            min_r = min(min_r, el.values.min())
+            max_r = max(max_r, el.values.max())
+        if min_r < 0:
+            r = [i + np.abs(min_r) for i in r]
         theta_grid, phi_grid = np.meshgrid(theta, phi)
         r_grid = np.reshape(r, (len(phi), len(theta)))
 
@@ -981,7 +988,7 @@ class SolutionData(object):
         props = {"x_label": x_label, "y_label": y_label}
         new.add_trace(data_plot, 0, props, curve)
 
-        _ = new.plot_3d(trace=0, snapshot_path=snapshot_path, show=show)
+        _ = new.plot_3d(trace=0, snapshot_path=snapshot_path, show=show, color_map_limits=[min_r, max_r])
         return new
 
     @pyaedt_function_handler()

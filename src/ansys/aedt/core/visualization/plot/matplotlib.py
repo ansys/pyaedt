@@ -39,10 +39,10 @@ except ImportError:
     )
 
 try:
+    from matplotlib.colors import Normalize
     from matplotlib.patches import PathPatch
     from matplotlib.path import Path
     import matplotlib.pyplot as plt
-
 except ImportError:
     warnings.warn(
         "The Matplotlib module is required to run some functionalities of PostProcess.\n"
@@ -702,7 +702,7 @@ class ReportPlotter:
         elif self._has_x_axis:
             axis = "x"
         else:
-            axis = None
+            axis = "both"
         if self._has_minor_axis and self._has_major_axis:
             which = "both"
         elif self._has_minor_axis:
@@ -934,7 +934,7 @@ class ReportPlotter:
             self.plt_params["figure.figsize"] = val
 
     @pyaedt_function_handler()
-    def _plot(self, snapshot_path, show):
+    def _plot(self, snapshot_path, show, is_3d=False):
         self.fig.set_size_inches(
             self.size[0] / self.plt_params["figure.dpi"], self.size[1] / self.plt_params["figure.dpi"]
         )
@@ -1055,7 +1055,7 @@ class ReportPlotter:
         return self.fig
 
     @pyaedt_function_handler()
-    def plot_3d(self, trace, snapshot_path=None, show=True):
+    def plot_3d(self, trace=0, snapshot_path=None, show=True, color_map_limits=[0, 1], is_polar=True):
         """Create a Matplotlib 3D plot based on a list of data.
 
         Parameters
@@ -1077,22 +1077,58 @@ class ReportPlotter:
             return False
         self.fig, self.ax = plt.subplots(subplot_kw={"projection": "3d"})
         tr = trace_number[0]
-
-        self.ax.set_xlabel(tr.x_label, labelpad=20)
-        self.ax.set_ylabel(tr.y_label, labelpad=20)
+        if not is_polar:
+            self.ax.set_xlabel(tr.x_label, labelpad=20)
+            self.ax.set_ylabel(tr.y_label, labelpad=20)
         self.ax.set_title(tr.z_label)
+        cmap = plt.get_cmap("jet")
         self.ax.plot_surface(
             tr._cartesian_data[0],
             tr._cartesian_data[1],
             tr._cartesian_data[2],
             rstride=1,
             cstride=1,
-            cmap=plt.get_cmap("jet"),
+            cmap=cmap,
             linewidth=0,
             antialiased=True,
             alpha=0.8,
         )
-        self.ax.set_zlim(max(0, tr._cartesian_data[2].min()), tr._cartesian_data[2].max())
+        if is_polar:
+            self.fig.colorbar(
+                plt.cm.ScalarMappable(norm=Normalize(color_map_limits[0], color_map_limits[1]), cmap=cmap), ax=self.ax
+            )
+            X = np.cos(np.arange(-3.14, 3.14, 0.01)) * 2 * tr._cartesian_data[0].max()
+            Y = np.sin(np.arange(-3.14, 3.14, 0.01)) * 2 * tr._cartesian_data[0].max()
+            Z = np.empty(len(Y))
+            mean = (tr._cartesian_data[2].max() + tr._cartesian_data[2].min()) / 2
+            Z.fill(mean)
+            self.ax.plot(X, Y, Z, color=(0, 0, 0))
+            X = np.cos(np.arange(-3.14, 3.14, 0.01)) * 1.3 * tr._cartesian_data[0].max()
+            Y = np.sin(np.arange(-3.14, 3.14, 0.01)) * 1.3 * tr._cartesian_data[0].max()
+            self.ax.plot(X, Y, Z, linestyle=":", color=(0, 0, 0))
+            self.ax.text(X.max(), Y.max(), mean, "Phi")
+            range = (tr._cartesian_data[2].max() - tr._cartesian_data[2].min()) / 2
+
+            X = np.cos(np.arange(-3.14, 3.14, 0.01)) * range
+            Z = (np.sin(np.arange(-3.14, 3.14, 0.01)) * range) + mean
+            mean2 = (tr._cartesian_data[1].max() + tr._cartesian_data[1].min()) / 2
+            Y = np.empty(len(Z))
+            Y.fill(mean2)
+            self.ax.plot(X, Y, Z, color=(0, 0, 0))
+            self.ax.text(X.mean(), mean2, Z.min(), "Theta")
+
+            X = np.cos(np.arange(-3.14, 3.14, 0.01)) * range / 2
+            Z = (np.sin(np.arange(-3.14, 3.14, 0.01)) * range / 2) + mean
+            self.ax.plot(X, Y, Z, linestyle=":", color=(0, 0, 0))
+            self.ax.set_aspect("equal")
+            self.ax.grid(False)
+
+            # Hide axes ticks
+            self.ax.set_xticks([])
+            self.ax.set_yticks([])
+            self.ax.set_zticks([])
+            self.ax.set_axis_off()
+
         self._plot(snapshot_path, show)
         return self.fig
 
