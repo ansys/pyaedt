@@ -933,10 +933,11 @@ class ReportPlotter:
             self.plt_params["figure.figsize"] = val
 
     @pyaedt_function_handler()
-    def _plot(self, snapshot_path, show, is_3d=False):
+    def _plot(self, snapshot_path, show):
         self.fig.set_size_inches(
             self.size[0] / self.plt_params["figure.dpi"], self.size[1] / self.plt_params["figure.dpi"]
         )
+
         self._update_grid()
         if self.show_logo:
             image_xaxis = 0.9
@@ -1103,6 +1104,7 @@ class ReportPlotter:
                 plt.cm.ScalarMappable(norm=Normalize(color_map_limits[0], color_map_limits[1]), cmap=cmap),
                 ax=self.ax,
                 ticks=ticks,
+                shrink=0.7,
             )
             X = np.cos(np.arange(-3.14, 3.14, 0.01)) * 2 * tr._cartesian_data[0].max()
             Y = np.sin(np.arange(-3.14, 3.14, 0.01)) * 2 * tr._cartesian_data[0].max()
@@ -1322,7 +1324,7 @@ class ReportPlotter:
 
 @pyaedt_function_handler()
 def plot_polar_chart(
-    plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None, show=True
+    plot_data, size=(1920, 1440), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None, show=True
 ):
     """Create a Matplotlib polar plot based on a list of data.
 
@@ -1368,7 +1370,7 @@ def plot_polar_chart(
 
 
 @pyaedt_function_handler()
-def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", snapshot_path=None, show=True):
+def plot_3d_chart(plot_data, size=(1920, 1440), xlabel="", ylabel="", title="", snapshot_path=None, show=True):
     """Create a Matplotlib 3D plot based on a list of data.
 
     .. deprecated:: 0.11.1
@@ -1414,7 +1416,7 @@ def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", 
 
 @pyaedt_function_handler()
 def plot_2d_chart(
-    plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None, show=True
+    plot_data, size=(1920, 1440), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None, show=True
 ):
     """Create a Matplotlib figure based on a list of data.
 
@@ -1427,7 +1429,7 @@ def plot_2d_chart(
         List of plot data. Every item has to be in the following format
         `[x points, y points, label]`.
     size : tuple, optional
-        Image size in pixel (width, height). The default is `(2000,1600)`.
+        Image size in pixel (width, height). The default is `(1920,1440)`.
     show_legend : bool, optional
         Either to show legend or not. The default value is ``True``.
     xlabel : str, optional
@@ -1473,7 +1475,7 @@ def plot_2d_chart(
 @pyaedt_function_handler()
 def plot_matplotlib(
     plot_data,
-    size=(2000, 1000),
+    size=(1920, 1440),
     show_legend=True,
     xlabel="",
     ylabel="",
@@ -1495,7 +1497,7 @@ def plot_matplotlib(
         For type ``path``: `[vertices, codes, color, label, alpha, type=="path"]`.
         For type ``contour``: `[vertices, codes, color, label, alpha, line_width, type=="contour"]`.
     size : tuple, optional
-        Image size in pixel (width, height). Default is `(2000, 1000)`.
+        Image size in pixel (width, height). Default is `(1920, 1440)`.
     show_legend : bool, optional
         Either to show legend or not. Default is `True`.
     xlabel : str, optional

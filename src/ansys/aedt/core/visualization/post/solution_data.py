@@ -826,7 +826,7 @@ class SolutionData(object):
         self,
         curves=None,
         formula=None,
-        size=(2000, 1000),
+        size=(1920, 1440),
         show_legend=True,
         x_label="",
         y_label="",
@@ -891,7 +891,7 @@ class SolutionData(object):
         y_label="",
         title="",
         formula=None,
-        size=(2000, 1000),
+        size=(1920, 1440),
         snapshot_path=None,
         show=True,
     ):
