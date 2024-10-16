@@ -23,8 +23,8 @@
 # SOFTWARE.
 
 import os
-import random
 import re
+import secrets
 import time
 import warnings
 
@@ -198,10 +198,13 @@ class NexximComponents(CircuitComponents):
         if not name:
             name = generate_unique_name("Circuit")
 
+        secure_random = secrets.SystemRandom()
         if nested_subcircuit_id:
-            parent_name = f"{self._app.design_name.split('/')[0]}:{nested_subcircuit_id}:{random.randint(1, 10000)}"
+            parent_name = (
+                f"{self._app.design_name.split('/')[0]}:{nested_subcircuit_id}:{secure_random.randint(1, 10000)}"
+            )
         else:
-            parent_name = f'{self._app.design_name.split("/")[0]}:{":U" + str(random.randint(1, 10000))}'
+            parent_name = f'{self._app.design_name.split("/")[0]}:{":U" + str(secure_random.randint(1, 10000))}'
 
         self._app.odesign.InsertDesign("Circuit Design", name, "", parent_name)
         if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
