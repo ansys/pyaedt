@@ -629,17 +629,17 @@ class FieldsCalculator:
     def export(
         self,
         quantity,
-        sample_points,
-        grid_type,
         solution=None,
         variations=None,
         output_file=None,
         intrinsics=None,
         phase=None,
+        sample_points=None,
         export_with_sample_points=True,
         reference_coordinate_system="Global",
         export_in_si_system=True,
         export_field_in_reference=True,
+        grid_type=None,
         grid_center=None,
         grid_start=None,
         grid_stop=None,
@@ -672,13 +672,6 @@ class FieldsCalculator:
         ----------
         quantity : str
             Name of the quantity to export.
-        sample_points : str, list
-            Name of the file with sample points or list of the sample points.
-        grid_type : str
-            Type of the grid to export. The options are:
-            - ``Cartesian``
-            - ``Cylindrical``
-            - ``Spherical``
         solution : str, optional
             Name of the solution in the format ``"solution : sweep"``. The default is ``None``.
         variations : dict, optional
@@ -707,6 +700,8 @@ class FieldsCalculator:
         phase : str, optional
             Field phase. The default is ``None``.
             This argument is deprecated. Please use ``intrinsics`` and provide the phase as a dictionary key instead.
+        sample_points : str, list
+            Name of the file with sample points or list of the sample points.
         export_with_sample_points : bool, optional
             Whether to include the sample points in the file to export.
             The default is ``True``.
@@ -719,8 +714,11 @@ class FieldsCalculator:
         export_field_in_reference : bool, optional
             Whether to export the field in reference coordinate system.
             The default is ``True``.
-        grid_type : str, optional
-            Type of the grid to export. The default is ``"Cartesian"``.
+        grid_type : str
+            Type of the grid to export. The options are:
+            - ``Cartesian``
+            - ``Cylindrical``
+            - ``Spherical``
         grid_center : list, optional
             The ``[x, y, z]`` coordinates for the center of the grid.
             The default is ``[0, 0, 0]``. This parameter is disabled if ``gridtype=
@@ -751,7 +749,7 @@ class FieldsCalculator:
             else:
                 self.__app.logger("Wrong input type for ``sample_points``.")
                 return False
-            self.__app.post.export_field_file(
+            output_file = self.__app.post.export_field_file(
                 quantity=quantity,
                 solution=solution,
                 variations=variations,
@@ -768,7 +766,10 @@ class FieldsCalculator:
                 export_field_in_reference=export_field_in_reference,
             )
         elif grid_type:
-            self.__app.post.export_field_file_on_grid(
+            if grid_type not in ["Cartesian", "Cylindrical", "Spherical"]:
+                self.__app.logger.error("Invalid grid type.")
+                return False
+            output_file = self.__app.post.export_field_file_on_grid(
                 quantity=quantity,
                 solution=solution,
                 variations=variations,

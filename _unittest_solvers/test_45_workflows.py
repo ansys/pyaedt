@@ -195,7 +195,7 @@ class TestClass:
             "siwave_export": [],
         })
 
-    def test_08_advanced_fields_calculator_non_general(self, add_app):
+    def test_08_advanced_fields_calculator_non_general(self, local_scratch, add_app):
         aedtapp = add_app(application=ansys.aedt.core.Hfss,
                           project_name=fields_calculator,
                           subfolder=test_subfolder)
@@ -242,6 +242,15 @@ class TestClass:
         assert name == "Voltage_Line"
         file_path = os.path.join(aedtapp.working_directory, "my_expr.fld")
         assert aedtapp.post.fields_calculator.write("voltage_line", file_path, aedtapp.nominal_adaptive)
+        points_path = os.path.join(solver_local_path, "example_models",
+                                    "T00",
+                                    "temp_points.pts")
+        output_file = aedtapp.post.fields_calculator.export("voltage_line", sample_points=points_path)
+        assert os.path.exists(output_file)
+        output_file = aedtapp.post.fields_calculator.export("voltage_line", grid_type="Cartesian")
+        assert os.path.exists(output_file)
+        assert not aedtapp.post.fields_calculator.export("voltage_line", grid_type="invalid")
+        assert not aedtapp.post.fields_calculator.export("voltage_line")
         assert not aedtapp.post.fields_calculator.write("voltage_line", file_path, "invalid_setup")
         assert not aedtapp.post.fields_calculator.write("invalid", file_path, aedtapp.nominal_adaptive)
         invalid_file_path = os.path.join(aedtapp.working_directory, "my_expr.invalid")
@@ -250,7 +259,8 @@ class TestClass:
         assert name == name2
         assert not aedtapp.post.fields_calculator.expression_plot("voltage_line_invented", "Polyline1", [name])
         assert aedtapp.post.fields_calculator.expression_plot("voltage_line", "Polyline1", [name])
-        assert aedtapp.post.fields_calculator.delete_expression(name)
+        current_expr = aedtapp.post.fields_calculator.add_expression("current_line", "Polyline1")
+        assert aedtapp.post.fields_calculator.delete_expression(current_expr)
         assert aedtapp.post.fields_calculator.delete_expression()
         assert not aedtapp.post.fields_calculator.is_expression_defined(name)
         assert not aedtapp.post.fields_calculator.add_expression("voltage_line", "Polyline1_invented")
