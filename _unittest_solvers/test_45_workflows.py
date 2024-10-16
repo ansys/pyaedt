@@ -195,7 +195,7 @@ class TestClass:
             "siwave_export": [],
         })
 
-    def test_08_advanced_fields_calculator_non_general(self, local_scratch, add_app):
+    def test_08_advanced_fields_calculator_non_general(self, add_app):
         aedtapp = add_app(application=ansys.aedt.core.Hfss,
                           project_name=fields_calculator,
                           subfolder=test_subfolder)
