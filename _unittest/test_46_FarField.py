@@ -181,7 +181,14 @@ class TestClass:
         matplot_lib.traces_by_index[0].trace_style = "--"
         matplot_lib.x_scale = "log"
         _ = matplot_lib.plot_2d()
-
+        matplot_lib.add_note(
+            "Hello Pyaedt",
+            [0, -10],
+            color=(1, 1, 0),
+            bold=False,
+            italic=False,
+            background_visibility=False,
+        )
         matplot_lib.x_scale = "linear"
         matplot_lib.traces_by_index[0].trace_color = (1, 0, 0)
         matplot_lib.grid_enable_minor_x = True
