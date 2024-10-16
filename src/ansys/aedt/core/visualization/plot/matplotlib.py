@@ -1066,6 +1066,8 @@ class ReportPlotter:
             Full path to image file if a snapshot is needed.
         show : bool, optional
             Whether to show the plot or return the matplotlib object. Default is `True`.
+        is_polar : bool, optional
+            Whether if the plot will be polar or not. Polar plot will hide axes and grids. Default is ``True``.
 
         Returns
         -------
@@ -1094,8 +1096,12 @@ class ReportPlotter:
             alpha=0.8,
         )
         if is_polar:
+            step = (color_map_limits[1] - color_map_limits[0]) / 10
+            ticks = np.arange(color_map_limits[0], color_map_limits[1] + step, step)
             self.fig.colorbar(
-                plt.cm.ScalarMappable(norm=Normalize(color_map_limits[0], color_map_limits[1]), cmap=cmap), ax=self.ax
+                plt.cm.ScalarMappable(norm=Normalize(color_map_limits[0], color_map_limits[1]), cmap=cmap),
+                ax=self.ax,
+                ticks=ticks,
             )
             X = np.cos(np.arange(-3.14, 3.14, 0.01)) * 2 * tr._cartesian_data[0].max()
             Y = np.sin(np.arange(-3.14, 3.14, 0.01)) * 2 * tr._cartesian_data[0].max()
