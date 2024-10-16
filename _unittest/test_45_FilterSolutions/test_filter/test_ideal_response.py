@@ -279,8 +279,8 @@ class TestClass:
         design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         freq, mag_db = design.ideal_response.frequency_response(
             y_axis_parameter=FrequencyResponseColumn.MAGNITUDE_DB,
-            minimum_frequency="200 MHz",
-            maximum_frequency="5 GHz",
+            minimum_frequency=None,
+            maximum_frequency=None,
             vsg_analysis_enabled=False,
         )
         assert len(freq) == 500
@@ -291,13 +291,23 @@ class TestClass:
         assert mag_db[100] == pytest.approx(-0.0002779395744451339)
         assert mag_db[300] == pytest.approx(-14.14973347970826)
         assert mag_db[-1] == pytest.approx(-69.61741290615645)
+        freq, mag_db = design.ideal_response.frequency_response(
+            y_axis_parameter=FrequencyResponseColumn.MAGNITUDE_DB,
+            minimum_frequency="100 MHz",
+            maximum_frequency="3 GHz",
+            vsg_analysis_enabled=False,
+        )
+        assert freq[0] == pytest.approx(100000000)
+        assert freq[-1] == pytest.approx(2979662067.4569254)
+        assert mag_db[0] == pytest.approx(-4.342896962104627e-10)
+        assert mag_db[-1] == pytest.approx(-47.41677994558435)
 
     def test_time_response(self):
         design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         time, step_response = design.ideal_response.time_response(
             y_axis_parameter=TimeResponseColumn.STEP_RESPONSE,
-            minimum_time="0 ns",
-            maximum_time="10 ns",
+            minimum_time=None,
+            maximum_time=None,
             vsg_analysis_enabled=False,
         )
         assert len(time) == 300
@@ -308,13 +318,23 @@ class TestClass:
         assert step_response[100] == pytest.approx(1.0006647872833518)
         assert step_response[200] == pytest.approx(0.9999988501385255)
         assert step_response[-1] == pytest.approx(0.9999999965045667)
+        time, step_response = design.ideal_response.time_response(
+            y_axis_parameter=TimeResponseColumn.STEP_RESPONSE,
+            minimum_time="1 ns",
+            maximum_time="5 ns",
+            vsg_analysis_enabled=False,
+        )
+        assert time[0] == pytest.approx(1e-09)
+        assert time[-1] == pytest.approx(4.9833e-09)
+        assert step_response[0] == pytest.approx(1.127711560082254)
+        assert step_response[-1] == pytest.approx(0.9999962734156826)
 
     def test_s_parameters(self):
         design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         freq, s21_db = design.ideal_response.s_parameters(
             y_axis_parameter=SParametersResponseColumn.S21_DB,
-            minimum_frequency="200 MHz",
-            maximum_frequency="5 GHz",
+            minimum_frequency=None,
+            maximum_frequency=None,
         )
         assert len(freq) == 500
         assert freq[100] == pytest.approx(380730787.74317527)
@@ -324,6 +344,15 @@ class TestClass:
         assert s21_db[100] == pytest.approx(-0.0002779395744451339)
         assert s21_db[300] == pytest.approx(-14.14973347970826)
         assert s21_db[-1] == pytest.approx(-69.61741290615645)
+        freq, s21_db = design.ideal_response.s_parameters(
+            y_axis_parameter=SParametersResponseColumn.S21_DB,
+            minimum_frequency="100 MHz",
+            maximum_frequency="3 GHz",
+        )
+        assert freq[0] == pytest.approx(100000000)
+        assert freq[-1] == pytest.approx(2979662067.4569254)
+        assert s21_db[0] == pytest.approx(-4.342896962104627e-10)
+        assert s21_db[-1] == pytest.approx(-47.41677994558435)
 
     def test_pole_zero_locations(self):
         design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
