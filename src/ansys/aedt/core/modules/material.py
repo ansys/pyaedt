@@ -2266,7 +2266,7 @@ class Material(CommonMaterial, object):
                 points = [i for p in points_at_frequency[freq] for i in p]
                 one_curve = dict(
                     {
-                        f"Frequency": f"{freq}Hz",
+                        "Frequency": f"{freq}Hz",
                         "Coordinates": dict({"DimUnits": ["", ""], "Points": points}),
                     }
                 )

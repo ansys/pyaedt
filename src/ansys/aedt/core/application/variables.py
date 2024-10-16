@@ -1231,7 +1231,7 @@ class VariableManager(object):
                         "NAME:AllTabs",
                         [
                             f"NAME:{var_type}VariableTab",
-                            [f"NAME:PropServers", f"{var_type}Variables"],
+                            ["NAME:PropServers", f"{var_type}Variables"],
                             ["NAME:DeletedProps", name],
                         ],
                     ]
