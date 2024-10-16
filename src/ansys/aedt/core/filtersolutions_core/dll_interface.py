@@ -59,7 +59,7 @@ class DllInterface:
             version + "CL" in aedt_versions.installed_versions
         ):
             raise ValueError(f"Specified version {version[0:6]} is not installed on your system")
-        self.dll_path = os.path.join(aedt_versions.installed_versions[version], "nuhertz/FilterSolutionsAPI.dll")
+        self.dll_path = os.path.join(aedt_versions.installed_versions[version], "nuhertz", "FilterSolutionsAPI.dll")
         print("DLL Path:", self.dll_path)
         if not os.path.isfile(self.dll_path):
             raise RuntimeError(f"The 'FilterSolutions' API DLL was not found at {self.dll_path}.")  # pragma: no cover
