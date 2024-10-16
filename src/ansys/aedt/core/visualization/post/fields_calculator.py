@@ -595,7 +595,7 @@ class FieldsCalculator:
         >>> poly = hfss.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
         >>> expr_name = hfss.post.fields_calculator.add_expression("voltage_line", "Polyline1")
         >>> file_path = os.path.join(hfss.working_directory, "my_expr.fld")
-        >>> hfss.post.fields_calculator.calculator_write("voltage_line", file_path, hfss.nominal_adaptive)
+        >>> hfss.post.fields_calculator.write("voltage_line", file_path, hfss.nominal_adaptive)
         >>> hfss.release_desktop(False, False)
         """
         if not self.is_expression_defined(expression):
@@ -743,40 +743,30 @@ class FieldsCalculator:
         """
         if sample_points:
             if isinstance(sample_points, str):
-                self.__app.post.export_field_file(
-                    quantity=quantity,
-                    solution=solution,
-                    variations=variations,
-                    output_file=output_file,
-                    assignment=assignment,
-                    objects_type=objects_type,
-                    intrinsics=intrinsics,
-                    phase=phase,
-                    sample_points_file=sample_points,
-                    export_with_sample_points=export_with_sample_points,
-                    reference_coordinate_system=reference_coordinate_system,
-                    export_in_si_system=export_in_si_system,
-                    export_field_in_reference=export_field_in_reference,
-                )
+                sample_points_file = sample_points
+                sample_points = None
             elif isinstance(sample_points, list):
-                self.__app.post.export_field_file(
-                    quantity=quantity,
-                    solution=solution,
-                    variations=variations,
-                    output_file=output_file,
-                    assignment=assignment,
-                    objects_type=objects_type,
-                    intrinsics=intrinsics,
-                    phase=phase,
-                    sample_points=sample_points,
-                    export_with_sample_points=export_with_sample_points,
-                    reference_coordinate_system=reference_coordinate_system,
-                    export_in_si_system=export_in_si_system,
-                    export_field_in_reference=export_field_in_reference,
-                )
+                sample_points_file = None
+                sample_points = sample_points
             else:
                 self.__app.logger("Wrong input type for ``sample_points``.")
                 return False
+            self.__app.post.export_field_file(
+                quantity=quantity,
+                solution=solution,
+                variations=variations,
+                output_file=output_file,
+                assignment=assignment,
+                objects_type=objects_type,
+                intrinsics=intrinsics,
+                phase=phase,
+                sample_points_file=sample_points_file,
+                sample_points=sample_points,
+                export_with_sample_points=export_with_sample_points,
+                reference_coordinate_system=reference_coordinate_system,
+                export_in_si_system=export_in_si_system,
+                export_field_in_reference=export_field_in_reference,
+            )
         elif grid_type:
             self.__app.post.export_field_file_on_grid(
                 quantity=quantity,
