@@ -648,7 +648,7 @@ class FieldsCalculator:
         assignment="AllObjects",
         objects_type="Vol",
     ):
-        """Export the field quantity in the top register to a file, mapping it to a grid of points.
+        """Export the field quantity at the top of the register to a file, mapping it to a grid of points.
 
         Two options are available for defining the grid points on which to export:
         -   Input grid points from file : Maps the field quantity to a customized grid of points.
@@ -662,7 +662,7 @@ class FieldsCalculator:
                                     specified.
 
         If you want to adopt the first option you must provide either the file containing the grid of points
-        or provide a list of sample points in ``sample_points``. In the latter case, a new file is created
+        or a list of sample points in ``sample_points``. In the latter case, a new file is created
         in the working directory called "temp_points.pts" that will be automatically written with the data points
         provided and consequently imported.
         If you want to adopt the second option you must provide the grid type (Cartesian, Cylindrical or Spherical).
@@ -789,7 +789,7 @@ class FieldsCalculator:
             )
         else:
             self.__app.logger.error(
-                "You have to provide at least a path to a file containing the grid of points, "
+                "You have to provide one of the three following inputs: a path to a file containing the grid of points, "
                 "a sample list of points or the grid type with a three dimensional grid."
             )
             return False
