@@ -614,12 +614,12 @@ class FieldsCalculator:
         self.ofieldsreporter.CopyNamedExprToStack(expression)
         args = []
         for k, v in self.__app.variable_manager.design_variables.items():
-            args.append("{}:=".format(k))
+            args.append(f"{k}:=")
             args.append(v.expression)
         if not intrinsics:
             intrinsics = self.__app.get_setup(setup_name).default_intrinsics
         for k, v in intrinsics.items():
-            args.append("{}:=".format(k))
+            args.append(f"{k}:=")
             args.append(v)
         self.ofieldsreporter.CalculatorWrite(output_file, ["Solution:=", setup], args)
         self.ofieldsreporter.CalcStack("clear")
@@ -789,7 +789,7 @@ class FieldsCalculator:
             )
         else:
             self.__app.logger.error(
-                "You have to provide one of the three following inputs: a path to a file containing the grid of points, "
+                "You have to provide one of the three following inputs: a path to a file containing the grid of points,"
                 "a sample list of points or the grid type with a three dimensional grid."
             )
             return False
