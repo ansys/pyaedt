@@ -790,7 +790,7 @@ class FieldsCalculator:
         else:
             self.__app.logger.error(
                 "You have to provide one of the three following inputs: a path to a file containing the grid of points,"
-                "a sample list of points or the grid type with a three dimensional grid."
+                " a sample list of points or the grid type with a three dimensional grid."
             )
             return False
 
