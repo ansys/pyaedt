@@ -1,0 +1,6 @@
+﻿plot\_2d\_chart
+===============
+
+.. currentmodule:: ansys.aedt.core.visualization.plot.matplotlib
+
+.. autofunction:: plot_2d_chart
