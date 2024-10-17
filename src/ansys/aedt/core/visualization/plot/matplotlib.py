@@ -1093,7 +1093,7 @@ class ReportPlotter:
             cmap=cmap,
             linewidth=0,
             antialiased=True,
-            alpha=0.8,
+            alpha=0.65,
         )
         if is_polar:
             step = (color_map_limits[1] - color_map_limits[0]) / 10
@@ -1109,12 +1109,19 @@ class ReportPlotter:
             X = np.cos(np.arange(-3.14, 3.14, 0.01)) * radius
             Y = np.sin(np.arange(-3.14, 3.14, 0.01)) * radius
             Z = np.zeros(len(Y))
-            self.ax.plot(X, Y, Z, color=(0, 0, 0))
+            self.ax.plot(X, Y, Z, color=(0, 0, 0), linewidth=2.5)
 
             X = np.cos(np.arange(-3.14, 3.14, 0.01)) * 0.6 * radius
             Y = np.sin(np.arange(-3.14, 3.14, 0.01)) * 0.6 * radius
             self.ax.plot(X, Y, Z, linestyle=":", color=(0, 0, 0))
-            self.ax.text(0, radius, 0.0, "Phi")
+            self.ax.text(
+                0,
+                radius,
+                0.0,
+                "Phi",
+                fontweight="bold",
+                fontsize=15,
+            )
 
             X = np.arange(0, radius, 0.01)
             Y = np.zeros(len(X))
@@ -1128,8 +1135,15 @@ class ReportPlotter:
             Y = np.sin(np.arange(-3.14, 3.14, 0.01)) * radius
             Z = np.cos(np.arange(-3.14, 3.14, 0.01)) * radius
             X = np.zeros(len(Z))
-            self.ax.plot(X, Y, Z, color=(0, 0, 0))
-            self.ax.text(0, 0, radius, "Theta")
+            self.ax.plot(X, Y, Z, color=(0, 0, 0), linewidth=2.5)
+            self.ax.text(
+                0,
+                0,
+                radius,
+                "Theta",
+                fontweight="bold",
+                fontsize=20,
+            )
 
             Y = np.cos(np.arange(-3.14, 3.14, 0.01)) * 0.6 * radius
             Z = np.sin(np.arange(-3.14, 3.14, 0.01)) * 0.6 * radius
