@@ -79,13 +79,13 @@ class AMIConturEyeDiagram(CommonReport):
             if not ".int_ami" in expr:
                 qtype = int(self.quantity_type)
                 if qtype == 0:
-                    new_exprs.append("Initial{}(".format(expr_head) + expr + ".int_ami_tx)<Bit Error Rate>")
+                    new_exprs.append(f"Initial{expr_head}(" + expr + ".int_ami_tx)<Bit Error Rate>")
                 elif qtype == 1:
-                    new_exprs.append("{}AfterSource(".format(expr_head) + expr + ".int_ami_tx)<Bit Error Rate>")
+                    new_exprs.append(f"{expr_head}AfterSource(" + expr + ".int_ami_tx)<Bit Error Rate>")
                 elif qtype == 2:
-                    new_exprs.append("{}AfterChannel(".format(expr_head) + expr + ".int_ami_rx)<Bit Error Rate>")
+                    new_exprs.append(f"{expr_head}AfterChannel(" + expr + ".int_ami_rx)<Bit Error Rate>")
                 elif qtype == 3:
-                    new_exprs.append("{}AfterProbe(".format(expr_head) + expr + ".int_ami_rx)<Bit Error Rate>")
+                    new_exprs.append(f"{expr_head}AfterProbe(" + expr + ".int_ami_rx)<Bit Error Rate>")
             else:
                 new_exprs.append(expr)
         return new_exprs
@@ -262,7 +262,7 @@ class AMIConturEyeDiagram(CommonReport):
                 # Limited maximum iterations to 1000 in While loop (Too many probes to analyze even in a single design)
                 if sid > 1000:
                     self._post.logger.error(
-                        "Failed to find right context for expression : {}".format(",".join(self.expressions))
+                        f"Failed to find right context for expression : {','.join(self.expressions)}"
                     )
                     # arg[2][arg[2].index("SID") + 2] = "0"
                     # arg[2][arg[2].index("PID") + 2] = "0"
@@ -358,12 +358,12 @@ class AMIConturEyeDiagram(CommonReport):
         if "quantity_type" in dir(self) and self.report_type == "Rectangular Contour Plot":
             props = [
                 "NAME:AllTabs",
-                ["NAME:Mask", ["NAME:PropServers", "{}: Plot {}".format(self.plot_name, self.traces[0].name)]],
+                ["NAME:Mask", ["NAME:PropServers", f"{self.plot_name}: Plot {self.traces[0].name}"]],
             ]
         else:
             props = [
                 "NAME:AllTabs",
-                ["NAME:Mask", ["NAME:PropServers", "{}:EyeDisplayTypeProperty".format(self.plot_name)]],
+                ["NAME:Mask", ["NAME:PropServers", f"{self.plot_name}:EyeDisplayTypeProperty"]],
             ]
         arg = [
             "NAME:Mask",
@@ -413,7 +413,7 @@ class AMIConturEyeDiagram(CommonReport):
         """
         props = [
             "NAME:AllTabs",
-            ["NAME:Eye", ["NAME:PropServers", "{}:EyeDisplayTypeProperty".format(self.plot_name)]],
+            ["NAME:Eye", ["NAME:PropServers", f"{self.plot_name}:EyeDisplayTypeProperty"]],
         ]
         args = ["NAME:ChangedProps", ["NAME:Rectangular Plot", "Value:=", enable]]
         props[1].append(args)
@@ -487,7 +487,7 @@ class AMIConturEyeDiagram(CommonReport):
             Output file path if a TAB file is created.
         """
         if not output_file:
-            output_file = os.path.join(self._post._app.working_directory, "{}_violations.tab".format(self.plot_name))
+            output_file = os.path.join(self._post._app.working_directory, f"{self.plot_name}_violations.tab")
         self._post.oreportsetup.ExportEyeMaskViolation(self.plot_name, output_file)
         return output_file
 
@@ -535,13 +535,13 @@ class AMIEyeDiagram(CommonReport):
             if not ".int_ami" in expr:
                 qtype = int(self.quantity_type)
                 if qtype == 0:
-                    new_exprs.append("Initial{}<".format(expr_head) + expr + ".int_ami_tx>")
+                    new_exprs.append(f"Initial{expr_head}<" + expr + ".int_ami_tx>")
                 elif qtype == 1:
-                    new_exprs.append("{}AfterSource<".format(expr_head) + expr + ".int_ami_tx>")
+                    new_exprs.append(f"{expr_head}AfterSource<" + expr + ".int_ami_tx>")
                 elif qtype == 2:
-                    new_exprs.append("{}AfterChannel<".format(expr_head) + expr + ".int_ami_rx>")
+                    new_exprs.append(f"{expr_head}AfterChannel<" + expr + ".int_ami_rx>")
                 elif qtype == 3:
-                    new_exprs.append("{}AfterProbe<".format(expr_head) + expr + ".int_ami_rx>")
+                    new_exprs.append(f"{expr_head}AfterProbe<" + expr + ".int_ami_rx>")
                 else:
                     new_exprs.append(expr)
             else:
@@ -819,7 +819,7 @@ class AMIEyeDiagram(CommonReport):
                 # Limited maximum iterations to 1000 in While loop (Too many probes to analyze even in a single design)
                 if sid > 1000:
                     self._post.logger.error(
-                        "Failed to find right context for expression : {}".format(",".join(self.expressions))
+                        f"Failed to find right context for expression : {','.join(self.expressions)}"
                     )
                     # arg[2][arg[2].index("SID") + 2] = "0"
                     # arg[2][arg[2].index("PID") + 2] = "0"
@@ -950,7 +950,7 @@ class AMIEyeDiagram(CommonReport):
         """
         props = [
             "NAME:AllTabs",
-            ["NAME:Mask", ["NAME:PropServers", "{}:EyeDisplayTypeProperty".format(self.plot_name)]],
+            ["NAME:Mask", ["NAME:PropServers", f"{self.plot_name}:EyeDisplayTypeProperty"]],
         ]
         arg = [
             "NAME:Mask",
@@ -998,7 +998,7 @@ class AMIEyeDiagram(CommonReport):
         """
         props = [
             "NAME:AllTabs",
-            ["NAME:Eye", ["NAME:PropServers", "{}:EyeDisplayTypeProperty".format(self.plot_name)]],
+            ["NAME:Eye", ["NAME:PropServers", f"{self.plot_name}:EyeDisplayTypeProperty"]],
         ]
         args = ["NAME:ChangedProps", ["NAME:Rectangular Plot", "Value:=", enable]]
         props[1].append(args)
@@ -1072,7 +1072,7 @@ class AMIEyeDiagram(CommonReport):
             Output file path if a TAB file is created.
         """
         if not output_file:
-            output_file = os.path.join(self._post._app.working_directory, "{}_violations.tab".format(self.plot_name))
+            output_file = os.path.join(self._post._app.working_directory, f"{self.plot_name}_violations.tab")
         self._post.oreportsetup.ExportEyeMaskViolation(self.plot_name, output_file)
         return output_file
 

@@ -162,7 +162,7 @@ def _resolve_unit_system(unit_system_1, unit_system_2, operation):
 
     """
     try:
-        key = "{}_{}_{}".format(unit_system_1, operation, unit_system_2)
+        key = f"{unit_system_1}_{operation}_{unit_system_2}"
         result_unit_system = UNIT_SYSTEM_OPERATIONS[key]
         return SI_UNITS[result_unit_system]
     except KeyError:
@@ -190,10 +190,10 @@ def unit_converter(values, unit_system="Length", input_units="meter", output_uni
     """
     if unit_system in AEDT_UNITS:
         if input_units not in AEDT_UNITS[unit_system]:
-            warnings.warn("Unknown units: '{}'".format(input_units))
+            warnings.warn(f"Unknown units: '{input_units}'")
             return values
         elif output_units not in AEDT_UNITS[unit_system]:
-            warnings.warn("Unknown units: '{}'".format(output_units))
+            warnings.warn(f"Unknown units: '{output_units}'")
             return values
         else:
             input_is_list = isinstance(values, list)

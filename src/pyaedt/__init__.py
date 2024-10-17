@@ -22,7 +22,7 @@ def alias_deprecation_warning():  # pragma: no cover
     # Define and use custom showwarning
     def custom_show_warning(message, category, filename, lineno, file=None, line=None):
         """Custom warning used to remove <stdin>:loc: pattern."""
-        print("{}: {}".format(category.__name__, message))
+        print(f"{category.__name__}: {message}")
         # NOTE: This line is added to ensure that pytest handle the warning correctly.
         if "PYTEST_CURRENT_TEST" in os.environ:
             existing_showwarning(message, category, filename, lineno, file=file, line=line)

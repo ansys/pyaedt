@@ -24,7 +24,7 @@ def run_tests(filename):
 
     with open(filename, "w") as f:
         f.write("Ironpython Unit Tests Started\n\n")
-        f.write("Start time: {}\n\n".format(datetime.now()))
+        f.write(f"Start time: {datetime.now()}\n\n")
 
         runner = unittest.TextTestRunner(stream=f, verbosity=2)
         result = runner.run(suite)
@@ -33,9 +33,9 @@ def run_tests(filename):
         num_errors = len(result.errors)
         num_failures = len(result.failures)
 
-        f.write("\n<unittest.runner.TextTestResult Total Test run={}>\n".format(num_runs))
+        f.write(f"\n<unittest.runner.TextTestResult Total Test run={num_runs}>\n")
         if not result.wasSuccessful():
-            f.write("\n<unittest.runner.TextTestResult errors={}>\n".format(num_errors+num_failures))
+            f.write(f"\n<unittest.runner.TextTestResult errors={num_errors+num_failures}>\n")
 
 
 class TestIronPython(unittest.TestCase):

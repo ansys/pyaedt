@@ -504,11 +504,11 @@ def _write_stl(nas_to_dict, decimation, working_directory, enable_planar_merge=T
 
         normal = GeometryOperators.normalize_vector(n)
         if normal:
-            f.write(" facet normal {} {} {}\n".format(normal[0], normal[1], normal[2]))
+            f.write(f" facet normal {normal[0]} {normal[1]} {normal[2]}\n")
             f.write("  outer loop\n")
-            f.write("   vertex {} {} {}\n".format(points[0][0], points[0][1], points[0][2]))
-            f.write("   vertex {} {} {}\n".format(points[1][0], points[1][1], points[1][2]))
-            f.write("   vertex {} {} {}\n".format(points[2][0], points[2][1], points[2][2]))
+            f.write(f"   vertex {points[0][0]} {points[0][1]} {points[0][2]}\n")
+            f.write(f"   vertex {points[1][0]} {points[1][1]} {points[1][2]}\n")
+            f.write(f"   vertex {points[2][0]} {points[2][1]} {points[2][2]}\n")
             f.write("  endloop\n")
             f.write(" endfacet\n")
 
@@ -532,14 +532,14 @@ def _write_stl(nas_to_dict, decimation, working_directory, enable_planar_merge=T
             p_out = nas_to_dict["Points"][::]
             if decimation > 0 and len(triangles) > 20:
                 p_out, tri_out = decimate(nas_to_dict["Points"], tri_out)
-            f.write("solid Sheet_{}\n".format(tri_id))
+            f.write(f"solid Sheet_{tri_id}\n")
             if enable_planar_merge == "Auto" and len(tri_out) > 50000:
                 enable_stl_merge = False  # pragma: no cover
             for triangle in tri_out:
                 _write_solid_stl(triangle, p_out)
             f.write("endsolid\n")
         for solidid, solid_triangles in assembly["Solids"].items():
-            f.write("solid Solid_{}\n".format(solidid))
+            f.write(f"solid Solid_{solidid}\n")
             import pandas as pd
 
             df = pd.Series(solid_triangles)

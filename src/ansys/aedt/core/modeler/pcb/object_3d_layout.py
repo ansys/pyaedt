@@ -1605,11 +1605,11 @@ class Line3dLayout(Geometries3DLayout, object):
         u = self._primitives.model_units
         for point_name, value in points.items():
             if len(value) == 2:
-                vpoint = ["NAME:{}".format(point_name), "X:=", _dim_arg(value[0], u), "Y:=", _dim_arg(value[1], u)]
+                vpoint = [f"NAME:{point_name}", "X:=", _dim_arg(value[0], u), "Y:=", _dim_arg(value[1], u)]
             elif isinstance(value, list):
-                vpoint = ["NAME:{}".format(point_name), "Value:=", _dim_arg(value[0], u)]
+                vpoint = [f"NAME:{point_name}", "Value:=", _dim_arg(value[0], u)]
             else:
-                vpoint = ["NAME:{}".format(point_name), "Value:=", _dim_arg(value, u)]
+                vpoint = [f"NAME:{point_name}", "Value:=", _dim_arg(value, u)]
             self.change_property(vpoint)
         self._center_line = {}
 
@@ -1689,9 +1689,9 @@ class Line3dLayout(Geometries3DLayout, object):
         ]
         i = 0
         for a in points:
-            arg2.append("x{}:=".format(i))
+            arg2.append(f"x{i}:=")
             arg2.append(a[0])
-            arg2.append("y{}:=".format(i))
+            arg2.append(f"y{i}:=")
             arg2.append(a[1])
             i += 1
         arg.append(arg2)
@@ -1804,7 +1804,7 @@ class ComponentsSubCircuit3DLayout(Object3DLayout, object):
     @angle.setter
     def angle(self, angle_val):
         if isinstance(angle_val, (int, float)):
-            angle_val = "{}deg".format(angle_val)
+            angle_val = f"{angle_val}deg"
 
         if not self.is_3d_placement:
             props = ["NAME:Angle", "Value:=", angle_val]

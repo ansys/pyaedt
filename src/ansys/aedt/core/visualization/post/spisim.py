@@ -122,11 +122,11 @@ class SpiSim:
                         if dataAry[0].strip().lower() == parameter_name.lower():
                             return float(dataAry[1].strip().split()[0])
                 self.logger.error(
-                    "Failed to compute {}. Check input parameters and retry".format(parameter_name)
+                    f"Failed to compute {parameter_name}. Check input parameters and retry"
                 )  # pragma: no cover
                 return False  # pragma: no cover
             except IndexError:
-                self.logger.error("Failed to compute {}. Check input parameters and retry".format(parameter_name))
+                self.logger.error(f"Failed to compute {parameter_name}. Check input parameters and retry")
                 return False
         elif parameter_name == "COM":
             try:
@@ -135,7 +135,7 @@ class SpiSim:
                 i = 0
                 com_results = []
                 while True:
-                    m = re.search(r"Case {}: Calculated COM = (.*?),".format(i), txt)
+                    m = re.search(f"Case {i}: Calculated COM = (.*?),", txt)
                     if m:
                         com_results.append(float(m.groups()[0]))
                         i = i + 1
@@ -146,7 +146,7 @@ class SpiSim:
 
                 return com_results
             except IndexError:  # pragma: no cover
-                self.logger.error("Failed to compute {}. Check input parameters and retry".format(parameter_name))
+                self.logger.error(f"Failed to compute {parameter_name}. Check input parameters and retry")
 
     @pyaedt_function_handler()
     def compute_erl(
@@ -271,8 +271,8 @@ class SpiSim:
         new_cfg_file = os.path.join(self.working_directory, "spisim_erl.cfg").replace("\\", "/")
         with open_file(new_cfg_file, "w") as fp:
             for k, v in cfg_dict.items():
-                fp.write("# {}: {}\n".format(k, k))
-                fp.write("{} = {}\n".format(k, v))
+                fp.write(f"# {k}: {k}\n")
+                fp.write(f"{k} = {v}\n")
         retries = 3
         if "PYTEST_CURRENT_TEST" in os.environ:
             retries = 10

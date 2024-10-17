@@ -120,7 +120,7 @@ def generate_log_filename():
     base = "pyaedt"
     username = os.path.split(os.path.expanduser("~"))[-1]
     unique_id = uuid.uuid4()
-    return "{}_{}_{}.log".format(base, username, unique_id)
+    return f"{base}_{username}_{unique_id}.log"
 
 
 class _InnerProjectSettings:  # pragma: no cover

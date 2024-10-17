@@ -254,7 +254,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                         self[ppar] = pval
                         xpos = 0.0254
                     except Exception:
-                        self.logger.error("Failed to parse line '{}'.".format(line))
+                        self.logger.error(f"Failed to parse line '{line}'.")
                 elif ".model" in line[:7].lower() or ".lib" in line[:4].lower():
                     model.append(line)
         if model:
@@ -297,9 +297,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                         try:
                             float(fields[4])
                         except Exception:
-                            self.logger.warning(
-                                "Component {} was not imported. Check it and manually import".format(name)
-                            )
+                            self.logger.warning(f"Component {name} was not imported. Check it and manually import")
                             continue
                     if "{" in fields[3][0]:
                         value = fields[3].strip()[1:-1]
@@ -735,7 +733,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                         ports = int(i[i.find("]") + 1 :])
                 portnames = [i.split(" = ")[1].strip() for i in lines if "! Port" in i[:9]]
                 if not portnames:
-                    portnames = ["Port{}".format(i + 1) for i in range(ports)]
+                    portnames = [f"Port{i + 1}" for i in range(ports)]
         else:
             re_filename = re.compile(r"\.s(?P<ports>\d+)+p", re.I)
             m = re_filename.search(input_file)
@@ -745,7 +743,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                 lines = f.readlines()
                 portnames = [i.split(" = ")[1].strip() for i in lines if "Port[" in i]
             if not portnames:
-                portnames = ["Port{}".format(i + 1) for i in range(ports)]
+                portnames = [f"Port{i + 1}" for i in range(ports)]
         arg = [
             "NAME:NPortData",
             "Description:=",
@@ -1431,7 +1429,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         >>> oDesign.LoadDiffPairsFromFile
         """
         if not os.path.isfile(input_file):  # pragma: no cover
-            raise ValueError("{}: The specified file could not be found.".format(input_file))
+            raise ValueError(f"{input_file}: The specified file could not be found.")
 
         try:
             new_file = os.path.join(os.path.dirname(input_file), generate_unique_name("temp") + ".txt")
@@ -1767,15 +1765,15 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                     self.modeler.move(second, [1000, 0], "mil")
                 else:
                     self.modeler.move(second, [-1000, 0], "mil")
-            new_tdr_comp.parameters["Pulse_repetition"] = "{}ms".format(rise_time * 1e5)
-            new_tdr_comp.parameters["Rise_time"] = "{}ps".format(rise_time)
+            new_tdr_comp.parameters["Pulse_repetition"] = f"{rise_time * 1e5}ms"
+            new_tdr_comp.parameters["Rise_time"] = f"{rise_time}ps"
             if differential:
-                tdr_probe_names.append("O(A{}:zdiff)".format(new_tdr_comp.id))
+                tdr_probe_names.append(f"O(A{new_tdr_comp.id}:zdiff)")
             else:
-                tdr_probe_names.append("O(A{}:zl)".format(new_tdr_comp.id))
+                tdr_probe_names.append(f"O(A{new_tdr_comp.id}:zl)")
 
         setup = self.create_setup(name="Transient_TDR", setup_type=self.SETUPS.NexximTransient)
-        setup.props["TransientData"] = ["{}ns".format(rise_time / 4), "{}ns".format(rise_time * 1000)]
+        setup.props["TransientData"] = [f"{rise_time / 4}ns", f"{rise_time * 1000}ns"]
         if use_convolution:
             self.oanalysis.AddAnalysisOptions(
                 [
@@ -1890,17 +1888,17 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                             self.set_differential_pair(
                                 assignment=pin.name,
                                 reference=neg_pin.name,
-                                common_mode="COMMON_{}_{}".format(component, net),
-                                differential_mode="{}_{}".format(component, net),
+                                common_mode=f"COMMON_{component}_{net}",
+                                differential_mode=f"{component}_{net}",
                                 common_reference=25,
                                 differential_reference=100,
                                 active=True,
                             )
-                            diff_pairs.append("{}_{}".format(component, net))
-                            comm_pairs.append("COMMON_{}_{}".format(component, net))
+                            diff_pairs.append(f"{component}_{net}")
+                            comm_pairs.append(f"COMMON_{component}_{net}")
                             break
         setup1 = self.create_setup()
-        setup1.props["SweepDefinition"]["Data"] = "LINC {}GHz {}GHz 1001".format(start_frequency, stop_frequency)
+        setup1.props["SweepDefinition"]["Data"] = f"LINC {start_frequency}GHz {stop_frequency}GHz 1001"
         if analyze:
             self.analyze()
         return True, diff_pairs, comm_pairs
@@ -2408,7 +2406,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                         if tmp[0] not in ["voltage", "current"]:
                             val = 0
                         elif "PULSE" in value:
-                            tmp[0] = "{}_pulse".format(tmp[0])
+                            tmp[0] = f"{tmp[0]}_pulse"
                             val = value
                         else:
                             val = value
@@ -2420,7 +2418,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                     if tmp[0] not in ["voltage", "current"]:
                         val = 0
                     elif "PULSE" in value:
-                        tmp[0] = "{}_pulse".format(tmp[0])
+                        tmp[0] = f"{tmp[0]}_pulse"
                         val = value
                     else:
                         val = value
@@ -2606,7 +2604,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                             elif isinstance(value, (int, float)):
                                 comp.set_property("DC", value)
                         except:
-                            self.logger.info("Failed to set DC Value or unnkown source type {}".format(component))
+                            self.logger.info(f"Failed to set DC Value or unnkown source type {component}")
                             pass
 
                 if size_change != 0:

@@ -277,7 +277,7 @@ class Pin:
                 ],
             )
         except Exception:
-            logger.error("Error adding {} pin component.".format(self.short_name))
+            logger.error(f"Error adding {self.short_name} pin component.")
             return False
 
     def insert(self, x, y, angle=0.0):
@@ -438,7 +438,7 @@ class DifferentialPin:
                 ],
             )
         except Exception:
-            logger.error("Error adding {} pin component.".format(self.short_name))
+            logger.error(f"Error adding {self.short_name} pin component.")
             return False
 
     def insert(self, x, y, angle=0.0):
@@ -474,7 +474,7 @@ class Buffer:
     @property
     def name(self):
         """Full name of the buffer including the ibis filename."""
-        return "{}_{}".format(self.short_name, self._ibis_name)
+        return f"{self.short_name}_{self._ibis_name}"
 
     @property
     def short_name(self):
@@ -811,7 +811,7 @@ class IbisReader(object):
         """
 
         if not check_if_path_exists(self._filename):
-            raise Exception("{} does not exist.".format(self._filename))
+            raise Exception(f"{self._filename} does not exist.")
 
         ibis_name = get_filename_without_extension(self._filename)
         ibis = Ibis(ibis_name, self._circuit)
@@ -862,14 +862,14 @@ class IbisReader(object):
             ]
             arg_buffers = ["NAME:Buffers"]
             for buffer_item in buffers.values():
-                arg_buffers.append("{}:=".format(buffer_item.short_name))
+                arg_buffers.append(f"{buffer_item.short_name}:=")
                 arg_buffers.append([True, "IbisSingleEnded"])
             model_selector_names = [i.name for i in ibis.model_selectors]
             arg_components = ["NAME:Components"]
             for comp_value in ibis.components.values():
-                arg_component = ["NAME:{}".format(comp_value.name)]
+                arg_component = [f"NAME:{comp_value.name}"]
                 for pin in comp_value.pins.values():
-                    arg_component.append("{}:=".format(pin.short_name))
+                    arg_component.append(f"{pin.short_name}:=")
                     if pin.model not in model_selector_names:
                         arg_component.append([False, False])
                     else:
@@ -1010,7 +1010,7 @@ class IbisReader(object):
                     pin = self.make_diff_pin_object(pin_info, component, ibis)
                     component.pins[pin.name] = pin
             except Exception as error:  # pragma: no cover
-                logger.warning("Cannot find Diff Pin. Ignore it. Exception message: {}".format(error))
+                logger.warning(f"Cannot find Diff Pin. Ignore it. Exception message: {error}")
             ibis.components[component.name] = component
 
     @classmethod
@@ -1235,7 +1235,7 @@ class AMIReader(IbisReader):
         """
 
         if not check_if_path_exists(self._filename):
-            raise Exception("{} does not exist.".format(self._filename))
+            raise Exception(f"{self._filename} does not exist.")
 
         ami_name = get_filename_without_extension(self._filename)
         ibis = AMI(ami_name, self._circuit)
@@ -1280,14 +1280,14 @@ class AMIReader(IbisReader):
             ]
             arg_buffers = ["NAME:Buffers"]
             for buffer in buffers:
-                arg_buffers.append("{}:=".format(buffers[buffer].short_name))
+                arg_buffers.append(f"{buffers[buffer].short_name}:=")
                 arg_buffers.append([True, "IbisSingleEnded"])
             model_selector_names = [i.name for i in ibis.model_selectors]
             arg_components = ["NAME:Components"]
             for component in ibis.components:
-                arg_component = ["NAME:{}".format(ibis.components[component].name)]
+                arg_component = [f"NAME:{ibis.components[component].name}"]
                 for pin in ibis.components[component].pins:
-                    arg_component.append("{}:=".format(ibis.components[component].pins[pin].short_name))
+                    arg_component.append(f"{ibis.components[component].pins[pin].short_name}:=")
                     flag = True
                     if not isinstance(ibis.components[component].pins[pin], DifferentialPin):
                         flag = False
@@ -1441,7 +1441,7 @@ def ibis_parsing(file):
                     pre_key_save[3] = key_save
 
                 else:
-                    logger.error("Invalid IBIS Keyword : {}".format(key))
+                    logger.error(f"Invalid IBIS Keyword : {key}")
                     return False
 
             # ALREADY FIND OUT KEYWORD

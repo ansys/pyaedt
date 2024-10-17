@@ -10,7 +10,7 @@ from ansys.aedt.core.generic import constants as consts
 
 # Prior to 2025R1, the Emit API supported Python 3.8,3.9,3.10,3.11
 # Starting with 2025R1, the Emit API supports Python 3.10,3.11,3.12
-if ( ( (3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2025.1" ) or 
+if ( ( (3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2025.1" ) or
     ( (3,10) <= sys.version_info[0:2] <= (3,12) and config["desktopVersion"] > "2024.2" ) ):
     from ansys.aedt.core import Emit
     from ansys.aedt.core import generate_unique_project_name
@@ -686,17 +686,17 @@ class TestClass:
     def test_13_static_type_generation(self):
         domain = self.aedtapp.results.interaction_domain()
         py_version = f"EmitApiPython{sys.version_info[0]}{sys.version_info[1]}"
-        assert str(type(domain)) == "<class '{}.InteractionDomain'>".format(py_version)
+        assert str(type(domain)) == f"<class '{py_version}.InteractionDomain'>"
 
         # assert str(type(TxRxMode)) == "<class '{}.tx_rx_mode'>".format(py_version)
-        assert str(type(TxRxMode.RX)) == "<class '{}.tx_rx_mode'>".format(py_version)
-        assert str(type(TxRxMode.TX)) == "<class '{}.tx_rx_mode'>".format(py_version)
-        assert str(type(TxRxMode.BOTH)) == "<class '{}.tx_rx_mode'>".format(py_version)
+        assert str(type(TxRxMode.RX)) == f"<class '{py_version}.tx_rx_mode'>"
+        assert str(type(TxRxMode.TX)) == f"<class '{py_version}.tx_rx_mode'>"
+        assert str(type(TxRxMode.BOTH)) == f"<class '{py_version}.tx_rx_mode'>"
         # assert str(type(ResultType)) == "<class '{}.result_type'>".format(py_version)
-        assert str(type(ResultType.SENSITIVITY)) == "<class '{}.result_type'>".format(py_version)
-        assert str(type(ResultType.EMI)) == "<class '{}.result_type'>".format(py_version)
-        assert str(type(ResultType.DESENSE)) == "<class '{}.result_type'>".format(py_version)
-        assert str(type(ResultType.POWER_AT_RX)) == "<class '{}.result_type'>".format(py_version)
+        assert str(type(ResultType.SENSITIVITY)) == f"<class '{py_version}.result_type'>"
+        assert str(type(ResultType.EMI)) == f"<class '{py_version}.result_type'>"
+        assert str(type(ResultType.DESENSE)) == f"<class '{py_version}.result_type'>"
+        assert str(type(ResultType.POWER_AT_RX)) == f"<class '{py_version}.result_type'>"
 
     @pytest.mark.skipif(config["desktopVersion"] <= "2023.1", reason="Skipped on versions earlier than 2023.2")
     def test_14_version(self, add_app):

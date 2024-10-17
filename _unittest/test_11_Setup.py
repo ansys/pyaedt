@@ -197,8 +197,10 @@ class TestClass:
         self.aedtapp.set_active_design("HFSSDesign")
         self.aedtapp["w1"] = "10mm"
         self.aedtapp["w2"] = "2mm"
+        assert not self.aedtapp.parametrics.add("invalid", 0.1, 20, 0.2, "LinearStep")
         setup1 = self.aedtapp.parametrics.add("w1", 0.1, 20, 0.2, "LinearStep")
         assert setup1
+        assert not setup1.add_variation("invalid", "0.1mm", 10, 11)
         assert setup1.add_variation("w2", "0.1mm", 10, 11)
         assert setup1.add_variation("w2", start_point="0.2mm", variation_type="SingleValue")
         assert setup1.add_variation("w1", start_point="0.3mm", end_point=5, step=0.2, variation_type="LinearStep")
@@ -208,10 +210,8 @@ class TestClass:
         assert setup1.add_calculation(
             calculation="dB(S(1,1))", ranges={"Freq": "3.5GHz"}, solution="My_HFSS_Setup : LastAdaptive"
         )
-        assert setup1.name in self.aedtapp.get_oo_name(
-            self.aedtapp.odesign, r"Optimetrics".format(self.aedtapp.design_name)
-        )
-        oo = self.aedtapp.get_oo_object(self.aedtapp.odesign, r"Optimetrics\{}".format(setup1.name))
+        assert setup1.name in self.aedtapp.get_oo_name(self.aedtapp.odesign, "Optimetrics")
+        oo = self.aedtapp.get_oo_object(self.aedtapp.odesign, f"Optimetrics\\{setup1.name}")
         oo_calculation = oo.GetCalculationInfo()[0]
         assert "Modal Solution Data" in oo_calculation
         assert setup1.export_to_csv(os.path.join(self.local_scratch.path, "test.csv"))
@@ -231,6 +231,7 @@ class TestClass:
         )
         assert setup1
         assert setup1.add_variation("a2", start_point="0.3mm", end_point=5, step=10, variation_type="LinearCount")
+        assert not setup1.sync_variables(["invalid"], sync_n=1)
         assert setup1.sync_variables(["a1", "a2"], sync_n=1)
         assert setup1.sync_variables(["a1", "a2"], sync_n=0)
         setup1.add_variation("a1", start_point="13mm", variation_type="SingleValue")
@@ -241,23 +242,21 @@ class TestClass:
         new_setup.props["Frequency"] = "2.5GHz"
         sweep = new_setup.create_linear_step_sweep(start_frequency=2, stop_frequency=10, step_size=0.1)
         setup2 = self.aedtapp.optimizations.add(
-            calculation, ranges={"Freq": "2.5GHz"}, solution="{} : {}".format(new_setup.name, sweep.name)
+            calculation, ranges={"Freq": "2.5GHz"}, solution=f"{new_setup.name} : {sweep.name}"
         )
         assert setup2
-        assert setup2.name in self.aedtapp.get_oo_name(
-            self.aedtapp.odesign, r"Optimetrics".format(self.aedtapp.design_name)
-        )
-        oo = self.aedtapp.get_oo_object(self.aedtapp.odesign, r"Optimetrics\{}".format(setup2.name))
+        assert setup2.name in self.aedtapp.get_oo_name(self.aedtapp.odesign, "Optimetrics")
+        oo = self.aedtapp.get_oo_object(self.aedtapp.odesign, f"Optimetrics\\{setup2.name}")
         oo_calculation = oo.GetCalculationInfo()[0]
         assert calculation in oo_calculation
-        assert "{} : {}".format(new_setup.name, sweep.name) in oo_calculation
+        assert f"{new_setup.name} : {sweep.name}" in oo_calculation
         for el in oo_calculation:
             if "NAME:Ranges" in el:
                 break
         assert len(el) == 3
         assert setup2.add_variation("w1", 0.1, 10, 5)
         assert setup2.add_goal(
-            calculation=calculation, ranges={"Freq": "2.6GHz"}, solution="{} : {}".format(new_setup.name, sweep.name)
+            calculation=calculation, ranges={"Freq": "2.6GHz"}, solution=f"{new_setup.name} : {sweep.name}"
         )
         oo_calculation = oo.GetCalculationInfo()[0]
         for el in reversed(oo_calculation):
@@ -267,9 +266,9 @@ class TestClass:
         assert setup2.add_goal(
             calculation=calculation,
             ranges={"Freq": ("2.6GHz", "5GHZ")},
-            solution="{} : {}".format(new_setup.name, sweep.name),
+            solution=f"{new_setup.name} : {sweep.name}",
         )
-        oo = self.aedtapp.get_oo_object(self.aedtapp.odesign, r"Optimetrics\{}".format(setup2.name))
+        oo = self.aedtapp.get_oo_object(self.aedtapp.odesign, f"Optimetrics\\{setup2.name}")
         oo_calculation = oo.GetCalculationInfo()[0]
         for el in reversed(oo_calculation):
             if "NAME:Ranges" in el:
@@ -286,7 +285,7 @@ class TestClass:
             calculation,
             ranges={"Freq": "2.5GHz"},
             optimization_type="DXDOE",
-            solution="{} : {}".format(new_setup.name, sweep.name),
+            solution=f"{new_setup.name} : {sweep.name}",
         )
         assert setup2.add_variation("w1", 0.1, 10)
         assert setup2.add_variation("w2", 0.1, 10)
@@ -295,12 +294,12 @@ class TestClass:
             assert setup2.add_goal(
                 calculation="dB(S(1,1))",
                 ranges={"Freq": "2.5GHz"},
-                solution="{} : {}".format(new_setup.name, sweep.name),
+                solution=f"{new_setup.name} : {sweep.name}",
             )
             assert setup2.add_calculation(
                 calculation="dB(S(1,1))",
                 ranges={"Freq": "2.5GHz"},
-                solution="{} : {}".format(new_setup.name, sweep.name),
+                solution=f"{new_setup.name} : {sweep.name}",
             )
         assert setup2.delete()
 
@@ -313,7 +312,7 @@ class TestClass:
             ranges=None,
             variables=None,
             optimization_type="optiSLang",
-            solution="{} : {}".format(new_setup.name, sweep.name),
+            solution=f"{new_setup.name} : {sweep.name}",
         )
         assert setup1.add_variation("w1", 1, 10, 51)
         setup2 = self.aedtapp.optimizations.add(
@@ -321,13 +320,13 @@ class TestClass:
             ranges=None,
             variables={"w1": "1mm", "w2": "2mm"},
             optimization_type="optiSLang",
-            solution="{} : {}".format(new_setup.name, sweep.name),
+            solution=f"{new_setup.name} : {sweep.name}",
         )
         assert setup2.add_variation("a1", 1, 10, 51)
         assert not setup2.add_variation("w3", 0.1, 10, 5)
         assert setup2
         assert setup2.add_goal(
-            calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, solution="{} : {}".format(new_setup.name, sweep.name)
+            calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, solution=f"{new_setup.name} : {sweep.name}"
         )
 
     def test_28B_create_dx(self):
@@ -339,7 +338,7 @@ class TestClass:
             ranges=None,
             variables=None,
             optimization_type="DesignExplorer",
-            solution="{} : {}".format(new_setup.name, sweep.name),
+            solution=f"{new_setup.name} : {sweep.name}",
         )
         assert setup1.add_variation("w1", 5, 10, 51)
         setup2 = self.aedtapp.optimizations.add(
@@ -347,12 +346,12 @@ class TestClass:
             ranges=None,
             variables={"w1": "1mm", "w2": "2mm"},
             optimization_type="DesignExplorer",
-            solution="{} : {}".format(new_setup.name, sweep.name),
+            solution=f"{new_setup.name} : {sweep.name}",
         )
         assert setup2.add_variation("a1", 1, 10, 51)
         assert setup2
         assert setup2.add_goal(
-            calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, solution="{} : {}".format(new_setup.name, sweep.name)
+            calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, solution=f"{new_setup.name} : {sweep.name}"
         )
 
     def test_29_create_sensitivity(self):
@@ -364,12 +363,12 @@ class TestClass:
             calculation,
             ranges={"Freq": "2.5GHz"},
             optimization_type="Sensitivity",
-            solution="{} : {}".format(new_setup.name, sweep.name),
+            solution=f"{new_setup.name} : {sweep.name}",
         )
         assert setup2.add_variation("w1", 0.1, 10, 3.2)
         assert setup2
         assert setup2.add_calculation(
-            calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, solution="{} : {}".format(new_setup.name, sweep.name)
+            calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, solution=f"{new_setup.name} : {sweep.name}"
         )
 
     def test_29_create_statistical(self):
@@ -381,10 +380,10 @@ class TestClass:
             calculation,
             ranges={"Freq": "2.5GHz"},
             optimization_type="Statistical",
-            solution="{} : {}".format(new_setup.name, sweep.name),
+            solution=f"{new_setup.name} : {sweep.name}",
         )
         assert setup2.add_variation("w1", 0.1, 10, 0.3)
         assert setup2
         assert setup2.add_calculation(
-            calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, solution="{} : {}".format(new_setup.name, sweep.name)
+            calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, solution=f"{new_setup.name} : {sweep.name}"
         )

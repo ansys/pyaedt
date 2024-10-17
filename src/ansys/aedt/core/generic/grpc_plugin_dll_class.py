@@ -111,7 +111,7 @@ class AedtObjWrapper:
 
     def __Invoke__(self, funcName, argv):
         if settings.enable_debug_grpc_api_logger:
-            settings.logger.debug(" {}{}".format(funcName, argv))
+            settings.logger.debug(f" {funcName}{argv}")
         try:
             if (settings.use_multi_desktop and funcName not in exclude_list) or funcName in inclusion_list:
                 self.dllapi.recreate_application(True)
@@ -126,7 +126,7 @@ class AedtObjWrapper:
                 ret.AedtAPI = self.AedtAPI
             return ret
         except Exception:  # pragma: no cover
-            raise GrpcApiError("Failed to execute gRPC AEDT command: {}".format(funcName))
+            raise GrpcApiError(f"Failed to execute gRPC AEDT command: {funcName}")
 
     def __dir__(self):
         return self.__methodNames__
@@ -147,7 +147,7 @@ class AedtObjWrapper:
                 return self.objectID
             return self.__GetObjMethod__(funcName)
         except Exception:
-            raise GrpcApiError("Failed to get gRPC API AEDT attribute {}".format(funcName))
+            raise GrpcApiError(f"Failed to get gRPC API AEDT attribute {funcName}")
 
     def __setattr__(self, attrName, val):
         if attrName == "objectID" or attrName == "__methodNames__":
@@ -217,7 +217,7 @@ class AedtPropServer(AedtObjWrapper):
             propMap = self.__GetPropAttributes()
             if attrName in propMap:
                 return self.GetPropValue(propMap[attrName])
-            raise GrpcApiError("Failed to retrieve attribute {} from gRPC API".format(attrName))
+            raise GrpcApiError(f"Failed to retrieve attribute {attrName} from gRPC API")
 
     def __setattr__(self, attrName, val):
         if attrName in self.__dict__:

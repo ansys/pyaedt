@@ -229,9 +229,7 @@ class TestClass:
 
     def test_05_change_property(self):
         ports = self.aedtapp.create_ports_on_component_by_nets("U1", "DDR4_DQS0_P")
-        assert self.aedtapp.modeler.change_property(
-            "Excitations:{}".format(ports[0].name), "Impedance", "49ohm", "EM Design"
-        )
+        assert self.aedtapp.modeler.change_property(f"Excitations:{ports[0].name}", "Impedance", "49ohm", "EM Design")
 
     def test_06_assign_spice_model(self):
         model_path = os.path.join(local_path, "example_models", test_subfolder, "GRM32ER72A225KA35_25C_0V.sp")

@@ -319,10 +319,10 @@ class GeneticAlgorithm(object):
                 counter += 1
             if self.best_function < self.goal:
                 break
-            print("\nInfo: Iteration {}".format(t))
-            print("\nInfo: Goal {}".format(self.goal))
-            print("\nInfo: Best Function {}".format(self.best_function))
-            print("\nInfo: Best Variable {}".format(self.best_variable))
+            print(f"\nInfo: Iteration {t}")
+            print(f"\nInfo: Goal {self.goal}")
+            print(f"\nInfo: Best Function {self.best_function}")
+            print(f"\nInfo: Best Variable {self.best_variable}")
 
             # Report
             self.report.append(pop[0, self.dim])

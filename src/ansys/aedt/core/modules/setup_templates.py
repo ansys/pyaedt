@@ -1964,7 +1964,7 @@ class SetupKeys:
         elif default_type == "Natural Convection" or default_type == "Mixed Convection":
             expand_dict = icepak_natural_convection_update
         else:
-            raise AttributeError("default_type {} is not supported.".format(default_type))
+            raise AttributeError(f"default_type {default_type} is not supported.")
         for i in icepak_setups_n:
             icepak_template[self.SetupNames[i]].update(expand_dict)
         return icepak_template

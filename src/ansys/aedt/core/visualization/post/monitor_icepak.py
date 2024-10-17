@@ -676,10 +676,10 @@ class Monitor:
         else:
             self._app.logger.error("Only modes supported are 0 and 1")
         if m_object is None:  # pragma: no cover
-            self._app.logger.error("{} monitor object could not be restored".format(m_name))
+            self._app.logger.error(f"{m_name} monitor object could not be restored")
             return False
         self._app.configurations.update_monitor(m_case, m_object, m_quantity, m_name)
-        self._app.logger.info("{} monitor object restored".format(m_name))
+        self._app.logger.info(f"{m_name} monitor object restored")
         return m_name
 
 
@@ -820,7 +820,7 @@ class ObjectMonitor:
         for q in quantity:
             for i, monitor_result_obj in enumerate(
                 self._app.oreportsetup.GetSolutionDataPerVariation(
-                    "Monitor", setup, [], design_variation, "{}.{}".format(self.name, q)
+                    "Monitor", setup, [], design_variation, f"{self.name}.{q}"
                 )
             ):
                 variation_a = {
@@ -832,20 +832,20 @@ class ObjectMonitor:
                     for i in monitor_result_obj.GetSweepNames()
                 }
                 variation_a.update(variation_b)
-                unit = monitor_result_obj.GetDataUnits("{}.{}".format(self.name, q))
+                unit = monitor_result_obj.GetDataUnits(f"{self.name}.{q}")
                 if si_out and unit != "cel":
                     unit = SI_UNITS[unit_system(unit)]
                 if i in return_dict.keys():
                     return_dict[i][q] = {
                         "Unit": unit,
-                        "Value": list(monitor_result_obj.GetRealDataValues("{}.{}".format(self.name, q), si_out)),
+                        "Value": list(monitor_result_obj.GetRealDataValues(f"{self.name}.{q}", si_out)),
                     }
                 else:
                     return_dict[i] = {
                         "Variation": variation_a,
                         q: {
                             "Unit": unit,
-                            "Value": list(monitor_result_obj.GetRealDataValues("{}.{}".format(self.name, q), si_out)),
+                            "Value": list(monitor_result_obj.GetRealDataValues(f"{self.name}.{q}", si_out)),
                         },
                     }
         return return_dict

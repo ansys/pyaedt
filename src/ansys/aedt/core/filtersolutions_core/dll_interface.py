@@ -58,7 +58,7 @@ class DllInterface:
         if not (version in aedt_versions.installed_versions) and not (
             version + "CL" in aedt_versions.installed_versions
         ):
-            raise ValueError("Specified version {} is not installed on your system".format(version[0:6]))
+            raise ValueError(f"Specified version {version[0:6]} is not installed on your system")
         self.dll_path = os.path.join(aedt_versions.installed_versions[version], "nuhertz", "FilterSolutionsAPI.dll")
         print("DLL Path:", self.dll_path)
         if not os.path.isfile(self.dll_path):
