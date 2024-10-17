@@ -28,12 +28,11 @@ import os
 import time
 
 from _unittest.conftest import config
+from ansys.aedt.core import Hfss3dLayout
+from ansys.aedt.core import Icepak
+from ansys.aedt.core import Q2d
+from ansys.aedt.core import Q3d
 import pytest
-
-from pyaedt import Hfss3dLayout
-from pyaedt import Icepak
-from pyaedt import Q2d
-from pyaedt import Q3d
 
 local_path = os.path.dirname(os.path.realpath(__file__))
 test_project_name = "dm boundary test"
@@ -262,7 +261,7 @@ class TestClass:
 
     @pytest.mark.skipif(
         config["desktopVersion"] < "2023.1" and config["use_grpc"],
-        reason="Not working in 2022.2 GRPC",
+        reason="Not working in 2022.2 gRPC",
     )
     def test_04b_icepak(self, icepak_b, add_app):
         box1 = icepak_b.modeler.create_box([0, 0, 0], [10, 10, 10])
@@ -306,15 +305,9 @@ class TestClass:
         fan2 = icepak_b.modeler.user_defined_components[fan.name].duplicate_along_line([4, 5, 6])
         icepak_b.modeler.user_defined_components[fan.name].rotate("Y")
         fan3 = icepak_b.modeler.user_defined_components[fan.name].duplicate_around_axis("Z")
-        icepak_b.monitor.assign_face_monitor(
-            list(icepak_b.modeler.user_defined_components[fan3[0]].parts.values())[0].faces[0].id
-        )
         icepak_b.modeler.user_defined_components[fan.name].move([1, 2, 3])
         fan4 = icepak_b.modeler.user_defined_components[fan.name].duplicate_around_axis("Z")
         icepak_b.modeler.user_defined_components[fan2[0]].duplicate_and_mirror([4, 5, 6], [1, 2, 3])
-        icepak_b.monitor.assign_point_monitor_in_object(
-            list(icepak_b.modeler.user_defined_components[fan4[0]].parts.values())[0]
-        )
         conf_file = icepak_b.configurations.export_config()
         assert icepak_b.configurations.validate(conf_file)
         file_path = os.path.join(icepak_b.working_directory, filename + ".x_b")
@@ -324,7 +317,6 @@ class TestClass:
         assert isinstance(out, dict)
         assert app.configurations.validate(out)
         assert app.configurations.results.global_import_success
-        # app.close_project(save_project=False)
 
     def test_05a_hfss3dlayout_setup(self, hfss3dl_a, local_scratch):
         setup2 = hfss3dl_a.create_setup("My_HFSS_Setup_2")  # Insert a setup.

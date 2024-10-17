@@ -10,7 +10,7 @@ import warnings
 import numpy as np
 from sphinx_gallery.sorting import FileNameSortKey
 from ansys_sphinx_theme import (ansys_favicon, 
-                                get_version_match, pyansys_logo_black,
+                                get_version_match,
                                 watermark, 
                                 ansys_logo_white, 
                                 ansys_logo_white_cropped, latex)
@@ -110,14 +110,14 @@ local_path = os.path.dirname(os.path.realpath(__file__))
 module_path = pathlib.Path(local_path)
 root_path = module_path.parent.parent
 try:
-    from pyaedt import __version__
+    from ansys.aedt.core import __version__
 except ImportError:
 
     sys.path.append(os.path.abspath(os.path.join(local_path)))
     sys.path.append(os.path.join(root_path))
-    from pyaedt import __version__
+    from ansys.aedt.core import __version__
 
-from pyaedt import is_windows
+from ansys.aedt.core import is_windows
 
 project = "PyAEDT"
 copyright = f"(c) {datetime.datetime.now().year} ANSYS, Inc. All rights reserved"
@@ -129,9 +129,6 @@ release = version = __version__
 os.environ["PYAEDT_NON_GRAPHICAL"] = "1"
 os.environ["PYAEDT_DOC_GENERATION"] = "1"
 
-# Do not run examples by default
-run_examples = bool(int(os.getenv("PYAEDT_DOC_RUN_EXAMPLES", "0")))
-use_gif = bool(int(os.getenv("PYAEDT_DOC_USE_GIF", "1")))
 
 # -- General configuration ---------------------------------------------------
 
@@ -200,7 +197,7 @@ numpydoc_validation_checks = {
 numpydoc_validation_exclude = {  # set of regex
     r"\.AEDTMessageManager.add_message$",  # bad SS05
     r"\.Modeler3D\.create_choke$",  # bad RT05
-    r"HistoryProps.",  # bad RT05 because of the base class named OrderedDict
+    r"HistoryProps.",  # bad RT05 because of the base class named dict
 }
 
 # Favicon
@@ -258,62 +255,10 @@ pygments_style = "sphinx"
 
 # gallery build requires AEDT install
 # if is_windows and bool(os.getenv("PYAEDT_CI_RUN_EXAMPLES", "0")):
-if run_examples:
-    import pyvista
-
-    # PyVista settings
-
-    # Ensure that offscreen rendering is used for docs generation
-    pyvista.OFF_SCREEN = True
-    # Save figures in specified directory
-    pyvista.FIGURE_PATH = os.path.join(os.path.abspath("./images/"), "auto-generated/")
-    if not os.path.exists(pyvista.FIGURE_PATH):
-        os.makedirs(pyvista.FIGURE_PATH)
-    # Necessary for pyvista when building the sphinx gallery
-    pyvista.BUILDING_GALLERY = True
-
-    # Manage errors
-    pyvista.set_error_output_file("errors.txt")
-    # Must be less than or equal to the XVFB window size
-    pyvista.global_theme["window_size"] = np.array([1024, 768])
-
-    # suppress annoying matplotlib bug
-    warnings.filterwarnings(
-        "ignore",
-        category=UserWarning,
-        message="Matplotlib is currently using agg, which is a non-GUI backend, so it cannot show the figure.",
-    )
-
-    extensions.append("sphinx_gallery.gen_gallery")
-    sphinx_gallery_conf = {
-        # convert rst to md for ipynb
-        "pypandoc": True,
-        # path to your examples scripts
-        "examples_dirs": ["../../examples/"],
-        # path where to save gallery generated examples
-        "gallery_dirs": ["examples"],
-        # Pattern to search for examples files
-        "filename_pattern": r"\.py",
-        # Remove the "Download all examples" button from the top level gallery
-        "download_all_examples": False,
-        # Sort gallery examples by file name instead of number of lines (default)
-        "within_subsection_order": FileNameSortKey,
-        # Directory where function granular galleries are stored
-        "backreferences_dir": None,
-        # Modules for which function level galleries are created.  In
-        "doc_module": "ansys-pyaedt",
-        "image_scrapers": ("pyvista", "matplotlib"),
-        "ignore_pattern": r"flycheck.*",
-        "thumbnail_size": (350, 350),
-    }
-    if not use_gif:
-        gif_ignore_pattern = r"|.*Maxwell2D_Transient\.py|.*Maxwell2D_DCConduction\.py|.*Hfss_Icepak_Coupling\.py|.*SBR_Time_Plot\.py"
-        sphinx_gallery_conf["ignore_pattern"] = sphinx_gallery_conf["ignore_pattern"] + gif_ignore_pattern
 
 # -- Options for HTML output -------------------------------------------------
 html_short_title = html_title = "PyAEDT"
 html_theme = "ansys_sphinx_theme"
-html_logo = pyansys_logo_black
 html_context = {
     "github_user": "ansys",
     "github_repo": "pyaedt",
@@ -323,6 +268,7 @@ html_context = {
 
 # specify the location of your github repo
 html_theme_options = {
+    "logo": "pyansys",
     "github_url": "https://github.com/ansys/pyaedt",
     "navigation_with_keys": False,
     "show_prev_next": False,
@@ -353,16 +299,16 @@ html_theme_options = {
     },
 }
 
-# Add button to download PDF
-html_theme_options["icon_links"].append(
-    {
-        "name": "Download documentation in PDF",
-        # NOTE: Changes to this URL must be reflected in CICD documentation build
-        "url": f"https://{cname}/version/{switcher_version}/_static/assets/download/pyaedt.pdf",
-        # noqa: E501
-        "icon": "fa fa-file-pdf fa-fw",
-    }
-)
+# # Add button to download PDF
+# html_theme_options["icon_links"].append(
+#     {
+#         "name": "Download documentation in PDF",
+#         # NOTE: Changes to this URL must be reflected in CICD documentation build
+#         "url": f"https://{cname}/version/{switcher_version}/_static/assets/download/pyaedt.pdf",
+#         # noqa: E501
+#         "icon": "fa fa-file-pdf fa-fw",
+#     }
+# )
 
 html_static_path = ["_static"]
 

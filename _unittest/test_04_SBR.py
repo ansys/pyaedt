@@ -24,13 +24,11 @@
 
 import builtins
 import os
-import sys
 from unittest.mock import mock_open
 
+from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
 from mock import patch
 import pytest
-
-from pyaedt.sbrplus.hdm_parser import Parser
 
 try:
     import osmnx
@@ -39,8 +37,7 @@ except ImportError:
 
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
-
-from pyaedt.generic.settings import is_linux
+from ansys.aedt.core.generic.settings import is_linux
 
 if desktop_version > "2022.2":
     test_project_name = "Cassegrain_231"
@@ -56,7 +53,9 @@ else:
     vehicle = "vehicle1"
     bird = "bird1"
 
-test_subfolder = "T17"
+test_subfolder = "T04"
+
+custom_array = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "custom_array.sarr")
 
 CORRECT_HDM_HEADER = b"""
 # The binary data starts immediately after the '#header end' line.
@@ -123,12 +122,25 @@ class TestClass:
         )
         assert len(self.aedtapp.native_components) == 4
 
+        self.aedtapp.create_sbr_linked_antenna(source, target_cs="feederPosition", field_type="farfield", is_array=True)
+        assert len(self.aedtapp.native_components) == 5
+
+        self.aedtapp.create_sbr_linked_antenna(
+            source,
+            target_cs="feederPosition",
+            name="LinkedAntennaNF_array",
+            current_conformance=True,
+            custom_array=custom_array,
+        )
+        assert len(self.aedtapp.native_components) == 6
+
     def test_02_add_antennas(self):
         self.aedtapp.insert_design("add_antennas")
-        dict1 = {"polarization": "Horizontal"}
+        dict1 = {"Polarization": "Horizontal"}
         par_beam = self.aedtapp.create_sbr_antenna(
             self.aedtapp.SbrAntennas.ParametricBeam, parameters=dict1, name="TX1"
         )
+        assert par_beam.definition_name == "TX1"
         assert self.aedtapp.create_sbr_antenna(self.aedtapp.SbrAntennas.ConicalHorn, parameters=dict1, name="RX1")
         par_beam.native_properties["Unit"] = "in"
         assert par_beam.update()
@@ -161,20 +173,49 @@ class TestClass:
         toberemoved = self.aedtapp.create_sbr_antenna(
             self.aedtapp.SbrAntennas.WireDipole, use_current_source_representation=True
         )
-        l = len(self.aedtapp.native_components)
+
+        native_components = len(self.aedtapp.native_components)
+
         toberemoved.delete()
-        assert len(self.aedtapp.native_components) == l - 1
-        assert len(self.aedtapp.modeler.user_defined_component_names) == l - 1
+
+        assert len(self.aedtapp.native_components) == native_components - 1
+        assert len(self.aedtapp.modeler.user_defined_component_names) == native_components - 1
         array = self.aedtapp.create_sbr_antenna(
             self.aedtapp.SbrAntennas.WireMonopole, use_current_source_representation=False, is_array=True
         )
         array.native_properties["Array Length In Wavelength"] = "10"
         assert array.update()
 
+        assert array.object_properties.props["Name"] == array.name
+
+        native_components = len(self.aedtapp.native_component_names)
+        array.name = "new_name"
+        native_components_new = len(self.aedtapp.native_component_names)
+        assert native_components_new == native_components
+
+        assert "new_name" in self.aedtapp.native_component_names
+
+        assert self.aedtapp.create_sbr_antenna(
+            self.aedtapp.SbrAntennas.SmallLoop, use_current_source_representation=True, is_array=True
+        )
+
+        assert self.aedtapp.create_sbr_antenna(
+            self.aedtapp.SbrAntennas.SmallLoop, use_current_source_representation=True, custom_array=custom_array
+        )
+
     def test_03_add_ffd_antenna(self):
         self.aedtapp.insert_design("ffd_antenna")
         assert self.aedtapp.create_sbr_file_based_antenna(
             far_field_data=os.path.join(local_path, "example_models", test_subfolder, "test.ffd")
+        )
+
+        assert self.aedtapp.create_sbr_file_based_antenna(
+            far_field_data=os.path.join(local_path, "example_models", test_subfolder, "test.ffd"), is_array=True
+        )
+
+        assert self.aedtapp.create_sbr_file_based_antenna(
+            far_field_data=os.path.join(local_path, "example_models", test_subfolder, "test.ffd"),
+            custom_array=custom_array,
         )
 
     def test_04_add_environment(self):
@@ -254,7 +295,28 @@ class TestClass:
         for part in parts_dict["parts"]:
             assert os.path.exists(parts_dict["parts"][part]["file_name"])
 
-    @pytest.mark.skipif(sys.version_info > (3, 8), reason="Bug in VTK with 3.12")
+    def test_13_create_custom_array(self, aedtapp, local_scratch):
+        output_file1 = aedtapp.create_sbr_custom_array_file()
+        assert os.path.isfile(output_file1)
+
+        output_file2 = aedtapp.create_sbr_custom_array_file(
+            frequencies=[1.0, 2.0, 5.0],
+            element_number=4,
+            state_number=2,
+            position=[[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 1.0, 1.0]],
+            x_axis=[[1.0, 0.0, 0.0]] * 4,
+            y_axis=[[0.0, 1.0, 0.0]] * 4,
+            weight=[
+                [complex(1.0, 0.0), complex(1.0, 0.0), complex(1.1, 0.0), complex(1.0, 0.0)],
+                [complex(1.0, 0.0), complex(1.0, 0.0), complex(1.0, 0.0), complex(1.0, 0.0)],
+                [complex(1.0, 0.0), complex(1.0, 0.0), complex(1.0, 1.0), complex(1.0, 0.0)],
+                [complex(1.0, 0.0), complex(1.0, 0.0), complex(1.0, 0.0), complex(1.0, 0.0)],
+                [complex(1.0, 0.0), complex(1.0, 0.0), complex(1.0, 0.0), complex(1.0, 0.0)],
+                [complex(1.0, 0.0), complex(1.0, 0.0), complex(1.0, 0.0), complex(1.0, 0.0)],
+            ],
+        )
+        assert os.path.isfile(output_file2)
+
     @pytest.mark.skipif(is_linux, reason="feature supported in Cpython")
     def test_16_read_hdm(self):
         self.aedtapp.insert_design("hdm")

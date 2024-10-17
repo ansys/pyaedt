@@ -13,6 +13,10 @@ PyAEDT documentation  |version|
 PyAEDT is a Python client library that interacts directly with the Ansys Electronics Desktop (AEDT) API,
 enabling straightforward and efficient automation in your workflow.
 
+.. note:: Expected breaking changes with version `1.0`
+   If you want to know more about the breaking changes expected
+   in the incoming version `1.0`, see the :ref:`release_1_0`.
+
 .. note::
     Also consider viewing the `PyEDB documentation <https://edb.docs.pyansys.com/version/stable/>`_.
     PyEDB is a Python client library for processing complex and large layout designs in the Ansys
@@ -42,8 +46,7 @@ enabling straightforward and efficient automation in your workflow.
         It describes how the methods work and the parameters that can be used.
 
     .. grid-item-card:: Examples :fa:`scroll`
-        :link: examples/index
-        :link-type: doc
+        :link: https://examples.aedt.docs.pyansys.com/
 
         Explore examples that show how to use PyAEDT to perform different types of simulations.
 
@@ -55,6 +58,7 @@ enabling straightforward and efficient automation in your workflow.
 
         Learn how to contribute to the PyAEDT codebase or documentation.
 
+
 .. toctree::
     :hidden:
 
@@ -62,4 +66,4 @@ enabling straightforward and efficient automation in your workflow.
     Getting_started/index
     User_guide/index
     API/index
-    examples/index
+    Examples <https://examples.aedt.docs.pyansys.com/>

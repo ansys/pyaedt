@@ -24,15 +24,14 @@
 
 import math
 
+from ansys.aedt.core.generic.constants import AXIS
+from ansys.aedt.core.generic.constants import PLANE
+from ansys.aedt.core.generic.constants import SWEEPDRAFT
+from ansys.aedt.core.generic.constants import unit_converter
+from ansys.aedt.core.modeler.calculators import StandardWaveguide as wg
+from ansys.aedt.core.modeler.calculators import TransmissionLine as tl
+from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
 import pytest
-
-from pyaedt.generic.constants import AXIS
-from pyaedt.generic.constants import PLANE
-from pyaedt.generic.constants import SWEEPDRAFT
-from pyaedt.generic.constants import unit_converter
-from pyaedt.modeler.calculators import StandardWaveguide as wg
-from pyaedt.modeler.calculators import TransmissionLine as tl
-from pyaedt.modeler.geometry_operators import GeometryOperators as go
 
 tol = 1e-12
 
@@ -48,13 +47,14 @@ def is_vector_equal(v, r):
 
 @pytest.fixture(scope="module", autouse=True)
 def desktop():
+    """Override the desktop fixture to DO NOT open the Desktop when running this test class"""
     return
 
 
 class TestClass:
     def test_List2list(self):
-        from pyaedt.generic.clr_module import Double
-        from pyaedt.generic.clr_module import List
+        from ansys.aedt.core.generic.clr_module import Double
+        from ansys.aedt.core.generic.clr_module import List
 
         List_str = List[str]()
         List_str.Add("one")

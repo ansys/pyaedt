@@ -28,18 +28,17 @@ import tempfile
 from _unittest.conftest import config
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
+from ansys.aedt.core import Hfss
+from ansys.aedt.core import Hfss3dLayout
+from ansys.aedt.core import Icepak
+from ansys.aedt.core import get_pyaedt_app
+from ansys.aedt.core.application.aedt_objects import AedtObjects
+from ansys.aedt.core.application.design import DesignSettings
+from ansys.aedt.core.application.design_solutions import model_names
+from ansys.aedt.core.generic.general_methods import is_linux
+from ansys.aedt.core.generic.general_methods import settings
+from ansys.aedt.core.workflows import customize_automation_tab
 import pytest
-
-from pyaedt import Hfss
-from pyaedt import Hfss3dLayout
-from pyaedt import Icepak
-from pyaedt import get_pyaedt_app
-from pyaedt.application.Design import DesignSettings
-from pyaedt.application.aedt_objects import AedtObjects
-from pyaedt.application.design_solutions import model_names
-from pyaedt.generic.general_methods import is_linux
-from pyaedt.generic.general_methods import settings
-from pyaedt.workflows import customize_automation_tab
 
 test_subfolder = "T01"
 if config["desktopVersion"] > "2022.2":
@@ -177,7 +176,7 @@ class TestClass:
         assert "test" not in self.aedtapp.variable_manager.variables
 
     def test_13_designs(self):
-        assert self.aedtapp._insert_design("HFSS", design_name="TestTransient") == "TestTransient"
+        assert self.aedtapp._insert_design(design_name="TestTransient", design_type="HFSS") == "TestTransient"
         self.aedtapp.delete_design("TestTransient")
         self.aedtapp.insert_design("NewDesign")
 
@@ -343,8 +342,8 @@ class TestClass:
         assert str(type(self.aedtapp.odesktop)) in [
             "<class 'win32com.client.CDispatch'>",
             "<class 'PyDesktopPlugin.AedtObjWrapper'>",
-            "<class 'pyaedt.generic.grpc_plugin.AedtObjWrapper'>",
-            "<class 'pyaedt.generic.grpc_plugin_dll_class.AedtObjWrapper'>",
+            "<class 'ansys.aedt.core.generic.grpc_plugin.AedtObjWrapper'>",
+            "<class 'ansys.aedt.core.generic.grpc_plugin_dll_class.AedtObjWrapper'>",
         ]
 
     def test_28_get_pyaedt_app(self):
@@ -379,14 +378,14 @@ class TestClass:
 
     def test_33_aedt_object(self):
         aedt_obj = AedtObjects()
-        assert aedt_obj.odesign
-        assert aedt_obj.oproject
+        assert aedt_obj._odesign
+        assert aedt_obj._oproject
         aedt_obj = AedtObjects(self.aedtapp._desktop_class, self.aedtapp.oproject, self.aedtapp.odesign)
-        assert aedt_obj.odesign == self.aedtapp.odesign
+        assert aedt_obj._odesign == self.aedtapp.odesign
 
     def test_34_force_project_path_disable(self):
         settings.force_error_on_missing_project = True
-        assert settings.force_error_on_missing_project == True
+        assert settings.force_error_on_missing_project
         e = None
         exception_raised = False
         try:
@@ -444,7 +443,7 @@ class TestClass:
     def test_38_toolkit(self, desktop):
         file = os.path.join(self.local_scratch.path, "test.py")
         with open(file, "w") as f:
-            f.write("import pyaedt\n")
+            f.write("import ansys.aedt.core\n")
         assert customize_automation_tab.add_script_to_menu(name="test_toolkit", script_file=file)
         assert customize_automation_tab.remove_script_from_menu(
             desktop_object=self.aedtapp.desktop_class, name="test_toolkit"
@@ -484,3 +483,22 @@ class TestClass:
             hfss.set_active_design(hfss.design_name)
             assert desktop._connected_app_instances == num_references + 1
         assert desktop._connected_app_instances == num_references
+
+    def test_42_save_project_with_file_name(self):
+        # Save into path with existing parent dir
+        self.aedtapp.create_new_project("Test")
+        new_project = os.path.join(self.local_scratch.path, "new.aedt")
+        assert os.path.exists(self.local_scratch.path)
+        self.aedtapp.save_project(file_name=new_project)
+        assert os.path.isfile(new_project)
+
+        # Save into path with non-existing parent dir
+        new_parent_dir = os.path.join(self.local_scratch.path, "new_dir")
+        new_project = os.path.join(new_parent_dir, "new_2.aedt")
+        assert not os.path.exists(new_parent_dir)
+        self.aedtapp.save_project(file_name=new_project)
+        assert os.path.isfile(new_project)
+
+    def test_43_edit_notes(self):
+        assert self.aedtapp.edit_notes("this a test")
+        assert not self.aedtapp.edit_notes(1)

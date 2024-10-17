@@ -26,14 +26,17 @@ import os
 
 from _unittest.conftest import config
 from _unittest.conftest import local_path
+from ansys.aedt.core import Icepak
+from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.modules.boundary import NativeComponentObject
+from ansys.aedt.core.modules.boundary import NetworkObject
+from ansys.aedt.core.modules.boundary import PCBSettingsDeviceParts
+from ansys.aedt.core.modules.boundary import PCBSettingsPackageParts
+from ansys.aedt.core.modules.mesh_icepak import MeshRegion
+from ansys.aedt.core.modules.setup_templates import SetupKeys
+from ansys.aedt.core.visualization.post.field_data import FolderPlotSettings
+from ansys.aedt.core.visualization.post.field_data import SpecifiedScale
 import pytest
-
-from pyaedt import Icepak
-from pyaedt.generic.settings import settings
-from pyaedt.modules.Boundary import NativeComponentObject
-from pyaedt.modules.Boundary import NetworkObject
-from pyaedt.modules.MeshIcepak import MeshRegion
-from pyaedt.modules.SetupTemplates import SetupKeys
 
 test_subfolder = "T98"
 if config["desktopVersion"] > "2022.2":
@@ -43,6 +46,7 @@ if config["desktopVersion"] > "2022.2":
     coldplate = "ColdPlateExample_231"
     power_budget = "PB_test_231"
     native_import = "one_native_component"
+    transient_fs = "transient_fs"
 
 else:
     coldplate = "ColdPlateExample"
@@ -109,53 +113,138 @@ class TestClass:
             custom_y_resolution=500,
             extent_type="Polygon",
         )
-        assert cmp2.set_parts("Package Parts", True, "Steel-mild-surface")
-        assert cmp2.set_parts("Device Parts", True, "Steel-mild-surface")
-        assert not bool(cmp2.overridden_components)
-        assert cmp2.override_component("FCHIP", True)
+        cmp2.included_parts = 1
+        assert isinstance(cmp2.included_parts, PCBSettingsDeviceParts)
+        cmp2.included_parts = None
+        assert cmp2.included_parts is None
+        cmp2.included_parts = "Device"
+        assert cmp2.included_parts == "Device"
+        assert not cmp2.included_parts == "Package"
+        assert cmp2.included_parts == cmp2.included_parts
+        assert not cmp2.included_parts == "Package"
+        assert not cmp2.included_parts != "Device"
+        assert isinstance(cmp2.included_parts, PCBSettingsDeviceParts)
+        cmp2.included_parts = "Package"
+        assert not cmp2.included_parts == "Packages"
+        assert isinstance(cmp2.included_parts, PCBSettingsPackageParts)
+        assert cmp2.included_parts.set_connectors_modeling(modeling="Solderbump", solderbumps_modeling="Boxes")
+        assert cmp2.included_parts.set_connectors_modeling(
+            modeling="Bondwire", bondwire_material="Au-Typical", bondwire_diameter="0.01mm"
+        )
+        assert cmp2.included_parts.set_connectors_modeling(modeling="Solderbump", solderbumps_modeling="Lumped")
+        assert not cmp2.included_parts.set_connectors_modeling(modeling="Error")
+        assert not cmp2.included_parts.set_connectors_modeling(
+            modeling="Solderbump", solderbumps_modeling="Error1"
+        )  # invalid input
+        assert not cmp2.included_parts.set_connectors_modeling(
+            modeling="Bondwire", bondwire_material="Error4"
+        )  # material does not exist
+        cmp2.included_parts = "Device"
+        cmp2.included_parts.simplify_parts = True
+        assert cmp2.included_parts.simplify_parts
+        cmp2.included_parts.surface_material = "pt-polished"
+        assert cmp2.included_parts.surface_material == "pt-polished"
+        assert cmp2.included_parts.override_instance("FCHIP", True)
         assert "Board_w_cmp_FCHIP_device" not in self.aedtapp.modeler.object_names
-        assert cmp2.override_component("FCHIP", False)
+        assert cmp2.included_parts.override_instance("FCHIP", False)
         assert "Board_w_cmp_FCHIP_device" in self.aedtapp.modeler.object_names
-        assert cmp2.override_component("FCHIP", False, "10W", "1Kel_per_W", "1Kel_per_W", "0.1mm")
-        assert cmp2.set_board_settings("Bounding Box")
-        assert cmp2.set_board_settings("Polygon")
-        assert cmp2.set_board_settings("Bounding Box")
-        assert cmp2.set_board_settings("Polygon", "outline:poly_0")
+        assert cmp2.included_parts.override_instance("FCHIP", False, "10W", "1Kel_per_W", "1Kel_per_W", "0.1mm")
+        if self.aedtapp.settings.aedt_version >= "2024.2":
+            cmp2.included_parts.override_definition("FCHIP_FCHIP", "FCHIP_FCHIP")
+        else:
+            assert not cmp2.included_parts.override_definition("a", "b")
+        assert cmp2.set_board_extents("Bounding Box")
+        assert cmp2.set_board_extents("Polygon")
+        assert cmp2.set_board_extents("Bounding Box")
+        assert cmp2.set_board_extents("Polygon", "outline:poly_0")
+        p = cmp2.included_parts
+        cmp2.included_parts = "None"
+        p.footprint_filter = "1mm2"
+        assert p.footprint_filter is None
+        p.power_filter = "1W"
+        assert p.power_filter is None
+        p.type_filters = "Resistors"
+        assert p.type_filters is None
+        p.height_filter = "1mm"
+        assert p.height_filter is None
+        p.objects_2d_filter = True
+        assert p.objects_2d_filter is None
+        assert cmp2.power == "0W"
+        cmp2.power = "10W"
+        assert cmp2.power == "10W"
+        assert not cmp2.set_resolution(0)
+        assert cmp2.set_resolution(1)
+        assert cmp2.set_custom_resolution(row=100, col=200)
+        cmp2.set_high_side_radiation(
+            True,
+            surface_material="Stainless-steel-typical",
+            radiate_to_ref_temperature=True,
+            view_factor=0.5,
+            ref_temperature="20cel",
+        )
+        cmp2.set_low_side_radiation(
+            True,
+            surface_material="Stainless-steel-typical",
+            radiate_to_ref_temperature=True,
+            view_factor=0.8,
+            ref_temperature="25cel",
+        )
+        assert cmp2.force_source_solve
+        cmp2.force_source_solve = True
+        cmp2.preserve_partner_solution = True
+        assert cmp2.preserve_partner_solution
+        cmp2.via_holes_material = "air"
+        cmp2.board_cutout_material = "copper"
+        assert cmp2.via_holes_material == "air"
+        assert cmp2.board_cutout_material == "copper"
+
         component_name = "RadioBoard2"
         cmp = self.aedtapp.create_ipk_3dcomponent_pcb(
             component_name, link_data, solution_freq, resolution, custom_x_resolution=400, custom_y_resolution=500
         )
-        f = cmp.filters
+        assert cmp.included_parts is None
+        cmp.included_parts = "Device"
+        print(cmp.included_parts)
+        cmp.included_parts = "Packafe"
+        assert cmp.included_parts == "Device"
+        f = cmp.included_parts.filters
         assert len(f.keys()) == 1
         assert all(not v for v in f["Type"].values())
-        assert not cmp.set_parts("Device Pt")
-        assert cmp.set_parts("Device Parts", True, "Steel-mild-surface")
-        assert cmp.height_filter is None
-        assert cmp.footprint_filter is None
-        assert cmp.power_filter is None
-        assert not cmp.objects_2d_filter
-        cmp.height_filter = "1mm"
-        cmp.objects_2d_filter = True
-        cmp.power_filter = "4mW"
-        cmp.type_filters = "Resistors"
-        cmp.type_filters = "Register"  # should not be set
-        cmp.type_filters = "Inductors"
+        assert cmp.included_parts.height_filter is None
+        assert cmp.included_parts.footprint_filter is None
+        assert cmp.included_parts.power_filter is None
+        assert not cmp.included_parts.objects_2d_filter
+        cmp.included_parts.height_filter = "1mm"
+        cmp.included_parts.objects_2d_filter = True
+        cmp.included_parts.power_filter = "4mW"
+        cmp.included_parts.type_filters = "Resistors"
+        cmp.included_parts.type_filters = "Register"  # should not be set
+        cmp.included_parts.type_filters = "Inductors"
         if self.aedtapp.settings.aedt_version >= "2024.2":
-            cmp.footprint_filter = "0.5mm2"
-        f = cmp.filters
+            cmp.included_parts.footprint_filter = "0.5mm2"
+        else:
+            assert cmp.included_parts.footprint_filter is None
+        f = cmp.included_parts.filters
         assert len(f.keys()) >= 4  # 5 if version 2024.2
         assert f["Type"]["Inductors"]
-        assert cmp.set_board_settings()
-        assert not cmp.set_board_settings("Polygon")
-        assert not cmp.set_board_settings("Bounding Domain")
-        cmp.set_board_settings("Bounding Box")
-        cmp.power_filter = None
-        cmp.height_filter = None
-        cmp.objects_2d_filter = False
+        assert cmp.set_board_extents()
+        assert not cmp.set_board_extents("Polygon")
+        assert not cmp.set_board_extents("Bounding Domain")
+        cmp.set_board_extents("Bounding Box")
+        cmp.included_parts.power_filter = None
+        cmp.included_parts.height_filter = None
+        cmp.included_parts.objects_2d_filter = False
         if self.aedtapp.settings.aedt_version >= "2024.2":
-            cmp.footprint_filter = None
-        f = cmp.filters
+            cmp.included_parts.footprint_filter = None
+        f = cmp.included_parts.filters
         assert len(f.keys()) == 1
+        cmp.included_parts = "Package"
+        print(cmp.included_parts)
+        assert cmp.included_parts == "Package"
+        assert cmp.included_parts == cmp.included_parts
+        assert not cmp.included_parts == "Device"
+        assert not cmp.included_parts != "Package"
+        cmp.included_parts.set_solderballs_modeling("Boxes")
 
     def test_02A_find_top(self):
         assert self.aedtapp.find_top(0)
@@ -188,7 +277,7 @@ class TestClass:
         pcb_mesh_region.MinGapZ = 1
         assert pcb_mesh_region.update()
         if settings.aedt_version > "2023.2":
-            assert pcb_mesh_region.assignment.padding_values == ["0"] * 6
+            assert [str(i) for i in pcb_mesh_region.assignment.padding_values] == ["0"] * 6
             assert pcb_mesh_region.assignment.padding_types == ["Percentage Offset"] * 6
             pcb_mesh_region.assignment.negative_x_padding = 1
             pcb_mesh_region.assignment.positive_x_padding = 1
@@ -204,10 +293,10 @@ class TestClass:
             pcb_mesh_region.assignment.positive_z_padding_type = "Transverse Percentage Offset"
             assert pcb_mesh_region.assignment.negative_x_padding == "1mm"
             assert pcb_mesh_region.assignment.positive_x_padding == "1mm"
-            assert pcb_mesh_region.assignment.negative_y_padding == "1"
+            assert str(pcb_mesh_region.assignment.negative_y_padding) == "1"
             assert pcb_mesh_region.assignment.positive_y_padding == "1mm"
             assert pcb_mesh_region.assignment.negative_z_padding == "1mm"
-            assert pcb_mesh_region.assignment.positive_z_padding == "1"
+            assert str(pcb_mesh_region.assignment.positive_z_padding) == "1"
             assert pcb_mesh_region.assignment.negative_x_padding_type == "Absolute Offset"
             assert pcb_mesh_region.assignment.positive_x_padding_type == "Absolute Position"
             assert pcb_mesh_region.assignment.negative_y_padding_type == "Transverse Percentage Offset"
@@ -285,6 +374,9 @@ class TestClass:
             "uUSB", "Setup1", "LastAdaptive", "2.5GHz", surface_list, HFSSpath, param_list, object_list
         )
 
+    def test_06_clear_linked_data(self):
+        assert self.aedtapp.clear_linked_data()
+
     def test_07_ExportStepForWB(self):
         file_path = self.local_scratch.path
         file_name = "WBStepModel"
@@ -299,8 +391,8 @@ class TestClass:
         assert self.aedtapp.assign_2way_coupling(setup_name, 2, True, 20)
         templates = SetupKeys().get_default_icepak_template(default_type="Natural Convection")
         assert templates
-        self.aedtapp.setups[0].props = templates["IcepakSteadyState"]
-        assert self.aedtapp.setups[0].update()
+        my_setup.props = templates["IcepakSteadyState"]
+        assert my_setup.update()
         assert SetupKeys().get_default_icepak_template(default_type="Default")
         assert SetupKeys().get_default_icepak_template(default_type="Forced Convection")
         with pytest.raises(AttributeError):
@@ -325,8 +417,11 @@ class TestClass:
         mesh_level_Filter = "2"
         component_name = ["RadioBoard1_1"]
         mesh_level_RadioPCB = "1"
-        test = self.aedtapp.mesh.assign_mesh_level_to_group(mesh_level_Filter, group_name)
+        assert self.aedtapp.mesh.assign_mesh_level_to_group(mesh_level_Filter, group_name)
+        test = self.aedtapp.mesh.assign_mesh_level_to_group(mesh_level_Filter, group_name, name="Test")
         assert test
+        test2 = self.aedtapp.mesh.assign_mesh_level_to_group(mesh_level_Filter, group_name, name="Test")
+        assert test.name != test2.name
         # assert self.aedtapp.mesh.assignMeshLevel2Component(mesh_level_RadioPCB, component_name)
         test = self.aedtapp.mesh.assign_mesh_region(component_name, mesh_level_RadioPCB, is_submodel=True)
         assert test
@@ -338,18 +433,6 @@ class TestClass:
         b.model = False
         test = self.aedtapp.mesh.assign_mesh_region([b.name])
         assert test
-        assert test.delete()
-
-    @pytest.mark.skipif(config["use_grpc"], reason="GRPC usage leads to SystemExit.")
-    def test_12b_failing_AssignMeshOperation(self):
-        assert self.aedtapp.mesh.assign_mesh_region("N0C0MP", 1, is_submodel=True)
-        test = self.aedtapp.mesh.assign_mesh_region(["USB_ID"], 1)
-        b = self.aedtapp.modeler.create_box([0, 0, 0], [1, 1, 1])
-        b.model = False
-        test = self.aedtapp.mesh.assign_mesh_region([b.name])
-        assert test
-        test.Objects = ["US8_1D"]
-        assert not test.update()
         assert test.delete()
 
     def test_13a_assign_openings(self):
@@ -377,11 +460,11 @@ class TestClass:
     def test_14_edit_design_settings(self):
         assert self.aedtapp.edit_design_settings(gravity_dir=1)
         assert self.aedtapp.edit_design_settings(gravity_dir=3)
-        assert self.aedtapp.edit_design_settings(ambtemp=20)
-        assert self.aedtapp.edit_design_settings(ambtemp="325kel")
+        assert self.aedtapp.edit_design_settings(ambient_temperature=20)
+        assert self.aedtapp.edit_design_settings(ambient_temperature="325kel")
         self.aedtapp.solution_type = "Transient"
         bc = self.aedtapp.create_linear_transient_assignment("0.01cel", "5")
-        assert self.aedtapp.edit_design_settings(ambtemp=bc)
+        assert self.aedtapp.edit_design_settings(ambient_temperature=bc)
 
     def test_15_insert_new_icepak(self):
         self.aedtapp.insert_design("Solve")
@@ -469,7 +552,8 @@ class TestClass:
         ]
 
     def test_29_assign_surface_material(self):
-        self.aedtapp.materials.add_surface_material("my_surface", 0.5)
+        surf_mat = self.aedtapp.materials.add_surface_material("my_surface", 0.5)
+        assert surf_mat.emissivity.value == 0.5
         obj = ["box2", "box3"]
         assert self.aedtapp.assign_surface_material(obj, "my_surface")
         assert self.aedtapp.assign_surface_material("box", "Fe-cast")
@@ -575,7 +659,7 @@ class TestClass:
     def test_35_create_fan(self):
         fan = self.aedtapp.create_fan("Fan1", cross_section="YZ", radius="15mm", hub_radius="5mm", origin=[5, 21, 1])
         assert fan
-        assert fan.component_name in self.aedtapp.modeler.oeditor.Get3DComponentInstanceNames(fan.component_name)[0]
+        assert fan.name in self.aedtapp.modeler.oeditor.Get3DComponentInstanceNames(fan.definition_name)[0]
         self.aedtapp.delete_design()
 
     def test_36_create_heat_sink(self):
@@ -823,9 +907,9 @@ class TestClass:
         )
         assert self.aedtapp.modeler.create_3dcomponent(
             os.path.join(file_path, file_name),
-            component_name="board_assembly",
-            included_cs=["Global"],
-            auxiliary_dict=True,
+            name="board_assembly",
+            coordinate_systems=["Global"],
+            export_auxiliary=True,
         )
         self.aedtapp.create_dataset(
             "test_ignore",
@@ -845,10 +929,10 @@ class TestClass:
         self.aedtapp.modeler.create_coordinate_system()
         assert self.aedtapp.modeler.create_3dcomponent(
             os.path.join(file_path, file_name),
-            component_name="board_assembly",
-            included_cs=cs_list,
-            auxiliary_dict=True,
-            reference_cs="CS1",
+            name="board_assembly",
+            coordinate_systems=cs_list,
+            reference_coordinate_system="CS1",
+            export_auxiliary=True,
             monitor_objects=mon_list,
             datasets=["test_dataset"],
         )
@@ -894,17 +978,13 @@ class TestClass:
         )
         file_path = self.local_scratch.path
         file_name = "Advanced3DComp_T51.a3dcomp"
-        fan_obj = self.aedtapp.create_fan(is_2d=True)
-        self.aedtapp.monitor.assign_surface_monitor(
-            list(self.aedtapp.modeler.user_defined_components[fan_obj.name].parts.values())[0].name
-        )
-        self.aedtapp.monitor.assign_face_monitor(
-            list(self.aedtapp.modeler.user_defined_components[fan_obj.name].parts.values())[0].faces[0].id
-        )
+        self.aedtapp.create_fan(is_2d=True)
+        box = self.aedtapp.modeler.create_box([5, 6, 7], [9, 7, 6])
+        rectangle = self.aedtapp.modeler.create_rectangle(0, [5, 6, 7], [7, 6])
+        self.aedtapp.monitor.assign_surface_monitor(rectangle.name)
+        self.aedtapp.monitor.assign_face_monitor(box.faces[0].id)
         fan_obj_3d = self.aedtapp.create_fan(is_2d=False)
-        self.aedtapp.monitor.assign_point_monitor_in_object(
-            list(self.aedtapp.modeler.user_defined_components[fan_obj_3d.name].parts.values())[0].name
-        )
+        self.aedtapp.monitor.assign_point_monitor_in_object(box.name)
         self.aedtapp.create_dataset(
             "test_ignore",
             [1, 2, 3, 4],
@@ -922,10 +1002,10 @@ class TestClass:
         self.aedtapp.modeler.create_coordinate_system()
         assert self.aedtapp.modeler.create_3dcomponent(
             os.path.join(file_path, file_name),
-            component_name="board_assembly",
-            included_cs=cs_list,
-            auxiliary_dict=True,
-            reference_cs="CS1",
+            name="board_assembly",
+            coordinate_systems=cs_list,
+            reference_coordinate_system="CS1",
+            export_auxiliary=True,
             monitor_objects=mon_list,
             datasets=["test_dataset"],
         )
@@ -939,7 +1019,7 @@ class TestClass:
             input_file=os.path.join(file_path, file_name), coordinate_system="CS2", auxiliary_parameters=True
         )
 
-        assert all(i in self.aedtapp.native_components.keys() for i in ["Fan", "Board"])
+        assert all(i in self.aedtapp.native_components.keys() for i in ["Fan1", "Fan2", "Board1"])
         assert all(
             i in self.aedtapp.monitor.all_monitors
             for i in ["board_assembly1_FaceMonitor", "board_assembly1_BoxMonitor", "board_assembly1_SurfaceMonitor"]
@@ -964,6 +1044,49 @@ class TestClass:
 
     @pytest.mark.skipif(not config["use_grpc"], reason="Not running in COM mode")
     def test_52_flatten_3d_components(self):
+        file_path = self.local_scratch.path
+        self.aedtapp.insert_design("test_52_0")
+        file_name = "Advanced3DComp_T52.a3dcomp"
+        self.aedtapp.create_fan(is_2d=True)
+        box = self.aedtapp.modeler.create_box([5, 6, 7], [9, 7, 6])
+        rectangle = self.aedtapp.modeler.create_rectangle(0, [5, 6, 7], [7, 6])
+        self.aedtapp.monitor.assign_surface_monitor(rectangle.name)
+        self.aedtapp.monitor.assign_face_monitor(box.faces[0].id)
+        self.aedtapp.create_fan(is_2d=False)
+        self.aedtapp.monitor.assign_point_monitor_in_object(box.name)
+        self.aedtapp.create_dataset(
+            "test_ignore",
+            [1, 2, 3, 4],
+            [1, 2, 3, 4],
+            z=None,
+            v=None,
+            is_project_dataset=False,
+            x_unit="cel",
+            y_unit="W",
+            v_unit="",
+        )
+        mon_list = list(self.aedtapp.monitor.all_monitors.keys())
+        self.aedtapp.monitor.assign_point_monitor([0, 0, 0])
+        self.aedtapp.modeler.create_coordinate_system()
+        assert self.aedtapp.modeler.create_3dcomponent(
+            os.path.join(file_path, file_name),
+            name="board_assembly",
+            coordinate_systems=["Global"],
+            reference_coordinate_system="Global",
+            export_auxiliary=True,
+            monitor_objects=mon_list,
+            datasets=["test_dataset"],
+        )
+        self.aedtapp.insert_design("test_52_1")
+        cs2 = self.aedtapp.modeler.create_coordinate_system(name="CS2")
+        cs2.props["OriginX"] = 20
+        cs2.props["OriginY"] = 20
+        cs2.props["OriginZ"] = 20
+        file_path = self.local_scratch.path
+        self.aedtapp.modeler.insert_3d_component(
+            input_file=os.path.join(file_path, file_name), coordinate_system="CS2", auxiliary_parameters=True
+        )
+
         self.aedtapp.logger.clear_messages("", "")
         self.aedtapp.insert_design("test_52")
         cs2 = self.aedtapp.modeler.create_coordinate_system(name="CS2")
@@ -971,7 +1094,6 @@ class TestClass:
         cs2.props["OriginY"] = 20
         cs2.props["OriginZ"] = 20
         file_path = self.local_scratch.path
-        file_name = "Advanced3DComp.a3dcomp"
         self.aedtapp.modeler.insert_3d_component(
             input_file=os.path.join(file_path, file_name), coordinate_system="CS2", auxiliary_parameters=True
         )
@@ -983,17 +1105,14 @@ class TestClass:
         assert all(
             i in self.aedtapp.monitor.all_monitors
             for i in [
-                "board_assembly1_FaceMonitor",
-                "board_assembly1_BoxMonitor",
-                "board_assembly1_SurfaceMonitor",
                 mon_name,
                 mon_point_name,
             ]
         )
-        assert "test_dataset" in self.aedtapp.design_datasets
         self.aedtapp.delete_design()
 
     def test_53_create_conduting_plate(self):
+        self.aedtapp.insert_design("conducting")
         box = self.aedtapp.modeler.create_box([0, 0, 0], [10, 20, 10], name="box1")
         self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
         self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [0, 0, 0], [10, 20], name="surf2")
@@ -1103,7 +1222,7 @@ class TestClass:
             shell_conduction=False,
         )
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["use_grpc"], reason="Not working in 2022.2 GRPC")
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["use_grpc"], reason="Not working in 2022.2 gRPC")
     def test_55_native_components_history(self):
         fan = self.aedtapp.create_fan("test_fan")
         self.aedtapp.modeler.user_defined_components[fan.name].move([1, 2, 3])
@@ -1719,3 +1838,173 @@ class TestClass:
             "test_78-1", "{} : SteadyState".format(s1.name), project="FakeFolder123"
         )
         assert not s2.start_continue_from_previous_setup("test_78-12", "{} : SteadyState".format(s1.name))
+
+    def test_79_mesh_reuse(self):
+        self.aedtapp.insert_design("test_79")
+        self.aedtapp.set_active_design("test_79")
+        cylinder = self.aedtapp.modeler.create_cylinder(1, [0, 0, 0], 5, 30)
+        assert not self.aedtapp.mesh.assign_mesh_reuse(
+            cylinder.name,
+            os.path.join(local_path, "../_unittest/example_models", test_subfolder, "nonexistent_cylinder_mesh.msh"),
+        )
+        assert self.aedtapp.mesh.assign_mesh_reuse(
+            cylinder.name, os.path.join(local_path, "../_unittest/example_models", test_subfolder, "cylinder_mesh.msh")
+        )
+        assert self.aedtapp.mesh.assign_mesh_reuse(
+            cylinder.name,
+            os.path.join(local_path, "../_unittest/example_models", test_subfolder, "cylinder_mesh.msh"),
+            "name_reuse",
+        )
+        assert self.aedtapp.mesh.assign_mesh_reuse(
+            cylinder.name,
+            os.path.join(local_path, "../_unittest/example_models", test_subfolder, "cylinder_mesh.msh"),
+            "name_reuse",
+        )
+
+    def test_80_global_mesh_region(self):
+        self.aedtapp.insert_design("test_80")
+        self.aedtapp.set_active_design("test_80")
+        g_m_r = self.aedtapp.mesh.global_mesh_region
+        assert g_m_r
+        assert g_m_r.global_region.object.name == "Region"
+        assert g_m_r.global_region.padding_values == [
+            "50",
+            "50",
+            "50",
+            "50",
+            "50",
+            "50",
+        ] or g_m_r.global_region.padding_values == [50, 50, 50, 50, 50, 50]
+        assert g_m_r.global_region.padding_types == [
+            "Percentage Offset",
+            "Percentage Offset",
+            "Percentage Offset",
+            "Percentage Offset",
+            "Percentage Offset",
+            "Percentage Offset",
+        ]
+        g_m_r.global_region.positive_z_padding_type = "Absolute Offset"
+        g_m_r.global_region.positive_z_padding = "5 mm"
+        assert g_m_r.global_region.padding_types[-2] == "Absolute Offset"
+        assert g_m_r.global_region.padding_values[-2] == "5mm"
+        g_m_r.settings["MeshRegionResolution"] = 3
+        g_m_r.update()
+        assert g_m_r.settings["MeshRegionResolution"] == 3
+        g_m_r.manual_settings = True
+        with pytest.raises(KeyError):
+            g_m_r.settings["MeshRegionResolution"]
+        g_m_r.settings["MaxElementSizeX"] = "500um"
+        g_m_r.update()
+        g_m_r.global_region.object.material_name = "Carbon Monoxide"
+        assert g_m_r.global_region.object.material_name == "Carbon Monoxide"
+
+    def test_81_transient_fs(self, add_app):
+        app = add_app(
+            application=Icepak, project_name=transient_fs, subfolder=test_subfolder, design_name="IcepakDesign1"
+        )
+        fs = app.post.create_field_summary()
+        for t in ["0s", "1s", "2s", "3s", "4s", "5s"]:
+            fs.add_calculation("Object", "Surface", "Box1", "Temperature", time=t)
+        df = fs.get_field_summary_data(pandas_output=True)
+        assert not df["Mean"].empty
+        app.close_project()
+
+    def test_82_folder_settings(self, add_app):
+        app = add_app(
+            application=Icepak, project_name=transient_fs, subfolder=test_subfolder, design_name="IcepakDesign2"
+        )
+        plot_object = app.post.create_fieldplot_surface(
+            assignment=app.modeler["Box1"].faces[0].id, quantity="Temperature"
+        )
+        assert plot_object.folder_settings is None
+        assert (
+            app.logger.error_messages[-1] == "[error] Could not find settings data in the design properties."
+            " Define the `FolderPlotSettings` class from scratch or save the project file and try again."
+        )
+        app.save_project()
+        fs = plot_object.folder_settings
+        assert isinstance(fs, FolderPlotSettings)
+        assert str(fs.color_map_settings) == "ColorMapSettings(map_type='Spectrum', color=Rainbow)"
+        assert (
+            str(fs.marker_settings)
+            == "MarkerSettings(marker_type='Arrow', map_size=False, map_color=False, marker_size=0.25)"
+        )
+        assert (
+            str(fs.scale_settings) == "Scale3DSettings(scale_type='Auto', scale_settings=AutoScale(n_levels=10,"
+            " limit_precision_digits=False, precision_digits=4, use_current_scale_for_animation=False),"
+            " log=False, db=False)"
+        )
+        assert (
+            str(fs.arrow_settings)
+            == "Arrow3DSettings(arrow_type='Cylinder', arrow_size=1, map_size=False, map_color=True,"
+            " show_arrow_tail=True, magnitude_filtering=False, magnitude_threshold=0,"
+            " min_magnitude=1, max_magnitude=0)"
+        )
+        with pytest.raises(ValueError):
+            fs.arrow_settings.arrow_type = "Arrow"
+        assert fs.arrow_settings.arrow_type == "Cylinder"
+
+        fs.arrow_settings.arrow_type = "Line"
+        assert fs.arrow_settings.arrow_type == "Line"
+        assert isinstance(fs.arrow_settings.to_dict(), dict)
+
+        with pytest.raises(KeyError):
+            fs.marker_settings.marker_type = "Line"
+        assert fs.marker_settings.marker_type == "Arrow"
+
+        fs.marker_settings.marker_type = "Tetrahedron"
+        assert fs.marker_settings.marker_type == "Tetrahedron"
+        assert isinstance(fs.marker_settings.to_dict(), dict)
+
+        with pytest.raises(ValueError):
+            fs.scale_settings.scale_type = "Personalized"
+        assert fs.scale_settings.scale_type == "Auto"
+        assert isinstance(fs.scale_settings.to_dict(), dict)
+        assert (
+            str(fs.scale_settings.scale_settings) == "AutoScale(n_levels=10, limit_precision_digits=False, "
+            "precision_digits=4, use_current_scale_for_animation=False)"
+        )
+        fs.scale_settings.scale_type = "Specified"
+        assert str(fs.scale_settings.scale_settings) == "SpecifiedScale(scale_values=[])"
+        assert isinstance(fs.scale_settings.to_dict(), dict)
+        with pytest.raises(ValueError):
+            SpecifiedScale(1)
+        fs.scale_settings.scale_type = "MinMax"
+        assert str(fs.scale_settings.scale_settings) == "MinMaxScale(n_levels=10, min_value=1, max_value=100)"
+        assert isinstance(fs.scale_settings.to_dict(), dict)
+
+        assert str(fs.scale_settings.number_format) == "NumberFormat(format_type=Automatic, width=12, precision=4)"
+        with pytest.raises(ValueError):
+            fs.scale_settings.number_format.format_type = "Science"
+        assert fs.scale_settings.number_format.format_type == "Automatic"
+        fs.scale_settings.number_format.format_type = "Scientific"
+        assert fs.scale_settings.number_format.format_type == "Scientific"
+        assert isinstance(fs.scale_settings.number_format.to_dict(), dict)
+        assert str(fs.color_map_settings) == "ColorMapSettings(map_type='Spectrum', color=Rainbow)"
+        with pytest.raises(ValueError):
+            fs.color_map_settings.map_type = "Personalized"
+        fs.color_map_settings.map_type = "Ramp"
+        assert fs.color_map_settings.map_type == "Ramp"
+        with pytest.raises(ValueError):
+            fs.color_map_settings.color = 1
+        assert fs.color_map_settings.color == [255, 127, 127]
+        fs.color_map_settings.color = [1, 1, 1]
+        fs.color_map_settings.map_type = "Uniform"
+        assert fs.color_map_settings.color != [1, 1, 1]
+        fs.color_map_settings.color = [1, 1, 1]
+        fs.color_map_settings.map_type = "Spectrum"
+        with pytest.raises(ValueError):
+            fs.color_map_settings.color = "Hot"
+        assert fs.color_map_settings.color == "Rainbow"
+        fs.color_map_settings.color = "Temperature"
+        assert isinstance(fs.color_map_settings.to_dict(), dict)
+        assert isinstance(fs.to_dict(), dict)
+        fs.update()
+        with pytest.raises(ValueError):
+            plot_object.folder_settings = 1
+        plot_object.folder_settings = fs
+        with pytest.raises(KeyError):
+            fs.scale_settings.unit = "AEDT"
+        fs.scale_settings.unit = "kel"
+        assert fs.scale_settings.unit == "kel"
+        app.close_project()

@@ -1,7 +1,7 @@
 .github/* @MaxJPRey @maxcapodi78 @Samuelopez-ansys
 
 /_unittest/test_26_emit.py @jsalant22 @myoung301
-/pyaedt/emit.py @jsalant22 @myoung301
-/pyaedt/emit_core/ @jsalant22 @myoung301
-/pyaedt/modeler/circuits/PrimitivesEmit.py @jsalant22 @myoung301
+/src/ansys/aedt/core/emit.py @jsalant22 @myoung301
+/src/ansys/aedt/core/emit_core/ @jsalant22 @myoung301
+/src/ansys/aedt/core/modeler/circuits/PrimitivesEmit.py @jsalant22 @myoung301
 /examples/07-EMIT/ @jsalant22 @myoung301

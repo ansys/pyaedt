@@ -1,0 +1,21 @@
+[aedb]
+# Path to the aedb directory to convert
+aedbpathin = "D:\\Data\\siverse\\uvia"
+# Path to where the new aedb directory will be created
+aedbpathout = "D:\\Data\\siverse\\uvia\\3DVia"
+# Name of the aedn directory to convert
+aedbfilein = "PCIE_RX_HFSS_5Ghz_20GHZ.aedb"
+# Name of the new created aedb directory
+aedbfileout = "PCIE_RX_HFSS_5Ghz_20GHZ_uvia_45deg.aedb"
+
+[aedt]
+# Version of AEDT to be used "2023.2" for 2023R2, "2024.1" for 2024R1, ...
+version = "2024.2"
+
+[setup]
+# List of padstack for which instance via will be converted to micro-via
+pdsk_list = ["v40h20-2", "v40h15-3", "v40h15", "v40h15-4"]
+# Hole wall angle from start pad to end pad
+laser_angle = "75"
+# True convert only signal via, False convert signal and GND via
+only_sig_via = "False"

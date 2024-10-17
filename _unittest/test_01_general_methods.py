@@ -22,14 +22,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from ansys.aedt.core.generic.general_methods import number_aware_string_key
 import pytest
-
-from pyaedt.generic.DataHandlers import str_to_bool
-from pyaedt.generic.general_methods import number_aware_string_key
 
 
 @pytest.fixture(scope="module", autouse=True)
 def desktop():
+    """Override the desktop fixture to DO NOT open the Desktop when running this test class"""
     return
 
 
@@ -45,12 +44,3 @@ class TestClass(object):
         expected_sort_order = ["C1", "U2", "U10", "Y200", "Y1000"]
         assert sorted(component_names, key=number_aware_string_key) == expected_sort_order
         assert sorted(component_names + [""], key=number_aware_string_key) == [""] + expected_sort_order
-
-    def test_02_str_to_bool(self):
-        test_list_1 = ["one", "two", "five"]
-        bool_values = list(map(str_to_bool, test_list_1))
-        assert all(isinstance(b, str) for b in bool_values)  # All strings
-        test_list_1.append("True")
-        assert True in list(map(str_to_bool, test_list_1))
-        test_list_2 = ["Stop", "go", "run", "crawl", "False"]
-        assert False in list(map(str_to_bool, test_list_2))

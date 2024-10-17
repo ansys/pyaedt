@@ -33,7 +33,7 @@ import pytest
 
 small_number = 1e-10  # Used for checking equivalence.
 
-from pyaedt.generic.near_field_import import convert_nearfield_data
+from ansys.aedt.core.visualization.advanced.misc import convert_nearfield_data
 
 test_subfolder = "T20"
 
@@ -127,11 +127,11 @@ class TestClass:
         )
         args = {
             "mat": "aluminum",
-            "usethickness": True,
+            "use_thickness": True,
             "thickness": "0.5mm",
-            "istwoside": True,
-            "issheelElement": True,  # TODO: Is "sheelElement" a typo in native API?
-            "usehuray": True,
+            "is_two_side": True,
+            "is_shell_element": True,  # TODO: Is "sheelElement" a typo in native API?
+            "use_huray": True,
             "radius": "0.75um",
             "ratio": "3",
         }
@@ -676,8 +676,14 @@ class TestClass:
         self.aedtapp.insert_design("test_12")
         box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "perfect1", "Copper")
         box2 = self.aedtapp.modeler.create_box([0, 0, 10], [10, 10, 5], "perfect2", "copper")
-        pe = self.aedtapp.create_perfecth_from_objects("perfect1", "perfect2", self.aedtapp.AxisDir.ZPos)
-        ph = self.aedtapp.create_perfecte_from_objects("perfect1", "perfect2", self.aedtapp.AxisDir.ZNeg)
+
+        ph = self.aedtapp.create_perfecth_from_objects(
+            box1.name, box2.name, self.aedtapp.AxisDir.ZNeg, is_boundary_on_plane=False
+        )
+
+        pe = self.aedtapp.create_perfecte_from_objects(
+            box1.name, box2.name, self.aedtapp.AxisDir.ZNeg, is_boundary_on_plane=False
+        )
         assert pe.name in self.aedtapp.modeler.get_boundaries_name()
         assert pe.update()
         assert ph.name in self.aedtapp.modeler.get_boundaries_name()
@@ -889,32 +895,30 @@ class TestClass:
         assert self.aedtapp.mesh.assign_initial_mesh_from_slider(6)
 
     def test_30a_add_mesh_link(self):
+        design_name = self.aedtapp.design_name
+        nominal_adaptive = self.aedtapp.nominal_adaptive
         self.aedtapp.duplicate_design(self.aedtapp.design_name)
-        self.aedtapp.set_active_design(self.aedtapp.design_list[0])
-        assert self.aedtapp.setups[0].add_mesh_link(design=self.aedtapp.design_list[1])
+        self.aedtapp._setups = None
+        assert self.aedtapp.setups[0].add_mesh_link(design=design_name)
         meshlink_props = self.aedtapp.setups[0].props["MeshLink"]
         assert meshlink_props["Project"] == "This Project*"
         assert meshlink_props["PathRelativeTo"] == "TargetProject"
-        assert meshlink_props["Design"] == self.aedtapp.design_list[1]
-        assert meshlink_props["Soln"] == "MySetup : LastAdaptive"
+        assert meshlink_props["Design"] == design_name
+        assert meshlink_props["Soln"] == nominal_adaptive
         assert sorted(list(meshlink_props["Params"].keys())) == sorted(self.aedtapp.available_variations.variables)
         assert sorted(list(meshlink_props["Params"].values())) == sorted(self.aedtapp.available_variations.variables)
         assert not self.aedtapp.setups[0].add_mesh_link(design="")
+        assert self.aedtapp.setups[0].add_mesh_link(design=design_name, solution="MySetup : LastAdaptive")
+        assert not self.aedtapp.setups[0].add_mesh_link(design=design_name, solution="Setup_Test : LastAdaptive")
         assert self.aedtapp.setups[0].add_mesh_link(
-            design=self.aedtapp.design_list[1], solution="MySetup : LastAdaptive"
-        )
-        assert not self.aedtapp.setups[0].add_mesh_link(
-            design=self.aedtapp.design_list[1], solution="Setup_Test : LastAdaptive"
-        )
-        assert self.aedtapp.setups[0].add_mesh_link(
-            design=self.aedtapp.design_list[1], parameters=self.aedtapp.available_variations.nominal_w_values_dict
+            design=design_name, parameters=self.aedtapp.available_variations.nominal_w_values_dict
         )
         example_project = os.path.join(
             local_path, "../_unittest/example_models", test_subfolder, diff_proj_name + ".aedt"
         )
         example_project_copy = os.path.join(self.local_scratch.path, diff_proj_name + "_copy.aedt")
         shutil.copyfile(example_project, example_project_copy)
-        assert self.aedtapp.setups[0].add_mesh_link(design=self.aedtapp.design_list[1], project=example_project_copy)
+        assert self.aedtapp.setups[0].add_mesh_link(design=design_name, project=example_project_copy)
 
     def test_31_create_microstrip_port(self):
         self.aedtapp.insert_design("Microstrip")
@@ -980,8 +984,8 @@ class TestClass:
         assert props
 
     def test_35_set_export_touchstone(self):
-        assert self.aedtapp.set_export_touchstone(True)
-        assert self.aedtapp.set_export_touchstone(False)
+        assert self.aedtapp.export_touchstone_on_completion(True)
+        assert self.aedtapp.export_touchstone_on_completion(False)
 
     def test_36_assign_radiation_to_objects(self):
         self.aedtapp.modeler.create_box([-100, -100, -100], [200, 200, 200], name="Rad_box")
@@ -997,6 +1001,8 @@ class TestClass:
     def test_38_get_all_sources(self):
         sources = self.aedtapp.get_all_sources()
         assert isinstance(sources, list)
+        sources2 = self.aedtapp.get_all_source_modes()
+        assert isinstance(sources2, list)
 
     def test_40_assign_current_source_to_sheet(self):
         sheet = self.aedtapp.modeler.create_rectangle(
@@ -1272,7 +1278,7 @@ class TestClass:
     )
     def test_51a_array(self):
         self.aedtapp.insert_design("Array_simple", "Modal")
-        from pyaedt.generic.general_methods import read_json
+        from ansys.aedt.core.generic.general_methods import read_json
 
         if config["desktopVersion"] > "2023.1":
             dict_in = read_json(
@@ -1432,7 +1438,7 @@ class TestClass:
         assert self.aedtapp.modeler.import_nastran(example_project2, decimation=0.1, preview=True, save_only_stl=True)
         assert self.aedtapp.modeler.import_nastran(example_project2, decimation=0.5)
         example_project = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "sphere.stl")
-        from pyaedt.modules.solutions import simplify_stl
+        from ansys.aedt.core.visualization.advanced.misc import simplify_stl
 
         out = simplify_stl(example_project, decimation=0.8)
         assert os.path.exists(out)
@@ -1567,12 +1573,15 @@ class TestClass:
         array.cells[0][1].component = array.component_names[3]
         assert array.cells[0][1].component == array.component_names[3]
 
-        hfss_array.component_array["A1"].name = "Array_new"
-        assert hfss_array.component_array_names[0] == "Array_new"
-        hfss_array.component_array["Array_new"].name = "A1"
+        name = "Array_new"
+        hfss_array.component_array["A1"].name = name
+        assert hfss_array.component_array_names[0] == name
 
+        if config["desktopVersion"] < "2025.1":
+            name = "A1"
+            hfss_array.component_array["Array_new"].name = name
         omodel = hfss_array.get_oo_object(hfss_array.odesign, "Model")
-        oarray = hfss_array.get_oo_object(omodel, "A1")
+        oarray = hfss_array.get_oo_object(omodel, name)
 
         assert array.visible
         array.visible = False
@@ -1672,3 +1681,40 @@ class TestClass:
         assert not self.aedtapp.import_gds_3d(gds_file, {})
         gds_file = os.path.join(local_path, "example_models", "cad", "GDS", "gds1not.gds")
         assert not self.aedtapp.import_gds_3d(gds_file, {7: (100, 10), 9: (110, 5)})
+
+    def test_69_plane_wave(self, add_app):
+        aedtapp = add_app(project_name="test_69")
+        assert not aedtapp.plane_wave(vector_format="invented")
+        assert not aedtapp.plane_wave(origin=[0, 0])
+        assert not aedtapp.plane_wave(wave_type="dummy")
+        assert not aedtapp.plane_wave(wave_type="evanescent", wave_type_properties=[1])
+        assert not aedtapp.plane_wave(wave_type="elliptical", wave_type_properties=[1])
+        assert not aedtapp.plane_wave(vector_format="Cartesian", polarization=[1, 0])
+        assert not aedtapp.plane_wave(vector_format="Cartesian", propagation_vector=[1, 0])
+        assert not aedtapp.plane_wave(polarization=[1])
+        assert not aedtapp.plane_wave(propagation_vector=[1, 0, 0])
+
+        assert aedtapp.plane_wave(wave_type="Evanescent")
+        assert aedtapp.plane_wave(wave_type="Elliptical")
+        assert aedtapp.plane_wave()
+        assert aedtapp.plane_wave(vector_format="Cartesian")
+        assert aedtapp.plane_wave()
+        assert aedtapp.plane_wave(polarization="Horizontal")
+        assert aedtapp.plane_wave(vector_format="Cartesian", polarization="Horizontal")
+
+        assert aedtapp.plane_wave(polarization=[1, 0])
+        assert aedtapp.plane_wave(vector_format="Cartesian", polarization=[1, 0, 0])
+
+        aedtapp.solution_type = "SBR+"
+        new_plane_wave = aedtapp.plane_wave()
+        assert len(aedtapp.boundaries) == 10
+        new_plane_wave.name = "new_plane_wave"
+        assert new_plane_wave.name in aedtapp.excitations
+
+        aedtapp.close_project(save=False)
+
+    def test_70_export_on_completion(self, add_app, local_scratch):
+        aedtapp = add_app(project_name="test_70")
+        assert aedtapp.export_touchstone_on_completion()
+        assert aedtapp.export_touchstone_on_completion(export=True, output_dir=self.local_scratch.path)
+        assert aedtapp.export_touchstone_on_completion()

@@ -1,6 +1,9 @@
 name: GitHub CI CD
 on:
   pull_request:
+    # GitHub default types + ready_for_review to trigger the workflow on PRs no longer in draft mode.
+    # See https://github.com/ansys/pyaedt/issues/5223 for more information
+    types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
   push:
     tags:
@@ -41,11 +44,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check documentation style
-        uses: ansys/actions/doc-style@v4
+        uses: ansys/actions/doc-style@v8
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          vale-config: "doc/.vale.ini"
-          vale-version: "2.29.6"
+         token: ${{ secrets.GITHUB_TOKEN }}
 
   smoke-tests:
     name: Build wheelhouse and smoke tests
@@ -54,11 +55,9 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12']
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
         target: ['all', 'installer']
-        exclude:
-          - python-version: '3.7'
-            target: 'installer'
+
     steps:
       - name: Build wheelhouse and perform smoke test
         uses: ansys/actions/build-wheelhouse@v4
@@ -70,11 +69,11 @@ jobs:
 
       - name: Import python package
         run: |
-          python -c "import pyaedt; from pyaedt import __version__"
+          python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
 
   # TODO: Update to ansys/actions/doc-build@v6 once we remove examples
   doc-build:
-    name: Documentation build without examples
+    name: Documentation build
     runs-on: ubuntu-latest
     needs: [doc-style]
     steps:
@@ -92,13 +91,13 @@ jobs:
 
       - name: Install pyaedt and documentation dependencies
         run: |
-          pip install .[doc-no-examples]
+          pip install .[doc]
 
       - name: Retrieve PyAEDT version
         id: version
         run: |
-          echo "PYAEDT_VERSION=$(python -c 'from pyaedt import __version__; print(__version__)')" >> $GITHUB_OUTPUT
-          echo "PyAEDT version is: $(python -c "from pyaedt import __version__; print(__version__)")"
+          echo "PYAEDT_VERSION=$(python -c 'from ansys.aedt.core import __version__; print(__version__)')" >> $GITHUB_OUTPUT
+          echo "PyAEDT version is: $(python -c "from ansys.aedt.core import __version__; print(__version__)")"
 
       - name: Install doc build requirements
         run: |
@@ -106,120 +105,29 @@ jobs:
           sudo apt install graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra -y
 
       # TODO: Update this step once pyaedt-examples is ready
-      - name: Build HTML documentation without examples
+      - name: Build HTML documentation
         run: |
           make -C doc clean
-          make -C doc html-no-examples
+          make -C doc html
 
       # Verify that sphinx generates no warnings
       - name: Check for warnings
         run: |
           python doc/print_errors.py
 
-      - name: Upload HTML documentation without examples artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: documentation-no-examples-html
-          path: doc/_build/html
-          retention-days: 7
-
-      - name: Build PDF documentation without examples
-        run: |
-          make -C doc pdf-no-examples
-
-      - name: Upload PDF documentation without examples artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: documentation-no-examples-pdf
-          path: doc/_build/latex/PyAEDT-Documentation-*.pdf
-          retention-days: 7
-
-# # =================================================================================================
-# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# # =================================================================================================
-
-  doc-build-with-examples:
-    name: Documentation build with examples
-    if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
-    runs-on: [ self-hosted, Windows, pyaedt ]
-    needs: [doc-style]
-    timeout-minutes: 720
-    steps:
-      - name: Install Git and checkout project
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-
-      - name: Create virtual environment
-        run: |
-          python -m venv .venv
-          .venv\Scripts\Activate.ps1
-          python -m pip install pip -U
-          python -m pip install wheel setuptools -U
-          python -c "import sys; print(sys.executable)"
-
-      - name: Install pyaedt and documentation dependencies
-        run: |
-          .venv\Scripts\Activate.ps1
-          pip install .[doc]
-
-      - name: Retrieve PyAEDT version
-        id: version
-        run: |
-          .venv\Scripts\Activate.ps1
-          echo "PYAEDT_VERSION=$(python -c 'from pyaedt import __version__; print(__version__)')" >> $GITHUB_OUTPUT
-          echo "PyAEDT version is: $(python -c "from pyaedt import __version__; print(__version__)")"
-
-      - name: Install CI dependencies (e.g. vtk-osmesa)
-        run: |
-          .venv\Scripts\Activate.ps1
-          # Uninstall conflicting dependencies
-          pip uninstall --yes vtk
-          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0
-
-      # TODO: Update this step once pyaedt-examples is ready
-      # NOTE: Use environment variable to keep the doctree and avoid redundant build for PDF pages
-      - name: Build HTML documentation with examples
-        env:
-          SPHINXBUILD_KEEP_DOCTREEDIR: "1"
-        run: |
-          .venv\Scripts\Activate.ps1
-          .\doc\make.bat clean
-          .\doc\make.bat html
-
-      # TODO: Keeping this commented as reminder of https://github.com/ansys/pyaedt/issues/4296
-      # # Verify that sphinx generates no warnings
-      # - name: Check for warnings
-      #   run: |
-      #     .venv\Scripts\Activate.ps1
-      #     python doc/print_errors.py
-
-      # Use environment variable to remove the doctree after the build of PDF pages
-      - name: Build PDF documentation with examples
-        env:
-          SPHINXBUILD_KEEP_DOCTREEDIR: "0"
-        run: |
-          .venv\Scripts\Activate.ps1
-          .\doc\make.bat pdf
-
-      - name: Add assets to HTML docs
-        run: |
-          zip -r documentation-html.zip ./doc/_build/html
-          mv documentation-html.zip ./doc/_build/html/_static/assets/download/
-          cp doc/_build/latex/PyAEDT-Documentation-*.pdf ./doc/_build/html/_static/assets/download/pyaedt.pdf
-
-      - name: Upload HTML documentation with examples artifact
-        uses: actions/upload-artifact@v3
+      - name: Upload HTML documentation
+        uses: actions/upload-artifact@v4
         with:
           name: documentation-html
           path: doc/_build/html
           retention-days: 7
 
-      - name: Upload PDF documentation without examples artifact
-        uses: actions/upload-artifact@v3
+      - name: Build PDF documentation
+        run: |
+          make -C doc pdf
+
+      - name: Upload PDF documentation
+        uses: actions/upload-artifact@v4
         with:
           name: documentation-pdf
           path: doc/_build/latex/PyAEDT-Documentation-*.pdf
@@ -231,6 +139,7 @@ jobs:
 
   test-solvers-windows:
     name: Testing solvers and coverage (Windows)
+    if: github.event.pull_request.draft == false
     needs: [smoke-tests]
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
@@ -261,14 +170,14 @@ jobs:
           .venv\Scripts\Activate.ps1
           # Uninstall conflicting dependencies
           pip uninstall --yes vtk
-          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0
+          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa
 
       - name: Run tests on _unittest_solvers
         env:
           PYTHONMALLOC: malloc
         run: |
           .venv\Scripts\Activate.ps1
-          pytest --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
+          pytest --durations=50 -v --cov=ansys.aedt.core --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
 
       - uses: codecov/codecov-action@v4
         with:
@@ -278,9 +187,9 @@ jobs:
           flags: system,solver
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: pytest-solver-results
+          name: pytest-solver-windows
           path: junit/test-results.xml
         if: ${{ always() }}
 
@@ -291,10 +200,11 @@ jobs:
   # TODO: Si if we can use ansys/actions
   test-solvers-linux:
     name: Testing solvers and coverage (Linux)
+    if: github.event.pull_request.draft == false
     needs: [smoke-tests]
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
-      ANSYSEM_ROOT241: '/opt/AnsysEM/v241/Linux64'
+      ANSYSEM_ROOT242: '/opt/AnsysEM/v242/Linux64'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
@@ -307,7 +217,7 @@ jobs:
 
       - name: Create virtual environment
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT241 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT241 }}/Delcross:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
           python -m venv .venv
           source .venv/bin/activate
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
@@ -316,16 +226,16 @@ jobs:
 
       - name: Install pyaedt and tests dependencies
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT241 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT241 }}/Delcross:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
           source .venv/bin/activate
           pip install .[tests]
           pip install pytest-azurepipelines
 
       - name: Run tests on _unittest_solvers
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT241 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT241 }}/Delcross:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
           source .venv/bin/activate
-          pytest --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
+          pytest --durations=50 -v --cov=ansys.aedt.core --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
 
       - uses: codecov/codecov-action@v4
         with:
@@ -335,9 +245,9 @@ jobs:
           flags: system,solver
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: pytest-solver-results
+          name: pytest-solver-linux
           path: junit/test-results.xml
         if: ${{ always() }}
 
@@ -347,6 +257,7 @@ jobs:
 
   test-windows:
     name: Testing and coverage (Windows)
+    if: github.event.pull_request.draft == false
     needs: [smoke-tests]
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
@@ -377,7 +288,7 @@ jobs:
           .venv\Scripts\Activate.ps1
           # Uninstall conflicting dependencies
           pip uninstall --yes vtk
-          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0
+          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa
 
       - name: Run tests on _unittest
         uses: nick-fields/retry@v3
@@ -389,7 +300,7 @@ jobs:
           timeout_minutes: 50
           command: |
             .venv\Scripts\Activate.ps1
-            pytest -n 4 --dist loadfile --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
+            pytest -n 4 --dist loadfile --durations=50 -v --cov=ansys.aedt.core --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
 
       - uses: codecov/codecov-action@v4
         with:
@@ -399,9 +310,9 @@ jobs:
           flags: system
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: pytest-results
+          name: pytest-windows
           path: junit/test-results.xml
         if: ${{ always() }}
 
@@ -412,10 +323,11 @@ jobs:
   # TODO: Si if we can use ansys/actions
   test-linux:
     name: Testing and coverage (Linux)
+    if: github.event.pull_request.draft == false
     needs: [smoke-tests]
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
-      ANSYSEM_ROOT241: '/opt/AnsysEM/v241/Linux64'
+      ANSYSEM_ROOT242: '/opt/AnsysEM/v242/Linux64'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
@@ -428,7 +340,7 @@ jobs:
 
       - name: Create virtual environment
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT241 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT241 }}/Delcross:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
           python -m venv .venv
           source .venv/bin/activate
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
@@ -437,7 +349,7 @@ jobs:
 
       - name: Install pyaedt and tests dependencies
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT241 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT241 }}/Delcross:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
           source .venv/bin/activate
           pip install .[tests]
           pip install pytest-azurepipelines
@@ -447,7 +359,7 @@ jobs:
           source .venv/bin/activate
           # Uninstall conflicting dependencies
           pip uninstall --yes vtk
-          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0
+          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa
 
       - name: Run tests on _unittest
         uses: nick-fields/retry@v3
@@ -456,9 +368,9 @@ jobs:
           retry_on: error
           timeout_minutes: 50
           command: |
-            export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT241 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT241 }}/Delcross:$LD_LIBRARY_PATH
+            export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
             source .venv/bin/activate
-            pytest -n 4 --dist loadfile --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
+            pytest -n 2 --dist loadfile --durations=50 -v --cov=ansys.aedt.core --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
 
       - uses: codecov/codecov-action@v4
         with:
@@ -468,44 +380,15 @@ jobs:
           flags: system,solver
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: pytest-solver-results
+          name: pytest-linux
           path: junit/test-results.xml
         if: ${{ always() }}
 
-# # =================================================================================================
-# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# # =================================================================================================
-
-  test-ironpython-windows:
-    name: Testing IronPython and coverage (Windows)
-    needs: [smoke-tests]
-    runs-on: [ self-hosted, Windows, pyaedt ]
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Run Ironpython tests
-        timeout-minutes: 5
-        run: |
-          $processA = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd' -PassThru
-          $processA.WaitForExit()
-
-      - name: Get log content
-        run: |
-          get-content .\_unittest_ironpython\pyaedt_unit_test_ironpython.log
-
-      - name: Check for errors
-        run: |
-          $test_errors_failures = Select-String -Path .\_unittest_ironpython\pyaedt_unit_test_ironpython.log -Pattern "TextTestResult errors="
-          if ($test_errors_failures -ne $null)
-          {
-            exit 1
-          }
-
   package:
     name: Package library
-    needs: [test-windows, test-solvers-windows, test-ironpython-windows, test-linux, test-solvers-linux, doc-build]
+    needs: [test-windows, test-solvers-windows, test-linux, test-solvers-linux, doc-build]
     runs-on: ubuntu-latest
     steps:
       - name: Build library source and wheel artifacts
@@ -518,7 +401,7 @@ jobs:
   release:
     name: Release project
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
-    needs: [package, doc-build-with-examples]
+    needs: [package, doc-build]
     runs-on: ubuntu-latest
     steps:
       - name: Release to the public PyPI repository
@@ -540,7 +423,7 @@ jobs:
     needs: [release]
     steps:
       - name: Deploy the stable documentation
-        uses: ansys/actions/doc-deploy-stable@v4
+        uses: ansys/actions/doc-deploy-stable@v5
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -556,19 +439,21 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install the package requirements
-        run: pip install -e .
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
 
       - name: Get the version to PyMeilisearch
         run: |
-          VERSION=$(python -c "from pyaedt import __version__; print('.'.join(__version__.split('.')[:2]))")
-          VERSION_MEILI=$(python -c "from pyaedt import __version__; print('-'.join(__version__.split('.')[:2]))")
+          VERSION=$(python -c "from ansys.aedt.core import __version__; print('.'.join(__version__.split('.')[:2]))")
+          VERSION_MEILI=$(python -c "from ansys.aedt.core import __version__; print('-'.join(__version__.split('.')[:2]))")
           echo "Calculated VERSION: $VERSION"
           echo "Calculated VERSION_MEILI: $VERSION_MEILI"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "VERSION_MEILI=$VERSION_MEILI" >> $GITHUB_ENV
 
       - name: Deploy the latest documentation index
-        uses: ansys/actions/doc-deploy-index@v4
+        uses: ansys/actions/doc-deploy-index@v5
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}/version/${{ env.VERSION }}
           index-name: pyaedt-v${{ env.VERSION_MEILI }}

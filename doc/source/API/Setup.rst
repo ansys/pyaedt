@@ -8,7 +8,7 @@ This section lists setup modules:
 
 The ``Setup`` object is accessible through the ``create_setup`` method and ``setups`` object list.
 
-.. currentmodule:: pyaedt.modules.SolveSetup
+.. currentmodule:: ansys.aedt.core.modules.solve_setup
 
 .. autosummary::
    :toctree: _autosummary
@@ -25,7 +25,7 @@ The ``Setup`` object is accessible through the ``create_setup`` method and ``set
 
 .. code:: python
 
-    from pyaedt import Hfss
+    from ansys.aedt.core import Hfss
     app = Hfss(specified_version="2023.1",
                non_graphical=False, new_desktop_session=True,
                close_on_exit=True, student_version=False)
@@ -51,7 +51,7 @@ This section lists sweep classes and their default values:
 The ``Setup`` object is accessible through the methods available for sweep creation.
 
 
-.. currentmodule:: pyaedt.modules.SolveSweeps
+.. currentmodule:: ansys.aedt.core.modules.solve_sweeps
 
 .. autosummary::
    :toctree: _autosummary

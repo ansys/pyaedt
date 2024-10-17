@@ -31,10 +31,9 @@ import tempfile
 import unittest.mock
 
 from _unittest.conftest import config
+from ansys.aedt.core.aedt_logger import AedtLogger
+from ansys.aedt.core.generic.settings import settings
 import pytest
-
-from pyaedt.aedt_logger import AedtLogger
-from pyaedt.generic.settings import settings
 
 settings.enable_desktop_logs = True
 
@@ -242,7 +241,7 @@ class TestClass:
                 handler.close()
                 logger._global.removeHandler(handler)
         assert stream_content[0] == "PyAEDT INFO: Info for Global\n"
-        assert stream_content[1] == "PyAEDT INFO: StdOut is enabled\n"
+        assert stream_content[1] == "PyAEDT INFO: Log on console is enabled.\n"
         assert stream_content[2] == "PyAEDT INFO: Info after re-enabling the stdout handler.\n"
 
 
@@ -251,7 +250,7 @@ class TestLogMessages:
 
     def test_log_when_accessing_non_existing_object(self, caplog):
         """Check that accessing a non-existent object logs an error message."""
-        from pyaedt import Hfss
+        from ansys.aedt.core import Hfss
 
         app = Hfss(
             project="log_project",

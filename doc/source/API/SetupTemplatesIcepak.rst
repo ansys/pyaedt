@@ -8,7 +8,7 @@ You can edit a setup after it is created. Here is an example:
 
 .. code:: python
 
-    from pyaedt import Icepak
+    from ansys.aedt.core import Icepak
 
     app = Icepak()
     # Any property of this setup can be found on this page.
@@ -16,9 +16,9 @@ You can edit a setup after it is created. Here is an example:
 
 Available turbulent models are: ``"ZeroEquation"``, ``"TwoEquation"``, ``"EnhancedTwoEquation"``, ``"RNG"``, ``"EnhancedRNG"``, ``"RealizableTwoEquation"``, ``"EnhancedRealizableTwoEquation"``, ``"SpalartAllmaras"``, ``"kOmegaSST"``.
 
-.. pprint:: pyaedt.modules.SetupTemplates.TransientFlowOnly
-.. pprint:: pyaedt.modules.SetupTemplates.TransientTemperatureOnly
-.. pprint:: pyaedt.modules.SetupTemplates.TransientTemperatureAndFlow
-.. pprint:: pyaedt.modules.SetupTemplates.SteadyFlowOnly
-.. pprint:: pyaedt.modules.SetupTemplates.SteadyTemperatureOnly
-.. pprint:: pyaedt.modules.SetupTemplates.SteadyTemperatureAndFlow
+.. pprint:: ansys.aedt.core.modules.setup_templates.TransientFlowOnly
+.. pprint:: ansys.aedt.core.modules.setup_templates.TransientTemperatureOnly
+.. pprint:: ansys.aedt.core.modules.setup_templates.TransientTemperatureAndFlow
+.. pprint:: ansys.aedt.core.modules.setup_templates.SteadyFlowOnly
+.. pprint:: ansys.aedt.core.modules.setup_templates.SteadyTemperatureOnly
+.. pprint:: ansys.aedt.core.modules.setup_templates.SteadyTemperatureAndFlow

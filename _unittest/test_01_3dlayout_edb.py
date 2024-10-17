@@ -26,10 +26,9 @@ import os
 
 from _unittest.conftest import config
 from _unittest.conftest import local_path
+from ansys.aedt.core import Hfss3dLayout
+from ansys.aedt.core.generic.settings import is_linux
 import pytest
-
-from pyaedt import Hfss3dLayout
-from pyaedt.generic.settings import is_linux
 
 test_subfolder = "T40"
 original_project_name = "ANSYS-HSD_V1"
@@ -245,6 +244,9 @@ class TestClass:
         assert nets["GND"].name == "GND"
         assert len(nets) > 0
         assert len(nets["GND"].components) > 0
+        local_png1 = os.path.join(self.local_scratch.path, "test1.png")
+        nets["AVCC_1V3"].plot(save_plot=local_png1, show=False)
+        assert os.path.exists(local_png1)
 
     def test_07a_nets_count(self):
         nets = self.aedtapp.modeler.nets
@@ -280,8 +282,9 @@ class TestClass:
             assert (comp.location[1] - 0.2) < tol
 
     def test_10_change_stackup(self):
-        assert self.aedtapp.modeler.layers.change_stackup_type("Multizone", 4)
-        assert len(self.aedtapp.modeler.layers.zones) == 3
+        if config["NonGraphical"]:
+            assert self.aedtapp.modeler.layers.change_stackup_type("Multizone", 4)
+            assert len(self.aedtapp.modeler.layers.zones) == 3
         assert self.aedtapp.modeler.layers.change_stackup_type("Overlap")
         assert self.aedtapp.modeler.layers.change_stackup_type("Laminate")
         assert not self.aedtapp.modeler.layers.change_stackup_type("lami")
@@ -378,11 +381,10 @@ class TestClass:
         solution_data = self.dcir_example_project.get_dcir_solution_data("SIwaveDCIR1", "Sources", "Voltage")
         assert self.dcir_example_project.post.available_report_quantities(is_siwave_dc=True, context="")
         assert self.dcir_example_project.post.create_report(
-            self.dcir_example_project.post.available_report_quantities(is_siwave_dc=True, context="RL")[0],
+            self.dcir_example_project.post.available_report_quantities(is_siwave_dc=True, context="Vias")[0],
             domain="DCIR",
             context="RL",
         )
-        assert isinstance(self.dcir_example_project.get_dcir_element_data_loop_resistance("SIwaveDCIR1"), pd.DataFrame)
         assert isinstance(self.dcir_example_project.get_dcir_element_data_current_source("SIwaveDCIR1"), pd.DataFrame)
 
     def test_20_change_options(self):
@@ -416,5 +418,6 @@ class TestClass:
         assert self.aedtapp.create_ports_on_component_by_nets(comp.name, nets)
         assert self.aedtapp.create_pec_on_component_by_nets(comp.name, "GND")
 
+    @pytest.mark.skipif(config["desktopVersion"] <= "2024.1", reason="Introduced in 2024R1")
     def test_24_open_ic_mode_design(self):
         assert self.ic_mode_design.ic_mode

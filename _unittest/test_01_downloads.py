@@ -25,15 +25,15 @@
 import os
 import tempfile
 
+from ansys.aedt.core import downloads
+from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.settings import is_linux
 import pytest
-
-from pyaedt import downloads
-from pyaedt.generic.general_methods import generate_unique_name
-from pyaedt.generic.settings import is_linux
 
 
 @pytest.fixture(scope="module", autouse=True)
 def desktop():
+    """Override the desktop fixture to DO NOT open the Desktop when running this test class"""
     return
 
 

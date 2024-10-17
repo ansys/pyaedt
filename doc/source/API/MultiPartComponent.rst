@@ -6,7 +6,7 @@ to allow movements.
 
 
 
-.. currentmodule:: pyaedt.modeler.advanced_cad
+.. currentmodule:: ansys.aedt.core.modeler.advanced_cad
 
 .. autosummary::
    :toctree: _autosummary

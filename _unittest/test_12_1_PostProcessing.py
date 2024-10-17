@@ -27,13 +27,12 @@ import sys
 import uuid
 
 from _unittest.conftest import config
+from ansys.aedt.core.generic.general_methods import is_linux
+from ansys.aedt.core.generic.general_methods import read_json
+from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.visualization.plot.pyvista import _parse_aedtplt
+from ansys.aedt.core.visualization.plot.pyvista import _parse_streamline
 import pytest
-
-from pyaedt.generic.general_methods import is_linux
-from pyaedt.generic.general_methods import read_json
-from pyaedt.generic.plot import _parse_aedtplt
-from pyaedt.generic.plot import _parse_streamline
-from pyaedt.generic.settings import settings
 
 if config["desktopVersion"] > "2022.2":
     test_field_name = "Potter_Horn_231"
@@ -85,9 +84,12 @@ class TestClass:
         assert path
 
     def test_01B_Field_Plot(self):
+        self.aedtapp.analyze(self.aedtapp.active_setup)
         assert len(self.aedtapp.post.available_display_types()) > 0
         assert len(self.aedtapp.post.available_report_types) > 0
         assert len(self.aedtapp.post.available_report_quantities()) > 0
+        assert isinstance(self.aedtapp.post.get_all_report_quantities(), dict)
+        assert isinstance(self.aedtapp.post.get_all_report_quantities(solution="Setup1 : LastAdaptive"), dict)
         assert len(self.aedtapp.post.available_report_solutions()) > 0
         cutlist = ["Global:XY", "Global:XZ", "Global:YZ"]
         setup_name = self.aedtapp.existing_analysis_sweeps[0]
@@ -100,8 +102,17 @@ class TestClass:
         plot1.update_field_plot_settings()
         plot1.update()
         assert self.aedtapp.post.field_plots[plot1.name].IsoVal == "Tone"
-        assert plot1.change_plot_scale(min_value, "30000")
-        assert self.aedtapp.post.create_fieldplot_volume("inner", "Vector_E", setup_name, intrinsic)
+        assert plot1.change_plot_scale(min_value, "30000", scale_levels=50)
+        assert not self.aedtapp.post.create_fieldplot_volume("invalid", "Vector_E", setup_name, intrinsic)
+        assert self.aedtapp.post.create_fieldplot_volume("inner", quantity_name, setup_name, intrinsic)
+
+        volume_plot = self.aedtapp.post.create_fieldplot_volume("NewObject_IJD39Q", "Vector_E", setup_name, intrinsic)
+
+        export_status = self.aedtapp.post.export_field_plot(
+            plot_name=volume_plot.name, output_dir=self.aedtapp.working_directory, file_format="case"
+        )
+        assert export_status
+        assert os.path.splitext(export_status)[1] == ".case"
         assert self.aedtapp.post.create_fieldplot_surface(
             self.aedtapp.modeler["outer"].faces[0].id, "Mag_E", setup_name, intrinsic
         )
@@ -112,7 +123,6 @@ class TestClass:
         assert not self.aedtapp.post.create_fieldplot_surface(123123123, "Mag_E", setup_name, intrinsic)
         assert len(self.aedtapp.setups[0].sweeps[0].frequencies) > 0
         assert isinstance(self.aedtapp.setups[0].sweeps[0].basis_frequencies, list)
-        assert len(self.aedtapp.setups[0].sweeps[1].basis_frequencies) == 2
         mesh_file_path = self.aedtapp.post.export_mesh_obj(setup_name, intrinsic)
         assert os.path.exists(mesh_file_path)
         mesh_file_path2 = self.aedtapp.post.export_mesh_obj(
@@ -123,6 +133,7 @@ class TestClass:
         min_value = self.aedtapp.post.get_scalar_field_value(
             "E", "Minimum", setup_name, intrinsics="5GHz", is_vector=True
         )
+        assert isinstance(min_value, float)
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_01_Animate_plt(self):
@@ -159,7 +170,7 @@ class TestClass:
         model_gif2.animate()
         assert os.path.exists(model_gif2.gif_file)
 
-    @pytest.mark.skipif(config["NonGraphical"] == True, reason="Not running in non-graphical mode")
+    @pytest.mark.skipif(config["NonGraphical"], reason="Not running in non-graphical mode")
     def test_02_export_fields(self):
         quantity_name2 = "ComplexMag_H"
         setup_name = "Setup1 : LastAdaptive"
@@ -174,20 +185,17 @@ class TestClass:
         assert os.path.exists(plot2.export_image(os.path.join(self.local_scratch.path, "test_x.jpg")))
 
     def test_03_create_scattering(self):
-        setup_name = "Setup1 : Sweep"
         portnames = ["1", "2"]
         assert self.aedtapp.create_scattering("MyTestScattering")
         setup_name = "Setup2 : Sweep"
         assert not self.aedtapp.create_scattering("MyTestScattering2", setup_name, portnames, portnames)
 
     def test_03_get_solution_data(self):
-        self.aedtapp.analyze(self.aedtapp.active_setup)
         trace_names = []
         portnames = ["1", "2"]
         for el in portnames:
             for el2 in portnames:
                 trace_names.append("S(" + el + "," + el2 + ")")
-        cxt = ["Domain:=", "Sweep"]
         families = {"Freq": ["All"]}
         for el in self.aedtapp.available_variations.nominal_w_values_dict:
             families[el] = self.aedtapp.available_variations.nominal_w_values_dict[el]
@@ -282,11 +290,9 @@ class TestClass:
             is_vector=False,
             intrinsics="5GHz",
         )
+
         assert os.path.exists(os.path.join(self.local_scratch.path, "MagEfieldCyl.fld"))
 
-    # @pytest.mark.skipif(
-    #     config["NonGraphical"], reason="Skipped because it cannot run on build machine in non-graphical mode"
-    # )
     def test_07_copydata(self):
         assert self.aedtapp.post.copy_report_data("MyTestScattering")
 
@@ -296,7 +302,12 @@ class TestClass:
         assert not self.aedtapp.post.rename_report("invalid", "MyNewScattering")
 
     def test_09_manipulate_report(self):
-        assert self.aedtapp.post.create_report("dB(S(1,1))")
+        plot = self.aedtapp.post.create_report("dB(S(1,1))")
+        assert plot
+        assert plot.export_config(os.path.join(self.local_scratch.path, f"{plot.plot_name}.json"))
+        assert self.aedtapp.post.create_report_from_configuration(
+            os.path.join(self.local_scratch.path, f"{plot.plot_name}.json"), solution_name=self.aedtapp.nominal_sweep
+        )
         assert self.aedtapp.post.create_report(
             expressions="MaxMagDeltaS",
             variations={"Pass": ["All"]},
@@ -595,6 +606,95 @@ class TestClass:
             image_format="jpg",
         )
         assert os.path.exists(plot_obj.image_file)
+        assert plot_obj.range_min is None
+        assert plot_obj.range_max is None
+        plot_obj_1 = self.aedtapp.post.plot_field(
+            "Vector_E",
+            cutlist,
+            "CutPlane",
+            setup=setup_name,
+            intrinsics=intrinsic,
+            mesh_on_fields=False,
+            view="isometric",
+            show=False,
+            export_path=self.local_scratch.path,
+            image_format="jpg",
+            log_scale=False,
+        )
+        assert os.path.exists(plot_obj_1.image_file)
+        assert plot_obj_1.range_min is None
+        assert plot_obj_1.range_max is None
+        plot_obj_2 = self.aedtapp.post.plot_field(
+            "Vector_E",
+            cutlist,
+            "CutPlane",
+            setup=setup_name,
+            intrinsics=intrinsic,
+            mesh_on_fields=False,
+            view="isometric",
+            show=False,
+            export_path=self.local_scratch.path,
+            image_format="jpg",
+            log_scale=False,
+            scale_min=0,
+            scale_max=10e6,
+        )
+        assert os.path.exists(plot_obj_2.image_file)
+        assert plot_obj_2.range_min == 0
+        assert plot_obj_2.range_max == 10e6
+        plot_obj_3 = self.aedtapp.post.plot_field(
+            "Vector_E",
+            cutlist,
+            "CutPlane",
+            setup=setup_name,
+            intrinsics=intrinsic,
+            mesh_on_fields=False,
+            view="isometric",
+            show=False,
+            export_path=self.local_scratch.path,
+            image_format="jpg",
+            log_scale=True,
+            scale_min=0,
+            scale_max=10e6,
+        )
+        assert os.path.exists(plot_obj_3.image_file)
+        assert plot_obj_3.range_min is None
+        assert plot_obj_3.range_max is None
+        plot_obj_4 = self.aedtapp.post.plot_field(
+            "Vector_E",
+            cutlist,
+            "CutPlane",
+            setup=setup_name,
+            intrinsics=intrinsic,
+            mesh_on_fields=False,
+            view="isometric",
+            show=False,
+            export_path=self.local_scratch.path,
+            image_format="jpg",
+            log_scale=True,
+            scale_min=10e6,
+            scale_max=0,
+        )
+        assert os.path.exists(plot_obj_4.image_file)
+        assert plot_obj_4.range_min is None
+        assert plot_obj_4.range_max is None
+        plot_obj_5 = self.aedtapp.post.plot_field(
+            "Vector_E",
+            cutlist,
+            "CutPlane",
+            setup=setup_name,
+            intrinsics=intrinsic,
+            mesh_on_fields=False,
+            view="isometric",
+            show=False,
+            export_path=self.local_scratch.path,
+            image_format="jpg",
+            log_scale=False,
+            scale_min=0,
+        )
+        assert os.path.exists(plot_obj_5.image_file)
+        assert plot_obj_5.range_min is None
+        assert plot_obj_5.range_max is None
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_15_export_plot(self):

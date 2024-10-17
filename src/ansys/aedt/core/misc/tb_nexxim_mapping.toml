@@ -1,0 +1,39 @@
+[General]
+scale=2.0
+
+[R]
+component_library="Resistors"
+component_name="RES_"
+property_mapping= {"R"="R"}
+rotate_deg = -90
+x_offset = 0
+y_offset = 100
+pin_1 = 1
+
+
+[L]
+component_library="Inductors"
+component_name="IND_"
+property_mapping= {"L"="L"}
+rotate_deg = 90
+x_offset = 0
+y_offset = 100
+pin_1 = 1
+
+[C]
+component_library="Capacitors"
+component_name="CAP_"
+property_mapping= {"C"="C"}
+rotate_deg = 90
+x_offset = 0
+y_offset = 100
+pin_1 = 1
+
+[D]
+component_library="Diodes"
+component_name="DIODE_Level1"
+property_mapping= {}
+rotate_deg = 90
+x_offset = 0
+y_offset = 100
+pin_1 = 1

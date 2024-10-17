@@ -4,9 +4,9 @@ from _unittest_solvers.conftest import desktop_version
 from _unittest_solvers.conftest import local_path
 import pytest
 
-from pyaedt import Circuit
-from pyaedt.generic.compliance import VirtualCompliance
-from pyaedt.generic.pdf import AnsysReport
+from ansys.aedt.core import Circuit
+from ansys.aedt.core.visualization.post.compliance import VirtualCompliance, VirtualComplianceGenerator
+from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 
 tol = 1e-12
 test_project_name = "ANSYS-HSD_V1_0_test"
@@ -81,11 +81,29 @@ class TestClass(object):
             f.seek(0)
             json.dump(data, f, indent=4)
             f.truncate()
+        compliance_folder = os.path.join(local_scratch.path, "vc")
+        os.makedirs(compliance_folder, exist_ok=True)
+        vc = VirtualComplianceGenerator("Test_full", "Diff_Via")
+        for plot in aedtapp.post.plots[::]:
+            try:
+                plot.export_config(f"{compliance_folder}\\report_{plot.plot_name}.json")
+            except Exception:
+                print(f"Failed to generate {plot.plot_name}")
+
+        vc.add_report_from_folder(os.path.join(local_path, "example_models", test_subfolder, "compliance"),
+                                  design_name="Circuit1", group_plots=True,
+                                  project=aedtapp.project_file)
+        vc.add_erl_parameters(design_name=aedtapp.design_name, config_file=f"{compliance_folder}\\config.cfg",
+                              traces=["RX1", "RX3"], pins=[
+                ["X1_A5_PCIe_Gen4_RX1_P", "X1_A6_PCIe_Gen4_RX1_N", "U1_AR25_PCIe_Gen4_RX1_P",
+                 "U1_AP25_PCIe_Gen4_RX1_N"], [7, 8, 18, 17]], pass_fail=True, pass_fail_criteria=3, name="ERL")
+        vc.save_configuration(f"{compliance_folder}\\main.json")
+        assert os.path.exists(os.path.join(compliance_folder, "main.json"))
         v = VirtualCompliance(aedtapp.desktop_class, template)
         assert v.create_compliance_report()
 
     def test_spisim_raw_read(self, local_scratch):
-        from pyaedt.generic.spisim import SpiSimRawRead
+        from ansys.aedt.core.visualization.post.spisim import SpiSimRawRead
 
         raw_file = os.path.join(local_path, "example_models", test_subfolder, "SerDes_Demo_02_Thru.s4p_ERL.raw")
         raw_file = local_scratch.copyfile(raw_file)

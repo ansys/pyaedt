@@ -3,27 +3,35 @@ updates:
   - package-ecosystem: "pip" # See documentation for possible values
     directory: "/" # Location of package manifests
     schedule:
-      interval: "daily"
+      interval: "weekly"
+      day: "saturday"
+      time: "06:00"
+      timezone: "Europe/Paris"
     reviewers: 
       - "MaxJPRey"
+      - "SMoraisAnsys"
     assignees:
       - "pyansys-ci-bot"
     labels:
       - "maintenance"
       - "dependencies"
     commit-message:
-      prefix: "CHORE"
+      prefix: "BUILD"
 
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+      day: "saturday"
+      time: "06:00"
+      timezone: "Europe/Paris"
     reviewers: 
       - "MaxJPRey"
+      - "SMoraisAnsys"
     assignees:
       - "pyansys-ci-bot"
     labels:
       - "maintenance"
       - "dependencies"
     commit-message:
-      prefix: "CHORE"
+      prefix: "BUILD"

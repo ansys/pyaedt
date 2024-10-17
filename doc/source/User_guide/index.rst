@@ -6,7 +6,7 @@ User guide
 
 This section provides brief tutorials for helping you understand how to use PyAEDT effectively.
 
-For end-to-end examples, see `Examples <https://aedt.docs.pyansys.com/version/stable/examples>`_.
+For end-to-end examples, see `Examples <https://examples.aedt.docs.pyansys.com>`_.
 
 
 .. grid:: 2
@@ -17,6 +17,13 @@ For end-to-end examples, see `Examples <https://aedt.docs.pyansys.com/version/st
             :margin: 2 2 0 0
             
             How to launch AEDT and create a project.
+
+   .. grid-item-card:: Extensions
+            :link: extensions
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            How to use PyAEDT extensions.
 
    .. grid-item-card:: Modeler
             :link: modeler
@@ -31,6 +38,13 @@ For end-to-end examples, see `Examples <https://aedt.docs.pyansys.com/version/st
             :margin: 2 2 0 0
 
             How PyAEDT handles mesh operations.
+
+   .. grid-item-card:: Settings
+            :link: settings
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            How to set the configurations of PyAEDT and AEDT
 
    .. grid-item-card:: Setup
             :link: setup
@@ -72,8 +86,10 @@ For end-to-end examples, see `Examples <https://aedt.docs.pyansys.com/version/st
    :maxdepth: 2
 
    intro
+   extensions
    modeler
    mesh
+   settings
    setup
    variables
    files

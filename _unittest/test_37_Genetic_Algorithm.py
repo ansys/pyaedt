@@ -25,14 +25,14 @@
 import random
 import time
 
+from ansys.aedt.core.generic.python_optimizers import GeneticAlgorithm as ga
 import numpy as np
 import pytest
-
-from pyaedt.generic.python_optimizers import GeneticAlgorithm as ga
 
 
 @pytest.fixture(scope="module", autouse=True)
 def desktop():
+    """Override the desktop fixture to DO NOT open the Desktop when running this test class"""
     return
 
 
