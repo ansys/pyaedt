@@ -36,11 +36,8 @@ from ansys.aedt.core.generic.general_methods import conversion_function
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.visualization.advanced.touchstone_parser import read_touchstone
+from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 from ansys.aedt.core.visualization.plot.matplotlib import is_notebook
-from ansys.aedt.core.visualization.plot.matplotlib import plot_2d_chart
-from ansys.aedt.core.visualization.plot.matplotlib import plot_3d_chart
-from ansys.aedt.core.visualization.plot.matplotlib import plot_contour
-from ansys.aedt.core.visualization.plot.matplotlib import plot_polar_chart
 from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 from ansys.aedt.core.visualization.plot.pyvista import get_structured_mesh
 
@@ -829,7 +826,7 @@ class FfdSolutionData(object):
 
         Returns
         -------
-        :class:`matplotlib.pyplot.Figure`
+        :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
             Matplotlib figure object.
 
         Examples
@@ -860,19 +857,25 @@ class FfdSolutionData(object):
         ph, th = np.meshgrid(data["Phi"], data["Theta"][select])
         # Convert to radians for polar plot.
         ph = np.radians(ph) if polar else ph
+        new = ReportPlotter()
+        new.show_legend = False
+        new.title = title
+        props = {
+            "x_label": r"$\phi$ (Degrees)",
+            "y_label": r"$\theta$ (Degrees)",
+        }
 
-        return plot_contour(
-            plot_data=[data_to_plot, th, ph],
-            xlabel=r"$\phi$ (Degrees)",
-            ylabel=r"$\theta$ (Degrees)",
-            title=title,
-            levels=levels,
+        new.add_trace([data_to_plot, th, ph], 2, props)
+        _ = new.plot_contour(
+            trace=0,
             polar=polar,
-            snapshot_path=output_file,
+            levels=levels,
             max_theta=max_theta,
             color_bar=quantity_format,
+            snapshot_path=output_file,
             show=show,
         )
+        return new
 
     @pyaedt_function_handler()
     def plot_cut(
@@ -924,7 +927,7 @@ class FfdSolutionData(object):
 
         Returns
         -------
-        :class:`matplotlib.pyplot.Figure`
+        :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
             Matplotlib figure object.
             If ``show=True``, a Matplotlib figure instance of the plot is returned.
             If ``show=False``, the plotted curve is returned.
@@ -963,7 +966,7 @@ class FfdSolutionData(object):
                 y = conversion_function(y, quantity_format)
                 if not isinstance(y, np.ndarray):  # pragma: no cover
                     raise Exception("Format of quantity is wrong.")
-                curves.append([x, y, "{}={}".format(y_key, el)])
+                curves.append([x, y, f"{y_key}={el}"])
         elif isinstance(secondary_sweep_value, list):
             list_inserted = []
             for el in secondary_sweep_value:
@@ -973,7 +976,7 @@ class FfdSolutionData(object):
                     y = conversion_function(y, quantity_format)
                     if not isinstance(y, np.ndarray):  # pragma: no cover
                         raise Exception("Format of quantity is wrong.")
-                    curves.append([x, y, "{}={}".format(y_key, el)])
+                    curves.append([x, y, f"{y_key}={el}"])
                     list_inserted.append(theta_idx)
         else:
             theta_idx = self.__find_nearest(data[y_key], secondary_sweep_value)
@@ -981,28 +984,20 @@ class FfdSolutionData(object):
             y = conversion_function(y, quantity_format)
             if not isinstance(y, np.ndarray):  # pragma: no cover
                 raise Exception("Wrong format quantity.")
-            curves.append([x, y, "{}={}".format(y_key, data[y_key][theta_idx])])
+            curves.append([x, y, f"{y_key}={data[y_key][theta_idx]}"])
 
+        new = ReportPlotter()
+        new.show_legend = show_legend
+        new.title = title
+        props = {"x_label": x_key, "y_label": quantity}
+        for pdata in curves:
+            name = pdata[2] if len(pdata) > 2 else "Trace"
+            new.add_trace(pdata[:2], 0, props, name=name)
         if is_polar:
-            return plot_polar_chart(
-                curves,
-                xlabel=x_key,
-                ylabel=quantity,
-                title=title,
-                snapshot_path=output_file,
-                show_legend=show_legend,
-                show=show,
-            )
+            _ = new.plot_polar(traces=None, snapshot_path=output_file, show=show)
         else:
-            return plot_2d_chart(
-                curves,
-                xlabel=x_key,
-                ylabel=quantity,
-                title=title,
-                snapshot_path=output_file,
-                show_legend=show_legend,
-                show=show,
-            )
+            _ = new.plot_2d(None, output_file, show)
+        return new
 
     @pyaedt_function_handler()
     def plot_3d_chart(
@@ -1041,10 +1036,9 @@ class FfdSolutionData(object):
 
         Returns
         -------
-        :class:`matplotlib.pyplot.Figure`
+        :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
             Matplotlib figure object.
-            If ``show=True``, a Matplotlib figure instance of the plot is returned.
-            If ``show=False``, the plotted curve is returned.
+
 
         Examples
         --------
@@ -1078,7 +1072,13 @@ class FfdSolutionData(object):
         x = r * np.sin(theta_grid) * np.cos(phi_grid)
         y = r * np.sin(theta_grid) * np.sin(phi_grid)
         z = r * np.cos(theta_grid)
-        return plot_3d_chart([x, y, z], xlabel="Theta", ylabel="Phi", title=title, snapshot_path=output_file, show=show)
+        new = ReportPlotter()
+        new.show_legend = False
+        new.title = title
+        props = {"x_label": "Theta", "y_label": "Phi", "z_label": quantity}
+        new.add_trace([x, y, z], 2, props, quantity)
+        _ = new.plot_3d(trace=0, snapshot_path=output_file, show=show)
+        return new
 
     @pyaedt_function_handler()
     def plot_3d(
