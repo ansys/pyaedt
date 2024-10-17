@@ -956,10 +956,8 @@ class ReportPlotter:
                 pass
             elif is_ipython() or "PYTEST_CURRENT_TEST" in os.environ:
                 self.fig.show()
-            elif self.block:
-                plt.show(block=True)
             else:
-                plt.show()
+                plt.show(block=self.block)
         return self.fig
 
     def _set_scale(self, x, y):
@@ -1106,28 +1104,35 @@ class ReportPlotter:
                 ticks=ticks,
                 shrink=0.7,
             )
-            X = np.cos(np.arange(-3.14, 3.14, 0.01)) * 2 * tr._cartesian_data[0].max()
-            Y = np.sin(np.arange(-3.14, 3.14, 0.01)) * 2 * tr._cartesian_data[0].max()
-            Z = np.empty(len(Y))
-            mean = (tr._cartesian_data[2].max() + tr._cartesian_data[2].min()) / 2
-            Z.fill(mean)
+            radius = tr._spherical_data[0].max() - tr._spherical_data[0].min()
+
+            X = np.cos(np.arange(-3.14, 3.14, 0.01)) * radius
+            Y = np.sin(np.arange(-3.14, 3.14, 0.01)) * radius
+            Z = np.zeros(len(Y))
             self.ax.plot(X, Y, Z, color=(0, 0, 0))
-            X = np.cos(np.arange(-3.14, 3.14, 0.01)) * 1.3 * tr._cartesian_data[0].max()
-            Y = np.sin(np.arange(-3.14, 3.14, 0.01)) * 1.3 * tr._cartesian_data[0].max()
+
+            X = np.cos(np.arange(-3.14, 3.14, 0.01)) * 0.6 * radius
+            Y = np.sin(np.arange(-3.14, 3.14, 0.01)) * 0.6 * radius
             self.ax.plot(X, Y, Z, linestyle=":", color=(0, 0, 0))
-            self.ax.text(X.max(), Y.max(), mean, "Phi")
-            range_in = (tr._cartesian_data[2].max() - tr._cartesian_data[2].min()) / 2
+            self.ax.text(0, radius, 0.0, "Phi")
 
-            X = np.cos(np.arange(-3.14, 3.14, 0.01)) * range_in
-            Z = (np.sin(np.arange(-3.14, 3.14, 0.01)) * range_in) + mean
-            mean2 = (tr._cartesian_data[1].max() + tr._cartesian_data[1].min()) / 2
-            Y = np.empty(len(Z))
-            Y.fill(mean2)
+            X = np.arange(0, radius, 0.01)
+            Y = np.zeros(len(X))
+            Z = np.zeros(len(X))
+
+            self.ax.plot(X, Y, Z, linestyle=":", color=(0, 0, 0))
+            Y = np.arange(0, radius, 0.01)
+            X = np.zeros(len(Y))
+            self.ax.plot(X, Y, Z, linestyle=":", color=(0, 0, 0))
+
+            Y = np.sin(np.arange(-3.14, 3.14, 0.01)) * radius
+            Z = np.cos(np.arange(-3.14, 3.14, 0.01)) * radius
+            X = np.zeros(len(Z))
             self.ax.plot(X, Y, Z, color=(0, 0, 0))
-            self.ax.text(X.mean(), mean2, Z.min(), "Theta")
+            self.ax.text(0, 0, radius, "Theta")
 
-            X = np.cos(np.arange(-3.14, 3.14, 0.01)) * range_in / 2
-            Z = (np.sin(np.arange(-3.14, 3.14, 0.01)) * range_in / 2) + mean
+            Y = np.cos(np.arange(-3.14, 3.14, 0.01)) * 0.6 * radius
+            Z = np.sin(np.arange(-3.14, 3.14, 0.01)) * 0.6 * radius
             self.ax.plot(X, Y, Z, linestyle=":", color=(0, 0, 0))
             self.ax.set_aspect("equal")
             self.ax.grid(False)
