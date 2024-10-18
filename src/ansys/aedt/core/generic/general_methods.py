@@ -622,7 +622,7 @@ def env_path(input_version):
     "C:/Program Files/ANSYSEM/ANSYSEM2021.2/Win64"
     """
     return os.getenv(
-        f"ANSYSEM_ROOT{get_version_and_release(input_version)[0]}{get_version_and_release(input_version)[1]}" "",
+        f"ANSYSEM_ROOT{get_version_and_release(input_version)[0]}{get_version_and_release(input_version)[1]}", ""
     )
 
 

@@ -2604,7 +2604,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                             elif isinstance(value, (int, float)):
                                 comp.set_property("DC", value)
                         except:
-                            self.logger.info(f"Failed to set DC Value or unnkown source type {component}")
+                            self.logger.info(f"Failed to set DC Value or unnkown source type {component}.")
                             pass
 
                 if size_change != 0:
