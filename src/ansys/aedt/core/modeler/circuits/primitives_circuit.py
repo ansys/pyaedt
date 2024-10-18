@@ -1261,6 +1261,34 @@ class CircuitComponents(object):
         except Exception:
             return False
 
+    def create_page(self, name):
+        """Add a new circuit schematic page.
+
+        Parameters
+        ----------
+        name : str, int or float
+            Name to be used when creating the new circuit schematic.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        References
+        ----------
+        >>> oeditor.CreatePage ()
+        Examples
+        --------
+        >>>from ansys.aedt.core import MaxwellCircuit
+        >>>app=MaxwellCircuit ()
+        >>>schematic=app.modeler.schematic
+        >>>schematic.create_page (name="NewPageName")
+
+        """
+        if not isinstance(name, (str, int, float)):
+            self.logger.error("Argument 'name' to 'create_page' is not of data type String, Integer or Float.")
+            return False
+        self.oeditor.CreatePage(name)
+        return True
+
 
 class ComponentInfo(object):
     """Manages Circuit Catalog info."""
