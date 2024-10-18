@@ -551,7 +551,7 @@ class Icepak(FieldAnalysis3D):
         bound = BoundaryObject(self, boundary_name, props, "Block")
         if bound.create():
             self._boundaries[bound.name] = bound
-            self.logger.info("Block on {} with {} power created correctly.".format(object_name, input_power))
+            self.logger.info(f"Block on {object_name} with {input_power} power created correctly.")
             return bound
         return None
 
@@ -663,7 +663,7 @@ class Icepak(FieldAnalysis3D):
             props["Total Power Variation Data"] = {
                 "Variation Type": "Temp Dep",
                 "Variation Function": "Piecewise Linear",
-                "Variation Value": '["1W", "pwl({},Temp)"]'.format(thermal_dependent_dataset),
+                "Variation Value": f'["1W", "pwl({thermal_dependent_dataset},Temp)"]',
             }
 
         props["Shell Conduction"] = shell_conduction
@@ -750,7 +750,7 @@ class Icepak(FieldAnalysis3D):
             props["Total Power Variation Data"] = {
                 "Variation Type": "Temp Dep",
                 "Variation Function": "Piecewise Linear",
-                "Variation Value": '["1W", "pwl({},Temp)"]'.format(thermal_dependent_dataset),
+                f"Variation Value": '["1W", "pwl({thermal_dependent_dataset},Temp)"]',
             }
         props["Surface Heat"] = surface_heat
         props["Temperature"] = temperature
@@ -1151,7 +1151,7 @@ class Icepak(FieldAnalysis3D):
                         name = line[id1 : id1 + id2]
                         if name not in priority_list:
                             priority_list.append(name)
-            self.logger.info("{} Intersections have been found. Applying Priorities".format(len(priority_list)))
+            self.logger.info(f"{len(priority_list)} Intersections have been found. Applying Priorities")
             for objname in priority_list:
                 self.mesh.add_priority(1, [objname], priority=i)
                 i += 1
@@ -2958,14 +2958,14 @@ class Icepak(FieldAnalysis3D):
         :class:`ansys.aedt.core.modules.mesh.MeshOperation`
         """
         version = self.aedt_version_id[-3:]
-        ansys_install_dir = os.environ.get("ANSYS{}_DIR".format(version), "")
+        ansys_install_dir = os.environ.get(f"ANSYS{version}_DIR", "")
         if not ansys_install_dir:
-            ansys_install_dir = os.environ.get("AWP_ROOT{}".format(version), "")
-        assert ansys_install_dir, "Fluent {} has to be installed to generate mesh. Please set ANSYS{}_DIR".format(
-            version, version
-        )
-        if not os.getenv("ANSYS{}_DIR".format(version)):
-            os.environ["ANSYS{}_DIR".format(version)] = ansys_install_dir
+            ansys_install_dir = os.environ.get(f"AWP_ROOT{version}", "")
+        assert (
+            ansys_install_dir
+        ), f"Fluent {version} has to be installed to generate mesh. Please set ANSYS{version}_DIR"
+        if not os.getenv(f"ANSYS{version}_DIR"):
+            os.environ[f"ANSYS{version}_DIR"] = ansys_install_dir
         if not object_lists:
             object_lists = self.get_liquid_objects()
             assert object_lists, "No Fluids objects found."
@@ -3004,7 +3004,7 @@ class Icepak(FieldAnalysis3D):
         fluent_script = open(fl_uscript_file_pointer, "w")
         fluent_script.write("/file/start-transcript " + '"' + mesh_file_pointer + '.trn"\n')
         fluent_script.write(
-            '/file/set-tui-version "{}"\n'.format(self.aedt_version_id[-3:-1] + "." + self.aedt_version_id[-1:])
+            f'/file/set-tui-version "{self.aedt_version_id[-3:-1] + "." + self.aedt_version_id[-1:]}"\n'
         )
         fluent_script.write("(enable-feature 'serial-hexcore-without-poly)\n")
         fluent_script.write('(cx-gui-do cx-activate-tab-index "NavigationPane*Frame1(TreeTab)" 0)\n')
@@ -3015,12 +3015,12 @@ class Icepak(FieldAnalysis3D):
         fluent_script.write("(%py-exec \"workflow.TaskObject['Import Geometry'].Execute()\")\n")
         fluent_script.write("(%py-exec \"workflow.TaskObject['Add Local Sizing'].AddChildToTask()\")\n")
         fluent_script.write("(%py-exec \"workflow.TaskObject['Add Local Sizing'].Execute()\")\n")
-        fluent_script.write("(%py-exec \"meshtype = '{}'\")\n".format(meshtype))
-        fluent_script.write('(%py-exec "gr = {}")\n'.format(mesh_growth_rate))
-        fluent_script.write('(%py-exec "maxsize = {}")\n'.format(max_size))
-        fluent_script.write('(%py-exec "minsize = {}")\n'.format(min_size))
-        fluent_script.write('(%py-exec "nlayers = {}")\n'.format(inflation_layer_number))
-        fluent_script.write('(%py-exec "pgr = {}")\n'.format(inflation_growth_rate))
+        fluent_script.write(f"(%py-exec \"meshtype = '{meshtype}'\")\n")
+        fluent_script.write(f'(%py-exec "gr = {mesh_growth_rate}")\n')
+        fluent_script.write(f'(%py-exec "maxsize = {max_size}")\n')
+        fluent_script.write(f'(%py-exec "minsize = {min_size}")\n')
+        fluent_script.write(f'(%py-exec "nlayers = {inflation_layer_number}")\n')
+        fluent_script.write(f'(%py-exec "pgr = {inflation_growth_rate}")\n')
         mesh_settings = "(%py-exec \"workflow.TaskObject['Generate the Surface Mesh'].Arguments.setState"
         mesh_settings += "({r'CFDSurfaceMeshControls': {r'CellsPerGap': 3,r'CurvatureNormalAngle': 18,"
         mesh_settings += "r'MaxSize': maxsize,r'MinSize': minsize,r'GrowthRate': gr},})\")\n"
@@ -3179,7 +3179,7 @@ class Icepak(FieldAnalysis3D):
             self.logger.warning("Warning. The material is not the database. Use add_surface_material.")
             return False
         if mat.lower() not in self.materials.surface_material_keys:
-            oo = self.get_oo_object(self.oproject, "Surface Materials/{}".format(mat))
+            oo = self.get_oo_object(self.oproject, f"Surface Materials/{mat}")
             if oo:
                 from ansys.aedt.core.modules.material import SurfaceMaterial
 
@@ -3653,19 +3653,19 @@ class Icepak(FieldAnalysis3D):
         elif isinstance(geometry, int):
             geometry = [geometry]
         if not isinstance(thickness, str):
-            thickness = "{}{}".format(thickness, self.modeler.model_units)
+            thickness = f"{thickness}{self.modeler.model_units}"
         if heat_flux is not None and not isinstance(heat_flux, dict) and not isinstance(heat_flux, str):
-            heat_flux = "{}irrad_W_per_m2".format(heat_flux)
+            heat_flux = f"{heat_flux}irrad_W_per_m2"
         if temperature is not None and not isinstance(temperature, dict) and not isinstance(temperature, str):
-            temperature = "{}cel".format(temperature)
+            temperature = f"{temperature}cel"
         if htc is not None and not isinstance(htc, dict) and not isinstance(htc, str):
-            htc = "{}w_per_m2kel".format(htc)
+            htc = f"{htc}w_per_m2kel"
         if not isinstance(ref_temperature, str):
-            ref_temperature = "{}cel".format(ref_temperature)
+            ref_temperature = f"{ref_temperature}cel"
         if not isinstance(ht_correlation_free_stream_velocity, str):
-            ht_correlation_free_stream_velocity = "{}m_per_sec".format(ht_correlation_free_stream_velocity)
+            ht_correlation_free_stream_velocity = f"{ht_correlation_free_stream_velocity}m_per_sec"
         if not isinstance(ht_correlation_amb_temperature, str):
-            ht_correlation_amb_temperature = "{}cel".format(ht_correlation_amb_temperature)
+            ht_correlation_amb_temperature = f"{ht_correlation_amb_temperature}cel"
         if not isinstance(ext_surf_rad_view_factor, str):
             ext_surf_rad_view_factor = str(ext_surf_rad_view_factor)
 
@@ -4075,14 +4075,16 @@ class Icepak(FieldAnalysis3D):
         out_dict = {"Variation Type": variation_type, "Variation Function": function}
         if function == "Piecewise Linear":
             if not isinstance(variation_value, list):
-                variation_value = ["1", "pwl({},Temp)".format(variation_value)]
+                variation_value = ["1", f"pwl({variation_value},Temp)"]
             else:
-                variation_value = [variation_value[0], "pwl({},Temp)".format(variation_value[1])]
-            out_dict["Variation Value"] = "[{}]".format(", ".join(['"' + str(i) + '"' for i in variation_value]))
+                variation_value = [variation_value[0], f"pwl({variation_value[1]},Temp)"]
+            variation_str = ", ".join(['"' + str(i) + '"' for i in variation_value])
+            out_dict["Variation Value"] = f"[{variation_str}]"
         else:
             if variation_value is not None:
-                out_dict["Variation Value"] = "[{}]".format(", ".join([str(i) for i in variation_value]))
-        return {"{} Variation Data".format(quantity): out_dict}
+                variation_str = ", ".join([str(i) for i in variation_value])
+                out_dict["Variation Value"] = f"[{variation_str}]"
+        return {f"{quantity} Variation Data": out_dict}
 
     @pyaedt_function_handler()
     def assign_source(
@@ -4502,7 +4504,7 @@ class Icepak(FieldAnalysis3D):
             self.logger.add_error_message(
                 'Valid options for assignment type are "Total Power", "Heat Flux",'
                 '"Temperature", and "Heat Transfer Coefficient".'
-                "{} not recognized.".format(assignment_type)
+                f"{assignment_type} not recognized."
             )
             return None
 
@@ -5249,7 +5251,7 @@ class Icepak(FieldAnalysis3D):
         elif loss_type == "Loss Curve":
             props.update({"Pressure Loss Model": "Loss Curve"})
             for direction, values in zip(["X", "Y", "Z"], [loss_curves_x, loss_curves_y, loss_curves_z]):
-                key = "Pressure Loss Curve {}".format(direction)
+                key = f"Pressure Loss Curve {direction}"
                 props[key] = {
                     "DimUnits": [loss_curve_flow_unit, loss_curve_pressure_unit],
                     "X": [str(i) for i in values[0]],
@@ -6260,7 +6262,7 @@ class Icepak(FieldAnalysis3D):
             else:
                 ds = self.design_datasets[ds_name]
         except KeyError:
-            self.logger.error("Dataset {} not found.".format({ds_name}))
+            self.logger.error(f"Dataset {ds_name} not found.")
             return False
         if not isinstance(scale, str):
             scale = str(scale)
@@ -6495,14 +6497,14 @@ class IcepakDesignSettingsManipulation(DesignSettingsManipulation):
         elif k == "GravityVec":
             if isinstance(v, (float, int)):
                 self.app.design_settings["GravityDir"] = ["Positive", "Negative"][v // 3]
-                v = "Global::{}".format(["X", "Y", "Z"][v - v // 3 * 3])
+                v = f'Global::{["X", "Y", "Z"][v - v // 3 * 3]}'
                 return v
             else:
                 if len(v.split("::")) == 1 and len(v) < 3:
                     if v.startswith("+") or v.startswith("-"):
                         self.app.design_settings["GravityDir"] = ["Positive", "Negative"][int(v.startswith("-"))]
                         v = v[-1]
-                    return "Global::{}".format(v)
+                    return f"Global::{v}"
                 else:
                     return v
         else:

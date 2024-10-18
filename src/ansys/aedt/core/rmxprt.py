@@ -83,7 +83,7 @@ class RMXprtModule(object):
         if self.properties:
             _apply_val(self.properties, parameter_name, value)
         else:  # pragma: no cover
-            self._app.logger.error("Properties not available for {}".format(self.component))
+            self._app.logger.error(f"Properties not available for {self.component}")
 
     @pyaedt_function_handler()
     def __getitem__(self, parameter_name):
@@ -97,7 +97,7 @@ class RMXprtModule(object):
         if self.properties:
             return _get_val(self.properties, parameter_name)
         else:  # pragma: no cover
-            self._app.logger.error("Properties not available for {}".format(self.component))
+            self._app.logger.error(f"Properties not available for {self.component}")
 
 
 class Stator(RMXprtModule):
@@ -256,7 +256,7 @@ class Rmxprt(FieldAnalysisRMxprt):
         if not model_units or model_units == "mm":
             model_units = "mm"
         elif model_units != "in":
-            raise AssertionError("Invalid model units string {}.".format(model_units))
+            raise AssertionError(f"Invalid model units string {model_units}.")
         self.modeler.oeditor.SetMachineUnits(["NAME:Units Parameter", "Units:=", model_units, "Rescale:=", False])
         self.general = Machine(self)
         self.stator = Stator(self)

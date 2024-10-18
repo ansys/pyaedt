@@ -224,7 +224,7 @@ def get_pyaedt_app(project_name=None, design_name=None, desktop=None):
     if not process_id:
         process_id = odesktop.GetProcessID()
     if project_name and project_name not in odesktop.GetProjectList():
-        raise AttributeError("Project  {} doesn't exist in current desktop.".format(project_name))
+        raise AttributeError(f"Project  {project_name} doesn't exist in current desktop.")
     if not project_name:
         oProject = odesktop.GetActiveProject()
     else:
@@ -240,7 +240,7 @@ def get_pyaedt_app(project_name=None, design_name=None, desktop=None):
         m = re.search(r"[^;]+$", el)
         design_names.append(m.group(0))
     if design_name and design_name not in design_names:
-        raise AttributeError("Design  {} doesn't exist in current project.".format(design_name))
+        raise AttributeError(f"Design  {design_name} doesn't exist in current project.")
     if not design_name:
         oDesign = oProject.GetActiveDesign()
     else:

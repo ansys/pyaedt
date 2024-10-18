@@ -102,15 +102,15 @@ def _set_api(aedt_version):
         # TODO: Remove once IronPython compatibility is removed
         if sys.version_info < (3, 12):
             module_path = imp.find_module("EmitApiPython")[1]
-            logger.info("Importing EmitApiPython from: {}".format(module_path))
+            logger.info(f"Importing EmitApiPython from: {module_path}")
         else:  # pragma: no cover
             spec = find_spec("EmitApiPython")
             if spec is None:
-                logger.warning("Module {} not found".format("EmitApiPython"))
+                logger.warning(f'Module {"EmitApiPython"} not found')
             else:
                 module_path = spec.origin
-                logger.info("Importing EmitApiPython from: {}".format(module_path))
+                logger.info(f"Importing EmitApiPython from: {module_path}")
         global EMIT_API_PYTHON
         EMIT_API_PYTHON = import_module("EmitApiPython")
-        logger.info("Loaded {}".format(EMIT_API_PYTHON.EmitApi().get_version(True)))
+        logger.info(f"Loaded {EMIT_API_PYTHON.EmitApi().get_version(True)}")
         _init_enums(aedt_version)

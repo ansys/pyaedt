@@ -735,20 +735,20 @@ class SolutionData(object):
             elif el in sweep_var:
                 unit = self._original_data[0].GetSweepUnits(el)
             if unit == "":
-                header.append("{}".format(el))
+                header.append(f"{el}")
             else:
-                header.append("{} [{}]".format(el, unit))
+                header.append(f"{el} [{unit}]")
         # header = [el for el in self._sweeps_names]
         for el in self.expressions:
             data_unit = self._original_data[0].GetDataUnits(el)
             if data_unit:
-                data_unit = " [{}]".format(data_unit)
+                data_unit = f" [{data_unit}]"
             if not self.is_real_only(el):
 
-                header.append(el + " (Real){}".format(data_unit))
-                header.append(el + " (Imag){}".format(data_unit))
+                header.append(el + f" (Real){data_unit}")
+                header.append(el + f" (Imag){data_unit}")
             else:
-                header.append(el + "{}".format(data_unit))
+                header.append(el + f"{data_unit}")
 
         list_full = [header]
         for e, v in self._solutions_real[self.active_expression].items():
@@ -830,19 +830,19 @@ class SolutionData(object):
             if not formula:
                 data_plot.append([sw, self.data_real(curve), curve])
             elif formula == "re":
-                data_plot.append([sw, self.data_real(curve), "{}({})".format(formula, curve)])
+                data_plot.append([sw, self.data_real(curve), f"{formula}({curve})"])
             elif formula == "im":
-                data_plot.append([sw, self.data_imag(curve), "{}({})".format(formula, curve)])
+                data_plot.append([sw, self.data_imag(curve), f"{formula}({curve})"])
             elif formula == "db20":
-                data_plot.append([sw, self.data_db20(curve), "{}({})".format(formula, curve)])
+                data_plot.append([sw, self.data_db20(curve), f"{formula}({curve})"])
             elif formula == "db10":
-                data_plot.append([sw, self.data_db10(curve), "{}({})".format(formula, curve)])
+                data_plot.append([sw, self.data_db10(curve), f"{formula}({curve})"])
             elif formula == "mag":
-                data_plot.append([sw, self.data_magnitude(curve), "{}({})".format(formula, curve)])
+                data_plot.append([sw, self.data_magnitude(curve), f"{formula}({curve})"])
             elif formula == "phasedeg":
-                data_plot.append([sw, self.data_phase(curve, False), "{}({})".format(formula, curve)])
+                data_plot.append([sw, self.data_phase(curve, False), f"{formula}({curve})"])
             elif formula == "phaserad":
-                data_plot.append([sw, self.data_phase(curve, True), "{}({})".format(formula, curve)])
+                data_plot.append([sw, self.data_phase(curve, True), f"{formula}({curve})"])
         if not x_label:
             x_label = sweep_name
         if not y_label:

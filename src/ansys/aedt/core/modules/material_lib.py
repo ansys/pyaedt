@@ -528,7 +528,7 @@ class Materials(object):
         material_in_aedt = material.lower() in list(self.mat_names_aedt_lower)
         material_in_project = material.lower() in list(self.material_keys.keys())
         if not (material_in_aedt or material_in_project):  # Check for material definition
-            self.logger.error("Material {} is not present".format(material))
+            self.logger.error(f"Material {material} is not present")
             return False
         if not material_in_project:
             material = self._aedmattolibrary(material)
@@ -552,7 +552,7 @@ class Materials(object):
                     try:
                         setattr(new_material, p, var_name)
                     except TypeError:
-                        print("p = {}".format(p))
+                        print(f"p = {p}")
         new_material.update()
         new_material._material_update = True
         self._mats.append(name)
@@ -588,7 +588,7 @@ class Materials(object):
         >>> hfss.materials.duplicate_surface_material("MyMaterial","MyMaterial2")
         """
         if not material.lower() in list(self.surface_material_keys.keys()):
-            self.logger.error("Material {} is not present".format(material))
+            self.logger.error(f"Material {material} is not present")
             return False
         newmat = SurfaceMaterial(
             self, name.lower(), self.surface_material_keys[material.lower()]._props, material_update=True
@@ -629,7 +629,7 @@ class Materials(object):
         """
         mat = material.lower()
         if mat not in list(self.material_keys.keys()):
-            self.logger.error("Material {} is not present".format(mat))
+            self.logger.error(f"Material {mat} is not present")
             return False
         self.odefinition_manager.RemoveMaterial(self._get_aedt_case_name(mat), True, "", library)
         del self.material_keys[mat]

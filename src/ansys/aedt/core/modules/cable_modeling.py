@@ -279,7 +279,7 @@ class Cable:
                                 "NAME:ChangedProps",
                                 ["NAME:Name", "Value:=", self.updated_name],
                                 ["NAME:JacketType", "Value:=", self.jacket_type],
-                                ["NAME:JacketMaterial", "Value:=", '"{}"'.format(self.jacket_material)],
+                                ["NAME:JacketMaterial", "Value:=", f'"{self.jacket_material}"'],
                                 ["NAME:InsulationThickness", "Value:=", self.insulation_thickness],
                                 ["NAME:JacketInnerDiameter", "Value:=", self.inner_diameter],
                             ],
@@ -297,12 +297,12 @@ class Cable:
                                 "NAME:ChangedProps",
                                 ["NAME:Name", "Value:=", self.updated_name],
                                 ["NAME:WireStandard", "Value:=", self.wire_standard],
-                                ["NAME:WireType", "Value:=", "{:.2f}".format(float(self.wire_type))],
+                                ["NAME:WireType", "Value:=", f"{float(self.wire_type):.2f}"],
                                 ["NAME:ConductorDiameter", "Value:=", self.conductor_diameter],
-                                ["NAME:ConductorMaterial", "Value:=", '"{}"'.format(self.conductor_material)],
+                                ["NAME:ConductorMaterial", "Value:=", f'"{self.conductor_material}"'],
                                 ["NAME:InsulationType", "Value:=", self.insulation_type.title()],
                                 ["NAME:InsulationThickness", "Value:=", self.straight_wire_insulation_thickness],
-                                ["NAME:InsulationMaterial", "Value:=", '"{}"'.format(self.insulation_material)],
+                                ["NAME:InsulationMaterial", "Value:=", f'"{self.insulation_material}"'],
                             ],
                         ],
                     ]
@@ -350,7 +350,7 @@ class Cable:
                             "NAME:ChangedProps",
                             ["NAME:Name", "Value:=", self.updated_name],
                             ["NAME:JacketType", "Value:=", self.jacket_type],
-                            ["NAME:JacketMaterial", "Value:=", '"{}"'.format(self.jacket_material)],
+                            ["NAME:JacketMaterial", "Value:=", f'"{self.jacket_material}"'],
                             ["NAME:InsulationThickness", "Value:=", self.insulation_thickness],
                             ["NAME:JacketInnerDiameter", "Value:=", self.inner_diameter],
                         ],
@@ -1331,9 +1331,9 @@ class Cable:
                         for x in self.cables_in_bundle_list_dict
                         if self.cable_harness_bundle in x.keys()
                     ][0]:
-                        input_terminations.append("{}:=".format(cable))
+                        input_terminations.append(f"{cable}:=")
                         input_terminations.append(assignment_type)
-                        output_terminations.append("{}:=".format(cable))
+                        output_terminations.append(f"{cable}:=")
                         output_terminations.append(assignment_type)
                     terminations.append(input_terminations)
                     terminations.append(output_terminations)
@@ -1361,14 +1361,14 @@ class Cable:
                                 or cable_termination["Assignment"] == "Output Terminations"
                             ):
                                 if cable_termination["Assignment"] == "Input Terminations" and terminations[0].index(
-                                    "{}:=".format(cable_termination["CableName"])
+                                    f'{cable_termination["CableName"]}:='
                                 ):
-                                    cable_index = terminations[0].index("{}:=".format(cable_termination["CableName"]))
+                                    cable_index = terminations[0].index(f'{cable_termination["CableName"]}:=')
                                     input_output = 0
                                 elif cable_termination["Assignment"] == "Output Terminations" and terminations[1].index(
-                                    "{}:=".format(cable_termination["CableName"])
+                                    f'{cable_termination["CableName"]}:='
                                 ):
-                                    cable_index = terminations[0].index("{}:=".format(cable_termination["CableName"]))
+                                    cable_index = terminations[0].index(f'{cable_termination["CableName"]}:=')
                                     input_output = 1
                                 else:
                                     msg = "Invalid cable name."
@@ -1392,7 +1392,7 @@ class Cable:
                                 elif cable_termination["AssignmentType"] == "Source":
                                     terminations[input_output][cable_index + 1] = [
                                         "Source:=",
-                                        '"{}"'.format(cable_termination["Source"]["Signal"]),
+                                        f'"{cable_termination["Source"]["Signal"]}"',
                                         "Imped:=",
                                         cable_termination["Source"]["ImpedanceValue"],
                                     ]

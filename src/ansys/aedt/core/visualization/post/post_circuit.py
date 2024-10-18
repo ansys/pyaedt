@@ -123,11 +123,11 @@ class PostProcessorCircuit(PostProcessorCommon):
             i += 1
         ycomponents = []
         if plot_initial_response:
-            ycomponents.append("InitialImpulseResponse<{}.int_ami_rx>".format(ami_name))
+            ycomponents.append(f"InitialImpulseResponse<{ami_name}.int_ami_rx>")
         if plot_intermediate_response:
-            ycomponents.append("IntermediateImpulseResponse<{}.int_ami_rx>".format(ami_name))
+            ycomponents.append(f"IntermediateImpulseResponse<{ami_name}.int_ami_rx>")
         if plot_final_response:
-            ycomponents.append("FinalImpulseResponse<{}.int_ami_rx>".format(ami_name))
+            ycomponents.append(f"FinalImpulseResponse<{ami_name}.int_ami_rx>")
         self.oreportsetup.CreateReport(
             plot_name,
             "Standard",
@@ -231,7 +231,7 @@ class PostProcessorCircuit(PostProcessorCommon):
             ibs_type = "tx"
         else:
             ibs_type = "rx"
-        ycomponents.append("{}<{}.int_ami_{}>".format(ami_plot_type, ami_name, ibs_type))
+        ycomponents.append(f"{ami_plot_type}<{ami_name}.int_ami_{ibs_type}>")
 
         ami_id = "0"
         if ami_plot_type == "EyeAfterSource":

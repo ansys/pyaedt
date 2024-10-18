@@ -728,17 +728,27 @@ class TestClass:
     @pytest.mark.skipif(is_linux, reason="PyEDB is failing in Linux.")
     def test_42_post_processing(self, add_app):
         test_post1 = add_app(project_name=test_post, application=Maxwell3d, subfolder=test_subfolder)
-        assert test_post1.post.create_fieldplot_layers(
+        field_plot_layers = test_post1.post.create_fieldplot_layers(
             [],
             "Mag_H",
             intrinsics={"Time": "1ms"},
             nets=["GND", "V3P3_S5"],
+        )
+        assert field_plot_layers
+        assert test_post1.post.create_fieldplot_layers(
+            [], "Mag_H", intrinsics={"Time": "1ms"}, nets=["GND", "V3P3_S5"], name=field_plot_layers.name
         )
 
         assert test_post1.post.create_fieldplot_layers(
             ["UNNAMED_006"],
             "Mag_H",
             intrinsics={"Time": "1ms"},
+        )
+        assert test_post1.post.create_fieldplot_layers_nets(
+            [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
+            "Mag_Volume_Force_Density",
+            intrinsics={"Time": "1ms"},
+            plot_name="Test_Layers",
         )
         assert test_post1.post.create_fieldplot_layers_nets(
             [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],

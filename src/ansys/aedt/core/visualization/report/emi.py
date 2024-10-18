@@ -110,7 +110,7 @@ class EMIReceiver(CommonReport):
             self._emission = value
             self._props["context"]["emission"] = "1"
         else:
-            self.logger.error("Emission must be 'CE' or 'RE', value '{}' is not valid.".format(value))
+            self.logger.error(f"Emission must be 'CE' or 'RE', value '{value}' is not valid.")
 
     @property
     def time_start(self):

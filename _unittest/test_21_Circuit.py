@@ -122,9 +122,14 @@ class TestClass:
         assert self.aedtapp.modeler.schematic.add_pin_iports(mycap3.name, mycap3.id)
         assert len(self.aedtapp.get_all_sparameter_list) == 3
         assert len(self.aedtapp.get_all_return_loss_list()) == 2
+        assert len(self.aedtapp.get_all_return_loss_list(math_formula="abs")) == 2
         assert len(self.aedtapp.get_all_insertion_loss_list()) == 2
+        assert len(self.aedtapp.get_all_insertion_loss_list(math_formula="abs")) == 2
+        assert len(self.aedtapp.get_all_insertion_loss_list(math_formula="abs", nets=self.aedtapp.excitations)) == 2
         assert len(self.aedtapp.get_next_xtalk_list()) == 1
+        assert len(self.aedtapp.get_next_xtalk_list(math_formula="abs")) == 1
         assert len(self.aedtapp.get_fext_xtalk_list()) == 2
+        assert len(self.aedtapp.get_fext_xtalk_list(math_formula="abs")) == 2
 
     def test_05c_create_component(self):
         assert self.aedtapp.modeler.schematic.create_new_component_from_symbol("Test", ["1", "2"])
@@ -157,7 +162,7 @@ class TestClass:
         assert numports2 == 3
         tx = ports[: int(numports / 2)]
         rx = ports[int(numports / 2) :]
-        insertions = ["dB(S({},{}))".format(i, j) for i, j in zip(tx, rx)]
+        insertions = [f"dB(S({i},{j}))" for i, j in zip(tx, rx)]
         assert self.aedtapp.create_touchstone_report("Insertion Losses", insertions)
         touchstone_data = self.aedtapp.get_touchstone_data()
         assert touchstone_data
@@ -498,8 +503,8 @@ class TestClass:
         self.aedtapp.insert_design("data_block")
         with open(os.path.join(self.local_scratch.path, "lc.net"), "w") as f:
             for i in range(10):
-                f.write("L{} net_{} net_{} 1e-9\n".format(i, i, i + 1))
-                f.write("C{} net_{} 0 5e-12\n".format(i, i + 1))
+                f.write(f"L{i} net_{i} net_{i+1} 1e-9\n")
+                f.write(f"C{i} net_{i+1} 0 5e-12\n")
         assert self.aedtapp.add_netlist_datablock(os.path.join(self.local_scratch.path, "lc.net"))
         self.aedtapp.modeler.components.create_interface_port("net_0", (0, 0))
         self.aedtapp.modeler.components.create_interface_port("net_10", (0.01, 0))
@@ -520,8 +525,8 @@ class TestClass:
         self.aedtapp.insert_design("data_block1")
         with open(os.path.join(self.local_scratch.path, "lc.net"), "w") as f:
             for i in range(10):
-                f.write("L{} net_{} net_{} 1e-9\n".format(i, i, i + 1))
-                f.write("C{} net_{} 0 5e-12\n".format(i, i + 1))
+                f.write(f"L{i} net_{i} net_{i+1} 1e-9\n")
+                f.write(f"C{i} net_{i+1} 0 5e-12\n")
         self.aedtapp.modeler.components.create_interface_port("net_0", (0, 0), angle=90)
         self.aedtapp.modeler.components.create_interface_port("net_10", (0.01, 0))
         lna = self.aedtapp.create_setup("mylna", self.aedtapp.SETUPS.NexximLNA)

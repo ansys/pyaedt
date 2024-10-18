@@ -235,7 +235,7 @@ class AedtLogger(object):
             if settings.global_log_file_name in str(handler):
                 _project.addHandler(handler)
                 break
-        self.info("New logger file {} added to handlers.".format(filename))
+        self.info(f"New logger file {filename} added to handlers.")
         self._files_handlers.append(_file_handler)
         _project.info_timer = self.info_timer
         _project.reset_timer = self.reset_timer
@@ -247,11 +247,11 @@ class AedtLogger(object):
         """Remove a file from the logger handlers list."""
         handlers = [i for i in self._global.handlers]
         for handler in self._files_handlers:
-            if "pyaedt_{}.log".format(project_name) in str(handler):
+            if f"pyaedt_{project_name}.log" in str(handler):
                 handler.close()
                 if handler in handlers:
                     self._global.removeHandler(handler)
-                self.info("logger file pyaedt_{}.log removed from handlers.".format(project_name))
+                self.info(f"logger file pyaedt_{project_name}.log removed from handlers.")
 
     def remove_all_project_file_logger(self):
         """Remove all the local files from the logger handlers list."""
@@ -851,7 +851,7 @@ class AedtLogger(object):
         for _file_handler in self._files_handlers:
             self._global.addHandler(_file_handler)
             if "baseFilename" in dir(_file_handler):
-                self.info("Log on file {} is enabled.".format(_file_handler.baseFilename))
+                self.info(f"Log on file {_file_handler.baseFilename} is enabled.")
 
     def info(self, msg, *args, **kwargs):
         """Write an info message to the global logger."""
@@ -879,11 +879,11 @@ class AedtLogger(object):
         h, m = divmod(m, 60)
         d, h = divmod(h, 24)
         if d > 0:
-            msg += " Elapsed time: {}days {}h {}m {}sec".format(round(d), round(h), round(m), round(s))
+            msg += f" Elapsed time: {round(d)}days {round(h)}h {round(m)}m {round(s)}sec"
         elif h > 0:
-            msg += " Elapsed time: {}h {}m {}sec".format(round(h), round(m), round(s))
+            msg += f" Elapsed time: {round(h)}h {round(m)}m {round(s)}sec"
         else:
-            msg += " Elapsed time: {}m {}sec".format(round(m), round(s))
+            msg += f" Elapsed time: {round(m)}m {round(s)}sec"
         if args:
             try:
                 msg1 = msg % tuple(str(i) for i in args)
