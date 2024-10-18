@@ -30,7 +30,7 @@ This code creates a project and saves it with PyAEDT:
     cir =  ansys.aedt.core.Circuit(non_graphical=False)
     cir.save_project(my_path)
     ...
-    cir.release_desktop(save_project=True, close_desktop=True)
+    cir.release_desktop(close_projects=True, close_desktop=True)
     # Desktop is released here.
 
 This code uses PyAEDT to access the Ansys EDB proprietary layout format:
