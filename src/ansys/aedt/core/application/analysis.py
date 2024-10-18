@@ -2507,7 +2507,7 @@ class Analysis(Design, object):
         else:
             self.logger.error("Wrong Property Value")
             return False
-        self.logger.info(f"Property {property_name} Changed correctly.")
+        self.logger.info(f"Property {property_name} changed correctly.")
         return True
 
     @pyaedt_function_handler()
