@@ -56,9 +56,9 @@ def run_pyinstaller_from_c_python(oDesktop, pyaedt_interpreter):
             'add_pyaedt_to_aedt(aedt_version="{}", personal_lib=r"{}")\n'.format(
                 oDesktop.GetVersion()[:6], oDesktop.GetPersonalLibDirectory()))
 
-    command = r'"{}" "{}"'.format(pyaedt_interpreter, python_script)
+    command = [f'"{pyaedt_interpreter}"', '"{python_script}"')
     oDesktop.AddMessage("", "", 0, "Configuring PyAEDT panels in automation tab.")
-    ret_code = os.system(command)
+    ret_code = subprocess.run(command)
     if ret_code != 0:
         oDesktop.AddMessage("", "", 2, "Error occurred configuring the PyAEDT panels.")
         return
