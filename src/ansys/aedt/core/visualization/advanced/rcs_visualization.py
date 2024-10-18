@@ -35,6 +35,7 @@ from ansys.aedt.core.generic.general_methods import conversion_function
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.visualization.plot.matplotlib import plot_2d_chart
+from ansys.aedt.core.visualization.plot.matplotlib import plot_contour
 from ansys.aedt.core.visualization.plot.matplotlib import plot_polar_chart
 from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 from ansys.tools.visualization_interface import MeshObjectPlot
@@ -118,13 +119,6 @@ class MonostaticRCSData(object):
         if not os.path.isfile(self.__monostatic_file):  # pragma: no cover
             raise Exception("Monostatic file invalid.")
 
-        self.rcs_index_names = {
-            "RCS": ["IWavePhi", "IWaveTheta"],
-            "Range Profile": ["Range", "IWavePhi", "IWaveTheta"],
-            "Waterfall": ["Range", "IWavePhi", "IWaveTheta"],
-            "2D ISAR": ["Down-range", "Cross-range"],
-            "3D ISAR": ["Down-range", "Cross-range1", "Cross-range2"],
-        }
         self.rcs_column_names = ["data"]
 
         # Load farfield data
@@ -135,6 +129,18 @@ class MonostaticRCSData(object):
 
         # Update active frequency if passed in the initialization
         self.frequency = self.frequencies[0]
+
+    @property
+    def rcs_index_names(self):
+        """Antenna data."""
+        rcs_index_names = {
+            "RCS": ["IWavePhi", "IWaveTheta", "Data"],
+            "Range Profile": ["Range"],
+            "Waterfall": ["Range", "IWavePhi"],
+            "2D ISAR": ["Down-range", "Cross-range"],
+            "3D ISAR": ["Down-range", "Cross-range1", "Cross-range2"],
+        }
+        return rcs_index_names
 
     @property
     def raw_data(self):
@@ -279,17 +285,60 @@ class MonostaticRCSData(object):
 
     @property
     def rcs(self):
-        """RCS data."""
+        """RCS data for active frequency, theta and phi."""
+        data = self.rcs_active_theta_phi
+        data = data[data["Freq"] == self.frequency]
+        data = data.drop(columns=["Freq"])
+        value = data.values
+        return value[0][0]
+
+    @property
+    def rcs_active_theta_phi(self):
+        """RCS data for active theta and phi."""
+        data = self.rcs_active_theta
+        data = data[data["IWavePhi"] == self.incident_wave_phi]
+        data = data.drop(columns=["IWavePhi"])
+        return data
+
+    @property
+    def rcs_active_frequency(self):
+        """RCS data for active frequency."""
         data = self.raw_data.xs(key=self.frequency, level="Freq")
         data_converted = conversion_function(data[self.name], self.data_conversion_function)
-        return data_converted
+        df = data_converted.reset_index()
+        df.columns = ["IWavePhi", "IWaveTheta", "Data"]
+        return df
+
+    @property
+    def rcs_active_theta(self):
+        """RCS data for active incident wave theta."""
+        data = self.raw_data.xs(key=self.incident_wave_theta, level="IWaveTheta")
+        data_converted = conversion_function(data[self.name], self.data_conversion_function)
+        df = data_converted.reset_index()
+        df.columns = ["Freq", "IWavePhi", "Data"]
+        return df
+
+    @property
+    def rcs_active_phi(self):
+        """RCS data for active incident wave phi."""
+        data = self.raw_data.xs(key=self.incident_wave_phi, level="IWavePhi")
+        data_converted = conversion_function(data[self.name], self.data_conversion_function)
+        df = data_converted.reset_index()
+        df.columns = ["Freq", "IWaveTheta", "Data"]
+        return df
 
     @property
     def range_profile(self):
         """Range profile."""
         # Data by frequency
-        data = self.data[self.name]
-        data_freq = data.loc[:, self.incident_wave_phi, self.incident_wave_theta]
+        raw_data = self.raw_data.xs(key=self.incident_wave_theta, level="IWaveTheta")
+
+        df = raw_data.reset_index()
+        df.columns = ["Freq", "IWavePhi", "Data"]
+        data_freq = df[df["IWavePhi"] == self.incident_wave_phi]
+        data_freq = data_freq.drop(columns=["IWavePhi"])
+
+        data = data_freq["Data"]
 
         # Take needed properties
         size = self.window_size
@@ -297,14 +346,13 @@ class MonostaticRCSData(object):
 
         # Compute window
         win_range, _ = self.window_function(self.window, nfreq)
-        windowed_data = data_freq * win_range
+        windowed_data = data * win_range
 
         # Perform FFT
         sf_upsample = self.window_size / nfreq
         windowed_data = np.fft.fftshift(sf_upsample * np.fft.ifft(windowed_data.to_numpy(), n=size))
 
-        # Convert data to conversion function
-        windowed_data_converted = conversion_function(windowed_data, self.data_conversion_function)
+        data_converted = conversion_function(windowed_data, self.data_conversion_function)
 
         df = unit_converter((self.frequencies[1] - self.frequencies[0]), "Freq", self.frequency_units, "Hz")
         pd_t = 1.0 / df
@@ -312,13 +360,30 @@ class MonostaticRCSData(object):
         c0 = 299792458
         range_norm = dt * np.linspace(start=-0.5 * size, stop=0.5 * size - 1, num=size) / 2 * c0
 
-        phis = np.ones(range_norm.size) * self.incident_wave_phi
-        thetas = np.ones(range_norm.size) * self.incident_wave_theta
-        indexes = zip(range_norm, phis, thetas)
+        index_names = ["Range", "Data"]
+        df = pd.DataFrame(columns=index_names)
+        df["Range"] = range_norm
+        df["Data"] = data_converted
 
-        index_names = self.rcs_index_names["Range Profile"]
+        return df
 
-        return self.__get_new_dataframe(values=windowed_data_converted, indexes=indexes, index_names=index_names)
+    @property
+    def waterfall(self):
+        """Waterfall."""
+        index_names = ["Range", "IWavePhi", "Data"]
+        waterfall_df = pd.DataFrame(columns=index_names)
+        original_phi = self.incident_wave_phi
+        for phi in self.available_incident_wave_phi:
+            self.incident_wave_phi = phi
+            range_profile = self.range_profile
+            new_df = pd.DataFrame(columns=index_names)
+            new_df["Range"] = range_profile["Range"]
+            new_df["Data"] = range_profile["Data"]
+            new_df["IWavePhi"] = np.ones(range_profile["Range"].size) * phi
+
+            waterfall_df = pd.concat([waterfall_df, new_df])
+        self.incident_wave_phi = original_phi
+        return waterfall_df
 
     @staticmethod
     def window_function(window="Flat", size=512):
@@ -497,19 +562,14 @@ class MonostaticRCSPlotter(object):
 
         data_range_profile = self.rcs_data.range_profile
 
-        ranges = np.unique(data_range_profile.index.get_level_values("Range"))
-        phis = np.unique(data_range_profile.index.get_level_values("IWavePhi"))
-        thetas = np.unique(data_range_profile.index.get_level_values("IWaveTheta"))
+        ranges = np.unique(data_range_profile["Range"])
+        phi = self.rcs_data.incident_wave_phi
+        theta = self.rcs_data.incident_wave_phi
 
-        curves = []
-        n_range = len(ranges)
-        n_phi = len(phis)
-        n_theta = len(thetas)
-        values = data_range_profile["data"].to_numpy()
-        values = values.reshape((n_range, n_phi, n_theta), order="F")
-        y = values[:, 0, 0]
-        legend = f"Phi={np.round(phis[0], 3)} Theta={np.round(thetas[0], 3)}"
-        curves.append([ranges.tolist(), y.tolist(), legend])
+        y = data_range_profile["Data"].to_numpy()
+
+        legend = f"Phi={np.round(phi, 3)} Theta={np.round(theta, 3)}"
+        curves = [[ranges.tolist(), y.tolist(), legend]]
 
         return plot_2d_chart(
             curves,
@@ -572,18 +632,17 @@ class MonostaticRCSPlotter(object):
             if secondary_sweep == "IWaveTheta":
                 if all_secondary_sweep_value is None:
                     all_secondary_sweep_value = self.rcs_data.incident_wave_theta
-                data = self.rcs_data.raw_data.xs(key=self.rcs_data.incident_wave_phi, level="IWavePhi")
+                data = self.rcs_data.rcs_active_phi
                 y_key = "IWaveTheta"
+
             else:
                 if all_secondary_sweep_value is None:
                     all_secondary_sweep_value = self.rcs_data.incident_wave_phi
-                data = self.rcs_data.raw_data.xs(key=self.rcs_data.incident_wave_theta, level="IWaveTheta")
+                data = self.rcs_data.rcs_active_theta
                 y_key = "IWavePhi"
-            data = conversion_function(data[self.rcs_data.name], self.rcs_data.data_conversion_function)
         else:
-            data = self.rcs_data.rcs
+            data = self.rcs_data.rcs_active_frequency
             if primary_sweep.lower() == "iwavephi":
-                secondary_sweep = "IWaveTheta"
                 x_key = "IWavePhi"
                 y_key = "IWaveTheta"
                 x = self.rcs_data.available_incident_wave_phi
@@ -592,7 +651,6 @@ class MonostaticRCSPlotter(object):
                 elif secondary_sweep_value is None:
                     all_secondary_sweep_value = self.rcs_data.incident_wave_theta
             else:
-                secondary_sweep = "IWavePhi"
                 x_key = "IWaveTheta"
                 y_key = "IWavePhi"
                 x = self.rcs_data.available_incident_wave_theta
@@ -611,7 +669,8 @@ class MonostaticRCSPlotter(object):
                 x = [i * 2 * math.pi / 360 for i in x]
 
             for el in all_secondary_sweep_value:
-                data_sweep = data.xs(key=el, level=y_key)
+                data_sweep = data[data[y_key] == el]["Data"]
+
                 y = data_sweep.values
                 if not isinstance(y, np.ndarray):  # pragma: no cover
                     raise Exception("Format of quantity is wrong.")
@@ -638,6 +697,65 @@ class MonostaticRCSPlotter(object):
                     show_legend=show_legend,
                     show=show,
                 )
+
+    @pyaedt_function_handler()
+    def plot_waterfall(self, title="Waterfall", output_file=None, show=True, is_polar=False):
+        """Create a 2D contour plot of the waterfall.
+
+        Parameters
+        ----------
+        title : str, optional
+            Plot title. The default is ``"RectangularPlot"``.
+        output_file : str, optional
+            Full path for the image file. The default is ``None``, in which case an image in not exported.
+        show : bool, optional
+            Whether to show the plot. The default is ``True``.
+            If ``False``, the Matplotlib instance of the plot is shown.
+        is_polar : bool, optional
+            Whether to display in polar coordinates. The default is ``True``.
+
+        Returns
+        -------
+        :class:`matplotlib.pyplot.Figure`
+            Matplotlib figure object.
+            If ``show=True``, a Matplotlib figure instance of the plot is returned.
+            If ``show=False``, the plotted curve is returned.
+        """
+
+        data_range_waterfall = self.rcs_data.waterfall
+
+        ranges = np.unique(data_range_waterfall.index.get_level_values("Range"))
+        phis = np.unique(data_range_waterfall.index.get_level_values("IWavePhi"))
+
+        phis = np.deg2rad(phis.tolist()) if is_polar else phis
+        n_range = len(ranges)
+        n_phi = len(phis)
+        values = data_range_waterfall["data"].to_numpy()
+        values = values.reshape((n_range, n_phi), order="F")
+
+        ra, ph = np.meshgrid(ranges, phis)
+
+        if is_polar:
+            x = ra
+            y = ph
+            values = values.T
+            xlabel = " "
+            ylabel = " "
+        else:
+            x = ph.T
+            y = ra.T
+            xlabel = "Range (m)"
+            ylabel = "Phi (deg)"
+
+        plot_contour(
+            [values, x, y],
+            xlabel=xlabel,
+            ylabel=ylabel,
+            title=title,
+            snapshot_path=output_file,
+            show=show,
+            polar=is_polar,
+        )
 
     @pyaedt_function_handler()
     def plot_scene(self, show=True, plotter=None):
@@ -704,26 +822,25 @@ class MonostaticRCSPlotter(object):
         """
         Add the 3D RCS.
         """
-        data = self.rcs_data.rcs
+        data = self.rcs_data.rcs_active_frequency
 
         new_data = self.stretch_data(data, scaling_factor=self.extents[5] - self.extents[4], offset=self.extents[4])
 
-        if new_data.values.min() < 0:
-            values_renorm = new_data.values + np.abs(new_data.values.min())
+        values = new_data["Data"]
+        if values.min() < 0:
+            values_renorm = values + np.abs(values.min())
+            values_renorm = values_renorm.to_numpy()
         else:
-            values_renorm = new_data.values
+            values_renorm = values.to_numpy()
 
-        phi = []
-        theta = []
-        values = []
-
-        for (phi_val, theta_val), value in data.items():
-            phi.append(np.deg2rad(phi_val))
-            theta.append(np.deg2rad(theta_val))
-            values.append(value)
-
+        phi = data["IWavePhi"].tolist()
+        theta = data["IWaveTheta"].tolist()
         unique_phi = np.unique(phi)
         unique_theta = np.unique(theta)
+        values = data["Data"].tolist()
+        unique_phi = np.deg2rad(unique_phi)
+        unique_theta = np.deg2rad(unique_theta)
+
         phi_grid, theta_grid = np.meshgrid(unique_phi, unique_theta)
 
         r = np.zeros(phi_grid.shape)
@@ -741,12 +858,7 @@ class MonostaticRCSPlotter(object):
         z = r * np.cos(theta_grid)
 
         actor = pv.StructuredGrid(x, y, z)
-        actor.point_data["values"] = data.values
-
-        # plotter = pv.Plotter()
-        # plotter.add_mesh(mesh, scalars="values", cmap="jet")
-        # plotter.add_axes()
-        # plotter.show()
+        actor.point_data["values"] = values
 
         all_results_actors = list(self.all_scene_actors["results"].keys())
 
@@ -859,6 +971,81 @@ class MonostaticRCSPlotter(object):
         self.all_scene_actors["annotations"]["range_profile"][annotation_name] = end_geo_mesh
 
     @pyaedt_function_handler()
+    def add_waterfall_settings(self, aspect_ang_phi=360.0, phi_num=10, tick_color="#000000"):
+        radius_max = self.radius
+        z_mid = self.extents[5] + (self.extents[4] - self.extents[5]) / 2
+        normal = [0, 0, z_mid + 1]
+        center = self.center
+
+        polar = [radius_max, 0, z_mid]
+        angle = aspect_ang_phi - 1
+
+        if "waterfall" not in self.all_scene_actors["annotations"].keys():
+            self.all_scene_actors["annotations"]["waterfall"] = {}
+
+        # Circular Arc
+        arc = pv.CircularArcFromNormal(center=center, resolution=100, normal=normal, polar=polar, angle=angle)
+
+        annotation_name = "arc"
+
+        arc_object = SceneMeshObject()
+        arc_object.name = annotation_name
+        arc_object.color = "red"
+        arc_object.line_width = 5
+        arc_object.mesh = arc
+
+        arc_mesh = MeshObjectPlot(arc_object, arc_object.get_mesh())
+        self.all_scene_actors["annotations"]["waterfall"][annotation_name] = arc_mesh
+
+        # Ticks
+        tick_spacing_deg = int(aspect_ang_phi) / phi_num
+
+        if tick_spacing_deg >= 1:  # gets too cluttered if too small of spacing
+            tick_lines = pv.PolyData()
+            for tick in range(phi_num + 1):  # create line with tick marks
+                if tick % 1 == 0:  # only do every nth tick
+                    x_start = radius_max * 0.95 * np.cos(np.deg2rad(tick * tick_spacing_deg))
+                    y_start = radius_max * 0.95 * np.sin(np.deg2rad(tick * tick_spacing_deg))
+                    x_stop = radius_max * 1.05 * np.cos(np.deg2rad(tick * tick_spacing_deg))
+                    y_stop = radius_max * 1.05 * np.sin(np.deg2rad(tick * tick_spacing_deg))
+                    tick_pos_start = (x_start, y_start, z_mid)
+                    tick_pos_end = (x_stop, y_stop, z_mid)
+                    tick_lines += pv.Line(pointa=tick_pos_start, pointb=tick_pos_end)
+
+            annotation_name = "ticks"
+            tick_lines_object = SceneMeshObject()
+            tick_lines_object.name = annotation_name
+            tick_lines_object.color = tick_color
+            tick_lines_object.line_width = 2
+            tick_lines_object.mesh = tick_lines
+
+            tick_lines_mesh = MeshObjectPlot(tick_lines_object, tick_lines_object.get_mesh())
+            self.all_scene_actors["annotations"]["waterfall"][annotation_name] = tick_lines_mesh
+
+        end_point = [radius_max * np.cos(np.deg2rad(angle)), radius_max * np.sin(np.deg2rad(angle)), z_mid]
+        end_point_plus_one = [
+            radius_max * np.cos(np.deg2rad(aspect_ang_phi)),
+            radius_max * np.sin(np.deg2rad(aspect_ang_phi)),
+            z_mid,
+        ]
+        direction = np.array(end_point_plus_one) - np.array(end_point)
+        direction_mag = np.linalg.norm(direction)
+
+        arrow_tip = pv.Cone(
+            center=end_point, direction=direction, radius=direction_mag * 2, height=direction_mag * 4, resolution=12
+        )
+
+        annotation_name = "cone"
+        end_geo_object = SceneMeshObject()
+        end_geo_object.name = annotation_name
+        end_geo_object.color = "green"
+        end_geo_object.line_width = 5
+        end_geo_object.mesh = arrow_tip
+
+        end_geo_mesh = MeshObjectPlot(end_geo_object, end_geo_object.get_mesh())
+        self.all_scene_actors["annotations"]["waterfall"][annotation_name] = end_geo_mesh
+
+    @pyaedt_function_handler()
     def add_range_profile(
         self,
         plot_type="Line",
@@ -874,27 +1061,25 @@ class MonostaticRCSPlotter(object):
         #               "blue", "green", "black", "red"]
         data_range_profile = self.rcs_data.range_profile
 
-        new_data = self.stretch_data(
-            data_range_profile, scaling_factor=self.extents[5] - self.extents[4], offset=self.extents[4]
+        data_scaled = self.stretch_data(
+            data_range_profile["Data"], scaling_factor=self.extents[5] - self.extents[4], offset=self.extents[4]
         )
 
-        ranges = np.unique(new_data.index.get_level_values("Range"))
-        phis = np.unique(new_data.index.get_level_values("IWavePhi"))
-        thetas = np.unique(new_data.index.get_level_values("IWaveTheta"))
+        ranges = data_range_profile["Range"].to_numpy()
+        phi = self.rcs_data.incident_wave_phi
+        theta = self.rcs_data.incident_wave_theta
 
-        add_offset = 0.0 if not waterfall else ranges[-1]
-
-        cosphis = np.cos(np.radians(phis))
-        sinphis = np.sin(np.radians(phis))
-        sinthetas = np.sin(np.radians(thetas))
-        xpos = (-ranges + radius_offset + add_offset) * cosphis * sinthetas
-        ypos = (-ranges + radius_offset + add_offset) * sinphis * sinthetas
+        cosphis = np.cos(np.radians(phi))
+        sinphis = np.sin(np.radians(phi))
+        sinthetas = np.sin(np.radians(theta))
+        xpos = (-ranges + radius_offset) * cosphis * sinthetas
+        ypos = (-ranges + radius_offset) * sinphis * sinthetas
         zpos = None
-        plot_data = new_data["data"].to_numpy()
+        plot_data = data_scaled.to_numpy()
 
-        cpos = data_range_profile["data"].to_numpy()
+        cpos = data_range_profile["Data"].to_numpy()
 
-        actor = self._get_pyvista_rcs_actor(
+        actor = self.__get_pyvista_rcs_actor(
             xpos,
             ypos,
             zpos,
@@ -936,6 +1121,147 @@ class MonostaticRCSPlotter(object):
         self.all_scene_actors["results"]["range_profile"][range_profile_name] = range_profile_mesh
 
     @pyaedt_function_handler()
+    def add_waterfall(
+        self,
+        plot_type="Donut",
+        color_bar="jet",
+    ):
+        """
+        Add the 3D waterfall.
+        """
+
+        data_waterfall = self.rcs_data.waterfall
+
+        new_data = self.stretch_data(
+            data_waterfall, scaling_factor=self.extents[5] - self.extents[4], offset=self.extents[4]
+        )
+        phi = []
+        theta = []
+        values = []
+
+        for (phi_val, theta_val), value in new_data.items():
+            phi.append(np.deg2rad(phi_val))
+            theta.append(np.deg2rad(self.rcs_data.incident_wave_theta))
+            values.append(value)
+
+        unique_phi = np.unique(phi)
+        unique_theta = np.unique(theta)
+        phi_grid, theta_grid = np.meshgrid(unique_phi, unique_theta)
+
+        r = np.zeros(phi_grid.shape)
+
+        # Populate the reshaped array
+        for i, t in enumerate(np.unique(theta)):
+            for j, p in enumerate(np.unique(phi)):
+                # Find the corresponding value for each (phi, theta)
+                idx = np.where((phi == p) & (theta == t))
+                if idx[0].size > 0:
+                    r[i, j] = values_renorm[idx[0][0]]
+
+        x = r * np.sin(theta_grid) * np.cos(phi_grid)
+        y = r * np.sin(theta_grid) * np.sin(phi_grid)
+        z = r * np.cos(theta_grid)
+
+        actor = pv.StructuredGrid(x, y, z)
+        actor.point_data["values"] = data.values
+
+        # plotter = pv.Plotter()
+        # plotter.add_mesh(mesh, scalars="values", cmap="jet")
+        # plotter.add_axes()
+        # plotter.show()
+
+        all_results_actors = list(self.all_scene_actors["results"].keys())
+
+        if "rcs" not in all_results_actors:
+            self.all_scene_actors["results"]["rcs"] = {}
+
+        index = 0
+        while f"rcs_{index}" in self.all_scene_actors["results"]["rcs"]:
+            index += 1
+
+        rcs_name = f"rcs_{index}"
+
+        rcs_object = SceneMeshObject()
+        rcs_object.name = rcs_name
+        rcs_object.line_width = 1.0
+
+        scalar_dict = dict(color="#000000", title="RCS")
+        rcs_object.scalar_dict = scalar_dict
+
+        if any(color_bar in x for x in ["blue", "green", "black", "red"]):
+            rcs_object.color = color_bar
+        else:
+            rcs_object.cmap = color_bar
+
+        rcs_object.mesh = actor
+
+        # ranges = np.unique(new_data.index.get_level_values("Range"))
+        # phis = np.unique(new_data.index.get_level_values("IWavePhi"))
+        #
+        # add_offset = ranges[-1]
+        #
+        # phis = np.deg2rad(phis.tolist())
+        # n_range = len(ranges)
+        # n_phi = len(phis)
+        # values = new_data["data"].to_numpy()
+        # values = values.reshape((n_range, n_phi), order="F")
+        #
+        # ra, ph = np.meshgrid(ranges, phis)
+        #
+        # cosphis = np.cos(ph)
+        # sinphis = np.sin(ph)
+        # sinthetas = np.sin(np.radians(self.rcs_data.incident_wave_theta))
+        #
+        # xpos = (-ra + add_offset) * cosphis * sinthetas
+        # ypos = (-ra + add_offset) * sinphis * sinthetas
+        # zpos = values.T
+        # plot_data = values.T
+        #
+        # cpos = new_data["data"].to_numpy()
+        #
+        # actor = self.__get_pyvista_rcs_actor(
+        #     xpos.T.ravel(order="F"),
+        #     ypos.T.ravel(order="F"),
+        #     zpos.T.ravel(order="F"),
+        #     plot_data.T.ravel(order="F"),
+        #     cpos,
+        #     plot_type=plot_type,
+        #     scene_actors=self.all_scene_actors["model"],
+        #     data_conversion_function=self.rcs_data.data_conversion_function,
+        #     extents=self.extents,
+        # )
+        # actor.point_data["values"] = values
+        #
+        # all_results_actors = list(self.all_scene_actors["results"].keys())
+        #
+        # if "waterfall" not in all_results_actors:
+        #     self.all_scene_actors["results"]["waterfall"] = {}
+        #
+        # index = 0
+        # while f"waterfall_{index}" in self.all_scene_actors["results"]["waterfall"]:
+        #     index += 1
+        #
+        # waterfall_name = f"waterfall_{index}"
+        #
+        # waterfall_object = SceneMeshObject()
+        # waterfall_object.name = waterfall_name
+        # waterfall_object.line_width = 1.0
+        #
+        # scalar_dict = dict(color="#000000", title="Waterfall")
+        # waterfall_object.scalar_dict = scalar_dict
+        #
+        # if any(color_bar in x for x in ["blue", "green", "black", "red"]):
+        #     waterfall_object.color = color_bar
+        # else:
+        #     waterfall_object.cmap = color_bar
+        #
+        # waterfall_object.mesh = actor
+
+        # range_profile_mesh = MeshObjectPlot(range_profile_object, range_profile_object.get_mesh())
+
+        self.all_scene_actors["results"]["waterfall"][waterfall_name] = waterfall_object
+
+    @pyaedt_function_handler()
     def clear_scene(self, first_level=None, second_level=None, name=None):
         if not first_level:
             self.all_scene_actors["annotations"] = {}
@@ -954,17 +1280,15 @@ class MonostaticRCSPlotter(object):
         return True
 
     @pyaedt_function_handler()
-    def _get_pyvista_rcs_actor(
+    def __get_pyvista_rcs_actor(
         self,
         xpos,
         ypos,
-        zpos,
         plot_data,
         cpos,
         plot_type="Line",
         data_conversion_function="",
         scene_actors=None,
-        shape=None,
         extents=None,
     ):
         if extents is None:
@@ -1004,11 +1328,6 @@ class MonostaticRCSPlotter(object):
                     j_size=actor.bounds[3] - actor.bounds[2],
                 )
                 actor.extrude_trim((0, 0, -1.0), plane, inplace=True)
-        elif "donut" in plot_type_lower or "disk" in plot_type_lower:
-            if "relief" not in plot_type_lower:
-                plot_data = plot_data * 0 + model_center[2]
-            actor = pv.StructuredGrid(xpos.reshape(shape), ypos.reshape(shape), plot_data.reshape(shape))
-            actor[data_conversion_function] = np.ndarray.flatten(cpos.reshape(shape), order="F")
         elif plot_type_lower == "plane v" or plot_type_lower == "plane h":
             zpos = np.zeros(shape=plot_data.shape)
             xyz_pos = np.stack((xpos, ypos, zpos)).T
@@ -1028,9 +1347,6 @@ class MonostaticRCSPlotter(object):
                 geo_width = max_width_for_renorm - min_width_for_renorm
                 norm_vect = [0, 0, 1]
             actor = actor.ribbon(width=geo_width / 2, normal=norm_vect)
-        elif plot_type_lower == "plane" or plot_type_lower == "relief":
-            actor = pv.StructuredGrid(xpos.reshape(shape), ypos.reshape(shape), plot_data.reshape(shape))
-            actor[data_conversion_function] = cpos.reshape(shape).flatten(order="F")
         elif plot_type_lower == "projection":
             if scene_actors is None:
                 return None
@@ -1048,12 +1364,6 @@ class MonostaticRCSPlotter(object):
                     model_actor.custom_object.mesh.clear_data()
                 model_actor.custom_object.mesh[data_conversion_function] = mag_for_color
                 actor += model_actor.custom_object.mesh
-        elif plot_type_lower == "point cloud" or plot_type_lower == "isosurface" or plot_type_lower == "plane cut":
-            x = list(sorted(np.unique(xpos)))
-            y = list(sorted(np.unique(ypos)))
-            z = list(sorted(np.unique(zpos)))
-            actor = pv.RectilinearGrid(x, y, z)
-            actor[data_conversion_function] = cpos
         return actor
 
     @staticmethod
