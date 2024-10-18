@@ -77,11 +77,6 @@ def run_pyinstaller_from_c_python(oDesktop, pyaedt_interpreter):
     oDesktop.AddMessage("", "", 0, "Create a project if the PyAEDT panel is not visible.")
 
 
-def run_command(command):
-    if is_windows:
-        command = '"{}"'.format(command)
-    ret_code = os.system(command)
-    return ret_code
 
 
 if __name__ == "__main__":
