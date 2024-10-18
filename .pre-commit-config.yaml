@@ -1,3 +1,13 @@
+ci:
+    autofix_commit_msg: |
+        CHORE: Auto fixes from pre-commit.com hooks
+
+        For more information, see https://pre-commit.ci
+    autofix_prs: true
+    autoupdate_branch: 'chore/pre-commit-autoupdate'
+    autoupdate_commit_msg: 'CHORE: Pre-commit automatic update'
+    autoupdate_schedule: weekly
+
 files: |
     (?x)(
         ^src/ansys/aedt/core/|
@@ -12,7 +22,7 @@ exclude: |
 
 repos:
 - repo: https://github.com/psf/black
-  rev: 24.8.0  # IF VERSION CHANGES --> MODIFY "blacken-docs" MANUALLY AS WELL!!
+  rev: 24.10.0  # IF VERSION CHANGES --> MODIFY "blacken-docs" MANUALLY AS WELL!!
   hooks:
   - id: black
     args:
@@ -41,22 +51,22 @@ repos:
       - tomli
 
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.6.0
+  rev: v5.0.0
   hooks:
   - id: debug-statements
   - id: trailing-whitespace
 
 # validate GitHub workflow files
 - repo: https://github.com/python-jsonschema/check-jsonschema
-  rev: 0.29.3
+  rev: 0.29.4
   hooks:
     - id: check-github-workflows
 
 - repo: https://github.com/asottile/blacken-docs
-  rev: 1.18.0
+  rev: 1.19.0
   hooks:
   -   id: blacken-docs
-      additional_dependencies: [black==24.8.0]
+      additional_dependencies: [black==24.10.0]
 
 # This validates our pre-commit.ci configuration
 - repo: https://github.com/pre-commit-ci/pre-commit-ci-config

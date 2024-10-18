@@ -58,7 +58,7 @@ from ansys.aedt.core.application.variables import VariableManager
 from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.desktop import _init_desktop_from_design
 from ansys.aedt.core.desktop import exception_to_desktop
-from ansys.aedt.core.desktop import get_version_env_variable
+from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import unit_system
 from ansys.aedt.core.generic.data_handlers import variation_string_to_dict
@@ -625,7 +625,7 @@ class Design(AedtObjects):
 
         >>> oDesktop.GetVersion()
         """
-        return get_version_env_variable(self.desktop_class.aedt_version_id)
+        return aedt_versions.get_version_env_variable(self._aedt_version)
 
     @property
     def _aedt_version(self):
@@ -4201,6 +4201,40 @@ class Design(AedtObjects):
         >>> oDesktop.SetTempDirectory()
         """
         self.odesktop.SetTempDirectory(path)
+        return True
+
+    @pyaedt_function_handler()
+    def edit_notes(self, text):
+        """Edit notes.
+
+        Notes are used to document aspects of designs only.
+
+        Parameters
+        ----------
+        text : str
+            Text to be added in the design notes.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesign.EditNotes()
+
+        Examples
+        --------
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d()
+        >>> m3d.edit_notes("This is an example.")
+        """
+        if not isinstance(text, str):
+            self.logger.error("Input type of edit_notes is not valid.")
+            return False
+        self.odesign.EditNotes(text)
         return True
 
 

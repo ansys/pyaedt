@@ -27,7 +27,7 @@ import argparse
 import os
 import sys
 
-from ansys.aedt.core.misc import current_version
+from ansys.aedt.core.generic.aedt_versions import aedt_versions
 
 
 def get_process_id():
@@ -48,7 +48,7 @@ def get_port():
 
 def get_aedt_version():
     """Get AEDT release from environment variable."""
-    version = current_version()
+    version = aedt_versions.current_version
     if "PYAEDT_SCRIPT_VERSION" in os.environ:
         version = os.environ["PYAEDT_SCRIPT_VERSION"]
     return version

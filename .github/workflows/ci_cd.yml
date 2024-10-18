@@ -44,7 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check documentation style
-        uses: ansys/actions/doc-style@v6
+        uses: ansys/actions/doc-style@v8
         with:
          token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -115,8 +115,8 @@ jobs:
         run: |
           python doc/print_errors.py
 
-      - name: Upload HTML documentation without  artifact
-        uses: actions/upload-artifact@v3
+      - name: Upload HTML documentation
+        uses: actions/upload-artifact@v4
         with:
           name: documentation-html
           path: doc/_build/html
@@ -127,7 +127,7 @@ jobs:
           make -C doc pdf
 
       - name: Upload PDF documentation
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: documentation-pdf
           path: doc/_build/latex/PyAEDT-Documentation-*.pdf
@@ -187,9 +187,9 @@ jobs:
           flags: system,solver
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: pytest-solver-results
+          name: pytest-solver-windows
           path: junit/test-results.xml
         if: ${{ always() }}
 
@@ -245,9 +245,9 @@ jobs:
           flags: system,solver
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: pytest-solver-results
+          name: pytest-solver-linux
           path: junit/test-results.xml
         if: ${{ always() }}
 
@@ -310,9 +310,9 @@ jobs:
           flags: system
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: pytest-results
+          name: pytest-windows
           path: junit/test-results.xml
         if: ${{ always() }}
 
@@ -380,9 +380,9 @@ jobs:
           flags: system,solver
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: pytest-solver-results
+          name: pytest-linux
           path: junit/test-results.xml
         if: ${{ always() }}
 
@@ -423,7 +423,7 @@ jobs:
     needs: [release]
     steps:
       - name: Deploy the stable documentation
-        uses: ansys/actions/doc-deploy-stable@v4
+        uses: ansys/actions/doc-deploy-stable@v5
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -453,7 +453,7 @@ jobs:
           echo "VERSION_MEILI=$VERSION_MEILI" >> $GITHUB_ENV
 
       - name: Deploy the latest documentation index
-        uses: ansys/actions/doc-deploy-index@v4
+        uses: ansys/actions/doc-deploy-index@v5
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}/version/${{ env.VERSION }}
           index-name: pyaedt-v${{ env.VERSION_MEILI }}
