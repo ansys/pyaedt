@@ -1864,7 +1864,7 @@ class Variable(object):
         modeler and see ``10.0mm`` returned as the string value.
 
         """
-        return (f"{self.numeric_value}{self._units}")
+        return f"{self.numeric_value}{self._units}"
 
     @pyaedt_function_handler()
     def decompose(self):
