@@ -85,8 +85,8 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         Parameters
         ----------
-        name : str, optional
-            Name of the resistor. The default is ``None``.
+        name : str, int, float or optional
+            Name of the resistor. The default is ``None`` which adds a resistor without a name.
         value : float, optional
             Value for the resistor. The default is ``50``.
         location : list of float, optional
@@ -117,9 +117,9 @@ class MaxwellCircuitComponents(CircuitComponents):
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
         )
-
         component.set_property("R", value)
-        component.set_property("Name", name)
+        if isinstance(name, (str, int, float)):
+            component.set_property("Name", name)
         return component
 
     @pyaedt_function_handler(compname="name")
@@ -128,8 +128,8 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         Parameters
         ----------
-        name : str, optional
-            Name of the inductor. The default is ``None``.
+        name : str, int, float or optional
+            Name of the inductor. The default is ``None`` which adds an inductor without a name.
         value : float, optional
             Value for the inductor. The default is ``50``.
         location : list of float, optional
@@ -162,7 +162,8 @@ class MaxwellCircuitComponents(CircuitComponents):
         )
 
         component.set_property("L", value)
-        component.set_property("Name", name)
+        if isinstance(name, (str, int, float)):
+            component.set_property("Name", name)
         return component
 
     @pyaedt_function_handler(compname="name")
@@ -171,8 +172,8 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         Parameters
         ----------
-        name : str, optional
-            Name of the capacitor. The default is ``None``.
+        name : str, int, float or optional
+            Name of the capacitor. The default is ``None`` which adds a capacitor without a name.
         value : float, optional
             Value for the capacitor. The default is ``50``.
         location : list of float, optional
@@ -204,7 +205,8 @@ class MaxwellCircuitComponents(CircuitComponents):
         )
 
         component.set_property("C", value)
-        component.set_property("Name", name)
+        if isinstance(name, (str, int, float)):
+            component.set_property("Name", name)
         return component
 
     @pyaedt_function_handler(compname="name")
@@ -213,8 +215,8 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         Parameters
         ----------
-        name : str, optional
-            Name of the diode. The default is ``None``.
+        name : str, int, float or optional
+            Name of the diode. The default is ``None`` which adds a diode without a name.
         location : list of float, optional
             Position on the X axis and Y axis. The default is ``None``.
         angle : float, optional
@@ -244,7 +246,8 @@ class MaxwellCircuitComponents(CircuitComponents):
             use_instance_id_netlist=use_instance_id_netlist,
         )
 
-        component.set_property("Name", name)
+        if isinstance(name, (str, int, float)):
+            component.set_property("Name", name)
         return component
 
     @pyaedt_function_handler(compname="name")
@@ -253,8 +256,8 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         Parameters
         ----------
-        name : str, optional
-            Name of the winding. The default is ``None``.
+        name : str, int, float or optional
+            Name of the winding. The default is ``None`` which adds a winding without a name.
         location : list of float, optional
             Position on the X axis and Y axis.
         angle : float, optional
@@ -282,7 +285,8 @@ class MaxwellCircuitComponents(CircuitComponents):
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
         )
-        component.set_property("Name", name)
+        if isinstance(name, (str, int, float)):
+            component.set_property("Name", name)
         return component
 
     def create_i_sin(self, name=None, value=1, location=None, angle=0, use_instance_id_netlist=False):
@@ -290,8 +294,8 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         Parameters
         ----------
-        name : str, optional
-            Name of the current source. The default is ``None``.
+        name : str, int, float or optional
+            Name of the current source. The default is ``None`` which adds a current source without a name.
         value : float, optional
             Value for the amplitude of current. The default is ``1``.
         location : list of float, optional
@@ -323,16 +327,17 @@ class MaxwellCircuitComponents(CircuitComponents):
         )
 
         component.set_property("Ia", value)
-        component.set_property("Name", name)
+        if isinstance(name, (str, int, float)):
+            component.set_property("Name", name)
         return component
 
-    def create_v_sin(self, name, value=1, location=None, angle=0, use_instance_id_netlist=False):
+    def create_v_sin(self, name=None, value=1, location=None, angle=0, use_instance_id_netlist=False):
         """Create a sinusoidal voltage source.
 
         Parameters
         ----------
-        name : str, optional
-            Name of the voltage source. The default is ``None``.
+        name : str, int, float or optional
+            Name of the voltage source. The default is ``None`` which adds a voltage source without a name.
         value : float, optional
             Value for the amplitude of voltage. The default is ``1``.
         location : list of float, optional
@@ -364,5 +369,6 @@ class MaxwellCircuitComponents(CircuitComponents):
         )
 
         component.set_property("Va", value)
-        component.set_property("Name", name)
+        if isinstance(name, (str, int, float)):
+            component.set_property("Name", name)
         return component
