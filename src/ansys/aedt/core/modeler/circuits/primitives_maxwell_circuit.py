@@ -109,7 +109,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         if location == None:
             location = []
 
-        id = self.create_component(
+        comp_name = self.create_component(
             name,
             component_library="Passive Elements",
             component_name="Res",
@@ -118,9 +118,9 @@ class MaxwellCircuitComponents(CircuitComponents):
             use_instance_id_netlist=use_instance_id_netlist,
         )
 
-        id.set_property("R", value)
-        id.set_property("Name", name)
-        return id
+        comp_name.set_property("R", value)
+        comp_name.set_property("Name", name)
+        return comp_name
 
     @pyaedt_function_handler(compname="name")
     def create_inductor(self, name=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
@@ -152,7 +152,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         if location == None:
             location = []
 
-        id = self.create_component(
+        comp_name = self.create_component(
             name,
             component_library="Passive Elements",
             component_name="Ind",
@@ -161,9 +161,9 @@ class MaxwellCircuitComponents(CircuitComponents):
             use_instance_id_netlist=use_instance_id_netlist,
         )
 
-        id.set_property("L", value)
-        id.set_property("Name", name)
-        return id
+        comp_name.set_property("L", value)
+        comp_name.set_property("Name", name)
+        return comp_name
 
     @pyaedt_function_handler(compname="name")
     def create_capacitor(self, name=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
@@ -194,7 +194,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         """
         if location is None:
             location = []
-        id = self.create_component(
+        comp_name = self.create_component(
             name,
             component_library="Passive Elements",
             component_name="Cap",
@@ -203,9 +203,9 @@ class MaxwellCircuitComponents(CircuitComponents):
             use_instance_id_netlist=use_instance_id_netlist,
         )
 
-        id.set_property("C", value)
-        id.set_property("Name", name)
-        return id
+        comp_name.set_property("C", value)
+        comp_name.set_property("Name", name)
+        return comp_name
 
     @pyaedt_function_handler(compname="name")
     def create_diode(self, name=None, location=None, angle=0, use_instance_id_netlist=False):
@@ -235,7 +235,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         if location is None:
             location = []
 
-        id = self.create_component(
+        comp_name = self.create_component(
             name,
             component_library="Passive Elements",
             component_name="DIODE",
@@ -244,8 +244,8 @@ class MaxwellCircuitComponents(CircuitComponents):
             use_instance_id_netlist=use_instance_id_netlist,
         )
 
-        id.set_property("Name", name)
-        return id
+        comp_name.set_property("Name", name)
+        return comp_name
 
     @pyaedt_function_handler(compname="name")
     def create_winding(self, name=None, location=None, angle=0, use_instance_id_netlist=False):
@@ -274,7 +274,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         """
         if location is None:
             location = []
-        id = self.create_component(
+        comp_name = self.create_component(
             name,
             component_library="Dedicated Elements",
             component_name="Winding",
@@ -282,11 +282,10 @@ class MaxwellCircuitComponents(CircuitComponents):
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
         )
-        id.set_property("Name", name)
-        return id
+        comp_name.set_property("Name", name)
+        return comp_name
 
-    @pyaedt_function_handler(compname="name")
-    def create_isin(self, name=None, value=1, location=None, angle=0, use_instance_id_netlist=False):
+    def create_i_sin(self, name=None, value=1, location=None, angle=0, use_instance_id_netlist=False):
         """Create a sinusoidal current source.
 
         Parameters
@@ -314,7 +313,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         """
         if location is None:
             location = []
-        id = self.create_component(
+        comp_name = self.create_component(
             name,
             component_library="Sources",
             component_name="ISin",
@@ -323,12 +322,11 @@ class MaxwellCircuitComponents(CircuitComponents):
             use_instance_id_netlist=use_instance_id_netlist,
         )
 
-        id.set_property("Ia", value)
-        id.set_property("Name", name)
-        return id
+        comp_name.set_property("Ia", value)
+        comp_name.set_property("Name", name)
+        return comp_name
 
-    @pyaedt_function_handler(compname="name")
-    def create_vsin(self, name=None, value=1, location=None, angle=0, use_instance_id_netlist=False):
+    def create_v_sin(self, name, value=1, location=None, angle=0, use_instance_id_netlist=False):
         """Create a sinusoidal voltage source.
 
         Parameters
@@ -356,7 +354,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         """
         if location is None:
             location = []
-        id = self.create_component(
+        comp_name = self.create_component(
             name,
             component_library="Sources",
             component_name="VSin",
@@ -365,6 +363,6 @@ class MaxwellCircuitComponents(CircuitComponents):
             use_instance_id_netlist=use_instance_id_netlist,
         )
 
-        id.set_property("Va", value)
-        id.set_property("Name", name)
-        return id
+        comp_name.set_property("Va", value)
+        comp_name.set_property("Name", name)
+        return comp_name
