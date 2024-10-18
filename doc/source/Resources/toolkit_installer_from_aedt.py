@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+import subprocess
 import sys
 
 # This script installs PyAEDT tabs (PyAEDT Console, Jupyter, Run Script and Extension Manager)
