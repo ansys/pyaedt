@@ -1261,7 +1261,6 @@ class CircuitComponents(object):
         except Exception:
             return False
 
-    @pyaedt_function_handler()
     def create_page(self, name):
         """Add a new circuit schematic page.
 
