@@ -58,7 +58,7 @@ def frontend():  # pragma: no cover
         aedt_process_id=aedt_process_id,
         student_version=is_student,
     )
-    h3d = Hfss3dLayout()
+    h3d = Hfss3dLayout(design=app.active_design().GetName().split(";")[-1])
     objs_net = {}
     for net in h3d.oeditor.GetNets():
         objs_net[net] = h3d.modeler.objects_by_net(net)
