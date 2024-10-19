@@ -282,10 +282,6 @@ class ExportToAedt:
         self._dll.importTunedVariables.argtypes = [c_char_p, c_int]
         self._dll.importTunedVariables.restype = c_int
 
-    def _open_aedt_export(self):
-        """Open export page to accept manipulate export parameters"""
-        status = self._dll.openLumpedExportPage()
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
         self._dll.setPartLibraries.argtype = c_int
         self._dll.setPartLibraries.restype = c_int
         self._dll.getPartLibraries.argtype = POINTER(c_int)
@@ -493,6 +489,11 @@ class ExportToAedt:
         self._dll.addModelithicsResistorsFamily.restype = c_int
         self._dll.removeModelithicsResistorsFamily.argtype = c_char_p
         self._dll.removeModelithicsResistorsFamily.restype = c_int
+
+    def _open_aedt_export(self):
+        """Open export page to accept manipulate export parameters"""
+        status = self._dll.openLumpedExportPage()
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def schematic_name(self) -> str:

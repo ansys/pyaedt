@@ -1,3 +1,13 @@
+ci:
+    autofix_commit_msg: |
+        CHORE: Auto fixes from pre-commit.com hooks
+
+        For more information, see https://pre-commit.ci
+    autofix_prs: true
+    autoupdate_branch: 'chore/pre-commit-autoupdate'
+    autoupdate_commit_msg: 'CHORE: Pre-commit automatic update'
+    autoupdate_schedule: weekly
+
 files: |
     (?x)(
         ^src/ansys/aedt/core/|
@@ -48,7 +58,7 @@ repos:
 
 # validate GitHub workflow files
 - repo: https://github.com/python-jsonschema/check-jsonschema
-  rev: 0.29.3
+  rev: 0.29.4
   hooks:
     - id: check-github-workflows
 
