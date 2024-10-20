@@ -29,6 +29,8 @@ import logging
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
+from mock import PropertyMock
+
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import Settings
 from ansys.aedt.core.generic.settings import settings
@@ -51,31 +53,47 @@ def foo(trigger_exception=True):
     if trigger_exception:
         raise Exception(ERROR_MESSAGE)
 
-
+@patch.object(Settings, "logger", new_callable=PropertyMock)
 @patch("ansys.aedt.core.generic.desktop_sessions._desktop_sessions")
-def test_handler_release_on_exception(mock_sessions):
-    """Test handler while activating or deactivating error handler."""
+def test_handler_release_on_exception_called(mock_sessions, mock_logger):
+    """Test handler while activating error handler."""
     mock_session = MagicMock()
     mock_sessions.values.return_value = [mock_session]
+    mock_logger.return_value = MagicMock()
     settings.enable_error_handler = True
-    settings.release_on_exception = True
 
     # Check that release desktop is called once
     foo()
     assert mock_session.release_desktop.assert_called_once
-
-    # Check that release desktop is not called
-    settings.release_on_exception = False
-    foo()
-    assert mock_session.release_desktop.assert_called
 
     # Teardown
     settings.enable_error_handler = SETTINGS_ENABLE_ERROR_HANDLER
     settings.release_on_exception = SETTINGS_RELEASE_ON_EXCEPTION
 
 
-def test_handler_enable_error_handler():
+@patch.object(Settings, "logger", new_callable=PropertyMock)
+@patch("ansys.aedt.core.generic.desktop_sessions._desktop_sessions")
+def test_handler_release_on_exception_not_called(mock_sessions, mock_logger):
+    """Test handler while deactivating error handler."""
+    mock_session = MagicMock()
+    mock_sessions.values.return_value = [mock_session]
+    mock_logger.return_value = MagicMock()
+    settings.enable_error_handler = True
+    settings.release_on_exception = False
+
+    # Check that release desktop is not called
+    foo()
+    assert not mock_session.release_desktop.assert_not_called()
+
+    # Teardown
+    settings.enable_error_handler = SETTINGS_ENABLE_ERROR_HANDLER
+    settings.release_on_exception = SETTINGS_RELEASE_ON_EXCEPTION
+
+
+@patch.object(Settings, "logger", new_callable=PropertyMock)
+def test_handler_enable_error_handler(mock_logger):
     """Test handler while activating/deactivating error handler."""
+    mock_logger.return_value = MagicMock()
     settings.enable_error_handler = True
     assert foo() == False
 
