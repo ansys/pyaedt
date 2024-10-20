@@ -20,7 +20,8 @@ env:
   MEILISEARCH_HOST_URL: ${{ vars.MEILISEARCH_HOST_URL }}
   MEILISEARCH_PUBLIC_API_KEY: ${{ secrets.MEILISEARCH_PUBLIC_API_KEY }}
   ON_CI: True
-  PYTEST_ARGUMENTS: '-vvv --color=yes -ra --durations=25 --maxfail=10 --reruns 2 --reruns-delay 5 --cov=ansys.aedt.core --cov-report=html'
+  # PYTEST_ARGUMENTS: '-vvv --color=yes -ra --durations=25 --maxfail=10 --reruns 2 --reruns-delay 5 --cov=ansys.aedt.core --cov-report=html'
+  PYTEST_ARGUMENTS: '-vvv --color=yes -ra --durations=25 --maxfail=10 --cov=ansys.aedt.core --cov-report=html'
 
 
 concurrency:
@@ -35,7 +36,7 @@ jobs:
     steps:
       - uses: ansys/actions/tests-pytest@v8
         with:
-          pytest-markers: 'unit'
+          pytest-markers: '-m unit'
           pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
