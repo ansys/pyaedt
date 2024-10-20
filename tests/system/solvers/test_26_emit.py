@@ -3,7 +3,7 @@ import os
 import sys
 import tempfile
 
-from _unittest_solvers.conftest import config
+from tests.system.solvers.conftest import config
 import pytest
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic import constants as consts

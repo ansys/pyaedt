@@ -1,7 +1,7 @@
 import os
 
-from _unittest_solvers.conftest import desktop_version
-from _unittest_solvers.conftest import local_path
+from tests.system.solvers.conftest import desktop_version
+from tests import TESTS_SOLVERS_PATH
 import pytest
 
 from ansys.aedt.core import Q3d
@@ -34,11 +34,11 @@ def coupling(add_app):
 
 @pytest.fixture(scope="class", autouse=True)
 def examples(local_scratch):
-    example_project = os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder,
+    example_project = os.path.join(TESTS_SOLVERS_PATH, "example_models", test_subfolder,
                                    bondwire_project_name)
     test_project = local_scratch.copyfile(example_project)
     test_matrix = local_scratch.copyfile(
-        os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, q2d_q3d + ".aedt"))
+        os.path.join(TESTS_SOLVERS_PATH, "example_models", test_subfolder, q2d_q3d + ".aedt"))
     return test_project, test_matrix
 
 
@@ -382,7 +382,7 @@ class TestClass:
 
     def test_16_export_equivalent_circuit(self, add_app):
         test_matrix2 = self.local_scratch.copyfile(
-            os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, q2d_q3d + ".aedt"),
+            os.path.join(TESTS_SOLVERS_PATH, "example_models", test_subfolder, q2d_q3d + ".aedt"),
             os.path.join(self.local_scratch.path, "test_14.aedt"),
         )
         q3d = add_app(application=Q3d, project_name=test_matrix2, just_open=True)

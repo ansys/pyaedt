@@ -5,8 +5,8 @@ import time
 
 import pytest
 
-from _unittest_solvers.conftest import desktop_version
-from _unittest_solvers.conftest import local_path
+from tests.system.solvers.conftest import desktop_version
+from tests.system.solvers.conftest import local_path
 
 from pathlib import Path
 
@@ -14,7 +14,6 @@ from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core import Icepak, Rmxprt
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import Circuit, Maxwell3d
-from _unittest.conftest import config
 from ansys.aedt.core.visualization.post.spisim import SpiSim
 
 sbr_platform_name = "satellite_231"

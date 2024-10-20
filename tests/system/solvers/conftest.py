@@ -24,6 +24,7 @@ import sys
 import tempfile
 import random
 import string
+from typing import List
 import pytest
 
 from ansys.aedt.core.generic.settings import settings
@@ -204,3 +205,8 @@ def add_edb(local_scratch):
         )
 
     return _method
+
+def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
+    """Hook used to apply marker on solvers tests."""
+    for item in items:
+        item.add_marker(pytest.mark.solvers)

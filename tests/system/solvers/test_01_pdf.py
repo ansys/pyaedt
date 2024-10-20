@@ -1,7 +1,7 @@
 import os
 
-from _unittest_solvers.conftest import desktop_version
-from _unittest_solvers.conftest import local_path
+from tests.system.solvers.conftest import desktop_version
+from tests.system.solvers.conftest import local_path
 import pytest
 
 from ansys.aedt.core import Circuit

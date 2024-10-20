@@ -154,11 +154,11 @@ show_missing = true
 omit = ["src/ansys/aedt/core/rpc/*.py"]
 
 [tool.pytest.ini_options]
-minversion = "7.1"
-addopts = "-ra --cov=ansys.aedt.core --cov-report html:.cov/html --cov-report xml:.cov/xml --cov-report term -vv"
-testpaths = [
-    "_unittest",
-]
+#minversion = "7.1"
+#addopts = "-ra --cov=ansys.aedt.core --cov-report html:.cov/html --cov-report xml:.cov/xml --cov-report term -vv"
+#testpaths = [
+#    "_unittest",
+#]
 filterwarnings = [
     "ignore::UserWarning:src.ansys.aedt.core.*",
     "ignore::DeprecationWarning:src.*",

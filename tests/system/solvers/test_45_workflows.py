@@ -4,9 +4,8 @@ import shutil
 
 import ansys.aedt.core
 from ansys.aedt.core.generic.settings import is_linux
-from _unittest.conftest import local_path
-from _unittest_solvers.conftest import local_path as solver_local_path
-from _unittest_solvers.conftest import desktop_version
+from tests import TESTS_GENERAL_PATH, TESTS_SOLVERS_PATH
+from tests.system.solvers.conftest import desktop_version
 
 push_project = "push_excitation"
 export_3d_project = "export"
@@ -40,7 +39,7 @@ class TestClass:
         from ansys.aedt.core.workflows.hfss.push_excitation_from_file import main
 
         # No choice
-        file_path = os.path.join(local_path, "example_models", "T20", "Sinusoidal.csv")
+        file_path = os.path.join(TESTS_GENERAL_PATH, "example_models", "T20", "Sinusoidal.csv")
         assert main({"is_test": True, "file_path": file_path, "choice": ""})
         aedtapp.save_project()
         assert not aedtapp.design_datasets
@@ -120,11 +119,11 @@ class TestClass:
 
         assert len(aedtapp.modeler.object_list) == 0
 
-        file_path = shutil.copy(os.path.join(local_path, "example_models", "T20", "test_cad.nas"),
+        file_path = shutil.copy(os.path.join(TESTS_GENERAL_PATH, "example_models", "T20", "test_cad.nas"),
                                 os.path.join(local_scratch.path, "test_cad.nas"))
-        shutil.copy(os.path.join(local_path, "example_models", "T20", "assembly1.key"),
+        shutil.copy(os.path.join(TESTS_GENERAL_PATH, "example_models", "T20", "assembly1.key"),
                     os.path.join(local_scratch.path, "assembly1.key"))
-        shutil.copy(os.path.join(local_path, "example_models", "T20", "assembly2.key"),
+        shutil.copy(os.path.join(TESTS_GENERAL_PATH, "example_models", "T20", "assembly2.key"),
                     os.path.join(local_scratch.path, "assembly2.key"))
         assert main({"is_test": True, "file_path": file_path, "lightweight": True, "decimate": 0.0, "planar": True})
 
@@ -136,7 +135,7 @@ class TestClass:
 
         from ansys.aedt.core.workflows.project.import_nastran import main
 
-        file_path = shutil.copy(os.path.join(local_path, "example_models", "T20", "sphere.stl"),
+        file_path = shutil.copy(os.path.join(TESTS_GENERAL_PATH, "example_models", "T20", "sphere.stl"),
                                 os.path.join(local_scratch.path, "sphere.stl"))
 
         assert main({"is_test": True, "file_path": file_path, "lightweight": True, "decimate": 0.0, "planar": True})
@@ -161,10 +160,10 @@ class TestClass:
     def test_08_configure_a3d(self, local_scratch):
         from ansys.aedt.core.workflows.project.configure_edb import main
 
-        configuration_path = shutil.copy(os.path.join(solver_local_path, "example_models", "T45", "ports.json"),
+        configuration_path = shutil.copy(os.path.join(TESTS_SOLVERS_PATH, "example_models", "T45", "ports.json"),
                                          os.path.join(local_scratch.path, "ports.json"))
         file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1.aedb")
-        local_scratch.copyfolder(os.path.join(solver_local_path, "example_models", "T45", "ANSYS-HSD_V1.aedb"),
+        local_scratch.copyfolder(os.path.join(TESTS_SOLVERS_PATH, "example_models", "T45", "ANSYS-HSD_V1.aedb"),
                                  file_path)
 
         main(is_test=True, execute={
@@ -284,7 +283,7 @@ class TestClass:
                           subfolder=test_subfolder)
 
         initial_catalog = len(aedtapp.post.fields_calculator.expression_names)
-        example_file = os.path.join(solver_local_path, "example_models",
+        example_file = os.path.join(TESTS_SOLVERS_PATH, "example_models",
                                     test_subfolder,
                                     "expression_catalog_custom.toml")
         new_catalog = aedtapp.post.fields_calculator.load_expression_file(example_file)
@@ -340,14 +339,14 @@ class TestClass:
     def test_10_push_excitation_3dl(self, local_scratch, desktop):
         from ansys.aedt.core.workflows.hfss3dlayout.push_excitation_from_file_3dl import main
 
-        project_path = shutil.copy(os.path.join(local_path, "example_models",
+        project_path = shutil.copy(os.path.join(TESTS_GENERAL_PATH, "example_models",
                                                 "T41",
                                                 "test_post_3d_layout_solved_23R2.aedtz"),
                                    os.path.join(local_scratch.path, "test_post_3d_layout_solved_23R2.aedtz"))
 
         h3d = ansys.aedt.core.Hfss3dLayout(project_path, version=desktop.aedt_version_id, port=str(desktop.port))
 
-        file_path = os.path.join(local_path, "example_models", "T20", "Sinusoidal.csv")
+        file_path = os.path.join(TESTS_GENERAL_PATH, "example_models", "T20", "Sinusoidal.csv")
         assert main({"is_test": True, "file_path": file_path, "choice": ""})
         h3d.save_project()
         assert not h3d.design_datasets
@@ -395,7 +394,7 @@ class TestClass:
         from ansys.aedt.core.workflows.hfss3dlayout.parametrize_edb import main
         file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_param.aedb")
 
-        local_scratch.copyfolder(os.path.join(solver_local_path, "example_models",
+        local_scratch.copyfolder(os.path.join(TESTS_SOLVERS_PATH, "example_models",
                                               "T45",
                                               "ANSYS-HSD_V1.aedb"), file_path)
 
@@ -413,7 +412,7 @@ class TestClass:
 
     def test_14_power_map_creation_ipk(self, local_scratch, add_app):
         from ansys.aedt.core.workflows.icepak.power_map_from_csv import main
-        file_path = os.path.join(solver_local_path, "example_models", "T45", "icepak_classic_powermap.csv")
+        file_path = os.path.join(TESTS_SOLVERS_PATH, "example_models", "T45", "icepak_classic_powermap.csv")
         aedtapp = add_app("PowerMap", application=ansys.aedt.core.Icepak, subfolder=test_subfolder)
         assert main({"is_test": True, "file_path": file_path})
         assert len(aedtapp.modeler.object_list) == 3
@@ -421,7 +420,7 @@ class TestClass:
 
     def test_15_import_asc(self, local_scratch, add_app):
         aedtapp = add_app("Circuit", application=ansys.aedt.core.Circuit)
-        file_path = os.path.join(local_path, "example_models", "T21", "butter.asc")
+        file_path = os.path.join(TESTS_GENERAL_PATH, "example_models", "T21", "butter.asc")
         from ansys.aedt.core.workflows.circuit.import_schematic import main
         assert main({"is_test": True, "asc_file": file_path})
         aedtapp.close_project()
@@ -435,7 +434,7 @@ class TestClass:
 
         temp_dir = tempfile.TemporaryDirectory(suffix=".arbitrary_waveport_test")
 
-        local_scratch.copyfolder(os.path.join(solver_local_path, "example_models",
+        local_scratch.copyfolder(os.path.join(TESTS_SOLVERS_PATH, "example_models",
                                               "T45",
                                               "waveport.aedb"), file_path)
 
