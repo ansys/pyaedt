@@ -33,7 +33,7 @@ jobs:
     name: Running unit tests
     runs-on: ubuntu-latest
     steps:
-      - uses: ansys/tests-pytest@v8
+      - uses: ansys/actions/tests-pytest@v8
         with:
           pytest-markers: 'unit'
           pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
