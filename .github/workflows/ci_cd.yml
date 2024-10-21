@@ -74,6 +74,7 @@ jobs:
     name: Documentation build
     runs-on: ubuntu-latest
     needs: [doc-style]
+    steps:
       - name: Documentation build
         uses: ansys/actions/doc-build@v8
         with:
