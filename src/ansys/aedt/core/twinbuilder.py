@@ -33,7 +33,6 @@ from ansys.aedt.core.application.analysis_twin_builder import AnalysisTwinBuilde
 from ansys.aedt.core.application.variables import Variable
 from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import unit_converter
-from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_number
 from ansys.aedt.core.generic.general_methods import open_file
@@ -717,7 +716,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         Example
         -------
         >>> from ansys.aedt.core import TwinBuilder
-        >>> from ansys.aedt.core.generic.design_types import get_pyaedt_app
+        >>> from ansys.aedt.core import get_pyaedt_app
         >>> tb = TwinBuilder(specified_version="2025.1")
         >>> maxwell_app = get_pyaedt_app(project_name=project_name,
         ...                              design_name="my_maxwell_design",
@@ -740,7 +739,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             project_path = project
             project_name = os.path.splitext(os.path.basename(project))[0]
             if project_name in dkp.project_list():
-                maxwell_app = get_pyaedt_app(project_name=project_name, design_name=design, desktop=dkp)
+                maxwell_app = dkp[[project_name, design]]
             else:
                 maxwell_app = dkp.load_project(project_path, design)
                 project_selection = 1
