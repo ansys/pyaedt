@@ -1100,10 +1100,10 @@ class MonostaticRCSPlotter(object):
             tick_lines = pv.PolyData()
             for tick in range(phi_num + 1):  # create line with tick marks
                 if tick % 1 == 0:  # only do every nth tick
-                    x_start = radius_max * 0.95 * np.cos(np.deg2rad(tick * tick_spacing_deg))
-                    y_start = radius_max * 0.95 * np.sin(np.deg2rad(tick * tick_spacing_deg))
-                    x_stop = radius_max * 1.05 * np.cos(np.deg2rad(tick * tick_spacing_deg))
-                    y_stop = radius_max * 1.05 * np.sin(np.deg2rad(tick * tick_spacing_deg))
+                    x_start = center[0] + radius_max * 0.95 * np.cos(np.deg2rad(tick * tick_spacing_deg))
+                    y_start = center[1] + radius_max * 0.95 * np.sin(np.deg2rad(tick * tick_spacing_deg))
+                    x_stop = center[0] + radius_max * 1.05 * np.cos(np.deg2rad(tick * tick_spacing_deg))
+                    y_stop = center[1] + radius_max * 1.05 * np.sin(np.deg2rad(tick * tick_spacing_deg))
                     tick_pos_start = (x_start, y_start, z_mid)
                     tick_pos_end = (x_stop, y_stop, z_mid)
                     tick_lines += pv.Line(pointa=tick_pos_start, pointb=tick_pos_end)
@@ -1118,11 +1118,15 @@ class MonostaticRCSPlotter(object):
             tick_lines_mesh = MeshObjectPlot(tick_lines_object, tick_lines_object.get_mesh())
             self.all_scene_actors["annotations"]["waterfall"][annotation_name] = tick_lines_mesh
 
-        end_point = [radius_max * np.cos(np.deg2rad(angle)), radius_max * np.sin(np.deg2rad(angle)), z_mid]
+        end_point = [
+            center[0] + radius_max * np.cos(np.deg2rad(angle)),
+            center[1] + radius_max * np.sin(np.deg2rad(angle)),
+            center[2] + z_mid,
+        ]
         end_point_plus_one = [
-            radius_max * np.cos(np.deg2rad(aspect_ang_phi)),
-            radius_max * np.sin(np.deg2rad(aspect_ang_phi)),
-            z_mid,
+            center[0] + radius_max * np.cos(np.deg2rad(aspect_ang_phi)),
+            center[1] + radius_max * np.sin(np.deg2rad(aspect_ang_phi)),
+            center[2] + z_mid,
         ]
         direction = np.array(end_point_plus_one) - np.array(end_point)
         direction_mag = np.linalg.norm(direction)
@@ -1226,142 +1230,55 @@ class MonostaticRCSPlotter(object):
     @pyaedt_function_handler()
     def add_waterfall(
         self,
-        plot_type="Donut",
         color_bar="jet",
     ):
         """
         Add the 3D waterfall.
         """
-
+        # TODO: Waterfall in 3D is not correct
         data_waterfall = self.rcs_data.waterfall
 
-        new_data = self.stretch_data(
-            data_waterfall, scaling_factor=self.extents[5] - self.extents[4], offset=self.extents[4]
-        )
-        phi = []
-        theta = []
-        values = []
+        ranges = np.unique(data_waterfall["Range"])
+        phis = np.unique(data_waterfall["IWavePhi"])
+        values = data_waterfall["Data"].to_numpy()
 
-        for (phi_val, theta_val), value in new_data.items():
-            phi.append(np.deg2rad(phi_val))
-            theta.append(np.deg2rad(self.rcs_data.incident_wave_theta))
-            values.append(value)
+        phis = np.deg2rad(phis)
 
-        unique_phi = np.unique(phi)
-        unique_theta = np.unique(theta)
-        phi_grid, theta_grid = np.meshgrid(unique_phi, unique_theta)
+        ra, ph = np.meshgrid(ranges, phis)
 
-        r = np.zeros(phi_grid.shape)
-
-        # Populate the reshaped array
-        for i, t in enumerate(np.unique(theta)):
-            for j, p in enumerate(np.unique(phi)):
-                # Find the corresponding value for each (phi, theta)
-                idx = np.where((phi == p) & (theta == t))
-                if idx[0].size > 0:
-                    r[i, j] = values_renorm[idx[0][0]]
-
-        x = r * np.sin(theta_grid) * np.cos(phi_grid)
-        y = r * np.sin(theta_grid) * np.sin(phi_grid)
-        z = r * np.cos(theta_grid)
+        x = -ra.T * np.cos(ph.T)
+        y = -ra.T * np.sin(ph.T)
+        z = np.zeros_like(x)
 
         actor = pv.StructuredGrid(x, y, z)
-        actor.point_data["values"] = data.values
+        actor.point_data["values"] = values
 
         # plotter = pv.Plotter()
-        # plotter.add_mesh(mesh, scalars="values", cmap="jet")
+        # plotter.add_mesh(actor, scalars="values", cmap="jet")
         # plotter.add_axes()
         # plotter.show()
 
         all_results_actors = list(self.all_scene_actors["results"].keys())
 
-        if "rcs" not in all_results_actors:
-            self.all_scene_actors["results"]["rcs"] = {}
+        if "waterfall" not in all_results_actors:
+            self.all_scene_actors["results"]["waterfall"] = {}
 
         index = 0
-        while f"rcs_{index}" in self.all_scene_actors["results"]["rcs"]:
+        while f"waterfall_{index}" in self.all_scene_actors["results"]["waterfall"]:
             index += 1
 
-        rcs_name = f"rcs_{index}"
+        waterfall_name = f"waterfall_{index}"
 
-        rcs_object = SceneMeshObject()
-        rcs_object.name = rcs_name
-        rcs_object.line_width = 1.0
+        waterfall_object = SceneMeshObject()
+        waterfall_object.name = waterfall_name
 
-        scalar_dict = dict(color="#000000", title="RCS")
-        rcs_object.scalar_dict = scalar_dict
+        scalar_dict = dict(color="#000000", title="Waterfall")
+        waterfall_object.scalar_dict = scalar_dict
 
-        if any(color_bar in x for x in ["blue", "green", "black", "red"]):
-            rcs_object.color = color_bar
-        else:
-            rcs_object.cmap = color_bar
+        waterfall_object.cmap = color_bar
 
-        rcs_object.mesh = actor
-
-        # ranges = np.unique(new_data.index.get_level_values("Range"))
-        # phis = np.unique(new_data.index.get_level_values("IWavePhi"))
-        #
-        # add_offset = ranges[-1]
-        #
-        # phis = np.deg2rad(phis.tolist())
-        # n_range = len(ranges)
-        # n_phi = len(phis)
-        # values = new_data["data"].to_numpy()
-        # values = values.reshape((n_range, n_phi), order="F")
-        #
-        # ra, ph = np.meshgrid(ranges, phis)
-        #
-        # cosphis = np.cos(ph)
-        # sinphis = np.sin(ph)
-        # sinthetas = np.sin(np.radians(self.rcs_data.incident_wave_theta))
-        #
-        # xpos = (-ra + add_offset) * cosphis * sinthetas
-        # ypos = (-ra + add_offset) * sinphis * sinthetas
-        # zpos = values.T
-        # plot_data = values.T
-        #
-        # cpos = new_data["data"].to_numpy()
-        #
-        # actor = self.__get_pyvista_rcs_actor(
-        #     xpos.T.ravel(order="F"),
-        #     ypos.T.ravel(order="F"),
-        #     zpos.T.ravel(order="F"),
-        #     plot_data.T.ravel(order="F"),
-        #     cpos,
-        #     plot_type=plot_type,
-        #     scene_actors=self.all_scene_actors["model"],
-        #     data_conversion_function=self.rcs_data.data_conversion_function,
-        #     extents=self.extents,
-        # )
-        # actor.point_data["values"] = values
-        #
-        # all_results_actors = list(self.all_scene_actors["results"].keys())
-        #
-        # if "waterfall" not in all_results_actors:
-        #     self.all_scene_actors["results"]["waterfall"] = {}
-        #
-        # index = 0
-        # while f"waterfall_{index}" in self.all_scene_actors["results"]["waterfall"]:
-        #     index += 1
-        #
-        # waterfall_name = f"waterfall_{index}"
-        #
-        # waterfall_object = SceneMeshObject()
-        # waterfall_object.name = waterfall_name
-        # waterfall_object.line_width = 1.0
-        #
-        # scalar_dict = dict(color="#000000", title="Waterfall")
-        # waterfall_object.scalar_dict = scalar_dict
-        #
-        # if any(color_bar in x for x in ["blue", "green", "black", "red"]):
-        #     waterfall_object.color = color_bar
-        # else:
-        #     waterfall_object.cmap = color_bar
-        #
-        # waterfall_object.mesh = actor
-
-        # range_profile_mesh = MeshObjectPlot(range_profile_object, range_profile_object.get_mesh())
-
+        waterfall_object.mesh = actor
+        # rcs_mesh = MeshObjectPlot(rcs_object, rcs_object.get_mesh())
         self.all_scene_actors["results"]["waterfall"][waterfall_name] = waterfall_object
 
     @pyaedt_function_handler()
@@ -1459,7 +1376,7 @@ class MonostaticRCSPlotter(object):
                 mesh = model_actor.custom_object.get_mesh()
                 xypoints = mesh.points
                 xpos_ypos = np.column_stack((xpos, ypos, plot_data))
-                _, all_indices = self.find_nearest_neighbors(xpos_ypos, xypoints)
+                _, all_indices = self.__find_nearest_neighbors(xpos_ypos, xypoints)
                 mag_for_color = np.ndarray.flatten(cpos[all_indices])
                 if not mesh.__class__.__name__ == "PolyData":
                     mesh_triangulated = mesh.triangulate()
@@ -1503,7 +1420,7 @@ class MonostaticRCSPlotter(object):
         return (data - data.min()) / (data.max() - data.min()) * scaling_factor + offset
 
     @staticmethod
-    def find_nearest_neighbors(xpos_ypos, xypoints):
+    def __find_nearest_neighbors(xpos_ypos, xypoints):
         # Calculate squared Euclidean distance between each point in xypoints and xpos_ypos
         distances = np.sqrt(((xpos_ypos[:, np.newaxis] - xypoints) ** 2).sum(axis=2))
 
