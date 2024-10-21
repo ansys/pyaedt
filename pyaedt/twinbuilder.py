@@ -632,7 +632,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         Use the excitation component to assign output quantities in a Twin Builder design to a windings
         in a Maxwell design.
 
-        This method works only with AEDT versions > 2024 R2.
+        This method works only with AEDT 2024 R2 and later.
 
         Parameters
         ----------
@@ -649,16 +649,16 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         start : str, optional
             Start time provided as value + units.
             The default value is ``None``.
-            If not provided and ``use_default_values`` is ``True`` the value is chosen from the TR setup.
+            If not provided and ``use_default_values=True``, the value is chosen from the TR setup.
         stop : float, optional
             Stop time provided as value + units.
             The default value is ``None``.
-            If not provided and ``use_default_values`` is ``True`` the value is chosen from the TR setup.
+            If not provided and ``use_default_values=True``, the value is chosen from the TR setup.
         export_uniform_points : bool, optional
-            If ``True``, Twin Builder performs linear interpolation to uniformly space out time and data points.
-            The interpolation is based on the step size provided.
+            Whether Twin Builder is to perform linear interpolation to uniformly space out time and data points.
+            The interpolation is based on the step size provided. The default is ``False``.
         export_uniform_points_step : float, optional
-            Step size used for the uniform interpolation.
+            Step size to use for the uniform interpolation.
             The default value is ``1E-5``.
         excitations : dict, optional
             List of excitations to extract from the Maxwell design.
@@ -700,7 +700,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         """
         dkp = self.desktop_class
         if dkp.aedt_version_id < "2024.2":
-            self.logger.error("This method only work for AEDT versions > 2024 R2.")
+            self.logger.error("This method only work for AEDT 2024 R2 and later.")
             return False
         # elif dkp.aedt_version_id < "2025.1":
         #     self.odesktop.SetDesktopConfiguration("Twin Builder")
@@ -719,7 +719,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             maxwell_app = get_pyaedt_app(project_name=project, design_name=design, desktop=dkp)
         else:
             # self.odesktop.SetDesktopConfiguration("All")
-            raise ValueError("Invalid project name or path provided.")
+            raise ValueError("Invalid project name or path is provided.")
 
         if not setup:
             setup = self.setups[0]
