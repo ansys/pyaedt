@@ -526,57 +526,6 @@ class MonostaticRCSPlotter(object):
         return max([abs(a) for a in (self.__x_min, self.__x_max, self.__y_min, self.__y_max)])
 
     @pyaedt_function_handler()
-    def plot_range_profile(
-        self,
-        title="Range profile",
-        output_file=None,
-        show=True,
-        show_legend=True,
-    ):
-        """Create a 2D plot of the range profile.
-
-        Parameters
-        ----------
-        title : str, optional
-            Plot title. The default is ``"RectangularPlot"``.
-        output_file : str, optional
-            Full path for the image file. The default is ``None``, in which case an image in not exported.
-        show : bool, optional
-            Whether to show the plot. The default is ``True``.
-            If ``False``, the Matplotlib instance of the plot is shown.
-        show_legend : bool, optional
-            Whether to display the legend or not. The default is ``True``.
-
-        Returns
-        -------
-        :class:`matplotlib.pyplot.Figure`
-            Matplotlib figure object.
-            If ``show=True``, a Matplotlib figure instance of the plot is returned.
-            If ``show=False``, the plotted curve is returned.
-        """
-
-        data_range_profile = self.rcs_data.range_profile
-
-        ranges = np.unique(data_range_profile["Range"])
-        phi = self.rcs_data.incident_wave_phi
-        theta = self.rcs_data.incident_wave_phi
-
-        y = data_range_profile["Data"].to_numpy()
-
-        legend = f"Phi={np.round(phi, 3)} Theta={np.round(theta, 3)}"
-        curves = [[ranges.tolist(), y.tolist(), legend]]
-
-        return plot_2d_chart(
-            curves,
-            xlabel="Range (m)",
-            ylabel=f"Range Profile ({self.rcs_data.data_conversion_function})",
-            title=title,
-            snapshot_path=output_file,
-            show_legend=show_legend,
-            show=show,
-        )
-
-    @pyaedt_function_handler()
     def plot_rcs(
         self,
         primary_sweep="IWavePhi",
@@ -728,6 +677,8 @@ class MonostaticRCSPlotter(object):
 
         rcs_renorm = rcs + np.abs(rcs_min) if rcs_min else rcs
         rcs_renorm = rcs_renorm.to_numpy()
+        # Negative values are not valid, this is cleaning numerical issues
+        rcs_renorm[rcs_renorm < 0] = 0.0
 
         theta = np.deg2rad(data["IWaveTheta"])
         phi = np.deg2rad(data["IWavePhi"])
@@ -753,6 +704,61 @@ class MonostaticRCSPlotter(object):
 
         new.add_trace([x, y, z], 2, props, title)
         _ = new.plot_3d(trace=0, snapshot_path=output_file, show=show, color_map_limits=[rcs_min, rcs_max])
+
+        return new
+
+    @pyaedt_function_handler()
+    def plot_range_profile(
+        self,
+        title="Range profile",
+        output_file=None,
+        show=True,
+        show_legend=True,
+        size=(1920, 1440),
+    ):
+        """Create a 2D plot of the range profile.
+
+        Parameters
+        ----------
+        title : str, optional
+            Plot title. The default is ``"RectangularPlot"``.
+        output_file : str, optional
+            Full path for the image file. The default is ``None``, in which case an image in not exported.
+        show : bool, optional
+            Whether to show the plot. The default is ``True``.
+            If ``False``, the Matplotlib instance of the plot is shown.
+        show_legend : bool, optional
+            Whether to display the legend or not. The default is ``True``.
+        size : tuple, optional
+            Image size in pixel (width, height).
+
+        Returns
+        -------
+        :class:`matplotlib.pyplot.Figure`
+            Matplotlib figure object.
+            If ``show=True``, a Matplotlib figure instance of the plot is returned.
+            If ``show=False``, the plotted curve is returned.
+        """
+
+        data_range_profile = self.rcs_data.range_profile
+
+        ranges = np.unique(data_range_profile["Range"])
+        phi = self.rcs_data.incident_wave_phi
+        theta = self.rcs_data.incident_wave_phi
+
+        y = data_range_profile["Data"].to_numpy()
+
+        legend = f"Phi={np.round(phi, 3)} Theta={np.round(theta, 3)}"
+        curve = [ranges.tolist(), y.tolist(), legend]
+
+        new = ReportPlotter()
+        new.show_legend = show_legend
+        new.title = title
+        new.size = size
+        props = {"x_label": "Range (m)", "y_label": f"Range Profile ({self.rcs_data.data_conversion_function})"}
+        name = curve[2]
+        new.add_trace(curve[:2], 0, props, name)
+        _ = new.plot_2d(None, output_file, show)
 
         return new
 
@@ -818,13 +824,11 @@ class MonostaticRCSPlotter(object):
     @pyaedt_function_handler()
     def plot_scene(self, show=True, plotter=None):
         """
-        Plot the 3D scene including models, annotations, and results in a PyVista plotter.
+        Plot the 3D scene including models, annotations, and results.
 
         This method visualizes the 3D scene by rendering the mesh objects under the "model",
         "annotations", and "results" categories stored in `self.all_scene_actors`. The meshes
-        are rendered using the specified `plotter` or a default PyVista plotter if none is provided.
-        If a plotter is supplied and supports clearing, the scene is cleared before rendering.
-
+        are rendered using the specified `plotter` or a default PyVista plotter if ``None`` is provided.
 
         Parameters
         ----------
@@ -834,12 +838,13 @@ class MonostaticRCSPlotter(object):
             The default is ``True``.
         plotter : pyvista.Plotter, optional
             A pre-configured PyVista plotter to use for visualization. If not provided, a new plotter will be created
-            with a ``PyVistaBackend`` allowing interaction with the model.
+            with a ``:class:ansys.tools.visualization_interface.backends.pyvista.PyVistaBackend``
+             allowing interaction with the model.
 
         Returns
         -------
         pyvista.Plotter or None
-            Returns the ``plotter`` object if ``show`` is set to ``False``. If ``show`` is ``True``,
+            Returns the ``Plotter`` object if ``show`` is set to ``False``. If ``show`` is ``True``,
             the plot is displayed and no value is returned.
         """
         if not plotter:
@@ -866,7 +871,6 @@ class MonostaticRCSPlotter(object):
                     self.__add_mesh(result_actor, plotter, "results")
                 elif getattr(result_actor, "show", None):
                     self.__add_mesh(result_actor, plotter, "results")
-
         if show:
             plotter.show()
         else:
@@ -878,7 +882,17 @@ class MonostaticRCSPlotter(object):
         color_bar="jet",
     ):
         """
-        Add the 3D RCS.
+        Add a 3D RCS representation to the current scene.
+
+        This function normalizes and visualizes RCS data on a spherical coordinate grid
+        (theta, phi), mapping it to 3D Cartesian coordinates (x, y, z). The RCS values are
+        color-mapped and added as a mesh to the current scene actors.
+
+        Parameters
+        ----------
+        color_bar : str, optional
+            Color mapping to be applied to the RCS data. It can be a color (``"blue"``,
+            ``"green"``, ...) or a colormap (``"jet"``, ``"viridis"``, ...). The default is ``"jet"``.
         """
         data = self.rcs_data.rcs_active_frequency
 
@@ -890,6 +904,8 @@ class MonostaticRCSPlotter(object):
 
         rcs_renorm = rcs + np.abs(rcs_min) if rcs_min else rcs
         rcs_renorm = rcs_renorm.to_numpy()
+        # Negative values are not valid, this is cleaning numerical issues
+        rcs_renorm[rcs_renorm < 0] = 0.0
 
         theta = np.deg2rad(data["IWaveTheta"])
         phi = np.deg2rad(data["IWavePhi"])
@@ -939,7 +955,26 @@ class MonostaticRCSPlotter(object):
         self.all_scene_actors["results"]["rcs"][rcs_name] = rcs_object
 
     @pyaedt_function_handler()
-    def add_range_profile_settings(self, size_range=10, range_resolution=0.1, tick_color="#000000"):
+    def add_range_profile_settings(self, size_range=10.0, range_resolution=0.1, tick_color="#000000"):
+        """
+        Add a 3D range profile setting representation to the current scene.
+
+        This function visualizes a 3D range profile with a main line representing the range axis
+        and tick marks indicating distance intervals. The profile includes visual elements like
+        a disc at the far end and a cone at the starting point. These elements help to display
+        a reference range profile in the 3D scene.
+
+        Parameters
+        ----------
+        size_range : float, optional
+            Total size of the range in ``meters``. It determines the length of the range
+            profile. The default is ``10.0``.
+        range_resolution : float, optional
+            Resolution of the range in ``meters``, representing the distance between each tick mark along
+            the range profile. The default is ``0.1``.
+        tick_color : str, optional
+            Color of the tick marks along the range profile. The default is black (``"#000000"``).
+        """
         # Compute parameters
         range_max = size_range - range_resolution
         range_num = int(np.round(size_range / range_resolution))
@@ -1021,6 +1056,24 @@ class MonostaticRCSPlotter(object):
 
     @pyaedt_function_handler()
     def add_waterfall_settings(self, aspect_ang_phi=360.0, phi_num=10, tick_color="#000000"):
+        """
+        Add a 3D waterfall setting representation to the current scene.
+
+        This function visualizes a 3D "waterfall" pattern that represents angular data across
+        a circular arc in a spherical coordinate system. The arc covers an angular extent defined
+        by the ``aspect_ang_phi`` parameter, with optional tick marks along the arc. A cone is added
+        to indicate the endpoint of the angular sweep.
+
+        Parameters
+        ----------
+        aspect_ang_phi : float, optional
+            The angular extent of the arc in degrees. It defines the total angle (in degrees) over
+            which the circular arc spans. The default is ``360.0`` degrees (full circle).
+        phi_num : int, optional
+            The number of tick marks to be placed along the arc. The default is ``10``.
+        tick_color : str, optional
+            Color of the tick marks. The default is black (``"#000000"``).
+        """
         radius_max = self.radius
         z_mid = self.extents[5] + (self.extents[4] - self.extents[5]) / 2
         normal = [0, 0, z_mid + 1]
@@ -1098,16 +1151,25 @@ class MonostaticRCSPlotter(object):
     def add_range_profile(
         self,
         plot_type="Line",
-        radius_offset=0,
-        waterfall=False,
         color_bar="jet",
     ):
         """
         Add the 3D range profile.
+
+        This function visualizes a 3D range profile, which represents the RCS data
+        as a function of range. The profile is rendered as a plot in the 3D scene using spherical coordinates
+        (phi, theta) mapped into Cartesian coordinates (x, y). The range profile can be visualized in different
+        plot types such as line plots or color-mapped surfaces.
+
+        Parameters
+        ----------
+        plot_type : str, optional
+            The type of plot to create for the range profile. It can be ``"Line"``, ``"Ribbon"``, ``"Rotated"``,
+             ``"Extruded"``, ``"Plane V"``, `"Plane H"``, and `"Projection"``. The default is ``"Line"``.
+        color_bar : str, optional
+            Color mapping to be applied to the RCS data. It can be a color (``"blue"``,
+            ``"green"``, ...) or a colormap (``"jet"``, ``"viridis"``, ...). The default is ``"jet"``.
         """
-        # categories = ["jet", "jet_r", "magma", "magma_r", "nipy_spectral", "coolwarm", "viridis", "gray", "gray_r",
-        #               "seismic", "winter", "bone",
-        #               "blue", "green", "black", "red"]
         data_range_profile = self.rcs_data.range_profile
 
         data_scaled = self.stretch_data(
@@ -1121,17 +1183,15 @@ class MonostaticRCSPlotter(object):
         cosphis = np.cos(np.radians(phi))
         sinphis = np.sin(np.radians(phi))
         sinthetas = np.sin(np.radians(theta))
-        xpos = (-ranges + radius_offset) * cosphis * sinthetas
-        ypos = (-ranges + radius_offset) * sinphis * sinthetas
-        zpos = None
+        xpos = (-ranges) * cosphis * sinthetas
+        ypos = (-ranges) * sinphis * sinthetas
         plot_data = data_scaled.to_numpy()
 
         cpos = data_range_profile["Data"].to_numpy()
 
-        actor = self.__get_pyvista_rcs_actor(
+        actor = self.__get_pyvista_range_profile_actor(
             xpos,
             ypos,
-            zpos,
             plot_data,
             cpos,
             plot_type=plot_type,
@@ -1329,7 +1389,7 @@ class MonostaticRCSPlotter(object):
         return True
 
     @pyaedt_function_handler()
-    def __get_pyvista_rcs_actor(
+    def __get_pyvista_range_profile_actor(
         self,
         xpos,
         ypos,
@@ -1340,6 +1400,7 @@ class MonostaticRCSPlotter(object):
         scene_actors=None,
         extents=None,
     ):
+        """Get PyVista actor for range profile 3D scene."""
         if extents is None:
             extents = [0, 10, 0, 10, 0, 10]
 
