@@ -126,18 +126,6 @@ class MonostaticRCSData(object):
         self.frequency = self.frequencies[0]
 
     @property
-    def rcs_index_names(self):
-        """Antenna data."""
-        rcs_index_names = {
-            "RCS": ["IWavePhi", "IWaveTheta", "Data"],
-            "Range Profile": ["Range"],
-            "Waterfall": ["Range", "IWavePhi"],
-            "2D ISAR": ["Down-range", "Cross-range"],
-            "3D ISAR": ["Down-range", "Cross-range1", "Cross-range2"],
-        }
-        return rcs_index_names
-
-    @property
     def raw_data(self):
         """Antenna data."""
         return self.__raw_data
@@ -365,19 +353,19 @@ class MonostaticRCSData(object):
     @property
     def waterfall(self):
         """Waterfall."""
-        index_names = ["Range", "IWavePhi", "Data"]
-        waterfall_df = pd.DataFrame(columns=index_names)
+        waterfall_data = []
         original_phi = self.incident_wave_phi
         for phi in self.available_incident_wave_phi:
             self.incident_wave_phi = phi
             range_profile = self.range_profile
-            new_df = pd.DataFrame(columns=index_names)
-            new_df["Range"] = range_profile["Range"]
-            new_df["Data"] = range_profile["Data"]
-            new_df["IWavePhi"] = np.ones(range_profile["Range"].size) * phi
-
-            waterfall_df = pd.concat([waterfall_df, new_df])
+            new_data = {
+                "Range": range_profile["Range"],
+                "Data": range_profile["Data"],
+                "IWavePhi": np.full(range_profile["Range"].size, phi),
+            }
+            waterfall_data.append(pd.DataFrame(new_data))
         self.incident_wave_phi = original_phi
+        waterfall_df = pd.concat(waterfall_data, ignore_index=True)
         return waterfall_df
 
     @staticmethod
@@ -565,10 +553,8 @@ class MonostaticRCSPlotter(object):
 
         Returns
         -------
-        :class:`matplotlib.pyplot.Figure`
-            Matplotlib figure object.
-            If ``show=True``, a Matplotlib figure instance of the plot is returned.
-            If ``show=False``, the plotted curve is returned.
+        :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
+            PyAEDT matplotlib figure object.
         """
 
         curves = []
@@ -734,10 +720,8 @@ class MonostaticRCSPlotter(object):
 
         Returns
         -------
-        :class:`matplotlib.pyplot.Figure`
-            Matplotlib figure object.
-            If ``show=True``, a Matplotlib figure instance of the plot is returned.
-            If ``show=False``, the plotted curve is returned.
+        :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
+            PyAEDT matplotlib figure object.
         """
 
         data_range_profile = self.rcs_data.range_profile
@@ -763,7 +747,7 @@ class MonostaticRCSPlotter(object):
         return new
 
     @pyaedt_function_handler()
-    def plot_waterfall(self, title="Waterfall", output_file=None, show=True, is_polar=False):
+    def plot_waterfall(self, title="Waterfall", output_file=None, show=True, is_polar=False, size=(1920, 1440)):
         """Create a 2D contour plot of the waterfall.
 
         Parameters
@@ -777,24 +761,24 @@ class MonostaticRCSPlotter(object):
             If ``False``, the Matplotlib instance of the plot is shown.
         is_polar : bool, optional
             Whether to display in polar coordinates. The default is ``True``.
+        size : tuple, optional
+            Image size in pixel (width, height).
 
         Returns
         -------
-        :class:`matplotlib.pyplot.Figure`
-            Matplotlib figure object.
-            If ``show=True``, a Matplotlib figure instance of the plot is returned.
-            If ``show=False``, the plotted curve is returned.
+        :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
+            PyAEDT matplotlib figure object.
         """
 
         data_range_waterfall = self.rcs_data.waterfall
 
-        ranges = np.unique(data_range_waterfall.index.get_level_values("Range"))
-        phis = np.unique(data_range_waterfall.index.get_level_values("IWavePhi"))
+        ranges = np.unique(data_range_waterfall["Range"])
+        phis = np.unique(data_range_waterfall["IWavePhi"])
 
         phis = np.deg2rad(phis.tolist()) if is_polar else phis
         n_range = len(ranges)
         n_phi = len(phis)
-        values = data_range_waterfall["data"].to_numpy()
+        values = data_range_waterfall["Data"].to_numpy()
         values = values.reshape((n_range, n_phi), order="F")
 
         ra, ph = np.meshgrid(ranges, phis)
@@ -811,15 +795,25 @@ class MonostaticRCSPlotter(object):
             xlabel = "Range (m)"
             ylabel = "Phi (deg)"
 
-        plot_contour(
-            [values, x, y],
-            xlabel=xlabel,
-            ylabel=ylabel,
-            title=title,
+        plot_data = [values, x, y]
+
+        new = ReportPlotter()
+        new.size = size
+        new.show_legend = False
+        new.title = title
+        props = {
+            "x_label": xlabel,
+            "y_label": ylabel,
+        }
+
+        new.add_trace(plot_data, 2, props)
+        _ = new.plot_contour(
+            trace=0,
+            polar=is_polar,
             snapshot_path=output_file,
             show=show,
-            polar=is_polar,
         )
+        return new
 
     @pyaedt_function_handler()
     def plot_scene(self, show=True, plotter=None):
