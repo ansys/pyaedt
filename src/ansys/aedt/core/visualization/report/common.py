@@ -578,7 +578,7 @@ class CommonReport(object):
             try:
                 self._props["context"]["polyline"] = self.traces[0].properties["Geometry"]
             except Exception:
-                pass
+                self._post._app.logger.debug("Something went wrong while processing polyline.")
         return self._props["context"].get("polyline", None)
 
     @polyline.setter
@@ -1133,7 +1133,7 @@ class CommonReport(object):
                         variations[tr.properties["Secondary Sweep"]] = ["All"]
                 self._props["context"]["variations"] = variations
             except Exception:
-                pass
+                self._post._app.logger.debug("Something went wrong while processing variations.")
         return self._props["context"]["variations"]
 
     @variations.setter
@@ -1292,7 +1292,7 @@ class CommonReport(object):
             try:
                 return self.traces[0].properties["Domain"]
             except Exception:
-                pass
+                self._post._app.logger.debug("Something went wrong while accessing trace's Domain property.")
         return self._props["context"]["domain"]
 
     @domain.setter
