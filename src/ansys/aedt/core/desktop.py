@@ -1900,12 +1900,14 @@ class Desktop(object):
                 version_name = "v" + version.replace(".", "")
             else:
                 version_name = "AnsysEM" + version
-            if os.path.exists(r"\\" + clustername + f"\\AnsysEM\\{version_name}\\Win64\\ansysedt.exe"):
+            if os.path.exists(r"\\" + clustername + r"\AnsysEM\{}\Win64\ansysedt.exe".format(version_name)):
                 aedt_full_exe_path = (
-                    r"\\\\\\\\" + clustername + f"\\\\AnsysEM\\\\{version_name}\\\\Win64\\\\ansysedt.exe"
+                    r"\\\\\\\\" + clustername + r"\\\\AnsysEM\\\\{}\\\\Win64\\\\ansysedt.exe".format(version_name)
                 )
-            elif os.path.exists(r"\\" + clustername + f"\AnsysEM\{version_name}\Linux64\ansysedt"):
-                aedt_full_exe_path = r"\\\\\\\\" + clustername + f"\\\\AnsysEM\\\\{version_name}\\\\Linux64\\\\ansysedt"
+            elif os.path.exists(r"\\" + clustername + r"\AnsysEM\{}\Linux64\ansysedt".format(version_name)):
+                aedt_full_exe_path = (
+                    r"\\\\\\\\" + clustername + r"\\\\AnsysEM\\\\{}\\\\Linux64\\\\ansysedt".format(version_name)
+                )
             else:
                 self.logger.error("AEDT shared path does not exist. Provide a full path.")
                 return False
