@@ -77,8 +77,8 @@ jobs:
       - name: Documentation build
         uses: ansys/actions/doc-build@v8
         with:
+          dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
-          dependencies: 'graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra'
 
 # # =================================================================================================
 # # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
