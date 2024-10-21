@@ -814,7 +814,7 @@ class FieldAnalysis3D(Analysis, object):
                 vArg2 = [
                     "NAME:Attributes",
                     "MaterialValue:=",
-                    '"{}"'.format(matobj.name),
+                    f'"{matobj.name}"',
                     "SolveInside:=",
                     solve_inside,
                     "ShellElement:=",
@@ -964,7 +964,7 @@ class FieldAnalysis3D(Analysis, object):
                             material_data["Material Density"][i], "Mass_Density"
                         )
                         newmat.mass_density = nominal_val
-                        newmat.mass_density.thermalmodifier = "pwl({}, Temp)".format(dataset_name)
+                        newmat.mass_density.thermalmodifier = f"pwl({dataset_name}, Temp)"
                     else:
                         value = material_data["Material Density"][i]
                         newmat.mass_density = value
@@ -977,7 +977,7 @@ class FieldAnalysis3D(Analysis, object):
                             material_data["Thermal Conductivity"][i], "Thermal_Conductivity"
                         )
                         newmat.thermal_conductivity = nominal_val
-                        newmat.thermal_conductivity.thermalmodifier = "pwl({}, Temp)".format(dataset_name)
+                        newmat.thermal_conductivity.thermalmodifier = f"pwl({dataset_name}, Temp)"
                     else:
                         value = material_data["Thermal Conductivity"][i]
                         newmat.thermal_conductivity = value
@@ -987,7 +987,7 @@ class FieldAnalysis3D(Analysis, object):
                             material_data["Material CTE"][i], "CTE"
                         )
                         newmat.thermal_expansion_coefficient = nominal_val
-                        newmat.thermal_expansion_coefficient.thermalmodifier = "pwl({}, Temp)".format(dataset_name)
+                        newmat.thermal_expansion_coefficient.thermalmodifier = f"pwl({dataset_name}, Temp)"
                     else:
                         value = material_data["Material CTE"][i]
                         newmat.thermal_expansion_coefficient = value
@@ -997,7 +997,7 @@ class FieldAnalysis3D(Analysis, object):
                             material_data["Poisson Ratio"][i], "Poisson_Ratio"
                         )
                         newmat.poissons_ratio = nominal_val
-                        newmat.poissons_ratio.thermalmodifier = "pwl({}, Temp)".format(dataset_name)
+                        newmat.poissons_ratio.thermalmodifier = f"pwl({dataset_name}, Temp)"
                     else:
                         value = material_data["Poisson Ratio"][i]
                         newmat.poissons_ratio = value
@@ -1007,7 +1007,7 @@ class FieldAnalysis3D(Analysis, object):
                             material_data["Elastic Modulus"][i], "Youngs_Modulus"
                         )
                         newmat.youngs_modulus = nominal_val
-                        newmat.youngs_modulus.thermalmodifier = "pwl({}, Temp)".format(dataset_name)
+                        newmat.youngs_modulus.thermalmodifier = f"pwl({dataset_name}, Temp)"
                     else:
                         value = material_data["Elastic Modulus"][i]
                         newmat.youngs_modulus = value
@@ -1101,7 +1101,7 @@ class FieldAnalysis3D(Analysis, object):
                 components = [components]
             for cmp in components:
                 if cmp not in self.modeler.user_defined_component_names:
-                    raise ValueError("Component definition was not found for '{}'.".format(cmp))
+                    raise ValueError(f"Component definition was not found for '{cmp}'.")
 
         for cmp in components:
             comp = self.modeler.user_defined_components[cmp]
@@ -1232,7 +1232,7 @@ class FieldAnalysis3D(Analysis, object):
             net = [cad_to_investigate]
             check_intersections(net, inputs)
             inputs = [i for i in inputs if i not in net]
-            nets["Net{}".format(k)] = [i.name for i in net]
+            nets[f"Net{k}"] = [i.name for i in net]
             if assignment:
                 break
             if inputs:
@@ -1240,7 +1240,7 @@ class FieldAnalysis3D(Analysis, object):
                 inputs = inputs[1:]
                 k += 1
                 if len(inputs) == 0:
-                    nets["Net{}".format(k)] = [cad_to_investigate.name]
+                    nets[f"Net{k}"] = [cad_to_investigate.name]
                     break
         return nets
 
@@ -1343,7 +1343,7 @@ class FieldAnalysis3D(Analysis, object):
         dxf_layers = self.get_dxf_layers(file_path)
         for layer in layers:
             if layer not in dxf_layers:
-                self.logger.error("{} does not exist in specified dxf.".format(layer))
+                self.logger.error(f"{layer} does not exist in specified dxf.")
                 return False
 
         if hasattr(self, "is3d") and self.is3d:

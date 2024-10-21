@@ -185,7 +185,7 @@ class Maxwell(object):
                 "UseSkewModel": True,
                 "SkewType": skew_type,
                 "SkewPart": skew_part,
-                "SkewAngle": "{}{}".format(skew_angle, skew_angle_unit),
+                "SkewAngle": f"{skew_angle}{skew_angle_unit}",
                 "NumberOfSlices": number_of_slices,
             }
             return self.change_design_settings(arg)
@@ -493,11 +493,11 @@ class Maxwell(object):
                     if first_line:
                         first_line = False
                         if python_interpreter:
-                            fo.write("#!{0}\n".format(python_interpreter))
+                            fo.write(f"#!{python_interpreter}\n")
                     if line.startswith("work_dir"):
-                        fo.write("work_dir = r'{0}'\n".format(self.working_directory))
+                        fo.write(f"work_dir = r'{self.working_directory}'\n")
                     elif line.startswith("lib_dir"):
-                        fo.write("lib_dir = r'{0}'\n".format(source_dir))
+                        fo.write(f"lib_dir = r'{source_dir}'\n")
                     else:
                         fo.write(line)
         else:
@@ -1683,7 +1683,7 @@ class Maxwell(object):
                     if len(objects_list) > 1:
                         current_density_group_names = []
                         for x in range(0, len(objects_list)):
-                            current_density_group_names.append(current_density_name + "_{}".format(str(x + 1)))
+                            current_density_group_names.append(current_density_name + f"_{str(x + 1)}")
                         props = {}
                         props["items"] = current_density_group_names
                         props[current_density_group_names[0]] = dict(
@@ -1715,7 +1715,7 @@ class Maxwell(object):
                     if len(objects_list) > 1:
                         current_density_group_names = []
                         for x in range(0, len(objects_list)):
-                            current_density_group_names.append(current_density_name + "_{}".format(str(x + 1)))
+                            current_density_group_names.append(current_density_name + f"_{str(x + 1)}")
                         props = {}
                         props["items"] = current_density_group_names
                         props[current_density_group_names[0]] = dict(
@@ -2508,7 +2508,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                 if len(objects_list) > 1:
                     current_density_group_names = []
                     for x in range(0, len(objects_list)):
-                        current_density_group_names.append(current_density_name + "_{}".format(str(x + 1)))
+                        current_density_group_names.append(current_density_name + f"_{str(x + 1)}")
                     props = {}
                     props["items"] = current_density_group_names
                     props[current_density_group_names[0]] = dict({"Objects": objects_list})

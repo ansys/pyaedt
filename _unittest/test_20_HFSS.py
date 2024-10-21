@@ -309,6 +309,8 @@ class TestClass:
         setup3.delete()
 
     def test_06b_setup_exists(self):
+        with pytest.raises(ValueError):
+            self.aedtapp.active_setup = "invalid"
         assert self.aedtapp.active_setup is not None
         assert self.aedtapp.nominal_sweep is not None
 

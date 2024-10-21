@@ -157,7 +157,7 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
             if el:
                 _write_mes(el)
 
-    _write_mes("{} on {}".format(message, func.__name__))
+    _write_mes(f"{message} on {func.__name__}")
 
     message_to_print = ""
     messages = ""
@@ -183,7 +183,7 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
                 if first_time_log:
                     _write_mes("Method arguments: ")
                     first_time_log = False
-                _write_mes("    {} = {} ".format(el, args_dict[el]))
+                _write_mes(f"    {el} = {args_dict[el]} ")
     except Exception:
         pyaedt_logger.error("An error occurred while parsing and logging an error with method {}.")
 
@@ -251,9 +251,7 @@ def _function_handler_wrapper(user_function, **deprecated_kwargs):
             message = "This method is not supported in current AEDT design type."
             if settings.enable_screen_logs:
                 pyaedt_logger.error("**************************************************************")
-                pyaedt_logger.error(
-                    "PyAEDT error on method {}:  {}. Check again".format(user_function.__name__, message)
-                )
+                pyaedt_logger.error(f"PyAEDT error on method {user_function.__name__}:  {message}. Check again")
                 pyaedt_logger.error("**************************************************************")
                 pyaedt_logger.error("")
             if settings.enable_file_logs:
@@ -274,12 +272,10 @@ def deprecate_kwargs(func_name, kwargs, aliases):
     for alias, new in aliases.items():
         if alias in kwargs:
             if new in kwargs:
-                msg = "{} received both {} and {} as arguments!\n".format(func_name, alias, new)
-                msg += "{} is deprecated, use {} instead.".format(alias, new)
+                msg = f"{func_name} received both {alias} and {new} as arguments!\n"
+                msg += f"{alias} is deprecated, use {new} instead."
                 raise TypeError(msg)
-            pyaedt_logger.warning(
-                "Argument `{}` is deprecated for method `{}`; use `{}` instead.".format(alias, func_name, new)
-            )
+            pyaedt_logger.warning(f"Argument `{alias}` is deprecated for method `{func_name}`; use `{new}` instead.")
             kwargs[new] = kwargs.pop(alias)
 
 
@@ -504,7 +500,7 @@ def read_json(fn):
         try:
             json_data = json.load(json_file)
         except json.JSONDecodeError as e:  # pragma: no cover
-            error = "Error reading json: {} at line {}".format(e.msg, e.lineno)
+            error = f"Error reading json: {e.msg} at line {e.lineno}"
             settings.logger.error(error)
     return json_data
 
@@ -552,11 +548,11 @@ def _log_method(func, new_args, new_kwargs):
     d, h = divmod(h, 24)
     msec = (s - int(s)) * 1000
     if d > 0:
-        time_msg = " {}days {}h {}m {}sec.".format(d, h, m, int(s))
+        time_msg = f" {d}days {h}h {m}m {int(s)}sec."
     elif h > 0:
-        time_msg = " {}h {}m {}sec.".format(h, m, int(s))
+        time_msg = f" {h}h {m}m {int(s)}sec."
     else:
-        time_msg = "  {}m {}sec {}msec.".format(m, int(s), int(msec))
+        time_msg = f"  {m}m {s}sec {int(msec)}msec."
     if settings.enable_debug_methods_argument_logger:
         args_dict = _get_args_dicts(func, new_args, new_kwargs)
         id = 0
@@ -565,13 +561,13 @@ def _log_method(func, new_args, new_kwargs):
             id = object_name.find(" object at ")
         if id > 0:
             object_name = object_name[1:id]
-            message.append("'{}' was run in {}".format(object_name + "." + str(func.__name__), time_msg))
+            message.append(f"'{object_name + '.' + str(func.__name__)}' was run in {time_msg}")
         else:
-            message.append("'{}' was run in {}".format(str(func.__name__), time_msg))
+            message.append(f"'{str(func.__name__)}' was run in {time_msg}")
         message.append(line_begin)
         for k, v in args_dict.items():
             if k != "self":
-                message.append("    {} = {}".format(k, v))
+                message.append(f"    {k} = {v}")
     for m in message:
         settings.logger.debug(m)
 
@@ -597,10 +593,10 @@ def get_string_version(input_version):
             output_version = "20" + output_version
     elif isinstance(input_version, int):
         output_version = str(input_version)
-        output_version = "20{}.{}".format(output_version[:2], output_version[-1])
+        output_version = f"20{output_version[:2]}.{output_version[-1]}"
     elif isinstance(input_version, str):
         if len(input_version) == 3:
-            output_version = "20{}.{}".format(input_version[:2], input_version[-1])
+            output_version = f"20{input_version[:2]}.{input_version[-1]}"
         elif len(input_version) == 4:
             output_version = "20" + input_version
     return output_version
@@ -626,10 +622,7 @@ def env_path(input_version):
     "C:/Program Files/ANSYSEM/ANSYSEM2021.2/Win64"
     """
     return os.getenv(
-        "ANSYSEM_ROOT{0}{1}".format(
-            get_version_and_release(input_version)[0], get_version_and_release(input_version)[1]
-        ),
-        "",
+        f"ANSYSEM_ROOT{get_version_and_release(input_version)[0]}{get_version_and_release(input_version)[1]}", ""
     )
 
 
@@ -652,9 +645,7 @@ def env_value(input_version):
     >>> env_value("2021.2")
     "ANSYSEM_ROOT212"
     """
-    return "ANSYSEM_ROOT{0}{1}".format(
-        get_version_and_release(input_version)[0], get_version_and_release(input_version)[1]
-    )
+    return f"ANSYSEM_ROOT{get_version_and_release(input_version)[0]}{get_version_and_release(input_version)[1]}"
 
 
 @pyaedt_function_handler()
@@ -677,9 +668,7 @@ def env_path_student(input_version):
     "C:/Program Files/ANSYSEM/ANSYSEM2021.2/Win64"
     """
     return os.getenv(
-        "ANSYSEMSV_ROOT{0}{1}".format(
-            get_version_and_release(input_version)[0], get_version_and_release(input_version)[1]
-        ),
+        f"ANSYSEMSV_ROOT{get_version_and_release(input_version)[0]}{get_version_and_release(input_version)[1]}",
         "",
     )
 
@@ -703,9 +692,7 @@ def env_value_student(input_version):
     >>> env_value_student("2021.2")
     "ANSYSEMSV_ROOT212"
     """
-    return "ANSYSEMSV_ROOT{0}{1}".format(
-        get_version_and_release(input_version)[0], get_version_and_release(input_version)[1]
-    )
+    return f"ANSYSEMSV_ROOT{get_version_and_release(input_version)[0]}{get_version_and_release(input_version)[1]}"
 
 
 @pyaedt_function_handler()
@@ -864,7 +851,7 @@ def _retry_ntimes(n, function, *args, **kwargs):
             return ret_val
     if retry == n:
         if "__name__" in dir(function):
-            raise AttributeError("Error in Executing Method {}.".format(function.__name__))
+            raise AttributeError(f"Error in Executing Method {function.__name__}.")
         else:
             raise AttributeError("Error in Executing Method.")
 
@@ -1214,7 +1201,7 @@ def filter_tuple(value, search_key_1, search_key_2):
         k1b = re.sub(r"\*", r".*?", k1a)
         k2a = re.sub(r"\?", r".", k2)
         k2b = re.sub(r"\*", r".*?", k2a)
-        pattern = r".*\({},{}\)".format(k1b, k2b)
+        pattern = f".*\\({k1b},{k2b}\\)"
         return pattern
 
     if ignore_case:
@@ -1236,7 +1223,7 @@ def filter_string(value, search_key_1):
     def _create_pattern(k1):
         k1a = re.sub(r"\?", r".", k1.replace("\\", "\\\\"))
         k1b = re.sub(r"\*", r".*?", k1a)
-        pattern = r"^{}$".format(k1b)
+        pattern = f"^{k1b}$"
         return pattern
 
     if ignore_case:
@@ -1892,12 +1879,10 @@ def tech_to_control_file(file_path, units="nm", output_file=None):
             line_split = line.split()
             if len(line_split) == 5:
                 layerID, layer_name, _, elevation, layer_height = line.split()
-                x = '      <Layer Color="{}" GDSIIVia="{}" Name="{}" TargetLayer="{}" Thickness="{}"'.format(
-                    vals[id_layer],
-                    "true" if layer_name.lower().startswith("v") else "false",
-                    layerID,
-                    layer_name,
-                    layer_height,
+                x = (
+                    f'      <Layer Color="{vals[id_layer]}" '
+                    f'GDSIIVia="{"true" if layer_name.lower().startswith("v") else "false"}" '
+                    f'Name="{layerID}" TargetLayer="{layer_name}" Thickness="{layer_height}"'
                 )
                 x += ' Type="conductor"/>'
                 result.append(x)
@@ -1911,7 +1896,7 @@ def tech_to_control_file(file_path, units="nm", output_file=None):
         f.write('    <c:Control xmlns:c="http://www.ansys.com/control" schemaVersion="1.0">\n')
         f.write("\n")
         f.write('      <Stackup schemaVersion="1.0">\n')
-        f.write('        <Layers LengthUnit="{}">\n'.format(units))
+        f.write(f'        <Layers LengthUnit="{units}">\n')
         for res in result:
             f.write(res + "\n")
 
@@ -2251,7 +2236,7 @@ def install_with_pip(package_name, package_path=None, upgrade=False, uninstall=F
         import subprocessdotnet as subprocess  # nosec B404
     else:
         import subprocess  # nosec B404
-    executable = '"{}"'.format(sys.executable) if is_windows else sys.executable
+    executable = f'"{sys.executable}"' if is_windows else sys.executable
 
     commands = []
     if uninstall:
@@ -2305,7 +2290,7 @@ class Help:  # pragma: no cover
             keywords.append("This example")
         if app_name:
             keywords.append(app_name)
-        url = self._base_path + "/search.html?q={}".format("+".join(keywords))
+        url = self._base_path + f"/search.html?q={'+'.join(keywords)}"
         self._launch_ur(url)
 
     def getting_started(self):

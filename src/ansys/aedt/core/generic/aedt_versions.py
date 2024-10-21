@@ -96,11 +96,11 @@ class AedtVersions:
                         else:
                             release -= 2
                     if student:
-                        v_key = "20{0}.{1}SV".format(version, release)
+                        v_key = f"20{version}.{release}SV"
                     elif client:
-                        v_key = "20{0}.{1}CL".format(version, release)
+                        v_key = f"20{version}.{release}CL"
                     else:
-                        v_key = "20{0}.{1}".format(version, release)
+                        v_key = f"20{version}.{release}"
                     return_dict[v_key] = os.environ[version_env_var]
                 except Exception:  # pragma: no cover
                     pass

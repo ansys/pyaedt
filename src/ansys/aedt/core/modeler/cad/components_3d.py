@@ -803,25 +803,16 @@ class UserDefinedComponent(object):
         return self._primitives.oeditor
 
     def __str__(self):
-        return """
-         {}
-         is3dcomponent: {}   parts: {}
+        return f"""
+         {type(self)}
+         is3dcomponent: {self._is3dcomponent}   parts: {self._parts}
          --- read/write properties  ----
-         name: {}
-         group_name: {}
-         mesh_assembly: {}
-         parameters: {}
-         target_coordinate_system: {}
-         """.format(
-            type(self),
-            self._is3dcomponent,
-            self._parts,
-            self._m_name,
-            self._group_name,
-            self._mesh_assembly,
-            self._parameters,
-            self._target_coordinate_system,
-        )
+         name: {self._m_name}
+         group_name: {self._group_name}
+         mesh_assembly: {self._mesh_assembly}
+         parameters: {self._parameters}
+         target_coordinate_system: {self._target_coordinate_system}
+         """
 
     @pyaedt_function_handler()
     def get_component_filepath(self):
