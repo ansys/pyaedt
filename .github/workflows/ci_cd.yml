@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check commit name
-        uses: ansys/actions/commit-style@v8
+        uses: ansys/actions/check-pr-title@v8
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           use-upper-case: true
