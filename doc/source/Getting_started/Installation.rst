@@ -110,6 +110,15 @@ Finally, in the python console, run the following commands:
      from ansys.aedt.core.workflows.installer.pyaedt_installer import add_pyaedt_to_aedt
      add_pyaedt_to_aedt(“your_aedt_version", r“path_to_personalib")
 
+You can also install the PyAEDT panels using the following steps, this is also useful if you have a centralized PyAEDT installation:
+
+- Download the following file: :download:`PyAEDT panel Installer Python file <../Resources/toolkit_installer_from_aedt.py>`
+
+- Define an environment variable called `PYAEDT_INTERPRETER` with the path of the python interpreter in which PyAEDT is installed.
+
+- Open an Electronics Desktop Session and click on Tools->Run Script and execute the file. You do not need the previous step if
+you pass as an argument the path of the python interpreter.
+
 
 Linux support
 ~~~~~~~~~~~~~
