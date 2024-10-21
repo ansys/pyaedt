@@ -26,6 +26,7 @@ import os
 import shutil
 
 from _unittest.conftest import NONGRAPHICAL
+from _unittest.conftest import config
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 from _unittest.conftest import new_thread
@@ -228,6 +229,7 @@ class TestClass:
         assert "parentsheet" in self.aedtapp.design_list
         assert len(self.aedtapp.odesign.GetSubDesigns()) > 0
 
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Feature not available before 2025R1")
     def test_18_add_excitation_model(self, add_app):
         tb = add_app(
             application=TwinBuilder,

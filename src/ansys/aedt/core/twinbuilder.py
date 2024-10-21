@@ -663,7 +663,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         """
         Use the excitation component to assign output quantities in a Twin Builder design to a windings
         in a Maxwell design.
-        This method works only with AEDT 2024 R2 and later.
+        This method works only with AEDT 2025 R1 and later.
 
         Parameters
         ----------
@@ -718,7 +718,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         -------
         >>> from ansys.aedt.core import TwinBuilder
         >>> from ansys.aedt.core.generic.design_types import get_pyaedt_app
-        >>> tb = TwinBuilder(specified_version="2024.1")
+        >>> tb = TwinBuilder(specified_version="2025.1")
         >>> maxwell_app = get_pyaedt_app(project_name=project_name,
         ...                              design_name="my_maxwell_design",
         ...                              desktop=tb.desktop_class)
@@ -729,8 +729,8 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         >>> tb.release_desktop(False, False)
         """
         dkp = self.desktop_class
-        if dkp.aedt_version_id < "2024.2":
-            self.logger.error("This method only work for AEDT 2024 R2 and later.")
+        if dkp.aedt_version_id < "2025.1":
+            self.logger.error("This method only works for AEDT 2025 R1 and later.")
             return False
         # elif dkp.aedt_version_id < "2025.1":
         #     self.odesktop.SetDesktopConfiguration("Twin Builder")
