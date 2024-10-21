@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<c:Control xmlns:c="http://www.ansys.com/control" schemaVersion="1.0">
+
+  <Stackup schemaVersion="1.0">
+    <Materials>
+      <Material Name="My_FR4">
+        <Permittivity>
+          <Double>4.6</Double>
+        </Permittivity>
+        <Permeability>
+          <Double>1</Double>
+        </Permeability>
+        <Conductivity>
+          <Double>0</Double>
+        </Conductivity>
+        <DielectricLossTangent>
+          <Double>0.02</Double>
+        </DielectricLossTangent>
+        <MagneticLossTangent>
+          <Double>0</Double>
+        </MagneticLossTangent>
+      </Material>
+      <Material Name="My_SolderMask">
+        <Permittivity>
+          <Double>3.3</Double>
+        </Permittivity>
+        <DielectricLossTangent>
+          <Double>0.035</Double>
+        </DielectricLossTangent>
+      </Material>
+      <Material Name="My_Copper">
+        <Permittivity>
+          <Double>1</Double>
+        </Permittivity>
+        <Permeability>
+          <Double>0.999991</Double>
+        </Permeability>
+        <Conductivity>
+          <Double>58000000</Double>
+        </Conductivity>
+        <DielectricLossTangent>
+          <Double>0</Double>
+        </DielectricLossTangent>
+        <MagneticLossTangent>
+          <Double>0</Double>
+        </MagneticLossTangent>
+      </Material>
+    </Materials>
+    <Layers LengthUnit="mm">
+      <Layer Color="#008000" Material="SolderMask" Name="TopSolder" Thickness="0.025" Type="dielectric"/>
+      <Layer Color="#5c4300" FillMaterial="My_FR4" Material="My_Copper" Name="WiFi.GTL" TargetLayer="TopLayer" Thickness="0.05" Type="conductor"/>
+      <Layer Material="My_FR4" Name="Dielectric_1" Thickness="0.36" Type="dielectric"/>
+      <Layer Color="#efa15d" FillMaterial="My_FR4" Material="My_Copper" Name="WiFi.G1" TargetLayer="int1_power" Thickness="0.035" Type="conductor"/>
+	  <Layer Material="My_FR4" Name="Dielectric_2" Thickness="0.36" Type="dielectric"/>
+      <Layer Color="#f67fc1" FillMaterial="My_FR4" Material="My_Copper" Name="WiFi.G2" TargetLayer="int2_gnd" Thickness="0.035" Type="conductor"/>
+      <Layer Material="My_FR4" Name="Dielectric_3" Thickness="0.36" Type="dielectric"/>
+      <Layer Color="#fd777a" FillMaterial="My_FR4" Material="My_Copper" Name="WiFi.GBL" TargetLayer="BottomLayer" Thickness="0.05" Type="conductor"/>
+      <Layer Color="#008000" Material="SolderMask" Name="BottomSolder" Thickness="0.025" Type="dielectric"/>
+	  <Layer Color="#868feb" FillMaterial="My_FR4" IsDrillLayer="true" Material="My_Copper" Name="WiFi.TXT" Thickness="0" Type="via"/>
+	  <Layer Color="#008000" Name="WiFi.GM1" TargetLayer="outline" Type="assembly"/>
+    </Layers>
+  </Stackup>
+
+</c:Control>

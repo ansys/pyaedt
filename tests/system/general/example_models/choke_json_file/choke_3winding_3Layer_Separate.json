@@ -1,0 +1,60 @@
+{
+  "Number of Windings": {
+    "1": false,
+    "2": false,
+    "3": true,
+    "4": false
+  },
+  "Layer": {
+    "Simple": false,
+    "Double": false,
+    "Triple": true
+  },
+  "Layer Type": {
+    "Separate": true,
+    "Linked": false
+  },
+  "Similar Layer": {
+    "Similar": true,
+    "Different": false
+  },
+  "Mode": {
+    "Differential": true,
+    "Common": false
+  },
+  "Wire Section": {
+    "None": true,
+    "Hexagon": false,
+    "Octagon": false,
+    "Circle": false
+  },
+  "Core": {
+    "Name": "Core",
+    "Material": "ferrite",
+    "Inner Radius": 20,
+    "Outer Radius": 50,
+    "Height": 20,
+    "Chamfer": 0.8
+  },
+  "Outer Winding": {
+    "Name": "Winding",
+    "Material": "copper",
+    "Inner Radius": 20,
+    "Outer Radius": 50,
+    "Height": 20,
+    "Wire Diameter": 1,
+    "Turns": 15,
+    "Coil Pit(deg)": 0.1,
+    "Occupation(%)": 84.94888888888889
+  },
+  "Mid Winding": {
+    "Turns": 14,
+    "Coil Pit(deg)": 0.1,
+    "Occupation(%)": 84.94888888888889
+  },
+  "Inner Winding": {
+    "Turns": 20,
+    "Coil Pit(deg)": 0.1,
+    "Occupation(%)": 84.94888888888889
+  }
+}

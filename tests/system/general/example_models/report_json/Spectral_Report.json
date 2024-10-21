@@ -1,0 +1,214 @@
+{
+    "Help": "This Report Template is applicable to CISPR25 Plots from Transient data.",
+    "report_category": "Spectrum",
+    "report_type": "Rectangular Plot",
+	"plot_name": "Spectrum_CISPR25",
+    "context": {
+        "domain": "Spectral",
+        "primary_sweep": "Spectrum",
+        "primary_sweep_range": [
+            "All"
+        ],
+        "variations": {
+            "Spectrum": [
+                "All"
+            ]
+        },
+        "time_start": "0ns",
+        "time_stop": "10us",
+        "max_frequency": "8MHz",
+        "window": "Hanning",
+        "kaiser_coeff": 0,
+        "adjust_coherent_gain": true,
+        "plot_continous_spectrum": false
+    },
+    "expressions": {
+        "dB(V(net_11))" : {
+			"color": [
+                0,
+                255,
+                0
+            ],
+            "trace_style": "Solid",
+            "width": 1,
+            "trace_type": "Continuous"
+			}
+    },
+	"limitLines": {
+        "LimitLine1": {
+            "color": [
+                255,
+                255,
+                0
+            ],
+            "trace_style": "Solid",
+            "width": 1,
+            "hatch_above": true,
+            "violation_emphasis": true,
+            "hatch_pixels": "10",
+            "y_axis": "Y1",
+            "xunits": "MHz",
+            "yunits": "",
+            "xpoints": [
+                0.05,
+                0.15,
+                0.3,
+				0.52,
+				1.73,
+				5.9,
+				6.2,
+				10
+            ],
+			"ypoints": [
+                120,
+                110,
+				110,
+				86,
+				86,
+				77,
+				77,
+				77
+            ]
+        }
+	},
+	"notes": {
+        "Note1": {
+            "text": "Cispr Limit Line",
+			"position":	[
+			3000,
+			3000
+			],
+            "font": "Arial",
+            "font_size": 10,
+			"italic":false,
+			"bold": true,
+            "color": [
+                0,
+                0,
+                0
+            ],
+            "background_color": [
+                0,
+                255,
+                0
+            ],
+            "background_visibility": true,
+            "border_visibility": true,
+            "border_width": "1",
+			"border_color":[
+                0,
+                255,
+                0
+            ]
+        }
+	},
+	"general": {
+        "axisx": {
+            "label": "Freq",
+            "font": "Arial",
+            "font_size": 10,
+			"bold": true,
+			"italic": false,
+            "color": [
+                255,
+                255,
+                255
+            ],
+            "Display Units": true,
+            "Number Format": "Auto",
+            "linear_scaling": false,
+			"min_scale": "0.05MHz",
+            "specify_spacing": false,
+            "minor_tick_divs": "5",
+            "auto_units": true,
+            "units": "MHz"
+        },
+        "axisy1": {
+            "label": "Emissions (dBu)",
+            "font": "Arial",
+            "font_size": 8,
+			"bold": true,
+			"italic": false,
+            "color": [
+                255,
+                255,
+                255
+            ],
+            "Display Units": true,
+            "Number Format": "Auto",
+            "field_width": "2",
+            "Field Precision": "0",
+            "linear_scaling": true,
+            "min_scale": "-40",
+            "max_scale": "130",
+            "specify_spacing": false,
+            "min_spacing": "5",
+            "minor_tick_divs": "5",
+            "auto_units": true,
+            "units": ""
+        },
+        "appearance": {
+            "background_color": [
+                20,
+                20,
+                40
+            ],
+            "plot_color": [
+                20,
+                20,
+                10
+            ],
+            "enable_y_stripes": true,
+            "field_width": "4",
+            "precision": "4",
+            "use_scientific_notation": false
+        },
+		"grid": {
+            "major_color": [
+                120,
+                120,
+                120
+            ],
+            "minor_color": [
+                120,
+                120,
+                120
+            ],
+            "major_x": true,
+            "major_y": true,
+            "minor_x": false,
+            "minor_y": false,
+			"style_major": "Dot",
+			"style_minor": "Dot"
+        },
+		"legend": {
+            "back_color": [
+                20,
+                20,
+                40
+            ],
+			"font_color": [
+                255,
+                255,
+                255
+            ],
+            "show_solution_name": false,
+            "show_variation_key": true,
+            "show_trace_name": true
+        },
+        "header": {
+            "font": "Arial",
+            "title_size": 12,
+            "color": [
+                255,
+                255,
+                255
+            ],
+			"bold": true,
+			"italic": false,
+            "subtitle_size": 12,
+            "company_name": "Pyaedt CISPR25 Demo",
+            "show_design_name": false
+        }
+    }
+}

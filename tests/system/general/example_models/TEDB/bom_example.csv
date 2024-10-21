@@ -1,0 +1,4 @@
+Prod name,RefDes,Value
+Capacitor,C10,1nF
+Inductor,L10,2nH
+Resistor,R1,50ohm

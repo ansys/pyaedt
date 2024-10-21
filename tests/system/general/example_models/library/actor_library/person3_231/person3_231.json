@@ -1,0 +1,45 @@
+{
+	"name": "person3",
+	"version": 1,
+	"class":"person",
+	"stride":"0.76meter",
+	"xlim":["-.43",".43"],
+	"ylim":["-.25",".25"],
+	"parts": {
+		"arm_left": {
+			"comp_name": "arm_left_231.a3dcomp",
+			"rotation_cs":["-.04","0","1.37"],
+			"rotation":"-30deg",
+			"compensation_angle":"-15deg",
+			"rotation_axis":"Y"
+			},
+		"arm_right": {
+			"comp_name": "arm_right_231.a3dcomp",
+			"rotation_cs":["0","0","1.37"],
+			"rotation":"30deg",
+			"compensation_angle":"30deg",
+			"rotation_axis":"Y"
+			},
+		"leg_left": {
+			"comp_name": "leg_left_231.a3dcomp",
+			"rotation_cs":["0","0",".9"],
+			"rotation":"20deg",
+			"compensation_angle":"22.5deg",
+			"rotation_axis":"Y"
+			},
+		"leg_right": {
+			"comp_name": "leg_right_231.a3dcomp",
+			"rotation_cs":["-.04","0",".9375"],
+			"rotation":"-20deg",
+			"compensation_angle":"-22.5deg",
+			"rotation_axis":"Y"
+			},			
+		"torso": {
+			"comp_name": "torso_231.a3dcomp",
+			"rotation_cs":null,
+			"rotation":null,
+			"compensation_angle":null,
+			"rotation_axis":null
+			}			
+	}	
+}

@@ -1,0 +1,63 @@
+[IBIS Ver]     5.1
+[Disclaimer]
+             Example IBIS file that refers to example
+             Algorithmic Model.  This file does not
+             contain a model for an actual physical
+             device.
+[File Name] ibis_ami_example_tx.ibs
+|
+[Date] March 29, 2018 10:59:00 AM EDT
+[File Rev]     0.3
+[Source]       
+|
+[Notes]        
+|
+[Component] example_device_tx
+|
+[Manufacturer]  ANSYS, Inc.
+|
+[Package]
+R_pkg       0.01m  NA  NA
+L_pkg       0.001nH  NA  NA
+C_pkg       0.001pF  NA  NA
+|
+[Pin] signal_name model_name R_pin L_pin C_pin
+  14   example_tx_P   example_model_tx  NA NA NA
+  15   example_tx_N   example_model_tx  NA NA NA
+
+[Diff Pin] inv_pin  vdiff tdelay_typ tdelay_min tdelay_max|
+    14      15    0.2   NA   NA   NA
+
+
+|Model row  3
+|  
+|model example_model_tx
+|
+[Model]  example_model_tx
+Model_type  Output
+C_comp  64f  64f  64f
+Cref =0
+[Model Spec]
+Vmeas  0.0882  0.0882  0.0882
+Vref  0.0882  0.0882  0.0882
+[Algorithmic Model]
+Executable Windows_Intel7_32 ibis_ami_example_w32.dll ibis_ami_example_tx.ami
+Executable Windows_Intel10_64 ibis_ami_example_w64.dll ibis_ami_example_tx.ami
+Executable Linux_Intel10_32 ibis_ami_example_l32.so ibis_ami_example_tx.ami
+Executable Linux_Intel10_64 ibis_ami_example_l64.so ibis_ami_example_tx.ami
+[End Algorithmic Model]
+[Temperature Range]  85.0000  85.0000  85.0000
+[Voltage Range]  0.1694  0.1694  0.1694
+[Pulldown]
+-2.50  -5.3821E-02  -5.3821E-02  -5.3821E-02
+0.00  0.0000E+00  0.0000E+00  0.0000E+00
+2.50  5.3821E-02  5.3821E-02  5.3821E-02
+[Pullup]
+-2.50  5.3821E-02  5.3821E-02  5.3821E-02
+0.00  0.0000E+00  0.0000E+00  0.0000E+00
+2.50  -5.3821E-02  -5.3821E-02  -5.3821E-02
+[Ramp]
+dV/dt_r  0.052/16.573p  0.052/16.573p  0.052/16.573p
+dV/dt_f  0.052/17.251p  0.052/17.251p  0.052/17.251p
+
+[End]

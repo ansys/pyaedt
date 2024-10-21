@@ -1,0 +1,18 @@
+{
+	"name": "tunnel1",
+	"version": 1,
+	"class":"environment",
+	"xlim":["-.43",".43"],
+	"ylim":["-.25",".25"],
+	"parts": {		
+		"tunnel": {
+			"comp_name": "tunnel1_231.a3dcomp",
+			"offset":null,
+			"rotation_cs":null,
+			"rotation":null,
+			"rotation_axis":null,
+			"duplicate_number":null,
+			"duplicate_vector":null		
+			}		
+	}	
+}

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<c:Control xmlns:c="http://www.ansys.com/control" schemaVersion="1.0">
+    <!--
+        Based on:
+    https://github.com/google/skywater-pdk/blob/49d3c73c2cd8ea42cdae5056440baef0f72e7e42/docs/_static/metal_stack.svg
+    https://github.com/google/skywater-pdk/blob/49d3c73c2cd8ea42cdae5056440baef0f72e7e42/docs/rules/gds_layers.csv
+        https://github.com/google/skywater-pdk/blob/49d3c73c2cd8ea42cdae5056440baef0f72e7e42/LICENSE
+    -->
+    <!-- Used under the Apache 2.0 license as linked from above URL accessed on 2023-03-28 -->
+    <Stackup schemaVersion="1.0">
+        <Materials>
+            <Material Name="FOX">
+                <Permittivity>
+                    <Double>3.9</Double>
+                </Permittivity>
+            </Material>
+            <Material Name="LINT">
+                <Permittivity>
+                    <Double>7.3</Double>
+                </Permittivity>
+            </Material>
+            <Material Name="METAL">
+                <Permeability>
+                    <Double>0.999991</Double>
+                </Permeability>
+                <Conductivity>
+                    <Double>58000000</Double>
+                </Conductivity>
+            </Material>
+            <Material Name="NILD2">
+                <Permittivity>
+                    <Double>4.05</Double>
+                </Permittivity>
+            </Material>
+            <Material Name="NILD3">
+                <Permittivity>
+                    <Double>4.5</Double>
+                </Permittivity>
+            </Material>
+            <Material Name="NILD4">
+                <Permittivity>
+                    <Double>4.2</Double>
+                </Permittivity>
+            </Material>
+            <Material Name="NILD5">
+                <Permittivity>
+                    <Double>4.1</Double>
+                </Permittivity>
+            </Material>
+            <Material Name="NILD6">
+                <Permittivity>
+                    <Double>4.0</Double>
+                </Permittivity>
+            </Material>
+            <Material Name="PI1">
+                <Permittivity>
+                    <Double>2.94</Double>
+                </Permittivity>
+            </Material>
+            <Material Name="PSG">
+                <Permittivity>
+                    <Double>3.9</Double>
+                </Permittivity>
+            </Material>
+            <Material Name="SUB">
+                <Permittivity>
+                    <Double>11.9</Double>
+                </Permittivity>
+            </Material>
+            <Material Name="TOPNIT">
+                <Permittivity>
+                    <Double>7.5</Double>
+                </Permittivity>
+            </Material>
+        </Materials>
+        <ELayers LengthUnit="um" MetalLayerSnappingTolerance="10nm">
+            <Dielectrics BaseElevation="-100">
+                <Layer Color="#5c4300" Material="PI1" Name="PI1" Thickness="6.1346" />
+                <Layer Color="#2f43aa" Material="TOPNIT" Name="TOPNIT" Thickness="0.3777" />
+                <Layer Color="#3c00f0" Material="NILD6" Name="NILD6" Thickness="1.35" />
+                <Layer Color="#00cc00" Material="NILD5" Name="NILD5" Thickness="1.235" />
+                <Layer Color="#5c4300" Material="NILD4" Name="NILD4" Thickness="0.78" />
+                <Layer Color="#00ccf0" Material="NILD3" Name="NILD3" Thickness="0.63" />
+                <Layer Color="#5c4300" Material="NILD2" Name="NILD2" Thickness="0.365" />
+                <Layer Color="#3cccf0" Material="LINT" Name="LINT" Thickness="0.075" />
+                <Layer Color="#5c4300" Material="PSG" Name="PSG" Thickness="0.6099" />
+                <Layer Color="#5c4300" Material="FOX" Name="FOX" Thickness="0.3262" />
+                <Layer Color="#a2bb00" Material="SUB" Name="SUB" Thickness="100" />
+            </Dielectrics>
+            <Layers>
+                <Layer Color="#a2bb00" Elevation="5.3711" Material="METAL" Name="met5" Thickness="1.26" Type="conductor" />
+                <Layer Color="#c020ff" Elevation="4.0211" Material="METAL" Name="met4" Thickness="0.845" Type="conductor" />
+                <Layer Color="#a2ff00" Elevation="2.7861" Material="METAL" Name="met3" Thickness="0.845" Type="conductor" />
+                <Layer Color="#c4a578" Elevation="2.0061" Material="METAL" Name="met2" Type="conductor" />
+                <Layer Color="#5c43f2" Elevation="1.3761" Material="METAL" Name="met1" Thickness="0.36" Type="conductor" />
+            </Layers>
+            <Vias>
+                <Layer Color="#a10000" Material="METAL" Name="via4" StartLayer="met5" StopLayer="met4">
+                </Layer>
+                <Layer Color="#ff2210" Material="METAL" Name="via3" StartLayer="met4" StopLayer="met3">
+                </Layer>
+                <Layer Color="#05f100" Material="METAL" Name="via2" StartLayer="met3" StopLayer="met2">
+                </Layer>
+                <Layer Color="#072212" Material="METAL" Name="via" StartLayer="met2" StopLayer="met1">
+                </Layer>
+            </Vias>
+        </ELayers>
+    </Stackup>
+</c:Control>

@@ -1,0 +1,390 @@
+Transcript Start Time:  10:44:20, 20 Jun 2023 ora legale Europa occidentale 
+Current Directory: "C:\Users\lvecchie\AppData\Local\Temp\icepak_AAPitTegtDhimv2.win.ansys.com_31784.pjt"
+
+Build Time: Oct 24 2022 13:31:47 EDT  Build Id: 196 Revision: aa48256ffd  Branch: releases/release-23.1 
+Executable Path: C:/PROGRA~1/AnsysEM/v231/Win64/fluent/ntbin/win64/fluent.exe
+
+--------------------------------------------------------------------------------------------------
+ID    Hostname         Core  O.S.         PID    Vendor                                          
+--------------------------------------------------------------------------------------------------
+n0*   AAPitTegtDhimv2  1/16  Windows-x64  30632  11th Gen Intel(R) Core(TM) i7-11850H @ 2.50GHz  
+host  AAPitTegtDhimv2        Windows-x64  21852  11th Gen Intel(R) Core(TM) i7-11850H @ 2.50GHz  
+
+MPI Option Selected: intel
+Selected system interconnect: default
+--------------------------------------------------------------------------------------------------
+
+Cortex Process ID: 38696 
+License Server Path: 1055@127.0.0.1 
+
+> (define t0)
+t0
+
+
+> (set! t0 (cpu-time))
+t0
+
+
+> (define wt0)
+wt0
+
+
+> (set! wt0 (time))
+wt0
+
+
+> (ti-menu-load-string "file hdf-files? no")
+file hdf-files? no#t
+
+
+> (if (err-protect (%enable-dynamic-mesh-node-ids #t)) (pp "Ok") (begin (close-output-port (open-output-file "transient_setup.uns_out")) (close-output-port (open-output-file "transient_setup.uns_err"))))
+"Ok"
+
+
+> (if (err-protect (ti-menu-load-string "rc transient_setup.cas")) (pp "Ok") (begin (close-output-port (open-output-file "transient_setup.uns_out")) (close-output-port (open-output-file "transient_setup.cas_err"))))
+rc transient_setup.casMulticore SMT processors detected. Processor affinity set!
+
+Reading "transient_setup.cas"...
+
+Buffering for file scan...
+
+Icepak
+
+
+   10522 nodes.
+      78 mixed cells, zone  1.
+    8863 mixed cells, zone  2.
+     171 mixed interior faces, zone  3.
+   25536 mixed interior faces, zone  4.
+     122 mixed wall faces, zone  5.
+     122 mixed wall faces, zone  6.
+     122 shadow face pairs. 
+    2478 mixed wall faces, zone  7.
+       4 mixed wall faces, zone  8.
+       4 mixed wall faces, zone  9.
+       4 shadow face pairs. 
+       2 mixed interior faces, zone 10.
+       1 mixed jump faces, zone 11.
+
+Building...
+     mesh
+     materials,
+     interface,
+     domains,
+     zones,
+	fan_80jl21_surface_side
+	fan_nkgsqb_passage_side_1
+	fan_nkgsqb_passage_side_shadow
+	fan_nkgsqb_passage_side
+	region_side
+	fan_nkgsqb_case_side_shadow
+	fan_nkgsqb_case_side
+	fan_80jl21_passage_fluid
+	fan_80jl21_case_solid
+	interior-4
+	interior-3
+     parallel,
+
+Note: 3d, pressure-based, laminar, transient case read into
+      3d, double precision, pressure-based, laminar, transient solver.
+
+
+
+Done.
+"Ok"
+
+
+> (if (err-protect (ti-menu-load-string "def mesh-interfaces one-to-one-pairing? no")) (pp "Ok") (begin (close-output-port (open-output-file "transient_setup.uns_out")) (close-output-port (open-output-file "transient_setup.uns_err"))))
+def mesh-interfaces one-to-one-pairing? no "Ok"
+
+
+> (begin (define g_c (car (%grid-check))) (if g_c (begin (define port (open-output-file "GRID_FAIL")) (exit))))
+
+ Domain Extents:
+   x-coordinate: min (m) = -7.325000e-04, max (m) = 1.597500e-03
+   y-coordinate: min (m) = -7.325000e-04, max (m) = 1.597500e-03
+   z-coordinate: min (m) = -5.025000e-04, max (m) = 1.507500e-03
+ Volume statistics:
+   minimum volume (m3): 1.480512e-15
+   maximum volume (m3): 1.515568e-12
+     total volume (m3): 1.091209e-08
+ Face area statistics:
+   minimum face area (m2): 1.776615e-10
+   maximum face area (m2): 1.357225e-08
+ Checking mesh............................
+Done.
+#f
+
+
+> (load "C:\Program Files\AnsysEM\v231\Win64/icepak/lib/icepak/icepak.scm")
+Loading "C:\Program Files\AnsysEM\v231\Win64/icepak/lib/icepak/icepak.scm"
+Done.
+#f
+
+
+> (load "C:\Program Files\AnsysEM\v231\Win64/icepak/lib/icepak/benchmark.scm")
+Loading "C:\Program Files\AnsysEM\v231\Win64/icepak/lib/icepak/benchmark.scm"
+Done.
+#f
+
+
+> (if (err-protect (ti-menu-load-string "def mo rad s2s? no")) (pp "Ok") (begin (close-output-port (open-output-file "transient_setup.uns_out")) (close-output-port (open-output-file "transient_setup.uns_err"))))
+def mo rad s2s? no"Ok"
+
+
+> (if (err-protect (ti-menu-load-string "s i i")) (pp "Ok") (begin (close-output-port (open-output-file "transient_setup.uns_out")) (close-output-port (open-output-file "transient_setup.init_err"))))
+s i i"Ok"
+
+
+> (set! suffix-expand-filename (lambda (fn suffix) fn))
+suffix-expand-filename
+
+
+> (rpsetvar 'time-step 0)
+time-step
+
+
+> (rpsetvar 'flow-time 0)
+flow-time
+
+
+> (if (err-protect (%set-void-dynamic-mesh-node-ids)) (pp "Ok") (begin (close-output-port (open-output-file "transient_setup.uns_out")) (close-output-port (open-output-file "transient_setup.uns_err"))))
+"Ok"
+
+
+> wc transient_setup.nc_cas
+
+Writing "transient_setup.nc_cas"...
+
+      78 mixed cells, zone  1, binary.
+    8863 mixed cells, zone  2, binary.
+     171 mixed interior faces, zone  3, binary.
+   25536 mixed interior faces, zone  4, binary.
+     122 mixed wall faces, zone  5, binary.
+     122 mixed wall faces, zone  6, binary.
+    2478 quadrilateral wall faces, zone  7, binary.
+       4 triangular wall faces, zone  8, binary.
+       4 triangular wall faces, zone  9, binary.
+       2 triangular interior faces, zone 10, binary.
+       1 quadrilateral jump faces, zone 11, binary.
+     122 shadow face pairs, binary.
+       4 shadow face pairs, binary.
+   10522 nodes, binary.
+   10522 node flags, binary.
+   10522 node sids, binary.
+Done.
+
+
+> (if (err-protect (%write-nodemap "transient_setup.nodemap")) (pp "Ok") (begin (close-output-port (open-output-file "transient_setup.uns_out")) (close-output-port (open-output-file "transient_setup.uns_err"))))
+999999: Wrote nodemap for 10522 nodes
+0: Using dynamic mesh id
+"Ok"
+
+
+> (define ps-port)
+ps-port
+
+
+> (set! ps-port (open-file "init_proc_stats" "wl"))
+ps-port
+
+
+> (set-echo-ports! *console-output-port* (cons ps-port (echo-ports *console-output-port*)))
+(#[port 0x154deb20] #[port 0x103dcbe0] #[port 0xcda5040])
+
+
+> (proc-stats)
+
+----------------------------------------------
+       | Virtual Mem Usage (GB)|            
+ID     | Current    Peak       | Page Faults
+----------------------------------------------
+host   | 0.884697   0.902569   | 2.416e+05  
+n0     | 0.0948906  0.0948906  | 3.29e+04   
+----------------------------------------------
+Total  | 0.979588   0.997459   | 2.745e+05  
+----------------------------------------------
+
+-----------------------------------------------------------------
+                    | Virtual Mem Usage (GB)    | System Mem (GB)          
+Hostname            | Current      Peak         |                          
+-----------------------------------------------------------------
+AAPitTegtDhimv2     | 0.979588     0.997459     | 31.7264      
+-----------------------------------------------------------------
+Total               | 0.979588     0.997459     |            
+-----------------------------------------------------------------
+()
+
+
+> (set-echo-ports! *console-output-port* (delete ps-port (echo-ports *console-output-port*)))
+(#[port 0x103dcbe0] #[port 0xcda5040])
+
+
+> (flush-output-port ps-port)
+#f
+
+
+> (close-output-port ps-port)
+#f
+
+
+> (define t1)
+t1
+
+
+> (set! t1 (cpu-time))
+t1
+
+
+> (define wt1)
+wt1
+
+
+> (set! wt1 (time))
+wt1
+
+
+> (format "Solver Initialization: cpu=~a real=~a~%" (- t1 t0) (- wt1 wt0))
+Solver Initialization: cpu=6.1941355 real=6
+
+
+> (if (err-protect (benchmark-aedt '(icepak-physical-time-steps 2 2 20 "transient_setup" 10 1 0 1))) (pp "Ok") (begin (close-output-port (open-output-file "transient_setup.uns_out")) (close-output-port (open-output-file "transient_setup.soln_err"))))
+
+Writing "transient_setup.0.resd"...
+
+Writing elements...
+Wrote 20 triangles.
+Wrote 2711 quads.
+Writing face results...
+Wrote Heat Flow Rate on 2731 faces. 
+Wrote Heat Flux on 2731 faces. 
+Wrote Temperature on 2731 faces. 
+Wrote Mass Flux on 2731 faces. 
+Wrote X Velocity on 2731 faces. 
+Wrote Y Velocity on 2731 faces. 
+Wrote Z Velocity on 2731 faces. 
+Wrote Pressure on 2731 faces. 
+
+Writing node results...
+Writing ICEM domain scalar "Pressure"
+Wrote Pressure on 10522 nodes.
+Writing ICEM domain scalar "Temperature"
+Wrote Temperature on 10522 nodes.
+Writing ICEM domain scalar "X Velocity"
+Wrote X Velocity on 10522 nodes.
+Writing ICEM domain scalar "Y Velocity"
+Wrote Y Velocity on 10522 nodes.
+Writing ICEM domain scalar "Z Velocity"
+Wrote Z Velocity on 10522 nodes.
+0: Using dynamic mesh id
+Done.
+
+
+Updating solution at time level N...
+ done.
+
+  iter  continuity  x-velocity  y-velocity  z-velocity      energy     time/iter
+     1  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  0:00:00   19
+current-time = 1 (s) [previous-time = 0 (s) dt = 1 (s)]
+
+Updating solution at time level N...
+ done.
+
+  iter  continuity  x-velocity  y-velocity  z-velocity      energy     time/iter
+     1  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  0:00:00   20
+     2  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  0:00:19   19
+current-time = 2 (s) [previous-time = 1 (s) dt = 1 (s)]
+
+Writing "transient_setup.fdat"...
+
+Done.
+
+
+Writing "transient_setup.2.resd"...
+
+Writing face results...
+Wrote Heat Flow Rate on 2731 faces. 
+Wrote Heat Flux on 2731 faces. 
+Wrote Temperature on 2731 faces. 
+Wrote Mass Flux on 2731 faces. 
+Wrote X Velocity on 2731 faces. 
+Wrote Y Velocity on 2731 faces. 
+Wrote Z Velocity on 2731 faces. 
+Wrote Pressure on 2731 faces. 
+
+Writing node results...
+Writing ICEM domain scalar "Pressure"
+Wrote Pressure on 10522 nodes.
+Writing ICEM domain scalar "Temperature"
+Wrote Temperature on 10522 nodes.
+Writing ICEM domain scalar "X Velocity"
+Wrote X Velocity on 10522 nodes.
+Writing ICEM domain scalar "Y Velocity"
+Wrote Y Velocity on 10522 nodes.
+Writing ICEM domain scalar "Z Velocity"
+Wrote Z Velocity on 10522 nodes.
+0: Using dynamic mesh id
+Done.
+
+Solve: cpu=1.296875 real=1
+"Ok"
+
+
+> (define ps-port)
+ps-port
+
+
+> (set! ps-port (open-file "solve_proc_stats" "wl"))
+ps-port
+
+
+> (set-echo-ports! *console-output-port* (cons ps-port (echo-ports *console-output-port*)))
+(#[port 0x165ebc80] #[port 0x103dcbe0] #[port 0xcda5040])
+
+
+> (proc-stats)
+
+----------------------------------------------
+       | Virtual Mem Usage (GB)|            
+ID     | Current    Peak       | Page Faults
+----------------------------------------------
+host   | 0.885811   0.902569   | 2.419e+05  
+n0     | 0.14484    0.14484    | 4.6e+04    
+----------------------------------------------
+Total  | 1.03065    1.04741    | 2.879e+05  
+----------------------------------------------
+
+-----------------------------------------------------------------
+                    | Virtual Mem Usage (GB)    | System Mem (GB)          
+Hostname            | Current      Peak         |                          
+-----------------------------------------------------------------
+AAPitTegtDhimv2     | 1.03065      1.04741      | 31.7264      
+-----------------------------------------------------------------
+Total               | 1.03065      1.04741      |            
+-----------------------------------------------------------------
+()
+
+
+> (set-echo-ports! *console-output-port* (delete ps-port (echo-ports *console-output-port*)))
+(#[port 0x103dcbe0] #[port 0xcda5040])
+
+
+> (flush-output-port ps-port)
+#f
+
+
+> (close-output-port ps-port)
+#f
+
+
+> (if (not (pair? (zone-id->surface-id '(11)))) (ti-menu-load-string "surface zone fan_80jl21_surface_side 11"))
+#f
+
+
+> (if (err-protect (ti-menu-load-string "report s-i f-r fan_80jl21_surface_side , enthalpy y transient_setup.srp")) (pp "Ok") (begin (close-output-port (open-output-file "transient_setup.uns_out")) (close-output-port (open-output-file "transient_setup.uns_err"))))
+report s-i f-r fan_80jl21_surface_side , enthalpy y transient_setup.srp"Ok"
+
+
+> (err-protect (stop-transcript))
+Transcript Stop Time:  10:44:27, 20 Jun 2023 ora legale Europa occidentale 
+Total Transcript Time: 0 Minute 7 Second.

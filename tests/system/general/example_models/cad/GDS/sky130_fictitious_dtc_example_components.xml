@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Control>
+    <GDS_COMPONENTS LengthUnit="um">
+        <GDS_COMPONENT>
+            <GDS_PIN Name="1" x="81.28" y="84.6" Layer="met2" />
+            <GDS_PIN Name="2" x="211.28" y="84.6" Layer="met2" />
+            <GDS_PIN Name="3" x="211.28" y="214.6" Layer="met2" />
+            <GDS_PIN Name="4" x="81.28" y="214.6" Layer="met2" />
+            <Component RefDes="B1" PartName="BGA" PartType="IC">
+                <DieProperties Type="Flip chip" Orientation="Chip down" />
+                <SolderballProperties Shape="Cylinder" Diameter="65um" Height="65um"
+                    Material="solder" />
+                <ComponentPort Name="B1_1" Z0="50" PosPin="2" />
+                <ComponentPort Name="B1_2" Z0="50" PosPin="4" />
+            </Component>
+        </GDS_COMPONENT>
+    </GDS_COMPONENTS>
+</Control>

@@ -1,0 +1,11 @@
+#Layer Name        Layer Purpose     Layer Stream Number  Datatype Stream Number
+
+met5			drawing			72			20
+met4			drawing			71			20
+met3			drawing			70			20
+met2			drawing			69			20
+met1			drawing			68			20
+via4			drawing		71			44
+via3			drawing		70			44
+via2			drawing		69			44
+via			drawing		68			44

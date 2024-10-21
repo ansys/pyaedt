@@ -1,0 +1,379 @@
+$begin 'ReportDefinitions'
+	$begin 'ReportSetup'
+		$begin 'Reports'
+			$begin 'Plot_6LKGC0'
+				ReportID=117
+				$begin 'Report2D'
+					name='Plot_6LKGC0'
+					ReportID=117
+					ReportType=9
+					DisplayType=4
+					Title=''
+					Domain=''
+					$begin 'Migration'
+						MigVersion(0, 0, 'mig(0.0)')
+					$end 'Migration'
+					$begin 'Graph2DsV2'
+						$begin 'Graph2D'
+							TraceDefID=116
+							Type='Continuous'
+							Axis='Y1'
+						$end 'Graph2D'
+					$end 'Graph2DsV2'
+					$begin 'PlotDisplayDataManager'
+						NextUniqueID=9
+						MoveBackwards=false
+						$begin 'PlotHeaderDataSource'
+							CompanyName=''
+							ShowDesignName=true
+							ProjectFileName=''
+						$end 'PlotHeaderDataSource'
+						StockNameIDMap(DataTable=3, Header=0, PrimarySweep=1)
+						$begin 'SourceList'
+						$end 'SourceList'
+						Version='17.0:20150830'
+						$begin 'DocAttributes'
+							$begin 'PlotAttributeStoreMap'
+							$end 'PlotAttributeStoreMap'
+						$end 'DocAttributes'
+						$begin 'DisplayTypeAttributes'
+							$begin 'PlotAttributeStoreMap'
+								$begin 'MainMapItem'
+									$begin 'SubMapItem'
+										DataSourceID=7
+										$begin 'CurveCartesianAttribute'
+											YAxis='Y1'
+										$end 'CurveCartesianAttribute'
+									$end 'SubMapItem'
+								$end 'MainMapItem'
+								$begin 'MainMapItem'
+									$begin 'SubMapItem'
+										DataSourceID=7
+										$begin 'CurveRenderAttribute'
+											$begin 'LineRenderAttribute'
+												LineStyle='Solid'
+												LineWidth=3
+												ColorVersion=1
+												LineColor(R=237, G=28, B=36)
+											$end 'LineRenderAttribute'
+											TraceType='Continuous'
+											SymbolType='HollowHorizontalLeftTriangle'
+											SymbolColor(R=155, G=93, B=112)
+											ShowSymbols=false
+											SymbolFrequency=15
+											ShowArrows=false
+										$end 'CurveRenderAttribute'
+									$end 'SubMapItem'
+								$end 'MainMapItem'
+								$begin 'MainMapItem'
+									$begin 'SubMapItem'
+										DataSourceID=0
+										$begin 'HeaderRenderAttribute'
+											$begin 'TitleFont'
+												$begin 'FontAttribute'
+													$begin 'Font'
+														HeightInPts=14
+														Width=0
+														Escapement=0
+														Orientation=0
+														Weight=400
+														Italic=0
+														Underline=0
+														StrikeOut=0
+														CharSet=0
+														OutPrecision=7
+														ClipPrecision=48
+														Quality=6
+														PitchAndFamily=0
+														FaceName='Arial'
+													$end 'Font'
+													ColorVersion=1
+												$end 'FontAttribute'
+											$end 'TitleFont'
+											$begin 'SubtitleFont'
+												$begin 'FontAttribute'
+													$begin 'Font'
+														HeightInPts=10
+														Width=0
+														Escapement=0
+														Orientation=0
+														Weight=400
+														Italic=0
+														Underline=0
+														StrikeOut=0
+														CharSet=0
+														OutPrecision=7
+														ClipPrecision=48
+														Quality=6
+														PitchAndFamily=0
+														FaceName='Arial'
+													$end 'Font'
+													ColorVersion=1
+												$end 'FontAttribute'
+											$end 'SubtitleFont'
+										$end 'HeaderRenderAttribute'
+									$end 'SubMapItem'
+								$end 'MainMapItem'
+							$end 'PlotAttributeStoreMap'
+						$end 'DisplayTypeAttributes'
+						$begin 'DocDefaultAttributes'
+							$begin 'PlotAttributeStoreMap'
+							$end 'PlotAttributeStoreMap'
+						$end 'DocDefaultAttributes'
+						$begin 'PerViewPlotAttributeStoreMap'
+							$begin 'MapItem'
+								ItemID=6
+								$begin 'PlotAttributeStoreMap'
+									$begin 'MainMapItem'
+										$begin 'SubMapItem'
+											DataSourceID=5
+											$begin 'BasicLayoutAttribute'
+												$begin 'LayoutRect'
+													Top=75
+													Left=75
+													Bottom=9925
+													Right=814
+												$end 'LayoutRect'
+											$end 'BasicLayoutAttribute'
+										$end 'SubMapItem'
+									$end 'MainMapItem'
+									$begin 'MainMapItem'
+										$begin 'SubMapItem'
+											DataSourceID=4
+											$begin 'OverlayLayoutAttribute'
+												$begin 'BoundingRect'
+													Top=225
+													Left=989
+													Bottom=9775
+													Right=9775
+												$end 'BoundingRect'
+												ModifySize=false
+												ModifyPosition=false
+											$end 'OverlayLayoutAttribute'
+										$end 'SubMapItem'
+									$end 'MainMapItem'
+								$end 'PlotAttributeStoreMap'
+								PlotType=25
+							$end 'MapItem'
+						$end 'PerViewPlotAttributeStoreMap'
+						IsViewAttribServer=false
+						ViewID=-1
+						$begin 'SourceIDMap'
+							IDMapItem(116, 0, -1, 7)
+						$end 'SourceIDMap'
+						$begin 'TraceCharacteristicsMgr'
+						$end 'TraceCharacteristicsMgr'
+						$begin 'CartesianXMarkerManager'
+							RefMarkerID=-1
+							CurrentMarkerID=-1
+							$begin 'ReferenceCurves'
+							$end 'ReferenceCurves'
+						$end 'CartesianXMarkerManager'
+						$begin 'CartesianYMarkerManager'
+						$end 'CartesianYMarkerManager'
+						XAxisStackID=-1
+						$begin 'AllTransSrcDwg'
+							$begin 'PT'
+								ID=25
+								TransSrcDwg(-1, 0, 5)
+							$end 'PT'
+						$end 'AllTransSrcDwg'
+						$begin 'AllPtSVID'
+						$end 'AllPtSVID'
+					$end 'PlotDisplayDataManager'
+				$end 'Report2D'
+			$end 'Plot_6LKGC0'
+		$end 'Reports'
+	$end 'ReportSetup'
+	$begin 'Reports'
+		$begin 'Plot_6LKGC0'
+			ReportID=117
+			ReportName='Plot_6LKGC0'
+			$begin 'TraceDef'
+				TraceDefinitionType='TraceDefinition'
+				$begin 'DesignSolnDefn'
+					$begin 'DESIGN_SOLUTION_SIM_VALUE_CONTEXT'
+						DesignID=4
+						SolutionID=5484
+						$begin 'REPORT_TYPE_SIM_VALUE_CONTEXT'
+							ReportType=9
+							SimValueContext(0, 0, 2, 0, false, false, 49, 1, 0, 1, 1, '', 0, 0, 'SourceContext', false, '0')
+						$end 'REPORT_TYPE_SIM_VALUE_CONTEXT'
+					$end 'DESIGN_SOLUTION_SIM_VALUE_CONTEXT'
+				$end 'DesignSolnDefn'
+				ID=116
+				VersionID=2217
+				Name='db(PeakRealizedGain)'
+				TieNameToExpr=true
+				$begin 'Components'
+					$begin 'TraceComponentDefinition'
+						Expr='Freq'
+					$end 'TraceComponentDefinition'
+					$begin 'TraceComponentDefinition'
+						Expr='db(PeakRealizedGain)'
+					$end 'TraceComponentDefinition'
+				$end 'Components'
+				$begin 'ExtendedTraceInfo'
+					NumPoints=0
+					TraceType=0
+					Offset=0
+					XLabel=''
+					SamplingPeriod='0'
+					SamplingPeriodOffset='0'
+					AutoDelay=true
+					DelayValue='0ps'
+					AutoCompCrossAmplitude=true
+					CrossingAmplitude='0mV'
+					YAxis=1
+					AutoCompEyeMeasurementPoint=true
+					EyeMeasurementPoint='0ps'
+					EyePamLow()
+					EyePamVRef()
+					EyePamHigh()
+					EyePamNames()
+					EyePamStrictVRef=false
+				$end 'ExtendedTraceInfo'
+				$begin 'TraceFamiliesDisplayDefinition'
+					DisplayFamiliesType='DisplayAll'
+				$end 'TraceFamiliesDisplayDefinition'
+				$begin 'PointsetDefinition'
+					$begin 'SubsweepDefParamsContainer'
+						$begin '0'
+							SubsweepType='Regular'
+							SubsweepChoiceType='All'
+							SweepVariableName='Freq'
+							AllowSelecteValues=true
+							SweepHasConsistentValues=true
+						$end '0'
+						$begin '1'
+							SubsweepType='Regular'
+							SubsweepChoiceType='Selected'
+							SweepVariableName='fc'
+							AllowSelecteValues=true
+							SweepHasConsistentValues=true
+							ColumnValues(30000000000)
+							ParameterType='DoubleParam'
+							Units='GHz'
+						$end '1'
+						$begin '2'
+							SubsweepType='Regular'
+							SubsweepChoiceType='Selected'
+							SweepVariableName='w'
+							AllowSelecteValues=true
+							SweepHasConsistentValues=true
+							ColumnValues(0.02)
+							ParameterType='DoubleParam'
+							Units=''
+						$end '2'
+						$begin '3'
+							SubsweepType='Regular'
+							SubsweepChoiceType='Selected'
+							SweepVariableName='rA'
+							AllowSelecteValues=true
+							SweepHasConsistentValues=true
+							ColumnValues(0.51)
+							ParameterType='DoubleParam'
+							Units=''
+						$end '3'
+						$begin '4'
+							SubsweepType='Regular'
+							SubsweepChoiceType='Selected'
+							SweepVariableName='hA'
+							AllowSelecteValues=true
+							SweepHasConsistentValues=true
+							ColumnValues(0.5)
+							ParameterType='DoubleParam'
+							Units=''
+						$end '4'
+						$begin '5'
+							SubsweepType='Regular'
+							SubsweepChoiceType='Selected'
+							SweepVariableName='rB'
+							AllowSelecteValues=true
+							SweepHasConsistentValues=true
+							ColumnValues(0.687)
+							ParameterType='DoubleParam'
+							Units=''
+						$end '5'
+						$begin '6'
+							SubsweepType='Regular'
+							SubsweepChoiceType='Selected'
+							SweepVariableName='hB'
+							AllowSelecteValues=true
+							SweepHasConsistentValues=true
+							ColumnValues(0.585)
+							ParameterType='DoubleParam'
+							Units=''
+						$end '6'
+						$begin '7'
+							SubsweepType='Regular'
+							SubsweepChoiceType='Selected'
+							SweepVariableName='rC'
+							AllowSelecteValues=true
+							SweepHasConsistentValues=true
+							ColumnValues(0.805)
+							ParameterType='DoubleParam'
+							Units=''
+						$end '7'
+						$begin '8'
+							SubsweepType='Regular'
+							SubsweepChoiceType='Selected'
+							SweepVariableName='hC'
+							AllowSelecteValues=true
+							SweepHasConsistentValues=true
+							ColumnValues(0.661)
+							ParameterType='DoubleParam'
+							Units=''
+						$end '8'
+						$begin '9'
+							SubsweepType='Regular'
+							SubsweepChoiceType='Selected'
+							SweepVariableName='rD'
+							AllowSelecteValues=true
+							SweepHasConsistentValues=true
+							ColumnValues(0.822)
+							ParameterType='DoubleParam'
+							Units=''
+						$end '9'
+						$begin '10'
+							SubsweepType='Regular'
+							SubsweepChoiceType='Selected'
+							SweepVariableName='hD'
+							AllowSelecteValues=true
+							SweepHasConsistentValues=true
+							ColumnValues(2.3)
+							ParameterType='DoubleParam'
+							Units=''
+						$end '10'
+						$begin '11'
+							SubsweepType='Specifiable'
+							SubsweepChoiceType='Selected'
+							SweepVariableName='PC'
+							AllowSelecteValues=true
+							SweepHasConsistentValues=true
+							ColumnValues(-0.073)
+							ParameterType='DoubleParam'
+							Units=''
+						$end '11'
+					$end 'SubsweepDefParamsContainer'
+					FamilyBlock()
+				$end 'PointsetDefinition'
+				DesignInstanceID=5
+			$end 'TraceDef'
+		$end 'Plot_6LKGC0'
+	$end 'Reports'
+	$begin 'AllTracesInterpreter'
+		$begin 'PerTraceInterpreter'
+			$begin 'TraceInterpreter'
+				ID=116
+				$begin 'ReportMgrTraceInterpreter'
+					SolutionName='Setup1 : LastAdaptive'
+					SolutionID=5484
+				$end 'ReportMgrTraceInterpreter'
+				$begin 'ProductTraceInterpreterBlock'
+					EMContext='3D'
+				$end 'ProductTraceInterpreterBlock'
+			$end 'TraceInterpreter'
+		$end 'PerTraceInterpreter'
+	$end 'AllTracesInterpreter'
+$end 'ReportDefinitions'
