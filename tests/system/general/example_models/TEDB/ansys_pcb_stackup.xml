@@ -1,0 +1,81 @@
+<?xml version="1.0" ?>
+<ns0:Control xmlns:ns0="http://www.ansys.com/control" schemaVersion="1.0">
+    <Stackup schemaVersion="1.0">
+        <Materials>
+            <Material Name="copper">
+                <Conductivity>
+                    <Double>58000000.0</Double>
+                </Conductivity>
+            </Material>
+            <Material Name="FR4_epoxy">
+                <Permittivity>
+                    <Double>4.4</Double>
+                </Permittivity>
+                <DielectricLossTangent>
+                    <Double>0.02</Double>
+                </DielectricLossTangent>
+            </Material>
+            <Material Name="Megtron4">
+                <Permittivity>
+                    <Double>3.77</Double>
+                </Permittivity>
+                <DielectricLossTangent>
+                    <Double>0.005</Double>
+                </DielectricLossTangent>
+            </Material>
+            <Material Name="Megtron4_2">
+                <Permittivity>
+                    <Double>3.47</Double>
+                </Permittivity>
+                <DielectricLossTangent>
+                    <Double>0.006</Double>
+                </DielectricLossTangent>
+            </Material>
+            <Material Name="Megtron4_3">
+                <Permittivity>
+                    <Double>4.2</Double>
+                </Permittivity>
+                <DielectricLossTangent>
+                    <Double>0.005</Double>
+                </DielectricLossTangent>
+            </Material>
+            <Material Name="Solder Resist">
+                <Permittivity>
+                    <Double>3.0</Double>
+                </Permittivity>
+                <DielectricLossTangent>
+                    <Double>0.0</Double>
+                </DielectricLossTangent>
+            </Material>
+        </Materials>
+        <Layers LengthUnit="meter">
+            <Layer Material="copper" Name="1_Top" Thickness="3.5000000000000004e-05" Type="conductor" FillMaterial="Solder Resist" EtchFactor="0.0"/>
+            <Layer Material="Megtron4" Name="DE1" Thickness="0.0001" Type="dielectric"/>
+            <Layer Material="copper" Name="Inner1(GND1)" Thickness="1.7000000000000003e-05" Type="conductor" FillMaterial="Megtron4_2" EtchFactor="0.0"/>
+            <Layer Material="Megtron4_2" Name="DE2" Thickness="8.8e-05" Type="dielectric"/>
+            <Layer Material="copper" Name="Inner2(PWR1)" Thickness="1.7000000000000003e-05" Type="conductor" FillMaterial="Megtron4_2" EtchFactor="0.0"/>
+            <Layer Material="Megtron4" Name="DE3" Thickness="0.0001" Type="dielectric"/>
+            <Layer Material="copper" Name="Inner3(Sig1)" Thickness="1.7000000000000003e-05" Type="conductor" FillMaterial="Megtron4_3" EtchFactor="0.0"/>
+            <Layer Material="Megtron4_3" Name="Megtron4-1mm" Thickness="0.001" Type="dielectric"/>
+            <Layer Material="copper" Name="Inner4(Sig2)" Thickness="1.7000000000000003e-05" Type="conductor" FillMaterial="Megtron4_3" EtchFactor="0.0"/>
+            <Layer Material="Megtron4" Name="DE5" Thickness="0.0001" Type="dielectric"/>
+            <Layer Material="copper" Name="Inner5(PWR2)" Thickness="1.7000000000000003e-05" Type="conductor" FillMaterial="Megtron4_2" EtchFactor="0.0"/>
+            <Layer Material="Megtron4_2" Name="DE6" Thickness="8.8e-05" Type="dielectric"/>
+            <Layer Material="copper" Name="Inner6(GND2)" Thickness="1.7000000000000003e-05" Type="conductor" FillMaterial="Megtron4_2" EtchFactor="0.0"/>
+            <Layer Material="Megtron4" Name="DE7" Thickness="0.0001" Type="dielectric"/>
+            <Layer Material="copper" Name="16_Bottom" Thickness="3.5000000000000004e-05" Type="conductor" FillMaterial="Solder Resist" EtchFactor="0.0"/>
+            <Layer Material="copper" Name="17_Bottom" Thickness="3.5000000000000004e-05" Type="conductor" FillMaterial="Solder Resist" EtchFactor="0.0"/>
+            <Layer Name="Measures" Type="measure"/>
+            <Layer Name="SIwave Regions" Type="siwavehfsssolverregions"/>
+            <Layer Name="Top Overlay" Type="silkscreen"/>
+            <Layer Name="Top Solder" Type="soldermask"/>
+            <Layer Name="Bottom Solder" Type="soldermask"/>
+            <Layer Name="Bottom Overlay" Type="silkscreen"/>
+            <Layer Name="Outline" Type="outline"/>
+            <Layer Name="Rats" Type="airlines"/>
+            <Layer Name="Errors" Type="errors"/>
+            <Layer Name="Symbols" Type="symbol"/>
+            <Layer Name="Postprocessing" Type="postprocessing"/>
+        </Layers>
+    </Stackup>
+</ns0:Control>

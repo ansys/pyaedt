@@ -1,0 +1,101 @@
+$begin 'MeshRegion'
+	Name='Global'
+	ParentRegion=0
+	Designid=6
+	Shapeid=0
+	Domainid=0
+	Root=true
+	HasMesh=true
+	MeshRegion=true
+	$begin 'Transform'
+		AffineMatrix[9: 1, 0, 0, 0, 1, 0, 0, 0, 1]
+		Translation[3: 0, 0, 0]
+	$end 'Transform'
+	$begin 'Objects'
+		Count=6
+		$begin 'Object1'
+			Name='Fan_NKGSQB_Case'
+			Domains[21: 37, 1, 0, 38, 1, 1, 40, 1, 2, 43, 1, 3, 39, 1, 4, 42, 1, 5, 41, 1, 6]
+		$end 'Object1'
+		$begin 'Object2'
+			Name='Fan_NKGSQB_Passage'
+			Domains[12: 64, 2, 0, 66, 2, 1, 67, 2, 2, 65, 2, 3]
+		$end 'Object2'
+		$begin 'Object3'
+			Name='Fan_80JL21_Case'
+			Domains[21: 77, 3, 0, 78, 3, 1, 80, 3, 2, 83, 3, 3, 79, 3, 4, 82, 3, 5, 81, 3, 6]
+		$end 'Object3'
+		$begin 'Object4'
+			Name='Fan_80JL21_Passage'
+			Domains[12: 104, 4, 0, 106, 4, 1, 107, 4, 2, 105, 4, 3]
+		$end 'Object4'
+		$begin 'Object5'
+			Name='Fan_NKGSQB_Surface - Face 71'
+			Domains[3: 71, 5, 1]
+		$end 'Object5'
+		$begin 'Object6'
+			Name='Fan_80JL21_Surface - Face 111'
+			Domains[3: 111, 6, 1]
+		$end 'Object6'
+	$end 'Objects'
+	$begin 'coupling_walls'
+		Domains[18: 10, 0, 1, 12, 0, 2, 9, 0, 3, 11, 0, 4, 8, 0, 5, 7, 0, 6]
+	$end 'coupling_walls'
+	$begin '2DFaceMapping'
+		Count=2
+		$begin 'FaceMap1'
+			Object=70
+			Faces[1: 71]
+		$end 'FaceMap1'
+		$begin 'FaceMap2'
+			Object=110
+			Faces[1: 111]
+		$end 'FaceMap2'
+	$end '2DFaceMapping'
+	$begin '3DFaceMapping'
+		Count=7
+		$begin 'FaceMap1'
+			Object=6
+			Faces[6: 7, 9, 10, 11, 8, 12]
+		$end 'FaceMap1'
+		$begin 'FaceMap2'
+			Object=37
+			Faces[6: 41, 43, 38, 39, 42, 40]
+		$end 'FaceMap2'
+		$begin 'FaceMap3'
+			Object=64
+			Faces[3: 67, 66, 65]
+		$end 'FaceMap3'
+		$begin 'FaceMap4'
+			Object=70
+			Faces[1: 71]
+		$end 'FaceMap4'
+		$begin 'FaceMap5'
+			Object=77
+			Faces[6: 81, 83, 78, 79, 82, 80]
+		$end 'FaceMap5'
+		$begin 'FaceMap6'
+			Object=104
+			Faces[3: 107, 106, 105]
+		$end 'FaceMap6'
+		$begin 'FaceMap7'
+			Object=110
+			Faces[1: 111]
+		$end 'FaceMap7'
+	$end '3DFaceMapping'
+	$begin 'MaterialMapping'
+		Count=2
+		$begin 'MatMap1'
+			MaterialType='Solid'
+			Objects[2: 37, 77]
+		$end 'MatMap1'
+		$begin 'MatMap2'
+			MaterialType='Fluid'
+			Objects[3: 6, 64, 104]
+		$end 'MatMap2'
+	$end 'MaterialMapping'
+	$begin 'SubRegions'
+	$end 'SubRegions'
+	PartNames(37, 'Fan_NKGSQB_Case', 64, 'Fan_NKGSQB_Passage', 70, 'Fan_NKGSQB_Surface', 77, 'Fan_80JL21_Case', 104, 'Fan_80JL21_Passage', 110, 'Fan_80JL21_Surface')
+	OverlappingMRFaces[0:]
+$end 'MeshRegion'

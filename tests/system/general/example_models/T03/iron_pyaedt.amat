@@ -1,0 +1,98 @@
+
+$begin 'iron_pyaedt'
+	$begin 'MaterialDef'
+	$begin 'iron_pyaedt'
+	CoordinateSystemType='Cartesian'
+	BulkOrSurfaceType=1
+	$begin 'PhysicsTypes'
+	set('Electromagnetic', 'Thermal', 'Structural')
+	$end 'PhysicsTypes'
+	$begin 'AttachedData'
+	$begin 'MatAppearanceData'
+	property_data='appearance_data'
+	Red=74
+	Green=74
+	Blue=74
+	$end 'MatAppearanceData'
+	$begin 'MatNotesData'
+	property_data='notes_data'
+	Notes='Materials data\
+Database: MaterialU\
+Table: MaterialU\
+Record name: iron_pyaedt\
+Designation: iron_pyaedt, BS EN 1561:1997 (record based on BS 1542:1990 BS grade 250)\
+GUID: 04b3107f-45c5-4e7c-bdd6-3bf3cffc2ef2'
+	$end 'MatNotesData'
+	$end 'AttachedData'
+	$begin 'ModifierData'
+	$begin 'ThermalModifierData'
+	modifier_data='thermal_modifier_data'
+	$begin 'all_thermal_modifiers'
+	$begin 'one_thermal_modifier'
+	'Property:'='thermal_conductivity'
+	'Index:'=0
+	prop_modifier='thermal_modifier'
+	use_free_form=true
+	free_form_value='pwl($Thermal_conductivity_with_temperature_1,Temp)'
+	$end 'one_thermal_modifier'
+	$begin 'one_thermal_modifier'
+	'Property:'='specific_heat'
+	'Index:'=0
+	prop_modifier='thermal_modifier'
+	use_free_form=true
+	free_form_value='pwl($Specific_heat_capacity_with_temperature_1,Temp)'
+	$end 'one_thermal_modifier'
+	$begin 'one_thermal_modifier'
+	'Property:'='thermal_expansion_coefficient'
+	'Index:'=0
+	prop_modifier='thermal_modifier'
+	use_free_form=true
+	free_form_value='pwl($Thermal_expansion_coefficient_with_temperature_1,Temp)'
+	$end 'one_thermal_modifier'
+	$end 'all_thermal_modifiers'
+	$end 'ThermalModifierData'
+	$end 'ModifierData'
+	$begin 'permeability'
+	property_type='nonlinear'
+	BTypeForSingleCurve='normal'
+	HUnit='A_per_meter'
+	BUnit='tesla'
+	IsTemperatureDependent=false
+	$begin 'BHCoordinates'
+	DimUnits[2: '', '']
+	Points[54: 0, 0, 16000, 1, 17281.6, 1.05, 18847.4, 1.1, 20865.9, 1.15, 23376, 1.2, 26469.5, 1.25, 30177.8, 1.3, 34493.5, 1.35, 39401.2, 1.4, 44861, 1.45, 50789.6, 1.5, 57260.3, 1.55, 64825.4, 1.6, 74271.5, 1.65, 86025.4, 1.7, 100233, 1.75, 117472, 1.8, 138235, 1.85, 162690, 1.9, 191556, 1.95, 224815, 2, 260282, 2.05, 295816, 2.1, 330843, 2.15, 367601, 2.2, 407000, 2.25]
+	$end 'BHCoordinates'
+	$begin 'Temperatures'
+	$end 'Temperatures'
+	$end 'permeability'
+	conductivity='1371180'
+	thermal_conductivity='43.0284'
+	mass_density='7199.83'
+	specific_heat='445.332'
+	youngs_modulus='1.23511e+11'
+	poissons_ratio='0.259952'
+	thermal_expansion_coefficient='8.97454e-6'
+	$begin 'thermal_material_type'
+	property_type='ChoiceProperty'
+	Choice='Solid'
+	$end 'thermal_material_type'
+	$end 'iron_pyaedt'
+	$end 'MaterialDef'
+	$begin 'RefDatasets'
+	$begin '$Thermal_conductivity_with_temperature_1'
+	DimUnits[2: 'cel', '']
+	X('19.85', '96.99', '174.1', '251.3', '328.4', '405.6', '482.7', '559.9', '637', '714.1', '791.3', '868.4', '945.6', '1023', '1100')
+	Y('0.999572', '1.01491', '1.00771', '0.985861', '0.95681', '0.932872', '0.914512', '0.889413', '0.853622', '0.81086', '0.773443', '0.79831', '0.833403', '0.864778', '0.885229')
+	$end '$Thermal_conductivity_with_temperature_1'
+	$begin '$Specific_heat_capacity_with_temperature_1'
+	DimUnits[2: 'cel', '']
+	X('19.85', '86.52', '153.2', '219.9', '286.5', '353.2', '419.9', '486.5', '553.2', '619.9')
+	Y('0.996785', '1.09649', '1.18024', '1.25345', '1.32171', '1.39132', '1.46789', '1.55704', '1.6646', '1.79664')
+	$end '$Specific_heat_capacity_with_temperature_1'
+	$begin '$Thermal_expansion_coefficient_with_temperature_1'
+	DimUnits[2: 'cel', '']
+	X('19.85', '88.94', '158', '227.1', '296.2', '365.3', '434.4', '503.5', '572.6', '641.7', '710.8', '779.9')
+	Y('0.996931', '1.09554', '1.17332', '1.23238', '1.27806', '1.31149', '1.33712', '1.3594', '1.37946', '1.40174', '1.43406', '1.53657')
+	$end '$Thermal_expansion_coefficient_with_temperature_1'
+	$end 'RefDatasets'
+$end 'iron_pyaedt'

@@ -1,0 +1,28 @@
+{
+	"name": "bike1",
+	"version": 1,
+	"type":"biker",
+	"class":"bike",
+	"xlim":["-0.87","0.82"],
+	"ylim":["-0.28","0.28"],
+	"parts": {
+		"wheels_front": {
+			"comp_name": "wheels_front_231.a3dcomp",
+			"rotation_cs":["0.50676350831985" ,"0" ,"0.30840685963631"],
+			"tire_radius":"0.311",
+			"rotation_axis":"Y"
+			},
+		"wheels_rear": {
+			"comp_name": "wheels_rear_231.a3dcomp",
+			"rotation_cs":["-0.50676350831985" ,"0" ,"0.30840685963631"],
+			"tire_radius":"0.311",
+			"rotation_axis":"Y"
+			},
+		"body": {
+			"comp_name": "body_231.a3dcomp",
+			"rotation_cs":null,
+			"tire_radius":null,
+			"rotation_axis":null
+			}			
+	}	
+}

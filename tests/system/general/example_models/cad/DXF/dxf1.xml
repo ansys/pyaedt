@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<c:Control xmlns:c="http://www.ansys.com/control" schemaVersion="1.0">
+
+  <Stackup schemaVersion="1.0">
+    <Materials>
+      <Material Name="Megtron6_1035_Laminate">
+        <Permittivity>
+          <Double>3.46</Double>
+        </Permittivity>
+        <DielectricLossTangent>
+          <Double>0.002</Double>
+        </DielectricLossTangent>
+      </Material>
+      <Material Name="copper">
+        <Permittivity>
+          <Double>1</Double>
+        </Permittivity>
+        <Permeability>
+          <Double>0.999991</Double>
+        </Permeability>
+        <Conductivity>
+          <Double>58000000</Double>
+        </Conductivity>
+        <DielectricLossTangent>
+          <Double>0</Double>
+        </DielectricLossTangent>
+        <MagneticLossTangent>
+          <Double>0</Double>
+        </MagneticLossTangent>
+      </Material>
+    </Materials>
+    <Layers LengthUnit="um">
+      <Layer Color="#008000" FillMaterial="Megtron6_1035_Laminate" GDSIIVia="false" Material="copper" Name="hole_Mechanical" Negative="false" StartLayer="Top" StopLayer="Bottom" Thickness="0" Type="via"/>
+	  <Layer Color="#000080" FillMaterial="Megtron6_1035_Laminate" GDSIIVia="false" Material="copper" Name="hole_Sequential" Negative="false" StartLayer="Top" StopLayer="Bottom" Thickness="0" Type="via"/>
+      <Layer Color="#00ff00" FillMaterial="Megtron6_1035_Laminate" Material="copper" Name="cond" TargetLayer="Top" Thickness="43" Type="conductor"/>
+      <Layer Color="#1a291f" Material="Megtron6_1035_Laminate" Name="Diel1" Thickness="300" Type="dielectric"/> 
+      <Layer Color="#0000ff" FillMaterial="Megtron6_1035_Laminate" Material="copper" Name="cond2" TargetLayer="Middle" Thickness="43" Type="conductor"/>
+      <Layer Color="#44614c" Material="Megtron6_1035_Laminate" Name="Diel2" Thickness="300" Type="dielectric"/>
+      <Layer Color="#ffff00" FillMaterial="Megtron6_1035_Laminate" Material="copper" Name="cond3" TargetLayer="Bottom" Thickness="43" Type="conductor"/>
+    </Layers>
+  </Stackup>
+  <ImportOptions AutoClose="true" ConvertClosedWideLinesToPolys="false">
+    <Stitching/>
+  </ImportOptions>
+
+</c:Control>

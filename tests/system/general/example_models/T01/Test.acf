@@ -1,0 +1,34 @@
+$begin 'Configs'
+	$begin 'Configs'
+		$begin 'DSOConfig'
+			ConfigName='Massimo'
+			DesignType='HFSS 3D Layout Design'
+			$begin 'DSOMachineList'
+				$begin 'DSOMachineInfo'
+					MachineName='localhost'
+					NumEngines=1
+					NumCores=3
+					IsEnabled=true
+					RAMPercent=90
+					NumJobCores=0
+					NumGPUs=0
+				$end 'DSOMachineInfo'
+			$end 'DSOMachineList'
+			UseAutoSettings=true
+			NumVariationsToDistribute=1
+			$begin 'DSOJobDistributionInfo'
+				AllowedDistributionTypes[3: 'Variations', 'Frequencies', 'Mesh Assembly']
+				Enable2LevelDistribution=false
+				NumL1Engines=0
+				UseDefaultsForDistributionTypes=false
+				Context()
+			$end 'DSOJobDistributionInfo'
+			$begin 'DSOMachineOptionsInfo'
+				MenuValues()
+				IntValues()
+				BoolValues()
+				DoubleValues()
+			$end 'DSOMachineOptionsInfo'
+		$end 'DSOConfig'
+	$end 'Configs'
+$end 'Configs'

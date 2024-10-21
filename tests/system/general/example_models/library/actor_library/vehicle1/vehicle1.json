@@ -1,0 +1,28 @@
+{
+	"name": "vehicle1",
+	"version": 1,
+	"type":"bmw m3",
+	"class":"vehicle",
+	"xlim":["-2.6","2.6"],
+	"ylim":["-1","1"],
+	"parts": {
+		"wheels_front": {
+			"comp_name": "wheels_front.a3dcomp",
+			"rotation_cs":["1.5348685913086","0","0.38360556793215"],
+			"tire_radius":"0.38",
+			"rotation_axis":"Y"
+			},
+		"wheels_rear": {
+			"comp_name": "wheels_rear.a3dcomp",
+			"rotation_cs":["-1.4024798583984" ,"0" ,"0.38359281158449"],
+			"tire_radius":"0.38",
+			"rotation_axis":"Y"
+			},
+		"body": {
+			"comp_name": "body.a3dcomp",
+			"rotation_cs":null,
+			"tire_radius":null,
+			"rotation_axis":null
+			}			
+	}	
+}

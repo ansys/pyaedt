@@ -1,0 +1,7 @@
+<Control>
+    <Boundaries LengthUnit="um">
+        <CircuitModel Name="DTC_CAP_PARTIAL" Type="cap" R="218ohm" C="0.248pF"/>
+        <CircuitElement Name="DTC_CAP_0" Cell="sky130_anss_xx_hd__dtc12" Model="DTC_CAP_PARTIAL" x1="2.3" y1="2.72" Layer1="met1" x2="2.3" y2="0" Layer2="met1" h1="0.48um" w1="0.46um" h2="0.48um" w2="0.46um"/>
+        <CircuitElement Name="DTC_CAP_1" Cell="sky130_anss_xx_hd__dtc12" Model="DTC_CAP_PARTIAL" x1="3.22" y1="2.72" Layer1="met1" x2="3.22" y2="5.44" Layer2="met1" h1="0.48um" w1="0.46um" h2="0.48um" w2="0.46um"/>
+    </Boundaries>
+</Control>

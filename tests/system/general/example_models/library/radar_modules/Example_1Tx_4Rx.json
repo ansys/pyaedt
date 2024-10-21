@@ -1,0 +1,60 @@
+{
+	"name": "Example_1Tx_4Rx",
+	"version": 1,
+	"number_tx":"1",
+	"number_rx":"4",
+	"units":"mm",
+	"antennas": {
+		"tx1": {
+			"antenna_type":"parametric",
+			"mode":"tx",
+			"offset":["0" ,"0" ,"0"],
+			"rotation_axis":null,
+			"rotation":null,
+			"beamwidth_elevation":"10deg",
+			"beamwidth_azimuth":"60deg",
+			"polarization":"Vertical"
+			},
+		"rx1": {
+			"antenna_type":"parametric",
+			"mode":"rx",
+			"offset":["0" ,"1.8" ,"0"],
+			"rotation_axis":null,
+			"rotation":null,
+			"beamwidth_elevation":"10deg",
+			"beamwidth_azimuth":"60deg",
+			"polarization":"Vertical"
+			},	
+		"rx2": {
+			"antenna_type":"parametric",
+			"mode":"rx",
+			"offset":["0" ,"3.6" ,"0"],
+			"rotation_axis":null,
+			"rotation":null,
+			"beamwidth_elevation":"10deg",
+			"beamwidth_azimuth":"60deg",
+			"polarization":"Vertical"
+			},
+		"rx3": {
+			"antenna_type":"parametric",
+			"mode":"rx",
+			"offset":["0" ,"5.4" ,"0"],
+			"rotation_axis":null,
+			"rotation":null,
+			"beamwidth_elevation":"10deg",
+			"beamwidth_azimuth":"60deg",
+			"polarization":"Vertical"
+			},
+		"rx4": {
+			"antenna_type":"parametric",
+			"mode":"rx",
+			"offset":["0" ,"7.2" ,"0"],
+			"rotation_axis":null,
+			"rotation":null,
+			"beamwidth_elevation":"10deg",
+			"beamwidth_azimuth":"60deg",
+			"polarization":"Vertical"
+			}		
+	}
+}
+

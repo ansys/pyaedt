@@ -1,0 +1,100 @@
+|***************************************************************************
+|
+[IBIS Ver]      5.1
+[File name]     pcieg5_32gt.ibs
+[File rev]      1.00
+[Date]          Jan 1, 2017
+[Source]        BPro (http://www.spisim.com)
+[Copyright]     Copyright 2017 ~, SPISim LLC. All right reserved.
+|
+|***************************************************************************
+|
+[Component]     Spec_Model
+[Manufacturer]  SPISim LLC
+[Package]
+|               typ             min             max
+R_pkg           0.0             0.0             0.0
+L_pkg           0.0             0.0             0.0
+C_pkg           0.0             0.0             0.0
+|
+|***************************************************************************
+|
+[PIN]   signal_name     model_name      R_pin   L_pin   C_pin
+1p       TxP             Tx              NA     NA     NA
+1n       TxN             Tx              NA     NA     NA
+2p       RxP             Rx              NA     NA     NA
+2n       RxN             Rx              NA     NA     NA
+|
+|***************************************************************************
+|
+[Diff Pin] inv_pin  vdiff  tdelay_typ  tdelay_min  tdelay_max
+1p         1n       0.1V   NA          NA          NA
+2p         2n       0.1V   NA          NA          NA
+|
+|****************************************************************
+|
+[Model]     Rx
+Model_type  Input
+|
+C_comp 0.00p 0.00p 0.00p
+Vinh = 0.55
+Vinl = 0.45
+|
+[Temperature_Range]  25    100   0
+[Voltage Range]      1.2   1.14  1.26
+|
+| The IV table below is equivalent to 50 ohms single-ended load
+[GND Clamp]
+-6.6              -0.132            -0.132            -0.132
+ 0.0               0.0               0.0               0.0
+ 6.6               0.132             0.132             0.132
+
+[Power Clamp]
+-6.6               0.132e-9          0.132e-9          0.132e-9
+ 0.0               0.0               0.0               0.0
+ 6.6              -0.132e-9          -0.132e-9         -0.132e-9
+
+[Algorithmic Model]
+Executable Windows_VisualStudio_32 pcieg5_32gt_WIN32.dll pcieg5_32gt.ami
+Executable Windows_VisualStudio_64 pcieg5_32gt_WIN64.dll pcieg5_32gt.ami
+Executable Linux_gcc_64            pcieg5_32gt_LX64.so   pcieg5_32gt.ami
+[End Algorithmic Model]
+
+|
+|***************************************************************************
+|
+[Model]        Tx
+Model_type     Output
+Polarity       Non-Inverting
+Enable         Active-High
+|
+Vmeas =        0.55
+|                            typ                min                max
+C_comp                       0                  0                  0
+[Voltage Range]             1.1                 1.0                1.2
+[Temperature Range]         60                  100                0
+|
+|***************************************************************************
+|
+[Pulldown]
+-2.500 -5.00000E-02 -5.00000E-02 -5.00000E-02
+0.000  +0.00000E+00 +0.00000E+00 +0.00000E+00
+2.500  +5.00000E-02 +5.00000E-02 +5.00000E-02
+[Pullup]
+-2.500 +5.00000E-02 +5.00000E-02 +5.00000E-02
+0.000  +0.00000E+00 +0.00000E+00 +0.00000E+00
+2.500  -5.00000E-02 -5.00000E-02 -5.00000E-02
+|
+[Ramp]
+dV/dt_r 0.2796/15p    0.2610/23.5p    0.2976/13p
+dV/dt_f 0.2796/15p    0.2610/23.5p    0.2976/13p
+|
+|
+[Algorithmic Model]
+Executable Windows_VisualStudio_32 pcieg5_32gt_WIN32.dll pcieg5_32gt.ami
+Executable Windows_VisualStudio_64 pcieg5_32gt_WIN64.dll pcieg5_32gt.ami
+Executable Linux_gcc_64            pcieg5_32gt_LX64.so   pcieg5_32gt.ami
+[End Algorithmic Model]
+
+|***************************************************************************
+[End]

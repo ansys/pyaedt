@@ -1,0 +1,92 @@
+{
+    "materials": {
+        "al-extruded1": {
+            "CoordinateSystemType": "Cartesian",
+            "BulkOrSurfaceType": 1,
+            "PhysicsTypes": {
+                "set": [
+                    "Thermal"
+                ]
+            },
+            "AttachedData": {
+                "MatAppearanceData": {
+                    "property_data": "appearance_data",
+                    "Red": 232,
+                    "Green": 235,
+                    "Blue": 235
+                }
+            },
+            "ModifierData": {
+                "ThermalModifierData": {
+                    "modifier_data": "thermal_modifier_data",
+                    "all_thermal_modifiers": {
+                        "one_thermal_modifier": {
+                            "Property:": "thermal_conductivity",
+                            "Index:": 0,
+                            "prop_modifier": "thermal_modifier",
+                            "use_free_form": true,
+                            "free_form_value": "pwl($copper_ds1,Temp)"
+                        }
+                    }
+                }
+            },
+            "thermal_conductivity": "205",
+            "mass_density": "2800",
+            "specific_heat": "900",
+            "thermal_material_type": {
+                "property_type": "ChoiceProperty",
+                "Choice": "Solid"
+            },
+            "clarity_type": {
+                "property_type": "ChoiceProperty",
+                "Choice": "Opaque"
+            },
+            "Library": ""
+        },
+        "copper_5540": {
+            "CoordinateSystemType": "Cartesian",
+            "BulkOrSurfaceType": 1,
+            "PhysicsTypes": {
+                "set": [
+                    "Electromagnetic",
+                    "Thermal",
+                    "Structural"
+                ]
+            },
+            "AttachedData": {
+                "MatAppearanceData": {
+                    "property_data": "appearance_data",
+                    "Red": 242,
+                    "Green": 140,
+                    "Blue": 102
+                }
+            },
+            "permeability": "0.999991",
+            "conductivity": "58000000",
+            "thermal_conductivity": "400",
+            "mass_density": "8933",
+            "specific_heat": "385",
+            "youngs_modulus": "120000000000",
+            "poissons_ratio": "0.38",
+            "thermal_expansion_coefficient": "1.77e-05"
+        }
+    },
+    "datasets": {
+        "$copper_ds1": {
+            "Coordinates": {
+                "DimUnits": [
+                    "",
+                    ""
+                ],
+                "Points": [
+                    22,
+                    1,
+                    100,
+                    0.7,
+                    2200,
+                    0.5
+                ]
+            }
+        }
+    }
+}
