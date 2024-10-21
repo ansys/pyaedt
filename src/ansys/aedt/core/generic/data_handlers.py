@@ -22,15 +22,19 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import ast
 from decimal import Decimal
 import math
 import random
 import re
+import secrets
 import string
 import unicodedata
+import warnings
 
+from ansys.aedt.core.generic.filesystem import read_json
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.general_methods import read_json
+from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
@@ -612,6 +616,7 @@ unit_val = {
     "meter": 1.0,
     "km": 1e3,
 }
+
 resynch_maxwell2D_control_program_for_design = """
 from ansys.aedt.core.desktop import Desktop
 from ansys.aedt.core.maxwell import Maxwell2d
@@ -694,3 +699,475 @@ def normalize_string_format(text):
     text = text.strip("_")
 
     return text
+
+
+def _check_types(arg):
+    if "netref.builtins.list" in str(type(arg)):
+        return "list"
+    elif "netref.builtins.dict" in str(type(arg)):
+        return "dict"
+    elif "netref.__builtin__.list" in str(type(arg)):
+        return "list"
+    elif "netref.__builtin__.dict" in str(type(arg)):
+        return "dict"
+    return ""
+
+
+@pyaedt_function_handler()
+def check_numeric_equivalence(a, b, relative_tolerance=1e-7):
+    """Check if two numeric values are equivalent to within a relative tolerance.
+
+    Parameters
+    ----------
+    a : int, float
+        Reference value to compare to.
+    b : int, float
+        Secondary value for the comparison.
+    relative_tolerance : float, optional
+        Relative tolerance for the equivalence test. The difference is relative to the first value.
+        The default is ``1E-7``.
+
+    Returns
+    -------
+    bool
+        ``True`` if the two passed values are equivalent, ``False`` otherwise.
+    """
+    if abs(a) > 0.0:
+        reldiff = abs(a - b) / a
+    else:
+        reldiff = abs(b)
+    return True if reldiff < relative_tolerance else False
+
+
+@pyaedt_function_handler(rootname="root_name")
+def generate_unique_name(root_name=None, suffix="", n=6):
+    """Generate a new name given a root name and optional suffix.
+
+    Parameters
+    ----------
+    root_name : str, optional
+        Root name to add random characters to.
+        The default is ``"NewObject_"``.
+    suffix : string, optional
+        Suffix to add.
+        The default is ``""``.
+    n : int, optional
+        Number of random characters to add to the name. The default value is ``6``.
+
+    Returns
+    -------
+    str
+        Newly generated name.
+    """
+    alphabet = string.ascii_uppercase + string.digits
+    uName = "".join(secrets.choice(alphabet) for _ in range(n))
+    if root_name in None:
+        root_name = "NewObject"
+    unique_name = root_name + "_" + uName
+    if suffix:
+        unique_name += "_" + suffix
+    return unique_name
+
+
+@pyaedt_function_handler(rel_tol="relative_tolerance", abs_tol="absolute_tolerance")
+def is_close(a, b, relative_tolerance=1e-9, absolute_tolerance=0.0):
+    """Whether two numbers are close to each other given relative and absolute tolerances.
+
+    Parameters
+    ----------
+    a : float, int
+        First number to compare.
+    b : float, int
+        Second number to compare.
+    relative_tolerance : float
+        Relative tolerance. The default value is ``1e-9``.
+    absolute_tolerance : float
+        Absolute tolerance. The default value is ``0.0``.
+
+    Returns
+    -------
+    bool
+        ``True`` if the two numbers are closed, ``False`` otherwise.
+    """
+    return abs(a - b) <= max(relative_tolerance * max(abs(a), abs(b)), absolute_tolerance)
+
+
+def isclose(*args, **kwargs):
+    """Old method name that triggers a deprecation warning."""
+    warnings.warn("`isclose` is deprecated. Use `is_close` method instead.", DeprecationWarning)
+    # Call the new method
+    return is_close(*args, **kwargs)
+
+
+@pyaedt_function_handler()
+def is_number(a):
+    """Whether the given input is a number.
+
+    Parameters
+    ----------
+    a : float, int, str
+        Number to check.
+
+    Returns
+    -------
+    bool
+        ``True`` if it is a number, ``False`` otherwise.
+    """
+    if isinstance(a, float) or isinstance(a, int):
+        return True
+    elif isinstance(a, str):
+        try:
+            float(a)
+            return True
+        except ValueError:
+            return False
+    else:
+        return False
+
+
+@pyaedt_function_handler()
+def is_array(a):
+    """Whether the given input is an array.
+
+    Parameters
+    ----------
+    a : str
+        String containing the list to check.
+
+    Returns
+    -------
+    bool
+        ``True`` if it is an array, ``False`` otherwise.
+    """
+    try:
+        v = list(ast.literal_eval(a))
+    except (ValueError, TypeError, NameError, SyntaxError):
+        return False
+    else:
+        if isinstance(v, list):
+            return True
+        else:
+            return False
+
+
+@pyaedt_function_handler(search_key1="search_key_1", search_key2="search_key_2")
+def filter_tuple(value, search_key_1, search_key_2):
+    """Filter a tuple of two elements with two search keywords."""
+    ignore_case = True
+
+    def _create_pattern(k1, k2):
+        k1a = re.sub(r"\?", r".", k1)
+        k1b = re.sub(r"\*", r".*?", k1a)
+        k2a = re.sub(r"\?", r".", k2)
+        k2b = re.sub(r"\*", r".*?", k2a)
+        pattern = r".*\({},{}\)".format(k1b, k2b)
+        return pattern
+
+    if ignore_case:
+        compiled_re = re.compile(_create_pattern(search_key_1, search_key_2), re.IGNORECASE)
+    else:
+        compiled_re = re.compile(_create_pattern(search_key_1, search_key_2))
+
+    m = compiled_re.search(value)
+    if m:
+        return True
+    return False
+
+
+@pyaedt_function_handler(search_key1="search_key_1")
+def filter_string(value, search_key_1):
+    """Filter a string"""
+    ignore_case = True
+
+    def _create_pattern(k1):
+        k1a = re.sub(r"\?", r".", k1.replace("\\", "\\\\"))
+        k1b = re.sub(r"\*", r".*?", k1a)
+        pattern = r"^{}$".format(k1b)
+        return pattern
+
+    if ignore_case:
+        compiled_re = re.compile(_create_pattern(search_key_1), re.IGNORECASE)
+    else:
+        compiled_re = re.compile(_create_pattern(search_key_1))  # pragma: no cover
+
+    m = compiled_re.search(value)
+    if m:
+        return True
+    return False
+
+
+@pyaedt_function_handler()
+def number_aware_string_key(s):
+    """Get a key for sorting strings that treats embedded digit sequences as integers.
+
+    Parameters
+    ----------
+    s : str
+        String to calculate the key from.
+
+    Returns
+    -------
+    tuple
+        Tuple of key entries.
+    """
+
+    def is_digit(c):
+        return "0" <= c <= "9"
+
+    result = []
+    i = 0
+    while i < len(s):
+        if is_digit(s[i]):
+            j = i + 1
+            while j < len(s) and is_digit(s[j]):
+                j += 1
+            key = int(s[i:j])
+            result.append(key)
+            i = j
+        else:
+            j = i + 1
+            while j < len(s) and not is_digit(s[j]):
+                j += 1
+            key = s[i:j]
+            result.append(key)
+            i = j
+    return tuple(result)
+
+
+@pyaedt_function_handler(time_vals="time_values", value="data_values")
+def compute_fft(time_values, data_values, window=None):  # pragma: no cover
+    """Compute FFT of input transient data.
+
+    Parameters
+    ----------
+    time_values : `pandas.Series`
+        Time points corresponding to the x-axis of the input transient data.
+    data_values : `pandas.Series`
+        Points corresponding to the y-axis.
+    time_values : `pandas.Series`
+    data_values : `pandas.Series`
+    window : str, optional
+        Fft window. Options are "hamming", "hanning", "blackman", "bartlett".
+
+    Returns
+    -------
+    tuple
+        Frequency and Values.
+    """
+    try:
+        import numpy as np
+    except ImportError:
+        settings.logger.error("NumPy is not available. Install it.")
+        return False
+
+    deltaT = time_values[-1] - time_values[0]
+    num_points = len(time_values)
+    win = None
+    if window:
+
+        if window == "hamming":
+            win = np.hamming(num_points)
+        elif window == "hanning":
+            win = np.hanning(num_points)
+        elif window == "bartlett":
+            win = np.bartlett(num_points)
+        elif window == "blackman":
+            win = np.blackman(num_points)
+    if win is not None:
+        valueFFT = np.fft.fft(data_values * win, num_points)
+    else:
+        valueFFT = np.fft.fft(data_values, num_points)
+    Npoints = int(len(valueFFT) / 2)
+    valueFFT = valueFFT[:Npoints]
+    valueFFT = 2 * valueFFT / len(valueFFT)
+    n = np.arange(num_points)
+    freq = n / deltaT
+    return freq, valueFFT
+
+
+@pyaedt_function_handler(function_str="function")
+def conversion_function(data, function=None):  # pragma: no cover
+    """Convert input data based on a specified function string.
+
+    The available functions are:
+
+    - `"dB10"`: Converts the data to decibels using base 10 logarithm.
+    - `"dB20"`: Converts the data to decibels using base 20 logarithm.
+    - `"abs"`: Computes the absolute value of the data.
+    - `"real"`: Computes the real part of the data.
+    - `"imag"`: Computes the imaginary part of the data.
+    - `"norm"`: Normalizes the data to have values between 0 and 1.
+    - `"ang"`: Computes the phase angle of the data in radians.
+    - `"ang_deg"`: Computes the phase angle of the data in degrees.
+
+    If an invalid function string is specified, the method returns ``False``.
+
+    Parameters
+    ----------
+    data : list, numpy.array
+        Numerical values to convert. The format can be ``list`` or ``numpy.array``.
+    function : str, optional
+        Conversion function. The default is `"dB10"`.
+
+    Returns
+    -------
+    numpy.array or bool
+        Converted data, ``False`` otherwise.
+
+    Examples
+    --------
+    >>> values = [1, 2, 3, 4]
+    >>> conversion_function(values,"dB10")
+    array([-inf, 0., 4.77, 6.02])
+
+    >>> conversion_function(values,"abs")
+    array([1, 2, 3, 4])
+
+    >>> conversion_function(values,"ang_deg")
+    array([ 0., 0., 0., 0.])
+    """
+    try:
+        import numpy as np
+    except ImportError:
+        settings.logger.error("NumPy is not available. Install it.")
+        return False
+
+    function = function or "dB10"
+    available_functions = {
+        "dB10": lambda x: 10 * np.log10(np.abs(x)),
+        "dB20": lambda x: 20 * np.log10(np.abs(x)),
+        "abs": np.abs,
+        "real": np.real,
+        "imag": np.imag,
+        "norm": lambda x: np.abs(x) / np.max(np.abs(x)),
+        "ang": np.angle,
+        "ang_deg": lambda x: np.angle(x, deg=True),
+    }
+
+    if function not in available_functions:
+        settings.logger.error("Specified conversion is not available.")
+        return False
+
+    data = available_functions[function](data)
+    return data
+
+
+class PropsManager(object):
+    def __getitem__(self, item):
+        """Get the `self.props` key value.
+
+        Parameters
+        ----------
+        item : str
+            Key to search
+        """
+        item_split = item.split("/")
+        if len(item_split) == 1:
+            item_split = item_split[0].split("__")
+        props = self.props
+        found_el = []
+        matching_percentage = 1
+        while matching_percentage >= 0.4:
+            for item_value in item_split:
+                found_el = self._recursive_search(props, item_value, matching_percentage)
+                # found_el = difflib.get_close_matches(item_value, list(props.keys()), 1, matching_percentage)
+                if found_el:
+                    props = found_el[1][found_el[2]]
+                    # props = props[found_el[0]]
+            if found_el:
+                return props
+            else:
+                matching_percentage -= 0.02
+        self._app.logger.warning("Key %s not found.Check one of available keys in self.available_properties", item)
+        return None
+
+    def __setitem__(self, key, value):
+        """Set the `self.props` key value.
+
+        Parameters
+        ----------
+        key : str
+            Key to apply.
+        value : int, float, bool, str, dict
+            Value to apply.
+        """
+        item_split = key.split("/")
+        if len(item_split) == 1:
+            item_split = item_split[0].split("__")
+        found_el = []
+        props = self.props
+        matching_percentage = 1
+        key_path = []
+        while matching_percentage >= 0.4:
+            for item_value in item_split:
+                found_el = self._recursive_search(props, item_value, matching_percentage)
+                if found_el:
+                    props = found_el[1][found_el[2]]
+                    key_path.append(found_el[2])
+            if found_el:
+                if matching_percentage < 1:
+                    self._app.logger.info(
+                        "Key %s matched internal key '%s' with confidence of %s.",
+                        key,
+                        "/".join(key_path),
+                        round(matching_percentage * 100),
+                    )
+                matching_percentage = 0
+
+            else:
+                matching_percentage -= 0.02
+        if found_el:
+            found_el[1][found_el[2]] = value
+            self.update()
+        else:
+            props[key] = value
+            self.update()
+            self._app.logger.warning("Key %s not found. Trying to applying new key ", key)
+
+    @pyaedt_function_handler()
+    def _recursive_search(self, dict_in, key="", matching_percentage=0.8):
+        f = difflib.get_close_matches(key, list(dict_in.keys()), 1, matching_percentage)
+        if f:
+            return True, dict_in, f[0]
+        else:
+            for v in list(dict_in.values()):
+                if isinstance(v, dict):
+                    out_val = self._recursive_search(v, key, matching_percentage)
+                    if out_val:
+                        return out_val
+                elif isinstance(v, list) and isinstance(v[0], dict):
+                    for val in v:
+                        out_val = self._recursive_search(val, key, matching_percentage)
+                        if out_val:
+                            return out_val
+        return False
+
+    @pyaedt_function_handler()
+    def _recursive_list(self, dict_in, prefix=""):
+        available_list = []
+        for k, v in dict_in.items():
+            if prefix:
+                name = prefix + "/" + k
+            else:
+                name = k
+            available_list.append(name)
+            if isinstance(v, dict):
+                available_list.extend(self._recursive_list(v, name))
+        return available_list
+
+    @property
+    def available_properties(self):
+        """Available properties.
+
+        Returns
+        -------
+        list
+        """
+        if self.props:
+            return self._recursive_list(self.props)
+        return []
+
+    @pyaedt_function_handler()
+    def update(self):
+        """Update method."""
+        pass

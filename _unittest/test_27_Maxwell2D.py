@@ -31,7 +31,7 @@ from _unittest.conftest import config
 from _unittest.conftest import local_path
 from ansys.aedt.core import Maxwell2d
 from ansys.aedt.core.generic.constants import SOLUTIONS
-from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.data_handlers import generate_unique_name
 import pytest
 
 test_subfolder = "TMaxwell"

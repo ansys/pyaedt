@@ -27,8 +27,7 @@ import os
 # import sys
 import warnings
 
-from ansys.aedt.core.generic.general_methods import _uname
-from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.data_handlers import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.cad.primitives import default_materials
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
@@ -948,7 +947,7 @@ class Primitives3DLayout(object):
         else:
             listnames = self.oeditor.FindObjects("Name", name)
             if listnames:
-                name = _uname(name)
+                name = generate_unique_name(name)
         try:
             arg = ["NAME:Contents"]
             arg.append("name:="), arg.append(name)
@@ -1018,11 +1017,11 @@ class Primitives3DLayout(object):
         >>> oEditor.CreateCircle
         """
         if not name:
-            name = _uname()
+            name = generate_unique_name()
         else:
             listnames = self.oeditor.FindObjects("Name", name)
             if listnames:
-                name = _uname(name)
+                name = generate_unique_name(name)
 
         vArg1 = ["NAME:Contents", "circleGeometry:="]
         vArg2 = []
@@ -1075,11 +1074,11 @@ class Primitives3DLayout(object):
         >>> oEditor.CreateRectangle
         """
         if not name:
-            name = _uname()
+            name = generate_unique_name()
         else:
             listnames = self.oeditor.FindObjects("Name", name)
             if listnames:
-                name = _uname(name)
+                name = generate_unique_name(name)
 
         vArg1 = ["NAME:Contents", "rectGeometry:="]
         vArg2 = []
@@ -1133,11 +1132,11 @@ class Primitives3DLayout(object):
         >>> oEditor.CreatePolygon
         """
         if not name:
-            name = _uname()
+            name = generate_unique_name()
         else:
             listnames = self.oeditor.FindObjects("Name", name)
             if listnames:
-                name = _uname(name)
+                name = generate_unique_name(name)
 
         vArg1 = ["NAME:Contents", "polyGeometry:="]
         vArg2 = []
@@ -1188,11 +1187,11 @@ class Primitives3DLayout(object):
         >>> oEditor.CreatePolygon
         """
         if not name:
-            name = _uname()
+            name = generate_unique_name()
         else:
             listnames = self.oeditor.FindObjects("Name", name)
             if listnames:
-                name = _uname(name)
+                name = generate_unique_name(name)
         if not self.oeditor.FindObjects("Name", assignment):
             self._app.logger.error("Owner Polygon not found.")
             return False
@@ -1266,11 +1265,11 @@ class Primitives3DLayout(object):
             )
             net = kwargs["netname"]
         if not name:
-            name = _uname()
+            name = generate_unique_name()
         else:
             listnames = self.oeditor.FindObjects("Name", name)
             if listnames:
-                name = _uname(name)
+                name = generate_unique_name(name)
         arg = ["NAME:Contents", "lineGeometry:="]
         arg2 = [
             "Name:=",
@@ -1541,7 +1540,7 @@ class Primitives3DLayout(object):
         str
             Name of the text primitive.
         """
-        name = _uname("text_")
+        name = generate_unique_name("text")
         args = [
             "NAME:Contents",
             "textGeometry:=",

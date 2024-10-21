@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from ansys.aedt.core.generic.general_methods import number_aware_string_key
+from ansys.aedt.core.generic.data_handlers import number_aware_string_key
 import pytest
 
 

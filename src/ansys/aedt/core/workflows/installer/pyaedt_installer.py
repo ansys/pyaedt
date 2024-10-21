@@ -27,7 +27,7 @@ import logging
 import os
 import shutil
 
-from ansys.aedt.core.generic.general_methods import read_toml
+from ansys.aedt.core.generic.filesystem import read_toml
 from ansys.aedt.core.workflows import customize_automation_tab
 import ansys.aedt.core.workflows.templates
 

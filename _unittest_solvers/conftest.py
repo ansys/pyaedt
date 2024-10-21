@@ -39,7 +39,7 @@ settings.release_on_exception = False
 settings.wait_for_license = True
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger
-from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.data_handlers import generate_unique_name
 from ansys.aedt.core.generic.general_methods import inside_desktop
 
 from ansys.aedt.core import Desktop

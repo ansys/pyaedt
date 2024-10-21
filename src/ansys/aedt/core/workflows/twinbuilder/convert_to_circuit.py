@@ -26,7 +26,7 @@ import os
 import sys
 
 import ansys.aedt.core
-from ansys.aedt.core.generic.general_methods import read_toml
+from ansys.aedt.core.generic.filesystem import read_toml
 from ansys.aedt.core.generic.settings import is_linux
 import ansys.aedt.core.workflows
 from ansys.aedt.core.workflows.misc import get_aedt_version

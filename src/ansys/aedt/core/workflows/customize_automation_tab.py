@@ -34,7 +34,7 @@ defusedxml.defuse_stdlib()
 
 import warnings
 
-from ansys.aedt.core.generic.general_methods import read_toml
+from ansys.aedt.core.generic.filesystem import read_toml
 from ansys.aedt.core.generic.settings import is_linux
 import ansys.aedt.core.workflows
 import ansys.aedt.core.workflows.templates

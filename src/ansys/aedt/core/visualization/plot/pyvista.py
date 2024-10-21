@@ -34,7 +34,7 @@ import warnings
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import CSS4_COLORS
-from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.filesystem import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 try:

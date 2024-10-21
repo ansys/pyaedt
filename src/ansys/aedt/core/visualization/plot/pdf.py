@@ -29,7 +29,7 @@ import os
 
 from ansys.aedt.core import __version__
 from ansys.aedt.core.generic.constants import unit_converter
-from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.filesystem import open_file
 from fpdf import FPDF
 from fpdf import FontFace
 

@@ -50,11 +50,11 @@ from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import SI_UNITS
 from ansys.aedt.core.generic.constants import _resolve_unit_system
 from ansys.aedt.core.generic.constants import unit_system
+from ansys.aedt.core.generic.data_handlers import check_numeric_equivalence
+from ansys.aedt.core.generic.data_handlers import is_array
+from ansys.aedt.core.generic.data_handlers import is_number
+from ansys.aedt.core.generic.filesystem import open_file
 from ansys.aedt.core.generic.general_methods import GrpcApiError
-from ansys.aedt.core.generic.general_methods import check_numeric_equivalence
-from ansys.aedt.core.generic.general_methods import is_array
-from ansys.aedt.core.generic.general_methods import is_number
-from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 

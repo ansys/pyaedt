@@ -30,7 +30,7 @@ from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.generic.constants import SOLUTIONS
-from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.data_handlers import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
 import pytest
 

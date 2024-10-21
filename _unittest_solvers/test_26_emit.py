@@ -13,7 +13,7 @@ from ansys.aedt.core.generic import constants as consts
 if ( ( (3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2025.1" ) or 
     ( (3,10) <= sys.version_info[0:2] <= (3,12) and config["desktopVersion"] > "2024.2" ) ):
     from ansys.aedt.core import Emit
-    from ansys.aedt.core import generate_unique_project_name
+    from ansys.aedt.core.generic.filesystem import generate_unique_project_name
     from ansys.aedt.core.emit_core.emit_constants import EmiCategoryFilter
     from ansys.aedt.core.emit_core.emit_constants import InterfererType
     from ansys.aedt.core.emit_core.emit_constants import ResultType

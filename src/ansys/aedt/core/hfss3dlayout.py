@@ -33,12 +33,12 @@ import re
 
 from ansys.aedt.core.application.analysis_3d_layout import FieldAnalysis3DLayout
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
-from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.data_handlers import generate_unique_name
+from ansys.aedt.core.generic.filesystem import open_file
+from ansys.aedt.core.generic.filesystem import parse_excitation_file
+from ansys.aedt.core.generic.filesystem import tech_to_control_file
 from ansys.aedt.core.generic.general_methods import is_ironpython
-from ansys.aedt.core.generic.general_methods import open_file
-from ansys.aedt.core.generic.general_methods import parse_excitation_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.general_methods import tech_to_control_file
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.pcb.object_3d_layout import Line3dLayout  # noqa: F401
 from ansys.aedt.core.modules.boundary import BoundaryObject3dLayout

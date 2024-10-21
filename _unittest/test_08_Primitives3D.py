@@ -30,8 +30,8 @@ from _unittest.conftest import config
 from _unittest.conftest import local_path
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Q2d
-from ansys.aedt.core import generate_unique_name
 from ansys.aedt.core.generic.constants import AXIS
+from ansys.aedt.core.generic.data_handlers import generate_unique_name
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.object_3d import Object3d

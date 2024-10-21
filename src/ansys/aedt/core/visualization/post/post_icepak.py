@@ -34,8 +34,8 @@ import csv
 import os
 import re
 
-from ansys.aedt.core import generate_unique_name
-from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.data_handlers import generate_unique_name
+from ansys.aedt.core.generic.filesystem import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.visualization.post.field_summary import FieldSummary

@@ -40,12 +40,11 @@ import ansys.aedt.core
 from ansys.aedt.core.application.variables import Variable
 from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import AEDT_UNITS
+from ansys.aedt.core.generic.data_handlers import generate_unique_name
+from ansys.aedt.core.generic.data_handlers import is_number
 from ansys.aedt.core.generic.data_handlers import json_to_dict
 from ansys.aedt.core.generic.general_methods import _dim_arg
-from ansys.aedt.core.generic.general_methods import _uname
-from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
-from ansys.aedt.core.generic.general_methods import is_number
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
@@ -8629,7 +8628,7 @@ class GeometryModeler(Modeler):
         solve_inside = True if is_dielectric else False
 
         if not name:
-            name = _uname()
+            name = generate_unique_name()
         try:
             color = str(tuple(self._app.materials.material_keys[material].material_appearance)).replace(",", " ")
         except Exception:
@@ -8932,7 +8931,7 @@ class PrimitivesBuilder(object):
             elif file_format == ".csv":
                 import re
 
-                from ansys.aedt.core.generic.general_methods import read_csv_pandas
+                from ansys.aedt.core.generic.filesystem import read_csv_pandas
 
                 csv_data = read_csv_pandas(input_file=input_file)
                 primitive_type = csv_data.columns[0]

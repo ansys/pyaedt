@@ -27,7 +27,7 @@ import os
 import re
 import shutil
 
-from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.filesystem import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 

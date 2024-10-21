@@ -76,10 +76,12 @@ from ansys.aedt.core.generic.general_methods import inner_project_settings
 
 if not ("IronPython" in sys.version or ".NETFramework" in sys.version):  # pragma: no cover
     import ansys.aedt.core.downloads as downloads
+
 from ansys.aedt.core.edb import Edb  # nosec
 from ansys.aedt.core.edb import Siwave  # nosec
 from ansys.aedt.core.generic import constants
 import ansys.aedt.core.generic.data_handlers as data_handler
+from ansys.aedt.core.generic.data_handlers import generate_unique_name
 from ansys.aedt.core.generic.design_types import Circuit
 from ansys.aedt.core.generic.design_types import CircuitNetlist
 from ansys.aedt.core.generic.design_types import Desktop
@@ -99,11 +101,10 @@ from ansys.aedt.core.generic.design_types import Simplorer
 from ansys.aedt.core.generic.design_types import TwinBuilder
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.generic.design_types import launch_desktop
+from ansys.aedt.core.generic.filesystem import generate_unique_folder_name
+from ansys.aedt.core.generic.filesystem import generate_unique_project_name
 import ansys.aedt.core.generic.general_methods as general_methods
 from ansys.aedt.core.generic.general_methods import _retry_ntimes
-from ansys.aedt.core.generic.general_methods import generate_unique_folder_name
-from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import generate_unique_project_name
 from ansys.aedt.core.generic.general_methods import inside_desktop
 from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import is_linux

@@ -29,9 +29,9 @@ import os
 from ansys.aedt.core.generic.constants import LineStyle
 from ansys.aedt.core.generic.constants import SymbolStyle
 from ansys.aedt.core.generic.constants import TraceType
-from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.data_handlers import generate_unique_name
+from ansys.aedt.core.generic.filesystem import write_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.general_methods import write_configuration_file
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 

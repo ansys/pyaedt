@@ -31,7 +31,7 @@ from ansys.aedt.core import MaxwellCircuit
 from ansys.aedt.core.application.variables import Variable
 from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.application.variables import generate_validation_errors
-from ansys.aedt.core.generic.general_methods import isclose
+from ansys.aedt.core.generic.data_handlers import is_close
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 import pytest
 
@@ -120,7 +120,7 @@ class TestClass:
         var_1 = self.aedtapp["Var1"]
         var_2 = var["Var1"].expression
         assert var_1 == var_2
-        assert isclose(var["Var1"].numeric_value, 1.0)
+        assert is_close(var["Var1"].numeric_value, 1.0)
 
         self.aedtapp["test"] = "1mm"
         self.aedtapp["test2"] = "test"
@@ -156,7 +156,7 @@ class TestClass:
         v = self.aedtapp.variable_manager
 
         eval_p3_nom = v._app.get_evaluated_value("p3")
-        assert isclose(eval_p3_nom, 0.0002)
+        assert is_close(eval_p3_nom, 0.0002)
         v_app = self.aedtapp.variable_manager
         assert v_app["p1"].sweep
         v_app["p1"].sweep = False
@@ -329,41 +329,41 @@ class TestClass:
         # Scaling of the unit system "Angle"
         angle = Variable("1rad")
         angle.rescale_to("deg")
-        assert isclose(angle.numeric_value, 57.29577951308232)
+        assert is_close(angle.numeric_value, 57.29577951308232)
         angle.rescale_to("degmin")
-        assert isclose(angle.numeric_value, 57.29577951308232 * 60.0)
+        assert is_close(angle.numeric_value, 57.29577951308232 * 60.0)
         angle.rescale_to("degsec")
-        assert isclose(angle.numeric_value, 57.29577951308232 * 3600.0)
+        assert is_close(angle.numeric_value, 57.29577951308232 * 3600.0)
 
         # Convert 200Hz to Angular speed numerically
         omega = Variable(200 * math.pi * 2, "rad_per_sec")
         assert omega.unit_system == "AngularSpeed"
-        assert isclose(omega.value, 1256.6370614359173)
+        assert is_close(omega.value, 1256.6370614359173)
         omega.rescale_to("rpm")
-        assert isclose(omega.numeric_value, 12000.0)
+        assert is_close(omega.numeric_value, 12000.0)
         omega.rescale_to("rev_per_sec")
-        assert isclose(omega.numeric_value, 200.0)
+        assert is_close(omega.numeric_value, 200.0)
 
         # test speed times time equals diestance
         v = Variable("100m_per_sec")
         assert v.unit_system == "Speed"
         v.rescale_to("feet_per_sec")
-        assert isclose(v.numeric_value, 328.08398950131)
+        assert is_close(v.numeric_value, 328.08398950131)
         v.rescale_to("feet_per_min")
-        assert isclose(v.numeric_value, 328.08398950131 * 60)
+        assert is_close(v.numeric_value, 328.08398950131 * 60)
         v.rescale_to("miles_per_sec")
-        assert isclose(v.numeric_value, 0.06213711723534)
+        assert is_close(v.numeric_value, 0.06213711723534)
         v.rescale_to("miles_per_minute")
-        assert isclose(v.numeric_value, 3.72822703412)
+        assert is_close(v.numeric_value, 3.72822703412)
         v.rescale_to("miles_per_hour")
-        assert isclose(v.numeric_value, 223.69362204724)
+        assert is_close(v.numeric_value, 223.69362204724)
 
         t = Variable("20s")
         distance = v * t
         assert distance.unit_system == "Length"
         assert distance.evaluated_value == "2000.0meter"
         distance.rescale_to("in")
-        assert isclose(distance.numeric_value, 2000 / 0.0254)
+        assert is_close(distance.numeric_value, 2000 / 0.0254)
 
     def test_10_division(self):
         """

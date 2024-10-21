@@ -8,7 +8,7 @@ import signal
 import sys
 import time
 
-from ansys.aedt.core import generate_unique_name
+from ansys.aedt.core.generic.data_handlers import generate_unique_name
 from ansys.aedt.core.generic.aedt_versions import aedt_versions
 
 from ansys.aedt.core.generic.general_methods import is_ironpython

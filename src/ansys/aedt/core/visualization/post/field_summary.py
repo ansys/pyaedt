@@ -36,7 +36,7 @@ import os
 import tempfile
 
 from ansys.aedt.core import pyaedt_function_handler
-from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.filesystem import open_file
 
 pd = None
 

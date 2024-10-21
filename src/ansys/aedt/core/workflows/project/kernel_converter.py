@@ -33,9 +33,9 @@ from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core import Q3d
 from ansys.aedt.core import settings
 from ansys.aedt.core.application.design_solutions import solutions_types
+from ansys.aedt.core.generic.data_handlers import generate_unique_name
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.generic.filesystem import search_files
-from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.workflows.misc import get_aedt_version
 from ansys.aedt.core.workflows.misc import get_arguments
 from ansys.aedt.core.workflows.misc import get_port
@@ -182,8 +182,8 @@ def check_missing(input_object, output_object, file_path):
         )
         output_object.modeler.import_3d_cad(os.path.join(input_object.working_directory, obj_name + ".x_t"))
         list_of_suppressed.append([output_object.design_name, obj_name, "History"])
-    from ansys.aedt.core.generic.general_methods import read_csv
-    from ansys.aedt.core.generic.general_methods import write_csv
+    from ansys.aedt.core.generic.filesystem import read_csv
+    from ansys.aedt.core.generic.filesystem import write_csv
 
     if file_path.split(".")[1] == "a3dcomp":
         output_csv = os.path.join(file_path[:-8], "Import_Errors.csv")[::-1].replace("\\", "_", 1)[::-1]

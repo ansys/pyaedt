@@ -26,7 +26,7 @@ import os
 import tempfile
 
 from ansys.aedt.core import downloads
-from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.data_handlers import generate_unique_name
 from ansys.aedt.core.generic.settings import is_linux
 import pytest
 

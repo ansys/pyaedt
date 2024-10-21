@@ -38,11 +38,11 @@ import os
 import re
 
 from ansys.aedt.core.generic.constants import AEDT_UNITS
+from ansys.aedt.core.generic.data_handlers import generate_unique_name
+from ansys.aedt.core.generic.filesystem import open_file
 from ansys.aedt.core.generic.general_methods import _to_boolean
-from ansys.aedt.core.generic.general_methods import _uname
 from ansys.aedt.core.generic.general_methods import clamp
 from ansys.aedt.core.generic.general_methods import is_ironpython
-from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import rgb_color_codes
 from ansys.aedt.core.generic.general_methods import settings
@@ -87,7 +87,7 @@ class Object3d(object):
         if name:
             self._m_name = name
         else:
-            self._m_name = _uname()
+            self._m_name = generate_unique_name()
         self._primitives = primitives
         self.flags = ""
         self._part_coordinate_system = "Global"

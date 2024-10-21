@@ -30,8 +30,8 @@ This module provides all functionalities for creating and editing reports.
 """
 import os
 
-from ansys.aedt.core import generate_unique_name
 from ansys.aedt.core import pyaedt_function_handler
+from ansys.aedt.core.generic.data_handlers import generate_unique_name
 from ansys.aedt.core.visualization.report.common import CommonReport
 
 

@@ -28,9 +28,9 @@ import os
 import re
 
 from ansys.aedt.core.generic.constants import AEDT_UNITS
-from ansys.aedt.core.generic.general_methods import _uname
+from ansys.aedt.core.generic.data_handlers import generate_unique_name
+from ansys.aedt.core.generic.filesystem import read_csv
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.general_methods import read_csv
 
 
 class ComponentArray(object):
@@ -61,7 +61,7 @@ class ComponentArray(object):
         # Private attributes
         self.__app = app
         if name is None:
-            name = _uname("Array_")
+            name = generate_unique_name("Array")
         self.__name = name
 
         # Leverage csv file if possible (aedt version > 2023.2)

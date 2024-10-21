@@ -38,11 +38,11 @@ import os
 from ansys.aedt.core import Edb
 from ansys.aedt.core import Icepak
 from ansys.aedt.core.generic import load_aedt_file
+from ansys.aedt.core.generic.data_handlers import generate_unique_name
 from ansys.aedt.core.generic.desktop_sessions import _edb_sessions
-from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import generate_unique_project_name
-from ansys.aedt.core.generic.general_methods import normalize_path
-from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.filesystem import generate_unique_project_name
+from ansys.aedt.core.generic.filesystem import normalize_path
+from ansys.aedt.core.generic.filesystem import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.advanced_cad.actors import Bird
 from ansys.aedt.core.modeler.advanced_cad.actors import Person

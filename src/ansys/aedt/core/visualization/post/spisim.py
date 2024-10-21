@@ -29,10 +29,10 @@ import re
 from struct import unpack
 import subprocess  # nosec
 
-from ansys.aedt.core import generate_unique_name
 from ansys.aedt.core.generic.aedt_versions import aedt_versions
-from ansys.aedt.core.generic.general_methods import generate_unique_folder_name
-from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.data_handlers import generate_unique_name
+from ansys.aedt.core.generic.filesystem import generate_unique_folder_name
+from ansys.aedt.core.generic.filesystem import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.generic.settings import settings
