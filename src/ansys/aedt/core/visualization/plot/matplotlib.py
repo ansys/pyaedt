@@ -1053,7 +1053,7 @@ class ReportPlotter:
         return self.fig
 
     @pyaedt_function_handler()
-    def plot_3d(self, trace=0, snapshot_path=None, show=True, color_map_limits=[0, 1], is_polar=True):
+    def plot_3d(self, trace=0, snapshot_path=None, show=True, color_map_limits=None, is_polar=True):
         """Create a Matplotlib 3D plot based on a list of data.
 
         Parameters
@@ -1074,6 +1074,8 @@ class ReportPlotter:
         :class:`matplotlib.pyplot.Figure`
             Matplotlib figure object.
         """
+        if color_map_limits is None:
+            color_map_limits = [0, 1]
         trace_number = self._retrieve_traces(trace)
         if not trace_number:
             return False

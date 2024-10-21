@@ -23,9 +23,6 @@
 # SOFTWARE.
 
 import json
-import math
-
-# import math
 import os
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
@@ -34,9 +31,7 @@ from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.general_methods import conversion_function
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.visualization.plot.matplotlib import plot_2d_chart
-from ansys.aedt.core.visualization.plot.matplotlib import plot_contour
-from ansys.aedt.core.visualization.plot.matplotlib import plot_polar_chart
+from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 from ansys.tools.visualization_interface import MeshObjectPlot
 from ansys.tools.visualization_interface import Plotter
@@ -592,6 +587,7 @@ class MonostaticRCSPlotter(object):
         show=True,
         is_polar=False,
         show_legend=True,
+        size=(1920, 1440),
     ):
         """Create a 2D plot of the monostatic RCS.
 
@@ -615,6 +611,8 @@ class MonostaticRCSPlotter(object):
             Whether this plot is a polar plot. The default is ``True``.
         show_legend : bool, optional
             Whether to display the legend or not. The default is ``True``.
+        size : tuple, optional
+            Image size in pixel (width, height).
 
         Returns
         -------
@@ -665,9 +663,6 @@ class MonostaticRCSPlotter(object):
             ):
                 all_secondary_sweep_value = [all_secondary_sweep_value]
 
-            if is_polar:
-                x = [i * 2 * math.pi / 360 for i in x]
-
             for el in all_secondary_sweep_value:
                 data_sweep = data[data[y_key] == el]["Data"]
 
@@ -677,26 +672,89 @@ class MonostaticRCSPlotter(object):
                 curves.append([x, y, "{}={}".format(y_key, el)])
 
         if curves is not None:
+            new = ReportPlotter()
+            new.show_legend = show_legend
+            new.title = title
+            new.size = size
             if is_polar:
-                return plot_polar_chart(
-                    curves,
-                    xlabel=x_key,
-                    ylabel="RCS",
-                    title=title,
-                    snapshot_path=output_file,
-                    show_legend=show_legend,
-                    show=show,
-                )
+                props = {"x_label": x_key, "y_label": "RCS \n"}
+                for pdata in curves:
+                    name = pdata[2] if len(pdata) > 2 else "Trace"
+                    new.add_trace(pdata[:2], 0, props, name=name)
+                _ = new.plot_polar(traces=None, snapshot_path=output_file, show=show)
             else:
-                return plot_2d_chart(
-                    curves,
-                    xlabel=x_key,
-                    ylabel="RCS",
-                    title=title,
-                    snapshot_path=output_file,
-                    show_legend=show_legend,
-                    show=show,
-                )
+                from ansys.aedt.core.generic.constants import CSS4_COLORS
+
+                k = 0
+                for data in curves:
+                    props = {"x_label": x_key, "y_label": "RCS", "line_color": list(CSS4_COLORS.keys())[k]}
+                    k += 1
+                    if k == len(list(CSS4_COLORS.keys())):
+                        k = 0
+                    name = data[2] if len(data) > 2 else "Trace"
+                    new.add_trace(data[:2], 0, props, name)
+                _ = new.plot_2d(None, output_file, show)
+            return new
+
+    @pyaedt_function_handler()
+    def plot_rcs_3d(self, title="Monostatic RCS 3D", output_file=None, show=True, size=(1920, 1440)):
+        """Create a 3D plot of the monostatic RCS.
+
+        Parameters
+        ----------
+        title : str, optional
+            Plot title. The default is ``"RectangularPlot"``.
+        output_file : str, optional
+            Full path for the image file. The default is ``None``, in which case an image in not exported.
+        show : bool, optional
+            Whether to show the plot. The default is ``True``.
+            If ``False``, the Matplotlib instance of the plot is shown.
+        size : tuple, optional
+            Image size in pixel (width, height).
+
+        Returns
+        -------
+        :class:`matplotlib.pyplot.Figure`
+            Matplotlib figure object.
+            If ``show=True``, a Matplotlib figure instance of the plot is returned.
+            If ``show=False``, the plotted curve is returned.
+        """
+
+        data = self.rcs_data.rcs_active_frequency
+
+        rcs = data["Data"]
+        rcs_max = np.max(rcs)
+        rcs_min = np.min(rcs)
+
+        rcs_renorm = rcs + np.abs(rcs_min) if rcs_min else rcs
+        rcs_renorm = rcs_renorm.to_numpy()
+
+        theta = np.deg2rad(data["IWaveTheta"])
+        phi = np.deg2rad(data["IWavePhi"])
+        unique_phi, unique_theta = np.unique(phi), np.unique(theta)
+        phi_grid, theta_grid = np.meshgrid(unique_phi, unique_theta)
+
+        r = np.full(phi_grid.shape, np.nan)
+
+        idx_theta = np.digitize(theta, unique_theta) - 1
+        idx_phi = np.digitize(phi, unique_phi) - 1
+        r[idx_theta, idx_phi] = rcs_renorm
+
+        x = r * np.sin(theta_grid) * np.cos(phi_grid)
+        y = r * np.sin(theta_grid) * np.sin(phi_grid)
+        z = r * np.cos(theta_grid)
+
+        new = ReportPlotter()
+        new.show_legend = True
+        new.title = title
+        new.size = size
+        quantity = f"RCS {self.rcs_data.data_conversion_function}"
+        props = {"x_label": "IWaveTheta", "y_label": "IWavePhi", "z_label": quantity}
+
+        new.add_trace([x, y, z], 2, props, title)
+        _ = new.plot_3d(trace=0, snapshot_path=output_file, show=show, color_map_limits=[rcs_min, rcs_max])
+
+        return new
 
     @pyaedt_function_handler()
     def plot_waterfall(self, title="Waterfall", output_file=None, show=True, is_polar=False):
@@ -826,39 +884,30 @@ class MonostaticRCSPlotter(object):
 
         new_data = self.stretch_data(data, scaling_factor=self.extents[5] - self.extents[4], offset=self.extents[4])
 
-        values = new_data["Data"]
-        if values.min() < 0:
-            values_renorm = values + np.abs(values.min())
-            values_renorm = values_renorm.to_numpy()
-        else:
-            values_renorm = values.to_numpy()
+        rcs = new_data["Data"]
 
-        phi = data["IWavePhi"].tolist()
-        theta = data["IWaveTheta"].tolist()
-        unique_phi = np.unique(phi)
-        unique_theta = np.unique(theta)
-        values = data["Data"].tolist()
-        unique_phi = np.deg2rad(unique_phi)
-        unique_theta = np.deg2rad(unique_theta)
+        rcs_min = np.min(rcs)
 
+        rcs_renorm = rcs + np.abs(rcs_min) if rcs_min else rcs
+        rcs_renorm = rcs_renorm.to_numpy()
+
+        theta = np.deg2rad(data["IWaveTheta"])
+        phi = np.deg2rad(data["IWavePhi"])
+        unique_phi, unique_theta = np.unique(phi), np.unique(theta)
         phi_grid, theta_grid = np.meshgrid(unique_phi, unique_theta)
 
-        r = np.zeros(phi_grid.shape)
+        r = np.full(phi_grid.shape, np.nan)
 
-        # Populate the reshaped array
-        for i, t in enumerate(np.unique(theta)):
-            for j, p in enumerate(np.unique(phi)):
-                # Find the corresponding value for each (phi, theta)
-                idx = np.where((phi == p) & (theta == t))
-                if idx[0].size > 0:
-                    r[i, j] = values_renorm[idx[0][0]]
+        idx_theta = np.digitize(theta, unique_theta) - 1
+        idx_phi = np.digitize(phi, unique_phi) - 1
+        r[idx_theta, idx_phi] = rcs_renorm
 
         x = r * np.sin(theta_grid) * np.cos(phi_grid)
         y = r * np.sin(theta_grid) * np.sin(phi_grid)
         z = r * np.cos(theta_grid)
 
         actor = pv.StructuredGrid(x, y, z)
-        actor.point_data["values"] = values
+        actor.point_data["values"] = data["Data"]
 
         all_results_actors = list(self.all_scene_actors["results"].keys())
 
