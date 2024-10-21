@@ -85,8 +85,8 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         Parameters
         ----------
-        name : str, optional
-            Name of the resistor. The default is ``None``.
+        name : str, int, float or optional
+            Name of the resistor. The default is ``None`` which adds a resistor without a name.
         value : float, optional
             Value for the resistor. The default is ``50``.
         location : list of float, optional
@@ -109,7 +109,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         if location == None:
             location = []
 
-        id = self.create_component(
+        component = self.create_component(
             name,
             component_library="Passive Elements",
             component_name="Res",
@@ -117,10 +117,10 @@ class MaxwellCircuitComponents(CircuitComponents):
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
         )
-
-        id.set_property("R", value)
-        id.set_property("Name", name)
-        return id
+        component.set_property("R", value)
+        if isinstance(name, (str, int, float)):
+            component.set_property("Name", name)
+        return component
 
     @pyaedt_function_handler(compname="name")
     def create_inductor(self, name=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
@@ -128,8 +128,8 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         Parameters
         ----------
-        name : str, optional
-            Name of the inductor. The default is ``None``.
+        name : str, int, float or optional
+            Name of the inductor. The default is ``None`` which adds an inductor without a name.
         value : float, optional
             Value for the inductor. The default is ``50``.
         location : list of float, optional
@@ -152,7 +152,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         if location == None:
             location = []
 
-        id = self.create_component(
+        component = self.create_component(
             name,
             component_library="Passive Elements",
             component_name="Ind",
@@ -161,9 +161,10 @@ class MaxwellCircuitComponents(CircuitComponents):
             use_instance_id_netlist=use_instance_id_netlist,
         )
 
-        id.set_property("L", value)
-        id.set_property("Name", name)
-        return id
+        component.set_property("L", value)
+        if isinstance(name, (str, int, float)):
+            component.set_property("Name", name)
+        return component
 
     @pyaedt_function_handler(compname="name")
     def create_capacitor(self, name=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
@@ -171,8 +172,8 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         Parameters
         ----------
-        name : str, optional
-            Name of the capacitor. The default is ``None``.
+        name : str, int, float or optional
+            Name of the capacitor. The default is ``None`` which adds a capacitor without a name.
         value : float, optional
             Value for the capacitor. The default is ``50``.
         location : list of float, optional
@@ -194,7 +195,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         """
         if location is None:
             location = []
-        id = self.create_component(
+        component = self.create_component(
             name,
             component_library="Passive Elements",
             component_name="Cap",
@@ -203,9 +204,10 @@ class MaxwellCircuitComponents(CircuitComponents):
             use_instance_id_netlist=use_instance_id_netlist,
         )
 
-        id.set_property("C", value)
-        id.set_property("Name", name)
-        return id
+        component.set_property("C", value)
+        if isinstance(name, (str, int, float)):
+            component.set_property("Name", name)
+        return component
 
     @pyaedt_function_handler(compname="name")
     def create_diode(self, name=None, location=None, angle=0, use_instance_id_netlist=False):
@@ -213,8 +215,8 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         Parameters
         ----------
-        name : str, optional
-            Name of the diode. The default is ``None``.
+        name : str, int, float or optional
+            Name of the diode. The default is ``None`` which adds a diode without a name.
         location : list of float, optional
             Position on the X axis and Y axis. The default is ``None``.
         angle : float, optional
@@ -235,7 +237,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         if location is None:
             location = []
 
-        id = self.create_component(
+        component = self.create_component(
             name,
             component_library="Passive Elements",
             component_name="DIODE",
@@ -244,8 +246,9 @@ class MaxwellCircuitComponents(CircuitComponents):
             use_instance_id_netlist=use_instance_id_netlist,
         )
 
-        id.set_property("Name", name)
-        return id
+        if isinstance(name, (str, int, float)):
+            component.set_property("Name", name)
+        return component
 
     @pyaedt_function_handler(compname="name")
     def create_winding(self, name=None, location=None, angle=0, use_instance_id_netlist=False):
@@ -253,8 +256,8 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         Parameters
         ----------
-        name : str, optional
-            Name of the winding. The default is ``None``.
+        name : str, int, float or optional
+            Name of the winding. The default is ``None`` which adds a winding without a name.
         location : list of float, optional
             Position on the X axis and Y axis.
         angle : float, optional
@@ -274,7 +277,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         """
         if location is None:
             location = []
-        id = self.create_component(
+        component = self.create_component(
             name,
             component_library="Dedicated Elements",
             component_name="Winding",
@@ -282,5 +285,90 @@ class MaxwellCircuitComponents(CircuitComponents):
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
         )
-        id.set_property("Name", name)
-        return id
+        if isinstance(name, (str, int, float)):
+            component.set_property("Name", name)
+        return component
+
+    def create_i_sin(self, name=None, value=1, location=None, angle=0, use_instance_id_netlist=False):
+        """Create a sinusoidal current source.
+
+        Parameters
+        ----------
+        name : str, int, float or optional
+            Name of the current source. The default is ``None`` which adds a current source without a name.
+        value : float, optional
+            Value for the amplitude of current. The default is ``1``.
+        location : list of float, optional
+            Position on the X axis and Y axis.
+        angle : float, optional
+            Angle of rotation in degrees. The default is ``0``.
+        use_instance_id_netlist : bool, optional
+            Whether to use the instance ID in the net list or not. The default is ``False``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+            Circuit Component Object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
+        """
+        if location is None:
+            location = []
+        component = self.create_component(
+            name,
+            component_library="Sources",
+            component_name="ISin",
+            location=location,
+            angle=angle,
+            use_instance_id_netlist=use_instance_id_netlist,
+        )
+
+        component.set_property("Ia", value)
+        if isinstance(name, (str, int, float)):
+            component.set_property("Name", name)
+        return component
+
+    def create_v_sin(self, name=None, value=1, location=None, angle=0, use_instance_id_netlist=False):
+        """Create a sinusoidal voltage source.
+
+        Parameters
+        ----------
+        name : str, int, float or optional
+            Name of the voltage source. The default is ``None`` which adds a voltage source without a name.
+        value : float, optional
+            Value for the amplitude of voltage. The default is ``1``.
+        location : list of float, optional
+            Position on the X axis and Y axis.
+        angle : float, optional
+            Angle of rotation in degrees. The default is ``0``.
+        use_instance_id_netlist : bool, optional
+            Whether to use the instance ID in the net list or not. The default is ``False``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+            Circuit Component Object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
+        """
+        if location is None:
+            location = []
+        component = self.create_component(
+            name,
+            component_library="Sources",
+            component_name="VSin",
+            location=location,
+            angle=angle,
+            use_instance_id_netlist=use_instance_id_netlist,
+        )
+
+        component.set_property("Va", value)
+        if isinstance(name, (str, int, float)):
+            component.set_property("Name", name)
+        return component

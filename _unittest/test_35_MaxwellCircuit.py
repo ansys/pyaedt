@@ -114,3 +114,11 @@ class TestClass:
         self.aedtapp.insert_design("SchematicImport")
         self.aedtapp.modeler.schematic.limits_mils = 5000
         assert self.aedtapp.create_schematic_from_netlist(self.netlist_file1)
+
+    def test_09_create_voltage_source(self):
+        id = self.aedtapp.modeler.schematic.create_vsin(name="voltage_source", value=3.14, angle=90)
+        assert id.parameters["Va"] == "3.14"
+
+    def test_10_create_current_source(self):
+        id = self.aedtapp.modeler.schematic.create_isin(name="current_source", value=2.72, angle=90)
+        assert id.parameters["Ia"] == "2.72"
