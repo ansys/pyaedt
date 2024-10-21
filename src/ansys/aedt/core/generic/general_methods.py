@@ -157,7 +157,7 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
             if el:
                 _write_mes(el)
 
-    _write_mes("{message} on {func.__name__}")
+    _write_mes(f"{message} on {func.__name__}")
 
     message_to_print = ""
     messages = ""

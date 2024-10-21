@@ -47,7 +47,7 @@ else:
     test_project_name = "dm boundary test"
 diff_proj_name = "test_42"
 hfss3dl_existing_setup_proj_name = (
-    f"existing_hfss3dl_setup_v{config['desktopVersion'][-4:-2]}{config['desktopVersion'][-4:-2]}"
+    f"existing_hfss3dl_setup_v{config['desktopVersion'][-4:-2]}{config['desktopVersion'][-1:]}"
 )
 
 
