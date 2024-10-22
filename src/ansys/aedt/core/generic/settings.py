@@ -120,7 +120,7 @@ def generate_log_filename():
     base = "pyaedt"
     username = os.path.split(os.path.expanduser("~"))[-1]
     unique_id = uuid.uuid4()
-    return "{}_{}_{}.log".format(base, username, unique_id)
+    return f"{base}_{username}_{unique_id}.log"
 
 
 class _InnerProjectSettings:  # pragma: no cover
@@ -218,6 +218,7 @@ class Settings(object):  # pragma: no cover
             else:
                 pyaedt_settings_path = os.path.join(os.environ["APPDATA"], "pyaedt_settings.yaml")
         self.load_yaml_configuration(pyaedt_settings_path)
+        self.__block_figure_plot = False
 
     # ########################## Logging properties ##########################
 
@@ -229,6 +230,16 @@ class Settings(object):  # pragma: no cover
     @logger.setter
     def logger(self, val):
         self.__logger = val
+
+    @property
+    def block_figure_plot(self):
+        """Block matplotlib figure plot during python script run until the user close it manually.
+        Default is ``False``."""
+        return self.__block_figure_plot
+
+    @block_figure_plot.setter
+    def block_figure_plot(self, val):
+        self.__block_figure_plot = val
 
     @property
     def enable_desktop_logs(self):

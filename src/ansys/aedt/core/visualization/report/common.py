@@ -697,14 +697,14 @@ class CommonReport(object):
                 oo1 = oo.GetChildObject(el)
                 oo1_name = oo1.GetChildNames()
                 if not oo1_name:
-                    aedt_name = "{}:{}".format(self.plot_name, el)
+                    aedt_name = f"{self.plot_name}:{el}"
                     _traces.append(Trace(self._post.oreportsetup, aedt_name, el, oo1))
                 else:
                     for i in oo1_name:
-                        aedt_name = "{}:{}:{}".format(self.plot_name, el, i)
+                        aedt_name = f"{self.plot_name}:{el}:{i}"
                         _traces.append(Trace(self._post.oreportsetup, aedt_name, el, oo1))
             except Exception:
-                self._post._app.logger.debug("Something went wrong while processing element {}.".format(el))
+                self._post._app.logger.debug(f"Something went wrong while processing element {el}.")
         return _traces
 
     @pyaedt_function_handler()
@@ -779,7 +779,7 @@ class CommonReport(object):
                 if "contours_number" in self._props.get("general", {}):
                     self._change_property(
                         "Contour",
-                        " Plot {}".format(self.traces[0].name),
+                        f" Plot {self.traces[0].name}",
                         [
                             "NAME:ChangedProps",
                             ["NAME:Num. Contours", "Value:=", str(self._props["general"]["contours_number"])],
@@ -788,7 +788,7 @@ class CommonReport(object):
                 if "contours_scale" in self._props.get("general", {}):
                     self._change_property(
                         "Contour",
-                        " Plot {}".format(self.traces[0].name),
+                        f" Plot {self.traces[0].name}",
                         [
                             "NAME:ChangedProps",
                             ["NAME:Axis Scale", "Value:=", str(self._props["general"]["contours_scale"])],
@@ -797,13 +797,13 @@ class CommonReport(object):
                 if "enable_contours_auto_limit" in self._props.get("general", {}):
                     self._change_property(
                         "Contour",
-                        " Plot {}".format(self.traces[0].name),
+                        f" Plot {self.traces[0].name}",
                         ["NAME:ChangedProps", ["NAME:Scale Type", "Value:=", "Auto Limits"]],
                     )
                 elif "contours_min_limit" in self._props.get("general", {}):
                     self._change_property(
                         "Contour",
-                        " Plot {}".format(self.traces[0].name),
+                        f" Plot {self.traces[0].name}",
                         [
                             "NAME:ChangedProps",
                             ["NAME:Min", "Value:=", str(self._props["general"]["contours_min_limit"])],
@@ -812,7 +812,7 @@ class CommonReport(object):
                 elif "contours_max_limit" in self._props.get("general", {}):
                     self._change_property(
                         "Contour",
-                        " Plot {}".format(self.traces[0].name),
+                        f" Plot {self.traces[0].name}",
                         [
                             "NAME:ChangedProps",
                             ["NAME:Max", "Value:=", str(self._props["general"]["contours_max_limit"])],
@@ -1050,7 +1050,7 @@ class CommonReport(object):
                 _traces.append(
                     LimitLine(
                         self._post.oreportsetup,
-                        "{}:{}".format(self.plot_name, el),
+                        f"{self.plot_name}:{el}",
                         self._post.oreportsetup.GetChildObject(self.plot_name).GetChildObject(el),
                     )
                 )
@@ -1079,7 +1079,7 @@ class CommonReport(object):
                 _notes.append(
                     Note(
                         self._post.oreportsetup,
-                        "{}:{}".format(self.plot_name, el),
+                        f"{self.plot_name}:{el}",
                         self._post.oreportsetup.GetChildObject(self.plot_name).GetChildObject(el),
                     )
                 )
@@ -1899,7 +1899,7 @@ class CommonReport(object):
         if not name:
             name = generate_unique_name("MY")
             self._post.oreportsetup.AddCartesianYMarker(
-                self.plot_name, name, "Y{}".format(y_axis), GeometryOperators.parse_dim_arg(value), ""
+                self.plot_name, name, f"Y{y_axis}", GeometryOperators.parse_dim_arg(value), ""
             )
             return name
         return ""
@@ -1911,7 +1911,7 @@ class CommonReport(object):
             return False
         arg = [
             "NAME:AllTabs",
-            ["NAME:" + tab_name, ["NAME:PropServers", "{}:{}".format(self.plot_name, property_name)], property_val],
+            ["NAME:" + tab_name, ["NAME:PropServers", f"{self.plot_name}:{property_name}"], property_val],
         ]
         self._post.oreportsetup.ChangeProperty(arg)
         return True
@@ -2526,7 +2526,7 @@ class CommonReport(object):
             if trace not in self._trace_info[3]:
                 raise ValueError("Trace does not exist in the selected plot.")
 
-        props = ["{}:=".format(plot_name), traces_list]
+        props = [f"{plot_name}:=", traces_list]
         try:
             self._post.oreportsetup.DeleteTraces(props)
             return True
@@ -2644,7 +2644,7 @@ class CommonReport(object):
 
         supported_ext = [".rpt"]
         if extension not in supported_ext:  # pragma: no cover
-            msg = "Extension {} is not supported.".format(extension)
+            msg = f"Extension {extension} is not supported."
             self._post.logger.error(msg)
             return False
 

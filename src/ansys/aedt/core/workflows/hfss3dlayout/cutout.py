@@ -58,7 +58,20 @@ def frontend():  # pragma: no cover
         aedt_process_id=aedt_process_id,
         student_version=is_student,
     )
-    h3d = Hfss3dLayout()
+
+    active_project = app.active_project()
+    active_design = app.active_design()
+
+    if active_design.GetDesignType() in ["HFSS 3D Layout Design"]:
+        design_name = active_design.GetName().split(";")[1]
+    else:  # pragma: no cover
+        app.logger.debug("HFSS 3D Layout project is needed.")
+        app.release_desktop(False, False)
+        raise Exception("HFSS 3D Layout designs needed.")
+
+    project_name = active_project.GetName()
+    h3d = ansys.aedt.core.Hfss3dLayout(project=project_name, design=design_name)
+
     objs_net = {}
     for net in h3d.oeditor.GetNets():
         objs_net[net] = h3d.modeler.objects_by_net(net)

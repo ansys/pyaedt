@@ -318,29 +318,11 @@ html_css_files = [
     'custom.css',
 ]
 
-
-# -- Options for HTMLHelp output ---------------------------------------------
-
-# Output file base name for HTML help builder.
-htmlhelp_basename = "pyaedtdoc"
-
 # -- Options for LaTeX output ------------------------------------------------
-# additional logos for the latex coverpage
+
+# Additional logos for the latex coverpage
 latex_additional_files = [watermark, ansys_logo_white, ansys_logo_white_cropped]
 
-# change the preamble of latex with customized title page
+# Change the preamble of latex with customized title page
 # variables are the title of pdf, watermark
 latex_elements = {"preamble": latex.generate_preamble(html_title)}
-
-# Grouping the document tree into LaTeX files. List of tuples
-# (source start file, target name, title,
-#  author, documentclass [howto, manual, or own class]).
-latex_documents = [
-    (
-        master_doc,
-        f"{project}-Documentation-{__version__}.tex",
-        f"{project} Documentation",
-        author,
-        "manual",
-    ),
-]
