@@ -34,12 +34,15 @@ jobs:
     name: Running unit tests
     runs-on: ubuntu-latest
     steps:
-      - uses: ansys/actions/tests-pytest@feat/add-install-target-to-test-pytest
+      - name: Run unit tests
+        uses: ansys/actions/tests-pytest@feat/add-install-target-to-test-pytest
         with:
           pytest-markers: -m unit
           pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           install-target-or-dependency-group: unit-tests
+          skip-install: true
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
@@ -47,6 +50,7 @@ jobs:
           name: codecov-unit-tests
           file: ./coverage.xml
           flags: unit
+
       - name: Upload pytest test results
         uses: actions/upload-artifact@v4
         with:
