@@ -1361,16 +1361,16 @@ class MonostaticRCSPlotter(object):
         ----------
         size_range : float, optional
             The total size of the range axis in meters. This sets the overall length of the
-            range axis. The default is 10.0 meters.
+            range axis. The default is ``10.0 meters``.
         range_resolution : float, optional
             Resolution of the range axis in meters, specifying the spacing between each tick mark.
-            The default is 0.1 meters.
+            The default is ``0.1 meters``.
         size_cross_range : float, optional
             The total size of the cross-range axis in meters. This sets the width of the cross-range
-            axis. The default is 10.0 meters.
+            axis. The default is ``10.0 meters``.
         cross_range_resolution : float, optional
             Resolution of the cross-range axis in meters, specifying the spacing between each tick mark
-            along the azimuth axis. The default is 0.1 meters.
+            along the azimuth axis. The default is ``0.1 meters``.
         tick_color : str, optional
             Color of the tick marks along both the range and cross-range axes. The default is
             black ("#000000").
