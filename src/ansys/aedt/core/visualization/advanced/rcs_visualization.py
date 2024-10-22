@@ -101,7 +101,7 @@ class MonostaticRCSData(object):
 
         self.__monostatic_file = os.path.join(self.output_dir, self.metadata["monostatic_file"])
 
-        self.__data_conversion_function = "dB10"
+        self.__data_conversion_function = "dB20"
         self.__window = "Flat"
         self.__window_size = 1024
         self.__aspect_range = "Horizontal"
@@ -320,8 +320,7 @@ class MonostaticRCSData(object):
     def rcs_active_theta(self):
         """RCS data for active incident wave theta."""
         data = self.raw_data.xs(key=self.incident_wave_theta, level="IWaveTheta")
-        data_converted = conversion_function(data[self.name], self.data_conversion_function)
-        df = data_converted.reset_index()
+        df = data.reset_index()
         df.columns = ["Freq", "IWavePhi", "Data"]
         return df
 
@@ -329,8 +328,7 @@ class MonostaticRCSData(object):
     def rcs_active_phi(self):
         """RCS data for active incident wave phi."""
         data = self.raw_data.xs(key=self.incident_wave_phi, level="IWavePhi")
-        data_converted = conversion_function(data[self.name], self.data_conversion_function)
-        df = data_converted.reset_index()
+        df = data.reset_index()
         df.columns = ["Freq", "IWaveTheta", "Data"]
         return df
 
