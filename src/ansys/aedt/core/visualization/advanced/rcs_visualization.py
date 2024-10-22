@@ -110,6 +110,9 @@ class MonostaticRCSData(object):
         self.__data_conversion_function = "dB10"
         self.__window = "Flat"
         self.__window_size = 1024
+        self.__aspect_range = "Horizontal"
+        self.__upsample_range = 512
+        self.__upsample_azimuth = 64
 
         if not os.path.isfile(self.__monostatic_file):  # pragma: no cover
             raise Exception("Monostatic file invalid.")
@@ -267,6 +270,33 @@ class MonostaticRCSData(object):
         self.__window_size = val
 
     @property
+    def aspect_range(self):
+        """Aspect range for ISAR."""
+        return self.__aspect_range
+
+    @aspect_range.setter
+    def aspect_range(self, val):
+        self.__aspect_range = val
+
+    @property
+    def upsample_range(self):
+        """Upsample range for ISAR."""
+        return self.__upsample_range
+
+    @upsample_range.setter
+    def upsample_range(self, val):
+        self.__upsample_range = val
+
+    @property
+    def upsample_azimuth(self):
+        """Upsample azimuth for ISAR."""
+        return self.__upsample_azimuth
+
+    @upsample_azimuth.setter
+    def upsample_azimuth(self, val):
+        self.__upsample_azimuth = val
+
+    @property
     def rcs(self):
         """RCS data for active frequency, theta and phi."""
         data = self.rcs_active_theta_phi
@@ -367,6 +397,140 @@ class MonostaticRCSData(object):
         self.incident_wave_phi = original_phi
         waterfall_df = pd.concat(waterfall_data, ignore_index=True)
         return waterfall_df
+
+    @property
+    def isar(self):
+        """ISAR."""
+
+        phis = self.available_incident_wave_phi
+        thetas = self.available_incident_wave_theta
+        freqs = self.frequencies
+        nfreq = len(freqs)
+        c0 = 299792458
+
+        ndrng = size[0]
+        nxrng = size[1]
+
+        if self.aspect_range == "Horizontal":
+            nangles = len(phis)
+            azel_samples = -phis.reshape(1, -1)
+        else:
+            nangles = len(thetas)
+            azel_samples = 90.0 - thetas.reshape(1, -1)
+
+        azel_samples = np.unwrap(np.radians(azel_samples))
+        azel_ctr = np.mean(azel_samples)
+
+        azel_span = np.max(azel_samples) - np.min(azel_samples)
+
+        fxtrue = freqs * np.cos(azel_samples - azel_ctr)  # % true fx and fy locations for this f, az grid
+        fxtrue = fxtrue.reshape(-1)
+        fytrue = freqs * np.sin(azel_samples - azel_ctr)
+        fytrue = fytrue.reshape(-1)
+
+        fxmin = np.min(freqs)
+        fxmax = np.max(freqs)
+        f_c = np.mean(freqs)
+        fymax = np.sin(azel_span / 2) * f_c
+
+        fx = np.linspace(fxmin, fxmax, nfreq)  # desired downrange frequencies
+        fy = np.linspace(-fymax, fymax, nangles)  # desired crossrange frequencies
+        grid_x, grid_y = np.meshgrid(fx, fy)
+
+        rdata = scipy.interpolate.griddata((fxtrue, fytrue), data, (grid_x, grid_y), "linear", fill_value=0.0)
+        rdata = rdata.transpose()
+
+        winx, winx_sum = window_function(function=window, size=nfreq)
+        winy, winy_sum = window_function(function=window, size=nangles)
+        winx = winx.reshape(-1, 1)
+        winy = winy.reshape(1, -1)
+
+        # %
+        # % zero padding
+        # %
+        if ndrng < nfreq:
+            # warning('nx should be at least as large as the length of f -- increasing nx');
+            ndrng = nfreq
+        if nxrng < nangles:
+            # warning('ny should be at least as large as the length of az -- increasing ny');
+            nxrng = nangles
+
+        iq = np.zeros((ndrng, nxrng), dtype=np.complex_)
+        xshift = (ndrng - nfreq) // 2
+        yshift = (nxrng - nangles) // 2
+        iq[xshift : xshift + nfreq, yshift : yshift + nangles] = np.multiply(rdata, winx * winy)
+        #
+        # normalize so that unit amplitude scatterers have about unit amplitude in
+        # the image (normalized for the windows).  The "about" comes because of the
+        # truncation of the polar shape into a rectangular shape.
+        #
+        iq = np.fft.fftshift(iq) * ndrng * nxrng / winx_sum / winy_sum
+        isar_image = np.fft.fftshift(np.fft.ifft2(iq))  # Nx x Ny
+        isar_image = apply_math_function(isar_image, function)
+        isar_image = isar_image.transpose()
+        isar_image = isar_image[:, ::-1]
+        #
+        #  compute the image plane downrange and crossrange distance vectors (in
+        #  meters)
+        #
+        dfx = fx[1] - fx[0]  # difference in x-frequencies
+        dfy = fy[1] - fy[0]  # difference in y-frequencies
+        dx = c0 / (2 * dfx) / ndrng
+        dy = c0 / (2 * dfy) / nxrng
+        x = np.transpose(np.arange(start=0, step=dx, stop=ndrng * dx))  # ndrng x 1
+        y = np.arange(start=0, step=dy, stop=nxrng * dy)  # 1 x Ny
+        #
+        #  make the center x and y values zero
+        #
+        #  these two lines ensure one value of x and y are zero when nx or ny are even
+        #
+        range_values = x - x[ndrng // 2]
+        range_values_interp = np.linspace(range_values[0], range_values[-1], num=nxrng)
+        cross_range_values = y - y[nxrng // 2]
+        cross_range_values_interp = np.linspace(cross_range_values[0], cross_range_values[-1], num=ndrng)
+        # range_values = range_values*np.cos(azel_ctr)-cross_range_values_interp*np.sin(azel_ctr)
+        # cross_range_values = cross_range_values*np.cos(azel_ctr)+range_values_interp*np.sin(azel_ctr)
+
+        RR, XR = np.meshgrid(range_values, cross_range_values)
+
+        indexes = zip(RR.flatten(order="F"), XR.flatten(order="F"))
+
+        # Data by frequency
+        raw_data = self.raw_data.xs(key=self.incident_wave_theta, level="IWaveTheta")
+
+        df = raw_data.reset_index()
+        df.columns = ["Freq", "IWavePhi", "Data"]
+        data_freq = df[df["IWavePhi"] == self.incident_wave_phi]
+        data_freq = data_freq.drop(columns=["IWavePhi"])
+
+        data = data_freq["Data"]
+
+        # Take needed properties
+        size = self.window_size
+        nfreq = len(self.frequencies)
+
+        # Compute window
+        win_range, _ = self.window_function(self.window, nfreq)
+        windowed_data = data * win_range
+
+        # Perform FFT
+        sf_upsample = self.window_size / nfreq
+        windowed_data = np.fft.fftshift(sf_upsample * np.fft.ifft(windowed_data.to_numpy(), n=size))
+
+        data_converted = conversion_function(windowed_data, self.data_conversion_function)
+
+        df = unit_converter((self.frequencies[1] - self.frequencies[0]), "Freq", self.frequency_units, "Hz")
+        pd_t = 1.0 / df
+        dt = pd_t / size
+        c0 = 299792458
+        range_norm = dt * np.linspace(start=-0.5 * size, stop=0.5 * size - 1, num=size) / 2 * c0
+
+        index_names = ["Range", "Data"]
+        df = pd.DataFrame(columns=index_names)
+        df["Range"] = range_norm
+        df["Data"] = data_converted
+
+        return df
 
     @staticmethod
     def window_function(window="Flat", size=512):
@@ -761,6 +925,73 @@ class MonostaticRCSPlotter(object):
             If ``False``, the Matplotlib instance of the plot is shown.
         is_polar : bool, optional
             Whether to display in polar coordinates. The default is ``True``.
+        size : tuple, optional
+            Image size in pixel (width, height).
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
+            PyAEDT matplotlib figure object.
+        """
+
+        data_range_waterfall = self.rcs_data.waterfall
+
+        ranges = np.unique(data_range_waterfall["Range"])
+        phis = np.unique(data_range_waterfall["IWavePhi"])
+
+        phis = np.deg2rad(phis.tolist()) if is_polar else phis
+        n_range = len(ranges)
+        n_phi = len(phis)
+        values = data_range_waterfall["Data"].to_numpy()
+        values = values.reshape((n_range, n_phi), order="F")
+
+        ra, ph = np.meshgrid(ranges, phis)
+
+        if is_polar:
+            x = ra
+            y = ph
+            values = values.T
+            xlabel = " "
+            ylabel = " "
+        else:
+            x = ph.T
+            y = ra.T
+            xlabel = "Range (m)"
+            ylabel = "Phi (deg)"
+
+        plot_data = [values, x, y]
+
+        new = ReportPlotter()
+        new.size = size
+        new.show_legend = False
+        new.title = title
+        props = {
+            "x_label": xlabel,
+            "y_label": ylabel,
+        }
+
+        new.add_trace(plot_data, 2, props)
+        _ = new.plot_contour(
+            trace=0,
+            polar=is_polar,
+            snapshot_path=output_file,
+            show=show,
+        )
+        return new
+
+    @pyaedt_function_handler()
+    def plot_isar_2d(self, title="ISAR", output_file=None, show=True, size=(1920, 1440)):
+        """Create a 2D contour plot of the ISAR.
+
+        Parameters
+        ----------
+        title : str, optional
+            Plot title. The default is ``"RectangularPlot"``.
+        output_file : str, optional
+            Full path for the image file. The default is ``None``, in which case an image in not exported.
+        show : bool, optional
+            Whether to show the plot. The default is ``True``.
+            If ``False``, the Matplotlib instance of the plot is shown.
         size : tuple, optional
             Image size in pixel (width, height).
 
