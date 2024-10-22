@@ -24,6 +24,7 @@
 
 import os
 import sys
+import subprocessdotnet as subprocess
 
 # This script installs PyAEDT tabs (PyAEDT Console, Jupyter, Run Script and Extension Manager)
 # using a specific Python interpreter.
@@ -33,7 +34,6 @@ import sys
 is_linux = os.name == "posix"
 is_windows = not is_linux
 
-import subprocess
 
 pyaedt_enviroment_variable = "PYAEDT_INTERPRETER"
 
@@ -57,7 +57,10 @@ def run_pyinstaller_from_c_python(oDesktop, pyaedt_interpreter):
             'add_pyaedt_to_aedt(aedt_version="{}", personal_lib=r"{}")\n'.format(
                 oDesktop.GetVersion()[:6], oDesktop.GetPersonalLibDirectory()))
 
-    command = r'"{}" "{}"'.format(pyaedt_interpreter, python_script)
+    # command = r'"{}" "{}"'.format(pyaedt_interpreter, python_script)
+    command = [pyaedt_interpreter, python_script]
+    # oDesktop.AddMessage("", "", 0, pyaedt_interpreter)
+    # oDesktop.AddMessage("", "", 0, python_script)
     oDesktop.AddMessage("", "", 0, "Configuring PyAEDT panels in automation tab.")
     process = subprocess.Popen(command)
     process.wait()
