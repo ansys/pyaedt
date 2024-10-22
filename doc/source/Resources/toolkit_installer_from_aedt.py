@@ -34,7 +34,6 @@ import subprocessdotnet as subprocess
 is_linux = os.name == "posix"
 is_windows = not is_linux
 
-
 pyaedt_enviroment_variable = "PYAEDT_INTERPRETER"
 
 
