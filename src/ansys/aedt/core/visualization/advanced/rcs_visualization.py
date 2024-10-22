@@ -407,11 +407,11 @@ class MonostaticRCSData(object):
         if self.aspect_range == "Horizontal":
             nangles = len(phis)
             azel_samples = -phis.reshape(1, -1)
-            data = self.rcs_active_theta
+            data = self.rcs_active_theta["Data"]
         else:
             nangles = len(thetas)
             azel_samples = 90.0 - thetas.reshape(1, -1)
-            data = self.rcs_active_theta
+            data = self.rcs_active_theta["Data"]
 
         azel_samples = np.unwrap(np.radians(azel_samples))
         azel_ctr = np.mean(azel_samples)
@@ -436,8 +436,6 @@ class MonostaticRCSData(object):
         fx = np.linspace(fxmin, fxmax, nfreq)  # desired downrange frequencies
         fy = np.linspace(-fymax, fymax, nangles)  # desired crossrange frequencies
         grid_x, grid_y = np.meshgrid(fx, fy)
-
-        data = self.raw_data[self.name]
 
         rdata = scipy.interpolate.griddata((fxtrue, fytrue), data, (grid_x, grid_y), "linear", fill_value=0.0)
         rdata = rdata.transpose()
@@ -975,30 +973,22 @@ class MonostaticRCSPlotter(object):
             PyAEDT matplotlib figure object.
         """
 
-        data_range_waterfall = self.rcs_data.waterfall
+        data_isar = self.rcs_data.isar_2d
 
-        ranges = np.unique(data_range_waterfall["Range"])
-        phis = np.unique(data_range_waterfall["IWavePhi"])
+        ranges = np.unique(data_isar["Down-range"])
+        phis = np.unique(data_isar["Cross-range"])
 
-        phis = np.deg2rad(phis.tolist()) if is_polar else phis
         n_range = len(ranges)
         n_phi = len(phis)
-        values = data_range_waterfall["Data"].to_numpy()
+        values = data_isar["Data"].to_numpy()
         values = values.reshape((n_range, n_phi), order="F")
 
         ra, ph = np.meshgrid(ranges, phis)
 
-        if is_polar:
-            x = ra
-            y = ph
-            values = values.T
-            xlabel = " "
-            ylabel = " "
-        else:
-            x = ph.T
-            y = ra.T
-            xlabel = "Range (m)"
-            ylabel = "Phi (deg)"
+        x = ph.T
+        y = ra.T
+        xlabel = "Range (m)"
+        ylabel = "Cross Range (m)"
 
         plot_data = [values, x, y]
 
@@ -1014,7 +1004,7 @@ class MonostaticRCSPlotter(object):
         new.add_trace(plot_data, 2, props)
         _ = new.plot_contour(
             trace=0,
-            polar=is_polar,
+            polar=False,
             snapshot_path=output_file,
             show=show,
         )
@@ -1349,6 +1339,146 @@ class MonostaticRCSPlotter(object):
 
         end_geo_mesh = MeshObjectPlot(end_geo_object, end_geo_object.get_mesh())
         self.all_scene_actors["annotations"]["waterfall"][annotation_name] = end_geo_mesh
+
+    @pyaedt_function_handler()
+    def add_isar_2d_settings(
+        self,
+        size_range=10.0,
+        range_resolution=0.1,
+        size_cross_range=10.0,
+        cross_range_resolution=0.1,
+        tick_color="#000000",
+    ):
+        """
+        Add a 3D ISAR 2D setting representation to the current scene.
+
+        This function visualizes a 3D range profile with a main line representing the range axis
+        and tick marks indicating distance intervals. The profile includes visual elements like
+        a disc at the far end and a cone at the starting point. These elements help to display
+        a reference range profile in the 3D scene.
+
+        Parameters
+        ----------
+        size_range : float, optional
+            Total size of the range in ``meters``. It determines the length of the range
+            profile. The default is ``10.0``.
+        range_resolution : float, optional
+            Resolution of the range in ``meters``, representing the distance between each tick mark along
+            the range profile. The default is ``0.1``.
+        tick_color : str, optional
+            Color of the tick marks along the range profile. The default is black (``"#000000"``).
+        """
+        # Compute parameters
+        range_max = size_range - range_resolution
+        range_num = int(np.round(size_range / range_resolution))
+        distance_range = np.linspace(0, range_max, range_num)
+        distance_range -= distance_range[range_num // 2]
+        range_first = -distance_range[0]
+        range_last = -distance_range[-1]
+
+        range_max_az = size_cross_range - cross_range_resolution
+        range_num_az = int(np.round(size_cross_range / cross_range_resolution))
+        range_az = np.linspace(0, range_max_az, range_num_az)
+        range_az -= range_az[range_num_az // 2]
+        range_first_az = range_az[0]
+        range_last_az = range_az[-1]
+
+        z_mid = self.extents[5] + (self.extents[4] - self.extents[5]) / 2
+        num_ticks = range_num
+        num_ticks_az = range_num_az
+
+        # Using 5% of total range length
+        tick_length = size_range * 0.05
+        tick_length_az = size_cross_range * 0.05
+
+        if "range_profile" not in self.all_scene_actors["annotations"].keys():
+            self.all_scene_actors["annotations"]["isar_2d"] = {}
+
+        # Main red line
+        main_line = pv.Line(pointa=(range_first, range_first_az, z_mid), pointb=(range_last, range_first_az, z_mid))
+        annotation_name = "main_line"
+        main_line_object = SceneMeshObject()
+        main_line_object.name = annotation_name
+        main_line_object.color = "red"
+        main_line_object.line_width = 5
+        main_line_object.mesh = main_line
+
+        main_line_mesh = MeshObjectPlot(main_line_object, main_line_object.get_mesh())
+        self.all_scene_actors["annotations"]["isar_2d"][annotation_name] = main_line_mesh
+
+        main_line_opposite = pv.Line(
+            pointa=(range_first, range_last_az, z_mid), pointb=(range_last, range_last_az, z_mid)
+        )
+        annotation_name = "main_line_opposite"
+        main_line_opposite_object = SceneMeshObject()
+        main_line_opposite_object.name = annotation_name
+        main_line_opposite_object.color = "red"
+        main_line_opposite_object.line_width = 5
+        main_line_opposite_object.mesh = main_line_opposite
+
+        main_line_opposite_mesh = MeshObjectPlot(main_line_opposite_object, main_line_opposite_object.get_mesh())
+        self.all_scene_actors["annotations"]["isar_2d"][annotation_name] = main_line_opposite_mesh
+
+        main_line_az = pv.Line(pointa=(range_first, range_first_az, z_mid), pointb=(range_first, range_last_az, z_mid))
+        annotation_name = "main_line_az"
+        main_line_az_object = SceneMeshObject()
+        main_line_az_object.name = annotation_name
+        main_line_az_object.color = "red"
+        main_line_az_object.line_width = 5
+        main_line_az_object.mesh = main_line_az
+
+        main_line_az_mesh = MeshObjectPlot(main_line_az_object, main_line_az_object.get_mesh())
+        self.all_scene_actors["annotations"]["isar_2d"][annotation_name] = main_line_az_mesh
+
+        main_line_az_opposite = pv.Line(
+            pointa=(range_last, range_first_az, z_mid), pointb=(range_last, range_last_az, z_mid)
+        )
+        annotation_name = "main_line_az_opposite"
+        main_line_az_opposite_object = SceneMeshObject()
+        main_line_az_opposite_object.name = annotation_name
+        main_line_az_opposite_object.color = "red"
+        main_line_az_opposite_object.line_width = 5
+        main_line_az_opposite_object.mesh = main_line_az_opposite
+
+        main_line_az_opposite_mesh = MeshObjectPlot(
+            main_line_az_opposite_object, main_line_az_opposite_object.get_mesh()
+        )
+        self.all_scene_actors["annotations"]["isar_2d"][annotation_name] = main_line_az_opposite_mesh
+
+        if num_ticks <= 256:  # don't display too many ticks
+            tick_lines = pv.PolyData()
+            for tick in range(0, num_ticks, 2):  # create line with tick marks
+                tick_pos_start = (distance_range[tick], range_first_az, z_mid)
+                tick_pos_end = (distance_range[tick], range_first_az - tick_length, z_mid)
+                tick_lines += pv.Line(pointa=tick_pos_start, pointb=tick_pos_end)
+
+            annotation_name = "ticks_range"
+            tick_lines_range_object = SceneMeshObject()
+            tick_lines_range_object.name = annotation_name
+            tick_lines_range_object.color = tick_color
+            tick_lines_range_object.line_width = 2
+            tick_lines_range_object.mesh = tick_lines
+
+            tick_lines_range_mesh = MeshObjectPlot(tick_lines_range_object, tick_lines_range_object.get_mesh())
+            self.all_scene_actors["annotations"]["isar_2d"][annotation_name] = tick_lines_range_mesh
+
+        # add azimuth line
+        if num_ticks_az <= 256:  # don't display too many ticks
+            tick_lines = pv.PolyData()
+            for tick in range(0, num_ticks_az, 2):  # create line with tick marks
+                tick_pos_start = (range_first, range_az[tick], z_mid)
+                tick_pos_end = (range_first + tick_length_az, range_az[tick], z_mid)
+                tick_lines += pv.Line(pointa=tick_pos_start, pointb=tick_pos_end)
+
+            annotation_name = "ticks_az"
+            tick_lines_az_object = SceneMeshObject()
+            tick_lines_az_object.name = annotation_name
+            tick_lines_az_object.color = tick_color
+            tick_lines_az_object.line_width = 2
+            tick_lines_az_object.mesh = tick_lines
+
+            tick_lines_az_mesh = MeshObjectPlot(tick_lines_az_object, tick_lines_az_object.get_mesh())
+            self.all_scene_actors["annotations"]["isar_2d"][annotation_name] = tick_lines_az_mesh
 
     @pyaedt_function_handler()
     def add_range_profile(
