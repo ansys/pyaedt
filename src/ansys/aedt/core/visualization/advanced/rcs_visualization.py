@@ -1350,23 +1350,30 @@ class MonostaticRCSPlotter(object):
         tick_color="#000000",
     ):
         """
-        Add a 3D ISAR 2D setting representation to the current scene.
+        Add a 2D ISAR (Inverse Synthetic Aperture Radar) visualization to the current 3D scene.
 
-        This function visualizes a 3D range profile with a main line representing the range axis
-        and tick marks indicating distance intervals. The profile includes visual elements like
-        a disc at the far end and a cone at the starting point. These elements help to display
-        a reference range profile in the 3D scene.
+        This function creates a 2D range and cross-range profile in a 3D scene. It includes a main
+        line to represent the range axis, tick marks to indicate distance intervals, and additional
+        lines to mark the azimuth. The visualization aids in representing ISAR settings for both
+        range and cross-range dimensions.
 
         Parameters
         ----------
         size_range : float, optional
-            Total size of the range in ``meters``. It determines the length of the range
-            profile. The default is ``10.0``.
+            The total size of the range axis in meters. This sets the overall length of the
+            range axis. The default is 10.0 meters.
         range_resolution : float, optional
-            Resolution of the range in ``meters``, representing the distance between each tick mark along
-            the range profile. The default is ``0.1``.
+            Resolution of the range axis in meters, specifying the spacing between each tick mark.
+            The default is 0.1 meters.
+        size_cross_range : float, optional
+            The total size of the cross-range axis in meters. This sets the width of the cross-range
+            axis. The default is 10.0 meters.
+        cross_range_resolution : float, optional
+            Resolution of the cross-range axis in meters, specifying the spacing between each tick mark
+            along the azimuth axis. The default is 0.1 meters.
         tick_color : str, optional
-            Color of the tick marks along the range profile. The default is black (``"#000000"``).
+            Color of the tick marks along both the range and cross-range axes. The default is
+            black ("#000000").
         """
         # Compute parameters
         range_max = size_range - range_resolution
