@@ -117,8 +117,8 @@ if not error:
     print(" ")
 
     print("\033[92m****************************************************************")
-    print("*  ElectronicsDesktop {} Process ID {}".format(version, aedt_process_id))
-    print("*  CPython {}".format(sys.version.split(" ")[0]))
+    print(f"*  ElectronicsDesktop {version} Process ID {aedt_process_id}")
+    print(f"*  CPython {sys.version.split(' ')[0]}")
     print("*---------------------------------------------------------------")
     print("*  Example: \033[94m hfss = ansys.aedt.core.Hfss() \033[92m")
     print("*  Example: \033[94m m2d = ansys.aedt.core.Maxwell2d() \033[92m")

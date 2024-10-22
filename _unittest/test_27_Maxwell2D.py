@@ -509,6 +509,8 @@ class TestClass:
         dxf_layers = self.aedtapp.get_dxf_layers(dxf_file)
         assert isinstance(dxf_layers, list)
         assert self.aedtapp.import_dxf(dxf_file, dxf_layers)
+        dxf_layers = ["invalid", "invalid1"]
+        assert not self.aedtapp.import_dxf(dxf_file, dxf_layers)
 
     def test_34_start_continue_from_previous_setup(self):
         self.aedtapp.set_active_design("Basis_Model_For_Test")

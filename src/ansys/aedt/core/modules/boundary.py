@@ -518,17 +518,16 @@ class PCBSettingsPackageParts(object):
         valid_connectors = ["Solderbump", "Bondwire"]
         if modeling is not None and modeling not in valid_connectors:
             self._app.logger.error(
-                "{} option is not supported. Use one of the following: {}".format(modeling, ", ".join(valid_connectors))
+                f"{modeling} option is not supported. Use one of the following: {', '.join(valid_connectors)}"
             )
             return False
         if bondwire_material not in self._app.materials.mat_names_aedt:
-            self._app.logger.error("{} material is not present in the library.".format(bondwire_material))
+            self._app.logger.error(f"{bondwire_material} material is not present in the library.")
             return False
         if self._solderbumps_map.get(solderbumps_modeling, None) is None:
             self._app.logger.error(
-                "Solderbumps modeling option {} is not valid. Available options are: {}.".format(
-                    solderbumps_modeling, ", ".join(list(self._solderbumps_map.keys()))
-                )
+                f"Solderbumps modeling option {solderbumps_modeling} is not valid. "
+                f"Available options are: {', '.join(list(self._solderbumps_map.keys()))}."
             )
             return False
 
@@ -718,7 +717,7 @@ class PCBSettingsDeviceParts(object):
             object_type = [object_type]
         if not all(o in self._filter_map2name.values() for o in object_type):
             self._app.logger.error(
-                "Accepted elements of the list are: {}".format(", ".join(list(self._filter_map2name.values())))
+                f"Accepted elements of the list are: {', '.join(list(self._filter_map2name.values()))}"
             )
         else:
             new_filters = self.pcb.props["NativeComponentDefinitionProvider"].get("Filters", [])
@@ -1359,10 +1358,9 @@ class NativeComponentPCB(NativeComponentObject, object):
         outlines = [p for p in layout.modeler.polygons.values() if p.placement_layer == layer.name]
         if len(outlines) > 1:
             self._app.logger.info(
-                "{} automatically selected as ``extent_polygon``, pass ``extent_polygon`` argument explixitly to select"
-                " a different one. Available choices are: {}".format(
-                    outlines[0].name, ", ".join([o.name for o in outlines])
-                )
+                f"{outlines[0].name} automatically selected as ``extent_polygon``, "
+                f"pass ``extent_polygon`` argument explixitly to select a different one. "
+                f"Available choices are: {', '.join([o.name for o in outlines])}"
             )
         elif len(outlines) == 0:
             self._app.logger.error("No polygon found in the Outline layer.")
@@ -1428,9 +1426,8 @@ class NativeComponentPCB(NativeComponentObject, object):
             allowed_extent_types = ["Bounding Box", "Polygon"]
             if extent_type not in allowed_extent_types:
                 self._app.logger.error(
-                    "Accepted argument for ``extent_type`` are: {}. {} provided".format(
-                        ", ".join(allowed_extent_types), extent_type
-                    )
+                    f"Accepted argument for ``extent_type`` are:"
+                    f" {', '.join(allowed_extent_types)}. {extent_type} provided"
                 )
                 return False
             self.props["NativeComponentDefinitionProvider"]["ExtentsType"] = extent_type
@@ -1517,15 +1514,13 @@ class BoundaryObject(BoundaryCommon, object):
                     child_object = model.GetChildObject(self.name)
             elif "Excitations" in design_childs and self._app.get_oo_name(self._app.odesign, "Excitations"):
                 for port in self._app.get_oo_name(self._app.odesign, "Excitations"):
-                    terminals = self._app.get_oo_name(self._app.odesign, "Excitations\\{}".format(port))
+                    terminals = self._app.get_oo_name(self._app.odesign, f"Excitations\\{port}")
                     if self.name in terminals:
-                        child_object = self._app.get_oo_object(
-                            self._app.odesign, "Excitations\\{}\\{}".format(port, self.name)
-                        )
+                        child_object = self._app.get_oo_object(self._app.odesign, f"Excitations\\{port}\\{self.name}")
             elif "Conductors" in design_childs and self._app.get_oo_name(self._app.odesign, "Conductors"):
                 for port in self._app.get_oo_name(self._app.odesign, "Conductors"):
                     if self.name == port:
-                        child_object = self._app.get_oo_object(self._app.odesign, "Conductors\\{}".format(port))
+                        child_object = self._app.get_oo_object(self._app.odesign, f"Conductors\\{port}")
 
         if child_object:
             return BinaryTreeNode(self.name, child_object, False)
@@ -2857,14 +2852,14 @@ class Matrix(object):
         list_output = []
         if get_self_terms:
             for el in self.sources(is_gc_sources=is_cg):
-                value = "{}({},{})".format(category, el, el)
+                value = f"{category}({el},{el})"
                 if filter_tuple(value, first_element_filter, second_element_filter):
                     list_output.append(value)
         if get_mutual_terms:
             for el1 in self.sources(is_gc_sources=is_cg):
                 for el2 in self.sources(is_gc_sources=is_cg):
                     if el1 != el2:
-                        value = "{}({},{})".format(category, el1, el2)
+                        value = f"{category}({el1},{el2})"
                         if filter_tuple(value, first_element_filter, second_element_filter):
                             list_output.append(value)
         return list_output
@@ -2978,37 +2973,34 @@ class Matrix(object):
     @pyaedt_function_handler()
     def _write_command(self, source_names, new_name, new_source, new_sink):
         if self._operations[-1] == "JoinSeries":
-            command = "{}('{}', '{}')".format(self._operations[-1], new_name, "', '".join(source_names))
+            command = f"""{self._operations[-1]}('{new_name}', '{"', '".join(source_names)}')"""
         elif self._operations[-1] == "JoinParallel":
-            command = "{}('{}', '{}', '{}', '{}')".format(
-                self._operations[-1], new_name, new_source, new_sink, "', '".join(source_names)
+            command = (
+                f"""{self._operations[-1]}('{new_name}', '{new_source}', '{new_sink}', '{"', '".join(source_names)}')"""
             )
         elif self._operations[-1] == "JoinSelectedTerminals":
-            command = "{}('', '{}')".format(self._operations[-1], "', '".join(source_names))
+            command = f"""{self._operations[-1]}('', '{"', '".join(source_names)}')"""
         elif self._operations[-1] == "FloatInfinity":
             command = "FloatInfinity()"
         elif self._operations[-1] == "AddGround":
-            command = "{}(SelectionArray[{}: '{}'], OverrideInfo())".format(
-                self._operations[-1], len(source_names), "', '".join(source_names)
-            )
+            command = f"""{self._operations[-1]}(SelectionArray[{len(source_names)}: '{"', '".join(source_names)}'],
+            OverrideInfo())"""
         elif (
             self._operations[-1] == "SetReferenceGround"
             or self._operations[-1] == "SetReferenceGround"
             or self._operations[-1] == "Float"
         ):
-            command = "{}(SelectionArray[{}: '{}'], OverrideInfo())".format(
-                self._operations[-1], len(source_names), "', '".join(source_names)
-            )
+            command = f"""{self._operations[-1]}(SelectionArray[{len(source_names)}: '{"', '".join(source_names)}'],
+            OverrideInfo())"""
         elif self._operations[-1] == "Parallel" or self._operations[-1] == "DiffPair":
             id_ = 0
             for el in self._app.boundaries:
                 if el.name == source_names[0]:
                     id_ = self._app.modeler[el.props["Objects"][0]].id
-            command = "{}(SelectionArray[{}: '{}'], OverrideInfo({}, '{}'))".format(
-                self._operations[-1], len(source_names), "', '".join(source_names), id_, new_name
-            )
+            command = f"""{self._operations[-1]}(SelectionArray[{len(source_names)}: '{"', '".join(source_names)}'],
+            OverrideInfo({id_}, '{new_name}'))"""
         else:
-            command = "{}('{}')".format(self._operations[-1], "', '".join(source_names))
+            command = f"""{self._operations[-1]}('{"', '".join(source_names)}')"""
         return command
 
 
@@ -3122,11 +3114,11 @@ class BoundaryObject3dLayout(BoundaryCommon, object):
 
     @pyaedt_function_handler()
     def _refresh_properties(self):
-        if len(self._app.oeditor.GetProperties("EM Design", "Excitations:{}".format(self.name))) != len(self.props):
-            propnames = self._app.oeditor.GetProperties("EM Design", "Excitations:{}".format(self.name))
+        if len(self._app.oeditor.GetProperties("EM Design", f"Excitations:{self.name}")) != len(self.props):
+            propnames = self._app.oeditor.GetProperties("EM Design", f"Excitations:{self.name}")
             props = {}
             for prop in propnames:
-                props[prop] = self._app.oeditor.GetPropertyValue("EM Design", "Excitations:{}".format(self.name), prop)
+                props[prop] = self._app.oeditor.GetPropertyValue("EM Design", f"Excitations:{self.name}", prop)
             self._props = BoundaryProps(self, props)
 
     @pyaedt_function_handler()
@@ -3144,7 +3136,7 @@ class BoundaryObject3dLayout(BoundaryCommon, object):
             if el == "Port" and self._name != self.props[el]:
                 self._app.oeditor.SetPropertyValue("EM Design", "Excitations:" + self.name, el, self.props[el])
                 self._name = self.props[el]
-            elif el in self._app.oeditor.GetProperties("EM Design", "Excitations:{}".format(self.name)) and self.props[
+            elif el in self._app.oeditor.GetProperties("EM Design", f"Excitations:{self.name}") and self.props[
                 el
             ] != self._app.oeditor.GetPropertyValue("EM Design", "Excitations:" + self.name, el):
                 self._app.oeditor.SetPropertyValue("EM Design", "Excitations:" + self.name, el, self.props[el])
@@ -5799,11 +5791,11 @@ class BoundaryDictionary:
 
     def __init__(self, assignment_type, function_type):
         if assignment_type not in ["Temp Dep", "Transient"]:  # pragma : no cover
-            raise AttributeError("The argument {} for ``assignment_type`` is not valid.".format(assignment_type))
+            raise AttributeError(f"The argument {assignment_type} for ``assignment_type`` is not valid.")
         if assignment_type == "Temp Dep" and function_type != "Piecewise Linear":  # pragma : no cover
             raise AttributeError(
                 "Temperature dependent assignments only support"
-                ' ``"Piecewise Linear"`` as ``function_type`` argument.'.format(assignment_type)
+                ' ``"Piecewise Linear"`` as ``function_type`` argument.'
             )
         self.assignment_type = assignment_type
         self.function_type = function_type

@@ -150,7 +150,7 @@ Create and Analyze an EMIT project:
     interaction = rev.run(domain)
     worst = interaction.get_worst_instance(ResultType.EMI)
     emi = worst.get_value(ResultType.EMI)
-    print("Worst case interference is: {} dB".format(emi))
+    print(f"Worst case interference is: {emi} dB")
 
     # Close AEDT
     emit.release_desktop(close_projects=True, close_desktop=True)

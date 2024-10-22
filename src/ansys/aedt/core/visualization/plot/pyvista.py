@@ -1019,7 +1019,7 @@ class ModelPlotter(CommonPlotter):
                     else:
                         field.scalar_name = field._cached_polydata.point_data.active_scalars_name
 
-                elif ".aedtplt" in field.path:
+                elif ".aedtplt" in field.path:  # pragma no cover
                     vertices, faces, scalars, log1 = _parse_aedtplt(field.path)
                     if self.convert_fields_in_db:
                         scalars = [np.multiply(np.log10(i), self.log_multiplier) for i in scalars]
@@ -1030,14 +1030,16 @@ class ModelPlotter(CommonPlotter):
                             50 * (np.vstack(scalars[0]).max() - np.vstack(scalars[0]).min())
                         )
 
-                        field._cached_polydata["vectors"] = np.vstack(scalars[0]).T * vector_scale
+                        field._cached_polydata["vectors"] = np.vstack(scalars).T * vector_scale
                         field.label = "Vector " + field.label
                         field._cached_polydata.point_data[field.label] = np.array(
                             [np.linalg.norm(x) for x in np.vstack(scalars[0]).T]
                         )
-                        field.scalar_name = field.field._cached_polydata.point_data.active_scalars_name
-
-                        field.is_vector = True
+                        try:
+                            field.scalar_name = field._cached_polydata.point_data.active_scalars_name + " Magnitude"
+                            field.is_vector = True
+                        except Exception:
+                            field.is_vector = False
                     else:
                         field._cached_polydata.point_data[field.label] = scalars[0]
                         field.scalar_name = field._cached_polydata.point_data.active_scalars_name
@@ -1094,7 +1096,6 @@ class ModelPlotter(CommonPlotter):
                             field.label = "Vector " + field.label
                             filedata.point_data[field.label] = np.array([np.linalg.norm(x) for x in np.vstack(values)])
                             field.scalar_name = field._cached_polydata.point_data.active_scalars_name
-                            field.is_vector = True
                             field.is_vector = True
                         else:
                             filedata = filedata.delaunay_2d(tol=field.surface_mapping_tolerance)
@@ -1337,9 +1338,7 @@ class ModelPlotter(CommonPlotter):
 
         def s_callback():  # pragma: no cover
             """save screenshots"""
-            exp = os.path.join(
-                path_image, "{}{}{}".format(root_name, datetime.now().strftime("%Y_%M_%d_%H-%M-%S"), format)
-            )
+            exp = os.path.join(path_image, f'{root_name}{datetime.now().strftime("%Y_%M_%d_%H-%M-%S")}{format}')
             self.pv.screenshot(exp, return_img=False)
 
         self.pv.add_key_event("s", s_callback)

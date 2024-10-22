@@ -109,14 +109,14 @@ def init_scratch():
     try:
         os.makedirs(test_folder, mode=0o777)
     except FileExistsError as e:
-        print("Failed to create {}. Reason: {}".format(test_folder, e))
+        print(f"Failed to create {test_folder}. Reason: {e}")
 
     yield test_folder
 
     try:
         shutil.rmtree(test_folder, ignore_errors=True)
     except Exception as e:
-        print("Failed to delete {}. Reason: {}".format(test_folder, e))
+        print(f"Failed to delete {test_folder}. Reason: {e}")
 
 
 @pytest.fixture(scope="module", autouse=True)

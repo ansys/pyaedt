@@ -81,7 +81,7 @@ def _retrieve_file(url, name, directory, destination=None, local_paths=None):
         os.makedirs(destination_dir)
     # Perform download
     if is_linux:
-        command = "wget {} -O {}".format(url, local_path)
+        command = f"wget {url} -O {local_path}"
         os.system(command)
     elif is_ironpython:
         versions = aedt_versions.list_installed_ansysem
@@ -107,8 +107,8 @@ def _retrieve_file(url, name, directory, destination=None, local_paths=None):
                 f.write("import urllib.request\n")
                 f.write("urlretrieve = urllib.request.urlretrieve\n")
                 f.write("import urllib.request\n")
-                f.write('url = r"{}"\n'.format(url))
-                f.write('local_path = r"{}"\n'.format(local_path))
+                f.write(f'url = r"{url}"\n')
+                f.write(f'local_path = r"{local_path}"\n')
                 f.write("urlretrieve(url, local_path)\n")
             print(command)
             os.system(command)

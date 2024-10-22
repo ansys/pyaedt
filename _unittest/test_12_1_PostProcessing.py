@@ -103,8 +103,11 @@ class TestClass:
         plot1.update()
         assert self.aedtapp.post.field_plots[plot1.name].IsoVal == "Tone"
         assert plot1.change_plot_scale(min_value, "30000", scale_levels=50)
+        assert self.aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsic, plot1.name)
         assert not self.aedtapp.post.create_fieldplot_volume("invalid", "Vector_E", setup_name, intrinsic)
-        assert self.aedtapp.post.create_fieldplot_volume("inner", quantity_name, setup_name, intrinsic)
+        field_plot = self.aedtapp.post.create_fieldplot_volume("inner", quantity_name, setup_name, intrinsic)
+        assert field_plot
+        assert self.aedtapp.post.create_fieldplot_volume("inner", quantity_name, setup_name, intrinsic, field_plot.name)
 
         volume_plot = self.aedtapp.post.create_fieldplot_volume("NewObject_IJD39Q", "Vector_E", setup_name, intrinsic)
 
@@ -113,8 +116,12 @@ class TestClass:
         )
         assert export_status
         assert os.path.splitext(export_status)[1] == ".case"
-        assert self.aedtapp.post.create_fieldplot_surface(
+        field_plot = self.aedtapp.post.create_fieldplot_surface(
             self.aedtapp.modeler["outer"].faces[0].id, "Mag_E", setup_name, intrinsic
+        )
+        assert field_plot
+        assert self.aedtapp.post.create_fieldplot_surface(
+            self.aedtapp.modeler["outer"].faces[0].id, "Mag_E", setup_name, intrinsic, field_plot.name
         )
         assert self.aedtapp.post.create_fieldplot_surface(self.aedtapp.modeler["outer"], "Mag_E", setup_name, intrinsic)
         assert self.aedtapp.post.create_fieldplot_surface(
@@ -254,6 +261,29 @@ class TestClass:
         assert os.path.exists(os.path.join(self.local_scratch.path, "MyTestScattering.rdat"))
 
     def test_07_export_fields_from_Calculator(self):
+        file_path = self.aedtapp.post.export_field_file_on_grid(
+            "E",
+            "Setup1 : LastAdaptive",
+            self.aedtapp.available_variations.nominal_w_values_dict,
+            self.local_scratch.path,
+            grid_stop=[5, 5, 5],
+            grid_step=[0.5, 0.5, 0.5],
+            is_vector=True,
+            intrinsics="5GHz",
+        )
+        assert os.path.exists(file_path)
+
+        file_path = self.aedtapp.post.export_field_file_on_grid(
+            "E",
+            "Setup1 : LastAdaptive",
+            self.aedtapp.available_variations.nominal_w_values_dict,
+            grid_stop=[5, 5, 5],
+            grid_step=[0.5, 0.5, 0.5],
+            is_vector=True,
+            intrinsics="5GHz",
+        )
+        assert os.path.exists(file_path)
+
         self.aedtapp.post.export_field_file_on_grid(
             "E",
             "Setup1 : LastAdaptive",
@@ -290,7 +320,6 @@ class TestClass:
             is_vector=False,
             intrinsics="5GHz",
         )
-
         assert os.path.exists(os.path.join(self.local_scratch.path, "MagEfieldCyl.fld"))
 
     def test_07_copydata(self):
@@ -307,6 +336,11 @@ class TestClass:
         assert plot.export_config(os.path.join(self.local_scratch.path, f"{plot.plot_name}.json"))
         assert self.aedtapp.post.create_report_from_configuration(
             os.path.join(self.local_scratch.path, f"{plot.plot_name}.json"), solution_name=self.aedtapp.nominal_sweep
+        )
+        assert self.aedtapp.post.create_report_from_configuration(
+            os.path.join(self.local_scratch.path, f"{plot.plot_name}.json"),
+            solution_name=self.aedtapp.nominal_sweep,
+            matplotlib=True,
         )
         assert self.aedtapp.post.create_report(
             expressions="MaxMagDeltaS",
@@ -725,7 +759,9 @@ class TestClass:
         setup_name = "Setup1 : LastAdaptive"
         intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
         self.aedtapp.modeler.create_polyline([udp1, udp2], name="Poly1", non_model=True)
-        assert self.aedtapp.post.create_fieldplot_line("Poly1", "Mag_E", setup_name, intrinsic)
+        field_line_plot = self.aedtapp.post.create_fieldplot_line("Poly1", "Mag_E", setup_name, intrinsic)
+        assert field_line_plot
+        self.aedtapp.post.create_fieldplot_line("Poly1", "Mag_E", setup_name, intrinsic, field_line_plot.name)
 
     def test_55_reload(self, add_app):
         self.aedtapp.save_project()
@@ -760,6 +796,7 @@ class TestClass:
         local_path = os.path.dirname(os.path.realpath(__file__))
         dict_vals = read_json(os.path.join(local_path, "example_models", "report_json", "Modal_Report_Simple.json"))
         assert self.aedtapp.post.create_report_from_configuration(report_settings=dict_vals)
+        assert self.aedtapp.post.create_report_from_configuration(report_settings=dict_vals, matplotlib=True)
 
     @pytest.mark.skipif(
         config["desktopVersion"] < "2022.2", reason="Not working in non graphical in version lower than 2022.2"
@@ -768,6 +805,9 @@ class TestClass:
         local_path = os.path.dirname(os.path.realpath(__file__))
         assert self.aedtapp.post.create_report_from_configuration(
             os.path.join(local_path, "example_models", "report_json", "Modal_Report.json")
+        )
+        assert self.aedtapp.post.create_report_from_configuration(
+            os.path.join(local_path, "example_models", "report_json", "Modal_Report.json"), matplotlib=True
         )
 
     def test_74_dynamic_update(self):

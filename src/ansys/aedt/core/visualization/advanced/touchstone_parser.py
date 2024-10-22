@@ -238,8 +238,8 @@ class TouchstoneData(rf.Network):
 
         ts_diff.se2gmm(num_of_diff_ports)
 
-        new_port_names = ["D{}".format(i) for i in np.arange(num_of_diff_ports)]
-        new_port_names.extend(["C{}".format(i) for i in np.arange(num_of_diff_ports)])
+        new_port_names = [f"D{i}" for i in np.arange(num_of_diff_ports)]
+        new_port_names.extend([f"C{i}" for i in np.arange(num_of_diff_ports)])
         ts_diff.port_names[: len(new_port_names)] = new_port_names
         return ts_diff
 

@@ -252,7 +252,7 @@ class PostProcessor3D(PostProcessorCommon):
                             name2refid[cs_id + 2] = name + ":XZ"
                 except Exception:
                     self.logger.debug(
-                        "Something went wrong with key {} while retrieving coordinate systems plane ids.".format(ds)
+                        f"Something went wrong with key {ds} while retrieving coordinate systems plane ids."
                     )  # pragma: no cover
         return name2refid
 
@@ -308,7 +308,7 @@ class PostProcessor3D(PostProcessorCommon):
                         plots[plot_name].GridColor = surf_setts["GridColor"]
                 except Exception:
                     self.logger.debug(
-                        "Something went wrong with setup {} while retrieving fields plot.".format(setup)
+                        f"Something went wrong with setup {setup} while retrieving fields plot."
                     )  # pragma: no cover
         return plots
 
@@ -339,7 +339,7 @@ class PostProcessor3D(PostProcessorCommon):
         oModule.EnterQty("OhmicLoss")
         oModule.EnterVol(assignment)
         oModule.CalcOp("Integrate")
-        name = "P_{}".format(assignment)  # Need to check for uniqueness !
+        name = f"P_{assignment}"  # Need to check for uniqueness !
         oModule.AddNamedExpression(name, "Fields")
         return name
 
@@ -468,7 +468,7 @@ class PostProcessor3D(PostProcessorCommon):
         >>> plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name)
         """
         intrinsics = self._app._check_intrinsics(intrinsics, phase, solution, return_list=True)
-        self.logger.info("Exporting {} field. Be patient".format(quantity))
+        self.logger.info(f"Exporting {quantity} field. Be patient")
         if not solution:
             solution = self._app.existing_analysis_sweeps[0]
         self.ofieldsreporter.CalcStack("clear")
@@ -485,7 +485,7 @@ class PostProcessor3D(PostProcessorCommon):
             try:
                 self.ofieldsreporter.EnterQty(quantity)
             except Exception:
-                self.logger.info("Quantity {} not present. Trying to get it from Stack".format(quantity))
+                self.logger.info(f"Quantity {quantity} not present. Trying to get it from Stack")
                 self.ofieldsreporter.CopyNamedExprToStack(quantity)
         obj_list = object_name
         if scalar_function:
@@ -644,11 +644,9 @@ class PostProcessor3D(PostProcessorCommon):
         if not solution:
             solution = self._app.existing_analysis_sweeps[0]
         if not file_name:
-            file_name = os.path.join(
-                self._app.working_directory, "{}_{}.fld".format(quantity, solution.replace(" : ", "_"))
-            )
+            file_name = os.path.join(self._app.working_directory, f"{quantity}_{solution.replace(' : ', '_')}.fld")
         elif os.path.isdir(file_name):
-            file_name = os.path.join(file_name, "{}_{}.fld".format(quantity, solution.replace(" : ", "_")))
+            file_name = os.path.join(file_name, f"{quantity}_{solution.replace(' : ', '_')}.fld")
         self.ofieldsreporter.CalcStack("clear")
         try:
             self.ofieldsreporter.EnterQty(quantity)
@@ -898,7 +896,7 @@ class PostProcessor3D(PostProcessorCommon):
         else:
             sample_points_file = os.path.join(self._app.working_directory, "temp_points.pts")
             with open_file(sample_points_file, "w") as f:
-                f.write("Unit={}\n".format(self.model_units))
+                f.write(f"Unit={self.model_units}\n")
                 for point in sample_points:
                     f.write(" ".join([str(i) for i in point]) + "\n")
             export_options = [
@@ -958,7 +956,7 @@ class PostProcessor3D(PostProcessorCommon):
                 output_dir = check_and_download_file(local_path, output_dir)
             return output_dir
         except Exception:  # pragma: no cover
-            self.logger.error("{} file format is not supported for this plot.".format(file_format))
+            self.logger.error(f"{file_format} file format is not supported for this plot.")
             return False
 
     @pyaedt_function_handler()
@@ -1206,7 +1204,7 @@ class PostProcessor3D(PostProcessorCommon):
         """
         intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
         if plot_name and plot_name in list(self.field_plots.keys()):
-            self.logger.info("Plot {} exists. returning the object.".format(plot_name))
+            self.logger.info(f"Plot {plot_name} exists. returning the object.")
             return self.field_plots[plot_name]
         return self._create_fieldplot(assignment, quantity, setup, intrinsics, "Line", plot_name, field_type=field_type)
 
@@ -1282,7 +1280,7 @@ class PostProcessor3D(PostProcessorCommon):
             self.logger.error("Field line traces is valid only for electrostatic solution")
             return False
         if plot_name and plot_name in list(self.field_plots.keys()):
-            self.logger.info("Plot {} exists. returning the object.".format(plot_name))
+            self.logger.info(f"Plot {plot_name} exists. returning the object.")
             return self.field_plots[plot_name]
         if not isinstance(seeding_faces, list):
             seeding_faces = [seeding_faces]
@@ -1291,7 +1289,7 @@ class PostProcessor3D(PostProcessorCommon):
             if self._app.modeler[face]:
                 seeding_faces_ids.append(self._app.modeler[face].id)
             else:
-                self.logger.error("Object {} doesn't exist in current design".format(face))
+                self.logger.error(f"Object {face} doesn't exist in current design")
                 return False
         in_volume_tracing_ids = []
         if not in_volume_tracing_objs:
@@ -1302,12 +1300,12 @@ class PostProcessor3D(PostProcessorCommon):
                 if self._app.modeler[obj]:
                     in_volume_tracing_ids.append(self._app.modeler[obj].id)
                 else:
-                    self.logger.error("Object {} doesn't exist in current design".format(obj))
+                    self.logger.error(f"Object {obj} doesn't exist in current design")
                     return False
         elif isinstance(in_volume_tracing_objs, list):
             for obj in in_volume_tracing_objs:
                 if not self._app.modeler[obj]:
-                    self.logger.error("Object {} doesn't exist in current design".format(obj))
+                    self.logger.error(f"Object {obj} doesn't exist in current design")
                     return False
         surface_tracing_ids = []
         if not surface_tracing_objs:
@@ -1318,12 +1316,12 @@ class PostProcessor3D(PostProcessorCommon):
                 if self._app.modeler[obj]:
                     surface_tracing_ids.append(self._app.modeler[obj].id)
                 else:
-                    self.logger.error("Object {} doesn't exist in current design".format(obj))
+                    self.logger.error(f"Object {obj} doesn't exist in current design")
                     return False
         elif isinstance(surface_tracing_objs, list):
             for obj in surface_tracing_objs:
                 if not self._app.modeler[obj]:
-                    self.logger.error("Object {} doesn't exist in current design".format(obj))
+                    self.logger.error(f"Object {obj} doesn't exist in current design")
                     return False
         seeding_faces_ids.insert(0, len(seeding_faces_ids))
         if in_volume_tracing_ids != [0]:
@@ -1346,7 +1344,7 @@ class PostProcessor3D(PostProcessorCommon):
         lst_faces = []
         new_layers = []
         if not layers:
-            new_layers.extend(["{}".format(i) for i in self._app.modeler.edb.stackup.dielectric_layers.keys()])
+            new_layers.extend([f"{i}" for i in self._app.modeler.edb.stackup.dielectric_layers.keys()])
             for layer in self._app.modeler.edb.stackup.signal_layers.keys():
                 if not nets:
                     nets = list(self._app.modeler.edb.nets.nets.keys())
@@ -1361,7 +1359,7 @@ class PostProcessor3D(PostProcessorCommon):
         else:
             for layer in layers:
                 if layer in self._app.modeler.edb.stackup.dielectric_layers:
-                    new_layers.append("{}".format(layer))
+                    new_layers.append(f"{layer}")
                 elif layer in self._app.modeler.edb.stackup.signal_layers:
                     if not nets:
                         nets = list(self._app.modeler.edb.nets.nets.keys())
@@ -1388,7 +1386,7 @@ class PostProcessor3D(PostProcessorCommon):
                     if layer in v.layout_component.edb_object.stackup.signal_layers:
                         new_layers.append([layer] + nets)
                     elif layer in v.layout_component.edb_object.stackup.dielectric_layers:
-                        dielectrics.append("{}:{}".format(k, layer))
+                        dielectrics.append(f"{k}:{layer}")
         return dielectrics, new_layers
 
     @pyaedt_function_handler()
@@ -1451,7 +1449,7 @@ class PostProcessor3D(PostProcessorCommon):
             self.logger.error("This method requires AEDT 2023 R2 and Maxwell 3D Transient APhi Formulation.")
             return False
         if name and name in list(self.field_plots.keys()):
-            self.logger.info("Plot {} exists. returning the object.".format(name))
+            self.logger.info(f"Plot {name} exists. returning the object.")
             return self.field_plots[name]
 
         if self._app.design_type in ["HFSS 3D Layout Design"]:
@@ -1544,7 +1542,7 @@ class PostProcessor3D(PostProcessorCommon):
         if intrinsics is None:
             intrinsics = {}
         if plot_name and plot_name in list(self.field_plots.keys()):
-            self.logger.info("Plot {} exists. returning the object.".format(plot_name))
+            self.logger.info(f"Plot {plot_name} exists. returning the object.")
             return self.field_plots[plot_name]
         if self._app.design_type == "HFSS 3D Layout Design":
             if not setup:
@@ -1626,7 +1624,7 @@ class PostProcessor3D(PostProcessorCommon):
         >>> oModule.CreateFieldPlot
         """
         if plot_name and plot_name in list(self.field_plots.keys()):
-            self.logger.info("Plot {} exists. returning the object.".format(plot_name))
+            self.logger.info(f"Plot {plot_name} exists. returning the object.")
             return self.field_plots[plot_name]
         if not isinstance(assignment, (list, tuple)):
             assignment = [assignment]
@@ -1716,7 +1714,7 @@ class PostProcessor3D(PostProcessorCommon):
         if intrinsics is None:
             intrinsics = {}
         if plot_name and plot_name in list(self.field_plots.keys()):
-            self.logger.info("Plot {} exists. returning the object.".format(plot_name))
+            self.logger.info(f"Plot {plot_name} exists. returning the object.")
             return self.field_plots[plot_name]
         if filter_objects:
             filter_objects = self._app.modeler.convert_to_selections(filter_objects, True)
@@ -1793,7 +1791,7 @@ class PostProcessor3D(PostProcessorCommon):
         intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
 
         if plot_name and plot_name in list(self.field_plots.keys()):
-            self.logger.info("Plot {} exists. returning the object.".format(plot_name))
+            self.logger.info(f"Plot {plot_name} exists. returning the object.")
             return self.field_plots[plot_name]
         return self._create_fieldplot(
             obj_list, quantity, setup, intrinsics, list_type, plot_name, field_type=field_type
@@ -2137,7 +2135,7 @@ class PostProcessor3D(PostProcessorCommon):
         if export_as_single_objects:
             files_exported = []
             for el in assignment:
-                fname = os.path.join(export_path, "{}.obj".format(el))
+                fname = os.path.join(export_path, f"{el}.obj")
                 self._app.modeler.oeditor.ExportModelMeshToFile(fname, [el])
 
                 fname = check_and_download_file(fname)
@@ -2581,26 +2579,26 @@ class PostProcessor3D(PostProcessorCommon):
         if output_type == "boundary":
             for comp, value in power_dict.items():
                 if round(value, 3) != 0.0:
-                    self.logger.info("The power of {} is {} {}".format(comp, str(round(value, 3)), units))
-            self.logger.info("The total power is {} {}".format(str(round(sum(power_dict.values()), 3)), units))
+                    self.logger.info(f"The power of {comp} is {str(round(value, 3))} {units}")
+            self.logger.info(f"The total power is {str(round(sum(power_dict.values()), 3))} {units}")
             return power_dict, sum(power_dict.values())
 
         elif output_type == "component":  # pragma: no cover
             for comp, value in power_dict_obj.items():
                 if round(value, 3) != 0.0:
-                    self.logger.info("The power of {} is {} {}".format(comp, str(round(value, 3)), units))
-            self.logger.info("The total power is {} {}".format(str(round(sum(power_dict_obj.values()), 3)), units))
+                    self.logger.info(f"The power of {comp} is {str(round(value, 3))} {units}")
+            self.logger.info(f"The total power is {str(round(sum(power_dict_obj.values()), 3))} {units}")
             return power_dict_obj, sum(power_dict_obj.values())
 
         else:  # pragma: no cover
             for comp, value in power_dict.items():
                 if round(value, 3) != 0.0:
-                    self.logger.info("The power of {} is {} {}".format(comp, str(round(value, 3)), units))
-            self.logger.info("The total power is {} {}".format(str(round(sum(power_dict.values()), 3)), units))
+                    self.logger.info(f"The power of {comp} is {str(round(value, 3))} {units}")
+            self.logger.info(f"The total power is {str(round(sum(power_dict.values()), 3))} {units}")
             for comp, value in power_dict_obj.items():
                 if round(value, 3) != 0.0:
-                    self.logger.info("The power of {} is {} {}".format(comp, str(round(value, 3)), units))
-            self.logger.info("The total power is {} {}".format(str(round(sum(power_dict_obj.values()), 3)), units))
+                    self.logger.info(f"The power of {comp} is {str(round(value, 3))} {units}")
+            self.logger.info(f"The total power is {str(round(sum(power_dict_obj.values()), 3))} {units}")
             return power_dict_obj, sum(power_dict_obj.values()), power_dict, sum(power_dict.values())
 
     @pyaedt_function_handler()
@@ -2935,9 +2933,7 @@ class PostProcessor3D(PostProcessorCommon):
                 else:
                     mag = 0
                 phase = 0
-                edit_sources_ctxt.append(
-                    ["Name:=", "{}".format(each), "Magnitude:=", "{}W".format(mag), "Phase:=", "{}deg".format(phase)]
-                )
+                edit_sources_ctxt.append(["Name:=", f"{each}", "Magnitude:=", f"{mag}W", "Phase:=", f"{phase}deg"])
             self.post_osolution.EditSources(edit_sources_ctxt)
 
             trace_name = "rETheta"

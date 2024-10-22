@@ -183,7 +183,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
     @model_units.setter
     def model_units(self, units):
-        assert units in AEDT_UNITS["Length"], "Invalid units string {0}.".format(units)
+        assert units in AEDT_UNITS["Length"], f"Invalid units string {units}."
         self.oeditor.SetActiveUnits(units)
         self._model_units = units
 
@@ -231,11 +231,11 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         if isinstance(value, str):
             try:
                 float(value)
-                val = "{0}{1}".format(value, units)
+                val = f"{value}{units}"
             except Exception:
                 val = value
         else:
-            val = "{0}{1}".format(value, units)
+            val = f"{value}{units}"
         return val
 
     def _pos_with_arg(self, pos, units=None):
@@ -330,7 +330,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         else:
             self.logger.error("Wrong Property Value")
             return False
-        self.logger.info("Property {} Changed correctly.".format(name))
+        self.logger.info(f"Property {name} Changed correctly.")
         return True
 
     @pyaedt_function_handler(pos_x="x", pos_y="y", pos_z="z")
@@ -959,7 +959,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         ]
         args = ["NAME:ModelChanges", ["NAME:UpdateModel0", ["NAME:ComponentNames", assignment], "Prop:=", args2]]
         self.oeditor.UpdateModels(args)
-        self.logger.info("Spice Model Correctly assigned to {}.".format(assignment))
+        self.logger.info(f"Spice Model Correctly assigned to {assignment}.")
         return True
 
     @pyaedt_function_handler()

@@ -436,7 +436,7 @@ class GeometryModeler(Modeler):
 
     @model_units.setter
     def model_units(self, units):
-        assert units in AEDT_UNITS["Length"], "Invalid units string {0}.".format(units)
+        assert units in AEDT_UNITS["Length"], f"Invalid units string {units}."
         self.oeditor.SetModelUnits(["NAME:Units Parameter", "Units:=", units, "Rescale:=", False])
         self._model_units = units
 
@@ -3654,7 +3654,7 @@ class GeometryModeler(Modeler):
         self.cleanup_objects()
         if len(objs_groups) > 1:
             return self.unite(objs_groups, purge=purge)
-        self.logger.info("Union of {} objects has been executed.".format(num_objects))
+        self.logger.info(f"Union of {num_objects} objects has been executed.")
         return self.convert_to_selections(assignment[0], False)
 
     @pyaedt_function_handler(objid="assignment")
@@ -4521,7 +4521,7 @@ class GeometryModeler(Modeler):
             try:
                 line_ids[line_object] = str(self.oeditor.GetObjectIDByName(line_object))
             except Exception:
-                self.logger.warning("Line {} has an invalid ID!".format(line_object))
+                self.logger.warning(f"Line {line_object} has an invalid ID!")
         return line_ids
 
     @pyaedt_function_handler()
@@ -4732,7 +4732,7 @@ class GeometryModeler(Modeler):
         else:
             allObjects = assignment_to_export[:]
 
-        self.logger.debug("Exporting {} objects".format(len(allObjects)))
+        self.logger.debug(f"Exporting {len(allObjects)} objects")
 
         # actual version supported by AEDT is 29.0
         if major_version == -1:
@@ -4861,7 +4861,7 @@ class GeometryModeler(Modeler):
         self.oeditor.Import(vArg1)
         if refresh_all_ids:
             self.refresh_all_ids()
-        self.logger.info("Step file {} imported".format(input_file))
+        self.logger.info(f"Step file {input_file} imported")
         return True
 
     @pyaedt_function_handler(SCFile="input_file")
@@ -5109,7 +5109,7 @@ class GeometryModeler(Modeler):
             return False
         version = self._app.aedt_version_id[-3:]
 
-        ansys_install_dir = os.environ.get("AWP_ROOT{}".format(version), "")
+        ansys_install_dir = os.environ.get(f"AWP_ROOT{version}", "")
 
         if ansys_install_dir:
             if "Discovery" not in os.listdir(ansys_install_dir):  # pragma: no cover
@@ -5732,14 +5732,14 @@ class GeometryModeler(Modeler):
         object = self.convert_to_selections(object, False)
 
         if sheet not in self.sheet_names:
-            self.logger.error("{} is not a valid sheet.".format(sheet))
+            self.logger.error(f"{sheet} is not a valid sheet.")
             return False
         if object not in self.solid_names:
-            self.logger.error("{} is not a valid solid body.".format(object))
+            self.logger.error(f"{object} is not a valid solid body.")
             return False
         unclassified = [i for i in self.unclassified_objects]
         self.oeditor.WrapSheet(
-            ["NAME:Selections", "Selections:=", "{},{}".format(sheet, object)],
+            ["NAME:Selections", "Selections:=", f"{sheet},{object}"],
             ["NAME:WrapSheetParameters", "Imprinted:=", imprinted],
         )
         is_unclassified = [i for i in self.unclassified_objects if i not in unclassified]
@@ -6313,7 +6313,7 @@ class GeometryModeler(Modeler):
             elif isinstance(element, str):
                 # element is an existing variable
                 si_value = self._app.evaluate_expression(element)
-                v = Variable("{}meter".format(si_value))
+                v = Variable(f"{si_value}meter")
                 v.rescale_to(self.model_units)
                 num_val = v.numeric_value
             else:
@@ -6420,7 +6420,7 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler()
     def _parse_region_args(self, pad_value, pad_type, region_name, parts, region_type, is_percentage):
-        arg = ["NAME:{}Parameters".format(region_type)]
+        arg = [f"NAME:{region_type}Parameters"]
         p = ["+X", "-X", "+Y", "-Y", "+Z", "-Z"]
         if not isinstance(pad_value, list):
             pad_value = [pad_value] * 6
@@ -6487,7 +6487,7 @@ class GeometryModeler(Modeler):
         self, pad_value=300, pad_type="Percentage Offset", name="Region", parts=None, region_type="Region"
     ):
         if name in self._app.modeler.objects_by_name:
-            self._app.logger.error("{} object already exists".format(name))
+            self._app.logger.error(f"{name} object already exists")
             return False
         if not isinstance(pad_value, list):
             pad_value = [pad_value] * 6
@@ -7045,7 +7045,7 @@ class GeometryModeler(Modeler):
         vArg1 = ["NAME:AllTabs"]
 
         prop_servers = ["NAME:PropServers"]
-        prop_servers.append("{0}:{1}:1".format(assignment, operation))
+        prop_servers.append(f"{assignment}:{operation}:1")
 
         cmd_tab = ["NAME:Geometry3DCmdTab"]
         cmd_tab.append(prop_servers)
@@ -7054,7 +7054,7 @@ class GeometryModeler(Modeler):
 
         for pair in parameters:
             if isinstance(pair, list):
-                changed_props.append(["NAME:{0}".format(pair[0]), "Value:=", pair[1]])
+                changed_props.append([f"NAME:{pair[0]}", "Value:=", pair[1]])
             else:
                 changed_props.append(["NAME:", pair.Name, "Value:=", pair.Value])
 
@@ -7107,7 +7107,7 @@ class GeometryModeler(Modeler):
             try:
                 self.oeditor.Delete(arg)
             except Exception:
-                self.logger.warning("Failed to delete {}.".format(objects_str))
+                self.logger.warning(f"Failed to delete {objects_str}.")
             remaining -= slice
             if remaining > 0:
                 assignment = assignment[slice:]
@@ -7116,7 +7116,7 @@ class GeometryModeler(Modeler):
 
         if len(assignment) > 0:
             self.cleanup_objects()
-            self.logger.info("Deleted {} Objects: {}.".format(num_objects, objects_str))
+            self.logger.info(f"Deleted {num_objects} Objects: {objects_str}.")
         return True
 
     @pyaedt_function_handler()
@@ -8712,7 +8712,7 @@ class GeometryModeler(Modeler):
         arg_str += ["XSectionWidth:=", _dim_arg(width, model_units)]
         arg_str += ["XSectionTopWidth:=", _dim_arg(topwidth, model_units)]
         arg_str += ["XSectionHeight:=", _dim_arg(height, model_units)]
-        arg_str += ["XSectionNumSegments:=", "{}".format(num_seg)]
+        arg_str += ["XSectionNumSegments:=", f"{num_seg}"]
         arg_str += ["XSectionBendType:=", section_bend]
 
         return arg_str
@@ -8724,11 +8724,11 @@ class GeometryModeler(Modeler):
         if isinstance(value, str):
             try:
                 float(value)
-                val = "{0}{1}".format(value, units)
+                val = f"{value}{units}"
             except Exception:
                 val = value
         else:
-            val = "{0}{1}".format(value, units)
+            val = f"{value}{units}"
         return val
 
     @pyaedt_function_handler()
@@ -9005,7 +9005,7 @@ class PrimitivesBuilder(object):
                 instance_data["Coordinate System"] = "Global"
                 cs = instance_data.get("Coordinate System")
             elif instance_data["Coordinate System"] != "Global" and instance_data["Coordinate System"] not in cs_names:
-                self.logger.error("Coordinate system {} does not exist.".format(cs))
+                self.logger.error(f"Coordinate system {cs} does not exist.")
                 return False
 
             origin = instance_data.get("Origin")
@@ -9056,7 +9056,7 @@ class PrimitivesBuilder(object):
                 instance = self._create_box_instance(name, cs, origin, primitive_data)
 
         if not instance:
-            self.logger.warning("Primitive type: {} is unsupported.".format(primitive_type))
+            self.logger.warning(f"Primitive type: {primitive_type} is unsupported.")
             return None
 
         return instance
@@ -9353,7 +9353,7 @@ class PrimitivesBuilder(object):
                 self.logger.warning("Coordinate system does not have a 'Name' parameter.")
                 return False
             if name in cs_names:
-                self.logger.warning("Coordinate system {} already exists.".format(name))
+                self.logger.warning(f"Coordinate system {name} already exists.")
                 continue
             mode = cs.get("Mode")
             if not mode or not any(key in mode for key in ["Axis/Position", "Euler Angle ZYZ", "Euler Angle ZXZ"]):

@@ -176,6 +176,8 @@ class TestClass:
         assert "test" not in self.aedtapp.variable_manager.variables
 
     def test_13_designs(self):
+        with pytest.raises(ValueError):
+            self.aedtapp._insert_design(design_name="invalid", design_type="invalid")
         assert self.aedtapp._insert_design(design_name="TestTransient", design_type="HFSS") == "TestTransient"
         self.aedtapp.delete_design("TestTransient")
         self.aedtapp.insert_design("NewDesign")
