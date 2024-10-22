@@ -933,11 +933,11 @@ class Layer(object):
         if isinstance(value, str):
             try:
                 float(value)
-                val = "{0}{1}".format(value, units)
+                val = f"{value}{units}"
             except Exception:
                 val = value
         else:
-            val = "{0}{1}".format(value, units)
+            val = f"{value}{units}"
         return val
 
     @property
@@ -1441,9 +1441,7 @@ class Layers(object):
             el = (
                 0
                 if list(self.layers.values())[0].type not in ["dielectric", "signal", "via"]
-                else "{}{}".format(
-                    list(self.layers.values())[0].upper_elevation, list(self.layers.values())[0].LengthUnit
-                )
+                else f"{list(self.layers.values())[0].upper_elevation}{list(self.layers.values())[0].LengthUnit}"
             )
             if el:
                 newlayer._lower_elevation = el
@@ -1475,7 +1473,7 @@ class Layers(object):
         if mode.lower() == "multizone":
             zones = ["NAME:Zones", "Primary"]
             for i in range(number_zones):
-                zones.append("Zone{}".format(i + 1))
+                zones.append(f"Zone{i + 1}")
             args = ["NAME:layers", "Mode:=", "Multizone", zones, ["NAME:pps"]]
         elif mode.lower() == "overlap":
             args = ["NAME:layers", "Mode:=", "Overlap", ["NAME:pps"]]
