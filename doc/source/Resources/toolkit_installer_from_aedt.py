@@ -24,7 +24,6 @@
 
 import os
 import sys
-import subprocess
 
 # This script installs PyAEDT tabs (PyAEDT Console, Jupyter, Run Script and Extension Manager)
 # using a specific Python interpreter.
@@ -33,6 +32,8 @@ import subprocess
 
 is_linux = os.name == "posix"
 is_windows = not is_linux
+
+import subprocess
 
 pyaedt_enviroment_variable = "PYAEDT_INTERPRETER"
 
