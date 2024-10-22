@@ -7270,7 +7270,7 @@ VuvRHsgFvhqHebmvzNvpRP-s5NPZhqyDjWQmxVm8ZwyrbuGojSUP9k5F2fvr0TTiUMlyAbttItRjtRjg
 					TextProp('Author', 'D', '', '')
 					TextProp('Number', 'D', '', '1')
 					TextProp('Project', 'D', '', 'Filter_Board_Icepak_parasolid')
-					TextProp('ProjectPath', 'D', '', 'C:/ansysdev/GIT/repos/pyaedt/_unittest/example_models/T98/')
+					TextProp('ProjectPath', 'D', '', 'C:/ansysdev/GIT/repos/pyaedt/tests/system/general/example_models/T98/')
 					TextProp('Design', 'D', '', 'cutout3')
 					TextProp('Date', 'D', '', '8:11:20 AM  Aug 25, 2022')
 				$end 'Properties'
@@ -8417,7 +8417,7 @@ VuvRHsgFvhqHebmvzNvpRP-s5NPZhqyDjWQmxVm8ZwyrbuGojSUP9k5F2fvr0TTiUMlyAbttItRjtRjg
 					TextProp('Author', 'D', '', '')
 					TextProp('Number', 'D', '', '1')
 					TextProp('Project', 'D', '', 'Filter_Board_Icepak_parasolid')
-					TextProp('ProjectPath', 'D', '', 'C:/ansysdev/GIT/repos/pyaedt/_unittest/example_models/T98/')
+					TextProp('ProjectPath', 'D', '', 'C:/ansysdev/GIT/repos/pyaedt/tests/system/general/example_models/T98/')
 					TextProp('Design', 'D', '', 'Circuit2')
 					TextProp('Date', 'D', '', '8:11:28 AM  Aug 25, 2022')
 				$end 'Properties'

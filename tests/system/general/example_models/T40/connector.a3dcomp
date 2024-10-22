@@ -140,7 +140,7 @@
 
 
 
-    <link rel="canonical" href="https://github.com/ansys/pyaedt/blob/main/_unittest/example_models/connector.a3dcomp" data-pjax-transient>
+    <link rel="canonical" href="https://github.com/ansys/pyaedt/blob/main/tests/system/general/example_models/connector.a3dcomp" data-pjax-transient>
   <meta name="turbo-body-classes" content="logged-in env-production page-responsive page-blob">
 
 
@@ -433,7 +433,7 @@
     <a class="js-selected-navigation-item Header-link mt-md-n3 mb-md-n3 py-2 py-md-3 mr-0 mr-md-3 border-top border-md-top-0 border-white-fade" data-ga-click="Header, click, Nav menu - item:explore" data-turbo="false" data-selected-links="/explore /trending /trending/developers /integrations /integrations/feature/code /integrations/feature/collaborate /integrations/feature/ship showcases showcases_search showcases_landing /explore" href="/explore">Explore</a>
 
 
-      <a class="js-selected-navigation-item Header-link d-block d-md-none py-2 py-md-3 border-top border-md-top-0 border-white-fade" data-ga-click="Header, click, Nav menu - item:Sponsors" data-hydro-click="{&quot;event_type&quot;:&quot;sponsors.button_click&quot;,&quot;payload&quot;:{&quot;button&quot;:&quot;HEADER_SPONSORS_DASHBOARD&quot;,&quot;sponsorable_login&quot;:&quot;maxcapodi78&quot;,&quot;originating_url&quot;:&quot;https://github.com/ansys/pyaedt/blob/main/_unittest/example_models/connector.a3dcomp&quot;,&quot;user_id&quot;:77293250}}" data-hydro-click-hmac="a6fe1b9998e4430a1e7c919f683a57311bf9a9bd00cbbb21208756d2157ef8fc" data-turbo="false" data-selected-links=" /sponsors/accounts" href="/sponsors/accounts">Sponsors</a>
+      <a class="js-selected-navigation-item Header-link d-block d-md-none py-2 py-md-3 border-top border-md-top-0 border-white-fade" data-ga-click="Header, click, Nav menu - item:Sponsors" data-hydro-click="{&quot;event_type&quot;:&quot;sponsors.button_click&quot;,&quot;payload&quot;:{&quot;button&quot;:&quot;HEADER_SPONSORS_DASHBOARD&quot;,&quot;sponsorable_login&quot;:&quot;maxcapodi78&quot;,&quot;originating_url&quot;:&quot;https://github.com/ansys/pyaedt/blob/main/tests/system/general/example_models/connector.a3dcomp&quot;,&quot;user_id&quot;:77293250}}" data-hydro-click-hmac="a6fe1b9998e4430a1e7c919f683a57311bf9a9bd00cbbb21208756d2157ef8fc" data-turbo="false" data-selected-links=" /sponsors/accounts" href="/sponsors/accounts">Sponsors</a>
 
     <a class="Header-link d-block d-md-none mr-0 mr-md-3 py-2 py-md-3 border-top border-md-top-0 border-white-fade" data-turbo="false" href="/settings/profile">Settings</a>
 
@@ -636,7 +636,7 @@
   <details-dialog class="command-palette-details-dialog d-flex flex-column flex-justify-center height-fit" aria-label="command palette">
     <command-palette
       class="command-palette color-bg-default rounded-3 border color-shadow-small"
-      return-to=/ansys/pyaedt/blob/main/_unittest/example_models/connector.a3dcomp
+      return-to=/ansys/pyaedt/blob/main/tests/system/general/example_models/connector.a3dcomp
       user-id="77293250"
       activation-hotkey="Mod+k,Mod+Alt+k"
       command-mode-hotkey="Mod+Shift+k"
@@ -1647,7 +1647,7 @@
         data-action="toggle:notifications-list-subscription-form#detailsToggled"
       >
 
-        <summary data-hydro-click="{&quot;event_type&quot;:&quot;repository.click&quot;,&quot;payload&quot;:{&quot;target&quot;:&quot;WATCH_BUTTON&quot;,&quot;repository_id&quot;:353403525,&quot;originating_url&quot;:&quot;https://github.com/ansys/pyaedt/blob/main/_unittest/example_models/connector.a3dcomp&quot;,&quot;user_id&quot;:77293250}}" data-hydro-click-hmac="8aa7835c487730e8c957e1e920fad3994df9015869128bba44a26638445aa2ed" data-ga-click="Repository, click Watch settings, action:blob#show" aria-label="Notification settings" data-view-component="true" class="btn-sm btn">    <span data-menu-button>
+        <summary data-hydro-click="{&quot;event_type&quot;:&quot;repository.click&quot;,&quot;payload&quot;:{&quot;target&quot;:&quot;WATCH_BUTTON&quot;,&quot;repository_id&quot;:353403525,&quot;originating_url&quot;:&quot;https://github.com/ansys/pyaedt/blob/main/tests/system/general/example_models/connector.a3dcomp&quot;,&quot;user_id&quot;:77293250}}" data-hydro-click-hmac="8aa7835c487730e8c957e1e920fad3994df9015869128bba44a26638445aa2ed" data-ga-click="Repository, click Watch settings, action:blob#show" aria-label="Notification settings" data-view-component="true" class="btn-sm btn">    <span data-menu-button>
             <span
               hidden
               
@@ -1956,7 +1956,7 @@
   <li>
       
   <div data-view-component="true" class="BtnGroup">
-        <a href="/ansys/pyaedt/fork" data-hydro-click="{&quot;event_type&quot;:&quot;repository.click&quot;,&quot;payload&quot;:{&quot;target&quot;:&quot;FORK_BUTTON&quot;,&quot;repository_id&quot;:353403525,&quot;originating_url&quot;:&quot;https://github.com/ansys/pyaedt/blob/main/_unittest/example_models/connector.a3dcomp&quot;,&quot;user_id&quot;:77293250}}" data-hydro-click-hmac="2129edb3e1042d4e32ba28b398bee252b26ce4600a2c63934ca537a3fb428135" data-ga-click="Repository, show fork modal, action:blob#show; text:Fork" aria-label="Fork your own copy of ansys/pyaedt" data-view-component="true" class="btn-sm btn BtnGroup-item">    <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-repo-forked mr-2">
+        <a href="/ansys/pyaedt/fork" data-hydro-click="{&quot;event_type&quot;:&quot;repository.click&quot;,&quot;payload&quot;:{&quot;target&quot;:&quot;FORK_BUTTON&quot;,&quot;repository_id&quot;:353403525,&quot;originating_url&quot;:&quot;https://github.com/ansys/pyaedt/blob/main/tests/system/general/example_models/connector.a3dcomp&quot;,&quot;user_id&quot;:77293250}}" data-hydro-click-hmac="2129edb3e1042d4e32ba28b398bee252b26ce4600a2c63934ca537a3fb428135" data-ga-click="Repository, show fork modal, action:blob#show; text:Fork" aria-label="Fork your own copy of ansys/pyaedt" data-view-component="true" class="btn-sm btn BtnGroup-item">    <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-repo-forked mr-2">
     <path fill-rule="evenodd" d="M5 3.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm0 2.122a2.25 2.25 0 10-1.5 0v.878A2.25 2.25 0 005.75 8.5h1.5v2.128a2.251 2.251 0 101.5 0V8.5h1.5a2.25 2.25 0 002.25-2.25v-.878a2.25 2.25 0 10-1.5 0v.878a.75.75 0 01-.75.75h-4.5A.75.75 0 015 6.25v-.878zm3.75 7.378a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm3-8.75a.75.75 0 100-1.5.75.75 0 000 1.5z"></path>
 </svg>Fork
           <span id="repo-network-counter" data-pjax-replace="true" title="33" data-view-component="true" class="Counter">33</span>
@@ -2024,7 +2024,7 @@
     <form class="starred js-social-form BtnGroup-parent flex-auto js-deferred-toggler-target" data-turbo="false" action="/ansys/pyaedt/unstar" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="d6wn1o_uUjfbLia56aM7njwgBTZaK8M1-MkXTQFYKIg3pgUkx6Xf5WJ7XRW-LWl5vBTV12Ro5RC_pOSi0ueDmA" autocomplete="off" />
         <input type="hidden" value="f573HoAutP-LOpNuAp7Ko25Kd0SfxX5Qd2gER26rfjQ_lNXsyGU5LTJv6MJVEJhE7n6npaGGWHUwBfeovRTVJA" data-csrf="true" class="js-confirm-csrf-token" />
       <input type="hidden" name="context" value="repository">
-        <button data-hydro-click="{&quot;event_type&quot;:&quot;repository.click&quot;,&quot;payload&quot;:{&quot;target&quot;:&quot;UNSTAR_BUTTON&quot;,&quot;repository_id&quot;:353403525,&quot;originating_url&quot;:&quot;https://github.com/ansys/pyaedt/blob/main/_unittest/example_models/connector.a3dcomp&quot;,&quot;user_id&quot;:77293250}}" data-hydro-click-hmac="dadd32cf49fba98f770a21235cdcde64e276f070c19c2ffc39a25f35ec4ee8b4" data-ga-click="Repository, click unstar button, action:blob#show; text:Unstar" aria-label="Unstar this repository" type="submit" data-view-component="true" class="rounded-left-2 border-right-0 btn-sm btn BtnGroup-item">    <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-star-fill starred-button-icon d-inline-block mr-2">
+        <button data-hydro-click="{&quot;event_type&quot;:&quot;repository.click&quot;,&quot;payload&quot;:{&quot;target&quot;:&quot;UNSTAR_BUTTON&quot;,&quot;repository_id&quot;:353403525,&quot;originating_url&quot;:&quot;https://github.com/ansys/pyaedt/blob/main/tests/system/general/example_models/connector.a3dcomp&quot;,&quot;user_id&quot;:77293250}}" data-hydro-click-hmac="dadd32cf49fba98f770a21235cdcde64e276f070c19c2ffc39a25f35ec4ee8b4" data-ga-click="Repository, click unstar button, action:blob#show; text:Unstar" aria-label="Unstar this repository" type="submit" data-view-component="true" class="rounded-left-2 border-right-0 btn-sm btn BtnGroup-item">    <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-star-fill starred-button-icon d-inline-block mr-2">
     <path fill-rule="evenodd" d="M8 .25a.75.75 0 01.673.418l1.882 3.815 4.21.612a.75.75 0 01.416 1.279l-3.046 2.97.719 4.192a.75.75 0 01-1.088.791L8 12.347l-3.766 1.98a.75.75 0 01-1.088-.79l.72-4.194L.818 6.374a.75.75 0 01.416-1.28l4.21-.611L7.327.668A.75.75 0 018 .25z"></path>
 </svg><span data-view-component="true" class="d-inline">
           Starred
@@ -2032,7 +2032,7 @@
 </button></form>
     <form class="unstarred js-social-form BtnGroup-parent flex-auto" data-turbo="false" action="/ansys/pyaedt/star" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="z6v7P29TQXGhkUHpWI8zdTX2GwjlgBSQu1NgDQmwvyZs2aOTTWVDHCbJz5Oqav0l-fvC3sRTzPz-MCuxuKHDpA" autocomplete="off" />
       <input type="hidden" name="context" value="repository">
-        <button data-hydro-click="{&quot;event_type&quot;:&quot;repository.click&quot;,&quot;payload&quot;:{&quot;target&quot;:&quot;STAR_BUTTON&quot;,&quot;repository_id&quot;:353403525,&quot;originating_url&quot;:&quot;https://github.com/ansys/pyaedt/blob/main/_unittest/example_models/connector.a3dcomp&quot;,&quot;user_id&quot;:77293250}}" data-hydro-click-hmac="4fa1a9788e02b4835bc6c21dee86e4e1dba9660a5fa43b282b8e06dbe956cb9a" data-ga-click="Repository, click star button, action:blob#show; text:Star" aria-label="Star this repository" type="submit" data-view-component="true" class="js-toggler-target rounded-left-2 btn-sm btn BtnGroup-item">    <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-star d-inline-block mr-2">
+        <button data-hydro-click="{&quot;event_type&quot;:&quot;repository.click&quot;,&quot;payload&quot;:{&quot;target&quot;:&quot;STAR_BUTTON&quot;,&quot;repository_id&quot;:353403525,&quot;originating_url&quot;:&quot;https://github.com/ansys/pyaedt/blob/main/tests/system/general/example_models/connector.a3dcomp&quot;,&quot;user_id&quot;:77293250}}" data-hydro-click-hmac="4fa1a9788e02b4835bc6c21dee86e4e1dba9660a5fa43b282b8e06dbe956cb9a" data-ga-click="Repository, click star button, action:blob#show; text:Star" aria-label="Star this repository" type="submit" data-view-component="true" class="js-toggler-target rounded-left-2 btn-sm btn BtnGroup-item">    <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-star d-inline-block mr-2">
     <path fill-rule="evenodd" d="M8 .25a.75.75 0 01.673.418l1.882 3.815 4.21.612a.75.75 0 01.416 1.279l-3.046 2.97.719 4.192a.75.75 0 01-1.088.791L8 12.347l-3.766 1.98a.75.75 0 01-1.088-.79l.72-4.194L.818 6.374a.75.75 0 01.416-1.28l4.21-.611L7.327.668A.75.75 0 018 .25zm0 2.445L6.615 5.5a.75.75 0 01-.564.41l-3.097.45 2.24 2.184a.75.75 0 01.216.664l-.528 3.084 2.769-1.456a.75.75 0 01.698 0l2.77 1.456-.53-3.084a.75.75 0 01.216-.664l2.24-2.183-3.096-.45a.75.75 0 01-.564-.41L8 2.694v.001z"></path>
 </svg><span data-view-component="true" class="d-inline">
           Star
@@ -2485,7 +2485,7 @@
 </div>
 
   <h2 id="blob-path" class="breadcrumb flex-auto flex-self-center min-width-0 text-normal mx-2 width-full width-md-auto flex-order-1 flex-md-order-none mt-3 mt-md-0">
-    <span class="js-repo-root text-bold"><span class="js-path-segment d-inline-block wb-break-all"><a data-pjax="#repo-content-pjax-container" data-turbo-frame="repo-content-turbo-frame" href="/ansys/pyaedt"><span>pyaedt</span></a></span></span><span class="separator">/</span><span class="js-path-segment d-inline-block wb-break-all"><a data-pjax="#repo-content-pjax-container" data-turbo-frame="repo-content-turbo-frame" href="/ansys/pyaedt/tree/main/_unittest"><span>_unittest</span></a></span><span class="separator">/</span><span class="js-path-segment d-inline-block wb-break-all"><a data-pjax="#repo-content-pjax-container" data-turbo-frame="repo-content-turbo-frame" href="/ansys/pyaedt/tree/main/_unittest/example_models"><span>example_models</span></a></span><span class="separator">/</span><strong class="final-path">connector.a3dcomp</strong>
+    <span class="js-repo-root text-bold"><span class="js-path-segment d-inline-block wb-break-all"><a data-pjax="#repo-content-pjax-container" data-turbo-frame="repo-content-turbo-frame" href="/ansys/pyaedt"><span>pyaedt</span></a></span></span><span class="separator">/</span><span class="js-path-segment d-inline-block wb-break-all"><a data-pjax="#repo-content-pjax-container" data-turbo-frame="repo-content-turbo-frame" href="/ansys/pyaedt/tree/main/tests/system/general"><span>general</span></a></span><span class="separator">/</span><span class="js-path-segment d-inline-block wb-break-all"><a data-pjax="#repo-content-pjax-container" data-turbo-frame="repo-content-turbo-frame" href="/ansys/pyaedt/tree/main/tests/system/general/example_models"><span>example_models</span></a></span><span class="separator">/</span><strong class="final-path">connector.a3dcomp</strong>
   </h2>
     <a href="/ansys/pyaedt/find/main" data-pjax="" data-hotkey="t" data-view-component="true" class="btn mr-2 d-none d-md-block">    Go to file
 </a>
@@ -2496,7 +2496,7 @@
 </summary>
   <div data-view-component="true">      <ul class="dropdown-menu dropdown-menu-sw">
         <li class="d-block d-md-none">
-          <a class="dropdown-item d-flex flex-items-baseline" data-hydro-click="{&quot;event_type&quot;:&quot;repository.click&quot;,&quot;payload&quot;:{&quot;target&quot;:&quot;FIND_FILE_BUTTON&quot;,&quot;repository_id&quot;:353403525,&quot;originating_url&quot;:&quot;https://github.com/ansys/pyaedt/blob/main/_unittest/example_models/connector.a3dcomp&quot;,&quot;user_id&quot;:77293250}}" data-hydro-click-hmac="282e1dd57b24e9f8c96bc2132b2f6b6a659b9994675327863e17941bd64b7742" data-ga-click="Repository, find file, location:repo overview" data-hotkey="t" data-pjax="true" href="/ansys/pyaedt/find/main">
+          <a class="dropdown-item d-flex flex-items-baseline" data-hydro-click="{&quot;event_type&quot;:&quot;repository.click&quot;,&quot;payload&quot;:{&quot;target&quot;:&quot;FIND_FILE_BUTTON&quot;,&quot;repository_id&quot;:353403525,&quot;originating_url&quot;:&quot;https://github.com/ansys/pyaedt/blob/main/tests/system/general/example_models/connector.a3dcomp&quot;,&quot;user_id&quot;:77293250}}" data-hydro-click-hmac="282e1dd57b24e9f8c96bc2132b2f6b6a659b9994675327863e17941bd64b7742" data-ga-click="Repository, find file, location:repo overview" data-hotkey="t" data-pjax="true" href="/ansys/pyaedt/find/main">
             <span class="flex-auto">Go to file</span>
             <span class="text-small color-fg-muted" aria-hidden="true">T</span>
 </a>        </li>
@@ -2508,7 +2508,7 @@
 </button>        </li>
         <li class="dropdown-divider" role="none"></li>
         <li>
-          <clipboard-copy data-toggle-for="blob-more-options-details" aria-label="Copy path" value="_unittest/example_models/connector.a3dcomp" data-view-component="true" class="dropdown-item cursor-pointer">
+          <clipboard-copy data-toggle-for="blob-more-options-details" aria-label="Copy path" value="tests/system/general/example_models/connector.a3dcomp" data-view-component="true" class="dropdown-item cursor-pointer">
     
             Copy path
 
@@ -2664,7 +2664,7 @@ Co-authored-by: maxcapodi78 &lt;Shark78&gt;" class="Link--secondary" href="/ansy
             <span itemprop="dateModified"><relative-time datetime="2022-03-03T18:09:49Z" class="no-wrap">Mar 3, 2022</relative-time></span>
           </span>
 
-          <a data-pjax href="/ansys/pyaedt/commits/main/_unittest/example_models/connector.a3dcomp" class="ml-3 no-wrap Link--primary no-underline">
+          <a data-pjax href="/ansys/pyaedt/commits/main/tests/system/general/example_models/connector.a3dcomp" class="ml-3 no-wrap Link--primary no-underline">
             <svg text="gray" aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-history">
     <path fill-rule="evenodd" d="M1.643 3.143L.427 1.927A.25.25 0 000 2.104V5.75c0 .138.112.25.25.25h3.646a.25.25 0 00.177-.427L2.715 4.215a6.5 6.5 0 11-1.18 4.458.75.75 0 10-1.493.154 8.001 8.001 0 101.6-5.684zM7.75 4a.75.75 0 01.75.75v2.992l2.028.812a.75.75 0 01-.557 1.392l-2.5-1A.75.75 0 017 8.25v-3.5A.75.75 0 017.75 4z"></path>
 </svg>
@@ -2733,7 +2733,7 @@ Co-authored-by: maxcapodi78 &lt;Shark78&gt;</pre></div>
       <details-dialog
         class="Box Box--overlay d-flex flex-column anim-fade-in fast"
         aria-label="Users who have contributed to this file"
-        src="/ansys/pyaedt/contributors-list/main/_unittest/example_models/connector.a3dcomp" preload>
+        src="/ansys/pyaedt/contributors-list/main/tests/system/general/example_models/connector.a3dcomp" preload>
         <div class="Box-header">
           <button class="Box-btn-octicon btn-octicon float-right" type="button" aria-label="Close dialog" data-close-dialog>
             <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-x">
@@ -2786,14 +2786,14 @@ Co-authored-by: maxcapodi78 &lt;Shark78&gt;</pre></div>
       
 
     <div class="BtnGroup">
-        <a data-permalink-href="/ansys/pyaedt/raw/9497c498cedb7175593cb0876ed4e46324c7bfb7/_unittest/example_models/connector.a3dcomp" href="/ansys/pyaedt/raw/main/_unittest/example_models/connector.a3dcomp" id="raw-url" data-view-component="true" class="js-permalink-replaceable-link btn-sm btn BtnGroup-item">    Raw
-</a>          <a data-permalink-href="/ansys/pyaedt/blame/9497c498cedb7175593cb0876ed4e46324c7bfb7/_unittest/example_models/connector.a3dcomp" href="/ansys/pyaedt/blame/main/_unittest/example_models/connector.a3dcomp" data-hotkey="b" data-view-component="true" class="js-update-url-with-hash js-permalink-replaceable-link btn-sm btn BtnGroup-item">    Blame
+        <a data-permalink-href="/ansys/pyaedt/raw/9497c498cedb7175593cb0876ed4e46324c7bfb7/_unittest/example_models/connector.a3dcomp" href="/ansys/pyaedt/raw/main/tests/system/general/example_models/connector.a3dcomp" id="raw-url" data-view-component="true" class="js-permalink-replaceable-link btn-sm btn BtnGroup-item">    Raw
+</a>          <a data-permalink-href="/ansys/pyaedt/blame/9497c498cedb7175593cb0876ed4e46324c7bfb7/_unittest/example_models/connector.a3dcomp" href="/ansys/pyaedt/blame/main/tests/system/general/example_models/connector.a3dcomp" data-hotkey="b" data-view-component="true" class="js-update-url-with-hash js-permalink-replaceable-link btn-sm btn BtnGroup-item">    Blame
 </a>    </div>
 
     <div class="d-flex">
         
 <div class="ml-1" data-test-selector="edit-dropdown-menu-component">
-  <form class="BtnGroup-parent js-update-url-with-hash " data-turbo="false" action="/ansys/pyaedt/edit/main/_unittest/example_models/connector.a3dcomp" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="XGt2vezewwzVM8hAUCTtYpDneTRoNwKCvqkO8PBo4QI1ORv6cOnm7SyaLFiwZ0z6tsLCqSrOPbBm4CR_z0KUBw" autocomplete="off" />
+  <form class="BtnGroup-parent js-update-url-with-hash " data-turbo="false" action="/ansys/pyaedt/edit/main/tests/system/general/example_models/connector.a3dcomp" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="XGt2vezewwzVM8hAUCTtYpDneTRoNwKCvqkO8PBo4QI1ORv6cOnm7SyaLFiwZ0z6tsLCqSrOPbBm4CR_z0KUBw" autocomplete="off" />
       <button title="Edit this file" data-hotkey="e" data-disable-with="" data-test-selector="edit-icon-button" type="submit" data-view-component="true" class="btn-sm BtnGroup-item btn">    <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-pencil">
     <path fill-rule="evenodd" d="M11.013 1.427a1.75 1.75 0 012.474 0l1.086 1.086a1.75 1.75 0 010 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 01-.927-.928l.929-3.25a1.75 1.75 0 01.445-.758l8.61-8.61zm1.414 1.06a.25.25 0 00-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 000-.354l-1.086-1.086zM11.189 6.25L9.75 4.81l-6.286 6.287a.25.25 0 00-.064.108l-.558 1.953 1.953-.558a.249.249 0 00.108-.064l6.286-6.286z"></path>
 </svg>
@@ -2803,7 +2803,7 @@ Co-authored-by: maxcapodi78 &lt;Shark78&gt;</pre></div>
 </summary>    <div class="SelectMenu right-0">
       <div class="SelectMenu-modal width-full">
         <div class="SelectMenu-list SelectMenu-list--borderless py-2">
-          <form class="SelectMenu-item js-update-url-with-hash " data-turbo="false" action="/ansys/pyaedt/edit/main/_unittest/example_models/connector.a3dcomp" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="PHsq75F2Le4RJPyH7v3D73efeVhYIe2Cy-cUGowjlz1VKUeoDUEID-iNGJ8OvmJ3UbrCxRrY0rATrj6VswniOA" autocomplete="off" />
+          <form class="SelectMenu-item js-update-url-with-hash " data-turbo="false" action="/ansys/pyaedt/edit/main/tests/system/general/example_models/connector.a3dcomp" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="PHsq75F2Le4RJPyH7v3D73efeVhYIe2Cy-cUGowjlz1VKUeoDUEID-iNGJ8OvmJ3UbrCxRrY0rATrj6VswniOA" autocomplete="off" />
               <button title="Edit this file" data-test-selector="edit-text-button" type="submit" data-view-component="true" class="btn-invisible btn width-full d-flex flex-justify-between color-fg-default text-normal p-0">    <div class="mr-5">Edit this file</div>
               <div class="color-fg-muted">E</div>
 </button></form>
@@ -2822,10 +2822,10 @@ Co-authored-by: maxcapodi78 &lt;Shark78&gt;</pre></div>
 
         
 <div data-test-selector="remote-clipboard-copy">
-  <remote-clipboard-copy class="d-inline-block btn-octicon" style="height: 26px" data-src="/ansys/pyaedt/raw/main/_unittest/example_models/connector.a3dcomp" data-action="click:remote-clipboard-copy#remoteCopy">
+  <remote-clipboard-copy class="d-inline-block btn-octicon" style="height: 26px" data-src="/ansys/pyaedt/raw/main/tests/system/general/example_models/connector.a3dcomp" data-action="click:remote-clipboard-copy#remoteCopy">
   
 
-  <span data-target="remote-clipboard-copy.idle">      <span class="tooltipped tooltipped-nw cursor-pointer" data-hydro-click="{&quot;event_type&quot;:&quot;repository.click&quot;,&quot;payload&quot;:{&quot;target&quot;:&quot;COPY_RAW_CONTENTS_BUTTON&quot;,&quot;repository_id&quot;:353403525,&quot;originating_url&quot;:&quot;https://github.com/ansys/pyaedt/blob/main/_unittest/example_models/connector.a3dcomp&quot;,&quot;user_id&quot;:77293250}}" data-hydro-click-hmac="c3c87377df190e7bf043bc9e20a6cb1c7bf4b609dc5e4259a3704c23544862d3" aria-label="Copy raw contents">
+  <span data-target="remote-clipboard-copy.idle">      <span class="tooltipped tooltipped-nw cursor-pointer" data-hydro-click="{&quot;event_type&quot;:&quot;repository.click&quot;,&quot;payload&quot;:{&quot;target&quot;:&quot;COPY_RAW_CONTENTS_BUTTON&quot;,&quot;repository_id&quot;:353403525,&quot;originating_url&quot;:&quot;https://github.com/ansys/pyaedt/blob/main/tests/system/general/example_models/connector.a3dcomp&quot;,&quot;user_id&quot;:77293250}}" data-hydro-click-hmac="c3c87377df190e7bf043bc9e20a6cb1c7bf4b609dc5e4259a3704c23544862d3" aria-label="Copy raw contents">
         <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-copy">
     <path fill-rule="evenodd" d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"></path><path fill-rule="evenodd" d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"></path>
 </svg>
@@ -2850,7 +2850,7 @@ Co-authored-by: maxcapodi78 &lt;Shark78&gt;</pre></div>
 </remote-clipboard-copy></div>
 
 
-          <!-- '"` --><!-- </textarea></xmp> --></option></form><form class="inline-form" data-turbo="false" action="/ansys/pyaedt/delete/main/_unittest/example_models/connector.a3dcomp" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="wgdYkDbx6iRbdnll0YnvGaRH2rI4YChHdfUv0HfSzb2zPassjiDfmeUAPQsNPq0iulwHcOChQp7zcmwgqjWcMg" />
+          <!-- '"` --><!-- </textarea></xmp> --></option></form><form class="inline-form" data-turbo="false" action="/ansys/pyaedt/delete/main/tests/system/general/example_models/connector.a3dcomp" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="wgdYkDbx6iRbdnll0YnvGaRH2rI4YChHdfUv0HfSzb2zPassjiDfmeUAPQsNPq0iulwHcOChQp7zcmwgqjWcMg" />
             <button class="btn-octicon btn-octicon-danger tooltipped tooltipped-nw" type="submit"
               aria-label="Delete this file" data-disable-with>
               <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-trash">
@@ -2883,15 +2883,15 @@ Co-authored-by: maxcapodi78 &lt;Shark78&gt;</pre></div>
                 </a>
             </li>
           <li>
-            <a class="dropdown-item" href="/ansys/pyaedt/raw/main/_unittest/example_models/connector.a3dcomp">
+            <a class="dropdown-item" href="/ansys/pyaedt/raw/main/tests/system/general/example_models/connector.a3dcomp">
               View raw
             </a>
           </li>
             <li>
-              <remote-clipboard-copy class="dropdown-item" data-src="/ansys/pyaedt/raw/main/_unittest/example_models/connector.a3dcomp" data-action="click:remote-clipboard-copy#remoteCopy">
+              <remote-clipboard-copy class="dropdown-item" data-src="/ansys/pyaedt/raw/main/tests/system/general/example_models/connector.a3dcomp" data-action="click:remote-clipboard-copy#remoteCopy">
   
 
-  <span data-target="remote-clipboard-copy.idle">                  <span class="cursor-pointer" data-hydro-click="{&quot;event_type&quot;:&quot;repository.click&quot;,&quot;payload&quot;:{&quot;target&quot;:&quot;COPY_RAW_CONTENTS_BUTTON&quot;,&quot;repository_id&quot;:353403525,&quot;originating_url&quot;:&quot;https://github.com/ansys/pyaedt/blob/main/_unittest/example_models/connector.a3dcomp&quot;,&quot;user_id&quot;:77293250}}" data-hydro-click-hmac="c3c87377df190e7bf043bc9e20a6cb1c7bf4b609dc5e4259a3704c23544862d3">
+  <span data-target="remote-clipboard-copy.idle">                  <span class="cursor-pointer" data-hydro-click="{&quot;event_type&quot;:&quot;repository.click&quot;,&quot;payload&quot;:{&quot;target&quot;:&quot;COPY_RAW_CONTENTS_BUTTON&quot;,&quot;repository_id&quot;:353403525,&quot;originating_url&quot;:&quot;https://github.com/ansys/pyaedt/blob/main/tests/system/general/example_models/connector.a3dcomp&quot;,&quot;user_id&quot;:77293250}}" data-hydro-click-hmac="c3c87377df190e7bf043bc9e20a6cb1c7bf4b609dc5e4259a3704c23544862d3">
                     Copy raw contents
 </span></span>
   <span data-target="remote-clipboard-copy.fetching" hidden="hidden">                  Copy raw contents
@@ -2914,20 +2914,20 @@ Co-authored-by: maxcapodi78 &lt;Shark78&gt;</pre></div>
 </span>
 </remote-clipboard-copy>            </li>
             <li>
-              <a class="dropdown-item" href="/ansys/pyaedt/blame/main/_unittest/example_models/connector.a3dcomp">
+              <a class="dropdown-item" href="/ansys/pyaedt/blame/main/tests/system/general/example_models/connector.a3dcomp">
                 View blame
               </a>
             </li>
 
               <li class="dropdown-divider" role="none"></li>
               <li>
-                <a class="dropdown-item" href="/ansys/pyaedt/edit/main/_unittest/example_models/connector.a3dcomp">Edit file</a>
+                <a class="dropdown-item" href="/ansys/pyaedt/edit/main/tests/system/general/example_models/connector.a3dcomp">Edit file</a>
               </li>
                 <li>
                   <a class="dropdown-item js-github-dev-shortcut js-blob-dropdown-click" data-test-selector="small-screen-github-dev-link" data-dropdown-tracking="{&quot;type&quot;:&quot;blob_edit_dropdown.dev_link_click&quot;,&quot;context&quot;:{&quot;repository_id&quot;:353403525,&quot;actor_id&quot;:77293250,&quot;edit_enabled&quot;:true,&quot;small_screen&quot;:true}}" href="https://github.dev/">Open with github.dev</a>
                 </li>
               <li>
-                <a class="dropdown-item menu-item-danger" href="/ansys/pyaedt/delete/main/_unittest/example_models/connector.a3dcomp">Delete file</a>
+                <a class="dropdown-item menu-item-danger" href="/ansys/pyaedt/delete/main/tests/system/general/example_models/connector.a3dcomp">Delete file</a>
               </li>
         </ul>
       </details>
@@ -2964,7 +2964,7 @@ Co-authored-by: maxcapodi78 &lt;Shark78&gt;</pre></div>
 </svg>
 </span></template>
 
-  <table data-hpc class="highlight tab-size js-file-line-container js-code-nav-container js-tagsearch-file" data-tab-size="8" data-paste-markdown-skip data-tagsearch-lang="" data-tagsearch-path="_unittest/example_models/connector.a3dcomp">
+  <table data-hpc class="highlight tab-size js-file-line-container js-code-nav-container js-tagsearch-file" data-tab-size="8" data-paste-markdown-skip data-tagsearch-lang="" data-tagsearch-path="tests/system/general/example_models/connector.a3dcomp">
         <tr>
           <td id="L1" class="blob-num js-line-number js-code-nav-line-number js-blob-rnum" data-line-number="1"></td>
           <td id="LC1" class="blob-code blob-code-inner js-file-line">$begin &#39;AnsoftComponentChkSum&#39;</td>

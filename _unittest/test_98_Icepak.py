@@ -24,8 +24,8 @@
 
 import os
 
-from _unittest.conftest import config
-from _unittest.conftest import local_path
+from tests.system.general.conftest import config
+from tests.system.general.conftest import local_path
 from ansys.aedt.core import Icepak
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.boundary import NativeComponentObject

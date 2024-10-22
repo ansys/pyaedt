@@ -2125,7 +2125,7 @@ $begin 'AnsoftProject'
 					TextProp('Author', 'D', '', '')
 					TextProp('Number', 'D', '', '1')
 					TextProp('Project', 'D', '', 'coax_setup')
-					TextProp('ProjectPath', 'D', '', 'C:/GIT/repos/AnsysAutomation/AEDTLib/_unittest/example_models/')
+					TextProp('ProjectPath', 'D', '', 'C:/GIT/repos/AnsysAutomation/AEDTLib/tests/system/general/example_models/')
 					TextProp('Design', 'D', '', 'Circuit1')
 					TextProp('Date', 'D', '', '1:43:18 PM  Jun 23, 2020')
 				$end 'Properties'

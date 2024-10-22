@@ -73,12 +73,12 @@ jobs:
           pip uninstall --yes vtk
           pip install --extra-index-url https://wheels.vtk.org vtk-osmesa
 
-      - name: Run tests on _unittest_solvers
+      - name: Run tests marked with 'solvers'
         env:
           PYTHONMALLOC: malloc
         run: |
           .venv\Scripts\Activate.ps1
-          pytest --durations=50 -v --cov=ansys.aedt.core --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
+          pytest --durations=50 -v --cov=ansys.aedt.core --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml -m solvers
 
       - uses: codecov/codecov-action@v4
         with:
@@ -131,11 +131,11 @@ jobs:
           pip install .[tests]
           pip install pytest-azurepipelines
 
-      - name: Run tests on _unittest_solvers
+      - name: Run tests marked with 'solvers'
         run: |
           export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
           source .venv/bin/activate
-          pytest --durations=50 -v --cov=ansys.aedt.core --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
+          pytest --durations=50 -v --cov=ansys.aedt.core --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml -m solvers
 
       - uses: codecov/codecov-action@v4
         with:
@@ -190,7 +190,7 @@ jobs:
           pip uninstall --yes vtk
           pip install --extra-index-url https://wheels.vtk.org vtk-osmesa
 
-      - name: Run tests on _unittest
+      - name: Run tests marked with 'general'
         uses: nick-fields/retry@v3
         env:
           PYTHONMALLOC: malloc
@@ -200,7 +200,7 @@ jobs:
           timeout_minutes: 50
           command: |
             .venv\Scripts\Activate.ps1
-            pytest -n 4 --dist loadfile --durations=50 -v --cov=ansys.aedt.core --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
+            pytest -n 4 --dist loadfile --durations=50 -v --cov=ansys.aedt.core --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml -m general
 
       - uses: codecov/codecov-action@v4
         with:
@@ -260,7 +260,7 @@ jobs:
           pip uninstall --yes vtk
           pip install --extra-index-url https://wheels.vtk.org vtk-osmesa
 
-      - name: Run tests on _unittest
+      - name: Run tests marked with 'general'
         uses: nick-fields/retry@v3
         with:
           max_attempts: 2
@@ -269,7 +269,7 @@ jobs:
           command: |
             export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
             source .venv/bin/activate
-            pytest -n 2 --dist loadfile --durations=50 -v --cov=ansys.aedt.core --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
+            pytest -n 2 --dist loadfile --durations=50 -v --cov=ansys.aedt.core --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml -m general
 
       - uses: codecov/codecov-action@v4
         with:

@@ -1426,7 +1426,7 @@ rx_ffe3 = 0.05', true, true, ExtentRect(0, 0, 0, 0, -0.00756658926196081, 0.0346
 					TextProp('Author', 'D', '', '')
 					TextProp('Number', 'D', '', '1')
 					TextProp('Project', 'D', '', 'AMI_Example')
-					TextProp('ProjectPath', 'D', '', 'D:/ANSYSDev/repositories/PyAEDT/_unittest/example_models/')
+					TextProp('ProjectPath', 'D', '', 'D:/ANSYSDev/repositories/PyAEDT/tests/system/general/example_models/')
 					TextProp('Design', 'D', '', 'Models Init Only')
 					TextProp('Date', 'D', '', '5:57:51  feb 28, 2022')
 				$end 'Properties'
@@ -1473,7 +1473,7 @@ rx_ffe3 = 0.05', true, true, ExtentRect(0, 0, 0, 0, -0.00756658926196081, 0.0346
 					TextProp('Author', 'D', '', '')
 					TextProp('Number', 'D', '', '2')
 					TextProp('Project', 'D', '', 'AMI_Example')
-					TextProp('ProjectPath', 'D', '', 'D:/ANSYSDev/repositories/PyAEDT/_unittest/example_models/')
+					TextProp('ProjectPath', 'D', '', 'D:/ANSYSDev/repositories/PyAEDT/tests/system/general/example_models/')
 					TextProp('Design', 'D', '', 'Models Init Only')
 					TextProp('Date', 'D', '', '5:57:51  feb 28, 2022')
 				$end 'Properties'
@@ -1986,7 +1986,7 @@ rx_ffe3 = 0.05', true, true, ExtentRect(0, 0, 0, 0, -0.00745637927130312, 0.0347
 					TextProp('Author', 'D', '', '')
 					TextProp('Number', 'D', '', '1')
 					TextProp('Project', 'D', '', 'AMI_Example')
-					TextProp('ProjectPath', 'D', '', 'D:/ANSYSDev/repositories/PyAEDT/_unittest/example_models/')
+					TextProp('ProjectPath', 'D', '', 'D:/ANSYSDev/repositories/PyAEDT/tests/system/general/example_models/')
 					TextProp('Design', 'D', '', 'Models GetWave Only')
 					TextProp('Date', 'D', '', '5:57:54  feb 28, 2022')
 				$end 'Properties'
@@ -2033,7 +2033,7 @@ rx_ffe3 = 0.05', true, true, ExtentRect(0, 0, 0, 0, -0.00745637927130312, 0.0347
 					TextProp('Author', 'D', '', '')
 					TextProp('Number', 'D', '', '2')
 					TextProp('Project', 'D', '', 'AMI_Example')
-					TextProp('ProjectPath', 'D', '', 'D:/ANSYSDev/repositories/PyAEDT/_unittest/example_models/')
+					TextProp('ProjectPath', 'D', '', 'D:/ANSYSDev/repositories/PyAEDT/tests/system/general/example_models/')
 					TextProp('Design', 'D', '', 'Models GetWave Only')
 					TextProp('Date', 'D', '', '5:57:54  feb 28, 2022')
 				$end 'Properties'

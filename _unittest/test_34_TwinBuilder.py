@@ -24,10 +24,10 @@
 
 import os
 
-from _unittest.conftest import NONGRAPHICAL
-from _unittest.conftest import desktop_version
-from _unittest.conftest import local_path
-from _unittest.conftest import new_thread
+from tests.system.general.conftest import NONGRAPHICAL
+from tests.system.general.conftest import desktop_version
+from tests.system.general.conftest import local_path
+from tests.system.general.conftest import new_thread
 from ansys.aedt.core import Desktop
 from ansys.aedt.core import TwinBuilder
 from ansys.aedt.core.generic.general_methods import is_linux

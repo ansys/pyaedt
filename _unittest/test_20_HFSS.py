@@ -26,9 +26,9 @@ import math
 import os
 import shutil
 
-from _unittest.conftest import config
-from _unittest.conftest import local_path
-from _unittest.conftest import settings
+from tests.system.general.conftest import config
+from tests.system.general.conftest import local_path
+from tests.system.general.conftest import settings
 import pytest
 
 small_number = 1e-10  # Used for checking equivalence.

@@ -7270,7 +7270,7 @@ VuvRHsgFvhqHebmvzNvpRP-s5NPZhqyDjWQmxVm8ZwyrbuGojSUP9k5F2fvr0TTiUMlyAbttItRjtRjg
 					TextProp('Author', 'D', '', '')
 					TextProp('Number', 'D', '', '1')
 					TextProp('Project', 'D', '', 'Filter_Board_parasolid')
-					TextProp('ProjectPath', 'D', '', 'C:/ansysdev/GIT/repos/pyaedt/_unittest/example_models/')
+					TextProp('ProjectPath', 'D', '', 'C:/ansysdev/GIT/repos/pyaedt/tests/system/general/example_models/')
 					TextProp('Design', 'D', '', 'Galileo_G87173_205_cutout3')
 					TextProp('Date', 'D', '', '9:36:07 AM  Aug 24, 2022')
 				$end 'Properties'
@@ -8417,7 +8417,7 @@ VuvRHsgFvhqHebmvzNvpRP-s5NPZhqyDjWQmxVm8ZwyrbuGojSUP9k5F2fvr0TTiUMlyAbttItRjtRjg
 					TextProp('Author', 'D', '', '')
 					TextProp('Number', 'D', '', '1')
 					TextProp('Project', 'D', '', 'Filter_Board_parasolid')
-					TextProp('ProjectPath', 'D', '', 'C:/ansysdev/GIT/repos/pyaedt/_unittest/example_models/')
+					TextProp('ProjectPath', 'D', '', 'C:/ansysdev/GIT/repos/pyaedt/tests/system/general/example_models/')
 					TextProp('Design', 'D', '', 'Circuit2')
 					TextProp('Date', 'D', '', '9:36:12 AM  Aug 24, 2022')
 				$end 'Properties'

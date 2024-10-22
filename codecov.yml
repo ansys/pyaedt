@@ -14,8 +14,7 @@ coverage:
         if_no_uploads: error
   ignore:
     - "examples"  # ignore folders and all its contents
-    - "_unittest"  # ignore folders and all its contents
-    - "_unittest_ironpython"  # ignore folders and all its contents
+    - "tests"  # ignore folders and all its contents
     - "src/ansys/aedt/core/rpc/**/*.py"  # ignore folders and all its contents
     - "src/ansys/aedt/core/doctest_fixtures/*.py"  # ignore folders and all its contents
     - "src/ansys/aedt/core/misc/*.py"  # ignore folders and all its contents

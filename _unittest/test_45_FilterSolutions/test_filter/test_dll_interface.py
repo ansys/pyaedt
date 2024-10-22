@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from _unittest.conftest import config
+from tests.system.general.conftest import config
 from _unittest.test_45_FilterSolutions.test_filter import test_transmission_zeros
 import ansys.aedt.core
 from ansys.aedt.core.filtersolutions_core.attributes import FilterImplementation
