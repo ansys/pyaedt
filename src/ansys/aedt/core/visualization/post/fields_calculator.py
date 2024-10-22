@@ -556,7 +556,7 @@ class FieldsCalculator:
         >>> hfss.release_desktop(False, False)
         """
         warnings.warn("Use :func:`write` method instead.", DeprecationWarning)
-        return self.write(expression, output_file, setup=setup, intrinsics=intrinsics)
+        return self.write(expression, output_file, setup=setup, intrinsics=intrinsics)  # pragma: no cover
 
     @pyaedt_function_handler()
     def write(self, expression, output_file, setup=None, intrinsics=None):

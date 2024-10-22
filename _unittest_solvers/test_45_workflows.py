@@ -247,6 +247,12 @@ class TestClass:
                                     "temp_points.pts")
         output_file = aedtapp.post.fields_calculator.export("voltage_line", sample_points=points_path)
         assert os.path.exists(output_file)
+        output_file = aedtapp.post.fields_calculator.export("voltage_line",
+                                                            sample_points=[[0, 0, 0], [3, 6, 8], [4, 7, 9]])
+        assert os.path.exists(output_file)
+        output_file = aedtapp.post.fields_calculator.export("voltage_line",
+                                                            sample_points={"a":"b"})
+        assert not os.path.exists(output_file)
         output_file = aedtapp.post.fields_calculator.export("voltage_line", grid_type="Cartesian")
         assert os.path.exists(output_file)
         assert not aedtapp.post.fields_calculator.export("voltage_line", grid_type="invalid")
