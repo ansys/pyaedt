@@ -515,7 +515,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                     try:
                         self.odesign.ChangeProperty(properties)
                     except Exception:  # pragma: no cover
-                        self.logger.warning("Failed to rename terminal {}.".format(terminal))
+                        self.logger.warning(f"Failed to rename terminal {terminal}.")
                 bound = BoundaryObject(self, terminal_name, props_terminal, "Terminal")
                 self._boundaries[terminal_name] = bound
 
@@ -964,7 +964,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 sweepdata.props["SaveFields"] = save_fields
                 sweepdata.props["SaveRadFields"] = save_rad_fields
                 sweepdata.update()
-                self.logger.info("Linear count sweep {} has been correctly created.".format(name))
+                self.logger.info(f"Linear count sweep {name} has been correctly created.")
                 return sweepdata
         return False
 
@@ -2366,10 +2366,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         props["RenormalizeAllTerminals"] = renormalize
         props["Modes"] = {}
         for i in range(1, 1 + modes):
-            props["Modes"]["Mode{}".format(i)] = {}
-            props["Modes"]["Mode{}".format(i)]["ModeNum"] = i
-            props["Modes"]["Mode{}".format(i)]["UseIntLine"] = False
-            props["Modes"]["Mode{}".format(i)]["CharImp"] = "Zpi"
+            props["Modes"][f"Mode{i}"] = {}
+            props["Modes"][f"Mode{i}"]["ModeNum"] = i
+            props["Modes"][f"Mode{i}"]["UseIntLine"] = False
+            props["Modes"][f"Mode{i}"]["CharImp"] = "Zpi"
         props["ShowReporterFilter"] = True
         if isinstance(reporter_filter, bool):
             props["ReporterFilter"] = [reporter_filter for i in range(modes)]
@@ -2487,7 +2487,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         """
         objectname = self.modeler.convert_to_selections(assignment, True)
         boundaries = list(self.oboundary.GetBoundaries())
-        self.oboundary.AutoIdentifyLatticePair("{}:{}".format(coordinate_system, coordinate_plane), objectname[0])
+        self.oboundary.AutoIdentifyLatticePair(f"{coordinate_system}:{coordinate_plane}", objectname[0])
         boundaries = [i for i in list(self.oboundary.GetBoundaries()) if i not in boundaries]
         bounds = [i for i in boundaries if boundaries.index(i) % 2 == 0]
         return bounds
@@ -3897,9 +3897,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         if self.solution_type != "Eigenmode":
             if assignment is None:
-                self.logger.error("Port and mode must be defined for solution type {}".format(self.solution_type))
+                self.logger.error(f"Port and mode must be defined for solution type {self.solution_type}")
                 return False
-            self.logger.info('Setting up power to "{}" = {}'.format(assignment, power))
+            self.logger.info(f'Setting up power to "{assignment}" = {power}')
             self.osolution.EditSources(
                 [
                     ["IncludePortPostProcessing:=", True, "SpecifySystemPower:=", False],
@@ -3907,7 +3907,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 ]
             )
         else:
-            self.logger.info("Setting up power to Eigenmode = {}".format(power))
+            self.logger.info(f"Setting up power to Eigenmode = {power}")
             self.osolution.EditSources(
                 [["FieldType:=", "EigenStoredEnergy"], ["Name:=", "Modes", "Magnitudes:=", [power]]]
             )
@@ -4046,9 +4046,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                     "Name:=",
                     assignment,
                     "Magnitude:=",
-                    "pwl({}, Freq)".format(ds_name_mag),
+                    f"pwl({ds_name_mag}, Freq)",
                     "Phase:=",
-                    "pwl({}, Freq)".format(ds_name_phase),
+                    f"pwl({ds_name_phase}, Freq)",
                 ],
             ]
         )
@@ -4678,10 +4678,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
     @pyaedt_function_handler(setupname="setup")
     def _create_sbr_doppler_sweep(self, setup, time_var, tstart, tstop, tsweep, parametric_name):
-        time_start = self.modeler._arg_with_dim(tstart, "s")
-        time_sweep = self.modeler._arg_with_dim(tsweep, "s")
         time_stop = self.modeler._arg_with_dim(tstop, "s")
-        sweep_range = "LIN {} {} {}".format(time_start, time_stop, time_sweep)
         return self.parametrics.add(time_var, tstart, time_stop, tsweep, "LinearStep", setup, name=parametric_name)
 
     @pyaedt_function_handler(time_var="time_variable", setup_name="setup")
@@ -6904,7 +6901,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                     mesh_assembly_arg.append(padding)
                     arg2.append(mesh_assembly_arg)
                 else:
-                    self.logger.warning("{0} does not exist".format(str(comp)))
+                    self.logger.warning(f"{str(comp)} does not exist")
                 count += 1
         elif assignment and isinstance(volume_padding, list) and len(volume_padding) != len(assignment):
             self.logger.error("Volume padding length is different than component list length.")
@@ -6918,7 +6915,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 if p in self.modeler.user_defined_component_names:
                     arg3.append(p)
                 else:
-                    self.logger.warning("{0} does not exist".format(str(p)))
+                    self.logger.warning(f"{str(p)} does not exist")
 
         arg.append(arg2)
         arg.append(arg3)
@@ -6963,7 +6960,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         var = []
         if variations:
             for k, v in variations.items():
-                var.append("{}='{}'".format(k, v))
+                var.append(f"{k}='{v}'")
         variation = " ".join(var)
 
         command = [
@@ -7044,7 +7041,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         var = []
         if variations:
             for k, v in variations.items():
-                var.append("{}='{}'".format(k, v))
+                var.append(f"{k}='{v}'")
         variation = " ".join(var)
 
         command = [

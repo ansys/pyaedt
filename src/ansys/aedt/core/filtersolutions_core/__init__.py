@@ -39,9 +39,8 @@ def _dll_interface(version=None) -> DllInterface:
         _this._internal_dll_interface = DllInterface(show_gui=False, version=version)
     elif version is not None and version != _this._internal_dll_interface.version:
         raise Exception(
-            "The requested version {} does not match with the previously defined version {}.".format(
-                version, _this._internal_dll_interface.version
-            )
+            f"The requested version {version} does not match with the previously defined version {_this._internal_dll_interface.version}."
+            f"{_this._internal_dll_interface.version}."
         )
 
     return _this._internal_dll_interface

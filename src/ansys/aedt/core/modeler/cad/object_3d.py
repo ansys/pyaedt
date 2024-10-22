@@ -169,7 +169,7 @@ class Object3d(object):
         self._primitives._app.export_3d_model(self.name, tmp_path, ".sat", [self.name])
 
         if not os.path.isfile(filename):
-            raise Exception("Cannot export the ACIS SAT file for object {}".format(self.name))
+            raise Exception(f"Cannot export the ACIS SAT file for object {self.name}")
 
         with open_file(filename, "r") as fh:
             temp = fh.read().splitlines()
@@ -1107,7 +1107,7 @@ class Object3d(object):
             self._primitives.add_new_objects()
             self._primitives.cleanup_objects()
         else:
-            self.logger.warning("{} is already used in current design.".format(obj_name))
+            self.logger.warning(f"{obj_name} is already used in current design.")
 
     @property
     def valid_properties(self):
@@ -1162,7 +1162,7 @@ class Object3d(object):
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
         """
-        return "({} {} {})".format(self.color[0], self.color[1], self.color[2])
+        return f"({self.color[0]} {self.color[1]} {self.color[2]})"
 
     @color.setter
     def color(self, color_value):
@@ -1191,7 +1191,7 @@ class Object3d(object):
             except TypeError:
                 color_tuple = None
         else:
-            msg_text = "Invalid color input {} for object {}.".format(color_value, self._m_name)
+            msg_text = f"Invalid color input {color_value} for object {self._m_name}."
             self._primitives.logger.warning(msg_text)
 
     @property
@@ -1768,7 +1768,7 @@ class Object3d(object):
         """
         new_obj_tuple = self._primitives.clone(self.id)
         success = new_obj_tuple[0]
-        assert success, "Could not clone the object {}.".format(self.name)
+        assert success, f"Could not clone the object {self.name}."
         new_name = new_obj_tuple[1][0]
         return self._primitives[new_name]
 

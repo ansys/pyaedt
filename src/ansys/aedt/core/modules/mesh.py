@@ -310,7 +310,7 @@ class MeshOperation(object):
             List of changed properties of the mesh operation.
 
         """
-        arguments = ["NAME:AllTabs", ["NAME:MeshSetupTab", ["NAME:PropServers", "MeshSetup:{}".format(name)], arg]]
+        arguments = ["NAME:AllTabs", ["NAME:MeshSetupTab", ["NAME:PropServers", f"MeshSetup:{name}"], arg]]
         self._mesh._app.odesign.ChangeProperty(arguments)
 
     @pyaedt_function_handler()
@@ -816,7 +816,7 @@ class Mesh(object):
         else:
             mesh_methods = ["Auto", "AnsoftTAU", "AnsoftClassic"]
         if method not in mesh_methods:
-            raise RuntimeError("Invalid mesh method {}".format(method))  # pragma: no cover
+            raise RuntimeError(f"Invalid mesh method {method}")  # pragma: no cover
 
         modelres = ["NAME:GlobalModelRes", "UseAutoLength:=", automodelresolution]
         if not automodelresolution:

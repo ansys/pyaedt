@@ -1826,18 +1826,16 @@ class TestClass:
         self.aedtapp["b"] = "1mm"
         self.aedtapp.modeler.create_box([0, 0, 0], ["b", "1", "2"])
         s2 = self.aedtapp.create_setup()
-        assert s2.start_continue_from_previous_setup(
-            "test_78-1", "{} : SteadyState".format(s1.name), parameters={"a": "1mm"}
-        )
+        assert s2.start_continue_from_previous_setup("test_78-1", f"{s1.name} : SteadyState", parameters={"a": "1mm"})
         s2.delete()
         s2 = self.aedtapp.create_setup()
-        assert s2.start_continue_from_previous_setup("test_78-1", "{} : SteadyState".format(s1.name), parameters=None)
+        assert s2.start_continue_from_previous_setup("test_78-1", f"{s1.name} : SteadyState", parameters=None)
         s2.delete()
         s2 = self.aedtapp.create_setup()
         assert not s2.start_continue_from_previous_setup(
-            "test_78-1", "{} : SteadyState".format(s1.name), project="FakeFolder123"
+            "test_78-1", f"{s1.name} : SteadyState", project="FakeFolder123"
         )
-        assert not s2.start_continue_from_previous_setup("test_78-12", "{} : SteadyState".format(s1.name))
+        assert not s2.start_continue_from_previous_setup("test_78-12", f"{s1.name} : SteadyState")
 
     def test_79_mesh_reuse(self):
         self.aedtapp.insert_design("test_79")

@@ -686,7 +686,7 @@ class TestClass:
         list3 = self.aedtapp.modeler.object_names
         for el in list1:
             if el not in list3:
-                print("Missing {}".format(el))
+                print(f"Missing {el}")
         assert len(list1) + len(list2) == len(list3)
 
     def test_41a_create_rect_sheet_to_region(self):

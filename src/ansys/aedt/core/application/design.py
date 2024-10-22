@@ -149,7 +149,7 @@ class Design(AedtObjects):
 
         _p_dets = {
             "PyAEDT Version": pyaedt_version,
-            "Product": "Ansys Electronics Desktop {}".format(settings.aedt_version),
+            "Product": f"Ansys Electronics Desktop {settings.aedt_version}",
             "Design Type": self.design_type,
             "Solution Type": self.solution_type,
             "Project Name": self.project_name,
@@ -167,7 +167,7 @@ class Design(AedtObjects):
     def __str__(self):
         return "\n".join(
             [
-                "{}:".format(each_name).ljust(25) + "{}".format(each_attr).ljust(25)
+                f"{each_name}:".ljust(25) + f"{each_attr}".ljust(25)
                 for each_name, each_attr in self._pyaedt_details.items()
             ]
         )
@@ -397,7 +397,7 @@ class Design(AedtObjects):
             if "Model" in list(self.get_oo_name(self.odesign)):
                 maxwell_model = list(self.get_oo_name(self.odesign, "Model"))
                 for parameter in maxwell_model:
-                    if self.get_oo_property_value(self.odesign, "Model\\{}".format(parameter), "Type") == "Band":
+                    if self.get_oo_property_value(self.odesign, f"Model\\{parameter}", "Type") == "Band":
                         bb.append(parameter)
                         bb.append("MotionSetup")
 
@@ -435,13 +435,11 @@ class Design(AedtObjects):
             if boundary in self._boundaries:
                 continue
             if boundarytype == "MaxwellParameters":
-                maxwell_parameter_type = self.get_oo_property_value(
-                    self.odesign, "Parameters\\{}".format(boundary), "Type"
-                )
+                maxwell_parameter_type = self.get_oo_property_value(self.odesign, f"Parameters\\{boundary}", "Type")
 
                 self._boundaries[boundary] = MaxwellParameters(self, boundary, boundarytype=maxwell_parameter_type)
             elif boundarytype == "MotionSetup":
-                maxwell_motion_type = self.get_oo_property_value(self.odesign, "Model\\{}".format(boundary), "Type")
+                maxwell_motion_type = self.get_oo_property_value(self.odesign, f"Model\\{boundary}", "Type")
 
                 self._boundaries[boundary] = BoundaryObject(self, boundary, boundarytype=maxwell_motion_type)
             elif boundarytype == "Network":
@@ -569,7 +567,7 @@ class Design(AedtObjects):
             inner_project_settings.properties[os.path.normpath(self.project_file)] = load_entire_aedt_file(
                 self.project_file
             )
-            self._logger.info("aedt file load time {}".format(time.time() - start))
+            self._logger.info(f"aedt file load time {time.time() - start}")
         elif (
             os.path.normpath(self.project_file) not in inner_project_settings.properties
             and settings.remote_rpc_session
@@ -583,7 +581,7 @@ class Design(AedtObjects):
             except Exception:
                 self._logger.info("Failed to load AEDT file.")
             else:
-                self._logger.info("Time to load AEDT file: {}.".format(time.time() - start))
+                self._logger.info(f"Time to load AEDT file: {time.time() - start}.")
         if os.path.normpath(self.project_file) in inner_project_settings.properties:
             return inner_project_settings.properties[os.path.normpath(self.project_file)]
         return {}
@@ -1091,7 +1089,7 @@ class Design(AedtObjects):
                 warning_msg = "No consistent unique design is present. Inserting a new design."
             else:
                 activedes = valids[0]
-                warning_msg = "Active Design set to {}".format(valids[0])
+                warning_msg = f"Active Design set to {valids[0]}"
         # legacy support for version < 2021.2
         elif self.design_list:  # pragma: no cover
             self._odesign = self._oproject.GetDesign(self.design_list[0])
@@ -1105,10 +1103,10 @@ class Design(AedtObjects):
                 if count_consistent_designs != 1:
                     warning_msg = "No consistent unique design is present. Inserting a new design."
                 else:
-                    self.logger.info("Active Design set to {}".format(activedes))
+                    self.logger.info(f"Active Design set to {activedes}")
             else:
                 activedes = self.design_list[0]
-                warning_msg = "Active design is set to {}".format(self.design_list[0])
+                warning_msg = f"Active design is set to {self.design_list[0]}"
         else:
             warning_msg = "No design is present. Inserting a new design."
         return activedes, warning_msg
@@ -1185,9 +1183,7 @@ class Design(AedtObjects):
         if not proj_name:
             self._oproject = self.desktop_class.active_project()
             if self._oproject:
-                self.logger.info(
-                    "No project is defined. Project {} exists and has been read.".format(self._oproject.GetName())
-                )
+                self.logger.info(f"No project is defined. Project {self._oproject.GetName()} exists and has been read.")
         else:
             prj_list = self.odesktop.GetProjectList()
             if prj_list and proj_name in list(prj_list):
@@ -1204,9 +1200,7 @@ class Design(AedtObjects):
                     time.sleep(0.5)
                     self._oproject = self.desktop_class.active_project()
                     self._add_handler()
-                    self.logger.info(
-                        "Archive {} has been restored to project {}".format(proj_name, self._oproject.GetName())
-                    )
+                    self.logger.info(f"Archive {proj_name} has been restored to project {self._oproject.GetName()}")
                 elif ".def" in proj_name or proj_name[-5:] == ".aedb":
                     if ".def" in proj_name:
                         project = os.path.dirname(proj_name)[:-5] + ".aedt"
@@ -1296,10 +1290,10 @@ class Design(AedtObjects):
         ):
             return
         for handler in self._global_logger._files_handlers:
-            if "pyaedt_{}.log".format(self._oproject.GetName()) in str(handler):
+            if f"pyaedt_{self._oproject.GetName()}.log" in str(handler):
                 return
         self._logger = self._global_logger.add_file_logger(
-            os.path.join(self.toolkit_directory, "pyaedt_{}.log".format(self._oproject.GetName())),
+            os.path.join(self.toolkit_directory, f"pyaedt_{self._oproject.GetName()}.log"),
             project_name=self.project_name,
         )
 
@@ -1362,7 +1356,7 @@ class Design(AedtObjects):
                                 profile_tree = BinaryTreeNode("profile", profile_setup_obj)
                                 profile_objs[profile_setup_name] = profile_tree
                             except Exception:  # pragma: no cover
-                                self.logger.error("{} profile could not be obtained.".format(profile_setup_name))
+                                self.logger.error(f"{profile_setup_name} profile could not be obtained.")
             return profile_objs
         else:  # pragma: no cover
             self.logger.error("Profile can not be obtained.")
@@ -1515,7 +1509,7 @@ class Design(AedtObjects):
         if not variation:
             val_str = []
             for el, val in self.available_variations.nominal_w_values_dict.items():
-                val_str.append("{}={}".format(el, val))
+                val_str.append(f"{el}={val}")
             if self.design_type == "HFSS 3D Layout Design":
                 variation = " ".join(val_str)
             else:
@@ -1526,11 +1520,11 @@ class Design(AedtObjects):
                     if "CGDataBlock" in s.props:
                         output_file = os.path.splitext(output_file)[0] + "CG" + os.path.splitext(output_file)[1]
                         self.odesign.ExportProfile(setup, variation, "CG", output_file, True)
-                        self.logger.info("Exported Profile to file {}".format(output_file))
+                        self.logger.info(f"Exported Profile to file {output_file}")
                     if "RLDataBlock" in s.props:
                         output_file = os.path.splitext(output_file)[0] + "RL" + os.path.splitext(output_file)[1]
                         self.odesign.ExportProfile(setup, variation, "RL", output_file, True)
-                        self.logger.info("Exported Profile to file {}".format(output_file))
+                        self.logger.info(f"Exported Profile to file {output_file}")
                     break
         elif self.design_type == "Q3D Extractor":
             for s in self.setups:
@@ -1538,22 +1532,22 @@ class Design(AedtObjects):
                     if "Cap" in s.props:
                         output_file = os.path.splitext(output_file)[0] + "CG" + os.path.splitext(output_file)[1]
                         self.odesign.ExportProfile(setup, variation, "CG", output_file, True)
-                        self.logger.info("Exported Profile to file {}".format(output_file))
+                        self.logger.info(f"Exported Profile to file {output_file}")
                     if "AC" in s.props:
                         output_file = os.path.splitext(output_file)[0] + "ACRL" + os.path.splitext(output_file)[1]
                         self.odesign.ExportProfile(setup, variation, "AC RL", output_file, True)
-                        self.logger.info("Exported Profile to file {}".format(output_file))
+                        self.logger.info(f"Exported Profile to file {output_file}")
                     if "DC" in s.props:
                         output_file = os.path.splitext(output_file)[0] + "DC" + os.path.splitext(output_file)[1]
                         self.odesign.ExportProfile(setup, variation, "DC RL", output_file, True)
-                        self.logger.info("Exported Profile to file {}".format(output_file))
+                        self.logger.info(f"Exported Profile to file {output_file}")
                     break
         else:
             try:
                 self.odesign.ExportProfile(setup, variation, output_file)
             except Exception:
                 self.odesign.ExportProfile(setup, variation, output_file, True)
-            self.logger.info("Exported Profile to file {}".format(output_file))
+            self.logger.info(f"Exported Profile to file {output_file}")
         return output_file
 
     @pyaedt_function_handler(message_text="text", message_type="level")
@@ -1720,11 +1714,11 @@ class Design(AedtObjects):
         if isinstance(value, str):
             try:
                 float(value)
-                val = "{0}{1}".format(value, units)
+                val = f"{value}{units}"
             except Exception:
                 val = value
         else:
-            val = "{0}{1}".format(value, units)
+            val = f"{value}{units}"
         return val
 
     @pyaedt_function_handler()
@@ -1860,7 +1854,7 @@ class Design(AedtObjects):
         limit = 100
         i = 0
         while limit > 0:
-            a = self.get_registry_key_string("Desktop/Settings/ProjectOptions/EnabledBetaOptions/Item{}".format(i))
+            a = self.get_registry_key_string(f"Desktop/Settings/ProjectOptions/EnabledBetaOptions/Item{i}")
             if a and a == beta_option:
                 return True
             elif a:
@@ -1905,7 +1899,7 @@ class Design(AedtObjects):
         >>> oDesktop.SetRegistryString
         """
         try:
-            self.set_registry_key("Desktop/ActiveDSOConfigurations/{}".format(product_name), config_name)
+            self.set_registry_key(f"Desktop/ActiveDSOConfigurations/{product_name}", config_name)
             self.logger.info("Configuration Changed correctly to %s for %s.", config_name, product_name)
             return True
         except Exception:
@@ -1993,7 +1987,7 @@ class Design(AedtObjects):
 
         """
         if variable_name not in self.variable_manager.variables:
-            self.logger.error("Variable {} does not exists.".format(variable_name))
+            self.logger.error(f"Variable {variable_name} does not exists.")
             return False
         if variable_name.startswith("$"):
             tab = "NAME:ProjectVariableTab"
@@ -2006,7 +2000,7 @@ class Design(AedtObjects):
                     tab = "NAME:DefinitionParameterTab"
             elif self.design_type == "Circuit Design":
                 tab = "NAME:DefinitionParameterTab"
-                propserver = "Instance:{}".format(self._odesign.GetName())
+                propserver = f"Instance:{self._odesign.GetName()}"
         arg2 = ["NAME:" + optimetrics_type, "Included:=", enable]
         if min_val:
             arg2.append("Min:=")
@@ -3287,7 +3281,7 @@ class Design(AedtObjects):
             name = self.project_name
             if self.design_type == "HFSS 3D Layout Design":
                 self._close_edb()
-        self.logger.info("Closing the AEDT Project {}".format(name))
+        self.logger.info(f"Closing the AEDT Project {name}")
         oproj = self.desktop_class.active_project(name)
         proj_path = oproj.GetPath()
         proj_file = os.path.join(proj_path, name + ".aedt")
@@ -3313,7 +3307,7 @@ class Design(AedtObjects):
         timeout = 10
         while True:
             if not os.path.exists(os.path.join(proj_path, name + ".aedt.lock")):
-                self.logger.info("Project {} closed correctly".format(name))
+                self.logger.info(f"Project {name} closed correctly")
                 break
             elif i > timeout:
                 self.logger.warning("Lock File still exists.")
@@ -3463,7 +3457,7 @@ class Design(AedtObjects):
 
     def _insert_design(self, design_type, design_name=None):
         if design_type not in self.design_solutions.design_types:
-            raise ValueError("Design type of insert '{}' is invalid.".format(design_type))
+            raise ValueError(f"Design type of insert '{design_type}' is invalid.")
 
         # self.save_project() ## Commented because it saves a Projectxxx.aedt when launched on an empty Desktop
         unique_design_name = self._generate_unique_design_name(design_name)
@@ -3813,7 +3807,7 @@ class Design(AedtObjects):
             self.mesh._refresh_mesh_operations()
         self._project_name = None
         self._project_path = None
-        msg_text = "Project {0} Saved correctly".format(self.project_name)
+        msg_text = f"Project {self.project_name} Saved correctly"
         self.logger.info(msg_text)
         return True
 
@@ -3854,7 +3848,7 @@ class Design(AedtObjects):
         >>> oProject.SaveProjectArchive
         """
         additional_files = [] if additional_files is None else additional_files
-        msg_text = "Saving {0} Project".format(self.project_name)
+        msg_text = f"Saving {self.project_name} Project"
         self.logger.info(msg_text)
         if not project_path:
             project_path = os.path.join(self.project_path, self.project_name + ".aedtz")
@@ -3967,17 +3961,17 @@ class Design(AedtObjects):
         var_obj = None
         if "$" in name:
             app = self._oproject
-            var_obj = self.get_oo_object(app, "Variables/{}".format(name))
+            var_obj = self.get_oo_object(app, f"Variables/{name}")
 
         else:
             app = self._odesign
             if self.design_type in ["Circuit Design", "Twin Builder", "HFSS 3D Layout Design"]:
-                if name in self.get_oo_name(app, "Instance:{}".format(self._odesign.GetName())):
-                    var_obj = self.get_oo_object(app, "Instance:{}/{}".format(self._odesign.GetName(), name))
+                if name in self.get_oo_name(app, f"Instance:{self._odesign.GetName()}"):
+                    var_obj = self.get_oo_object(app, f"Instance:{self._odesign.GetName()}/{name}")
                 elif name in self.get_oo_object(app, "DefinitionParameters").GetPropNames():
                     val = self.get_oo_object(app, "DefinitionParameters").GetPropEvaluatedValue(name)
             else:
-                var_obj = self.get_oo_object(app, "Variables/{}".format(name))
+                var_obj = self.get_oo_object(app, f"Variables/{name}")
         if var_obj:
             val = var_obj.GetPropValue("SIValue")
         elif not val:
@@ -4049,7 +4043,7 @@ class Design(AedtObjects):
             self._variable_manager.delete_variable(variable_name)
             return eval_value
         except Exception:
-            self.logger.warning("Invalid string expression {}".format(expression))
+            self.logger.warning(f"Invalid string expression {expression}")
             return expression
 
     @pyaedt_function_handler(variation_string="variation")
@@ -4108,9 +4102,9 @@ class Design(AedtObjects):
             dtype = self._odesign.GetDesignType()
             if dtype != "RMxprt":
                 if dtype != self._design_type:
-                    raise ValueError("Specified design is not of type {}.".format(self._design_type))
+                    raise ValueError(f"Specified design is not of type {self._design_type}.")
             elif self._design_type not in {"RMxprtSolution", "ModelCreation"}:
-                raise ValueError("Specified design is not of type {}.".format(self._design_type))
+                raise ValueError(f"Specified design is not of type {self._design_type}.")
             return True
         elif ":" in des_name:
             try:
@@ -4268,7 +4262,7 @@ class DesignSettings:
     def __repr__(self):
         lines = ["{"]
         for prop in self.available_properties:
-            lines.append("\t{}: {}".format(prop, self.design_settings.GetPropValue(prop)))
+            lines.append(f"\t{prop}: {self.design_settings.GetPropValue(prop)}")
         lines.append("}")
         return "\n".join(lines)
 
@@ -4276,23 +4270,23 @@ class DesignSettings:
         if key in self.available_properties:
             if self.manipulate_inputs is not None:
                 value = self.manipulate_inputs.execute(key, value)
-            key_choices = "{}/Choices".format(key)
+            key_choices = f"{key}/Choices"
             if key_choices in self.design_settings.GetPropNames():
                 value_choices = self.design_settings.GetPropValue(key_choices)
                 if value not in value_choices:
                     self._app.logger.error(
-                        "{} is not a valid choice. Possible choices are: {}".format(value, ", ".join(value_choices))
+                        f"{value} is not a valid choice. Possible choices are: {', '.join(value_choices)}"
                     )
                     return False
             self.design_settings.SetPropValue(key, value)
         else:
-            self._app.logger.error("{} property is not available in design settings.".format(key))
+            self._app.logger.error(f"{key} property is not available in design settings.")
 
     def __getitem__(self, key):
         if key in self.available_properties:
             return self.design_settings.GetPropValue(key)
         else:
-            self._app.logger.error("{} property is not available in design settings.".format(key))
+            self._app.logger.error(f"{key} property is not available in design settings.")
             return None
 
     def __contains__(self, item):

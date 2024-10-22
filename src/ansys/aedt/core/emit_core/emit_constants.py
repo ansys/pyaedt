@@ -39,7 +39,7 @@ class MutableEnum:
         ]
         if members[0] is None:
             raise Exception(
-                "Enum is uninitialized. Create a ansys.aedt.core.Emit() object before using {}.".format(cls.__name__)
+                f"Enum is uninitialized. Create a ansys.aedt.core.Emit() object before using {cls.__name__}."
             )
         return members
 
@@ -111,4 +111,4 @@ class EmiCategoryFilter(MutableEnum):
 if __name__ == "__main__":
     print("Members of EmiCategoryFilter:")
     for m in EmiCategoryFilter.members():
-        print("    {}".format(m))
+        print(f"    {m}")

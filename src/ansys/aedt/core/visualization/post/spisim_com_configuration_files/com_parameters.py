@@ -222,8 +222,8 @@ class COMParameters:
             for kw, v in self.parameters.items():
                 if kw in spimsim_matlab_keywords_mapping:
                     kw = spimsim_matlab_keywords_mapping[kw]
-                fp.write("# {0}: {0}\n".format(kw.upper()))
-                fp.write("{} = {}\n".format(kw.upper(), v))
+                fp.write(f"# {kw.upper()}: {kw.upper()}\n")
+                fp.write(f"{kw.upper()} = {v}\n")
         return True
 
     @pyaedt_function_handler
