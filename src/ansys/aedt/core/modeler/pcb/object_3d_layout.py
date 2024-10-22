@@ -851,7 +851,7 @@ class Nets3DLayout(object):
         show_legend=True,
         save_plot=None,
         outline=None,
-        size=(2000, 1000),
+        size=(1920, 1440),
         plot_components_on_top=False,
         plot_components_on_bottom=False,
         show=True,
