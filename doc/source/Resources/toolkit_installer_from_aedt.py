@@ -57,14 +57,10 @@ def run_pyinstaller_from_c_python(oDesktop, pyaedt_interpreter):
             'add_pyaedt_to_aedt(aedt_version="{}", personal_lib=r"{}")\n'.format(
                 oDesktop.GetVersion()[:6], oDesktop.GetPersonalLibDirectory()))
 
-    # command = r'"{}" "{}"'.format(pyaedt_interpreter, python_script)
     command = [pyaedt_interpreter, python_script]
-    # oDesktop.AddMessage("", "", 0, pyaedt_interpreter)
-    # oDesktop.AddMessage("", "", 0, python_script)
     oDesktop.AddMessage("", "", 0, "Configuring PyAEDT panels in automation tab.")
     process = subprocess.Popen(command)
     process.wait()
-    return_code = process.returncode
 
     # Refresh UI
     oDesktop.CloseAllWindows()
