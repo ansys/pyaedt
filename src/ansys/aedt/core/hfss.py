@@ -4232,8 +4232,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                         self.logger.info("done")
         return ports_ID
 
-    @pyaedt_function_handler(dname="design", ouputdir="ouput_dir")
-    def validate_full_design(self, design=None, ouput_dir=None, ports=None):
+    @pyaedt_function_handler(dname="design", outputdir="output_dir")
+    def validate_full_design(self, design=None, output_dir=None, ports=None):
         """Validate a design based on an expected value and save information to the log file.
 
 
@@ -4242,7 +4242,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         design : str,  optional
             Name of the design to validate. The default is ``None``, in which case
             the current design is used.
-        ouput_dir : str, optional
+        output_dir : str, optional
             Directory to save the log file to. The default is ``None``,
             in which case the current project path is used.
         ports : int, optional
@@ -4277,10 +4277,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         val_list = []
         if not design:
             design = self.design_name
-        if not ouput_dir:
-            ouput_dir = self.working_directory
+        if not output_dir:
+            output_dir = self.working_directory
         pname = self.project_name
-        validation_log_file = os.path.join(ouput_dir, pname + "_" + design + "_validation.log")
+        validation_log_file = os.path.join(output_dir, pname + "_" + design + "_validation.log")
 
         # Desktop Messages
         msg = "Desktop messages:"
