@@ -36,16 +36,10 @@ from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 from ansys.tools.visualization_interface import MeshObjectPlot
 from ansys.tools.visualization_interface import Plotter
 from ansys.tools.visualization_interface.backends.pyvista import PyVistaBackend
+import numpy as np
 import pandas as pd
-
-try:
-    import numpy as np
-except ImportError:  # pragma: no cover
-    np = None
-try:
-    import pyvista as pv
-except ImportError:  # pragma: no cover
-    pv = None
+import pyvista as pv
+import scipy.interpolate
 
 
 class MonostaticRCSData(object):
@@ -399,31 +393,37 @@ class MonostaticRCSData(object):
         return waterfall_df
 
     @property
-    def isar(self):
-        """ISAR."""
+    def isar_2d(self):
+        """ISAR 2D."""
 
         phis = self.available_incident_wave_phi
         thetas = self.available_incident_wave_theta
-        freqs = self.frequencies
-        nfreq = len(freqs)
+        nfreq = len(self.frequencies)
         c0 = 299792458
 
-        ndrng = size[0]
-        nxrng = size[1]
+        ndrng = self.upsample_range
+        nxrng = self.upsample_azimuth
 
         if self.aspect_range == "Horizontal":
             nangles = len(phis)
             azel_samples = -phis.reshape(1, -1)
+            data = self.rcs_active_theta
         else:
             nangles = len(thetas)
             azel_samples = 90.0 - thetas.reshape(1, -1)
+            data = self.rcs_active_theta
 
         azel_samples = np.unwrap(np.radians(azel_samples))
         azel_ctr = np.mean(azel_samples)
 
         azel_span = np.max(azel_samples) - np.min(azel_samples)
 
-        fxtrue = freqs * np.cos(azel_samples - azel_ctr)  # % true fx and fy locations for this f, az grid
+        freqs = unit_converter(self.frequencies, "Freq", self.frequency_units, "Hz")
+        freqs = np.unique(freqs)
+        freqs = freqs.reshape(-1, 1)
+
+        # True fx and fy locations for this f, az grid
+        fxtrue = freqs * np.cos(azel_samples - azel_ctr)
         fxtrue = fxtrue.reshape(-1)
         fytrue = freqs * np.sin(azel_samples - azel_ctr)
         fytrue = fytrue.reshape(-1)
@@ -437,99 +437,73 @@ class MonostaticRCSData(object):
         fy = np.linspace(-fymax, fymax, nangles)  # desired crossrange frequencies
         grid_x, grid_y = np.meshgrid(fx, fy)
 
+        data = self.raw_data[self.name]
+
         rdata = scipy.interpolate.griddata((fxtrue, fytrue), data, (grid_x, grid_y), "linear", fill_value=0.0)
         rdata = rdata.transpose()
 
-        winx, winx_sum = window_function(function=window, size=nfreq)
-        winy, winy_sum = window_function(function=window, size=nangles)
+        winx, winx_sum = self.window_function(self.window, nfreq)
+        winy, winy_sum = self.window_function(self.window, nangles)
+
         winx = winx.reshape(-1, 1)
         winy = winy.reshape(1, -1)
 
-        # %
-        # % zero padding
-        # %
+        # Zero padding
         if ndrng < nfreq:
-            # warning('nx should be at least as large as the length of f -- increasing nx');
+            # Warning('nx should be at least as large as the length of f -- increasing nx')
+            self.__logger.warning("nx should be at least as large as the number of frequencies.")
             ndrng = nfreq
         if nxrng < nangles:
             # warning('ny should be at least as large as the length of az -- increasing ny');
+            self.__logger.warning("ny should be at least as large as the number of azimuth angles.")
             nxrng = nangles
 
         iq = np.zeros((ndrng, nxrng), dtype=np.complex_)
         xshift = (ndrng - nfreq) // 2
         yshift = (nxrng - nangles) // 2
         iq[xshift : xshift + nfreq, yshift : yshift + nangles] = np.multiply(rdata, winx * winy)
-        #
-        # normalize so that unit amplitude scatterers have about unit amplitude in
+
+        # Normalize so that unit amplitude scatterers have about unit amplitude in
         # the image (normalized for the windows).  The "about" comes because of the
         # truncation of the polar shape into a rectangular shape.
         #
         iq = np.fft.fftshift(iq) * ndrng * nxrng / winx_sum / winy_sum
-        isar_image = np.fft.fftshift(np.fft.ifft2(iq))  # Nx x Ny
-        isar_image = apply_math_function(isar_image, function)
+        isar_image = np.fft.fftshift(np.fft.ifft2(iq))
+        # Nx x Ny
+        isar_image = conversion_function(isar_image, self.data_conversion_function)
+
         isar_image = isar_image.transpose()
         isar_image = isar_image[:, ::-1]
-        #
-        #  compute the image plane downrange and crossrange distance vectors (in
+
+        #  Compute the image plane downrange and cross-range distance vectors (in
         #  meters)
-        #
+
         dfx = fx[1] - fx[0]  # difference in x-frequencies
         dfy = fy[1] - fy[0]  # difference in y-frequencies
         dx = c0 / (2 * dfx) / ndrng
         dy = c0 / (2 * dfy) / nxrng
         x = np.transpose(np.arange(start=0, step=dx, stop=ndrng * dx))  # ndrng x 1
         y = np.arange(start=0, step=dy, stop=nxrng * dy)  # 1 x Ny
-        #
-        #  make the center x and y values zero
-        #
+
+        #  Make the center x and y values zero
         #  these two lines ensure one value of x and y are zero when nx or ny are even
-        #
+
         range_values = x - x[ndrng // 2]
-        range_values_interp = np.linspace(range_values[0], range_values[-1], num=nxrng)
+        range_values_interp = np.linspace(range_values[0], range_values[-1], num=ndrng)
         cross_range_values = y - y[nxrng // 2]
-        cross_range_values_interp = np.linspace(cross_range_values[0], cross_range_values[-1], num=ndrng)
-        # range_values = range_values*np.cos(azel_ctr)-cross_range_values_interp*np.sin(azel_ctr)
-        # cross_range_values = cross_range_values*np.cos(azel_ctr)+range_values_interp*np.sin(azel_ctr)
+        cross_range_values_interp = np.linspace(cross_range_values[0], cross_range_values[-1], num=nxrng)
 
-        RR, XR = np.meshgrid(range_values, cross_range_values)
+        RR, XR = np.meshgrid(range_values_interp, cross_range_values_interp)
 
-        indexes = zip(RR.flatten(order="F"), XR.flatten(order="F"))
+        RR_flat = RR.ravel()
+        XR_flat = XR.ravel()
+        isar_image_flat = isar_image.ravel()
 
-        # Data by frequency
-        raw_data = self.raw_data.xs(key=self.incident_wave_theta, level="IWaveTheta")
-
-        df = raw_data.reset_index()
-        df.columns = ["Freq", "IWavePhi", "Data"]
-        data_freq = df[df["IWavePhi"] == self.incident_wave_phi]
-        data_freq = data_freq.drop(columns=["IWavePhi"])
-
-        data = data_freq["Data"]
-
-        # Take needed properties
-        size = self.window_size
-        nfreq = len(self.frequencies)
-
-        # Compute window
-        win_range, _ = self.window_function(self.window, nfreq)
-        windowed_data = data * win_range
-
-        # Perform FFT
-        sf_upsample = self.window_size / nfreq
-        windowed_data = np.fft.fftshift(sf_upsample * np.fft.ifft(windowed_data.to_numpy(), n=size))
-
-        data_converted = conversion_function(windowed_data, self.data_conversion_function)
-
-        df = unit_converter((self.frequencies[1] - self.frequencies[0]), "Freq", self.frequency_units, "Hz")
-        pd_t = 1.0 / df
-        dt = pd_t / size
-        c0 = 299792458
-        range_norm = dt * np.linspace(start=-0.5 * size, stop=0.5 * size - 1, num=size) / 2 * c0
-
-        index_names = ["Range", "Data"]
+        index_names = ["Down-range", "Cross-range", "Data"]
         df = pd.DataFrame(columns=index_names)
-        df["Range"] = range_norm
-        df["Data"] = data_converted
-
+        df["Down-range"] = RR_flat
+        df["Cross-range"] = XR_flat
+        df["Data"] = isar_image_flat
         return df
 
     @staticmethod
