@@ -237,7 +237,7 @@ class MonostaticRCSData(object):
 
     @data_conversion_function.setter
     def data_conversion_function(self, val):
-        available_functions = ["dB10", "dB20", "abs", "real", "imag", "norm", "ang", "ang_deg"]
+        available_functions = ["dB10", "dB20", "abs", "real", "imag", "norm", "ang", "ang_deg", None]
         if val in available_functions:
             self.__data_conversion_function = val
 
@@ -320,6 +320,8 @@ class MonostaticRCSData(object):
     def rcs_active_theta(self):
         """RCS data for active incident wave theta."""
         data = self.raw_data.xs(key=self.incident_wave_theta, level="IWaveTheta")
+        if self.data_conversion_function:
+            data = conversion_function(data[self.name], self.data_conversion_function)
         df = data.reset_index()
         df.columns = ["Freq", "IWavePhi", "Data"]
         return df
@@ -328,6 +330,8 @@ class MonostaticRCSData(object):
     def rcs_active_phi(self):
         """RCS data for active incident wave phi."""
         data = self.raw_data.xs(key=self.incident_wave_phi, level="IWavePhi")
+        if self.data_conversion_function:
+            data = conversion_function(data[self.name], self.data_conversion_function)
         df = data.reset_index()
         df.columns = ["Freq", "IWaveTheta", "Data"]
         return df
@@ -401,7 +405,7 @@ class MonostaticRCSData(object):
 
         ndrng = self.upsample_range
         nxrng = self.upsample_azimuth
-
+        self.data_conversion_function = None
         if self.aspect_range == "Horizontal":
             nangles = len(phis)
             azel_samples = -phis.reshape(1, -1)
