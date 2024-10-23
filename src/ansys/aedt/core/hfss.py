@@ -4103,7 +4103,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         self.logger.info("Source Excitation updated with Dataset.")
         return True
 
-    @pyaedt_function_handler(file_name=input_file)
+    @pyaedt_function_handler(file_name="input_file")
     def edit_sources_from_file(self, input_file):  # pragma: no cover
         """Update all sources from a CSV file.
 
