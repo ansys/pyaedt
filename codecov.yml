@@ -1,5 +1,5 @@
 ignore:
-  - "src/ansys/aedt/core/rpc/**/*.py"
+  - "src/ansys/aedt/core/rpc/*.py"
   - "src/ansys/aedt/core/misc/*.py"
   - "src/ansys/aedt/core/visualization/advanced/sbrplus/hdm_utils.py"
   - "src/ansys/aedt/core/workflows/installer"
