@@ -25,6 +25,7 @@ docstring
 doppler
 dotnet
 EDB
+ECAD
 EDT
 efields
 EMIT
