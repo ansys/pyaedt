@@ -24,13 +24,19 @@
 
 import os
 import shutil
+import pytest
 
 from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
 
-# from tests.system.general.conftest import config
-from matplotlib.figure import Figure
-import pytest
-from pyvista.plotting.plotter import Plotter
+try:
+    from matplotlib.figure import Figure
+except ImportError:
+    Figure = None
+
+try:
+    from matplotlib.figure import Plotter
+except ImportError:
+    Plotter = None
 
 array = "array_simple_231"
 test_subfolder = "T46"
