@@ -1190,3 +1190,26 @@ class TestClass:
         assert not self.aedtapp.modeler.create_conical_rings("Z", position, 20, 10, 0, 1)
         assert not self.aedtapp.modeler.create_conical_rings("Z", position, 20, 10, 20, 0)
         assert not self.aedtapp.modeler.create_conical_rings("Z", [0], 20, 10, 20, 0)
+
+    def test_get_group_bounding_box_with_non_existing_group_name(self):
+        assert self.aedtapp.modeler.get_group_bounding_box("SomeUnknownGroupName") is None
+
+    def test_get_group_bounding_box_with_wrong_input_type(self):
+        with pytest.raises(ValueError):
+            self.aedtapp.modeler.get_group_bounding_box(5)
+
+    def test_get_group_bounding_box_with_existing_group_name(self):
+        assert self.aedtapp.modeler.get_group_bounding_box("Sheets") is not None
+
+    def test_chassis_subtraction(self):
+        chassis = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "chassis", "Copper")
+        # Add vacuum to extend code coverage
+        self.aedtapp.modeler.create_box([20, 20, 20], [1, 1, 1], "box", "Vacuum")
+        assert self.aedtapp.modeler.chassis_subtraction(chassis.name)
+
+    def test_explicitly_subtract(self):
+        box_0 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "box_0", "Copper")
+        box_1 = self.aedtapp.modeler.create_box([0, 0, 0], [5, 5, 5], "box_1", "Copper")
+        box_2 = self.aedtapp.modeler.create_box([0, 0, 0], [6, 6, 6], "box_2", "Copper")
+        box_3 = self.aedtapp.modeler.create_box([0, 0, 0], [7, 7, 7], "box_3", "Copper")
+        assert self.aedtapp.modeler.explicitly_subtract([box_0.name, box_1.name], [box_2.name, box_3.name])
