@@ -3941,17 +3941,18 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 self.logger.error(f"Port and mode must be defined for solution type {self.solution_type}")
                 return False
             self.logger.info(f'Setting up power to "{assignment}" = {power}')
-            self.osolution.EditSources(
-                [
-                    ["IncludePortPostProcessing:=", True, "SpecifySystemPower:=", False],
-                    ["Name:=", assignment, "Magnitude:=", power, "Phase:=", phase],
-                ]
+            source = {assignment: (power, phase)}
+            self.edit_sources(
+                assignment=source,
+                include_port_post_processing=True,
+                max_available_power=None,
+                eigenmode_stored_energy=True,
             )
+
         else:
             self.logger.info(f"Setting up power to Eigenmode = {power}")
-            self.osolution.EditSources(
-                [["FieldType:=", "EigenStoredEnergy"], ["Name:=", "Modes", "Magnitudes:=", [power]]]
-            )
+            source = {"1": power}
+            self.edit_sources(assignment=source, eigenmode_stored_energy=True)
         return True
 
     @pyaedt_function_handler(portandmode="assignment", file_name="input_file")
