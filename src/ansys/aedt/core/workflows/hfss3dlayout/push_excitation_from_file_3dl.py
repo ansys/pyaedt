@@ -185,8 +185,8 @@ def main(extension_args):
         app.logger.error("File does not exist.")
     elif choice:
         hfss_3dl.edit_source_from_file(
-            choice,
-            file_path,
+            source=choice,
+            input_file=file_path,
             is_time_domain=True,
         )
         app.logger.info("Excitation assigned correctly.")
