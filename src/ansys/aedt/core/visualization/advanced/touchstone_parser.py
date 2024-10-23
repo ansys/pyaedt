@@ -47,7 +47,7 @@ try:
 except ImportError:  # pragma: no cover
     warnings.warn(
         "The Matplotlib module is required to run functionalities of TouchstoneData.\n"
-        "Install with \n\npip install pyvista\n\nRequires CPython."
+        "Install with \n\npip install matplotlib"
     )
     plt = None
 
@@ -56,7 +56,7 @@ try:
 except ImportError:  # pragma: no cover
     warnings.warn(
         "The Scikit-rf module is required to run functionalities of TouchstoneData.\n"
-        "Install with \n\npip install pyvista\n\nRequires CPython."
+        "Install with \n\npip install scikit-rf"
     )
     rf = None
 

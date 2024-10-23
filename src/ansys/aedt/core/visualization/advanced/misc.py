@@ -42,7 +42,7 @@ try:
 except ImportError:  # pragma: no cover
     warnings.warn(
         "The PyVista module is required to run functionalities of ansys.aedt.core.visualization.advanced.misc.\n"
-        "Install with \n\npip install pyvista\n\nRequires CPython."
+        "Install with \n\npip install pyvista"
     )
     pv = None
 

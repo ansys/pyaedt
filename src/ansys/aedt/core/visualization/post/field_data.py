@@ -46,7 +46,7 @@ try:
 except ImportError:  # pragma: no cover
     warnings.warn(
         "The Matplotlib module is required to run functionalities of ansys.aedt.core.visualization.post.field_data.\n"
-        "Install with \n\npip install pandas\n\nRequires CPython."
+        "Install with \n\npip install matplotlib"
     )
     pd = None
 
