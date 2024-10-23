@@ -4015,17 +4015,17 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.RenamePart
         """
-        # import os.path
-        # (CADPath, CADFilename) = os.path.split(CADFile)
-        # (CADName, CADExt) = os.path.splitext(CADFilename)
-        CADSuffix = main_part_name + "_"
-        objNames = self.oeditor.GetMatchedObjectName(CADSuffix + "*")
-        for name in objNames:
-            RenameArgs = {}
-            RenameArgs["NAME"] = "Rename Data"
-            RenameArgs["Old Name"] = name
-            RenameArgs["New Name"] = name.replace(CADSuffix, "")
-            self.oeditor.RenamePart(RenameArgs)
+        cad_suffix = main_part_name + "_"
+        names = self.oeditor.GetMatchedObjectName(cad_suffix + "*")
+        for name in names:
+            args = [
+                "NAME:Rename Data",
+                "Old Name:=",
+                name,
+                "New Name:=",
+                name.replace(cad_suffix, ""),
+            ]
+            self.oeditor.RenamePart(args)
         return True
 
     @pyaedt_function_handler(defname="name")

@@ -1213,3 +1213,12 @@ class TestClass:
         box_2 = self.aedtapp.modeler.create_box([0, 0, 0], [6, 6, 6], "box_2", "Copper")
         box_3 = self.aedtapp.modeler.create_box([0, 0, 0], [7, 7, 7], "box_3", "Copper")
         assert self.aedtapp.modeler.explicitly_subtract([box_0.name, box_1.name], [box_2.name, box_3.name])
+
+    def test_clean_objects_name(self):
+        box_0 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], name="Object_Part0")
+        box_1 = self.aedtapp.modeler.create_box([5, 5, 0], [1, 1, 1], name="Object_Part1")
+        self.aedtapp.modeler.unite([box_0, box_1], keep_originals=True)
+        self.aedtapp.modeler.clean_objects_name("Object")
+
+        assert self.aedtapp.modeler.get_matched_object_name("Part0")
+        assert self.aedtapp.modeler.get_matched_object_name("Part1")
