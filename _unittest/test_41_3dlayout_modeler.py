@@ -336,7 +336,7 @@ class TestClass:
         assert len(self.aedtapp.excitations) > 0
         time_domain = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "Sinusoidal.csv")
         assert self.aedtapp.edit_source_from_file(
-            assignment=port_wave.name,
+            source=port_wave.name,
             input_file=time_domain,
             is_time_domain=True,
             x_scale=1e-6,
