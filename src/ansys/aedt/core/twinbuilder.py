@@ -695,7 +695,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             It is a dictionary where the keys are the excitation names and value a list
             containing respectively:
             - The excitation value to assign to the winding, provided as a string.
-            - A boolean to enable the component.
+            - A boolean whether to enable the component or not.
             - The excitation type. Possible options are ``Current`` or ``Voltage``.
             - A boolean to enable the pin. If ``True`` the pin will be used to make connection on the schematic
             and the excitation value will be zeroed, since the expectation is that the value is provided
@@ -704,6 +704,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             ``app.excitations_by_type["Winding Group"]`` where ``app`` is the Maxwell instance.
             If not provided, the method automatically retrieves the excitations from the Maxwell Design
             and sets the default excitation settings.
+
         Returns
         -------
         :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent` or bool
@@ -716,11 +717,8 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         Example
         -------
         >>> from ansys.aedt.core import TwinBuilder
-        >>> from ansys.aedt.core import get_pyaedt_app
         >>> tb = TwinBuilder(specified_version="2025.1")
-        >>> maxwell_app = get_pyaedt_app(project_name=project_name,
-        ...                              design_name="my_maxwell_design",
-        ...                              desktop=tb.desktop_class)
+        >>> maxwell_app = tb.desktop_class[[project_name, "my_maxwell_design"]]
         >>> excitations = {}
         >>> for e in maxwell_app.excitations_by_type["Winding Group"]:
         ...    excitations[e.name] = ["20", True, e.props["Type"], False]
@@ -731,8 +729,6 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         if dkp.aedt_version_id < "2025.1":
             self.logger.error("This method only works for AEDT 2025 R1 and later.")
             return False
-        # elif dkp.aedt_version_id < "2025.1":
-        #     self.odesktop.SetDesktopConfiguration("Twin Builder")
 
         project_selection = 0
         if os.path.isfile(project):
@@ -745,10 +741,10 @@ class TwinBuilder(AnalysisTwinBuilder, object):
                 project_selection = 1
         elif project in self.project_list:
             project_name = "$PROJECTDIR/{}.aedt".format(project)
-            maxwell_app = get_pyaedt_app(project_name=project, design_name=design, desktop=dkp)
+            maxwell_app = dkp[[project, design]]
         else:
-            # self.odesktop.SetDesktopConfiguration("All")
-            raise ValueError("Invalid project name or path is provided.")
+            self.logger.error("Invalid project name or path is provided.")
+            return False
 
         if not setup:
             setup = self.setups[0]
@@ -801,16 +797,15 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
         grid_data = ["NAME:GridData"]
         maxwell_excitations = {}
-        # show_pin = False
         if not maxwell_app.excitations_by_type["Winding Group"]:
-            # self.odesktop.SetDesktopConfiguration("All")
-            raise ValueError("No voltage or current excitations detected in the design.")
+            self.logger.error("No voltage or current excitations detected in the design.")
+            return False
         elif excitations:
             if [
                 e for e in excitations if e not in [me.name for me in maxwell_app.excitations_by_type["Winding Group"]]
             ]:
-                # self.odesktop.SetDesktopConfiguration("All")
-                raise ValueError("Excitation does not exist in Maxwell design.")
+                self.logger.error("Excitation does not exist in Maxwell design.")
+                return False
             for k in excitations.keys():
                 if (
                     not isinstance(excitations[k][0], str)
@@ -818,13 +813,8 @@ class TwinBuilder(AnalysisTwinBuilder, object):
                     or excitations[k][2].lower() not in ["current", "voltage"]
                     or not isinstance(excitations[k][3], bool)
                 ):
-                    # self.odesktop.SetDesktopConfiguration("All")
-                    raise ValueError("Excitation values are not correct or could have a wrong type.")
-                # maxwell_excitations[k] = [excitations[k][0],
-                #                           excitations[k][1],
-                #                           excitations[k][2],
-                #                           excitations[k][3]]
-                # show_pin = excitations[k][3]
+                    self.logger.error("Excitation values are not correct or could have a wrong type.")
+                    return False
                 grid_data.append("{}:=".format(k))
                 grid_data.append(excitations[k])
         else:
@@ -835,7 +825,5 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
         comp_name = self.o_component_manager.AddExcitationModel([settings, excitations_data, grid_data])
         comp = self.modeler.schematic.create_component(component_library="", component_name=comp_name)
-        # comp.set_property("ShowPin", show_pin)
 
-        # self.odesktop.SetDesktopConfiguration("All")
         return comp

@@ -32,7 +32,6 @@ from _unittest.conftest import local_path
 from _unittest.conftest import new_thread
 from ansys.aedt.core import Desktop
 from ansys.aedt.core import TwinBuilder
-from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.generic.general_methods import is_linux
 import pytest
 
@@ -238,9 +237,18 @@ class TestClass:
             just_open=True,
         )
         project_name = tb.project_name
-        maxwell_app = get_pyaedt_app(
-            project_name=project_name, design_name="1 maxwell busbar", desktop=tb.desktop_class
-        )
+        dkp = tb.desktop_class
+        maxwell_app = dkp[[project_name, "1 maxwell busbar"]]
+
+        assert not tb.add_excitation_model(project="invalid", design="1 maxwell busbar")
+        assert not tb.add_excitation_model(project=project_name, design="1 maxwell busbar", excitations={"a": []})
+
+        excitations = {}
+        for e in maxwell_app.excitations_by_type["Winding Group"]:
+            excitations[e.name] = [1, True, e.props["Type"], False]
+
+        assert not tb.add_excitation_model(project=project_name, design="1 maxwell busbar", excitations=excitations)
+
         excitations = {}
         for e in maxwell_app.excitations_by_type["Winding Group"]:
             excitations[e.name] = ["20", True, e.props["Type"], False]
@@ -249,6 +257,12 @@ class TestClass:
         assert comp
 
         comp = tb.add_excitation_model(project=project_name, design="1 maxwell busbar")
+        assert comp
+
+        for e in maxwell_app.excitations_by_type["Winding Group"]:
+            excitations[e.name] = ["20", True, e.props["Type"], True]
+
+        comp = tb.add_excitation_model(project=project_name, design="1 maxwell busbar", excitations=excitations)
         assert comp
 
         example_project_copy = os.path.join(self.local_scratch.path, project_name + "_copy.aedt")
