@@ -58,6 +58,34 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
+  test-unit-with-req:
+    name: Running unit tests with req
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run unit tests
+        uses: ansys/actions/tests-pytest@feat/add-install-target-to-test-pytest
+        with:
+          pytest-markers: -m unit
+          pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          skip-install: true
+          install-target-or-dependency-group: unit-tests
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          name: codecov-unit-tests-with-req
+          file: ./coverage.xml
+          flags: unit
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-unit-with-req
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
   pr-title:
     if: github.event_name == 'pull_request'
     name: Check the title of the pull request
