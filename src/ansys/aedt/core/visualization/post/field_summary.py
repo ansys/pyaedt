@@ -34,15 +34,18 @@ from collections import defaultdict
 import csv
 import os
 import tempfile
+import warnings
 
 from ansys.aedt.core import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import open_file
 
-pd = None
-
 try:
     import pandas as pd
-except ImportError:
+except ImportError:  # pragma: no cover
+    warnings.warn(
+        "The Matplotlib module is required to run functionalities of FieldSummary.\n"
+        "Install with \n\npip install pandas\n\nRequires CPython."
+    )
     pd = None
 
 TOTAL_QUANTITIES = [

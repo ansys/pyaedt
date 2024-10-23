@@ -29,6 +29,7 @@ import os
 import shutil
 import sys
 import tempfile
+import warnings
 
 from ansys.aedt.core.generic.constants import AllowedMarkers
 from ansys.aedt.core.generic.constants import EnumUnits
@@ -40,11 +41,13 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 
-pd = None
-
 try:
     import pandas as pd
-except ImportError:
+except ImportError:  # pragma: no cover
+    warnings.warn(
+        "The Matplotlib module is required to run functionalities of ansys.aedt.core.visualization.post.field_data.\n"
+        "Install with \n\npip install pandas\n\nRequires CPython."
+    )
     pd = None
 
 
