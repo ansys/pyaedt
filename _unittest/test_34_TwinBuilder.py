@@ -241,6 +241,7 @@ class TestClass:
         maxwell_app = dkp[[project_name, "1 maxwell busbar"]]
 
         assert not tb.add_excitation_model(project="invalid", design="1 maxwell busbar")
+        assert not tb.add_excitation_model(project=tb.project_path, design="1 maxwell busbar")
         assert not tb.add_excitation_model(project=project_name, design="1 maxwell busbar", excitations={"a": []})
 
         excitations = {}
@@ -253,22 +254,29 @@ class TestClass:
         for e in maxwell_app.excitations_by_type["Winding Group"]:
             excitations[e.name] = ["20", True, e.props["Type"], False]
 
-        comp = tb.add_excitation_model(project=project_name, design="1 maxwell busbar", excitations=excitations)
-        assert comp
+        assert tb.add_excitation_model(project=tb.project_file, design="1 maxwell busbar", excitations=excitations)
 
-        comp = tb.add_excitation_model(project=project_name, design="1 maxwell busbar")
-        assert comp
+        assert tb.add_excitation_model(project=project_name, design="1 maxwell busbar", excitations=excitations)
+
+        assert tb.add_excitation_model(
+            project=project_name,
+            design="1 maxwell busbar",
+            excitations=excitations,
+            use_default_values=False,
+            start="1ms",
+            stop="5ms",
+        )
+
+        assert tb.add_excitation_model(project=project_name, design="1 maxwell busbar")
 
         for e in maxwell_app.excitations_by_type["Winding Group"]:
             excitations[e.name] = ["20", True, e.props["Type"], True]
 
-        comp = tb.add_excitation_model(project=project_name, design="1 maxwell busbar", excitations=excitations)
-        assert comp
+        assert tb.add_excitation_model(project=project_name, design="1 maxwell busbar", excitations=excitations)
 
         example_project_copy = os.path.join(self.local_scratch.path, project_name + "_copy.aedt")
         shutil.copyfile(self.excitation_model, example_project_copy)
-        comp = tb.add_excitation_model(project=example_project_copy, design="1 maxwell busbar", excitations=excitations)
-        assert comp
+        assert tb.add_excitation_model(project=example_project_copy, design="1 maxwell busbar", excitations=excitations)
 
         # shutil.rmtree(example_project_copy)
         tb.close_project(name=project_name, save=False)

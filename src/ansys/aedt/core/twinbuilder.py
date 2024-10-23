@@ -726,7 +726,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         >>> tb.release_desktop(False, False)
         """
         dkp = self.desktop_class
-        if dkp.aedt_version_id < "2025.1":
+        if dkp.aedt_version_id < "2025.1":  # pragma: no cover
             self.logger.error("This method only works for AEDT 2025 R1 and later.")
             return False
 
