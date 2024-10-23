@@ -658,7 +658,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         export_uniform_points=False,
         export_uniform_points_step=1e-5,
         excitations=None,
-    ):
+    ):  # pragma: no cover
         """
         Use the excitation component to assign output quantities in a Twin Builder design to a windings
         in a Maxwell design.
