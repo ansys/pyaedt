@@ -251,7 +251,7 @@ class TestClass:
                                                             sample_points=[[0, 0, 0], [3, 6, 8], [4, 7, 9]])
         assert os.path.exists(output_file)
         output_file = aedtapp.post.fields_calculator.export("voltage_line",
-                                                            sample_points={"a":"b"})
+                                                            sample_points=1)
         assert not os.path.exists(output_file)
         output_file = aedtapp.post.fields_calculator.export("voltage_line", grid_type="Cartesian")
         assert os.path.exists(output_file)
