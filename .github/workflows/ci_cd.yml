@@ -189,14 +189,14 @@ jobs:
       - uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          name: codecov-system-solver-tests
+          name: codecov-system-solvers-tests-windows
           file: ./coverage.xml
-          flags: system,solver
+          flags: system,solvers,windows
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@v4
         with:
-          name: pytest-solver-windows
+          name: pytest-solvers-windows
           path: junit/test-results.xml
         if: ${{ always() }}
 
@@ -246,14 +246,14 @@ jobs:
       - uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          name: codecov-system-solver-tests
+          name: codecov-system-solvers-tests-linux
           file: ./coverage.xml
-          flags: system,solver
+          flags: system,solvers,linux
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@v4
         with:
-          name: pytest-solver-linux
+          name: pytest-solvers-linux
           path: junit/test-results.xml
         if: ${{ always() }}
 
@@ -310,14 +310,14 @@ jobs:
       - uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          name: codecov-system-tests
+          name: codecov-system-general-tests-windows
           file: ./coverage.xml
-          flags: system
+          flags: system,general,windows
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@v4
         with:
-          name: pytest-windows
+          name: pytest-general-windows
           path: junit/test-results.xml
         if: ${{ always() }}
 
@@ -379,14 +379,14 @@ jobs:
       - uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          name: codecov-system-solver-tests
+          name: codecov-system-general-tests
           file: ./coverage.xml
-          flags: system,solver
+          flags: system,general,linux
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@v4
         with:
-          name: pytest-linux
+          name: pytest-general-linux
           path: junit/test-results.xml
         if: ${{ always() }}
 
