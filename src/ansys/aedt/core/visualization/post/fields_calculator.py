@@ -747,7 +747,7 @@ class FieldsCalculator:
                 sample_points_file = None
                 sample_points = sample_points
             else:
-                self.__app.logger.error("Wrong input type for ``sample_points``.")
+                self.__app.logger.error("``sample_points`` can only be either a string or a list.")
                 return False
             output_file = self.__app.post.export_field_file(
                 quantity=quantity,
