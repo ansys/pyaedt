@@ -3864,8 +3864,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             if max_available_power:
                 argument.append("Incident Power:=")
                 argument.append(max_available_power)
-            args = [argument]
-            args.extend(setting)
         else:
             eigenmode_type_definition = "EigenStoredEnergy" if eigenmode_stored_energy else "EigenPeakElectricField"
             argument = ["FieldType:=", eigenmode_type_definition]
@@ -3882,12 +3880,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                         power.append(value)
                         phase.append("0deg")
             if eigenmode_stored_energy:
-                setting = ["Name:=", "Modes", "Magnitudes:=", power]
+                setting = [["Name:=", "Modes", "Magnitudes:=", power]]
             else:
-                setting = ["Name:=", "Modes", "Magnitudes:=", power, "Phases:=", phase]
+                setting = [["Name:=", "Modes", "Magnitudes:=", power, "Phases:=", phase]]
 
-            args = [argument]
-            args.extend([setting])
+        args = [argument]
+        args.extend(setting)
         self.osolution.EditSources(args)
         return True
 
