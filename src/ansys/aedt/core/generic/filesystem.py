@@ -42,16 +42,9 @@ def search_files(dirname, pattern="*"):
     -------
     list
     """
-    from ansys.aedt.core.generic.general_methods import is_ironpython
+    import pathlib
 
-    if is_ironpython:
-        import glob
-
-        return list(glob.glob(os.path.join(dirname, pattern)))
-    else:
-        import pathlib
-
-        return [os.path.abspath(i) for i in pathlib.Path(dirname).glob(pattern)]
+    return [os.path.abspath(i) for i in pathlib.Path(dirname).glob(pattern)]
 
 
 def my_location():

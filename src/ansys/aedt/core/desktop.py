@@ -50,14 +50,13 @@ from ansys.aedt.core import __version__ as pyaedt_version
 from ansys.aedt.core.aedt_logger import AedtLogger
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
 
 if is_linux:
     os.environ["ANS_NODEPCHECK"] = str(1)
 
-if is_linux and is_ironpython:  # pragma: no cover
+if is_linux:  # pragma: no cover
     import subprocessdotnet as subprocess
 else:
     import subprocess
@@ -71,7 +70,6 @@ from ansys.aedt.core.generic.general_methods import com_active_sessions
 from ansys.aedt.core.generic.general_methods import get_string_version
 from ansys.aedt.core.generic.general_methods import grpc_active_sessions
 from ansys.aedt.core.generic.general_methods import inside_desktop
-from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
@@ -296,7 +294,7 @@ def _close_aedt_application(desktop_class, close_desktop, pid, is_grpc_api):
         ``True`` when successful, ``False`` when failed.
 
     """
-    if settings.remote_rpc_session or (settings.aedt_version >= "2022.2" and is_grpc_api and not is_ironpython):
+    if settings.remote_rpc_session or (settings.aedt_version >= "2022.2" and is_grpc_api):
         if close_desktop and desktop_class.parent_desktop_id:  # pragma: no cover
             pyaedt_logger.error("A child desktop session is linked to this session.")
             pyaedt_logger.error("Multiple desktop sessions must be released in reverse order.")
@@ -340,7 +338,7 @@ def _close_aedt_application(desktop_class, close_desktop, pid, is_grpc_api):
                 pyaedt_logger.warning(
                     "Something went wrong releasing AEDT. Exception in `_main.COMUtil.ReleaseCOMObjectScope`."
                 )
-    if not settings.remote_rpc_session and not is_ironpython and close_desktop:  # pragma: no cover
+    if not settings.remote_rpc_session and close_desktop:  # pragma: no cover
         timeout = 10
         while pid in active_sessions():
             time.sleep(1)
@@ -590,9 +588,7 @@ class Desktop(object):
             starting_mode = "grpc"
         elif settings.remote_rpc_session:
             starting_mode = "grpc"
-        elif is_ironpython:
-            starting_mode = "ironpython"
-        elif aedt_process_id and not new_desktop and not is_ironpython:  # pragma: no cover
+        elif aedt_process_id and not new_desktop:  # pragma: no cover
             # connecting to an existing session has the precedence over use_grpc_api user preference
             sessions = active_sessions(
                 version=version, student_version=student_version_flag, non_graphical=non_graphical
@@ -680,8 +676,6 @@ class Desktop(object):
 
         self.aedt_version_id = self.odesktop.GetVersion()[0:6]
 
-        if is_ironpython:  # pragma no cover
-            sys.path.append(os.path.join(settings.aedt_install_dir, "common", "commonfiles", "IronPython", "DLLs"))
         if "GetGrpcServerPort" in dir(self.odesktop):
             self.port = self.odesktop.GetGrpcServerPort()
         # save the current desktop session in the database
@@ -698,7 +692,7 @@ class Desktop(object):
         # Write the trace stack to the log file if an exception occurred in the main script.
         if ex_type:
             err = self._exception(ex_value, ex_traceback)
-        if self.close_on_exit or not is_ironpython:
+        if self.close_on_exit:
             self.release_desktop(close_projects=self.close_on_exit, close_on_exit=self.close_on_exit)
             self.__closed = True
 

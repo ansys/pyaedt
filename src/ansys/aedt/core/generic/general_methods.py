@@ -49,14 +49,11 @@ from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.constants import CSS4_COLORS
 from ansys.aedt.core.generic.settings import inner_project_settings  # noqa: F401
 from ansys.aedt.core.generic.settings import settings
+import psutil
 
-is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
 is_linux = os.name == "posix"
 is_windows = not is_linux
-inside_desktop = True if is_ironpython and "4.0.30319.42000" in sys.version else False
-
-if not is_ironpython:
-    import psutil
+inside_desktop = True if "4.0.30319.42000" in sys.version else False
 
 inclusion_list = [
     "CreateVia",
@@ -425,8 +422,6 @@ def open_file(file_path, file_options="r", encoding=None, override_existing=True
     object
         Opened file.
     """
-    if is_ironpython:
-        return open(file_path, file_options)
 
     file_path = str(file_path)
     file_path = file_path.replace("\\", "/") if file_path[0] != "\\" else file_path
@@ -732,14 +727,10 @@ def generate_unique_name(root_name, suffix="", n=6):
         Newly generated name.
     """
     alphabet = string.ascii_uppercase + string.digits
-    if is_ironpython:
-        import random
 
-        uName = "".join(random.choice(alphabet) for _ in range(n))  # nosec B311
-    else:
-        import secrets
+    import secrets
 
-        uName = "".join(secrets.choice(alphabet) for _ in range(n))
+    uName = "".join(secrets.choice(alphabet) for _ in range(n))
 
     unique_name = root_name + "_" + uName
     if suffix:
@@ -1180,10 +1171,7 @@ def write_csv(output_file, list_data, delimiter=",", quote_char="|", quoting=csv
     bool
         ``True`` when successful, ``False`` when failed.
     """
-    if is_ironpython:
-        f = open(output_file, "wb")
-    else:
-        f = open(output_file, "w", newline="")
+    f = open(output_file, "w", newline="")
     writer = csv.writer(f, delimiter=delimiter, quotechar=quote_char, quoting=quoting)
     for data in list_data:
         writer.writerow(data)
@@ -1344,20 +1332,17 @@ def _create_toml_file(input_dict, full_toml_path):
 def _create_json_file(json_dict, full_json_path):
     if not os.path.exists(os.path.dirname(full_json_path)):
         os.makedirs(os.path.dirname(full_json_path))
-    if not is_ironpython:
-        with open_file(full_json_path, "w") as fp:
-            json.dump(json_dict, fp, indent=4)
-    else:
-        temp_path = full_json_path.replace(".json", "_temp.json")
-        with open_file(temp_path, "w") as fp:
-            json.dump(json_dict, fp, indent=4)
-        with open_file(temp_path, "r") as file:
-            filedata = file.read()
-        filedata = filedata.replace("True", "true")
-        filedata = filedata.replace("False", "false")
-        with open_file(full_json_path, "w") as file:
-            file.write(filedata)
-        os.remove(temp_path)
+
+    temp_path = full_json_path.replace(".json", "_temp.json")
+    with open_file(temp_path, "w") as fp:
+        json.dump(json_dict, fp, indent=4)
+    with open_file(temp_path, "r") as file:
+        filedata = file.read()
+    filedata = filedata.replace("True", "true")
+    filedata = filedata.replace("False", "false")
+    with open_file(full_json_path, "w") as file:
+        file.write(filedata)
+    os.remove(temp_path)
     settings.logger.info(f"{full_json_path} correctly created.")
     return True
 
@@ -2120,15 +2105,12 @@ def _uname(name=None):
 
     """
     alphabet = string.ascii_uppercase + string.digits
-    if is_ironpython:
-        import random
 
-        unique_name = "".join(random.sample(alphabet, 6))  # nosec B311
-    else:
-        import secrets
+    import secrets
 
-        generator = secrets.SystemRandom()
-        unique_name = "".join(secrets.SystemRandom.sample(generator, alphabet, 6))
+    generator = secrets.SystemRandom()
+    unique_name = "".join(secrets.SystemRandom.sample(generator, alphabet, 6))
+
     if name:
         return name + unique_name
     else:
@@ -2232,7 +2214,7 @@ def install_with_pip(package_name, package_path=None, upgrade=False, uninstall=F
     uninstall : bool, optional
         Whether to install the package or uninstall the package.
     """
-    if is_linux and is_ironpython:
+    if is_linux:
         import subprocessdotnet as subprocess  # nosec B404
     else:
         import subprocess  # nosec B404
