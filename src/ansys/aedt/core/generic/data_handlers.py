@@ -274,11 +274,11 @@ def format_decimals(el):
 
     """
     if float(el) > 1000:
-        num = "{:,.0f}".format(Decimal(el))
+        num = f"{Decimal(el):,.0f}"
     elif float(el) > 1:
-        num = "{:,.3f}".format(Decimal(el))
+        num = f"{Decimal(el):,.3f}"
     else:
-        num = "{:.3E}".format(Decimal(el))
+        num = f"{Decimal(el):.3E}"
     return num
 
 
@@ -334,14 +334,14 @@ def unique_string_list(element_list, only_string=True):
         else:
             error_message = "Invalid list data"
             try:
-                error_message += " {}".format(element_list)
+                error_message += f" {element_list}"
             except Exception:
                 pass
             raise Exception(error_message)
 
         if only_string:
             non_string_entries = [x for x in element_list if not isinstance(x, str)]
-            assert not non_string_entries, "Invalid list entries {} are not a string!".format(non_string_entries)
+            assert not non_string_entries, f"Invalid list entries {non_string_entries} are not a string!"
 
     return element_list
 
@@ -490,12 +490,10 @@ def from_rkm(code):
 
     # Matches RKM codes that start with a digit.
     # fd_pattern = r'([0-9]+)([LREkKMGTFmuµUnNpP]+)([0-9]*)'
-    fd_pattern = r"([0-9]+)([{}]+)([0-9]*)".format(
-        "".join(RKM_MAPS.keys()),
-    )
+    fd_pattern = f'([0-9]+)([{"".join(RKM_MAPS.keys())}]+)([0-9]*)'
     # matches rkm codes that end with a digit
     # ld_pattern = r'([0-9]*)([LREkKMGTFmuµUnNpP]+)([0-9]+)'
-    ld_pattern = r"([0-9]*)([{}]+)([0-9]+)".format("".join(RKM_MAPS.keys()))
+    ld_pattern = f'([0-9]*)([{"".join(RKM_MAPS.keys())}]+)([0-9]+)'
 
     fd_regex = re.compile(fd_pattern, re.I)
     ld_regex = re.compile(ld_pattern, re.I)
@@ -527,7 +525,7 @@ def to_aedt(code):
     str
 
     """
-    pattern = r"([{}]{})".format("".join(AEDT_MAPS.keys()), "{1}")
+    pattern = f'([{"".join(AEDT_MAPS.keys())}]{"{1}"})'
     regex = re.compile(pattern, re.I)
     return_code = regex.sub(lambda m: AEDT_MAPS.get(m.group(), m.group()), code)
     return return_code

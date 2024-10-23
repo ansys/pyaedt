@@ -727,6 +727,7 @@ class TestClass:
         m2dtest.analyze_setup(setup_name)
         plot = m2dtest.post.create_fieldplot_line_traces(["Ground", "Electrode"], "Region", plot_name="LineTracesTest4")
         assert plot
+        assert m2dtest.post.create_fieldplot_line_traces(["Ground", "Electrode"], "Region", plot_name="LineTracesTest4")
         assert m2dtest.post.create_fieldplot_line_traces(
             ["Ground", "Electrode"], "Region", "Ground", plot_name="LineTracesTest5"
         )

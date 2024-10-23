@@ -492,7 +492,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         else:
             sweeps = [s for s in app.get_sweeps(setup_name) if s == sweep]
             if sweeps:  # pragma: no cover
-                coupling_solution_name = "{} : {}".format(setup_name, sweep)
+                coupling_solution_name = f"{setup_name} : {sweep}"
             else:  # pragma: no cover
                 raise ValueError("Invalid sweep name.")
         if not [m for m in app.matrices if m.name == coupling_matrix_name]:
@@ -553,18 +553,18 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             if dkp.aedt_version_id >= "2024.1":
                 state_space_dynamic_link_type = "Q3DRLGCLink"
             else:  # pragma: no cover
-                state_space_dynamic_link_type = "{}RLGCTBLink".format(design_type)
+                state_space_dynamic_link_type = f"{design_type}RLGCTBLink"
             q3d_model_type = 1
             ref_pin_style = 5
             enforce_passivity = False
             maximum_order = ""
         elif state_space_dynamic_link_type == "S":
-            state_space_dynamic_link_type = "{}SParamLink".format(design_type)
+            state_space_dynamic_link_type = f"{design_type}SParamLink"
             q3d_model_type = 1
             ref_pin_style = 3
             enforce_passivity = True
         elif state_space_dynamic_link_type == "EQ":
-            state_space_dynamic_link_type = "{}SmlLink".format(design_type)
+            state_space_dynamic_link_type = f"{design_type}SmlLink"
             q3d_model_type = 0
             ref_pin_style = 3
             enforce_passivity = True
@@ -618,7 +618,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
                 "ErrTol:=",
                 str(error_tolerance),
                 "SSZref:=",
-                "{}ohm".format(z_ref),
+                f"{z_ref}ohm",
                 "IsDepthNeeded:=",
                 is_depth_needed,
                 "Mw2DDepth:=",

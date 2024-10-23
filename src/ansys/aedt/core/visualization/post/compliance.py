@@ -1067,7 +1067,7 @@ class VirtualCompliance:
     @pyaedt_function_handler()
     def _add_eye_measurement(self, report, pdf_report, image_name):
         report.add_all_eye_measurements()
-        out_eye = os.path.join(self._output_folder, "eye_measurements_{}.csv".format(image_name))
+        out_eye = os.path.join(self._output_folder, f"eye_measurements_{image_name}.csv")
         report._post.oreportsetup.ExportTableToFile(report.plot_name, out_eye, "Legend")
         report.clear_all_eye_measurements()
         table = read_csv(out_eye)

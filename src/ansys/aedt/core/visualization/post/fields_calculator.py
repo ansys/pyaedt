@@ -23,6 +23,7 @@
 
 import copy
 import os
+import warnings
 
 import ansys.aedt.core
 from ansys.aedt.core.generic.general_methods import generate_unique_project_name
@@ -554,6 +555,49 @@ class FieldsCalculator:
         >>> hfss.post.fields_calculator.calculator_write("voltage_line", file_path, hfss.nominal_adaptive)
         >>> hfss.release_desktop(False, False)
         """
+        warnings.warn("Use :func:`write` method instead.", DeprecationWarning)
+        return self.write(expression, output_file, setup=setup, intrinsics=intrinsics)  # pragma: no cover
+
+    @pyaedt_function_handler()
+    def write(self, expression, output_file, setup=None, intrinsics=None):
+        """Save the content of the stack register for future reuse in a later Field Calculator session.
+
+        Parameters
+        ----------
+        expression : str
+            Expression name.
+            The expression must exist already in the named expressions list in AEDT Fields Calculator.
+        output_file : str
+            File path to save the stack entry to.
+            File extension must be either ``.fld`` or ``.reg``.
+        setup : str
+            Solution name.
+            If not provided the nominal adaptive solution is taken.
+        intrinsics : dict
+            Intrinsics variables provided as a dictionary.
+            Key is the variable name and value is the variable value.
+            These are typically: frequency, time and phase.
+            If it is a dictionary, keys depend on the solution type and can be expressed as:
+            - ``"Freq"``.
+            - ``"Time"``.
+            - ``"Phase"``.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> poly = hfss.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
+        >>> expr_name = hfss.post.fields_calculator.add_expression("voltage_line", "Polyline1")
+        >>> file_path = os.path.join(hfss.working_directory, "my_expr.fld")
+        >>> hfss.post.fields_calculator.write("voltage_line", file_path, hfss.nominal_adaptive)
+        >>> hfss.release_desktop(False, False)
+        """
         if not self.is_expression_defined(expression):
             self.__app.logger.error("Expression does not exist in current stack.")
             return False
@@ -570,16 +614,189 @@ class FieldsCalculator:
         self.ofieldsreporter.CopyNamedExprToStack(expression)
         args = []
         for k, v in self.__app.variable_manager.design_variables.items():
-            args.append("{}:=".format(k))
+            args.append(f"{k}:=")
             args.append(v.expression)
         if not intrinsics:
             intrinsics = self.__app.get_setup(setup_name).default_intrinsics
         for k, v in intrinsics.items():
-            args.append("{}:=".format(k))
+            args.append(f"{k}:=")
             args.append(v)
         self.ofieldsreporter.CalculatorWrite(output_file, ["Solution:=", setup], args)
         self.ofieldsreporter.CalcStack("clear")
         return True
+
+    @pyaedt_function_handler()
+    def export(
+        self,
+        quantity,
+        solution=None,
+        variations=None,
+        output_file=None,
+        intrinsics=None,
+        phase=None,
+        sample_points=None,
+        export_with_sample_points=True,
+        reference_coordinate_system="Global",
+        export_in_si_system=True,
+        export_field_in_reference=True,
+        grid_type=None,
+        grid_center=None,
+        grid_start=None,
+        grid_stop=None,
+        grid_step=None,
+        is_vector=False,
+        assignment="AllObjects",
+        objects_type="Vol",
+    ):
+        """Export the field quantity at the top of the register to a file, mapping it to a grid of points.
+
+        Two options are available for defining the grid points on which to export:
+        -   Input grid points from file : Maps the field quantity to a customized grid of points.
+                                          Before using this command, you must create a file containing the points
+                                          and units.
+        -   Calculate grid points : Maps the field quantity to a three-dimensional Cartesian grid.
+                                    You specify the dimensions and spacing of the grid in the x, y, and z directions,
+                                    with units. The initial units are taken from the model.
+                                    Other grid options are: Cylindrical, in which case rho, phi and z directions must be
+                                    specified, or Spherical, in which case r, theta and phi directions must be
+                                    specified.
+
+        If you want to adopt the first option you must provide either the file containing the grid of points
+        or a list of sample points in ``sample_points``. In the latter case, a new file is created
+        in the working directory called "temp_points.pts" that will be automatically written with the data points
+        provided and consequently imported.
+        If you want to adopt the second option you must provide the grid type (Cartesian, Cylindrical or Spherical).
+        If ``grid_center``, ``grid_start`` or ``grid_stop`` are not provided the default values are used.
+
+        Parameters
+        ----------
+        quantity : str
+            Name of the quantity to export.
+        solution : str, optional
+            Name of the solution in the format ``"solution : sweep"``. The default is ``None``.
+        variations : dict, optional
+            Dictionary of all variation variables with their values.
+            The default is ``None``.
+        output_file : str, optional
+            Full path and name to save the file to.
+            The default is ``None``, in which case the file is exported
+            to the working directory.
+        assignment : str, optional
+            List of objects to export. The default is ``"AllObjects"``.
+        objects_type : str, optional
+            Type of objects to export. The default is ``"Vol"``.
+            Options are ``"Surf"`` for surface and ``"Vol"`` for
+            volume.
+        intrinsics : dict, str, optional
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+            If it is a dictionary, keys depend on the solution type and can be expressed in lower or camel case as:
+            - ``"Freq"`` or ``"Frequency"``
+            - ``"Time"``
+            - ``"Phase"``
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
+        phase : str, optional
+            Field phase. The default is ``None``.
+            This argument is deprecated. Please use ``intrinsics`` and provide the phase as a dictionary key instead.
+        sample_points : str, list
+            Name of the file with sample points or list of the sample points.
+        export_with_sample_points : bool, optional
+            Whether to include the sample points in the file to export.
+            The default is ``True``.
+        reference_coordinate_system : str, optional
+            Reference coordinate system in the file to export.
+            The default is ``"Global"``.
+        export_in_si_system : bool, optional
+            Whether the provided sample points are defined in the SI system or model units.
+            The default is ``True``.
+        export_field_in_reference : bool, optional
+            Whether to export the field in reference coordinate system.
+            The default is ``True``.
+        grid_type : str
+            Type of the grid to export. The options are:
+            - ``Cartesian``
+            - ``Cylindrical``
+            - ``Spherical``
+        grid_center : list, optional
+            The ``[x, y, z]`` coordinates for the center of the grid.
+            The default is ``[0, 0, 0]``. This parameter is disabled if ``gridtype=
+            "Cartesian"``.
+        grid_start : list, optional
+            The ``[x, y, z]`` coordinates for the starting point of the grid.
+            The default is ``[0, 0, 0]``.
+        grid_stop : list, optional
+            The ``[x, y, z]`` coordinates for the stopping point of the grid.
+            The default is ``[0, 0, 0]``.
+        grid_step : list, optional
+            The ``[x, y, z]`` coordinates for the step size of the grid.
+            The default is ``[0, 0, 0]``.
+        is_vector : bool, optional
+            Whether the quantity is a vector. The  default is ``False``.
+        Returns
+        -------
+        bool or str
+            The path to the exported field file when successful, ``False`` when failed.
+        """
+        if sample_points:
+            if isinstance(sample_points, str):
+                sample_points_file = sample_points
+                sample_points = None
+            elif isinstance(sample_points, list):
+                sample_points_file = None
+                sample_points = sample_points
+            else:
+                self.__app.logger.error("``sample_points`` can only be either a string or a list.")
+                return False
+            output_file = self.__app.post.export_field_file(
+                quantity=quantity,
+                solution=solution,
+                variations=variations,
+                output_file=output_file,
+                assignment=assignment,
+                objects_type=objects_type,
+                intrinsics=intrinsics,
+                phase=phase,
+                sample_points_file=sample_points_file,
+                sample_points=sample_points,
+                export_with_sample_points=export_with_sample_points,
+                reference_coordinate_system=reference_coordinate_system,
+                export_in_si_system=export_in_si_system,
+                export_field_in_reference=export_field_in_reference,
+            )
+        elif grid_type:
+            if grid_type not in ["Cartesian", "Cylindrical", "Spherical"]:
+                self.__app.logger.error("Invalid grid type.")
+                return False
+            output_file = self.__app.post.export_field_file_on_grid(
+                quantity=quantity,
+                solution=solution,
+                variations=variations,
+                file_name=output_file,
+                grid_type=grid_type,
+                grid_center=grid_center,
+                grid_start=grid_start,
+                grid_stop=grid_stop,
+                grid_step=grid_step,
+                is_vector=is_vector,
+                intrinsics=intrinsics,
+                phase=phase,
+                export_with_sample_points=export_with_sample_points,
+                reference_coordinate_system=reference_coordinate_system,
+                export_in_si_system=export_in_si_system,
+                export_field_in_reference=export_field_in_reference,
+            )
+        else:
+            self.__app.logger.error(
+                "You have to provide one of the three following inputs: a path to a file containing the grid of points,"
+                " a sample list of points or the grid type with a three dimensional grid."
+            )
+            return False
+
+        if os.path.exists(output_file):
+            return output_file
+        return False
 
     @staticmethod
     def __has_integer(lst):  # pragma: no cover

@@ -96,7 +96,7 @@ class CircuitPins(object):
             conns = self._oeditor.GetNetConnections(net)
             for conn in conns:
                 if conn.endswith(self.name) and (
-                    ";{};".format(self._circuit_comp.id) in conn or ";{} ".format(self._circuit_comp.id) in conn
+                    f";{self._circuit_comp.id};" in conn or f";{self._circuit_comp.id} " in conn
                 ):
                     return net
         return ""
@@ -279,9 +279,7 @@ class CircuitPins(object):
         if len(self._circuit_comp.pins) == 2:
             comp_angle += math.pi / 2
         if page_name is None:
-            page_name = "{}_{}".format(
-                self._circuit_comp.composed_name.replace("CompInst@", "").replace(";", "_"), self.name
-            )
+            page_name = f"{self._circuit_comp.composed_name.replace('CompInst@', '').replace(';', '_')}_{self.name}"
 
         if "Port" in self._circuit_comp.composed_name:
             try:
@@ -420,7 +418,7 @@ class CircuitComponent(object):
         for i in self.pins:
             if i.name == item:
                 return i
-        raise KeyError("Pin {} not found.".format(item))
+        raise KeyError(f"Pin {item} not found.")
 
     @property
     def composed_name(self):
@@ -1050,7 +1048,7 @@ class CircuitComponent(object):
             return ["NAME:PinDef", "Pin:=", pin_def, props_display_map]
 
         args = [
-            "NAME:{}".format(self.model_name),
+            f"NAME:{self.model_name}",
             "ModTime:=",
             int(time.time()),
             "Library:=",
@@ -1182,7 +1180,7 @@ class Wire(object):
                         continue
                 if not wire_exists:
                     raise ValueError("Invalid wire name provided.")
-                composed_name = "Wire@{};{};{}".format(name, wire_id, 1)
+                composed_name = f"Wire@{name};{wire_id};{1}"
             else:
                 composed_name = self.composed_name
             self._oeditor.ChangeProperty(
