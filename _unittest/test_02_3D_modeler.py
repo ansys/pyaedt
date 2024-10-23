@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import random
+import secrets
 from sys import float_info
 
 from _unittest.conftest import config
@@ -40,6 +40,7 @@ else:
     test_project_name = "Coax_HFSS_t02"
 
 small_number = float_info.epsilon * 10
+secure_random = secrets.SystemRandom()
 
 
 @pytest.fixture(scope="class")
@@ -1123,7 +1124,7 @@ class TestClass:
         box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10])
         face = self.aedtapp.modeler.get_face_by_id(box1.faces[0].id)
         assert isinstance(face, FacePrimitive)
-        face = self.aedtapp.modeler.get_face_by_id(random.randint(10000, 100000))
+        face = self.aedtapp.modeler.get_face_by_id(secure_random.randint(10000, 100000))
         assert not face
 
     def test_62_copy_solid_bodies_udm_3dcomponent(self, add_app):
