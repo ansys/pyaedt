@@ -250,7 +250,7 @@ class TestClass:
 
     def test_19_clone(self):
         self.restore_model()
-        status, cloned = self.aedtapp.modeler.clone("Poly1")
+        status, _ = self.aedtapp.modeler.clone("Poly1")
         assert status
 
     def test_20_intersect(self):
