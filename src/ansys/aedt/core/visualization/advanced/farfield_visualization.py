@@ -27,6 +27,7 @@ import math
 import os
 import shutil
 import sys
+import warnings
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.application.variables import decompose_variable_value
@@ -41,16 +42,22 @@ from ansys.aedt.core.visualization.plot.matplotlib import is_notebook
 from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 from ansys.aedt.core.visualization.plot.pyvista import get_structured_mesh
 
-np = None
-pv = None
-
 try:
     import numpy as np
 except ImportError:  # pragma: no cover
+    warnings.warn(
+        "The NumPy module is required to run some functionalities of FfdSolutionData.\n"
+        "Install with \n\npip install numpy"
+    )
     np = None
+
 try:
     import pyvista as pv
 except ImportError:  # pragma: no cover
+    warnings.warn(
+        "The PyVista module is required to run functionalities of FfdSolutionData.\n"
+        "Install with \n\npip install pyvista\n\nRequires CPython."
+    )
     pv = None
 
 
