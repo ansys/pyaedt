@@ -3872,9 +3872,7 @@ class GeometryModeler(Modeler):
         blank_part = chassis_part
         # in main code this object will need to be determined automatically eg by name such as chassis or sheer size
         self.logger.info("Blank Part in Subtraction = " + str(blank_part))
-        """
-        check if blank part exists, if not, skip subtraction
-        """
+        # Check if blank part exists, if not, skip subtraction
         tool_parts = list(self.oeditor.GetObjectsInGroup("Solids"))
         tool_parts.remove(blank_part)
         for mat in mat_names:
@@ -3885,9 +3883,9 @@ class GeometryModeler(Modeler):
                 # tool_parts_final=list(set(tool_parts).difference(set(objnames)))
         tool_parts = ",".join(tool_parts)
         num_obj_end = self.oeditor.GetNumObjects()
-        self.subtract(blank_part, tool_parts, True)
-
+        res = self.subtract(blank_part, tool_parts, True)
         self.logger.info("Subtraction Objs - Initial: " + str(num_obj_start) + "  ,  Final: " + str(num_obj_end))
+        return res
 
     @pyaedt_function_handler()
     def _offset_on_plane(self, i, offset):
