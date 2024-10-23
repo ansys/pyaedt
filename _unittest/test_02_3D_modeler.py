@@ -90,11 +90,6 @@ class TestClass:
         bounding = self.aedtapp.modeler.obounding_box
         assert len(bounding) == 6
 
-    def test_03_objects(self):
-        print(self.aedtapp.modeler.oeditor)
-        print(self.aedtapp.modeler._odefinition_manager)
-        print(self.aedtapp.modeler._omaterial_manager)
-
     def test_04_convert_to_selection(self):
         assert type(self.aedtapp.modeler.convert_to_selections("inner", True)) is list
         assert type(self.aedtapp.modeler.convert_to_selections("inner", False)) is str
