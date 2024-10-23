@@ -1197,6 +1197,7 @@ class TestClass:
         assert self.aedtapp.modeler.get_group_bounding_box("Sheets") is not None
 
     def test_chassis_subtraction(self):
+        self.restore_model()
         chassis = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "chassis", "Copper")
         # Add vacuum to extend code coverage
         self.aedtapp.modeler.create_box([20, 20, 20], [1, 1, 1], "box", "Vacuum")
