@@ -1466,7 +1466,7 @@ class ExportToAedt:
 
     def load_modelithics_models(self):
         """Load ``Modelithics`` models from ``AEDT``."""
-        status = self._dll.loadModelitichsModels()
+        status = self._dll.loadModelithicsModels()
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
