@@ -339,16 +339,9 @@ class MonostaticRCSData(object):
     @property
     def range_profile(self):
         """Range profile."""
-        # Data by frequency
-        raw_data = self.raw_data.xs(key=self.incident_wave_theta, level="IWaveTheta")
-
-        df = raw_data.reset_index()
-        df.columns = ["Freq", "IWavePhi", "Data"]
-        data_freq = df[df["IWavePhi"] == self.incident_wave_phi]
-        data_freq = data_freq.drop(columns=["IWavePhi"])
-
-        data = data_freq["Data"]
-
+        data_conversion_function_original = self.data_conversion_function
+        self.data_conversion_function = None
+        data = self.rcs_active_theta_phi["Data"]
         # Take needed properties
         size = self.window_size
         nfreq = len(self.frequencies)
@@ -361,6 +354,7 @@ class MonostaticRCSData(object):
         sf_upsample = self.window_size / nfreq
         windowed_data = np.fft.fftshift(sf_upsample * np.fft.ifft(windowed_data.to_numpy(), n=size))
 
+        self.data_conversion_function = data_conversion_function_original
         data_converted = conversion_function(windowed_data, self.data_conversion_function)
 
         df = unit_converter((self.frequencies[1] - self.frequencies[0]), "Freq", self.frequency_units, "Hz")
@@ -405,6 +399,7 @@ class MonostaticRCSData(object):
 
         ndrng = self.upsample_range
         nxrng = self.upsample_azimuth
+        data_conversion_function_original = self.data_conversion_function
         self.data_conversion_function = None
         if self.aspect_range == "Horizontal":
             nangles = len(phis)
@@ -504,6 +499,8 @@ class MonostaticRCSData(object):
         df["Down-range"] = RR_flat
         df["Cross-range"] = XR_flat
         df["Data"] = isar_image_flat
+
+        self.data_conversion_function = data_conversion_function_original
         return df
 
     @staticmethod
