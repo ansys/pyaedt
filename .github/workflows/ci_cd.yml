@@ -20,6 +20,9 @@ env:
   MEILISEARCH_HOST_URL: ${{ vars.MEILISEARCH_HOST_URL }}
   MEILISEARCH_PUBLIC_API_KEY: ${{ secrets.MEILISEARCH_PUBLIC_API_KEY }}
   ON_CI: True
+  # PYTEST_ARGUMENTS: '-vvv --color=yes -ra --durations=25 --maxfail=10 --reruns 2 --reruns-delay 5 --cov=ansys.aedt.core --cov-report=html'
+  PYTEST_ARGUMENTS: '-vvv --color=yes -ra --durations=25 --maxfail=10 --cov=ansys.aedt.core --cov-report=html'
+
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -27,12 +30,39 @@ concurrency:
 
 jobs:
 
+  test-unit:
+    name: Running unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run unit tests
+        uses: ansys/actions/tests-pytest@feat/add-install-target-to-test-pytest
+        with:
+          pytest-markers: -m unit
+          pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          optional-dependencies-name: unit-tests
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          name: codecov-unit-tests
+          file: ./coverage.xml
+          flags: unit
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-unit
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
   pr-title:
     if: github.event_name == 'pull_request'
     name: Check the title of the pull request
     runs-on: ubuntu-latest
     steps:
-      - name: Check commit name
+      - name: Check the title of the pull request
         uses: ansys/actions/check-pr-title@v8
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -90,7 +120,6 @@ jobs:
   test-solvers-windows:
     name: Testing solvers and coverage (Windows)
     if: github.event.pull_request.draft == false
-    needs: [smoke-tests]
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
@@ -113,7 +142,6 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           pip install .[tests]
-          pip install pytest-azurepipelines
 
       - name: Install CI dependencies (e.g. vtk-osmesa)
         run: |
@@ -122,12 +150,12 @@ jobs:
           pip uninstall --yes vtk
           pip install --extra-index-url https://wheels.vtk.org vtk-osmesa
 
-      - name: Run tests on _unittest_solvers
+      - name: Run tests marked with 'solvers'
         env:
           PYTHONMALLOC: malloc
         run: |
           .venv\Scripts\Activate.ps1
-          pytest --durations=50 -v --cov=ansys.aedt.core --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
+          pytest ${{ env.PYTEST_ARGUMENTS }} -m solvers
 
       - uses: codecov/codecov-action@v4
         with:
@@ -151,7 +179,6 @@ jobs:
   test-solvers-linux:
     name: Testing solvers and coverage (Linux)
     if: github.event.pull_request.draft == false
-    needs: [smoke-tests]
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
       ANSYSEM_ROOT242: '/opt/AnsysEM/v242/Linux64'
@@ -181,11 +208,11 @@ jobs:
           pip install .[tests]
           pip install pytest-azurepipelines
 
-      - name: Run tests on _unittest_solvers
+      - name: Run tests marked with 'solvers'
         run: |
           export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
           source .venv/bin/activate
-          pytest --durations=50 -v --cov=ansys.aedt.core --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
+          pytest ${{ env.PYTEST_ARGUMENTS }} -m solvers
 
       - uses: codecov/codecov-action@v4
         with:
@@ -208,7 +235,6 @@ jobs:
   test-windows:
     name: Testing and coverage (Windows)
     if: github.event.pull_request.draft == false
-    needs: [smoke-tests]
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
@@ -240,7 +266,7 @@ jobs:
           pip uninstall --yes vtk
           pip install --extra-index-url https://wheels.vtk.org vtk-osmesa
 
-      - name: Run tests on _unittest
+      - name: Run tests marked with 'general'
         uses: nick-fields/retry@v3
         env:
           PYTHONMALLOC: malloc
@@ -250,7 +276,7 @@ jobs:
           timeout_minutes: 50
           command: |
             .venv\Scripts\Activate.ps1
-            pytest -n 4 --dist loadfile --durations=50 -v --cov=ansys.aedt.core --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
+            pytest -n 4 --dist loadfile --durations=50 -v --cov=ansys.aedt.core --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml -m general
 
       - uses: codecov/codecov-action@v4
         with:
@@ -274,7 +300,6 @@ jobs:
   test-linux:
     name: Testing and coverage (Linux)
     if: github.event.pull_request.draft == false
-    needs: [smoke-tests]
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
       ANSYSEM_ROOT242: '/opt/AnsysEM/v242/Linux64'
@@ -311,7 +336,7 @@ jobs:
           pip uninstall --yes vtk
           pip install --extra-index-url https://wheels.vtk.org vtk-osmesa
 
-      - name: Run tests on _unittest
+      - name: Run tests marked with 'general'
         uses: nick-fields/retry@v3
         with:
           max_attempts: 2
@@ -320,7 +345,7 @@ jobs:
           command: |
             export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
             source .venv/bin/activate
-            pytest -n 2 --dist loadfile --durations=50 -v --cov=ansys.aedt.core --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
+            pytest -n 2 --dist loadfile --durations=50 -v --cov=ansys.aedt.core --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml -m general
 
       - uses: codecov/codecov-action@v4
         with:

@@ -371,10 +371,11 @@ dist/
 # coverage and testing
 /htmlcov/
 /coverage.xml
-/_unittest/coverage.xml
-/_unittest/local_config.json
-/_unittest_solvers/coverage.xml
-/_unittest_solvers/local_config.json
+/tests/system/general/coverage.xml
+/tests/system/general/local_config.json
+/tests/system/solvers/coverage.xml
+/tests/system/solvers/local_config.json
+/tests/unit/coverage.xml
 test-results.xml
 test-output.xml
 
