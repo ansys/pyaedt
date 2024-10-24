@@ -577,10 +577,10 @@ class Desktop(object):
         student_version_flag, version_key, version = self._assert_version(version, student_version)
 
         # start the AEDT opening decision tree
-        # starting_mode can be one of these: "grpc", "com", "ironpython", "console_in", "console_out"
+        # starting_mode can be one of these: "grpc", "com", "console_in", "console_out"
         if "oDesktop" in dir(sys.modules["__main__"]):  # pragma: no cover
             # we are inside the AEDT Ironpython console
-            pyaedt_logger.logger.info("Iropnpython session with embedded oDesktop")
+            pyaedt_logger.logger.info("Ironpython session with embedded oDesktop")
             starting_mode = "console_in"
         elif is_linux:
             starting_mode = "grpc"
@@ -638,10 +638,7 @@ class Desktop(object):
 
         else:
             settings.aedt_version = version_key
-            if starting_mode == "ironpython":  # pragma no cover
-                self._logger.info("Launching PyAEDT with IronPython.")
-                self._init_ironpython(non_graphical, new_desktop, version)
-            elif starting_mode == "com":  # pragma no cover
+            if starting_mode == "com":  # pragma no cover
                 self._logger.info("Launching PyAEDT with CPython and PythonNET.")
                 self._init_dotnet(
                     non_graphical,
@@ -892,28 +889,6 @@ class Desktop(object):
 
         return student_version, specified_version, version
 
-    def _init_ironpython(self, non_graphical, new_aedt_session, version):  # pragma no cover
-        from ansys.aedt.core.generic.clr_module import _clr
-
-        base_path = settings.aedt_install_dir
-        sys.path.append(base_path)
-        sys.path.append(os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
-        _clr.AddReference("Ansys.Ansoft.CoreCOMScripting")
-        AnsoftCOMUtil = __import__("Ansys.Ansoft.CoreCOMScripting")
-        self.COMUtil = AnsoftCOMUtil.Ansoft.CoreCOMScripting.Util.COMUtil
-        StandalonePyScriptWrapper = AnsoftCOMUtil.Ansoft.CoreCOMScripting.COM.StandalonePyScriptWrapper
-        if non_graphical or new_aedt_session:
-            # forcing new thread to start in non-graphical
-            oAnsoftApp = StandalonePyScriptWrapper.CreateObjectNew(non_graphical)
-        else:
-            oAnsoftApp = StandalonePyScriptWrapper.CreateObject(version)
-        self.odesktop = oAnsoftApp.GetAppDesktop()
-        self.isoutsideDesktop = True
-        sys.path.append(os.path.join(base_path, "common", "commonfiles", "IronPython", "DLLs"))
-        self.is_grpc_api = False
-
-        return True
-
     @staticmethod
     def _run_student():  # pragma: no cover
         DETACHED_PROCESS = 0x00000008
@@ -1043,7 +1018,6 @@ class Desktop(object):
             self.grpc_plugin = AEDT(os.environ["DesktopPluginPyAEDT"])
             oapp = self.grpc_plugin.CreateAedtApplication(machine, port, non_graphical, new_session)
         if oapp:
-
             self.isoutsideDesktop = True
             self.aedt_process_id = self.odesktop.GetProcessID()
         return True
