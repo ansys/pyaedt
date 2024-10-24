@@ -1830,11 +1830,11 @@ class MonostaticRCSPlotter(object):
         """Get 3D meshes."""
         model_info = self.model_info
         obj_meshes = {}
-        model_pv = ModelPlotter()
         first_value = next(iter(model_info.values()))
         self.__model_units = first_value[3]
-        model_pv.off_screen = off_screen
         for object_in in model_info.values():
+            model_pv = ModelPlotter()
+            model_pv.off_screen = off_screen
             cad_path = os.path.join(self.rcs_data.output_dir, object_in[0])
             if os.path.exists(cad_path):
                 model_pv.add_object(
@@ -1846,23 +1846,25 @@ class MonostaticRCSPlotter(object):
             else:
                 self.logger.warning(f"{cad_path} does not exist.")
                 return False
-        self.__model_units = first_value[3]
-        model_pv.generate_geometry_mesh()
-        for obj in model_pv.objects:
+
+            model_pv.generate_geometry_mesh()
+
             # mesh = obj._cached_polydata
             # translated_mesh = mesh.copy()
-            color_cad = [i / 255 for i in obj.color]
-            obj.color = color_cad
+            for obj in model_pv.objects:
+                color_cad = [i / 255 for i in obj.color]
+                obj.color = color_cad
 
-            model_object = SceneMeshObject()
-            model_object.color = color_cad
-            model_object.opacity = obj.opacity
-            model_object.name = obj.name
-            model_object.mesh = obj._cached_polydata
+                model_object = SceneMeshObject()
+                model_object.color = color_cad
+                model_object.opacity = obj.opacity
+                model_object.name = obj.name
+                model_object.mesh = obj._cached_polydata
 
-            mesh_object = MeshObjectPlot(model_object, model_object.get_mesh())
-            obj_meshes[obj.name] = mesh_object
-        model_pv.close()
+                mesh_object = MeshObjectPlot(model_object, model_object.get_mesh())
+                obj_meshes[obj.name] = mesh_object
+                model_pv.close()
+
         return obj_meshes
 
 
