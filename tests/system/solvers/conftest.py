@@ -24,7 +24,6 @@ import sys
 import tempfile
 import random
 import string
-from typing import List
 import pytest
 
 from ansys.aedt.core.generic.settings import settings

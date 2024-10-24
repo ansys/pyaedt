@@ -29,7 +29,6 @@ from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import NONGRAPHICAL
 from tests.system.general.conftest import config
 from tests.system.general.conftest import desktop_version
-from tests.system.general.conftest import local_path
 from tests.system.general.conftest import new_thread
 from ansys.aedt.core import Desktop
 from ansys.aedt.core import TwinBuilder

@@ -28,7 +28,6 @@ import time
 
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
-from tests.system.general.conftest import local_path
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.generic.general_methods import generate_unique_name

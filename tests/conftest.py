@@ -14,7 +14,6 @@ def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item
             item.add_marker(pytest.mark.unit)
         elif item.nodeid.startswith(SYSTEM_TEST_PREFIX):
             item.add_marker(pytest.mark.system)
-        
         # Finer markers for system tests
         if item.nodeid.startswith(SYSTEM_SOLVERS_TEST_PREFIX):
             item.add_marker(pytest.mark.solvers)
