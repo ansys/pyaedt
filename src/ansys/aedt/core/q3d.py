@@ -45,7 +45,11 @@ from ansys.aedt.core.modules.setup_templates import SetupKeys
 try:
     import numpy as np
 except ImportError:  # pragma: no cover
-    pass
+    warnings.warn(
+        "The NumPy module is required to use functionalities provided by the module ansys.edt.core.q3d.\n"
+        "Install with \n\npip install numpy"
+    )
+    np = None
 
 
 class QExtractor(FieldAnalysis3D, object):

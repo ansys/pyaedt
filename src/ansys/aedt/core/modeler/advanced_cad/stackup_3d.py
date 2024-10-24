@@ -27,11 +27,19 @@ import os
 try:
     import joblib
 except ImportError:
-    pass
+    joblib = None
+    warnings.warn(
+        "The Joblib module is required to use functionalities provided by the module ansys.edt.core.modeler.advanced_cad.stacku_3d.\n"
+        "Install with \n\npip install joblib"
+    )
 try:
     import numpy as np
 except ImportError:
-    pass
+    np = None
+    warnings.warn(
+        "The Numpy module is required to use functionalities provided by the module ansys.edt.core.modeler.advanced_cad.stacku_3d.\n"
+        "Install with \n\npip install numpy"
+    )
 
 from ansys.aedt.core import constants
 from ansys.aedt.core import pyaedt_path
@@ -3475,10 +3483,8 @@ class MachineLearningPatch(Patch, object):
         self.predict_length()
 
     def predict_length(self):
-        try:
-            joblib
-        except NameError:  # pragma: no cover
-            raise ImportError("joblib package is needed to run ML.")
+        if joblib is None:
+            raise ImportError("Package Joblib is required to run ML.")
         training_file = None
         if 1e9 >= self.frequency.numeric_value >= 1e8:
             training_file = os.path.join(pyaedt_path, "misc", "patch_svr_model_100MHz_1GHz.joblib")

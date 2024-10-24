@@ -32,15 +32,20 @@ logger = settings.logger
 
 try:
     import numpy as np
-
 except ImportError:
-    warnings.warn("numpy package is needed")
+    warnings.warn("
+        "The NumPy module is required to use the OpenStreetMap Reader.\n"
+        "Install with \n\npip install numpy"
+    )
 
 try:
     import pyvista as pv
     import vtk
 except ImportError:
-    warnings.warn("pyvista package is needed")
+    warnings.warn(
+        "The PyVista module is required to use the OpenStreetMap Reader.\n"
+        "Install with \n\npip install pyvista"
+    )
 
 try:
     import osmnx as ox
@@ -48,7 +53,10 @@ try:
     import utm
 
 except ImportError:
-    warnings.warn("OpenStreetMap Reader requires utm, osmnx and srtm extra packages")
+    warnings.warn(
+        "OpenStreetMap Reader requires utm, osmnx and srtm extra packages.\n"
+        "Install with \n\npip install utm osmnx srtm"
+    )
 
 
 class BuildingsPrep(object):

@@ -730,9 +730,9 @@ def generate_unique_name(root_name, suffix="", n=6):
 
     import secrets
 
-    uName = "".join(secrets.choice(alphabet) for _ in range(n))
+    name = "".join(secrets.choice(alphabet) for _ in range(n))
 
-    unique_name = root_name + "_" + uName
+    unique_name = root_name + "_" + name
     if suffix:
         unique_name += "_" + suffix
     return unique_name
