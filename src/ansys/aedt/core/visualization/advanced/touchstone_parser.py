@@ -31,7 +31,6 @@ import warnings
 
 from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-import skrf as rf
 
 try:
     import numpy as np
