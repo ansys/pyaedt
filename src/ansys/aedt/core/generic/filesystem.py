@@ -95,7 +95,7 @@ class Scratch:
             # TODO check why on Anaconda 3.7 get errors with os.path.exists
             shutil.rmtree(self._scratch_path, ignore_errors=True)
         except Exception:
-            logger.error("An error occurred while removing {}".format(self._scratch_path))
+            logger.error(f"An error occurred while removing {self._scratch_path}")
 
     def copyfile(self, src_file, dst_filename=None):
         """

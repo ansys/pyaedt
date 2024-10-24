@@ -76,7 +76,7 @@ class PolylineSegment(object):
     def __init__(self, segment_type, num_seg=0, num_points=0, arc_angle=0, arc_center=None, arc_plane=None):
         valid_types = ["Line", "Arc", "Spline", "AngularArc"]
         if segment_type not in valid_types:
-            raise TypeError("Segment type must be one of {}.".format(valid_types))
+            raise TypeError(f"Segment type must be one of {valid_types}.")
         self.type = segment_type
         if segment_type != "Line":
             self.num_seg = num_seg
@@ -298,7 +298,7 @@ class Polyline(Object3d):
                     elif isinstance(seg, PolylineSegment):
                         self._segment_types.append(seg)
                     else:
-                        raise TypeError("Invalid segment_type input of type {}".format(type(seg)))
+                        raise TypeError(f"Invalid segment_type input of type {type(seg)}")
                     # add the points
                     if i == 0:  # append the first point only for the first segment
                         self._positions.append(list(position_list[0]))
@@ -332,7 +332,7 @@ class Polyline(Object3d):
                         self._evaluate_arc_angle_extra_points(self._segment_types[-1], start_point=start)
                         self._positions.extend(self._segment_types[-1].extra_points[:])
             else:
-                raise TypeError("Invalid segment_type input of type {}".format(type(segment_type)))
+                raise TypeError(f"Invalid segment_type input of type {type(segment_type)}")
 
             # When close surface or cover_surface are set to True, ensure the start point and end point are coincident,
             # and insert a line segment to achieve this if necessary
@@ -730,7 +730,7 @@ class Polyline(Object3d):
             segment_data.num_points,
         ]
         if segment_data.type != "Line":
-            seg += ["NoOfSegments:=", "{}".format(segment_data.num_seg)]
+            seg += ["NoOfSegments:=", f"{segment_data.num_seg}"]
 
         if segment_data.type == "AngularArc":
             # from start-point and angle, calculate the mid- and end-points
@@ -742,11 +742,11 @@ class Polyline(Object3d):
                 "ArcAngle:=",
                 segment_data.arc_angle,
                 "ArcCenterX:=",
-                "{}".format(_dim_arg(segment_data.arc_center[0], mod_units)),
+                f"{_dim_arg(segment_data.arc_center[0], mod_units)}",
                 "ArcCenterY:=",
-                "{}".format(_dim_arg(segment_data.arc_center[1], mod_units)),
+                f"{_dim_arg(segment_data.arc_center[1], mod_units)}",
                 "ArcCenterZ:=",
-                "{}".format(_dim_arg(segment_data.arc_center[2], mod_units)),
+                f"{_dim_arg(segment_data.arc_center[2], mod_units)}",
                 "ArcPlane:=",
                 segment_data.arc_plane,
             ]
@@ -850,7 +850,7 @@ class Polyline(Object3d):
                 break
 
         if not found_vertex or seg_id is None or at_start is None:
-            raise ValueError("Specified vertex {} not found in polyline {}.".format(position, self._m_name))
+            raise ValueError(f"Specified vertex {position} not found in polyline {self._m_name}.")
 
         try:
             self._primitives.oeditor.DeletePolylinePoint(
@@ -865,7 +865,7 @@ class Polyline(Object3d):
                 ]
             )
         except Exception:  # pragma: no cover
-            raise ValueError("Invalid edge ID {} is specified on polyline {}.".format(seg_id, self.name))
+            raise ValueError(f"Invalid edge ID {seg_id} is specified on polyline {self.name}.")
         else:
             i_start, i_end = self._get_point_slice_from_segment_id(seg_id, at_start)
             del self._positions[i_start:i_end]
@@ -929,7 +929,7 @@ class Polyline(Object3d):
                 ]
             )
         except Exception:  # pragma: no cover
-            raise ValueError("Invalid segment ID {} is specified on polyline {}.".format(assignment, self.name))
+            raise ValueError(f"Invalid segment ID {assignment} is specified on polyline {self.name}.")
         else:
             assignment.reverse()
             for sid in assignment:

@@ -110,7 +110,7 @@ class Results:
                     self.revisions.remove(rev)
                     break
             else:
-                warnings.warn("{} does not exist".format(revision_name))
+                warnings.warn(f"{revision_name} does not exist")
 
     @staticmethod
     def interaction_domain():
@@ -212,7 +212,7 @@ class Results:
                     self.current_revision.revision_loaded = False
                     self.current_revision = self._add_revision(rev[0])
                 else:
-                    warnings.warn("{} not found.".format(revision_name))
+                    warnings.warn(f"{revision_name} not found.")
         return self.current_revision
 
     @pyaedt_function_handler()
