@@ -337,7 +337,12 @@ class TestClass:
         assert len(self.aedtapp.excitations) > 0
         time_domain = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "Sinusoidal.csv")
         assert self.aedtapp.edit_source_from_file(
-            port_wave.name, time_domain, is_time_domain=True, x_scale=1e-6, y_scale=1e-3, data_format="Voltage"
+            source=port_wave.name,
+            input_file=time_domain,
+            is_time_domain=True,
+            x_scale=1e-6,
+            y_scale=1e-3,
+            data_format="Voltage",
         )
         self.aedtapp.boundaries[0].object_properties.props["Boundary Type"] = "PEC"
         assert list(self.aedtapp.oboundary.GetAllBoundariesList())[0] == self.aedtapp.boundaries[0].name

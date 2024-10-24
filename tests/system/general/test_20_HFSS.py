@@ -1337,9 +1337,16 @@ class TestClass:
         box1 = aedtapp.modeler.create_box([0, 0, 0], [10, 20, 20])
         aedtapp.wave_port(assignment=box1.bottom_face_x, create_port_sheet=False, name="Port1")
         aedtapp.create_setup()
-        assert aedtapp.edit_source_from_file(aedtapp.excitations[0], freq_domain, is_time_domain=False, x_scale=1e9)
         assert aedtapp.edit_source_from_file(
-            aedtapp.excitations[0], time_domain, is_time_domain=True, x_scale=1e-6, y_scale=1e-3, data_format="Voltage"
+            assignment=aedtapp.excitations[0], input_file=freq_domain, is_time_domain=False, x_scale=1e9
+        )
+        assert aedtapp.edit_source_from_file(
+            assignment=aedtapp.excitations[0],
+            input_file=time_domain,
+            is_time_domain=True,
+            x_scale=1e-6,
+            y_scale=1e-3,
+            data_format="Voltage",
         )
         aedtapp.close_project(save=False)
 
@@ -1719,3 +1726,18 @@ class TestClass:
         assert aedtapp.export_touchstone_on_completion()
         assert aedtapp.export_touchstone_on_completion(export=True, output_dir=self.local_scratch.path)
         assert aedtapp.export_touchstone_on_completion()
+
+    def test_71_import_source_excitation(self, add_app):
+        aedtapp = add_app(solution_type="Eigenmode", project_name="test_71")
+        _ = aedtapp.modeler.create_box([0, 0, 0], [10, 20, 20])
+        setup = aedtapp.create_setup()
+        setup.props["NumModes"] = 2
+        sources = {"1": "10", "2": "0"}
+        assert aedtapp.edit_sources(sources, eigenmode_stored_energy=True)
+        sources = {"1": ("0", "0deg"), "2": ("2", "90deg")}
+        assert aedtapp.edit_sources(sources, eigenmode_stored_energy=False)
+        sources = {"1": "20", "2": "0"}
+        assert aedtapp.edit_sources(sources, eigenmode_stored_energy=False)
+        input_file = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "source_eigen.csv")
+        assert aedtapp.edit_source_from_file(input_file=input_file)
+        aedtapp.close_project(save=False)

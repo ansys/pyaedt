@@ -23,9 +23,11 @@
 # SOFTWARE.
 
 import os
+import shutil
 
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import NONGRAPHICAL
+from tests.system.general.conftest import config
 from tests.system.general.conftest import desktop_version
 from tests.system.general.conftest import local_path
 from tests.system.general.conftest import new_thread
@@ -54,12 +56,10 @@ def examples(local_scratch):
             os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "Q2D_ArmouredCableExample.aedt")
         ),
         local_scratch.copyfile(
-            os.path.join(
-                TESTS_GENERAL_PATH, "example_models", test_subfolder, "Q2D_ArmouredCableExample_CopyImport.aedt"
-            )
+            os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "Q3D_DynamicLink.aedt")
         ),
         local_scratch.copyfile(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "Q3D_DynamicLink.aedt")
+            os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "TB_excitation_model.aedt")
         ),
     ]
     return examples_list, None
@@ -85,8 +85,9 @@ class TestClass:
         self.local_scratch = local_scratch
         self.netlist_file1 = examples[0][0]
         self.dynamic_link = examples[0][1]
-        self.dynamic_link_copy_import = examples[0][2]
-        self.q3d_dynamic_link = examples[0][3]
+        # self.dynamic_link_copy_import = examples[0][2]
+        self.q3d_dynamic_link = examples[0][2]
+        self.excitation_model = examples[0][3]
 
     def test_01_create_resistor(self):
         id = self.aedtapp.modeler.schematic.create_resistor("Resistor1", 10, [0, 0])
@@ -187,8 +188,10 @@ class TestClass:
             tb.add_q3d_dynamic_component(self.dynamic_link, "Q3D_MSbend", "Setup1GHz", "sweep1", "Original")
         with pytest.raises(ValueError):
             tb.add_q3d_dynamic_component(self.dynamic_link, "Q3D_MSbend", "setup", "sweep1", "Original")
+        example_project_copy = os.path.join(self.local_scratch.path, tb.project_name + "_copy.aedt")
+        shutil.copyfile(self.dynamic_link, example_project_copy)
         assert tb.add_q3d_dynamic_component(
-            self.dynamic_link_copy_import,
+            example_project_copy,
             "2D_Extractor_Cable",
             "MySetupAuto",
             "sweep1",
@@ -204,6 +207,8 @@ class TestClass:
             tb.add_q3d_dynamic_component(
                 "invalid", "2D_Extractor_Cable", "MySetupAuto", "sweep1", "Original", model_depth="100mm"
             )
+        # shutil.rmtree(example_project_copy)
+        tb.close_project(name=tb.project_name, save=False)
 
     def test_16_add_sml_component(self, local_scratch):
         self.aedtapp.insert_design("SML")
@@ -223,3 +228,56 @@ class TestClass:
         self.aedtapp.create_subsheet("subsheet", "parentsheet")
         assert "parentsheet" in self.aedtapp.design_list
         assert len(self.aedtapp.odesign.GetSubDesigns()) > 0
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Feature not available before 2025R1")
+    def test_18_add_excitation_model(self, add_app):
+        tb = add_app(
+            application=TwinBuilder,
+            project_name=self.excitation_model,
+            design_name="2 simplorer circuit",
+            just_open=True,
+        )
+        project_name = tb.project_name
+        dkp = tb.desktop_class
+        maxwell_app = dkp[[project_name, "1 maxwell busbar"]]
+
+        assert not tb.add_excitation_model(project="invalid", design="1 maxwell busbar")
+        assert not tb.add_excitation_model(project=tb.project_path, design="1 maxwell busbar")
+        assert not tb.add_excitation_model(project=project_name, design="1 maxwell busbar", excitations={"a": []})
+
+        excitations = {}
+        for e in maxwell_app.excitations_by_type["Winding Group"]:
+            excitations[e.name] = [1, True, e.props["Type"], False]
+
+        assert not tb.add_excitation_model(project=project_name, design="1 maxwell busbar", excitations=excitations)
+
+        excitations = {}
+        for e in maxwell_app.excitations_by_type["Winding Group"]:
+            excitations[e.name] = ["20", True, e.props["Type"], False]
+
+        assert tb.add_excitation_model(project=tb.project_file, design="1 maxwell busbar", excitations=excitations)
+
+        assert tb.add_excitation_model(project=project_name, design="1 maxwell busbar", excitations=excitations)
+
+        assert tb.add_excitation_model(
+            project=project_name,
+            design="1 maxwell busbar",
+            excitations=excitations,
+            use_default_values=False,
+            start="1ms",
+            stop="5ms",
+        )
+
+        assert tb.add_excitation_model(project=project_name, design="1 maxwell busbar")
+
+        for e in maxwell_app.excitations_by_type["Winding Group"]:
+            excitations[e.name] = ["20", True, e.props["Type"], True]
+
+        assert tb.add_excitation_model(project=project_name, design="1 maxwell busbar", excitations=excitations)
+
+        example_project_copy = os.path.join(self.local_scratch.path, project_name + "_copy.aedt")
+        shutil.copyfile(self.excitation_model, example_project_copy)
+        assert tb.add_excitation_model(project=example_project_copy, design="1 maxwell busbar", excitations=excitations)
+
+        # shutil.rmtree(example_project_copy)
+        tb.close_project(name=project_name, save=False)
