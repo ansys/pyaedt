@@ -32,6 +32,7 @@ import os.path
 from ansys.aedt.core.application.analysis_twin_builder import AnalysisTwinBuilder
 from ansys.aedt.core.application.variables import Variable
 from ansys.aedt.core.application.variables import decompose_variable_value
+from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_number
 from ansys.aedt.core.generic.general_methods import open_file
@@ -644,3 +645,185 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             return component
         else:  # pragma: no cover
             raise ValueError("Error in creating the component.")
+
+    @pyaedt_function_handler()
+    def add_excitation_model(
+        self,
+        project,
+        design,
+        use_default_values=True,
+        setup=None,
+        start=None,
+        stop=None,
+        export_uniform_points=False,
+        export_uniform_points_step=1e-5,
+        excitations=None,
+    ):  # pragma: no cover
+        """
+        Use the excitation component to assign output quantities in a Twin Builder design to a windings
+        in a Maxwell design.
+        This method works only with AEDT 2025 R1 and later.
+
+        Parameters
+        ----------
+        project : str
+            Name or path to the project to provide.
+        design : str
+            Name of the design to import the excitations from.
+        use_default_values : bool, optional
+            Whether to use the default values for the start and stop times for the chosen TR setup.
+            The default value is ``True``.
+        setup : str, optional
+            Name of the Twinbuilder setup.
+            If not provided, the default value is the first setup in the design.
+        start : str, optional
+            Start time provided as value + units.
+            The default value is ``None``.
+            If not provided and ``use_default_values=True``, the value is chosen from the TR setup.
+        stop : float, optional
+            Stop time provided as value + units.
+            The default value is ``None``.
+            If not provided and ``use_default_values=True``, the value is chosen from the TR setup.
+        export_uniform_points : bool, optional
+            Whether Twin Builder is to perform linear interpolation to uniformly space out time and data points.
+            The interpolation is based on the step size provided. The default is ``False``.
+        export_uniform_points_step : float, optional
+            Step size to use for the uniform interpolation.
+            The default value is ``1E-5``.
+        excitations : dict, optional
+            List of excitations to extract from the Maxwell design.
+            It is a dictionary where the keys are the excitation names and value a list
+            containing respectively:
+            - The excitation value to assign to the winding, provided as a string.
+            - A boolean whether to enable the component or not.
+            - The excitation type. Possible options are ``Current`` or ``Voltage``.
+            - A boolean to enable the pin. If ``True`` the pin will be used to make connection on the schematic
+            and the excitation value will be zeroed, since the expectation is that the value is provided
+            through schematic connections.
+            To know which excitations will be extracted from the Maxwell design use
+            ``app.excitations_by_type["Winding Group"]`` where ``app`` is the Maxwell instance.
+            If not provided, the method automatically retrieves the excitations from the Maxwell Design
+            and sets the default excitation settings.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent` or bool
+            Circuit component object if successful or ``False`` if fails.
+
+        References
+        ----------
+        >>> oComponentManager.AddExcitationModel
+
+        Example
+        -------
+        >>> from ansys.aedt.core import TwinBuilder
+        >>> tb = TwinBuilder(specified_version="2025.1")
+        >>> maxwell_app = tb.desktop_class[[project_name, "my_maxwell_design"]]
+        >>> excitations = {}
+        >>> for e in maxwell_app.excitations_by_type["Winding Group"]:
+        ...    excitations[e.name] = ["20", True, e.props["Type"], False]
+        >>> comp = tb.add_excitation_model(project=project_name, design="my_maxwell_design", excitations=excitations)
+        >>> tb.release_desktop(False, False)
+        """
+        dkp = self.desktop_class
+        if dkp.aedt_version_id < "2025.1":  # pragma: no cover
+            self.logger.error("This method only works for AEDT 2025 R1 and later.")
+            return False
+
+        project_selection = 0
+        if os.path.isfile(project):
+            project_path = project
+            project_name = os.path.splitext(os.path.basename(project))[0]
+            if project_name in dkp.project_list():
+                maxwell_app = dkp[[project_name, design]]
+            else:
+                maxwell_app = dkp.load_project(project_path, design)
+                project_selection = 1
+        elif project in self.project_list:
+            project_name = "$PROJECTDIR/{}.aedt".format(project)
+            maxwell_app = dkp[[project, design]]
+        else:
+            self.logger.error("Invalid project name or path is provided.")
+            return False
+
+        if not setup:
+            setup = self.setups[0]
+        else:
+            setup = [s for s in self.setups if s.name == setup][0]
+        if use_default_values:
+            start = 0
+            stop_value_units = decompose_variable_value(setup.props["TransientData"][0])
+            stop = unit_converter(
+                stop_value_units[0], unit_system="Time", input_units=stop_value_units[1], output_units="s"
+            )
+        else:
+            start_value_units = decompose_variable_value(start)
+            start = unit_converter(
+                start_value_units[0], unit_system="Time", input_units=start_value_units[1], output_units="s"
+            )
+            stop_value_units = decompose_variable_value(stop)
+            stop = unit_converter(
+                stop_value_units[0], unit_system="Time", input_units=stop_value_units[1], output_units="s"
+            )
+
+        settings = [
+            "NAME:Project and Design Settings",
+            "Project Name:=",
+            project_name,
+            "Design Name:=",
+            design,
+            "Project Selection:=",
+            project_selection,
+        ]
+        excitations_data = [
+            "NAME:ExcitationData",
+            "Excitation Type:=",
+            0,
+            "Link Type:=",
+            "Excitations to Ansys Maxwell",
+            "Setup Name:=",
+            setup.name,
+            "Start Value:=",
+            start,
+            "Stop Value:=",
+            stop,
+            "Use Default values flag:=",
+            use_default_values,
+            "Export Uniform points flag:=",
+            export_uniform_points,
+            "Export uniform points - Step size:=",
+            export_uniform_points_step,
+        ]
+
+        grid_data = ["NAME:GridData"]
+        maxwell_excitations = {}
+        if not maxwell_app.excitations_by_type["Winding Group"]:
+            self.logger.error("No voltage or current excitations detected in the design.")
+            return False
+        elif excitations:
+            if [
+                e for e in excitations if e not in [me.name for me in maxwell_app.excitations_by_type["Winding Group"]]
+            ]:
+                self.logger.error("Excitation does not exist in Maxwell design.")
+                return False
+            for k in excitations.keys():
+                if (
+                    not isinstance(excitations[k][0], str)
+                    or not isinstance(excitations[k][1], bool)
+                    or excitations[k][2].lower() not in ["current", "voltage"]
+                    or not isinstance(excitations[k][3], bool)
+                ):
+                    self.logger.error("Excitation values are not correct or could have a wrong type.")
+                    return False
+                grid_data.append("{}:=".format(k))
+                grid_data.append(excitations[k])
+        else:
+            for e in maxwell_app.excitations_by_type["Winding Group"]:
+                maxwell_excitations[e.name] = ["0", True, e.props["Type"], False]
+                grid_data.append("{}:=".format(e.name))
+                grid_data.append(maxwell_excitations[e.name])
+
+        comp_name = self.o_component_manager.AddExcitationModel([settings, excitations_data, grid_data])
+        comp = self.modeler.schematic.create_component(component_library="", component_name=comp_name)
+
+        return comp
