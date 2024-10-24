@@ -34,6 +34,7 @@ from __future__ import absolute_import  # noreorder
 import os
 import re
 import shutil
+import subprocess  # nosec
 import tempfile
 import time
 
@@ -67,11 +68,6 @@ from ansys.aedt.core.modules.solve_setup import SetupMaxwell
 from ansys.aedt.core.modules.solve_setup import SetupQ3D
 from ansys.aedt.core.modules.solve_setup import SetupSBR
 from ansys.aedt.core.modules.solve_sweeps import SetupProps
-
-if is_linux:
-    import subprocessdotnet as subprocess  # nosec
-else:
-    import subprocess  # nosec
 
 
 class Analysis(Design, object):

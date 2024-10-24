@@ -56,10 +56,7 @@ from ansys.aedt.core.generic.general_methods import is_windows
 if is_linux:
     os.environ["ANS_NODEPCHECK"] = str(1)
 
-if is_linux:  # pragma: no cover
-    import subprocessdotnet as subprocess
-else:
-    import subprocess
+import subprocess
 
 from ansys.aedt.core import __version__
 from ansys.aedt.core.generic.aedt_versions import aedt_versions

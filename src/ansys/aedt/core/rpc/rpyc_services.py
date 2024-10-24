@@ -15,10 +15,7 @@ from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core import is_windows
 from ansys.aedt.core.generic.filesystem import is_safe_path
 
-if is_linux:
-    import subprocessdotnet as subprocess  # nosec
-else:
-    import subprocess  # nosec
+import subprocess  # nosec
 
 import rpyc
 

@@ -2214,10 +2214,8 @@ def install_with_pip(package_name, package_path=None, upgrade=False, uninstall=F
     uninstall : bool, optional
         Whether to install the package or uninstall the package.
     """
-    if is_linux:
-        import subprocessdotnet as subprocess  # nosec B404
-    else:
-        import subprocess  # nosec B404
+    import subprocess  # nosec B404
+
     executable = f'"{sys.executable}"' if is_windows else sys.executable
 
     commands = []
