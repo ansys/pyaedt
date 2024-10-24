@@ -3775,7 +3775,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
     @pyaedt_function_handler(excitations="assignment")
     def edit_sources(
-        self, assignment, include_port_post_processing=True, max_available_power=None, use_incident_voltage=False
+        self,
+        assignment,
+        include_port_post_processing=True,
+        max_available_power=None,
+        use_incident_voltage=False,
+        eigenmode_stored_energy=True,
     ):
         """Set up the power loaded for HFSS postprocessing in multiple sources simultaneously.
 
@@ -3795,6 +3800,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         use_incident_voltage : bool, optional
             Use incident voltage definition. The default is ``False``.
             This argument applies only to the Terminal solution type.
+        eigenmode_stored_energy : bool, optional
+            Use stored energy definition. The default is ``True``.
+            This argument applies only to the Eigenmode solution type.
 
         Returns
         -------
@@ -3803,49 +3811,78 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         Examples
         --------
         >>> sources = {"Port1:1": ("0W", "0deg"), "Port2:1": ("1W", "90deg")}
-        >>> hfss.edit_sources(sources,include_port_post_processing=True)
+        >>> hfss.edit_sources(sources, include_port_post_processing=True)
 
         >>> sources = {"Box2_T1": ("0V", "0deg", True), "Box1_T1": ("1V", "90deg")}
-        >>> hfss.edit_sources(sources,max_available_power="2W",use_incident_voltage=True)
+        >>> hfss.edit_sources(sources,max_available_power="2W", use_incident_voltage=True)
+
+        >>> aedtapp = add_app(solution_type="Eigenmode")
+        >>> _ = aedtapp.modeler.create_box([0, 0, 0], [10, 20, 20])
+        >>> setup = aedtapp.create_setup()
+        >>> setup.props["NumModes"] = 2
+        >>> sources = {"1": "1Joules", "2": "0Joules"}
+        >>> aedtapp.edit_sources(sources, eigenmode_stored_energy=True)
+        >>> sources = {"1": ("0V/M", "0deg"), "2": ("2V/M", "90deg")}
+        >>> aedtapp.edit_sources(sources, eigenmode_stored_energy=False)
         """
-        data = {i: ("0W", "0deg", False) for i in self.excitations}
-        for key, value in assignment.items():
-            data[key] = value
-        setting = []
-        for key, vals in data.items():
-            if isinstance(vals, str):
-                power = vals
-                phase = "0deg"
-            else:
-                power = vals[0]
-                if len(vals) == 1:
+        if self.solution_type != "Eigenmode":
+            data = {i: ("0W", "0deg", False) for i in self.excitations}
+            for key, value in assignment.items():
+                data[key] = value
+            setting = []
+            for key, vals in data.items():
+                if isinstance(vals, str):
+                    power = vals
                     phase = "0deg"
                 else:
-                    phase = vals[1]
-            if isinstance(vals, (list, tuple)) and len(vals) == 3:
-                terminated = vals[2]
-            else:
-                terminated = False
-            if use_incident_voltage and self.solution_type == "Terminal":
-                setting.append(["Name:=", key, "Terminated:=", terminated, "Magnitude:=", power, "Phase:=", phase])
-            else:
-                setting.append(["Name:=", key, "Magnitude:=", power, "Phase:=", phase])
-        argument = []
-        if self.solution_type == "Terminal":
-            argument.extend(["UseIncidentVoltage:=", use_incident_voltage])
+                    power = vals[0]
+                    if len(vals) == 1:
+                        phase = "0deg"
+                    else:
+                        phase = vals[1]
+                if isinstance(vals, (list, tuple)) and len(vals) == 3:
+                    terminated = vals[2]
+                else:
+                    terminated = False
+                if use_incident_voltage and self.solution_type == "Terminal":
+                    setting.append(["Name:=", key, "Terminated:=", terminated, "Magnitude:=", power, "Phase:=", phase])
+                else:
+                    setting.append(["Name:=", key, "Magnitude:=", power, "Phase:=", phase])
+            argument = []
+            if self.solution_type == "Terminal":
+                argument.extend(["UseIncidentVoltage:=", use_incident_voltage])
 
-        argument.extend(
-            [
-                "IncludePortPostProcessing:=",
-                include_port_post_processing,
-                "SpecifySystemPower:=",
-                True if max_available_power else False,
-            ]
-        )
+            argument.extend(
+                [
+                    "IncludePortPostProcessing:=",
+                    include_port_post_processing,
+                    "SpecifySystemPower:=",
+                    True if max_available_power else False,
+                ]
+            )
 
-        if max_available_power:
-            argument.append("Incident Power:=")
-            argument.append(max_available_power)
+            if max_available_power:
+                argument.append("Incident Power:=")
+                argument.append(max_available_power)
+        else:
+            eigenmode_type_definition = "EigenStoredEnergy" if eigenmode_stored_energy else "EigenPeakElectricField"
+            argument = ["FieldType:=", eigenmode_type_definition]
+            power = []
+            phase = []
+            for _, value in assignment.items():
+                if eigenmode_stored_energy:
+                    power.append(value)
+                else:
+                    if isinstance(value, (list, tuple)):
+                        power.append(value[0])
+                        phase.append(value[1])
+                    elif isinstance(value, str):
+                        power.append(value)
+                        phase.append("0deg")
+            if eigenmode_stored_energy:
+                setting = [["Name:=", "Modes", "Magnitudes:=", power]]
+            else:
+                setting = [["Name:=", "Modes", "Magnitudes:=", power, "Phases:=", phase]]
 
         args = [argument]
         args.extend(setting)
@@ -3855,6 +3892,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
     @pyaedt_function_handler(portandmode="assignment", powerin="power")
     def edit_source(self, assignment=None, power="1W", phase="0deg"):
         """Set up the power loaded for HFSS postprocessing.
+
+        .. deprecated:: 0.11.2
+           Use :func:`edit_sources` method instead.
 
         Parameters
         ----------
@@ -3894,30 +3934,32 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         True
 
         """
+        warnings.warn("`edit_sources` is deprecated. Use `edit_sources` method instead.", DeprecationWarning)
 
         if self.solution_type != "Eigenmode":
             if assignment is None:
                 self.logger.error(f"Port and mode must be defined for solution type {self.solution_type}")
                 return False
             self.logger.info(f'Setting up power to "{assignment}" = {power}')
-            self.osolution.EditSources(
-                [
-                    ["IncludePortPostProcessing:=", True, "SpecifySystemPower:=", False],
-                    ["Name:=", assignment, "Magnitude:=", power, "Phase:=", phase],
-                ]
+            source = {assignment: (power, phase)}
+            self.edit_sources(
+                assignment=source,
+                include_port_post_processing=True,
+                max_available_power=None,
+                eigenmode_stored_energy=True,
             )
+
         else:
             self.logger.info(f"Setting up power to Eigenmode = {power}")
-            self.osolution.EditSources(
-                [["FieldType:=", "EigenStoredEnergy"], ["Name:=", "Modes", "Magnitudes:=", [power]]]
-            )
+            source = {"1": power}
+            self.edit_sources(assignment=source, eigenmode_stored_energy=True)
         return True
 
     @pyaedt_function_handler(portandmode="assignment", file_name="input_file")
     def edit_source_from_file(
         self,
-        assignment,
         input_file,
+        assignment=None,
         is_time_domain=True,
         x_scale=1,
         y_scale=1,
@@ -3927,15 +3969,16 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         window="hamming",
     ):
         """Edit a source from file data.
-        File data is a csv containing either frequency data or time domain data that will be converted through FFT.
+        File data is a CSV containing either frequency data or time domain data that will be converted through FFT.
 
         Parameters
         ----------
-        assignment : str
+        input_file : str
+            Full name of the input file. If ``assignment`` is ``None``, it loads directly the file, in this case
+            the file must have AEDT format.
+        assignment : str, optional
             Port name and mode. For example, ``"Port1:1"``.
             The port name must be defined if the solution type is other than Eigenmodal.
-        input_file : str
-            Full name of the input file.
         is_time_domain : bool, optional
             Whether the input data is time-based or frequency-based. Frequency based data are Mag/Phase (deg).
         x_scale : float, optional
@@ -3959,6 +4002,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         -------
         bool
         """
+
+        if not assignment:
+            self.osolution.LoadSourceWeights(input_file)
+            return True
 
         def find_scale(data, header_line):
             for td in data.keys():
@@ -4055,20 +4102,26 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         self.logger.info("Source Excitation updated with Dataset.")
         return True
 
-    @pyaedt_function_handler()
-    def edit_sources_from_file(self, file_name):
-        """Update all sources from a csv.
+    @pyaedt_function_handler(file_name="input_file")
+    def edit_sources_from_file(self, input_file):  # pragma: no cover
+        """Update all sources from a CSV file.
+
+        .. deprecated:: 0.11.2
+           Use :func:`edit_source_from_file` method instead.
 
         Parameters
         ----------
-        file_name : str
-            Filen name.
+        input_file : str
+            File name.
 
         Returns
         -------
         bool
         """
-        self.osolution.LoadSourceWeights(file_name)
+        warnings.warn(
+            "`edit_source_from_file` is deprecated. Use `edit_source_from_file` method instead.", DeprecationWarning
+        )
+        self.edit_source_from_file(input_file=input_file)
         return True
 
     @pyaedt_function_handler(

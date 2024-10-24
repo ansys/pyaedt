@@ -1240,7 +1240,7 @@ class Desktop(object):
         return list(self.odesktop.GetProjectList())
 
     @pyaedt_function_handler()
-    def analyze_all(self, project=None, design=None):
+    def analyze_all(self, project=None, design=None):  # pragma: no cover
         """Analyze all setups in a project.
 
         Parameters
@@ -1598,7 +1598,7 @@ class Desktop(object):
         for edb_object in _edb_sessions:
             try:
                 edb_object.close()
-            except Exception:
+            except Exception:  # pragma: no cover
                 self.logger.warning("Failed to close Edb object.")
 
         if close_projects and "PYTEST_CURRENT_TEST" not in os.environ:
@@ -1609,7 +1609,7 @@ class Desktop(object):
                 except Exception:  # pragma: no cover
                     self.logger.warning(f"Failed to close Project {project}")
         result = _close_aedt_application(self, close_on_exit, self.aedt_process_id, self.is_grpc_api)
-        if not result:
+        if not result:  # pragma: no cover
             self.logger.error("Error releasing desktop.")
             return False
         self.logger._desktop_class = None
@@ -2281,7 +2281,7 @@ class Desktop(object):
         return False
 
     @pyaedt_function_handler()
-    def get_monitor_data(self):
+    def get_monitor_data(self):  # pragma: no cover
         """Check and get monitor data of an existing analysis.
 
         .. note::
