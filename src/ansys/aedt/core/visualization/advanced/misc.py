@@ -26,6 +26,7 @@ import csv
 import logging
 import os
 import re
+import warnings
 
 from ansys.aedt.core.generic.constants import CSS4_COLORS
 from ansys.aedt.core.generic.constants import SI_UNITS
@@ -39,6 +40,10 @@ from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 try:
     import pyvista as pv
 except ImportError:  # pragma: no cover
+    warnings.warn(
+        "The PyVista module is required to run functionalities of ansys.aedt.core.visualization.advanced.misc.\n"
+        "Install with \n\npip install pyvista"
+    )
     pv = None
 
 

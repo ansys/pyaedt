@@ -1278,7 +1278,7 @@ class GeometryModeler(Modeler):
         coord.reverse()
         return coord
 
-    def _get_lists_data(self):
+    def _get_lists_data(self):  # pragma: no cover
         """Retrieve user object list data.
 
         Returns
@@ -2073,7 +2073,7 @@ class GeometryModeler(Modeler):
         self.logger.info("Enabling deformation feedback")
         try:
             self._odesign.SetObjectDeformation(["EnabledObjects:=", assignment])
-        except Exception:
+        except Exception:  # pragma: no cover
             self.logger.error("Failed to enable the deformation dependence")
             return False
         else:
@@ -2133,7 +2133,7 @@ class GeometryModeler(Modeler):
             vargs1.append(vargs2)
         try:
             self._odesign.SetObjectTemperature(vargs1)
-        except Exception:
+        except Exception:  # pragma: no cover
             self.logger.error("Failed to enable the temperature dependence")
             return False
         else:
@@ -2528,7 +2528,7 @@ class GeometryModeler(Modeler):
             self._change_geometry_property(vArg1, objs_to_unmodel)
             bounding = self.get_model_bounding_box()
             self._odesign.Undo()
-        else:
+        else:  # pragma: no cover
             bounding = self.get_model_bounding_box()
         return bounding
 
@@ -2705,7 +2705,7 @@ class GeometryModeler(Modeler):
                             obj_name = tool.name
                             obj = o.edges[0]
                     tool_type = "EdgeTool"
-                else:
+                else:  # pragma: no cover
                     self.logger.error("Face tool part has to be provided as a string (name) or an int (face id).")
                     return False
                 planes = "Dummy"
@@ -3638,7 +3638,7 @@ class GeometryModeler(Modeler):
                 vArg2.append("TurnOnNBodyBoolean:=")
                 vArg2.append(True)
             self.oeditor.Unite(vArg1, vArg2)
-            if szSelections.split(",")[0] in self.unclassified_names:
+            if szSelections.split(",")[0] in self.unclassified_names:  # pragma: no cover
                 self.logger.error("Error in uniting objects.")
                 self._odesign.Undo()
                 self.cleanup_objects()
@@ -3709,7 +3709,7 @@ class GeometryModeler(Modeler):
             vArg1 = ["NAME:Selections", "Selections:=", selections]
             self.oeditor.Copy(vArg1)
             return selections
-        except AttributeError:
+        except AttributeError:  # pragma: no cover
             self.logger.error("Unable to copy selections to clipboard.")
             return None
 
@@ -3764,7 +3764,7 @@ class GeometryModeler(Modeler):
 
         self.oeditor.Intersect(vArg1, vArg2)
         unclassified1 = list(self.oeditor.GetObjectsInGroup("Unclassified"))
-        if unclassified != unclassified1:
+        if unclassified != unclassified1:  # pragma: no cover
             self._odesign.Undo()
             self.logger.error("Error in intersection. Reverting Operation")
             return
@@ -3833,7 +3833,7 @@ class GeometryModeler(Modeler):
             vArg1 = ["NAME:Selections", "Selections:=", szSelections]
 
             self.oeditor.Connect(vArg1)
-            if unclassified_before != self.unclassified_names:
+            if unclassified_before != self.unclassified_names:  # pragma: no cover
                 self._odesign.Undo()
                 self.logger.error("Error in connection. Reverting Operation")
                 return False
@@ -3872,9 +3872,7 @@ class GeometryModeler(Modeler):
         blank_part = chassis_part
         # in main code this object will need to be determined automatically eg by name such as chassis or sheer size
         self.logger.info("Blank Part in Subtraction = " + str(blank_part))
-        """
-        check if blank part exists, if not, skip subtraction
-        """
+        # Check if blank part exists, if not, skip subtraction
         tool_parts = list(self.oeditor.GetObjectsInGroup("Solids"))
         tool_parts.remove(blank_part)
         for mat in mat_names:
@@ -3885,9 +3883,9 @@ class GeometryModeler(Modeler):
                 # tool_parts_final=list(set(tool_parts).difference(set(objnames)))
         tool_parts = ",".join(tool_parts)
         num_obj_end = self.oeditor.GetNumObjects()
-        self.subtract(blank_part, tool_parts, True)
-
+        res = self.subtract(blank_part, tool_parts, True)
         self.logger.info("Subtraction Objs - Initial: " + str(num_obj_start) + "  ,  Final: " + str(num_obj_end))
+        return res
 
     @pyaedt_function_handler()
     def _offset_on_plane(self, i, offset):
@@ -4017,17 +4015,17 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.RenamePart
         """
-        # import os.path
-        # (CADPath, CADFilename) = os.path.split(CADFile)
-        # (CADName, CADExt) = os.path.splitext(CADFilename)
-        CADSuffix = main_part_name + "_"
-        objNames = self.oeditor.GetMatchedObjectName(CADSuffix + "*")
-        for name in objNames:
-            RenameArgs = {}
-            RenameArgs["NAME"] = "Rename Data"
-            RenameArgs["Old Name"] = name
-            RenameArgs["New Name"] = name.replace(CADSuffix, "")
-            self.oeditor.RenamePart(RenameArgs)
+        cad_suffix = main_part_name + "_"
+        names = self.oeditor.GetMatchedObjectName(cad_suffix + "*")
+        for name in names:
+            args = [
+                "NAME:Rename Data",
+                "Old Name:=",
+                name,
+                "New Name:=",
+                name.replace(cad_suffix, ""),
+            ]
+            self.oeditor.RenamePart(args)
         return True
 
     @pyaedt_function_handler(defname="name")
@@ -4188,10 +4186,10 @@ class GeometryModeler(Modeler):
             result = user_list.create(assignment=assignment, name=name, entity_type=list_type)
             if result:
                 return user_list
-            else:
+            else:  # pragma: no cover
                 self._app.logger.error("Wrong object definition. Review object list and type")
                 return False
-        else:
+        else:  # pragma: no cover
             self._app.logger.error("User list object could not be created")
             return False
 
@@ -4228,10 +4226,10 @@ class GeometryModeler(Modeler):
             result = user_list.create(assignment=assignment, name=name, entity_type=list_type)
             if result:
                 return user_list
-            else:
+            else:  # pragma: no cover
                 self._app.logger.error("Wrong object definition. Review object list and type")
                 return False
-        else:
+        else:  # pragma: no cover
             self._app.logger.error("User list object could not be created")
             return False
 
@@ -4306,7 +4304,7 @@ class GeometryModeler(Modeler):
             if dir == direction:
                 edgelist.append(el)
                 verlist.append([p1, p2])
-        if not edgelist:
+        if not edgelist:  # pragma: no cover
             self.logger.error("No edges found specified direction. Check again")
             return False
         connected = [edgelist[0]]
@@ -4865,7 +4863,7 @@ class GeometryModeler(Modeler):
         return True
 
     @pyaedt_function_handler(SCFile="input_file")
-    def import_spaceclaim_document(self, input_file):
+    def import_spaceclaim_document(self, input_file):  # pragma: no cover
         """Import a SpaceClaim document.
 
         Parameters
@@ -4890,7 +4888,7 @@ class GeometryModeler(Modeler):
                 if variable > latest_version:
                     latest_version = variable
                     break
-        if not latest_version:
+        if not latest_version:  # pragma: no cover
             self.logger.error("SpaceClaim is not found.")
         else:
             scdm_path = os.path.join(os.environ[latest_version], "scdm")
@@ -5104,7 +5102,7 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.CreateUserDefinedModel
         """
-        if is_linux:
+        if is_linux:  # pragma: no cover
             self.logger.error("Discovery not supported on Linux.")
             return False
         version = self._app.aedt_version_id[-3:]
@@ -5731,10 +5729,10 @@ class GeometryModeler(Modeler):
         sheet = self.convert_to_selections(sheet, False)
         object = self.convert_to_selections(object, False)
 
-        if sheet not in self.sheet_names:
+        if sheet not in self.sheet_names:  # pragma: no cover
             self.logger.error(f"{sheet} is not a valid sheet.")
             return False
-        if object not in self.solid_names:
+        if object not in self.solid_names:  # pragma: no cover
             self.logger.error(f"{object} is not a valid solid body.")
             return False
         unclassified = [i for i in self.unclassified_objects]
@@ -5743,7 +5741,7 @@ class GeometryModeler(Modeler):
             ["NAME:WrapSheetParameters", "Imprinted:=", imprinted],
         )
         is_unclassified = [i for i in self.unclassified_objects if i not in unclassified]
-        if is_unclassified:
+        if is_unclassified:  # pragma: no cover
             self.logger.error("Failed to Wrap sheet. Reverting to original objects.")
             self._odesign.Undo()
             return False
@@ -6049,7 +6047,7 @@ class GeometryModeler(Modeler):
         try:
             self.oeditor.Simplify(selections_args, simplify_parameters, groups_for_new_object)
             return True
-        except Exception:
+        except Exception:  # pragma: no cover
             self.logger.error("Simplify objects failed.")
             return False
 
@@ -6437,7 +6435,7 @@ class GeometryModeler(Modeler):
                 if not units and pad_value[i].isnumeric() and not is_percentage:
                     units = self.model_units
                     pad_value[i] += units
-                elif units and is_percentage:
+                elif units and is_percentage:  # pragma: no cover
                     self.logger.error("Percentage input must not have units")
                     return False, False
             elif not is_percentage:
@@ -6486,7 +6484,7 @@ class GeometryModeler(Modeler):
     def _create_region(
         self, pad_value=300, pad_type="Percentage Offset", name="Region", parts=None, region_type="Region"
     ):
-        if name in self._app.modeler.objects_by_name:
+        if name in self._app.modeler.objects_by_name:  # pragma: no cover
             self._app.logger.error(f"{name} object already exists")
             return False
         if not isinstance(pad_value, list):
@@ -8942,18 +8940,18 @@ class PrimitivesBuilder(object):
                     props = self._read_csv_cylinder_props(csv_data)
                 if primitive_type_cleaned in ["Blocks Prism", "Prism"]:
                     props = self._read_csv_prism_props(csv_data)
-                if not props:
+                if not props:  # pragma: no cover
                     msg = "CSV file not valid."
                     self.logger.error(msg)
                     raise TypeError(msg)
-            else:
+            else:  # pragma: no cover
                 msg = "Format is not valid."
                 self.logger.error(msg)
                 raise TypeError(msg)
         else:
             props = input_dict
 
-        if not props or not all(key in props for key in ["Primitives", "Instances"]):
+        if not props or not all(key in props for key in ["Primitives", "Instances"]):  # pragma: no cover
             msg = "Input data is wrong."
             self.logger.error(msg)
             raise AttributeError(msg)
@@ -8987,7 +8985,7 @@ class PrimitivesBuilder(object):
 
         if self.coordinate_systems:
             cs_flag = self._create_coordinate_system()
-            if not cs_flag:
+            if not cs_flag:  # pragma: no cover
                 self.logger.error("Wrong coordinate system is defined.")
                 return False
 
@@ -8995,7 +8993,7 @@ class PrimitivesBuilder(object):
 
         for instance_data in self.instances:
             name = instance_data.get("Name")
-            if not name:
+            if not name:  # pragma: no cover
                 self.logger.error("``Name`` parameter is not defined.")
                 return False
 
@@ -9004,7 +9002,9 @@ class PrimitivesBuilder(object):
                 self.logger.warning("``Coordinate System`` parameter is not defined, ``Global`` is assigned.")
                 instance_data["Coordinate System"] = "Global"
                 cs = instance_data.get("Coordinate System")
-            elif instance_data["Coordinate System"] != "Global" and instance_data["Coordinate System"] not in cs_names:
+            elif (
+                instance_data["Coordinate System"] != "Global" and instance_data["Coordinate System"] not in cs_names
+            ):  # pragma: no cover
                 self.logger.error(f"Coordinate system {cs} does not exist.")
                 return False
 
@@ -9188,7 +9188,7 @@ class PrimitivesBuilder(object):
                 csv_keys = csv_keys.tolist()
                 break
 
-        if not all(k in required_csv_keys for k in csv_keys):
+        if not all(k in required_csv_keys for k in csv_keys):  # pragma: no cover
             msg = "The column names in the CSV file do not match the expected names."
             self.logger.error(msg)
             raise ValueError
@@ -9197,7 +9197,7 @@ class PrimitivesBuilder(object):
         row_cont = 0
         for index_row_new, row in csv_data.iloc[index_row + 1 :].iterrows():
             row_info = row.dropna().values
-            if len(row_info) != len(csv_keys):
+            if len(row_info) != len(csv_keys):  # pragma: no cover
                 msg = "Values missing in the CSV file "
                 self.logger.error(msg)
                 raise ValueError
@@ -9265,7 +9265,7 @@ class PrimitivesBuilder(object):
                 csv_keys = csv_keys.tolist()
                 break
 
-        if not all(k in required_csv_keys for k in csv_keys):
+        if not all(k in required_csv_keys for k in csv_keys):  # pragma: no cover
             msg = "The column names in the CSV file do not match the expected names."
             self.logger.error(msg)
             raise ValueError
@@ -9274,7 +9274,7 @@ class PrimitivesBuilder(object):
         row_cont = 0
         for index_row_new, row in csv_data.iloc[index_row + 1 :].iterrows():
             row_info = row.dropna().values
-            if len(row_info) != len(csv_keys):
+            if len(row_info) != len(csv_keys):  # pragma: no cover
                 msg = "Values missing in the CSV file "
                 self.logger.error(msg)
                 raise ValueError
