@@ -1010,13 +1010,13 @@ class MonostaticRCSPlotter(object):
         return new
 
     @pyaedt_function_handler()
-    def plot_scene(self, show=True, plotter=None):
+    def plot_scene(self, show=True):
         """
         Plot the 3D scene including models, annotations, and results.
 
         This method visualizes the 3D scene by rendering the mesh objects under the "model",
         "annotations", and "results" categories stored in `self.all_scene_actors`. The meshes
-        are rendered using the specified `plotter` or a default PyVista plotter if ``None`` is provided.
+        are rendered using a default PyVista plotter.
 
         Parameters
         ----------
@@ -1024,10 +1024,6 @@ class MonostaticRCSPlotter(object):
             Whether to immediately display the plot. If ``True``, the plot will be displayed using ``plotter.show()``.
             If ``False``, the ``plotter`` object is returned for further customization before rendering.
             The default is ``True``.
-        plotter : pyvista.Plotter, optional
-            A pre-configured PyVista plotter to use for visualization. If not provided, a new plotter will be created
-            with a ``:class:ansys.tools.visualization_interface.backends.pyvista.PyVistaBackend``
-             allowing interaction with the model.
 
         Returns
         -------
@@ -1035,14 +1031,9 @@ class MonostaticRCSPlotter(object):
             Returns the ``Plotter`` object if ``show`` is set to ``False``. If ``show`` is ``True``,
             the plot is displayed and no value is returned.
         """
-        if not plotter:
-            pv_backend = PyVistaBackend(allow_picking=True, plot_picked_names=True)
-            plotter = Plotter(backend=pv_backend)
-        else:
-            if getattr(plotter, "clear", None):
-                plotter.clear()
-            elif getattr(plotter, "_backend", None):
-                plotter._backend.pv_interface.scene.clear()
+
+        pv_backend = PyVistaBackend(allow_picking=True, plot_picked_names=True)
+        plotter = Plotter(backend=pv_backend)
 
         if self.show_geometry:
             for geo in self.all_scene_actors["model"].values():
@@ -1785,7 +1776,7 @@ class MonostaticRCSPlotter(object):
             else:
                 options = mesh_object.custom_object.get_result_options()
 
-        # TODO
+        # TODO StructuredGrid
         if isinstance(mesh_object.mesh, pv.StructuredGrid):
             if mesh_type == "model":
                 options = mesh_object.get_model_options()
@@ -1796,14 +1787,12 @@ class MonostaticRCSPlotter(object):
 
         if options is None:
             options = {}
-        if getattr(plotter, "plot", None):
-            # TODO
-            if isinstance(mesh_object.mesh, pv.StructuredGrid):
-                plotter._backend.pv_interface.scene.add_mesh(mesh_object.mesh, **options)
-            else:
-                plotter.plot(mesh_object.mesh, **options)
-        elif getattr(plotter, "add_mesh", None):
-            plotter.add_mesh(mesh_object.mesh, **options)
+
+        # TODO StructuredGrid
+        if isinstance(mesh_object.mesh, pv.StructuredGrid):
+            plotter._backend.pv_interface.scene.add_mesh(mesh_object.mesh, **options)
+        else:
+            plotter.plot(mesh_object.mesh, **options)
 
     @pyaedt_function_handler()
     def __get_model_extent(self):
