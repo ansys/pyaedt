@@ -137,7 +137,9 @@ def convert_nearfield_data(dat_folder, frequency=6, invert_phase_for_lower_faces
                     real.append(line[3])
                     imag.append(line[4])
 
-        assert face in components, "Wrong file name format. Face not found."
+        if face not in components:
+            raise RuntimeError("Wrong file name format. Face not found.")
+
         if not components[face].x:
             components[face].set_xyz_points(x, y, z)
             components[face].fill_empty_data()
