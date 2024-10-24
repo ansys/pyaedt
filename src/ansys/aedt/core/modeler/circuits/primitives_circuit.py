@@ -24,7 +24,7 @@
 
 import math
 import os
-import random
+import secrets
 
 from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -265,9 +265,10 @@ class CircuitComponents(object):
                 element_ids.append(int(el.split("@")[1].split(";")[1].split(":")[0]))
             except (IndexError, ValueError):
                 pass
-        id = random.randint(1, 65535)
+        secure_random = secrets.SystemRandom()
+        id = secure_random.randint(1, 65535)
         while id in element_ids:
-            id = random.randint(1, 65535)
+            id = secure_random.randint(1, 65535)
         return id
 
     @pyaedt_function_handler()

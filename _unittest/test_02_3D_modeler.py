@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import random
+import secrets
 from sys import float_info
 
 from _unittest.conftest import config
@@ -40,6 +40,7 @@ else:
     test_project_name = "Coax_HFSS_t02"
 
 small_number = float_info.epsilon * 10
+secure_random = secrets.SystemRandom()
 
 
 @pytest.fixture(scope="class")
@@ -89,11 +90,6 @@ class TestClass:
     def test_02_boundingbox(self):
         bounding = self.aedtapp.modeler.obounding_box
         assert len(bounding) == 6
-
-    def test_03_objects(self):
-        print(self.aedtapp.modeler.oeditor)
-        print(self.aedtapp.modeler._odefinition_manager)
-        print(self.aedtapp.modeler._omaterial_manager)
 
     def test_04_convert_to_selection(self):
         assert type(self.aedtapp.modeler.convert_to_selections("inner", True)) is list
@@ -255,7 +251,7 @@ class TestClass:
 
     def test_19_clone(self):
         self.restore_model()
-        status, cloned = self.aedtapp.modeler.clone("Poly1")
+        status, _ = self.aedtapp.modeler.clone("Poly1")
         assert status
 
     def test_20_intersect(self):
@@ -1123,7 +1119,7 @@ class TestClass:
         box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10])
         face = self.aedtapp.modeler.get_face_by_id(box1.faces[0].id)
         assert isinstance(face, FacePrimitive)
-        face = self.aedtapp.modeler.get_face_by_id(random.randint(10000, 100000))
+        face = self.aedtapp.modeler.get_face_by_id(secure_random.randint(10000, 100000))
         assert not face
 
     def test_62_copy_solid_bodies_udm_3dcomponent(self, add_app):
@@ -1190,6 +1186,30 @@ class TestClass:
         assert not self.aedtapp.modeler.create_conical_rings("Z", position, 20, 10, 0, 1)
         assert not self.aedtapp.modeler.create_conical_rings("Z", position, 20, 10, 20, 0)
         assert not self.aedtapp.modeler.create_conical_rings("Z", [0], 20, 10, 20, 0)
+
+    def test_get_group_bounding_box_with_non_existing_group_name(self):
+        assert self.aedtapp.modeler.get_group_bounding_box("SomeUnknownGroupName") is None
+
+    def test_get_group_bounding_box_with_wrong_input_type(self):
+        with pytest.raises(ValueError):
+            self.aedtapp.modeler.get_group_bounding_box(5)
+
+    def test_get_group_bounding_box_with_existing_group_name(self):
+        assert self.aedtapp.modeler.get_group_bounding_box("Sheets") is not None
+
+    def test_chassis_subtraction(self):
+        self.restore_model()
+        chassis = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "chassis", "Copper")
+        # Add vacuum to extend code coverage
+        self.aedtapp.modeler.create_box([20, 20, 20], [1, 1, 1], "box", "Vacuum")
+        assert self.aedtapp.modeler.chassis_subtraction(chassis.name)
+
+    def test_explicitly_subtract(self):
+        box_0 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "box_0", "Copper")
+        box_1 = self.aedtapp.modeler.create_box([0, 0, 0], [5, 5, 5], "box_1", "Copper")
+        box_2 = self.aedtapp.modeler.create_box([0, 0, 0], [6, 6, 6], "box_2", "Copper")
+        box_3 = self.aedtapp.modeler.create_box([0, 0, 0], [7, 7, 7], "box_3", "Copper")
+        assert self.aedtapp.modeler.explicitly_subtract([box_0.name, box_1.name], [box_2.name, box_3.name])
 
     def test_clean_objects_name(self):
         box_0 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], name="Object_Part0")
