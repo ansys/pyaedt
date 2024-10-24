@@ -60,6 +60,7 @@ else:
     python_exe = os.path.join(venv_dir, "bin", "python")
     package_dir = os.path.join(venv_dir, "lib", "site-packages")
 
+
 def create_toolkit_page(frame, window_name, internal_toolkits):
     """Create page to display toolkit on."""
     # Available toolkits
