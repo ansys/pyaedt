@@ -35,7 +35,6 @@ from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import MATRIXOPERATIONSQ2D
 from ansys.aedt.core.generic.constants import MATRIXOPERATIONSQ3D
 from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
@@ -43,11 +42,14 @@ from ansys.aedt.core.modules.boundary import BoundaryObject
 from ansys.aedt.core.modules.boundary import Matrix
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 
-if not is_ironpython:
-    try:
-        import numpy as np
-    except ImportError:  # pragma: no cover
-        pass
+try:
+    import numpy as np
+except ImportError:  # pragma: no cover
+    warnings.warn(
+        "The NumPy module is required to use functionalities provided by the module ansys.edt.core.q3d.\n"
+        "Install with \n\npip install numpy"
+    )
+    np = None
 
 
 class QExtractor(FieldAnalysis3D, object):
@@ -1966,7 +1968,7 @@ class Q3d(QExtractor, object):
             if not magnetic_threshold:
                 magnetic_threshold = 1.01
 
-            if not is_ironpython and not self.desktop_class.is_grpc_api:
+            if not self.desktop_class.is_grpc_api:
                 insulator_threshold = np.longdouble(insulator_threshold)
                 perfect_conductor_threshold = np.longdouble(perfect_conductor_threshold)
                 magnetic_threshold = np.longdouble(magnetic_threshold)

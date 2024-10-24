@@ -30,7 +30,6 @@ from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import get_filename_without_extension
 from ansys.aedt.core.generic.general_methods import inside_desktop
-from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
@@ -125,10 +124,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
              EDB.
 
         """
-        if is_ironpython:
-            self.logger.warning("EDB is supported only in CPython.")
-            return self._edb
-
         if settings.remote_api or settings.remote_rpc_session:
             return self._edb
         if not self._edb:

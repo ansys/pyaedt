@@ -34,6 +34,7 @@ from __future__ import absolute_import  # noreorder
 import os
 import re
 import shutil
+import subprocess  # nosec
 import tempfile
 import time
 
@@ -49,7 +50,6 @@ from ansys.aedt.core.generic.constants import SOLUTIONS
 from ansys.aedt.core.generic.constants import VIEW
 from ansys.aedt.core.generic.general_methods import filter_tuple
 from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import open_file
@@ -68,11 +68,6 @@ from ansys.aedt.core.modules.solve_setup import SetupMaxwell
 from ansys.aedt.core.modules.solve_setup import SetupQ3D
 from ansys.aedt.core.modules.solve_setup import SetupSBR
 from ansys.aedt.core.modules.solve_sweeps import SetupProps
-
-if is_linux and is_ironpython:
-    import subprocessdotnet as subprocess  # nosec
-else:
-    import subprocess  # nosec
 
 
 class Analysis(Design, object):
