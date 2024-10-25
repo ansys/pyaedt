@@ -85,6 +85,7 @@ jobs:
         run: |
           python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
 
+  # TODO: Add option optional-dependencies-name once a new release is performed
   unit-tests:
     name: Running unit tests
     needs: [smoke-tests]
@@ -96,7 +97,6 @@ jobs:
           pytest-markers: -m unit
           pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
-          optional-dependencies-name: unit-tests
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
