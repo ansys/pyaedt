@@ -814,7 +814,7 @@ class Setup(CommonSetup):
             Name of the source design solution in the format ``"name : solution_name"``.
             If ``None``, the default value is ``name : LastAdaptive``.
         parameters : dict, optional
-            Dictionary of the parameters of "mapping" variables from source design.
+            Dictionary of the parameters of "mapping" variables from the source design.
             If ``None``, the default is `appname.available_variations.nominal_w_values_dict`.
         project : str, optional
             Name of the project with the design. The default is ``"This Project*"``.
