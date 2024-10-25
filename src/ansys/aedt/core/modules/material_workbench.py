@@ -27,7 +27,6 @@ This module contains the ``MaterialWorkbench`` class.
 
 It includes a method to import materials from a Workbench Engineering Data XML file.
 """
-
 from collections import defaultdict
 import copy
 import re
@@ -105,6 +104,10 @@ class MaterialWorkbench:
         else:
             return False
 
+    @staticmethod
+    def _to_list(data_string):
+        return [float(i) for i in data_string.split(",")]
+
     def _dataset_name(self, material_name, property_name):
         name = f"TM_{self._aedt_material_name(material_name)}_{MatProperties.wb_to_aedt_name(property_name)}"
         return name
@@ -122,8 +125,9 @@ class MaterialWorkbench:
 
         Returns
         -------
-        list
+        tuple
             List of imported materials.
+            List of materials that failed to import.
 
         """
 
@@ -188,9 +192,9 @@ class MaterialWorkbench:
                         temp_array = None
                         for p in prop_data:
                             if p["parameter"] == "Temperature":
-                                temp_array = [float(i) for i in p["data"].split(",")]
+                                temp_array = self._to_list(p["data"])
                             elif p["parameter"] != "Temperature":
-                                data_array = [float(i) for i in p["data"].split(",")]
+                                data_array = self._to_list(p["data"])
                                 parameter_name = p["parameter"]
                         materials[mat_name][prop_name] = {
                             "parameter": parameter_name,
@@ -204,8 +208,8 @@ class MaterialWorkbench:
                         and any([i["parameter"] == f"{prop_name} Z direction" for i in prop_data])
                         and all([isinstance(i["data"], float) for i in prop_data])
                     ):
-                        # Anisotropic material founded
-                        anisotropic_data = [
+                        # Anisotropic material found
+                        anisotropic_array = [
                             [i["data"] for i in prop_data if i["parameter"] == f"{prop_name} X direction"][0],
                             [i["data"] for i in prop_data if i["parameter"] == f"{prop_name} Y direction"][0],
                             [i["data"] for i in prop_data if i["parameter"] == f"{prop_name} Z direction"][0],
@@ -213,7 +217,41 @@ class MaterialWorkbench:
                         materials[mat_name][prop_name] = {
                             "parameter": prop_name,
                             "data": None,
-                            "anisotropic": anisotropic_data,
+                            "anisotropic": anisotropic_array,
+                        }
+                    if (
+                        len(prop_data) == 4
+                        and any([i["parameter"] == f"{prop_name} X direction" for i in prop_data])
+                        and any([i["parameter"] == f"{prop_name} Y direction" for i in prop_data])
+                        and any([i["parameter"] == f"{prop_name} Z direction" for i in prop_data])
+                        and any([i["parameter"] == "Temperature" for i in prop_data])
+                        and all([MaterialWorkbench._is_tabular_data(i["data"]) for i in prop_data])
+                    ):
+                        # Anisotropic material with thermal modifier found (aka orthotropic in Workbench)
+                        anisotropic_matrix = [
+                            self._to_list(
+                                [i["data"] for i in prop_data if i["parameter"] == f"{prop_name} X direction"][0]
+                            ),
+                            self._to_list(
+                                [i["data"] for i in prop_data if i["parameter"] == f"{prop_name} Y direction"][0]
+                            ),
+                            self._to_list(
+                                [i["data"] for i in prop_data if i["parameter"] == f"{prop_name} Z direction"][0]
+                            ),
+                        ]
+                        temp_array = None
+                        for p in prop_data:
+                            if p["parameter"] == "Temperature":
+                                temp_array = self._to_list(p["data"])
+                        materials[mat_name][prop_name] = {
+                            "parameter": prop_name,
+                            "data": None,
+                            "anisotropic_data": [i[0] for i in anisotropic_matrix],
+                            "anisotropic_dataset": [
+                                [anisotropic_matrix[0], temp_array],
+                                [anisotropic_matrix[1], temp_array],
+                                [anisotropic_matrix[2], temp_array],
+                            ],
                         }
 
         # Expand the Elasticity property into the individual properties
@@ -229,10 +267,10 @@ class MaterialWorkbench:
                         ):
                             for p in prop_data:
                                 if p["parameter"] == "Temperature":
-                                    temp_array = [float(i) for i in p["data"].split(",")]
+                                    temp_array = self._to_list(p["data"])
                             for p in prop_data:
                                 if p["parameter"] != "Temperature":
-                                    data_array = [float(i) for i in p["data"].split(",")]
+                                    data_array = self._to_list(p["data"])
                                     parameter_name = p["parameter"]
                                     materials[mat_name][parameter_name] = {
                                         "parameter": parameter_name,
@@ -279,47 +317,53 @@ class MaterialWorkbench:
         mat_props = {}
         thermal_modifiers = {}
         colors = {}
+        failed_materials = []
         for m_name, m_props in materials.items():
-            mat_props[m_name] = {}
-            thermal_modifiers[m_name] = {}
-            props = mat_props[m_name]
+            try:
+                mat_props[m_name] = {}
+                thermal_modifiers[m_name] = {}
+                props = mat_props[m_name]
 
-            for wb_prop_name in MatProperties.workbench_name:
-                if wb_prop_name is None:
-                    continue
-                aedt_prop_name = MatProperties.wb_to_aedt_name(wb_prop_name)
-                if wb_prop_name in m_props:
-                    if "anisotropic" in m_props[wb_prop_name]:
-                        props[aedt_prop_name] = {
+                for wb_prop_name in MatProperties.workbench_name:
+                    if wb_prop_name is None:
+                        continue
+                    aedt_prop_name = MatProperties.wb_to_aedt_name(wb_prop_name)
+                    if wb_prop_name in m_props:
+                        if "anisotropic" in m_props[wb_prop_name]:
+                            props[aedt_prop_name] = {
+                                "property_type": "AnisoProperty",
+                                "unit": "",
+                                "component1": m_props[wb_prop_name]["anisotropic"][0],
+                                "component2": m_props[wb_prop_name]["anisotropic"][1],
+                                "component3": m_props[wb_prop_name]["anisotropic"][2],
+                            }
+                        else:
+                            props[aedt_prop_name] = m_props[wb_prop_name]["data"]
+
+                if "Resistivity" in m_props and "Electrical Conductivity" not in m_props:
+                    if "anisotropic" in m_props["Resistivity"]:
+                        props["conductivity"] = {
                             "property_type": "AnisoProperty",
                             "unit": "",
-                            "component1": m_props[wb_prop_name]["anisotropic"][0],
-                            "component2": m_props[wb_prop_name]["anisotropic"][1],
-                            "component3": m_props[wb_prop_name]["anisotropic"][2],
+                            "component1": 1 / m_props["Resistivity"]["anisotropic"][0],
+                            "component2": 1 / m_props["Resistivity"]["anisotropic"][1],
+                            "component3": 1 / m_props["Resistivity"]["anisotropic"][2],
                         }
                     else:
-                        props[aedt_prop_name] = m_props[wb_prop_name]["data"]
-
-            if "Resistivity" in m_props and "Electrical Conductivity" not in m_props:
-                if "anisotropic" in m_props["Resistivity"]:
-                    props["conductivity"] = {
-                        "property_type": "AnisoProperty",
-                        "unit": "",
-                        "component1": 1 / m_props["Resistivity"]["anisotropic"][0],
-                        "component2": 1 / m_props["Resistivity"]["anisotropic"][1],
-                        "component3": 1 / m_props["Resistivity"]["anisotropic"][2],
-                    }
-                else:
-                    props["conductivity"] = 1 / m_props["Resistivity"]["data"]
-            if "Color" in m_props:
-                colors[m_name] = m_props["Color"]["data"]
-                colors[m_name].append(0.0)  # transparency information required by AEDT
-            for p_name, p in m_props.items():
-                if p_name in MatProperties.workbench_name and "dataset" in p:
-                    thermal_modifiers[m_name][MatProperties.wb_to_aedt_name(p_name)] = {
-                        "dataset": p["dataset"],
-                        "dataset_name": self._dataset_name(m_name, p_name),
-                    }
+                        props["conductivity"] = 1 / m_props["Resistivity"]["data"]
+                if "Color" in m_props:
+                    colors[m_name] = m_props["Color"]["data"]
+                    colors[m_name].append(0.0)  # transparency information required by AEDT
+                for p_name, p in m_props.items():
+                    if p_name in MatProperties.workbench_name and "dataset" in p:
+                        thermal_modifiers[m_name][MatProperties.wb_to_aedt_name(p_name)] = {
+                            "dataset": p["dataset"],
+                            "dataset_name": self._dataset_name(m_name, p_name),
+                        }
+            except (KeyError, IndexError, Exception):
+                failed_materials.append(m_name)
+                mat_props.pop(m_name, None)
+                thermal_modifiers.pop(m_name, None)
 
         # Creating the material in Hfss
         imported_materials = []
@@ -335,4 +379,4 @@ class MaterialWorkbench:
                     x.add_thermal_modifier_dataset(f"${data['dataset_name']}")
             if material_name in colors:
                 mat.material_appearance = colors[material_name]
-        return imported_materials
+        return imported_materials, failed_materials

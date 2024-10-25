@@ -965,7 +965,10 @@ class Materials(object):
 
         Returns
         -------
-        List of :class:`ansys.aedt.core.modules.material.Material`
+        tuple
+            List of :class:`ansys.aedt.core.modules.material.Material`
+            List of materials that failed to import.
+
 
         """
         # create an instance of the class
