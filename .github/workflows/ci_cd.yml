@@ -97,6 +97,7 @@ jobs:
           pytest-markers: -m unit
           pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          optional-dependencies-name: unit-tests
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
