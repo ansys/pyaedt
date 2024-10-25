@@ -80,6 +80,7 @@ class MonostaticRCSData(object):
         self.__freq_index = 0
         self.__model_units = "meter"
         self.__name = None
+        self.__solution = None
 
         self.__incident_wave_theta = None
         self.__incident_wave_phi = None
@@ -134,9 +135,15 @@ class MonostaticRCSData(object):
 
     @property
     def name(self):
-        """Antenna metadata."""
+        """Data name."""
         self.__name = self.raw_data.columns[0]
         return self.__name
+
+    @property
+    def solution(self):
+        """Data solution name."""
+        self.__solution = self.metadata["solution"]
+        return self.__solution
 
     @property
     def input_file(self):

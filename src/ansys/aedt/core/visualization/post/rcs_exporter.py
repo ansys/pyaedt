@@ -84,7 +84,7 @@ class MonostaticRCSExporter:
     ):
         # Public
         self.setup_name = setup_name
-        self.variation_name = ""
+        self.solution = ""
         self.export_format = "pkl"
         self.expression = expression
         if not self.expression:
@@ -172,21 +172,12 @@ class MonostaticRCSExporter:
         local_path = "{}/{}/".format(settings.remote_rpc_session_temp_folder, full_setup)
         export_path = os.path.abspath(check_and_download_folder(local_path, export_path))
 
-        # Variation name
-        var = []
-        if self.variations:
-            for k, v in self.variations.items():
-                var.append("{}='{}'".format(k, v))
-            variation = " ".join(var)
-        else:
-            variation = self.__app.odesign.GetNominalVariation()
+        if not self.solution:
+            self.solution = self.__app.design_name
 
-        if not self.variation_name:
-            self.variation_name = variation
-
-        file_name = f"{name}_{self.variation_name}.{output_format}"
+        file_name = f"{name}_{self.solution}.{output_format}"
         self.data_file = os.path.join(export_path, file_name)
-        pyaedt_metadata_file = os.path.join(export_path, f"{metadata_name}_{self.variation_name}.json")
+        pyaedt_metadata_file = os.path.join(export_path, f"{metadata_name}_{self.solution}.json")
 
         # Create directory or check if files already exist
         if settings.remote_rpc_session:  # pragma: no cover
@@ -246,7 +237,7 @@ class MonostaticRCSExporter:
                 self.__model_info["object_list"] = obj_list
 
         items = {
-            "variation": self.variation_name,
+            "solution": self.solution,
             "monostatic_file": file_name,
             "model_units": self.__app.modeler.model_units,
             "frequency_units": self.__frequency_unit,
@@ -278,7 +269,11 @@ class MonostaticRCSExporter:
             new_path = os.path.join(os.path.abspath(export_path), object_name)
 
             if not os.path.exists(new_path):
-                new_path = shutil.move(obj.path, export_path)
+                _ = shutil.move(obj.path, export_path)
+            else:
+                os.remove(new_path)
+                _ = shutil.move(obj.path, export_path)
+
             if os.path.exists(os.path.join(original_path, name + ".mtl")):  # pragma: no cover
                 os.remove(os.path.join(original_path, name + ".mtl"))
             obj_list[obj.name] = [

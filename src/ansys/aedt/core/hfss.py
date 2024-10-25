@@ -6075,7 +6075,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         )
 
         if variation_name:
-            rcs.variation_name = variation_name
+            rcs.solution = variation_name
 
         metadata = rcs.export_rcs()
 
