@@ -42,7 +42,7 @@ except ImportError:  # pragma: no cover
     np = None
 
 try:
-    import matplotlib as plt
+    import matplotlib.pyplot as plt
 except ImportError:  # pragma: no cover
     warnings.warn(
         "The Matplotlib module is required to run functionalities of TouchstoneData.\n"
