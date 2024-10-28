@@ -1431,6 +1431,9 @@ class PostProcessor3D(PostProcessorCommon):
             use in the export or ``LastAdaptive``.
         nets : list, optional
             List of nets to filter the field plot. Optional.
+        plot_on_surface : bool, optional
+            Whether if the plot has to be on surfaces or inside the objects.
+            It is applicable only to layout components. Default is ``True``.
         intrinsics : dict, str, optional
             Intrinsic variables required to compute the field before the export.
             These are typically: frequency, time and phase.
@@ -1538,6 +1541,9 @@ class PostProcessor3D(PostProcessorCommon):
 
             If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
             The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
+        plot_on_surface : bool, optional
+            Whether if the plot has to be on surfaces or inside the objects.
+            It is applicable only to layout components. Default is ``True``.
         name : str, optional
             Name of the field plot to create.
 
@@ -1611,7 +1617,8 @@ class PostProcessor3D(PostProcessorCommon):
             If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
             The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         plot_on_surface : bool, optional
-            Whether the plot is to be on the surface or volume of traces.
+            Whether if the plot has to be on surfaces or inside the objects.
+            It is applicable only to layout components. Default is ``True``.
         plot_name : str, optional
             Name of the field plot to create.
 
