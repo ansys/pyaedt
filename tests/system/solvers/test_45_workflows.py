@@ -241,7 +241,7 @@ class TestClass:
         assert name == "Voltage_Line"
         file_path = os.path.join(aedtapp.working_directory, "my_expr.fld")
         assert aedtapp.post.fields_calculator.write("voltage_line", file_path, aedtapp.nominal_adaptive)
-        points_path = os.path.join(solver_local_path, "example_models",
+        points_path = os.path.join(TESTS_SOLVERS_PATH, "example_models",
                                     "T00",
                                     "temp_points.pts")
         output_file = aedtapp.post.fields_calculator.export("voltage_line", sample_points=points_path)
