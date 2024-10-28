@@ -1584,7 +1584,7 @@ class UpdateBeamForm:
 
     Parameters
     ----------
-    farfield_data : :class:`ansys.aedt.core.generic.farfield_visualization.FfdSolutionData`
+    farfield_data : :class:`ansys.aedt.core.visualization.advanced.farfield_visualization.FfdSolutionData`
         Far field solution data instance.
     farfield_quantity : str, optional
         Quantity to plot. The default is ``"RealizedGain"``.
