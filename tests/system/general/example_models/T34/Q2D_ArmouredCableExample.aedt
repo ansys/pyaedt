@@ -8590,7 +8590,7 @@ End Function $end_cdata$
 					TextProp('Author', 'D', '', '')
 					TextProp('Number', 'D', '', '1')
 					TextProp('Project', 'D', '', 'Q2D_ArmouredCableExample')
-					TextProp('ProjectPath', 'D', '', 'C:/AnsysDev/NoBackup/pyaedt/tests/system/general/example_models/T34/')
+					TextProp('ProjectPath', 'D', '', 'C:/AnsysDev/NoBackup/pyaedt/_unittest/example_models/T34/')
 					TextProp('Design', 'D', '', 'CableSystem')
 					TextProp('Date', 'D', '', '2:51:31 PM  Jan 25, 2024')
 				$end 'Properties'

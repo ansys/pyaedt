@@ -112,7 +112,7 @@ $begin 'AnsoftProject'
 				$end 'AttachedData'
 				permittivity='1'
 				ModTime=1499970477
-				Library='pyaedt\\tests\\system\\general\\example_models\\T13\\material_sample'
+				Library='pyaedt\\_unittest\\example_models\\T13\\material_sample'
 				LibLocation='PersonalLibrary'
 				ModSinceLib=false
 			$end 'vacuum'

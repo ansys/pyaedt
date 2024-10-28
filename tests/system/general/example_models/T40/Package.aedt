@@ -16855,7 +16855,7 @@ $begin 'AnsoftProject'
 					TextProp('Author', 'D', '', '')
 					TextProp('Number', 'D', '', '1')
 					TextProp('Project', 'D', '', 'Package')
-					TextProp('ProjectPath', 'D', '', 'C:/ansysdev/GIT/repos/pyaedt/tests/system/general/example_models/')
+					TextProp('ProjectPath', 'D', '', 'C:/ansysdev/GIT/repos/pyaedt/_unittest/example_models/')
 					TextProp('Design', 'D', '', 'Dummy_Board')
 					TextProp('Date', 'D', '', '12:40:16 PM  Mar 03, 2022')
 				$end 'Properties'

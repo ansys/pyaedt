@@ -2839,7 +2839,7 @@ VuvRHsgFvhqHebmvzNvpRP-s5NPZhqyDjWQmxVm8ZwyrbuGojSUP9k5F2fvr0TTiUMlyAbttItRjtRjg
 				NoiseModelOption='External'
 				WB_SystemID=''
 				IsWBModel=false
-				filename='C:/AnsysDev/repos/pyaedt/tests/system/general/example_models/T22/Filter_Board.aedt'
+				filename='C:/AnsysDev/repos/pyaedt/_unittest/example_models/T22/Filter_Board.aedt'
 				numberofports=4
 				Simulate=false
 				CloseProject=false
@@ -7071,7 +7071,7 @@ VuvRHsgFvhqHebmvzNvpRP-s5NPZhqyDjWQmxVm8ZwyrbuGojSUP9k5F2fvr0TTiUMlyAbttItRjtRjg
 					TextProp('Author', 'D', '', '')
 					TextProp('Number', 'D', '', '1')
 					TextProp('Project', 'D', '', 'Dynamic_Link')
-					TextProp('ProjectPath', 'D', '', 'C:/AnsysDev/repos/pyaedt/tests/system/general/example_models/T22/')
+					TextProp('ProjectPath', 'D', '', 'C:/AnsysDev/repos/pyaedt/_unittest/example_models/T22/')
 					TextProp('Design', 'D', '', 'layout_cutout')
 					TextProp('Date', 'D', '', '2:54:51 PM  Jun 10, 2024')
 				$end 'Properties'
@@ -8150,7 +8150,7 @@ VuvRHsgFvhqHebmvzNvpRP-s5NPZhqyDjWQmxVm8ZwyrbuGojSUP9k5F2fvr0TTiUMlyAbttItRjtRjg
 					TextProp('Author', 'D', '', '')
 					TextProp('Number', 'D', '', '1')
 					TextProp('Project', 'D', '', 'Dynamic_Link')
-					TextProp('ProjectPath', 'D', '', 'C:/AnsysDev/repos/pyaedt/tests/system/general/example_models/T22/')
+					TextProp('ProjectPath', 'D', '', 'C:/AnsysDev/repos/pyaedt/_unittest/example_models/T22/')
 					TextProp('Design', 'D', '', 'Circuit1')
 					TextProp('Date', 'D', '', '2:54:30 PM  Jun 10, 2024')
 				$end 'Properties'

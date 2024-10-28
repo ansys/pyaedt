@@ -7042,7 +7042,7 @@ l1 = 10mm', true, true, ExtentRect(0, 0, 0, 0, 0.0769792879581111, 0.04440587062
 					TextProp('Author', 'D', '', '')
 					TextProp('Number', 'D', '', '1')
 					TextProp('Project', 'D', '', 'Switching_Speed_FET_And_Diode')
-					TextProp('ProjectPath', 'D', '', 'C:/ansysdev/GIT/repos/pyaedt/tests/system/general/example_models/')
+					TextProp('ProjectPath', 'D', '', 'C:/ansysdev/GIT/repos/pyaedt/_unittest/example_models/')
 					TextProp('Design', 'D', '', 'diff')
 					TextProp('Date', 'D', '', '11:09:08 AM  Mar 15, 2022')
 				$end 'Properties'

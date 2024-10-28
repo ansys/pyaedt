@@ -6828,7 +6828,7 @@ VuvRHsgFvhqHebmvzNvpRP-s5NPZhqyDjWQmxVm8ZwyrbuGojSUP9k5F2fvr0TTiUMlyAbttItRjtRjg
 					TextProp('Author', 'D', '', '')
 					TextProp('Number', 'D', '', '1')
 					TextProp('Project', 'D', '', 'Filter_Board')
-					TextProp('ProjectPath', 'D', '', 'D:/ansysdev/GIT/repos/pyaedt/tests/system/general/example_models/')
+					TextProp('ProjectPath', 'D', '', 'D:/ansysdev/GIT/repos/pyaedt/_unittest/example_models/')
 					TextProp('Design', 'D', '', 'cutout3')
 					TextProp('Date', 'D', '', '4:59:04 PM  Sep 20, 2021')
 				$end 'Properties'
@@ -7936,7 +7936,7 @@ VuvRHsgFvhqHebmvzNvpRP-s5NPZhqyDjWQmxVm8ZwyrbuGojSUP9k5F2fvr0TTiUMlyAbttItRjtRjg
 					TextProp('Author', 'D', '', '')
 					TextProp('Number', 'D', '', '1')
 					TextProp('Project', 'D', '', 'Filter_Board_Icepak')
-					TextProp('ProjectPath', 'D', '', 'D:/ANSYSDev/repositories/PyAEDT/tests/system/general/example_models/')
+					TextProp('ProjectPath', 'D', '', 'D:/ANSYSDev/repositories/PyAEDT/_unittest/example_models/')
 					TextProp('Design', 'D', '', 'Circuit2')
 					TextProp('Date', 'D', '', '6:59:54  feb 28, 2022')
 				$end 'Properties'

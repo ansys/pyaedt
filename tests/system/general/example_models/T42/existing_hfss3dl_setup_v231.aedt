@@ -239,7 +239,7 @@ $begin 'AnsoftProject'
 					TextProp('Author', 'D', '', '')
 					TextProp('Number', 'D', '', '1')
 					TextProp('Project', 'D', '', 'existing_hfss3dl_setup_2022')
-					TextProp('ProjectPath', 'D', '', 'C:/git/Ansys/pyaedt/tests/system/general/example_models/T42/')
+					TextProp('ProjectPath', 'D', '', 'C:/git/Ansys/pyaedt/_unittest/example_models/T42/')
 					TextProp('Design', 'D', '', 'HFSS 3D Layout Design_5G4')
 					TextProp('Date', 'D', '', '1:51:10 PM  Mar 07, 2023')
 				$end 'Properties'
