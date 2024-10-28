@@ -115,7 +115,7 @@ jobs:
 # # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # # =================================================================================================
 
-  system-test-solvers-windows:
+  system-tests-solvers-windows:
     name: Testing solvers and coverage (Windows)
     needs: [unit-tests]
     if: github.event.pull_request.draft == false
@@ -360,7 +360,7 @@ jobs:
 
   package:
     name: Package library
-    needs: [system-tests-general-windows, system-tests-solvers-windows, system-tests-solvers-windows, system-tests-solvers-linux, doc-build]
+    needs: [system-tests-general-windows, system-tests-general-linux, system-tests-solvers-windows, system-tests-solvers-linux, doc-build]
     runs-on: ubuntu-latest
     steps:
       - name: Build library source and wheel artifacts
