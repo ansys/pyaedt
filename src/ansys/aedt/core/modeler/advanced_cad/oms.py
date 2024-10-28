@@ -32,7 +32,7 @@ logger = settings.logger
 
 try:
     import numpy as np
-except ImportError:
+except ImportError:  # pragma : no cover
     warnings.warn(
         "The NumPy module is required to use the OpenStreetMap Reader.\n" "Install with \n\npip install numpy"
     )
@@ -40,7 +40,7 @@ except ImportError:
 try:
     import pyvista as pv
     import vtk
-except ImportError:
+except ImportError:  # pragma : no cover
     warnings.warn(
         "The PyVista module is required to use the OpenStreetMap Reader.\n" "Install with \n\npip install pyvista"
     )
@@ -50,7 +50,7 @@ try:
     import srtm
     import utm
 
-except ImportError:
+except ImportError:  # pragma : no cover
     warnings.warn(
         "OpenStreetMap Reader requires utm, osmnx and srtm extra packages.\n"
         "Install with \n\npip install utm osmnx srtm"

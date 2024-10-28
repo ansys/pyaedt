@@ -1074,7 +1074,7 @@ class Configurations(object):
         try:
             validate(instance=config_data, schema=self.schema)
             return True
-        except exceptions.ValidationError as e:
+        except exceptions.ValidationError as e:  # pragma : no cover
             self._app.logger.warning("Configuration is invalid.")
             self._app.logger.warning("Validation error:" + e.message)
             return False
