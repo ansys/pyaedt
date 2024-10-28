@@ -989,3 +989,4 @@ class TestClass:
     def test_52_create_current_probe(self):
         iprobe = self.aedtapp.modeler.schematic.create_current_probe(name="test_probe", location=[0.4, 0.2])
         assert type(iprobe.id) is int
+        assert iprobe.InstanceName == "test_probe"

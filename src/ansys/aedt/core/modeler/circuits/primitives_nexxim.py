@@ -882,7 +882,7 @@ class NexximComponents(CircuitComponents):
             location = [location[0] + 0.2 * 24.4 / 1000, location[1] + 0.2 * 24.4 / 1000]
 
         cmpid = self.create_component(
-            None,
+            name,
             component_library="Probes",
             component_name="IPROBE",
             location=location,
