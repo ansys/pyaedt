@@ -33,9 +33,8 @@ logger = settings.logger
 try:
     import numpy as np
 except ImportError:
-    warnings.warn("
-        "The NumPy module is required to use the OpenStreetMap Reader.\n"
-        "Install with \n\npip install numpy"
+    warnings.warn(
+        "The NumPy module is required to use the OpenStreetMap Reader.\n" "Install with \n\npip install numpy"
     )
 
 try:
@@ -43,8 +42,7 @@ try:
     import vtk
 except ImportError:
     warnings.warn(
-        "The PyVista module is required to use the OpenStreetMap Reader.\n"
-        "Install with \n\npip install pyvista"
+        "The PyVista module is required to use the OpenStreetMap Reader.\n" "Install with \n\npip install pyvista"
     )
 
 try:
