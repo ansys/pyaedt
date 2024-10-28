@@ -850,6 +850,49 @@ class NexximComponents(CircuitComponents):
         cmpid.set_property("Name", name)
         return cmpid
 
+    @pyaedt_function_handler(probe_name="name")
+    def create_current_probe(self, name=None, location=None, angle=0, use_instance_id_netlist=False):
+        """Create a current probe.
+
+        Parameters
+        ----------
+        name :
+            Name of the current probe. The default is ``None``.
+        location : list of float, optional
+            Position on the X axis and Y axis. The default is ``None``.
+        angle : float, optional
+            Angle rotation in degrees. The default is ``0``.
+        use_instance_id_netlist : bool, optional
+            Whether to use the instance ID in the net list.
+            The default is ``False``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+            Circuit Component Object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
+        """
+        if location is None:
+            location = []
+        else:
+            location = [location[0] + 0.2 * 24.4 / 1000, location[1] + 0.2 * 24.4 / 1000]
+
+        cmpid = self.create_component(
+            None,
+            component_library="Probes",
+            component_name="IPROBE",
+            location=location,
+            angle=angle,
+            use_instance_id_netlist=use_instance_id_netlist,
+        )
+
+        cmpid.set_property("Name", name)
+        return cmpid
+
     @pyaedt_function_handler(compname="name")
     def create_current_pulse(self, name=None, value_lists=None, location=None, angle=0, use_instance_id_netlist=False):
         """Create a current pulse.

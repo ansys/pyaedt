@@ -985,3 +985,7 @@ class TestClass:
         self.aedtapp.insert_design("ASC")
         asc_file = os.path.join(local_path, "example_models", test_subfolder, "butter.asc")
         assert self.aedtapp.create_schematic_from_asc_file(asc_file)
+
+    def test_52_create_current_probe(self):
+        iprobe = self.aedtapp.modeler.schematic.create_current_probe(name="test_probe", location=[0.4, 0.2])
+        assert type(iprobe.id) is int
