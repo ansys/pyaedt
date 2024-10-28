@@ -22,7 +22,6 @@ jobs:
   doc-build:
     name: Documentation build
     runs-on: [ self-hosted, Windows, pyaedt ]
-    needs: [doc-style]
     steps:
       - name: Documentation build
         uses: ansys/actions/doc-build@v8
