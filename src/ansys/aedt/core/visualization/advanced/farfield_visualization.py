@@ -90,7 +90,7 @@ class FfdSolutionData(object):
     --------
 
     >>> from ansys.aedt.core
-    >>> from ansys.aedt.core.generic.farfield_visualization import FfdSolutionData
+    >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
     >>> app = ansys.aedt.core.Hfss(version="2023.2", design="Antenna")
     >>> data = app.get_antenna_data()
     >>> metadata_file = data.metadata_file
