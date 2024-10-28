@@ -22,10 +22,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import logging
 import os
 
 from _unittest.conftest import local_path
 from ansys.aedt.core import Hfss3dLayout
+from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
+from ansys.aedt.core.visualization.advanced.touchstone_parser import find_touchstone_files
+import matplotlib.pyplot as plt
+from mock import MagicMock
+from mock import patch
 import pytest
 
 test_subfolder = "T44"
@@ -39,6 +45,20 @@ aedt_proj_name = "differential_microstrip"
 def hfss3dl(add_app):
     app = add_app(project_name=aedt_proj_name, application=Hfss3dLayout, subfolder=test_subfolder)
     return app
+
+
+@pytest.fixture
+def touchstone_file(tmp_path):
+    file_path = tmp_path / "dummy.s2p"
+    file_content = """
+! Terminal data exported
+! Port[1] = Port1
+! Port[2] = Port2
+0.1                            0.1 0.2
+"""
+
+    file_path.write_text(file_content)
+    return file_path
 
 
 class TestClass:
@@ -56,7 +76,6 @@ class TestClass:
         assert ts_data.get_fext_xtalk_index_from_prefix("diff1", "diff2")
 
     def test_02_read_ts_file(self):
-        from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
 
         ts1 = TouchstoneData(touchstone_file=os.path.join(test_T44_dir, "port_order_1234.s8p"))
         assert ts1.get_mixed_mode_touchstone_data()
@@ -76,3 +95,93 @@ class TestClass:
                 assert v[1]
             elif v and v[0] == "causality":
                 assert not v[1]
+
+
+@patch("matplotlib.pyplot.show", MagicMock())
+def test_plot_insertion_losses(touchstone_file):
+    ts = TouchstoneData(touchstone_file=touchstone_file)
+    res = ts.plot_insertion_losses()
+
+    assert res is not []
+    plt.show.assert_called_once()
+
+
+@patch("matplotlib.pyplot.show", MagicMock())
+def test_plot(touchstone_file):
+    ts = TouchstoneData(touchstone_file=touchstone_file)
+    res = ts.plot(show=True)
+
+    assert res
+    plt.show.assert_called_once()
+
+
+def test_get_mixed_mode_touchstone_data_failure(touchstone_file, caplog: pytest.LogCaptureFixture):
+    ts = TouchstoneData(touchstone_file=touchstone_file)
+
+    assert not ts.get_mixed_mode_touchstone_data(port_ordering="12")
+    assert [
+        record
+        for record in caplog.records
+        if record.levelno == logging.ERROR and record.message == "Invalid input provided for 'port_ordering'."
+    ]
+
+
+def test_get_return_loss_index_with_dummy_prefix(touchstone_file):
+    ts = TouchstoneData(touchstone_file=touchstone_file)
+    res = ts.get_return_loss_index(excitation_name_prefix="dummy_prefix")
+
+    assert not res
+
+
+def test_get_insertion_loss_index_from_prefix_failure(touchstone_file, caplog: pytest.LogCaptureFixture):
+    ts = TouchstoneData(touchstone_file=touchstone_file)
+    res = ts.get_insertion_loss_index_from_prefix("Port", "Dummy")
+
+    assert not res
+    assert [
+        record
+        for record in caplog.records
+        if record.levelno == logging.ERROR and record.message == "TX and RX should be same length lists."
+    ]
+
+
+def test_get_return_loss_index_with_dummy_prefix(touchstone_file):
+    ts = TouchstoneData(touchstone_file=touchstone_file)
+    res = ts.get_next_xtalk_index("Dummy")
+
+    assert not res
+
+
+@patch("matplotlib.pyplot.show", MagicMock())
+def test_plot_next_xtalk_losses(touchstone_file):
+    ts = TouchstoneData(touchstone_file=touchstone_file)
+    res = ts.plot_next_xtalk_losses()
+
+    assert res
+    plt.show.assert_called_once()
+
+
+@patch("matplotlib.pyplot.show", MagicMock())
+def test_plot_fext_xtalk_losses(touchstone_file):
+    ts = TouchstoneData(touchstone_file=touchstone_file)
+    res = ts.plot_fext_xtalk_losses("Port", "Port")
+
+    assert res
+    plt.show.assert_called_once()
+
+
+@patch("os.path.exists", return_value=False)
+def test_find_touchstone_files_with_non_existing_directory(mock_exists):
+    res = find_touchstone_files("dummy_path")
+
+    assert res == {}
+
+
+@patch("os.path.exists", return_value=True)
+@patch("os.listdir")
+def test_find_touchstone_files_with_non_existing_directory(mock_listdir, mock_exists):
+    mock_listdir.return_value = {"dummy.ts", "dummy.txt"}
+    res = find_touchstone_files("dummy_path")
+
+    assert "dummy.ts" in res
+    assert "dummy.txt" not in res
