@@ -20,8 +20,7 @@ env:
   MEILISEARCH_HOST_URL: ${{ vars.MEILISEARCH_HOST_URL }}
   MEILISEARCH_PUBLIC_API_KEY: ${{ secrets.MEILISEARCH_PUBLIC_API_KEY }}
   ON_CI: True
-  # PYTEST_ARGUMENTS: '-vvv --color=yes -ra --durations=25 --maxfail=10 --reruns 2 --reruns-delay 5 --cov=ansys.aedt.core --cov-report=html'
-  PYTEST_ARGUMENTS: '-vvv --color=yes -ra --durations=25 --maxfail=10 --cov=ansys.aedt.core --cov-report=html'
+  PYTEST_ARGUMENTS: '-vvv --color=yes -ra --durations=25 --maxfail=10 --cov=ansys.aedt.core --cov-report=html --cov-report=xml --junitxml=junit/test-results.xml'
 
 
 concurrency:
@@ -85,7 +84,6 @@ jobs:
         run: |
           python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
 
-  # TODO: Add option optional-dependencies-name once a new release is performed
   unit-tests:
     name: Running unit tests
     needs: [smoke-tests]
@@ -279,7 +277,7 @@ jobs:
           timeout_minutes: 50
           command: |
             .venv\Scripts\Activate.ps1
-            pytest -n 4 --dist loadfile --durations=50 -v --cov=ansys.aedt.core --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml -m general
+            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile -m general
 
       - uses: codecov/codecov-action@v4
         with:
@@ -348,7 +346,7 @@ jobs:
           command: |
             export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
             source .venv/bin/activate
-            pytest -n 2 --dist loadfile --durations=50 -v --cov=ansys.aedt.core --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml -m general
+            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile -m general
 
       - uses: codecov/codecov-action@v4
         with:

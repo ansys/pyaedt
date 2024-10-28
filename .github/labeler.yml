@@ -16,6 +16,10 @@ testing:
 - changed-files:
   - any-glob-to-any-file:
     - "tests/conftest.py"
+    - "tests/unit/conftest.py"
+    - "tests/system/conftest.py"
+    - "tests/system/solvers/conftest.py"
+    - "tests/system/general/conftest.py"
 
 examples:
 - changed-files:
