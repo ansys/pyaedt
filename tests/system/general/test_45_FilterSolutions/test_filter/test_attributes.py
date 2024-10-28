@@ -36,6 +36,7 @@ from ansys.aedt.core.filtersolutions_core.attributes import SinglePointRippleInf
 from ansys.aedt.core.filtersolutions_core.attributes import StopbandDefinition
 from ansys.aedt.core.generic.general_methods import is_linux
 import pytest
+
 from tests.system.general.conftest import config
 
 

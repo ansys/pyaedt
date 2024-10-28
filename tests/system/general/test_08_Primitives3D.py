@@ -37,6 +37,7 @@ from ansys.aedt.core.modeler.cad.polylines import Polyline
 from ansys.aedt.core.modeler.cad.primitives import PolylineSegment
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 import pytest
+
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 

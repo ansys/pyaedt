@@ -27,6 +27,7 @@ import time
 
 from ansys.aedt.core import Q2d
 import pytest
+
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 from tests.system.general.conftest import desktop_version

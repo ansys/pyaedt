@@ -27,6 +27,7 @@ import os
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.generic.settings import is_linux
 import pytest
+
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 

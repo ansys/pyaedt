@@ -26,6 +26,7 @@ import os
 
 from ansys.aedt.core import Q3d
 import pytest
+
 from tests.system.solvers.conftest import desktop_version
 
 test_project_name = "coax_Q3D"

@@ -32,6 +32,7 @@ except ImportError:
     osmnx = None
 
 from ansys.aedt.core.generic.settings import is_linux
+
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import desktop_version
 

@@ -36,6 +36,7 @@ from ansys.aedt.core import TwinBuilder
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.settings import settings
 import pytest
+
 from tests.system.general.conftest import config
 
 settings.lazy_load = False

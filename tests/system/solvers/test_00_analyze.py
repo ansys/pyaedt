@@ -36,6 +36,7 @@ from ansys.aedt.core import Rmxprt
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.visualization.post.spisim import SpiSim
 import pytest
+
 from tests.system.solvers.conftest import desktop_version
 from tests.system.solvers.conftest import local_path
 

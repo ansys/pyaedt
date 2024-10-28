@@ -36,6 +36,7 @@ from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.workflows import customize_automation_tab
 import pytest
+
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 from tests.system.general.conftest import desktop_version

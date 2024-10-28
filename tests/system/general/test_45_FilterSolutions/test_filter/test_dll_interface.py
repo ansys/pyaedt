@@ -27,6 +27,7 @@ from ansys.aedt.core.filtersolutions_core.attributes import FilterImplementation
 from ansys.aedt.core.filtersolutions_core.attributes import FilterType
 from ansys.aedt.core.generic.general_methods import is_linux
 import pytest
+
 from tests.system.general.conftest import config
 from tests.system.general.test_45_FilterSolutions.test_filter import test_transmission_zeros
 

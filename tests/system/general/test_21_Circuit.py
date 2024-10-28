@@ -28,6 +28,7 @@ import time
 from ansys.aedt.core import Circuit
 from ansys.aedt.core.generic.settings import is_linux
 import pytest
+
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 

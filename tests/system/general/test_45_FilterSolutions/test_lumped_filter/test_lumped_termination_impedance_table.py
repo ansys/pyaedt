@@ -28,6 +28,7 @@ from ansys.aedt.core.filtersolutions_core.lumped_termination_impedance_table imp
 from ansys.aedt.core.filtersolutions_core.lumped_termination_impedance_table import ComplexTerminationDefinition
 from ansys.aedt.core.generic.general_methods import is_linux
 import pytest
+
 from tests.system.general.conftest import config
 
 

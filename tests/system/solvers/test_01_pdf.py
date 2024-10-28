@@ -29,6 +29,7 @@ from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
 from ansys.aedt.core.visualization.post.compliance import VirtualComplianceGenerator
 import pytest
+
 from tests.system.solvers.conftest import desktop_version
 from tests.system.solvers.conftest import local_path
 

@@ -32,6 +32,7 @@ from ansys.aedt.core import Icepak
 from ansys.aedt.core import Q2d
 from ansys.aedt.core import Q3d
 import pytest
+
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 

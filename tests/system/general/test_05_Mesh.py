@@ -24,6 +24,7 @@
 
 from ansys.aedt.core import Maxwell3d
 import pytest
+
 from tests.system.general.conftest import config
 from tests.system.general.conftest import desktop_version
 

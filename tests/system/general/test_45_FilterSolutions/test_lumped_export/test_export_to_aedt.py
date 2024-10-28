@@ -30,6 +30,7 @@ from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateResisti
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateType
 from ansys.aedt.core.generic.general_methods import is_linux
 import pytest
+
 from tests.system.general.conftest import config
 
 from ..resources import read_resource_file

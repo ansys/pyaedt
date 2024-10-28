@@ -28,6 +28,7 @@ import shutil
 from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
 from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 import pytest
+
 from tests import TESTS_GENERAL_PATH
 
 array = "array_simple_231"

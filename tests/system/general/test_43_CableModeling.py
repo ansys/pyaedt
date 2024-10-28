@@ -27,6 +27,7 @@ import os
 from ansys.aedt.core.generic.general_methods import read_json
 from ansys.aedt.core.modules.cable_modeling import Cable
 import pytest
+
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 

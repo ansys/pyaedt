@@ -27,6 +27,7 @@ import os
 import shutil
 
 import pytest
+
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 from tests.system.general.conftest import settings

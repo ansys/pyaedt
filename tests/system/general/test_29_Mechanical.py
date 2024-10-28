@@ -29,6 +29,7 @@ from ansys.aedt.core import Hfss
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Mechanical
 import pytest
+
 from tests.system.general.conftest import config
 
 test_project_name = "coax_Mech"

@@ -33,6 +33,7 @@ from ansys.aedt.core.application.variables import generate_validation_errors
 from ansys.aedt.core.generic.general_methods import isclose
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 import pytest
+
 from tests.system.general.conftest import desktop_version
 
 

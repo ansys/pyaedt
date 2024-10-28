@@ -31,6 +31,7 @@ from ansys.aedt.core.modeler.cad.modeler import FaceCoordinateSystem
 from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.cad.primitives import PolylineSegment
 import pytest
+
 from tests.system.general.conftest import config
 
 test_subfolder = "T02"

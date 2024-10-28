@@ -26,6 +26,7 @@ import os
 
 from ansys.aedt.core import Circuit
 import pytest
+
 from tests.system.general.conftest import desktop_version
 
 test_subfolder = "T11"

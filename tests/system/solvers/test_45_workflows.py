@@ -28,6 +28,7 @@ import shutil
 import ansys.aedt.core
 from ansys.aedt.core.generic.settings import is_linux
 import pytest
+
 from tests.system.general.conftest import local_path
 from tests.system.solvers.conftest import desktop_version
 from tests.system.solvers.conftest import local_path as solver_local_path

@@ -28,6 +28,7 @@ from ansys.aedt.core import Maxwell2d
 from ansys.aedt.core import MaxwellCircuit
 from ansys.aedt.core.generic.constants import SOLUTIONS
 import pytest
+
 from tests import TESTS_GENERAL_PATH
 
 test_subfolder = "T35"

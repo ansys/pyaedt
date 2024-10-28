@@ -33,6 +33,7 @@ import unittest.mock
 from ansys.aedt.core.aedt_logger import AedtLogger
 from ansys.aedt.core.generic.settings import settings
 import pytest
+
 from tests.system.general.conftest import config
 
 settings.enable_desktop_logs = True

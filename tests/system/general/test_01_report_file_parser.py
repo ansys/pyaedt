@@ -26,6 +26,7 @@ import os
 
 from ansys.aedt.core.visualization.advanced.misc import parse_rdat_file
 import pytest
+
 from tests import TESTS_GENERAL_PATH
 
 test_subfolder = "TReportf"
