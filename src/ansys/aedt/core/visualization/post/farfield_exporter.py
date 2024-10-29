@@ -44,7 +44,8 @@ class FfdSolutionDataExporter:
     the embedded
     element pattern files for an antenna that have been solved in HFSS. The
     ``metadata_file`` properties can then be passed as arguments to
-    instantiate an instance of the :class:`ansys.aedt.core.generic.farfield_visualization.FfdSolutionData` class for
+    instantiate an instance of the
+    :class:`ansys.aedt.core.ansys.aedt.core.visualization.advanced.farfield_visualization.FfdSolutionData` class for
     subsequent analysis and postprocessing of the array data.
 
     Note that this class is derived from the :class:`FfdSolutionData` class and can be used directly for
