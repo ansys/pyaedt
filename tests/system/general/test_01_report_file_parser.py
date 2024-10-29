@@ -29,7 +29,7 @@ import pytest
 
 from tests import TESTS_GENERAL_PATH
 
-test_subfolder = "TReportf"
+test_subfolder = "TReport"
 
 
 @pytest.fixture(scope="module", autouse=True)
