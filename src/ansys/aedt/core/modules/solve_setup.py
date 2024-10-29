@@ -848,7 +848,7 @@ class Setup(CommonSetup):
         >>> # The target design is duplicated from the source design and made it active design.
         >>> m3d.duplicate_design(name="source_design", save_after_duplicate=True)
         >>> # The mesh link is assigned to the target design analysis setup.
-        >>> m3d.setups[0].add_mesh_link(design="source_design", solution="setup1 : LastAdaptive")
+        >>> m3d.setups[0].add_mesh_link(design="source_design", solution=m3d.nominal_adaptive)
         >>> m3d.release_desktop()
         """
         auto_update = self.auto_update
