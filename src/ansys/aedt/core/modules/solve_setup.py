@@ -42,7 +42,6 @@ from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.setup_templates import SetupKeys
@@ -1954,12 +1953,9 @@ class Setup3DLayout(CommonSetup):
         self.omodule.ExportToHfss(self.name, output_file)
         succeeded = self._check_export_log(info_messages, error_messages, output_file)
         if succeeded and keep_net_name:
-            if not is_ironpython:
-                from ansys.aedt.core import Hfss
+            from ansys.aedt.core import Hfss
 
-                self._get_net_names(Hfss, output_file, unite)
-            else:
-                self.p_app.logger.error("Exporting layout while keeping net name is not supported with IronPython")
+            self._get_net_names(Hfss, output_file, unite)
         return succeeded
 
     @pyaedt_function_handler()
@@ -2107,11 +2103,8 @@ class Setup3DLayout(CommonSetup):
     @pyaedt_function_handler()
     def _get_point_inside_primitive(self, primitive, n):
         from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
+        import numpy as np
 
-        if not is_ironpython:
-            import numpy as np
-        else:
-            return False
         bbox = primitive.bbox
         primitive_x_points = []
         primitive_y_points = []
@@ -2227,12 +2220,9 @@ class Setup3DLayout(CommonSetup):
         self.omodule.ExportToQ3d(self.name, output_file)
         succeeded = self._check_export_log(info_messages, error_messages, output_file)
         if succeeded and keep_net_name:
-            if not is_ironpython:
-                from ansys.aedt.core import Q3d
+            from ansys.aedt.core import Q3d
 
-                self._get_net_names(Q3d, output_file, unite)
-            else:
-                self.p_app.logger.error("Exporting layout while keeping net name is not supported with IronPython.")
+            self._get_net_names(Q3d, output_file, unite)
         return succeeded
 
     @pyaedt_function_handler(sweepname="name", sweeptype="sweep_type")

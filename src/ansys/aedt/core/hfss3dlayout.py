@@ -34,7 +34,6 @@ import re
 from ansys.aedt.core.application.analysis_3d_layout import FieldAnalysis3DLayout
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import parse_excitation_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -2326,10 +2325,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         -------
         from ansys.aedt.core.modules.solutions.SolutionData
         """
-
-        if is_ironpython:  # pragma: no cover
-            self._logger.error("Function is only supported in CPython.")
-            return False
         all_categories = self.post.available_quantities_categories(context=show, is_siwave_dc=True)
         if category not in all_categories:
             return False  # pragma: no cover
@@ -2353,9 +2348,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         -------
         pandas.Dataframe
         """
-        if is_ironpython:  # pragma: no cover
-            self.logger.error("Method not supported in IronPython.")
-            return False
         import pandas as pd
 
         solution_data = self.get_dcir_solution_data(setup=setup, show="RL", category="Loop Resistance")
@@ -2395,9 +2387,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         -------
         pandas.Dataframe
         """
-        if is_ironpython:  # pragma: no cover
-            self.logger.error("Method not supported in IronPython.")
-            return False
         import pandas as pd
 
         solution_data = self.get_dcir_solution_data(setup=setup, show="Sources", category="Voltage")
@@ -2431,9 +2420,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         -------
         pandas.Dataframe
         """
-        if is_ironpython:
-            self.logger.error("Method not supported in IronPython.")
-            return False
         import pandas as pd
 
         cates = ["X", "Y", "Current", "Resistance", "IR Drop", "Power"]

@@ -25,31 +25,36 @@
 import os
 import warnings
 
-from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
 
 logger = settings.logger
-if not is_ironpython:
-    try:
-        import numpy as np
 
-    except ImportError:
-        warnings.warn("numpy package is needed")
+try:
+    import numpy as np
+except ImportError:  # pragma: no cover
+    warnings.warn(
+        "The NumPy module is required to use the OpenStreetMap Reader.\n" "Install with \n\npip install numpy"
+    )
 
-    try:
-        import pyvista as pv
-        import vtk
-    except ImportError:
-        warnings.warn("pyvista package is needed")
+try:
+    import pyvista as pv
+    import vtk
+except ImportError:  # pragma: no cover
+    warnings.warn(
+        "The PyVista module is required to use the OpenStreetMap Reader.\n" "Install with \n\npip install pyvista"
+    )
 
-    try:
-        import osmnx as ox
-        import srtm
-        import utm
+try:
+    import osmnx as ox
+    import srtm
+    import utm
 
-    except ImportError:
-        warnings.warn("OpenStreetMap Reader requires utm, osmnx and srtm extra packages")
+except ImportError:  # pragma: no cover
+    warnings.warn(
+        "OpenStreetMap Reader requires utm, osmnx and srtm extra packages.\n"
+        "Install with \n\npip install utm osmnx srtm"
+    )
 
 
 class BuildingsPrep(object):
