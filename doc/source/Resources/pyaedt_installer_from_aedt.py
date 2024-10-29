@@ -134,15 +134,19 @@ def run_pyinstaller_from_c_python(oDesktop):
         if version <= "231":
             f.write("from pyaedt.workflows.installer.pyaedt_installer import add_pyaedt_to_aedt\n")
             f.write(
-                f'add_pyaedt_to_aedt(aedt_version="{oDesktop.GetVersion()[:6]}", personallib=r"{oDesktop.GetPersonalLibDirectory()}")\n'
+                'add_pyaedt_to_aedt(aedt_version="{}", personallib=r"{}")\n'.format(
+                    oDesktop.GetVersion()[:6], oDesktop.GetPersonalLibDirectory()
+                )
             )
         else:
             f.write("from ansys.aedt.core.workflows.installer.pyaedt_installer import add_pyaedt_to_aedt\n")
             f.write(
-                f'add_pyaedt_to_aedt(aedt_version="{oDesktop.GetVersion()[:6]}", personal_lib=r"{oDesktop.GetPersonalLibDirectory()}")\n'
+                'add_pyaedt_to_aedt(aedt_version="{}", personal_lib=r"{}")\n'.format(
+                    oDesktop.GetVersion()[:6], oDesktop.GetPersonalLibDirectory()
+                )
             )
 
-    command = f'"{python_exe}" "{python_script}"'
+    command = r'"{}" "{}"'.format(python_exe, python_script)
     oDesktop.AddMessage("", "", 0, "Configuring PyAEDT panels in automation tab.")
     ret_code = os.system(command)
     if ret_code != 0:
