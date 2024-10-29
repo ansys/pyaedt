@@ -840,17 +840,17 @@ class Setup(CommonSetup):
 
         Examples
         --------
-
-
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d(design="source_design")
         >>> m3d.create_setup(name="setup1")
-        >>> # The target design is duplicated from the source design and made it active design.
+        The target design is duplicated from the source design and made it active design.
         >>> m3d.duplicate_design(name="source_design", save_after_duplicate=True)
-        >>> # The mesh link is assigned to the target design analysis setup.
+        The mesh link is assigned to the target design analysis setup.
         >>> m3d.setups[0].add_mesh_link(design="source_design", solution=m3d.nominal_adaptive)
         >>> m3d.release_desktop()
+
         """
+
         auto_update = self.auto_update
         try:
             self.auto_update = False
