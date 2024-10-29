@@ -207,6 +207,7 @@ class PostProcessor3D(PostProcessorCommon):
 
     @pyaedt_function_handler(list_objs="assignment")
     def _get_volume_objects(self, assignment):
+        obj_list = []
         if self._app.solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
             obj_list = []
             editor = self._app._odesign.SetActiveEditor("3D Modeler")
