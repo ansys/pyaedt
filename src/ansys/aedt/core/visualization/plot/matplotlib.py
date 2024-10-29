@@ -1031,11 +1031,12 @@ class ReportPlotter:
         traces_to_plot = self._retrieve_traces(traces)
         if not traces_to_plot:
             return False
-        if figure:
+
+        if not figure:
             self.fig, self.ax = plt.subplots(subplot_kw={"projection": "polar"})
         else:
             self.fig = figure
-            self.ax = figure.add_subplot(111, subplot_kw={"projection": "polar"})
+            self.ax = figure.add_subplot(111, projection="polar")
 
         legend = []
         i = 0
