@@ -26,8 +26,10 @@ import os
 import shutil
 import subprocess  # nosec
 import sys
+from typing import List
 import xml.etree.ElementTree as ET  # nosec
 
+from defusedxml.ElementTree import parse as defused_parse
 import defusedxml.minidom
 
 defusedxml.defuse_stdlib()
@@ -89,7 +91,7 @@ def add_automation_tab(
         root = ET.Element("TabConfig")
     else:
         try:
-            tree = ET.parse(tab_config_file_path)  # nosec
+            tree = defused_parse(tab_config_file_path)
         except ParseError as e:  # pragma: no cover
             warnings.warn("Unable to parse %s\nError received = %s" % (tab_config_file_path, str(e)))
             return
@@ -168,7 +170,7 @@ def remove_xml_tab(toolkit_dir, name, panel="Panel_PyAEDT_Extensions"):
     if not os.path.isfile(tab_config_file_path):  # pragma: no cover
         return True
     try:
-        tree = ET.parse(tab_config_file_path)  # nosec
+        tree = defused_parse(tab_config_file_path)
     except ParseError as e:  # pragma: no cover
         warnings.warn("Unable to parse %s\nError received = %s" % (tab_config_file_path, str(e)))
         return
@@ -412,12 +414,9 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
             )
         )
 
-    def run_command(command):
+    def run_command(command: List[str]):
         try:
-            if is_linux:  # pragma: no cover
-                process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)  # nosec
-            else:
-                process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)  # nosec
+            process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)  # nosec
             _, stderr = process.communicate()
             ret_code = process.returncode
             if ret_code != 0:
@@ -454,7 +453,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
 
     if not os.path.exists(venv_dir):
         desktop_object.logger.info("Creating virtual environment")
-        run_command(f'"{base_venv}" -m venv "{venv_dir}" --system-site-packages')
+        run_command([base_venv, "-m", "venv", venv_dir, "--system-site-packages"])
         desktop_object.logger.info("Virtual environment created.")
 
     is_installed = False
@@ -474,7 +473,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
     if install and wheel_toolkit and os.path.exists(wheel_toolkit):
         desktop_object.logger.info("Starting offline installation")
         if is_installed:
-            run_command(f'"{pip_exe}" uninstall --yes {toolkit_info["pip"]}')
+            run_command([pip_exe, "uninstall", "--yes", toolkit_info["pip"]])
         import zipfile
 
         unzipped_path = os.path.join(
@@ -486,16 +485,16 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
             zip_ref.extractall(unzipped_path)
 
         package_name = toolkit_info["package"]
-        run_command(f'"{pip_exe}" install --no-cache-dir --no-index --find-links={unzipped_path} {package_name}')
+        run_command([pip_exe, "install", "--no-cache-dir", "--no-index", "--find-links={unzipped_path}", package_name])
     elif install and not is_installed:
         # Install the specified package
-        run_command(f'"{pip_exe}" --default-timeout=1000 install {toolkit_info["pip"]}')
+        run_command([pip_exe, "--default-timeout=1000", "install", toolkit_info["pip"]])
     elif not install and is_installed:
         # Uninstall toolkit
-        run_command(f'"{pip_exe}" --default-timeout=1000 uninstall -y {toolkit_info["package"]}')
+        run_command([pip_exe, "--default-timeout=1000", "uninstall", "-y", toolkit_info["package"]])
     elif install and is_installed:
         # Update toolkit
-        run_command(f'"{pip_exe}" --default-timeout=1000 install {toolkit_info["pip"]} -U')
+        run_command([pip_exe, "--default-timeout=1000", "install", toolkit_info["pip"], "-U"])
     else:
         desktop_object.logger.info("Incorrect input")
         return
