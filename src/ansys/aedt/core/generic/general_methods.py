@@ -1333,17 +1333,10 @@ def _create_json_file(json_dict, full_json_path):
     if not os.path.exists(os.path.dirname(full_json_path)):
         os.makedirs(os.path.dirname(full_json_path))
 
-    temp_path = full_json_path.replace(".json", "_temp.json")
-    with open_file(temp_path, "w") as fp:
+    with open_file(full_json_path, "w") as fp:
         json.dump(json_dict, fp, indent=4)
-    with open_file(temp_path, "r") as file:
-        filedata = file.read()
-    filedata = filedata.replace("True", "true")
-    filedata = filedata.replace("False", "false")
-    with open_file(full_json_path, "w") as file:
-        file.write(filedata)
-    os.remove(temp_path)
     settings.logger.info(f"{full_json_path} correctly created.")
+
     return True
 
 
