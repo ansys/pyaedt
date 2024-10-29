@@ -23,13 +23,15 @@
 # SOFTWARE.
 
 import os
+import warnings
 
 try:
     import joblib
 except ImportError:  # pragma: no cover
     joblib = None
     warnings.warn(
-        "The Joblib module is required to use functionalities provided by the module ansys.edt.core.modeler.advanced_cad.stacku_3d.\n"
+        "The Joblib module is required to use functionalities provided by the module "
+        "ansys.edt.core.modeler.advanced_cad.stacku_3d.\n"
         "Install with \n\npip install joblib"
     )
 try:
@@ -37,7 +39,8 @@ try:
 except ImportError:  # pragma: no cover
     np = None
     warnings.warn(
-        "The Numpy module is required to use functionalities provided by the module ansys.edt.core.modeler.advanced_cad.stacku_3d.\n"
+        "The Numpy module is required to use functionalities provided by the module "
+        "ansys.edt.core.modeler.advanced_cad.stacku_3d.\n"
         "Install with \n\npip install numpy"
     )
 
