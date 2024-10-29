@@ -228,7 +228,7 @@ class Primitives2D(GeometryModeler, object):
         --------
 
         >>> rect1 = aedtapp.modeler.create_rectangle([0, -2, -2],[3, 4])
-        >>> rect2 = aedtapp.modeler.create_rectangle(origin=[0, -2, -2],sizes=[3, 4],name="MyCircle",material="Copper")
+        >>> rect2 = aedtapp.modeler.create_rectangle(origin=[0, -2, -2],sizes=[3, 4],name="MyRectangle",material="Copper")
 
         """
         # TODO: Primitives in Maxwell 2D must have Z=0, otherwise the transparency cannot be changed. (issue 4071)
