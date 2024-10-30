@@ -28,7 +28,6 @@ import shutil
 from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
 from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 import pytest
-from pyvista.plotting.plotter import Plotter
 
 from tests import TESTS_GENERAL_PATH
 
@@ -92,6 +91,8 @@ class TestClass:
         assert ffdata.incident_power == 0.04
 
     def test_04_far_field_data(self, local_scratch):
+        from pyvista.plotting.plotter import Plotter
+
         pyaedt_metadata_dir_original = os.path.join(
             TESTS_GENERAL_PATH, "example_models", test_subfolder, "pyaedt_metadata"
         )
