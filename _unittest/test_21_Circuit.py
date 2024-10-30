@@ -980,3 +980,10 @@ class TestClass:
         self.aedtapp.insert_design("ASC")
         asc_file = os.path.join(local_path, "example_models", test_subfolder, "butter.asc")
         assert self.aedtapp.create_schematic_from_asc_file(asc_file)
+
+    def test_52_create_page(self):
+        self.aedtapp.create_page()
+        assert self.aedtapp.GetNumPages() == 2
+
+    def test_53_get_num_pages(self):
+        assert type(self.aedtapp.GetNumPages()) == int

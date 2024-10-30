@@ -1289,6 +1289,27 @@ class CircuitComponents(object):
         self.oeditor.CreatePage(name)
         return True
 
+    def get_num_pages(self):
+        """Gets the number of circuit schematic pages.
+
+        Returns
+        -------
+        int
+            The number of pages in the circuit schematic.
+        References
+        ----------
+        >>> oeditor.GetNumPages ()
+        Examples
+        --------
+        >>>from ansys.aedt.core import MaxwellCircuit
+        >>>app=MaxwellCircuit ()
+        >>>schematic=app.modeler.schematic
+        >>>schematic.get_num_pages ()
+
+        """
+        pages = self.oeditor.GetNumPages()
+        return pages
+
 
 class ComponentInfo(object):
     """Manages Circuit Catalog info."""
