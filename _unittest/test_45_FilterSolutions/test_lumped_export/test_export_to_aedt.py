@@ -49,7 +49,6 @@ second_modelithics_resistor = "Vishay -> RES_VIS_0603_001 D11"
 class TestClass:
     def test_modelithics_inductor_list_count(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         with pytest.raises(RuntimeError) as info:
             lumpdesign.export_to_aedt.modelithics_capacitor_list_count
         assert info.value.args[0] == "The part library is not set to Modelithics"
@@ -58,7 +57,6 @@ class TestClass:
 
     def test_modelithics_inductor_list(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         with pytest.raises(RuntimeError) as info:
             lumpdesign.export_to_aedt.modelithics_inductor_list(0)
         assert info.value.args[0] == "The part library is not set to Modelithics"
@@ -71,7 +69,6 @@ class TestClass:
 
     def test_modelithics_inductor_selection(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         with pytest.raises(RuntimeError) as info:
             lumpdesign.export_to_aedt.modelithics_inductor_selection
         assert info.value.args[0] == "The part library is not set to Modelithics"
@@ -84,7 +81,6 @@ class TestClass:
 
     def test_modelithics_inductor_family_list_count(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         with pytest.raises(RuntimeError) as info:
             lumpdesign.export_to_aedt.modelithics_inductor_family_list_count
         assert info.value.args[0] == "The part library is not set to Modelithics"
@@ -97,7 +93,6 @@ class TestClass:
 
     def test_modelithics_inductor_family_list(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         with pytest.raises(RuntimeError) as info:
             lumpdesign.export_to_aedt.modelithics_inductor_family_list(0)
         assert info.value.args[0] == "The part library is not set to Modelithics"
@@ -112,7 +107,6 @@ class TestClass:
 
     def test_modelithics_inductor_family_list_add_family(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         with pytest.raises(RuntimeError) as info:
             lumpdesign.export_to_aedt.modelithics_inductor_add_family(second_modelithics_inductor)
         assert info.value.args[0] == "The part library is not set to Modelithics"
@@ -127,7 +121,6 @@ class TestClass:
 
     def test_modelithics_inductor_family_list_remove_family(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         with pytest.raises(RuntimeError) as info:
             lumpdesign.export_to_aedt.modelithics_inductor_remove_family(second_modelithics_inductor)
         lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
@@ -142,16 +135,14 @@ class TestClass:
 
     def test_modelithics_capacitor_list_count(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         with pytest.raises(RuntimeError) as info:
             lumpdesign.export_to_aedt.modelithics_capacitor_list_count
         assert info.value.args[0] == "The part library is not set to Modelithics"
         lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
-        assert lumpdesign.export_to_aedt.modelithics_capacitor_list_count == 140
+        assert lumpdesign.export_to_aedt.modelithics_capacitor_list_count == 143
 
     def test_modelithics_capacitor_list(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         with pytest.raises(RuntimeError) as info:
             lumpdesign.export_to_aedt.modelithics_capacitor_list(0)
         assert info.value.args[0] == "The part library is not set to Modelithics"
@@ -164,7 +155,6 @@ class TestClass:
 
     def test_modelithics_capacitor_selection(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         with pytest.raises(RuntimeError) as info:
             lumpdesign.export_to_aedt.modelithics_capacitor_selection
         assert info.value.args[0] == "The part library is not set to Modelithics"
@@ -177,7 +167,6 @@ class TestClass:
 
     def test_modelithics_capacitor_family_list_count(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         with pytest.raises(RuntimeError) as info:
             lumpdesign.export_to_aedt.modelithics_capacitor_family_list_count
         assert info.value.args[0] == "The part library is not set to Modelithics"
@@ -190,7 +179,6 @@ class TestClass:
 
     def test_modelithics_capacitor_family_list(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         with pytest.raises(RuntimeError) as info:
             lumpdesign.export_to_aedt.modelithics_capacitor_family_list(0)
         assert info.value.args[0] == "The part library is not set to Modelithics"
@@ -205,7 +193,6 @@ class TestClass:
 
     def test_modelithics_capacitor_family_list_add_family(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         with pytest.raises(RuntimeError) as info:
             lumpdesign.export_to_aedt.modelithics_capacitor_add_family(first_modelithics_capacitor)
         assert info.value.args[0] == "The part library is not set to Modelithics"
@@ -220,7 +207,6 @@ class TestClass:
 
     def test_modelithics_capacitor_family_list_remove_family(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         with pytest.raises(RuntimeError) as info:
             lumpdesign.export_to_aedt.modelithics_capacitor_remove_family(second_modelithics_capacitor)
             assert info.value.args[0] == "The part library is not set to Modelithics"
@@ -236,7 +222,6 @@ class TestClass:
 
     def test_modelithics_resistor_list_count(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         with pytest.raises(RuntimeError) as info:
             lumpdesign.export_to_aedt.modelithics_resistor_list_count
         assert info.value.args[0] == "The part library is not set to Modelithics"
@@ -245,7 +230,6 @@ class TestClass:
 
     def test_modelithics_resistor_list(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         with pytest.raises(RuntimeError) as info:
             lumpdesign.export_to_aedt.modelithics_resistor_list(0)
         assert info.value.args[0] == "The part library is not set to Modelithics"
@@ -258,7 +242,6 @@ class TestClass:
 
     def test_modelithics_resistor_selection(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         with pytest.raises(RuntimeError) as info:
             lumpdesign.export_to_aedt.modelithics_resistor_selection
         assert info.value.args[0] == "The part library is not set to Modelithics"
@@ -271,7 +254,6 @@ class TestClass:
 
     def test_modelithics_resistor_family_list_count(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         with pytest.raises(RuntimeError) as info:
             lumpdesign.export_to_aedt.modelithics_resistor_family_list_count
         assert info.value.args[0] == "The part library is not set to Modelithics"
@@ -284,7 +266,6 @@ class TestClass:
 
     def test_modelithics_resistor_family_list(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         with pytest.raises(RuntimeError) as info:
             lumpdesign.export_to_aedt.modelithics_resistor_family_list(0)
         assert info.value.args[0] == "The part library is not set to Modelithics"
@@ -299,7 +280,6 @@ class TestClass:
 
     def test_modelithics_resistor_family_list_add_family(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         with pytest.raises(RuntimeError) as info:
             lumpdesign.export_to_aedt.modelithics_resistor_add_family(first_modelithics_resistor)
         assert info.value.args[0] == "The part library is not set to Modelithics"
@@ -314,7 +294,6 @@ class TestClass:
 
     def test_modelithics_resistor_family_list_remove_family(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         with pytest.raises(RuntimeError) as info:
             lumpdesign.export_to_aedt.modelithics_resistor_remove_family(second_modelithics_resistor)
         assert info.value.args[0] == "The part library is not set to Modelithics"
@@ -330,136 +309,117 @@ class TestClass:
 
     def test_schematic_name(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         lumpdesign.export_to_aedt.schematic_name = "my_schematic"
         assert lumpdesign.export_to_aedt.schematic_name == "my_schematic"
 
     def test_simulate_after_export_enabled(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         assert lumpdesign.export_to_aedt.simulate_after_export_enabled == False
         lumpdesign.export_to_aedt.simulate_after_export_enabled = True
         assert lumpdesign.export_to_aedt.simulate_after_export_enabled == True
 
     def test_include_group_delay_enabled(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         assert lumpdesign.export_to_aedt.include_group_delay_enabled == False
         lumpdesign.export_to_aedt.include_group_delay_enabled = True
         assert lumpdesign.export_to_aedt.include_group_delay_enabled == True
 
     def test_include_gt_gain_enabled(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         assert lumpdesign.export_to_aedt.include_gt_gain_enabled == False
         lumpdesign.export_to_aedt.include_gt_gain_enabled = True
         assert lumpdesign.export_to_aedt.include_gt_gain_enabled == True
 
     def test_include_vgsl_enabled(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         assert lumpdesign.export_to_aedt.include_vgsl_enabled == False
         lumpdesign.export_to_aedt.include_vgsl_enabled = True
         assert lumpdesign.export_to_aedt.include_vgsl_enabled == True
 
     def test_include_vgin_enabled(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         assert lumpdesign.export_to_aedt.include_vgin_enabled == False
         lumpdesign.export_to_aedt.include_vgin_enabled = True
         assert lumpdesign.export_to_aedt.include_vgin_enabled == True
 
     def test_include_input_return_loss_s11_enabled(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         assert lumpdesign.export_to_aedt.include_input_return_loss_s11_enabled == True
         lumpdesign.export_to_aedt.include_input_return_loss_s11_enabled = False
         assert lumpdesign.export_to_aedt.include_input_return_loss_s11_enabled == False
 
     def test_include_forward_transfer_s21_enabled(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         assert lumpdesign.export_to_aedt.include_forward_transfer_s21_enabled == True
         lumpdesign.export_to_aedt.include_forward_transfer_s21_enabled = False
         assert lumpdesign.export_to_aedt.include_forward_transfer_s21_enabled == False
 
     def test_include_reverse_transfer_s12_enabled(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         assert lumpdesign.export_to_aedt.include_reverse_transfer_s12_enabled == False
         lumpdesign.export_to_aedt.include_reverse_transfer_s12_enabled = True
         assert lumpdesign.export_to_aedt.include_reverse_transfer_s12_enabled == True
 
     def test_include_output_return_loss_s22_enabled(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         assert lumpdesign.export_to_aedt.include_output_return_loss_s22_enabled == False
         lumpdesign.export_to_aedt.include_output_return_loss_s22_enabled = True
         assert lumpdesign.export_to_aedt.include_output_return_loss_s22_enabled == True
 
     def test_db_format_enabled(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         assert lumpdesign.export_to_aedt.db_format_enabled == True
         lumpdesign.export_to_aedt.db_format_enabled = False
         assert lumpdesign.export_to_aedt.db_format_enabled == False
 
     def test_rectangular_plot_enabled(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         assert lumpdesign.export_to_aedt.rectangular_plot_enabled == True
         lumpdesign.export_to_aedt.rectangular_plot_enabled = False
         assert lumpdesign.export_to_aedt.rectangular_plot_enabled == False
 
     def test_smith_plot_enabled(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         assert lumpdesign.export_to_aedt.smith_plot_enabled == False
         lumpdesign.export_to_aedt.smith_plot_enabled = True
         assert lumpdesign.export_to_aedt.smith_plot_enabled == True
 
     def test_polar_plot_enabled(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         assert lumpdesign.export_to_aedt.polar_plot_enabled == False
         lumpdesign.export_to_aedt.polar_plot_enabled = True
         assert lumpdesign.export_to_aedt.polar_plot_enabled == True
 
     def test_table_data_enabled(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         assert lumpdesign.export_to_aedt.table_data_enabled == False
         lumpdesign.export_to_aedt.table_data_enabled = True
         assert lumpdesign.export_to_aedt.table_data_enabled == True
 
     def test_optimitrics_enabled(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         assert lumpdesign.export_to_aedt.optimitrics_enabled == True
         lumpdesign.export_to_aedt.optimitrics_enabled = False
         assert lumpdesign.export_to_aedt.optimitrics_enabled == False
 
     def test_optimize_after_export_enabled(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         assert lumpdesign.export_to_aedt.optimize_after_export_enabled == False
         lumpdesign.export_to_aedt.optimize_after_export_enabled = True
         assert lumpdesign.export_to_aedt.optimize_after_export_enabled == True
 
     def test_load_library_parts_config(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         lumpdesign.export_to_aedt.load_library_parts_config(resource_path("library_parts.cfg"))
         lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
-        assert lumpdesign.export_to_aedt.substrate_er == "4.5"
-        assert lumpdesign.export_to_aedt.substrate_resistivity == "5.8E+07 "
-        assert lumpdesign.export_to_aedt.substrate_conductor_thickness == "500 nm"
-        assert lumpdesign.export_to_aedt.substrate_dielectric_height == "2 mm"
-        assert lumpdesign.export_to_aedt.substrate_loss_tangent == "0.035 "
+        assert lumpdesign.export_to_aedt.substrate_er == SubstrateEr.ALUMINA
+        assert lumpdesign.export_to_aedt.substrate_resistivity == SubstrateResistivity.GOLD
+        assert lumpdesign.export_to_aedt.substrate_conductor_thickness == "2.54 um"
+        assert lumpdesign.export_to_aedt.substrate_dielectric_height == "1.27 mm"
+        assert lumpdesign.export_to_aedt.substrate_loss_tangent == SubstrateEr.ALUMINA
 
     def test_save_library_parts_config(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         lumpdesign.export_to_aedt.substrate_er = "2.25"
         lumpdesign.export_to_aedt.substrate_resistivity = "4.2E+07 "
@@ -477,7 +437,6 @@ class TestClass:
 
     def test_import_tuned_variables(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         lumpdesign.export_to_aedt.simulate_after_export_enabled = True
         lumpdesign.export_to_aedt.optimize_after_export_enabled = True
         lumpdesign.export_to_aedt.export_design()
@@ -487,9 +446,6 @@ class TestClass:
 
     def test_part_libraries(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
-        lumpdesign.export_to_aedt._open_aedt_export()
-
         assert lumpdesign.export_to_aedt.part_libraries == PartLibraries.LUMPED
         assert len(PartLibraries) == 3
         lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
@@ -497,91 +453,78 @@ class TestClass:
 
     def test_interconnect_length_to_width_ratio(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         assert lumpdesign.export_to_aedt.interconnect_length_to_width_ratio == "2"
         lumpdesign.export_to_aedt.interconnect_length_to_width_ratio = "3"
         assert lumpdesign.export_to_aedt.interconnect_length_to_width_ratio == "3"
 
     def test_interconnect_minimum_length_to_width_ratio(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         assert lumpdesign.export_to_aedt.interconnect_minimum_length_to_width_ratio == "0.5"
         lumpdesign.export_to_aedt.interconnect_minimum_length_to_width_ratio = "0.6"
         assert lumpdesign.export_to_aedt.interconnect_minimum_length_to_width_ratio == "0.6"
 
     def test_interconnect_maximum_length_to_width_ratio(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         assert lumpdesign.export_to_aedt.interconnect_maximum_length_to_width_ratio == "2"
         lumpdesign.export_to_aedt.interconnect_maximum_length_to_width_ratio = "3"
         assert lumpdesign.export_to_aedt.interconnect_maximum_length_to_width_ratio == "3"
 
     def test_interconnect_line_to_termination_width_ratio(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         assert lumpdesign.export_to_aedt.interconnect_line_to_termination_width_ratio == "1"
         lumpdesign.export_to_aedt.interconnect_line_to_termination_width_ratio = "2"
         assert lumpdesign.export_to_aedt.interconnect_line_to_termination_width_ratio == "2"
 
     def test_interconnect_minimum_line_to_termination_width_ratio(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         assert lumpdesign.export_to_aedt.interconnect_minimum_line_to_termination_width_ratio == "0.5"
         lumpdesign.export_to_aedt.interconnect_minimum_line_to_termination_width_ratio = "0.6"
         assert lumpdesign.export_to_aedt.interconnect_minimum_line_to_termination_width_ratio == "0.6"
 
     def test_interconnect_maximum_line_to_termination_width_ratio(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         assert lumpdesign.export_to_aedt.interconnect_maximum_line_to_termination_width_ratio == "2"
         lumpdesign.export_to_aedt.interconnect_maximum_line_to_termination_width_ratio = "3"
         assert lumpdesign.export_to_aedt.interconnect_maximum_line_to_termination_width_ratio == "3"
 
     def test_interconnect_length_value(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         assert lumpdesign.export_to_aedt.interconnect_length_value == "2.54 mm"
         lumpdesign.export_to_aedt.interconnect_length_value = "3 mm"
         assert lumpdesign.export_to_aedt.interconnect_length_value == "3 mm"
 
     def test_interconnect_minimum_length_value(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         assert lumpdesign.export_to_aedt.interconnect_minimum_length_value == "1.27 mm"
         lumpdesign.export_to_aedt.interconnect_minimum_length_value = "0.6 mm"
         assert lumpdesign.export_to_aedt.interconnect_minimum_length_value == "0.6 mm"
 
     def test_interconnect_maximum_length_value(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         assert lumpdesign.export_to_aedt.interconnect_maximum_length_value == "5.08 mm"
         lumpdesign.export_to_aedt.interconnect_maximum_length_value = "6 mm"
         assert lumpdesign.export_to_aedt.interconnect_maximum_length_value == "6 mm"
 
     def test_interconnect_line_width_value(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         assert lumpdesign.export_to_aedt.interconnect_line_width_value == "1.27 mm"
         lumpdesign.export_to_aedt.interconnect_line_width_value = "2 mm"
         assert lumpdesign.export_to_aedt.interconnect_line_width_value == "2 mm"
 
     def test_interconnect_minimum_width_value(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         assert lumpdesign.export_to_aedt.interconnect_minimum_width_value == "635 um"
         lumpdesign.export_to_aedt.interconnect_minimum_width_value = "725 um"
         assert lumpdesign.export_to_aedt.interconnect_minimum_width_value == "725 um"
 
     def test_interconnect_maximum_width_value(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         assert lumpdesign.export_to_aedt.interconnect_maximum_width_value == "2.54 mm"
         lumpdesign.export_to_aedt.interconnect_maximum_width_value = "3 mm"
         assert lumpdesign.export_to_aedt.interconnect_maximum_width_value == "3 mm"
 
     def test_interconnect_inductor_tolerance_value(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         assert lumpdesign.export_to_aedt.interconnect_inductor_tolerance_value == "1"
         lumpdesign.export_to_aedt.interconnect_inductor_tolerance_value = "10"
@@ -589,7 +532,6 @@ class TestClass:
 
     def test_interconnect_capacitor_tolerance_value(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         assert lumpdesign.export_to_aedt.interconnect_capacitor_tolerance_value == "1"
         lumpdesign.export_to_aedt.interconnect_capacitor_tolerance_value = "10"
@@ -597,14 +539,12 @@ class TestClass:
 
     def test_interconnect_geometry_optimization_enabled(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         assert lumpdesign.export_to_aedt.interconnect_geometry_optimization_enabled == True
         lumpdesign.export_to_aedt.interconnect_geometry_optimization_enabled = False
         assert lumpdesign.export_to_aedt.interconnect_geometry_optimization_enabled == False
 
     def test_substrate_type(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         assert lumpdesign.export_to_aedt.substrate_type == SubstrateType.MICROSTRIP
         assert len(SubstrateType) == 5
         for substrate in SubstrateType:
@@ -613,7 +553,6 @@ class TestClass:
 
     def test_substrate_er(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         assert lumpdesign.export_to_aedt.substrate_er == SubstrateEr.ALUMINA
         assert len(SubstrateEr) == 17
         for er in SubstrateEr:
@@ -624,7 +563,6 @@ class TestClass:
 
     def test_substrate_resistivity(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         assert lumpdesign.export_to_aedt.substrate_resistivity == SubstrateResistivity.GOLD
         assert len(SubstrateResistivity) == 11
         for resistivity in SubstrateResistivity:
@@ -635,7 +573,6 @@ class TestClass:
 
     def test_substrate_loss_tangent(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         assert lumpdesign.export_to_aedt.substrate_loss_tangent == SubstrateEr.ALUMINA
         assert len(SubstrateEr) == 17
         for loss in SubstrateEr:
@@ -646,21 +583,18 @@ class TestClass:
 
     def test_substrate_conductor_thickness(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         assert lumpdesign.export_to_aedt.substrate_conductor_thickness == "2.54 um"
         lumpdesign.export_to_aedt.substrate_conductor_thickness = "1.25 um"
         assert lumpdesign.export_to_aedt.substrate_conductor_thickness == "1.25 um"
 
     def test_substrate_dielectric_height(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         assert lumpdesign.export_to_aedt.substrate_dielectric_height == "1.27 mm"
         lumpdesign.export_to_aedt.substrate_dielectric_height = "1.22 mm"
         assert lumpdesign.export_to_aedt.substrate_dielectric_height == "1.22 mm"
 
     def test_substrate_unbalanced_lower_dielectric_height(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         lumpdesign.export_to_aedt.substrate_type = SubstrateType.STRIPLINE
         lumpdesign.export_to_aedt.substrate_unbalanced_stripline_enabled = True
         assert lumpdesign.export_to_aedt.substrate_unbalanced_lower_dielectric_height == "6.35 mm"
@@ -669,7 +603,6 @@ class TestClass:
 
     def test_substrate_suspend_dielectric_height(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         lumpdesign.export_to_aedt.substrate_type = SubstrateType.SUSPEND
         assert lumpdesign.export_to_aedt.substrate_suspend_dielectric_height == "1.27 mm"
         lumpdesign.export_to_aedt.substrate_suspend_dielectric_height = "3.2 mm"
@@ -677,7 +610,6 @@ class TestClass:
 
     def test_substrate_cover_height(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         lumpdesign.export_to_aedt.substrate_cover_height_enabled = True
         assert lumpdesign.export_to_aedt.substrate_cover_height == "6.35 mm"
         lumpdesign.export_to_aedt.substrate_cover_height = "2.5 mm"
@@ -685,7 +617,6 @@ class TestClass:
 
     def test_substrate_unbalanced_stripline_enabled(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         lumpdesign.export_to_aedt.substrate_type = SubstrateType.STRIPLINE
         assert lumpdesign.export_to_aedt.substrate_unbalanced_stripline_enabled == False
         lumpdesign.export_to_aedt.substrate_unbalanced_stripline_enabled = True
@@ -693,7 +624,6 @@ class TestClass:
 
     def test_substrate_cover_height_enabled(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt._open_aedt_export()
         assert lumpdesign.export_to_aedt.substrate_cover_height_enabled == False
         lumpdesign.export_to_aedt.substrate_cover_height_enabled = True
         assert lumpdesign.export_to_aedt.substrate_cover_height_enabled == True
