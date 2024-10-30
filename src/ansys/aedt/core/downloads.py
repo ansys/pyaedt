@@ -27,18 +27,12 @@
 import os
 import shutil
 import tempfile
+import urllib.request
 import zipfile
 
-from ansys.aedt.core.generic.aedt_versions import aedt_versions
-from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
-
-if is_ironpython:
-    import urllib
-else:
-    import urllib.request
 
 tmpfold = tempfile.gettempdir()
 EXAMPLE_REPO = "https://github.com/ansys/example-data/raw/master/"
@@ -74,44 +68,14 @@ def _retrieve_file(url, name, directory, destination=None, local_paths=None):
         local_paths.append(local_path_no_zip)
 
     # grab the correct url retriever
-    if not is_ironpython:
-        urlretrieve = urllib.request.urlretrieve
+    urlretrieve = urllib.request.urlretrieve
     destination_dir = os.path.join(destination, directory)
     if not os.path.isdir(destination_dir):
         os.makedirs(destination_dir)
     # Perform download
     if is_linux:
-        command = "wget {} -O {}".format(url, local_path)
+        command = f"wget {url} -O {local_path}"
         os.system(command)
-    elif is_ironpython:
-        versions = aedt_versions.list_installed_ansysem
-        if versions:
-            cpython = os.listdir(os.path.join(os.getenv(versions[0]), "commonfiles", "CPython"))
-            command = (
-                '"'
-                + os.path.join(
-                    os.getenv(versions[0]),
-                    "commonfiles",
-                    "CPython",
-                    cpython[0],
-                    "winx64",
-                    "Release",
-                    "python",
-                    "python.exe",
-                )
-                + '"'
-            )
-            commandargs = os.path.join(os.path.dirname(local_path), "download.py")
-            command += ' "' + commandargs + '"'
-            with open(os.path.join(os.path.dirname(local_path), "download.py"), "w") as f:
-                f.write("import urllib.request\n")
-                f.write("urlretrieve = urllib.request.urlretrieve\n")
-                f.write("import urllib.request\n")
-                f.write('url = r"{}"\n'.format(url))
-                f.write('local_path = r"{}"\n'.format(local_path))
-                f.write("urlretrieve(url, local_path)\n")
-            print(command)
-            os.system(command)
     else:
         _, resp = urlretrieve(url, local_path)
     local_paths.append(local_path)
@@ -136,8 +100,6 @@ def _retrieve_folder(url, directory, destination=None, local_paths=None):
     # Ensure that "/" is parsed as a path delimiter.
     local_path = os.path.join(*local_path.split("/"))
 
-    if is_ironpython:
-        return False
     _get_dir = _get_file_url(directory)
     with urllib.request.urlopen(_get_dir) as response:  # nosec
         data = response.read().decode("utf-8").split("\n")

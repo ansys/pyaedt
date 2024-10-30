@@ -34,6 +34,7 @@ from __future__ import absolute_import  # noreorder
 import os
 import re
 import shutil
+import subprocess  # nosec
 import tempfile
 import time
 
@@ -49,7 +50,6 @@ from ansys.aedt.core.generic.constants import SOLUTIONS
 from ansys.aedt.core.generic.constants import VIEW
 from ansys.aedt.core.generic.general_methods import filter_tuple
 from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import open_file
@@ -68,11 +68,6 @@ from ansys.aedt.core.modules.solve_setup import SetupMaxwell
 from ansys.aedt.core.modules.solve_setup import SetupQ3D
 from ansys.aedt.core.modules.solve_setup import SetupSBR
 from ansys.aedt.core.modules.solve_sweeps import SetupProps
-
-if is_linux and is_ironpython:
-    import subprocessdotnet as subprocess  # nosec
-else:
-    import subprocess  # nosec
 
 
 class Analysis(Design, object):
@@ -334,7 +329,7 @@ class Analysis(Design, object):
         setup_list = self.existing_analysis_setups
         if setup_list:
             if name not in setup_list:
-                raise ValueError("Setup name {} is invalid.".format(name))
+                raise ValueError(f"Setup name {name} is invalid.")
             self._setup = name
         else:
             raise AttributeError("No setup is defined.")
@@ -587,7 +582,7 @@ class Analysis(Design, object):
         if return_list:
             intrinsics_list = []
             for k, v in intrinsics.items():
-                intrinsics_list.append("{}:=".format(k))
+                intrinsics_list.append(f"{k}:=")
                 intrinsics_list.append(v)
             return intrinsics_list
         return intrinsics
@@ -651,14 +646,14 @@ class Analysis(Design, object):
             excitations = self.excitations
         if get_self_terms:
             for el in excitations:
-                value = "{}({},{}{}".format(category, el, el, end_str)
+                value = f"{category}({el},{el}{end_str}"
                 if filter_tuple(value, first_element_filter, second_element_filter):
                     list_output.append(value)
         if get_mutual_terms:
             for el1 in excitations:
                 for el2 in excitations:
                     if el1 != el2:
-                        value = "{}({},{}{}".format(category, el1, el2, end_str)
+                        value = f"{category}({el1},{el2}{end_str}"
                         if filter_tuple(value, first_element_filter, second_element_filter):
                             list_output.append(value)
         return list_output
@@ -703,12 +698,12 @@ class Analysis(Design, object):
             or self.design_type == "2D Extractor"
         ):
             try:
-                return list(self.osolution.ListVariations("{0} : {1}".format(setup, sweep)))
+                return list(self.osolution.ListVariations(f"{setup} : {sweep}"))
             except Exception:
                 return [""]
         else:
             try:
-                return list(self.odesign.ListVariations("{0} : {1}".format(setup, sweep)))
+                return list(self.odesign.ListVariations(f"{setup} : {sweep}"))
             except Exception:
                 return [""]
 
@@ -802,12 +797,10 @@ class Analysis(Design, object):
         for report_name in self.post.all_report_names:
             name_no_space = report_name.replace(" ", "_")
             self.post.oreportsetup.UpdateReports([str(report_name)])
-            export_path = os.path.join(
-                export_folder, "{0}_{1}_{2}.csv".format(self.project_name, self.design_name, name_no_space)
-            )
+            export_path = os.path.join(export_folder, "{self.project_name}_{self.design_name}_{name_no_space}.csv")
             try:
                 self.post.oreportsetup.ExportToFile(str(report_name), export_path)
-                self.logger.info("Export Data: {}".format(export_path))
+                self.logger.info(f"Export Data: {export_path}")
             except Exception:
                 self.logger.info("Failed to export to file.")
             exported_files.append(export_path)
@@ -841,9 +834,9 @@ class Analysis(Design, object):
                             variations_list.append("")
                         else:
                             for x in range(0, len(self.available_variations.nominal_w_values_dict)):
-                                variation = "{}='{}'".format(
-                                    list(self.available_variations.nominal_w_values_dict.keys())[x],
-                                    list(self.available_variations.nominal_w_values_dict.values())[x],
+                                variation = (
+                                    f"{list(self.available_variations.nominal_w_values_dict.keys())[x]}="
+                                    f"'{list(self.available_variations.nominal_w_values_dict.values())[x]}'"
                                 )
                                 variations_list.append(variation)
                     # sweeps
@@ -855,15 +848,11 @@ class Analysis(Design, object):
                         varCount = 0
                         for variation in variations_list:
                             varCount += 1
-                            export_path = os.path.join(
-                                export_folder, "{0}_{1}.prof".format(self.project_name, varCount)
-                            )
+                            export_path = os.path.join(export_folder, f"{self.project_name}_{varCount}.prof")
                             result = self.export_profile(setup_name, variation, export_path)
                             if result:
                                 exported_files.append(export_path)
-                            export_path = os.path.join(
-                                export_folder, "{0}_{1}.conv".format(self.project_name, varCount)
-                            )
+                            export_path = os.path.join(export_folder, f"{self.project_name}_{varCount}.conv")
                             self.logger.info("Export Convergence: %s", export_path)
                             result = self.export_convergence(setup_name, variation, export_path)
                             if result:
@@ -879,33 +868,31 @@ class Analysis(Design, object):
                                     # as frequency array
                                     freq_range = range(10, 100, 10)
                                     for freq in freq_range:
-                                        v = Variable("{}{}".format(freq, "MHz"))
+                                        v = Variable(f"{freq}MHz")
                                         freq_array.append(v.rescale_to("Hz").numeric_value)
                                 else:
                                     for freq in sweep.frequencies:
-                                        v = Variable("{}{}".format("{0:.12f}".format(freq), freq_model_unit))
+                                        v = Variable(f"{freq:.12f}{freq_model_unit}")
                                         freq_array.append(v.rescale_to("Hz").numeric_value)
 
                             # export touchstone as .sNp file
                             if self.design_type in ["HFSS3DLayout", "HFSS 3D Layout Design", "HFSS"]:
                                 if matrix_type != "S":
-                                    export_path = os.path.join(
-                                        export_folder, "{0}_{1}.tab".format(self.project_name, varCount)
-                                    )
+                                    export_path = os.path.join(export_folder, f"{self.project_name}_{varCount}.tab")
                                 else:
                                     export_path = os.path.join(
-                                        export_folder, "{0}_{1}.s{2}p".format(self.project_name, varCount, excitations)
+                                        export_folder, f"{self.project_name}_{varCount}.s{excitations}p"
                                     )
-                                self.logger.info("Export SnP: {}".format(export_path))
+                                self.logger.info(f"Export SnP: {export_path}")
                                 if self.design_type == "HFSS 3D Layout Design":
                                     module = self.odesign
                                 else:
                                     module = self.osolution
                                 try:
-                                    self.logger.info("Export SnP: {}".format(export_path))
+                                    self.logger.info(f"Export SnP: {export_path}")
                                     module.ExportNetworkData(
                                         variation,
-                                        ["{0}:{1}".format(setup_name, sweep_name)],
+                                        [f"{setup_name}:{sweep_name}"],
                                         3 if matrix_type == "S" else 2,
                                         export_path,
                                         ["All"],
@@ -925,14 +912,14 @@ class Analysis(Design, object):
                                     self.logger.warning("Export SnP failed: no solutions found")
                             elif self.design_type == "2D Extractor":
                                 export_path = os.path.join(
-                                    export_folder, "{0}_{1}.s{2}p".format(self.project_name, varCount, 2 * excitations)
+                                    export_folder, f"{self.project_name}_{varCount}.s{2 * excitations}p"
                                 )
-                                self.logger.info("Export SnP: {}".format(export_path))
+                                self.logger.info(f"Export SnP: {export_path}")
                                 try:
-                                    self.logger.info("Export SnP: {}".format(export_path))
+                                    self.logger.info(f"Export SnP: {export_path}")
                                     self.odesign.ExportNetworkData(
                                         variation,
-                                        "{0}:{1}".format(setup_name, sweep_name),
+                                        f"{setup_name}:{sweep_name}",
                                         export_path,
                                         matrix_name,
                                         impedance,
@@ -947,14 +934,14 @@ class Analysis(Design, object):
                                     self.logger.warning("Export SnP failed: no solutions found")
                             elif self.design_type == "Q3D Extractor":
                                 export_path = os.path.join(
-                                    export_folder, "{0}_{1}.s{2}p".format(self.project_name, varCount, 2 * excitations)
+                                    export_folder, f"{self.project_name}_{varCount}.s{2 * excitations}p"
                                 )
-                                self.logger.info("Export SnP: {}".format(export_path))
+                                self.logger.info(f"Export SnP: {export_path}")
                                 try:
-                                    self.logger.info("Export SnP: {}".format(export_path))
+                                    self.logger.info(f"Export SnP: {export_path}")
                                     self.odesign.ExportNetworkData(
                                         variation,
-                                        "{0}:{1}".format(setup_name, sweep_name),
+                                        f"{setup_name}:{sweep_name}",
                                         export_path,
                                         matrix_name,
                                         impedance,
@@ -1002,7 +989,7 @@ class Analysis(Design, object):
         if not variations:
             val_str = []
             for el, val in self.available_variations.nominal_w_values_dict.items():
-                val_str.append("{}={}".format(el, val))
+                val_str.append(f"{el}={val}")
             variations = ",".join(val_str)
         if self.design_type == "2D Extractor":
             for s in self.setups:
@@ -1061,7 +1048,7 @@ class Analysis(Design, object):
                         boundaries.append(native_component_object)
                 except Exception:
                     msg = "Failed to add native component object."
-                    msg_end = "." if component_name == "undefined" else "(named {}).".format(component_name)
+                    msg_end = "." if component_name == "undefined" else f"(named {component_name})."
                     self.logger.debug(msg + msg_end)
         except Exception:
             self.logger.debug("Failed to add native component object.")
@@ -1368,7 +1355,7 @@ class Analysis(Design, object):
             name = "Setup"
         index = 2
         while name in self.existing_analysis_setups:
-            name = name + "_{}".format(index)
+            name = name + f"_{index}"
             index += 1
         return name
 
@@ -1626,7 +1613,7 @@ class Analysis(Design, object):
         >>> oModule.GetOutputVariableValue
         """
         if variable not in self.output_variables:
-            raise KeyError("Output variable {} does not exist.".format(variable))
+            raise KeyError(f"Output variable {variable} does not exist.")
         nominal_variation = self.odesign.GetNominalVariation()
         if solution is None:
             solution = self.existing_analysis_sweeps[0]
@@ -1876,7 +1863,7 @@ class Analysis(Design, object):
                 if isinstance(allowed_distribution_types, list):
                     num_adt = len(allowed_distribution_types)
                     adt_string = "', '".join(allowed_distribution_types)
-                    adt_string = "[{}: '{}']".format(num_adt, adt_string)
+                    adt_string = f"[{num_adt}: '{adt_string}']"
 
                     succeeded = update_hpc_option(
                         target_name, "AllowedDistributionTypes", adt_string, False, separator=""
@@ -1897,7 +1884,7 @@ class Analysis(Design, object):
                     self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, config_name)
                     set_custom_dso = True
                 except Exception:
-                    self.logger.info("Failed to set registry from file {}.".format(target_name))
+                    self.logger.info(f"Failed to set registry from file {target_name}.")
         if not name:
             try:
                 self.logger.info("Solving all design setups.")
@@ -1943,9 +1930,7 @@ class Analysis(Design, object):
             self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
         m, s = divmod(time.time() - start, 60)
         h, m = divmod(m, 60)
-        self.logger.info(
-            "Design setup {} solved correctly in {}h {}m {}s".format(name, round(h, 0), round(m, 0), round(s, 0))
-        )
+        self.logger.info(f"Design setup {name} solved correctly in {round(h, 0)}h {round(m, 0)}m {round(s, 0)}s")
         return True
 
     @property
@@ -2057,16 +2042,14 @@ class Analysis(Design, object):
             "-ng",
             "-BatchSolve",
             "-machinelist",
-            "list={}:{}:{}:90%:1".format(machine, tasks, cores),
+            f"list={machine}:{tasks}:{cores}:90%:1",
             "-Monitor",
         ]
         if is_linux and settings.use_lsf_scheduler and tasks == -1:
             options.append("-distributed")
             options.append("-auto")
         if setup and design_name:
-            options.append(
-                "{}:{}:{}".format(design_name, "Nominal" if setup in self.setup_names else "Optimetrics", setup)
-            )
+            options.append(f'{design_name}:{"Nominal" if setup in self.setup_names else "Optimetrics"}:{setup}')
         if is_linux and not settings.use_lsf_scheduler:
             batch_run = [inst_dir + "/ansysedt"]
         elif is_linux and settings.use_lsf_scheduler:  # pragma: no cover
@@ -2076,10 +2059,10 @@ class Analysis(Design, object):
                     "-n",
                     str(cores),
                     "-R",
-                    "span[ptile={}]".format(cores),
+                    f"span[ptile={cores}]",
                     "-R",
-                    "rusage[mem={}]".format(settings.lsf_ram),
-                    "-queue {}".format(settings.lsf_queue),
+                    f"rusage[mem={settings.lsf_ram}]",
+                    f"-queue {settings.lsf_queue}",
                     settings.lsf_aedt_command,
                 ]
             else:
@@ -2088,9 +2071,9 @@ class Analysis(Design, object):
                     "-n",
                     str(cores),
                     "-R",
-                    "span[ptile={}]".format(cores),
+                    f"span[ptile={cores}]",
                     "-R",
-                    "rusage[mem={}]".format(settings.lsf_ram),
+                    f"rusage[mem={settings.lsf_ram}]",
                     settings.lsf_aedt_command,
                 ]
         else:
@@ -2422,8 +2405,7 @@ class Analysis(Design, object):
             variations = ""
         else:
             variations = " ".join(
-                "{}=\\'{}\\'".format(key, value)
-                for key, value in self.available_variations.nominal_w_values_dict.items()
+                f"{key}=\\'{value}\\'" for key, value in self.available_variations.nominal_w_values_dict.items()
             )
 
         if not is_format_default:
@@ -2520,7 +2502,7 @@ class Analysis(Design, object):
         else:
             self.logger.error("Wrong Property Value")
             return False
-        self.logger.info("Property {} Changed correctly.".format(property_name))
+        self.logger.info(f"Property {property_name} changed correctly.")
         return True
 
     @pyaedt_function_handler()

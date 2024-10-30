@@ -76,6 +76,7 @@ def run_pyinstaller_from_c_python(oDesktop):
     # Launch this script again from the CPython interpreter. This calls the ``install_pyaedt()`` method,
     # which creates a virtual environment and installs PyAEDT and its dependencies
     command = ['"{}"'.format(python_exe), '"{}"'.format(os.path.normpath(__file__)), "--version=" + version]
+
     if is_student_version(oDesktop):
         command.append("--student")
     if is_linux:
@@ -221,6 +222,7 @@ def install_pyaedt():
         os.environ["TCL_LIBRARY"] = "{}/commonfiles/CPython/{}/linx64/Release/python/lib/tcl8.5".format(
             args.edt_root, args.python_version.replace(".", "_")
         )
+
     response = disclaimer()
     if not response:
         exit(1)
@@ -252,8 +254,7 @@ def install_pyaedt():
                 run_command(
                     '"{}" install --no-cache-dir --no-index --find-links={} pyaedt[all,dotnet]'.format(
                         pip_exe, unzipped_path
-                    )
-                )
+                    )                )
             else:
                 run_command(
                     '"{}" install --no-cache-dir --no-index --find-links={} pyaedt[installer]'.format(
@@ -264,8 +265,6 @@ def install_pyaedt():
         else:
             run_command('"{}" -m pip install --upgrade pip'.format(python_exe))
             run_command('"{}" --default-timeout=1000 install wheel'.format(pip_exe))
-            # run_command(
-            # '"{}" --default-timeout=1000 install git+https://github.com/ansys/pyaedt.git@main'.format(pip_exe))
             if args.version <= "231":
                 run_command('"{}" --default-timeout=1000 install pyaedt[all]=="0.9.0"'.format(pip_exe))
                 run_command('"{}" --default-timeout=1000 install jupyterlab'.format(pip_exe))

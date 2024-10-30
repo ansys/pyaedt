@@ -23,23 +23,30 @@
 # SOFTWARE.
 
 import os
+import warnings
 
-from ansys.aedt.core.generic.general_methods import is_ironpython
-
-if not is_ironpython:
-    try:
-        import joblib
-    except ImportError:
-        pass
-    try:
-        import numpy as np
-    except ImportError:
-        pass
+try:
+    import joblib
+except ImportError:  # pragma: no cover
+    joblib = None
+    warnings.warn(
+        "The Joblib module is required to use functionalities provided by the module "
+        "ansys.aedt.core.modeler.advanced_cad.stackup_3d.\n"
+        "Install with \n\npip install joblib"
+    )
+try:
+    import numpy as np
+except ImportError:  # pragma: no cover
+    np = None
+    warnings.warn(
+        "The Numpy module is required to use functionalities provided by the module "
+        "ansys.aedt.core.modeler.advanced_cad.stackup_3d.\n"
+        "Install with \n\npip install numpy"
+    )
 
 from ansys.aedt.core import constants
 from ansys.aedt.core import pyaedt_path
 from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modules.material_lib import Material
 
@@ -423,7 +430,7 @@ class Layer3D(object):
                     name=self._name,
                     matname=self._fill_material.name,
                 )
-        obj_3d.group_name = "Layer_{}".format(self._name)
+        obj_3d.group_name = f"Layer_{self._name}"
         if obj_3d:
             self._obj_3d.append(obj_3d)
         else:
@@ -677,7 +684,7 @@ class Layer3D(object):
 
         """
         if not patch_name:
-            patch_name = generate_unique_name("{}_patch".format(self._name), n=3)
+            patch_name = generate_unique_name(f"{self._name}_patch", n=3)
         layer_names = self._stackup._layer_name
 
         # Find the layer where the patch should be placed.
@@ -703,7 +710,7 @@ class Layer3D(object):
         )
         self._obj_3d.append(created_patch.aedt_object)
         self._stackup._object_list.append(created_patch)
-        created_patch.aedt_object.group_name = "Layer_{}".format(self._name)
+        created_patch.aedt_object.group_name = f"Layer_{self._name}"
         return created_patch
 
     @pyaedt_function_handler()
@@ -752,7 +759,7 @@ class Layer3D(object):
 
         """
         if not patch_name:
-            patch_name = generate_unique_name("{}_patch".format(self._name), n=3)
+            patch_name = generate_unique_name(f"{self._name}_patch", n=3)
         lst = self._stackup._layer_name
         for i in range(len(lst)):
             if lst[i] == self._name:
@@ -775,7 +782,7 @@ class Layer3D(object):
         )
         self._obj_3d.append(created_patch.aedt_object)
         self._stackup._object_list.append(created_patch)
-        created_patch.aedt_object.group_name = "Layer_{}".format(self._name)
+        created_patch.aedt_object.group_name = f"Layer_{self._name}"
         return created_patch
 
     @pyaedt_function_handler()
@@ -839,7 +846,7 @@ class Layer3D(object):
 
         """
         if not line_name:
-            line_name = generate_unique_name("{0}_line".format(self._name), n=3)
+            line_name = generate_unique_name(f"{self._name}_line", n=3)
         dielectric_layer = None
         for v in list(self._stackup._stackup.values()):
             if v._index == self._index - 1:
@@ -869,7 +876,7 @@ class Layer3D(object):
             reference_system=reference_system,
             axis=axis,
         )
-        created_line.aedt_object.group_name = "Layer_{}".format(self._name)
+        created_line.aedt_object.group_name = f"Layer_{self._name}"
         self._obj_3d.append(created_line.aedt_object)
         self._stackup._object_list.append(created_line)
         return created_line
@@ -913,7 +920,7 @@ class Layer3D(object):
 
         """
         if not poly_name:
-            poly_name = generate_unique_name("{0}_poly".format(self._name), n=3)
+            poly_name = generate_unique_name(f"{self._name}_poly", n=3)
         polygon = Polygon(
             self._app,
             points,
@@ -922,7 +929,7 @@ class Layer3D(object):
             is_void=is_void,
             poly_name=poly_name,
         )
-        polygon.aedt_object.group_name = "Layer_{}".format(self._name)
+        polygon.aedt_object.group_name = f"Layer_{self._name}"
 
         if self._layer_type == "ground":
             if not is_void:
@@ -1125,7 +1132,7 @@ class Padstack(object):
             elif found:
                 new_stackup[k] = self._padstacks_by_layer[k]
         if not found:
-            raise ValueError("The layer named: '{}' does not exist".format(layer))
+            raise ValueError(f"The layer named: '{layer}' does not exist")
         self._padstacks_by_layer = new_stackup
         return True
 
@@ -1176,7 +1183,7 @@ class Padstack(object):
             Object created.
         """
         if not instance_name:
-            instance_name = generate_unique_name("{}_".format(self.name), n=3)
+            instance_name = generate_unique_name(f"{self.name}_", n=3)
             if reference_system:
                 self._app.modeler.set_working_coordinate_system(reference_system)
                 self._reference_system = reference_system
@@ -1207,7 +1214,7 @@ class Padstack(object):
                         hole = self._app.modeler.create_cylinder(
                             "Z",
                             [position_x, position_y, v._layer_elevation.name],
-                            "{}*{}".format(self._app.modeler._arg_with_dim(v._pad_radius), 1 - self.plating_ratio),
+                            f"{self._app.modeler._arg_with_dim(v._pad_radius)}*{1 - self.plating_ratio}",
                             v._layer_thickness.name,
                             num_sides=self._num_sides,
                             name=instance_name,
@@ -2086,32 +2093,32 @@ class Patch(CommonObject, object):
             application.modeler.set_working_coordinate_system(reference_system)
             if axis == "X":
                 start_point = [
-                    "{0}_position_x".format(self._name),
-                    "{0}_position_y-{0}_width/2".format(self._name),
+                    f"{self._name}_position_x",
+                    f"{self._name}_position_y-{0}_width/2",
                     0,
                 ]
             else:
                 start_point = [
-                    "{0}_position_x-{0}_width/2".format(self._name),
-                    "{}_position_y".format(self._name),
+                    f"{self._name}_position_x-{0}_width/2",
+                    f"{self._name}_position_y",
                     0,
                 ]
             self._reference_system = reference_system
         else:
             application.modeler.create_coordinate_system(
                 origin=[
-                    "{0}_position_x".format(patch_name),
-                    "{}_position_y".format(patch_name),
+                    f"{patch_name}_position_x",
+                    f"{patch_name}_position_y",
                     signal_layer.elevation.name,
                 ],
                 reference_cs="Global",
                 name=patch_name + "_CS",
             )
             if axis == "X":
-                start_point = [0, "-{}_width/2".format(patch_name), 0]
+                start_point = [0, f"-{patch_name}_width/2", 0]
 
             else:
-                start_point = ["-{}_width/2".format(patch_name), 0, 0]
+                start_point = [f"-{patch_name}_width/2", 0, 0]
             application.modeler.set_working_coordinate_system(patch_name + "_CS")
 
             self._reference_system = patch_name + "_CS"
@@ -2119,8 +2126,8 @@ class Patch(CommonObject, object):
             self._aedt_object = application.modeler.create_box(
                 origin=start_point,
                 sizes=[
-                    "{}_length".format(patch_name),
-                    "{}_width".format(patch_name),
+                    f"{patch_name}_length",
+                    f"{patch_name}_width",
                     signal_layer.thickness.name,
                 ],
                 name=patch_name,
@@ -2762,22 +2769,22 @@ class Trace(CommonObject, object):
             application.modeler.set_working_coordinate_system(reference_system)
             if axis == "X":
                 start_point = [
-                    "{0}_position_x".format(self._name),
+                    f"{self._name}_position_x",
                     self.position_y.name + " - " + self.width.name + "/2",
                     0,
                 ]
             else:
                 start_point = [
                     self.position_x.name + " - " + self.width.name + "/2",
-                    "{}_position_y".format(self._name),
+                    f"{self._name}_position_y",
                     0,
                 ]
             self._reference_system = reference_system
         else:
             application.modeler.create_coordinate_system(
                 origin=[
-                    "{}_position_x".format(self._name),
-                    "{}_position_y".format(self._name),
+                    f"{self._name}_position_x",
+                    f"{self._name}_position_y",
                     signal_layer.elevation.name,
                 ],
                 reference_cs="Global",
@@ -2793,7 +2800,7 @@ class Trace(CommonObject, object):
             self._aedt_object = application.modeler.create_box(
                 origin=start_point,
                 sizes=[
-                    "{}_length".format(self._name),
+                    f"{self._name}_length",
                     self.width.name,
                     signal_layer.thickness.name,
                 ],
@@ -2803,7 +2810,7 @@ class Trace(CommonObject, object):
         else:
             self._aedt_object = application.modeler.create_rectangle(
                 oring=start_point,
-                sizes=["{}_length".format(self._name), self.width.name],
+                sizes=[f"{self._name}_length", self.width.name],
                 name=line_name,
                 material=signal_layer.material_name,
             )
@@ -3479,32 +3486,25 @@ class MachineLearningPatch(Patch, object):
         self.predict_length()
 
     def predict_length(self):
-        if not is_ironpython:
-            try:
-                joblib
-            except NameError:  # pragma: no cover
-                raise ImportError("joblib package is needed to run ML.")
-            training_file = None
-            if 1e9 >= self.frequency.numeric_value >= 1e8:
-                training_file = os.path.join(pyaedt_path, "misc", "patch_svr_model_100MHz_1GHz.joblib")
-            elif 1e10 >= self.frequency.numeric_value > 1e9:
-                training_file = os.path.join(pyaedt_path, "misc", "patch_svr_model_1GHz_10GHz.joblib")
-            else:
-                self.application.logger.error(
-                    "This ML algorithm can only predict patch antennas from 100 MHz to 10 GHz."
-                )
-            if training_file:
-                model = joblib.load(training_file)
-                list_for_array = [
-                    [
-                        self.frequency.numeric_value,
-                        self.width.numeric_value,
-                        self._permittivity.numeric_value,
-                        self.dielectric_layer.thickness.numeric_value,
-                    ]
-                ]
-                array_for_prediction = np.array(list_for_array, dtype=np.float32)
-                length = model.predict(array_for_prediction)[0]
-                self.length.expression = self.application.modeler._arg_with_dim(length)
+        if joblib is None:  # pragma: no cover
+            raise ImportError("Package Joblib is required to run ML.")
+        training_file = None
+        if 1e9 >= self.frequency.numeric_value >= 1e8:
+            training_file = os.path.join(pyaedt_path, "misc", "patch_svr_model_100MHz_1GHz.joblib")
+        elif 1e10 >= self.frequency.numeric_value > 1e9:
+            training_file = os.path.join(pyaedt_path, "misc", "patch_svr_model_1GHz_10GHz.joblib")
         else:  # pragma: no cover
-            self.application.logger.warning("Machine learning algorithm aren't covered in IronPython.")
+            self.application.logger.error("This ML algorithm can only predict patch antennas from 100 MHz to 10 GHz.")
+        if training_file:
+            model = joblib.load(training_file)
+            list_for_array = [
+                [
+                    self.frequency.numeric_value,
+                    self.width.numeric_value,
+                    self._permittivity.numeric_value,
+                    self.dielectric_layer.thickness.numeric_value,
+                ]
+            ]
+            array_for_prediction = np.array(list_for_array, dtype=np.float32)
+            length = model.predict(array_for_prediction)[0]
+            self.length.expression = self.application.modeler._arg_with_dim(length)

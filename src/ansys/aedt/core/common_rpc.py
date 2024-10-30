@@ -30,7 +30,6 @@ import time
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.aedt_versions import aedt_versions
-from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.settings import settings
 
 # import sys
@@ -38,13 +37,10 @@ from ansys.aedt.core.rpc.rpyc_services import FileManagement
 from ansys.aedt.core.rpc.rpyc_services import GlobalService
 from ansys.aedt.core.rpc.rpyc_services import ServiceManager
 from ansys.aedt.core.rpc.rpyc_services import check_port
-
-if not is_ironpython:
-    import rpyc
-    from rpyc.core import consts
-    from rpyc.utils.server import OneShotServer
-    from rpyc.utils.server import ThreadedServer
-
+import rpyc
+from rpyc.core import consts
+from rpyc.utils.server import OneShotServer
+from rpyc.utils.server import ThreadedServer
 
 # Maximum Stream message size. Set to 256MB
 consts.STREAM_CHUNK = 256000000
@@ -169,13 +165,13 @@ def pyaedt_service_manager(port=17878, aedt_version=None, student_version=False)
         logger.error("Error. No ports are available.")
         return False
     if port1 != port:
-        logger.info("Port {} is already in use. Starting the server on port {}.".format(port, port1))
+        logger.info(f"Port {port} is already in use. Starting the server on port {port1}.")
     aa = aedt_versions.list_installed_ansysem
     if aedt_version:
         if student_version:
-            v = "ANSYSEMSV_ROOT{}".format(aedt_version[-4:].replace(".", ""))
+            v = f"ANSYSEMSV_ROOT{aedt_version[-4:].replace('.', '')}"
         else:
-            v = "ANSYSEM_ROOT{}".format(aedt_version[-4:].replace(".", ""))
+            v = f"ANSYSEM_ROOT{aedt_version[-4:].replace('.', '')}"
 
         valid_version = v
     else:
@@ -185,7 +181,7 @@ def pyaedt_service_manager(port=17878, aedt_version=None, student_version=False)
             raise Exception("No ANSYSEM_ROOTXXX environment variable defined.")
 
     ansysem_path = os.environ[valid_version]
-    logger.info("AEDT located at {} will be used.".format(ansysem_path))
+    logger.info(f"AEDT located at {ansysem_path} will be used.")
     os.environ["PYAEDT_SERVER_AEDT_PATH"] = ansysem_path
     os.environ["PYAEDT_SERVER_AEDT_NG"] = "True"
     os.environ["ANS_NODEPCHECK"] = str(1)
@@ -204,7 +200,7 @@ def pyaedt_service_manager(port=17878, aedt_version=None, student_version=False)
             "logger": logger,
         },
     )
-    logger.info("Starting the server on port {} on {}.".format(port, hostname))
+    logger.info(f"Starting the server on port {port} on {hostname}.")
     t.start()
 
 
@@ -238,14 +234,14 @@ def launch_server(port=18000, ansysem_path=None, non_graphical=False, threaded=T
         logger.error("Error. No ports are available.")
         return False
     if port1 != port:
-        logger.info("Port {} is already in use. Starting the server on port {}.".format(port, port1))
+        logger.info(f"Port {port} is already in use. Starting the server on port {port1}.")
     if not ansysem_path:
         aa = aedt_versions.list_installed_ansysem
         if aa:
             ansysem_path = os.environ[aa[0]]
         else:
             raise Exception("No ANSYSEM_ROOTXXX environment variable defined.")
-    logger.info("AEDT located at {} will be used.".format(ansysem_path))
+    logger.info(f"AEDT located at {ansysem_path} will be used.")
     os.environ["PYAEDT_SERVER_AEDT_PATH"] = ansysem_path
     os.environ["PYAEDT_SERVER_AEDT_NG"] = str(non_graphical)
     os.environ["ANS_NO_MONO_CLEANUP"] = str(1)
@@ -269,7 +265,7 @@ def launch_server(port=18000, ansysem_path=None, non_graphical=False, threaded=T
             "logger": logger,
         },
     )
-    logger.info("Starting the server on port {} on {}.".format(port, hostname))
+    logger.info(f"Starting the server on port {port} on {hostname}.")
     signal.signal(signal.SIGINT, lambda signum, frame: t.close())
     signal.signal(signal.SIGTERM, lambda signum, frame: t.close())
 

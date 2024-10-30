@@ -134,7 +134,7 @@ def add_automation_tab(
         label=name,
         isLarge="1",
         image=relative_image_path,
-        script="{}/{}".format(toolkit_name, template),
+        script=f"{toolkit_name}/{template}",
     )
 
     # Backup any existing file if present
@@ -332,7 +332,7 @@ def add_script_to_menu(
             out_file.write(build_file_data)
 
     add_automation_tab(name, toolkit_dir, icon_file=icon_file, product=product, template=template_file, panel=panel)
-    logger.info("{} installed".format(name))
+    logger.info(f"{name} installed")
     return True
 
 
@@ -430,31 +430,31 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
     version = desktop_object.odesktop.GetVersion()[2:6].replace(".", "")
 
     if not is_linux:
-        venv_dir = os.path.join(os.environ["APPDATA"], ".pyaedt_env", "toolkits_{}".format(python_version_new))
+        venv_dir = os.path.join(os.environ["APPDATA"], ".pyaedt_env", f"toolkits_{python_version_new}")
         python_exe = os.path.join(venv_dir, "Scripts", "python.exe")
         pip_exe = os.path.join(venv_dir, "Scripts", "pip.exe")
         package_dir = os.path.join(venv_dir, "Lib")
     else:
-        venv_dir = os.path.join(os.environ["HOME"], ".pyaedt_env", "toolkits_{}".format(python_version_new))
+        venv_dir = os.path.join(os.environ["HOME"], ".pyaedt_env", f"toolkits_{python_version_new}")
         python_exe = os.path.join(venv_dir, "bin", "python")
         pip_exe = os.path.join(venv_dir, "bin", "pip")
         package_dir = os.path.join(venv_dir, "lib")
         edt_root = os.path.normpath(desktop_object.odesktop.GetExeDir())
-        os.environ["ANSYSEM_ROOT{}".format(version)] = edt_root
+        os.environ[f"ANSYSEM_ROOT{version}"] = edt_root
         ld_library_path_dirs_to_add = [
-            "{}/commonfiles/CPython/{}/linx64/Release/python/lib".format(edt_root, python_version_new),
-            "{}/common/mono/Linux64/lib64".format(edt_root),
-            "{}".format(edt_root),
+            f"{edt_root}/commonfiles/CPython/{python_version_new}/linx64/Release/python/lib",
+            f"{edt_root}/common/mono/Linux64/lib64",
+            f"{edt_root}",
         ]
         if version < "232":
-            ld_library_path_dirs_to_add.append("{}/Delcross".format(edt_root))
+            ld_library_path_dirs_to_add.append(f"{edt_root}/Delcross")
         os.environ["LD_LIBRARY_PATH"] = ":".join(ld_library_path_dirs_to_add) + ":" + os.getenv("LD_LIBRARY_PATH", "")
 
     # Create virtual environment
 
     if not os.path.exists(venv_dir):
         desktop_object.logger.info("Creating virtual environment")
-        run_command('"{}" -m venv "{}" --system-site-packages'.format(base_venv, venv_dir))
+        run_command(f'"{base_venv}" -m venv "{venv_dir}" --system-site-packages')
         desktop_object.logger.info("Virtual environment created.")
 
     is_installed = False
@@ -474,7 +474,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
     if install and wheel_toolkit and os.path.exists(wheel_toolkit):
         desktop_object.logger.info("Starting offline installation")
         if is_installed:
-            run_command('"{}" uninstall --yes {}'.format(pip_exe, toolkit_info["pip"]))
+            run_command(f'"{pip_exe}" uninstall --yes {toolkit_info["pip"]}')
         import zipfile
 
         unzipped_path = os.path.join(
@@ -486,18 +486,16 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
             zip_ref.extractall(unzipped_path)
 
         package_name = toolkit_info["package"]
-        run_command(
-            '"{}" install --no-cache-dir --no-index --find-links={} {}'.format(pip_exe, unzipped_path, package_name)
-        )
+        run_command(f'"{pip_exe}" install --no-cache-dir --no-index --find-links={unzipped_path} {package_name}')
     elif install and not is_installed:
         # Install the specified package
-        run_command('"{}" --default-timeout=1000 install {}'.format(pip_exe, toolkit_info["pip"]))
+        run_command(f'"{pip_exe}" --default-timeout=1000 install {toolkit_info["pip"]}')
     elif not install and is_installed:
         # Uninstall toolkit
-        run_command('"{}" --default-timeout=1000 uninstall -y {}'.format(pip_exe, toolkit_info["package"]))
+        run_command(f'"{pip_exe}" --default-timeout=1000 uninstall -y {toolkit_info["package"]}')
     elif install and is_installed:
         # Update toolkit
-        run_command('"{}" --default-timeout=1000 install {} -U'.format(pip_exe, toolkit_info["pip"]))
+        run_command(f'"{pip_exe}" --default-timeout=1000 install {toolkit_info["pip"]} -U')
     else:
         desktop_object.logger.info("Incorrect input")
         return
@@ -522,7 +520,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
                 personal_lib=desktop_object.personallib,
                 aedt_version=desktop_object.aedt_version_id,
             )
-            desktop_object.logger.info("{} installed".format(toolkit_info["name"]))
+            desktop_object.logger.info(f'{toolkit_info["name"]} installed')
             if version > "232":
                 desktop_object.odesktop.RefreshToolkitUI()
     else:
@@ -534,7 +532,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
                 product=product_name,
             )
             desktop_object.logger.info("Installing dependencies")
-            desktop_object.logger.info("{} uninstalled".format(toolkit_info["name"]))
+            desktop_object.logger.info(f'{toolkit_info["name"]} uninstalled')
 
 
 def remove_script_from_menu(desktop_object, name, product="Project"):
@@ -561,7 +559,7 @@ def remove_script_from_menu(desktop_object, name, product="Project"):
     shutil.rmtree(tool_dir, ignore_errors=True)
     if aedt_version >= "2023.2":
         remove_xml_tab(os.path.join(toolkit_dir, product), name)
-    desktop_object.logger.info("{} toolkit removed successfully.".format(name))
+    desktop_object.logger.info(f"{name} toolkit removed successfully.")
     return True
 
 

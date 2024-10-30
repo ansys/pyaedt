@@ -35,7 +35,6 @@ from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.general_methods import GrpcApiError
 from ansys.aedt.core.generic.general_methods import generate_unique_folder_name
 from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import read_configuration_file
@@ -54,10 +53,8 @@ from ansys.aedt.core.modules.material_lib import Material
 from ansys.aedt.core.modules.mesh import MeshOperation
 from ansys.aedt.core.modules.mesh_icepak import MeshRegion
 from ansys.aedt.core.modules.mesh_icepak import SubRegion
-
-if not is_ironpython:
-    from jsonschema import exceptions
-    from jsonschema import validate
+from jsonschema import exceptions
+from jsonschema import validate
 
 
 def _find_datasets(d, out_list):
@@ -834,10 +831,10 @@ class Configurations(object):
             cs.ref_cs = props["Reference CS"]
             cs.update()
             self._app.modeler.coordinate_systems.insert(0, cs)
-            self._app.logger.info("Coordinate System {} added.".format(name))
+            self._app.logger.info(f"Coordinate System {name} added.")
             return True
         except Exception:
-            self._app.logger.warning("Failed to add CS {} ".format(name))
+            self._app.logger.warning(f"Failed to add CS {name} ")
             return False
 
     # @pyaedt_function_handler()
@@ -949,10 +946,10 @@ class Configurations(object):
                 if winding_name:
                     self._app.add_winding_coils(winding_name, name)
 
-            self._app.logger.info("Boundary Operation {} added.".format(name))
+            self._app.logger.info(f"Boundary Operation {name} added.")
             return True
         else:
-            self._app.logger.warning("Failed to add Boundary {} ".format(name))
+            self._app.logger.warning(f"Failed to add Boundary {name} ")
             return False
 
     @pyaedt_function_handler()
@@ -966,10 +963,10 @@ class Configurations(object):
         bound = MeshOperation(self._app.mesh, name, props, props["Type"])
         if bound.create():
             self._app.mesh.meshoperations.append(bound)
-            self._app.logger.info("Mesh Operation {} added.".format(name))
+            self._app.logger.info(f"Mesh Operation {name} added.")
             return True
         else:
-            self._app.logger.warning("Failed to add Mesh {} ".format(name))
+            self._app.logger.warning(f"Failed to add Mesh {name} ")
             return False
 
     @pyaedt_function_handler()
@@ -985,10 +982,10 @@ class Configurations(object):
         else:
             setup = self._app.create_setup(name, setup_type=props["SetupType"], props=props)
         if setup:
-            self._app.logger.info("Setup {} added.".format(name))
+            self._app.logger.info(f"Setup {name} added.")
             return True
         else:
-            self._app.logger.warning("Failed to add Setup {} ".format(name))
+            self._app.logger.warning(f"Failed to add Setup {name} ")
             return False
 
     @pyaedt_function_handler()
@@ -1002,10 +999,10 @@ class Configurations(object):
         setup = SetupOpti(self._app, name, dictinputs=props, optim_type=props.get("SetupType", None))
         if setup.create():
             self._app.optimizations.setups.append(setup)
-            self._app.logger.info("Optim {} added.".format(name))
+            self._app.logger.info(f"Optim {name} added.")
             return True
         else:
-            self._app.logger.warning("Failed to add Optim {} ".format(name))
+            self._app.logger.warning(f"Failed to add Optim {name} ")
             return False
 
     @pyaedt_function_handler()
@@ -1019,10 +1016,10 @@ class Configurations(object):
         setup = SetupParam(self._app, name, dictinputs=props, optim_type=props.get("SetupType", None))
         if setup.create():
             self._app.optimizations.setups.append(setup)
-            self._app.logger.info("Optim {} added.".format(name))
+            self._app.logger.info(f"Optim {name} added.")
             return True
         else:
-            self._app.logger.warning("Failed to add Optim {} ".format(name))
+            self._app.logger.warning(f"Failed to add Optim {name} ")
             return False
 
     @pyaedt_function_handler()
@@ -1074,17 +1071,13 @@ class Configurations(object):
             self._app.logger.warning("Incorrect data type.")
             return False
 
-        if is_ironpython:
-            self._app.logger.warning("Iron Python: Unable to validate json Schema.")
-        else:
-            try:
-                validate(instance=config_data, schema=self.schema)
-                return True
-            except exceptions.ValidationError as e:
-                self._app.logger.warning("Configuration is invalid.")
-                self._app.logger.warning("Validation error:" + e.message)
-                return False
-        return True
+        try:
+            validate(instance=config_data, schema=self.schema)
+            return True
+        except exceptions.ValidationError as e:  # pragma : no cover
+            self._app.logger.warning("Configuration is invalid.")
+            self._app.logger.warning("Validation error:" + e.message)
+            return False
 
     @pyaedt_function_handler()
     def import_config(self, config_file, *args):
@@ -1513,9 +1506,9 @@ class Configurations(object):
 
         # write the updated dict to file
         if write_configuration_file(dict_out, config_file):
-            self._app.logger.info("Json file {} created correctly.".format(config_file))
+            self._app.logger.info(f"Json file {config_file} created correctly.")
             return config_file
-        self._app.logger.error("Error creating json file {}.".format(config_file))
+        self._app.logger.error(f"Error creating json file {config_file}.")
         return False
 
 
@@ -1661,9 +1654,9 @@ class ConfigurationsIcepak(Configurations):
                 if el in bound.settings:
                     bound.settings[el] = props[el]
             self._app.mesh.meshregions.append(bound)
-            self._app.logger.info("Mesh Operation {} added.".format(name))
+            self._app.logger.info(f"Mesh Operation {name} added.")
         except GrpcApiError:
-            self._app.logger.warning("Failed to add mesh {} ".format(name))
+            self._app.logger.warning(f"Failed to add mesh {name} ")
         return True
 
     @pyaedt_function_handler()

@@ -630,7 +630,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
                     for vertex in edge.vertices:
                         if vertex.id == obj_id:
                             return "Vertex"
-        raise ValueError("Cannot find entity id {}".format(obj_id))  # pragma: no cover
+        raise ValueError(f"Cannot find entity id {obj_id}")  # pragma: no cover
 
     @pyaedt_function_handler()
     def _get_type_from_object(self, obj):
@@ -786,9 +786,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
             self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Mode", "Value:=", self.props["Mode"]]])
         except Exception:  # pragma: no cover
             raise ValueError(
-                "Mode must be 'Axis/Position', 'Euler Angle ZYZ' or 'Euler Angle ZXZ', not {}.".format(
-                    self.props["Mode"]
-                )
+                f"'Mode must be 'Axis/Position', 'Euler Angle ZYZ' or 'Euler Angle ZXZ', not {self.props['Mode']}."
             )
 
         props = ["NAME:ChangedProps"]
@@ -886,9 +884,9 @@ class CoordinateSystem(BaseCoordinateSystem, object):
                 phi = GeometryOperators.rad2deg(a)
                 theta = GeometryOperators.rad2deg(b)
                 psi = GeometryOperators.rad2deg(g)
-                self.props["Phi"] = "{}deg".format(phi)
-                self.props["Theta"] = "{}deg".format(theta)
-                self.props["Psi"] = "{}deg".format(psi)
+                self.props["Phi"] = f"{phi}deg"
+                self.props["Theta"] = f"{theta}deg"
+                self.props["Psi"] = f"{psi}deg"
                 self.mode = "zxz"
                 self.update()
             elif self.props and self.props["Mode"] == "Axis/Position":
@@ -897,9 +895,9 @@ class CoordinateSystem(BaseCoordinateSystem, object):
                 phi = GeometryOperators.rad2deg(a)
                 theta = GeometryOperators.rad2deg(b)
                 psi = GeometryOperators.rad2deg(g)
-                self.props["Phi"] = "{}deg".format(phi)
-                self.props["Theta"] = "{}deg".format(theta)
-                self.props["Psi"] = "{}deg".format(psi)
+                self.props["Phi"] = f"{phi}deg"
+                self.props["Theta"] = f"{theta}deg"
+                self.props["Psi"] = f"{psi}deg"
                 del self.props["XAxisXvec"]
                 del self.props["XAxisYvec"]
                 del self.props["XAxisZvec"]
@@ -915,9 +913,9 @@ class CoordinateSystem(BaseCoordinateSystem, object):
                 phi = GeometryOperators.rad2deg(a)
                 theta = GeometryOperators.rad2deg(b)
                 psi = GeometryOperators.rad2deg(g)
-                self.props["Phi"] = "{}deg".format(phi)
-                self.props["Theta"] = "{}deg".format(theta)
-                self.props["Psi"] = "{}deg".format(psi)
+                self.props["Phi"] = f"{phi}deg"
+                self.props["Theta"] = f"{theta}deg"
+                self.props["Psi"] = f"{psi}deg"
                 self.mode = "zyz"
                 self.update()
             elif self.props and self.props["Mode"] == "Axis/Position":
@@ -926,9 +924,9 @@ class CoordinateSystem(BaseCoordinateSystem, object):
                 phi = GeometryOperators.rad2deg(a)
                 theta = GeometryOperators.rad2deg(b)
                 psi = GeometryOperators.rad2deg(g)
-                self.props["Phi"] = "{}deg".format(phi)
-                self.props["Theta"] = "{}deg".format(theta)
-                self.props["Psi"] = "{}deg".format(psi)
+                self.props["Phi"] = f"{phi}deg"
+                self.props["Theta"] = f"{theta}deg"
+                self.props["Psi"] = f"{psi}deg"
                 del self.props["XAxisXvec"]
                 del self.props["XAxisYvec"]
                 del self.props["XAxisZvec"]
@@ -1674,7 +1672,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
                     for vertex in edge.vertices:
                         if vertex.id == obj_id:
                             return "Vertex"
-        raise ValueError("Cannot find entity id {}".format(obj_id))
+        raise ValueError(f"Cannot find entity id {obj_id}")
 
     def _position_parser(self, pos):
         try:

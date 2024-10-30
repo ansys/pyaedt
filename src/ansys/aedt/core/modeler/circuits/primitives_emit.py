@@ -804,7 +804,7 @@ class EmitRadioComponent(EmitComponent):
 
         # convert to Hz
         freq_float_in_Hz = consts.unit_converter(band_start_freq, "Freq", units, "Hz")
-        freq_string = "{}".format(freq_float_in_Hz)
+        freq_string = f"{freq_float_in_Hz}"
         if not (1 <= freq_float_in_Hz <= 100000000000):  # pragma: no cover
             raise ValueError("Frequency should be within 1Hz to 100 GHz.")
         if float(band_node.props["StopFrequency"]) < freq_float_in_Hz:  # pragma: no cover
@@ -854,7 +854,7 @@ class EmitRadioComponent(EmitComponent):
                 band_node._set_prop_value({"StartFrequency": str(freq_float_in_Hz - 1)})
             else:  # pragma: no cover
                 raise ValueError("Band stop frequency is less than start frequency.")
-        freq_string = "{}".format(freq_float_in_Hz)
+        freq_string = f"{freq_float_in_Hz}"
         prop_list = {"StopFrequency": freq_string}
         band_node._set_prop_value(prop_list)
 
@@ -1074,11 +1074,11 @@ class EmitComponentPropNode(object):
         None
         """
         if "Band" not in self.props["Type"]:
-            raise TypeError("{} must be a band.".format(self.node_name))
+            raise TypeError(f"{self.node_name} must be a band.")
         # Need to store power in dBm
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Power"]:
             units = self.parent_component.units["Power"]
-        power_string = "{}".format(consts.unit_converter(power, "Power", units, "dBm"))
+        power_string = f'{consts.unit_converter(power, "Power", units, "dBm")}'
         prop_list = {"FundamentalAmplitude": power_string}
         for child in self.children:
             if child.props["Type"] == "TxSpectralProfNode":
@@ -1100,7 +1100,7 @@ class EmitComponentPropNode(object):
             Peak amplitude of the fundamental [units].
         """
         if "Band" not in self.props["Type"]:
-            raise TypeError("{} must be a band.".format(self.node_name))
+            raise TypeError(f"{self.node_name} must be a band.")
         # Power is stored in dBm, convert to desired units
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Power"]:
             units = self.parent_component.units["Power"]
@@ -1133,7 +1133,7 @@ class EmitComponentPropNode(object):
         None
         """
         if "SamplingNode" not in self.props["Type"]:
-            raise TypeError("{} must be a sampling node.".format(self.node_name))
+            raise TypeError(f"{self.node_name} must be a sampling node.")
         sampling_type = sampling_type.lower()
         if sampling_type == "all":
             sampling_type = "SampleAllChannels"
@@ -1141,19 +1141,19 @@ class EmitComponentPropNode(object):
             sampling_type = "RandomSampling"
         else:
             sampling_type = "UniformSampling"
-        sampling_props = {"SamplingType": "{}".format(sampling_type)}
+        sampling_props = {"SamplingType": f"{sampling_type}"}
         if percentage is not None:
             sampling_props["SpecifyPercentage"] = "true"
-            sampling_props["PercentageChannels"] = "{}".format(percentage)
+            sampling_props["PercentageChannels"] = f"{percentage}"
         elif max_channels is not None:
             sampling_props["SpecifyPercentage"] = "false"
-            sampling_props["NumberChannels"] = "{}".format(max_channels)
+            sampling_props["NumberChannels"] = f"{max_channels}"
         else:
             # If nothing specified for max_channels or percentage, use default
             sampling_props["SpecifyPercentage"] = "false"
             sampling_props["NumberChannels"] = "1000"
         if seed is not None:
-            sampling_props["RandomSeed"] = "{}".format(seed)
+            sampling_props["RandomSeed"] = f"{seed}"
         self._set_prop_value(sampling_props)
 
     @pyaedt_function_handler()
@@ -1175,9 +1175,9 @@ class EmitComponentPropNode(object):
         comp_name = self.parent_component.name
         prop_list = ["NAME:properties"]
         for prop_name, value in props.items():
-            prop_list.append("{}:=".format(prop_name))
+            prop_list.append(f"{prop_name}:=")
             if not isinstance(value, str):
-                raise TypeError("Value for key {} is not a string.".format(prop_name))
+                raise TypeError(f"Value for key {prop_name} is not a string.")
             prop_list.append(value)
         properties_to_set = [
             ["NAME:node", "fullname:=", self.node_name, prop_list],

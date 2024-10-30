@@ -42,7 +42,6 @@ from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.setup_templates import SetupKeys
@@ -167,28 +166,31 @@ class CommonSetup(PropsManager, object):
             self.props = SetupProps(self, setup_template)
         else:
             try:
-                setups_data = self.p_app.design_properties["AnalysisSetup"]["SolveSetups"]
-                if self.name in setups_data:
-                    setup_data = setups_data[self.name]
-                    if "Sweeps" in setup_data and self.setuptype not in [
-                        0,
-                        7,
-                    ]:  # 0 and 7 represent setup HFSSDrivenAuto
-                        if self.setuptype <= 4:
-                            app = setup_data["Sweeps"]
-                            app.pop("NextUniqueID", None)
-                            app.pop("MoveBackForward", None)
-                            app.pop("MoveBackwards", None)
-                            for el in app:
-                                if isinstance(app[el], dict):
-                                    self.sweeps.append(SweepHFSS(self, el, props=app[el]))
-
-                        else:
-                            app = setup_data["Sweeps"]
-                            for el in app:
-                                if isinstance(app[el], dict):
-                                    self.sweeps.append(SweepMatrix(self, el, props=app[el]))
-                        setup_data.pop("Sweeps", None)
+                if "AnalysisSetup" in self.p_app.design_properties.keys():
+                    setups_data = self.p_app.design_properties["AnalysisSetup"]["SolveSetups"]
+                    if self.name in setups_data:
+                        setup_data = setups_data[self.name]
+                        if "Sweeps" in setup_data and self.setuptype not in [
+                            0,
+                            7,
+                        ]:  # 0 and 7 represent setup HFSSDrivenAuto
+                            if self.setuptype <= 4:
+                                app = setup_data["Sweeps"]
+                                app.pop("NextUniqueID", None)
+                                app.pop("MoveBackForward", None)
+                                app.pop("MoveBackwards", None)
+                                for el in app:
+                                    if isinstance(app[el], dict):
+                                        self.sweeps.append(SweepHFSS(self, el, props=app[el]))
+                            else:
+                                app = setup_data["Sweeps"]
+                                for el in app:
+                                    if isinstance(app[el], dict):
+                                        self.sweeps.append(SweepMatrix(self, el, props=app[el]))
+                            setup_data.pop("Sweeps", None)
+                        self.props = SetupProps(self, setup_data)
+                elif "SimSetups" in self.p_app.design_properties.keys():
+                    setup_data = self.p_app.design_properties["SimSetups"]["SimSetup"]
                     self.props = SetupProps(self, setup_data)
             except Exception:
                 self.props = SetupProps(self, {})
@@ -206,12 +208,12 @@ class CommonSetup(PropsManager, object):
             expressions = [
                 i
                 for i in self.p_app.post.available_report_quantities(
-                    solution="{} : {}".format(self.name, self.p_app.design_solutions.default_adaptive)
+                    solution=f"{self.name} : {self.p_app.design_solutions.default_adaptive}"
                 )
             ]
             sol = self.p_app.post.reports_by_category.standard(
                 expressions=expressions[0],
-                setup="{} : {}".format(self.name, self.p_app.design_solutions.default_adaptive),
+                setup=f"{self.name} : {self.p_app.design_solutions.default_adaptive}",
             )
         else:
             expressions = [i for i in self.p_app.post.available_report_quantities(solution=self.name)]
@@ -800,17 +802,17 @@ class Setup(CommonSetup):
         apply_mesh_operations=True,
         adapt_port=True,
     ):
-        """Add a mesh link to another design.
+        """Import mesh from a source design solution to the target design.
 
         Parameters
         ----------
         design : str
-            Name of the design.
+            Name of the source design.
         solution : str, optional
-            Name of the solution in the format ``"name : solution_name"``.
+            Name of the source design solution in the format ``"name : solution_name"``.
             If ``None``, the default value is ``name : LastAdaptive``.
         parameters : dict, optional
-            Dictionary of the parameters.
+            Dictionary of the "mapping" variables from the source design.
             If ``None``, the default is `appname.available_variations.nominal_w_values_dict`.
         project : str, optional
             Name of the project with the design. The default is ``"This Project*"``.
@@ -835,7 +837,20 @@ class Setup(CommonSetup):
         ----------
 
         >>> oModule.EditSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(design="source_design")
+        >>> m3d.create_setup(name="setup1")
+        The target design is duplicated from the source design and made it active design.
+        >>> m3d.duplicate_design(name="source_design", save_after_duplicate=True)
+        The mesh link is assigned to the target design analysis setup.
+        >>> m3d.setups[0].add_mesh_link(design="source_design", solution=m3d.nominal_adaptive)
+        >>> m3d.release_desktop()
+
         """
+
         auto_update = self.auto_update
         try:
             self.auto_update = False
@@ -869,13 +884,14 @@ class Setup(CommonSetup):
             meshlinks["ImportMesh"] = True
             # solution name
             if solution is None:
-                meshlinks["Soln"] = "{} : LastAdaptive".format(
-                    self.p_app.oproject.GetDesign(design).GetChildObject("Analysis").GetChildNames()[0]
+                meshlinks["Soln"] = (
+                    f'{self.p_app.oproject.GetDesign(design).GetChildObject("Analysis").GetChildNames()[0]} : '
+                    f"LastAdaptive"
                 )
             elif (
                 solution.split()[0] in self.p_app.oproject.GetDesign(design).GetChildObject("Analysis").GetChildNames()
             ):
-                meshlinks["Soln"] = "{} : LastAdaptive".format(solution.split()[0])
+                meshlinks["Soln"] = f"{solution.split()[0]} : LastAdaptive"
             else:
                 raise ValueError("Setup does not exist in current design.")
             # parameters
@@ -1137,7 +1153,7 @@ class SetupCircuit(CommonSetup):
                 self.omodule.EditAMIAnalysis(self.name, arg)
 
             else:
-                raise NotImplementedError("Solution type '{}' is not implemented yet".format(soltype))
+                raise NotImplementedError(f"Solution type '{soltype}' is not implemented yet")
         return True
 
     @pyaedt_function_handler(update_dictionary="properties")
@@ -1276,7 +1292,7 @@ class SetupCircuit(CommonSetup):
             lin_in = "DEC"
         elif count_type.lower() == "octave":
             lin_in = "OCT"
-        lin_data = "{} {} {} {}".format(lin_in, start, stop, count)
+        lin_data = f"{lin_in} {start} {stop} {count}"
         return self._add_sweep(sweep_variable, lin_data, override_existing_sweep)
 
     @pyaedt_function_handler(start_point="start", end_point="stop")
@@ -1330,7 +1346,7 @@ class SetupCircuit(CommonSetup):
             stop = str(stop) + units
         if isinstance(step_size, (int, float)):
             step_size = str(step_size) + units
-        linc_data = "LIN {} {} {}".format(start, stop, step_size)
+        linc_data = f"LIN {start} {stop} {step_size}"
         return self._add_sweep(sweep_variable, linc_data, override_existing_sweep)
 
     @pyaedt_function_handler()
@@ -1775,11 +1791,11 @@ class Setup3DLayout(CommonSetup):
             `True` if solutions are available.
         """
         if self.props.get("SolveSetupType", "HFSS") == "HFSS":
-            combined_name = "{} : Last Adaptive".format(self.name)
+            combined_name = f"{self.name} : Last Adaptive"
             expressions = [i for i in self.p_app.post.available_report_quantities(solution=combined_name)]
             sol = self._app.post.reports_by_category.standard(expressions=expressions[0], setup=combined_name)
         elif self.props.get("SolveSetupType", "HFSS") == "SIwave":
-            combined_name = "{} : {}".format(self.name, self.sweeps[0].name)
+            combined_name = f"{self.name} : {self.sweeps[0].name}"
             expressions = [i for i in self.p_app.post.available_report_quantities(solution=combined_name)]
             sol = self._app.post.reports_by_category.standard(expressions=expressions[0], setup=combined_name)
         elif self.props.get("SolveSetupType", "HFSS") == "SIwaveDCIR":
@@ -1937,12 +1953,9 @@ class Setup3DLayout(CommonSetup):
         self.omodule.ExportToHfss(self.name, output_file)
         succeeded = self._check_export_log(info_messages, error_messages, output_file)
         if succeeded and keep_net_name:
-            if not is_ironpython:
-                from ansys.aedt.core import Hfss
+            from ansys.aedt.core import Hfss
 
-                self._get_net_names(Hfss, output_file, unite)
-            else:
-                self.p_app.logger.error("Exporting layout while keeping net name is not supported with IronPython")
+            self._get_net_names(Hfss, output_file, unite)
         return succeeded
 
     @pyaedt_function_handler()
@@ -1998,7 +2011,7 @@ class Setup3DLayout(CommonSetup):
             net = net.replace("-", "m")
             net = net.replace("+", "p")
             net_name = re.sub("[^a-zA-Z0-9 .\n]", "_", net)
-            self.p_app.logger.info("Renaming primitives for net {}...".format(net_name))
+            self.p_app.logger.info(f"Renaming primitives for net {net_name}...")
             object_names = list(set(object_names))
             if len(object_names) == 1:
                 object_p = aedtapp.modeler[object_names[0]]
@@ -2040,7 +2053,7 @@ class Setup3DLayout(CommonSetup):
         }
         for net, primitives in net_primitives.items():
             primitive_dict[net] = []
-            self.p_app.logger.info("Processing net {}...".format(net))
+            self.p_app.logger.info(f"Processing net {net}...")
             for prim in primitives:
 
                 if prim.layer_name not in layers_elevation:
@@ -2090,11 +2103,8 @@ class Setup3DLayout(CommonSetup):
     @pyaedt_function_handler()
     def _get_point_inside_primitive(self, primitive, n):
         from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
+        import numpy as np
 
-        if not is_ironpython:
-            import numpy as np
-        else:
-            return False
         bbox = primitive.bbox
         primitive_x_points = []
         primitive_y_points = []
@@ -2210,12 +2220,9 @@ class Setup3DLayout(CommonSetup):
         self.omodule.ExportToQ3d(self.name, output_file)
         succeeded = self._check_export_log(info_messages, error_messages, output_file)
         if succeeded and keep_net_name:
-            if not is_ironpython:
-                from ansys.aedt.core import Q3d
+            from ansys.aedt.core import Q3d
 
-                self._get_net_names(Q3d, output_file, unite)
-            else:
-                self.p_app.logger.error("Exporting layout while keeping net name is not supported with IronPython.")
+            self._get_net_names(Q3d, output_file, unite)
         return succeeded
 
     @pyaedt_function_handler(sweepname="name", sweeptype="sweep_type")
@@ -2315,7 +2322,7 @@ class Setup3DLayout(CommonSetup):
         """
         if os.path.isfile(file_path):  # pragma no cover
             if not overwrite:  # pragma no cover
-                settings.logger.error("File {} already exists. Configure file is not exported".format(file_path))
+                settings.logger.error(f"File {file_path} already exists. Configure file is not exported")
                 return False
         return self.props._export_properties_to_json(file_path, overwrite=overwrite)
 
@@ -2480,15 +2487,15 @@ class SetupHFSS(Setup, object):
                 offsets[v] = 0
         arg = []
         for k, v in offsets.items():
-            arg.append("DeltaOffset({})".format(k))
-            arg.append("{}".format(abs(self._app.variable_manager[k].numeric_value) * (-0.1)))
-            arg.append("{}".format(v))
-            arg.append("{}".format(abs(self._app.variable_manager[k].numeric_value) * 0.1))
+            arg.append(f"DeltaOffset({k})")
+            arg.append(f"{abs(self._app.variable_manager[k].numeric_value) * (-0.1)}")
+            arg.append(f"{v}")
+            arg.append(f"{abs(self._app.variable_manager[k].numeric_value) * 0.1}")
         if self.is_solved:
             self._app.osolution.SetTuningOffsets(["TuningRanges:=", arg])
             return True
         else:
-            self._app.logger.error("Setup {} is not solved. Solve it before tuning variables.".format(self.name))
+            self._app.logger.error(f"Setup {self.name} is not solved. Solve it before tuning variables.")
             return False
 
     @pyaedt_function_handler(freqstart="start_frequency", freqstop="stop_frequency", sweepname="name")
@@ -2594,7 +2601,7 @@ class SetupHFSS(Setup, object):
         sweepdata.props["SaveFields"] = save_fields
         sweepdata.props["SaveRadFields"] = save_rad_fields
         sweepdata.update()
-        self._app.logger.info("Linear count sweep {} has been correctly created".format(name))
+        self._app.logger.info(f"Linear count sweep {name} has been correctly created")
         return sweepdata
 
     @pyaedt_function_handler(freqstart="start_frequency", freqstop="stop_frequency", sweepname="name")
@@ -2682,7 +2689,7 @@ class SetupHFSS(Setup, object):
             sweepdata.props["InterpMinSolns"] = 0
             sweepdata.props["InterpMinSubranges"] = 1
         sweepdata.update()
-        self._app.logger.info("Linear step sweep {} has been correctly created".format(name))
+        self._app.logger.info(f"Linear step sweep {name} has been correctly created")
         return sweepdata
 
     @pyaedt_function_handler(sweepname="name")
@@ -2776,7 +2783,7 @@ class SetupHFSS(Setup, object):
             for f, s in zip(freq, save_single_field):
                 sweepdata.add_subrange(rangetype="SinglePoints", start=f, unit=unit, save_single_fields=s)
         sweepdata.update()
-        self._app.logger.info("Single point sweep {} has been correctly created".format(name))
+        self._app.logger.info(f"Single point sweep {name} has been correctly created")
         return sweepdata
 
     @pyaedt_function_handler(sweepname="name", sweeptype="sweep_type")
@@ -2936,7 +2943,7 @@ class SetupHFSS(Setup, object):
         self.auto_update = False
         self.props["SolveType"] = "Single"
         if isinstance(freq, (int, float)):
-            freq = "{}GHz".format(freq)
+            freq = f"{freq}GHz"
         if freq:
             self.props["Frequency"] = freq
         if max_passes:
@@ -2975,9 +2982,9 @@ class SetupHFSS(Setup, object):
         for el in list(self.props["MultipleAdaptiveFreqsSetup"].keys()):
             del self.props["MultipleAdaptiveFreqsSetup"][el]
         if isinstance(low_frequency, (int, float)):
-            low_frequency = "{}GHz".format(low_frequency)
+            low_frequency = f"{low_frequency}GHz"
         if isinstance(high_frquency, (int, float)):
-            high_frquency = "{}GHz".format(high_frquency)
+            high_frquency = f"{high_frquency}GHz"
         self.props["MultipleAdaptiveFreqsSetup"]["Low"] = low_frequency
         self.props["MultipleAdaptiveFreqsSetup"]["High"] = high_frquency
         self.props["MaximumPasses"] = max_passes
@@ -3017,11 +3024,11 @@ class SetupHFSS(Setup, object):
         for f in frequencies:
             if isinstance(max_delta_s, float):
                 if isinstance(f, (int, float)):
-                    f = "{}GHz".format(f)
+                    f = f"{f}GHz"
                 self.props["MultipleAdaptiveFreqsSetup"][f] = [max_delta_s]
             else:
                 if isinstance(f, (int, float)):
-                    f = "{}GHz".format(f)
+                    f = f"{f}GHz"
                 try:
                     self.props["MultipleAdaptiveFreqsSetup"][f] = [max_delta_s[i]]
                 except IndexError:
@@ -3197,15 +3204,15 @@ class SetupHFSSAuto(Setup, object):
                 offsets[v] = 0
         arg = []
         for k, v in offsets.items():
-            arg.append("DeltaOffset({})".format(k))
-            arg.append("{}".format(abs(self._app.variable_manager[k].numeric_value) * (-0.1)))
-            arg.append("{}".format(v))
-            arg.append("{}".format(abs(self._app.variable_manager[k].numeric_value) * 0.1))
+            arg.append(f"DeltaOffset({k})")
+            arg.append(f"{abs(self._app.variable_manager[k].numeric_value) * (-0.1)}")
+            arg.append(f"{v}")
+            arg.append(f"{abs(self._app.variable_manager[k].numeric_value) * 0.1}")
         if self.is_solved:
             self._app.osolution.SetTuningOffsets(["TuningRanges:=", arg])
             return True
         else:
-            self._app.logger.error("Setup {} is not solved. Solve it before tuning variables.".format(self.name))
+            self._app.logger.error(f"Setup {self.name} is not solved. Solve it before tuning variables.")
             return False
 
     @pyaedt_function_handler(rangetype="range_type")
@@ -3292,7 +3299,7 @@ class SetupHFSSAuto(Setup, object):
         self.auto_update = False
         self.props["SolveType"] = "Single"
         if isinstance(frequency, (int, float)):
-            frequency = "{}GHz".format(frequency)
+            frequency = f"{frequency}GHz"
         if frequency:
             self.props["Frequency"] = frequency
         if max_passes:
@@ -3332,9 +3339,9 @@ class SetupHFSSAuto(Setup, object):
         for el in list(self.props["MultipleAdaptiveFreqsSetup"].keys()):
             del self.props["MultipleAdaptiveFreqsSetup"][el]
         if isinstance(low_frequency, (int, float)):
-            low_frequency = "{}GHz".format(low_frequency)
+            low_frequency = f"{low_frequency}GHz"
         if isinstance(high_frequency, (int, float)):
-            high_frequency = "{}GHz".format(high_frequency)
+            high_frequency = f"{high_frequency}GHz"
         self.props["MultipleAdaptiveFreqsSetup"]["Low"] = low_frequency
         self.props["MultipleAdaptiveFreqsSetup"]["High"] = high_frequency
         self.props["MaximumPasses"] = max_passes
@@ -3370,11 +3377,11 @@ class SetupHFSSAuto(Setup, object):
         for f in frequencies:
             if isinstance(max_delta_s, float):
                 if isinstance(f, (int, float)):
-                    f = "{}GHz".format(f)
+                    f = f"{f}GHz"
                 self.props["MultipleAdaptiveFreqsSetup"][f] = [max_delta_s]
             else:
                 if isinstance(f, (int, float)):
-                    f = "{}GHz".format(f)
+                    f = f"{f}GHz"
                 try:
                     self.props["MultipleAdaptiveFreqsSetup"][f] = [max_delta_s[i]]
                 except IndexError:
@@ -3523,18 +3530,18 @@ class SetupMaxwell(Setup, object):
         self.auto_update = False
         props = {}
         props["RangeType"] = range_type
-        props["RangeStart"] = "{}{}".format(start, units)
+        props["RangeStart"] = f"{start}{units}"
         if range_type == "LinearStep":
-            props["RangeEnd"] = "{}{}".format(end, units)
-            props["RangeStep"] = "{}{}".format(count, units)
+            props["RangeEnd"] = f"{end}{units}"
+            props["RangeStep"] = f"{count}{units}"
         elif range_type == "LinearCount":
-            props["RangeEnd"] = "{}{}".format(end, units)
+            props["RangeEnd"] = f"{end}{units}"
             props["RangeCount"] = count
         elif range_type == "LogScale":
-            props["RangeEnd"] = "{}{}".format(end, units)
+            props["RangeEnd"] = f"{end}{units}"
             props["RangeSamples"] = count
         elif range_type == "SinglePoints":
-            props["RangeEnd"] = "{}{}".format(start, units)
+            props["RangeEnd"] = f"{start}{units}"
         if clear:
             self.props["SweepRanges"]["Subrange"] = props
         elif isinstance(self.props["SweepRanges"]["Subrange"], list):
@@ -3718,7 +3725,7 @@ class SetupQ3D(Setup, object):
         sweepdata.props["SaveFields"] = save_fields if sweep_type == "Discrete" else False
         sweepdata.props["SaveRadFields"] = False
         sweepdata.update()
-        self._app.logger.info("Linear count sweep {} has been correctly created".format(name))
+        self._app.logger.info(f"Linear count sweep {name} has been correctly created")
         return sweepdata
 
     @pyaedt_function_handler(freqstart="start_frequency", freqstop="stop_frequency", sweepname="name")
@@ -3802,7 +3809,7 @@ class SetupQ3D(Setup, object):
             sweepdata.props["InterpMinSolns"] = 0
             sweepdata.props["InterpMinSubranges"] = 1
         sweepdata.update()
-        self._app.logger.info("Linear step sweep {} has been correctly created".format(name))
+        self._app.logger.info(f"Linear step sweep {name} has been correctly created")
         return sweepdata
 
     @pyaedt_function_handler(sweepname="name")
@@ -3895,7 +3902,7 @@ class SetupQ3D(Setup, object):
             for f, s in zip(freq, save_single_field):
                 sweepdata.add_subrange(rangetype="SinglePoints", start=f, unit=unit, save_single_fields=s)
         sweepdata.update()
-        self._app.logger.info("Single point sweep {} has been correctly created".format(name))
+        self._app.logger.info(f"Single point sweep {name} has been correctly created")
         return sweepdata
 
     @pyaedt_function_handler(sweepname="name", sweeptype="sweep_type")

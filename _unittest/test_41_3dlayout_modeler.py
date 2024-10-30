@@ -336,7 +336,12 @@ class TestClass:
         assert len(self.aedtapp.excitations) > 0
         time_domain = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "Sinusoidal.csv")
         assert self.aedtapp.edit_source_from_file(
-            port_wave.name, time_domain, is_time_domain=True, x_scale=1e-6, y_scale=1e-3, data_format="Voltage"
+            source=port_wave.name,
+            input_file=time_domain,
+            is_time_domain=True,
+            x_scale=1e-6,
+            y_scale=1e-3,
+            data_format="Voltage",
         )
         self.aedtapp.boundaries[0].object_properties.props["Boundary Type"] = "PEC"
         assert list(self.aedtapp.oboundary.GetAllBoundariesList())[0] == self.aedtapp.boundaries[0].name
@@ -728,17 +733,27 @@ class TestClass:
     @pytest.mark.skipif(is_linux, reason="PyEDB is failing in Linux.")
     def test_42_post_processing(self, add_app):
         test_post1 = add_app(project_name=test_post, application=Maxwell3d, subfolder=test_subfolder)
-        assert test_post1.post.create_fieldplot_layers(
+        field_plot_layers = test_post1.post.create_fieldplot_layers(
             [],
             "Mag_H",
             intrinsics={"Time": "1ms"},
             nets=["GND", "V3P3_S5"],
+        )
+        assert field_plot_layers
+        assert test_post1.post.create_fieldplot_layers(
+            [], "Mag_H", intrinsics={"Time": "1ms"}, nets=["GND", "V3P3_S5"], name=field_plot_layers.name
         )
 
         assert test_post1.post.create_fieldplot_layers(
             ["UNNAMED_006"],
             "Mag_H",
             intrinsics={"Time": "1ms"},
+        )
+        assert test_post1.post.create_fieldplot_layers_nets(
+            [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
+            "Mag_Volume_Force_Density",
+            intrinsics={"Time": "1ms"},
+            plot_name="Test_Layers",
         )
         assert test_post1.post.create_fieldplot_layers_nets(
             [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],

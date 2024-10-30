@@ -27,12 +27,38 @@ import itertools
 import os
 import re
 import subprocess
+import warnings
 
 from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-import matplotlib.pyplot as plt
-import numpy as np
-import skrf as rf
+
+try:
+    import numpy as np
+except ImportError:  # pragma: no cover
+    warnings.warn(
+        "The NumPy module is required to run some functionalities of TouchstoneData.\n"
+        "Install with \n\npip install numpy"
+    )
+    np = None
+
+try:
+    import matplotlib.pyplot as plt
+except ImportError:  # pragma: no cover
+    warnings.warn(
+        "The Matplotlib module is required to run functionalities of TouchstoneData.\n"
+        "Install with \n\npip install matplotlib"
+    )
+    plt = None
+
+try:
+    import skrf as rf
+except ImportError:  # pragma: no cover
+    warnings.warn(
+        "The Scikit-rf module is required to run functionalities of TouchstoneData.\n"
+        "Install with \n\npip install scikit-rf"
+    )
+    rf = None
+
 
 REAL_IMAG = "RI"
 MAG_ANGLE = "MA"
@@ -238,8 +264,8 @@ class TouchstoneData(rf.Network):
 
         ts_diff.se2gmm(num_of_diff_ports)
 
-        new_port_names = ["D{}".format(i) for i in np.arange(num_of_diff_ports)]
-        new_port_names.extend(["C{}".format(i) for i in np.arange(num_of_diff_ports)])
+        new_port_names = [f"D{i}" for i in np.arange(num_of_diff_ports)]
+        new_port_names.extend([f"C{i}" for i in np.arange(num_of_diff_ports)])
         ts_diff.port_names[: len(new_port_names)] = new_port_names
         return ts_diff
 

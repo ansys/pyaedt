@@ -515,7 +515,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                     try:
                         self.odesign.ChangeProperty(properties)
                     except Exception:  # pragma: no cover
-                        self.logger.warning("Failed to rename terminal {}.".format(terminal))
+                        self.logger.warning(f"Failed to rename terminal {terminal}.")
                 bound = BoundaryObject(self, terminal_name, props_terminal, "Terminal")
                 self._boundaries[terminal_name] = bound
 
@@ -964,7 +964,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 sweepdata.props["SaveFields"] = save_fields
                 sweepdata.props["SaveRadFields"] = save_rad_fields
                 sweepdata.update()
-                self.logger.info("Linear count sweep {} has been correctly created.".format(name))
+                self.logger.info(f"Linear count sweep {name} has been correctly created.")
                 return sweepdata
         return False
 
@@ -2366,10 +2366,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         props["RenormalizeAllTerminals"] = renormalize
         props["Modes"] = {}
         for i in range(1, 1 + modes):
-            props["Modes"]["Mode{}".format(i)] = {}
-            props["Modes"]["Mode{}".format(i)]["ModeNum"] = i
-            props["Modes"]["Mode{}".format(i)]["UseIntLine"] = False
-            props["Modes"]["Mode{}".format(i)]["CharImp"] = "Zpi"
+            props["Modes"][f"Mode{i}"] = {}
+            props["Modes"][f"Mode{i}"]["ModeNum"] = i
+            props["Modes"][f"Mode{i}"]["UseIntLine"] = False
+            props["Modes"][f"Mode{i}"]["CharImp"] = "Zpi"
         props["ShowReporterFilter"] = True
         if isinstance(reporter_filter, bool):
             props["ReporterFilter"] = [reporter_filter for i in range(modes)]
@@ -2487,7 +2487,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         """
         objectname = self.modeler.convert_to_selections(assignment, True)
         boundaries = list(self.oboundary.GetBoundaries())
-        self.oboundary.AutoIdentifyLatticePair("{}:{}".format(coordinate_system, coordinate_plane), objectname[0])
+        self.oboundary.AutoIdentifyLatticePair(f"{coordinate_system}:{coordinate_plane}", objectname[0])
         boundaries = [i for i in list(self.oboundary.GetBoundaries()) if i not in boundaries]
         bounds = [i for i in boundaries if boundaries.index(i) % 2 == 0]
         return bounds
@@ -3775,7 +3775,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
     @pyaedt_function_handler(excitations="assignment")
     def edit_sources(
-        self, assignment, include_port_post_processing=True, max_available_power=None, use_incident_voltage=False
+        self,
+        assignment,
+        include_port_post_processing=True,
+        max_available_power=None,
+        use_incident_voltage=False,
+        eigenmode_stored_energy=True,
     ):
         """Set up the power loaded for HFSS postprocessing in multiple sources simultaneously.
 
@@ -3795,6 +3800,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         use_incident_voltage : bool, optional
             Use incident voltage definition. The default is ``False``.
             This argument applies only to the Terminal solution type.
+        eigenmode_stored_energy : bool, optional
+            Use stored energy definition. The default is ``True``.
+            This argument applies only to the Eigenmode solution type.
 
         Returns
         -------
@@ -3803,49 +3811,78 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         Examples
         --------
         >>> sources = {"Port1:1": ("0W", "0deg"), "Port2:1": ("1W", "90deg")}
-        >>> hfss.edit_sources(sources,include_port_post_processing=True)
+        >>> hfss.edit_sources(sources, include_port_post_processing=True)
 
         >>> sources = {"Box2_T1": ("0V", "0deg", True), "Box1_T1": ("1V", "90deg")}
-        >>> hfss.edit_sources(sources,max_available_power="2W",use_incident_voltage=True)
+        >>> hfss.edit_sources(sources,max_available_power="2W", use_incident_voltage=True)
+
+        >>> aedtapp = add_app(solution_type="Eigenmode")
+        >>> _ = aedtapp.modeler.create_box([0, 0, 0], [10, 20, 20])
+        >>> setup = aedtapp.create_setup()
+        >>> setup.props["NumModes"] = 2
+        >>> sources = {"1": "1Joules", "2": "0Joules"}
+        >>> aedtapp.edit_sources(sources, eigenmode_stored_energy=True)
+        >>> sources = {"1": ("0V/M", "0deg"), "2": ("2V/M", "90deg")}
+        >>> aedtapp.edit_sources(sources, eigenmode_stored_energy=False)
         """
-        data = {i: ("0W", "0deg", False) for i in self.excitations}
-        for key, value in assignment.items():
-            data[key] = value
-        setting = []
-        for key, vals in data.items():
-            if isinstance(vals, str):
-                power = vals
-                phase = "0deg"
-            else:
-                power = vals[0]
-                if len(vals) == 1:
+        if self.solution_type != "Eigenmode":
+            data = {i: ("0W", "0deg", False) for i in self.excitations}
+            for key, value in assignment.items():
+                data[key] = value
+            setting = []
+            for key, vals in data.items():
+                if isinstance(vals, str):
+                    power = vals
                     phase = "0deg"
                 else:
-                    phase = vals[1]
-            if isinstance(vals, (list, tuple)) and len(vals) == 3:
-                terminated = vals[2]
-            else:
-                terminated = False
-            if use_incident_voltage and self.solution_type == "Terminal":
-                setting.append(["Name:=", key, "Terminated:=", terminated, "Magnitude:=", power, "Phase:=", phase])
-            else:
-                setting.append(["Name:=", key, "Magnitude:=", power, "Phase:=", phase])
-        argument = []
-        if self.solution_type == "Terminal":
-            argument.extend(["UseIncidentVoltage:=", use_incident_voltage])
+                    power = vals[0]
+                    if len(vals) == 1:
+                        phase = "0deg"
+                    else:
+                        phase = vals[1]
+                if isinstance(vals, (list, tuple)) and len(vals) == 3:
+                    terminated = vals[2]
+                else:
+                    terminated = False
+                if use_incident_voltage and self.solution_type == "Terminal":
+                    setting.append(["Name:=", key, "Terminated:=", terminated, "Magnitude:=", power, "Phase:=", phase])
+                else:
+                    setting.append(["Name:=", key, "Magnitude:=", power, "Phase:=", phase])
+            argument = []
+            if self.solution_type == "Terminal":
+                argument.extend(["UseIncidentVoltage:=", use_incident_voltage])
 
-        argument.extend(
-            [
-                "IncludePortPostProcessing:=",
-                include_port_post_processing,
-                "SpecifySystemPower:=",
-                True if max_available_power else False,
-            ]
-        )
+            argument.extend(
+                [
+                    "IncludePortPostProcessing:=",
+                    include_port_post_processing,
+                    "SpecifySystemPower:=",
+                    True if max_available_power else False,
+                ]
+            )
 
-        if max_available_power:
-            argument.append("Incident Power:=")
-            argument.append(max_available_power)
+            if max_available_power:
+                argument.append("Incident Power:=")
+                argument.append(max_available_power)
+        else:
+            eigenmode_type_definition = "EigenStoredEnergy" if eigenmode_stored_energy else "EigenPeakElectricField"
+            argument = ["FieldType:=", eigenmode_type_definition]
+            power = []
+            phase = []
+            for _, value in assignment.items():
+                if eigenmode_stored_energy:
+                    power.append(value)
+                else:
+                    if isinstance(value, (list, tuple)):
+                        power.append(value[0])
+                        phase.append(value[1])
+                    elif isinstance(value, str):
+                        power.append(value)
+                        phase.append("0deg")
+            if eigenmode_stored_energy:
+                setting = [["Name:=", "Modes", "Magnitudes:=", power]]
+            else:
+                setting = [["Name:=", "Modes", "Magnitudes:=", power, "Phases:=", phase]]
 
         args = [argument]
         args.extend(setting)
@@ -3855,6 +3892,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
     @pyaedt_function_handler(portandmode="assignment", powerin="power")
     def edit_source(self, assignment=None, power="1W", phase="0deg"):
         """Set up the power loaded for HFSS postprocessing.
+
+        .. deprecated:: 0.11.2
+           Use :func:`edit_sources` method instead.
 
         Parameters
         ----------
@@ -3894,30 +3934,32 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         True
 
         """
+        warnings.warn("`edit_sources` is deprecated. Use `edit_sources` method instead.", DeprecationWarning)
 
         if self.solution_type != "Eigenmode":
             if assignment is None:
-                self.logger.error("Port and mode must be defined for solution type {}".format(self.solution_type))
+                self.logger.error(f"Port and mode must be defined for solution type {self.solution_type}")
                 return False
-            self.logger.info('Setting up power to "{}" = {}'.format(assignment, power))
-            self.osolution.EditSources(
-                [
-                    ["IncludePortPostProcessing:=", True, "SpecifySystemPower:=", False],
-                    ["Name:=", assignment, "Magnitude:=", power, "Phase:=", phase],
-                ]
+            self.logger.info(f'Setting up power to "{assignment}" = {power}')
+            source = {assignment: (power, phase)}
+            self.edit_sources(
+                assignment=source,
+                include_port_post_processing=True,
+                max_available_power=None,
+                eigenmode_stored_energy=True,
             )
+
         else:
-            self.logger.info("Setting up power to Eigenmode = {}".format(power))
-            self.osolution.EditSources(
-                [["FieldType:=", "EigenStoredEnergy"], ["Name:=", "Modes", "Magnitudes:=", [power]]]
-            )
+            self.logger.info(f"Setting up power to Eigenmode = {power}")
+            source = {"1": power}
+            self.edit_sources(assignment=source, eigenmode_stored_energy=True)
         return True
 
     @pyaedt_function_handler(portandmode="assignment", file_name="input_file")
     def edit_source_from_file(
         self,
-        assignment,
         input_file,
+        assignment=None,
         is_time_domain=True,
         x_scale=1,
         y_scale=1,
@@ -3927,15 +3969,16 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         window="hamming",
     ):
         """Edit a source from file data.
-        File data is a csv containing either frequency data or time domain data that will be converted through FFT.
+        File data is a CSV containing either frequency data or time domain data that will be converted through FFT.
 
         Parameters
         ----------
-        assignment : str
+        input_file : str
+            Full name of the input file. If ``assignment`` is ``None``, it loads directly the file, in this case
+            the file must have AEDT format.
+        assignment : str, optional
             Port name and mode. For example, ``"Port1:1"``.
             The port name must be defined if the solution type is other than Eigenmodal.
-        input_file : str
-            Full name of the input file.
         is_time_domain : bool, optional
             Whether the input data is time-based or frequency-based. Frequency based data are Mag/Phase (deg).
         x_scale : float, optional
@@ -3959,6 +4002,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         -------
         bool
         """
+
+        if not assignment:
+            self.osolution.LoadSourceWeights(input_file)
+            return True
 
         def find_scale(data, header_line):
             for td in data.keys():
@@ -4046,29 +4093,35 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                     "Name:=",
                     assignment,
                     "Magnitude:=",
-                    "pwl({}, Freq)".format(ds_name_mag),
+                    f"pwl({ds_name_mag}, Freq)",
                     "Phase:=",
-                    "pwl({}, Freq)".format(ds_name_phase),
+                    f"pwl({ds_name_phase}, Freq)",
                 ],
             ]
         )
         self.logger.info("Source Excitation updated with Dataset.")
         return True
 
-    @pyaedt_function_handler()
-    def edit_sources_from_file(self, file_name):
-        """Update all sources from a csv.
+    @pyaedt_function_handler(file_name="input_file")
+    def edit_sources_from_file(self, input_file):  # pragma: no cover
+        """Update all sources from a CSV file.
+
+        .. deprecated:: 0.11.2
+           Use :func:`edit_source_from_file` method instead.
 
         Parameters
         ----------
-        file_name : str
-            Filen name.
+        input_file : str
+            File name.
 
         Returns
         -------
         bool
         """
-        self.osolution.LoadSourceWeights(file_name)
+        warnings.warn(
+            "`edit_source_from_file` is deprecated. Use `edit_source_from_file` method instead.", DeprecationWarning
+        )
+        self.edit_source_from_file(input_file=input_file)
         return True
 
     @pyaedt_function_handler(
@@ -4232,8 +4285,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                         self.logger.info("done")
         return ports_ID
 
-    @pyaedt_function_handler(dname="design", ouputdir="ouput_dir")
-    def validate_full_design(self, design=None, ouput_dir=None, ports=None):
+    @pyaedt_function_handler(dname="design", outputdir="output_dir")
+    def validate_full_design(self, design=None, output_dir=None, ports=None):
         """Validate a design based on an expected value and save information to the log file.
 
 
@@ -4242,7 +4295,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         design : str,  optional
             Name of the design to validate. The default is ``None``, in which case
             the current design is used.
-        ouput_dir : str, optional
+        output_dir : str, optional
             Directory to save the log file to. The default is ``None``,
             in which case the current project path is used.
         ports : int, optional
@@ -4277,10 +4330,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         val_list = []
         if not design:
             design = self.design_name
-        if not ouput_dir:
-            ouput_dir = self.working_directory
+        if not output_dir:
+            output_dir = self.working_directory
         pname = self.project_name
-        validation_log_file = os.path.join(ouput_dir, pname + "_" + design + "_validation.log")
+        validation_log_file = os.path.join(output_dir, pname + "_" + design + "_validation.log")
 
         # Desktop Messages
         msg = "Desktop messages:"
@@ -4678,10 +4731,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
     @pyaedt_function_handler(setupname="setup")
     def _create_sbr_doppler_sweep(self, setup, time_var, tstart, tstop, tsweep, parametric_name):
-        time_start = self.modeler._arg_with_dim(tstart, "s")
-        time_sweep = self.modeler._arg_with_dim(tsweep, "s")
         time_stop = self.modeler._arg_with_dim(tstop, "s")
-        sweep_range = "LIN {} {} {}".format(time_start, time_stop, time_sweep)
         return self.parametrics.add(time_var, tstart, time_stop, tsweep, "LinearStep", setup, name=parametric_name)
 
     @pyaedt_function_handler(time_var="time_variable", setup_name="setup")
@@ -5803,7 +5853,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.generic.farfield_visualization.FfdSolutionDataExporter`
+        :class:`ansys.aedt.core.visualization.post.farfield_exporter.FfdSolutionDataExporter`
             SolutionData object.
         """
         warnings.warn("Use :func:`get_antenna_data` method instead.", DeprecationWarning)
@@ -5863,7 +5913,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.generic.farfield_visualization.FfdSolutionDataExporter`
+        :class:`ansys.aedt.core.visualization.advanced.farfield_visualization.FfdSolutionDataExporter`
             SolutionData object.
 
         Examples
@@ -6805,7 +6855,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                     mesh_assembly_arg.append(padding)
                     arg2.append(mesh_assembly_arg)
                 else:
-                    self.logger.warning("{0} does not exist".format(str(comp)))
+                    self.logger.warning(f"{str(comp)} does not exist")
                 count += 1
         elif assignment and isinstance(volume_padding, list) and len(volume_padding) != len(assignment):
             self.logger.error("Volume padding length is different than component list length.")
@@ -6819,7 +6869,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 if p in self.modeler.user_defined_component_names:
                     arg3.append(p)
                 else:
-                    self.logger.warning("{0} does not exist".format(str(p)))
+                    self.logger.warning(f"{str(p)} does not exist")
 
         arg.append(arg2)
         arg.append(arg3)
@@ -6864,7 +6914,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         var = []
         if variations:
             for k, v in variations.items():
-                var.append("{}='{}'".format(k, v))
+                var.append(f"{k}='{v}'")
         variation = " ".join(var)
 
         command = [
@@ -6945,7 +6995,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         var = []
         if variations:
             for k, v in variations.items():
-                var.append("{}='{}'".format(k, v))
+                var.append(f"{k}='{v}'")
         variation = " ".join(var)
 
         command = [
