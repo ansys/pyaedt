@@ -34,7 +34,7 @@ is_linux = os.name == "posix"
 if is_linux:
     import subprocessdotnet as subprocess
 
-toolkits_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+toolkits_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 sys.path.append(toolkits_dir)
 

@@ -5853,7 +5853,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.generic.farfield_visualization.FfdSolutionDataExporter`
+        :class:`ansys.aedt.core.visualization.post.farfield_exporter.FfdSolutionDataExporter`
             SolutionData object.
         """
         warnings.warn("Use :func:`get_antenna_data` method instead.", DeprecationWarning)
@@ -5913,7 +5913,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.visualization.advanced.farfield_exporter.FfdSolutionDataExporter`
+        :class:`ansys.aedt.core.visualization.advanced.farfield_visualization.FfdSolutionDataExporter`
             SolutionData object.
 
         Examples

@@ -37,7 +37,6 @@ import warnings
 
 from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import read_json
@@ -899,9 +898,6 @@ class Materials(object):
             return False
         materials_added = []
         props = {}
-        if is_ironpython:
-            self.logger.error("This method only works with CPython.")
-            return False
         if os.path.splitext(input_file)[1] == ".csv":
             df = pd.read_csv(input_file, index_col=0)
         elif os.path.splitext(input_file)[1] == ".xlsx":

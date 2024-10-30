@@ -23,23 +23,30 @@
 # SOFTWARE.
 
 import os
+import warnings
 
-from ansys.aedt.core.generic.general_methods import is_ironpython
-
-if not is_ironpython:
-    try:
-        import joblib
-    except ImportError:
-        pass
-    try:
-        import numpy as np
-    except ImportError:
-        pass
+try:
+    import joblib
+except ImportError:  # pragma: no cover
+    joblib = None
+    warnings.warn(
+        "The Joblib module is required to use functionalities provided by the module "
+        "ansys.aedt.core.modeler.advanced_cad.stackup_3d.\n"
+        "Install with \n\npip install joblib"
+    )
+try:
+    import numpy as np
+except ImportError:  # pragma: no cover
+    np = None
+    warnings.warn(
+        "The Numpy module is required to use functionalities provided by the module "
+        "ansys.aedt.core.modeler.advanced_cad.stackup_3d.\n"
+        "Install with \n\npip install numpy"
+    )
 
 from ansys.aedt.core import constants
 from ansys.aedt.core import pyaedt_path
 from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modules.material_lib import Material
 
@@ -3479,32 +3486,25 @@ class MachineLearningPatch(Patch, object):
         self.predict_length()
 
     def predict_length(self):
-        if not is_ironpython:
-            try:
-                joblib
-            except NameError:  # pragma: no cover
-                raise ImportError("joblib package is needed to run ML.")
-            training_file = None
-            if 1e9 >= self.frequency.numeric_value >= 1e8:
-                training_file = os.path.join(pyaedt_path, "misc", "patch_svr_model_100MHz_1GHz.joblib")
-            elif 1e10 >= self.frequency.numeric_value > 1e9:
-                training_file = os.path.join(pyaedt_path, "misc", "patch_svr_model_1GHz_10GHz.joblib")
-            else:
-                self.application.logger.error(
-                    "This ML algorithm can only predict patch antennas from 100 MHz to 10 GHz."
-                )
-            if training_file:
-                model = joblib.load(training_file)
-                list_for_array = [
-                    [
-                        self.frequency.numeric_value,
-                        self.width.numeric_value,
-                        self._permittivity.numeric_value,
-                        self.dielectric_layer.thickness.numeric_value,
-                    ]
-                ]
-                array_for_prediction = np.array(list_for_array, dtype=np.float32)
-                length = model.predict(array_for_prediction)[0]
-                self.length.expression = self.application.modeler._arg_with_dim(length)
+        if joblib is None:  # pragma: no cover
+            raise ImportError("Package Joblib is required to run ML.")
+        training_file = None
+        if 1e9 >= self.frequency.numeric_value >= 1e8:
+            training_file = os.path.join(pyaedt_path, "misc", "patch_svr_model_100MHz_1GHz.joblib")
+        elif 1e10 >= self.frequency.numeric_value > 1e9:
+            training_file = os.path.join(pyaedt_path, "misc", "patch_svr_model_1GHz_10GHz.joblib")
         else:  # pragma: no cover
-            self.application.logger.warning("Machine learning algorithm aren't covered in IronPython.")
+            self.application.logger.error("This ML algorithm can only predict patch antennas from 100 MHz to 10 GHz.")
+        if training_file:
+            model = joblib.load(training_file)
+            list_for_array = [
+                [
+                    self.frequency.numeric_value,
+                    self.width.numeric_value,
+                    self._permittivity.numeric_value,
+                    self.dielectric_layer.thickness.numeric_value,
+                ]
+            ]
+            array_for_prediction = np.array(list_for_array, dtype=np.float32)
+            length = model.predict(array_for_prediction)[0]
+            self.length.expression = self.application.modeler._arg_with_dim(length)

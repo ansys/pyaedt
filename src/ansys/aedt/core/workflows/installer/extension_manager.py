@@ -22,6 +22,7 @@
 # SOFTWARE.
 
 import os
+import sys
 import tkinter as tk
 from tkinter import ttk
 
@@ -54,13 +55,10 @@ if is_windows:
     venv_dir = os.path.join(os.environ["APPDATA"], VENV_DIR_PREFIX, f"toolkits_{python_version.replace('.', '_')}")
     python_exe = os.path.join(venv_dir, "Scripts", "python.exe")
     package_dir = os.path.join(venv_dir, "Lib", "site-packages")
-    pyaedt_venv_dir = os.path.join(os.environ["APPDATA"], VENV_DIR_PREFIX, f"{python_version.replace('.', '_')}")
-
 else:
     venv_dir = os.path.join(os.environ["HOME"], VENV_DIR_PREFIX, f"toolkits_{python_version.replace('.', '_')}")
     python_exe = os.path.join(venv_dir, "bin", "python")
     package_dir = os.path.join(venv_dir, "lib", "site-packages")
-    pyaedt_venv_dir = os.path.join(os.environ["HOME"], VENV_DIR_PREFIX, f"{python_version.replace('.', '_')}")
 
 
 def create_toolkit_page(frame, window_name, internal_toolkits):
@@ -281,11 +279,10 @@ def button_is_clicked(
 
     else:
         if install_action:
-            desktop.logger.info(f"Install {name}")
-            if is_windows:
-                executable_interpreter = os.path.join(pyaedt_venv_dir, "Scripts", "python.exe")
-            else:
-                executable_interpreter = os.path.join(pyaedt_venv_dir, "bin", "python")
+            desktop.logger.info("Install {}".format(name))
+
+            executable_interpreter = sys.executable
+
             if not file:
                 file = os.path.join(
                     os.path.dirname(ansys.aedt.core.workflows.templates.__file__), "extension_template.py"
@@ -314,6 +311,36 @@ def button_is_clicked(
     desktop.odesktop.CloseAllWindows()
     desktop.odesktop.RefreshToolkitUI()
     desktop.release_desktop(False, False)
+
+
+def close_widget(widget):
+    """Close specific widget."""
+    widget.destroy()
+
+
+def create_disclaimer_window(root: tk.Tk):
+    """Notify users about extra packages."""
+    DISCLAIMER = (
+        "The extension manager will download and install certain third-party software and/or "
+        "open-source software (collectively, 'Third-Party Software'). Such Third-Party "
+        "Software is subject to separate terms and conditions and not the terms of your "
+        "Ansys software license agreement. Ansys does not warrant or support such "
+        "Third-Party Software. Do you still wish to proceed?"
+    )
+
+    disclaimer_window = tk.Toplevel(root)
+    disclaimer_window.title("Disclaimer")
+    disclaimer_window.grab_set()
+    disclaimer_window.protocol("WM_DELETE_WINDOW", lambda: None)
+    disclaimer_window.transient(root)
+    label = tk.Label(disclaimer_window, text=DISCLAIMER, wraplength=275)
+    label.pack()
+    yes_button = tk.Button(disclaimer_window, text="Yes", command=lambda: close_widget(disclaimer_window))
+    yes_button.pack(side=tk.LEFT, padx=50, pady=10)
+    no_button = tk.Button(disclaimer_window, text="No", command=lambda: close_widget(root))
+    no_button.pack(side=tk.RIGHT, padx=50, pady=10)
+
+    return disclaimer_window
 
 
 root = tk.Tk()
@@ -357,6 +384,9 @@ x_position = (screen_width - window_width) // 2
 y_position = (screen_height - window_height) // 2
 
 root.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
+
+disclaimer_window = create_disclaimer_window(root)
+disclaimer_window.geometry("300x170+{}+{}".format(x_position + 110, y_position + 45))
 
 # Create buttons in a 4x4 grid, centered
 for i, level in enumerate(toolkit_levels):

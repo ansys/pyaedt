@@ -26,16 +26,13 @@ import sys
 import threading
 import warnings
 
-from ansys.aedt.core.generic.general_methods import is_ironpython
-
-if not is_ironpython:
-    try:
-        import numpy as np
-    except ImportError:
-        warnings.warn(
-            "The NumPy module is required to run some functionalities of PostProcess.\n"
-            "Install with \n\npip install numpy\n\nRequires CPython."
-        )
+try:
+    import numpy as np
+except ImportError:  # pragma: no cover
+    warnings.warn(
+        "The NumPy module is required to run some functionalities of PostProcess.\n"
+        "Install with \n\npip install numpy\n\nRequires CPython."
+    )
 
 
 class ThreadTrace(threading.Thread):

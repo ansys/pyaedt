@@ -35,7 +35,6 @@ from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.general_methods import GrpcApiError
 from ansys.aedt.core.generic.general_methods import generate_unique_folder_name
 from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import read_configuration_file
@@ -54,10 +53,8 @@ from ansys.aedt.core.modules.material_lib import Material
 from ansys.aedt.core.modules.mesh import MeshOperation
 from ansys.aedt.core.modules.mesh_icepak import MeshRegion
 from ansys.aedt.core.modules.mesh_icepak import SubRegion
-
-if not is_ironpython:
-    from jsonschema import exceptions
-    from jsonschema import validate
+from jsonschema import exceptions
+from jsonschema import validate
 
 
 def _find_datasets(d, out_list):
@@ -1074,17 +1071,13 @@ class Configurations(object):
             self._app.logger.warning("Incorrect data type.")
             return False
 
-        if is_ironpython:
-            self._app.logger.warning("Iron Python: Unable to validate json Schema.")
-        else:
-            try:
-                validate(instance=config_data, schema=self.schema)
-                return True
-            except exceptions.ValidationError as e:
-                self._app.logger.warning("Configuration is invalid.")
-                self._app.logger.warning("Validation error:" + e.message)
-                return False
-        return True
+        try:
+            validate(instance=config_data, schema=self.schema)
+            return True
+        except exceptions.ValidationError as e:  # pragma : no cover
+            self._app.logger.warning("Configuration is invalid.")
+            self._app.logger.warning("Validation error:" + e.message)
+            return False
 
     @pyaedt_function_handler()
     def import_config(self, config_file, *args):
