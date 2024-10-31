@@ -80,7 +80,7 @@ class CommonSetup(PropsManager, object):
         dict
             Dictionary which keys are typically Freq, Phase or Time."""
         intr = {}
-        if self._app.design_type.contains("HFSS 3D Layout"):  # pragma no cover
+        if "HFSS 3D Layout" in self._app.design_type:  # pragma no cover
             try:
                 intr["Freq"] = (
                     self._app.modeler.edb.setups[self.name]
