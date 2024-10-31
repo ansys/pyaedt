@@ -293,7 +293,7 @@ def _parse_nastran(file_path):
 
     def parse_lines(input_lines, input_pid=0, in_assembly="Main"):
         if in_assembly not in nas_to_dict["Assemblies"]:
-            nas_to_dict["Assemblies"][in_assembly] = {"Triangles": {}, "Solids": {}, "Lines": {}}
+            nas_to_dict["Assemblies"][in_assembly] = {"Triangles": {}, "Solids": {}, "Lines": {}, "Shells": {}}
 
         def get_point(ll, start, length):
             n = ll[start : start + length].strip()
@@ -331,6 +331,14 @@ def _parse_nastran(file_path):
             elif line_type in ["CPYRA", "CPYRAM", "CPYRA*", "CPYRAM*"]:
                 num_points = 5
                 obj_type = "Solids"
+            elif line_type in ["CHEXA", "CHEXA*"]:
+                num_points = 8
+                obj_type = "Solids"
+            elif line_type in ["PSHELL", "PSHELL*"]:
+                num_points = 1
+                obj_type = "Shells"
+            elif line_type in ["MPC", "MPC*"]:
+                num_points = 16
             else:
                 continue
 
@@ -343,7 +351,9 @@ def _parse_nastran(file_path):
             pp = 0
             start_pointer = start_pointer + word_length
             object_id = line[start_pointer : start_pointer + word_length]
-            if obj_type != "Grid":
+            if obj_type == "Shells":
+                nas_to_dict["Assemblies"][in_assembly][obj_type][grid_id] = []
+            elif obj_type != "Grid":
                 object_id = int(object_id)
                 if object_id not in nas_to_dict["Assemblies"][in_assembly][obj_type]:
                     nas_to_dict["Assemblies"][in_assembly][obj_type][object_id] = []
@@ -382,6 +392,43 @@ def _parse_nastran(file_path):
                     nas_to_dict["PointsId"][int(points[3])],
                 ]
                 nas_to_dict["Assemblies"][in_assembly]["Triangles"][object_id].append(tri)
+            elif line_type in ["PSHELL", "PSHELL*"]:
+                nas_to_dict["Assemblies"][in_assembly]["Shells"][grid_id] = [str(object_id.strip()), points[0]]
+            elif line_type in ["MPC", "MPC*"]:
+                tri = [
+                    nas_to_dict["PointsId"][int(points[2])],
+                    nas_to_dict["PointsId"][int(points[7])],
+                    nas_to_dict["PointsId"][int(points[10])],
+                ]
+                nas_to_dict["Assemblies"][in_assembly]["Triangles"][f"Port_{object_id}"] = [tri]
+                tri = [
+                    nas_to_dict["PointsId"][int(points[2])],
+                    nas_to_dict["PointsId"][int(points[10])],
+                    nas_to_dict["PointsId"][int(points[15])],
+                ]
+                nas_to_dict["Assemblies"][in_assembly]["Triangles"][f"Port_{object_id}"].append(tri)
+            elif line_type in ["CHEXA", "CHEXA*"]:
+
+                def add_hexa_tria(p1, p2, p3, hexa_obj):
+                    tri = [
+                        nas_to_dict["PointsId"][int(points[p1])],
+                        nas_to_dict["PointsId"][int(points[p2])],
+                        nas_to_dict["PointsId"][int(points[p3])],
+                    ]
+                    nas_to_dict["Assemblies"][in_assembly]["Solids"][hexa_obj].append(tri)
+
+                add_hexa_tria(0, 1, 2, object_id)
+                add_hexa_tria(0, 2, 3, object_id)
+                add_hexa_tria(0, 1, 4, object_id)
+                add_hexa_tria(1, 4, 5, object_id)
+                add_hexa_tria(1, 2, 6, object_id)
+                add_hexa_tria(1, 6, 5, object_id)
+                add_hexa_tria(4, 7, 6, object_id)
+                add_hexa_tria(4, 6, 5, object_id)
+                add_hexa_tria(0, 3, 7, object_id)
+                add_hexa_tria(0, 7, 4, object_id)
+                add_hexa_tria(3, 2, 7, object_id)
+                add_hexa_tria(2, 7, 6, object_id)
             else:
                 from itertools import combinations
 

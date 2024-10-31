@@ -1073,7 +1073,8 @@ class Modeler3D(Primitives3D):
 
         Returns
         -------
-        List of :class:`ansys.aedt.core.modeler.Object3d.Object3d`
+        List of :class:`ansys.aedt.core.modeler.Object3d.Object3d`, dict
+            New object created and nastran dictionary.
         """
         autosave = (
             True if self._app.odesktop.GetRegistryInt("Desktop/Settings/ProjectOptions/DoAutoSave") == 1 else False
@@ -1089,7 +1090,7 @@ class Modeler3D(Primitives3D):
             preview=preview,
         )
         if save_only_stl:
-            return output_stls
+            return output_stls, nas_to_dict
 
         self._app.desktop_class.close_windows()
         self.logger.info("Importing STL in 3D Modeler")
@@ -1202,7 +1203,7 @@ class Modeler3D(Primitives3D):
         self._app.oproject.SetActiveDesign(self._app.design_name)
         self._app.odesktop.EnableAutoSave(autosave)
         self.logger.info_timer("Nastran model correctly imported.")
-        return new_objects
+        return new_objects, nas_to_dict
 
     @pyaedt_function_handler()
     def import_from_openstreet_map(
