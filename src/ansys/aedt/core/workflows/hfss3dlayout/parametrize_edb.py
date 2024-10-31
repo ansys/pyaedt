@@ -65,9 +65,13 @@ def frontend():  # pragma: no cover
         student_version=is_student,
     )
     active_project = app.active_project()
-    active_design = app.active_design()
-    aedb_path = os.path.join(active_project.GetPath(), active_project.GetName() + ".aedb")
-    edb = Edb(aedb_path, active_design.GetName().split(";")[1], edbversion=version)
+    active_project_path = active_project.GetPath()
+    active_project_name = active_project.GetName()
+    aedb_path = os.path.join(active_project_path, active_project_name + ".aedb")
+    active_design_name = app.active_design().GetName().split(";")[1]
+
+    app.release_desktop(False, False)
+    edb = Edb(aedb_path, active_design_name, edbversion=version)
 
     import tkinter
     from tkinter import ttk
@@ -98,7 +102,7 @@ def frontend():  # pragma: no cover
     var9.set("New project name: ")
     label9.grid(row=0, column=0, pady=10)
     project_name = tkinter.Entry(master, width=30)
-    project_name.insert(tkinter.END, generate_unique_name(active_project.GetName(), n=2))
+    project_name.insert(tkinter.END, generate_unique_name(active_project_name, n=2))
     project_name.grid(row=0, column=1, pady=10, padx=5)
 
     var10 = tkinter.StringVar()
@@ -174,7 +178,10 @@ def frontend():  # pragma: no cover
         net_list.insert(idx, net)
         idx += 1
 
+    master.flag = False
+
     def callback():
+        master.flag = True
         master.layers_ui = layers.get()
         master.materials_ui = materials.get()
         master.padstacks_ui = padstacks.get()
@@ -191,34 +198,37 @@ def frontend():  # pragma: no cover
     b = tkinter.Button(master, text="Create Parametric Model", width=40, command=callback)
     b.grid(row=5, column=1, pady=10)
 
+    edb.close_edb()
     tkinter.mainloop()
 
-    layers_ui = getattr(master, "layers_ui", extension_arguments["parametrize_layers"])
-    materials_ui = getattr(master, "materials_ui", extension_arguments["parametrize_materials"])
-    padstacks_ui = getattr(master, "padstacks_ui", extension_arguments["parametrize_padstacks"])
-    nets_ui = getattr(master, "nets_ui", extension_arguments["parametrize_traces"])
-    nets_filter_ui = getattr(master, "nets_filter", extension_arguments["nets_filter"])
-    poly_ui = getattr(master, "poly_ui", extension_arguments["expansion_polygon_mm"])
-    voids_ui = getattr(master, "voids_ui", extension_arguments["expansion_void_mm"])
-    project_name_ui = getattr(master, "project_name_ui", extension_arguments["project_name"])
-    relative_ui = getattr(master, "relative_ui", extension_arguments["relative_parametric"])
+    if master.flag:
+        layers_ui = getattr(master, "layers_ui", extension_arguments["parametrize_layers"])
+        materials_ui = getattr(master, "materials_ui", extension_arguments["parametrize_materials"])
+        padstacks_ui = getattr(master, "padstacks_ui", extension_arguments["parametrize_padstacks"])
+        nets_ui = getattr(master, "nets_ui", extension_arguments["parametrize_traces"])
+        nets_filter_ui = getattr(master, "net_list_ui", extension_arguments["nets_filter"])
+        poly_ui = getattr(master, "poly_ui", extension_arguments["expansion_polygon_mm"])
+        voids_ui = getattr(master, "voids_ui", extension_arguments["expansion_void_mm"])
+        project_name_ui = getattr(master, "project_name_ui", extension_arguments["project_name"])
+        relative_ui = getattr(master, "relative_ui", extension_arguments["relative_parametric"])
 
-    output_dict = {
-        "aedb_path": os.path.join(active_project.GetPath(), active_project.GetName() + ".aedb"),
-        "design_name": active_design.GetName().split(";")[1],
-        "parametrize_layers": layers_ui,
-        "parametrize_materials": materials_ui,
-        "parametrize_padstacks": padstacks_ui,
-        "parametrize_traces": nets_ui,
-        "nets_filter": nets_filter_ui,
-        "expansion_polygon_mm": float(poly_ui),
-        "expansion_void_mm": float(voids_ui),
-        "relative_parametric": relative_ui,
-        "project_name": project_name_ui,
-    }
-    edb.close_edb()
-    app.release_desktop(False, False)
-    return output_dict
+        output_dict = {
+            "aedb_path": os.path.join(active_project_path, active_project_name + ".aedb"),
+            "design_name": active_design_name,
+            "parametrize_layers": layers_ui,
+            "parametrize_materials": materials_ui,
+            "parametrize_padstacks": padstacks_ui,
+            "parametrize_traces": nets_ui,
+            "nets_filter": nets_filter_ui,
+            "expansion_polygon_mm": float(poly_ui),
+            "expansion_void_mm": float(voids_ui),
+            "relative_parametric": relative_ui,
+            "project_name": project_name_ui,
+        }
+
+        return output_dict
+    else:
+        return False
 
 
 def main(extension_arguments):
@@ -295,5 +305,6 @@ if __name__ == "__main__":  # pragma: no cover
             for output_name, output_value in output.items():
                 if output_name in extension_arguments:
                     args[output_name] = output_value
-
-    main(args)
+            main(args)
+    else:
+        main(args)
