@@ -354,6 +354,20 @@ def __tab_map(product):  # pragma: no cover
         return product
 
 
+def run_command(command: List[str], desktop_object):
+    """Run a command through subprocess."""
+    try:
+        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)  # nosec
+        _, stderr = process.communicate()
+        ret_code = process.returncode
+        if ret_code != 0:
+            desktop_object.logger.error("Error occurred:", stderr.decode("utf-8"))
+        return ret_code
+    except Exception as e:
+        desktop_object.logger.error("Exception occurred:", str(e))
+        return 1  # Return non-zero exit code for indicating an error
+
+
 def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install=True):  # pragma: no cover
     """Add toolkit to AEDT Automation Tab.
 
@@ -414,18 +428,6 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
             )
         )
 
-    def run_command(command: List[str]):
-        try:
-            process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)  # nosec
-            _, stderr = process.communicate()
-            ret_code = process.returncode
-            if ret_code != 0:
-                print("Error occurred:", stderr.decode("utf-8"))
-            return ret_code
-        except Exception as e:
-            print("Exception occurred:", str(e))
-            return 1  # Return non-zero exit code for indicating an error
-
     version = desktop_object.odesktop.GetVersion()[2:6].replace(".", "")
 
     if not is_linux:
@@ -453,7 +455,8 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
 
     if not os.path.exists(venv_dir):
         desktop_object.logger.info("Creating virtual environment")
-        run_command([base_venv, "-m", "venv", venv_dir, "--system-site-packages"])
+        command = [base_venv, "-m", "venv", venv_dir, "--system-site-packages"]
+        run_command(command, desktop_object)
         desktop_object.logger.info("Virtual environment created.")
 
     is_installed = False
@@ -469,11 +472,13 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
         is_installed = True
     if wheel_toolkit:
         wheel_toolkit = os.path.normpath(wheel_toolkit)
-    desktop_object.logger.info("Installing dependencies")
+
+    desktop_object.logger.info(f"Installing dependencies")
     if install and wheel_toolkit and os.path.exists(wheel_toolkit):
         desktop_object.logger.info("Starting offline installation")
         if is_installed:
-            run_command([pip_exe, "uninstall", "--yes", toolkit_info["pip"]])
+            command = [pip_exe, "uninstall", "--yes", toolkit_info["pip"]]
+            run_command(command, desktop_object)
         import zipfile
 
         unzipped_path = os.path.join(
@@ -485,16 +490,20 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
             zip_ref.extractall(unzipped_path)
 
         package_name = toolkit_info["package"]
-        run_command([pip_exe, "install", "--no-cache-dir", "--no-index", "--find-links={unzipped_path}", package_name])
+        command = [pip_exe, "install", "--no-cache-dir", "--no-index", "--find-links={unzipped_path}", package_name]
+        run_command(command, desktop_object)
     elif install and not is_installed:
         # Install the specified package
-        run_command([pip_exe, "--default-timeout=1000", "install", toolkit_info["pip"]])
+        command = [pip_exe, "--default-timeout=1000", "install", toolkit_info["pip"]]
+        run_command(command, desktop_object)
     elif not install and is_installed:
         # Uninstall toolkit
-        run_command([pip_exe, "--default-timeout=1000", "uninstall", "-y", toolkit_info["package"]])
+        command = [pip_exe, "--default-timeout=1000", "uninstall", "-y", toolkit_info["package"]]
+        run_command(command, desktop_object)
     elif install and is_installed:
         # Update toolkit
-        run_command([pip_exe, "--default-timeout=1000", "install", toolkit_info["pip"], "-U"])
+        command = [pip_exe, "--default-timeout=1000", "install", toolkit_info["pip"], "-U"]
+        run_command(command, desktop_object)
     else:
         desktop_object.logger.info("Incorrect input")
         return
@@ -530,7 +539,6 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
                 name=toolkit_info["name"],
                 product=product_name,
             )
-            desktop_object.logger.info("Installing dependencies")
             desktop_object.logger.info(f'{toolkit_info["name"]} uninstalled')
 
 
