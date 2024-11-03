@@ -117,7 +117,7 @@ installer = [
     "scikit-rf>=0.30.0,<1.4",
     "SRTM.py",
     "utm",
-    "jupyterlab>=3.6.0,<4.3",
+    "jupyterlab>=3.6.0,<4.4",
     "ipython>=7.30.0,<8.30",
     "ipyvtklink>=0.2.0,<0.2.4",
 ]
