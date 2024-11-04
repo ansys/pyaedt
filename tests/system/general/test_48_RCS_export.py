@@ -22,16 +22,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# import os
-# import shutil
-#
-# from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
-# from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
-# import pytest
-#
-# from tests import TESTS_GENERAL_PATH
+import os
 
-spheres = "spheres_sbr"
+from ansys.aedt.core.modules.solutions import SolutionData
+from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
+from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
+import pytest
+
+spheres = "RCS"
 test_subfolder = "T48"
 
 
@@ -47,62 +45,17 @@ class TestClass:
         self.local_scratch = local_scratch
 
     def test_01_get_rcs(self, project_test):
-        ffdata = project_test.get_rcs_data()
-        assert ffdata.setup_name == "Setup1 : LastAdaptive"
-        assert ffdata.model_info
-        assert os.path.isfile(ffdata.metadata_file)
+        rcs_data = project_test.get_rcs_data(variation_name="hh_solution")
+        assert isinstance(rcs_data, MonostaticRCSExporter)
 
-        img1 = os.path.join(self.local_scratch.path, "contour.jpg")
-        assert ffdata.farfield_data.plot_contour(
-            quantity="RealizedGain",
-            title=f"Contour at {ffdata.farfield_data.frequency}Hz",
-            output_file=img1,
-            show=False,
-        )
-        assert os.path.exists(img1)
+        assert isinstance(rcs_data.model_info, dict)
+        assert isinstance(rcs_data.rcs_data, MonostaticRCSData)
 
-        img1_1 = os.path.join(self.local_scratch.path, "contour1.jpg")
-        assert ffdata.farfield_data.plot_contour(quantity="RealizedGain", output_file=img1_1, show=False)
-        assert os.path.exists(img1_1)
+        assert os.path.isfile(rcs_data.metadata_file)
 
-        img2 = os.path.join(self.local_scratch.path, "2d1.jpg")
-        ffdata.farfield_data.plot_cut(
-            quantity="RealizedGain",
-            primary_sweep="theta",
-            secondary_sweep_value=[-180, -75, 75],
-            title=f"Azimuth at {ffdata.farfield_data.frequency}Hz",
-            output_file=img2,
-            show=False,
-        )
-        assert os.path.exists(img2)
+        assert rcs_data.column_name == "ComplexMonostaticRCSTheta"
+        rcs_data.column_name = "ComplexMonostaticRCSPhi"
+        assert rcs_data.column_name == "ComplexMonostaticRCSPhi"
 
-        img3 = os.path.join(self.local_scratch.path, "2d2.jpg")
-        ffdata.farfield_data.plot_cut(
-            quantity="RealizedGain",
-            primary_sweep="phi",
-            secondary_sweep_value=30,
-            title=f"Azimuth at {ffdata.farfield_data.frequency}Hz",
-            output_file=img3,
-            show=False,
-        )
-        assert os.path.exists(img3)
-
-        img3_polar = os.path.join(self.local_scratch.path, "2d_polar.jpg")
-        ffdata.farfield_data.plot_cut(
-            quantity="RealizedGain",
-            primary_sweep="phi",
-            secondary_sweep_value=30,
-            title=f"Azimuth at {ffdata.farfield_data.frequency}Hz",
-            output_file=img3_polar,
-            show=False,
-            is_polar=True,
-        )
-        assert os.path.exists(img3_polar)
-
-        img4 = os.path.join(self.local_scratch.path, "3d1.jpg")
-        ffdata.farfield_data.plot_3d_chart(quantity="RealizedGain", output_file=img4, show=False)
-        assert os.path.exists(img4)
-
-        img5 = os.path.join(self.local_scratch.path, "3d2.jpg")
-        ffdata.farfield_data.plot_3d(quantity="RealizedGain", output_file=img5, show=False)
-        assert os.path.exists(img5)
+        data = rcs_data.get_monostatic_rcs()
+        assert isinstance(data, SolutionData)

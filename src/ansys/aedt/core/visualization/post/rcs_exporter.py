@@ -172,7 +172,7 @@ class MonostaticRCSExporter:
         local_path = "{}/{}/".format(settings.remote_rpc_session_temp_folder, full_setup)
         export_path = os.path.abspath(check_and_download_folder(local_path, export_path))
 
-        if not self.solution:
+        if not self.solution:  # pragma: no cover
             self.solution = self.__app.design_name
 
         file_name = f"{name}_{self.solution}.{output_format}"
