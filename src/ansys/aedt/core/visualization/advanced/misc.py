@@ -403,6 +403,12 @@ def _parse_nastran(file_path):
                 nas_to_dict["Assemblies"][in_assembly]["Triangles"][f"Port_{object_id}"] = [tri]
                 tri = [
                     nas_to_dict["PointsId"][int(points[2])],
+                    nas_to_dict["PointsId"][int(points[7])],
+                    nas_to_dict["PointsId"][int(points[15])],
+                ]
+                nas_to_dict["Assemblies"][in_assembly]["Triangles"][f"Port_{object_id}"].append(tri)
+                tri = [
+                    nas_to_dict["PointsId"][int(points[2])],
                     nas_to_dict["PointsId"][int(points[10])],
                     nas_to_dict["PointsId"][int(points[15])],
                 ]
