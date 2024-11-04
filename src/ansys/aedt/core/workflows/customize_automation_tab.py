@@ -354,7 +354,7 @@ def __tab_map(product):  # pragma: no cover
         return product
 
 
-def run_command(command: List[str], desktop_object):
+def run_command(command: List[str], desktop_object):  # pragma: no cover
     """Run a command through subprocess."""
     try:
         process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)  # nosec
