@@ -50,6 +50,7 @@ class Object3DLayout(object):
 
     def __init__(self, primitives, prim_type=None):
         self._primitives = primitives
+        self.logger = self._primitives.logger
         self._oeditor = self._primitives.oeditor
         self._n = 10
         self.prim_type = prim_type
@@ -269,7 +270,7 @@ class Object3DLayout(object):
             bool
         """
         if self.prim_type != "component":
-            self._primitives.logger.error("Clearance applies only to components.")
+            self.logger.error("Clearance applies only to components.")
             return False
         bbox = self.bounding_box
         start_points = [bbox[0] - extra_soldermask_clearance, bbox[1] - extra_soldermask_clearance]
@@ -572,6 +573,7 @@ class Components3DLayout(Object3DLayout, object):
     def port_properties(self, values: Tuple[str, bool, str, str]):
         rh, rsa, rsx, rsy = values
         if not self._has_port_properties:
+            self.logger.warning(f"Cannot set port_properties on {self.name!r} with part type ID {self._part_type_id!r}")
             return
         if self._part_type_id == 4:
             prop_name = "ICProp:="

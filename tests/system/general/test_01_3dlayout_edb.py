@@ -442,3 +442,8 @@ class TestClass:
         component: Components3DLayout = self.aedtapp.modeler.components["C1"]
         assert component.die_properties is None
         assert component.port_properties is None
+
+    def test_25d_set_port_properties_on_rlc_component(self):
+        component: Components3DLayout = self.aedtapp.modeler.components["C1"]
+        component.port_properties = ("10um", False, "0um", "0um")
+        assert component.port_properties is None
