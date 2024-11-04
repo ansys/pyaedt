@@ -291,11 +291,11 @@ html_theme_options = {
     },
     "collapse_navigation": True,
     "navigation_with_keys": True,
-    "use_meilisearch": {
-        "api_key": os.getenv("MEILISEARCH_PUBLIC_API_KEY", ""),
-        "index_uids": {
-            f"pyaedt-v{get_version_match(__version__).replace('.', '-')}": "PyAEDT",
-        },
+    "static_search": {
+        "threshold": 0.5,
+        "minMatchCharLength": 2,
+        "limite": 10,
+        "ignoreLocation": True,
     },
 }
 
