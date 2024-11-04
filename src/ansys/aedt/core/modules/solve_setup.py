@@ -90,7 +90,7 @@ class CommonSetup(PropsManager, object):
                 intr["Phase"] = "0deg"
                 return intr
             except Exception:
-                pass
+                settings.logger.debug("Failed to retrieve adaptive frequency.")
         for i in self._app.design_solutions.intrinsics:
             if i == "Freq" and "Frequency" in self.props:
                 intr[i] = self.props["Frequency"]
