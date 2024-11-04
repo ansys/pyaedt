@@ -31,6 +31,8 @@ from __future__ import absolute_import  # noreorder
 
 import math
 import re
+from typing import Optional
+from typing import Tuple
 
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.general_methods import _dim_arg
@@ -535,6 +537,77 @@ class Components3DLayout(Object3DLayout, object):
         self._oeditor.EnableComponents(["NAME:Components", self.name], status)
 
     @property
+    def die_properties(self) -> Optional[Tuple[int, int, str, int]]:
+        """Get die properties from component.
+
+        Returns
+        -------
+        Tuple[int, int, str, int]
+            Tuple of die type (``0`` for None, ``1``, for FlipChip, or ``2`` for WireBond), die orientation (``0`` for
+            Chip Top or ``1`` for Chip Bottom), die height as a string, and a reserved property as an integer.
+        """
+        if self._part_type_id != 4:
+            return None
+        return _get_die_properties(self._get_model_info())
+
+    @property
+    def _has_port_properties(self) -> bool:
+        return self._part_type_id in [0, 4, 5]
+
+    @property
+    def port_properties(self) -> Optional[Tuple[str, bool, str, str]]:
+        """Get port properties from component.
+
+        Returns
+        -------
+        Tuple[str, bool, str, str]
+            Tuple of reference offset [str], reference size auto [bool], reference size X dimension [str], reference
+            size Y dimension [str].
+        """
+        if not self._has_port_properties:
+            return None
+        return _get_port_properties(self._get_model_info())
+
+    @port_properties.setter
+    def port_properties(self, values: Tuple[str, bool, str, str]):
+        rh, rsa, rsx, rsy = values
+        if not self._has_port_properties:
+            return
+        if self._part_type_id == 4:
+            prop_name = "ICProp:="
+        else:
+            prop_name = "IOProp:="
+        port_properties = ["rh:=", rh, "rsa:=", rsa, "rsx:=", rsx, "rsy:=", rsy]
+
+        args = [
+            "NAME:Model Info",
+            [
+                "NAME:Model",
+                prop_name,
+                [
+                    "PortProp:=",
+                    port_properties,
+                ],
+            ],
+        ]
+        if self._part_type_id == 4:
+            dt, do, dh, lid = self.die_properties
+            args[1] = [
+                "NAME:Model",
+                prop_name,
+                [
+                    "DieProp:=",
+                    ["dt:=", dt, "do:=", do, "dh:=", dh, "lid:=", lid],
+                    "PortProp:=",
+                    port_properties,
+                ],
+                "CompType:=",
+                4,
+            ]
+
+        self.change_property(args)
+
+    @property
     def solderball_enabled(self):
         """Check if solderball is enabled.
 
@@ -543,7 +616,7 @@ class Components3DLayout(Object3DLayout, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if self._part_type_id not in [0, 4, 5]:
+        if not self._has_port_properties:
             return False
         component_info = str(list(self._oeditor.GetComponentInfo(self.name))).replace("'", "").replace('"', "")
         if "sbsh=Cyl" in component_info or "sbsh=Sph" in component_info:
@@ -559,7 +632,7 @@ class Components3DLayout(Object3DLayout, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if self._part_type_id not in [0, 4, 5]:
+        if not self._has_port_properties:
             return False
         component_info = str(list(self._oeditor.GetComponentInfo(self.name))).replace("'", "").replace('"', "")
         if "dt=1" in component_info or "dt=2" in component_info:
@@ -574,7 +647,7 @@ class Components3DLayout(Object3DLayout, object):
         -------
         str
         """
-        if self._part_type_id not in [0, 4, 5]:
+        if not self._has_port_properties:
             return False
         component_info = str(list(self._oeditor.GetComponentInfo(self.name))).replace("'", "").replace('"', "")
         if "dt=1" in component_info:
@@ -620,7 +693,7 @@ class Components3DLayout(Object3DLayout, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if self._part_type_id not in [0, 4, 5]:
+        if not self._has_port_properties:
             return False
         if auto_reference:
             reference_x = "0"
@@ -690,43 +763,17 @@ class Components3DLayout(Object3DLayout, object):
         bool
             ``True`` when successful, ``False`` when failed or the wrong component type.
         """
-        if self._part_type_id not in [0, 4, 5]:
+        if not self._has_port_properties:
             return False
-        props = self._oeditor.GetComponentInfo(self.name)
-        model = ""
-        for p in props:
-            if "PortProp(" in p:
-                model = p
-                break
-        s = r".+PortProp\(rh='(.+?)', rsa=(.+?), rsx='(.+?)', rsy='(.+?)'\)"
-        m = re.search(s, model)
-        rsx = "0"
-        rsy = "0"
-        rsa = True
-        rh = "0"
-        if m:
-            rh = m.group(1)
-            rsx = m.group(3)
-            rsy = m.group(4)
-            if m.group(2) == "false":
-                rsa = False
+        model_info = self._get_model_info()
+        rh, rsa, rsx, rsy = _get_port_properties(model_info)
         if reference_offset:
             rh = reference_offset
         if self._part_type_id == 4:
             prop_name = "ICProp:="
             if not self.die_enabled:
                 self.set_die_type()
-            s = r".+DieProp\(dt=(.+?), do=(.+?), dh='(.+?)', lid=(.+?)\)"
-            m = re.search(s, model)
-            dt = 0
-            do = 0
-            dh = "0"
-            lid = -100
-            if m:
-                dt = int(m.group(1))
-                do = int(m.group(2))
-                dh = str(m.group(3))
-                lid = int(m.group(4))
+            dt, do, dh, lid = _get_die_properties(model_info)
 
             args = [
                 "NAME:Model Info",
@@ -783,6 +830,15 @@ class Components3DLayout(Object3DLayout, object):
                 ],
             ]
         return self.change_property(args)
+
+    def _get_model_info(self):
+        props = self._oeditor.GetComponentInfo(self.name)
+        model_info = ""
+        for p in props:
+            if "PortProp(" in p:
+                model_info = p
+                break
+        return model_info
 
     @property
     def pins(self):
@@ -2301,3 +2357,34 @@ class Padstack(object):
 
         """
         self.padstackmgr.Remove(self.name, True, "", "Project")
+
+
+def _get_die_properties(model_info):
+    s = r".+DieProp\(dt=(.+?), do=(.+?), dh='(.+?)', lid=(.+?)\)"
+    m = re.search(s, model_info)
+    dt = 0
+    do = 0
+    dh = "0"
+    lid = -100
+    if m:
+        dt = int(m.group(1))
+        do = int(m.group(2))
+        dh = str(m.group(3))
+        lid = int(m.group(4))
+    return dt, do, dh, lid
+
+
+def _get_port_properties(model_info):
+    s = r".+PortProp\(rh='(.+?)', rsa=(.+?), rsx='(.+?)', rsy='(.+?)'\)"
+    m = re.search(s, model_info)
+    rsx = "0"
+    rsy = "0"
+    rsa = True
+    rh = "0"
+    if m:
+        rh = m.group(1)
+        rsx = m.group(3)
+        rsy = m.group(4)
+        if m.group(2) == "false":
+            rsa = False
+    return rh, rsa, rsx, rsy
