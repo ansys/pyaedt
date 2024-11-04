@@ -3574,7 +3574,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         """
 
-        if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
+        if self.solution_type in ["Modal", "Terminal", "Transient Network", "Eigenmode"]:
             if not name:
                 name = generate_unique_name("Imped")
             elif name in self.modeler.get_boundaries_name():
