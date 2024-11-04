@@ -1310,7 +1310,7 @@ class ExportToAedt:
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
-    def substrate_loss_tangent(self) -> Union[SubstrateType, str]:
+    def substrate_loss_tangent(self) -> Union[SubstrateEr, str]:
         """Substrate's loss tangent.
         The value can be either a string or an instance of the ``SubstrateEr`` enum.
         The default is ``0.0005`` for ``SubstrateEr.ALUMINA``.

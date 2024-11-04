@@ -802,17 +802,17 @@ class Setup(CommonSetup):
         apply_mesh_operations=True,
         adapt_port=True,
     ):
-        """Add a mesh link to another design.
+        """Import mesh from a source design solution to the target design.
 
         Parameters
         ----------
         design : str
-            Name of the design.
+            Name of the source design.
         solution : str, optional
-            Name of the solution in the format ``"name : solution_name"``.
+            Name of the source design solution in the format ``"name : solution_name"``.
             If ``None``, the default value is ``name : LastAdaptive``.
         parameters : dict, optional
-            Dictionary of the parameters.
+            Dictionary of the "mapping" variables from the source design.
             If ``None``, the default is `appname.available_variations.nominal_w_values_dict`.
         project : str, optional
             Name of the project with the design. The default is ``"This Project*"``.
@@ -837,7 +837,20 @@ class Setup(CommonSetup):
         ----------
 
         >>> oModule.EditSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(design="source_design")
+        >>> m3d.create_setup(name="setup1")
+        The target design is duplicated from the source design and made it active design.
+        >>> m3d.duplicate_design(name="source_design", save_after_duplicate=True)
+        The mesh link is assigned to the target design analysis setup.
+        >>> m3d.setups[0].add_mesh_link(design="source_design", solution=m3d.nominal_adaptive)
+        >>> m3d.release_desktop()
+
         """
+
         auto_update = self.auto_update
         try:
             self.auto_update = False
