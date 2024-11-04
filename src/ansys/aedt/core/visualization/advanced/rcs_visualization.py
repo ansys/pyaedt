@@ -557,20 +557,6 @@ class MonostaticRCSData(object):
             self.__raw_data = pd.read_pickle(self.__monostatic_file)
         return True
 
-    @pyaedt_function_handler()
-    def __get_new_dataframe(self, values=None, index_names=None, indexes=None):
-        """Create new RCS DataFrame."""
-        if indexes is None:
-            indexes = []
-        if index_names is None:
-            index_names = []
-        my_index = pd.MultiIndex.from_tuples(indexes, names=index_names)
-        if values is None:
-            df = pd.DataFrame(index=my_index, columns=self.rcs_column_names)
-        else:
-            df = pd.DataFrame(values, index=my_index, columns=self.rcs_column_names)
-        return df
-
 
 class MonostaticRCSPlotter(object):
     """Provides monostatic radar cross-section (RCS) plot functionalities.
