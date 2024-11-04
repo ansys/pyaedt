@@ -283,6 +283,13 @@ def convert(args):
         files_path += search_files(args["file_path"], "*.aedt")
     else:
         files_path = [args["file_path"]]
+    # Remove the clipboard isolation env variable if present
+    env_var_name = "ANS_USE_ISOLATED_CLIPBOARD"
+    saved_env_var = None
+    if env_var_name in os.environ:
+        saved_env_var = os.environ[env_var_name]
+        del os.environ[env_var_name]
+
     output_desktop = Desktop(
         new_desktop=True,
         version=version,
@@ -302,6 +309,10 @@ def convert(args):
             logger.error(f"Failed to convert {file}")
     input_desktop.release_desktop()
     output_desktop.release_desktop(False, False)
+
+    # Reset the clipboard isolation env variable if it was present
+    if saved_env_var is not None:
+        os.environ[env_var_name] = saved_env_var
 
 
 if __name__ == "__main__":
