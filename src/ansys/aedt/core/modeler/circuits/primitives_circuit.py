@@ -1273,6 +1273,7 @@ class CircuitComponents(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+            
         References
         ----------
         >>> oEditor.CreatePage()
