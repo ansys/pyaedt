@@ -93,7 +93,7 @@ class MaterialWorkbench:
         # Load the XML file
         try:
             tree = defusedxml.ElementTree.parse(file_path)
-        except ParseError as e:  # pragma: no cover
+        except ParseError:  # pragma: no cover
             logger.error(f"Unable to parse {file_path}.")
             return
 

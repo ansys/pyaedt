@@ -28,7 +28,6 @@ import os
 import shutil
 import sys
 import warnings
-from xml.etree.ElementTree import ParseError
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.application.variables import decompose_variable_value
@@ -43,6 +42,7 @@ from ansys.aedt.core.visualization.plot.matplotlib import is_notebook
 from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 from ansys.aedt.core.visualization.plot.pyvista import get_structured_mesh
 import defusedxml
+from defusedxml.ElementTree import ParseError
 
 try:
     import numpy as np
@@ -1819,7 +1819,7 @@ def antenna_metadata_from_xml(input_file):
     # Load the XML file
     try:
         tree = defusedxml.ElementTree.parse(input_file)
-    except ParseError as e:  # pragma: no cover
+    except ParseError:  # pragma: no cover
         logger.error(f"Unable to parse {input_file}.")
         return
 
