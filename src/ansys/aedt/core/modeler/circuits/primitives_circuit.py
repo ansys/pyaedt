@@ -1275,7 +1275,8 @@ class CircuitComponents(object):
             ``True`` when successful, ``False`` when failed.
         References
         ----------
-        >>> oeditor.CreatePage ()
+        >>> oEditor.CreatePage()
+        
         Examples
         --------
         >>>from ansys.aedt.core import MaxwellCircuit
