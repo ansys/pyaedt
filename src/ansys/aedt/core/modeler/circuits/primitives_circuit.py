@@ -1287,7 +1287,7 @@ class CircuitComponents(object):
 
         """
         if not isinstance(name, (str, int, float)):
-            self.logger.error("Argument 'name' to 'create_page' is not of data type String, Integer or Float.")
+            self.logger.error("Wrong type for argument ``name``.")
             return False
         self.oeditor.CreatePage(name)
         return True
