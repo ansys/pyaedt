@@ -28,8 +28,6 @@ import os
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
 from ansys.aedt.core.visualization.advanced.touchstone_parser import find_touchstone_files
-import matplotlib.pyplot as plt
-from mock import MagicMock
 from mock import patch
 import pytest
 
@@ -46,20 +44,6 @@ aedt_proj_name = "differential_microstrip"
 def hfss3dl(add_app):
     app = add_app(project_name=aedt_proj_name, application=Hfss3dLayout, subfolder=test_subfolder)
     return app
-
-
-@pytest.fixture
-def touchstone_file(tmp_path):
-    file_path = tmp_path / "dummy.s2p"
-    file_content = """
-! Terminal data exported
-! Port[1] = Port1
-! Port[2] = Port2
-0.1                            0.1 0.2
-"""
-
-    file_path.write_text(file_content)
-    return file_path
 
 
 class TestClass:
@@ -98,24 +82,6 @@ class TestClass:
                 assert not v[1]
 
 
-@patch("matplotlib.pyplot.show", MagicMock())
-def test_plot_insertion_losses(touchstone_file):
-    ts = TouchstoneData(touchstone_file=touchstone_file)
-    res = ts.plot_insertion_losses()
-
-    assert res is not []
-    plt.show.assert_called_once()
-
-
-@patch("matplotlib.pyplot.show", MagicMock())
-def test_plot(touchstone_file):
-    ts = TouchstoneData(touchstone_file=touchstone_file)
-    res = ts.plot(show=True)
-
-    assert res
-    plt.show.assert_called_once()
-
-
 def test_get_mixed_mode_touchstone_data_failure(touchstone_file, caplog: pytest.LogCaptureFixture):
     ts = TouchstoneData(touchstone_file=touchstone_file)
 
@@ -151,24 +117,6 @@ def test_get_return_loss_index_with_dummy_prefix(touchstone_file):
     res = ts.get_next_xtalk_index("Dummy")
 
     assert not res
-
-
-@patch("matplotlib.pyplot.show", MagicMock())
-def test_plot_next_xtalk_losses(touchstone_file):
-    ts = TouchstoneData(touchstone_file=touchstone_file)
-    res = ts.plot_next_xtalk_losses()
-
-    assert res
-    plt.show.assert_called_once()
-
-
-@patch("matplotlib.pyplot.show", MagicMock())
-def test_plot_fext_xtalk_losses(touchstone_file):
-    ts = TouchstoneData(touchstone_file=touchstone_file)
-    res = ts.plot_fext_xtalk_losses("Port", "Port")
-
-    assert res
-    plt.show.assert_called_once()
 
 
 @patch("os.path.exists", return_value=False)

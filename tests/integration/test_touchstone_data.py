@@ -22,40 +22,42 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from typing import List
+from unittest.mock import patch
 
-import pytest
-
-UNIT_TEST_PREFIX = "tests/unit"
-SYSTEM_TEST_PREFIX = "tests/system"
-SYSTEM_SOLVERS_TEST_PREFIX = "tests/system/solvers"
-SYSTEM_GENERAL_TEST_PREFIX = "tests/system/general"
+from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
 
 
-def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
-    """Hook used to apply marker on tests."""
-    for item in items:
-        # Mark unit and system tests
-        if item.nodeid.startswith(UNIT_TEST_PREFIX):
-            item.add_marker(pytest.mark.unit)
-        elif item.nodeid.startswith(SYSTEM_TEST_PREFIX):
-            item.add_marker(pytest.mark.system)
-        # Finer markers for system tests
-        if item.nodeid.startswith(SYSTEM_SOLVERS_TEST_PREFIX):
-            item.add_marker(pytest.mark.solvers)
-        elif item.nodeid.startswith(SYSTEM_GENERAL_TEST_PREFIX):
-            item.add_marker(pytest.mark.general)
+@patch("matplotlib.pyplot.show")
+def test_plot_insertion_losses(mock_show, touchstone_file):
+    ts = TouchstoneData(touchstone_file=touchstone_file)
+    res = ts.plot_insertion_losses()
+
+    assert res is not []
+    mock_show.assert_called_once()
 
 
-@pytest.fixture
-def touchstone_file(tmp_path):
-    file_path = tmp_path / "dummy.s2p"
-    file_content = """
-! Terminal data exported
-! Port[1] = Port1
-! Port[2] = Port2
-0.1                            0.1 0.2
-"""
+@patch("matplotlib.pyplot.show")
+def test_plot(mock_show, touchstone_file):
+    ts = TouchstoneData(touchstone_file=touchstone_file)
+    res = ts.plot(show=True)
 
-    file_path.write_text(file_content)
-    return file_path
+    assert res
+    mock_show.assert_called_once()
+
+
+@patch("matplotlib.pyplot.show")
+def test_plot_next_xtalk_losses(mock_show, touchstone_file):
+    ts = TouchstoneData(touchstone_file=touchstone_file)
+    res = ts.plot_next_xtalk_losses()
+
+    assert res
+    mock_show.assert_called_once()
+
+
+@patch("matplotlib.pyplot.show")
+def test_plot_fext_xtalk_losses(mock_show, touchstone_file):
+    ts = TouchstoneData(touchstone_file=touchstone_file)
+    res = ts.plot_fext_xtalk_losses("Port", "Port")
+
+    assert res
+    mock_show.assert_called_once()
