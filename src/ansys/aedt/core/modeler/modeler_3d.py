@@ -1042,6 +1042,7 @@ class Modeler3D(Primitives3D):
         enable_planar_merge="True",
         save_only_stl=False,
         preview=False,
+        merge_angle=1e-3,
     ):
         """Import Nastran file into 3D Modeler by converting the faces to stl and reading it. The solids are
         translated directly to AEDT format.
@@ -1070,6 +1071,8 @@ class Modeler3D(Primitives3D):
             Whether to import the model in HFSS or only generate the stl file.
         preview : bool, optional
             Whether to preview the model in pyvista or skip it.
+        merge_angle : float, optional
+            Angle in radians for which faces will be considered planar. Default is ``1e-3``.
 
         Returns
         -------
@@ -1101,6 +1104,7 @@ class Modeler3D(Primitives3D):
                     create_lightweigth_part=import_as_light_weight,
                     healing=False,
                     merge_planar_faces=enable_stl_merge,
+                    merge_angle=merge_angle,
                 )
                 self.logger.info(f"Model {os.path.split(output_stl)[-1]} imported")
             self._app.save_project()

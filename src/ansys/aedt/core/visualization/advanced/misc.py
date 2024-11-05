@@ -301,11 +301,15 @@ def _parse_nastran(file_path):
                 n = n[0] + n[1:].replace("-", "e-")
             return n
 
+        line_header = ""
         for lk in range(len(input_lines)):
             line = input_lines[lk]
             line_type = line[:8].strip()
             obj_type = "Triangles"
-            if line.startswith("$") or line.startswith("*"):
+            if line.startswith("$"):
+                line_header = line[1:]
+                continue
+            elif line.startswith("*"):
                 continue
             elif line_type in ["GRID", "GRID*"]:
                 num_points = 3
@@ -395,24 +399,32 @@ def _parse_nastran(file_path):
             elif line_type in ["PSHELL", "PSHELL*"]:
                 nas_to_dict["Assemblies"][in_assembly]["Shells"][grid_id] = [str(object_id.strip()), points[0]]
             elif line_type in ["MPC", "MPC*"]:
+                if (
+                    line_header
+                    and f'Port_{line_header.replace(",","_")}_{object_id}'
+                    not in nas_to_dict["Assemblies"][in_assembly]["Triangles"]
+                ):
+                    name = f'Port_{line_header.replace(",","_")}_{object_id}'
+                else:
+                    name = f"Port_{object_id}"
                 tri = [
                     nas_to_dict["PointsId"][int(points[2])],
                     nas_to_dict["PointsId"][int(points[7])],
                     nas_to_dict["PointsId"][int(points[10])],
                 ]
-                nas_to_dict["Assemblies"][in_assembly]["Triangles"][f"Port_{object_id}"] = [tri]
+                nas_to_dict["Assemblies"][in_assembly]["Triangles"][name] = [tri]
                 tri = [
                     nas_to_dict["PointsId"][int(points[2])],
                     nas_to_dict["PointsId"][int(points[7])],
                     nas_to_dict["PointsId"][int(points[15])],
                 ]
-                nas_to_dict["Assemblies"][in_assembly]["Triangles"][f"Port_{object_id}"].append(tri)
+                nas_to_dict["Assemblies"][in_assembly]["Triangles"][name].append(tri)
                 tri = [
                     nas_to_dict["PointsId"][int(points[2])],
                     nas_to_dict["PointsId"][int(points[10])],
                     nas_to_dict["PointsId"][int(points[15])],
                 ]
-                nas_to_dict["Assemblies"][in_assembly]["Triangles"][f"Port_{object_id}"].append(tri)
+                nas_to_dict["Assemblies"][in_assembly]["Triangles"][name].append(tri)
             elif line_type in ["CHEXA", "CHEXA*"]:
 
                 def add_hexa_tria(p1, p2, p3, hexa_obj):
@@ -658,6 +670,8 @@ def nastran_to_stl(input_file, output_folder=None, decimation=0, enable_planar_m
                     k += 1
 
                 for triangles in assembly["Triangles"].values():
+                    if not triangles:
+                        continue
                     tri_out = triangles
                     fin = [[3] + list(i) for i in tri_out]
                     if not color_by_assembly:
@@ -667,6 +681,8 @@ def nastran_to_stl(input_file, output_folder=None, decimation=0, enable_planar_m
                     pl.add_mesh(pv.PolyData(p_out, faces=fin), color=colors[-1], **dargs)
 
                 for triangles in assembly["Solids"].values():
+                    if not triangles:
+                        continue
                     import pandas as pd
 
                     df = pd.Series(triangles)
