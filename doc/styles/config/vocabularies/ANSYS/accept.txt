@@ -12,6 +12,7 @@ brd
 busbar
 busbars
 Bz
+CHECKIN
 [Cc]ircuit
 codecov
 (?i)Com

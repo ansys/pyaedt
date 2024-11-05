@@ -90,7 +90,7 @@ class FfdSolutionData(object):
     --------
 
     >>> from ansys.aedt.core
-    >>> from ansys.aedt.core.generic.farfield_visualization import FfdSolutionData
+    >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
     >>> app = ansys.aedt.core.Hfss(version="2023.2", design="Antenna")
     >>> data = app.get_antenna_data()
     >>> metadata_file = data.metadata_file
@@ -1584,7 +1584,7 @@ class UpdateBeamForm:
 
     Parameters
     ----------
-    farfield_data : :class:`ansys.aedt.core.generic.farfield_visualization.FfdSolutionData`
+    farfield_data : :class:`ansys.aedt.core.visualization.advanced.farfield_visualization.FfdSolutionData`
         Far field solution data instance.
     farfield_quantity : str, optional
         Quantity to plot. The default is ``"RealizedGain"``.

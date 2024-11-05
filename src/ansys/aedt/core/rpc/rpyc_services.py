@@ -11,19 +11,13 @@ import time
 from ansys.aedt.core import generate_unique_name
 from ansys.aedt.core.generic.general_methods import env_path
 
-from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core import is_windows
 from ansys.aedt.core.generic.filesystem import is_safe_path
 
-if is_linux and is_ironpython:
-    import subprocessdotnet as subprocess  # nosec
-else:
-    import subprocess  # nosec
+import subprocess  # nosec
 
-if not is_ironpython:
-    import rpyc
-    from rpyc import ThreadedServer
+import rpyc
 
 logging.basicConfig(stream=sys.stderr, level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -885,13 +879,9 @@ class GlobalService(rpyc.Service):
         from ansys.aedt.core.generic.general_methods import grpc_active_sessions
         sessions = grpc_active_sessions()
         if not port:
-            # TODO: Remove once IronPython is deprecated
-            if is_ironpython:
-                port = check_port(random.randint(18500, 20000))  # nosec
-            else:
-                import secrets
-                secure_random = secrets.SystemRandom()
-                port = check_port(secure_random.randint(18500, 20000))
+            import secrets
+            secure_random = secrets.SystemRandom()
+            port = check_port(secure_random.randint(18500, 20000))
 
         if port == 0:
             print("Error. No ports are available.")
@@ -1177,11 +1167,7 @@ class ServiceManager(rpyc.Service):
 
     @staticmethod
     def exposed_check_port():
-        # TODO: Remove once IronPython is deprecated
-        if is_ironpython:  # nosec
-            port = check_port(random.randint(18500, 20000))  # nosec
-        else:
-            import secrets
-            secure_random = secrets.SystemRandom()
-            port = check_port(secure_random.randint(18500, 20000))
+        import secrets
+        secure_random = secrets.SystemRandom()
+        port = check_port(secure_random.randint(18500, 20000))
         return port
