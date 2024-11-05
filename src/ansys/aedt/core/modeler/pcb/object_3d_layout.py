@@ -533,7 +533,6 @@ class Components3DLayout(Object3DLayout, object):
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Part Type")
 
-    @property
     def __part_type_id(self):
         parts = {"Other": 0, "Resistor": 1, "Inductor": 2, "Capacitor": 3, "IC": 4, "IO": 5}
         if self.part_type in parts:
@@ -564,7 +563,7 @@ class Components3DLayout(Object3DLayout, object):
 
     @enabled.setter
     def enabled(self, status):
-        if self.__part_type_id in [0, 4, 5]:
+        if self.__part_type_id() in [0, 4, 5]:
             return False
         self._oeditor.EnableComponents(["NAME:Components", self.name], status)
 
@@ -578,13 +577,12 @@ class Components3DLayout(Object3DLayout, object):
             Tuple of die type (``0`` for None, ``1``, for FlipChip, or ``2`` for WireBond), die orientation (``0`` for
             Chip Top or ``1`` for Chip Bottom), die height as a string, and a reserved property as an integer.
         """
-        if self.__part_type_id != 4:
+        if self.__part_type_id() != 4:
             return None
         return Components3DLayout.__get_die_properties(self.__get_model_info())
 
-    @property
     def __has_port_properties(self) -> bool:
-        return self.__part_type_id in [0, 4, 5]
+        return self.__part_type_id() in [0, 4, 5]
 
     @property
     def port_properties(self) -> Optional[Tuple[str, bool, str, str]]:
@@ -596,19 +594,19 @@ class Components3DLayout(Object3DLayout, object):
             Tuple of reference offset [str], reference size auto [bool], reference size X dimension [str], reference
             size Y dimension [str].
         """
-        if not self.__has_port_properties:
+        if not self.__has_port_properties():
             return None
         return Components3DLayout.__get_port_properties(self.__get_model_info())
 
     @port_properties.setter
     def port_properties(self, values: Tuple[str, bool, str, str]):
         rh, rsa, rsx, rsy = values
-        if not self.__has_port_properties:
+        if not self.__has_port_properties():
             self.logger.warning(
-                f"Cannot set port_properties on {self.name!r} with part type ID {self.__part_type_id!r}"
+                f"Cannot set port_properties on {self.name!r} with part type ID {self.__part_type_id()!r}"
             )
             return
-        if self.__part_type_id == 4:
+        if self.__part_type_id() == 4:
             prop_name = "ICProp:="
         else:
             prop_name = "IOProp:="
@@ -625,7 +623,7 @@ class Components3DLayout(Object3DLayout, object):
                 ],
             ],
         ]
-        if self.__part_type_id == 4:
+        if self.__part_type_id() == 4:
             dt, do, dh, lid = self.die_properties
             args[1] = [
                 "NAME:Model",
@@ -651,7 +649,7 @@ class Components3DLayout(Object3DLayout, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if not self.__has_port_properties:
+        if not self.__has_port_properties():
             return False
         component_info = str(list(self._oeditor.GetComponentInfo(self.name))).replace("'", "").replace('"', "")
         if "sbsh=Cyl" in component_info or "sbsh=Sph" in component_info:
@@ -667,7 +665,7 @@ class Components3DLayout(Object3DLayout, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if not self.__has_port_properties:
+        if not self.__has_port_properties():
             return False
         component_info = str(list(self._oeditor.GetComponentInfo(self.name))).replace("'", "").replace('"', "")
         if "dt=1" in component_info or "dt=2" in component_info:
@@ -682,7 +680,7 @@ class Components3DLayout(Object3DLayout, object):
         -------
         str
         """
-        if not self.__has_port_properties:
+        if not self.__has_port_properties():
             return False
         component_info = str(list(self._oeditor.GetComponentInfo(self.name))).replace("'", "").replace('"', "")
         if "dt=1" in component_info:
@@ -728,12 +726,12 @@ class Components3DLayout(Object3DLayout, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if not self.__has_port_properties:
+        if not self.__has_port_properties():
             return False
         if auto_reference:
             reference_x = "0"
             reference_y = "0"
-        if self.__part_type_id == 4:
+        if self.__part_type_id() == 4:
             prop_name = "ICProp:="
         else:
             prop_name = "IOProp:="
@@ -798,13 +796,13 @@ class Components3DLayout(Object3DLayout, object):
         bool
             ``True`` when successful, ``False`` when failed or the wrong component type.
         """
-        if not self.__has_port_properties:
+        if not self.__has_port_properties():
             return False
         model_info = self.__get_model_info()
         rh, rsa, rsx, rsy = Components3DLayout.__get_port_properties(model_info)
         if reference_offset:
             rh = reference_offset
-        if self.__part_type_id == 4:
+        if self.__part_type_id() == 4:
             prop_name = "ICProp:="
             if not self.die_enabled:
                 self.set_die_type()
@@ -897,7 +895,7 @@ class Components3DLayout(Object3DLayout, object):
         -------
         :class:`ansys.aedt.core.modeler.cad.object_3dlayout.ModelInfoRlc`
         """
-        if self.__part_type_id in [1, 2, 3]:
+        if self.__part_type_id() in [1, 2, 3]:
             return ModelInfoRlc(self, self.name)
 
 
