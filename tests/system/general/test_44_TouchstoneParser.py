@@ -112,7 +112,7 @@ def test_get_insertion_loss_index_from_prefix_failure(touchstone_file, caplog: p
     ]
 
 
-def test_get_return_loss_index_with_dummy_prefix(touchstone_file):
+def test_get_next_xtalk_index_with_dummy_prefix(touchstone_file):
     ts = TouchstoneData(touchstone_file=touchstone_file)
     res = ts.get_next_xtalk_index("Dummy")
 
@@ -128,7 +128,7 @@ def test_find_touchstone_files_with_non_existing_directory(mock_exists):
 
 @patch("os.path.exists", return_value=True)
 @patch("os.listdir")
-def test_find_touchstone_files_with_non_existing_directory(mock_listdir, mock_exists):
+def test_find_touchstone_files_success(mock_listdir, mock_exists):
     mock_listdir.return_value = {"dummy.ts", "dummy.txt"}
     res = find_touchstone_files("dummy_path")
 
