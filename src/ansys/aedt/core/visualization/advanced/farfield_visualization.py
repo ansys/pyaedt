@@ -28,6 +28,7 @@ import os
 import shutil
 import sys
 import warnings
+from xml.etree.ElementTree import ParseError
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.application.variables import decompose_variable_value
@@ -41,6 +42,7 @@ from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 from ansys.aedt.core.visualization.plot.matplotlib import is_notebook
 from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 from ansys.aedt.core.visualization.plot.pyvista import get_structured_mesh
+import defusedxml
 
 try:
     import numpy as np
@@ -59,6 +61,8 @@ except ImportError:  # pragma: no cover
         "Install with \n\npip install pyvista"
     )
     pv = None
+
+defusedxml.defuse_stdlib()
 
 
 class FfdSolutionData(object):
@@ -1812,12 +1816,14 @@ def antenna_metadata_from_xml(input_file):
         Metadata information.
 
     """
-    import xml.etree.ElementTree as ET  # nosec
-
     # Load the XML file
-    tree = ET.parse(input_file)  # nosec
-    root = tree.getroot()
+    try:
+        tree = defusedxml.ElementTree.parse(input_file)
+    except ParseError as e:  # pragma: no cover
+        logger.error(f"Unable to parse {input_file}.")
+        return
 
+    root = tree.getroot()
     element_patterns = root.find("ElementPatterns")
 
     sources = []
