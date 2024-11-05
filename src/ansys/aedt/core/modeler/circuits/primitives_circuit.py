@@ -1269,6 +1269,7 @@ class CircuitComponents(object):
         ----------
         name : str, int or float
             Name to be used when creating the new circuit schematic.
+            
         Returns
         -------
         bool
