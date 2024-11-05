@@ -27,37 +27,40 @@ from unittest.mock import patch
 from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
 
 
-@patch("matplotlib.pyplot.show")
+@patch("ansys.aedt.core.visualization.advanced.touchstone_parser.plt")
 def test_plot_insertion_losses(mock_show, touchstone_file):
     ts = TouchstoneData(touchstone_file=touchstone_file)
     res = ts.plot_insertion_losses()
 
     assert res is not []
-    mock_show.assert_called_once()
+    mock_show.show.assert_called_once()
 
 
-@patch("matplotlib.pyplot.show")
-def test_plot(mock_show, touchstone_file):
+@patch.object(TouchstoneData, "plot_s_db")
+@patch("ansys.aedt.core.visualization.advanced.touchstone_parser.plt")
+def test_plot(mock_show, mock_plot_s_db, touchstone_file):
     ts = TouchstoneData(touchstone_file=touchstone_file)
     res = ts.plot(show=True)
 
     assert res
-    mock_show.assert_called_once()
+    mock_show.show.assert_called_once()
 
 
-@patch("matplotlib.pyplot.show")
-def test_plot_next_xtalk_losses(mock_show, touchstone_file):
+@patch.object(TouchstoneData, "plot_s_db")
+@patch("ansys.aedt.core.visualization.advanced.touchstone_parser.plt")
+def test_plot_next_xtalk_losses(mock_show, mock_plot_s_db, touchstone_file):
     ts = TouchstoneData(touchstone_file=touchstone_file)
     res = ts.plot_next_xtalk_losses()
 
     assert res
-    mock_show.assert_called_once()
+    mock_show.show.assert_called_once()
 
 
-@patch("matplotlib.pyplot.show")
-def test_plot_fext_xtalk_losses(mock_show, touchstone_file):
+@patch.object(TouchstoneData, "plot_s_db")
+@patch("ansys.aedt.core.visualization.advanced.touchstone_parser.plt")
+def test_plot_fext_xtalk_losses(mock_show, mock_plot_s_db, touchstone_file):
     ts = TouchstoneData(touchstone_file=touchstone_file)
     res = ts.plot_fext_xtalk_losses("Port", "Port")
 
     assert res
-    mock_show.assert_called_once()
+    mock_show.show.assert_called_once()
