@@ -1280,8 +1280,7 @@ class CircuitComponents(object):
         --------
         >>>from ansys.aedt.core import MaxwellCircuit
         >>>app=MaxwellCircuit ()
-        >>>schematic=app.modeler.schematic
-        >>>schematic.create_page (name="NewPageName")
+        >>>component=app.modeler.schematic.create_page(name=page_name)
 
         """
         if not isinstance(name, (str, int, float)):
