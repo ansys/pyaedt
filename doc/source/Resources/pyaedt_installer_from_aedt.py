@@ -26,11 +26,13 @@ import argparse
 import os
 import platform
 import shutil
+import subprocessdotnet as subprocess
 import sys
 
 is_iron_python = platform.python_implementation().lower() == "ironpython"
 is_linux = os.name == "posix"
 is_windows = not is_linux
+
 
 VENV_DIR_PREFIX = ".pyaedt_env"
 
@@ -87,7 +89,7 @@ def run_pyinstaller_from_c_python(oDesktop):
 
     oDesktop.AddMessage("", "", 0, "Installing PyAEDT.")
     # if is_windows:
-    import subprocess
+
 
     oDesktop.AddMessage("", "", 0, " ".join(command))
     process = subprocess.Popen(command)
