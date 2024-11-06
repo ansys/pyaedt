@@ -837,6 +837,17 @@ class TestClass:
 
         assert pl1
         assert pl1.export_image_from_aedtplt(tempfile.gettempdir())
+        pl2 = test.post.create_fieldplot_nets(
+            ["V3P3_S5"],
+            "Mag_E",
+            layers=["LYR_1"],
+            intrinsics={"Freq": "1GHz"},
+            name="Test_Layers2",
+        )
+
+        assert pl2
+        assert pl2.export_image_from_aedtplt(tempfile.gettempdir())
+
         self.aedtapp.close_project(test.project_name)
 
     @pytest.mark.skipif(is_linux, reason="Bug on linux")
