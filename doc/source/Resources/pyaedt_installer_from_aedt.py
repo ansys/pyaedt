@@ -223,62 +223,62 @@ def install_pyaedt():
             args.edt_root, args.python_version.replace(".", "_")
         )
 
-    ###########
-    import tkinter as tk
-    from tkinter import ttk
+    # ###########
+    # import tkinter as tk
+    # from tkinter import ttk
 
-    # def create_disclaimer_window(root: tk.Tk):
-    #     """Notify users about extra packages."""
-    #     DISCLAIMER = (
-    #         "The extension manager will download and install certain third-party software and/or "
-    #         "open-source software (collectively, 'Third-Party Software'). Such Third-Party "
-    #         "Software is subject to separate terms and conditions and not the terms of your "
-    #         "Ansys software license agreement. Ansys does not warrant or support such "
-    #         "Third-Party Software. Do you still wish to proceed?"
-    #     )
+    # # def create_disclaimer_window(root: tk.Tk):
+    # #     """Notify users about extra packages."""
+    # #     DISCLAIMER = (
+    # #         "The extension manager will download and install certain third-party software and/or "
+    # #         "open-source software (collectively, 'Third-Party Software'). Such Third-Party "
+    # #         "Software is subject to separate terms and conditions and not the terms of your "
+    # #         "Ansys software license agreement. Ansys does not warrant or support such "
+    # #         "Third-Party Software. Do you still wish to proceed?"
+    # #     )
 
-    #     root.protocol("WM_DELETE_WINDOW", lambda: None)
-    #     label = tk.Label(root, text=DISCLAIMER, wraplength=275)
-    #     label.pack()
-    #     yes_button = tk.Button(root, text="Yes", command=lambda: close_widget(disclaimer_window))
-    #     yes_button.pack(side=tk.LEFT, padx=50, pady=10)
-    #     no_button = tk.Button(root, text="No", command=lambda: close_widget(root))
-    #     no_button.pack(side=tk.RIGHT, padx=50, pady=10)
+    # #     root.protocol("WM_DELETE_WINDOW", lambda: None)
+    # #     label = tk.Label(root, text=DISCLAIMER, wraplength=275)
+    # #     label.pack()
+    # #     yes_button = tk.Button(root, text="Yes", command=lambda: close_widget(disclaimer_window))
+    # #     yes_button.pack(side=tk.LEFT, padx=50, pady=10)
+    # #     no_button = tk.Button(root, text="No", command=lambda: close_widget(root))
+    # #     no_button.pack(side=tk.RIGHT, padx=50, pady=10)
 
-    #     return disclaimer_window
+    # #     return disclaimer_window
 
-    root = tk.Tk()
-    root.title("Disclaimer")
-    style = ttk.Style()
-    style.configure("Toolbutton.TButton", padding=6, font=("Helvetica", 10))
-    window_width, window_height = 500, 250
-    screen_width = root.winfo_screenwidth()
-    screen_height = root.winfo_screenheight()
-    x_position = (screen_width - window_width) // 2
-    y_position = (screen_height - window_height) // 2
+    # root = tk.Tk()
+    # root.title("Disclaimer")
+    # style = ttk.Style()
+    # style.configure("Toolbutton.TButton", padding=6, font=("Helvetica", 10))
+    # window_width, window_height = 500, 250
+    # screen_width = root.winfo_screenwidth()
+    # screen_height = root.winfo_screenheight()
+    # x_position = (screen_width - window_width) // 2
+    # y_position = (screen_height - window_height) // 2
 
-    root.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
+    # root.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
 
-    DISCLAIMER = (
-        "The extension manager will download and install certain third-party software and/or "
-        "open-source software (collectively, 'Third-Party Software'). Such Third-Party "
-        "Software is subject to separate terms and conditions and not the terms of your "
-        "Ansys software license agreement. Ansys does not warrant or support such "
-        "Third-Party Software. Do you still wish to proceed?"
-    )
+    # DISCLAIMER = (
+    #     "The extension manager will download and install certain third-party software and/or "
+    #     "open-source software (collectively, 'Third-Party Software'). Such Third-Party "
+    #     "Software is subject to separate terms and conditions and not the terms of your "
+    #     "Ansys software license agreement. Ansys does not warrant or support such "
+    #     "Third-Party Software. Do you still wish to proceed?"
+    # )
 
-    root.protocol("WM_DELETE_WINDOW", lambda: None)
-    label = tk.Label(root, text=DISCLAIMER, wraplength=275)
-    label.pack()
-    yes_button = tk.Button(root, text="Yes", command=lambda: root.destroy())
-    yes_button.pack(side=tk.LEFT, padx=50, pady=10)
-    no_button = tk.Button(root, text="No", command=lambda: close_widget(root))
-    no_button.pack(side=tk.RIGHT, padx=50, pady=10)
+    # root.protocol("WM_DELETE_WINDOW", lambda: None)
+    # label = tk.Label(root, text=DISCLAIMER, wraplength=275)
+    # label.pack()
+    # yes_button = tk.Button(root, text="Yes", command=lambda: root.destroy())
+    # yes_button.pack(side=tk.LEFT, padx=50, pady=10)
+    # no_button = tk.Button(root, text="No", command=lambda: close_widget(root))
+    # no_button.pack(side=tk.RIGHT, padx=50, pady=10)
 
-    disclaimer_window = create_disclaimer_window(root)
-    disclaimer_window.geometry("300x170+{}+{}".format(x_position + 110, y_position + 45))
+    # disclaimer_window = create_disclaimer_window(root)
+    # disclaimer_window.geometry("300x170+{}+{}".format(x_position + 110, y_position + 45))
 
-    ############
+    # ############
     response = disclaimer()
     if not response:
         exit(1)
