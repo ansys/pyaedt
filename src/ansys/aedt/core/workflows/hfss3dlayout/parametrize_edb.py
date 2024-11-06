@@ -57,7 +57,7 @@ extension_description = "Layout Parametrization"
 
 
 def frontend():  # pragma: no cover
-    DEFUALT_VALUES = {
+    default_values = {
         "layer": 0,
         "material": 0,
         "padstacks": 0,
@@ -120,7 +120,7 @@ def frontend():  # pragma: no cover
     relative = tkinter.IntVar()
     check5 = tkinter.Checkbutton(master, width=30, variable=relative)
     check5.grid(row=0, column=3, pady=10, padx=5)
-    relative.set(DEFUALT_VALUES["relative"])
+    relative.set(default_values["relative"])
 
     var1 = tkinter.StringVar()
     label1 = tkinter.Label(master, textvariable=var1)
@@ -129,7 +129,7 @@ def frontend():  # pragma: no cover
     layers = tkinter.IntVar()
     check1 = tkinter.Checkbutton(master, width=30, variable=layers)
     check1.grid(row=1, column=1, pady=10, padx=5)
-    layers.set(DEFUALT_VALUES["layer"])
+    layers.set(default_values["layer"])
 
     var2 = tkinter.StringVar()
     label2 = tkinter.Label(master, textvariable=var2)
@@ -138,7 +138,7 @@ def frontend():  # pragma: no cover
     materials = tkinter.IntVar()
     check2 = tkinter.Checkbutton(master, width=30, variable=materials)
     check2.grid(row=1, column=3, pady=10, padx=5)
-    materials.set(DEFUALT_VALUES["material"])
+    materials.set(default_values["material"])
 
     var3 = tkinter.StringVar()
     label3 = tkinter.Label(master, textvariable=var3)
@@ -147,7 +147,7 @@ def frontend():  # pragma: no cover
     padstacks = tkinter.IntVar()
     check3 = tkinter.Checkbutton(master, width=30, variable=padstacks)
     check3.grid(row=2, column=1, pady=10, padx=5)
-    padstacks.set(DEFUALT_VALUES["padstacks"])
+    padstacks.set(default_values["padstacks"])
 
     var5 = tkinter.StringVar()
     label5 = tkinter.Label(master, textvariable=var5)
@@ -172,7 +172,7 @@ def frontend():  # pragma: no cover
     nets = tkinter.IntVar()
     check4 = tkinter.Checkbutton(master, width=30, variable=nets)
     check4.grid(row=4, column=1, pady=10, padx=5)
-    nets.set(DEFUALT_VALUES["nets"])
+    nets.set(default_values["nets"])
 
     var8 = tkinter.StringVar()
     label8 = tkinter.Label(master, textvariable=var8)
