@@ -47,7 +47,7 @@ dependencies = [
 [project.optional-dependencies]
 unit-tests = [
     "pytest>=7.4.0,<8.4",
-    "pytest-cov>=4.0.0,<5.1",
+    "pytest-cov>=4.0.0,<6.1",
     "mock>=5.1.0,<5.2",
 ]
 tests = [
@@ -60,7 +60,7 @@ tests = [
     "osmnx>=1.1.0,<1.10",
     "pandas>=1.1.0,<2.3",
     "pytest>=7.4.0,<8.4",
-    "pytest-cov>=4.0.0,<5.1",
+    "pytest-cov>=4.0.0,<6.1",
     "pytest-xdist>=3.5.0,<3.7",
     "pyvista[io]>=0.38.0,<0.45",
     # Never directly imported but required when loading ML related file see #4713
@@ -76,9 +76,8 @@ dotnet = [
     "dotnetcore2==3.1.23; platform_system=='Linux'",
     "pywin32>=303; platform_system=='Windows'",
 ]
-
 doc = [
-    "ansys-sphinx-theme>=0.10.0,<1.1",
+    "ansys-sphinx-theme>=1.0.0,<1.3",
     "numpydoc>=1.5.0,<1.9",
     "recommonmark",
     "Sphinx>=7.1.0,<8.2",
@@ -90,7 +89,6 @@ doc = [
     "sphinx_design>=0.4.0,<0.7",
     "pyvista[io]>=0.38.0,<0.45",
 ]
-
 all = [
     "matplotlib>=3.5.0,<3.10",
     "numpy>=1.20.0,<2",
@@ -117,7 +115,7 @@ installer = [
     "scikit-rf>=0.30.0,<1.4",
     "SRTM.py",
     "utm",
-    "jupyterlab>=3.6.0,<4.3",
+    "jupyterlab>=3.6.0,<4.4",
     "ipython>=7.30.0,<8.30",
     "ipyvtklink>=0.2.0,<0.2.4",
 ]

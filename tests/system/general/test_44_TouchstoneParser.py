@@ -22,9 +22,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import logging
 import os
 
 from ansys.aedt.core import Hfss3dLayout
+from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
+from ansys.aedt.core.visualization.advanced.touchstone_parser import find_touchstone_files
+from mock import patch
 import pytest
 
 from tests import TESTS_GENERAL_PATH
@@ -57,7 +61,6 @@ class TestClass:
         assert ts_data.get_fext_xtalk_index_from_prefix("diff1", "diff2")
 
     def test_02_read_ts_file(self):
-        from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
 
         ts1 = TouchstoneData(touchstone_file=os.path.join(test_T44_dir, "port_order_1234.s8p"))
         assert ts1.get_mixed_mode_touchstone_data()
@@ -77,3 +80,57 @@ class TestClass:
                 assert v[1]
             elif v and v[0] == "causality":
                 assert not v[1]
+
+
+def test_get_mixed_mode_touchstone_data_failure(touchstone_file, caplog: pytest.LogCaptureFixture):
+    ts = TouchstoneData(touchstone_file=touchstone_file)
+
+    assert not ts.get_mixed_mode_touchstone_data(port_ordering="12")
+    assert [
+        record
+        for record in caplog.records
+        if record.levelno == logging.ERROR and record.message == "Invalid input provided for 'port_ordering'."
+    ]
+
+
+def test_get_return_loss_index_with_dummy_prefix(touchstone_file):
+    ts = TouchstoneData(touchstone_file=touchstone_file)
+    res = ts.get_return_loss_index(excitation_name_prefix="dummy_prefix")
+
+    assert not res
+
+
+def test_get_insertion_loss_index_from_prefix_failure(touchstone_file, caplog: pytest.LogCaptureFixture):
+    ts = TouchstoneData(touchstone_file=touchstone_file)
+    res = ts.get_insertion_loss_index_from_prefix("Port", "Dummy")
+
+    assert not res
+    assert [
+        record
+        for record in caplog.records
+        if record.levelno == logging.ERROR and record.message == "TX and RX should be same length lists."
+    ]
+
+
+def test_get_next_xtalk_index_with_dummy_prefix(touchstone_file):
+    ts = TouchstoneData(touchstone_file=touchstone_file)
+    res = ts.get_next_xtalk_index("Dummy")
+
+    assert not res
+
+
+@patch("os.path.exists", return_value=False)
+def test_find_touchstone_files_with_non_existing_directory(mock_exists):
+    res = find_touchstone_files("dummy_path")
+
+    assert res == {}
+
+
+@patch("os.path.exists", return_value=True)
+@patch("os.listdir")
+def test_find_touchstone_files_success(mock_listdir, mock_exists):
+    mock_listdir.return_value = {"dummy.ts", "dummy.txt"}
+    res = find_touchstone_files("dummy_path")
+
+    assert "dummy.ts" in res
+    assert "dummy.txt" not in res

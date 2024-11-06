@@ -737,7 +737,7 @@ class TestClass:
         assert perfect_e_eigen.name in self.aedtapp.modeler.get_boundaries_name()
         self.aedtapp.solution_type = "solution_type"
 
-    def test_16_create_impedance_on_sheets(self):
+    def test_16_a_create_impedance_on_sheets(self):
         rect = self.aedtapp.modeler.create_rectangle(
             self.aedtapp.PLANE.XY, [0, 0, 0], [10, 2], name="ImpBound", material="Copper"
         )
@@ -759,6 +759,14 @@ class TestClass:
         assert imp2.name in self.aedtapp.modeler.get_boundaries_name()
         imp3 = self.aedtapp.assign_impedance_to_sheet(impedance_box.top_face_z.id, "TL4", [50, 20, 0, 0], [25, 0, 5, 0])
         assert imp3.name in self.aedtapp.modeler.get_boundaries_name()
+
+    def test_16_b_create_impedance_on_sheets_eigenmode(self, add_app):
+        aedtapp = add_app(solution_type="Eigenmode", project_name="test_16_b")
+        rect = aedtapp.modeler.create_rectangle(
+            aedtapp.PLANE.XY, [0, 0, 0], [10, 2], name="ImpBound", material="Copper"
+        )
+        imp1 = aedtapp.assign_impedance_to_sheet(rect.name, "TL2", 50, 25)
+        assert imp1.name in aedtapp.modeler.get_boundaries_name()
 
     def test_17_create_lumpedrlc_on_sheets(self):
         rect = self.aedtapp.modeler.create_rectangle(

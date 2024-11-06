@@ -31,10 +31,14 @@ It includes a method to import materials from a Workbench Engineering Data XML f
 from collections import defaultdict
 import copy
 import re
-import xml.etree.ElementTree as ET
+from xml.etree.ElementTree import ParseError
 
+from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.data_handlers import normalize_string_format
 from ansys.aedt.core.modules.material import MatProperties
+import defusedxml
+
+defusedxml.defuse_stdlib()
 
 
 class MaterialWorkbench:
@@ -86,7 +90,13 @@ class MaterialWorkbench:
     @staticmethod
     def _parse_xml(file_path):
         """Parse an XML file and convert it into a dictionary."""
-        tree = ET.parse(file_path)
+        # Load the XML file
+        try:
+            tree = defusedxml.ElementTree.parse(file_path)
+        except ParseError:  # pragma: no cover
+            logger.error(f"Unable to parse {file_path}.")
+            return
+
         root = tree.getroot()
         return MaterialWorkbench._etree_to_dict(root)
 
