@@ -55,16 +55,16 @@ extension_arguments = {
 }
 extension_description = "Layout Parametrization"
 
-DEFUALT_VALUES = {
-    "layer": 0,
-    "material": 0,
-    "padstacks": 0,
-    "nets": 0,
-    "relative": 0,
-}
-
 
 def frontend():  # pragma: no cover
+    DEFUALT_VALUES = {
+        "layer": 0,
+        "material": 0,
+        "padstacks": 0,
+        "nets": 0,
+        "relative": 0,
+    }
+
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
         version=version,
