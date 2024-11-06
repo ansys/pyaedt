@@ -26,7 +26,7 @@ import argparse
 import os
 import platform
 import shutil
-import subprocess
+import subprocessdotnet as subprocess
 import sys
 
 is_iron_python = platform.python_implementation().lower() == "ironpython"
