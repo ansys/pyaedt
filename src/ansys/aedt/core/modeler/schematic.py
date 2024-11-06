@@ -589,7 +589,8 @@ class ModelerNexxim(ModelerCircuit):
     @model_units.setter
     def model_units(self, units):
         """Set the model units as a string e.g. "mm"."""
-        assert units in AEDT_UNITS["Length"], f"Invalid units string {units}"
+        if units not in AEDT_UNITS["Length"]:
+            raise RuntimeError(f"Invalid units string {units}.")
         self.oeditor.SetActivelUnits(["NAME:Units Parameter", "Units:=", units, "Rescale:=", False])
 
     @pyaedt_function_handler(selections="assignment", pos="offset")

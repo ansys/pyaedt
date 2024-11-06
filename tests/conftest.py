@@ -45,3 +45,17 @@ def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item
             item.add_marker(pytest.mark.solvers)
         elif item.nodeid.startswith(SYSTEM_GENERAL_TEST_PREFIX):
             item.add_marker(pytest.mark.general)
+
+
+@pytest.fixture
+def touchstone_file(tmp_path):
+    file_path = tmp_path / "dummy.s2p"
+    file_content = """
+! Terminal data exported
+! Port[1] = Port1
+! Port[2] = Port2
+0.1                            0.1 0.2
+"""
+
+    file_path.write_text(file_content)
+    return file_path

@@ -26,6 +26,7 @@ import os
 
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.generic.settings import is_linux
+from ansys.aedt.core.modeler.pcb.object_3d_layout import Components3DLayout
 import pytest
 
 from tests import TESTS_GENERAL_PATH
@@ -420,3 +421,29 @@ class TestClass:
     @pytest.mark.skipif(config["desktopVersion"] <= "2024.1", reason="Introduced in 2024R1")
     def test_24_open_ic_mode_design(self):
         assert self.ic_mode_design.ic_mode
+
+    def test_25a_set_port_properties(self):
+        component: Components3DLayout = self.aedtapp.modeler.components["Q1"]
+        assert component.port_properties == ("0", True, "0", "0")
+        new_values = ("10um", False, "0um", "0um")
+        component.port_properties = new_values
+        assert component.port_properties == new_values
+
+    def test_25b_set_port_properties_on_ic_component(self):
+        component: Components3DLayout = self.aedtapp.modeler.components["U10"]
+        original_die_properties = component.die_properties
+        assert component.port_properties == ("0", True, "0", "0")
+        new_values = ("10um", False, "0um", "0um")
+        component.port_properties = new_values
+        assert component.port_properties == new_values
+        assert component.die_properties == original_die_properties
+
+    def test_25c_get_properties_on_rlc_component(self):
+        component: Components3DLayout = self.aedtapp.modeler.components["C1"]
+        assert component.die_properties is None
+        assert component.port_properties is None
+
+    def test_25d_set_port_properties_on_rlc_component(self):
+        component: Components3DLayout = self.aedtapp.modeler.components["C1"]
+        component.port_properties = ("10um", False, "0um", "0um")
+        assert component.port_properties is None
