@@ -94,6 +94,7 @@ def run_pyinstaller_from_c_python(oDesktop):
     oDesktop.AddMessage("", "", 0, " ".join(command))
     process = subprocess.Popen(command)
     process.wait()
+    oDesktop.AddMessage("", "", 0, "CALLED")
     return_code = process.returncode
     err_msg = "There was an error while installing PyAEDT."
     # else:
