@@ -77,7 +77,7 @@ def run_pyinstaller_from_c_python(oDesktop):
 
     # Launch this script again from the CPython interpreter. This calls the ``install_pyaedt()`` method,
     # which creates a virtual environment and installs PyAEDT and its dependencies
-    command = ['"{}"'.format(python_exe), '"{}"'.format(os.path.normpath(__file__)), "--version=" + version]
+    command = [python_exe, os.path.normpath(__file__), "--version=" + version]
 
     if is_student_version(oDesktop):
         command.append("--student")
