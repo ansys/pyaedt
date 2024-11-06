@@ -6281,6 +6281,27 @@ class GeometryModeler(Modeler):
         return o
 
     @pyaedt_function_handler()
+    def update_wireframe(self, assignment, value=True):
+        """Update wireframe property of assigned objects.
+
+        Parameters
+        ----------
+        assignment : str, or list
+            Object to be updated.
+        value : bool, optional
+            Display wireframe. The default is ``True``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        assignment = self.convert_to_selections(assignment, True)
+        props = ["NAME:Display Wireframe", "Value:=", value]
+        return self._change_geometry_property(props, assignment)
+
+    @pyaedt_function_handler()
     def value_in_object_units(self, value):
         """Convert one or more strings for numerical lengths to floating point values.
 
