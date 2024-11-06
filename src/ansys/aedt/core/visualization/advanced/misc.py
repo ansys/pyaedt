@@ -404,7 +404,7 @@ def _parse_nastran(file_path):
                     and f'Port_{line_header.replace(",", "_")}_{object_id}'
                     not in nas_to_dict["Assemblies"][in_assembly]["Triangles"]
                 ):
-                    name = f'Port_{line_header.replace(",","_")}_{object_id}'
+                    name = f'Port_{line_header.replace(",", "_")}_{object_id}'
                 else:
                     name = f"Port_{object_id}"
                 tri = [
