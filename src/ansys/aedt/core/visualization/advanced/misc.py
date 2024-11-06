@@ -401,7 +401,7 @@ def _parse_nastran(file_path):
             elif line_type in ["MPC", "MPC*"]:
                 if (
                     line_header
-                    and f'Port_{line_header.replace(",","_")}_{object_id}'
+                    and f'Port_{line_header.replace(",", "_")}_{object_id}'
                     not in nas_to_dict["Assemblies"][in_assembly]["Triangles"]
                 ):
                     name = f'Port_{line_header.replace(",","_")}_{object_id}'
