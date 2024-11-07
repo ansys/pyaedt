@@ -90,7 +90,7 @@ def add_automation_tab(
     else:
         try:
             tree = ET.parse(tab_config_file_path)  # nosec
-        except ParseError as e:  # pragma: no cover
+        except ParseError:  # pragma: no cover
             warnings.warn("Unable to parse %s\nError received = %s" % (tab_config_file_path, str(e)))
             return
         root = tree.getroot()
@@ -169,7 +169,7 @@ def remove_xml_tab(toolkit_dir, name, panel="Panel_PyAEDT_Extensions"):
         return True
     try:
         tree = ET.parse(tab_config_file_path)  # nosec
-    except ParseError as e:  # pragma: no cover
+    except ParseError:  # pragma: no cover
         warnings.warn("Unable to parse %s\nError received = %s" % (tab_config_file_path, str(e)))
         return
     root = tree.getroot()

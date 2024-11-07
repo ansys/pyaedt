@@ -26,8 +26,12 @@ import argparse
 import os
 import platform
 import shutil
-import subprocessdotnet as subprocess
 import sys
+
+try:
+    import subprocess
+except ImportError:
+    import subprocessdotnet as subprocess
 
 is_iron_python = platform.python_implementation().lower() == "ironpython"
 is_linux = os.name == "posix"
@@ -35,22 +39,14 @@ is_windows = not is_linux
 
 
 VENV_DIR_PREFIX = ".pyaedt_env"
-
-
-def disclaimer():
-    """Notify users about extra packages."""
-    DISCLAIMER = (
-        "This script will download and install certain third-party software and/or "
-        "open-source software (collectively, 'Third-Party Software'). Such Third-Party "
-        "Software is subject to separate terms and conditions and not the terms of your "
-        "Ansys software license agreement. Ansys does not warrant or support such "
-        "Third-Party Software."
-    )
-    print(DISCLAIMER)
-
-    response = input("Do you want to proceed ? (y/n)").strip().lower()
-    return response == "y"
-
+DISCLAIMER = (
+    "This script will download and install certain third-party software and/or "
+    "open-source software (collectively, 'Third-Party Software'). Such Third-Party "
+    "Software is subject to separate terms and conditions and not the terms of your "
+    "Ansys software license agreement. Ansys does not warrant or support such "
+    "Third-Party Software.\n"
+    "Do you want to proceed ?"
+)
 
 def run_pyinstaller_from_c_python(oDesktop):
     # Iron Python script to create the virtual environment and install PyAEDT
@@ -88,21 +84,11 @@ def run_pyinstaller_from_c_python(oDesktop):
         command.extend(['--wheel="{}"'.format(wheelpyaedt)])
 
     oDesktop.AddMessage("", "", 0, "Installing PyAEDT.")
-    # if is_windows:
+    return_code = subprocess.call(command)
 
-
-    oDesktop.AddMessage("", "", 0, " ".join(command))
-    process = subprocess.Popen(command)
-    process.wait()
-    oDesktop.AddMessage("", "", 0, "CALLED")
-    return_code = process.returncode
     err_msg = "There was an error while installing PyAEDT."
-    # else:
-    #     return_code = run_command(" ".join(command))
-    #     err_msg = (
-    #         "There was an error while installing PyAEDT. Refer to the Terminal window where AEDT was launched from."
-    #     )
-
+    if is_linux:
+        err_msg += " Refer to the Terminal window where AEDT was launched from."
     if str(return_code) != "0":
         oDesktop.AddMessage("", "", 2, err_msg)
         return
@@ -152,7 +138,8 @@ def run_pyinstaller_from_c_python(oDesktop):
 
     command = r'"{}" "{}"'.format(python_exe, python_script)
     oDesktop.AddMessage("", "", 0, "Configuring PyAEDT panels in automation tab.")
-    ret_code = os.system(command)
+    # ret_code = os.system(command)
+    ret_code = subprocess.call([python_exe, python_script])
     if ret_code != 0:
         oDesktop.AddMessage("", "", 2, "Error occurred configuring the PyAEDT panels.")
         return
@@ -227,72 +214,12 @@ def install_pyaedt():
             args.edt_root, args.python_version.replace(".", "_")
         )
 
-    # ###########
-    # import tkinter as tk
-    # from tkinter import ttk
-
-    # # def create_disclaimer_window(root: tk.Tk):
-    # #     """Notify users about extra packages."""
-    # #     DISCLAIMER = (
-    # #         "The extension manager will download and install certain third-party software and/or "
-    # #         "open-source software (collectively, 'Third-Party Software'). Such Third-Party "
-    # #         "Software is subject to separate terms and conditions and not the terms of your "
-    # #         "Ansys software license agreement. Ansys does not warrant or support such "
-    # #         "Third-Party Software. Do you still wish to proceed?"
-    # #     )
-
-    # #     root.protocol("WM_DELETE_WINDOW", lambda: None)
-    # #     label = tk.Label(root, text=DISCLAIMER, wraplength=275)
-    # #     label.pack()
-    # #     yes_button = tk.Button(root, text="Yes", command=lambda: close_widget(disclaimer_window))
-    # #     yes_button.pack(side=tk.LEFT, padx=50, pady=10)
-    # #     no_button = tk.Button(root, text="No", command=lambda: close_widget(root))
-    # #     no_button.pack(side=tk.RIGHT, padx=50, pady=10)
-
-    # #     return disclaimer_window
-
-    # root = tk.Tk()
-    # root.title("Disclaimer")
-    # style = ttk.Style()
-    # style.configure("Toolbutton.TButton", padding=6, font=("Helvetica", 10))
-    # window_width, window_height = 500, 250
-    # screen_width = root.winfo_screenwidth()
-    # screen_height = root.winfo_screenheight()
-    # x_position = (screen_width - window_width) // 2
-    # y_position = (screen_height - window_height) // 2
-
-    # root.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
-
-    # DISCLAIMER = (
-    #     "The extension manager will download and install certain third-party software and/or "
-    #     "open-source software (collectively, 'Third-Party Software'). Such Third-Party "
-    #     "Software is subject to separate terms and conditions and not the terms of your "
-    #     "Ansys software license agreement. Ansys does not warrant or support such "
-    #     "Third-Party Software. Do you still wish to proceed?"
-    # )
-
-    # root.protocol("WM_DELETE_WINDOW", lambda: None)
-    # label = tk.Label(root, text=DISCLAIMER, wraplength=275)
-    # label.pack()
-    # yes_button = tk.Button(root, text="Yes", command=lambda: root.destroy())
-    # yes_button.pack(side=tk.LEFT, padx=50, pady=10)
-    # no_button = tk.Button(root, text="No", command=lambda: close_widget(root))
-    # no_button.pack(side=tk.RIGHT, padx=50, pady=10)
-
-    # disclaimer_window = create_disclaimer_window(root)
-    # disclaimer_window.geometry("300x170+{}+{}".format(x_position + 110, y_position + 45))
-
-    # ############
-    response = disclaimer()
-    if not response:
-        exit(1)
-
     if not os.path.exists(venv_dir):
 
         if args.version == "231":
-            run_command('"{}" -m venv "{}" --system-site-packages'.format(sys.executable, venv_dir))
+            subprocess.call([sys.executable, "-m", "venv", venv_dir, "--system-site-packages"])
         else:
-            run_command('"{}" -m venv "{}"'.format(sys.executable, venv_dir))
+            subprocess.call([sys.executable, "-m", "venv", venv_dir])
 
         if args.wheel and os.path.exists(args.wheel):
             wheel_pyaedt = args.wheel
@@ -311,33 +238,35 @@ def install_pyaedt():
                 # Extracted folder.
                 unzipped_path = wheel_pyaedt
             if args.version <= "231":
-                run_command(
-                    '"{}" install --no-cache-dir --no-index --find-links={} pyaedt[all,dotnet]'.format(
-                        pip_exe, unzipped_path
-                    )                )
+                subprocess.call([pip_exe, "install", "--no-cache-dir", "--no-index", "--find-links={}".format(unzipped_path), "pyaedt[all,dotnet]"])
             else:
-                run_command(
-                    '"{}" install --no-cache-dir --no-index --find-links={} pyaedt[installer]'.format(
-                        pip_exe, unzipped_path
-                    )
-                )
+                subprocess.call([pip_exe, "install", "--no-cache-dir", "--no-index", "--find-links={}".format(unzipped_path), "pyaedt[installer]"])
 
         else:
-            run_command('"{}" -m pip install --upgrade pip'.format(python_exe))
-            run_command('"{}" --default-timeout=1000 install wheel'.format(pip_exe))
+            subprocess.call([python_exe, "-m", "pip", "install", "--upgrade", "pip"])
+            # run_command('"{}" -m pip install --upgrade pip'.format(python_exe))
+            subprocess.call([pip_exe, "--default-timeout=1000", "install", "wheel"])
+            # run_command('"{}" --default-timeout=1000 install wheel'.format(pip_exe))
             if args.version <= "231":
-                run_command('"{}" --default-timeout=1000 install pyaedt[all]=="0.9.0"'.format(pip_exe))
-                run_command('"{}" --default-timeout=1000 install jupyterlab'.format(pip_exe))
-                run_command('"{}" --default-timeout=1000 install ipython -U'.format(pip_exe))
-                run_command('"{}" --default-timeout=1000 install ipyvtklink'.format(pip_exe))
+                subprocess.call([pip_exe, "--default-timeout=1000", "install", "pyaedt[all]=='0.9.0'"])
+                # run_command('"{}" --default-timeout=1000 install pyaedt[all]=="0.9.0"'.format(pip_exe))
+                subprocess.call([pip_exe, "--default-timeout=1000", "install", "jupyterlab"])
+                # run_command('"{}" --default-timeout=1000 install jupyterlab'.format(pip_exe))
+                subprocess.call([pip_exe, "--default-timeout=1000", "install", "ipython", "-U"])
+                # run_command('"{}" --default-timeout=1000 install ipython -U'.format(pip_exe))
+                subprocess.call([pip_exe, "--default-timeout=1000", "install", "ipyvtklink"])
+                # run_command('"{}" --default-timeout=1000 install ipyvtklink'.format(pip_exe))
             else:
-                run_command('"{}" --default-timeout=1000 install pyaedt[installer]'.format(pip_exe))
+                subprocess.call([pip_exe, "--default-timeout=1000", "install", "pyaedt[installer]"])
+                # run_command('"{}" --default-timeout=1000 install pyaedt[installer]'.format(pip_exe))
 
         if args.version == "231":
-            run_command('"{}" uninstall -y pywin32'.format(pip_exe))
+            subprocess.call([pip_exe, "uninstall", "-y", "pywin32"])
+            # run_command('"{}" uninstall -y pywin32'.format(pip_exe))
 
     else:
-        run_command('"{}" uninstall --yes pyaedt'.format(pip_exe))
+        subprocess.call([pip_exe, "uninstall", "-y", "pyaedt"])
+        # run_command('"{}" uninstall --yes pyaedt'.format(pip_exe))
 
         if args.wheel and os.path.exists(args.wheel):
             wheel_pyaedt = args.wheel
@@ -352,25 +281,32 @@ def install_pyaedt():
                 # Extract all contents to a directory. (You can specify a different extraction path if needed.)
                 zip_ref.extractall(unzipped_path)
             if args.version <= "231":
-                run_command(
-                    '"{}" install --no-cache-dir --no-index --find-links={} pyaedt[all]=="0.9.0"'.format(
-                        pip_exe, unzipped_path
-                    )
-                )
+                subprocess.call([pip_exe, "install", "--no-cache-dir", "--no-index", "--find-links={}".format(unzipped_path), "pyaedt[all]=='0.9.0'"])
+                # run_command(
+                #     '"{}" install --no-cache-dir --no-index --find-links={} pyaedt[all]=="0.9.0"'.format(
+                #         pip_exe, unzipped_path
+                #     )
+                # )
             else:
-                run_command(
-                    '"{}" install --no-cache-dir --no-index --find-links={} pyaedt[installer]'.format(
-                        pip_exe, unzipped_path
-                    )
-                )
+                subprocess.call([pip_exe, "install", "--no-cache-dir", "--no-index", "--find-links={}".format(unzipped_path), "pyaedt[installer]"])
+                # run_command(
+                #     '"{}" install --no-cache-dir --no-index --find-links={} pyaedt[installer]'.format(
+                #         pip_exe, unzipped_path
+                #     )
+                # )
         else:
             if args.version <= "231":
-                run_command('"{}" --default-timeout=1000 install pyaedt[all]=="0.9.0"'.format(pip_exe))
-                run_command('"{}" --default-timeout=1000 install jupyterlab'.format(pip_exe))
-                run_command('"{}" --default-timeout=1000 install ipython -U'.format(pip_exe))
-                run_command('"{}" --default-timeout=1000 install ipyvtklink'.format(pip_exe))
+                subprocess.call([pip_exe, "--default-timeout=1000", "install", "pyaedt[all]=='0.9.0'"])
+                # run_command('"{}" --default-timeout=1000 install pyaedt[all]=="0.9.0"'.format(pip_exe))
+                subprocess.call([pip_exe, "--default-timeout=1000", "install", "jupyterlab"])
+                # run_command('"{}" --default-timeout=1000 install jupyterlab'.format(pip_exe))
+                subprocess.call([pip_exe, "--default-timeout=1000", "install", "ipython", "-U"])
+                # run_command('"{}" --default-timeout=1000 install ipython -U'.format(pip_exe))
+                subprocess.call([pip_exe, "--default-timeout=1000", "install", "ipyvtklink"])
+                # run_command('"{}" --default-timeout=1000 install ipyvtklink'.format(pip_exe))
             else:
-                run_command('"{}" --default-timeout=1000 install pyaedt[installer]'.format(pip_exe))
+                subprocess.call([pip_exe, "--default-timeout=1000", "install", "pyaedt[installer]"])
+                # run_command('"{}" --default-timeout=1000 install pyaedt[installer]'.format(pip_exe))
     sys.exit(0)
 
 
@@ -382,24 +318,33 @@ def is_student_version(oDesktop):
     return False
 
 
-def run_command(command):
-    if is_windows:
-        command = '"{}"'.format(command)
-    ret_code = os.system(command)
-    return ret_code
-
+def validate_disclaimer():
+    """Display dialog box and evaluate the response to the disclaimer."""
+    from System.Windows.Forms import MessageBox
+    from System.Windows.Forms import MessageBoxButtons
+    from System.Windows.Forms import DialogResult
+        
+    response = MessageBox.Show(DISCLAIMER, "Disclaimer", MessageBoxButtons.YesNo)
+    return response == DialogResult.Yes
 
 if __name__ == "__main__":
 
     if is_iron_python:
-        # Check if wheelhouse defined. Wheelhouse is created for Windows only.
-        wheelpyaedt = []
-        # Retrieve the script arguments
-        script_args = ScriptArgument.split()
-        if len(script_args) == 1:
-            wheelpyaedt = script_args[0]
-            if not os.path.exists(wheelpyaedt):
-                wheelpyaedt = []
-        run_pyinstaller_from_c_python(oDesktop)
+        if "GetIsNonGraphical" in oDesktop.__dir__() and oDesktop.GetIsNonGraphical():
+            print("When using IronPython, this script is expected to be run in graphical mode.")
+            sys.exit(1)
+        if validate_disclaimer():
+            oDesktop.AddMessage("", "", 0, "Disclaimer accepted.")
+            # Check if wheelhouse defined. Wheelhouse is created for Windows only.
+            wheelpyaedt = []
+            # Retrieve the script arguments
+            script_args = ScriptArgument.split()
+            if len(script_args) == 1:
+                wheelpyaedt = script_args[0]
+                if not os.path.exists(wheelpyaedt):
+                    wheelpyaedt = []
+            run_pyinstaller_from_c_python(oDesktop)
+        else:
+            oDesktop.AddMessage("", "", 1, "Disclaimer refused, installation canceled.")
     else:
         install_pyaedt()
