@@ -244,29 +244,20 @@ def install_pyaedt():
 
         else:
             subprocess.call([python_exe, "-m", "pip", "install", "--upgrade", "pip"])
-            # run_command('"{}" -m pip install --upgrade pip'.format(python_exe))
             subprocess.call([pip_exe, "--default-timeout=1000", "install", "wheel"])
-            # run_command('"{}" --default-timeout=1000 install wheel'.format(pip_exe))
             if args.version <= "231":
                 subprocess.call([pip_exe, "--default-timeout=1000", "install", "pyaedt[all]=='0.9.0'"])
-                # run_command('"{}" --default-timeout=1000 install pyaedt[all]=="0.9.0"'.format(pip_exe))
                 subprocess.call([pip_exe, "--default-timeout=1000", "install", "jupyterlab"])
-                # run_command('"{}" --default-timeout=1000 install jupyterlab'.format(pip_exe))
                 subprocess.call([pip_exe, "--default-timeout=1000", "install", "ipython", "-U"])
-                # run_command('"{}" --default-timeout=1000 install ipython -U'.format(pip_exe))
                 subprocess.call([pip_exe, "--default-timeout=1000", "install", "ipyvtklink"])
-                # run_command('"{}" --default-timeout=1000 install ipyvtklink'.format(pip_exe))
             else:
                 subprocess.call([pip_exe, "--default-timeout=1000", "install", "pyaedt[installer]"])
-                # run_command('"{}" --default-timeout=1000 install pyaedt[installer]'.format(pip_exe))
 
         if args.version == "231":
             subprocess.call([pip_exe, "uninstall", "-y", "pywin32"])
-            # run_command('"{}" uninstall -y pywin32'.format(pip_exe))
 
     else:
         subprocess.call([pip_exe, "uninstall", "-y", "pyaedt"])
-        # run_command('"{}" uninstall --yes pyaedt'.format(pip_exe))
 
         if args.wheel and os.path.exists(args.wheel):
             wheel_pyaedt = args.wheel
@@ -282,31 +273,16 @@ def install_pyaedt():
                 zip_ref.extractall(unzipped_path)
             if args.version <= "231":
                 subprocess.call([pip_exe, "install", "--no-cache-dir", "--no-index", "--find-links={}".format(unzipped_path), "pyaedt[all]=='0.9.0'"])
-                # run_command(
-                #     '"{}" install --no-cache-dir --no-index --find-links={} pyaedt[all]=="0.9.0"'.format(
-                #         pip_exe, unzipped_path
-                #     )
-                # )
             else:
                 subprocess.call([pip_exe, "install", "--no-cache-dir", "--no-index", "--find-links={}".format(unzipped_path), "pyaedt[installer]"])
-                # run_command(
-                #     '"{}" install --no-cache-dir --no-index --find-links={} pyaedt[installer]'.format(
-                #         pip_exe, unzipped_path
-                #     )
-                # )
         else:
             if args.version <= "231":
                 subprocess.call([pip_exe, "--default-timeout=1000", "install", "pyaedt[all]=='0.9.0'"])
-                # run_command('"{}" --default-timeout=1000 install pyaedt[all]=="0.9.0"'.format(pip_exe))
                 subprocess.call([pip_exe, "--default-timeout=1000", "install", "jupyterlab"])
-                # run_command('"{}" --default-timeout=1000 install jupyterlab'.format(pip_exe))
                 subprocess.call([pip_exe, "--default-timeout=1000", "install", "ipython", "-U"])
-                # run_command('"{}" --default-timeout=1000 install ipython -U'.format(pip_exe))
                 subprocess.call([pip_exe, "--default-timeout=1000", "install", "ipyvtklink"])
-                # run_command('"{}" --default-timeout=1000 install ipyvtklink'.format(pip_exe))
             else:
                 subprocess.call([pip_exe, "--default-timeout=1000", "install", "pyaedt[installer]"])
-                # run_command('"{}" --default-timeout=1000 install pyaedt[installer]'.format(pip_exe))
     sys.exit(0)
 
 
