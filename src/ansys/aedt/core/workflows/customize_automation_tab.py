@@ -26,8 +26,10 @@ import os
 import shutil
 import subprocess  # nosec
 import sys
+from typing import List
 import xml.etree.ElementTree as ET  # nosec
 
+from defusedxml.ElementTree import parse as defused_parse
 import defusedxml.minidom
 
 defusedxml.defuse_stdlib()
@@ -89,7 +91,7 @@ def add_automation_tab(
         root = ET.Element("TabConfig")
     else:
         try:
-            tree = ET.parse(tab_config_file_path)  # nosec
+            tree = defused_parse(tab_config_file_path)
         except ParseError as e:  # pragma: no cover
             warnings.warn("Unable to parse %s\nError received = %s" % (tab_config_file_path, str(e)))
             return
@@ -134,7 +136,7 @@ def add_automation_tab(
         label=name,
         isLarge="1",
         image=relative_image_path,
-        script="{}/{}".format(toolkit_name, template),
+        script=f"{toolkit_name}/{template}",
     )
 
     # Backup any existing file if present
@@ -168,7 +170,7 @@ def remove_xml_tab(toolkit_dir, name, panel="Panel_PyAEDT_Extensions"):
     if not os.path.isfile(tab_config_file_path):  # pragma: no cover
         return True
     try:
-        tree = ET.parse(tab_config_file_path)  # nosec
+        tree = defused_parse(tab_config_file_path)
     except ParseError as e:  # pragma: no cover
         warnings.warn("Unable to parse %s\nError received = %s" % (tab_config_file_path, str(e)))
         return
@@ -278,6 +280,7 @@ def add_script_to_menu(
         d = list(_desktop_sessions.values())[0]
         personal_lib = d.personallib
         aedt_version = d.aedt_version_id
+        d.logger.error("WE ARE HERE 2.")
     if script_file and not os.path.exists(script_file):  # pragma: no cover
         logger.error("Script does not exists.")
         return False
@@ -332,7 +335,7 @@ def add_script_to_menu(
             out_file.write(build_file_data)
 
     add_automation_tab(name, toolkit_dir, icon_file=icon_file, product=product, template=template_file, panel=panel)
-    logger.info("{} installed".format(name))
+    logger.info(f"{name} installed")
     return True
 
 
@@ -350,6 +353,17 @@ def __tab_map(product):  # pragma: no cover
         return "TwinBuilder"
     else:
         return product
+
+
+def run_command(command: List[str], desktop_object):  # pragma: no cover
+    """Run a command through subprocess."""
+    try:
+        subprocess.run(command, check=True, capture_output=True, text=True)  # nosec
+    except subprocess.CalledProcessError as e:
+        desktop_object.logger.error("Error occurred:", e.stderr)
+        return e.returncode
+
+    return 0
 
 
 def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install=True):  # pragma: no cover
@@ -370,6 +384,8 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
     -------
     bool
     """
+    print("WE ARE HERE.")
+    desktop_object.logger.error("WE ARE HERE.")
     toolkits = available_toolkits()
     toolkit_info = None
     product_name = None
@@ -412,49 +428,35 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
             )
         )
 
-    def run_command(command):
-        try:
-            if is_linux:  # pragma: no cover
-                process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)  # nosec
-            else:
-                process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)  # nosec
-            _, stderr = process.communicate()
-            ret_code = process.returncode
-            if ret_code != 0:
-                print("Error occurred:", stderr.decode("utf-8"))
-            return ret_code
-        except Exception as e:
-            print("Exception occurred:", str(e))
-            return 1  # Return non-zero exit code for indicating an error
-
     version = desktop_object.odesktop.GetVersion()[2:6].replace(".", "")
 
     if not is_linux:
-        venv_dir = os.path.join(os.environ["APPDATA"], ".pyaedt_env", "toolkits_{}".format(python_version_new))
+        venv_dir = os.path.join(os.environ["APPDATA"], ".pyaedt_env", f"toolkits_{python_version_new}")
         python_exe = os.path.join(venv_dir, "Scripts", "python.exe")
         pip_exe = os.path.join(venv_dir, "Scripts", "pip.exe")
         package_dir = os.path.join(venv_dir, "Lib")
     else:
-        venv_dir = os.path.join(os.environ["HOME"], ".pyaedt_env", "toolkits_{}".format(python_version_new))
+        venv_dir = os.path.join(os.environ["HOME"], ".pyaedt_env", f"toolkits_{python_version_new}")
         python_exe = os.path.join(venv_dir, "bin", "python")
         pip_exe = os.path.join(venv_dir, "bin", "pip")
         package_dir = os.path.join(venv_dir, "lib")
         edt_root = os.path.normpath(desktop_object.odesktop.GetExeDir())
-        os.environ["ANSYSEM_ROOT{}".format(version)] = edt_root
+        os.environ[f"ANSYSEM_ROOT{version}"] = edt_root
         ld_library_path_dirs_to_add = [
-            "{}/commonfiles/CPython/{}/linx64/Release/python/lib".format(edt_root, python_version_new),
-            "{}/common/mono/Linux64/lib64".format(edt_root),
-            "{}".format(edt_root),
+            f"{edt_root}/commonfiles/CPython/{python_version_new}/linx64/Release/python/lib",
+            f"{edt_root}/common/mono/Linux64/lib64",
+            f"{edt_root}",
         ]
         if version < "232":
-            ld_library_path_dirs_to_add.append("{}/Delcross".format(edt_root))
+            ld_library_path_dirs_to_add.append(f"{edt_root}/Delcross")
         os.environ["LD_LIBRARY_PATH"] = ":".join(ld_library_path_dirs_to_add) + ":" + os.getenv("LD_LIBRARY_PATH", "")
 
     # Create virtual environment
 
     if not os.path.exists(venv_dir):
         desktop_object.logger.info("Creating virtual environment")
-        run_command('"{}" -m venv "{}" --system-site-packages'.format(base_venv, venv_dir))
+        command = [base_venv, "-m", "venv", venv_dir, "--system-site-packages"]
+        run_command(command, desktop_object)
         desktop_object.logger.info("Virtual environment created.")
 
     is_installed = False
@@ -470,11 +472,13 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
         is_installed = True
     if wheel_toolkit:
         wheel_toolkit = os.path.normpath(wheel_toolkit)
-    desktop_object.logger.info("Installing dependencies")
+
+    desktop_object.logger.info(f"Installing dependencies")
     if install and wheel_toolkit and os.path.exists(wheel_toolkit):
         desktop_object.logger.info("Starting offline installation")
         if is_installed:
-            run_command('"{}" uninstall --yes {}'.format(pip_exe, toolkit_info["pip"]))
+            command = [pip_exe, "uninstall", "--yes", toolkit_info["pip"]]
+            run_command(command, desktop_object)
         import zipfile
 
         unzipped_path = os.path.join(
@@ -486,18 +490,20 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
             zip_ref.extractall(unzipped_path)
 
         package_name = toolkit_info["package"]
-        run_command(
-            '"{}" install --no-cache-dir --no-index --find-links={} {}'.format(pip_exe, unzipped_path, package_name)
-        )
+        command = [pip_exe, "install", "--no-cache-dir", "--no-index", "--find-links={unzipped_path}", package_name]
+        run_command(command, desktop_object)
     elif install and not is_installed:
         # Install the specified package
-        run_command('"{}" --default-timeout=1000 install {}'.format(pip_exe, toolkit_info["pip"]))
+        command = [pip_exe, "--default-timeout=1000", "install", toolkit_info["pip"]]
+        run_command(command, desktop_object)
     elif not install and is_installed:
         # Uninstall toolkit
-        run_command('"{}" --default-timeout=1000 uninstall -y {}'.format(pip_exe, toolkit_info["package"]))
+        command = [pip_exe, "--default-timeout=1000", "uninstall", "-y", toolkit_info["package"]]
+        run_command(command, desktop_object)
     elif install and is_installed:
         # Update toolkit
-        run_command('"{}" --default-timeout=1000 install {} -U'.format(pip_exe, toolkit_info["pip"]))
+        command = [pip_exe, "--default-timeout=1000", "install", toolkit_info["pip"], "-U"]
+        run_command(command, desktop_object)
     else:
         desktop_object.logger.info("Incorrect input")
         return
@@ -522,7 +528,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
                 personal_lib=desktop_object.personallib,
                 aedt_version=desktop_object.aedt_version_id,
             )
-            desktop_object.logger.info("{} installed".format(toolkit_info["name"]))
+            desktop_object.logger.info(f'{toolkit_info["name"]} installed')
             if version > "232":
                 desktop_object.odesktop.RefreshToolkitUI()
     else:
@@ -533,8 +539,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
                 name=toolkit_info["name"],
                 product=product_name,
             )
-            desktop_object.logger.info("Installing dependencies")
-            desktop_object.logger.info("{} uninstalled".format(toolkit_info["name"]))
+            desktop_object.logger.info(f'{toolkit_info["name"]} uninstalled')
 
 
 def remove_script_from_menu(desktop_object, name, product="Project"):
@@ -561,7 +566,7 @@ def remove_script_from_menu(desktop_object, name, product="Project"):
     shutil.rmtree(tool_dir, ignore_errors=True)
     if aedt_version >= "2023.2":
         remove_xml_tab(os.path.join(toolkit_dir, product), name)
-    desktop_object.logger.info("{} toolkit removed successfully.".format(name))
+    desktop_object.logger.info(f"{name} toolkit removed successfully.")
     return True
 
 

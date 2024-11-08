@@ -44,7 +44,8 @@ class FfdSolutionDataExporter:
     the embedded
     element pattern files for an antenna that have been solved in HFSS. The
     ``metadata_file`` properties can then be passed as arguments to
-    instantiate an instance of the :class:`ansys.aedt.core.generic.farfield_visualization.FfdSolutionData` class for
+    instantiate an instance of the
+    :class:`ansys.aedt.core.ansys.aedt.core.visualization.advanced.farfield_visualization.FfdSolutionData` class for
     subsequent analysis and postprocessing of the array data.
 
     Note that this class is derived from the :class:`FfdSolutionData` class and can be used directly for
@@ -145,9 +146,9 @@ class FfdSolutionDataExporter:
         # Output directory
         exported_name_map = "element.txt"
         solution_setup_name = self.setup_name.replace(":", "_").replace(" ", "")
-        full_setup = "{}-{}".format(solution_setup_name, self.sphere_name)
-        export_path = "{}/{}/".format(self.__app.working_directory, full_setup)
-        local_path = "{}/{}/".format(settings.remote_rpc_session_temp_folder, full_setup)
+        full_setup = f"{solution_setup_name}-{self.sphere_name}"
+        export_path = f"{self.__app.working_directory}/{full_setup}/"
+        local_path = f"{settings.remote_rpc_session_temp_folder}/{full_setup}/"
         export_path = os.path.abspath(check_and_download_folder(local_path, export_path))
 
         # 2024.1
@@ -238,7 +239,7 @@ class FfdSolutionDataExporter:
         var = []
         if self.variations:
             for k, v in self.variations.items():
-                var.append("{}='{}'".format(k, v))
+                var.append(f"{k}='{v}'")
             variation = " ".join(var)
         else:
             variation = self.__app.odesign.GetNominalVariation()

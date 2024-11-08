@@ -9,9 +9,6 @@ env:
   ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
   MAIN_PYTHON_VERSION: '3.10'
   DOCUMENTATION_CNAME: 'aedt.docs.pyansys.com'
-  MEILISEARCH_API_KEY: ${{ secrets.MEILISEARCH_API_KEY }}
-  MEILISEARCH_HOST_URL: ${{ vars.MEILISEARCH_HOST_URL }}
-  MEILISEARCH_PUBLIC_API_KEY: ${{ secrets.MEILISEARCH_PUBLIC_API_KEY }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -22,7 +19,6 @@ jobs:
   doc-build:
     name: Documentation build
     runs-on: [ self-hosted, Windows, pyaedt ]
-    needs: [doc-style]
     steps:
       - name: Documentation build
         uses: ansys/actions/doc-build@v8

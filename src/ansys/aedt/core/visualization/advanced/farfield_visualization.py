@@ -27,6 +27,7 @@ import math
 import os
 import shutil
 import sys
+import warnings
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.application.variables import decompose_variable_value
@@ -40,18 +41,28 @@ from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 from ansys.aedt.core.visualization.plot.matplotlib import is_notebook
 from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 from ansys.aedt.core.visualization.plot.pyvista import get_structured_mesh
-
-np = None
-pv = None
+import defusedxml
+from defusedxml.ElementTree import ParseError
 
 try:
     import numpy as np
 except ImportError:  # pragma: no cover
+    warnings.warn(
+        "The NumPy module is required to run some functionalities of FfdSolutionData.\n"
+        "Install with \n\npip install numpy"
+    )
     np = None
+
 try:
     import pyvista as pv
 except ImportError:  # pragma: no cover
+    warnings.warn(
+        "The PyVista module is required to run functionalities of FfdSolutionData.\n"
+        "Install with \n\npip install pyvista"
+    )
     pv = None
+
+defusedxml.defuse_stdlib()
 
 
 class FfdSolutionData(object):
@@ -83,7 +94,7 @@ class FfdSolutionData(object):
     --------
 
     >>> from ansys.aedt.core
-    >>> from ansys.aedt.core.generic.farfield_visualization import FfdSolutionData
+    >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
     >>> app = ansys.aedt.core.Hfss(version="2023.2", design="Antenna")
     >>> data = app.get_antenna_data()
     >>> metadata_file = data.metadata_file
@@ -1577,7 +1588,7 @@ class UpdateBeamForm:
 
     Parameters
     ----------
-    farfield_data : :class:`ansys.aedt.core.generic.farfield_visualization.FfdSolutionData`
+    farfield_data : :class:`ansys.aedt.core.visualization.advanced.farfield_visualization.FfdSolutionData`
         Far field solution data instance.
     farfield_quantity : str, optional
         Quantity to plot. The default is ``"RealizedGain"``.
@@ -1805,12 +1816,14 @@ def antenna_metadata_from_xml(input_file):
         Metadata information.
 
     """
-    import xml.etree.ElementTree as ET  # nosec
-
     # Load the XML file
-    tree = ET.parse(input_file)  # nosec
-    root = tree.getroot()
+    try:
+        tree = defusedxml.ElementTree.parse(input_file)
+    except ParseError:  # pragma: no cover
+        logger.error(f"Unable to parse {input_file}.")
+        return
 
+    root = tree.getroot()
     element_patterns = root.find("ElementPatterns")
 
     sources = []

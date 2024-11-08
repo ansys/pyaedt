@@ -261,9 +261,9 @@ class CommonOptimetrics(PropsManager, object):
             sweepdefinition["GoalValue"] = {
                 "GoalValueType": "Independent",
                 "Format": "Real/Imag",
-                "bG": ["v:=", "[{};]".format(goal_value)],
+                "bG": ["v:=", f"[{goal_value};]"],
             }
-            sweepdefinition["Weight"] = "[{};]".format(goal_weight)
+            sweepdefinition["Weight"] = f"[{goal_weight};]"
         return sweepdefinition
 
     @pyaedt_function_handler()
@@ -506,9 +506,9 @@ class CommonOptimetrics(PropsManager, object):
         sweepdefinition["GoalValue"] = {
             "GoalValueType": "Independent",
             "Format": "Real/Imag",
-            "bG": ["v:=", "[{};]".format(goal_value)],
+            "bG": ["v:=", f"[{goal_value};]"],
         }
-        sweepdefinition["Weight"] = "[{};]".format(goal_weight)
+        sweepdefinition["Weight"] = f"[{goal_weight};]"
         if "Goal" in self.props[optigoalname]:
             if type(self.props[optigoalname]["Goal"]) is not list:
                 self.props[optigoalname]["Goal"] = [self.props[optigoalname]["Goal"], sweepdefinition]
@@ -785,7 +785,7 @@ class SetupOpti(CommonOptimetrics, object):
         bool
         """
         if variable_name not in self._app.variable_manager.variables:
-            self._app.logger.error("Variable {} does not exists.".format(variable_name))
+            self._app.logger.error(f"Variable {variable_name} does not exists.")
             return False
         self.auto_update = False
         self._activate_variable(variable_name)
@@ -797,9 +797,9 @@ class SetupOpti(CommonOptimetrics, object):
         if not max_step:
             max_step = (max_value - min_value) / 10
         if levels is None:
-            levels = "[{}: {}] mm".format(min_value, max_value)
+            levels = f"[{min_value}: {max_value}] mm"
         else:
-            levels = "{} {}".format(levels, self._app.variable_manager[variable_name].units)
+            levels = f"{levels} {self._app.variable_manager[variable_name].units}"
         max_step = self._app.value_with_units(max_step, self._app.variable_manager[variable_name].units)
         min_value_wuints = self._app.value_with_units(min_value, self._app.variable_manager[variable_name].units)
         max_value_wuints = self._app.value_with_units(max_value, self._app.variable_manager[variable_name].units)
@@ -931,7 +931,7 @@ class SetupParam(CommonOptimetrics, object):
         >>> oModule.EditSetup
         """
         if sweep_variable not in self._app.variable_manager.variables:
-            self._app.logger.error("Variable {} does not exists.".format(sweep_variable))
+            self._app.logger.error(f"Variable {sweep_variable} does not exists.")
             return False
         sweep_range = ""
         if not units:
@@ -939,17 +939,17 @@ class SetupParam(CommonOptimetrics, object):
         start_point = self._app.value_with_units(start_point, units)
         end_point = self._app.value_with_units(end_point, units)
         if variation_type == "LinearCount":
-            sweep_range = "LINC {} {} {}".format(start_point, end_point, step)
+            sweep_range = f"LINC {start_point} {end_point} {step}"
         elif variation_type == "LinearStep":
-            sweep_range = "LIN {} {} {}".format(start_point, end_point, self._app.value_with_units(step, units))
+            sweep_range = f"LIN {start_point} {end_point} {self._app.value_with_units(step, units)}"
         elif variation_type == "DecadeCount":
-            sweep_range = "DEC {} {} {}".format(start_point, end_point, step)
+            sweep_range = f"DEC {start_point} {end_point} {step}"
         elif variation_type == "OctaveCount":
-            sweep_range = "OCT {} {} {}".format(start_point, end_point, step)
+            sweep_range = f"OCT {start_point} {end_point} {step}"
         elif variation_type == "ExponentialCount":
-            sweep_range = "ESTP {} {} {}".format(start_point, end_point, step)
+            sweep_range = f"ESTP {start_point} {end_point} {step}"
         elif variation_type == "SingleValue":
-            sweep_range = "{}".format(start_point)
+            sweep_range = f"{start_point}"
         if not sweep_range:
             return False
         self._activate_variable(sweep_variable)
@@ -1007,7 +1007,7 @@ class SetupParam(CommonOptimetrics, object):
         undo_vals = {}
         for v in variables:
             if v not in existing_variables:
-                self._app.logger.error("Variable {} is not defined in the Parametric setup".format(v))
+                self._app.logger.error(f"Variable {v} is not defined in the Parametric setup")
                 return False
         legacy_update = self.auto_update
         self.auto_update = False
@@ -1179,7 +1179,7 @@ class ParametricSetups(object):
         >>> oModule.InsertSetup
         """
         if variable not in self._app.variable_manager.variables:
-            self._app.logger.error("Variable {} not found.".format(variable))
+            self._app.logger.error(f"Variable {variable} not found.")
             return False
         if not solution and not self._app.nominal_sweep:
             self._app.logger.error("At least one setup is needed.")

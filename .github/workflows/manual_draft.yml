@@ -17,31 +17,30 @@ on:
         options:
           - 'yes'
           - 'no'
-      test-windows:
-        description: "Testing solvers and coverage (Windows)"
+      test-general-windows:
+        description: "Testing general and coverage (Windows)"
         default: 'no'
         type: choice
         options:
           - 'yes'
           - 'no'
-      test-linux:
-        description: "Testing solvers and coverage (Linux)"
+      test-general-linux:
+        description: "Testing general and coverage (Linux)"
         type: choice
         default: 'no'
         options:
           - 'yes'
           - 'no'
+
+env:
+  MAIN_PYTHON_VERSION: '3.10'
+  PYTEST_ARGUMENTS: '-vvv --color=yes -ra --durations=25 --maxfail=10 --cov=ansys.aedt.core --cov-report=html --cov-report=xml --junitxml=junit/test-results.xml'
 
 jobs:
 
-# # =================================================================================================
-# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# # =================================================================================================
-
-  test-solvers-windows:
+  system-test-solvers-windows:
     name: Testing solvers and coverage (Windows)
     if: github.event.inputs.test-solvers-windows == 'yes'
-    needs: [smoke-tests]
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
@@ -73,40 +72,35 @@ jobs:
           pip uninstall --yes vtk
           pip install --extra-index-url https://wheels.vtk.org vtk-osmesa
 
-      - name: Run tests on _unittest_solvers
+      - name: Run tests marked with 'solvers'
         env:
           PYTHONMALLOC: malloc
         run: |
           .venv\Scripts\Activate.ps1
-          pytest --durations=50 -v --cov=ansys.aedt.core --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
+          pytest ${{ env.PYTEST_ARGUMENTS }} -m solvers
 
       - uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          name: codecov-system-solver-tests
+          name: codecov-system-solvers-tests-windows
           file: ./coverage.xml
-          flags: system,solver
+          flags: system,solvers,windows
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@v4
         with:
-          name: pytest-solver-results
+          name: pytest-solvers-windows
           path: junit/test-results.xml
         if: ${{ always() }}
 
-# # =================================================================================================
-# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# # =================================================================================================
-
-  test-solvers-linux:
+  system-test-solvers-linux:
     name: Testing solvers and coverage (Linux)
     if: github.event.inputs.test-solvers-linux == 'yes'
-    needs: [smoke-tests]
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
       ANSYSEM_ROOT242: '/opt/AnsysEM/v242/Linux64'
       ANS_NODEPCHECK: '1'
-    steps:
+    steps:  
       - name: Install Git and checkout project
         uses: actions/checkout@v4
 
@@ -131,34 +125,29 @@ jobs:
           pip install .[tests]
           pip install pytest-azurepipelines
 
-      - name: Run tests on _unittest_solvers
+      - name: Run tests marked with 'solvers'
         run: |
           export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
           source .venv/bin/activate
-          pytest --durations=50 -v --cov=ansys.aedt.core --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
+          pytest ${{ env.PYTEST_ARGUMENTS }} -m solvers
 
       - uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          name: codecov-system-solver-tests
+          name: codecov-system-solvers-tests-linux
           file: ./coverage.xml
-          flags: system,solver
+          flags: system,solver,linux
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@v4
         with:
-          name: pytest-solver-results
+          name: pytest-solvers-linux
           path: junit/test-results.xml
         if: ${{ always() }}
 
-# # =================================================================================================
-# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# # =================================================================================================
-
-  test-windows:
-    name: Testing and coverage (Windows)
-    if: github.event.inputs.test-windows == 'yes'
-    needs: [smoke-tests]
+  system-tests-general-windows:
+    name: Testing general and coverage (Windows)
+    if: github.event.inputs.test-general-windows == 'yes'
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
@@ -190,7 +179,7 @@ jobs:
           pip uninstall --yes vtk
           pip install --extra-index-url https://wheels.vtk.org vtk-osmesa
 
-      - name: Run tests on _unittest
+      - name: Run tests marked with 'general'
         uses: nick-fields/retry@v3
         env:
           PYTHONMALLOC: malloc
@@ -200,30 +189,25 @@ jobs:
           timeout_minutes: 50
           command: |
             .venv\Scripts\Activate.ps1
-            pytest -n 4 --dist loadfile --durations=50 -v --cov=ansys.aedt.core --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
+            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile -m general
 
       - uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          name: codecov-system-tests
+          name: codecov-system-general-tests-windows
           file: ./coverage.xml
-          flags: system
+          flags: system,general,windows
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@v4
         with:
-          name: pytest-results
+          name: pytest-general-windows
           path: junit/test-results.xml
         if: ${{ always() }}
 
-# # =================================================================================================
-# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# # =================================================================================================
-
-  test-linux:
-    name: Testing and coverage (Linux)
-    if: github.event.inputs.test-linux == 'yes'
-    needs: [smoke-tests]
+  system-tests-general-linux:
+    name: Testing general and coverage (Linux)
+    if: github.event.inputs.test-general-linux == 'yes'
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
       ANSYSEM_ROOT242: '/opt/AnsysEM/v242/Linux64'
@@ -260,7 +244,7 @@ jobs:
           pip uninstall --yes vtk
           pip install --extra-index-url https://wheels.vtk.org vtk-osmesa
 
-      - name: Run tests on _unittest
+      - name: Run tests marked with 'general'
         uses: nick-fields/retry@v3
         with:
           max_attempts: 2
@@ -269,18 +253,18 @@ jobs:
           command: |
             export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
             source .venv/bin/activate
-            pytest -n 2 --dist loadfile --durations=50 -v --cov=ansys.aedt.core --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
+            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile -m general
 
       - uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          name: codecov-system-solver-tests
+          name: codecov-system-general-tests
           file: ./coverage.xml
-          flags: system,solver
+          flags: system,solver,linux
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@v4
         with:
-          name: pytest-solver-results
+          name: pytest-general-linux
           path: junit/test-results.xml
         if: ${{ always() }}

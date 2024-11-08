@@ -58,7 +58,7 @@ class ScatteringMethods(object):
         for i in excitation_names:
             k = excitation_names.index(i)
             while k < len(excitation_names):
-                spar.append("S({},{})".format(i, excitation_names[k]))
+                spar.append(f"S({i},{excitation_names[k]})")
                 k += 1
         return spar
 
@@ -101,9 +101,9 @@ class ScatteringMethods(object):
         for i in excitations:
             if not nets or (nets and [net for net in nets if net in i]):
                 if math_formula:
-                    spar.append("{}(S({},{}))".format(math_formula, i, i))
+                    spar.append(f"{math_formula}(S({i},{i}))")
                 else:
-                    spar.append("S({},{})".format(i, i))
+                    spar.append(f"S({i},{i})")
         return spar
 
     @pyaedt_function_handler(
@@ -166,16 +166,16 @@ class ScatteringMethods(object):
                     for y1 in y:
                         if x1[-2:] == y1[-2:]:
                             if math_formula:
-                                spar.append("{}(S({},{}))".format(math_formula, x1, y1))
+                                spar.append(f"{math_formula}(S({x1},{y1}))")
                             else:
-                                spar.append("S({},{})".format(x1, y1))
+                                spar.append(f"S({x1},{y1})")
                             break
         else:
             for i, j in zip(drivers, receivers):
                 if math_formula:
-                    spar.append("{}(S({},{}))".format(math_formula, i, j))
+                    spar.append(f"{math_formula}(S({i},{j}))")
                 else:
-                    spar.append("S({},{})".format(i, j))
+                    spar.append(f"S({i},{j})")
         return spar
 
     @pyaedt_function_handler(trlist="drivers", tx_prefix="drivers_prefix_name", net_list="nets")
@@ -214,9 +214,9 @@ class ScatteringMethods(object):
                 k = drivers.index(i) + 1
                 while k < len(drivers):
                     if math_formula:
-                        next_xtalks.append("{}(S({},{}))".format(math_formula, i, drivers[k]))
+                        next_xtalks.append(f"{math_formula}(S({i},{drivers[k]}))")
                     else:
-                        next_xtalks.append("S({},{})".format(i, drivers[k]))
+                        next_xtalks.append(f"S({i},{drivers[k]})")
                     k += 1
         return next_xtalks
 
@@ -284,9 +284,9 @@ class ScatteringMethods(object):
                 for k in receivers:
                     if not skip_same_index_couples or receivers.index(k) != drivers.index(i):
                         if math_formula:
-                            fext.append("{}(S({},{}))".format(math_formula, i, k))
+                            fext.append(f"{math_formula}(S({i},{k}))")
                         else:
-                            fext.append("S({},{})".format(i, k))
+                            fext.append(f"S({i},{k})")
         return fext
 
     @pyaedt_function_handler(setup_name="setup", sweep_name="sweep")
@@ -322,7 +322,7 @@ class ScatteringMethods(object):
             for s in self._app.setups:
                 if s.name == setup:
                     sweep = s.sweeps[0].name
-            solution = "{} : {}".format(setup, sweep)
+            solution = f"{setup} : {sweep}"
         else:
             solution = setup
         s_parameters = []

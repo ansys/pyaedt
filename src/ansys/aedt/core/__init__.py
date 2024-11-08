@@ -47,7 +47,7 @@ def deprecation_warning():
     # Define and use custom showwarning
     def custom_show_warning(message, category, filename, lineno, file=None, line=None):
         """Custom warning used to remove <stdin>:loc: pattern."""
-        print("{}: {}".format(category.__name__, message))
+        print(f"{category.__name__}: {message}")
 
     warnings.showwarning = custom_show_warning
 
@@ -74,7 +74,7 @@ from ansys.aedt.core.generic.general_methods import inner_project_settings
 
 # isort: on
 
-if not ("IronPython" in sys.version or ".NETFramework" in sys.version):  # pragma: no cover
+if not (".NETFramework" in sys.version):  # pragma: no cover
     import ansys.aedt.core.downloads as downloads
 from ansys.aedt.core.edb import Edb  # nosec
 from ansys.aedt.core.edb import Siwave  # nosec
@@ -105,7 +105,6 @@ from ansys.aedt.core.generic.general_methods import generate_unique_folder_name
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import generate_unique_project_name
 from ansys.aedt.core.generic.general_methods import inside_desktop
-from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import online_help

@@ -27,42 +27,45 @@ import itertools
 import os
 import re
 import subprocess
+import warnings
 
+from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-import matplotlib.pyplot as plt
-import numpy as np
-import skrf as rf
+
+try:
+    import numpy as np
+except ImportError:  # pragma: no cover
+    warnings.warn(
+        "The NumPy module is required to run some functionalities of TouchstoneData.\n"
+        "Install with \n\npip install numpy"
+    )
+    np = None
+
+try:
+    import matplotlib.pyplot as plt
+except ImportError:  # pragma: no cover
+    warnings.warn(
+        "The Matplotlib module is required to run functionalities of TouchstoneData.\n"
+        "Install with \n\npip install matplotlib"
+    )
+    plt = None
+
+try:
+    import skrf as rf
+except ImportError:  # pragma: no cover
+    warnings.warn(
+        "The Scikit-rf module is required to run functionalities of TouchstoneData.\n"
+        "Install with \n\npip install scikit-rf"
+    )
+    rf = None
+
 
 REAL_IMAG = "RI"
 MAG_ANGLE = "MA"
 DB_ANGLE = "DB"
 
 keys = {REAL_IMAG: ("real", "imag"), MAG_ANGLE: ("mag", "deg"), DB_ANGLE: ("db20", "deg")}
-
-
-def _parse_ports_name(file):
-    """Parse and interpret the option line in the touchstone file.
-
-    Parameters
-    ----------
-    file : str
-        Path of the touchstone file.
-
-    Returns
-    -------
-    List of str
-        Names of the ports in the touchstone file.
-
-    """
-    portnames = []
-    line = file.readline()
-    while not line.startswith("! Port"):
-        line = file.readline()
-    while line.startswith("! Port"):
-        portnames.append(line.split(" = ")[1].strip())
-        line = file.readline()
-    return portnames
 
 
 class TouchstoneData(rf.Network):
@@ -154,7 +157,7 @@ class TouchstoneData(rf.Network):
             List of tuples representing insertion loss excitations.
         """
         temp_list = self.get_insertion_loss_index(threshold=threshold)
-        if plot:  # pragma: no cover
+        if plot:
             for i in temp_list:
                 self.plot_s_db(*i, logx=self.log_x)
             plt.show()
@@ -182,9 +185,9 @@ class TouchstoneData(rf.Network):
             self.plot_s_db(*i, logx=self.log_x)
         if show:
             plt.show()
-        return plt
+        return True
 
-    def plot_return_losses(self):  # pragma: no cover
+    def plot_return_losses(self):
         """Plot all return losses.
 
         Returns
@@ -234,12 +237,13 @@ class TouchstoneData(rf.Network):
 
             ts_diff.renumber(port_order, new_port_order)
         else:
+            logger.error("Invalid input provided for 'port_ordering'.")
             return False
 
         ts_diff.se2gmm(num_of_diff_ports)
 
-        new_port_names = ["D{}".format(i) for i in np.arange(num_of_diff_ports)]
-        new_port_names.extend(["C{}".format(i) for i in np.arange(num_of_diff_ports)])
+        new_port_names = [f"D{i}" for i in np.arange(num_of_diff_ports)]
+        new_port_names.extend([f"C{i}" for i in np.arange(num_of_diff_ports)])
         ts_diff.port_names[: len(new_port_names)] = new_port_names
         return ts_diff
 
@@ -294,7 +298,7 @@ class TouchstoneData(rf.Network):
         receiver_list = [i for i in self.port_names if rx_prefix in i]
         values = []
         if len(trlist) != len(receiver_list):
-            print("TX and RX should be same length lists")
+            logger.error("TX and RX should be same length lists.")
             return False
         for i, j in zip(trlist, receiver_list):
             values.append([self.port_names.index(i), self.port_names.index(j)])
@@ -561,12 +565,12 @@ def find_touchstone_files(input_dir):
         Dictionary with the SNP file names as the key and the absolute path as the value.
     """
     out = {}
-    if not os.path.exists(input_dir):  # pragma: no cover
+    if not os.path.exists(input_dir):
         return out
     pat_snp = re.compile(r"\.s\d+p$", re.IGNORECASE)
-    sNpFiles = {f: os.path.join(input_dir, f) for f in os.listdir(input_dir) if re.search(pat_snp, f)}
+    files = {f: os.path.join(input_dir, f) for f in os.listdir(input_dir) if re.search(pat_snp, f)}
     pat_ts = re.compile("\.ts$")
     for f in os.listdir(input_dir):
         if re.search(pat_ts, f):
-            sNpFiles[f] = os.path.abspath(os.path.join(input_dir, f))
-    return sNpFiles
+            files[f] = os.path.abspath(os.path.join(input_dir, f))
+    return files

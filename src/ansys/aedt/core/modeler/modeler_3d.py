@@ -1042,6 +1042,7 @@ class Modeler3D(Primitives3D):
         enable_planar_merge="True",
         save_only_stl=False,
         preview=False,
+        merge_angle=1e-3,
     ):
         """Import Nastran file into 3D Modeler by converting the faces to stl and reading it. The solids are
         translated directly to AEDT format.
@@ -1070,10 +1071,13 @@ class Modeler3D(Primitives3D):
             Whether to import the model in HFSS or only generate the stl file.
         preview : bool, optional
             Whether to preview the model in pyvista or skip it.
+        merge_angle : float, optional
+            Angle in radians for which faces will be considered planar. Default is ``1e-3``.
 
         Returns
         -------
-        List of :class:`ansys.aedt.core.modeler.Object3d.Object3d`
+        List of :class:`ansys.aedt.core.modeler.Object3d.Object3d`, dict
+            New object created and nastran dictionary.
         """
         autosave = (
             True if self._app.odesktop.GetRegistryInt("Desktop/Settings/ProjectOptions/DoAutoSave") == 1 else False
@@ -1089,7 +1093,7 @@ class Modeler3D(Primitives3D):
             preview=preview,
         )
         if save_only_stl:
-            return output_stls
+            return output_stls, nas_to_dict
 
         self._app.desktop_class.close_windows()
         self.logger.info("Importing STL in 3D Modeler")
@@ -1100,8 +1104,9 @@ class Modeler3D(Primitives3D):
                     create_lightweigth_part=import_as_light_weight,
                     healing=False,
                     merge_planar_faces=enable_stl_merge,
+                    merge_angle=merge_angle,
                 )
-                self.logger.info("Model {} imported".format(os.path.split(output_stl)[-1]))
+                self.logger.info(f"Model {os.path.split(output_stl)[-1]} imported")
             self._app.save_project()
             if group_parts:
                 self.logger.info("Grouping parts...")
@@ -1112,13 +1117,11 @@ class Modeler3D(Primitives3D):
                         assembly_group_name = generate_unique_name(assembly, n=2)
                     new_group = []
                     for el in nas_to_dict["Assemblies"][assembly]["Solids"].keys():
-                        obj_names = [i for i in aedt_objs if i.startswith("Solid_{}".format(el))]
+                        obj_names = [i for i in aedt_objs if i.startswith(f"Solid_{el}")]
                         if obj_names:
                             new_group.append(self.create_group(obj_names, group_name=str(el)))
                     for el in nas_to_dict["Assemblies"][assembly]["Triangles"].keys():
-                        obj_names = [
-                            i for i in aedt_objs if i == "Sheet_{}".format(el) or i.startswith("Sheet_{}_".format(el))
-                        ]
+                        obj_names = [i for i in aedt_objs if i == f"Sheet_{el}" or i.startswith(f"Sheet_{el}_")]
                         if obj_names:
                             new_group.append(self.create_group(obj_names, group_name=str(el)))
                     if assembly_group_name in list(self.oeditor.GetChildNames("Groups")):
@@ -1158,7 +1161,7 @@ class Modeler3D(Primitives3D):
                                 continue
                             p_line = self.create_polyline(
                                 points,
-                                name="Poly_{}_{}".format(line_name, id),
+                                name=f"Poly_{line_name}_{id}",
                                 xsection_type="Circle" if lines_thickness else None,
                                 xsection_width="x_section_thickness" if lines_thickness else 1,
                             )
@@ -1171,7 +1174,7 @@ class Modeler3D(Primitives3D):
                                 for i in range(len(points) - 1):
                                     p_line = self.create_polyline(
                                         points[i : i + 2],
-                                        name=generate_unique_name("Poly_{}_{}".format(line_name, id)),
+                                        name=generate_unique_name(f"Poly_{line_name}_{id}"),
                                         xsection_type="Circle" if lines_thickness else None,
                                         xsection_width="x_section_thickness" if lines_thickness else 1,
                                     )
@@ -1204,7 +1207,7 @@ class Modeler3D(Primitives3D):
         self._app.oproject.SetActiveDesign(self._app.design_name)
         self._app.odesktop.EnableAutoSave(autosave)
         self.logger.info_timer("Nastran model correctly imported.")
-        return new_objects
+        return new_objects, nas_to_dict
 
     @pyaedt_function_handler()
     def import_from_openstreet_map(
@@ -1503,7 +1506,7 @@ class Modeler3D(Primitives3D):
         try:
             region = self._app.get_oo_object(self._app.oeditor, region_name)
             if not region:
-                self.logger.error("{} does not exist.".format(region))
+                self.logger.error(f"{region} does not exist.")
                 return False
             create_region_name = region.GetChildNames()[0]
             self.oeditor.ChangeProperty(
@@ -1529,7 +1532,7 @@ class Modeler3D(Primitives3D):
 
             if validation_errors:
                 message = ",".join(validation_errors)
-                self.logger.error("Settings update failed. {0}".format(message))
+                self.logger.error(f"Settings update failed. {message}")
                 return False
             return True
         except (GrpcApiError, SystemExit):

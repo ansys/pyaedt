@@ -29,6 +29,7 @@ import os
 import shutil
 import sys
 import tempfile
+import warnings
 
 from ansys.aedt.core.generic.constants import AllowedMarkers
 from ansys.aedt.core.generic.constants import EnumUnits
@@ -40,11 +41,13 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 
-pd = None
-
 try:
     import pandas as pd
-except ImportError:
+except ImportError:  # pragma: no cover
+    warnings.warn(
+        "The Matplotlib module is required to run functionalities of ansys.aedt.core.visualization.post.field_data.\n"
+        "Install with \n\npip install matplotlib"
+    )
     pd = None
 
 
@@ -1079,9 +1082,7 @@ class FieldPlot:
                         else:
                             nonmodel_faces.append(str(index))
                     except Exception:
-                        self._postprocessor.logger.debug(
-                            "Something went wrong while processing surface {}.".format(index)
-                        )
+                        self._postprocessor.logger.debug(f"Something went wrong while processing surface {index}.")
             info.append("Surface")
             if model_faces:
                 info.append("FacesList")
@@ -1262,21 +1263,19 @@ class FieldPlot:
             raise AttributeError("``points`` argument is invalid.")
         if filename is not None:
             if not os.path.isdir(os.path.dirname(filename)):
-                raise AttributeError("Specified path ({}) does not exist".format(filename))
+                raise AttributeError(f"Specified path ({filename}) does not exist")
 
         # Create markers
         u = self._postprocessor._app.modeler.model_units
         added_points_name = []
         for pt_name_idx, pt in enumerate(points_value):
             try:
-                pt = [c if isinstance(c, str) else "{}{}".format(c, u) for c in pt]
+                pt = [c if isinstance(c, str) else f"{c}{u}" for c in pt]
                 self.oField.AddMarkerToPlot(pt, self.name)
                 if points_name is not None:
                     added_points_name.append(points_name[pt_name_idx])
             except (GrpcApiError, SystemExit) as e:  # pragma: no cover
-                self._postprocessor.logger.error(
-                    "Point {} not added. Check if it lies inside the plot.".format(str(pt))
-                )
+                self._postprocessor.logger.error(f"Point {str(pt)} not added. Check if it lies inside the plot.")
                 raise e
 
         # Export data

@@ -34,7 +34,6 @@ import re
 from ansys.aedt.core.application.analysis_3d_layout import FieldAnalysis3DLayout
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import parse_excitation_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -292,28 +291,28 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         if len(a) > 0:
             if is_wave_port:
                 self.modeler.change_property(
-                    assignment="Excitations:{}".format(a[0]),
+                    assignment=f"Excitations:{a[0]}",
                     name="HFSS Type",
                     value="Wave",
                     aedt_tab="EM Design",
                 )
                 self.modeler.change_property(
-                    assignment="Excitations:{}".format(a[0]),
+                    assignment=f"Excitations:{a[0]}",
                     name="Horizontal Extent Factor",
                     value=str(wave_horizontal_extension),
                     aedt_tab="EM Design",
                 )
                 if "Vertical Extent Factor" in list(
-                    self.modeler.oeditor.GetProperties("EM Design", "Excitations:{}".format(a[0]))
+                    self.modeler.oeditor.GetProperties("EM Design", f"Excitations:{a[0]}")
                 ):
                     self.modeler.change_property(
-                        assignment="Excitations:{}".format(a[0]),
+                        assignment=f"Excitations:{a[0]}",
                         name="Vertical Extent Factor",
                         value=str(wave_vertical_extension),
                         aedt_tab="EM Design",
                     )
                 self.modeler.change_property(
-                    assignment="Excitations:{}".format(a[0]),
+                    assignment=f"Excitations:{a[0]}",
                     name="PEC Launch Width",
                     value=str(wave_launcher),
                     aedt_tab="EM Design",
@@ -560,18 +559,18 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         """
         listp = self.port_list
         if name in self.port_list:
-            self.logger.error("Port already existd on via {}.".format(name))
+            self.logger.error(f"Port already existd on via {name}.")
             return False
         self.oeditor.ToggleViaPin(["NAME:elements", via_signal])
 
         listnew = self.port_list
         a = [i for i in listnew if i not in listp]
         if len(a) > 0:
-            self.modeler.change_property("Excitations:{}".format(a[0]), "Port", name, "EM Design")
+            self.modeler.change_property(f"Excitations:{a[0]}", "Port", name, "EM Design")
             self.modeler.oeditor.AssignRefPort([name], via_reference)
             if deembed:
                 self.modeler.change_property(
-                    "Excitations:{}".format(name), "DeembedParasiticPortInductance", deembed, "EM Design"
+                    f"Excitations:{name}", "DeembedParasiticPortInductance", deembed, "EM Design"
                 )
             bound = self._update_port_info(name)
             if bound:
@@ -609,17 +608,15 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         """
         listp = self.port_list
         if via in self.port_list:
-            self.logger.error("Port already exists on via {}.".format(via))
+            self.logger.error(f"Port already exists on via {via}.")
             return False
         self.oeditor.ToggleViaPin(["NAME:elements", via])
 
         listnew = self.port_list
         a = [i for i in listnew if i not in listp]
         if len(a) > 0:
-            self.modeler.change_property(
-                "Excitations:{}".format(a[0]), "Radial Extent Factor", str(radial_extent), "EM Design"
-            )
-            self.modeler.change_property("Excitations:{}".format(a[0]), "Layer Alignment", alignment, "EM Design")
+            self.modeler.change_property(f"Excitations:{a[0]}", "Radial Extent Factor", str(radial_extent), "EM Design")
+            self.modeler.change_property(f"Excitations:{a[0]}", "Layer Alignment", alignment, "EM Design")
             if layer:
                 self.modeler.change_property(a[0], "Pad Port Layer", layer)
             bound = self._update_port_info(a[0])
@@ -1957,7 +1954,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         >>> oModule.LoadDiffPairsFromFile
         """
         if not os.path.isfile(input_file):  # pragma: no cover
-            raise ValueError("{}: Unable to find the specified file.".format(input_file))
+            raise ValueError(f"{input_file}: Unable to find the specified file.")
 
         try:
             new_file = os.path.join(os.path.dirname(input_file), generate_unique_name("temp") + ".txt")
@@ -2121,10 +2118,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
     @pyaedt_function_handler()
     def _update_port_info(self, port):
-        propnames = self.oeditor.GetProperties("EM Design", "Excitations:{}".format(port))
+        propnames = self.oeditor.GetProperties("EM Design", f"Excitations:{port}")
         props = {}
         for prop in propnames:
-            props[prop] = self.oeditor.GetPropertyValue("EM Design", "Excitations:{}".format(port), prop)
+            props[prop] = self.oeditor.GetPropertyValue("EM Design", f"Excitations:{port}", prop)
         return BoundaryObject3dLayout(self, port, props, "Port")
 
     @pyaedt_function_handler()
@@ -2294,7 +2291,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
                 self.oboundary.EditExcitations(
                     [
                         "NAME:Excitations",
-                        [source, "pwl({}, Freq)".format(ds_name_mag), "pwl({}, Freq)".format(ds_name_phase)],
+                        [source, f"pwl({ds_name_mag}, Freq)", f"pwl({ds_name_phase}, Freq)"],
                     ],
                     ["NAME:Terminations", [source, False, str(impedance) + "ohm", "0ohm"]],
                     ",".join(str_val),
@@ -2328,10 +2325,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         -------
         from ansys.aedt.core.modules.solutions.SolutionData
         """
-
-        if is_ironpython:  # pragma: no cover
-            self._logger.error("Function is only supported in CPython.")
-            return False
         all_categories = self.post.available_quantities_categories(context=show, is_siwave_dc=True)
         if category not in all_categories:
             return False  # pragma: no cover
@@ -2355,9 +2348,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         -------
         pandas.Dataframe
         """
-        if is_ironpython:  # pragma: no cover
-            self.logger.error("Method not supported in IronPython.")
-            return False
         import pandas as pd
 
         solution_data = self.get_dcir_solution_data(setup=setup, show="RL", category="Loop Resistance")
@@ -2373,7 +2363,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         data = {}
         for i in terms:
             data2 = []
-            for ex in ["LoopRes({},{})".format(i, j) for j in terms]:
+            for ex in [f"LoopRes({i},{j})" for j in terms]:
                 d = solution_data.data_magnitude(ex)
                 if d is not False:
                     data2.append(d[0])
@@ -2397,9 +2387,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         -------
         pandas.Dataframe
         """
-        if is_ironpython:  # pragma: no cover
-            self.logger.error("Method not supported in IronPython.")
-            return False
         import pandas as pd
 
         solution_data = self.get_dcir_solution_data(setup=setup, show="Sources", category="Voltage")
@@ -2413,7 +2400,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         data = {"Voltage": []}
         for t_name in terms:
-            ex = "V({})".format(t_name)
+            ex = f"V({t_name})"
             value = solution_data.data_magnitude(ex, convert_to_SI=True)
             if value is not False:
                 data["Voltage"].append(value[0])
@@ -2433,9 +2420,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         -------
         pandas.Dataframe
         """
-        if is_ironpython:
-            self.logger.error("Method not supported in IronPython.")
-            return False
         import pandas as pd
 
         cates = ["X", "Y", "Current", "Resistance", "IR Drop", "Power"]

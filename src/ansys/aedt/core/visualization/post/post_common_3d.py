@@ -207,6 +207,7 @@ class PostProcessor3D(PostProcessorCommon):
 
     @pyaedt_function_handler(list_objs="assignment")
     def _get_volume_objects(self, assignment):
+        obj_list = []
         if self._app.solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
             obj_list = []
             editor = self._app._odesign.SetActiveEditor("3D Modeler")
@@ -252,7 +253,7 @@ class PostProcessor3D(PostProcessorCommon):
                             name2refid[cs_id + 2] = name + ":XZ"
                 except Exception:
                     self.logger.debug(
-                        "Something went wrong with key {} while retrieving coordinate systems plane ids.".format(ds)
+                        f"Something went wrong with key {ds} while retrieving coordinate systems plane ids."
                     )  # pragma: no cover
         return name2refid
 
@@ -308,7 +309,7 @@ class PostProcessor3D(PostProcessorCommon):
                         plots[plot_name].GridColor = surf_setts["GridColor"]
                 except Exception:
                     self.logger.debug(
-                        "Something went wrong with setup {} while retrieving fields plot.".format(setup)
+                        f"Something went wrong with setup {setup} while retrieving fields plot."
                     )  # pragma: no cover
         return plots
 
@@ -339,7 +340,7 @@ class PostProcessor3D(PostProcessorCommon):
         oModule.EnterQty("OhmicLoss")
         oModule.EnterVol(assignment)
         oModule.CalcOp("Integrate")
-        name = "P_{}".format(assignment)  # Need to check for uniqueness !
+        name = f"P_{assignment}"  # Need to check for uniqueness !
         oModule.AddNamedExpression(name, "Fields")
         return name
 
@@ -468,7 +469,7 @@ class PostProcessor3D(PostProcessorCommon):
         >>> plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name)
         """
         intrinsics = self._app._check_intrinsics(intrinsics, phase, solution, return_list=True)
-        self.logger.info("Exporting {} field. Be patient".format(quantity))
+        self.logger.info(f"Exporting {quantity} field. Be patient")
         if not solution:
             solution = self._app.existing_analysis_sweeps[0]
         self.ofieldsreporter.CalcStack("clear")
@@ -485,7 +486,7 @@ class PostProcessor3D(PostProcessorCommon):
             try:
                 self.ofieldsreporter.EnterQty(quantity)
             except Exception:
-                self.logger.info("Quantity {} not present. Trying to get it from Stack".format(quantity))
+                self.logger.info(f"Quantity {quantity} not present. Trying to get it from Stack")
                 self.ofieldsreporter.CopyNamedExprToStack(quantity)
         obj_list = object_name
         if scalar_function:
@@ -644,11 +645,9 @@ class PostProcessor3D(PostProcessorCommon):
         if not solution:
             solution = self._app.existing_analysis_sweeps[0]
         if not file_name:
-            file_name = os.path.join(
-                self._app.working_directory, "{}_{}.fld".format(quantity, solution.replace(" : ", "_"))
-            )
+            file_name = os.path.join(self._app.working_directory, f"{quantity}_{solution.replace(' : ', '_')}.fld")
         elif os.path.isdir(file_name):
-            file_name = os.path.join(file_name, "{}_{}.fld".format(quantity, solution.replace(" : ", "_")))
+            file_name = os.path.join(file_name, f"{quantity}_{solution.replace(' : ', '_')}.fld")
         self.ofieldsreporter.CalcStack("clear")
         try:
             self.ofieldsreporter.EnterQty(quantity)
@@ -898,7 +897,7 @@ class PostProcessor3D(PostProcessorCommon):
         else:
             sample_points_file = os.path.join(self._app.working_directory, "temp_points.pts")
             with open_file(sample_points_file, "w") as f:
-                f.write("Unit={}\n".format(self.model_units))
+                f.write(f"Unit={self.model_units}\n")
                 for point in sample_points:
                     f.write(" ".join([str(i) for i in point]) + "\n")
             export_options = [
@@ -958,7 +957,7 @@ class PostProcessor3D(PostProcessorCommon):
                 output_dir = check_and_download_file(local_path, output_dir)
             return output_dir
         except Exception:  # pragma: no cover
-            self.logger.error("{} file format is not supported for this plot.".format(file_format))
+            self.logger.error(f"{file_format} file format is not supported for this plot.")
             return False
 
     @pyaedt_function_handler()
@@ -1206,7 +1205,7 @@ class PostProcessor3D(PostProcessorCommon):
         """
         intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
         if plot_name and plot_name in list(self.field_plots.keys()):
-            self.logger.info("Plot {} exists. returning the object.".format(plot_name))
+            self.logger.info(f"Plot {plot_name} exists. returning the object.")
             return self.field_plots[plot_name]
         return self._create_fieldplot(assignment, quantity, setup, intrinsics, "Line", plot_name, field_type=field_type)
 
@@ -1282,7 +1281,7 @@ class PostProcessor3D(PostProcessorCommon):
             self.logger.error("Field line traces is valid only for electrostatic solution")
             return False
         if plot_name and plot_name in list(self.field_plots.keys()):
-            self.logger.info("Plot {} exists. returning the object.".format(plot_name))
+            self.logger.info(f"Plot {plot_name} exists. returning the object.")
             return self.field_plots[plot_name]
         if not isinstance(seeding_faces, list):
             seeding_faces = [seeding_faces]
@@ -1291,7 +1290,7 @@ class PostProcessor3D(PostProcessorCommon):
             if self._app.modeler[face]:
                 seeding_faces_ids.append(self._app.modeler[face].id)
             else:
-                self.logger.error("Object {} doesn't exist in current design".format(face))
+                self.logger.error(f"Object {face} doesn't exist in current design")
                 return False
         in_volume_tracing_ids = []
         if not in_volume_tracing_objs:
@@ -1302,12 +1301,12 @@ class PostProcessor3D(PostProcessorCommon):
                 if self._app.modeler[obj]:
                     in_volume_tracing_ids.append(self._app.modeler[obj].id)
                 else:
-                    self.logger.error("Object {} doesn't exist in current design".format(obj))
+                    self.logger.error(f"Object {obj} doesn't exist in current design")
                     return False
         elif isinstance(in_volume_tracing_objs, list):
             for obj in in_volume_tracing_objs:
                 if not self._app.modeler[obj]:
-                    self.logger.error("Object {} doesn't exist in current design".format(obj))
+                    self.logger.error(f"Object {obj} doesn't exist in current design")
                     return False
         surface_tracing_ids = []
         if not surface_tracing_objs:
@@ -1318,12 +1317,12 @@ class PostProcessor3D(PostProcessorCommon):
                 if self._app.modeler[obj]:
                     surface_tracing_ids.append(self._app.modeler[obj].id)
                 else:
-                    self.logger.error("Object {} doesn't exist in current design".format(obj))
+                    self.logger.error(f"Object {obj} doesn't exist in current design")
                     return False
         elif isinstance(surface_tracing_objs, list):
             for obj in surface_tracing_objs:
                 if not self._app.modeler[obj]:
-                    self.logger.error("Object {} doesn't exist in current design".format(obj))
+                    self.logger.error(f"Object {obj} doesn't exist in current design")
                     return False
         seeding_faces_ids.insert(0, len(seeding_faces_ids))
         if in_volume_tracing_ids != [0]:
@@ -1342,36 +1341,53 @@ class PostProcessor3D(PostProcessorCommon):
         )
 
     @pyaedt_function_handler()
-    def _get_3dl_layers_nets(self, layers, nets, setup):
+    def _get_all_3dl_layers_nets(self, setup):
+        try:
+            get_ids = self._odesign.GetGeometryIdsForAllNetLayerCombinations(setup)
+        except:  # pragma no cover
+            get_ids = []
+        k = 0
+        get_ids_dict = {}
+        key = ""
+        list_to_add = []
+        while k < len(get_ids):
+            if get_ids[k].startswith("PlotGeomInfo"):
+                if key:
+                    get_ids_dict[key] = list_to_add
+                key = get_ids[k].replace("PlotGeomInfo for ", "").replace(" (net/layer combination):", "")
+                list_to_add = []
+            else:
+                try:
+                    list_to_add.append(int(get_ids[k]))
+                except ValueError:
+                    pass
+            k = k + 1
+        return get_ids_dict
+
+    @pyaedt_function_handler()
+    def _get_3dl_layers_nets(self, layers, nets, setup, include_dielectrics):
         lst_faces = []
         new_layers = []
+        ids_dict = self._get_all_3dl_layers_nets(setup)
         if not layers:
-            new_layers.extend(["{}".format(i) for i in self._app.modeler.edb.stackup.dielectric_layers.keys()])
+            if include_dielectrics:
+                new_layers.extend([f"{i}" for i in self._app.modeler.edb.stackup.dielectric_layers.keys()])
             for layer in self._app.modeler.edb.stackup.signal_layers.keys():
                 if not nets:
                     nets = list(self._app.modeler.edb.nets.nets.keys())
                 for el in nets:
-                    try:
-                        get_ids = self._odesign.GetGeometryIdsForNetLayerCombination(el, layer, setup)
-                    except:
-                        get_ids = []
-                    if isinstance(get_ids, (tuple, list)) and len(get_ids) > 2:
-                        lst_faces.extend([int(i) for i in get_ids[2:]])
-
+                    if f"{el}/{layer}" in ids_dict:
+                        lst_faces.extend(ids_dict[f"{el}/{layer}"])
         else:
             for layer in layers:
-                if layer in self._app.modeler.edb.stackup.dielectric_layers:
-                    new_layers.append("{}".format(layer))
+                if layer in self._app.modeler.edb.stackup.dielectric_layers and include_dielectrics:
+                    new_layers.append(f"{layer}")
                 elif layer in self._app.modeler.edb.stackup.signal_layers:
                     if not nets:
                         nets = list(self._app.modeler.edb.nets.nets.keys())
                     for el in nets:
-                        try:
-                            get_ids = self._odesign.GetGeometryIdsForNetLayerCombination(el, layer, setup)
-                        except:
-                            get_ids = []
-                        if isinstance(get_ids, (tuple, list)) and len(get_ids) > 2:
-                            lst_faces.extend([int(i) for i in get_ids[2:]])
+                        if f"{el}/{layer}" in ids_dict:
+                            lst_faces.extend(ids_dict[f"{el}/{layer}"])
         return lst_faces, new_layers
 
     @pyaedt_function_handler()
@@ -1388,7 +1404,7 @@ class PostProcessor3D(PostProcessorCommon):
                     if layer in v.layout_component.edb_object.stackup.signal_layers:
                         new_layers.append([layer] + nets)
                     elif layer in v.layout_component.edb_object.stackup.dielectric_layers:
-                        dielectrics.append("{}:{}".format(k, layer))
+                        dielectrics.append(f"{k}:{layer}")
         return dielectrics, new_layers
 
     @pyaedt_function_handler()
@@ -1397,9 +1413,9 @@ class PostProcessor3D(PostProcessorCommon):
     ):
         # type: (list, str, str, list, bool, dict, str) -> FieldPlot
         """Create a field plot of stacked layer plot.
-        This plot is valid from AEDT 2023 R2 and later in HFSS 3D Layout.
+        This plot is valid from AEDT 2023 R2 and later in HFSS 3D Layout. Nets can be used as a filter.
+        Dielectrics will be included into the plot.
         It works when a layout components in 3d modeler is used.
-        In order to plot on signal layers use the method ``create_fieldplot_layers_nets``.
 
         Parameters
         ----------
@@ -1416,6 +1432,9 @@ class PostProcessor3D(PostProcessorCommon):
             use in the export or ``LastAdaptive``.
         nets : list, optional
             List of nets to filter the field plot. Optional.
+        plot_on_surface : bool, optional
+            Whether if the plot has to be on surfaces or inside the objects.
+            It is applicable only to layout components. Default is ``True``.
         intrinsics : dict, str, optional
             Intrinsic variables required to compute the field before the export.
             These are typically: frequency, time and phase.
@@ -1451,11 +1470,11 @@ class PostProcessor3D(PostProcessorCommon):
             self.logger.error("This method requires AEDT 2023 R2 and Maxwell 3D Transient APhi Formulation.")
             return False
         if name and name in list(self.field_plots.keys()):
-            self.logger.info("Plot {} exists. returning the object.".format(name))
+            self.logger.info(f"Plot {name} exists. returning the object.")
             return self.field_plots[name]
 
         if self._app.design_type in ["HFSS 3D Layout Design"]:
-            lst_faces, new_layers = self._get_3dl_layers_nets(layers, nets, setup)
+            lst_faces, new_layers = self._get_3dl_layers_nets(layers, nets, setup, include_dielectrics=True)
             if new_layers:
                 plt = self._create_fieldplot(
                     new_layers, quantity, setup, intrinsics, "ObjList", name, create_plot=False
@@ -1486,12 +1505,89 @@ class PostProcessor3D(PostProcessorCommon):
                 return self._create_fieldplot(dielectrics, quantity, setup, intrinsics, "ObjList", name)
             return False
 
+    @pyaedt_function_handler()
+    def create_fieldplot_nets(
+        self, nets, quantity, setup=None, layers=None, plot_on_surface=True, intrinsics=None, name=None
+    ):
+        # type: (list, str, str, list, bool, dict, str) -> FieldPlot
+        """Create a field plot of stacked layer plot based on a net selections. Layers can be used as a filter.
+        Dielectrics will be excluded from the plot.
+        This plot is valid from AEDT 2023 R2 and later in HFSS 3D Layout.
+        It works when a layout components in 3d modeler is used.
+
+        Parameters
+        ----------
+        nets : list, optional
+            List of nets to filter the field plot.
+        quantity : str
+            Name of the quantity to plot.
+        setup : str, optional
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Make sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
+        layers : list, optional
+            List of layers to plot. For example:
+            ``["Layer1","Layer2"]``. If empty list is provided
+            all layers are considered.
+        intrinsics : dict, str, optional
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+            If it is a dictionary, keys depend on the solution type and can be expressed in lower or camel case as:
+
+            - ``"Freq"`` or ``"Frequency"``.
+            - ``"Time"``.
+            - ``"Phase"``.
+
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
+        plot_on_surface : bool, optional
+            Whether if the plot has to be on surfaces or inside the objects.
+            It is applicable only to layout components. Default is ``True``.
+        name : str, optional
+            Name of the field plot to create.
+
+        Returns
+        -------
+        :class:``ansys.aedt.core.modules.solutions.FieldPlot`` or bool
+            Plot object.
+
+        References
+        ----------
+        >>> oModule.CreateFieldPlot
+        """
+        intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
+        if not setup:
+            setup = self._app.existing_analysis_sweeps[0]
+        if nets is None:
+            nets = []
+        if not (
+            "APhi" in self.post_solution_type and settings.aedt_version >= "2023.2"
+        ) and not self._app.design_type in ["HFSS", "HFSS 3D Layout Design"]:
+            self.logger.error("This method requires AEDT 2023 R2 and Maxwell 3D Transient APhi Formulation.")
+            return False
+        if name and name in list(self.field_plots.keys()):
+            self.logger.info(f"Plot {name} exists. returning the object.")
+            return self.field_plots[name]
+
+        if self._app.design_type in ["HFSS 3D Layout Design"]:
+            lst_faces, new_layers = self._get_3dl_layers_nets(layers, nets, setup, include_dielectrics=False)
+            return self._create_fieldplot(lst_faces, quantity, setup, intrinsics, "FacesList", name)
+        else:
+            _, new_layers = self._get_3d_layers_nets(layers, nets)
+            if plot_on_surface:
+                plot_type = "LayerNetsExtFace"
+            else:
+                plot_type = "LayerNets"
+            return self._create_fieldplot(new_layers, quantity, setup, intrinsics, plot_type, name)
+
     @pyaedt_function_handler(quantity_name="quantity", setup_name="setup")
     def create_fieldplot_layers_nets(
         self, layers_nets, quantity, setup=None, intrinsics=None, plot_on_surface=True, plot_name=None
     ):
         # type: (list, str, str, dict, bool, str) -> FieldPlot
-        """Create a field plot of stacked layer plot.
+        """Create a field plot of stacked layer plot on specified matrix of layers and nets.
         This plot is valid from AEDT 2023 R2 and later in HFSS 3D Layout
         and any modeler where a layout component is used.
 
@@ -1522,7 +1618,8 @@ class PostProcessor3D(PostProcessorCommon):
             If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
             The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         plot_on_surface : bool, optional
-            Whether the plot is to be on the surface or volume of traces.
+            Whether if the plot has to be on surfaces or inside the objects.
+            It is applicable only to layout components. Default is ``True``.
         plot_name : str, optional
             Name of the field plot to create.
 
@@ -1544,13 +1641,23 @@ class PostProcessor3D(PostProcessorCommon):
         if intrinsics is None:
             intrinsics = {}
         if plot_name and plot_name in list(self.field_plots.keys()):
-            self.logger.info("Plot {} exists. returning the object.".format(plot_name))
+            self.logger.info(f"Plot {plot_name} exists. returning the object.")
             return self.field_plots[plot_name]
         if self._app.design_type == "HFSS 3D Layout Design":
             if not setup:
                 setup = self._app.existing_analysis_sweeps[0]
             lst = []
+            if len(layers_nets) == 0:
+
+                dicts_in = self._get_all_3dl_layers_nets(setup)
+                for _, v in dicts_in.items():
+                    lst.extend(v)
             for layer in layers_nets:
+                if len(layer) == 1:
+                    dicts_in = self._get_all_3dl_layers_nets(setup)
+                    for v, i in dicts_in.items():
+                        if v.split("/")[1] == layer[0] or v.split("/")[0] == layer[0]:
+                            lst.extend(i)
                 for el in layer[1:]:
                     el = "<no-net>" if el == "no-net" else el
                     try:
@@ -1626,7 +1733,7 @@ class PostProcessor3D(PostProcessorCommon):
         >>> oModule.CreateFieldPlot
         """
         if plot_name and plot_name in list(self.field_plots.keys()):
-            self.logger.info("Plot {} exists. returning the object.".format(plot_name))
+            self.logger.info(f"Plot {plot_name} exists. returning the object.")
             return self.field_plots[plot_name]
         if not isinstance(assignment, (list, tuple)):
             assignment = [assignment]
@@ -1716,7 +1823,7 @@ class PostProcessor3D(PostProcessorCommon):
         if intrinsics is None:
             intrinsics = {}
         if plot_name and plot_name in list(self.field_plots.keys()):
-            self.logger.info("Plot {} exists. returning the object.".format(plot_name))
+            self.logger.info(f"Plot {plot_name} exists. returning the object.")
             return self.field_plots[plot_name]
         if filter_objects:
             filter_objects = self._app.modeler.convert_to_selections(filter_objects, True)
@@ -1793,7 +1900,7 @@ class PostProcessor3D(PostProcessorCommon):
         intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
 
         if plot_name and plot_name in list(self.field_plots.keys()):
-            self.logger.info("Plot {} exists. returning the object.".format(plot_name))
+            self.logger.info(f"Plot {plot_name} exists. returning the object.")
             return self.field_plots[plot_name]
         return self._create_fieldplot(
             obj_list, quantity, setup, intrinsics, list_type, plot_name, field_type=field_type
@@ -2137,7 +2244,7 @@ class PostProcessor3D(PostProcessorCommon):
         if export_as_single_objects:
             files_exported = []
             for el in assignment:
-                fname = os.path.join(export_path, "{}.obj".format(el))
+                fname = os.path.join(export_path, f"{el}.obj")
                 self._app.modeler.oeditor.ExportModelMeshToFile(fname, [el])
 
                 fname = check_and_download_file(fname)
@@ -2581,26 +2688,26 @@ class PostProcessor3D(PostProcessorCommon):
         if output_type == "boundary":
             for comp, value in power_dict.items():
                 if round(value, 3) != 0.0:
-                    self.logger.info("The power of {} is {} {}".format(comp, str(round(value, 3)), units))
-            self.logger.info("The total power is {} {}".format(str(round(sum(power_dict.values()), 3)), units))
+                    self.logger.info(f"The power of {comp} is {str(round(value, 3))} {units}")
+            self.logger.info(f"The total power is {str(round(sum(power_dict.values()), 3))} {units}")
             return power_dict, sum(power_dict.values())
 
         elif output_type == "component":  # pragma: no cover
             for comp, value in power_dict_obj.items():
                 if round(value, 3) != 0.0:
-                    self.logger.info("The power of {} is {} {}".format(comp, str(round(value, 3)), units))
-            self.logger.info("The total power is {} {}".format(str(round(sum(power_dict_obj.values()), 3)), units))
+                    self.logger.info(f"The power of {comp} is {str(round(value, 3))} {units}")
+            self.logger.info(f"The total power is {str(round(sum(power_dict_obj.values()), 3))} {units}")
             return power_dict_obj, sum(power_dict_obj.values())
 
         else:  # pragma: no cover
             for comp, value in power_dict.items():
                 if round(value, 3) != 0.0:
-                    self.logger.info("The power of {} is {} {}".format(comp, str(round(value, 3)), units))
-            self.logger.info("The total power is {} {}".format(str(round(sum(power_dict.values()), 3)), units))
+                    self.logger.info(f"The power of {comp} is {str(round(value, 3))} {units}")
+            self.logger.info(f"The total power is {str(round(sum(power_dict.values()), 3))} {units}")
             for comp, value in power_dict_obj.items():
                 if round(value, 3) != 0.0:
-                    self.logger.info("The power of {} is {} {}".format(comp, str(round(value, 3)), units))
-            self.logger.info("The total power is {} {}".format(str(round(sum(power_dict_obj.values()), 3)), units))
+                    self.logger.info(f"The power of {comp} is {str(round(value, 3))} {units}")
+            self.logger.info(f"The total power is {str(round(sum(power_dict_obj.values()), 3))} {units}")
             return power_dict_obj, sum(power_dict_obj.values()), power_dict, sum(power_dict.values())
 
     @pyaedt_function_handler()
@@ -2935,9 +3042,7 @@ class PostProcessor3D(PostProcessorCommon):
                 else:
                     mag = 0
                 phase = 0
-                edit_sources_ctxt.append(
-                    ["Name:=", "{}".format(each), "Magnitude:=", "{}W".format(mag), "Phase:=", "{}deg".format(phase)]
-                )
+                edit_sources_ctxt.append(["Name:=", f"{each}", "Magnitude:=", f"{mag}W", "Phase:=", f"{phase}deg"])
             self.post_osolution.EditSources(edit_sources_ctxt)
 
             trace_name = "rETheta"

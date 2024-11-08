@@ -47,9 +47,9 @@ def load_entire_aedt_file(filename):
 
     """
     settings.logger.reset_timer()
-    settings.logger.info("Parsing {}.".format(filename))
+    settings.logger.info(f"Parsing {filename}.")
     f_d = _load_entire_aedt_file(os.path.normpath(filename))
-    settings.logger.info_timer("File {} correctly loaded.".format(filename))
+    settings.logger.info_timer(f"File {filename} correctly loaded.")
     return f_d
 
 
@@ -302,7 +302,7 @@ def _decode_recognized_key(keyword, line, d):
             li += 1
         _count = li - 1
     else:  # pragma: no cover
-        raise AttributeError("Keyword {} is supposed to be in the recognized_keywords list".format(keyword))
+        raise AttributeError(f"Keyword {keyword} is supposed to be in the recognized_keywords list")
     return True
 
 
@@ -400,12 +400,12 @@ def _walk_through_structure(keyword, save_dict, design_name=None):
 
     """
     global _count
-    begin_key = "$begin '{}'".format(keyword)
-    end_key = "$end '{}'".format(keyword)
+    begin_key = f"$begin '{keyword}'"
+    end_key = f"$end '{keyword}'"
     design_key = None
     design_found = True
     if design_name:
-        design_key = "Name='{}'".format(design_name)
+        design_key = f"Name='{design_name}'"
         design_found = False
     found = False
     saved_value = None

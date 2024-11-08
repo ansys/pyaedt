@@ -117,13 +117,13 @@ class PostProcessorIcepak(PostProcessor3D):
 
         if export_file is None:
             path = self._app.temp_directory
-            base_name = "{}_{}_FanOpPoint".format(self._app.project_name, self._app.design_name)
+            base_name = f"{self._app.project_name}_{self._app.design_name}_FanOpPoint"
             export_file = os.path.join(path, base_name + ".csv")
             while os.path.exists(export_file):
                 file_name = generate_unique_name(base_name)
                 export_file = os.path.join(path, file_name + ".csv")
         if setup_name is None:
-            setup_name = "{} : {}".format(self._app.get_setups()[0], self._app.solution_type)
+            setup_name = f"{self._app.get_setups()[0]} : {self._app.solution_type}"
         if time_step is None:
             time_step = ""
             if self._app.solution_type == "Transient":
@@ -336,7 +336,7 @@ class PostProcessorIcepak(PostProcessor3D):
             elif self._app.monitor.point_monitors.get(monitor, None):
                 field_type = "Volume"
             else:
-                raise AttributeError("Monitor {} is not found in the design.".format(monitor))
+                raise AttributeError(f"Monitor {monitor} is not found in the design.")
             fs = self.create_field_summary()
             fs.add_calculation(
                 "Monitor", field_type, monitor, quantity, side=side, ref_temperature=ref_temperature, time=time

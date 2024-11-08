@@ -1338,9 +1338,7 @@ class ModelPlotter(CommonPlotter):
 
         def s_callback():  # pragma: no cover
             """save screenshots"""
-            exp = os.path.join(
-                path_image, "{}{}{}".format(root_name, datetime.now().strftime("%Y_%M_%d_%H-%M-%S"), format)
-            )
+            exp = os.path.join(path_image, f'{root_name}{datetime.now().strftime("%Y_%M_%d_%H-%M-%S")}{format}')
             self.pv.screenshot(exp, return_img=False)
 
         self.pv.add_key_event("s", s_callback)
@@ -1397,8 +1395,8 @@ class ModelPlotter(CommonPlotter):
         -------
         bool
         """
-
-        assert len(self.frames) > 0, "Number of Fields have to be greater than 1 to do an animation."
+        if len(self.frames) <= 0:
+            raise RuntimeError("Number of Fields have to be greater than 1 to do an animation.")
         if self.is_notebook:
             self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=True, window_size=self.windows_size)
         else:
@@ -1528,7 +1526,7 @@ class ModelPlotter(CommonPlotter):
         try:
             self.pv.update(1, force_redraw=True)
         except Exception:
-            pass
+            pyaedt_logger.debug("Something went wrong while updating plotter.")
         if self.gif_file:
             first_loop = True
             self.pv.write_frame()
