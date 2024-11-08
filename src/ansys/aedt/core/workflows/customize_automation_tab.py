@@ -280,6 +280,7 @@ def add_script_to_menu(
         d = list(_desktop_sessions.values())[0]
         personal_lib = d.personallib
         aedt_version = d.aedt_version_id
+        d.logger.error("WE ARE HERE 2.")
     if script_file and not os.path.exists(script_file):  # pragma: no cover
         logger.error("Script does not exists.")
         return False
@@ -357,15 +358,12 @@ def __tab_map(product):  # pragma: no cover
 def run_command(command: List[str], desktop_object):  # pragma: no cover
     """Run a command through subprocess."""
     try:
-        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)  # nosec
-        _, stderr = process.communicate()
-        ret_code = process.returncode
-        if ret_code != 0:
-            desktop_object.logger.error("Error occurred:", stderr.decode("utf-8"))
-        return ret_code
-    except Exception as e:
-        desktop_object.logger.error("Exception occurred:", str(e))
-        return 1  # Return non-zero exit code for indicating an error
+        subprocess.run(command, check=True, capture_output=True, text=True)  # nosec
+    except subprocess.CalledProcessError as e:
+        desktop_object.logger.error("Error occurred:", e.stderr)
+        return e.returncode
+
+    return 0
 
 
 def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install=True):  # pragma: no cover
@@ -386,6 +384,8 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
     -------
     bool
     """
+    print("WE ARE HERE.")
+    desktop_object.logger.error("WE ARE HERE.")
     toolkits = available_toolkits()
     toolkit_info = None
     product_name = None
