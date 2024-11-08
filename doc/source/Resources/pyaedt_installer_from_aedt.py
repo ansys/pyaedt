@@ -48,6 +48,7 @@ DISCLAIMER = (
     "Do you want to proceed ?"
 )
 
+
 def run_pyinstaller_from_c_python(oDesktop):
     # Iron Python script to create the virtual environment and install PyAEDT
     # Get AEDT information
@@ -237,9 +238,27 @@ def install_pyaedt():
                 # Extracted folder.
                 unzipped_path = wheel_pyaedt
             if args.version <= "231":
-                subprocess.call([pip_exe, "install", "--no-cache-dir", "--no-index", "--find-links={}".format(unzipped_path), "pyaedt[all,dotnet]"])
+                subprocess.call(
+                    [
+                        pip_exe,
+                        "install",
+                        "--no-cache-dir",
+                        "--no-index",
+                        "--find-links={}".format(unzipped_path),
+                        "pyaedt[all,dotnet]",
+                    ]
+                )
             else:
-                subprocess.call([pip_exe, "install", "--no-cache-dir", "--no-index", "--find-links={}".format(unzipped_path), "pyaedt[installer]"])
+                subprocess.call(
+                    [
+                        pip_exe,
+                        "install",
+                        "--no-cache-dir",
+                        "--no-index",
+                        "--find-links={}".format(unzipped_path),
+                        "pyaedt[installer]",
+                    ]
+                )
 
         else:
             subprocess.call([python_exe, "-m", "pip", "install", "--upgrade", "pip"])
@@ -271,9 +290,27 @@ def install_pyaedt():
                 # Extract all contents to a directory. (You can specify a different extraction path if needed.)
                 zip_ref.extractall(unzipped_path)
             if args.version <= "231":
-                subprocess.call([pip_exe, "install", "--no-cache-dir", "--no-index", "--find-links={}".format(unzipped_path), "pyaedt[all]=='0.9.0'"])
+                subprocess.call(
+                    [
+                        pip_exe,
+                        "install",
+                        "--no-cache-dir",
+                        "--no-index",
+                        "--find-links={}".format(unzipped_path),
+                        "pyaedt[all]=='0.9.0'",
+                    ]
+                )
             else:
-                subprocess.call([pip_exe, "install", "--no-cache-dir", "--no-index", "--find-links={}".format(unzipped_path), "pyaedt[installer]"])
+                subprocess.call(
+                    [
+                        pip_exe,
+                        "install",
+                        "--no-cache-dir",
+                        "--no-index",
+                        "--find-links={}".format(unzipped_path),
+                        "pyaedt[installer]",
+                    ]
+                )
         else:
             if args.version <= "231":
                 subprocess.call([pip_exe, "--default-timeout=1000", "install", "pyaedt[all]=='0.9.0'"])
@@ -295,12 +332,13 @@ def is_student_version(oDesktop):
 
 def validate_disclaimer():
     """Display dialog box and evaluate the response to the disclaimer."""
+    from System.Windows.Forms import DialogResult
     from System.Windows.Forms import MessageBox
     from System.Windows.Forms import MessageBoxButtons
-    from System.Windows.Forms import DialogResult
-        
+
     response = MessageBox.Show(DISCLAIMER, "Disclaimer", MessageBoxButtons.YesNo)
     return response == DialogResult.Yes
+
 
 if __name__ == "__main__":
 
