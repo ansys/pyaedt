@@ -2042,9 +2042,9 @@ class Object3d(object):
             vArg2.append("ChamferType:="), vArg2.append("Left Distance-Right Distance")
         elif chamfer_type == 2:
             vArg2.append("Angle:="), vArg2.append(str(angle) + "deg")
-            vArg2.append("ChamferType:="), vArg2.append("Left Distance-Right Distance")
+            vArg2.append("ChamferType:="), vArg2.append("Left Distance-Angle")
         elif chamfer_type == 3:
-            vArg2.append("LeftDistance:="), vArg2.append(str(angle) + "deg")
+            vArg2.append("Angle:="), vArg2.append(str(angle) + "deg")
             vArg2.append("RightDistance:="), vArg2.append(self._primitives._arg_with_dim(right_distance))
             vArg2.append("ChamferType:="), vArg2.append("Right Distance-Angle")
         else:
