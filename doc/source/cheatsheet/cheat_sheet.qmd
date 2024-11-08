@@ -1,0 +1,56 @@
+---
+title: PyAEDT cheat sheet
+format: cheat_sheet-pdf
+params:
+  version: main
+footer: PyAEDT
+footerlinks:
+  - urls: 'https://aedt.docs.pyansys.com/version/stable/'
+    text: Documentation
+  - urls: 'https://aedt.docs.pyansys.com/version/stable/Getting_started/index.html'
+    text: Getting started
+  - urls: 'https://examples.aedt.docs.pyansys.com/'
+    text: Examples
+  - urls: 'https://aedt.docs.pyansys.com/version/stable/User_guide/index.html'
+    text: User guide
+  - urls: 'https://aedt.docs.pyansys.com/version/stable/API/index.html'
+    text: API reference
+execute:
+    # output: false
+    eval: false
+
+latex-clean: true
+jupyter:
+  jupytext:
+    text_representation:
+      extension: .qmd
+      format_name: quarto
+      format_version: '1.0'
+      jupytext_version: 1.16.1
+  kernelspec:
+    display_name: Python 3 (ipykernel)
+    language: python
+    name: python3
+---
+
+# Launch PyAEDT
+
+## Launch an HFSS instance locally
+```{python}
+#| eval: false
+from ansys.aedt.core import Hfss
+hfss = Hfss(
+    version='2024.2',
+    new_desktop=True,
+    close_on_exit=True,
+    non_graphical=False,
+    project="project_name",
+    design="design_name"
+)
+```
+
+## Exit your local instance:
+```{python}
+#| eval: false
+hfss.release_desktop()
+```
