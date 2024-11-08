@@ -4778,6 +4778,7 @@ class GeometryModeler(Modeler):
         reduce_percentage=0,
         reduce_error=0,
         merge_planar_faces=True,
+        merge_angle=0.02,
     ):
         """Import a CAD model.
 
@@ -4787,9 +4788,6 @@ class GeometryModeler(Modeler):
             Full path and name of the CAD file.
         healing : bool, optional
             Whether to perform healing. The default is ``False``, in which
-            case healing is not performed.
-        healing : int, optional
-            Whether to perform healing. The default is ``0``, in which
             case healing is not performed.
         refresh_all_ids : bool, optional
             Whether to refresh all IDs after the CAD file is loaded. The
@@ -4819,6 +4817,8 @@ class GeometryModeler(Modeler):
             Stl error percentage during reduce operation. Default is  ``0``.
         merge_planar_faces : bool, optional
             Stl automatic planar face merge during import. Default is ``True``.
+        merge_angle : float, optional
+            Stl import angle in radians for which faces will be considered planar. Default is ``2e-2``.
 
         Returns
         -------
@@ -4845,7 +4845,7 @@ class GeometryModeler(Modeler):
         vArg1.append("CreateGroup:="), vArg1.append(create_group)
         vArg1.append("STLFileUnit:="), vArg1.append("Auto")
         vArg1.append("MergeFacesAngle:="), vArg1.append(
-            0.02 if input_file.endswith(".stl") and merge_planar_faces else -1
+            merge_angle if input_file.endswith(".stl") and merge_planar_faces else -1
         )
         if input_file.endswith(".stl"):
             vArg1.append("HealSTL:="), vArg1.append(heal_stl)

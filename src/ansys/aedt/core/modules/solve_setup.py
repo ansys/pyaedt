@@ -80,6 +80,17 @@ class CommonSetup(PropsManager, object):
         dict
             Dictionary which keys are typically Freq, Phase or Time."""
         intr = {}
+        if "HFSS 3D Layout" in self._app.design_type:  # pragma no cover
+            try:
+                intr["Freq"] = (
+                    self._app.modeler.edb.setups[self.name]
+                    .adaptive_settings.adaptive_frequency_data_list[0]
+                    .adaptive_frequency
+                )
+                intr["Phase"] = "0deg"
+                return intr
+            except Exception:
+                settings.logger.debug("Failed to retrieve adaptive frequency.")
         for i in self._app.design_solutions.intrinsics:
             if i == "Freq" and "Frequency" in self.props:
                 intr[i] = self.props["Frequency"]
