@@ -256,6 +256,9 @@ def button_is_clicked(
             name = selected_toolkit_info.get("name")
             icon = os.path.abspath(os.path.join(product_path, selected_toolkit_info.get("icon")))
 
+    valid_name = name is not None and not os.path.isdir(name)
+    valid_file = file is not None and os.path.isfile(file)
+
     if selected_toolkit_name != "Custom" and selected_toolkit_info.get("pip"):
         if is_toolkit_installed(selected_toolkit_name, toolkit_level) and install_action:
             desktop.logger.info(f"Updating {selected_toolkit_name}")
@@ -277,7 +280,8 @@ def button_is_clicked(
         else:
             desktop.logger.info(f"{selected_toolkit_name} not installed")
 
-    else:
+    elif valid_name and valid_file:
+
         if install_action:
             desktop.logger.info("Install {}".format(name))
 
@@ -287,6 +291,7 @@ def button_is_clicked(
                 file = os.path.join(
                     os.path.dirname(ansys.aedt.core.workflows.templates.__file__), "extension_template.py"
                 )
+
             if os.path.isfile(executable_interpreter):
                 template_file = "run_pyaedt_toolkit_script"
                 if selected_toolkit_info:
