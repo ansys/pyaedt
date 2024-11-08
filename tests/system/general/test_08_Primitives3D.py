@@ -2035,3 +2035,39 @@ class TestClass:
             x_uv="(sin(_v*2*pi)^2+1.2)*cos(_u*2*pi)", y_uv="(sin(_v*2*pi)^2+1.2)*sin(_u*2*pi)", z_uv="_v*2"
         )
         assert surf.name in self.aedtapp.modeler.sheet_names
+
+    def test_95_update_geometry_property(self):
+        self.aedtapp.insert_design("Update_properties")
+        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [1, 2, 3])
+        box2 = self.aedtapp.modeler.create_box([10, 10, 10], [1, 2, 3])
+        box1.display_wireframe = False
+        box2.display_wireframe = False
+
+        assert not self.aedtapp.modeler.update_geometry_property([box1.name], "wireframe", True)
+        assert not self.aedtapp.modeler.update_geometry_property([box1.name], "material_name", "invented")
+        assert not self.aedtapp.modeler.update_geometry_property([box1.name], "color", "red")
+
+        self.aedtapp.modeler.update_geometry_property([box1.name], "display_wireframe", True)
+        assert box1.display_wireframe
+
+        self.aedtapp.modeler.update_geometry_property([box1.name, box2.name], "display_wireframe", True)
+        assert box2.display_wireframe
+
+        self.aedtapp.modeler.update_geometry_property([box1.name, box2.name], "material_name", "copper")
+        assert box2.material_name == "copper"
+        assert not box2.solve_inside
+
+        self.aedtapp.modeler.update_geometry_property([box2.name], "solve_inside", True)
+        assert box2.solve_inside
+        assert not box1.solve_inside
+
+        self.aedtapp.modeler.update_geometry_property([box1.name, box2.name], "color", (255, 255, 0))
+        assert box2.color == box1.color == (255, 255, 0)
+
+        self.aedtapp.modeler.update_geometry_property([box1.name, box2.name], "transparency", 0.75)
+        assert box2.transparency == 0.75
+
+        cs = self.aedtapp.modeler.create_coordinate_system()
+        self.aedtapp.modeler.update_geometry_property([box2.name], "part_coordinate_system", cs.name)
+        assert box2.part_coordinate_system == cs.name
+        assert box1.part_coordinate_system == "Global"

@@ -43,6 +43,7 @@ from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.data_handlers import json_to_dict
 from ansys.aedt.core.generic.general_methods import _dim_arg
 from ansys.aedt.core.generic.general_methods import _uname
+from ansys.aedt.core.generic.general_methods import clamp
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_number
@@ -6281,15 +6282,19 @@ class GeometryModeler(Modeler):
         return o
 
     @pyaedt_function_handler()
-    def update_wireframe(self, assignment, value=True):
-        """Update wireframe property of assigned objects.
+    def update_geometry_property(self, assignment, name=None, value=None):
+        """Update property of assigned geometry objects.
 
         Parameters
         ----------
         assignment : str, or list
-            Object to be updated.
-        value : bool, optional
-            Display wireframe. The default is ``True``.
+            Object name or list of object names to be updated.
+        name : str, optional
+            Property name to change. The default is ``None``, in which case no property is updated.
+            Available options are: ``"display_wireframe"``, `"material"``, and `"solve_inside"``.
+        value : bool or str, optional
+            Property value. The default is ``None`` in which case
+            no value is assigned.
 
         Returns
         -------
@@ -6298,7 +6303,58 @@ class GeometryModeler(Modeler):
 
         """
         assignment = self.convert_to_selections(assignment, True)
-        props = ["NAME:Display Wireframe", "Value:=", value]
+
+        # Define property mapping
+        property_mapping = {
+            "display_wireframe": {"property_name": "Display Wireframe", "reset_attr": ["_wireframe"]},
+            "material_name": {"property_name": "Material", "reset_attr": ["_material_name", "_model", "_solve_inside"]},
+            "solve_inside": {"property_name": "Solve Inside", "reset_attr": ["_solve_inside"]},
+            "color": {"property_name": "Color", "reset_attr": ["_color"]},
+            "transparency": {"property_name": "Transparent", "reset_attr": ["_transparency"]},
+            "part_coordinate_system": {"property_name": "Orientation", "reset_attr": ["_part_coordinate_system"]},
+        }
+
+        # Check if property name is valid
+        property_key = name.lower()
+        if property_key not in property_mapping:
+            self.logger.error("Invalid property name.")
+            return False
+
+        # Retrieve property settings
+        property_name = property_mapping[property_key]["property_name"]
+        reset_attr = property_mapping[property_key]["reset_attr"]
+
+        # Handle special cases for material
+        if property_key == "material_name" and isinstance(value, str):
+            matobj = self._materials.checkifmaterialexists(value)
+            if matobj:
+                value = f'"{matobj.name}"'
+            elif "[" in value or "(" in value:  # pragma: no cover
+                value = value
+            else:
+                self.logger.error("Invalid material value.")
+                return False
+
+        value_command = ["Value:=", value]
+        if property_key == "color":
+            if isinstance(value, tuple) or isinstance(value, list):
+                R = clamp(value[0], 0, 255)
+                G = clamp(value[1], 0, 255)
+                B = clamp(value[2], 0, 255)
+                value_command = ["R:=", str(R), "G:=", str(G), "B:=", str(B)]
+            else:
+                self.logger.error("Invalid color.")
+                return False
+
+        # Reset property values
+        for obj_name in assignment:
+            obj = self.objects_by_name[obj_name]
+            for attr in reset_attr:
+                setattr(obj, attr, None)
+
+        props = [f"NAME:{property_name}"]
+        props.extend(value_command)
+
         return self._change_geometry_property(props, assignment)
 
     @pyaedt_function_handler()

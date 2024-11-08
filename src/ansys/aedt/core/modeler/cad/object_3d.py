@@ -1267,7 +1267,6 @@ class Object3d(object):
         pcs = ["NAME:Orientation", "Value:=", sCS]
         self._change_property(pcs)
         self._part_coordinate_system = sCS
-        return True
 
     @property
     def solve_inside(self):
