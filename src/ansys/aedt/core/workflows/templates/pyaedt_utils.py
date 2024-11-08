@@ -31,6 +31,7 @@ import random
 import string
 import sys
 
+from System.Windows.Forms import DialogResult
 from System.Windows.Forms import MessageBox
 from System.Windows.Forms import MessageBoxButtons
 from System.Windows.Forms import MessageBoxIcon
@@ -147,3 +148,18 @@ def generate_unique_name(root_name, suffix="", n=6):
     if suffix:
         unique_name += suffix
     return unique_name
+
+
+def validate_disclaimer():
+    """Display dialog box and evaluate the response to the disclaimer."""
+    DISCLAIMER = (
+        "This script will download and install certain third-party software and/or "
+        "open-source software (collectively, 'Third-Party Software'). Such Third-Party "
+        "Software is subject to separate terms and conditions and not the terms of your "
+        "Ansys software license agreement. Ansys does not warrant or support such "
+        "Third-Party Software.\n"
+        "Do you want to proceed ?"
+    )
+
+    response = MessageBox.Show(DISCLAIMER, "Disclaimer", MessageBoxButtons.YesNo)
+    return response == DialogResult.Yes
