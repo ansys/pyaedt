@@ -66,7 +66,7 @@ tests = [
     "pyvista[io]>=0.38.0,<0.45",
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.6",
-    "scikit-rf>=0.30.0,<1.4",
+    "scikit-rf>=0.30.0,<1.5",
     "SRTM.py",
     "utm",
 ]
@@ -100,7 +100,7 @@ all = [
     "fast-simplification>=0.1.7",
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.6",
-    "scikit-rf>=0.30.0,<1.4",
+    "scikit-rf>=0.30.0,<1.5",
     "SRTM.py",
     "utm",
 ]
@@ -113,7 +113,7 @@ installer = [
     "pyvista[io]>=0.38.0,<0.45",
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.6",
-    "scikit-rf>=0.30.0,<1.4",
+    "scikit-rf>=0.30.0,<1.5",
     "SRTM.py",
     "utm",
     "jupyterlab>=3.6.0,<4.4",
