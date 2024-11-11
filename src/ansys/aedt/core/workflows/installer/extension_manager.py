@@ -318,36 +318,6 @@ def button_is_clicked(
     desktop.release_desktop(False, False)
 
 
-def close_widget(widget):
-    """Close specific widget."""
-    widget.destroy()
-
-
-def create_disclaimer_window(root: tk.Tk):
-    """Notify users about extra packages."""
-    DISCLAIMER = (
-        "The extension manager will download and install certain third-party software and/or "
-        "open-source software (collectively, 'Third-Party Software'). Such Third-Party "
-        "Software is subject to separate terms and conditions and not the terms of your "
-        "Ansys software license agreement. Ansys does not warrant or support such "
-        "Third-Party Software. Do you still wish to proceed?"
-    )
-
-    disclaimer_window = tk.Toplevel(root)
-    disclaimer_window.title("Disclaimer")
-    disclaimer_window.grab_set()
-    disclaimer_window.protocol("WM_DELETE_WINDOW", lambda: None)
-    disclaimer_window.transient(root)
-    label = tk.Label(disclaimer_window, text=DISCLAIMER, wraplength=275)
-    label.pack()
-    yes_button = tk.Button(disclaimer_window, text="Yes", command=lambda: close_widget(disclaimer_window))
-    yes_button.pack(side=tk.LEFT, padx=50, pady=10)
-    no_button = tk.Button(disclaimer_window, text="No", command=lambda: close_widget(root))
-    no_button.pack(side=tk.RIGHT, padx=50, pady=10)
-
-    return disclaimer_window
-
-
 root = tk.Tk()
 root.title("Extension Manager")
 
@@ -389,9 +359,6 @@ x_position = (screen_width - window_width) // 2
 y_position = (screen_height - window_height) // 2
 
 root.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
-
-disclaimer_window = create_disclaimer_window(root)
-disclaimer_window.geometry("300x170+{}+{}".format(x_position + 110, y_position + 45))
 
 # Create buttons in a 4x4 grid, centered
 for i, level in enumerate(toolkit_levels):
