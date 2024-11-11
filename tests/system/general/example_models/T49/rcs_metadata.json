@@ -1,6 +1,6 @@
 {
   "solution": "Trihedral_RCS",
-  "monostatic_file": "HH_data_Trihedral_RCS.pkl",
+  "monostatic_file": "rcs_data.pkl",
   "model_units": "mm",
   "frequency_units": "GHz",
   "model_info": {

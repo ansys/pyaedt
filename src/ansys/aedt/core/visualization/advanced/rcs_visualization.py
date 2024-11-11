@@ -218,7 +218,7 @@ class MonostaticRCSData(object):
     def frequency(self, val):
         if isinstance(val, str):
             frequency, units = decompose_variable_value(val)
-            unit_converter(frequency, "Freq", units, "Hz")
+            unit_converter(frequency, "Freq", units, self.frequency_units)
             val = frequency
         if val in self.frequencies:
             self.__frequency = val
@@ -415,7 +415,7 @@ class MonostaticRCSData(object):
         else:
             nangles = len(thetas)
             azel_samples = 90.0 - thetas.reshape(1, -1)
-            data = self.rcs_active_theta["Data"]
+            data = self.rcs_active_phi["Data"]
 
         azel_samples = np.unwrap(np.radians(azel_samples))
         azel_ctr = np.mean(azel_samples)

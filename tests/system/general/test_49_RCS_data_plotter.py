@@ -25,13 +25,13 @@
 import os
 import shutil
 
-from tests import TESTS_GENERAL_PATH
-
-# from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
-
+from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
 
 # from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSPlotter
+import pandas as pd
+import pytest
 
+from tests import TESTS_GENERAL_PATH
 
 test_subfolder = "T49"
 
@@ -44,234 +44,78 @@ def desktop():
 
 class TestClass:
 
-    def test_01_far_field_data_txt(self, local_scratch):
+    def test_01_rcs_data(self, local_scratch):
         dir_original = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder)
-        data_dir = os.path.join(local_scratch.path)
+        data_dir = os.path.join(local_scratch.path, "rcs_files")
         shutil.copytree(dir_original, data_dir)
-        metadata_file = os.path.join(data_dir, "eep.json")
-        ffdata = FfdSolutionData(input_file=metadata_file)
+        metadata_file = os.path.join(data_dir, "rcs_metadata.json")
+        rcs_data = MonostaticRCSData(input_file=metadata_file)
 
-        assert os.path.isfile(ffdata.input_file)
-        assert len(ffdata.frequencies) == 1
-        assert not ffdata.metadata["model_info"]
+        assert isinstance(rcs_data.raw_data, pd.DataFrame)
 
-        model_info = {
-            "object_list": {
-                "Cap": ["geometry\\Cap.obj", [0, 64, 0], 0.2, "mm"],
-                "WA_metal": ["geometry\\WA_metal.obj", [64, 64, 0], 0.5, "mm"],
-            }
-        }
-        ffdata = FfdSolutionData(input_file=eep_file1, model_info=model_info)
-        assert ffdata.metadata["model_info"]
+        assert isinstance(rcs_data.metadata, dict)
 
-    def test_02_far_field_data_json(self, local_scratch):
-        pyaedt_metadata_dir_original = os.path.join(
-            TESTS_GENERAL_PATH, "example_models", test_subfolder, "pyaedt_metadata"
-        )
-        pyaedt_metadata_dir = os.path.join(local_scratch.path, "pyaedt_metadata")
-        shutil.copytree(pyaedt_metadata_dir_original, pyaedt_metadata_dir)
-        pyaedt_metadata = os.path.join(pyaedt_metadata_dir, "pyaedt_antenna_metadata.json")
-        ffdata = FfdSolutionData(input_file=pyaedt_metadata, frequency=31000000000.0)
-        assert os.path.isfile(ffdata.input_file)
-        assert len(ffdata.frequencies) == 3
-        assert ffdata.touchstone_data is not None
-        assert ffdata.incident_power == 40.0
+        assert rcs_data.name == "HH"
+        assert rcs_data.solution == "Trihedral_RCS"
+        assert os.path.isfile(rcs_data.input_file)
+        assert rcs_data.frequency_units == "GHz"
+        assert len(rcs_data.frequencies) == 52
 
-    def test_03_far_field_data_xml(self, local_scratch):
-        metadata_dir_original = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "metadata")
-        metadata_dir = os.path.join(local_scratch.path, "metadata")
-        shutil.copytree(metadata_dir_original, metadata_dir)
-        metadata_file = os.path.join(metadata_dir, "hfss_metadata.xml")
-        ffdata = FfdSolutionData(
-            input_file=metadata_file,
-        )
-        assert len(ffdata.frequencies) == 5
-        assert ffdata.touchstone_data is not None
-        assert ffdata.incident_power == 0.04
+        assert rcs_data.available_incident_wave_theta.size == 52
+        assert rcs_data.incident_wave_theta == rcs_data.available_incident_wave_theta[0]
 
-    def test_04_far_field_data(self, local_scratch):
-        from pyvista.plotting.plotter import Plotter
+        rcs_data.incident_wave_theta = 88.0
+        assert rcs_data.incident_wave_theta == rcs_data.available_incident_wave_theta[0]
 
-        pyaedt_metadata_dir_original = os.path.join(
-            TESTS_GENERAL_PATH, "example_models", test_subfolder, "pyaedt_metadata"
-        )
-        pyaedt_metadata_dir = os.path.join(local_scratch.path, "pyaedt_metadata_post")
-        shutil.copytree(pyaedt_metadata_dir_original, pyaedt_metadata_dir)
-        metadata_file = os.path.join(pyaedt_metadata_dir, "pyaedt_antenna_metadata.json")
-        ffdata = FfdSolutionData(input_file=metadata_file, frequency=31000000000.0)
+        rcs_data.incident_wave_theta = rcs_data.available_incident_wave_theta[1]
+        assert rcs_data.incident_wave_theta == rcs_data.available_incident_wave_theta[1]
 
-        farfield = ffdata.combine_farfield()
-        assert "rETheta" in farfield
+        assert rcs_data.frequency == rcs_data.frequencies[0]
 
-        ffdata.taper = "cosine"
-        assert ffdata.combine_farfield()
-        ffdata.taper = "taper"
-        assert not ffdata.taper == "taper"
+        rcs_data.frequency = f"{rcs_data.frequencies[1]}GHz"
+        assert rcs_data.frequency == rcs_data.frequencies[1]
 
-        ffdata.origin = [0, 2]
-        assert ffdata.origin != [0, 2]
-        ffdata.origin = [0, 0, 1]
-        assert ffdata.origin == [0, 0, 1]
+        rcs_data.frequency = rcs_data.frequencies[2]
+        assert rcs_data.frequency == rcs_data.frequencies[2]
 
-        ffdata.theta_scan = 20.0
-        assert ffdata.farfield_data
-        ffdata.phi_scan = 5.0
-        assert ffdata.farfield_data
+        rcs_data.frequency = 8.0
+        assert rcs_data.frequency == rcs_data.frequencies[2]
 
-        assert ffdata.s_parameters is not None
-        assert ffdata.active_s_parameters is not None
+        assert rcs_data.data_conversion_function == "dB20"
+        rcs_data.data_conversion_function = "abs"
+        assert rcs_data.data_conversion_function == "abs"
 
-        ffdata.frequency = "32GHz"
-        assert ffdata.frequency == 32000000000.0
+        assert rcs_data.window == "Flat"
 
-        phases = ffdata.phase
-        ffdata.phase = {"test": 1.0}
-        assert ffdata.farfield_data
-        phases[list(phases.keys())[0]] = 50.0
-        ffdata.phase = phases
-        assert ffdata.farfield_data
+        rcs_data.window = "Hamming"
+        assert rcs_data.window == "Hamming"
 
-        magnitudes = ffdata.magnitude
-        ffdata.magnitude = {"test": 1.0}
-        assert ffdata.farfield_data
-        magnitudes[list(magnitudes.keys())[0]] = 2.0
-        ffdata.magnitude = magnitudes
-        assert ffdata.farfield_data
+        assert rcs_data.window_size == 1024
+        rcs_data.window_size = 512
+        assert rcs_data.window_size == 512
 
-        assert ffdata.get_accepted_power()
+        assert rcs_data.aspect_range == "Horizontal"
+        rcs_data.aspect_range = "Vertical"
+        assert rcs_data.aspect_range == "Vertical"
 
-        img1 = os.path.join(self.local_scratch.path, "ff_2d1.jpg")
-        ffdata.plot_cut(primary_sweep="Theta", secondary_sweep_value="all", output_file=img1, show=False)
-        assert os.path.exists(img1)
-        img2 = os.path.join(self.local_scratch.path, "ff_2d2.jpg")
-        ffdata.plot_cut(secondary_sweep_value=[0, 1], output_file=img2, show=False)
-        assert os.path.exists(img2)
-        img3 = os.path.join(self.local_scratch.path, "ff_2d2.jpg")
-        ffdata.plot_cut(output_file=img3, show=False)
-        assert os.path.exists(img3)
-        curve_2d = ffdata.plot_cut(show=False)
-        assert isinstance(curve_2d, ReportPlotter)
-        data = ffdata.plot_3d_chart(show=False)
-        assert isinstance(data, ReportPlotter)
+        assert rcs_data.upsample_range == 512
+        rcs_data.upsample_range = 24
+        assert rcs_data.upsample_range == 24
 
-        img4 = os.path.join(self.local_scratch.path, "ff_3d1.jpg")
-        ffdata.plot_3d(
-            quantity="RealizedGain", output_file=img4, show=False, background=[255, 0, 0], show_geometry=False
-        )
-        assert os.path.exists(img4)
-        data_pyvista = ffdata.plot_3d(quantity="RealizedGain", show=False, background=[255, 0, 0], show_geometry=False)
-        assert isinstance(data_pyvista, Plotter)
-        matplot_lib = ffdata.plot_cut(
-            quantity="RealizedGain",
-            primary_sweep="theta",
-            secondary_sweep_value=[-180, -75, 75],
-            title=f"Azimuth at {ffdata.frequency}Hz",
-            quantity_format="dB10",
-        )
-        matplot_lib.add_note(
-            "Hello Pyaedt2",
-            [10, -10],
-            color=(1, 1, 0),
-            bold=True,
-            italic=True,
-            back_color=(0, 0, 1),
-            background_visibility=True,
-        )
+        assert rcs_data.upsample_azimuth == 64
+        rcs_data.upsample_azimuth = 32
+        assert rcs_data.upsample_azimuth == 32
 
-        matplot_lib.traces_by_index[0].trace_style = "--"
-        matplot_lib.x_scale = "log"
-        _ = matplot_lib.plot_2d()
-        matplot_lib.add_note(
-            "Hello Pyaedt",
-            [0, -10],
-            color=(1, 1, 0),
-            bold=False,
-            italic=False,
-            background_visibility=False,
-        )
-        matplot_lib.x_scale = "linear"
-        matplot_lib.traces_by_index[0].trace_color = (1, 0, 0)
-        matplot_lib.grid_enable_minor_x = True
-        _ = matplot_lib.plot_2d()
+        assert isinstance(rcs_data.rcs, float)
 
-        matplot_lib.traces["Phi=-180"].symbol_style = "v"
-        _ = matplot_lib.plot_2d()
+        assert isinstance(rcs_data.rcs_active_theta_phi, pd.DataFrame)
+        assert isinstance(rcs_data.rcs_active_frequency, pd.DataFrame)
+        assert isinstance(rcs_data.rcs_active_theta, pd.DataFrame)
+        assert isinstance(rcs_data.rcs_active_phi, pd.DataFrame)
 
-        matplot_lib.apply_style("dark_background")
-        matplot_lib.add_limit_line(
-            [[0, 20, 120], [15, 5, 5]],
-            properties={
-                "trace_color": (1, 0, 0),
-            },
-            name="LimitLine1",
-        )
-        _ = matplot_lib.plot_2d()
+        assert isinstance(rcs_data.range_profile, pd.DataFrame)
+        assert isinstance(rcs_data.waterfall, pd.DataFrame)
 
-        matplot_lib.traces_by_index[0].trace_color = (1, 0, 0)
-        matplot_lib.grid_enable_minor_x = True
-
-        matplot_lib.grid_enable_minor_x = False
-        matplot_lib.grid_enable_minor_y = False
-
-        _ = matplot_lib.plot_2d()
-
-    def test_05_antenna_plot(self, array_test):
-        ffdata = array_test.get_antenna_data(sphere="3D")
-        assert ffdata.setup_name == "Setup1 : LastAdaptive"
-        assert ffdata.model_info
-        assert os.path.isfile(ffdata.metadata_file)
-
-        img1 = os.path.join(self.local_scratch.path, "contour.jpg")
-        assert ffdata.farfield_data.plot_contour(
-            quantity="RealizedGain",
-            title=f"Contour at {ffdata.farfield_data.frequency}Hz",
-            output_file=img1,
-            show=False,
-        )
-        assert os.path.exists(img1)
-
-        img1_1 = os.path.join(self.local_scratch.path, "contour1.jpg")
-        assert ffdata.farfield_data.plot_contour(quantity="RealizedGain", output_file=img1_1, show=False)
-        assert os.path.exists(img1_1)
-
-        img2 = os.path.join(self.local_scratch.path, "2d1.jpg")
-        ffdata.farfield_data.plot_cut(
-            quantity="RealizedGain",
-            primary_sweep="theta",
-            secondary_sweep_value=[-180, -75, 75],
-            title=f"Azimuth at {ffdata.farfield_data.frequency}Hz",
-            output_file=img2,
-            show=False,
-        )
-        assert os.path.exists(img2)
-
-        img3 = os.path.join(self.local_scratch.path, "2d2.jpg")
-        ffdata.farfield_data.plot_cut(
-            quantity="RealizedGain",
-            primary_sweep="phi",
-            secondary_sweep_value=30,
-            title=f"Azimuth at {ffdata.farfield_data.frequency}Hz",
-            output_file=img3,
-            show=False,
-        )
-        assert os.path.exists(img3)
-
-        img3_polar = os.path.join(self.local_scratch.path, "2d_polar.jpg")
-        ffdata.farfield_data.plot_cut(
-            quantity="RealizedGain",
-            primary_sweep="phi",
-            secondary_sweep_value=30,
-            title=f"Azimuth at {ffdata.farfield_data.frequency}Hz",
-            output_file=img3_polar,
-            show=False,
-            is_polar=True,
-        )
-        assert os.path.exists(img3_polar)
-
-        img4 = os.path.join(self.local_scratch.path, "3d1.jpg")
-        ffdata.farfield_data.plot_3d_chart(quantity="RealizedGain", output_file=img4, show=False)
-        assert os.path.exists(img4)
-
-        img5 = os.path.join(self.local_scratch.path, "3d2.jpg")
-        ffdata.farfield_data.plot_3d(quantity="RealizedGain", output_file=img5, show=False)
-        assert os.path.exists(img5)
+        assert isinstance(rcs_data.isar_2d, pd.DataFrame)
+        rcs_data.aspect_range = "Horizontal"
+        assert isinstance(rcs_data.isar_2d, pd.DataFrame)
