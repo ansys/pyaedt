@@ -5969,8 +5969,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
-        >>> ffdata = hfss.get_rcs_data()
-        >>> ffdata.farfield_data.plot_cut(primary_sweep="theta",theta=0,is_polar=False)
+        >>> rcs_data = hfss.get_rcs_data()
         """
         from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
         from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
