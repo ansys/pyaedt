@@ -76,13 +76,14 @@ def main(extension_args):
         report.add_image(os.path.join(aedtapp.working_directory, plot.plot_name + ".jpg"), plot.plot_name)
         report.add_page_break()
     report.add_toc()
-    out = report.save_pdf(aedtapp.working_directory, "AEDT_Results.pdf")
-    aedtapp.logger.info(f"Report Generated. {out}")
+    pdf_path = report.save_pdf(aedtapp.working_directory, "AEDT_Results.pdf")
+    aedtapp.logger.info(f"Report Generated. {pdf_path}")
     if is_windows and not extension_args["is_test"]:  # pragma: no cover
         try:
-            os.startfile(out)  # nosec
-        except Exception:  # pragma: no cover
-            aedtapp.logger.warning(f"Failed to open {out}")
+            if os.path.isfile(pdf_path) and pdf_path.endswith(".pdf"):
+                os.startfile(pdf_path)  # nosec
+        except Exception:
+            aedtapp.logger.warning(f"Failed to open {pdf_path}")
 
     if not extension_args["is_test"]:  # pragma: no cover
         app.release_desktop(False, False)
