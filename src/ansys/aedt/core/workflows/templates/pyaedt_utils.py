@@ -40,7 +40,7 @@ is_linux = os.name == "posix"
 
 
 def set_ansys_em_environment(oDesktop):
-    variable = f"ANSYSEM_ROOT{oDesktop.GetVersion()[2:6].replace('.', '')}"
+    variable = "ANSYSEM_ROOT{}".format(oDesktop.GetVersion()[2:6].replace(".", ""))
     if variable not in os.environ:
         os.environ[variable] = oDesktop.GetExeDir()
 
@@ -57,8 +57,8 @@ def sanitize_interpreter_path(interpreter_path, version):
 def check_file(file_path, oDesktop):
     if not os.path.isfile(file_path):
         show_error(
-            f'"{file_path}" does not exist. Install PyAEDT using the Python script installer from the PyAEDT '
-            "documentation.",
+            '"{}" does not exist. Install PyAEDT using the Python script installer from the PyAEDT '
+            "documentation.".format(file_path),
             oDesktop,
         )
         return False
@@ -111,34 +111,34 @@ def environment_variables(oDesktop):
         os.environ["PYAEDT_STUDENT_VERSION"] = "False"
     if is_linux:
         edt_root = os.path.normpath(oDesktop.GetExeDir())
-        os.environ[f"ANSYSEM_ROOT{version}"] = edt_root
+        os.environ["ANSYSEM_ROOT{}".format(version)] = edt_root
         ld_library_path_dirs_to_add = [
-            f"{edt_root}/commonfiles/CPython/3_7/linx64/Release/python/lib",
-            f"{edt_root}/commonfiles/CPython/3_10/linx64/Release/python/lib",
-            f"{edt_root}/common/mono/Linux64/lib64",
-            f"{edt_root}/Delcross",
-            f"{edt_root}",
+            "{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root),
+            "{}/commonfiles/CPython/3_10/linx64/Release/python/lib".format(edt_root),
+            "{}/common/mono/Linux64/lib64".format(edt_root),
+            "{}/Delcross".format(edt_root),
+            "{}".format(edt_root),
         ]
         os.environ["LD_LIBRARY_PATH"] = ":".join(ld_library_path_dirs_to_add) + ":" + os.getenv("LD_LIBRARY_PATH", "")
         if version > "2023.1":
             os.environ["TCL_LIBRARY"] = os.path.join(
-                f"{edt_root}/commonfiles/CPython/3_10/linx64/Release/python/lib", "tcl8.5"
+                "{}/commonfiles/CPython/3_10/linx64/Release/python/lib".format(edt_root), "tcl8.5"
             )
             os.environ["TK_LIBRARY"] = os.path.join(
-                f"{edt_root}/commonfiles/CPython/3_10/linx64/Release/python/lib", "tk8.5"
+                "{}/commonfiles/CPython/3_10/linx64/Release/python/lib".format(edt_root), "tk8.5"
             )
             os.environ["TKPATH"] = os.path.join(
-                f"{edt_root}/commonfiles/CPython/3_10/linx64/Release/python/lib", "tk8.5"
+                "{}/commonfiles/CPython/3_10/linx64/Release/python/lib".format(edt_root), "tk8.5"
             )
         else:
             os.environ["TCL_LIBRARY"] = os.path.join(
-                f"{edt_root}/commonfiles/CPython/3_7/linx64/Release/python/lib", "tcl8.5"
+                "{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root), "tcl8.5"
             )
             os.environ["TK_LIBRARY"] = os.path.join(
-                f"{edt_root}/commonfiles/CPython/3_7/linx64/Release/python/lib", "tk8.5"
+                "{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root), "tk8.5"
             )
             os.environ["TKPATH"] = os.path.join(
-                f"{edt_root}/commonfiles/CPython/3_7/linx64/Release/python/lib", "tk8.5"
+                "{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root), "tk8.5"
             )
 
 
