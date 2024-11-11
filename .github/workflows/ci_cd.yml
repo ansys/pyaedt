@@ -99,7 +99,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-unit-tests
           file: ./coverage.xml
-          flags: unit
+          flags: linux_unit
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@v4
@@ -158,7 +158,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-system-solvers-tests-windows
           file: ./coverage.xml
-          flags: system,solvers,windows
+          flags: windows_system_solvers
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@v4
@@ -214,7 +214,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-system-solvers-tests-linux
           file: ./coverage.xml
-          flags: system,solvers,linux
+          flags: linux_system_solvers
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@v4
@@ -278,7 +278,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-system-general-tests-windows
           file: ./coverage.xml
-          flags: system,general,windows
+          flags: windows_system_general
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@v4
@@ -346,7 +346,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-system-general-tests
           file: ./coverage.xml
-          flags: system,general,linux
+          flags: linux_system_general
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@v4
