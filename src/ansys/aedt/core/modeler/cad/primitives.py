@@ -6326,7 +6326,7 @@ class GeometryModeler(Modeler):
 
         # Handle special cases for material
         if property_key == "material_name" and isinstance(value, str):
-            matobj = self._materials.checkifmaterialexists(value)
+            matobj = self._materials.exists_material(value)
             if matobj:
                 value = f'"{matobj.name}"'
             elif "[" in value or "(" in value:  # pragma: no cover

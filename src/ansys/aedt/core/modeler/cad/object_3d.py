@@ -933,7 +933,7 @@ class Object3d(object):
 
     @material_name.setter
     def material_name(self, mat):
-        matobj = self._primitives._materials.checkifmaterialexists(mat)
+        matobj = self._primitives._materials.exists_material(mat)
         mat_value = None
         if matobj:
             mat_value = chr(34) + matobj.name + chr(34)
