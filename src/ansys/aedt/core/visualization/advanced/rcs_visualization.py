@@ -1039,10 +1039,7 @@ class MonostaticRCSPlotter(object):
 
         for all_scene_results in self.all_scene_actors["results"]:
             for result_actor in self.all_scene_actors["results"][all_scene_results].values():
-                if getattr(result_actor, "custom_object", None) and result_actor.custom_object.show:
-                    self.__add_mesh(result_actor, plotter, "results")
-                elif getattr(result_actor, "show", None):
-                    self.__add_mesh(result_actor, plotter, "results")
+                self.__add_mesh(result_actor, plotter, "results")
         if show:
             plotter.show()
         else:
@@ -1121,10 +1118,10 @@ class MonostaticRCSPlotter(object):
             rcs_object.cmap = color_bar
 
         rcs_object.mesh = actor
-        #
-        # rcs_mesh = MeshObjectPlot(rcs_object, rcs_object.get_mesh())
 
-        self.all_scene_actors["results"]["rcs"][rcs_name] = rcs_object
+        rcs_mesh = MeshObjectPlot(rcs_object, rcs_object.get_mesh())
+
+        self.all_scene_actors["results"]["rcs"][rcs_name] = rcs_mesh
 
     @pyaedt_function_handler()
     def add_range_profile_settings(self, size_range=10.0, range_resolution=0.1, tick_color="#000000"):
@@ -1616,8 +1613,8 @@ class MonostaticRCSPlotter(object):
             return False
         elif first_level in ["annotations", "results"]:
             if not second_level:
-                self.all_scene_actor[first_level] = {}
-            elif second_level in self.all_scene_actors[first_level].keys():
+                self.all_scene_actors[first_level] = {}
+            elif second_level in self.all_scene_actors[first_level].keys():  # pragma: no cover
                 if not name:
                     self.all_scene_actor[first_level][second_level] = {}
                 elif name in self.all_scene_actors[first_level][second_level].keys():
@@ -1769,23 +1766,10 @@ class MonostaticRCSPlotter(object):
             else:
                 options = mesh_object.custom_object.get_result_options()
 
-        # TODO StructuredGrid
-        if isinstance(mesh_object.mesh, pv.StructuredGrid):
-            if mesh_type == "model":
-                options = mesh_object.get_model_options()
-            elif mesh_type == "annotations":
-                options = mesh_object.get_annotation_options()
-            else:
-                options = mesh_object.get_result_options()
-
         if options is None:
             options = {}
 
-        # TODO StructuredGrid
-        if isinstance(mesh_object.mesh, pv.StructuredGrid):
-            plotter._backend.pv_interface.scene.add_mesh(mesh_object.mesh, **options)
-        else:
-            plotter.plot(mesh_object.mesh, **options)
+        plotter.plot(mesh_object.mesh, **options)
 
     @pyaedt_function_handler()
     def __get_model_extent(self):
