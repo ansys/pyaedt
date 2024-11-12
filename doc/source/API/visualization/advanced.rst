@@ -122,7 +122,7 @@ Monostatic RCS
 PyAEDT offers sophisticated tools for advanced monostatic radar cross section (RCS) post-processing.
 There are three complementary classes: ``MonostaticRCSExporter``, ``MonostaticRCSData``, and ``MonostaticRCSPlotter``.
 
-- MonostaticRCSExporter: Enables efficient export and manipulation of rcs data. It allows users to convert simulation results into a standard metadata format for further analysis, or reporting.
+- MonostaticRCSExporter: Enables efficient export and manipulation of RCS data. It allows users to convert simulation results into a standard metadata format for further analysis, or reporting.
 
 - MonostaticRCSData: Focuses on the direct access and processing of RCS solution data. It supports a comprehensive set of postprocessing operations, from visualizing radiation patterns to computing key performance metrics.
 
