@@ -933,7 +933,7 @@ class Object3d(object):
 
     @material_name.setter
     def material_name(self, mat):
-        matobj = self._primitives._materials.exists_material(mat)
+        matobj = self._primitives._materials.checkifmaterialexists(mat)
         mat_value = None
         if matobj:
             mat_value = chr(34) + matobj.name + chr(34)
@@ -1267,6 +1267,7 @@ class Object3d(object):
         pcs = ["NAME:Orientation", "Value:=", sCS]
         self._change_property(pcs)
         self._part_coordinate_system = sCS
+        return True
 
     @property
     def solve_inside(self):
@@ -2030,24 +2031,31 @@ class Object3d(object):
         vArg2 = ["NAME:ChamferParameters"]
         vArg2.append("Edges:="), vArg2.append(edge_id_list)
         vArg2.append("Vertices:="), vArg2.append(vertex_id_list)
-        vArg2.append("LeftDistance:="), vArg2.append(self._primitives._arg_with_dim(left_distance))
-        if not right_distance:
-            right_distance = left_distance
         if chamfer_type == 0:
+            if right_distance is not None and left_distance != right_distance:
+                self.logger.error("Do not set right distance or ensure that left distance equals right distance.")
+            if right_distance is None:
+                right_distance = left_distance
+            vArg2.append("LeftDistance:="), vArg2.append(self._primitives._arg_with_dim(left_distance))
             vArg2.append("RightDistance:="), vArg2.append(self._primitives._arg_with_dim(right_distance))
             vArg2.append("ChamferType:="), vArg2.append("Symmetric")
         elif chamfer_type == 1:
+            if right_distance is None:
+                right_distance = left_distance
             vArg2.append("RightDistance:="), vArg2.append(self._primitives._arg_with_dim(right_distance))
             vArg2.append("ChamferType:="), vArg2.append("Left Distance-Right Distance")
         elif chamfer_type == 2:
-            vArg2.append("Angle:="), vArg2.append(str(angle) + "deg")
+            vArg2.append("LeftDistance:="), vArg2.append(self._primitives._arg_with_dim(left_distance))
+            # NOTE: Seems like there is a bug in the API as Angle can't be used
+            vArg2.append("RightDistance:="), vArg2.append(f"{angle}deg")
             vArg2.append("ChamferType:="), vArg2.append("Left Distance-Angle")
         elif chamfer_type == 3:
-            vArg2.append("Angle:="), vArg2.append(str(angle) + "deg")
+            # NOTE: Seems like there is a bug in the API as Angle can't be used
+            vArg2.append("LeftDistance:="), vArg2.append(f"{angle}deg")
             vArg2.append("RightDistance:="), vArg2.append(self._primitives._arg_with_dim(right_distance))
             vArg2.append("ChamferType:="), vArg2.append("Right Distance-Angle")
         else:
-            self.logger.error("Wrong Type Entered. Type must be integer from 0 to 3")
+            self.logger.error("Wrong chamfer_type provided. Value must be an integer from 0 to 3.")
             return False
         self._oeditor.Chamfer(vArg1, ["NAME:Parameters", vArg2])
         if self.name in list(self._oeditor.GetObjectsInGroup("UnClassified")):
