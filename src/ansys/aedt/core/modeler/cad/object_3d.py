@@ -41,7 +41,6 @@ from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.general_methods import _to_boolean
 from ansys.aedt.core.generic.general_methods import _uname
 from ansys.aedt.core.generic.general_methods import clamp
-from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import rgb_color_codes
@@ -273,7 +272,7 @@ class Object3d(object):
         -----
         Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
         """
-        if not is_ironpython and self._primitives._app._aedt_version >= "2021.2":
+        if self._primitives._app._aedt_version >= "2021.2":
             return self._primitives._app.post.plot_model_obj(
                 objects=[self.name],
                 plot_as_separate_objects=True,
@@ -301,7 +300,7 @@ class Object3d(object):
         str
             File path.
         """
-        if not is_ironpython and self._primitives._app._aedt_version >= "2021.2":
+        if self._primitives._app._aedt_version >= "2021.2":
             if not output_file:
                 output_file = os.path.join(self._primitives._app.working_directory, self.name + ".png")
             model_obj = self._primitives._app.post.plot_model_obj(

@@ -33,8 +33,8 @@ It is based on templates to allow for easy creation and modification of setup pr
 from __future__ import absolute_import  # noreorder
 
 import os.path
-from random import randrange
 import re
+import secrets
 import time
 import warnings
 
@@ -42,7 +42,6 @@ from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.setup_templates import SetupKeys
@@ -81,6 +80,17 @@ class CommonSetup(PropsManager, object):
         dict
             Dictionary which keys are typically Freq, Phase or Time."""
         intr = {}
+        if "HFSS 3D Layout" in self._app.design_type:  # pragma no cover
+            try:
+                intr["Freq"] = (
+                    self._app.modeler.edb.setups[self.name]
+                    .adaptive_settings.adaptive_frequency_data_list[0]
+                    .adaptive_frequency
+                )
+                intr["Phase"] = "0deg"
+                return intr
+            except Exception:
+                settings.logger.debug("Failed to retrieve adaptive frequency.")
         for i in self._app.design_solutions.intrinsics:
             if i == "Freq" and "Frequency" in self.props:
                 intr[i] = self.props["Frequency"]
@@ -803,17 +813,17 @@ class Setup(CommonSetup):
         apply_mesh_operations=True,
         adapt_port=True,
     ):
-        """Add a mesh link to another design.
+        """Import mesh from a source design solution to the target design.
 
         Parameters
         ----------
         design : str
-            Name of the design.
+            Name of the source design.
         solution : str, optional
-            Name of the solution in the format ``"name : solution_name"``.
+            Name of the source design solution in the format ``"name : solution_name"``.
             If ``None``, the default value is ``name : LastAdaptive``.
         parameters : dict, optional
-            Dictionary of the parameters.
+            Dictionary of the "mapping" variables from the source design.
             If ``None``, the default is `appname.available_variations.nominal_w_values_dict`.
         project : str, optional
             Name of the project with the design. The default is ``"This Project*"``.
@@ -838,7 +848,20 @@ class Setup(CommonSetup):
         ----------
 
         >>> oModule.EditSetup
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(design="source_design")
+        >>> m3d.create_setup(name="setup1")
+        The target design is duplicated from the source design and made it active design.
+        >>> m3d.duplicate_design(name="source_design", save_after_duplicate=True)
+        The mesh link is assigned to the target design analysis setup.
+        >>> m3d.setups[0].add_mesh_link(design="source_design", solution=m3d.nominal_adaptive)
+        >>> m3d.release_desktop()
+
         """
+
         auto_update = self.auto_update
         try:
             self.auto_update = False
@@ -1941,12 +1964,9 @@ class Setup3DLayout(CommonSetup):
         self.omodule.ExportToHfss(self.name, output_file)
         succeeded = self._check_export_log(info_messages, error_messages, output_file)
         if succeeded and keep_net_name:
-            if not is_ironpython:
-                from ansys.aedt.core import Hfss
+            from ansys.aedt.core import Hfss
 
-                self._get_net_names(Hfss, output_file, unite)
-            else:
-                self.p_app.logger.error("Exporting layout while keeping net name is not supported with IronPython")
+            self._get_net_names(Hfss, output_file, unite)
         return succeeded
 
     @pyaedt_function_handler()
@@ -2007,7 +2027,7 @@ class Setup3DLayout(CommonSetup):
             if len(object_names) == 1:
                 object_p = aedtapp.modeler[object_names[0]]
                 object_p.name = net_name
-                object_p.color = [randrange(255), randrange(255), randrange(255)]  # nosec
+                object_p.color = [secrets.randbelow(255), secrets.randbelow(255), secrets.randbelow(255)]
             elif len(object_names) > 1:
                 if unite:
                     united_object = aedtapp.modeler.unite(object_names, purge=True)
@@ -2015,10 +2035,10 @@ class Setup3DLayout(CommonSetup):
                     if obj_ind:
                         aedtapp.modeler.objects[obj_ind].name = net_name
                         aedtapp.modeler.objects[obj_ind].color = [
-                            randrange(255),
-                            randrange(255),
-                            randrange(255),
-                        ]  # nosec
+                            secrets.randbelow(255),
+                            secrets.randbelow(255),
+                            secrets.randbelow(255),
+                        ]
                 else:
                     name_cont = 0
                     for body in object_names:
@@ -2094,11 +2114,8 @@ class Setup3DLayout(CommonSetup):
     @pyaedt_function_handler()
     def _get_point_inside_primitive(self, primitive, n):
         from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
+        import numpy as np
 
-        if not is_ironpython:
-            import numpy as np
-        else:
-            return False
         bbox = primitive.bbox
         primitive_x_points = []
         primitive_y_points = []
@@ -2214,12 +2231,9 @@ class Setup3DLayout(CommonSetup):
         self.omodule.ExportToQ3d(self.name, output_file)
         succeeded = self._check_export_log(info_messages, error_messages, output_file)
         if succeeded and keep_net_name:
-            if not is_ironpython:
-                from ansys.aedt.core import Q3d
+            from ansys.aedt.core import Q3d
 
-                self._get_net_names(Q3d, output_file, unite)
-            else:
-                self.p_app.logger.error("Exporting layout while keeping net name is not supported with IronPython.")
+            self._get_net_names(Q3d, output_file, unite)
         return succeeded
 
     @pyaedt_function_handler(sweepname="name", sweeptype="sweep_type")

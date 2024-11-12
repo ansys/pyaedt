@@ -16,10 +16,8 @@ env:
   MAIN_PYTHON_VERSION: '3.10'
   PACKAGE_NAME: 'PyAEDT'
   DOCUMENTATION_CNAME: 'aedt.docs.pyansys.com'
-  MEILISEARCH_API_KEY: ${{ secrets.MEILISEARCH_API_KEY }}
-  MEILISEARCH_HOST_URL: ${{ vars.MEILISEARCH_HOST_URL }}
-  MEILISEARCH_PUBLIC_API_KEY: ${{ secrets.MEILISEARCH_PUBLIC_API_KEY }}
   ON_CI: True
+  PYTEST_ARGUMENTS: '-vvv --color=yes -ra --durations=25 --maxfail=10 --cov=ansys.aedt.core --cov-report=html --cov-report=xml --junitxml=junit/test-results.xml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -32,13 +30,12 @@ jobs:
     name: Check the title of the pull request
     runs-on: ubuntu-latest
     steps:
-      - name: Check commit name
+      - name: Check the title of the pull request
         uses: ansys/actions/check-pr-title@v8
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           use-upper-case: true
 
-  # TODO: Update to ansys/actions/doc-style@v6
   doc-style:
     name: Documentation style check
     runs-on: ubuntu-latest
@@ -47,6 +44,19 @@ jobs:
         uses: ansys/actions/doc-style@v8
         with:
          token: ${{ secrets.GITHUB_TOKEN }}
+
+  doc-build:
+    name: Documentation build
+    runs-on: ubuntu-latest
+    needs: [doc-style]
+    steps:
+      - name: Documentation build
+        uses: ansys/actions/doc-build@v8
+        with:
+          dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          sphinxopts: '-j auto --color -w build_errors.txt'
+          check-links: false
 
   smoke-tests:
     name: Build wheelhouse and smoke tests
@@ -70,27 +80,42 @@ jobs:
         run: |
           python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
 
-  doc-build:
-    name: Documentation build
+  unit-tests:
+    name: Running unit tests
+    needs: [smoke-tests]
     runs-on: ubuntu-latest
-    needs: [doc-style]
     steps:
-      - name: Documentation build
-        uses: ansys/actions/doc-build@v8
+      - name: Run unit tests
+        uses: ansys/actions/tests-pytest@v8
         with:
-          dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
+          pytest-markers: -m unit
+          pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
-          sphinxopts: '-j auto --color -w build_errors.txt'
-          check-links: false
+          optional-dependencies-name: unit-tests
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          name: codecov-unit-tests
+          file: ./coverage.xml
+          flags: linux_unit
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-unit
+          path: junit/test-results.xml
+        if: ${{ always() }}
 
 # # =================================================================================================
 # # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # # =================================================================================================
 
-  test-solvers-windows:
+  system-tests-solvers-windows:
     name: Testing solvers and coverage (Windows)
+    needs: [unit-tests]
     if: github.event.pull_request.draft == false
-    needs: [smoke-tests]
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
@@ -113,7 +138,6 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           pip install .[tests]
-          pip install pytest-azurepipelines
 
       - name: Install CI dependencies (e.g. vtk-osmesa)
         run: |
@@ -122,19 +146,19 @@ jobs:
           pip uninstall --yes vtk
           pip install --extra-index-url https://wheels.vtk.org vtk-osmesa
 
-      - name: Run tests on _unittest_solvers
+      - name: Run tests marked with 'solvers'
         env:
           PYTHONMALLOC: malloc
         run: |
           .venv\Scripts\Activate.ps1
-          pytest --durations=50 -v --cov=ansys.aedt.core --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
+          pytest ${{ env.PYTEST_ARGUMENTS }} -m solvers
 
       - uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-system-solvers-tests-windows
           file: ./coverage.xml
-          flags: system,solvers,windows
+          flags: windows_system_solvers
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@v4
@@ -147,11 +171,10 @@ jobs:
 # # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # # =================================================================================================
 
-  # TODO: Si if we can use ansys/actions
-  test-solvers-linux:
+  system-tests-solvers-linux:
     name: Testing solvers and coverage (Linux)
+    needs: [unit-tests]
     if: github.event.pull_request.draft == false
-    needs: [smoke-tests]
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
       ANSYSEM_ROOT242: '/opt/AnsysEM/v242/Linux64'
@@ -179,20 +202,19 @@ jobs:
           export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
           source .venv/bin/activate
           pip install .[tests]
-          pip install pytest-azurepipelines
 
-      - name: Run tests on _unittest_solvers
+      - name: Run tests marked with 'solvers'
         run: |
           export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
           source .venv/bin/activate
-          pytest --durations=50 -v --cov=ansys.aedt.core --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
+          pytest ${{ env.PYTEST_ARGUMENTS }} -m solvers
 
       - uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-system-solvers-tests-linux
           file: ./coverage.xml
-          flags: system,solvers,linux
+          flags: linux_system_solvers
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@v4
@@ -205,10 +227,10 @@ jobs:
 # # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # # =================================================================================================
 
-  test-windows:
+  system-tests-general-windows:
     name: Testing and coverage (Windows)
+    needs: [unit-tests]
     if: github.event.pull_request.draft == false
-    needs: [smoke-tests]
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
@@ -231,7 +253,6 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           pip install .[tests]
-          pip install pytest-azurepipelines
 
       - name: Install CI dependencies (e.g. vtk-osmesa)
         run: |
@@ -240,7 +261,7 @@ jobs:
           pip uninstall --yes vtk
           pip install --extra-index-url https://wheels.vtk.org vtk-osmesa
 
-      - name: Run tests on _unittest
+      - name: Run tests marked with 'general'
         uses: nick-fields/retry@v3
         env:
           PYTHONMALLOC: malloc
@@ -250,14 +271,14 @@ jobs:
           timeout_minutes: 50
           command: |
             .venv\Scripts\Activate.ps1
-            pytest -n 4 --dist loadfile --durations=50 -v --cov=ansys.aedt.core --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
+            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile -m general
 
       - uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-system-general-tests-windows
           file: ./coverage.xml
-          flags: system,general,windows
+          flags: windows_system_general
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@v4
@@ -270,11 +291,10 @@ jobs:
 # # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # # =================================================================================================
 
-  # TODO: Si if we can use ansys/actions
-  test-linux:
+  system-tests-general-linux:
     name: Testing and coverage (Linux)
     if: github.event.pull_request.draft == false
-    needs: [smoke-tests]
+    needs: [unit-tests]
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
       ANSYSEM_ROOT242: '/opt/AnsysEM/v242/Linux64'
@@ -302,7 +322,6 @@ jobs:
           export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
           source .venv/bin/activate
           pip install .[tests]
-          pip install pytest-azurepipelines
 
       - name: Install CI dependencies (e.g. vtk-osmesa)
         run: |
@@ -311,7 +330,7 @@ jobs:
           pip uninstall --yes vtk
           pip install --extra-index-url https://wheels.vtk.org vtk-osmesa
 
-      - name: Run tests on _unittest
+      - name: Run tests marked with 'general'
         uses: nick-fields/retry@v3
         with:
           max_attempts: 2
@@ -320,14 +339,14 @@ jobs:
           command: |
             export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
             source .venv/bin/activate
-            pytest -n 2 --dist loadfile --durations=50 -v --cov=ansys.aedt.core --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
+            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile -m general
 
       - uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-system-general-tests
           file: ./coverage.xml
-          flags: system,general,linux
+          flags: linux_system_general
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@v4
@@ -338,7 +357,7 @@ jobs:
 
   package:
     name: Package library
-    needs: [test-windows, test-solvers-windows, test-linux, test-solvers-linux, doc-build]
+    needs: [system-tests-general-windows, system-tests-general-linux, system-tests-solvers-windows, system-tests-solvers-linux, doc-build]
     runs-on: ubuntu-latest
     steps:
       - name: Build library source and wheel artifacts

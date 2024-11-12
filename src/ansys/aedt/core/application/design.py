@@ -66,7 +66,6 @@ from ansys.aedt.core.generic.general_methods import GrpcApiError
 from ansys.aedt.core.generic.general_methods import check_and_download_file
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import inner_project_settings
-from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import is_project_locked
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import open_file
@@ -240,8 +239,7 @@ class Design(AedtObjects):
         self._project_path = None
         self.__t = None
         if (
-            not is_ironpython
-            and project_name
+            project_name
             and os.path.exists(project_name)
             and (os.path.splitext(project_name)[1] == ".aedt" or os.path.splitext(project_name)[1] == ".a3dcomp")
         ):
@@ -301,7 +299,7 @@ class Design(AedtObjects):
         self._logger.odesign = self.odesign
         AedtObjects.__init__(self, self._desktop_class, self.oproject, self.odesign, is_inherithed=True)
         self.logger.info("Aedt Objects correctly read")
-        if not self.__t and not settings.lazy_load and not is_ironpython and os.path.exists(self.project_file):
+        if not self.__t and not settings.lazy_load and os.path.exists(self.project_file):
             self.__t = threading.Thread(target=load_aedt_thread, args=(self.project_file,), daemon=True)
             self.__t.start()
         self._variable_manager = VariableManager(self)
@@ -2660,7 +2658,7 @@ class Design(AedtObjects):
 
     @pyaedt_function_handler()
     def _close_edb(self):
-        if self.design_type == "HFSS 3D Layout Design" and not is_ironpython:  # pragma: no cover
+        if self.design_type == "HFSS 3D Layout Design":  # pragma: no cover
             if self.modeler and self.modeler._edb:
                 self.modeler._edb.close_edb()
 
@@ -3134,6 +3132,7 @@ class Design(AedtObjects):
         ----------
         entity_check_level : str, optional
             Entity check level. The default is ``"Strict"``.
+            Options are ``"Strict"``, ``"Basic"``, ``"Warning Only"``, ``"None"``.
         ignore_unclassified : bool, optional
             Whether to ignore unclassified elements. The default is ``False``.
         skip_intersections : bool, optional
@@ -3292,8 +3291,7 @@ class Design(AedtObjects):
             self._logger = self._global_logger
         self.odesktop.CloseProject(name)
         if name == legacy_name:
-            if not is_ironpython:
-                self._init_variables()
+            self._init_variables()
             self._oproject = None
             self._odesign = None
             self.logger.odesign = None
