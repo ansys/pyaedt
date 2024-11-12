@@ -1269,16 +1269,16 @@ class CircuitComponents(object):
         ----------
         name : str, int or float
             Name to be used when creating the new circuit schematic.
-            
+
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-            
+
         References
         ----------
         >>> oEditor.CreatePage()
-        
+
         Examples
         --------
         >>>from ansys.aedt.core import MaxwellCircuit
