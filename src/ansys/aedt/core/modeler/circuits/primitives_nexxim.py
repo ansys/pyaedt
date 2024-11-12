@@ -808,7 +808,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @pyaedt_function_handler(probe_name="name")
-    def create_voltage_probe(self, name, location=None, angle=0, use_instance_id_netlist=False):
+    def create_voltage_probe(self, name=None, location=None, angle=0, use_instance_id_netlist=False):
         """Create a voltage probe.
 
         Parameters
@@ -848,7 +848,7 @@ class NexximComponents(CircuitComponents):
         )
 
     @pyaedt_function_handler()
-    def create_current_probe(self, name, location=None, angle=0, use_instance_id_netlist=False):
+    def create_current_probe(self, name=None, location=None, angle=0, use_instance_id_netlist=False):
         """Create a current probe.
 
         Parameters
