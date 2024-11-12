@@ -15,9 +15,11 @@ maintenance:
 testing:
 - changed-files:
   - any-glob-to-any-file:
-    - "_unittest/conftest.py"
-    - "_unittest_ironpython/run_unittests.py"
-    - "_unittest_ironpython/run_unittests_batchmode.cmd"
+    - "tests/conftest.py"
+    - "tests/unit/conftest.py"
+    - "tests/system/conftest.py"
+    - "tests/system/solvers/conftest.py"
+    - "tests/system/general/conftest.py"
 
 examples:
 - changed-files:

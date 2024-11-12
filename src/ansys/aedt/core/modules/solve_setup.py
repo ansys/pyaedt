@@ -33,8 +33,8 @@ It is based on templates to allow for easy creation and modification of setup pr
 from __future__ import absolute_import  # noreorder
 
 import os.path
-from random import randrange
 import re
+import secrets
 import time
 import warnings
 
@@ -80,6 +80,17 @@ class CommonSetup(PropsManager, object):
         dict
             Dictionary which keys are typically Freq, Phase or Time."""
         intr = {}
+        if "HFSS 3D Layout" in self._app.design_type:  # pragma no cover
+            try:
+                intr["Freq"] = (
+                    self._app.modeler.edb.setups[self.name]
+                    .adaptive_settings.adaptive_frequency_data_list[0]
+                    .adaptive_frequency
+                )
+                intr["Phase"] = "0deg"
+                return intr
+            except Exception:
+                settings.logger.debug("Failed to retrieve adaptive frequency.")
         for i in self._app.design_solutions.intrinsics:
             if i == "Freq" and "Frequency" in self.props:
                 intr[i] = self.props["Frequency"]
@@ -2016,7 +2027,7 @@ class Setup3DLayout(CommonSetup):
             if len(object_names) == 1:
                 object_p = aedtapp.modeler[object_names[0]]
                 object_p.name = net_name
-                object_p.color = [randrange(255), randrange(255), randrange(255)]  # nosec
+                object_p.color = [secrets.randbelow(255), secrets.randbelow(255), secrets.randbelow(255)]
             elif len(object_names) > 1:
                 if unite:
                     united_object = aedtapp.modeler.unite(object_names, purge=True)
@@ -2024,10 +2035,10 @@ class Setup3DLayout(CommonSetup):
                     if obj_ind:
                         aedtapp.modeler.objects[obj_ind].name = net_name
                         aedtapp.modeler.objects[obj_ind].color = [
-                            randrange(255),
-                            randrange(255),
-                            randrange(255),
-                        ]  # nosec
+                            secrets.randbelow(255),
+                            secrets.randbelow(255),
+                            secrets.randbelow(255),
+                        ]
                 else:
                     name_cont = 0
                     for body in object_names:

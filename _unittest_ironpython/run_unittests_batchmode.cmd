@@ -1,1 +1,0 @@
-"%ANSYSEM_ROOT242%\ansysedt.exe" -ng -RunScriptAndExit "_unittest_ironpython\run_unittests.py"

@@ -1970,7 +1970,9 @@ class CommonReport(object):
         return self._change_property("Grid", "Grid", props)
 
     @pyaedt_function_handler()
-    def edit_x_axis(self, font="Arial", font_size=12, italic=False, bold=False, color=(0, 0, 0), label=None):
+    def edit_x_axis(
+        self, font="Arial", font_size=12, italic=False, bold=False, color=(0, 0, 0), label=None, display_units=True
+    ):
         """Edit the X-axis settings.
 
         Parameters
@@ -1988,6 +1990,8 @@ class CommonReport(object):
             must be an integer in a range from 0 to 255.
         label : str, optional
             Label for the Y axis. The default is ``None``.
+        display_units : bool, optional
+            Whether to display units. The default is ``True``.
 
         Returns
         -------
@@ -2037,6 +2041,8 @@ class CommonReport(object):
         if label:
             props.append(["NAME:Name", "Value:=", label])
         props.append(["NAME:Axis Color", "R:=", color[0], "G:=", color[1], "B:=", color[2]])
+        props.append(["NAME:Display Units", "Value:=", display_units])
+
         return self._change_property("Axis", "AxisX", props)
 
     @pyaedt_function_handler()
@@ -2157,7 +2163,17 @@ class CommonReport(object):
             return False
 
     @pyaedt_function_handler(axis_name="name")
-    def edit_y_axis(self, name="Y1", font="Arial", font_size=12, italic=False, bold=False, color=(0, 0, 0), label=None):
+    def edit_y_axis(
+        self,
+        name="Y1",
+        font="Arial",
+        font_size=12,
+        italic=False,
+        bold=False,
+        color=(0, 0, 0),
+        label=None,
+        display_units=True,
+    ):
         """Edit the Y-axis settings.
 
         Parameters
@@ -2177,6 +2193,8 @@ class CommonReport(object):
             must be an integer in a range from 0 to 255.
         label : str, optional
             Label for the Y axis. The default is ``None``.
+        display_units : bool, optional
+            Whether to display units. The default is ``True``.
 
         Returns
         -------
@@ -2226,6 +2244,7 @@ class CommonReport(object):
         if label:
             props.append(["NAME:Name", "Value:=", label])
         props.append(["NAME:Axis Color", "R:=", color[0], "G:=", color[1], "B:=", color[2]])
+        props.append(["NAME:Display Units", "Value:=", display_units])
         return self._change_property("Axis", "Axis" + name, props)
 
     @pyaedt_function_handler(axis_name="name")

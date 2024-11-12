@@ -64,7 +64,7 @@ body:
        - '3.9'
        - '3.10'
        - '3.11'
-       - 'IronPython'
+       - '3.12'
     validations:
       required: true
 
