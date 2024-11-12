@@ -18,10 +18,6 @@ integrity as well as power integrity analysis.
   :width: 800
   :alt: Principle of working of Layout UI
 
-Please refer to EDB Configuration `User Guide`_ for details
-
-.. _User Guide: https://edb.docs.pyansys.com/version/stable/examples/use_configuration/index.html
-
 --------------------------------------------------------------------------
 A brief description of which options are defined in the configuration file
 --------------------------------------------------------------------------
@@ -84,3 +80,19 @@ Configure design in siwave project
 3, Click ``Select and Apply Configuration`` and browse to your configuration files.
 
 4, In the second pop-up window. Specify where to save the new project.
+
+~~~~~~~~~
+Resources
+~~~~~~~~~
+
+1, EDB Configuration `User Guide`_ for details
+
+.. _User Guide: https://edb.docs.pyansys.com/version/stable/examples/use_configuration/index.html
+
+2, `Demo video`_
+
+.. _Demo video: https://www.linkedin.com/posts/electronics-simulation_accelerate-hfss-configuration-via-ansys-pyedb-activity-7252325488168177666-ypbN/?utm_source=share&utm_medium=member_desktop
+
+3, `Webinar Automating Signal and Power Integrity workflow with PyAEDT`_
+
+.. _Webinar Automating Signal and Power Integrity workflow with PyAEDT: https://www.ansys.com/webinars/automating-signal-power-integrity-workflow-pyaedt?campaignID=7013g000000Y8uOAAS&utm_campaign=product&utm_content=digital_electronics_oktopost-Ansys+Electronics_oktopost-%25campaign_n&utm_medium=social-organic&utm_source=LinkedIn
