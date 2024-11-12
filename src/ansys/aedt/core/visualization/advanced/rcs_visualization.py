@@ -1748,7 +1748,7 @@ class MonostaticRCSPlotter(object):
     @staticmethod
     def __add_mesh(mesh_object, plotter, mesh_type="results"):
         """Add a mesh to the plotter with additional options."""
-        options = None
+        options = {}
         if getattr(mesh_object, "custom_object", None):
             if mesh_type == "model":
                 options = mesh_object.custom_object.get_model_options()
@@ -1756,9 +1756,6 @@ class MonostaticRCSPlotter(object):
                 options = mesh_object.custom_object.get_annotation_options()
             else:
                 options = mesh_object.custom_object.get_result_options()
-
-        if options is None:
-            options = {}
 
         plotter.plot(mesh_object.mesh, **options)
 
