@@ -517,7 +517,7 @@ class TestClass:
         assert self.aedtapp.analyze()
 
     def test_36_create_voltage_probe(self):
-        myprobe = self.aedtapp.modeler.components.create_voltage_probe(name="test_probe", location=[0.4, 0.2])
+        myprobe = self.aedtapp.modeler.components.create_voltage_probe(name="voltage_probe")
         assert type(myprobe.id) is int
 
     def test_37_draw_graphical_primitives(self):
@@ -988,3 +988,10 @@ class TestClass:
         self.aedtapp.insert_design("ASC")
         asc_file = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "butter.asc")
         assert self.aedtapp.create_schematic_from_asc_file(asc_file)
+
+    def test_52_create_current_probe(self):
+        iprobe = self.aedtapp.modeler.schematic.create_current_probe(name="test_probe", location=[0.4, 0.2])
+        assert type(iprobe.id) is int
+        assert iprobe.InstanceName == "test_probe"
+        iprobe2 = self.aedtapp.modeler.schematic.create_current_probe(location=[0.8, 0.2])
+        assert type(iprobe2.id) is int

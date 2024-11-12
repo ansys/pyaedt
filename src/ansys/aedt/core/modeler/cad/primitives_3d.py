@@ -3086,7 +3086,7 @@ class Primitives3D(GeometryModeler):
         try:
             core_material = str(values["Core"]["Material"])
             if len(core_material) > 0:
-                if self.materials.checkifmaterialexists(core_material):
+                if self.materials.exists_material(core_material):
                     values["Core"]["Material"] = self.materials._get_aedt_case_name(core_material)
                 else:
                     self.logger.error(
@@ -3109,7 +3109,7 @@ class Primitives3D(GeometryModeler):
         try:
             winding_material = str(values["Outer Winding"]["Material"])
             if len(winding_material) > 0:
-                if self.materials.checkifmaterialexists(winding_material):
+                if self.materials.exists_material(winding_material):
                     values["Outer Winding"]["Material"] = self.materials._get_aedt_case_name(winding_material)
                 else:
                     self.logger.error(
