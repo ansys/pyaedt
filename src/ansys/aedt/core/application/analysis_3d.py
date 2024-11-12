@@ -952,7 +952,7 @@ class FieldAnalysis3D(Analysis, object):
             list_mat_obj += [rd for rd, md in zip(component_data["Ref Des"], component_data["Material"]) if md == mat]
             list_mat_obj = [mo for mo in list_mat_obj if mo in all_objs]
             if list_mat_obj:
-                newmat = self.materials.checkifmaterialexists(mat)
+                newmat = self.materials.exists_material(mat)
                 if not newmat:
                     newmat = self.materials.add_material(mat.lower())
                 if "Material Density" in material_data:

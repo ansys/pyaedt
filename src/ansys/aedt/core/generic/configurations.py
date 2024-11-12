@@ -1148,7 +1148,7 @@ class Configurations(object):
         if self.options.import_materials and dict_in.get("materials", None):
             self.results.import_materials = True
             for el, val in dict_in["materials"].items():
-                if self._app.materials.checkifmaterialexists(el):
+                if self._app.materials.exists_material(el):
                     newname = generate_unique_name(el)
                     self._app.logger.warning("Material %s already exists. Renaming to %s", el, newname)
                 else:
