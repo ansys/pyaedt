@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 import json
-import os
+from pathlib import Path
 import sys
 
 current_python_version = sys.version_info[:2]
@@ -70,11 +70,11 @@ class MonostaticRCSData(object):
     """
 
     def __init__(self, input_file):
-
+        input_file = Path(input_file)
         # Public
-        self.output_dir = os.path.dirname(input_file)
+        self.output_dir = input_file.parent
 
-        if not os.path.isfile(input_file):
+        if not input_file.is_file():
             raise Exception("JSON file does not exist.")
 
         # Private
@@ -97,12 +97,12 @@ class MonostaticRCSData(object):
         self.__model_info = {}
         self.__component_objects = None
 
-        with open_file(input_file) as f:
+        with open_file(str(input_file)) as f:
             self.__metadata = json.load(f)
 
         self.__frequency_units = self.metadata["frequency_units"]
 
-        self.__monostatic_file = os.path.join(self.output_dir, self.metadata["monostatic_file"])
+        self.__monostatic_file = self.output_dir / self.metadata["monostatic_file"]
 
         self.__data_conversion_function = "dB20"
         self.__window = "Flat"
@@ -111,7 +111,7 @@ class MonostaticRCSData(object):
         self.__upsample_range = 512
         self.__upsample_azimuth = 64
 
-        if not os.path.isfile(self.__monostatic_file):  # pragma: no cover
+        if not self.__monostatic_file.is_file():
             raise Exception("Monostatic file invalid.")
 
         self.rcs_column_names = ["data"]
@@ -550,7 +550,7 @@ class MonostaticRCSData(object):
             ``True`` when successful, ``False`` when failed.
         """
 
-        file_extension = os.path.splitext(self.__monostatic_file)[1]
+        file_extension = self.__monostatic_file.suffix
         if file_extension == "h5":
             try:
                 self.__raw_data = pd.read_hdf(self.__monostatic_file, key="df", mode="w", format="table")
@@ -1800,10 +1800,10 @@ class MonostaticRCSPlotter(object):
         for object_in in model_info.values():
             model_pv = ModelPlotter()
             model_pv.off_screen = off_screen
-            cad_path = os.path.join(self.rcs_data.output_dir, object_in[0])
-            if os.path.exists(cad_path):
+            cad_path = Path(self.rcs_data.output_dir) / object_in[0]
+            if cad_path.exists():
                 model_pv.add_object(
-                    cad_path,
+                    str(cad_path),
                     object_in[1],
                     object_in[2],
                     object_in[3],
