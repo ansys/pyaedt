@@ -1396,22 +1396,6 @@ class Analysis(Design, object):
 
             if self.solution_type == "SBR+":
                 setup.auto_update = False
-                if settings.aedt_version >= "2024.2":
-                    default_sbr_setup = {
-                        "RayDensityPerWavelength": 4,
-                        "MaxNumberOfBounces": 5,
-                        "IsMonostaticRCS:": True,
-                        "EnableCWRays": False,
-                        "FastFrequencyLooping": False,
-                        "EnableSBRSelfCoupling": False,
-                        "UseSBRAdvOptionsGOBlockage": False,
-                        "UseSBRAdvOptionsWedges": False,
-                        "PTDUTDSimulationSettings": "None",
-                        "SkipSBRSolveDuringAdaptivePasses": True,
-                        "UseSBREnhancedRadiatedPowerCalculation": False,
-                        "UseSBRAdvOptionsNFAccuracy": False,
-                    }
-                else:
                     default_sbr_setup = {
                         "RayDensityPerWavelength": 4,
                         "MaxNumberOfBounces": 5,
@@ -1424,6 +1408,9 @@ class Analysis(Design, object):
                         "UseSBREnhancedRadiatedPowerCalculation": False,
                         "AdaptFEBIWithRadiation": False,
                     }
+                    if settings.aedt_version >= "2024.2":
+                        default_sbr_setup["IsMonostaticRCS"] = True
+                        default_sbr_setup["FastFrequencyLooping"] = False
                 user_domain = None
                 if props:
                     if "RadiationSetup" in props:
