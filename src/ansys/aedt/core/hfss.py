@@ -5986,7 +5986,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 setup_sweep_name=setup,
                 report_category="Monostatic RCS",
             )
-            if rcs_data and getattr(rcs_data, "primary_sweep_values", None) is not None:
+            if rcs_data and rcs_data.primary_sweep_values is not None:
                 frequencies = rcs_data.primary_sweep_values
                 frequency_units = self.odesktop.GetDefaultUnit("Frequency")
                 frequencies = [str(freq) + frequency_units for freq in frequencies]

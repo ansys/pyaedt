@@ -1,0 +1,38 @@
+{
+  "solution": "Trihedral_RCS",
+  "monostatic_file": "invented.pkl",
+  "model_units": "mm",
+  "frequency_units": "GHz",
+  "model_info": {
+    "Polyline1": [
+      "geometry\\Polyline1.obj",
+      [
+        143,
+        175,
+        143
+      ],
+      1.0,
+      "mm"
+    ],
+    "Polyline1_1": [
+      "geometry\\Polyline1_1.obj",
+      [
+        143,
+        175,
+        143
+      ],
+      1.0,
+      "mm"
+    ],
+    "Polyline1_2": [
+      "geometry\\Polyline1_2.obj",
+      [
+        143,
+        175,
+        143
+      ],
+      1.0,
+      "mm"
+    ]
+  }
+}

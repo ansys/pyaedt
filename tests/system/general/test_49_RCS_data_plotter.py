@@ -50,12 +50,19 @@ def setup_test_data(request, local_scratch):
     data_dir = os.path.join(local_scratch.path, "rcs_files")
     shutil.copytree(dir_original, data_dir)
     request.cls.metadata_file = os.path.join(data_dir, "rcs_metadata.json")
+    request.cls.metadata_file_fake = os.path.join(data_dir, "rcs_metadata_fake.json")
     yield
 
 
 @pytest.mark.usefixtures("setup_test_data")
 class TestClass:
     def test_01_rcs_data(self):
+        with pytest.raises(Exception, match="JSON file does not exist."):
+            MonostaticRCSData(input_file="invented")
+
+        with pytest.raises(Exception, match="Monostatic file invalid."):
+            MonostaticRCSData(input_file=self.metadata_file_fake)
+
         rcs_data = MonostaticRCSData(input_file=self.metadata_file)
         assert isinstance(rcs_data.raw_data, pd.DataFrame)
 
@@ -94,6 +101,9 @@ class TestClass:
         assert rcs_data.window == "Flat"
 
         rcs_data.window = "Hamming"
+        assert rcs_data.window == "Hamming"
+
+        rcs_data.window = "invented"
         assert rcs_data.window == "Hamming"
 
         assert rcs_data.window_size == 1024

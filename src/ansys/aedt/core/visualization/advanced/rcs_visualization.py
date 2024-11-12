@@ -74,7 +74,7 @@ class MonostaticRCSData(object):
         # Public
         self.output_dir = os.path.dirname(input_file)
 
-        if not os.path.isfile(input_file):  # pragma: no cover
+        if not os.path.isfile(input_file):
             raise Exception("JSON file does not exist.")
 
         # Private
@@ -99,9 +99,6 @@ class MonostaticRCSData(object):
 
         with open_file(input_file) as f:
             self.__metadata = json.load(f)
-
-        if not self.metadata:  # pragma: no cover
-            raise Exception("Metadata could not be loaded..")
 
         self.__frequency_units = self.metadata["frequency_units"]
 
@@ -265,6 +262,8 @@ class MonostaticRCSData(object):
         available_functions = ["Flat", "Hamming", "Hann"]
         if val in available_functions:
             self.__window = val
+        else:
+            self.__logger.error("Invalid value for `window`. " "The value must be 'Flat', 'Hamming', or 'Hann'.")
 
     @property
     def window_size(self):
@@ -556,7 +555,7 @@ class MonostaticRCSData(object):
             try:
                 self.__raw_data = pd.read_hdf(self.__monostatic_file, key="df", mode="w", format="table")
             except ImportError as e:  # pragma: no cover
-                self.__app.logger.error(f"PyTables is not installed: {e}")
+                self.__app.logger.error(f"Failed to load monostatic RCS data: {e}")
                 return False
         else:
             self.__raw_data = pd.read_pickle(self.__monostatic_file)
@@ -1009,8 +1008,7 @@ class MonostaticRCSPlotter(object):
 
     @pyaedt_function_handler()
     def plot_scene(self, show=True):
-        """
-        Plot the 3D scene including models, annotations, and results.
+        """Plot the 3D scene including models, annotations, and results.
 
         This method visualizes the 3D scene by rendering the mesh objects under the "model",
         "annotations", and "results" categories stored in `self.all_scene_actors`. The meshes
@@ -1055,8 +1053,7 @@ class MonostaticRCSPlotter(object):
         self,
         color_bar="jet",
     ):
-        """
-        Add a 3D RCS representation to the current scene.
+        """Add a 3D RCS representation to the current scene.
 
         This function normalizes and visualizes RCS data on a spherical coordinate grid
         (theta, phi), mapping it to 3D Cartesian coordinates (x, y, z). The RCS values are
@@ -1130,8 +1127,7 @@ class MonostaticRCSPlotter(object):
 
     @pyaedt_function_handler()
     def add_range_profile_settings(self, size_range=10.0, range_resolution=0.1, tick_color="#000000"):
-        """
-        Add a 3D range profile setting representation to the current scene.
+        """Add a 3D range profile setting representation to the current scene.
 
         This function visualizes a 3D range profile with a main line representing the range axis
         and tick marks indicating distance intervals. The profile includes visual elements like
@@ -1478,8 +1474,7 @@ class MonostaticRCSPlotter(object):
         plot_type="Line",
         color_bar="jet",
     ):
-        """
-        Add the 3D range profile.
+        """Add the 3D range profile.
 
         This function visualizes a 3D range profile, which represents the RCS data
         as a function of range. The profile is rendered as a plot in the 3D scene using spherical coordinates
@@ -1559,10 +1554,7 @@ class MonostaticRCSPlotter(object):
         self,
         color_bar="jet",
     ):
-        """
-        Add the 3D waterfall.
-        """
-        # TODO: Waterfall in 3D is not correct
+        """Add the 3D waterfall."""
         data_waterfall = self.rcs_data.waterfall
 
         ranges = np.unique(data_waterfall["Range"])
@@ -1579,11 +1571,6 @@ class MonostaticRCSPlotter(object):
 
         actor = pv.StructuredGrid(x, y, z)
         actor.point_data["values"] = values
-
-        # plotter = pv.Plotter()
-        # plotter.add_mesh(actor, scalars="values", cmap="jet")
-        # plotter.add_axes()
-        # plotter.show()
 
         all_results_actors = list(self.all_scene_actors["results"].keys())
 
@@ -1605,8 +1592,10 @@ class MonostaticRCSPlotter(object):
         waterfall_object.cmap = color_bar
 
         waterfall_object.mesh = actor
-        # rcs_mesh = MeshObjectPlot(rcs_object, rcs_object.get_mesh())
-        self.all_scene_actors["results"]["waterfall"][waterfall_name] = waterfall_object
+
+        rcs_mesh = MeshObjectPlot(rcs_object, rcs_object.get_mesh())
+
+        self.all_scene_actors["results"]["waterfall"][waterfall_name] = rcs_mesh
 
     @pyaedt_function_handler()
     def clear_scene(self, first_level=None, second_level=None, name=None):
@@ -1703,7 +1692,7 @@ class MonostaticRCSPlotter(object):
                 mesh = model_actor.custom_object.get_mesh()
                 xypoints = mesh.points
                 xpos_ypos = np.column_stack((xpos, ypos, plot_data))
-                _, all_indices = self.__find_nearest_neighbors(xpos_ypos, xypoints)
+                all_indices = self.__find_nearest_neighbors(xpos_ypos, xypoints)
                 mag_for_color = np.ndarray.flatten(cpos[all_indices])
                 if not mesh.__class__.__name__ == "PolyData":
                     mesh_triangulated = mesh.triangulate()
@@ -1749,15 +1738,12 @@ class MonostaticRCSPlotter(object):
     @staticmethod
     def __find_nearest_neighbors(xpos_ypos, xypoints):
         # Calculate squared Euclidean distance between each point in xypoints and xpos_ypos
-        distances = np.sqrt(((xpos_ypos[:, np.newaxis] - xypoints) ** 2).sum(axis=2))
+        distances = ((xpos_ypos[:, np.newaxis] - xypoints) ** 2).sum(axis=2)
 
         # Find the index of the nearest neighbor for each query point in xypoints
         all_indices = np.argmin(distances, axis=0)
 
-        # Get the distance for each query point (optional, can be removed if not needed)
-        nearest_distances = np.min(distances, axis=0)
-
-        return nearest_distances, all_indices
+        return all_indices
 
     @staticmethod
     def __add_mesh(mesh_object, plotter, mesh_type="results"):
