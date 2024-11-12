@@ -808,13 +808,13 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @pyaedt_function_handler(probe_name="name")
-    def create_voltage_probe(self, name=None, location=None, angle=0, use_instance_id_netlist=False):
+    def create_voltage_probe(self, name, location=None, angle=0, use_instance_id_netlist=False):
         """Create a voltage probe.
 
         Parameters
         ----------
-        name :
-            Name of the voltage probe. The default is ``None``.
+        name : str
+            Name of the voltage probe.
         location : list of float, optional
             Position on the X axis and Y axis. The default is ``None``.
         angle : float, optional
@@ -830,34 +830,31 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
-        """
-        if location is None:
-            location = []
-        else:
-            location = [location[0] + 0.2 * 24.4 / 1000, location[1] + 0.2 * 24.4 / 1000]
 
-        cmpid = self.create_component(
-            None,
-            component_library="Probes",
-            component_name="VPROBE",
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> cir = Circuit()
+        >>> cir.modeler.components.create_voltage_probe(name="probe")
+        >>> cir.release_desktop(False, False)
+        """
+        return self.__create_probe(
+            name=name,
+            probe_type="voltage",
             location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
         )
 
-        cmpid.set_property("Name", name)
-        return cmpid
-
-    @pyaedt_function_handler(probe_name="name")
-    def create_current_probe(self, name=None, location=None, angle=0, use_instance_id_netlist=False):
+    @pyaedt_function_handler()
+    def create_current_probe(self, name, location=None, angle=0, use_instance_id_netlist=False):
         """Create a current probe.
 
         Parameters
         ----------
-        name :
-            Name of the current probe. The default is ``None``.
+        name : str
+            Name of the current probe.
         location : list of float, optional
             Position on the X axis and Y axis. The default is ``None``.
         angle : float, optional
@@ -873,9 +870,32 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> cir = Circuit()
+        >>> cir.modeler.components.create_current_probe(name="probe")
+        >>> cir.release_desktop(False, False)
         """
+        return self.__create_probe(
+            name=name,
+            probe_type="current",
+            location=location,
+            angle=angle,
+            use_instance_id_netlist=use_instance_id_netlist,
+        )
+
+    def __create_probe(self, name=None, probe_type="voltage", location=None, angle=0.0, use_instance_id_netlist=False):
+        if probe_type == "voltage":
+            component_name = "VPROBE"
+        elif probe_type == "current":
+            component_name = "IPROBE"
+        else:  # pragma: no cover
+            self.logger.error("Wrong probe type assigned.")
+            return False
+
         if location is None:
             location = []
         else:
@@ -884,7 +904,7 @@ class NexximComponents(CircuitComponents):
         cmpid = self.create_component(
             name,
             component_library="Probes",
-            component_name="IPROBE",
+            component_name=component_name,
             location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,

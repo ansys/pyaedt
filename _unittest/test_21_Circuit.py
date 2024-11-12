@@ -514,7 +514,7 @@ class TestClass:
         assert self.aedtapp.analyze()
 
     def test_36_create_voltage_probe(self):
-        myprobe = self.aedtapp.modeler.components.create_voltage_probe(name="test_probe", location=[0.4, 0.2])
+        myprobe = self.aedtapp.modeler.components.create_voltage_probe()
         assert type(myprobe.id) is int
 
     def test_37_draw_graphical_primitives(self):
