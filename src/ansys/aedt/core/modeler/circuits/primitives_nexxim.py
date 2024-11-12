@@ -813,8 +813,8 @@ class NexximComponents(CircuitComponents):
 
         Parameters
         ----------
-        name : str
-            Name of the voltage probe.
+        name : str, optional
+            Name of the voltage probe. The default is ``None``.
         location : list of float, optional
             Position on the X axis and Y axis. The default is ``None``.
         angle : float, optional
@@ -853,8 +853,8 @@ class NexximComponents(CircuitComponents):
 
         Parameters
         ----------
-        name : str
-            Name of the current probe.
+        name : str, optional
+            Name of the current probe. The default is ``None``.
         location : list of float, optional
             Position on the X axis and Y axis. The default is ``None``.
         angle : float, optional
@@ -902,15 +902,15 @@ class NexximComponents(CircuitComponents):
             location = [location[0] + 0.2 * 24.4 / 1000, location[1] + 0.2 * 24.4 / 1000]
 
         cmpid = self.create_component(
-            name,
+            None,
             component_library="Probes",
             component_name=component_name,
             location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
         )
-
-        cmpid.set_property("Name", name)
+        if name:
+            cmpid.set_property("Name", name)
         return cmpid
 
     @pyaedt_function_handler(compname="name")
