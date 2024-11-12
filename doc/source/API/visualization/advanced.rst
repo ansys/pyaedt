@@ -132,9 +132,9 @@ This code shows how you can get the RCS data and perform some post-processing:
 
 .. code:: python
 
-    import ansys.aedt.core
+    from ansys.aedt.core import Hfss
     from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSPlotter
-    app = ansys.aedt.core.Hfss()
+    app = Hfss()
     rcs_object = app.get_rcs_data()
     rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_object.rcs_data)
     rcs_plotter.plot_rcs()
