@@ -902,7 +902,7 @@ class NexximComponents(CircuitComponents):
             location = [location[0] + 0.2 * 24.4 / 1000, location[1] + 0.2 * 24.4 / 1000]
 
         cmpid = self.create_component(
-            None,
+            name,
             component_library="Probes",
             component_name=component_name,
             location=location,
@@ -910,7 +910,7 @@ class NexximComponents(CircuitComponents):
             use_instance_id_netlist=use_instance_id_netlist,
         )
         if name:
-            cmpid.set_property("Name", name)
+            cmpid.set_property("InstanceName", name)
         return cmpid
 
     @pyaedt_function_handler(compname="name")
