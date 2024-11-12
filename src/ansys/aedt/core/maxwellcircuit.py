@@ -242,3 +242,53 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
             return output_file
         except Exception:
             return False
+
+    def create_page(self, name):
+        """Add a new page to circuit schematic.
+
+        Parameters
+        ----------
+        name : str, int or float
+            Name to be used when creating the new circuit schematic.
+
+        Returns
+        -------
+        bool
+            ``True`` when page added, ``False`` when failed.
+
+        References
+        ----------
+        >>> oEditor.CreatePage()
+
+        Examples
+        --------
+        >>>from ansys.aedt.core import MaxwellCircuit
+        >>>app=MaxwellCircuit()
+        >>>component=app.create_page(name="page_name")
+        """
+        if not isinstance(name, (str, int, float)):
+            self.logger.error("Wrong type for argument ``name``.")
+            return False
+        self.oeditor.CreatePage(name)
+        return True
+
+    def get_num_pages(self):
+        """Gets the number of circuit schematic pages.
+
+        Returns
+        -------
+        int
+            The number of pages in the circuit schematic.
+
+        References
+        ----------
+        >>> oEditor.GetNumPages()
+
+        Examples
+        --------
+        >>>from ansys.aedt.core import MaxwellCircuit
+        >>>app=MaxwellCircuit()
+        >>>component=app.get_num_pages()
+        """
+        pages = self.oeditor.GetNumPages()
+        return pages

@@ -119,7 +119,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         )
         component.set_property("R", value)
         if isinstance(name, (str, int, float)):
-            component.set_property("Name", name)
+            component.parameters["Name"] = name
         return component
 
     @pyaedt_function_handler(compname="name")
@@ -163,7 +163,7 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         component.set_property("L", value)
         if isinstance(name, (str, int, float)):
-            component.set_property("Name", name)
+            component.parameters["Name"] = name
         return component
 
     @pyaedt_function_handler(compname="name")
@@ -206,7 +206,7 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         component.set_property("C", value)
         if isinstance(name, (str, int, float)):
-            component.set_property("Name", name)
+            component.parameters["Name"] = name
         return component
 
     @pyaedt_function_handler(compname="name")
@@ -247,7 +247,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         )
 
         if isinstance(name, (str, int, float)):
-            component.set_property("Name", name)
+            component.parameters["Name"] = name
         return component
 
     @pyaedt_function_handler(compname="name")
@@ -286,7 +286,7 @@ class MaxwellCircuitComponents(CircuitComponents):
             use_instance_id_netlist=use_instance_id_netlist,
         )
         if isinstance(name, (str, int, float)):
-            component.set_property("Name", name)
+            component.parameters["Name"] = name
         return component
 
     def create_i_sin(self, name=None, value=1, location=None, angle=0, use_instance_id_netlist=False):
@@ -312,8 +312,13 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
+
+        Examples
+        --------
+        >>>from ansys.aedt.core import MaxwellCircuit
+        >>>app=MaxwellCircuit()
+        >>>component=app.modeler.schematic.create_i_sin(name="new_current_source", value = 100)
         """
         if location is None:
             location = []
@@ -325,10 +330,9 @@ class MaxwellCircuitComponents(CircuitComponents):
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
         )
-
-        component.set_property("Ia", value)
+        component.parameters["Ia"] = value
         if isinstance(name, (str, int, float)):
-            component.set_property("Name", name)
+            component.parameters["Name"] = name
         return component
 
     def create_v_sin(self, name=None, value=1, location=None, angle=0, use_instance_id_netlist=False):
@@ -356,6 +360,12 @@ class MaxwellCircuitComponents(CircuitComponents):
         ----------
 
         >>> oEditor.CreateComponent
+
+        Examples
+        --------
+        >>>from ansys.aedt.core import MaxwellCircuit
+        >>>app=MaxwellCircuit()
+        >>>component=app.modeler.schematic.create_v_sin(name="new_voltage_source", value = 240)
         """
         if location is None:
             location = []
@@ -367,8 +377,7 @@ class MaxwellCircuitComponents(CircuitComponents):
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
         )
-
-        component.set_property("Va", value)
+        component.parameters["Va"] = value
         if isinstance(name, (str, int, float)):
-            component.set_property("Name", name)
+            component.parameters["Name"] = name
         return component

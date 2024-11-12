@@ -116,9 +116,25 @@ class TestClass:
         assert self.aedtapp.create_schematic_from_netlist(self.netlist_file1)
 
     def test_09_create_voltage_source(self):
-        id = self.aedtapp.modeler.schematic.create_vsin(name="voltage_source", value=3.14, angle=90)
-        assert id.parameters["Va"] == "3.14"
+        name_type = ["voltage_source", 123, 1.23]
+        for item in name_type:
+            self.component = self.aedtapp.modeler.schematic.create_v_sin(name=item, value=3.14, angle=90)
+            assert self.component.parameters["Name"] == item
+        assert self.component.parameters["Va"] == 3.14
 
     def test_10_create_current_source(self):
-        id = self.aedtapp.modeler.schematic.create_isin(name="current_source", value=2.72, angle=90)
-        assert id.parameters["Ia"] == "2.72"
+        name_type = ["current_source", 456, 4.56]
+        for item in name_type:
+            self.component = self.aedtapp.modeler.schematic.create_i_sin(name=item, value=2.72, angle=90)
+            assert self.component.parameters["Name"] == item
+        assert self.component.parameters["Ia"] == 2.72
+
+    def test_11_create_page(self):
+        assert self.aedtapp.create_page("string_test") == True
+        assert self.aedtapp.create_page(123) == True
+        assert self.aedtapp.create_page(3.14) == True
+        assert not self.aedtapp.create_page(["create_page_test"])
+
+    def test_12_get_num_pages(self):
+        assert type(self.aedtapp.get_num_pages()) == int
+        assert not type(self.aedtapp.get_num_pages()) == str, float
