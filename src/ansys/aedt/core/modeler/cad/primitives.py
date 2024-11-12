@@ -3213,8 +3213,6 @@ class GeometryModeler(Modeler):
 
         self.oeditor.SweepAlongPath(vArg1, vArg2)
 
-        # return self.update_object(assignment)
-
         if isinstance(assignment, list):
             updated_obj = []
             for sel_obj in assignment:
@@ -3271,7 +3269,6 @@ class GeometryModeler(Modeler):
 
         self.oeditor.SweepAroundAxis(vArg1, vArg2)
 
-        # return self.update_object(assignment)
         if isinstance(assignment, list):
             updated_obj = []
             for sel_obj in assignment:
