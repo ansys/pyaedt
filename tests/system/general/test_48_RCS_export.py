@@ -24,9 +24,9 @@
 
 import os
 
-from ansys.aedt.core.modules.solutions import SolutionData
 from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
 from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
+from ansys.aedt.core.visualization.post.solution_data import SolutionData
 import pytest
 
 spheres = "RCS"

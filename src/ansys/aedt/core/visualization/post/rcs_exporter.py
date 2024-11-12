@@ -24,7 +24,7 @@
 
 import copy
 import json
-import os
+from pathlib import Path
 import shutil
 
 from ansys.aedt.core.generic.constants import unit_converter
@@ -167,27 +167,27 @@ class MonostaticRCSExporter:
 
         # Output directory
         solution_setup_name = self.setup_name.replace(":", "_").replace(" ", "")
-        full_setup = "{}".format(solution_setup_name)
-        export_path = "{}/{}/".format(self.__app.working_directory, full_setup)
-        local_path = "{}/{}/".format(settings.remote_rpc_session_temp_folder, full_setup)
-        export_path = os.path.abspath(check_and_download_folder(local_path, export_path))
+        full_setup = f"{solution_setup_name}"
+        export_path = Path(self.__app.working_directory) / full_setup
+        local_path = Path(settings.remote_rpc_session_temp_folder) / full_setup
+        export_path = Path(check_and_download_folder(str(local_path), str(export_path))).resolve()
 
         if not self.solution:  # pragma: no cover
             self.solution = self.__app.design_name
 
         file_name = f"{name}_{self.solution}.{output_format}"
-        self.data_file = os.path.join(export_path, file_name)
-        pyaedt_metadata_file = os.path.join(export_path, f"{metadata_name}_{self.solution}.json")
+        self.data_file = export_path / file_name
+        pyaedt_metadata_file = export_path / f"{metadata_name}_{self.solution}.json"
 
         # Create directory or check if files already exist
         if settings.remote_rpc_session:  # pragma: no cover
             settings.remote_rpc_session.filemanager.makedirs(export_path)
             file_exists = settings.remote_rpc_session.filemanager.pathexists(pyaedt_metadata_file)
-        elif not os.path.exists(export_path):
-            os.makedirs(export_path)
+        elif not export_path.exists():
+            export_path.mkdir(parents=True, exist_ok=True)
             file_exists = False
         else:
-            file_exists = os.path.exists(pyaedt_metadata_file)
+            file_exists = pyaedt_metadata_file.exists()
 
         # Export monostatic RCS
         if self.overwrite or not file_exists:
@@ -221,17 +221,17 @@ class MonostaticRCSExporter:
             else:
                 df.to_pickle(self.data_file)
 
-            if not os.path.isfile(self.data_file):  # pragma: no cover
+            if not self.data_file.is_file():  # pragma: no cover
                 self.__app.logger.error("RCS data file not exported.")
                 return False
         else:
             self.__app.logger.info("Using existing RCS file.")
 
         # Export geometry
-        if os.path.isfile(self.data_file):
-            geometry_path = os.path.join(export_path, "geometry")
-            if not os.path.exists(geometry_path):
-                os.mkdir(geometry_path)
+        if self.data_file.is_file():
+            geometry_path = export_path / "geometry"
+            if not geometry_path.exists():
+                geometry_path.mkdir()
             obj_list = self.__create_geometries(geometry_path)
             if obj_list:
                 self.__model_info["object_list"] = obj_list
@@ -247,37 +247,40 @@ class MonostaticRCSExporter:
         if self.model_info and "object_list" in self.model_info:
             items["model_info"] = self.model_info["object_list"]
 
-        with open_file(pyaedt_metadata_file, "w") as f:
+        with open_file(str(pyaedt_metadata_file), "w") as f:
             json.dump(items, f, indent=2)
         if not pyaedt_metadata_file:  # pragma: no cover
             return False
 
         self.__metadata_file = pyaedt_metadata_file
-        self.__rcs_data = MonostaticRCSData(pyaedt_metadata_file)
+        self.__rcs_data = MonostaticRCSData(str(pyaedt_metadata_file))
         return pyaedt_metadata_file
 
     @pyaedt_function_handler()
     def __create_geometries(self, export_path):
         """Export the geometry in OBJ format."""
         self.__app.logger.info("Exporting geometry...")
+        export_path = Path(export_path).resolve()
         model_pv = self.__app.post.get_model_plotter_geometries(plot_air_objects=False)
         obj_list = {}
         for obj in model_pv.objects:
-            object_name = os.path.basename(obj.path)
-            name = os.path.splitext(object_name)[0]
-            original_path = os.path.dirname(obj.path)
-            new_path = os.path.join(os.path.abspath(export_path), object_name)
+            object_name = Path(obj.path).name
+            name = Path(object_name).stem
+            original_path = Path(obj.path).parent
+            new_path = export_path / object_name
 
-            if not os.path.exists(new_path):
-                _ = shutil.move(obj.path, export_path)
+            if not new_path.exists():
+                shutil.move(str(obj.path), str(export_path))
             else:
-                os.remove(new_path)
-                _ = shutil.move(obj.path, export_path)
+                new_path.unlink()
+                shutil.move(str(obj.path), str(export_path))
 
-            if os.path.exists(os.path.join(original_path, name + ".mtl")):  # pragma: no cover
-                os.remove(os.path.join(original_path, name + ".mtl"))
+            mtl_file = original_path / f"{name}.mtl"
+            if mtl_file.exists():  # pragma: no cover
+                mtl_file.unlink()
+
             obj_list[obj.name] = [
-                os.path.join(os.path.basename(export_path), object_name),
+                str(export_path / object_name),
                 obj.color,
                 obj.opacity,
                 obj.units,
