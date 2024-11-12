@@ -554,7 +554,7 @@ class MonostaticRCSData(object):
         file_extension = os.path.splitext(self.__monostatic_file)[1]
         if file_extension == "h5":
             try:
-                self.__raw_data = df.read_hdf(self.__monostatic_file, key="df", mode="w", format="table")
+                self.__raw_data = pd.read_hdf(self.__monostatic_file, key="df", mode="w", format="table")
             except ImportError as e:  # pragma: no cover
                 self.__app.logger.error(f"PyTables is not installed: {e}")
                 return False
@@ -1161,7 +1161,7 @@ class MonostaticRCSPlotter(object):
         # Using 5% of total range length
         tick_length = size_range * 0.05
 
-        if "range_profile" not in self.all_scene_actors["annotations"].keys():
+        if "range_profile" not in self.all_scene_actors["annotations"]:
             self.all_scene_actors["annotations"]["range_profile"] = {}
 
         # Main red line
@@ -1383,7 +1383,7 @@ class MonostaticRCSPlotter(object):
         tick_length = size_range * 0.05
         tick_length_az = size_cross_range * 0.05
 
-        if "range_profile" not in self.all_scene_actors["annotations"].keys():
+        if "range_profile" not in self.all_scene_actors["annotations"]:
             self.all_scene_actors["annotations"]["isar_2d"] = {}
 
         # Main red line
@@ -1938,10 +1938,6 @@ class SceneMeshObject:
         """
         return self.mesh
 
-    def show(self):
-        """Show mesh."""
-        return self.show
-
     def name(self):
         """Name."""
         return self.name
@@ -1957,10 +1953,6 @@ class SceneMeshObject:
     def color(self):
         """Color."""
         return self.color
-
-    def color_map(self):
-        """Color map."""
-        return self.color_map
 
     def scalar_dict(self):
         """Scalar bar dict."""
