@@ -24,6 +24,11 @@
 
 import json
 import os
+import sys
+
+current_python_version = sys.version_info[:2]
+if current_python_version < (3, 10):  # pragma: no cover
+    raise Exception("Python 3.10 or higher is required for Monostatic RCS post-processing.")
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.application.variables import decompose_variable_value

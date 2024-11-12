@@ -98,12 +98,12 @@ all = [
     "pandas>=1.1.0,<2.3",
     "pyvista[io]>=0.38.0,<0.45",
     "fast-simplification>=0.1.7",
+    "ansys-tools-visualization-interface; python_version >= '3.10'",
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.6",
     "scikit-rf>=0.30.0,<1.5",
     "SRTM.py",
     "utm",
-    "ansys-tools-visualization-interface"
 ]
 installer = [
     "matplotlib>=3.5.0,<3.10",
@@ -112,6 +112,8 @@ installer = [
     "osmnx>=1.1.0,<1.10",
     "pandas>=1.1.0,<2.3",
     "pyvista[io]>=0.38.0,<0.45",
+    "fast-simplification>=0.1.7",
+    "ansys-tools-visualization-interface; python_version >= '3.10'",
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.6",
     "scikit-rf>=0.30.0,<1.5",
@@ -120,7 +122,6 @@ installer = [
     "jupyterlab>=3.6.0,<4.4",
     "ipython>=7.30.0,<8.30",
     "ipyvtklink>=0.2.0,<0.2.4",
-    "ansys-tools-visualization-interface"
 ]
 
 [tool.setuptools.dynamic]
