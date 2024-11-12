@@ -3132,6 +3132,7 @@ class Design(AedtObjects):
         ----------
         entity_check_level : str, optional
             Entity check level. The default is ``"Strict"``.
+            Options are ``"Strict"``, ``"Basic"``, ``"Warning Only"``, ``"None"``.
         ignore_unclassified : bool, optional
             Whether to ignore unclassified elements. The default is ``False``.
         skip_intersections : bool, optional
