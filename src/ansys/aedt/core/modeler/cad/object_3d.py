@@ -933,7 +933,7 @@ class Object3d(object):
 
     @material_name.setter
     def material_name(self, mat):
-        matobj = self._primitives._materials.checkifmaterialexists(mat)
+        matobj = self._primitives._materials.exists_material(mat)
         mat_value = None
         if matobj:
             mat_value = chr(34) + matobj.name + chr(34)
@@ -1267,7 +1267,6 @@ class Object3d(object):
         pcs = ["NAME:Orientation", "Value:=", sCS]
         self._change_property(pcs)
         self._part_coordinate_system = sCS
-        return True
 
     @property
     def solve_inside(self):
