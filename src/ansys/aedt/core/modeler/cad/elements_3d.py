@@ -183,19 +183,18 @@ class EdgeTypePrimitive(object):
         vArg2 = ["NAME:ChamferParameters"]
         vArg2.append("Edges:="), vArg2.append(edge_id_list)
         vArg2.append("Vertices:="), vArg2.append(vertex_id_list)
+        if right_distance is None:
+            right_distance = left_distance
         if chamfer_type == 0:
-            if right_distance is not None and left_distance != right_distance:
+            if left_distance != right_distance:
                 self._object3d.logger.error(
                     "Do not set right distance or ensure that left distance equals right distance."
                 )
-            if right_distance is None:
-                right_distance = left_distance
             vArg2.append("LeftDistance:="), vArg2.append(self._object3d._primitives._arg_with_dim(left_distance))
             vArg2.append("RightDistance:="), vArg2.append(self._object3d._primitives._arg_with_dim(right_distance))
             vArg2.append("ChamferType:="), vArg2.append("Symmetric")
         elif chamfer_type == 1:
-            if right_distance is None:
-                right_distance = left_distance
+            vArg2.append("LeftDistance:="), vArg2.append(self._object3d._primitives._arg_with_dim(left_distance))
             vArg2.append("RightDistance:="), vArg2.append(self._object3d._primitives._arg_with_dim(right_distance))
             vArg2.append("ChamferType:="), vArg2.append("Left Distance-Right Distance")
         elif chamfer_type == 2:
