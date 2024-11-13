@@ -1362,7 +1362,9 @@ class Object3d(object):
         if self._material_appearance is not None:
             return self._material_appearance
         if "Material Appearance" in self.valid_properties:
-            material_appearance = self._oeditor.GetPropertyValue("Geometry3DAttributeTab", self._m_name, "Material Appearance")
+            material_appearance = self._oeditor.GetPropertyValue(
+                "Geometry3DAttributeTab", self._m_name, "Material Appearance"
+            )
             if material_appearance == "true" or material_appearance == "True":
                 self._material_appearance = True
             else:
