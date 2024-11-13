@@ -241,6 +241,7 @@ class TestClass:
         assert new_object.solve_inside == initial_object.solve_inside
         assert new_object.model == initial_object.model
         assert new_object.display_wireframe == initial_object.display_wireframe
+        assert new_object.material_appearance == initial_object.material_appearance
         assert new_object.part_coordinate_system == initial_object.part_coordinate_system
         assert new_object.transparency == 0.76
         assert new_object.color == initial_object.color
@@ -248,7 +249,6 @@ class TestClass:
         assert len(new_object.vertices) == 8
         assert len(new_object.faces) == 6
         assert len(new_object.edges) == 12
-        assert new_object.display_wireframe == initial_object.display_wireframe
         new_object.name = "Properties_Box"
         assert not new_object.name == "Properties_Box"
 
