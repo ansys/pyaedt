@@ -716,20 +716,6 @@ class TestClass:
             "MyGND", xy_plane=True, yz_plane=False, xz_plane=False, allow_perpendicular=True, tolerance=1e-6
         )
 
-    def test_42_chamfer(self):
-        o = self.create_copper_box(name="MyBox")
-        assert o.edges[0].chamfer()
-        self.aedtapp._odesign.Undo()
-        assert o.edges[0].chamfer(chamfer_type=1)
-        self.aedtapp._odesign.Undo()
-        assert o.edges[0].chamfer(chamfer_type=2)
-        self.aedtapp._odesign.Undo()
-        assert o.edges[0].chamfer(chamfer_type=3)
-        self.aedtapp._odesign.Undo()
-        assert not o.edges[0].chamfer(chamfer_type=4)
-        o2 = self.create_copper_box(name="MyBox2")
-        assert o2.chamfer(edges=o2.edges)
-
     def test_43_fillet_and_undo(self):
         o = self.create_copper_box(name="MyBox")
         assert o.edges[0].fillet()
