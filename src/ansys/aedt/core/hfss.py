@@ -7157,3 +7157,56 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         self.onetwork_data_explorer.SetExportTouchstoneOptions(preferences, design_name, props)
         return True
+
+    @pyaedt_function_handler()
+    def import_table(
+        self,
+        input_file,
+        name=None,
+        is_real_imag=True,
+        is_field=False,
+        column_names=None,
+        independent_columns=None,
+    ):
+        """Import a data table.
+
+            The table can have multiple independent real-valued columns of data,
+            and multiple dependent real- or complex-valued columns of data.
+            The data supported imports are either tab delimited format (.tab) or comma delimited format (.csv).
+            The first row may contain column names. Complex data columns are inferred from the column data format.
+            In tab delimited format, "(double, double)" denotes a complex number. In comma delimited format, "(double,
+            double)" denotes a complex number.
+
+        Parameters
+        ----------
+        input_file : str
+            Full path to the file. Supported formats are ``"csv"``, and ``"tab"``.
+        name : str, optional
+            Solution name. The default is ``None``.
+        is_real_imag : bool, optional
+            Whether to use real and imaginary to interpret data for any complex column. If ``False``, then use
+            magnitude and phase in degrees. The default is ``True``.
+        is_field : bool, optional
+            Whether to matrix data. If ``True``, then use field data. The default is ``False``.
+        column_names : list, optional
+            Column names. The default is ``None``, in which case column names obtained from data file are assigned.
+        independent_columns : list, optional
+            Indicates which columns are independent. If ``None``, only the first column is independent.
+
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.ImportTable
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.import_table(input_file="my_file.csv")
+        """
+        pass
