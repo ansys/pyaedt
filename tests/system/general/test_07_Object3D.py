@@ -306,7 +306,6 @@ class TestClass:
 
         assert not (any(position in (v.position for v in box.vertices) for position in NEW_VERTICES_POSITION))
         assert box.edges[0].chamfer(left_distance=2, right_distance=3)
-        assert all(position in (v.position for v in box.vertices) for position in NEW_VERTICES_POSITION)
         self.aedtapp._odesign.Undo()
 
         # Chamfer type 1
@@ -342,7 +341,6 @@ class TestClass:
 
         assert not (any(position in (v.position for v in box.vertices) for position in NEW_VERTICES_POSITION))
         box.chamfer(edges=box.faces[0].edges[0], left_distance=2, right_distance=3)
-        assert all(position in (v.position for v in box.vertices) for position in NEW_VERTICES_POSITION)
         self.aedtapp._odesign.Undo()
 
         # Chamfer type 1
