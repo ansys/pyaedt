@@ -584,7 +584,7 @@ class MonostaticRCSData(object):
         """
 
         file_extension = self.__monostatic_file.suffix
-        if file_extension == "h5":
+        if file_extension == ".h5":
             try:
                 self.__raw_data = pd.read_hdf(self.__monostatic_file, key="df", mode="w", format="table")
             except ImportError as e:  # pragma: no cover
