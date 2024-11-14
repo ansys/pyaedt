@@ -30,21 +30,56 @@ current_python_version = sys.version_info[:2]
 if current_python_version < (3, 10):  # pragma: no cover
     raise Exception("Python 3.10 or higher is required for Monostatic RCS post-processing.")
 
+import warnings
+
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.general_methods import conversion_function
-from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
-from ansys.tools.visualization_interface import MeshObjectPlot
-from ansys.tools.visualization_interface import Plotter
-from ansys.tools.visualization_interface.backends.pyvista import PyVistaBackend
-import numpy as np
-import pandas as pd
-import pyvista as pv
-import scipy.interpolate
+
+try:
+    import numpy as np
+except ImportError:  # pragma: no cover
+    warnings.warn(
+        "The NumPy module is required to use module rcs_visualization.py.\n" "Install with \n\npip install numpy"
+    )
+    np = None
+
+try:
+    import pyvista as pv
+except ImportError:  # pragma: no cover
+    warnings.warn(
+        "The PyVista module is required to use module rcs_visualization.py.\n" "Install with \n\npip install pyvista"
+    )
+    pv = None
+
+try:
+    from ansys.tools.visualization_interface import MeshObjectPlot
+    from ansys.tools.visualization_interface import Plotter
+    from ansys.tools.visualization_interface.backends.pyvista import PyVistaBackend
+except ImportError:  # pragma: no cover
+    warnings.warn(
+        "The Ansys Tools Visualization Interface module is required to use module rcs_visualization.py.\n"
+        "Install with \n\npip install ansys-tools-visualization-interface"
+    )
+
+try:
+    import pandas as pd
+except ImportError:  # pragma: no cover
+    warnings.warn(
+        "The Pandas module is required to use module rcs_visualization.py.\n" "Install with \n\npip install pandas"
+    )
+    pd = None
+
+try:
+    import scipy.interpolate
+except ImportError:  # pragma: no cover
+    warnings.warn(
+        "The SciPy module is required to use module rcs_visualization.py.\n" "Install with \n\npip install scipy"
+    )
 
 
 class MonostaticRCSData(object):
