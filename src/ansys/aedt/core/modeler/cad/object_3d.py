@@ -98,6 +98,7 @@ class Object3d(object):
         self._surface_material = None
         self._color = None
         self._wireframe = None
+        self._material_appearance = None
         self._part_coordinate_system = None
         self._model = None
         self._m_groupName = None
@@ -1341,6 +1342,45 @@ class Object3d(object):
 
         self._change_property(vWireframe)
         self._wireframe = fWireframe
+
+    @property
+    def material_appearance(self):
+        """Material appearance property of the part.
+
+        Returns
+        -------
+        bool
+            ``True`` when material appearance is activated for the part, ``False`` otherwise.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
+
+        """
+        if self._material_appearance is not None:
+            return self._material_appearance
+        if "Material Appearance" in self.valid_properties:
+            material_appearance = self._oeditor.GetPropertyValue(
+                "Geometry3DAttributeTab", self._m_name, "Material Appearance"
+            )
+            if material_appearance == "true" or material_appearance == "True":
+                self._material_appearance = True
+            else:
+                self._material_appearance = False
+            return self._material_appearance
+
+    @material_appearance.setter
+    def material_appearance(self, material_appearance):
+        vMaterialAppearance = [
+            "NAME:Material Appearance",
+            "Value:=",
+            material_appearance,
+        ]
+
+        self._change_property(vMaterialAppearance)
+        self._material_appearance = material_appearance
 
     @pyaedt_function_handler()
     def history(self):
