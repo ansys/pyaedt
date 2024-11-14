@@ -133,9 +133,9 @@ class MonostaticRCSData(object):
         with input_file.open("r") as file:
             self.__metadata = json.load(file)
 
-        self.__frequency_units = self.metadata["frequency_units"]
+        self.__frequency_units = self.__metadata["frequency_units"]
 
-        self.__monostatic_file = self.output_dir / self.metadata["monostatic_file"]
+        self.__monostatic_file = self.output_dir / self.__metadata["monostatic_file"]
 
         self.__data_conversion_function = "dB20"
         self.__window = "Flat"
@@ -177,7 +177,7 @@ class MonostaticRCSData(object):
     @property
     def solution(self):
         """Data solution name."""
-        self.__solution = self.metadata["solution"]
+        self.__solution = self.__metadata["solution"]
         return self.__solution
 
     @property
