@@ -129,11 +129,9 @@ class MonostaticRCSData(object):
 
         self.__frequencies = []
 
-        self.__model_info = {}
-        self.__component_objects = None
 
-        with open_file(str(input_file)) as f:
-            self.__metadata = json.load(f)
+        with input_file.open("r") as file:
+            self.__metadata = json.load(file)
 
         self.__frequency_units = self.metadata["frequency_units"]
 
