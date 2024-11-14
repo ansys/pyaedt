@@ -153,7 +153,7 @@ class MonostaticRCSData(object):
         is_rcs_loaded = self.__init_rcs()
 
         if not is_rcs_loaded:  # pragma: no cover
-            raise Exception("RCS information can not be loaded.")
+            raise RuntimeError("RCS information can not be loaded.")
 
         # Update active frequency if passed in the initialization
         self.frequency = self.frequencies[0]
