@@ -110,7 +110,7 @@ class MonostaticRCSData(object):
         self.output_dir = input_file.parent
 
         if not input_file.is_file():
-            raise Exception("JSON file does not exist.")
+            raise FileNotFoundError("JSON file does not exist.")
 
         # Private
         self.__logger = logger
