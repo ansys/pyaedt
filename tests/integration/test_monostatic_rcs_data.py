@@ -1,0 +1,166 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+import ast
+import pytest
+from pathlib import Path
+import logging
+
+from unittest.mock import MagicMock, patch, mock_open
+from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
+
+FILE_PATH = "dummy.json"
+JSON_CONTENT_PKL = '{"solution": "Trihedral_RCS", "monostatic_file": "rcs_data.pkl", "model_units": "mm", "frequency_units": "GHz"}'
+JSON_CONTENT_HDF = '{"solution": "Trihedral_RCS", "monostatic_file": "rcs_data.h5", "model_units": "mm", "frequency_units": "GHz"}'
+CONTENT = ast.literal_eval(JSON_CONTENT_PKL)
+FREQUENCIES = ["100Hz", "200Hz", "300Hz"]
+COLUMNS = ["MyName", "Column2", "Column3"]
+VALUES = [12, 42]
+VALUE_LOG_ERROR = "Value not available."
+FREQUENCY_LOG_ERROR = "Frequency not available."
+WINDOW_LOG_ERROR = "Invalid value for `window`. " "The value must be 'Flat', 'Hamming', or 'Hann'."
+
+mock_df = MagicMock()
+mock_df.columns = COLUMNS
+mock_index = MagicMock()
+mock_df.index = mock_index
+mock_index.names = ["Freq", "OtherLevel"]
+mock_index.get_level_values.return_value = FREQUENCIES
+
+@pytest.fixture
+def rcs_setup():
+    """Fixture used to setup a MonostaticRCSData instance."""
+
+    with patch("pandas.read_pickle") as mock_read_pickle, \
+         patch("pathlib.Path.is_file") as mock_is_file, \
+         patch("pathlib.Path.open", new_callable=mock_open, read_data=JSON_CONTENT_PKL) as mock_open_path:
+        
+        mock_is_file.return_value = True
+        mock_read_pickle.return_value = mock_df
+        yield {
+            "read_pickle": mock_read_pickle,
+            "is_file": mock_is_file,
+            "open": mock_open_path
+        }
+
+
+def test_success_with_existing_file(rcs_setup):
+    mono_rcs_data = MonostaticRCSData(input_file=FILE_PATH)
+
+    assert mock_df == mono_rcs_data.raw_data
+    assert CONTENT == mono_rcs_data.metadata
+    assert COLUMNS[0] == mono_rcs_data.name
+    assert "Trihedral_RCS" == mono_rcs_data.solution
+    assert Path(FILE_PATH) == mono_rcs_data.input_file
+    assert "GHz" == mono_rcs_data.frequency_units
+    assert FREQUENCIES == mono_rcs_data.frequencies
+    assert None == mono_rcs_data.frequency
+    assert None == mono_rcs_data.available_incident_wave_theta
+    assert None == mono_rcs_data.available_incident_wave_phi
+    assert "dB20" == mono_rcs_data.data_conversion_function
+    assert "Flat" == mono_rcs_data.window
+    assert 1024 == mono_rcs_data.window_size
+    assert "Horizontal" == mono_rcs_data.aspect_range
+    assert 512 == mono_rcs_data.upsample_range
+    assert 64 == mono_rcs_data.upsample_azimuth
+
+
+@patch.object(MonostaticRCSData, "available_incident_wave_theta", new_callable=lambda: VALUES)
+def test_set_incident_wave_theta_success(mock_property, caplog, rcs_setup):
+    mono_rcs_data = MonostaticRCSData(input_file=FILE_PATH)
+
+    with caplog.at_level(logging.ERROR, logger="Global"):
+        mono_rcs_data.incident_wave_theta = 12
+
+    assert not any((caplog.records[i].message == VALUE_LOG_ERROR for i in range(len(caplog.records))))
+
+
+@patch.object(MonostaticRCSData, "available_incident_wave_theta", new_callable=lambda: VALUES)
+def test_set_incident_wave_theta_failure(mock_property, caplog, rcs_setup):
+    mono_rcs_data = MonostaticRCSData(input_file=FILE_PATH)
+
+    with caplog.at_level(logging.ERROR, logger="Global"):
+        mono_rcs_data.incident_wave_theta = 13
+
+    assert any((caplog.records[i].message == VALUE_LOG_ERROR for i in range(len(caplog.records))))
+
+
+@patch.object(MonostaticRCSData, "available_incident_wave_phi", new_callable=lambda: VALUES)
+def test_set_incident_wave_phi_success(mock_property, caplog, rcs_setup):
+    mono_rcs_data = MonostaticRCSData(input_file=FILE_PATH)
+
+    with caplog.at_level(logging.ERROR, logger="Global"):
+        mono_rcs_data.incident_wave_phi = 12
+
+    assert not any((caplog.records[i].message == VALUE_LOG_ERROR for i in range(len(caplog.records))))
+
+
+@patch.object(MonostaticRCSData, "available_incident_wave_phi", new_callable=lambda: VALUES)
+def test_set_incident_wave_phi_failure(mock_property, caplog, rcs_setup):
+    mono_rcs_data = MonostaticRCSData(input_file=FILE_PATH)
+
+    with caplog.at_level(logging.ERROR, logger="Global"):
+        mono_rcs_data.incident_wave_phi = 13
+
+    assert any((caplog.records[i].message == VALUE_LOG_ERROR for i in range(len(caplog.records))))
+
+
+@patch.object(MonostaticRCSData, "frequencies", new_callable=lambda: VALUES)
+def test_set_frequency_failure(mock_property, caplog, rcs_setup):
+    mono_rcs_data = MonostaticRCSData(input_file=FILE_PATH)
+
+    with caplog.at_level(logging.ERROR, logger="Global"):
+        mono_rcs_data.frequency = 13
+
+    assert any((caplog.records[i].message == FREQUENCY_LOG_ERROR for i in range(len(caplog.records))))
+
+
+@patch.object(MonostaticRCSData, "frequencies", new_callable=lambda: VALUES)
+def test_set_frequency_success(mock_property, caplog, rcs_setup):
+    mono_rcs_data = MonostaticRCSData(input_file=FILE_PATH)
+
+    with caplog.at_level(logging.ERROR, logger="Global"):
+        mono_rcs_data.frequency = "12 GHz"
+
+    assert not any((caplog.records[i].message == FREQUENCY_LOG_ERROR for i in range(len(caplog.records))))
+
+
+def test_set_frequency_success(caplog, rcs_setup):
+    mono_rcs_data = MonostaticRCSData(input_file=FILE_PATH)
+
+    with caplog.at_level(logging.ERROR, logger="Global"):
+        mono_rcs_data.window = "Dummy"
+
+    assert any((caplog.records[i].message == WINDOW_LOG_ERROR for i in range(len(caplog.records))))
+
+
+@patch("pandas.read_hdf", side_effect=ImportError("Dummy message"))
+@patch("pathlib.Path.is_file", return_value=True)
+@patch("pathlib.Path.open", new_callable=mock_open, read_data=JSON_CONTENT_HDF)
+def test_failure_with_warning(mock_open, mock_is_file, mock_read_pickle, caplog):
+    with pytest.raises(RuntimeError, match="RCS information can not be loaded."):
+        with caplog.at_level(logging.ERROR, logger="Global"):
+            MonostaticRCSData(input_file=FILE_PATH)
+
+        assert caplog.records[0].message.startswith("Failed to load monostatic RCS data:")
