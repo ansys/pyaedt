@@ -12,6 +12,7 @@ brd
 busbar
 busbars
 Bz
+CHECKIN
 [Cc]ircuit
 codecov
 (?i)Com
@@ -101,6 +102,7 @@ assign_mesh_region
 assign_mesh_level
 assign_mesh_reuse
 json
+jupyter
 toml
 Parasolid
 i.e.

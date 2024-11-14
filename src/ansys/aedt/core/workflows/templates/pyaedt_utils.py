@@ -31,6 +31,7 @@ import random
 import string
 import sys
 
+from System.Windows.Forms import DialogResult
 from System.Windows.Forms import MessageBox
 from System.Windows.Forms import MessageBoxButtons
 from System.Windows.Forms import MessageBoxIcon
@@ -65,7 +66,7 @@ def check_file(file_path, oDesktop):
 
 
 def get_linux_terminal():
-    for terminal in ["x-terminal-emulator", "konsole", "xterm", "gnome-terminal", "lxterminal", "mlterm"]:
+    for terminal in ["x-terminal-emulator", "xterm", "gnome-terminal", "lxterminal", "mlterm"]:
         term = which(terminal)
         if term:
             return term
@@ -143,7 +144,22 @@ def environment_variables(oDesktop):
 
 def generate_unique_name(root_name, suffix="", n=6):
     char_set = string.ascii_uppercase + string.digits
-    unique_name = root_name + "_" + "".join(random.choice(char_set) for _ in range(n))  # nosec
+    unique_name = root_name + "_" + "".join(random.choice(char_set) for _ in range(n))  # nosec B311
     if suffix:
         unique_name += suffix
     return unique_name
+
+
+def validate_disclaimer():
+    """Display dialog box and evaluate the response to the disclaimer."""
+    DISCLAIMER = (
+        "This script will download and install certain third-party software and/or "
+        "open-source software (collectively, 'Third-Party Software'). Such Third-Party "
+        "Software is subject to separate terms and conditions and not the terms of your "
+        "Ansys software license agreement. Ansys does not warrant or support such "
+        "Third-Party Software.\n"
+        "Do you want to proceed ?"
+    )
+
+    response = MessageBox.Show(DISCLAIMER, "Disclaimer", MessageBoxButtons.YesNo)
+    return response == DialogResult.Yes

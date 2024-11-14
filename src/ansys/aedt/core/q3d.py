@@ -35,7 +35,6 @@ from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import MATRIXOPERATIONSQ2D
 from ansys.aedt.core.generic.constants import MATRIXOPERATIONSQ3D
 from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
@@ -43,11 +42,14 @@ from ansys.aedt.core.modules.boundary import BoundaryObject
 from ansys.aedt.core.modules.boundary import Matrix
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 
-if not is_ironpython:
-    try:
-        import numpy as np
-    except ImportError:  # pragma: no cover
-        pass
+try:
+    import numpy as np
+except ImportError:  # pragma: no cover
+    warnings.warn(
+        "The NumPy module is required to use functionalities provided by the module ansys.edt.core.q3d.\n"
+        "Install with \n\npip install numpy"
+    )
+    np = None
 
 
 class QExtractor(FieldAnalysis3D, object):
@@ -578,9 +580,9 @@ class QExtractor(FieldAnalysis3D, object):
             else:
                 variations_list = []
                 for x in range(0, len(self.available_variations.nominal_w_values_dict)):
-                    variation = "{}='{}'".format(
-                        list(self.available_variations.nominal_w_values_dict.keys())[x],
-                        list(self.available_variations.nominal_w_values_dict.values())[x],
+                    variation = (
+                        f"{list(self.available_variations.nominal_w_values_dict.keys())[x]}="
+                        f"'{list(self.available_variations.nominal_w_values_dict.values())[x]}'"
                     )
                     variations_list.append(variation)
                 variations = ",".join(variations_list)
@@ -654,7 +656,7 @@ class QExtractor(FieldAnalysis3D, object):
             )
         else:
             if freq_unit != self.odesktop.GetDefaultUnit("Frequency") and freq_unit is not None:
-                freq = go.parse_dim_arg("{}{}".format(freq, freq_unit), self.odesktop.GetDefaultUnit("Frequency"))
+                freq = go.parse_dim_arg(f"{freq}{freq_unit}", self.odesktop.GetDefaultUnit("Frequency"))
 
         if export_ac_dc_res is None:
             export_ac_dc_res = False
@@ -971,9 +973,9 @@ class QExtractor(FieldAnalysis3D, object):
             else:
                 variations_list = []
                 for x in range(0, len(self.available_variations.nominal_w_values_dict)):
-                    variation = "{}='{}'".format(
-                        list(self.available_variations.nominal_w_values_dict.keys())[x],
-                        list(self.available_variations.nominal_w_values_dict.values())[x],
+                    variation = (
+                        f"{list(self.available_variations.nominal_w_values_dict.keys())[x]}="
+                        f"'{list(self.available_variations.nominal_w_values_dict.values())[x]}'"
                     )
                     variations_list.append(variation)
                 variations = ",".join(variations_list)
@@ -990,7 +992,7 @@ class QExtractor(FieldAnalysis3D, object):
                 if not solved_variations or not solved_variations.variations[0]:
                     self.logger.error("Provided variation doesn't exist.")
                     return False
-                variation = "{}='{}'".format(name, value)
+                variation = f"{name}='{value}'"
                 variations_list.append(variation)
             variations = ",".join(variations_list)
 
@@ -1501,7 +1503,7 @@ class Q3d(QExtractor, object):
             bound = BoundaryObject(self, net, props, "SignalNet")
             self._boundaries[bound.name] = bound
         if new_nets:
-            self.logger.info("{} Nets have been identified: {}".format(len(new_nets), ", ".join(new_nets)))
+            self.logger.info(f"{len(new_nets)} Nets have been identified: {', '.join(new_nets)}")
         else:
             self.logger.info("No new nets identified")
         return True
@@ -1966,7 +1968,7 @@ class Q3d(QExtractor, object):
             if not magnetic_threshold:
                 magnetic_threshold = 1.01
 
-            if not is_ironpython and not self.desktop_class.is_grpc_api:
+            if not self.desktop_class.is_grpc_api:
                 insulator_threshold = np.longdouble(insulator_threshold)
                 perfect_conductor_threshold = np.longdouble(perfect_conductor_threshold)
                 magnetic_threshold = np.longdouble(magnetic_threshold)
@@ -2539,7 +2541,7 @@ class Q2d(QExtractor, object):
             self._boundaries[bound.name] = bound
             i += 2
         if new_nets:
-            self.logger.info("{} Nets have been identified: {}".format(len(new_nets), ", ".join(new_nets)))
+            self.logger.info(f"{len(new_nets)} Nets have been identified: {', '.join(new_nets)}")
         else:
             self.logger.info("No new nets identified")
         return True
@@ -2577,12 +2579,12 @@ class Q2d(QExtractor, object):
                 sweeps = ["LastAdaptive"]
             for sweep in sweeps:
                 variation_array = self.list_of_variations(s, sweep)
-                solution_name = "{} : {}".format(s, sweep)
+                solution_name = f"{s} : {sweep}"
                 if len(variation_array) == 1:
                     try:
-                        export_file = "{}_{}_{}.sp".format(self.project_name, s, sweep)
+                        export_file = f"{self.project_name}_{s}_{sweep}.sp"
                         export_path = os.path.join(export_folder, export_file)
-                        subckt_name = "w_{}".format(self.project_name)
+                        subckt_name = f"w_{self.project_name}"
                         self.oanalysis.ExportCircuit(
                             solution_name,
                             variation_array[0],
@@ -2624,9 +2626,9 @@ class Q2d(QExtractor, object):
                     for variation in variation_array:
                         varCount += 1
                         try:
-                            export_file = "{}_{}_{}_{}.sp".format(self.project_name, s, sweep, varCount)
+                            export_file = f"{self.project_name}_{s}_{sweep}_{varCount}.sp"
                             export_path = os.path.join(export_folder, export_file)
-                            subckt_name = "w_{}_{}".format(self.project_name, varCount)
+                            subckt_name = f"w_{self.project_name}_{varCount}"
                             self.oanalysis.ExportCircuit(
                                 solution_name,
                                 variation,

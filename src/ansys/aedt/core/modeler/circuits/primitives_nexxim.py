@@ -23,8 +23,8 @@
 # SOFTWARE.
 
 import os
-import random
 import re
+import secrets
 import time
 import warnings
 
@@ -198,19 +198,20 @@ class NexximComponents(CircuitComponents):
         if not name:
             name = generate_unique_name("Circuit")
 
+        secure_random = secrets.SystemRandom()
         if nested_subcircuit_id:
-            parent_name = "{}:{}:{}".format(
-                self._app.design_name.split("/")[0], nested_subcircuit_id, random.randint(1, 10000)
+            parent_name = (
+                f"{self._app.design_name.split('/')[0]}:{nested_subcircuit_id}:{secure_random.randint(1, 10000)}"
             )
         else:
-            parent_name = "{}:{}".format(self._app.design_name.split("/")[0], ":U" + str(random.randint(1, 10000)))
+            parent_name = f'{self._app.design_name.split("/")[0]}:{":U" + str(secure_random.randint(1, 10000))}'
 
         self._app.odesign.InsertDesign("Circuit Design", name, "", parent_name)
         if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
             time.sleep(1)
             self._app.desktop_class.close_windows()
         if nested_subcircuit_id:
-            pname = "{}:{}".format(self._app.design_name.split("/")[0], nested_subcircuit_id)
+            pname = f"{self._app.design_name.split('/')[0]}:{nested_subcircuit_id}"
             odes = self._app.desktop_class.active_design(self._app.oproject, pname)
             oed = odes.SetActiveEditor("SchematicEditor")
             if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
@@ -812,7 +813,7 @@ class NexximComponents(CircuitComponents):
 
         Parameters
         ----------
-        name :
+        name : str, optional
             Name of the voltage probe. The default is ``None``.
         location : list of float, optional
             Position on the X axis and Y axis. The default is ``None``.
@@ -829,24 +830,87 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> cir = Circuit()
+        >>> cir.modeler.components.create_voltage_probe(name="probe")
+        >>> cir.release_desktop(False, False)
         """
+        return self.__create_probe(
+            name=name,
+            probe_type="voltage",
+            location=location,
+            angle=angle,
+            use_instance_id_netlist=use_instance_id_netlist,
+        )
+
+    @pyaedt_function_handler()
+    def create_current_probe(self, name=None, location=None, angle=0, use_instance_id_netlist=False):
+        """Create a current probe.
+
+        Parameters
+        ----------
+        name : str, optional
+            Name of the current probe. The default is ``None``.
+        location : list of float, optional
+            Position on the X axis and Y axis. The default is ``None``.
+        angle : float, optional
+            Angle rotation in degrees. The default is ``0``.
+        use_instance_id_netlist : bool, optional
+            Whether to use the instance ID in the net list.
+            The default is ``False``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+            Circuit Component Object.
+
+        References
+        ----------
+        >>> oEditor.CreateComponent
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> cir = Circuit()
+        >>> cir.modeler.components.create_current_probe(name="probe")
+        >>> cir.release_desktop(False, False)
+        """
+        return self.__create_probe(
+            name=name,
+            probe_type="current",
+            location=location,
+            angle=angle,
+            use_instance_id_netlist=use_instance_id_netlist,
+        )
+
+    def __create_probe(self, name=None, probe_type="voltage", location=None, angle=0.0, use_instance_id_netlist=False):
+        if probe_type == "voltage":
+            component_name = "VPROBE"
+        elif probe_type == "current":
+            component_name = "IPROBE"
+        else:  # pragma: no cover
+            self.logger.error("Wrong probe type assigned.")
+            return False
+
         if location is None:
             location = []
         else:
             location = [location[0] + 0.2 * 24.4 / 1000, location[1] + 0.2 * 24.4 / 1000]
 
         cmpid = self.create_component(
-            None,
+            name,
             component_library="Probes",
-            component_name="VPROBE",
+            component_name=component_name,
             location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
         )
-
-        cmpid.set_property("Name", name)
+        if name:
+            cmpid.set_property("InstanceName", name)
         return cmpid
 
     @pyaedt_function_handler(compname="name")
@@ -1377,9 +1441,9 @@ class NexximComponents(CircuitComponents):
             spicesintax += name + " "
         for el, val in zip(parameters, values):
             if "MOD" in el:
-                spicesintax += "@{} ".format(el)
+                spicesintax += f"@{el} "
             else:
-                spicesintax += "{}=@{} ".format(el, el)
+                spicesintax += f"{el}=@{el} "
 
         arg3 = [
             "NAME:CosimDefinitions",

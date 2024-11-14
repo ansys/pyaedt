@@ -312,7 +312,7 @@ class CommonRegion(object):
         region = self.object
         create_region = region.history()
         set_type = ["Data", "Type"][int(padding_type)]
-        create_region.props["{} Padding {}".format(direction, set_type)] = value
+        create_region.props[f"{direction} Padding {set_type}"] = value
 
     def _update_region_data(self):
         region = self.object
@@ -320,8 +320,8 @@ class CommonRegion(object):
         self._padding_type = []
         self._padding_value = []
         for padding_direction in ["+X", "-X", "+Y", "-Y", "+Z", "-Z"]:
-            self._padding_type.append(create_region.props["{} Padding Type".format(padding_direction)])
-            self._padding_value.append(create_region.props["{} Padding Data".format(padding_direction)])
+            self._padding_type.append(create_region.props[f"{padding_direction} Padding Type"])
+            self._padding_value.append(create_region.props[f"{padding_direction} Padding Data"])
             self._coordinate_system = create_region.props["Coordinate System"]
 
     def _get_region_data(self, direction=None, padding_type=True):
@@ -379,7 +379,7 @@ class SubRegion(CommonRegion):
             if (
                 self.object is not None and self._app.modeler.objects_by_name.get(self.object.name, False)
             ) or self._app.modeler.objects_by_name.get(region_name, False):
-                self._app.logger.error("{} already exists in the design.".format(self.object.name))
+                self._app.logger.error(f"{self.object.name} already exists in the design.")
                 return False
             if not isinstance(parts, list):
                 objects = [parts]
@@ -509,9 +509,9 @@ class MeshSettings(object):
         for k, v in self._instance_settings.items():
             out.append(k + ":=")
             if k in ["MaxElementSizeX", "MaxElementSizeY", "MaxElementSizeZ", "MinGapX", "MinGapY", "MinGapZ"]:
-                v = _dim_arg(v, getattr(self._mesh_class, "_model_units"))
+                v = _dim_arg(v, self._mesh_class._model_units)
             out.append(v)
-        out += ["UserSpecifiedSettings:=", getattr(self._mesh_class, "manual_settings")]
+        out += ["UserSpecifiedSettings:=", self._mesh_class.manual_settings]
         return out
 
     def parse_settings_as_dictionary(self):
@@ -673,9 +673,7 @@ class MeshRegionCommon(object):
             not in ["manual_settings", "settings", "_name", "_model_units", "_app", "_assignment", "enable", "name"]
         ):
             self._app.logger.error(
-                "Setting name {} is not available. Available parameters are: {}.".format(
-                    name, ", ".join(self.settings.keys())
-                )
+                f"Setting name {name} is not available. Available parameters are: {', '.join(self.settings.keys())}."
             )
         else:
             super(MeshRegionCommon, self).__setattr__(name, value)
@@ -821,7 +819,7 @@ class MeshRegion(MeshRegionCommon):
                 "NAME:AllTabs",
                 [
                     "NAME:Icepak",
-                    ["NAME:PropServers", "MeshRegion:{}".format(self.name)],
+                    ["NAME:PropServers", f"MeshRegion:{self.name}"],
                     ["NAME:ChangedProps", ["NAME:Name", "Value:=", value]],
                 ],
             ]
@@ -1040,7 +1038,7 @@ class IcepakMesh(object):
         self.modeler = self._app.modeler
         design_type = self._odesign.GetDesignType()
         if design_type not in meshers:
-            raise RuntimeError("Invalid design type {}".format(design_type))  # pragma: no cover
+            raise RuntimeError(f"Invalid design type {design_type}")  # pragma: no cover
         self.id = 0
         self._oeditor = self.modeler.oeditor
         self._model_units = self.modeler.model_units

@@ -97,6 +97,28 @@ If you are not utilizing gRPC, you can install the required dotnet dependencies 
 
     pip install pyaedt[dotnet]
 
+If you want to install the PyAEDT panels in the AEDT Automation tab, use the following command:
+
+.. code:: python
+
+    pip install pyaedt[installer]
+
+Finally, in the python console, run the following commands:
+
+.. code::
+
+     from ansys.aedt.core.workflows.installer.pyaedt_installer import add_pyaedt_to_aedt
+     add_pyaedt_to_aedt(“your_aedt_version", r“path_to_personalib")
+
+You can also install the PyAEDT panels using the following steps, this is also useful if you have a centralized PyAEDT installation:
+
+- Download the following file: :download:`PyAEDT panel Installer Python file <../Resources/toolkit_installer_from_aedt.py>`
+
+- Define an environment variable called `PYAEDT_INTERPRETER` with the path of the python interpreter in which PyAEDT is installed.
+
+- Open an Electronics Desktop Session and click on Tools->Run Script and execute the file. You do not need the previous step if
+you pass as an argument the path of the python interpreter.
+
 
 Linux support
 ~~~~~~~~~~~~~
@@ -113,9 +135,15 @@ However, you must set up the following environment variables:
 Install offline from a wheelhouse
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Using a wheelhouse can be helpful if you work for a company that restricts access to external networks.
-Wheelhouses for CPython 3.8, 3.9, 3.10, 3.11, and 3.12 are available in the releases for both Windows and Linux. From the `Releases <https://github.com/ansys/pyaedt/releases>`_
+
+Wheelhouses for CPython 3.8, 3.9, 3.10, 3.11, and 3.12 are available in the releases for both Windows and Linux.
+From the `Releases <https://github.com/ansys/pyaedt/releases>`_
 page in the PyAEDT repository, you can find the wheelhouses for a particular release in its
 assets and download the wheelhouse specific to your setup.
+
+There are two kind of wheelhouses: `all` and `installer`.
+
+The `all` wheelhouse contains all PyAEDT dependencies. And the `installer` one includes `ipython` and `jupyter lab`.
 
 You can then install PyAEDT and all of its dependencies from one single entry point that can be shared internally,
 which eases the security review of the PyAEDT package content.
@@ -124,7 +152,20 @@ For example, on Windows with Python 3.10, install PyAEDT and all its dependencie
 
 .. code::
 
-    pip install --no-cache-dir --no-index --find-links=file:///<path_to_wheelhouse>/PyAEDT-v<release_version>-wheelhouse-Windows-3.10 pyaedt
+    pip install --no-cache-dir --no-index --find-links=file:///<path_to_wheelhouse>/PyAEDT-v<release_version>-wheelhouse-Windows-3.10 pyaedt[all]
+
+If you want to add the PyAEDT panels in the AEDT Automation tab, you need first to install the installer dependencies:
+
+.. code::
+
+    pip install --no-cache-dir --no-index --find-links=file:///<path_to_wheelhouse>/PyAEDT-v<release_version>-wheelhouse-Windows-3.10 pyaedt[installer]
+
+Finally, in the python console, run the following commands:
+
+.. code::
+
+     from ansys.aedt.core.workflows.installer.pyaedt_installer import add_pyaedt_to_aedt
+     add_pyaedt_to_aedt(“your_aedt_version", r“path_to_personalib")
 
 
 Install PyAEDT in Conda virtual environment

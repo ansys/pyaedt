@@ -113,7 +113,7 @@ class Primitives2D(GeometryModeler, object):
         vArg1.append("ZCenter:="), vArg1.append(ZCenter)
         vArg1.append("Radius:="), vArg1.append(Radius)
         vArg1.append("WhichAxis:="), vArg1.append(szAxis)
-        vArg1.append("NumSegments:="), vArg1.append("{}".format(num_sides))
+        vArg1.append("NumSegments:="), vArg1.append(f"{num_sides}")
 
         vArg2 = self._default_object_attributes(name=name, material=material, flags="NonModel#" if non_model else "")
         new_object_name = self.oeditor.CreateCircle(vArg1, vArg2)
@@ -228,7 +228,8 @@ class Primitives2D(GeometryModeler, object):
         --------
 
         >>> rect1 = aedtapp.modeler.create_rectangle([0, -2, -2],[3, 4])
-        >>> rect2 = aedtapp.modeler.create_rectangle(origin=[0, -2, -2],sizes=[3, 4],name="MyCircle",material="Copper")
+        >>> rect2 = aedtapp.modeler.create_rectangle(origin=[0, -2, -2],sizes=[3, 4],
+        ...                                          name="MyRectangle",material="Copper")
 
         """
         # TODO: Primitives in Maxwell 2D must have Z=0, otherwise the transparency cannot be changed. (issue 4071)

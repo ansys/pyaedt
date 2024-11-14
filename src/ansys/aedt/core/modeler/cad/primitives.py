@@ -43,6 +43,7 @@ from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.data_handlers import json_to_dict
 from ansys.aedt.core.generic.general_methods import _dim_arg
 from ansys.aedt.core.generic.general_methods import _uname
+from ansys.aedt.core.generic.general_methods import clamp
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_number
@@ -436,7 +437,7 @@ class GeometryModeler(Modeler):
 
     @model_units.setter
     def model_units(self, units):
-        assert units in AEDT_UNITS["Length"], "Invalid units string {0}.".format(units)
+        assert units in AEDT_UNITS["Length"], f"Invalid units string {units}."
         self.oeditor.SetModelUnits(["NAME:Units Parameter", "Units:=", units, "Rescale:=", False])
         self._model_units = units
 
@@ -1278,7 +1279,7 @@ class GeometryModeler(Modeler):
         coord.reverse()
         return coord
 
-    def _get_lists_data(self):
+    def _get_lists_data(self):  # pragma: no cover
         """Retrieve user object list data.
 
         Returns
@@ -2073,7 +2074,7 @@ class GeometryModeler(Modeler):
         self.logger.info("Enabling deformation feedback")
         try:
             self._odesign.SetObjectDeformation(["EnabledObjects:=", assignment])
-        except Exception:
+        except Exception:  # pragma: no cover
             self.logger.error("Failed to enable the deformation dependence")
             return False
         else:
@@ -2133,7 +2134,7 @@ class GeometryModeler(Modeler):
             vargs1.append(vargs2)
         try:
             self._odesign.SetObjectTemperature(vargs1)
-        except Exception:
+        except Exception:  # pragma: no cover
             self.logger.error("Failed to enable the temperature dependence")
             return False
         else:
@@ -2528,7 +2529,7 @@ class GeometryModeler(Modeler):
             self._change_geometry_property(vArg1, objs_to_unmodel)
             bounding = self.get_model_bounding_box()
             self._odesign.Undo()
-        else:
+        else:  # pragma: no cover
             bounding = self.get_model_bounding_box()
         return bounding
 
@@ -2705,7 +2706,7 @@ class GeometryModeler(Modeler):
                             obj_name = tool.name
                             obj = o.edges[0]
                     tool_type = "EdgeTool"
-                else:
+                else:  # pragma: no cover
                     self.logger.error("Face tool part has to be provided as a string (name) or an int (face id).")
                     return False
                 planes = "Dummy"
@@ -3638,7 +3639,7 @@ class GeometryModeler(Modeler):
                 vArg2.append("TurnOnNBodyBoolean:=")
                 vArg2.append(True)
             self.oeditor.Unite(vArg1, vArg2)
-            if szSelections.split(",")[0] in self.unclassified_names:
+            if szSelections.split(",")[0] in self.unclassified_names:  # pragma: no cover
                 self.logger.error("Error in uniting objects.")
                 self._odesign.Undo()
                 self.cleanup_objects()
@@ -3654,7 +3655,7 @@ class GeometryModeler(Modeler):
         self.cleanup_objects()
         if len(objs_groups) > 1:
             return self.unite(objs_groups, purge=purge)
-        self.logger.info("Union of {} objects has been executed.".format(num_objects))
+        self.logger.info(f"Union of {num_objects} objects has been executed.")
         return self.convert_to_selections(assignment[0], False)
 
     @pyaedt_function_handler(objid="assignment")
@@ -3709,7 +3710,7 @@ class GeometryModeler(Modeler):
             vArg1 = ["NAME:Selections", "Selections:=", selections]
             self.oeditor.Copy(vArg1)
             return selections
-        except AttributeError:
+        except AttributeError:  # pragma: no cover
             self.logger.error("Unable to copy selections to clipboard.")
             return None
 
@@ -3764,7 +3765,7 @@ class GeometryModeler(Modeler):
 
         self.oeditor.Intersect(vArg1, vArg2)
         unclassified1 = list(self.oeditor.GetObjectsInGroup("Unclassified"))
-        if unclassified != unclassified1:
+        if unclassified != unclassified1:  # pragma: no cover
             self._odesign.Undo()
             self.logger.error("Error in intersection. Reverting Operation")
             return
@@ -3833,7 +3834,7 @@ class GeometryModeler(Modeler):
             vArg1 = ["NAME:Selections", "Selections:=", szSelections]
 
             self.oeditor.Connect(vArg1)
-            if unclassified_before != self.unclassified_names:
+            if unclassified_before != self.unclassified_names:  # pragma: no cover
                 self._odesign.Undo()
                 self.logger.error("Error in connection. Reverting Operation")
                 return False
@@ -3872,9 +3873,7 @@ class GeometryModeler(Modeler):
         blank_part = chassis_part
         # in main code this object will need to be determined automatically eg by name such as chassis or sheer size
         self.logger.info("Blank Part in Subtraction = " + str(blank_part))
-        """
-        check if blank part exists, if not, skip subtraction
-        """
+        # Check if blank part exists, if not, skip subtraction
         tool_parts = list(self.oeditor.GetObjectsInGroup("Solids"))
         tool_parts.remove(blank_part)
         for mat in mat_names:
@@ -3885,9 +3884,9 @@ class GeometryModeler(Modeler):
                 # tool_parts_final=list(set(tool_parts).difference(set(objnames)))
         tool_parts = ",".join(tool_parts)
         num_obj_end = self.oeditor.GetNumObjects()
-        self.subtract(blank_part, tool_parts, True)
-
+        res = self.subtract(blank_part, tool_parts, True)
         self.logger.info("Subtraction Objs - Initial: " + str(num_obj_start) + "  ,  Final: " + str(num_obj_end))
+        return res
 
     @pyaedt_function_handler()
     def _offset_on_plane(self, i, offset):
@@ -4017,17 +4016,17 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.RenamePart
         """
-        # import os.path
-        # (CADPath, CADFilename) = os.path.split(CADFile)
-        # (CADName, CADExt) = os.path.splitext(CADFilename)
-        CADSuffix = main_part_name + "_"
-        objNames = self.oeditor.GetMatchedObjectName(CADSuffix + "*")
-        for name in objNames:
-            RenameArgs = {}
-            RenameArgs["NAME"] = "Rename Data"
-            RenameArgs["Old Name"] = name
-            RenameArgs["New Name"] = name.replace(CADSuffix, "")
-            self.oeditor.RenamePart(RenameArgs)
+        cad_suffix = main_part_name + "_"
+        names = self.oeditor.GetMatchedObjectName(cad_suffix + "*")
+        for name in names:
+            args = [
+                "NAME:Rename Data",
+                "Old Name:=",
+                name,
+                "New Name:=",
+                name.replace(cad_suffix, ""),
+            ]
+            self.oeditor.RenamePart(args)
         return True
 
     @pyaedt_function_handler(defname="name")
@@ -4188,10 +4187,10 @@ class GeometryModeler(Modeler):
             result = user_list.create(assignment=assignment, name=name, entity_type=list_type)
             if result:
                 return user_list
-            else:
+            else:  # pragma: no cover
                 self._app.logger.error("Wrong object definition. Review object list and type")
                 return False
-        else:
+        else:  # pragma: no cover
             self._app.logger.error("User list object could not be created")
             return False
 
@@ -4228,10 +4227,10 @@ class GeometryModeler(Modeler):
             result = user_list.create(assignment=assignment, name=name, entity_type=list_type)
             if result:
                 return user_list
-            else:
+            else:  # pragma: no cover
                 self._app.logger.error("Wrong object definition. Review object list and type")
                 return False
-        else:
+        else:  # pragma: no cover
             self._app.logger.error("User list object could not be created")
             return False
 
@@ -4306,7 +4305,7 @@ class GeometryModeler(Modeler):
             if dir == direction:
                 edgelist.append(el)
                 verlist.append([p1, p2])
-        if not edgelist:
+        if not edgelist:  # pragma: no cover
             self.logger.error("No edges found specified direction. Check again")
             return False
         connected = [edgelist[0]]
@@ -4521,7 +4520,7 @@ class GeometryModeler(Modeler):
             try:
                 line_ids[line_object] = str(self.oeditor.GetObjectIDByName(line_object))
             except Exception:
-                self.logger.warning("Line {} has an invalid ID!".format(line_object))
+                self.logger.warning(f"Line {line_object} has an invalid ID!")
         return line_ids
 
     @pyaedt_function_handler()
@@ -4732,7 +4731,7 @@ class GeometryModeler(Modeler):
         else:
             allObjects = assignment_to_export[:]
 
-        self.logger.debug("Exporting {} objects".format(len(allObjects)))
+        self.logger.debug(f"Exporting {len(allObjects)} objects")
 
         # actual version supported by AEDT is 29.0
         if major_version == -1:
@@ -4779,6 +4778,7 @@ class GeometryModeler(Modeler):
         reduce_percentage=0,
         reduce_error=0,
         merge_planar_faces=True,
+        merge_angle=0.02,
     ):
         """Import a CAD model.
 
@@ -4788,9 +4788,6 @@ class GeometryModeler(Modeler):
             Full path and name of the CAD file.
         healing : bool, optional
             Whether to perform healing. The default is ``False``, in which
-            case healing is not performed.
-        healing : int, optional
-            Whether to perform healing. The default is ``0``, in which
             case healing is not performed.
         refresh_all_ids : bool, optional
             Whether to refresh all IDs after the CAD file is loaded. The
@@ -4820,6 +4817,8 @@ class GeometryModeler(Modeler):
             Stl error percentage during reduce operation. Default is  ``0``.
         merge_planar_faces : bool, optional
             Stl automatic planar face merge during import. Default is ``True``.
+        merge_angle : float, optional
+            Stl import angle in radians for which faces will be considered planar. Default is ``2e-2``.
 
         Returns
         -------
@@ -4846,7 +4845,7 @@ class GeometryModeler(Modeler):
         vArg1.append("CreateGroup:="), vArg1.append(create_group)
         vArg1.append("STLFileUnit:="), vArg1.append("Auto")
         vArg1.append("MergeFacesAngle:="), vArg1.append(
-            0.02 if input_file.endswith(".stl") and merge_planar_faces else -1
+            merge_angle if input_file.endswith(".stl") and merge_planar_faces else -1
         )
         if input_file.endswith(".stl"):
             vArg1.append("HealSTL:="), vArg1.append(heal_stl)
@@ -4861,11 +4860,11 @@ class GeometryModeler(Modeler):
         self.oeditor.Import(vArg1)
         if refresh_all_ids:
             self.refresh_all_ids()
-        self.logger.info("Step file {} imported".format(input_file))
+        self.logger.info(f"Step file {input_file} imported")
         return True
 
     @pyaedt_function_handler(SCFile="input_file")
-    def import_spaceclaim_document(self, input_file):
+    def import_spaceclaim_document(self, input_file):  # pragma: no cover
         """Import a SpaceClaim document.
 
         Parameters
@@ -4890,7 +4889,7 @@ class GeometryModeler(Modeler):
                 if variable > latest_version:
                     latest_version = variable
                     break
-        if not latest_version:
+        if not latest_version:  # pragma: no cover
             self.logger.error("SpaceClaim is not found.")
         else:
             scdm_path = os.path.join(os.environ[latest_version], "scdm")
@@ -5104,12 +5103,12 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.CreateUserDefinedModel
         """
-        if is_linux:
+        if is_linux:  # pragma: no cover
             self.logger.error("Discovery not supported on Linux.")
             return False
         version = self._app.aedt_version_id[-3:]
 
-        ansys_install_dir = os.environ.get("AWP_ROOT{}".format(version), "")
+        ansys_install_dir = os.environ.get(f"AWP_ROOT{version}", "")
 
         if ansys_install_dir:
             if "Discovery" not in os.listdir(ansys_install_dir):  # pragma: no cover
@@ -5731,19 +5730,19 @@ class GeometryModeler(Modeler):
         sheet = self.convert_to_selections(sheet, False)
         object = self.convert_to_selections(object, False)
 
-        if sheet not in self.sheet_names:
-            self.logger.error("{} is not a valid sheet.".format(sheet))
+        if sheet not in self.sheet_names:  # pragma: no cover
+            self.logger.error(f"{sheet} is not a valid sheet.")
             return False
-        if object not in self.solid_names:
-            self.logger.error("{} is not a valid solid body.".format(object))
+        if object not in self.solid_names:  # pragma: no cover
+            self.logger.error(f"{object} is not a valid solid body.")
             return False
         unclassified = [i for i in self.unclassified_objects]
         self.oeditor.WrapSheet(
-            ["NAME:Selections", "Selections:=", "{},{}".format(sheet, object)],
+            ["NAME:Selections", "Selections:=", f"{sheet},{object}"],
             ["NAME:WrapSheetParameters", "Imprinted:=", imprinted],
         )
         is_unclassified = [i for i in self.unclassified_objects if i not in unclassified]
-        if is_unclassified:
+        if is_unclassified:  # pragma: no cover
             self.logger.error("Failed to Wrap sheet. Reverting to original objects.")
             self._odesign.Undo()
             return False
@@ -6049,7 +6048,7 @@ class GeometryModeler(Modeler):
         try:
             self.oeditor.Simplify(selections_args, simplify_parameters, groups_for_new_object)
             return True
-        except Exception:
+        except Exception:  # pragma: no cover
             self.logger.error("Simplify objects failed.")
             return False
 
@@ -6283,6 +6282,86 @@ class GeometryModeler(Modeler):
         return o
 
     @pyaedt_function_handler()
+    def update_geometry_property(self, assignment, name=None, value=None):
+        """Update property of assigned geometry objects.
+
+        Parameters
+        ----------
+        assignment : str, or list
+            Object name or list of object names to be updated.
+        name : str, optional
+            Property name to change. The default is ``None``, in which case no property is updated.
+            Available options are: ``"display_wireframe"``, `"material"``, and `"solve_inside"``.
+        value : bool or str, optional
+            Property value. The default is ``None`` in which case
+            no value is assigned.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        assignment = self.convert_to_selections(assignment, True)
+
+        # Define property mapping
+        property_mapping = {
+            "display_wireframe": {"property_name": "Display Wireframe", "reset_attr": ["_wireframe"]},
+            "material_name": {"property_name": "Material", "reset_attr": ["_material_name", "_model", "_solve_inside"]},
+            "solve_inside": {"property_name": "Solve Inside", "reset_attr": ["_solve_inside"]},
+            "color": {"property_name": "Color", "reset_attr": ["_color"]},
+            "transparency": {"property_name": "Transparent", "reset_attr": ["_transparency"]},
+            "part_coordinate_system": {
+                "property_name": "Orientation",
+                "reset_attr": ["_part_coordinate_system"],
+            },
+            "material_appearance": {"property_name": "Material Appearance", "reset_attr": ["_material_appearance"]},
+        }
+
+        # Check if property name is valid
+        property_key = name.lower()
+        if property_key not in property_mapping:
+            self.logger.error("Invalid property name.")
+            return False
+
+        # Retrieve property settings
+        property_name = property_mapping[property_key]["property_name"]
+        reset_attr = property_mapping[property_key]["reset_attr"]
+
+        # Handle special cases for material
+        if property_key == "material_name" and isinstance(value, str):
+            matobj = self._materials.exists_material(value)
+            if matobj:
+                value = f'"{matobj.name}"'
+            elif "[" in value or "(" in value:  # pragma: no cover
+                value = value
+            else:
+                self.logger.error("Invalid material value.")
+                return False
+
+        value_command = ["Value:=", value]
+        if property_key == "color":
+            if isinstance(value, tuple) or isinstance(value, list):
+                R = clamp(value[0], 0, 255)
+                G = clamp(value[1], 0, 255)
+                B = clamp(value[2], 0, 255)
+                value_command = ["R:=", str(R), "G:=", str(G), "B:=", str(B)]
+            else:
+                self.logger.error("Invalid color.")
+                return False
+
+        # Reset property values
+        for obj_name in assignment:
+            obj = self.objects_by_name[obj_name]
+            for attr in reset_attr:
+                setattr(obj, attr, None)
+
+        props = [f"NAME:{property_name}"]
+        props.extend(value_command)
+
+        return self._change_geometry_property(props, assignment)
+
+    @pyaedt_function_handler()
     def value_in_object_units(self, value):
         """Convert one or more strings for numerical lengths to floating point values.
 
@@ -6313,7 +6392,7 @@ class GeometryModeler(Modeler):
             elif isinstance(element, str):
                 # element is an existing variable
                 si_value = self._app.evaluate_expression(element)
-                v = Variable("{}meter".format(si_value))
+                v = Variable(f"{si_value}meter")
                 v.rescale_to(self.model_units)
                 num_val = v.numeric_value
             else:
@@ -6420,7 +6499,7 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler()
     def _parse_region_args(self, pad_value, pad_type, region_name, parts, region_type, is_percentage):
-        arg = ["NAME:{}Parameters".format(region_type)]
+        arg = [f"NAME:{region_type}Parameters"]
         p = ["+X", "-X", "+Y", "-Y", "+Z", "-Z"]
         if not isinstance(pad_value, list):
             pad_value = [pad_value] * 6
@@ -6437,7 +6516,7 @@ class GeometryModeler(Modeler):
                 if not units and pad_value[i].isnumeric() and not is_percentage:
                     units = self.model_units
                     pad_value[i] += units
-                elif units and is_percentage:
+                elif units and is_percentage:  # pragma: no cover
                     self.logger.error("Percentage input must not have units")
                     return False, False
             elif not is_percentage:
@@ -6486,8 +6565,8 @@ class GeometryModeler(Modeler):
     def _create_region(
         self, pad_value=300, pad_type="Percentage Offset", name="Region", parts=None, region_type="Region"
     ):
-        if name in self._app.modeler.objects_by_name:
-            self._app.logger.error("{} object already exists".format(name))
+        if name in self._app.modeler.objects_by_name:  # pragma: no cover
+            self._app.logger.error(f"{name} object already exists")
             return False
         if not isinstance(pad_value, list):
             pad_value = [pad_value] * 6
@@ -7045,7 +7124,7 @@ class GeometryModeler(Modeler):
         vArg1 = ["NAME:AllTabs"]
 
         prop_servers = ["NAME:PropServers"]
-        prop_servers.append("{0}:{1}:1".format(assignment, operation))
+        prop_servers.append(f"{assignment}:{operation}:1")
 
         cmd_tab = ["NAME:Geometry3DCmdTab"]
         cmd_tab.append(prop_servers)
@@ -7054,7 +7133,7 @@ class GeometryModeler(Modeler):
 
         for pair in parameters:
             if isinstance(pair, list):
-                changed_props.append(["NAME:{0}".format(pair[0]), "Value:=", pair[1]])
+                changed_props.append([f"NAME:{pair[0]}", "Value:=", pair[1]])
             else:
                 changed_props.append(["NAME:", pair.Name, "Value:=", pair.Value])
 
@@ -7107,7 +7186,7 @@ class GeometryModeler(Modeler):
             try:
                 self.oeditor.Delete(arg)
             except Exception:
-                self.logger.warning("Failed to delete {}.".format(objects_str))
+                self.logger.warning(f"Failed to delete {objects_str}.")
             remaining -= slice
             if remaining > 0:
                 assignment = assignment[slice:]
@@ -7116,7 +7195,7 @@ class GeometryModeler(Modeler):
 
         if len(assignment) > 0:
             self.cleanup_objects()
-            self.logger.info("Deleted {} Objects: {}.".format(num_objects, objects_str))
+            self.logger.info(f"Deleted {num_objects} Objects: {objects_str}.")
         return True
 
     @pyaedt_function_handler()
@@ -8712,7 +8791,7 @@ class GeometryModeler(Modeler):
         arg_str += ["XSectionWidth:=", _dim_arg(width, model_units)]
         arg_str += ["XSectionTopWidth:=", _dim_arg(topwidth, model_units)]
         arg_str += ["XSectionHeight:=", _dim_arg(height, model_units)]
-        arg_str += ["XSectionNumSegments:=", "{}".format(num_seg)]
+        arg_str += ["XSectionNumSegments:=", f"{num_seg}"]
         arg_str += ["XSectionBendType:=", section_bend]
 
         return arg_str
@@ -8724,11 +8803,11 @@ class GeometryModeler(Modeler):
         if isinstance(value, str):
             try:
                 float(value)
-                val = "{0}{1}".format(value, units)
+                val = f"{value}{units}"
             except Exception:
                 val = value
         else:
-            val = "{0}{1}".format(value, units)
+            val = f"{value}{units}"
         return val
 
     @pyaedt_function_handler()
@@ -8942,18 +9021,18 @@ class PrimitivesBuilder(object):
                     props = self._read_csv_cylinder_props(csv_data)
                 if primitive_type_cleaned in ["Blocks Prism", "Prism"]:
                     props = self._read_csv_prism_props(csv_data)
-                if not props:
+                if not props:  # pragma: no cover
                     msg = "CSV file not valid."
                     self.logger.error(msg)
                     raise TypeError(msg)
-            else:
+            else:  # pragma: no cover
                 msg = "Format is not valid."
                 self.logger.error(msg)
                 raise TypeError(msg)
         else:
             props = input_dict
 
-        if not props or not all(key in props for key in ["Primitives", "Instances"]):
+        if not props or not all(key in props for key in ["Primitives", "Instances"]):  # pragma: no cover
             msg = "Input data is wrong."
             self.logger.error(msg)
             raise AttributeError(msg)
@@ -8987,7 +9066,7 @@ class PrimitivesBuilder(object):
 
         if self.coordinate_systems:
             cs_flag = self._create_coordinate_system()
-            if not cs_flag:
+            if not cs_flag:  # pragma: no cover
                 self.logger.error("Wrong coordinate system is defined.")
                 return False
 
@@ -8995,7 +9074,7 @@ class PrimitivesBuilder(object):
 
         for instance_data in self.instances:
             name = instance_data.get("Name")
-            if not name:
+            if not name:  # pragma: no cover
                 self.logger.error("``Name`` parameter is not defined.")
                 return False
 
@@ -9004,8 +9083,10 @@ class PrimitivesBuilder(object):
                 self.logger.warning("``Coordinate System`` parameter is not defined, ``Global`` is assigned.")
                 instance_data["Coordinate System"] = "Global"
                 cs = instance_data.get("Coordinate System")
-            elif instance_data["Coordinate System"] != "Global" and instance_data["Coordinate System"] not in cs_names:
-                self.logger.error("Coordinate system {} does not exist.".format(cs))
+            elif (
+                instance_data["Coordinate System"] != "Global" and instance_data["Coordinate System"] not in cs_names
+            ):  # pragma: no cover
+                self.logger.error(f"Coordinate system {cs} does not exist.")
                 return False
 
             origin = instance_data.get("Origin")
@@ -9056,7 +9137,7 @@ class PrimitivesBuilder(object):
                 instance = self._create_box_instance(name, cs, origin, primitive_data)
 
         if not instance:
-            self.logger.warning("Primitive type: {} is unsupported.".format(primitive_type))
+            self.logger.warning(f"Primitive type: {primitive_type} is unsupported.")
             return None
 
         return instance
@@ -9188,7 +9269,7 @@ class PrimitivesBuilder(object):
                 csv_keys = csv_keys.tolist()
                 break
 
-        if not all(k in required_csv_keys for k in csv_keys):
+        if not all(k in required_csv_keys for k in csv_keys):  # pragma: no cover
             msg = "The column names in the CSV file do not match the expected names."
             self.logger.error(msg)
             raise ValueError
@@ -9197,7 +9278,7 @@ class PrimitivesBuilder(object):
         row_cont = 0
         for index_row_new, row in csv_data.iloc[index_row + 1 :].iterrows():
             row_info = row.dropna().values
-            if len(row_info) != len(csv_keys):
+            if len(row_info) != len(csv_keys):  # pragma: no cover
                 msg = "Values missing in the CSV file "
                 self.logger.error(msg)
                 raise ValueError
@@ -9265,7 +9346,7 @@ class PrimitivesBuilder(object):
                 csv_keys = csv_keys.tolist()
                 break
 
-        if not all(k in required_csv_keys for k in csv_keys):
+        if not all(k in required_csv_keys for k in csv_keys):  # pragma: no cover
             msg = "The column names in the CSV file do not match the expected names."
             self.logger.error(msg)
             raise ValueError
@@ -9274,7 +9355,7 @@ class PrimitivesBuilder(object):
         row_cont = 0
         for index_row_new, row in csv_data.iloc[index_row + 1 :].iterrows():
             row_info = row.dropna().values
-            if len(row_info) != len(csv_keys):
+            if len(row_info) != len(csv_keys):  # pragma: no cover
                 msg = "Values missing in the CSV file "
                 self.logger.error(msg)
                 raise ValueError
@@ -9353,7 +9434,7 @@ class PrimitivesBuilder(object):
                 self.logger.warning("Coordinate system does not have a 'Name' parameter.")
                 return False
             if name in cs_names:
-                self.logger.warning("Coordinate system {} already exists.".format(name))
+                self.logger.warning(f"Coordinate system {name} already exists.")
                 continue
             mode = cs.get("Mode")
             if not mode or not any(key in mode for key in ["Axis/Position", "Euler Angle ZYZ", "Euler Angle ZXZ"]):

@@ -42,11 +42,17 @@ dependencies = [
     "pytomlpp; python_version < '3.12'",
     "rpyc>=6.0.0,<6.1",
     "pyyaml",
+    "defusedxml>=0.7,<8.0"
 ]
 
 [project.optional-dependencies]
+unit-tests = [
+    "pytest>=7.4.0,<8.4",
+    "pytest-cov>=4.0.0,<6.1",
+    "mock>=5.1.0,<5.2",
+]
 tests = [
-    "ipython>=7.30.0,<8.29",
+    "ipython>=7.30.0,<8.30",
     "joblib>=1.0.0,<1.5",
     "matplotlib>=3.5.0,<3.10",
     "mock>=5.1.0,<5.2",
@@ -55,12 +61,12 @@ tests = [
     "osmnx>=1.1.0,<1.10",
     "pandas>=1.1.0,<2.3",
     "pytest>=7.4.0,<8.4",
-    "pytest-cov>=4.0.0,<5.1",
+    "pytest-cov>=4.0.0,<6.1",
     "pytest-xdist>=3.5.0,<3.7",
     "pyvista[io]>=0.38.0,<0.45",
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.6",
-    "scikit-rf>=0.30.0,<1.4",
+    "scikit-rf>=0.30.0,<1.5",
     "SRTM.py",
     "utm",
 ]
@@ -71,12 +77,11 @@ dotnet = [
     "dotnetcore2==3.1.23; platform_system=='Linux'",
     "pywin32>=303; platform_system=='Windows'",
 ]
-
 doc = [
-    "ansys-sphinx-theme>=0.10.0,<1.1",
+    "ansys-sphinx-theme>=1.0.0,<1.3",
     "numpydoc>=1.5.0,<1.9",
     "recommonmark",
-    "Sphinx>=7.1.0,<8.1",
+    "Sphinx>=7.1.0,<8.2",
     # NOTE: latest compatible version for Python 3.8 is 2021.3.14
     "sphinx-autobuild==2021.3.14; python_version == '3.8'",
     "sphinx-autobuild==2024.10.3; python_version > '3.8'",
@@ -85,7 +90,6 @@ doc = [
     "sphinx_design>=0.4.0,<0.7",
     "pyvista[io]>=0.38.0,<0.45",
 ]
-
 all = [
     "matplotlib>=3.5.0,<3.10",
     "numpy>=1.20.0,<2",
@@ -96,7 +100,7 @@ all = [
     "fast-simplification>=0.1.7",
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.6",
-    "scikit-rf>=0.30.0,<1.4",
+    "scikit-rf>=0.30.0,<1.5",
     "SRTM.py",
     "utm",
 ]
@@ -109,11 +113,11 @@ installer = [
     "pyvista[io]>=0.38.0,<0.45",
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.6",
-    "scikit-rf>=0.30.0,<1.4",
+    "scikit-rf>=0.30.0,<1.5",
     "SRTM.py",
     "utm",
-    "jupyterlab>=3.6.0,<4.3",
-    "ipython>=7.30.0,<8.29",
+    "jupyterlab>=3.6.0,<4.4",
+    "ipython>=7.30.0,<8.30",
     "ipyvtklink>=0.2.0,<0.2.4",
 ]
 
@@ -135,7 +139,7 @@ profile = "black"
 force_sort_within_sections = true
 line_length = 120
 default_section = "THIRDPARTY"
-src_paths = ["doc", "src/ansys/aedt/core", "_unittests"]
+src_paths = ["doc", "src/ansys/aedt/core", "tests"]
 
 [tool.codespell]
 ignore-words = "ignore_words.txt"
@@ -154,10 +158,11 @@ show_missing = true
 omit = ["src/ansys/aedt/core/rpc/*.py"]
 
 [tool.pytest.ini_options]
-minversion = "7.1"
-addopts = "-ra --cov=ansys.aedt.core --cov-report html:.cov/html --cov-report xml:.cov/xml --cov-report term -vv"
-testpaths = [
-    "_unittest",
+markers = [
+    "unit",
+    "system",
+    "solvers",
+    "general",
 ]
 filterwarnings = [
     "ignore::UserWarning:src.ansys.aedt.core.*",
@@ -189,6 +194,6 @@ checks = [
 exclude = [
     '\.AEDTMessageManager.add_message$',  # bad SS05
     '\.Modeler3D\.create_choke$',  # bad RT05
-    '\._unittest',  # missing docstring for tests
+    '\.tests',  # missing docstring for tests
     'HistoryProps.',  # bad RT05 because of the base class named OrderedDict
 ]

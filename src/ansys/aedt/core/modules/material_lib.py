@@ -37,7 +37,6 @@ import warnings
 
 from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import read_json
@@ -94,7 +93,7 @@ class Materials(object):
         return iter(self.material_keys.values()) if sys.version_info.major > 2 else self.material_keys.itervalues()
 
     def __getitem__(self, item):
-        matobj = self.checkifmaterialexists(item)
+        matobj = self.exists_material(item)
         if matobj:
             return matobj
         elif item in list(self.surface_material_keys.keys()):
@@ -244,6 +243,35 @@ class Materials(object):
     def checkifmaterialexists(self, material):
         """Check if a material exists in AEDT or PyAEDT Definitions.
 
+        .. deprecated:: 0.11.4
+           Use :func:`exists_material` method instead.
+
+        Parameters
+        ----------
+        material : str
+            Name of the material. If the material exists and is not in the materials database,
+            it is added to this database.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.material.Material`
+            Material object if present, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDefinitionManager.GetProjectMaterialNames
+        >>> oMaterialManager.GetData
+        """
+        warnings.warn(
+            "`checkifmaterialexists` is deprecated. Use `exists_material` method instead.", DeprecationWarning
+        )
+        return self.exists_material(material=material)
+
+    @pyaedt_function_handler()
+    def exists_material(self, material):
+        """Check if a material exists in AEDT or PyAEDT Definitions.
+
         Parameters
         ----------
         material : str
@@ -294,7 +322,7 @@ class Materials(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        omat = self.checkifmaterialexists(material)
+        omat = self.exists_material(material)
         if omat:
             for el in MatProperties.aedtname:
                 if omat.__dict__["_" + el].thermalmodifier:
@@ -395,7 +423,7 @@ class Materials(object):
                 material.emissivity.value = emissivity
             material.update()
             material._material_update = True
-            self.logger.info("Material has been added. Edit it to update in Desktop.")
+            self.logger.info("Material has been added.")
             self.surface_material_keys[name.lower()] = material
             return self.surface_material_keys[name.lower()]
 
@@ -452,7 +480,7 @@ class Materials(object):
         """
         matsweep = []
         for mat in assignment:
-            matobj = self.checkifmaterialexists(mat)
+            matobj = self.exists_material(mat)
             if matobj:
                 matsweep.append(matobj)
 
@@ -528,7 +556,7 @@ class Materials(object):
         material_in_aedt = material.lower() in list(self.mat_names_aedt_lower)
         material_in_project = material.lower() in list(self.material_keys.keys())
         if not (material_in_aedt or material_in_project):  # Check for material definition
-            self.logger.error("Material {} is not present".format(material))
+            self.logger.error(f"Material {material} is not present")
             return False
         if not material_in_project:
             material = self._aedmattolibrary(material)
@@ -552,7 +580,7 @@ class Materials(object):
                     try:
                         setattr(new_material, p, var_name)
                     except TypeError:
-                        print("p = {}".format(p))
+                        print(f"p = {p}")
         new_material.update()
         new_material._material_update = True
         self._mats.append(name)
@@ -588,7 +616,7 @@ class Materials(object):
         >>> hfss.materials.duplicate_surface_material("MyMaterial","MyMaterial2")
         """
         if not material.lower() in list(self.surface_material_keys.keys()):
-            self.logger.error("Material {} is not present".format(material))
+            self.logger.error(f"Material {material} is not present")
             return False
         newmat = SurfaceMaterial(
             self, name.lower(), self.surface_material_keys[material.lower()]._props, material_update=True
@@ -629,7 +657,7 @@ class Materials(object):
         """
         mat = material.lower()
         if mat not in list(self.material_keys.keys()):
-            self.logger.error("Material {} is not present".format(mat))
+            self.logger.error(f"Material {mat} is not present")
             return False
         self.odefinition_manager.RemoveMaterial(self._get_aedt_case_name(mat), True, "", library)
         del self.material_keys[mat]
@@ -899,9 +927,6 @@ class Materials(object):
             return False
         materials_added = []
         props = {}
-        if is_ironpython:
-            self.logger.error("This method only works with CPython.")
-            return False
         if os.path.splitext(input_file)[1] == ".csv":
             df = pd.read_csv(input_file, index_col=0)
         elif os.path.splitext(input_file)[1] == ".xlsx":

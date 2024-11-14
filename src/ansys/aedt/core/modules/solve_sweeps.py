@@ -137,7 +137,7 @@ class SweepHFSS(object):
         bool
             `True` if solutions are available.
         """
-        sol = self._app.p_app.post.reports_by_category.standard(setup="{} : {}".format(self.setup_name, self.name))
+        sol = self._app.p_app.post.reports_by_category.standard(setup=f"{self.setup_name} : {self.name}")
         if identify_setup(self.props):
             sol.domain = "Time"
         return True if sol.get_solution_data() else False
@@ -152,7 +152,7 @@ class SweepHFSS(object):
         list of float
             Frequency points.
         """
-        sol = self._app.p_app.post.reports_by_category.standard(setup="{} : {}".format(self.setup_name, self.name))
+        sol = self._app.p_app.post.reports_by_category.standard(setup=f"{self.setup_name} : {self.name}")
         soldata = sol.get_solution_data()
         if soldata and "Freq" in soldata.intrinsics:
             return soldata.intrinsics["Freq"]
@@ -168,7 +168,7 @@ class SweepHFSS(object):
         list of float
             Frequency points.
         """
-        solutions_file = os.path.join(self._app.p_app.results_directory, "{}.asol".format(self._app.p_app.design_name))
+        solutions_file = os.path.join(self._app.p_app.results_directory, f"{self._app.p_app.design_name}.asol")
         fr = []
         if os.path.exists(solutions_file):
             solutions = load_entire_aedt_file(solutions_file)
@@ -392,7 +392,7 @@ class SweepHFSS3DLayout(object):
         -------
         str
         """
-        return "{} : {}".format(self.setup_name, self.name)
+        return f"{self.setup_name} : {self.name}"
 
     @property
     def is_solved(self):
@@ -653,7 +653,7 @@ class SweepMatrix(object):
         bool
             `True` if solutions are available.
         """
-        sol = self._app.p_app.post.reports_by_category.standard(setup="{} : {}".format(self.setup_name, self.name))
+        sol = self._app.p_app.post.reports_by_category.standard(setup=f"{self.setup_name} : {self.name}")
         return True if sol.get_solution_data() else False
 
     @property
@@ -666,7 +666,7 @@ class SweepMatrix(object):
         list of float
             Frequency points.
         """
-        sol = self._app.p_app.post.reports_by_category.standard(setup="{} : {}".format(self.setup_name, self.name))
+        sol = self._app.p_app.post.reports_by_category.standard(setup=f"{self.setup_name} : {self.name}")
         soldata = sol.get_solution_data()
         if soldata and "Freq" in soldata.intrinsics:
             return soldata.intrinsics["Freq"]
@@ -682,7 +682,7 @@ class SweepMatrix(object):
         list of float
             Frequency points.
         """
-        solutions_file = os.path.join(self._app.p_app.results_directory, "{}.asol".format(self._app.p_app.design_name))
+        solutions_file = os.path.join(self._app.p_app.results_directory, f"{self._app.p_app.design_name}.asol")
         fr = []
         if os.path.exists(solutions_file):
             solutions = load_entire_aedt_file(solutions_file)
@@ -884,7 +884,7 @@ class SetupProps(dict):
         def set_props(target, source):
             for k, v in source.items():
                 if k not in target:
-                    self._pyaedt_setup._app.logger.warning("{} is not a valid property name.".format(k))
+                    self._pyaedt_setup._app.logger.warning(f"{k} is not a valid property name.")
                 if not isinstance(v, dict):
                     target[k] = v
                 else:

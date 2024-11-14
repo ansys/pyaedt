@@ -26,16 +26,13 @@ import sys
 import threading
 import warnings
 
-from ansys.aedt.core.generic.general_methods import is_ironpython
-
-if not is_ironpython:
-    try:
-        import numpy as np
-    except ImportError:
-        warnings.warn(
-            "The NumPy module is required to run some functionalities of PostProcess.\n"
-            "Install with \n\npip install numpy\n\nRequires CPython."
-        )
+try:
+    import numpy as np
+except ImportError:  # pragma: no cover
+    warnings.warn(
+        "The NumPy module is required to run some functionalities of PostProcess.\n"
+        "Install with \n\npip install numpy\n\nRequires CPython."
+    )
 
 
 class ThreadTrace(threading.Thread):
@@ -319,10 +316,10 @@ class GeneticAlgorithm(object):
                 counter += 1
             if self.best_function < self.goal:
                 break
-            print("\nInfo: Iteration {}".format(t))
-            print("\nInfo: Goal {}".format(self.goal))
-            print("\nInfo: Best Function {}".format(self.best_function))
-            print("\nInfo: Best Variable {}".format(self.best_variable))
+            print(f"\nInfo: Iteration {t}")
+            print(f"\nInfo: Goal {self.goal}")
+            print(f"\nInfo: Best Function {self.best_function}")
+            print(f"\nInfo: Best Variable {self.best_variable}")
 
             # Report
             self.report.append(pop[0, self.dim])

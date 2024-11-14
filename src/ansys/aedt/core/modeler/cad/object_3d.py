@@ -41,7 +41,6 @@ from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.general_methods import _to_boolean
 from ansys.aedt.core.generic.general_methods import _uname
 from ansys.aedt.core.generic.general_methods import clamp
-from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import rgb_color_codes
@@ -99,6 +98,7 @@ class Object3d(object):
         self._surface_material = None
         self._color = None
         self._wireframe = None
+        self._material_appearance = None
         self._part_coordinate_system = None
         self._model = None
         self._m_groupName = None
@@ -169,7 +169,7 @@ class Object3d(object):
         self._primitives._app.export_3d_model(self.name, tmp_path, ".sat", [self.name])
 
         if not os.path.isfile(filename):
-            raise Exception("Cannot export the ACIS SAT file for object {}".format(self.name))
+            raise Exception(f"Cannot export the ACIS SAT file for object {self.name}")
 
         with open_file(filename, "r") as fh:
             temp = fh.read().splitlines()
@@ -273,7 +273,7 @@ class Object3d(object):
         -----
         Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
         """
-        if not is_ironpython and self._primitives._app._aedt_version >= "2021.2":
+        if self._primitives._app._aedt_version >= "2021.2":
             return self._primitives._app.post.plot_model_obj(
                 objects=[self.name],
                 plot_as_separate_objects=True,
@@ -301,7 +301,7 @@ class Object3d(object):
         str
             File path.
         """
-        if not is_ironpython and self._primitives._app._aedt_version >= "2021.2":
+        if self._primitives._app._aedt_version >= "2021.2":
             if not output_file:
                 output_file = os.path.join(self._primitives._app.working_directory, self.name + ".png")
             model_obj = self._primitives._app.post.plot_model_obj(
@@ -934,7 +934,7 @@ class Object3d(object):
 
     @material_name.setter
     def material_name(self, mat):
-        matobj = self._primitives._materials.checkifmaterialexists(mat)
+        matobj = self._primitives._materials.exists_material(mat)
         mat_value = None
         if matobj:
             mat_value = chr(34) + matobj.name + chr(34)
@@ -1107,7 +1107,7 @@ class Object3d(object):
             self._primitives.add_new_objects()
             self._primitives.cleanup_objects()
         else:
-            self.logger.warning("{} is already used in current design.".format(obj_name))
+            self.logger.warning(f"{obj_name} is already used in current design.")
 
     @property
     def valid_properties(self):
@@ -1162,7 +1162,7 @@ class Object3d(object):
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
         """
-        return "({} {} {})".format(self.color[0], self.color[1], self.color[2])
+        return f"({self.color[0]} {self.color[1]} {self.color[2]})"
 
     @color.setter
     def color(self, color_value):
@@ -1191,7 +1191,7 @@ class Object3d(object):
             except TypeError:
                 color_tuple = None
         else:
-            msg_text = "Invalid color input {} for object {}.".format(color_value, self._m_name)
+            msg_text = f"Invalid color input {color_value} for object {self._m_name}."
             self._primitives.logger.warning(msg_text)
 
     @property
@@ -1268,7 +1268,6 @@ class Object3d(object):
         pcs = ["NAME:Orientation", "Value:=", sCS]
         self._change_property(pcs)
         self._part_coordinate_system = sCS
-        return True
 
     @property
     def solve_inside(self):
@@ -1343,6 +1342,45 @@ class Object3d(object):
 
         self._change_property(vWireframe)
         self._wireframe = fWireframe
+
+    @property
+    def material_appearance(self):
+        """Material appearance property of the part.
+
+        Returns
+        -------
+        bool
+            ``True`` when material appearance is activated for the part, ``False`` otherwise.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
+
+        """
+        if self._material_appearance is not None:
+            return self._material_appearance
+        if "Material Appearance" in self.valid_properties:
+            material_appearance = self._oeditor.GetPropertyValue(
+                "Geometry3DAttributeTab", self._m_name, "Material Appearance"
+            )
+            if material_appearance == "true" or material_appearance == "True":
+                self._material_appearance = True
+            else:
+                self._material_appearance = False
+            return self._material_appearance
+
+    @material_appearance.setter
+    def material_appearance(self, material_appearance):
+        vMaterialAppearance = [
+            "NAME:Material Appearance",
+            "Value:=",
+            material_appearance,
+        ]
+
+        self._change_property(vMaterialAppearance)
+        self._material_appearance = material_appearance
 
     @pyaedt_function_handler()
     def history(self):
@@ -1768,7 +1806,7 @@ class Object3d(object):
         """
         new_obj_tuple = self._primitives.clone(self.id)
         success = new_obj_tuple[0]
-        assert success, "Could not clone the object {}.".format(self.name)
+        assert success, f"Could not clone the object {self.name}."
         new_name = new_obj_tuple[1][0]
         return self._primitives[new_name]
 
@@ -2032,24 +2070,30 @@ class Object3d(object):
         vArg2 = ["NAME:ChamferParameters"]
         vArg2.append("Edges:="), vArg2.append(edge_id_list)
         vArg2.append("Vertices:="), vArg2.append(vertex_id_list)
-        vArg2.append("LeftDistance:="), vArg2.append(self._primitives._arg_with_dim(left_distance))
-        if not right_distance:
+        if right_distance is None:
             right_distance = left_distance
         if chamfer_type == 0:
+            if left_distance != right_distance:
+                self.logger.error("Do not set right distance or ensure that left distance equals right distance.")
+            vArg2.append("LeftDistance:="), vArg2.append(self._primitives._arg_with_dim(left_distance))
             vArg2.append("RightDistance:="), vArg2.append(self._primitives._arg_with_dim(right_distance))
             vArg2.append("ChamferType:="), vArg2.append("Symmetric")
         elif chamfer_type == 1:
+            vArg2.append("LeftDistance:="), vArg2.append(self._primitives._arg_with_dim(left_distance))
             vArg2.append("RightDistance:="), vArg2.append(self._primitives._arg_with_dim(right_distance))
             vArg2.append("ChamferType:="), vArg2.append("Left Distance-Right Distance")
         elif chamfer_type == 2:
-            vArg2.append("Angle:="), vArg2.append(str(angle) + "deg")
-            vArg2.append("ChamferType:="), vArg2.append("Left Distance-Right Distance")
+            vArg2.append("LeftDistance:="), vArg2.append(self._primitives._arg_with_dim(left_distance))
+            # NOTE: Seems like there is a bug in the API as Angle can't be used
+            vArg2.append("RightDistance:="), vArg2.append(f"{angle}deg")
+            vArg2.append("ChamferType:="), vArg2.append("Left Distance-Angle")
         elif chamfer_type == 3:
-            vArg2.append("LeftDistance:="), vArg2.append(str(angle) + "deg")
+            # NOTE: Seems like there is a bug in the API as Angle can't be used
+            vArg2.append("LeftDistance:="), vArg2.append(f"{angle}deg")
             vArg2.append("RightDistance:="), vArg2.append(self._primitives._arg_with_dim(right_distance))
             vArg2.append("ChamferType:="), vArg2.append("Right Distance-Angle")
         else:
-            self.logger.error("Wrong Type Entered. Type must be integer from 0 to 3")
+            self.logger.error("Wrong chamfer_type provided. Value must be an integer from 0 to 3.")
             return False
         self._oeditor.Chamfer(vArg1, ["NAME:Parameters", vArg2])
         if self.name in list(self._oeditor.GetObjectsInGroup("UnClassified")):

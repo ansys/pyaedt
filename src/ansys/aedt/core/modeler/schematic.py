@@ -174,7 +174,7 @@ class ModelerCircuit(Modeler):
             try:
                 start[pstart].connect_to_component(end[pend], use_wire=use_wire)
             except Exception:
-                self.logger.error("Failed to connect pin {} with {}".format(pstart, pend))
+                self.logger.error(f"Failed to connect pin {pstart} with {pend}")
                 return False
         return True
 
@@ -442,7 +442,7 @@ class ModelerCircuit(Modeler):
         else:
             self.logger.error("Wrong Property Value")
             return False
-        self.logger.debug("Property {} Changed correctly.".format(name))
+        self.logger.debug(f"Property {name} Changed correctly.")
         return True
 
     @pyaedt_function_handler()
@@ -470,11 +470,11 @@ class ModelerCircuit(Modeler):
         if isinstance(value, str):
             try:
                 float(value)
-                val = "{0}{1}".format(value, units)
+                val = f"{value}{units}"
             except Exception:
                 val = value
         else:
-            val = "{0}{1}".format(value, units)
+            val = f"{value}{units}"
         return val
 
 
@@ -589,7 +589,8 @@ class ModelerNexxim(ModelerCircuit):
     @model_units.setter
     def model_units(self, units):
         """Set the model units as a string e.g. "mm"."""
-        assert units in AEDT_UNITS["Length"], "Invalid units string {0}".format(units)
+        if units not in AEDT_UNITS["Length"]:
+            raise RuntimeError(f"Invalid units string {units}.")
         self.oeditor.SetActivelUnits(["NAME:Units Parameter", "Units:=", units, "Rescale:=", False])
 
     @pyaedt_function_handler(selections="assignment", pos="offset")

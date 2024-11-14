@@ -34,15 +34,18 @@ from collections import defaultdict
 import csv
 import os
 import tempfile
+import warnings
 
 from ansys.aedt.core import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import open_file
 
-pd = None
-
 try:
     import pandas as pd
-except ImportError:
+except ImportError:  # pragma: no cover
+    warnings.warn(
+        "The Matplotlib module is required to run functionalities of FieldSummary.\n"
+        "Install with \n\npip install matplotlib"
+    )
     pd = None
 
 TOTAL_QUANTITIES = [
@@ -159,9 +162,7 @@ class FieldSummary:
         """
         if quantity not in AVAILABLE_QUANTITIES:
             raise AttributeError(
-                "Quantity {} is not supported. Available quantities are:\n{}".format(
-                    quantity, ", ".join(AVAILABLE_QUANTITIES)
-                )
+                f"Quantity {quantity} is not supported. Available quantities are:\n{', '.join(AVAILABLE_QUANTITIES)}"
             )
         if isinstance(normal, list):
             if not isinstance(normal[0], str):

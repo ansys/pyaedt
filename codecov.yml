@@ -1,3 +1,15 @@
+ignore:
+  - "src/ansys/aedt/core/rpc/*.py"
+  - "src/ansys/aedt/core/misc/*.py"
+  - "src/ansys/aedt/core/visualization/advanced/sbrplus/hdm_utils.py"
+  - "src/ansys/aedt/core/workflows/installer"
+  - "src/ansys/aedt/core/workflows/templates"
+  - "src/ansys/aedt/core/common_rpc.py"
+  - "src/ansys/aedt/core/generic/grpc_plugin_dll_class.py"
+  - "src/ansys/aedt/core/edb.py"
+  - "src/ansys/aedt/core/filtersolutions_core" # ignore filtersolutions feature for the current release pending 2025R1 update
+  - "src/ansys/aedt/core/filtersolutions.py" # ignore filtersolutions feature for the current release pending 2025R1 update
+
 comment:
   layout: "diff"
   behavior: default
@@ -12,18 +24,7 @@ coverage:
         if_not_found: success
         if_ci_failed: error
         if_no_uploads: error
-  ignore:
-    - "examples"  # ignore folders and all its contents
-    - "_unittest"  # ignore folders and all its contents
-    - "_unittest_ironpython"  # ignore folders and all its contents
-    - "src/ansys/aedt/core/rpc/**/*.py"  # ignore folders and all its contents
-    - "src/ansys/aedt/core/doctest_fixtures/*.py"  # ignore folders and all its contents
-    - "src/ansys/aedt/core/misc/*.py"  # ignore folders and all its contents
-    - "src/ansys/aedt/core/sbrplus/hdm_utils.py" # ignore folder and all its contents
-    - "src/ansys/aedt/core/workflows/installer"  # ignore folders and all its contents
-    - "src/ansys/aedt/core/workflows/templates"  # ignore folders and all its contents
-    - "src/ansys/aedt/core/common_rpc.py"  # ignore folders and all its contents
-    - "src/ansys/aedt/core/generic/grpc_plugin_dll_class.py"  # ignore file to interact with AEDT grpc api
-    - "src/ansys/aedt/core/edb.py"  # ignore folders and all its contents
-    - "src/ansys/aedt/core/filtersolutions_core"  # ignore filtersolutions feature for the current release pending 2025R1 update
-    - "src/ansys/aedt/core/filtersolutions.py"   # ignore filtersolutions feature for the current release pending 2025R1 update
+
+codecov:
+  notify:
+    wait_for_ci: yes

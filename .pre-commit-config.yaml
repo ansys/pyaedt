@@ -1,13 +1,24 @@
+ci:
+    autofix_commit_msg: |
+        CHORE: Auto fixes from pre-commit.com hooks
+
+        For more information, see https://pre-commit.ci
+    autofix_prs: true
+    autoupdate_branch: 'chore/pre-commit-autoupdate'
+    autoupdate_commit_msg: 'CHORE: Pre-commit automatic update'
+    autoupdate_schedule: weekly
+
 files: |
     (?x)(
         ^src/ansys/aedt/core/|
-        _unittest/
+        tests/
     )
 exclude: |
     (?x)(
         ^src/ansys/aedt/core/rpc/|
         ^src/ansys/aedt/core/sbrplus/matlab/|
-        _unittest/example_models/
+        tests/system/general/example_models/|
+        tests/system/solvers/example_models/
     )
 
 repos:
@@ -48,7 +59,7 @@ repos:
 
 # validate GitHub workflow files
 - repo: https://github.com/python-jsonschema/check-jsonschema
-  rev: 0.29.3
+  rev: 0.29.4
   hooks:
     - id: check-github-workflows
 
@@ -68,7 +79,7 @@ repos:
   rev: v0.4.3
   hooks:
     - id: add-license-headers
-      files: '(src|examples|_unittest|_unittest_ironpython|_unittest_solvers)/.*\.(py)'
+      files: '(src|examples|tests)/.*\.(py)'
       args:
       - --custom_template=mit_license.jinja2
       - --start_year=2021

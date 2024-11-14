@@ -42,16 +42,9 @@ def search_files(dirname, pattern="*"):
     -------
     list
     """
-    from ansys.aedt.core.generic.general_methods import is_ironpython
+    import pathlib
 
-    if is_ironpython:
-        import glob
-
-        return list(glob.glob(os.path.join(dirname, pattern)))
-    else:
-        import pathlib
-
-        return [os.path.abspath(i) for i in pathlib.Path(dirname).glob(pattern)]
+    return [os.path.abspath(i) for i in pathlib.Path(dirname).glob(pattern)]
 
 
 def my_location():
@@ -95,7 +88,7 @@ class Scratch:
             # TODO check why on Anaconda 3.7 get errors with os.path.exists
             shutil.rmtree(self._scratch_path, ignore_errors=True)
         except Exception:
-            logger.error("An error occurred while removing {}".format(self._scratch_path))
+            logger.error(f"An error occurred while removing {self._scratch_path}")
 
     def copyfile(self, src_file, dst_filename=None):
         """

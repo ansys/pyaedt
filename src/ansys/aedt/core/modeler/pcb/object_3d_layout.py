@@ -31,6 +31,8 @@ from __future__ import absolute_import  # noreorder
 
 import math
 import re
+from typing import Optional
+from typing import Tuple
 
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.general_methods import _dim_arg
@@ -48,6 +50,7 @@ class Object3DLayout(object):
 
     def __init__(self, primitives, prim_type=None):
         self._primitives = primitives
+        self.logger = self._primitives.logger
         self._oeditor = self._primitives.oeditor
         self._n = 10
         self.prim_type = prim_type
@@ -267,7 +270,7 @@ class Object3DLayout(object):
             bool
         """
         if self.prim_type != "component":
-            self._primitives.logger.error("Clearance applies only to components.")
+            self.logger.error("Clearance applies only to components.")
             return False
         bbox = self.bounding_box
         start_points = [bbox[0] - extra_soldermask_clearance, bbox[1] - extra_soldermask_clearance]
@@ -467,6 +470,37 @@ class Components3DLayout(Object3DLayout, object):
         self.edb_object = edb_object
         self._pins = {}
 
+    @staticmethod
+    def __get_die_properties(model_info):
+        s = r".+DieProp\(dt=(.+?), do=(.+?), dh='(.+?)', lid=(.+?)\)"
+        m = re.search(s, model_info)
+        dt = 0
+        do = 0
+        dh = "0"
+        lid = -100
+        if m:
+            dt = int(m.group(1))
+            do = int(m.group(2))
+            dh = str(m.group(3))
+            lid = int(m.group(4))
+        return dt, do, dh, lid
+
+    @staticmethod
+    def __get_port_properties(model_info):
+        s = r".+PortProp\(rh='(.+?)', rsa=(.+?), rsx='(.+?)', rsy='(.+?)'\)"
+        m = re.search(s, model_info)
+        rsx = "0"
+        rsy = "0"
+        rsa = True
+        rh = "0"
+        if m:
+            rh = m.group(1)
+            rsx = m.group(3)
+            rsy = m.group(4)
+            if m.group(2) == "false":
+                rsa = False
+        return rh, rsa, rsx, rsy
+
     @property
     def part(self):
         """Retrieve the component part.
@@ -499,8 +533,7 @@ class Components3DLayout(Object3DLayout, object):
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Part Type")
 
-    @property
-    def _part_type_id(self):
+    def __part_type_id(self):
         parts = {"Other": 0, "Resistor": 1, "Inductor": 2, "Capacitor": 3, "IC": 4, "IO": 5}
         if self.part_type in parts:
             return parts[self.part_type]
@@ -530,9 +563,82 @@ class Components3DLayout(Object3DLayout, object):
 
     @enabled.setter
     def enabled(self, status):
-        if self._part_type_id in [0, 4, 5]:
+        if self.__part_type_id() in [0, 4, 5]:
             return False
         self._oeditor.EnableComponents(["NAME:Components", self.name], status)
+
+    @property
+    def die_properties(self) -> Optional[Tuple[int, int, str, int]]:
+        """Get die properties from component.
+
+        Returns
+        -------
+        Tuple[int, int, str, int]
+            Tuple of die type (``0`` for None, ``1``, for FlipChip, or ``2`` for WireBond), die orientation (``0`` for
+            Chip Top or ``1`` for Chip Bottom), die height as a string, and a reserved property as an integer.
+        """
+        if self.__part_type_id() != 4:
+            return None
+        return Components3DLayout.__get_die_properties(self.__get_model_info())
+
+    def __has_port_properties(self) -> bool:
+        return self.__part_type_id() in [0, 4, 5]
+
+    @property
+    def port_properties(self) -> Optional[Tuple[str, bool, str, str]]:
+        """Get port properties from component.
+
+        Returns
+        -------
+        Tuple[str, bool, str, str]
+            Tuple of reference offset [str], reference size auto [bool], reference size X dimension [str], reference
+            size Y dimension [str].
+        """
+        if not self.__has_port_properties():
+            return None
+        return Components3DLayout.__get_port_properties(self.__get_model_info())
+
+    @port_properties.setter
+    def port_properties(self, values: Tuple[str, bool, str, str]):
+        rh, rsa, rsx, rsy = values
+        if not self.__has_port_properties():
+            self.logger.warning(
+                f"Cannot set port_properties on {self.name!r} with part type ID {self.__part_type_id()!r}"
+            )
+            return
+        if self.__part_type_id() == 4:
+            prop_name = "ICProp:="
+        else:
+            prop_name = "IOProp:="
+        port_properties = ["rh:=", rh, "rsa:=", rsa, "rsx:=", rsx, "rsy:=", rsy]
+
+        args = [
+            "NAME:Model Info",
+            [
+                "NAME:Model",
+                prop_name,
+                [
+                    "PortProp:=",
+                    port_properties,
+                ],
+            ],
+        ]
+        if self.__part_type_id() == 4:
+            dt, do, dh, lid = self.die_properties
+            args[1] = [
+                "NAME:Model",
+                prop_name,
+                [
+                    "DieProp:=",
+                    ["dt:=", dt, "do:=", do, "dh:=", dh, "lid:=", lid],
+                    "PortProp:=",
+                    port_properties,
+                ],
+                "CompType:=",
+                4,
+            ]
+
+        self.change_property(args)
 
     @property
     def solderball_enabled(self):
@@ -543,7 +649,7 @@ class Components3DLayout(Object3DLayout, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if self._part_type_id not in [0, 4, 5]:
+        if not self.__has_port_properties():
             return False
         component_info = str(list(self._oeditor.GetComponentInfo(self.name))).replace("'", "").replace('"', "")
         if "sbsh=Cyl" in component_info or "sbsh=Sph" in component_info:
@@ -559,7 +665,7 @@ class Components3DLayout(Object3DLayout, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if self._part_type_id not in [0, 4, 5]:
+        if not self.__has_port_properties():
             return False
         component_info = str(list(self._oeditor.GetComponentInfo(self.name))).replace("'", "").replace('"', "")
         if "dt=1" in component_info or "dt=2" in component_info:
@@ -574,7 +680,7 @@ class Components3DLayout(Object3DLayout, object):
         -------
         str
         """
-        if self._part_type_id not in [0, 4, 5]:
+        if not self.__has_port_properties():
             return False
         component_info = str(list(self._oeditor.GetComponentInfo(self.name))).replace("'", "").replace('"', "")
         if "dt=1" in component_info:
@@ -620,12 +726,12 @@ class Components3DLayout(Object3DLayout, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if self._part_type_id not in [0, 4, 5]:
+        if not self.__has_port_properties():
             return False
         if auto_reference:
             reference_x = "0"
             reference_y = "0"
-        if self._part_type_id == 4:
+        if self.__part_type_id() == 4:
             prop_name = "ICProp:="
         else:
             prop_name = "IOProp:="
@@ -690,43 +796,17 @@ class Components3DLayout(Object3DLayout, object):
         bool
             ``True`` when successful, ``False`` when failed or the wrong component type.
         """
-        if self._part_type_id not in [0, 4, 5]:
+        if not self.__has_port_properties():
             return False
-        props = self._oeditor.GetComponentInfo(self.name)
-        model = ""
-        for p in props:
-            if "PortProp(" in p:
-                model = p
-                break
-        s = r".+PortProp\(rh='(.+?)', rsa=(.+?), rsx='(.+?)', rsy='(.+?)'\)"
-        m = re.search(s, model)
-        rsx = "0"
-        rsy = "0"
-        rsa = True
-        rh = "0"
-        if m:
-            rh = m.group(1)
-            rsx = m.group(3)
-            rsy = m.group(4)
-            if m.group(2) == "false":
-                rsa = False
+        model_info = self.__get_model_info()
+        rh, rsa, rsx, rsy = Components3DLayout.__get_port_properties(model_info)
         if reference_offset:
             rh = reference_offset
-        if self._part_type_id == 4:
+        if self.__part_type_id() == 4:
             prop_name = "ICProp:="
             if not self.die_enabled:
                 self.set_die_type()
-            s = r".+DieProp\(dt=(.+?), do=(.+?), dh='(.+?)', lid=(.+?)\)"
-            m = re.search(s, model)
-            dt = 0
-            do = 0
-            dh = "0"
-            lid = -100
-            if m:
-                dt = int(m.group(1))
-                do = int(m.group(2))
-                dh = str(m.group(3))
-                lid = int(m.group(4))
+            dt, do, dh, lid = Components3DLayout.__get_die_properties(model_info)
 
             args = [
                 "NAME:Model Info",
@@ -784,6 +864,15 @@ class Components3DLayout(Object3DLayout, object):
             ]
         return self.change_property(args)
 
+    def __get_model_info(self):
+        props = self._oeditor.GetComponentInfo(self.name)
+        model_info = ""
+        for p in props:
+            if "PortProp(" in p:
+                model_info = p
+                break
+        return model_info
+
     @property
     def pins(self):
         """Component pins.
@@ -806,7 +895,7 @@ class Components3DLayout(Object3DLayout, object):
         -------
         :class:`ansys.aedt.core.modeler.cad.object_3dlayout.ModelInfoRlc`
         """
-        if self._part_type_id in [1, 2, 3]:
+        if self.__part_type_id() in [1, 2, 3]:
             return ModelInfoRlc(self, self.name)
 
 
@@ -851,7 +940,7 @@ class Nets3DLayout(object):
         show_legend=True,
         save_plot=None,
         outline=None,
-        size=(2000, 1000),
+        size=(1920, 1440),
         plot_components_on_top=False,
         plot_components_on_bottom=False,
         show=True,
@@ -1605,11 +1694,11 @@ class Line3dLayout(Geometries3DLayout, object):
         u = self._primitives.model_units
         for point_name, value in points.items():
             if len(value) == 2:
-                vpoint = ["NAME:{}".format(point_name), "X:=", _dim_arg(value[0], u), "Y:=", _dim_arg(value[1], u)]
+                vpoint = [f"NAME:{point_name}", "X:=", _dim_arg(value[0], u), "Y:=", _dim_arg(value[1], u)]
             elif isinstance(value, list):
-                vpoint = ["NAME:{}".format(point_name), "Value:=", _dim_arg(value[0], u)]
+                vpoint = [f"NAME:{point_name}", "Value:=", _dim_arg(value[0], u)]
             else:
-                vpoint = ["NAME:{}".format(point_name), "Value:=", _dim_arg(value, u)]
+                vpoint = [f"NAME:{point_name}", "Value:=", _dim_arg(value, u)]
             self.change_property(vpoint)
         self._center_line = {}
 
@@ -1689,9 +1778,9 @@ class Line3dLayout(Geometries3DLayout, object):
         ]
         i = 0
         for a in points:
-            arg2.append("x{}:=".format(i))
+            arg2.append(f"x{i}:=")
             arg2.append(a[0])
-            arg2.append("y{}:=".format(i))
+            arg2.append(f"y{i}:=")
             arg2.append(a[1])
             i += 1
         arg.append(arg2)
@@ -1804,7 +1893,7 @@ class ComponentsSubCircuit3DLayout(Object3DLayout, object):
     @angle.setter
     def angle(self, angle_val):
         if isinstance(angle_val, (int, float)):
-            angle_val = "{}deg".format(angle_val)
+            angle_val = f"{angle_val}deg"
 
         if not self.is_3d_placement:
             props = ["NAME:Angle", "Value:=", angle_val]

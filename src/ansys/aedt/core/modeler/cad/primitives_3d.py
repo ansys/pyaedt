@@ -250,7 +250,7 @@ class Primitives3D(GeometryModeler):
         vArg1.append("Radius:="), vArg1.append(Radius)
         vArg1.append("Height:="), vArg1.append(Height)
         vArg1.append("WhichAxis:="), vArg1.append(szAxis)
-        vArg1.append("NumSides:="), vArg1.append("{}".format(num_sides))
+        vArg1.append("NumSides:="), vArg1.append(f"{num_sides}")
         vArg2 = self._default_object_attributes(name=name, material=material)
         new_object_name = self.oeditor.CreateCylinder(vArg1, vArg2)
         return self._create_object(new_object_name, **kwargs)
@@ -848,7 +848,7 @@ class Primitives3D(GeometryModeler):
         vArg1.append("ZCenter:="), vArg1.append(ZCenter)
         vArg1.append("Radius:="), vArg1.append(Radius)
         vArg1.append("WhichAxis:="), vArg1.append(szAxis)
-        vArg1.append("NumSegments:="), vArg1.append("{}".format(num_sides))
+        vArg1.append("NumSegments:="), vArg1.append(f"{num_sides}")
         vArg2 = self._default_object_attributes(name=name, material=material, flags=non_model_flag)
         new_object_name = self.oeditor.CreateCircle(vArg1, vArg2)
         return self._create_object(new_object_name, **kwargs)
@@ -1508,7 +1508,7 @@ class Primitives3D(GeometryModeler):
                         keyarr = key.split("(")
                         dict_str = (
                                 "{"
-                                + "{}: {}".format(keyarr[1], mon.replace(")", "")).replace("'", '"')
+                                + f"{keyarr[1]}: {mon.replace(')', '')}".replace("'", '"')
                                 + "}"
                         )
                         break
@@ -1534,7 +1534,7 @@ class Primitives3D(GeometryModeler):
                                 keyarr = key.split("(")
                                 dict_str = (
                                         "{"
-                                        + "{}: {}".format(keyarr[1], mon.replace(")", "")).replace("'", '"')
+                                        + f"{keyarr[1]}: {mon.replace(')', '')}".replace("'", '"')
                                         + "}"
                                 )
                                 break
@@ -1614,7 +1614,7 @@ class Primitives3D(GeometryModeler):
                 geometry_parameters = geometryparams
 
         if geometry_parameters:
-            sz_geo_params = "".join(["{0}='{1}' ".format(par, val) for par, val in geometry_parameters.items()])
+            sz_geo_params = "".join([f"{par}='{val}' " for par, val in geometry_parameters.items()])
         vArg1.append("TargetCS:=")
         vArg1.append(coordinate_system)
         vArg1.append("ComponentFile:=")
@@ -1995,7 +1995,7 @@ class Primitives3D(GeometryModeler):
         if parameters and parameter_mapping:
             varg12 = ""
             for param in parameters:
-                varg12 += " {0}='{1}'".format(parameters[param][0], parameters[param][0])
+                varg12 += f" {parameters[param][0]}='{parameters[param][0]}'"
         else:
             varg12 = ""
         varg11.append(varg12[1:])
@@ -2054,7 +2054,7 @@ class Primitives3D(GeometryModeler):
     @pyaedt_function_handler()
     def _check_actor_folder(self, actor_folder):
         if not os.path.exists(actor_folder):
-            self.logger.error("Folder {} does not exist.".format(actor_folder))
+            self.logger.error(f"Folder {actor_folder} does not exist.")
             return False
         if not any(fname.endswith(".json") for fname in os.listdir(actor_folder)) or not any(
                 fname.endswith(".a3dcomp") for fname in os.listdir(actor_folder)
@@ -3044,12 +3044,12 @@ class Primitives3D(GeometryModeler):
 
         for key, value in dictionary_model.items():
             if key not in values:
-                self.logger.error("Missing or incorrect key {}.".format(key))
+                self.logger.error(f"Missing or incorrect key {key}.")
                 return [False, values]
             if isinstance(value, dict):
                 for k, v in value.items():
                     if k not in values[key]:
-                        self.logger.error("Missing or incorrect key {}.".format(k))
+                        self.logger.error(f"Missing or incorrect key {k}.")
                         return [False, values]
 
         for f_key in values.keys():
@@ -3086,7 +3086,7 @@ class Primitives3D(GeometryModeler):
         try:
             core_material = str(values["Core"]["Material"])
             if len(core_material) > 0:
-                if self.materials.checkifmaterialexists(core_material):
+                if self.materials.exists_material(core_material):
                     values["Core"]["Material"] = self.materials._get_aedt_case_name(core_material)
                 else:
                     self.logger.error(
@@ -3109,7 +3109,7 @@ class Primitives3D(GeometryModeler):
         try:
             winding_material = str(values["Outer Winding"]["Material"])
             if len(winding_material) > 0:
-                if self.materials.checkifmaterialexists(winding_material):
+                if self.materials.exists_material(winding_material):
                     values["Outer Winding"]["Material"] = self.materials._get_aedt_case_name(winding_material)
                 else:
                     self.logger.error(

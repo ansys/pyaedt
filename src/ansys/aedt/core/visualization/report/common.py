@@ -578,7 +578,7 @@ class CommonReport(object):
             try:
                 self._props["context"]["polyline"] = self.traces[0].properties["Geometry"]
             except Exception:
-                pass
+                self._post._app.logger.debug("Something went wrong while processing polyline.")
         return self._props["context"].get("polyline", None)
 
     @polyline.setter
@@ -697,14 +697,14 @@ class CommonReport(object):
                 oo1 = oo.GetChildObject(el)
                 oo1_name = oo1.GetChildNames()
                 if not oo1_name:
-                    aedt_name = "{}:{}".format(self.plot_name, el)
+                    aedt_name = f"{self.plot_name}:{el}"
                     _traces.append(Trace(self._post.oreportsetup, aedt_name, el, oo1))
                 else:
                     for i in oo1_name:
-                        aedt_name = "{}:{}:{}".format(self.plot_name, el, i)
+                        aedt_name = f"{self.plot_name}:{el}:{i}"
                         _traces.append(Trace(self._post.oreportsetup, aedt_name, el, oo1))
             except Exception:
-                self._post._app.logger.debug("Something went wrong while processing element {}.".format(el))
+                self._post._app.logger.debug(f"Something went wrong while processing element {el}.")
         return _traces
 
     @pyaedt_function_handler()
@@ -779,7 +779,7 @@ class CommonReport(object):
                 if "contours_number" in self._props.get("general", {}):
                     self._change_property(
                         "Contour",
-                        " Plot {}".format(self.traces[0].name),
+                        f" Plot {self.traces[0].name}",
                         [
                             "NAME:ChangedProps",
                             ["NAME:Num. Contours", "Value:=", str(self._props["general"]["contours_number"])],
@@ -788,7 +788,7 @@ class CommonReport(object):
                 if "contours_scale" in self._props.get("general", {}):
                     self._change_property(
                         "Contour",
-                        " Plot {}".format(self.traces[0].name),
+                        f" Plot {self.traces[0].name}",
                         [
                             "NAME:ChangedProps",
                             ["NAME:Axis Scale", "Value:=", str(self._props["general"]["contours_scale"])],
@@ -797,13 +797,13 @@ class CommonReport(object):
                 if "enable_contours_auto_limit" in self._props.get("general", {}):
                     self._change_property(
                         "Contour",
-                        " Plot {}".format(self.traces[0].name),
+                        f" Plot {self.traces[0].name}",
                         ["NAME:ChangedProps", ["NAME:Scale Type", "Value:=", "Auto Limits"]],
                     )
                 elif "contours_min_limit" in self._props.get("general", {}):
                     self._change_property(
                         "Contour",
-                        " Plot {}".format(self.traces[0].name),
+                        f" Plot {self.traces[0].name}",
                         [
                             "NAME:ChangedProps",
                             ["NAME:Min", "Value:=", str(self._props["general"]["contours_min_limit"])],
@@ -812,7 +812,7 @@ class CommonReport(object):
                 elif "contours_max_limit" in self._props.get("general", {}):
                     self._change_property(
                         "Contour",
-                        " Plot {}".format(self.traces[0].name),
+                        f" Plot {self.traces[0].name}",
                         [
                             "NAME:ChangedProps",
                             ["NAME:Max", "Value:=", str(self._props["general"]["contours_max_limit"])],
@@ -1050,7 +1050,7 @@ class CommonReport(object):
                 _traces.append(
                     LimitLine(
                         self._post.oreportsetup,
-                        "{}:{}".format(self.plot_name, el),
+                        f"{self.plot_name}:{el}",
                         self._post.oreportsetup.GetChildObject(self.plot_name).GetChildObject(el),
                     )
                 )
@@ -1079,7 +1079,7 @@ class CommonReport(object):
                 _notes.append(
                     Note(
                         self._post.oreportsetup,
-                        "{}:{}".format(self.plot_name, el),
+                        f"{self.plot_name}:{el}",
                         self._post.oreportsetup.GetChildObject(self.plot_name).GetChildObject(el),
                     )
                 )
@@ -1133,7 +1133,7 @@ class CommonReport(object):
                         variations[tr.properties["Secondary Sweep"]] = ["All"]
                 self._props["context"]["variations"] = variations
             except Exception:
-                pass
+                self._post._app.logger.debug("Something went wrong while processing variations.")
         return self._props["context"]["variations"]
 
     @variations.setter
@@ -1292,7 +1292,7 @@ class CommonReport(object):
             try:
                 return self.traces[0].properties["Domain"]
             except Exception:
-                pass
+                self._post._app.logger.debug("Something went wrong while accessing trace's Domain property.")
         return self._props["context"]["domain"]
 
     @domain.setter
@@ -1899,7 +1899,7 @@ class CommonReport(object):
         if not name:
             name = generate_unique_name("MY")
             self._post.oreportsetup.AddCartesianYMarker(
-                self.plot_name, name, "Y{}".format(y_axis), GeometryOperators.parse_dim_arg(value), ""
+                self.plot_name, name, f"Y{y_axis}", GeometryOperators.parse_dim_arg(value), ""
             )
             return name
         return ""
@@ -1911,7 +1911,7 @@ class CommonReport(object):
             return False
         arg = [
             "NAME:AllTabs",
-            ["NAME:" + tab_name, ["NAME:PropServers", "{}:{}".format(self.plot_name, property_name)], property_val],
+            ["NAME:" + tab_name, ["NAME:PropServers", f"{self.plot_name}:{property_name}"], property_val],
         ]
         self._post.oreportsetup.ChangeProperty(arg)
         return True
@@ -1970,7 +1970,9 @@ class CommonReport(object):
         return self._change_property("Grid", "Grid", props)
 
     @pyaedt_function_handler()
-    def edit_x_axis(self, font="Arial", font_size=12, italic=False, bold=False, color=(0, 0, 0), label=None):
+    def edit_x_axis(
+        self, font="Arial", font_size=12, italic=False, bold=False, color=(0, 0, 0), label=None, display_units=True
+    ):
         """Edit the X-axis settings.
 
         Parameters
@@ -1988,6 +1990,8 @@ class CommonReport(object):
             must be an integer in a range from 0 to 255.
         label : str, optional
             Label for the Y axis. The default is ``None``.
+        display_units : bool, optional
+            Whether to display units. The default is ``True``.
 
         Returns
         -------
@@ -2037,6 +2041,8 @@ class CommonReport(object):
         if label:
             props.append(["NAME:Name", "Value:=", label])
         props.append(["NAME:Axis Color", "R:=", color[0], "G:=", color[1], "B:=", color[2]])
+        props.append(["NAME:Display Units", "Value:=", display_units])
+
         return self._change_property("Axis", "AxisX", props)
 
     @pyaedt_function_handler()
@@ -2157,7 +2163,17 @@ class CommonReport(object):
             return False
 
     @pyaedt_function_handler(axis_name="name")
-    def edit_y_axis(self, name="Y1", font="Arial", font_size=12, italic=False, bold=False, color=(0, 0, 0), label=None):
+    def edit_y_axis(
+        self,
+        name="Y1",
+        font="Arial",
+        font_size=12,
+        italic=False,
+        bold=False,
+        color=(0, 0, 0),
+        label=None,
+        display_units=True,
+    ):
         """Edit the Y-axis settings.
 
         Parameters
@@ -2177,6 +2193,8 @@ class CommonReport(object):
             must be an integer in a range from 0 to 255.
         label : str, optional
             Label for the Y axis. The default is ``None``.
+        display_units : bool, optional
+            Whether to display units. The default is ``True``.
 
         Returns
         -------
@@ -2226,6 +2244,7 @@ class CommonReport(object):
         if label:
             props.append(["NAME:Name", "Value:=", label])
         props.append(["NAME:Axis Color", "R:=", color[0], "G:=", color[1], "B:=", color[2]])
+        props.append(["NAME:Display Units", "Value:=", display_units])
         return self._change_property("Axis", "Axis" + name, props)
 
     @pyaedt_function_handler(axis_name="name")
@@ -2526,7 +2545,7 @@ class CommonReport(object):
             if trace not in self._trace_info[3]:
                 raise ValueError("Trace does not exist in the selected plot.")
 
-        props = ["{}:=".format(plot_name), traces_list]
+        props = [f"{plot_name}:=", traces_list]
         try:
             self._post.oreportsetup.DeleteTraces(props)
             return True
@@ -2644,7 +2663,7 @@ class CommonReport(object):
 
         supported_ext = [".rpt"]
         if extension not in supported_ext:  # pragma: no cover
-            msg = "Extension {} is not supported.".format(extension)
+            msg = f"Extension {extension} is not supported."
             self._post.logger.error(msg)
             return False
 

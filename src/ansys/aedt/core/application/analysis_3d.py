@@ -30,7 +30,6 @@ from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.generic.configurations import Configurations
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
@@ -283,9 +282,7 @@ class FieldAnalysis3D(Analysis, object):
         :class:`ansys.aedt.core.generic.plot.ModelPlotter`
             Model Object.
         """
-        if is_ironpython:
-            self.logger.warning("Plot is available only on CPython")
-        elif self._aedt_version < "2021.2":
+        if self._aedt_version < "2021.2":
             self.logger.warning("Plot is supported from AEDT 2021 R2.")
         else:
             return self.post.plot_model_obj(
@@ -814,7 +811,7 @@ class FieldAnalysis3D(Analysis, object):
                 vArg2 = [
                     "NAME:Attributes",
                     "MaterialValue:=",
-                    '"{}"'.format(matobj.name),
+                    f'"{matobj.name}"',
                     "SolveInside:=",
                     solve_inside,
                     "ShellElement:=",
@@ -955,7 +952,7 @@ class FieldAnalysis3D(Analysis, object):
             list_mat_obj += [rd for rd, md in zip(component_data["Ref Des"], component_data["Material"]) if md == mat]
             list_mat_obj = [mo for mo in list_mat_obj if mo in all_objs]
             if list_mat_obj:
-                newmat = self.materials.checkifmaterialexists(mat)
+                newmat = self.materials.exists_material(mat)
                 if not newmat:
                     newmat = self.materials.add_material(mat.lower())
                 if "Material Density" in material_data:
@@ -964,7 +961,7 @@ class FieldAnalysis3D(Analysis, object):
                             material_data["Material Density"][i], "Mass_Density"
                         )
                         newmat.mass_density = nominal_val
-                        newmat.mass_density.thermalmodifier = "pwl({}, Temp)".format(dataset_name)
+                        newmat.mass_density.thermalmodifier = f"pwl({dataset_name}, Temp)"
                     else:
                         value = material_data["Material Density"][i]
                         newmat.mass_density = value
@@ -977,7 +974,7 @@ class FieldAnalysis3D(Analysis, object):
                             material_data["Thermal Conductivity"][i], "Thermal_Conductivity"
                         )
                         newmat.thermal_conductivity = nominal_val
-                        newmat.thermal_conductivity.thermalmodifier = "pwl({}, Temp)".format(dataset_name)
+                        newmat.thermal_conductivity.thermalmodifier = f"pwl({dataset_name}, Temp)"
                     else:
                         value = material_data["Thermal Conductivity"][i]
                         newmat.thermal_conductivity = value
@@ -987,7 +984,7 @@ class FieldAnalysis3D(Analysis, object):
                             material_data["Material CTE"][i], "CTE"
                         )
                         newmat.thermal_expansion_coefficient = nominal_val
-                        newmat.thermal_expansion_coefficient.thermalmodifier = "pwl({}, Temp)".format(dataset_name)
+                        newmat.thermal_expansion_coefficient.thermalmodifier = f"pwl({dataset_name}, Temp)"
                     else:
                         value = material_data["Material CTE"][i]
                         newmat.thermal_expansion_coefficient = value
@@ -997,7 +994,7 @@ class FieldAnalysis3D(Analysis, object):
                             material_data["Poisson Ratio"][i], "Poisson_Ratio"
                         )
                         newmat.poissons_ratio = nominal_val
-                        newmat.poissons_ratio.thermalmodifier = "pwl({}, Temp)".format(dataset_name)
+                        newmat.poissons_ratio.thermalmodifier = f"pwl({dataset_name}, Temp)"
                     else:
                         value = material_data["Poisson Ratio"][i]
                         newmat.poissons_ratio = value
@@ -1007,7 +1004,7 @@ class FieldAnalysis3D(Analysis, object):
                             material_data["Elastic Modulus"][i], "Youngs_Modulus"
                         )
                         newmat.youngs_modulus = nominal_val
-                        newmat.youngs_modulus.thermalmodifier = "pwl({}, Temp)".format(dataset_name)
+                        newmat.youngs_modulus.thermalmodifier = f"pwl({dataset_name}, Temp)"
                     else:
                         value = material_data["Elastic Modulus"][i]
                         newmat.youngs_modulus = value
@@ -1101,7 +1098,7 @@ class FieldAnalysis3D(Analysis, object):
                 components = [components]
             for cmp in components:
                 if cmp not in self.modeler.user_defined_component_names:
-                    raise ValueError("Component definition was not found for '{}'.".format(cmp))
+                    raise ValueError(f"Component definition was not found for '{cmp}'.")
 
         for cmp in components:
             comp = self.modeler.user_defined_components[cmp]
@@ -1175,7 +1172,7 @@ class FieldAnalysis3D(Analysis, object):
         dict
 
         """
-        if is_ironpython and settings.aedt_version < "2023.2":  # pragma: no cover
+        if settings.aedt_version < "2023.2":  # pragma: no cover
             self.logger.error("This method requires CPython and PyVista.")
             return {}
         if settings.aedt_version >= "2023.2" and self.design_type == "HFSS":  # pragma: no cover
@@ -1232,7 +1229,7 @@ class FieldAnalysis3D(Analysis, object):
             net = [cad_to_investigate]
             check_intersections(net, inputs)
             inputs = [i for i in inputs if i not in net]
-            nets["Net{}".format(k)] = [i.name for i in net]
+            nets[f"Net{k}"] = [i.name for i in net]
             if assignment:
                 break
             if inputs:
@@ -1240,7 +1237,7 @@ class FieldAnalysis3D(Analysis, object):
                 inputs = inputs[1:]
                 k += 1
                 if len(inputs) == 0:
-                    nets["Net{}".format(k)] = [cad_to_investigate.name]
+                    nets[f"Net{k}"] = [cad_to_investigate.name]
                     break
         return nets
 
@@ -1343,7 +1340,7 @@ class FieldAnalysis3D(Analysis, object):
         dxf_layers = self.get_dxf_layers(file_path)
         for layer in layers:
             if layer not in dxf_layers:
-                self.logger.error("{} does not exist in specified dxf.".format(layer))
+                self.logger.error(f"{layer} does not exist in specified dxf.")
                 return False
 
         if hasattr(self, "is3d") and self.is3d:
