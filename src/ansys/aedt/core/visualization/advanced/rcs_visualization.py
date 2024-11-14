@@ -117,8 +117,6 @@ class MonostaticRCSData(object):
         self.__input_file = input_file
         self.__raw_data = {}
         self.__frequency = None
-        self.__freq_index = 0
-        self.__model_units = "meter"
         self.__name = None
         self.__solution = None
 
@@ -257,8 +255,8 @@ class MonostaticRCSData(object):
             val = frequency
         if val in self.frequencies:
             self.__frequency = val
-            self.__freq_index = self.frequencies.index(val)
-        else:  # pragma: no cover
+            # self.__freq_index = self.frequencies.index(val)
+        else:
             self.__logger.error("Frequency not available.")
 
     @property
