@@ -588,7 +588,7 @@ class MonostaticRCSData(object):
             try:
                 self.__raw_data = pd.read_hdf(self.__monostatic_file, key="df", mode="w", format="table")
             except ImportError as e:  # pragma: no cover
-                self.__app.logger.error(f"Failed to load monostatic RCS data: {e}")
+                self.__logger.error(f"Failed to load monostatic RCS data: {e}")
                 return False
         else:
             self.__raw_data = pd.read_pickle(self.__monostatic_file)
