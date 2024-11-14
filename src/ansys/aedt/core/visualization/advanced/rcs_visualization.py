@@ -1839,7 +1839,7 @@ class MonostaticRCSPlotter(object):
                     object_in[3],
                 )
             else:
-                self.logger.warning(f"{cad_path} does not exist.")
+                self.__logger.warning(f"{cad_path} does not exist.")
                 return False
 
             model_pv.generate_geometry_mesh()
