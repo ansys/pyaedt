@@ -23,16 +23,22 @@
 # SOFTWARE.
 
 import ast
-import pytest
-from pathlib import Path
 import logging
+from pathlib import Path
+from unittest.mock import MagicMock
+from unittest.mock import mock_open
+from unittest.mock import patch
 
-from unittest.mock import MagicMock, patch, mock_open
 from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
+import pytest
 
 FILE_PATH = "dummy.json"
-JSON_CONTENT_PKL = '{"solution": "Trihedral_RCS", "monostatic_file": "rcs_data.pkl", "model_units": "mm", "frequency_units": "GHz"}'
-JSON_CONTENT_HDF = '{"solution": "Trihedral_RCS", "monostatic_file": "rcs_data.h5", "model_units": "mm", "frequency_units": "GHz"}'
+JSON_CONTENT_PKL = (
+    '{"solution": "Trihedral_RCS", "monostatic_file": "rcs_data.pkl", "model_units": "mm", "frequency_units": "GHz"}'
+)
+JSON_CONTENT_HDF = (
+    '{"solution": "Trihedral_RCS", "monostatic_file": "rcs_data.h5", "model_units": "mm", "frequency_units": "GHz"}'
+)
 CONTENT = ast.literal_eval(JSON_CONTENT_PKL)
 FREQUENCIES = ["100Hz", "200Hz", "300Hz"]
 COLUMNS = ["MyName", "Column2", "Column3"]
@@ -48,21 +54,18 @@ mock_df.index = mock_index
 mock_index.names = ["Freq", "OtherLevel"]
 mock_index.get_level_values.return_value = FREQUENCIES
 
+
 @pytest.fixture
 def rcs_setup():
     """Fixture used to setup a MonostaticRCSData instance."""
 
-    with patch("pandas.read_pickle") as mock_read_pickle, \
-         patch("pathlib.Path.is_file") as mock_is_file, \
-         patch("pathlib.Path.open", new_callable=mock_open, read_data=JSON_CONTENT_PKL) as mock_open_path:
-        
+    with patch("pandas.read_pickle") as mock_read_pickle, patch("pathlib.Path.is_file") as mock_is_file, patch(
+        "pathlib.Path.open", new_callable=mock_open, read_data=JSON_CONTENT_PKL
+    ) as mock_open_path:
+
         mock_is_file.return_value = True
         mock_read_pickle.return_value = mock_df
-        yield {
-            "read_pickle": mock_read_pickle,
-            "is_file": mock_is_file,
-            "open": mock_open_path
-        }
+        yield {"read_pickle": mock_read_pickle, "is_file": mock_is_file, "open": mock_open_path}
 
 
 def test_success_with_existing_file(rcs_setup):

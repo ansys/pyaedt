@@ -21,16 +21,16 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-import pytest
-
 from unittest.mock import patch
+
 from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
+import pytest
 
 FILE_PATH = "dummy.json"
 ERROR_MESSAGE = "JSON file does not exist."
+
 
 @patch("pathlib.Path.is_file", return_value=False)
 def test_failure_with_non_existing_file(mock_is_file):
     with pytest.raises(FileNotFoundError, match="JSON file does not exist."):
         MonostaticRCSData(input_file=FILE_PATH)
-
