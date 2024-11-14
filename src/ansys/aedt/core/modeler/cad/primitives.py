@@ -6311,7 +6311,11 @@ class GeometryModeler(Modeler):
             "solve_inside": {"property_name": "Solve Inside", "reset_attr": ["_solve_inside"]},
             "color": {"property_name": "Color", "reset_attr": ["_color"]},
             "transparency": {"property_name": "Transparent", "reset_attr": ["_transparency"]},
-            "part_coordinate_system": {"property_name": "Orientation", "reset_attr": ["_part_coordinate_system"]},
+            "part_coordinate_system": {
+                "property_name": "Orientation",
+                "reset_attr": ["_part_coordinate_system"],
+            },
+            "material_appearance": {"property_name": "Material Appearance", "reset_attr": ["_material_appearance"]},
         }
 
         # Check if property name is valid
