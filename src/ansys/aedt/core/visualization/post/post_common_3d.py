@@ -927,6 +927,9 @@ class PostProcessor3D(PostProcessorCommon):
     def export_field_plot(self, plot_name, output_dir, file_name="", file_format="aedtplt"):
         """Export a field plot.
 
+        .. note:
+           This method works only when the plot is active when it is run.
+
         Parameters
         ----------
         plot_name : str
@@ -2205,9 +2208,9 @@ class PostProcessor3D(PostProcessorCommon):
 
         Parameters
         ----------
-        assignment : list, optional
-            List of objects to export. Export every model object except 3D ones and
-            vacuum and air objects.
+        assignment : list of str, optional
+            List of strings with names of objects to export. Default is ``None`` in which
+            case export every model object except 3D ones and vacuum and air objects.
         export_path : str, optional
             Full path of the exported OBJ file.
         export_as_single_objects : bool, optional
@@ -2219,7 +2222,7 @@ class PostProcessor3D(PostProcessorCommon):
         Returns
         -------
         list
-            List of paths for OBJ files.
+            Paths for OBJ files.
         """
         if assignment and not isinstance(assignment, (list, tuple)):
             assignment = [assignment]
@@ -2241,7 +2244,7 @@ class PostProcessor3D(PostProcessorCommon):
                         and self._app.modeler[i].material_name.lower() != "air"
                     )
                 ]
-        if export_as_single_objects:
+        if not export_as_single_objects:
             files_exported = []
             for el in assignment:
                 fname = os.path.join(export_path, f"{el}.obj")
