@@ -35,22 +35,150 @@ jupyter:
 
 # Launch PyAEDT
 
-## Launch an HFSS instance locally
+Open a Desktop session and run HFSS
+```{python}
+#| eval: false
+from ansys.aedt.core import Desktop, Hfss
+desktop = Desktop(version="2024.2", close_on_exit=True)
+hfss = Hfss(new_desktop=False, project="project_name", design="design_name")
+```
+
+Connect to a running application with given project name and design name
+```{python}
+#| eval: false
+from ansys.aedt.core.generic.design_types import get_pyaedt_app
+app = get_pyaedt_app(project_name="project_name", design="design_name")
+```
+
+Launch an application directly
 ```{python}
 #| eval: false
 from ansys.aedt.core import Hfss
-hfss = Hfss(
-    version='2024.2',
-    new_desktop=True,
-    close_on_exit=True,
-    non_graphical=False,
-    project="project_name",
-    design="design_name"
-)
+# Run the application in non graphical mode
+hfss = Hfss(non_graphical=True, project="project_name", design="design_name")
 ```
 
-## Exit your local instance:
+# Close the active AEDT session
 ```{python}
 #| eval: false
-hfss.release_desktop()
+hfss.release_desktop(close_projects=True, close_on_exit=True)
+```
+
+# Work with variables
+Create a variable that only applies to this design:
+```{python}
+#| eval: false
+hfss["dim"] = "1mm"
+```
+Create a variable that applies at a project level:
+```{python}
+#| eval: false
+hfss["$dim"] = "1mm"
+```
+Manage your variables:
+```{python}
+#| eval: false
+hfss.variable_manager.variables
+```
+
+# Handle your materials
+Add a new material with custom properties:
+```{python}
+#| eval: false
+material = hfss.materials.add_material("my_mat")
+material.permittivity = 3.5
+material.conductivity = 450000
+material.permeability = 1.5
+```
+
+# Create and manipulate your geometry
+Create a box from an anchor and edge sizes:
+```{python}
+#| eval: false
+box = hfss.modeler.create_box([1,1,1], [5,2,5], name="box", material="FR4_epoxy")
+rectangle = hfss.modeler.create_rectangle([1,1,1], [5,2], name="rectangle", material="Copper")
+```
+
+Access edges or vertices data:
+```{python}
+#| eval: false
+nb_edges = len(box.edges)
+for edge in box.edges:
+  print(edge.segment_info)
+nb_vertices = len(box.vertices)
+for vertex in box.vertices:
+  print(vertex.position)
+```
+
+# Define the solution setup
+```{python}
+#| eval: false
+setup = hfss.create_setup("MySetup")
+setup.props["Frequency"] = "50MHz"
+setup["MaximumPasses"] = 10
+hfss.create_linear_count_sweep("my_setup", "MHz", 0.1, 100, num_of_freq_points=100, name="sweep1", sweep_type="Interpolating", save_fields=False)
+```
+Access the parametric sweep:
+```{python}
+#| eval: false
+hfss.parametrics
+```
+Access the optimizations:
+```{python}
+#| eval: false
+hfss.optimizations
+```
+Analyze the solution setup
+```{python}
+#| eval: false
+hfss.analyze(cores=4)
+```
+
+
+# Post processing
+Post processing can be performed within and outside AEDT.
+
+## Report in AEDT
+Create "Mag_E" report in a polyline:
+```{python}
+#| eval: false
+test_points = [["0mm", "0mm", "0mm"], ["100mm", "20mm", "0mm"], ["71mm", "71mm", "0mm"], ["0mm", "100mm", "0mm"]]
+p1 = hfss.modeler.create_polyline(test_points)
+report = hfss.post.reports_by_category.fields(
+  "Mag_E", setup.name + " : LastAdaptive", p1.name)
+report.create()
+```
+
+## Graphic operations
+Visualize graphics objects and plot data within AEDT
+```{python}
+#| eval: false
+field_plot = hfss.post.create_fieldplot_volume(
+  ["box"], "Mag_E")
+image_path = field_plot.export_image(
+  r"C:\\workdir\\my_image.png")
+```
+Generate 2D/3D plots or PDF files using third-party packages
+```{python}
+#| eval: false
+# Plot the box
+hfss.post.plot_model_obj(objects=["box"], show_grid=True)
+
+# Plot solution data
+plot_data = hfss.get_traces_for_plot()
+report = hfss.post.create_report(plot_data)
+solution = report.get_solution_data()
+plt = solution.plot(solution.expressions)
+
+# Save postprocessing output in PDF file
+from ansys.aedt.core.visualization.plot.pdf import AnsysReport
+pdf_report = AnsysReport(
+  project_name=hfss.project_name,
+  design_name=hfss.design_name)
+pdf_report.create()
+pdf_report.add_section()
+pdf_report.add_chapter("HFSS Results")
+pdf_report.add_text("This section contains plots.")
+pdf_report.add_image(image_path)
+pdf_report.save_pdf(file_path=r"C:\\workdir", file_name="report.pdf")
 ```
