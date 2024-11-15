@@ -374,7 +374,10 @@ def _parse_nastran(file_path):
                 nas_to_dict["PointsId"][grid_id] = input_pid
                 nas_to_dict["Points"].append([float(i) for i in points])
                 input_pid += 1
-            elif line_type in ["CTRIA3","CTRIA3*",]:
+            elif line_type in [
+                "CTRIA3",
+                "CTRIA3*",
+            ]:
                 tri = [nas_to_dict["PointsId"][int(i)] for i in points]
                 nas_to_dict["Assemblies"][in_assembly]["Triangles"][object_id].append(tri)
             elif line_type in ["CROD", "CBEAM", "CBAR", "CROD*", "CBEAM*", "CBAR*"]:

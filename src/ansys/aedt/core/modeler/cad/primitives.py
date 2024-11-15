@@ -4846,7 +4846,7 @@ class GeometryModeler(Modeler):
             merge_angle if input_file.endswith(".stl") and merge_planar_faces else -1
         )
         if input_file.endswith(".stl"):
-            vArg1.append("HealSTL:="), vArg1.append(True if int(healing)!=0 else False)
+            vArg1.append("HealSTL:="), vArg1.append(True if int(healing) != 0 else False)
             vArg1.append("ReduceSTL:="), vArg1.append(reduce_stl)
             vArg1.append("ReduceMaxError:="), vArg1.append(reduce_error)
             vArg1.append("ReducePercentage:="), vArg1.append(reduce_percentage)
