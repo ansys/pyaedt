@@ -24,31 +24,11 @@ enabling straightforward and efficient automation in your workflow.
 
 .. grid:: 2
 
-    .. grid-item-card:: Getting started :fa:`person-running`
-        :link: Getting_started/index
-        :link-type: doc
-
-        New to PyAEDT? This section provides the information that you need to get started with PyAEDT.
-
     .. grid-item-card:: User guide :fa:`book-open-reader`
         :link: User_guide/index
         :link-type: doc
 
         This section provides in-depth information on PyAEDT key concepts.
-
-.. grid:: 2
-
-    .. grid-item-card::  API reference :fa:`book-bookmark`
-        :link: API/index
-        :link-type: doc
-
-        This section contains descriptions of the functions and modules included in PyAEDT.
-        It describes how the methods work and the parameters that can be used.
-
-    .. grid-item-card:: Examples :fa:`scroll`
-        :link: https://examples.aedt.docs.pyansys.com/
-
-        Explore examples that show how to use PyAEDT to perform different types of simulations.
 
 .. grid:: 2
 
@@ -63,7 +43,5 @@ enabling straightforward and efficient automation in your workflow.
     :hidden:
 
 
-    Getting_started/index
     User_guide/index
-    API/index
     Examples <https://examples.aedt.docs.pyansys.com/>
