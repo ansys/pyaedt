@@ -1623,7 +1623,7 @@ class MonostaticRCSPlotter(object):
 
         waterfall_object.mesh = actor
 
-        rcs_mesh = MeshObjectPlot(rcs_object, rcs_object.get_mesh())
+        rcs_mesh = MeshObjectPlot(waterfall_object, waterfall_object.get_mesh())
 
         self.all_scene_actors["results"]["waterfall"][waterfall_name] = rcs_mesh
 
