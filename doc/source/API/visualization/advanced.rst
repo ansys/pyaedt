@@ -128,6 +128,17 @@ There are three complementary classes: ``MonostaticRCSExporter``, ``MonostaticRC
 
 - MonostaticRCSPlotter: Focuses on the post-processing of RCS solution data.
 
+
+.. currentmodule:: ansys.aedt.core.visualization.advanced.rcs_visualization
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   MonostaticRCSData
+   MonostaticRCSPlotter
+
+
 This code shows how you can get the RCS data and perform some post-processing:
 
 .. code:: python
