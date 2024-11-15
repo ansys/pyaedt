@@ -149,7 +149,7 @@ def test_set_frequency_success(mock_property, caplog, rcs_setup):
     assert not any((caplog.records[i].message == FREQUENCY_LOG_ERROR for i in range(len(caplog.records))))
 
 
-def test_set_frequency_success(caplog, rcs_setup):
+def test_set_window_success(caplog, rcs_setup):
     mono_rcs_data = MonostaticRCSData(input_file=FILE_PATH)
 
     with caplog.at_level(logging.ERROR, logger="Global"):

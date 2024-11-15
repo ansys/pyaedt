@@ -1282,7 +1282,7 @@ class MonostaticRCSPlotter(object):
         polar = [radius_max, 0, z_mid]
         angle = aspect_ang_phi - 1
 
-        if "waterfall" not in self.all_scene_actors["annotations"].keys():
+        if "waterfall" not in self.all_scene_actors["annotations"]:
             self.all_scene_actors["annotations"]["waterfall"] = {}
 
         # Circular Arc
