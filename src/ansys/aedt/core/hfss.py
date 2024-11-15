@@ -29,6 +29,7 @@ from __future__ import absolute_import  # noreorder
 import ast
 import math
 import os
+from pathlib import Path
 import tempfile
 import warnings
 
@@ -38,6 +39,7 @@ from ansys.aedt.core.generic.constants import INFINITE_SPHERE_TYPE
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.data_handlers import str_to_bool
 from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.general_methods import is_number
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import parse_excitation_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -7193,7 +7195,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         independent_columns : list, optional
             Indicates which columns are independent. If ``None``, only the first column is independent.
 
-
         Returns
         -------
         bool
@@ -7209,4 +7210,45 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> hfss = Hfss()
         >>> hfss.import_table(input_file="my_file.csv")
         """
+        input_path = Path(input_file).resolve()
+
+        if not input_path.is_file():
+            self.logger.error("File does not exist.")
+            return False
+        elif input_path.suffix not in [".csv", ".tab"]:
+            self.logger.error("Invalid file extension. It must be ``.csv``, or ``.tab``.")
+            return False
+
+        delimiter = ","
+        if input_path.suffix == ".tab":
+            delimiter = "\t"
+
+        with open_file(str(input_path), "r") as f:
+            first_line = next(f)
+            columns = first_line.split(delimiter)
+            column_number = len(columns)
+            is_header = all(not is_number(col) for col in columns)
+            if not is_header:
+                file_column_names = [f"col{i + 1}" for i in range(column_number)]
+            else:
+                last_column = columns[-1]
+                file_column_names = columns[:-1]
+                file_column_names.append(last_column[:-1])
+
+        if not column_names:
+            column_names = file_column_names
+        elif isinstance(column_names, list) and len(column_names) != column_number:
+            self.logger.error("Number of column names must be the same than number of data columns.")
+            return False
+
+        if not independent_columns:
+            independent_columns = [False] * column_number
+            independent_columns[0] = True
+        elif isinstance(independent_columns, list) and len(independent_columns) != column_number:
+            self.logger.error("Number of independent columns must be the same than number of data columns.")
+            return False
+
+        self.osolution.ImportTable(
+            str(input_path), name, "Table", is_real_imag, is_field, column_names, independent_columns
+        )
         pass
