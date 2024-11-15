@@ -67,10 +67,13 @@ class AntennaParameters(Standard):
 
 
 class Fields(CommonReport):
-    """Provides for managing fields."""
+    """Handler to manage fields."""
 
-    def __init__(self, app, report_category, setup_name, expressions=None):
-        CommonReport.__init__(self, app, report_category, setup_name, expressions)
+    @pyaedt_function_handler(
+        app="post_app",
+    )
+    def __init__(self, post_app, report_category, setup_name, expressions=None):
+        CommonReport.__init__(self, post_app, report_category, setup_name, expressions)
         self.domain = "Sweep"
         self.primary_sweep = "Distance"
 
