@@ -1967,7 +1967,7 @@ class Desktop(object):
         --------
         >>> from ansys.aedt.core import Desktop
 
-        >>> d = Desktop(version="2023.1", new_desktop=False)
+        >>> d = Desktop(version="2024.2", new_desktop=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
         >>> job_id, job_name = d.submit_ansys_cloud_job('via_gsg.aedt',
@@ -2056,7 +2056,7 @@ class Desktop(object):
         --------
         >>> from ansys.aedt.core import Desktop
 
-        >>> d = Desktop(version="2023.1", new_desktop=False)
+        >>> d = Desktop(version="2024.2", new_desktop=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
         >>> job_id, job_name = d.submit_ansys_cloud_job('via_gsg.aedt',
@@ -2123,7 +2123,7 @@ class Desktop(object):
         --------
         >>> from ansys.aedt.core import Desktop
 
-        >>> d = Desktop(version="2023.1", new_desktop=False)
+        >>> d = Desktop(version="2024.2", new_desktop=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
         >>> job_id, job_name = d.submit_ansys_cloud_job('via_gsg.aedt',
@@ -2165,7 +2165,7 @@ class Desktop(object):
         --------
         >>> from ansys.aedt.core import Desktop
 
-        >>> d = Desktop(version="2023.1", new_desktop=False)
+        >>> d = Desktop(version="2024.2", new_desktop=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
         >>> job_id, job_name = d.submit_ansys_cloud_job('via_gsg.aedt',
@@ -2241,7 +2241,7 @@ class Desktop(object):
         float
 
         """
-        if self.aedt_version_id > "2023.1":
+        if self.aedt_version_id > "2024.2":
             return self.odesktop.AreThereSimulationsRunning()
         return False
 
@@ -2290,7 +2290,7 @@ class Desktop(object):
         str
 
         """
-        if self.aedt_version_id > "2023.1":
+        if self.aedt_version_id > "2024.2":
             return self.odesktop.StopSimulations(clean_stop)
         else:
             self.logger.error("It works only for AEDT >= `2023.2`.")
