@@ -6132,7 +6132,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         from ansys.aedt.core.visualization.advanced.hdm_plot import HDMPlotter
 
         hdm = HDMPlotter()
-        files = self.post.export_model_obj(export_as_single_objects=True, air_objects=False)
+        files = self.post.export_model_obj(export_as_multiple_objects=True, air_objects=False)
         for file in files:
             hdm.add_cad_model(file[0], file[1], file[2], self.modeler.model_units)
         hdm.add_hdm_bundle_from_file(file_name)
