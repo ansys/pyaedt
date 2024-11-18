@@ -1830,7 +1830,7 @@ class MonostaticRCSPlotter(object):
         for object_in in model_info.values():
             model_pv = ModelPlotter()
             model_pv.off_screen = off_screen
-            relative_path = Path(object_in[0].replace("\\", "/"))
+            relative_path = Path("geometry") / Path(object_in[0])
             cad_path = Path(self.rcs_data.output_dir) / relative_path
             if cad_path.exists():
                 model_pv.add_object(
