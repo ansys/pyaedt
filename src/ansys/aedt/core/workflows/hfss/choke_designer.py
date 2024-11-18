@@ -21,18 +21,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# import datetime
-import json
 import os.path
-import tkinter as tk
-from tkinter import filedialog
-from tkinter import messagebox
-from tkinter import ttk
+import shutil
+import tempfile
 
 import ansys.aedt.core
-
-# from ansys.aedt.core import Hfss
-# from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core import Hfss
+from ansys.aedt.core.generic.general_methods import read_json
+from ansys.aedt.core.generic.general_methods import write_configuration_file
 import ansys.aedt.core.workflows
 from ansys.aedt.core.workflows.misc import get_aedt_version
 from ansys.aedt.core.workflows.misc import get_arguments
@@ -84,118 +80,199 @@ default_config = {
 }
 
 # Extension batch arguments
-extension_arguments = {"file_path": "", "choice": ""}
+extension_arguments = {"choke_config": {}}
 extension_description = "Choke Designer in HFSS"
+
+theme = "light"
+if os.environ.get("AEDT_TOOLKIT_THEME", False):
+    if os.environ.get("AEDT_TOOLKIT_THEME") == "dark":
+        theme = "dark"
 
 
 def frontend():  # pragma: no cover
-    """
-    Interfaz gráfica para configurar los parámetros de diseño del Choke.
-    """
-    master = tk.Tk()
-    master.geometry("800x600")
-    master.title("HFSS Choke Designer")
 
-    # Configuración inicial
-    config = default_config.copy()
+    import tkinter
+    from tkinter import filedialog
+    from tkinter import messagebox
+    from tkinter import ttk
 
-    # Crear panel principal
-    main_frame = ttk.PanedWindow(master, orient=tk.HORIZONTAL)
-    main_frame.pack(fill=tk.BOTH, expand=True)
+    import PIL.Image
+    import PIL.ImageTk
+    import sv_ttk
 
-    # Panel izquierdo (opciones booleanas)
-    left_frame = ttk.Frame(main_frame, width=250)
+    # Create UI
+    master = tkinter.Tk()
+
+    master.geometry("900x800")
+
+    master.title("HFSS Choke designer")
+
+    # Detect if user close the UI
+    master.flag = False
+
+    # Load the logo for the main window
+    icon_path = os.path.join(ansys.aedt.core.workflows.__path__[0], "images", "large", "logo.png")
+    im = PIL.Image.open(icon_path)
+    photo = PIL.ImageTk.PhotoImage(im)
+
+    # Set the icon for the main window
+    master.iconphoto(True, photo)
+
+    # Configure style for ttk buttons
+    style = ttk.Style()
+    style.configure("Toolbutton.TButton", padding=6, font=("Helvetica", 8))
+
+    # Load initial configuration
+    config_dict = default_config.copy()
+
+    # Main panel
+    main_frame = ttk.PanedWindow(master, orient=tkinter.HORIZONTAL)
+    main_frame.pack(fill=tkinter.BOTH, expand=True)
+
+    # Left panel
+    left_frame = ttk.Frame(main_frame, width=350)
     main_frame.add(left_frame, weight=1)
 
     def create_boolean_options(parent, config):
-        """Crea las opciones booleanas en el panel izquierdo."""
         for category, options in config.items():
             if isinstance(options, dict) and all(isinstance(v, bool) for v in options.values()):
                 group_frame = ttk.LabelFrame(parent, text=category)
-                group_frame.pack(fill=tk.X, padx=10, pady=5)
+                group_frame.pack(fill=tkinter.X, padx=10, pady=5)
+
+                selected_option = tkinter.StringVar(value=next((opt for opt, val in options.items() if val), ""))
+
+                def on_toggle(cat, opt):
+                    for key in config[cat]:
+                        config[cat][key] = key == opt
 
                 for option, value in options.items():
-                    var = tk.BooleanVar(value=value)
-
-                    def on_toggle(cat=category, opt=option):
-                        for key in config[cat]:
-                            config[cat][key] = key == opt
-
                     btn = ttk.Radiobutton(
                         group_frame,
                         text=option,
-                        variable=var,
-                        value=True,
-                        command=on_toggle,
+                        variable=selected_option,
+                        value=option,
+                        command=lambda opt=option: on_toggle(category, opt),
                     )
-                    btn.pack(anchor=tk.W, padx=5)
+                    btn.pack(anchor=tkinter.W, padx=5)
 
-    create_boolean_options(left_frame, config)
+    create_boolean_options(left_frame, config_dict)
 
-    # Panel derecho (notebook con pestañas)
+    # Right panel
     right_frame = ttk.Notebook(master)
     main_frame.add(right_frame, weight=3)
 
     def create_parameter_inputs(parent, config, category):
-        """Crea campos de entrada para parámetros numéricos y de texto."""
+        def update_config(cat, field, entry_widget):
+            """
+            Update config_dict when the user changes an input.
+            """
+            try:
+                # Save numeric values as floats, others as strings
+                new_value = (
+                    float(entry_widget.get())
+                    if entry_widget.get().replace(".", "", 1).isdigit()
+                    else entry_widget.get()
+                )
+                config[cat][field] = new_value
+            except ValueError:
+                pass  # Ignore invalid input
+
         for field, value in config[category].items():
             frame = ttk.Frame(parent)
-            frame.pack(fill=tk.X, padx=10, pady=2)
+            frame.pack(fill=tkinter.X, padx=10, pady=2)
 
             label = ttk.Label(frame, text=field, width=20)
-            label.pack(side=tk.LEFT)
+            label.pack(side=tkinter.LEFT)
 
             entry = ttk.Entry(frame, width=15)
             entry.insert(0, str(value))
-            entry.pack(side=tk.LEFT, padx=5)
+            entry.pack(side=tkinter.LEFT, padx=5)
 
-    # Pestañas de parámetros
+            # Bind the `update_config` function to changes in the Entry widget
+            entry.bind("<FocusOut>", lambda e, cat=category, fld=field, widget=entry: update_config(cat, fld, widget))
+
+    # Parameters
     for tab_name in ["Core", "Outer Winding", "Mid Winding", "Inner Winding"]:
         tab = ttk.Frame(right_frame)
         right_frame.add(tab, text=tab_name)
-        create_parameter_inputs(tab, config, tab_name)
+        create_parameter_inputs(tab, config_dict, tab_name)
 
-    # Botones inferiores
+    def validate_configuration(config):
+        try:
+            if config["Core"]["Outer Radius"] <= config["Core"]["Inner Radius"]:
+                messagebox.showerror("Error", "Core outer radius must be greater than inner radius")
+                return False
+
+            if config["Outer Winding"]["Outer Radius"] <= config["Outer Winding"]["Inner Radius"]:
+                messagebox.showerror("Error", "Winding outer radius must be greater than inner radius")
+                return False
+
+            if config["Core"]["Height"] <= 0:
+                messagebox.showerror("Error", "Core height must be greater than 0")
+                return False
+
+            if config["Outer Winding"]["Wire Diameter"] <= 0:
+                messagebox.showerror("Error", "Wire diameter must be greater than 0")
+                return False
+            return True
+        except (KeyError, TypeError) as e:
+            messagebox.showerror("Error", f"Validation error: {str(e)}")
+            return False
+
+    # Buttons
     def save_configuration():
-        """Guarda la configuración en un archivo."""
+        if not validate_configuration(config_dict):
+            messagebox.showerror("Validation Error", "Please fix configuration errors before saving.")
+            return
         file_path = filedialog.asksaveasfilename(defaultextension=".json", filetypes=[("JSON files", "*.json")])
         if file_path:
             try:
-                with open(file_path, "w") as f:
-                    json.dump(config, f, indent=2)
-                messagebox.showinfo("Éxito", "Configuración guardada correctamente.")
+                write_configuration_file(config_dict, file_path)
+                messagebox.showinfo("Success", "Configuration saved successfully.")
             except Exception as e:
-                messagebox.showerror("Error", f"No se pudo guardar la configuración: {e}")
+                messagebox.showerror("Error", f"Failed to save configuration: {str(e)}")
 
     def load_configuration():
-        """Carga una configuración desde un archivo."""
         file_path = filedialog.askopenfilename(filetypes=[("JSON files", "*.json")])
         if file_path:
             try:
-                with open(file_path, "r") as f:
-                    new_config = json.load(f)
+                new_config = read_json(file_path)
+                if not validate_configuration(new_config):
+                    messagebox.showerror("Validation Error", "Please fix configuration errors before loading.")
+                    return
                 for key in config:
                     if key in new_config:
                         config[key] = new_config[key]
-                messagebox.showinfo("Éxito", "Configuración cargada correctamente.")
+                messagebox.showinfo("Success", "Configuration saved successfully.")
             except Exception as e:
-                messagebox.showerror("Error", f"No se pudo cargar la configuración: {e}")
+                messagebox.showerror("Error", f"Failed to save configuration: {str(e)}")
 
     button_frame = ttk.Frame(master)
-    button_frame.pack(fill=tk.X, pady=5)
+    button_frame.pack(fill=tkinter.X, pady=5)
 
-    save_button = ttk.Button(button_frame, text="Guardar Configuración", command=save_configuration)
-    load_button = ttk.Button(button_frame, text="Cargar Configuración", command=load_configuration)
-    save_button.pack(side=tk.LEFT, padx=5)
-    load_button.pack(side=tk.LEFT, padx=5)
+    save_button = ttk.Button(button_frame, text="Save Configuration", command=save_configuration)
+    load_button = ttk.Button(button_frame, text="Load Configuration", command=load_configuration)
+    save_button.pack(side=tkinter.LEFT, padx=5)
+    load_button.pack(side=tkinter.LEFT, padx=5)
 
-    # Ejecutar la ventana principal
-    master.mainloop()
+    def callback():
+        master.flag = True
+        if validate_configuration(config_dict):
+            master.destroy()
+
+    export_hfss = ttk.Button(button_frame, text="Export to HFSS", command=callback)
+    export_hfss.pack(side=tkinter.LEFT, padx=5)
+    sv_ttk.set_theme(theme)
+    tkinter.mainloop()
+
+    choke_config = {}
+    if master.flag:
+        choke_config = {"choke_config": config_dict}
+    return choke_config
 
 
 def main(extension_args):
-    choice = extension_args["choice"]
-    file_path = extension_args["file_path"]
+    choke_config = extension_args["choke_config"]
 
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
@@ -205,13 +282,141 @@ def main(extension_args):
         student_version=is_student,
     )
 
-    if not os.path.isfile(file_path):  # pragma: no cover
-        app.logger.error("File does not exist.")
-    elif choice:
-        app.logger.info(f"Choke type {choice}.")
-        app.logger.info(f"File: {file_path}.")
-    else:
-        app.logger.error("No parameter selected.")
+    active_project = app.active_project()
+    active_design = app.active_design()
+
+    project_name = active_project.GetName()
+    design_name = active_design.GetName()
+
+    hfss = Hfss(project_name, design_name)
+
+    hfss.solution_type = "Terminal"
+
+    # Create temporary directory for JSON file
+    temp_dir = tempfile.mkdtemp()
+    json_path = os.path.join(temp_dir, "choke_params.json")
+
+    write_configuration_file(choke_config, json_path)
+
+    # Verify parameters
+    dictionary_values = hfss.modeler.check_choke_values(json_path, create_another_file=False)
+
+    # Create choke geometry
+    list_object = hfss.modeler.create_choke(json_path)
+
+    # Get core and winding objects
+    core = list_object[1]
+    first_winding_list = list_object[2]
+
+    # Get second winding list if it exists
+    second_winding_list = list_object[3] if len(list_object) > 3 else None
+
+    # Create ground plane
+    ground_radius = 1.2 * dictionary_values[1]["Outer Winding"]["Outer Radius"]
+    ground_position = [0, 0, first_winding_list[1][0][2] - 2]
+    ground = hfss.modeler.create_circle("XY", ground_position, ground_radius, name="GND", material="copper")
+    hfss.assign_coating(ground, is_infinite_ground=True)
+    ground.transparency = 0.9
+
+    # Create mesh operation
+    cylinder_height = 2.5 * dictionary_values[1]["Outer Winding"]["Height"]
+    cylinder_position = [0, 0, first_winding_list[1][0][2] - 4]
+    mesh_operation_cylinder = hfss.modeler.create_cylinder(
+        "XY",
+        cylinder_position,
+        ground_radius,
+        cylinder_height,
+        num_sides=36,
+        name="mesh_cylinder",
+    )
+
+    # Create port positions list based on available windings
+    port_position_list = [
+        # First winding start position
+        [
+            first_winding_list[1][0][0],
+            first_winding_list[1][0][1],
+            first_winding_list[1][0][2] - 1,
+        ],
+        # First winding end position
+        [
+            first_winding_list[1][-1][0],
+            first_winding_list[1][-1][1],
+            first_winding_list[1][-1][2] - 1,
+        ],
+    ]
+
+    # Add second winding ports if it exists
+    if second_winding_list:
+        port_position_list.extend(
+            [
+                # Second winding start position
+                [
+                    second_winding_list[1][0][0],
+                    second_winding_list[1][0][1],
+                    second_winding_list[1][0][2] - 1,
+                ],
+                # Second winding end position
+                [
+                    second_winding_list[1][-1][0],
+                    second_winding_list[1][-1][1],
+                    second_winding_list[1][-1][2] - 1,
+                ],
+            ]
+        )
+
+    # Port dimensions
+    wire_diameter = dictionary_values[1]["Outer Winding"]["Wire Diameter"]
+    port_dimension_list = [2, wire_diameter]
+
+    # Create lumped ports
+    for i, position in enumerate(port_position_list):
+        # Create port sheet
+        sheet = hfss.modeler.create_rectangle("XZ", position, port_dimension_list, name=f"sheet_port_{i + 1}")
+
+        # Move sheet to correct position relative to wire
+        sheet.move([-wire_diameter / 2, 0, -1])
+
+        # Create lumped port
+        hfss.lumped_port(
+            assignment=sheet.name,
+            name=f"port_{i + 1}",
+            reference=[ground],
+        )
+
+    # Assign mesh operation
+    hfss.mesh.assign_length_mesh(
+        [mesh_operation_cylinder],
+        maximum_length=15,
+        maximum_elements=None,
+        name="choke_mesh",
+    )
+
+    # Create region
+    region = hfss.modeler.create_region(pad_percent=1000)
+
+    # Create setup
+    setup = hfss.create_setup("Setup1")
+    setup.props["Frequency"] = "50MHz"
+    setup["MaximumPasses"] = 10
+
+    # Create frequency sweep
+    hfss.create_linear_count_sweep(
+        setup=setup.name,
+        units="MHz",
+        start_frequency=0.1,
+        stop_frequency=100,
+        num_of_freq_points=100,
+        name="sweep1",
+        sweep_type="Interpolating",
+        save_fields=False,
+    )
+
+    # Save project
+    hfss.save_project()
+
+    if os.path.exists(temp_dir):
+        shutil.rmtree(temp_dir, ignore_errors=True)
 
     if not extension_args["is_test"]:  # pragma: no cover
         app.release_desktop(False, False)
@@ -228,5 +433,6 @@ if __name__ == "__main__":  # pragma: no cover
             for output_name, output_value in output.items():
                 if output_name in extension_arguments:
                     args[output_name] = output_value
-
-    main(args)
+            main(args)
+    else:
+        main(args)
