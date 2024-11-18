@@ -5,7 +5,7 @@
   "frequency_units": "GHz",
   "model_info": {
     "Polyline1": [
-      "geometry\\Polyline1.obj",
+      "Polyline1.obj",
       [
         143,
         175,
@@ -15,7 +15,7 @@
       "mm"
     ],
     "Polyline1_1": [
-      "geometry\\Polyline1_1.obj",
+      "Polyline1_1.obj",
       [
         143,
         175,
@@ -25,7 +25,7 @@
       "mm"
     ],
     "Polyline1_2": [
-      "geometry\\Polyline1_2.obj",
+      "Polyline1_2.obj",
       [
         143,
         175,

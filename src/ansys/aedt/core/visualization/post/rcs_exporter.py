@@ -280,7 +280,7 @@ class MonostaticRCSExporter:
                 mtl_file.unlink()
 
             obj_list[obj.name] = [
-                str(export_path / object_name),
+                object_name,
                 obj.color,
                 obj.opacity,
                 obj.units,
