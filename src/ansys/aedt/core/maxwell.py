@@ -1810,7 +1810,10 @@ class Maxwell(object):
     @pyaedt_function_handler(objects="assignment")
     def enable_harmonic_force(
         self,
-        objects,
+        assignment,
+        coordinate_system="Global",
+        axis=2,
+        is_positive=True,
         force_type=0,
         window_function="Rectangular",
         use_number_of_cycles_from_stop_time=True,
@@ -1821,18 +1824,24 @@ class Maxwell(object):
         stop_time="0.01s",
         output_frequency_range_type="Use All",
         output_frequency_range_start="0Hz",
-        number_of_output_frequencies=10,
         output_frequency_range_stop="1000Hz",
+        number_of_output_frequencies=10,
         calculate_force="Harmonic",
         enable_inverter_feedback=False,
+        switching_frequency="4000Hz",
+        maximum_frequency="8000Hz",
     ):
         """Enable the harmonic force calculation for the transient analysis.
 
         Parameters
         ----------
-        objects : list
+        assignment : list
             Defines a list of object names for force calculations, for example:
             ["arc_01","arc_02","arc_03"]
+        coordinate_system: str, optional
+        axis : int, optional
+        ``0`` for X-axis, ``1`` for Y-axis, ``2`` for Z-axis
+        is_positive : bool, optional
         force_type : int, optional
             Force Type. ``0`` for Object Based, ``1`` for Element Based (Surface), ``2`` for
             Element Based (Volumetric).
@@ -1866,13 +1875,15 @@ class Maxwell(object):
             Defines the type of the output frequency range. Default is ``"Use All"``.
             Available options are: ``"Use All"``, ``"Use Number"``, ``"Use Range"``.
         output_frequency_range_start : str, optional
+        output_frequency_range_stop : str, optional
         output_frequency_range_number : int, optional
             Number of frequencies to output.
-        output_frequency_range_stop : str, optional
         calculate_force : str, optional
             How to calculate force. The default is ``"Harmonic"``.
             Options are ``"Harmonic"``, ``"Transient"`` and ``"Harmonic and Transient"``
         enable_inverter_feedback : bool, optional
+        switching_frequency: str, optional
+        maximum_frequency: str, optional
 
         Returns
         -------
@@ -1880,45 +1891,74 @@ class Maxwell(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        if self.solution_type != "Transient":
-            self.logger.error("This methods work only with Maxwell Transient Analysis.")
+        if self.solution_type not in [
+            "EddyCurrent",
+            "Transient",
+            "TransientXY",
+            "TransientZ",
+            "TransientAPhiFormulation",
+        ]:
+            self.logger.error("This method is not valid for this solution type.")
             return False
         assignment = self.modeler.convert_to_selections(assignment, True)
-        self.odesign.EnableHarmonicForceCalculation(
-            [
-                "EnabledObjects:=",
-                objects,
-                "ForceType:=",
-                force_type,
-                "WindowFunctionType:=",
-                window_function,
-                "UseNumberOfLastCycles:=",
-                use_number_of_cycles_from_stop_time,
-                "NumberOfLastCycles:=",
-                number_of_cycles_from_stop_time,
-                "StartTime:=",
-                start_time,
-                "UseNumberOfCyclesForStopTime:=",
-                use_number_of_cycles_for_stop_time,
-                "NumberOfCyclesForStopTime:=",
-                number_of_cycles_for_stop_time,
-                "StopTime:=",
-                stop_time,
-                "OutputFreqRangeType:=",
-                output_frequency_range_type,
-                "OutputFreqRangeStart:=",
-                output_frequency_range_start,
-                "OutputFreqRangeNum:=",
-                str(number_of_output_frequencies),
-                "OutputFreqRangeStop:=",
-                output_frequency_range_stop,
-                "CaculateForceType:=",
-                calculate_force + " Force",
-                "EnableInverterFeedback:=",
-                enable_inverter_feedback,
-            ]
-        )
-        return True
+        if self.solution_type == "EddyCurrent":
+            if self.solution_type in ["EddyCurrentXY", "EddyCurrentZ"]:
+                axis = 2
+            else:
+                axis
+            self.odesign.EnableHarmonicForceCalculation(
+                [
+                    "EnabledObjects:=",
+                    assignment,
+                    "Coordinate System:=",
+                    coordinate_system,
+                    "Axis:=",
+                    axis,
+                    "Is Positive:=",
+                    is_positive,
+                ]
+            )
+            return True
+        elif self.solution_type in ["Transient", "TransientXY", "TransientZ"]:
+            self.odesign.EnableHarmonicForceCalculation(
+                [
+                    "EnabledObjects:=",
+                    assignment,
+                    "ForceType:=",
+                    force_type,
+                    "WindowFunctionType:=",
+                    window_function,
+                    "UseNumberOfLastCycles:=",
+                    use_number_of_cycles_from_stop_time,
+                    "NumberOfLastCycles:=",
+                    number_of_cycles_from_stop_time,
+                    "StartTime:=",
+                    start_time,
+                    "UseNumberOfCyclesForStopTime:=",
+                    use_number_of_cycles_for_stop_time,
+                    "NumberOfCyclesForStopTime:=",
+                    number_of_cycles_for_stop_time,
+                    "StopTime:=",
+                    stop_time,
+                    "OutputFreqRangeType:=",
+                    output_frequency_range_type,
+                    "OutputFreqRangeStart:=",
+                    output_frequency_range_start,
+                    "OutputFreqRangeStop:=",
+                    output_frequency_range_stop,
+                    "OutputFreqRangeNum:=",
+                    str(number_of_output_frequencies),
+                    "CaculateForceType:=",
+                    calculate_force + " Force",
+                    "EnableInverterFeedback:=",
+                    enable_inverter_feedback,
+                    "SwitchingFrequency:=",
+                    switching_frequency,
+                    "MaximumFrequency:=",
+                    maximum_frequency,
+                ]
+            )
+            return True
 
     @pyaedt_function_handler(layout_component_name="assignment")
     def enable_harmonic_force_on_layout_component(
