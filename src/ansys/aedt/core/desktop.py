@@ -2241,7 +2241,7 @@ class Desktop(object):
         float
 
         """
-        if self.aedt_version_id > "2024.2":
+        if self.aedt_version_id > "2023.1":
             return self.odesktop.AreThereSimulationsRunning()
         return False
 
@@ -2290,7 +2290,7 @@ class Desktop(object):
         str
 
         """
-        if self.aedt_version_id > "2024.2":
+        if self.aedt_version_id > "2023.1":
             return self.odesktop.StopSimulations(clean_stop)
         else:
             self.logger.error("It works only for AEDT >= `2023.2`.")
