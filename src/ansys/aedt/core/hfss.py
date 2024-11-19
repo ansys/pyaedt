@@ -7164,7 +7164,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
     def import_table(
         self,
         input_file,
-        name=None,
+        name,
         is_real_imag=True,
         is_field=False,
         column_names=None,
@@ -7174,17 +7174,16 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
             The table can have multiple independent real-valued columns of data,
             and multiple dependent real- or complex-valued columns of data.
-            The data supported imports are either tab delimited format (.tab) or comma delimited format (.csv).
+            The data supported is comma delimited format (.csv).
             The first row may contain column names. Complex data columns are inferred from the column data format.
-            In tab delimited format, "(double, double)" denotes a complex number. In comma delimited format, "(double,
-            double)" denotes a complex number.
+            In comma delimited format, "(double, double)" denotes a complex number.
 
         Parameters
         ----------
         input_file : str
-            Full path to the file. Supported formats are ``"csv"``, and ``"tab"``.
-        name : str, optional
-            Solution name. The default is ``None``.
+            Full path to the file. Supported formats is ``".csv"``.
+        name : str
+            Table name.
         is_real_imag : bool, optional
             Whether to use real and imaginary to interpret data for any complex column. If ``False``, then use
             magnitude and phase in degrees. The default is ``True``.
@@ -7215,13 +7214,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         if not input_path.is_file():
             self.logger.error("File does not exist.")
             return False
-        elif input_path.suffix not in [".csv", ".tab"]:
-            self.logger.error("Invalid file extension. It must be ``.csv``, or ``.tab``.")
+        elif input_path.suffix != ".csv":
+            self.logger.error("Invalid file extension. It must be ``.csv``.")
+            return False
+        if name in self.table_names:
+            self.logger.error("Table name already assigned.")
             return False
 
         delimiter = ","
-        if input_path.suffix == ".tab":
-            delimiter = "\t"
 
         with open_file(str(input_path), "r") as f:
             first_line = next(f)
@@ -7251,4 +7251,37 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         self.osolution.ImportTable(
             str(input_path), name, "Table", is_real_imag, is_field, column_names, independent_columns
         )
-        pass
+        return True
+
+    @pyaedt_function_handler()
+    def delete_table(self, name):
+        """Delete data table.
+
+        Parameters
+        ----------
+        name : str or list of str
+            Table name to delete.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.DeleteImportData
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.import_table(name="Table1")
+        """
+        name_list = self.modeler.convert_to_selections(name, True)
+        new_name_list = []
+        for new_name in name_list:
+            new_name_list.append(f"{new_name}:Table")
+        self.osolution.DeleteImportData(new_name_list)
+        # UI is not updated, and it needs to save the project
+        self.save_project()
+        return True
