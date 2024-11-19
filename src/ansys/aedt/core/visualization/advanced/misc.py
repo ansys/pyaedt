@@ -576,8 +576,8 @@ def _write_stl(nas_to_dict, decimation, working_directory, enable_planar_merge=T
             f.write(f"   vertex {points[2][0]} {points[2][1]} {points[2][2]}\n")
             f.write("  endloop\n")
             f.write(" endfacet\n")
-        except Exception:
-            pass
+        except Exception:  # pragma: no cover
+            logger.debug("Failed to normalize vector.")
 
     logger.info("Creating STL file with detected faces")
     enable_stl_merge = False if enable_planar_merge == "False" or enable_planar_merge is False else True
