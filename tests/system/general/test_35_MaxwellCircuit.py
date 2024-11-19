@@ -132,10 +132,9 @@ class TestClass:
 
     def test_11_create_page(self):
         assert self.aedtapp.create_page("string_test") == True
+        assert self.aedtapp.nb_pages == 2
         assert self.aedtapp.create_page(123) == True
+        assert self.aedtapp.nb_pages == 3
         assert self.aedtapp.create_page(3.14) == True
+        assert self.aedtapp.nb_pages == 4
         assert not self.aedtapp.create_page(["create_page_test"])
-
-    def test_12_get_num_pages(self):
-        assert type(self.aedtapp.get_num_pages()) == int
-        assert not type(self.aedtapp.get_num_pages()) == str, float

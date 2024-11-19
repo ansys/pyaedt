@@ -150,6 +150,11 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
 
+    @property
+    def nb_pages(self):
+        """Number of circuit schematic pages."""
+        return self.oeditor.GetNumPages()
+
     @pyaedt_function_handler(file_to_import="input_file")
     def create_schematic_from_netlist(self, input_file):
         """Create a circuit schematic from an HSpice net list.
@@ -271,24 +276,3 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
             return False
         self.oeditor.CreatePage(name)
         return True
-
-    def get_num_pages(self):
-        """Gets the number of circuit schematic pages.
-
-        Returns
-        -------
-        int
-            The number of pages in the circuit schematic.
-
-        References
-        ----------
-        >>> oEditor.GetNumPages()
-
-        Examples
-        --------
-        >>>from ansys.aedt.core import MaxwellCircuit
-        >>>app=MaxwellCircuit()
-        >>>component=app.get_num_pages()
-        """
-        pages = self.oeditor.GetNumPages()
-        return pages
