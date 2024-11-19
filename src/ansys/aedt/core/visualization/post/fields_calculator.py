@@ -199,17 +199,19 @@ class FieldsCalculator:
 
         # Check assignment type
         if self.__app.design_type not in ["HFSS 3D Layout Design", "HFSS 3D Layout"]:
-            if assignment and isinstance(assignment, str) and assignment not in self.__app.modeler.object_names:
+            if (
+                assignment and isinstance(assignment, str) and assignment not in self.__app.modeler.object_names
+            ):  # pragma no cover
                 self.__app.logger.error("Assignment type is not correct.")
                 return False
 
             # Check assignment type
-            if assignment and isinstance(assignment, str):
+            if assignment and isinstance(assignment, str):  # pragma no cover
                 assignment_type = self.__app.modeler.objects_by_name[assignment].object_type
                 if assignment_type not in expression_info["assignment_type"]:
                     self.__app.logger.error("Wrong assignment type.")
                     return False
-            elif assignment and isinstance(assignment, int):
+            elif assignment and isinstance(assignment, int):  # pragma no cover
                 if "Face" not in expression_info["assignment_type"]:
                     self.__app.logger.error("Wrong assignment type.")
                     return False

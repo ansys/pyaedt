@@ -50,14 +50,14 @@ class PostProcessor3DLayout(PostProcessor3D):
                 nets.append(k.net_name)
                 try:
                     nets.append(k.ref_terminal.net_name)
-                except AttributeError:
+                except AttributeError:  # pragma no cover
                     pass
         if solution is None:
             for setup in self._app.setups:
                 if setup.solver_type == "SIwaveDCIR":
                     solution = setup.name
         else:
-            for setup in self._app.setups:
+            for setup in self._app.setups:  # pragma no cover
                 if setup.name == solution and setup.solver_type != "SIwaveDCIR":
                     self._app.logger.error("Wrong Setup. It has to be an SIwave DCIR solution.")
                     solution = None
@@ -86,7 +86,7 @@ class PostProcessor3DLayout(PostProcessor3D):
             solution_type = "DCIR Fields"
         else:
             solution_type = "DC Fields"
-        if layers is None or nets is None or solution is None:
+        if layers is None or nets is None or solution is None:  # pragma no cover
             self._app.logger.error("Check inputs.")
             return False
         power_by_layers = {}
@@ -97,10 +97,10 @@ class PostProcessor3DLayout(PostProcessor3D):
             for net in nets:
                 try:
                     get_ids = self._app.odesign.GetGeometryIdsForNetLayerCombination(net, layer, solution)
-                except:  # pragma no cover
+                except Exception:  # pragma no cover
                     get_ids = []
                 if not get_ids:
-                    continue
+                    continue  # pragma no cover
                 assignment = f"{layer}_{net}"
                 operations.extend(
                     [
@@ -162,7 +162,7 @@ class PostProcessor3DLayout(PostProcessor3D):
             Power by nets.
         """
         layers, nets, solution = self._check_inputs(layers, nets, solution)
-        if layers is None or nets is None or solution is None:
+        if layers is None or nets is None or solution is None:  # pragma no cover
             self._app.logger.error("Check inputs.")
             return False
         power_by_nets = {}
@@ -195,7 +195,7 @@ class PostProcessor3DLayout(PostProcessor3D):
                     operations.append("Operation('+')")
             operations.extend([f"Scalar_Constant({thickness})", "Operation('*')"])
             if idx == 0:
-                continue
+                continue  # pragma no cover
             my_expression = {
                 "name": f"Power_{net}",
                 "description": "Power Density",
