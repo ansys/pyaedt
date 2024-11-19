@@ -312,6 +312,31 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
     def composite(self, value):
         self.design_solutions.composite = value
 
+    @property
+    def table_names(self):
+        """Imported table names.
+
+        Returns
+        -------
+        list of str
+            List of names of all imported tables in the design.
+
+        References
+        ----------
+
+        >>> oModule.GetValidISolutionList
+        """
+        table_names = []
+        if self.osolution and "GetValidISolutionList" in self.osolution.__dir__():
+            solution_list = self.osolution.GetValidISolutionList(True)
+            if solution_list:
+                table_names = [
+                    item.split(" :")[0]
+                    for item in solution_list
+                    if not any(setup_name + " :" in item for setup_name in self.setup_names)
+                ]
+        return table_names
+
     @pyaedt_function_handler(boundary_type="opening_type")
     def set_auto_open(self, enable=True, opening_type="Radiation"):
         """Set the HFSS auto open type.
