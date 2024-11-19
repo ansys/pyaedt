@@ -113,7 +113,6 @@ class MonostaticRCSExporter:
         self.__frequency_unit = self.__app.odesktop.GetDefaultUnit("Frequency")
 
         self.__column_name = copy.deepcopy(self.expression)
-        self.__phi_column_name = "ComplexMonostaticRCSPhi"
 
     @property
     def model_info(self):
