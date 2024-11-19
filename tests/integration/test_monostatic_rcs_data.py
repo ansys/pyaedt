@@ -57,13 +57,13 @@ mock_index.get_level_values.return_value = FREQUENCIES
 def rcs_setup():
     """Fixture used to setup a MonostaticRCSData instance."""
 
-    with patch("pandas.read_hdf5") as mock_read_hdf5, patch("pathlib.Path.is_file") as mock_is_file, patch(
+    with patch("pandas.read_hdf") as mock_read_hdf, patch("pathlib.Path.is_file") as mock_is_file, patch(
         "pathlib.Path.open", new_callable=mock_open, read_data=JSON_CONTENT_HDF
     ) as mock_open_path:
 
         mock_is_file.return_value = True
-        mock_read_hdf5.return_value = mock_df
-        yield {"read_hdf5": mock_read_hdf5, "is_file": mock_is_file, "open": mock_open_path}
+        mock_read_hdf.return_value = mock_df
+        yield {"read_hdf": mock_read_hdf, "is_file": mock_is_file, "open": mock_open_path}
 
 
 def test_success_with_existing_file(rcs_setup):
