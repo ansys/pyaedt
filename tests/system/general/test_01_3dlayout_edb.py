@@ -373,7 +373,6 @@ class TestClass:
     def test_19_dcir(self):
         import pandas as pd
 
-        self.dcir_example_project.analyze()
         setup = self.dcir_example_project.get_setup("SIwaveDCIR1")
         assert setup.is_solved
         assert self.dcir_example_project.get_dcir_solution_data("SIwaveDCIR1", "RL", "Path Resistance")
@@ -386,6 +385,10 @@ class TestClass:
             context="RL",
         )
         assert isinstance(self.dcir_example_project.get_dcir_element_data_current_source("SIwaveDCIR1"), pd.DataFrame)
+        p_layers = self.dcir_example_project.post.compute_power_by_layer()
+        p_nets = self.dcir_example_project.post.compute_power_by_nets(nets=["5V", "GND"])
+        assert p_nets
+        assert p_layers
 
     def test_20_change_options(self):
         assert self.aedtapp.change_options()

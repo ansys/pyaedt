@@ -51,6 +51,8 @@ def post_processor(app=None, project=None, design=None, version=None):
             from ansys.aedt.core.visualization.post.post_icepak import PostProcessorIcepak as PostProcessor
         elif app.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design", "Circuit Netlist"]:
             from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit as PostProcessor
+        elif app.design_type in ["HFSS 3D Layout Design", "HFSS 3D Layout"]:
+            from ansys.aedt.core.visualization.post.post_3dlayout import PostProcessor3DLayout as PostProcessor
         else:
             from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D as PostProcessor
     if PostProcessor:
