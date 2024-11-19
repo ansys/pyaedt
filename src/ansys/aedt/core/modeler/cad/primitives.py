@@ -6931,7 +6931,7 @@ class GeometryModeler(Modeler):
         >>> test_points_1 = [[0.4, 0, 0],
         ...                 [-0.4, -0.6, 0],
         ...                 [0.4, 0, 0]]
-        >>> P6 = m3d.modeler.create_polyline(points=points,
+        >>> P6 = m3d.modeler.create_polyline(points=test_points_1,
         ...                                  segment_type=[PolylineSegment(segment_type="AngularArc",
         ...                                                                arc_center=[0, 0, 0],
         ...                                                                arc_angle="180deg",
