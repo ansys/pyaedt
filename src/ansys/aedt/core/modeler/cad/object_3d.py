@@ -98,6 +98,7 @@ class Object3d(object):
         self._surface_material = None
         self._color = None
         self._wireframe = None
+        self._material_appearance = None
         self._part_coordinate_system = None
         self._model = None
         self._m_groupName = None
@@ -1342,6 +1343,45 @@ class Object3d(object):
         self._change_property(vWireframe)
         self._wireframe = fWireframe
 
+    @property
+    def material_appearance(self):
+        """Material appearance property of the part.
+
+        Returns
+        -------
+        bool
+            ``True`` when material appearance is activated for the part, ``False`` otherwise.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
+
+        """
+        if self._material_appearance is not None:
+            return self._material_appearance
+        if "Material Appearance" in self.valid_properties:
+            material_appearance = self._oeditor.GetPropertyValue(
+                "Geometry3DAttributeTab", self._m_name, "Material Appearance"
+            )
+            if material_appearance == "true" or material_appearance == "True":
+                self._material_appearance = True
+            else:
+                self._material_appearance = False
+            return self._material_appearance
+
+    @material_appearance.setter
+    def material_appearance(self, material_appearance):
+        vMaterialAppearance = [
+            "NAME:Material Appearance",
+            "Value:=",
+            material_appearance,
+        ]
+
+        self._change_property(vMaterialAppearance)
+        self._material_appearance = material_appearance
+
     @pyaedt_function_handler()
     def history(self):
         """Object history.
@@ -2030,24 +2070,30 @@ class Object3d(object):
         vArg2 = ["NAME:ChamferParameters"]
         vArg2.append("Edges:="), vArg2.append(edge_id_list)
         vArg2.append("Vertices:="), vArg2.append(vertex_id_list)
-        vArg2.append("LeftDistance:="), vArg2.append(self._primitives._arg_with_dim(left_distance))
-        if not right_distance:
+        if right_distance is None:
             right_distance = left_distance
         if chamfer_type == 0:
+            if left_distance != right_distance:
+                self.logger.error("Do not set right distance or ensure that left distance equals right distance.")
+            vArg2.append("LeftDistance:="), vArg2.append(self._primitives._arg_with_dim(left_distance))
             vArg2.append("RightDistance:="), vArg2.append(self._primitives._arg_with_dim(right_distance))
             vArg2.append("ChamferType:="), vArg2.append("Symmetric")
         elif chamfer_type == 1:
+            vArg2.append("LeftDistance:="), vArg2.append(self._primitives._arg_with_dim(left_distance))
             vArg2.append("RightDistance:="), vArg2.append(self._primitives._arg_with_dim(right_distance))
             vArg2.append("ChamferType:="), vArg2.append("Left Distance-Right Distance")
         elif chamfer_type == 2:
-            vArg2.append("Angle:="), vArg2.append(str(angle) + "deg")
-            vArg2.append("ChamferType:="), vArg2.append("Left Distance-Right Distance")
+            vArg2.append("LeftDistance:="), vArg2.append(self._primitives._arg_with_dim(left_distance))
+            # NOTE: Seems like there is a bug in the API as Angle can't be used
+            vArg2.append("RightDistance:="), vArg2.append(f"{angle}deg")
+            vArg2.append("ChamferType:="), vArg2.append("Left Distance-Angle")
         elif chamfer_type == 3:
-            vArg2.append("LeftDistance:="), vArg2.append(str(angle) + "deg")
+            # NOTE: Seems like there is a bug in the API as Angle can't be used
+            vArg2.append("LeftDistance:="), vArg2.append(f"{angle}deg")
             vArg2.append("RightDistance:="), vArg2.append(self._primitives._arg_with_dim(right_distance))
             vArg2.append("ChamferType:="), vArg2.append("Right Distance-Angle")
         else:
-            self.logger.error("Wrong Type Entered. Type must be integer from 0 to 3")
+            self.logger.error("Wrong chamfer_type provided. Value must be an integer from 0 to 3.")
             return False
         self._oeditor.Chamfer(vArg1, ["NAME:Parameters", vArg2])
         if self.name in list(self._oeditor.GetObjectsInGroup("UnClassified")):

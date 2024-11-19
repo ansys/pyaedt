@@ -927,6 +927,9 @@ class PostProcessor3D(PostProcessorCommon):
     def export_field_plot(self, plot_name, output_dir, file_name="", file_format="aedtplt"):
         """Export a field plot.
 
+        .. note:
+           This method works only when the plot is active when it is run.
+
         Parameters
         ----------
         plot_name : str
@@ -2199,27 +2202,27 @@ class PostProcessor3D(PostProcessorCommon):
             return False
         return solution_data
 
-    @pyaedt_function_handler(obj_list="assignment")
-    def export_model_obj(self, assignment=None, export_path=None, export_as_single_objects=False, air_objects=False):
+    @pyaedt_function_handler(obj_list="assignment", export_as_single_objects="export_as_multiple_objects")
+    def export_model_obj(self, assignment=None, export_path=None, export_as_multiple_objects=False, air_objects=False):
         """Export the model.
 
         Parameters
         ----------
-        assignment : list, optional
-            List of objects to export. Export every model object except 3D ones and
-            vacuum and air objects.
+        assignment : list of str, optional
+            List of strings with names of objects to export. Default is ``None`` in which
+            case export every model object except 3D ones and vacuum and air objects.
         export_path : str, optional
             Full path of the exported OBJ file.
-        export_as_single_objects : bool, optional
-           Whether to export the model as single object. The default is ``False``, in which
-           case is exported asa list of objects for each object.
+        export_as_multiple_objects : bool, optional
+           Whether to export the model as multiple objects or not. Default is ``False``
+           in which case the model is exported as single object.
         air_objects : bool, optional
             Whether to export air and vacuum objects. The default is ``False``.
 
         Returns
         -------
         list
-            List of paths for OBJ files.
+            Paths for OBJ files.
         """
         if assignment and not isinstance(assignment, (list, tuple)):
             assignment = [assignment]
@@ -2241,7 +2244,7 @@ class PostProcessor3D(PostProcessorCommon):
                         and self._app.modeler[i].material_name.lower() != "air"
                     )
                 ]
-        if export_as_single_objects:
+        if export_as_multiple_objects:
             files_exported = []
             for el in assignment:
                 fname = os.path.join(export_path, f"{el}.obj")
