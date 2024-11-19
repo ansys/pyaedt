@@ -72,9 +72,9 @@ class TestClass:
         assert rcs_data.solution == "Trihedral_RCS"
         assert os.path.isfile(rcs_data.input_file)
         assert rcs_data.frequency_units == "GHz"
-        assert len(rcs_data.frequencies) == 52
+        assert len(rcs_data.frequencies) == 3
 
-        assert rcs_data.available_incident_wave_theta.size == 52
+        assert rcs_data.available_incident_wave_theta.size == 3
         assert rcs_data.incident_wave_theta == rcs_data.available_incident_wave_theta[0]
 
         rcs_data.incident_wave_theta = 89.0
