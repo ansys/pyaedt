@@ -29,10 +29,11 @@ import shutil
 
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.general_methods import check_and_download_folder
-from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
+
+DEFAULT_EXPRESSION = "ComplexMonostaticRCSTheta"
 
 
 class MonostaticRCSExporter:
@@ -170,7 +171,7 @@ class MonostaticRCSExporter:
         local_path = Path(settings.remote_rpc_session_temp_folder) / full_setup
         export_path = Path(check_and_download_folder(str(local_path), str(export_path))).resolve()
 
-        if not self.solution:  # pragma: no cover
+        if not self.solution:
             self.solution = self.__app.design_name
 
         file_name = f"{name}_{self.solution}.h5"
@@ -178,7 +179,7 @@ class MonostaticRCSExporter:
         pyaedt_metadata_file = export_path / f"{metadata_name}_{self.solution}.json"
 
         # Create directory or check if files already exist
-        if settings.remote_rpc_session:  # pragma: no cover
+        if settings.remote_rpc_session:
             settings.remote_rpc_session.filemanager.makedirs(export_path)
             file_exists = settings.remote_rpc_session.filemanager.pathexists(pyaedt_metadata_file)
         elif not export_path.exists():
@@ -216,7 +217,7 @@ class MonostaticRCSExporter:
                 self.__app.logger.error(f"PyTables is not installed: {e}")
                 return False
 
-            if not self.data_file.is_file():  # pragma: no cover
+            if not self.data_file.is_file():
                 self.__app.logger.error("RCS data file not exported.")
                 return False
         else:
@@ -242,9 +243,11 @@ class MonostaticRCSExporter:
         if self.model_info and "object_list" in self.model_info:
             items["model_info"] = self.model_info["object_list"]
 
-        with open_file(str(pyaedt_metadata_file), "w") as f:
-            json.dump(items, f, indent=2)
-        if not pyaedt_metadata_file:  # pragma: no cover
+        try:
+            with pyaedt_metadata_file.open("w") as f:
+                json.dump(items, f, indent=2)
+        except Exception as e:
+            self.__app.logger.error("An error occurred when writing metadata: {e}")
             return False
 
         self.__metadata_file = pyaedt_metadata_file
