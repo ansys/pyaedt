@@ -2214,8 +2214,8 @@ class PostProcessor3D(PostProcessorCommon):
         export_path : str, optional
             Full path of the exported OBJ file.
         export_as_multiple_objects : bool, optional
-           Whether to export the model as single object. The default is ``False``, in which
-           case is exported asa list of objects for each object.
+           Whether to export the model as multiple objects or not. Default is ``False``
+           in which case the model is exported as single object.
         air_objects : bool, optional
             Whether to export air and vacuum objects. The default is ``False``.
 

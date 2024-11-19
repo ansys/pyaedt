@@ -49,7 +49,7 @@ The following code shows how to use report modules in standalone mode.
     p1 = app.modeler.create_polyline(test_points)
     setup = app.create_setup()
 
-    report = Fields(app=app, report_category="Fields",
+    report = Fields(app=app.post, report_category="Fields",
                     setup_name=setup.name + " : LastAdaptive",
                     expressions="Mag_E")
     report.polyline = p1.name
