@@ -33,35 +33,42 @@ jupyter:
     name: python3
 ---
 
-# Launch PyAEDT
+# Launch AEDT
 
-Open a Desktop session and run HFSS
+Open a Desktop session in graphical mode, open a project and connect to an active design:
+```{python}
+#| eval: false
+from ansys.aedt.core import Desktop
+desktop = Desktop(version="2024.2", new_desktop=True, non_graphical=False, close_on_exit=True)
+app = desktop.load_project(project_file="project_path")
+```
+
+Open a Desktop session in non-graphical mode and create a new HFSS design:
 ```{python}
 #| eval: false
 from ansys.aedt.core import Desktop, Hfss
-desktop = Desktop(version="2024.2", close_on_exit=True)
-hfss = Hfss(new_desktop=False, project="project_name", design="design_name")
+desktop = Desktop(version="2024.2", new_desktop=True, non_graphical=True, close_on_exit=True)
+app = Hfss()
 ```
 
-Connect to a running application with given project name and design name
+Connect to a running application with given project name and design name:
 ```{python}
 #| eval: false
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 app = get_pyaedt_app(project_name="project_name", design="design_name")
 ```
 
-Launch an application directly
+Launch an application directly:
 ```{python}
 #| eval: false
-from ansys.aedt.core import Hfss
-# Run the application in non graphical mode
-hfss = Hfss(non_graphical=True, project="project_name", design="design_name")
+from ansys.aedt.core import Maxwell3d
+app = Maxwell3d()
 ```
 
 # Close the active AEDT session
 ```{python}
 #| eval: false
-hfss.release_desktop(close_projects=True, close_on_exit=True)
+app.release_desktop(close_projects=True, close_on_exit=True)
 ```
 
 # Work with variables
@@ -92,11 +99,11 @@ material.permeability = 1.5
 ```
 
 # Create and manipulate your geometry
-Create a box from an anchor and edge sizes:
+Create a box and get object name:
 ```{python}
 #| eval: false
 box = hfss.modeler.create_box([1,1,1], [5,2,5], name="box", material="FR4_epoxy")
-rectangle = hfss.modeler.create_rectangle([1,1,1], [5,2], name="rectangle", material="Copper")
+box.name
 ```
 
 Access edges or vertices data:
@@ -134,7 +141,6 @@ Analyze the solution setup
 hfss.analyze(cores=4)
 ```
 
-
 # Post processing
 Post processing can be performed within and outside AEDT.
 
@@ -158,19 +164,25 @@ field_plot = hfss.post.create_fieldplot_volume(
 image_path = field_plot.export_image(
   r"C:\\workdir\\my_image.png")
 ```
-Generate 2D/3D plots or PDF files using third-party packages
+
+Generate 2D/3D plots using third-party packages
 ```{python}
 #| eval: false
-# Plot the box
 hfss.post.plot_model_obj(objects=["box"], show_grid=True)
+```
 
-# Plot solution data
+Get solution data
+```{python}
+#| eval: false
 plot_data = hfss.get_traces_for_plot()
 report = hfss.post.create_report(plot_data)
 solution = report.get_solution_data()
 plt = solution.plot(solution.expressions)
+```
 
-# Save postprocessing output in PDF file
+Generate PDF files using third-party packages
+```{python}
+#| eval: false
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 pdf_report = AnsysReport(
   project_name=hfss.project_name,
