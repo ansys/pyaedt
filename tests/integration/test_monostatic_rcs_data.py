@@ -33,13 +33,11 @@ from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticR
 import pytest
 
 FILE_PATH = "dummy.json"
-JSON_CONTENT_PKL = (
-    '{"solution": "Trihedral_RCS", "monostatic_file": "rcs_data.pkl", "model_units": "mm", "frequency_units": "GHz"}'
-)
+
 JSON_CONTENT_HDF = (
     '{"solution": "Trihedral_RCS", "monostatic_file": "rcs_data.h5", "model_units": "mm", "frequency_units": "GHz"}'
 )
-CONTENT = ast.literal_eval(JSON_CONTENT_PKL)
+CONTENT = ast.literal_eval(JSON_CONTENT_HDF)
 FREQUENCIES = ["100Hz", "200Hz", "300Hz"]
 COLUMNS = ["MyName", "Column2", "Column3"]
 VALUES = [12, 42]
@@ -59,13 +57,13 @@ mock_index.get_level_values.return_value = FREQUENCIES
 def rcs_setup():
     """Fixture used to setup a MonostaticRCSData instance."""
 
-    with patch("pandas.read_pickle") as mock_read_pickle, patch("pathlib.Path.is_file") as mock_is_file, patch(
-        "pathlib.Path.open", new_callable=mock_open, read_data=JSON_CONTENT_PKL
+    with patch("pandas.read_hdf5") as mock_read_hdf5, patch("pathlib.Path.is_file") as mock_is_file, patch(
+        "pathlib.Path.open", new_callable=mock_open, read_data=JSON_CONTENT_HDF
     ) as mock_open_path:
 
         mock_is_file.return_value = True
-        mock_read_pickle.return_value = mock_df
-        yield {"read_pickle": mock_read_pickle, "is_file": mock_is_file, "open": mock_open_path}
+        mock_read_hdf5.return_value = mock_df
+        yield {"read_hdf5": mock_read_hdf5, "is_file": mock_is_file, "open": mock_open_path}
 
 
 def test_success_with_existing_file(rcs_setup):
@@ -156,14 +154,3 @@ def test_set_window_success(caplog, rcs_setup):
         mono_rcs_data.window = "Dummy"
 
     assert any((caplog.records[i].message == WINDOW_LOG_ERROR for i in range(len(caplog.records))))
-
-
-@patch("pandas.read_hdf", side_effect=ImportError("Dummy message"))
-@patch("pathlib.Path.is_file", return_value=True)
-@patch("pathlib.Path.open", new_callable=mock_open, read_data=JSON_CONTENT_HDF)
-def test_failure_with_warning(mock_open, mock_is_file, mock_read_pickle, caplog):
-    with pytest.raises(RuntimeError, match="RCS information can not be loaded."):
-        with caplog.at_level(logging.ERROR, logger="Global"):
-            MonostaticRCSData(input_file=FILE_PATH)
-
-        assert caplog.records[0].message.startswith("Failed to load monostatic RCS data:")

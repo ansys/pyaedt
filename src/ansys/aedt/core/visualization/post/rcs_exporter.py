@@ -85,7 +85,6 @@ class MonostaticRCSExporter:
         # Public
         self.setup_name = setup_name
         self.solution = ""
-        self.export_format = "pkl"
         self.expression = expression
         if not self.expression:
             self.expression = "ComplexMonostaticRCSTheta"
@@ -162,7 +161,7 @@ class MonostaticRCSExporter:
         return solution_data
 
     @pyaedt_function_handler()
-    def export_rcs(self, name="rcs_data", metadata_name="pyaedt_rcs_metadata", output_format="pkl"):
+    def export_rcs(self, name="rcs_data", metadata_name="pyaedt_rcs_metadata"):
         """Export RCS solution data."""
 
         # Output directory
@@ -175,7 +174,7 @@ class MonostaticRCSExporter:
         if not self.solution:  # pragma: no cover
             self.solution = self.__app.design_name
 
-        file_name = f"{name}_{self.solution}.{output_format}"
+        file_name = f"{name}_{self.solution}.h5"
         self.data_file = export_path / file_name
         pyaedt_metadata_file = export_path / f"{metadata_name}_{self.solution}.json"
 
@@ -212,14 +211,11 @@ class MonostaticRCSExporter:
                 inplace=True,
             )
 
-            if output_format == "h5":
-                try:
-                    df.to_hdf(self.data_file, key="df", mode="w", format="table")
-                except ImportError as e:  # pragma: no cover
-                    self.__app.logger.error(f"PyTables is not installed: {e}")
-                    return False
-            else:
-                df.to_pickle(self.data_file)
+            try:
+                df.to_hdf(self.data_file, key="df", mode="w", format="table")
+            except ImportError as e:  # pragma: no cover
+                self.__app.logger.error(f"PyTables is not installed: {e}")
+                return False
 
             if not self.data_file.is_file():  # pragma: no cover
                 self.__app.logger.error("RCS data file not exported.")

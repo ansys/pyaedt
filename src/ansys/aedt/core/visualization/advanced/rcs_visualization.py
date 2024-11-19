@@ -579,16 +579,11 @@ class MonostaticRCSData(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-
-        file_extension = self.__monostatic_file.suffix
-        if file_extension == ".h5":
-            try:
-                self.__raw_data = pd.read_hdf(self.__monostatic_file, key="df", mode="w", format="table")
-            except ImportError as e:  # pragma: no cover
-                self.__logger.error(f"Failed to load monostatic RCS data: {e}")
-                return False
-        else:
-            self.__raw_data = pd.read_pickle(self.__monostatic_file)
+        try:
+            self.__raw_data = pd.read_hdf(self.__monostatic_file, key="df", mode="r")
+        except ImportError as e:  # pragma: no cover
+            self.__logger.error(f"Failed to load monostatic RCS data: {e}")
+            return False
         return True
 
 

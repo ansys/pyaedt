@@ -77,10 +77,13 @@ class TestClass:
         assert rcs_data.available_incident_wave_theta.size == 52
         assert rcs_data.incident_wave_theta == rcs_data.available_incident_wave_theta[0]
 
-        rcs_data.incident_wave_theta = 88.0
+        rcs_data.incident_wave_theta = 89.0
         assert rcs_data.incident_wave_theta == rcs_data.available_incident_wave_theta[0]
 
         rcs_data.incident_wave_theta = rcs_data.available_incident_wave_theta[1]
+        assert rcs_data.incident_wave_theta == rcs_data.available_incident_wave_theta[1]
+
+        rcs_data.incident_wave_theta = 80.0
         assert rcs_data.incident_wave_theta == rcs_data.available_incident_wave_theta[1]
 
         assert rcs_data.frequency == rcs_data.frequencies[0]
