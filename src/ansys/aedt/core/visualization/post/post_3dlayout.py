@@ -128,7 +128,8 @@ class PostProcessor3DLayout(PostProcessor3D):
                 "operations": operations,
                 "report": ["Data Table", "Rectangular Plot"],
             }
-
+            if self._app.post.fields_calculator.is_expression_defined(my_expression["name"]):
+                self._app.post.fields_calculator.delete_expression(my_expression["name"])
             self._app.post.fields_calculator.add_expression(my_expression, "")
             self._app.ofieldsreporter.CopyNamedExprToStack(f"Power_{layer}")
             self._app.ofieldsreporter.ClcEval(solution, [], solution_type)
@@ -208,7 +209,8 @@ class PostProcessor3DLayout(PostProcessor3D):
                 "operations": operations,
                 "report": ["Data Table", "Rectangular Plot"],
             }
-
+            if self._app.post.fields_calculator.is_expression_defined(my_expression["name"]):
+                self._app.post.fields_calculator.delete_expression(my_expression["name"])
             self._app.post.fields_calculator.add_expression(my_expression, "")
             self._app.ofieldsreporter.CopyNamedExprToStack(f"Power_{net}")
             self._app.ofieldsreporter.ClcEval(solution, [], solution_type)
