@@ -21,22 +21,18 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-from IPython.core.completerlib import try_import
-from more_itertools.more import first
+import os
 
 from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
 from build.lib.ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-import os
+
 
 class PostProcessor3DLayout(PostProcessor3D):
-    """Manages the main schematic postprocessing functions.
-
-    .. note::
-       Some functionalities are available only when AEDT is running in the graphical mode.
+    """Manages the main 3d layout postprocessing functions.
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.application.analysis_nexxim.FieldAnalysisCircuit`
+    app : :class:`ansys.aedt.core.analysis_3d_layout.FieldAnalysis3DLayout`
         Inherited parent object. The parent object must provide the members
         `_modeler`, `_desktop`, `_odesign`, and `logger`.
 
@@ -86,14 +82,14 @@ class PostProcessor3DLayout(PostProcessor3D):
             Power by layer.
         """
         layers, nets, solution = self._check_inputs(layers, nets, solution)
-        if self._app.desktop_class.aedt_version_id>="2025.1":
+        if self._app.desktop_class.aedt_version_id >= "2025.1":
             solution_type = "DCIR Fields"
         else:
             solution_type = "DC Fields"
         if layers is None or nets is None or solution is None:
             self._app.logger.error("Check inputs.")
             return False
-        power_by_layers={}
+        power_by_layers = {}
         for layer in layers:
             thickness = self._app.modeler.edb.stackup[layer].thickness
             operations = []
@@ -105,17 +101,19 @@ class PostProcessor3DLayout(PostProcessor3D):
                     get_ids = []
                 if not get_ids:
                     continue
-                assignment = f'{layer}_{net}'
-                operations.extend([
-                    "Fundamental_Quantity('P')",
-                    f"EnterSurface('{assignment}')",
-                    "Operation('SurfaceValue')",
-                    "Operation('Integrate')",
-                ])
-                idx +=1
-                if idx>1:
+                assignment = f"{layer}_{net}"
+                operations.extend(
+                    [
+                        "Fundamental_Quantity('P')",
+                        f"EnterSurface('{assignment}')",
+                        "Operation('SurfaceValue')",
+                        "Operation('Integrate')",
+                    ]
+                )
+                idx += 1
+                if idx > 1:
                     operations.append("Operation('+')")
-            operations.extend([f'Scalar_Constant({thickness})', "Operation('*')"])
+            operations.extend([f"Scalar_Constant({thickness})", "Operation('*')"])
             if idx == 0:
                 continue
             my_expression = {
@@ -130,11 +128,13 @@ class PostProcessor3DLayout(PostProcessor3D):
                 "operations": operations,
                 "report": ["Data Table", "Rectangular Plot"],
             }
-    
+
             self._app.post.fields_calculator.add_expression(my_expression, "")
             self._app.ofieldsreporter.CopyNamedExprToStack(f"Power_{layer}")
             self._app.ofieldsreporter.ClcEval(solution, [], solution_type)
-            self._app.ofieldsreporter.CalculatorWrite( os.path.join(self._app.working_directory, f"Power_{layer}.txt"), ["Solution:=", solution], [])
+            self._app.ofieldsreporter.CalculatorWrite(
+                os.path.join(self._app.working_directory, f"Power_{layer}.txt"), ["Solution:=", solution], []
+            )
             self._app.ofieldsreporter.CalcStack("clear")
             if os.path.exists(os.path.join(self._app.working_directory, f"Power_{layer}.txt")):
                 with open(os.path.join(self._app.working_directory, f"Power_{layer}.txt"), "r") as f:
@@ -142,7 +142,7 @@ class PostProcessor3DLayout(PostProcessor3D):
                     print(f"Power for layer {layer} is {lines[-1]}")
                     power_by_layers[layer] = float(lines[-1])
         return power_by_layers
-    
+
     @pyaedt_function_handler()
     def compute_power_by_nets(self, nets=None, layers=None, solution=None):
         """Computes the power by nets. This applies only to Siwave DC Analysis.
@@ -165,7 +165,7 @@ class PostProcessor3DLayout(PostProcessor3D):
         if layers is None or nets is None or solution is None:
             self._app.logger.error("Check inputs.")
             return False
-        power_by_nets={}
+        power_by_nets = {}
         if self._app.desktop_class.aedt_version_id >= "2025.1":
             solution_type = "DCIR Fields"
         else:
@@ -181,17 +181,19 @@ class PostProcessor3DLayout(PostProcessor3D):
                     get_ids = []
                 if not get_ids:
                     continue
-                assignment = f'{layer}_{net}'
-                operations.extend([
-                    "Fundamental_Quantity('P')",
-                    f"EnterSurface('{assignment}')",
-                    "Operation('SurfaceValue')",
-                    "Operation('Integrate')",
-                ])
+                assignment = f"{layer}_{net}"
+                operations.extend(
+                    [
+                        "Fundamental_Quantity('P')",
+                        f"EnterSurface('{assignment}')",
+                        "Operation('SurfaceValue')",
+                        "Operation('Integrate')",
+                    ]
+                )
                 idx += 1
                 if idx > 1:
                     operations.append("Operation('+')")
-            operations.extend([f'Scalar_Constant({thickness})', "Operation('*')"])
+            operations.extend([f"Scalar_Constant({thickness})", "Operation('*')"])
             if idx == 0:
                 continue
             my_expression = {
@@ -206,12 +208,13 @@ class PostProcessor3DLayout(PostProcessor3D):
                 "operations": operations,
                 "report": ["Data Table", "Rectangular Plot"],
             }
-    
+
             self._app.post.fields_calculator.add_expression(my_expression, "")
             self._app.ofieldsreporter.CopyNamedExprToStack(f"Power_{net}")
             self._app.ofieldsreporter.ClcEval(solution, [], solution_type)
-            self._app.ofieldsreporter.CalculatorWrite(os.path.join(self._app.working_directory, f"Power_{net}.txt"),
-                                                    ["Solution:=", solution], [])
+            self._app.ofieldsreporter.CalculatorWrite(
+                os.path.join(self._app.working_directory, f"Power_{net}.txt"), ["Solution:=", solution], []
+            )
             self._app.ofieldsreporter.CalcStack("clear")
             if os.path.exists(os.path.join(self._app.working_directory, f"Power_{net}.txt")):
                 with open(os.path.join(self._app.working_directory, f"Power_{net}.txt"), "r") as f:
