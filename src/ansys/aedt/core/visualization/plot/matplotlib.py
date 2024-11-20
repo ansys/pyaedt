@@ -977,8 +977,12 @@ class ReportPlotter:
             y_range = -1e-12
         if self.x_scale == "log":
             x_range = -1e-12
-        self.ax.set_ylim(min_y - y_range * 0.2, max_y + y_range * 0.2)
-        self.ax.set_xlim(min_x - x_range * 0.2, max_x + x_range * 0.2)
+
+        y_min = min_y - y_range * 0.2
+        y_max = max_y + y_range * 0.2
+        x_min = min_x - x_range * 0.2
+        x_max = max_x + x_range * 0.2
+        return y_min, y_max, x_min, x_max
 
     @pyaedt_function_handler()
     def _retrieve_traces(self, traces):
@@ -999,7 +1003,7 @@ class ReportPlotter:
         return traces_to_plot
 
     @pyaedt_function_handler()
-    def plot_polar(self, traces=None, to_polar=False, snapshot_path=None, show=True, is_degree=True):
+    def plot_polar(self, traces=None, to_polar=False, snapshot_path=None, show=True, is_degree=True, figure=None):
         """Create a Matplotlib polar plot based on a list of data.
 
         Parameters
@@ -1015,6 +1019,9 @@ class ReportPlotter:
             figure is not drawn.
         is_degree : bool, optional
             Whether if data source are in degree or not. Default is ``True``.
+        figure : :class:`matplotlib.pyplot.Figure`, optional
+            An existing Matplotlib `Figure` to which the plot is added.
+            If not provided, a new `Figure` and `Axes` object are created.
 
         Returns
         -------
@@ -1025,7 +1032,11 @@ class ReportPlotter:
         if not traces_to_plot:
             return False
 
-        self.fig, self.ax = plt.subplots(subplot_kw={"projection": "polar"})
+        if not figure:
+            self.fig, self.ax = plt.subplots(subplot_kw={"projection": "polar"})
+        else:
+            self.fig = figure
+            self.ax = figure.add_subplot(111, projection="polar")
 
         legend = []
         i = 0
@@ -1053,7 +1064,7 @@ class ReportPlotter:
         return self.fig
 
     @pyaedt_function_handler()
-    def plot_3d(self, trace=0, snapshot_path=None, show=True, color_map_limits=[0, 1], is_polar=True):
+    def plot_3d(self, trace=0, snapshot_path=None, show=True, color_map_limits=None, is_polar=True):
         """Create a Matplotlib 3D plot based on a list of data.
 
         Parameters
@@ -1074,6 +1085,8 @@ class ReportPlotter:
         :class:`matplotlib.pyplot.Figure`
             Matplotlib figure object.
         """
+        if color_map_limits is None:
+            color_map_limits = [0, 1]
         trace_number = self._retrieve_traces(trace)
         if not trace_number:
             return False
@@ -1161,7 +1174,7 @@ class ReportPlotter:
         return self.fig
 
     @pyaedt_function_handler()
-    def plot_2d(self, traces=None, snapshot_path=None, show=True):
+    def plot_2d(self, traces=None, snapshot_path=None, show=True, figure=None):
         """Create a Matplotlib figure based on a list of data.
 
         Parameters
@@ -1173,6 +1186,9 @@ class ReportPlotter:
             The default value is ``None``.
         show : bool, optional
             Whether to show the plot or return the matplotlib object. Default is `True`.
+        figure : :class:`matplotlib.pyplot.Figure`, optional
+            An existing Matplotlib `Figure` to which the plot is added.
+            If not provided, a new `Figure` and `Axes` object are created.
 
         Returns
         -------
@@ -1182,8 +1198,19 @@ class ReportPlotter:
         traces_to_plot = self._retrieve_traces(traces)
         if not traces_to_plot:
             return False
-        self.fig, self.ax = plt.subplots()
+
+        if not figure:
+            self.fig, self.ax = plt.subplots()
+        else:
+            self.fig = figure
+            self.ax = figure.add_subplot(111)
+
         legend_names = []
+
+        min_x = None
+        max_x = None
+        min_y = None
+        max_y = None
 
         for trace in traces_to_plot:
             self.ax.plot(
@@ -1196,7 +1223,22 @@ class ReportPlotter:
                 color=trace.trace_color,
             )
             self.ax.set(xlabel=trace.x_label, ylabel=trace.y_label, title=self.title)
-            self._set_scale(trace._cartesian_data[0], trace._cartesian_data[1])
+            min_y_current, max_y_current, min_x_current, max_x_current = self._set_scale(
+                trace._cartesian_data[0], trace._cartesian_data[1]
+            )
+
+            if min_x is None or min_x_current < min_x:
+                min_x = min_x_current
+            if max_x is None or max_x_current > max_x:
+                max_x = max_x_current
+
+            if min_y is None or min_y_current < min_y:
+                min_y = min_y_current
+            if max_y is None or max_y_current > max_y:
+                max_y = max_y_current
+
+            self.ax.set_ylim(min_y, max_y)
+            self.ax.set_xlim(min_x, max_x)
 
             legend_names.append(trace.name)
         self._plot_limit_lines()

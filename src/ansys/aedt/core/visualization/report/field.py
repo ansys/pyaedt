@@ -28,6 +28,7 @@ This module contains these classes: `AntennaParameters`, `Fields`, `NearField`, 
 This module provides all functionalities for creating and editing reports.
 
 """
+from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.visualization.report.common import CommonReport
 from ansys.aedt.core.visualization.report.standard import Standard
 
@@ -67,10 +68,13 @@ class AntennaParameters(Standard):
 
 
 class Fields(CommonReport):
-    """Provides for managing fields."""
+    """Handler to manage fields."""
 
-    def __init__(self, app, report_category, setup_name, expressions=None):
-        CommonReport.__init__(self, app, report_category, setup_name, expressions)
+    @pyaedt_function_handler(
+        app="post_app",
+    )
+    def __init__(self, post_app, report_category, setup_name, expressions=None):
+        CommonReport.__init__(self, post_app, report_category, setup_name, expressions)
         self.domain = "Sweep"
         self.primary_sweep = "Distance"
 
