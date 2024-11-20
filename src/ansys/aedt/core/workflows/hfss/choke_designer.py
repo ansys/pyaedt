@@ -77,6 +77,7 @@ default_config = {
         "Coil Pit(deg)": 0.1,
         "Occupation(%)": 0,
     },
+    "Settings": {"Units": "mm"},
 }
 
 # Extension batch arguments
@@ -105,7 +106,7 @@ def frontend():  # pragma: no cover
 
     master.geometry("900x800")
 
-    master.title("HFSS Choke designer")
+    master.title("Choke designer")
 
     # Detect if user close the UI
     master.flag = False
@@ -133,33 +134,41 @@ def frontend():  # pragma: no cover
     left_frame = ttk.Frame(main_frame, width=350)
     main_frame.add(left_frame, weight=1)
 
+    selected_options = {}
+
     def create_boolean_options(parent, config):
+
         for category, options in config.items():
-            if isinstance(options, dict) and all(isinstance(v, bool) for v in options.values()):
-                group_frame = ttk.LabelFrame(parent, text=category)
-                group_frame.pack(fill=tkinter.X, padx=10, pady=5)
+            if category in ["Number of Windings", "Layer", "Layer Type", "Similar Layer", "Mode"]:
+                if isinstance(options, dict) and all(isinstance(v, bool) for v in options.values()):
+                    group_frame = ttk.LabelFrame(parent, text=category)
+                    group_frame.pack(fill=tkinter.X, padx=10, pady=5)
 
-                selected_option = tkinter.StringVar(value=next((opt for opt, val in options.items() if val), ""))
-
-                def on_toggle(cat, opt):
-                    for key in config[cat]:
-                        config[cat][key] = key == opt
-
-                for option, value in options.items():
-                    btn = ttk.Radiobutton(
-                        group_frame,
-                        text=option,
-                        variable=selected_option,
-                        value=option,
-                        command=lambda opt=option: on_toggle(category, opt),
+                    selected_options[category] = tkinter.StringVar(
+                        value=next((opt for opt, val in options.items() if val), "")
                     )
-                    btn.pack(anchor=tkinter.W, padx=5)
+
+                    def update_config(cat, selected_option_u):
+                        for key in config[cat]:
+                            config[cat][key] = key == selected_option_u.get()
+
+                    for option, value in options.items():
+                        btn = ttk.Radiobutton(
+                            group_frame,
+                            text=option,
+                            variable=selected_options[category],
+                            value=option,
+                            command=lambda cat=category: update_config(cat, selected_options[cat]),
+                        )
+                        btn.pack(anchor=tkinter.W, padx=5)
 
     create_boolean_options(left_frame, config_dict)
 
     # Right panel
     right_frame = ttk.Notebook(master)
     main_frame.add(right_frame, weight=3)
+
+    entries_dict = {}
 
     def create_parameter_inputs(parent, config, category):
         def update_config(cat, field, entry_widget):
@@ -188,11 +197,13 @@ def frontend():  # pragma: no cover
             entry.insert(0, str(value))
             entry.pack(side=tkinter.LEFT, padx=5)
 
+            entries_dict[(category, field)] = entry
+
             # Bind the `update_config` function to changes in the Entry widget
             entry.bind("<FocusOut>", lambda e, cat=category, fld=field, widget=entry: update_config(cat, fld, widget))
 
     # Parameters
-    for tab_name in ["Core", "Outer Winding", "Mid Winding", "Inner Winding"]:
+    for tab_name in ["Core", "Outer Winding", "Mid Winding", "Inner Winding", "Settings"]:
         tab = ttk.Frame(right_frame)
         right_frame.add(tab, text=tab_name)
         create_parameter_inputs(tab, config_dict, tab_name)
@@ -240,12 +251,41 @@ def frontend():  # pragma: no cover
                 if not validate_configuration(new_config):
                     messagebox.showerror("Validation Error", "Please fix configuration errors before loading.")
                     return
-                for key in config:
-                    if key in new_config:
-                        config[key] = new_config[key]
-                messagebox.showinfo("Success", "Configuration saved successfully.")
+                for key in new_config:
+                    if key in config_dict:
+                        config_dict[key] = new_config[key]
+                update_radio_buttons()
+                update_entries()
+                messagebox.showinfo("Success", "Configuration loaded successfully.")
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to save configuration: {str(e)}")
+
+    def update_radio_buttons():
+        """
+        Update the Radiobuttons with the values from config_dict.
+        """
+        for category, options in config_dict.items():
+            if isinstance(options, dict) and all(isinstance(v, bool) for v in options.values()):
+                # Get the selected option from config_dict
+                selected_option = next((opt for opt, val in options.items() if val), "")
+
+                # Update the StringVar for the category (to reflect the new value)
+                if category in selected_options:
+                    selected_options[category].set(selected_option)
+
+    def update_entries():
+        """
+        Update the Entry widgets with the values from config_dict.
+        """
+        for category, options in config_dict.items():
+            for field, value in options.items():
+                # Find the entry widget for this field and category
+                entry_widget = entries_dict.get((category, field))  # Assuming you stored entry widgets in a dictionary
+
+                if entry_widget:
+                    # Update the value of the Entry widget with the new value from config_dict
+                    entry_widget.delete(0, tkinter.END)  # Clear current value
+                    entry_widget.insert(0, str(value))  # Insert the new value
 
     button_frame = ttk.Frame(master)
     button_frame.pack(fill=tkinter.X, pady=5)
@@ -283,12 +323,20 @@ def main(extension_args):
     )
 
     active_project = app.active_project()
+
+    hfss = None
+    if not active_project:
+        hfss = Hfss()
+        hfss.save_project()
+        active_project = app.active_project()
+
     active_design = app.active_design()
 
     project_name = active_project.GetName()
     design_name = active_design.GetName()
 
-    hfss = Hfss(project_name, design_name)
+    if not hfss:
+        hfss = Hfss(project_name, design_name)
 
     hfss.solution_type = "Terminal"
 
@@ -398,7 +446,7 @@ def main(extension_args):
     # Create setup
     setup = hfss.create_setup("Setup1")
     setup.props["Frequency"] = "50MHz"
-    setup["MaximumPasses"] = 10
+    setup.props["MaximumPasses"] = 10
 
     # Create frequency sweep
     hfss.create_linear_count_sweep(
