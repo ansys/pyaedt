@@ -65,12 +65,3 @@ Example with ``Desktop`` class implicit initialization:
      # Any error here will be caught by Desktop.
      ...
      circuit.release_desktop()
-
-
-Emit Functions
-==============
-
-.. automodule:: ansys.aedt.core.emit.Emit
-   :members:
-   :undoc-members:
-   :show-inheritance:
