@@ -202,6 +202,25 @@ If you need to export HFSS far field data, then you can use the following featur
     antenna_data = app.post.get_antenna_data()
     app.release_desktop(False, False)
 
+If you need to export HFSS monostatic RCS data, then you can use the following feature to obtain the RCS metadata:
+
+.. currentmodule:: ansys.aedt.core.visualization.post.rcs_exporter
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   MonostaticRCSExporter
+
+.. code:: python
+
+    from ansys.aedt.core import Hfss
+
+    app = Hfss()
+
+    rcs_data = app.post.get_rcs_data()
+    app.release_desktop(False, False)
+
 
 Icepak
 ~~~~~~
