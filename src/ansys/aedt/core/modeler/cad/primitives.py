@@ -3158,10 +3158,10 @@ class GeometryModeler(Modeler):
         self.oeditor.SweepAlongVector(vArg1, vArg2)
 
         if isinstance(assignment, list):
-            updated_obj = []
+            res = []
             for sel_obj in assignment:
-                updated_obj.append(self.update_object(sel_obj))
-            return updated_obj
+                res.append(self.update_object(sel_obj))
+            return res
         else:
             return self.update_object(assignment)
 
@@ -3214,10 +3214,10 @@ class GeometryModeler(Modeler):
         self.oeditor.SweepAlongPath(vArg1, vArg2)
 
         if isinstance(assignment, list):
-            updated_obj = []
+            res = []
             for sel_obj in assignment:
-                updated_obj.append(self.update_object(sel_obj))
-            return updated_obj
+                res.append(self.update_object(sel_obj))
+            return res
         else:
             return self.update_object(assignment)
 
@@ -3270,10 +3270,10 @@ class GeometryModeler(Modeler):
         self.oeditor.SweepAroundAxis(vArg1, vArg2)
 
         if isinstance(assignment, list):
-            updated_obj = []
+            res = []
             for sel_obj in assignment:
-                updated_obj.append(self.update_object(sel_obj))
-            return updated_obj
+                res.append(self.update_object(sel_obj))
+            return res
         else:
             return self.update_object(assignment)
 

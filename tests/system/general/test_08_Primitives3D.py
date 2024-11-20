@@ -464,21 +464,36 @@ class TestClass:
         udp2 = [5, 0, 0]
         udp3 = [5, 5, 0]
         arrofpos = [udp1, udp2, udp3]
-        path = self.aedtapp.modeler.create_polyline(arrofpos, name="poly_vector")
-        my_name = path.name
-        assert my_name in self.aedtapp.modeler.line_names
-        assert my_name in self.aedtapp.modeler.model_objects
-        assert my_name in self.aedtapp.modeler.object_names
-        assert isinstance(self.aedtapp.modeler.get_vertices_of_line(my_name), list)
-        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [0, -2, -2], [4, 3], name="rect_1")
-        swept = self.aedtapp.modeler.sweep_along_path(rect, path)
-        assert swept
-        assert rect.name in self.aedtapp.modeler.solid_names
+
+        path1 = self.aedtapp.modeler.create_polyline(arrofpos, name="poly_vector1")
+        path2 = self.aedtapp.modeler.create_polyline(arrofpos, name="poly_vector2")
+
+        paths = [path1.name, path2.name]
+        for item in paths:
+            assert item in self.aedtapp.modeler.line_names
+            assert item in self.aedtapp.modeler.model_objects
+            assert item in self.aedtapp.modeler.object_names
+            assert isinstance(self.aedtapp.modeler.get_vertices_of_line(item), list)
+
+        rect1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [0, -2, -4], [4, 3], name="rect_1")
+        rect2 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [0, -2, 2], [4, 3], name="rect_2")
+        rect3 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [0, -2, 8], [4, 3], name="rect_3")
+
+        assert self.aedtapp.modeler.sweep_along_path(rect1, path1)
+        assert self.aedtapp.modeler.sweep_along_path([rect2, rect3], path2)
+        assert rect1.name in self.aedtapp.modeler.solid_names
+        assert rect2.name in self.aedtapp.modeler.solid_names
+        assert rect3.name in self.aedtapp.modeler.solid_names
 
     def test_22_sweep_along_vector(self):
-        rect2 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [0, -2, -2], [4, 3], name="rect_2")
-        assert self.aedtapp.modeler.sweep_along_vector(rect2, [10, 20, 20])
+        rect1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [0, -2, -2], [4, 3], name="rect_1")
+        rect2 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [0, -2, 2], [4, 3], name="rect_2")
+        rect3 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [0, -2, 4], [4, 3], name="rect_3")
+        assert self.aedtapp.modeler.sweep_along_vector(rect1, [10, 20, 20])
+        assert self.aedtapp.modeler.sweep_along_vector([rect2, rect3], [10, 20, 20])
+        assert rect1.name in self.aedtapp.modeler.solid_names
         assert rect2.name in self.aedtapp.modeler.solid_names
+        assert rect3.name in self.aedtapp.modeler.solid_names
 
     def test_23_create_rectangle(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
@@ -2071,3 +2086,21 @@ class TestClass:
         self.aedtapp.modeler.update_geometry_property([box2.name], "part_coordinate_system", cs.name)
         assert box2.part_coordinate_system == cs.name
         assert box1.part_coordinate_system == "Global"
+
+    def test_96_sweep_around_axis(self):
+        circle1 = self.aedtapp.modeler.create_circle(
+            orientation="Z", origin=[5, 0, 0], radius=2, num_sides=8, name="circle1"
+        )
+        circle2 = self.aedtapp.modeler.create_circle(
+            orientation="Z", origin=[15, 0, 0], radius=2, num_sides=8, name="circle2"
+        )
+        circle3 = self.aedtapp.modeler.create_circle(
+            orientation="Z", origin=[25, 0, 0], radius=2, num_sides=8, name="circle3"
+        )
+
+        assert self.aedtapp.modeler.sweep_around_axis(assignment=circle1, axis="Z")
+        assert self.aedtapp.modeler.sweep_around_axis(assignment=[circle2, circle3], axis="Z")
+
+        assert circle1.name in self.aedtapp.modeler.solid_names
+        assert circle2.name in self.aedtapp.modeler.solid_names
+        assert circle3.name in self.aedtapp.modeler.solid_names
