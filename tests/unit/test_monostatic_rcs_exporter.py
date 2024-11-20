@@ -101,7 +101,7 @@ def test_export_rcs_with_data_file_not_a_file(mock_is_file, mock_settings, mock_
 @patch.object(Settings, "remote_rpc_session", new_callable=lambda: mock_settings)
 @patch("pathlib.Path.is_file", return_value=False)
 @patch("json.dump", side_effect=Exception("Dummy exception"))
-def test_export_rcs_with_data_file_not_a_file(
+def test_export_rcs_with_dump_json_exception(
     mock_json_dump, mock_is_file, mock_settings, mock_monostatic_rcs, mock_download, caplog
 ):
     exporter = MonostaticRCSExporter(mock_app, "name", FREQUENCIES, overwrite=False)
