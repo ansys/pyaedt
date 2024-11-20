@@ -1347,7 +1347,7 @@ class PostProcessor3D(PostProcessorCommon):
     def _get_all_3dl_layers_nets(self, setup):
         try:
             get_ids = self._odesign.GetGeometryIdsForAllNetLayerCombinations(setup)
-        except:  # pragma no cover
+        except Exception:  # pragma no cover
             get_ids = []
         k = 0
         get_ids_dict = {}
@@ -1665,7 +1665,7 @@ class PostProcessor3D(PostProcessorCommon):
                     el = "<no-net>" if el == "no-net" else el
                     try:
                         get_ids = self._odesign.GetGeometryIdsForNetLayerCombination(el, layer[0], setup)
-                    except:  # pragma no cover
+                    except Exception:  # pragma no cover
                         get_ids = []
                     if isinstance(get_ids, (tuple, list)) and len(get_ids) > 2:
                         lst.extend([int(i) for i in get_ids[2:]])

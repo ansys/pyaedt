@@ -158,7 +158,7 @@ class PostProcessor3DLayout(PostProcessor3D):
                 thickness = self._app.modeler.edb.stackup[layer].thickness
                 try:
                     get_ids = self._app.odesign.GetGeometryIdsForNetLayerCombination(net, layer, solution)
-                except:  # pragma no cover
+                except Exception:  # pragma no cover
                     get_ids = []
                 if not get_ids:
                     continue
