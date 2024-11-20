@@ -89,7 +89,7 @@ class PostProcessor3DLayout(PostProcessor3D):
             for net in nets:
                 try:
                     get_ids = self._app.odesign.GetGeometryIdsForNetLayerCombination(net, layer, solution)
-                except:  # pragma no cover
+                except Exception:  # pragma no cover
                     get_ids = []
                 if not get_ids:
                     continue
