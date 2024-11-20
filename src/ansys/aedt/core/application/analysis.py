@@ -1408,6 +1408,9 @@ class Analysis(Design, object):
                     "UseSBREnhancedRadiatedPowerCalculation": False,
                     "AdaptFEBIWithRadiation": False,
                 }
+                if settings.aedt_version >= "2024.2":
+                    default_sbr_setup["IsMonostaticRCS"] = True
+                    default_sbr_setup["FastFrequencyLooping"] = False
                 user_domain = None
                 if props:
                     if "RadiationSetup" in props:

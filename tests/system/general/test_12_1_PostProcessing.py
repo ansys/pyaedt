@@ -475,8 +475,12 @@ class TestClass:
         assert report.edit_grid(major_color=(0, 0, 125))
         assert report.edit_grid(major_color=(0, 255, 0))
         assert report.edit_grid(style_major="Dot")
-        assert report.edit_x_axis(font="Courier", font_size=14, italic=True, bold=False, color=(0, 128, 0))
-        assert report.edit_y_axis(font="Courier", font_size=14, italic=True, bold=False, color=(0, 128, 0))
+        assert report.edit_x_axis(
+            font="Bangers", font_size=14, italic=True, bold=False, color=(0, 128, 0), display_units=False
+        )
+        assert report.edit_y_axis(
+            font="Bangers", font_size=14, italic=True, bold=False, color=(0, 128, 0), display_units=False
+        )
         assert report.edit_x_axis(
             font="Courier", font_size=14, italic=True, bold=False, color=(0, 128, 0), label="Freq"
         )

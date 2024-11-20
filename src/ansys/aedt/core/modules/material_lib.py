@@ -93,7 +93,7 @@ class Materials(object):
         return iter(self.material_keys.values()) if sys.version_info.major > 2 else self.material_keys.itervalues()
 
     def __getitem__(self, item):
-        matobj = self.checkifmaterialexists(item)
+        matobj = self.exists_material(item)
         if matobj:
             return matobj
         elif item in list(self.surface_material_keys.keys()):
@@ -243,6 +243,35 @@ class Materials(object):
     def checkifmaterialexists(self, material):
         """Check if a material exists in AEDT or PyAEDT Definitions.
 
+        .. deprecated:: 0.11.4
+           Use :func:`exists_material` method instead.
+
+        Parameters
+        ----------
+        material : str
+            Name of the material. If the material exists and is not in the materials database,
+            it is added to this database.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.material.Material`
+            Material object if present, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDefinitionManager.GetProjectMaterialNames
+        >>> oMaterialManager.GetData
+        """
+        warnings.warn(
+            "`checkifmaterialexists` is deprecated. Use `exists_material` method instead.", DeprecationWarning
+        )
+        return self.exists_material(material=material)
+
+    @pyaedt_function_handler()
+    def exists_material(self, material):
+        """Check if a material exists in AEDT or PyAEDT Definitions.
+
         Parameters
         ----------
         material : str
@@ -293,7 +322,7 @@ class Materials(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        omat = self.checkifmaterialexists(material)
+        omat = self.exists_material(material)
         if omat:
             for el in MatProperties.aedtname:
                 if omat.__dict__["_" + el].thermalmodifier:
@@ -451,7 +480,7 @@ class Materials(object):
         """
         matsweep = []
         for mat in assignment:
-            matobj = self.checkifmaterialexists(mat)
+            matobj = self.exists_material(mat)
             if matobj:
                 matsweep.append(matobj)
 

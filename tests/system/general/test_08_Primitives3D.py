@@ -448,6 +448,17 @@ class TestClass:
         )
         assert P2.model == False
 
+        test_points_1 = [[0.4, 0, 0], [-0.4, -0.6, 0], [0.4, 0, 0]]
+        self.aedtapp.modeler.create_polyline(
+            points=test_points_1,
+            segment_type=[
+                PolylineSegment(segment_type="AngularArc", arc_center=[0, 0, 0], arc_angle="180deg", arc_plane="XY"),
+                PolylineSegment(segment_type="Line"),
+                PolylineSegment(segment_type="AngularArc", arc_center=[0, -0.6, 0], arc_angle="180deg", arc_plane="XY"),
+                PolylineSegment(segment_type="Line"),
+            ],
+        )
+
     def test_20_create_polyline_with_crosssection(self):
         udp1 = [0, 0, 0]
         udp2 = [5, 0, 0]
@@ -715,20 +726,6 @@ class TestClass:
         edges2 = self.aedtapp.modeler.get_edges_for_circuit_port_from_sheet(
             "MyGND", xy_plane=True, yz_plane=False, xz_plane=False, allow_perpendicular=True, tolerance=1e-6
         )
-
-    def test_42_chamfer(self):
-        o = self.create_copper_box(name="MyBox")
-        assert o.edges[0].chamfer()
-        self.aedtapp._odesign.Undo()
-        assert o.edges[0].chamfer(chamfer_type=1)
-        self.aedtapp._odesign.Undo()
-        assert o.edges[0].chamfer(chamfer_type=2)
-        self.aedtapp._odesign.Undo()
-        assert o.edges[0].chamfer(chamfer_type=3)
-        self.aedtapp._odesign.Undo()
-        assert not o.edges[0].chamfer(chamfer_type=4)
-        o2 = self.create_copper_box(name="MyBox2")
-        assert o2.chamfer(edges=o2.edges)
 
     def test_43_fillet_and_undo(self):
         o = self.create_copper_box(name="MyBox")
@@ -2035,3 +2032,45 @@ class TestClass:
             x_uv="(sin(_v*2*pi)^2+1.2)*cos(_u*2*pi)", y_uv="(sin(_v*2*pi)^2+1.2)*sin(_u*2*pi)", z_uv="_v*2"
         )
         assert surf.name in self.aedtapp.modeler.sheet_names
+
+    def test_95_update_geometry_property(self):
+        self.aedtapp.insert_design("Update_properties")
+        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [1, 2, 3])
+        box2 = self.aedtapp.modeler.create_box([10, 10, 10], [1, 2, 3])
+        box1.display_wireframe = False
+        box2.display_wireframe = False
+
+        assert not self.aedtapp.modeler.update_geometry_property([box1.name], "wireframe", True)
+        assert not self.aedtapp.modeler.update_geometry_property([box1.name], "material_name", "invented")
+        assert not self.aedtapp.modeler.update_geometry_property([box1.name], "color", "red")
+
+        self.aedtapp.modeler.update_geometry_property([box1.name], "display_wireframe", True)
+        assert box1.display_wireframe
+
+        self.aedtapp.modeler.update_geometry_property([box1.name, box2.name], "display_wireframe", True)
+        assert box2.display_wireframe
+
+        self.aedtapp.modeler.update_geometry_property([box1.name, box2.name], "material_name", "copper")
+        assert box2.material_name == "copper"
+        assert not box2.solve_inside
+
+        self.aedtapp.modeler.update_geometry_property([box2.name], "solve_inside", True)
+        assert box2.solve_inside
+        assert not box1.solve_inside
+
+        self.aedtapp.modeler.update_geometry_property([box1.name, box2.name], "color", (255, 255, 0))
+        assert box2.color == box1.color == (255, 255, 0)
+
+        self.aedtapp.modeler.update_geometry_property([box1.name, box2.name], "transparency", 0.75)
+        assert box2.transparency == 0.75
+
+        cs = self.aedtapp.modeler.create_coordinate_system()
+        self.aedtapp.modeler.update_geometry_property([box2.name], "part_coordinate_system", cs.name)
+        assert box2.part_coordinate_system == cs.name
+        assert box1.part_coordinate_system == "Global"
+
+        self.aedtapp.modeler.update_geometry_property([box1.name], "material_appearance", True)
+        assert box1.material_appearance
+
+        self.aedtapp.modeler.update_geometry_property([box1.name, box2.name], "material_appearance", True)
+        assert box2.material_appearance

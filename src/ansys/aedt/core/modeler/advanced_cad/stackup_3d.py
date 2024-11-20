@@ -244,7 +244,7 @@ class DuplicatedParametrizedMaterial(object):
         self._magnetic_loss_tangent = None
         self._material = None
         self._material_name = None
-        if application.materials.checkifmaterialexists(material_name):
+        if application.materials.exists_material(material_name):
             if not list_of_properties:
                 cloned_material = application.materials.duplicate_material(material_name, cloned_material_name)
                 permittivity = cloned_material.permittivity.value

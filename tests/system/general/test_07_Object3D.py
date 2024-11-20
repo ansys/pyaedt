@@ -241,6 +241,7 @@ class TestClass:
         assert new_object.solve_inside == initial_object.solve_inside
         assert new_object.model == initial_object.model
         assert new_object.display_wireframe == initial_object.display_wireframe
+        assert new_object.material_appearance == initial_object.material_appearance
         assert new_object.part_coordinate_system == initial_object.part_coordinate_system
         assert new_object.transparency == 0.76
         assert new_object.color == initial_object.color
@@ -248,7 +249,6 @@ class TestClass:
         assert len(new_object.vertices) == 8
         assert len(new_object.faces) == 6
         assert len(new_object.edges) == 12
-        assert new_object.display_wireframe == initial_object.display_wireframe
         new_object.name = "Properties_Box"
         assert not new_object.name == "Properties_Box"
 
@@ -294,30 +294,73 @@ class TestClass:
         assert not _to_boolean("f")
         assert not _to_boolean("no")
 
-    def test_10_chamfer(self):
-        initial_object = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "ChamferTest", "Copper")
-        object_edges = initial_object.edges
-        assert len(object_edges) == 12
-        test = initial_object.edges[0].chamfer(left_distance=0.2)
-        assert test
-        test = initial_object.edges[1].chamfer(left_distance=0.2, right_distance=0.4, angle=34, chamfer_type=2)
-        assert test
-        test = initial_object.edges[2].chamfer(left_distance=0.2, right_distance=0.4, chamfer_type=1)
-        assert test
-        # TODO Angle as string - general refactor !
-        test = initial_object.edges[6].chamfer(left_distance=1, angle=45, chamfer_type=3)
-        assert test
-        test = initial_object.edges[4].chamfer(chamfer_type=4)
-        assert not test
-        self.aedtapp.modeler.delete(
-            initial_object,
-        )
-        initial_object = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "ChamferTest2", "Copper")
-        assert initial_object.chamfer(edges=initial_object.faces[0].edges[0], chamfer_type=3)
-        initial_object = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "ChamferTest3", "Copper")
-        assert initial_object.chamfer(edges=initial_object.faces[0].edges[0], chamfer_type=1)
-        initial_object = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "ChamferTest4", "Copper")
-        assert initial_object.chamfer(edges=initial_object.faces[2].edges[0], chamfer_type=2)
+    def test_10_chamfer_called_on_edge(self):
+        NEW_VERTICES_POSITION = [[10.0, 0.0, 3.0], [0.0, 0.0, 3.0], [0.0, 2.0, 5.0], [10.0, 2.0, 5.0]]
+        box = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "ChamferOnEdge", "Copper")
+
+        # Chamfer type 0 (default)
+        assert not (any(position in (v.position for v in box.vertices) for position in NEW_VERTICES_POSITION))
+        assert box.edges[0].chamfer(left_distance=2)
+        assert all(position in (v.position for v in box.vertices) for position in NEW_VERTICES_POSITION)
+        self.aedtapp._odesign.Undo()
+
+        assert box.edges[0].chamfer(left_distance=2, right_distance=3)
+        self.aedtapp._odesign.Undo()
+
+        # Chamfer type 1
+        assert not (any(position in (v.position for v in box.vertices) for position in NEW_VERTICES_POSITION))
+        assert box.edges[0].chamfer(left_distance=2, chamfer_type=1)
+        assert all(position in (v.position for v in box.vertices) for position in NEW_VERTICES_POSITION)
+        self.aedtapp._odesign.Undo()
+
+        # Chamfer type 2
+        assert not (any(position in (v.position for v in box.vertices) for position in NEW_VERTICES_POSITION))
+        assert box.edges[0].chamfer(left_distance=2, angle=45, chamfer_type=2)
+        assert all(position in (v.position for v in box.vertices) for position in NEW_VERTICES_POSITION)
+        self.aedtapp._odesign.Undo()
+
+        # Chamfer type 3
+        assert not (any(position in (v.position for v in box.vertices) for position in NEW_VERTICES_POSITION))
+        assert box.edges[0].chamfer(right_distance=2, angle=45, chamfer_type=3)
+        assert all(position in (v.position for v in box.vertices) for position in NEW_VERTICES_POSITION)
+        self.aedtapp._odesign.Undo()
+
+        # Chamfer type 4 - not valid
+        assert not box.edges[0].chamfer(chamfer_type=4)
+
+    def test_10_chamfer_called_on_box(self):
+        NEW_VERTICES_POSITION = [[10.0, 0.0, 3.0], [0.0, 0.0, 3.0], [0.0, 2.0, 5.0], [10.0, 2.0, 5.0]]
+        box = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "ChamferOnBox", "Copper")
+
+        # Chamfer type 0 (default)
+        assert not (any(position in (v.position for v in box.vertices) for position in NEW_VERTICES_POSITION))
+        box.chamfer(edges=box.faces[0].edges[0], left_distance=2)
+        assert all(position in (v.position for v in box.vertices) for position in NEW_VERTICES_POSITION)
+        self.aedtapp._odesign.Undo()
+
+        assert box.chamfer(edges=box.faces[0].edges[0], left_distance=2, right_distance=3)
+        self.aedtapp._odesign.Undo()
+
+        # Chamfer type 1
+        assert not (any(position in (v.position for v in box.vertices) for position in NEW_VERTICES_POSITION))
+        assert box.chamfer(edges=box.faces[0].edges[0], left_distance=2, chamfer_type=1)
+        assert all(position in (v.position for v in box.vertices) for position in NEW_VERTICES_POSITION)
+        self.aedtapp._odesign.Undo()
+
+        # Chamfer type 2
+        assert not (any(position in (v.position for v in box.vertices) for position in NEW_VERTICES_POSITION))
+        assert box.chamfer(edges=box.faces[0].edges[0], left_distance=2, angle=45, chamfer_type=2)
+        assert all(position in (v.position for v in box.vertices) for position in NEW_VERTICES_POSITION)
+        self.aedtapp._odesign.Undo()
+
+        # Chamfer type 3
+        assert not (any(position in (v.position for v in box.vertices) for position in NEW_VERTICES_POSITION))
+        assert box.chamfer(edges=box.faces[0].edges[0], right_distance=2, angle=45, chamfer_type=3)
+        assert all(position in (v.position for v in box.vertices) for position in NEW_VERTICES_POSITION)
+        self.aedtapp._odesign.Undo()
+
+        # Chamfer type 4 - not valid
+        assert not box.chamfer(edges=box.faces[0].edges[0], right_distance=2, chamfer_type=4)
 
     def test_11_fillet(self):
         initial_object = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "FilletTest", "Copper")

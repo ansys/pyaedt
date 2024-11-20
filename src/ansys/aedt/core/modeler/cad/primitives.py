@@ -43,6 +43,7 @@ from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.data_handlers import json_to_dict
 from ansys.aedt.core.generic.general_methods import _dim_arg
 from ansys.aedt.core.generic.general_methods import _uname
+from ansys.aedt.core.generic.general_methods import clamp
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_number
@@ -6281,6 +6282,86 @@ class GeometryModeler(Modeler):
         return o
 
     @pyaedt_function_handler()
+    def update_geometry_property(self, assignment, name=None, value=None):
+        """Update property of assigned geometry objects.
+
+        Parameters
+        ----------
+        assignment : str, or list
+            Object name or list of object names to be updated.
+        name : str, optional
+            Property name to change. The default is ``None``, in which case no property is updated.
+            Available options are: ``"display_wireframe"``, `"material"``, and `"solve_inside"``.
+        value : bool or str, optional
+            Property value. The default is ``None`` in which case
+            no value is assigned.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        assignment = self.convert_to_selections(assignment, True)
+
+        # Define property mapping
+        property_mapping = {
+            "display_wireframe": {"property_name": "Display Wireframe", "reset_attr": ["_wireframe"]},
+            "material_name": {"property_name": "Material", "reset_attr": ["_material_name", "_model", "_solve_inside"]},
+            "solve_inside": {"property_name": "Solve Inside", "reset_attr": ["_solve_inside"]},
+            "color": {"property_name": "Color", "reset_attr": ["_color"]},
+            "transparency": {"property_name": "Transparent", "reset_attr": ["_transparency"]},
+            "part_coordinate_system": {
+                "property_name": "Orientation",
+                "reset_attr": ["_part_coordinate_system"],
+            },
+            "material_appearance": {"property_name": "Material Appearance", "reset_attr": ["_material_appearance"]},
+        }
+
+        # Check if property name is valid
+        property_key = name.lower()
+        if property_key not in property_mapping:
+            self.logger.error("Invalid property name.")
+            return False
+
+        # Retrieve property settings
+        property_name = property_mapping[property_key]["property_name"]
+        reset_attr = property_mapping[property_key]["reset_attr"]
+
+        # Handle special cases for material
+        if property_key == "material_name" and isinstance(value, str):
+            matobj = self._materials.exists_material(value)
+            if matobj:
+                value = f'"{matobj.name}"'
+            elif "[" in value or "(" in value:  # pragma: no cover
+                value = value
+            else:
+                self.logger.error("Invalid material value.")
+                return False
+
+        value_command = ["Value:=", value]
+        if property_key == "color":
+            if isinstance(value, tuple) or isinstance(value, list):
+                R = clamp(value[0], 0, 255)
+                G = clamp(value[1], 0, 255)
+                B = clamp(value[2], 0, 255)
+                value_command = ["R:=", str(R), "G:=", str(G), "B:=", str(B)]
+            else:
+                self.logger.error("Invalid color.")
+                return False
+
+        # Reset property values
+        for obj_name in assignment:
+            obj = self.objects_by_name[obj_name]
+            for attr in reset_attr:
+                setattr(obj, attr, None)
+
+        props = [f"NAME:{property_name}"]
+        props.extend(value_command)
+
+        return self._change_geometry_property(props, assignment)
+
+    @pyaedt_function_handler()
     def value_in_object_units(self, value):
         """Convert one or more strings for numerical lengths to floating point values.
 
@@ -6793,10 +6874,9 @@ class GeometryModeler(Modeler):
         >>> from ansys.aedt.core.modeler.cad.polylines import PolylineSegment
         >>> from ansys.aedt.core import Desktop
         >>> from ansys.aedt.core import Maxwell3d
-        >>> desktop=Desktop(version="2021.2", new_desktop=False)
-        >>> aedtapp = Maxwell3d()
-        >>> aedtapp.modeler.model_units = "mm"
-        >>> modeler = aedtapp.modeler
+        >>> desktop=Desktop(version="2024.2", new_desktop=False)
+        >>> m3d = Maxwell3d()
+        >>> m3d.modeler.model_units = "mm"
 
         Define some test data points.
 
@@ -6806,26 +6886,27 @@ class GeometryModeler(Modeler):
         The default behavior assumes that all points are to be
         connected by line segments.  Optionally specify the name.
 
-        >>> P1 = modeler.create_polyline(test_points,name="PL_line_segments")
+        >>> P1 = m3d.modeler.create_polyline(test_points,name="PL_line_segments")
 
         Specify that the first segment is a line and the last three
         points define a three-point arc.
 
-        >>> P2 = modeler.create_polyline(test_points,segment_type=["Line", "Arc"],name="PL_line_plus_arc")
+        >>> P2 = m3d.modeler.create_polyline(test_points,segment_type=["Line", "Arc"],name="PL_line_plus_arc")
 
         Redraw the 3-point arc alone from the last three points and
         additionally specify five segments using ``PolylineSegment``.
 
-        >>> P3 = modeler.create_polyline(test_points[1:],segment_type=PolylineSegment(segment_type="Arc", num_seg=7),
-        ...                              name="PL_segmented_arc")
+        >>> P3 = m3d.modeler.create_polyline(test_points[1:],
+        ...                                  segment_type=PolylineSegment(segment_type="Arc", num_seg=7),
+        ...                                  name="PL_segmented_arc")
 
         Specify that the four points form a spline and add a circular
         cross-section with a diameter of 1 mm.
 
-        >>> P4 = modeler.create_polyline(test_points,segment_type="Spline",name="PL_spline",
+        >>> P4 = m3d.modeler.create_polyline(test_points,segment_type="Spline",name="PL_spline",
         ...                              xsection_type="Circle",xsection_width="1mm")
 
-        Use the `PolylineSegment` object to specify more detail about
+        Use the ``PolylineSegment`` object to specify more detail about
         the individual segments.  Create a center point arc starting
         from the position ``test_points[1]``, rotating about the
         center point position ``test_points[0]`` in the XY plane.
@@ -6834,16 +6915,33 @@ class GeometryModeler(Modeler):
         >>> center_point = test_points[0]
         >>> segment_def = PolylineSegment(segment_type="AngularArc", arc_center=center_point,
         ...                                arc_angle="90deg", arc_plane="XY")
-        >>> modeler.create_polyline(start_point,segment_type=segment_def,name="PL_center_point_arc")
+        >>> m3d.modeler.create_polyline(start_point,segment_type=segment_def,name="PL_center_point_arc")
 
         Create a spline using a list of variables for the coordinates of the points.
 
         >>> x0, y0, z0 = "0", "0", "1"
         >>> x1, y1, z1 = "1", "3", "1"
         >>> x2, y2, z2 = "2", "2", "1"
-        >>> P5 = modeler.create_polyline(points=[[x0, y0, z0], [x1, y1, z1], [x2, y2, z2]],
+        >>> P5 = m3d.modeler.create_polyline(points=[[x0, y0, z0], [x1, y1, z1], [x2, y2, z2]],
         ...                              segment_type="Spline",name="polyline_with_variables")
 
+        Create a closed geometry by specifying in ``segment_type`` a list of ``PolylineSegments`` including
+        ``AngularArc`` segments.
+
+        >>> test_points_1 = [[0.4, 0, 0],
+        ...                 [-0.4, -0.6, 0],
+        ...                 [0.4, 0, 0]]
+        >>> P6 = m3d.modeler.create_polyline(points=test_points_1,
+        ...                                  segment_type=[PolylineSegment(segment_type="AngularArc",
+        ...                                                                arc_center=[0, 0, 0],
+        ...                                                                arc_angle="180deg",
+        ...                                                                arc_plane="XY"),
+        ...                                                PolylineSegment(segment_type="Line"),
+        ...                                                PolylineSegment(segment_type="AngularArc",
+        ...                                                                arc_center=[0, -0.6, 0],
+        ...                                                                arc_angle="180deg",
+        ...                                                                arc_plane="XY"),
+        ...                                                PolylineSegment(segment_type="Line")])
         """
         new_polyline = Polyline(
             primitives=self,
