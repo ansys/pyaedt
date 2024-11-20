@@ -247,7 +247,7 @@ class MonostaticRCSExporter:
             with pyaedt_metadata_file.open("w") as f:
                 json.dump(items, f, indent=2)
         except Exception as e:
-            self.__app.logger.error("An error occurred when writing metadata: {e}")
+            self.__app.logger.error(f"An error occurred when writing metadata: {e}")
             return False
 
         self.__metadata_file = pyaedt_metadata_file
