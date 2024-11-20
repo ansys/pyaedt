@@ -129,7 +129,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
     Create an AEDT 2023 R1 object and then create a
     ``Hfss3dLayout`` object and open the specified project.
 
-    >>> aedtapp = Hfss3dLayout(version="2023.1", project="myfile.aedt")
+    >>> aedtapp = Hfss3dLayout(version="2024.2", project="myfile.aedt")
 
     Create an instance of ``Hfss3dLayout`` from an ``Edb``
 

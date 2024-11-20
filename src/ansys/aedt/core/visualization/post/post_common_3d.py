@@ -2202,8 +2202,8 @@ class PostProcessor3D(PostProcessorCommon):
             return False
         return solution_data
 
-    @pyaedt_function_handler(obj_list="assignment")
-    def export_model_obj(self, assignment=None, export_path=None, export_as_single_objects=False, air_objects=False):
+    @pyaedt_function_handler(obj_list="assignment", export_as_single_objects="export_as_multiple_objects")
+    def export_model_obj(self, assignment=None, export_path=None, export_as_multiple_objects=False, air_objects=False):
         """Export the model.
 
         Parameters
@@ -2213,9 +2213,9 @@ class PostProcessor3D(PostProcessorCommon):
             case export every model object except 3D ones and vacuum and air objects.
         export_path : str, optional
             Full path of the exported OBJ file.
-        export_as_single_objects : bool, optional
-           Whether to export the model as single object. The default is ``False``, in which
-           case is exported asa list of objects for each object.
+        export_as_multiple_objects : bool, optional
+           Whether to export the model as multiple objects or not. Default is ``False``
+           in which case the model is exported as single object.
         air_objects : bool, optional
             Whether to export air and vacuum objects. The default is ``False``.
 
@@ -2244,7 +2244,7 @@ class PostProcessor3D(PostProcessorCommon):
                         and self._app.modeler[i].material_name.lower() != "air"
                     )
                 ]
-        if not export_as_single_objects:
+        if export_as_multiple_objects:
             files_exported = []
             for el in assignment:
                 fname = os.path.join(export_path, f"{el}.obj")
@@ -3124,7 +3124,7 @@ class PostProcessor3D(PostProcessorCommon):
         files = []
         if get_objects_from_aedt and self._app.solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
             files = self.export_model_obj(
-                assignment=objects, export_as_single_objects=plot_as_separate_objects, air_objects=plot_air_objects
+                assignment=objects, export_as_multiple_objects=plot_as_separate_objects, air_objects=plot_air_objects
             )
 
         model = ModelPlotter()
