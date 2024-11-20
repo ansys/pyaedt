@@ -1,0 +1,38 @@
+{
+  "solution": "Trihedral_RCS",
+  "monostatic_file": "invented.h5",
+  "model_units": "mm",
+  "frequency_units": "GHz",
+  "model_info": {
+    "Polyline1": [
+      "Polyline1.obj",
+      [
+        143,
+        175,
+        143
+      ],
+      1.0,
+      "mm"
+    ],
+    "Polyline1_1": [
+      "Polyline1_1.obj",
+      [
+        143,
+        175,
+        143
+      ],
+      1.0,
+      "mm"
+    ],
+    "Polyline1_2": [
+      "Polyline1_2.obj",
+      [
+        143,
+        175,
+        143
+      ],
+      1.0,
+      "mm"
+    ]
+  }
+}
