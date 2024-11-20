@@ -78,16 +78,12 @@ default_config = {
         "Occupation(%)": 0,
     },
     "Settings": {"Units": "mm"},
+    "Create Component": {"True": True, "False": False},
 }
 
 # Extension batch arguments
 extension_arguments = {"choke_config": {}}
 extension_description = "Choke Designer in HFSS"
-
-theme = "light"
-if os.environ.get("AEDT_TOOLKIT_THEME", False):
-    if os.environ.get("AEDT_TOOLKIT_THEME") == "dark":
-        theme = "dark"
 
 
 def frontend():  # pragma: no cover
@@ -139,7 +135,7 @@ def frontend():  # pragma: no cover
     def create_boolean_options(parent, config):
 
         for category, options in config.items():
-            if category in ["Number of Windings", "Layer", "Layer Type", "Similar Layer", "Mode"]:
+            if category in ["Number of Windings", "Layer", "Layer Type", "Similar Layer", "Mode", "Create Component"]:
                 if isinstance(options, dict) and all(isinstance(v, bool) for v in options.values()):
                     group_frame = ttk.LabelFrame(parent, text=category)
                     group_frame.pack(fill=tkinter.X, padx=10, pady=5)
@@ -260,40 +256,41 @@ def frontend():  # pragma: no cover
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to save configuration: {str(e)}")
 
+    def toggle_theme():
+        current_theme = sv_ttk.get_theme()
+        if current_theme == "light":
+            sv_ttk.set_theme("dark")
+            change_theme_button.config(text="\U0001F319")  # Cambiar a ícono de luna
+        else:
+            sv_ttk.set_theme("light")
+            change_theme_button.config(text="\u2600")  # Cambiar a ícono de sol
+
     def update_radio_buttons():
-        """
-        Update the Radiobuttons with the values from config_dict.
-        """
         for category, options in config_dict.items():
             if isinstance(options, dict) and all(isinstance(v, bool) for v in options.values()):
-                # Get the selected option from config_dict
                 selected_option = next((opt for opt, val in options.items() if val), "")
 
-                # Update the StringVar for the category (to reflect the new value)
                 if category in selected_options:
                     selected_options[category].set(selected_option)
 
     def update_entries():
-        """
-        Update the Entry widgets with the values from config_dict.
-        """
         for category, options in config_dict.items():
             for field, value in options.items():
-                # Find the entry widget for this field and category
-                entry_widget = entries_dict.get((category, field))  # Assuming you stored entry widgets in a dictionary
+                entry_widget = entries_dict.get((category, field))
 
                 if entry_widget:
-                    # Update the value of the Entry widget with the new value from config_dict
-                    entry_widget.delete(0, tkinter.END)  # Clear current value
-                    entry_widget.insert(0, str(value))  # Insert the new value
+                    entry_widget.delete(0, tkinter.END)
+                    entry_widget.insert(0, str(value))
 
     button_frame = ttk.Frame(master)
     button_frame.pack(fill=tkinter.X, pady=5)
 
     save_button = ttk.Button(button_frame, text="Save Configuration", command=save_configuration)
     load_button = ttk.Button(button_frame, text="Load Configuration", command=load_configuration)
+    change_theme_button = ttk.Button(button_frame, text="\u2600", command=toggle_theme)
     save_button.pack(side=tkinter.LEFT, padx=5)
     load_button.pack(side=tkinter.LEFT, padx=5)
+    change_theme_button.pack(side=tkinter.RIGHT, padx=5, pady=40)
 
     def callback():
         master.flag = True
@@ -302,7 +299,7 @@ def frontend():  # pragma: no cover
 
     export_hfss = ttk.Button(button_frame, text="Export to HFSS", command=callback)
     export_hfss.pack(side=tkinter.LEFT, padx=5)
-    sv_ttk.set_theme(theme)
+    sv_ttk.set_theme("light")
     tkinter.mainloop()
 
     choke_config = {}
@@ -333,7 +330,10 @@ def main(extension_args):
     active_design = app.active_design()
 
     project_name = active_project.GetName()
-    design_name = active_design.GetName()
+
+    design_name = None
+    if active_design:
+        design_name = active_design.GetName()
 
     if not hfss:
         hfss = Hfss(project_name, design_name)
@@ -363,7 +363,7 @@ def main(extension_args):
     ground_radius = 1.2 * dictionary_values[1]["Outer Winding"]["Outer Radius"]
     ground_position = [0, 0, first_winding_list[1][0][2] - 2]
     ground = hfss.modeler.create_circle("XY", ground_position, ground_radius, name="GND", material="copper")
-    hfss.assign_coating(ground, is_infinite_ground=True)
+    hfss.assign_coating(ground.name, is_infinite_ground=True)
     ground.transparency = 0.9
 
     # Create mesh operation
@@ -440,8 +440,12 @@ def main(extension_args):
         name="choke_mesh",
     )
 
+    # Create 3D Component
+    if choke_config["Create Component"]["True"]:
+        _ = hfss.modeler.replace_3dcomponent()
+
     # Create region
-    region = hfss.modeler.create_region(pad_percent=1000)
+    _ = hfss.modeler.create_region(pad_percent=1000)
 
     # Create setup
     setup = hfss.create_setup("Setup1")
