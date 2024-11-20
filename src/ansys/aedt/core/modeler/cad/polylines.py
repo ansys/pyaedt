@@ -618,6 +618,7 @@ class Polyline(Object3d):
                     if current_segment.type == "AngularArc":
                         points_str.append(self._pl_point(current_segment.extra_points[i - 1]))
                         index_count += 1
+                        pos_count_incr += 1
                     else:
                         if (pos_count + i) == len(position_list):
                             if current_segment.type == "Arc" and self._is_closed:
