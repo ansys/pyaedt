@@ -995,3 +995,13 @@ class TestClass:
         assert iprobe.InstanceName == "test_probe"
         iprobe2 = self.aedtapp.modeler.schematic.create_current_probe(location=[0.8, 0.2])
         assert type(iprobe2.id) is int
+
+    def test_53_import_table(self):
+        self.aedtapp.insert_design("import_table")
+        file_header = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "table_header.csv")
+        file_invented = "invented.csv"
+
+        assert not self.aedtapp.import_table(file_header, column_separator="dummy")
+        assert not self.aedtapp.import_table(file_invented)
+
+        assert self.aedtapp.import_table(file_header)

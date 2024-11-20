@@ -29,6 +29,7 @@ from __future__ import absolute_import  # noreorder
 import io
 import math
 import os
+from pathlib import Path
 import re
 import shutil
 import time
@@ -2613,3 +2614,103 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         for i, j in enumerate(wire_xy):
             self.modeler.schematic.create_wire([[j[0], j[1]], [j[2], j[3]]])
         return True
+
+    @pyaedt_function_handler()
+    def import_table(
+        self,
+        input_file,
+        link=False,
+        header_rows=0,
+        rows_to_read=-1,
+        column_separator="Space",
+        data_type="real",
+        sweep_columns=0,
+        total_columns=-1,
+        real_columns=1,
+    ):
+        """Import a data table as a solution.
+
+        Parameters
+        ----------
+        input_file : str
+            Full path to the file.
+        link : bool, optional
+            Whether to link the file to the solution. The default is ``False``.
+        header_rows : int, optional
+            Header rows. The default is ``0``.
+        rows_to_read : int, optional
+            Rows to read. If ``-1``, then reads until end of file. The default is ``-1``.
+        column_separator : str, optional
+            Column separator type. Available options are ``Space``, ``Tab``, ``Comma``, and ``Period``.
+            The default is ``Space``.
+        data_type : str, optional
+            Data type. Available options are ``real``, ``real_imag``, ``mag_ang_deg``, and ``mag_ang_rad``.
+            The default is ``real``.
+        sweep_columns : int, optional
+            Sweep columns. The default is ``0``.
+        total_columns : int, optional
+            Total number of columns. If ``-1``, then reads the total number of columns. The default is ``-1``.
+        real_columns : int, optional
+            Number of lefmotst real columns. The default is ``1``.
+
+        Returns
+        -------
+        str
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.ImportData
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss3dlayout
+        >>> h3d = Hfss3dlayout()
+        >>> h3d.import_table(input_file="my_file.csv")
+        """
+
+        columns_separador_map = {"Space": 0, "Tab": 1, "Comma": 2, "Period": 3}
+        if column_separator not in ["Space", "Tab", "Comma", "Period"]:
+            self.logger.error("Invalid column separator.")
+            return False
+
+        input_path = Path(input_file).resolve()
+
+        if not input_path.is_file():
+            self.logger.error("File does not exist.")
+            return False
+
+        existing_sweeps = self.existing_analysis_sweeps
+
+        self.odesign.ImportData(
+            [
+                "NAME:DataFormat",
+                "DataTableFormat:=",
+                [
+                    "HeaderRows:=",
+                    header_rows,
+                    "RowsToRead:=",
+                    rows_to_read,
+                    "ColumnSep:=",
+                    columns_separador_map[column_separator],
+                    "DataType:=",
+                    data_type,
+                    "Sweep:=",
+                    sweep_columns,
+                    "Cols:=",
+                    total_columns,
+                    "Real:=",
+                    real_columns,
+                ],
+            ],
+            str(input_path),
+            link,
+        )
+
+        new_sweeps = self.existing_analysis_sweeps
+        new_sweep = list(set(new_sweeps) - set(existing_sweeps))
+
+        if not new_sweep:  # pragma: no cover
+            self.logger.error("Data not imported.")
+            return None
+        return new_sweep[0]
