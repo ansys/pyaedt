@@ -3124,7 +3124,7 @@ class PostProcessor3D(PostProcessorCommon):
         files = []
         if get_objects_from_aedt and self._app.solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
             files = self.export_model_obj(
-                assignment=objects, export_as_single_objects=plot_as_separate_objects, air_objects=plot_air_objects
+                assignment=objects, export_as_multiple_objects=plot_as_separate_objects, air_objects=plot_air_objects
             )
 
         model = ModelPlotter()
