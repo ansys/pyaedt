@@ -35,20 +35,29 @@ jupyter:
 
 # Launch AEDT
 
+Launch an AEDT application directly:
+
+```{python}
+#| eval: false
+from ansys.aedt.core import Hfss
+app = Hfss()
+```
+
 Open a Desktop session in graphical mode, open a project and connect to an active design:
+
 ```{python}
 #| eval: false
 from ansys.aedt.core import Desktop
 desktop = Desktop(version="2024.2", new_desktop=True, non_graphical=False, close_on_exit=True)
-app = desktop.load_project(project_file="project_path")
+app = desktop.load_project( project_file="project_path")
 ```
 
-Open a Desktop session in non-graphical mode and create a new HFSS design:
+Open a Desktop session in non-graphical mode and create a new Maxwell 3D design:
 ```{python}
 #| eval: false
-from ansys.aedt.core import Desktop, Hfss
+from ansys.aedt.core import Desktop, Maxwell3d
 desktop = Desktop(version="2024.2", new_desktop=True, non_graphical=True, close_on_exit=True)
-app = Hfss()
+app = Maxwell3d()
 ```
 
 Connect to a running application with given project name and design name:
@@ -58,20 +67,15 @@ from ansys.aedt.core.generic.design_types import get_pyaedt_app
 app = get_pyaedt_app(project_name="project_name", design="design_name")
 ```
 
-Launch an application directly:
-```{python}
-#| eval: false
-from ansys.aedt.core import Maxwell3d
-app = Maxwell3d()
-```
-
 # Close the active AEDT session
+
 ```{python}
 #| eval: false
 app.release_desktop(close_projects=True, close_on_exit=True)
 ```
 
 # Work with variables
+
 Create a variable that only applies to this design:
 ```{python}
 #| eval: false
@@ -89,6 +93,7 @@ hfss.variable_manager.variables
 ```
 
 # Handle your materials
+
 Add a new material with custom properties:
 ```{python}
 #| eval: false
@@ -98,12 +103,12 @@ material.conductivity = 450000
 material.permeability = 1.5
 ```
 
-# Create and manipulate your geometry
+# Create and manipulate geometry
 Create a box and get object name:
 ```{python}
 #| eval: false
 box = hfss.modeler.create_box([1,1,1], [5,2,5], name="box", material="FR4_epoxy")
-box.name
+print(box.name)
 ```
 
 Access edges or vertices data:
@@ -122,19 +127,21 @@ for vertex in box.vertices:
 #| eval: false
 setup = hfss.create_setup("MySetup")
 setup.props["Frequency"] = "50MHz"
-setup["MaximumPasses"] = 10
-hfss.create_linear_count_sweep("my_setup", "MHz", 0.1, 100, num_of_freq_points=100, name="sweep1", sweep_type="Interpolating", save_fields=False)
+setup.props["MaximumPasses"] = 10
 ```
+
 Access the parametric sweep:
 ```{python}
 #| eval: false
 hfss.parametrics
 ```
+
 Access the optimizations:
 ```{python}
 #| eval: false
 hfss.optimizations
 ```
+
 Analyze the solution setup
 ```{python}
 #| eval: false
