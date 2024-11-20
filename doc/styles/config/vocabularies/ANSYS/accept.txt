@@ -83,7 +83,7 @@ RF
 RMXprt
 scipy
 setters
-Siwave
+SIwave
 Slurm
 Spyder
 Stackup 3D

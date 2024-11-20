@@ -44,7 +44,6 @@ class PostProcessor3DLayout(PostProcessor3D):
         PostProcessor3D.__init__(self, app)
 
     def _check_inputs(self, layers=None, nets=None, solution=None):
-        power_by_layers = {}
         if layers is None:
             layers = list(self._app.modeler.edb.stackup.signal_layers.keys())
         if nets is None:
@@ -62,14 +61,14 @@ class PostProcessor3DLayout(PostProcessor3D):
 
     @pyaedt_function_handler()
     def compute_power_by_layer(self, layers=None, nets=None, solution=None):
-        """Computes the power by layer. This applies only to Siwave DC Analysis.
+        """Computes the power by layer. This applies only to SIwave DC Analysis.
 
         Parameters
         ----------
         layers : list
-            List of layers to include in power calculation.
+            Layers to include in power calculation.
         nets : list
-            List of nets to include in power calculation.
+            Nets to include in power calculation.
         solution : str
             SIwave DCIR solution.
 
@@ -131,7 +130,7 @@ class PostProcessor3DLayout(PostProcessor3D):
 
     @pyaedt_function_handler()
     def compute_power_by_nets(self, nets=None, layers=None, solution=None):
-        """Computes the power by nets. This applies only to Siwave DC Analysis.
+        """Computes the power by nets. This applies only to SIwave DC Analysis.
 
         Parameters
         ----------
