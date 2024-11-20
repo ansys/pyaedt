@@ -46,14 +46,6 @@ The following classes grant access to the core post-processing functionalities o
 
    PostProcessorCircuit
 
-.. currentmodule:: ansys.aedt.core.visualization.post.post_3dlayout
-
-.. autosummary::
-   :toctree: _autosummary
-   :nosignatures:
-
-   PostProcessor3DLayout
-
 
 You can access these classes directly from the design object:
 
