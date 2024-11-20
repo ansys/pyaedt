@@ -2083,7 +2083,7 @@ class TestClass:
         self.aedtapp.modeler.update_geometry_property([box2.name], "part_coordinate_system", cs.name)
         assert box2.part_coordinate_system == cs.name
         assert box1.part_coordinate_system == "Global"
-        
+
         self.aedtapp.modeler.update_geometry_property([box1.name], "material_appearance", True)
         assert box1.material_appearance
 
