@@ -448,6 +448,17 @@ class TestClass:
         )
         assert P2.model == False
 
+        test_points_1 = [[0.4, 0, 0], [-0.4, -0.6, 0], [0.4, 0, 0]]
+        self.aedtapp.modeler.create_polyline(
+            points=test_points_1,
+            segment_type=[
+                PolylineSegment(segment_type="AngularArc", arc_center=[0, 0, 0], arc_angle="180deg", arc_plane="XY"),
+                PolylineSegment(segment_type="Line"),
+                PolylineSegment(segment_type="AngularArc", arc_center=[0, -0.6, 0], arc_angle="180deg", arc_plane="XY"),
+                PolylineSegment(segment_type="Line"),
+            ],
+        )
+
     def test_20_create_polyline_with_crosssection(self):
         udp1 = [0, 0, 0]
         udp2 = [5, 0, 0]
