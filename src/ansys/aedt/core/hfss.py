@@ -29,6 +29,7 @@ from __future__ import absolute_import  # noreorder
 import ast
 import math
 import os
+from pathlib import Path
 import tempfile
 import warnings
 
@@ -38,6 +39,7 @@ from ansys.aedt.core.generic.constants import INFINITE_SPHERE_TYPE
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.data_handlers import str_to_bool
 from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.general_methods import is_number
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import parse_excitation_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -309,6 +311,31 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
     @composite.setter
     def composite(self, value):
         self.design_solutions.composite = value
+
+    @property
+    def table_names(self):
+        """Imported table names.
+
+        Returns
+        -------
+        list of str
+            List of names of all imported tables in the design.
+
+        References
+        ----------
+
+        >>> oModule.GetValidISolutionList
+        """
+        table_names = []
+        if self.osolution and "GetValidISolutionList" in self.osolution.__dir__():
+            solution_list = self.osolution.GetValidISolutionList(True)
+            if solution_list:
+                table_names = [
+                    item.split(" :")[0]
+                    for item in solution_list
+                    if not any(setup_name + " :" in item for setup_name in self.setup_names)
+                ]
+        return table_names
 
     @pyaedt_function_handler(boundary_type="opening_type")
     def set_auto_open(self, enable=True, opening_type="Radiation"):
@@ -5832,10 +5859,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Whether to overwrite FFD files. The default is ``True``.
         link_to_hfss : bool, optional
             Whether to return an instance of the
-            :class:`ansys.aedt.core.generic.farfield_explorerf.FfdSolutionDataExporter` class,
+            :class:`ansys.aedt.core.visualization.advanced.farfield_exporter.FfdSolutionDataExporter` class,
             which requires a connection to an instance of the :class:`Hfss` class.
             The default is `` True``. If ``False``, returns an instance of
-            :class:`ansys.aedt.core.generic.farfield_explorer.FfdSolutionData` class, which is
+            :class:`ansys.aedt.core.visualization.advanced.farfield_visualization.FfdSolutionData` class, which is
             independent of the running HFSS instance.
         export_touchstone : bool, optional
             Whether to export touchstone file. The default is ``False``.
@@ -5915,6 +5942,104 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             return ffd
         elif metadata_file:
             return FfdSolutionData(input_file=metadata_file)
+        else:  # pragma: no cover
+            self.logger.error("Farfield solution data could not be exported.")
+            return False
+
+    @pyaedt_function_handler()
+    def get_rcs_data(
+        self,
+        frequencies=None,
+        setup=None,
+        expression="ComplexMonostaticRCSTheta",
+        variations=None,
+        overwrite=True,
+        link_to_hfss=True,
+        variation_name=None,
+    ):
+        """Export the radar cross-section data.
+        This method returns an instance of the ``RcsSolutionDataExporter`` object.
+
+        Parameters
+        ----------
+        frequencies : float, list, optional
+            Frequency value or list of frequencies to compute the data. The default is ``None,`` in which case
+            all available frequencies are computed.
+        setup : str, optional
+            Name of the setup to use. The default is ``None,`` in which case ``nominal_adaptive`` is used.
+        expression : str, optional
+            Monostatic expression name. The default value is ``"ComplexMonostaticRCSTheta"``.
+        variations : dict, optional
+            Variation dictionary. The default is ``None``, in which case the nominal variation is exported.
+        overwrite : bool, optional
+            Whether to overwrite metadata files. The default is ``True``.
+        link_to_hfss : bool, optional
+            Whether to return an instance of the
+            :class:`ansys.aedt.core.visualization.post.rcs_exporter.MonostaticRCSExporter` class,
+            which requires a connection to an instance of the :class:`Hfss` class.
+            The default is `` True``. If ``False``, returns an instance of
+            :class:`ansys.aedt.core.visualization.advanced.rcs_visualization.MonostaticRCSData` class, which is
+            independent of the running HFSS instance.
+        variation_name : str, optional
+            Variation name. The default is ``None``, in which case the nominal variation is added.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.post.rcs_exporter.MonostaticRCSExporter`
+            SolutionData object.
+
+        Examples
+        --------
+        The method :func:`get_antenna_data` is used to export the farfield of each element of the design.
+
+        Open a design and create the objects.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> rcs_data = hfss.get_rcs_data()
+        """
+        from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
+        from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
+
+        if not variations:
+            variations = self.available_variations.nominal_w_values_dict_w_dependent
+        if not setup:
+            setup = self.nominal_adaptive
+
+        if setup in self.existing_analysis_sweeps and not frequencies:
+            rcs_data = self.post.get_solution_data(
+                expressions=expression,
+                variations=variations,
+                setup_sweep_name=setup,
+                report_category="Monostatic RCS",
+            )
+            if rcs_data and rcs_data.primary_sweep_values is not None:
+                frequencies = rcs_data.primary_sweep_values
+                frequency_units = self.odesktop.GetDefaultUnit("Frequency")
+                frequencies = [str(freq) + frequency_units for freq in frequencies]
+
+        if not frequencies:  # pragma: no cover
+            self.logger.info("Frequencies could not be obtained.")
+            return False
+
+        rcs = MonostaticRCSExporter(
+            self,
+            setup_name=setup,
+            frequencies=frequencies,
+            expression=expression,
+            variations=variations,
+            overwrite=overwrite,
+        )
+
+        if variation_name:
+            rcs.solution = variation_name
+
+        metadata = rcs.export_rcs()
+
+        if link_to_hfss:
+            return rcs
+        elif metadata:
+            return MonostaticRCSData(input_file=metadata)
         else:  # pragma: no cover
             self.logger.error("Farfield solution data could not be exported.")
             return False
@@ -6132,7 +6257,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         from ansys.aedt.core.visualization.advanced.hdm_plot import HDMPlotter
 
         hdm = HDMPlotter()
-        files = self.post.export_model_obj(export_as_single_objects=True, air_objects=False)
+        files = self.post.export_model_obj(export_as_multiple_objects=True, air_objects=False)
         for file in files:
             hdm.add_cad_model(file[0], file[1], file[2], self.modeler.model_units)
         hdm.add_hdm_bundle_from_file(file_name)
@@ -7156,4 +7281,130 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         ]
 
         self.onetwork_data_explorer.SetExportTouchstoneOptions(preferences, design_name, props)
+        return True
+
+    @pyaedt_function_handler()
+    def import_table(
+        self,
+        input_file,
+        name,
+        is_real_imag=True,
+        is_field=False,
+        column_names=None,
+        independent_columns=None,
+    ):
+        """Import a data table.
+
+            The table can have multiple independent real-valued columns of data,
+            and multiple dependent real- or complex-valued columns of data.
+            The data supported is comma delimited format (.csv).
+            The first row may contain column names. Complex data columns are inferred from the column data format.
+            In comma delimited format, "(double, double)" denotes a complex number.
+
+        Parameters
+        ----------
+        input_file : str
+            Full path to the file. Supported formats is ``".csv"``.
+        name : str
+            Table name.
+        is_real_imag : bool, optional
+            Whether to use real and imaginary to interpret data for any complex column. If ``False``, then use
+            magnitude and phase in degrees. The default is ``True``.
+        is_field : bool, optional
+            Whether to matrix data. If ``True``, then use field data. The default is ``False``.
+        column_names : list, optional
+            Column names. The default is ``None``, in which case column names obtained from data file are assigned.
+        independent_columns : list, optional
+            Indicates which columns are independent. If ``None``, only the first column is independent.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.ImportTable
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.import_table(input_file="my_file.csv")
+        """
+        input_path = Path(input_file).resolve()
+
+        if not input_path.is_file():
+            self.logger.error("File does not exist.")
+            return False
+        elif input_path.suffix != ".csv":
+            self.logger.error("Invalid file extension. It must be ``.csv``.")
+            return False
+        if name in self.table_names:
+            self.logger.error("Table name already assigned.")
+            return False
+
+        delimiter = ","
+
+        with open_file(str(input_path), "r") as f:
+            first_line = next(f)
+            columns = first_line.split(delimiter)
+            column_number = len(columns)
+            is_header = all(not is_number(col) for col in columns)
+            if not is_header:
+                file_column_names = [f"col{i + 1}" for i in range(column_number)]
+            else:
+                last_column = columns[-1]
+                file_column_names = columns[:-1]
+                file_column_names.append(last_column[:-1])
+
+        if not column_names:
+            column_names = file_column_names
+        elif isinstance(column_names, list) and len(column_names) != column_number:
+            self.logger.error("Number of column names must be the same than number of data columns.")
+            return False
+
+        if not independent_columns:
+            independent_columns = [False] * column_number
+            independent_columns[0] = True
+        elif isinstance(independent_columns, list) and len(independent_columns) != column_number:
+            self.logger.error("Number of independent columns must be the same than number of data columns.")
+            return False
+
+        self.osolution.ImportTable(
+            str(input_path), name, "Table", is_real_imag, is_field, column_names, independent_columns
+        )
+        return True
+
+    @pyaedt_function_handler()
+    def delete_table(self, name):
+        """Delete data table.
+
+        Parameters
+        ----------
+        name : str or list of str
+            Table name to delete.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.DeleteImportData
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.import_table(name="Table1")
+        """
+        name_list = self.modeler.convert_to_selections(name, True)
+        new_name_list = []
+        for new_name in name_list:
+            new_name_list.append(f"{new_name}:Table")
+        self.osolution.DeleteImportData(new_name_list)
+        # UI is not updated, and it needs to save the project
+        self.save_project()
         return True

@@ -88,7 +88,7 @@ jobs:
       - name: Run unit tests
         uses: ansys/actions/tests-pytest@v8
         with:
-          pytest-markers: -m unit
+          pytest-postargs: 'tests/unit'
           pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           optional-dependencies-name: unit-tests
@@ -108,13 +108,41 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
+  integration-tests:
+    name: Running integration tests
+    needs: [unit-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run integration tests
+        uses: ansys/actions/tests-pytest@v8
+        with:
+          pytest-postargs: 'tests/integration'
+          pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          optional-dependencies-name: integration-tests
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          name: codecov-integration-tests
+          file: ./coverage.xml
+          flags: linux_integration
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-integration
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
 # # =================================================================================================
 # # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # # =================================================================================================
 
   system-tests-solvers-windows:
     name: Testing solvers and coverage (Windows)
-    needs: [unit-tests]
+    needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
@@ -173,7 +201,7 @@ jobs:
 
   system-tests-solvers-linux:
     name: Testing solvers and coverage (Linux)
-    needs: [unit-tests]
+    needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
@@ -229,7 +257,7 @@ jobs:
 
   system-tests-general-windows:
     name: Testing and coverage (Windows)
-    needs: [unit-tests]
+    needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
@@ -294,7 +322,7 @@ jobs:
   system-tests-general-linux:
     name: Testing and coverage (Linux)
     if: github.event.pull_request.draft == false
-    needs: [unit-tests]
+    needs: [integration-tests]
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
       ANSYSEM_ROOT242: '/opt/AnsysEM/v242/Linux64'
