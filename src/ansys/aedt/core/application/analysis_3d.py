@@ -539,7 +539,6 @@ class FieldAnalysis3D(Analysis, object):
         separate_disjoints_lumped_object=False,
         import_free_surfaces=False,
         point_coicidence_tolerance=1e-6,
-        heal_stl=True,
         reduce_stl=False,
         reduce_percentage=0,
         reduce_error=0,
@@ -573,8 +572,6 @@ class FieldAnalysis3D(Analysis, object):
             Whether to import free surfaces parts. The default is ``False``.
         point_coicidence_tolerance : float, optional
             Tolerance on the point. The default is ``1e-6``.
-        heal_stl : bool, optional
-            Whether to heal the STL file on import. The default is ``True``.
         reduce_stl : bool, optional
             Whether to reduce the STL file on import. The default is ``True``.
         reduce_percentage : int, optional
@@ -605,7 +602,6 @@ class FieldAnalysis3D(Analysis, object):
             separate_disjoints_lumped_object=separate_disjoints_lumped_object,
             import_free_surfaces=import_free_surfaces,
             point_coicidence_tolerance=point_coicidence_tolerance,
-            heal_stl=heal_stl,
             reduce_stl=reduce_stl,
             reduce_percentage=reduce_percentage,
             reduce_error=reduce_error,
