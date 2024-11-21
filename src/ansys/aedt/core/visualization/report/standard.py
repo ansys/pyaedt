@@ -172,10 +172,11 @@ class Standard(CommonReport):
         elif (
             self._post._app.design_type in ["Maxwell 2D", "Maxwell 3D"]
             and self._post._app.solution_type == "EddyCurrent"
+            or self._post._app.solution_type == "Electrostatic"
         ):
             if not self.matrix:
                 ctxt = ["Context:=", "Original"]
-            elif not self.reduced_matrix:
+            elif self.matrix and not self.reduced_matrix:
                 ctxt = ["Context:=", self.matrix]
             elif self.reduced_matrix:
                 ctxt = ["Context:=", self.matrix, "Matrix:=", self.reduced_matrix]

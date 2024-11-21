@@ -218,7 +218,11 @@ class PostProcessorCommon(object):
                 "SimValueContext:=",
                 [37010, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "DCIRID", False, id_, "IDIID", False, "1"],
             ]
-        elif self._app.design_type in ["Maxwell 2D", "Maxwell 3D"] and self._app.solution_type == "EddyCurrent":
+        elif (
+            self._app.design_type in ["Maxwell 2D", "Maxwell 3D"]
+            and self._app.solution_type == "EddyCurrent"
+            or self._app.solution_type == "Electrostatic"
+        ):
             if isinstance(context, dict):
                 for k, v in context.items():
                     context = ["Context:=", k, "Matrix:=", v]
@@ -400,7 +404,11 @@ class PostProcessorCommon(object):
                 ]
             else:
                 context = ["Diff:=", "differential_pairs", "Domain:=", "Sweep"]
-        elif self._app.design_type in ["Maxwell 2D", "Maxwell 3D"] and self._app.solution_type == "EddyCurrent":
+        elif (
+            self._app.design_type in ["Maxwell 2D", "Maxwell 3D"]
+            and self._app.solution_type == "EddyCurrent"
+            or self._app.solution_type == "Electrostatic"
+        ):
             if isinstance(context, dict):
                 for k, v in context.items():
                     context = ["Context:=", k, "Matrix:=", v]
@@ -1289,8 +1297,9 @@ class PostProcessorCommon(object):
             report.matrix = context
         elif (
             self._app.design_type in ["Maxwell 2D", "Maxwell 3D"]
-            and self._app.solution_type == "EddyCurrent"
             and context
+            and self._app.solution_type == "EddyCurrent"
+            or self._app.solution_type == "Electrostatic"
         ):
             if isinstance(context, dict):
                 for k, v in context.items():
@@ -1514,8 +1523,9 @@ class PostProcessorCommon(object):
             report.matrix = context
         elif (
             self._app.design_type in ["Maxwell 2D", "Maxwell 3D"]
-            and self._app.solution_type == "EddyCurrent"
             and context
+            and self._app.solution_type == "EddyCurrent"
+            or self._app.solution_type == "Electrostatic"
         ):
             if isinstance(context, dict):
                 for k, v in context.items():
