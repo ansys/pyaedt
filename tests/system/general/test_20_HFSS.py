@@ -1745,3 +1745,40 @@ class TestClass:
         input_file = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "source_eigen.csv")
         assert aedtapp.edit_source_from_file(input_file=input_file)
         aedtapp.close_project(save=False)
+
+    def test_72_import_table(self, add_app):
+        file_header = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "table_header.csv")
+        file_no_header = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "table_no_header.csv")
+        file_invented = "invented.csv"
+        file_format = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "sphere.stl")
+
+        aedtapp = add_app(solution_type="Terminal", project_name="test_72")
+        assert not aedtapp.table_names
+        aedtapp.create_setup()
+        assert not aedtapp.table_names
+
+        assert not aedtapp.import_table(input_file=file_invented, name="Table1")
+        assert not aedtapp.import_table(input_file=file_format, name="Table1")
+
+        assert aedtapp.import_table(input_file=file_header, name="Table1")
+        assert "Table1" in aedtapp.table_names
+        assert not aedtapp.import_table(input_file=file_header, name="Table1")
+
+        assert aedtapp.import_table(input_file=file_no_header, name="Table2")
+        assert "Table2" in aedtapp.table_names
+
+        assert aedtapp.import_table(
+            input_file=file_no_header,
+            name="Table3",
+            is_real_imag=False,
+            is_field=True,
+            column_names=["col1_test", "col2_test"],
+            independent_columns=[True, False],
+        )
+        assert "Table3" in aedtapp.table_names
+
+        assert aedtapp.delete_table("Table2")
+        assert "Table2" not in aedtapp.table_names
+
+        assert aedtapp.import_table(input_file=file_no_header, name="Table2")
+        assert "Table2" in aedtapp.table_names
