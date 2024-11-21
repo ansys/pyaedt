@@ -297,6 +297,10 @@ html_theme_options = {
         "limite": 10,
         "ignoreLocation": True,
     },
+    "cheatsheet": {
+        "file": "cheatsheet/cheat_sheet.qmd",
+        "title": "PyAEDT cheat sheet",
+    },
 }
 
 # # Add button to download PDF
