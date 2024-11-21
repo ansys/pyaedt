@@ -65,7 +65,7 @@ Desktop (AEDT) installed.
 The Ansys Electronics Desktop (AEDT) is a platform that enables true electronics system design.
 `AEDT <https://www.ansys.com/products/electronics>`_ provides access to the Ansys gold-standard
 electro-magnetics simulation solutions such as Ansys HFSS,
-Ansys Maxwell, Ansys Q3D Extractor, Ansys Siwave, and Ansys Icepak using electrical CAD (ECAD) and
+Ansys Maxwell, Ansys Q3D Extractor, Ansys SIwave, and Ansys Icepak using electrical CAD (ECAD) and
 Mechanical CAD (MCAD) workflows.
 In addition, it includes direct links to the complete Ansys portfolio of thermal, fluid,
 and Mechanical solvers for comprehensive multiphysics analysis.

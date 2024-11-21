@@ -64,7 +64,7 @@ pip install pyaedt[all]
 
  ## 关于 AEDT
 
-`Ansys Electronics Desktop (AEDT)` 是一个真正支持电子系统设计的平台。[AEDT](https://www.ansys.com/products/electronics) 使用 `电气CAD(ECAD)` 和 `机械CAD(MCAD)` 工作流程提供对 Ansys gold-standard electro-magnetics 仿真解决方案的访问，例如 `Ansys HFSS`、`Ansys Maxwell`、`Ansys Q3D Extractor`、`Ansys Siwave` 和 `Ansys Icepak`。此外，它还包括与完整的 `Ansys热求解器(Thermal)`、`流体求解器(Fluid)` 和 `机械求解器(Mechanical)` 产品组合的直接连接，用于全面的多物理场分析。这些解决方案之间的紧密集成提供了前所未有的设置易用性，并更快地解决了用于设计和优化的复杂仿真。
+`Ansys Electronics Desktop (AEDT)` 是一个真正支持电子系统设计的平台。[AEDT](https://www.ansys.com/products/electronics) 使用 `电气CAD(ECAD)` 和 `机械CAD(MCAD)` 工作流程提供对 Ansys gold-standard electro-magnetics 仿真解决方案的访问，例如 `Ansys HFSS`、`Ansys Maxwell`、`Ansys Q3D Extractor`、`Ansys SIwave` 和 `Ansys Icepak`。此外，它还包括与完整的 `Ansys热求解器(Thermal)`、`流体求解器(Fluid)` 和 `机械求解器(Mechanical)` 产品组合的直接连接，用于全面的多物理场分析。这些解决方案之间的紧密集成提供了前所未有的设置易用性，并更快地解决了用于设计和优化的复杂仿真。
 
  <p align="center">
   <img width="100%" src="https://images.ansys.com/is/image/ansys/ansys-electronics-technology-collage?wid=941&op_usm=0.9,1.0,20,0&fit=constrain,0" title="AEDT Applications" herf="https://www.ansys.com/products/electronics"

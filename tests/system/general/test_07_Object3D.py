@@ -129,6 +129,16 @@ class TestClass:
         assert not self.aedtapp.modeler[name]
         assert not o.__dict__
 
+        # 1 body and 1 sheet
+        o1 = self.aedtapp.modeler.create_circle(orientation=0, origin=[0, 0, 0], radius=5)
+        name1 = o1.name
+        o2 = self.aedtapp.modeler.create_box(origin=[0, 0, 0], sizes=[10, 10, 10], material="vacuum")
+        name2 = o2.name
+        o2.delete()
+        assert not self.aedtapp.modeler[name2]
+        o1.delete()
+        assert not self.aedtapp.modeler[name1]
+
     def test_01_subtract_object(self):
         o1 = self.create_copper_box("subtract_box")
         o2 = self.create_copper_sphere("subtract_sphere")

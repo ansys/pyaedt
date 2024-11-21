@@ -26,6 +26,7 @@ import os
 import warnings
 
 import ansys.aedt.core
+from ansys.aedt.core import generate_unique_name
 from ansys.aedt.core.generic.general_methods import generate_unique_project_name
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -198,22 +199,25 @@ class FieldsCalculator:
         design_type_index = expression_info["design_type"].index(design_type)
 
         # Check assignment type
-        if assignment and isinstance(assignment, str) and assignment not in self.__app.modeler.object_names:
-            self.__app.logger.error("Assignment type is not correct.")
-            return False
+        if self.__app.design_type not in ["HFSS 3D Layout Design", "HFSS 3D Layout"]:
+            if (
+                assignment and isinstance(assignment, str) and assignment not in self.__app.modeler.object_names
+            ):  # pragma no cover
+                self.__app.logger.error("Assignment type is not correct.")
+                return False
 
-        # Check assignment type
-        if assignment and isinstance(assignment, str):
-            assignment_type = self.__app.modeler.objects_by_name[assignment].object_type
-            if assignment_type not in expression_info["assignment_type"]:
-                self.__app.logger.error("Wrong assignment type.")
-                return False
-        elif assignment and isinstance(assignment, int):
-            if "Face" not in expression_info["assignment_type"]:
-                self.__app.logger.error("Wrong assignment type.")
-                return False
-            else:
-                assignment = "Face" + str(assignment)
+            # Check assignment type
+            if assignment and isinstance(assignment, str):  # pragma no cover
+                assignment_type = self.__app.modeler.objects_by_name[assignment].object_type
+                if assignment_type not in expression_info["assignment_type"]:
+                    self.__app.logger.error("Wrong assignment type.")
+                    return False
+            elif assignment and isinstance(assignment, int):  # pragma no cover
+                if "Face" not in expression_info["assignment_type"]:
+                    self.__app.logger.error("Wrong assignment type.")
+                    return False
+                else:
+                    assignment = "Face" + str(assignment)
 
         # Check constants
         if "constants" in expression_info:
@@ -401,6 +405,7 @@ class FieldsCalculator:
             self.ofieldsreporter.ClearAllNamedExpr()
             return True
         if self.is_expression_defined(name):
+            self.ofieldsreporter.CalcStack("clear")
             self.ofieldsreporter.DeleteNamedExpr(name)
         return True
 
@@ -616,7 +621,7 @@ class FieldsCalculator:
         for k, v in self.__app.variable_manager.design_variables.items():
             args.append(f"{k}:=")
             args.append(v.expression)
-        if not intrinsics:
+        if intrinsics is None:
             intrinsics = self.__app.get_setup(setup_name).default_intrinsics
         for k, v in intrinsics.items():
             args.append(f"{k}:=")
@@ -624,6 +629,47 @@ class FieldsCalculator:
         self.ofieldsreporter.CalculatorWrite(output_file, ["Solution:=", setup], args)
         self.ofieldsreporter.CalcStack("clear")
         return True
+
+    @pyaedt_function_handler()
+    def evaluate(self, expression, setup=None, intrinsics=None):
+        """Evaluate an expression and return the value.
+
+        Parameters
+        ----------
+        expression : str
+            Expression name.
+            The expression must exist already in the named expressions list in AEDT Fields Calculator.
+        setup : str
+            Solution name.
+            If not provided the nominal adaptive solution is taken.
+        intrinsics : dict
+            Intrinsics variables provided as a dictionary.
+            Key is the variable name and value is the variable value.
+            These are typically: frequency, time and phase.
+            If it is a dictionary, keys depend on the solution type and can be expressed as:
+            - ``"Freq"``.
+            - ``"Time"``.
+            - ``"Phase"``.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
+
+        Returns
+        -------
+        float
+            Value computed.
+        """
+        out_file = os.path.join(self.__app.working_directory, generate_unique_name("expression") + ".fld")
+        self.write(expression, setup=setup, intrinsics=intrinsics, output_file=out_file)
+        value = None
+        if os.path.exists(out_file):
+            with open_file(out_file, "r") as f:
+                lines = f.readlines()
+                lines = [line.strip() for line in lines]
+                value = lines[-1]
+            try:
+                os.remove(out_file)
+            except OSError:
+                pass
+        return value
 
     @pyaedt_function_handler()
     def export(
