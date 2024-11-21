@@ -763,7 +763,7 @@ class CircuitComponents(object):
     def create_component(
         self,
         name=None,
-        component_library="Resistors",
+        component_library="",
         component_name="RES_",
         location=None,
         angle=0,
