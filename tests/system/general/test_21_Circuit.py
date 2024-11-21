@@ -1004,4 +1004,10 @@ class TestClass:
         assert not self.aedtapp.import_table(file_header, column_separator="dummy")
         assert not self.aedtapp.import_table(file_invented)
 
-        assert self.aedtapp.import_table(file_header)
+        table = self.aedtapp.import_table(file_header)
+        assert table in self.aedtapp.existing_analysis_sweeps
+
+        assert not self.aedtapp.delete_imported_data("invented")
+
+        assert self.aedtapp.delete_imported_data(table)
+        assert table not in self.aedtapp.existing_analysis_sweeps

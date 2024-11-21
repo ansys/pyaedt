@@ -2664,12 +2664,11 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         Examples
         --------
-        >>> from ansys.aedt.core import Hfss3dlayout
-        >>> h3d = Hfss3dlayout()
-        >>> h3d.import_table(input_file="my_file.csv")
+        >>> from ansys.aedt.core import Circuit
+        >>> cir = Circuit()
+        >>> cir.import_table(input_file="my_file.csv")
         """
-
-        columns_separador_map = {"Space": 0, "Tab": 1, "Comma": 2, "Period": 3}
+        columns_separator_map = {"Space": 0, "Tab": 1, "Comma": 2, "Period": 3}
         if column_separator not in ["Space", "Tab", "Comma", "Period"]:
             self.logger.error("Invalid column separator.")
             return False
@@ -2692,7 +2691,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                     "RowsToRead:=",
                     rows_to_read,
                     "ColumnSep:=",
-                    columns_separador_map[column_separator],
+                    columns_separator_map[column_separator],
                     "DataType:=",
                     data_type,
                     "Sweep:=",
@@ -2712,5 +2711,36 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         if not new_sweep:  # pragma: no cover
             self.logger.error("Data not imported.")
-            return None
+            return False
         return new_sweep[0]
+
+    @pyaedt_function_handler()
+    def delete_imported_data(self, name):
+        """Delete imported data.
+
+        Parameters
+        ----------
+        name : str
+            Delete table.
+
+        Returns
+        -------
+        str
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.RemoveImportData
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> cir = Circuit()
+        >>> table_name = cir.import_table(input_file="my_file.csv")
+        >>> cir.delete_imported_data(table_name)
+        """
+        if name not in self.existing_analysis_sweeps:
+            self.logger.error("Data does not exist.")
+            return False
+        self.odesign.RemoveImportData(name)
+        return True
