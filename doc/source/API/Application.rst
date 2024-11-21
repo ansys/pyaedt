@@ -27,7 +27,7 @@ Available PyAEDT apps are:
    ansys.aedt.core.maxwellcircuit.MaxwellCircuit
    ansys.aedt.core.emit.Emit
    ansys.aedt.core.twinbuilder.TwinBuilder
-   ansys.aedt.core.filtersolutions.FilterSolutions - `<https://www.ansys.com/products/electronics/ansys-nuhertz-filtersolutions>`_
+   ansys.aedt.core.filtersolutions.FilterSolutions
 
 All other classes and methods are inherited into the app class.
 AEDT, which is also referred to as the desktop app, is implicitly launched in any PyAEDT app.
