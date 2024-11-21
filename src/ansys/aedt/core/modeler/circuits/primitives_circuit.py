@@ -777,7 +777,7 @@ class CircuitComponents(object):
         name : str, optional
             Name of the instance. The default is ``None.``
         component_library : str, optional
-            Name of the component library. The default is ``"Resistors"``.
+            Name of the component library. The default is ``""``.
         component_name : str, optional
             Name of component in the library. The default is ``"RES"``.
         location : list of float, optional
