@@ -504,8 +504,27 @@ class TestClass:
         m3d.assign_voltage(box1.faces, amplitude=1, name="Voltage6")
         m3d.assign_voltage(box2, amplitude=1, name="Voltage7")
 
+        setup = m3d.create_setup(MaximumPasses=2)
+        m3d.analyze(setup=setup.name)
+
         L = m3d.assign_matrix(assignment="Voltage1")
         assert L.props["MatrixEntry"]["MatrixEntry"][0]["Source"] == "Voltage1"
+        cat = m3d.post.available_quantities_categories(context=L.name)
+        assert isinstance(cat, list)
+        assert "C" in cat
+        quantities = m3d.post.available_report_quantities(
+            display_type="Data Table", quantities_category="C", context=L.name
+        )
+        assert isinstance(quantities, list)
+        report = m3d.post.create_report(
+            expressions=quantities,
+            plot_type="Data Table",
+            context=L.name,
+            primary_sweep_variable="X",
+            variations={"X": "All"},
+        )
+        assert quantities == report.expressions
+        assert report.matrix == L.name
         assert L.delete()
         group_sources = "Voltage2"
         L = m3d.assign_matrix(assignment=["Voltage1", "Voltage3"], matrix_name="Test1", group_sources=group_sources)
