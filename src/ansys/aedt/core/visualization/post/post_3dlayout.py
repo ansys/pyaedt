@@ -22,8 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
-from build.lib.ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
 class PostProcessor3DLayout(PostProcessor3D):
