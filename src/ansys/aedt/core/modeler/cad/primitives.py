@@ -964,7 +964,7 @@ class GeometryModeler(Modeler):
         all_objects = self.object_names
         all_unclassified = self.unclassified_names
         all_objs = all_objects + all_unclassified
-        if len(all_objs) != len(self._object_names_to_ids):
+        if sorted(all_objs) != sorted(list(self._object_names_to_ids.keys())):
             for old_id, obj in self.objects.items():
                 if obj.name in all_objs:
                     # Check if ID can change in boolean operations
