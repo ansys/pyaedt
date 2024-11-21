@@ -348,7 +348,10 @@ class Polyline(Object3d):
             else:
                 flag = ""
             varg2 = self._primitives._default_object_attributes(name=name, material=matname, flags=flag)
-
+            if self._primitives.design_type in ["Maxwell 2D", "2D Extractor"]:
+                solve_inside_idx = varg2.index("SolveInside:=")
+                self._solve_inside = False
+                varg2[solve_inside_idx + 1] = self._solve_inside
             new_object_name = self._oeditor.CreatePolyline(varg1, varg2)
             Object3d.__init__(self, primitives, name=new_object_name)
             self._primitives._create_object(self.name, is_polyline=True)

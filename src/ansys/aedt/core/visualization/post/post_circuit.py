@@ -22,12 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-This module contains these classes: `FieldPlot`, `PostProcessor`, and `SolutionData`.
-
-This module provides all functionalities for creating and editing plots in the 3D tools.
-
-"""
 from __future__ import absolute_import
 
 import warnings

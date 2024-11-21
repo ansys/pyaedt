@@ -280,7 +280,7 @@ def add_script_to_menu(
         d = list(_desktop_sessions.values())[0]
         personal_lib = d.personallib
         aedt_version = d.aedt_version_id
-        d.logger.error("WE ARE HERE 2.")
+
     if script_file and not os.path.exists(script_file):  # pragma: no cover
         logger.error("Script does not exists.")
         return False
@@ -384,8 +384,6 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
     -------
     bool
     """
-    print("WE ARE HERE.")
-    desktop_object.logger.error("WE ARE HERE.")
     toolkits = available_toolkits()
     toolkit_info = None
     product_name = None
