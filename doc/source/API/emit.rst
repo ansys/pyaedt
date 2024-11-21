@@ -1,4 +1,4 @@
-Emit
+EMIT
 ====
 
 .. automodule:: ansys.aedt.core.emit.Emit
