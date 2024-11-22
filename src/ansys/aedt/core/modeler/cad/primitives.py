@@ -198,7 +198,7 @@ class Objects(dict):
                 self.__obj_names[value.name] = value
                 if self.__obj_type == "o":
                     self.__parent._object_names_to_ids[value.name] = key
-        self.__refreshed = True
+        self.__refreshed = False
 
 
 class GeometryModeler(Modeler):
