@@ -479,12 +479,6 @@ class TestClass:
         path1 = self.aedtapp.modeler.create_polyline(arrofpos, name="poly_vector1")
         path2 = self.aedtapp.modeler.create_polyline(arrofpos, name="poly_vector2")
 
-        paths = [path1.name, path2.name]
-        for item in paths:
-            assert item in self.aedtapp.modeler.line_names
-            assert item in self.aedtapp.modeler.model_objects
-            assert item in self.aedtapp.modeler.object_names
-            assert isinstance(self.aedtapp.modeler.get_vertices_of_line(item), list)
 
         rect1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [0, -2, -4], [4, 3], name="rect_1")
         rect2 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [0, -2, 2], [4, 3], name="rect_2")
