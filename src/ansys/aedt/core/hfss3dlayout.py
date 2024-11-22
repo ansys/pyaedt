@@ -2647,7 +2647,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         Parameters
         ----------
         name : str
-            Delete table.
+            Table to delete.
 
         Returns
         -------
