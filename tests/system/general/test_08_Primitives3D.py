@@ -481,7 +481,6 @@ class TestClass:
         rect1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [0, -2, -4], [4, 3], name="rect_1")
         rect2 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [0, -2, 2], [4, 3], name="rect_2")
         rect3 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [0, -2, 8], [4, 3], name="rect_3")
-
         assert self.aedtapp.modeler.sweep_along_path(rect1, path1)
         assert self.aedtapp.modeler.sweep_along_path([rect2, rect3], path2)
         assert rect1.name in self.aedtapp.modeler.solid_names
