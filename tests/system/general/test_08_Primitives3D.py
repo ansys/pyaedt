@@ -475,7 +475,6 @@ class TestClass:
         udp2 = [5, 0, 0]
         udp3 = [5, 5, 0]
         arrofpos = [udp1, udp2, udp3]
-
         path1 = self.aedtapp.modeler.create_polyline(arrofpos, name="poly_vector1")
         path2 = self.aedtapp.modeler.create_polyline(arrofpos, name="poly_vector2")
 
