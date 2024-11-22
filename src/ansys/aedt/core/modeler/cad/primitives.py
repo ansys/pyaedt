@@ -198,9 +198,7 @@ class Objects(dict):
                 self.__obj_names[value.name] = value
                 if self.__obj_type == "o":
                     self.__parent._object_names_to_ids[value.name] = key
-            self.__refreshed = True
-        else:
-            self.__refreshed = False
+        self.__refreshed = False
 
 
 class GeometryModeler(Modeler):
@@ -964,7 +962,7 @@ class GeometryModeler(Modeler):
         all_objects = self.object_names
         all_unclassified = self.unclassified_names
         all_objs = all_objects + all_unclassified
-        if len(all_objs) != len(self._object_names_to_ids):
+        if sorted(all_objs) != sorted(list(self._object_names_to_ids.keys())):
             for old_id, obj in self.objects.items():
                 if obj.name in all_objs:
                     # Check if ID can change in boolean operations
@@ -4773,7 +4771,6 @@ class GeometryModeler(Modeler):
         separate_disjoints_lumped_object=False,
         import_free_surfaces=False,
         point_coicidence_tolerance=1e-6,
-        heal_stl=True,
         reduce_stl=False,
         reduce_percentage=0,
         reduce_error=0,
@@ -4807,8 +4804,6 @@ class GeometryModeler(Modeler):
             Either to import free surfaces parts. The default is ``False``.
         point_coicidence_tolerance : float, optional
             Tolerance on point. Default is ``1e-6``.
-        heal_stl : bool, optional
-            Whether to heal the stl file on import or not. Default is ``True``.
         reduce_stl : bool, optional
             Whether to reduce the stl file on import or not. Default is ``True``.
         reduce_percentage : int, optional
@@ -4835,6 +4830,7 @@ class GeometryModeler(Modeler):
                 "Assigning `0` or `1` to `healing` option is deprecated. Assign `True` or `False` instead.",
                 DeprecationWarning,
             )
+
         vArg1 = ["NAME:NativeBodyParameters"]
         vArg1.append("HealOption:="), vArg1.append(int(healing))
         vArg1.append("Options:="), vArg1.append("-1")
@@ -4848,7 +4844,7 @@ class GeometryModeler(Modeler):
             merge_angle if input_file.endswith(".stl") and merge_planar_faces else -1
         )
         if input_file.endswith(".stl"):
-            vArg1.append("HealSTL:="), vArg1.append(heal_stl)
+            vArg1.append("HealSTL:="), vArg1.append(True if int(healing) != 0 else False)
             vArg1.append("ReduceSTL:="), vArg1.append(reduce_stl)
             vArg1.append("ReduceMaxError:="), vArg1.append(reduce_error)
             vArg1.append("ReducePercentage:="), vArg1.append(reduce_percentage)
@@ -6874,10 +6870,9 @@ class GeometryModeler(Modeler):
         >>> from ansys.aedt.core.modeler.cad.polylines import PolylineSegment
         >>> from ansys.aedt.core import Desktop
         >>> from ansys.aedt.core import Maxwell3d
-        >>> desktop=Desktop(version="2021.2", new_desktop=False)
-        >>> aedtapp = Maxwell3d()
-        >>> aedtapp.modeler.model_units = "mm"
-        >>> modeler = aedtapp.modeler
+        >>> desktop=Desktop(version="2024.2", new_desktop=False)
+        >>> m3d = Maxwell3d()
+        >>> m3d.modeler.model_units = "mm"
 
         Define some test data points.
 
@@ -6887,26 +6882,27 @@ class GeometryModeler(Modeler):
         The default behavior assumes that all points are to be
         connected by line segments.  Optionally specify the name.
 
-        >>> P1 = modeler.create_polyline(test_points,name="PL_line_segments")
+        >>> P1 = m3d.modeler.create_polyline(test_points,name="PL_line_segments")
 
         Specify that the first segment is a line and the last three
         points define a three-point arc.
 
-        >>> P2 = modeler.create_polyline(test_points,segment_type=["Line", "Arc"],name="PL_line_plus_arc")
+        >>> P2 = m3d.modeler.create_polyline(test_points,segment_type=["Line", "Arc"],name="PL_line_plus_arc")
 
         Redraw the 3-point arc alone from the last three points and
         additionally specify five segments using ``PolylineSegment``.
 
-        >>> P3 = modeler.create_polyline(test_points[1:],segment_type=PolylineSegment(segment_type="Arc", num_seg=7),
-        ...                              name="PL_segmented_arc")
+        >>> P3 = m3d.modeler.create_polyline(test_points[1:],
+        ...                                  segment_type=PolylineSegment(segment_type="Arc", num_seg=7),
+        ...                                  name="PL_segmented_arc")
 
         Specify that the four points form a spline and add a circular
         cross-section with a diameter of 1 mm.
 
-        >>> P4 = modeler.create_polyline(test_points,segment_type="Spline",name="PL_spline",
+        >>> P4 = m3d.modeler.create_polyline(test_points,segment_type="Spline",name="PL_spline",
         ...                              xsection_type="Circle",xsection_width="1mm")
 
-        Use the `PolylineSegment` object to specify more detail about
+        Use the ``PolylineSegment`` object to specify more detail about
         the individual segments.  Create a center point arc starting
         from the position ``test_points[1]``, rotating about the
         center point position ``test_points[0]`` in the XY plane.
@@ -6915,16 +6911,33 @@ class GeometryModeler(Modeler):
         >>> center_point = test_points[0]
         >>> segment_def = PolylineSegment(segment_type="AngularArc", arc_center=center_point,
         ...                                arc_angle="90deg", arc_plane="XY")
-        >>> modeler.create_polyline(start_point,segment_type=segment_def,name="PL_center_point_arc")
+        >>> m3d.modeler.create_polyline(start_point,segment_type=segment_def,name="PL_center_point_arc")
 
         Create a spline using a list of variables for the coordinates of the points.
 
         >>> x0, y0, z0 = "0", "0", "1"
         >>> x1, y1, z1 = "1", "3", "1"
         >>> x2, y2, z2 = "2", "2", "1"
-        >>> P5 = modeler.create_polyline(points=[[x0, y0, z0], [x1, y1, z1], [x2, y2, z2]],
+        >>> P5 = m3d.modeler.create_polyline(points=[[x0, y0, z0], [x1, y1, z1], [x2, y2, z2]],
         ...                              segment_type="Spline",name="polyline_with_variables")
 
+        Create a closed geometry by specifying in ``segment_type`` a list of ``PolylineSegments`` including
+        ``AngularArc`` segments.
+
+        >>> test_points_1 = [[0.4, 0, 0],
+        ...                 [-0.4, -0.6, 0],
+        ...                 [0.4, 0, 0]]
+        >>> P6 = m3d.modeler.create_polyline(points=test_points_1,
+        ...                                  segment_type=[PolylineSegment(segment_type="AngularArc",
+        ...                                                                arc_center=[0, 0, 0],
+        ...                                                                arc_angle="180deg",
+        ...                                                                arc_plane="XY"),
+        ...                                                PolylineSegment(segment_type="Line"),
+        ...                                                PolylineSegment(segment_type="AngularArc",
+        ...                                                                arc_center=[0, -0.6, 0],
+        ...                                                                arc_angle="180deg",
+        ...                                                                arc_plane="XY"),
+        ...                                                PolylineSegment(segment_type="Line")])
         """
         new_polyline = Polyline(
             primitives=self,

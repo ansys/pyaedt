@@ -116,6 +116,58 @@ If you have existing farfield data, or you want to export it manually, you can s
     :alt: Farfield data with AEDT
 
 
+Monostatic RCS
+~~~~~~~~~~~~~~
+
+PyAEDT offers sophisticated tools for advanced monostatic radar cross section (RCS) post-processing.
+There are three complementary classes: ``MonostaticRCSExporter``, ``MonostaticRCSData``, and ``MonostaticRCSPlotter``.
+
+- MonostaticRCSExporter: Enables efficient export and manipulation of RCS data. It allows users to convert simulation results into a standard metadata format for further analysis, or reporting.
+
+- MonostaticRCSData: Focuses on the direct access and processing of RCS solution data. It supports a comprehensive set of postprocessing operations, from visualizing radiation patterns to computing key performance metrics.
+
+- MonostaticRCSPlotter: Focuses on the post-processing of RCS solution data.
+
+
+.. currentmodule:: ansys.aedt.core.visualization.advanced.rcs_visualization
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   MonostaticRCSData
+   MonostaticRCSPlotter
+
+
+This code shows how you can get the RCS data and perform some post-processing:
+
+.. code:: python
+
+    from ansys.aedt.core import Hfss
+    from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSPlotter
+    app = Hfss()
+    rcs_object = app.get_rcs_data()
+    rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_object.rcs_data)
+    rcs_plotter.plot_rcs()
+
+If you exported the RCS data previously, you can directly get the RCS data:
+
+.. code:: python
+
+    from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSPlotter
+    from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
+    input_file = r"path_to_data\pyaedt_rcs_metadata.json"
+    rcs_data = MonostaticRCSData(input_file)
+    rcs_plotter = MonostaticRCSPlotter(rcs_data)
+    rcs_plotter.plot_cut()
+
+The following diagram shows both classes work. You can use them independently or from the ``get_rcs_data`` method.
+
+  .. image:: ../../_static/rcs_visualization_pyaedt.png
+    :width: 800
+    :alt: RCS data with PyAEDT
+
+
 Heterogeneous data message
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 

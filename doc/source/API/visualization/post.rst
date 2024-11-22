@@ -15,11 +15,13 @@ Core
 
 The following classes grant access to the core post-processing functionalities of AEDT:
 
-* **PostProcessor3D**: This class is utilized across all 3D applications, including HFSS, HFSS 3D Layout, Maxwell 3D and 2D, Q3D Extractor, and Mechanical AEDT.
+* **PostProcessor3D**: This class is utilized across all 3D applications, including HFSS, Maxwell 3D and 2D, Q3D Extractor, and Mechanical AEDT.
 
 * **PostProcessorIcepak**: A specialized class for Icepak, which extends the ``PostProcessor3D`` class by adding features tailored to thermal analysis.
 
 * **PostProcessorCircuit**: This class handles schematic post-processing, supporting Circuit and Twin Builder applications.
+
+* **PostProcessor3DLayout**: A specialized class for HFSS 3D Layout, which extends the ``PostProcessor3D`` class.
 
 
 .. currentmodule:: ansys.aedt.core.visualization.post.post_common_3d
@@ -30,6 +32,7 @@ The following classes grant access to the core post-processing functionalities o
 
    PostProcessor3D
 
+
 .. currentmodule:: ansys.aedt.core.visualization.post.post_icepak
 
 .. autosummary::
@@ -38,6 +41,7 @@ The following classes grant access to the core post-processing functionalities o
 
    PostProcessorIcepak
 
+
 .. currentmodule:: ansys.aedt.core.visualization.post.post_circuit
 
 .. autosummary::
@@ -45,6 +49,15 @@ The following classes grant access to the core post-processing functionalities o
    :nosignatures:
 
    PostProcessorCircuit
+
+
+.. currentmodule:: ansys.aedt.core.visualization.post.post_3dlayout
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   PostProcessor3DLayout
 
 
 You can access these classes directly from the design object:
@@ -200,6 +213,25 @@ If you need to export HFSS far field data, then you can use the following featur
     app = Hfss()
 
     antenna_data = app.post.get_antenna_data()
+    app.release_desktop(False, False)
+
+If you need to export HFSS monostatic RCS data, then you can use the following feature to obtain the RCS metadata:
+
+.. currentmodule:: ansys.aedt.core.visualization.post.rcs_exporter
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   MonostaticRCSExporter
+
+.. code:: python
+
+    from ansys.aedt.core import Hfss
+
+    app = Hfss()
+
+    rcs_data = app.post.get_rcs_data()
     app.release_desktop(False, False)
 
 

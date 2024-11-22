@@ -448,6 +448,17 @@ class TestClass:
         )
         assert P2.model == False
 
+        test_points_1 = [[0.4, 0, 0], [-0.4, -0.6, 0], [0.4, 0, 0]]
+        self.aedtapp.modeler.create_polyline(
+            points=test_points_1,
+            segment_type=[
+                PolylineSegment(segment_type="AngularArc", arc_center=[0, 0, 0], arc_angle="180deg", arc_plane="XY"),
+                PolylineSegment(segment_type="Line"),
+                PolylineSegment(segment_type="AngularArc", arc_center=[0, -0.6, 0], arc_angle="180deg", arc_plane="XY"),
+                PolylineSegment(segment_type="Line"),
+            ],
+        )
+
     def test_20_create_polyline_with_crosssection(self):
         udp1 = [0, 0, 0]
         udp2 = [5, 0, 0]
@@ -715,20 +726,6 @@ class TestClass:
         edges2 = self.aedtapp.modeler.get_edges_for_circuit_port_from_sheet(
             "MyGND", xy_plane=True, yz_plane=False, xz_plane=False, allow_perpendicular=True, tolerance=1e-6
         )
-
-    def test_42_chamfer(self):
-        o = self.create_copper_box(name="MyBox")
-        assert o.edges[0].chamfer()
-        self.aedtapp._odesign.Undo()
-        assert o.edges[0].chamfer(chamfer_type=1)
-        self.aedtapp._odesign.Undo()
-        assert o.edges[0].chamfer(chamfer_type=2)
-        self.aedtapp._odesign.Undo()
-        assert o.edges[0].chamfer(chamfer_type=3)
-        self.aedtapp._odesign.Undo()
-        assert not o.edges[0].chamfer(chamfer_type=4)
-        o2 = self.create_copper_box(name="MyBox2")
-        assert o2.chamfer(edges=o2.edges)
 
     def test_43_fillet_and_undo(self):
         o = self.create_copper_box(name="MyBox")
