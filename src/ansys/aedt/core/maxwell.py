@@ -2961,6 +2961,89 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             return bound
         return False
 
+    @pyaedt_function_handler()
+    def assign_resistive_sheet(
+        self,
+        assignment,
+        resistance,
+        name=None,
+        non_linear=False,
+        anode_a=300000000,
+        anode_b=5,
+        anode_c=110000000000000,
+        anode_d=2,
+        cathode_a=300000000,
+        cathode_b=10,
+        cathode_c=110000000000000,
+        cathode_d=2,
+    ):
+        """Assign a resistive sheet boundary between two conductors.
+
+        Available for Maxwell 3D Magnetostatic, Eddy Current and Transient designs.
+        For 3D Magnetostatic designs, the user can specify the nonlinear anode and cathode coefficients.
+
+        Parameters
+        ----------
+        assignment : list of int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+            List of objects to assign an end connection to.
+        resistance : str
+            Resistance value with unit.
+            For 3D Magnetostatic designs if non_linear is ``True``, it is not available.
+        name : str, optional
+            Name of the boundary. The default is ``None``, in which case the default name is used.
+        non_linear: bool, optional
+            Whether the boundary is non-linear. The default is ``False``.
+            Valid for 3D Magnetostatic designs only.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+            Newly created object. ``False`` if it fails.
+
+        References
+        ----------
+        >>> oModule.AssignResistiveSheet
+
+        Examples
+        --------
+
+        """
+        if self.solution_type not in ["EddyCurrent", "Transient", "Magnetostatic"]:
+            self.logger.error(
+                "Resistive sheet is applicable only to Eddy current, transient and magnetostatic solvers."
+            )
+            return False
+
+        assignment = self.modeler.convert_to_selections(assignment, True)
+
+        if not name:
+            boundary = generate_unique_name("ResistiveSheet")
+
+        props = dict(
+            {
+                "Faces": assignment,
+            }
+        )
+
+        if self.solution_type in ["EddyCurrent", "Transient"]:
+            props["Resistance"] = resistance
+        elif self.solution_type == "Magnetostatic":
+            props["Nonlinear"] = non_linear
+            props["AnodeParA"] = anode_a
+            props["AnodeParB"] = anode_b
+            props["AnodeParC"] = anode_c
+            props["AnodeParD"] = anode_d
+            props["CathodeParA"] = cathode_a
+            props["CathodeParB"] = cathode_b
+            props["CathodeParC"] = cathode_c
+            props["CathodeParD"] = cathode_d
+
+        bound = BoundaryObject(self, boundary, props, "ResistiveSheet")
+        if bound.create():
+            self._boundaries[bound.name] = bound
+            return bound
+        return False
+
 
 class Maxwell2d(Maxwell, FieldAnalysis3D, object):
     """Provides the Maxwell 2D app interface.
