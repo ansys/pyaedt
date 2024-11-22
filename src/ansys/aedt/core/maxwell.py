@@ -50,7 +50,7 @@ from ansys.aedt.core.modules.setup_templates import SetupKeys
 
 class Maxwell(object):
     def __init__(self):
-        pass
+        self.solution_type = None
 
     @property
     def symmetry_multiplier(self):
@@ -1826,7 +1826,7 @@ class Maxwell(object):
         output_frequency_range_start="0Hz",
         output_frequency_range_stop="1000Hz",
         number_of_output_frequencies=10,
-        calculate_force="Harmonic",
+        calculate_force=0,
         enable_inverter_feedback=False,
         switching_frequency="4000Hz",
         maximum_frequency="8000Hz",
@@ -1878,9 +1878,9 @@ class Maxwell(object):
         output_frequency_range_stop : str, optional
         output_frequency_range_number : int, optional
             Number of frequencies to output.
-        calculate_force : str, optional
-            How to calculate force. The default is ``"Harmonic"``.
-            Options are ``"Harmonic"``, ``"Transient"`` and ``"Harmonic and Transient"``
+        calculate_force : int, optional
+            How to calculate force: ``0`` for ``"Harmonic"``, ``1`` for ``"Transient"``,
+            and ``2`` for``"Harmonic and Transient"``. The default is ``0``.
         enable_inverter_feedback : bool, optional
         switching_frequency: str, optional
         maximum_frequency: str, optional
@@ -1900,12 +1900,9 @@ class Maxwell(object):
         ]:
             self.logger.error("This method is not valid for this solution type.")
             return False
-        assignment = self.modeler.convert_to_selections(assignment, True)
         if self.solution_type == "EddyCurrent":
-            if self.solution_type in ["EddyCurrentXY", "EddyCurrentZ"]:
-                axis = 2
-            else:
-                axis
+            if self.is3d is False and axis != 2:
+                self.logger.warning("For 2D EddyCurrent solver only Z-axis is available.")
             self.odesign.EnableHarmonicForceCalculation(
                 [
                     "EnabledObjects:=",
@@ -1920,6 +1917,19 @@ class Maxwell(object):
             )
             return True
         elif self.solution_type in ["Transient", "TransientXY", "TransientZ"]:
+            if calculate_force == 0:
+                calculate_force = "Harmonic"
+            if calculate_force == 1:
+                calculate_force = "Transient"
+            if calculate_force == 2:
+                calculate_force = "Harmonic and Transient"
+            if self.solution_type == "TransientZ" and force_type == 0 and calculate_force == 1:
+                calculate_force = 0
+                self.logger.warning(
+                    """Object-Based Transient Force calculation is not supported
+                                    for non-rotational transient solutions. Only Harmonic Force will
+                                    be calculated."""
+                )
             self.odesign.EnableHarmonicForceCalculation(
                 [
                     "EnabledObjects:=",
