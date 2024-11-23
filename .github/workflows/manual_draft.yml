@@ -79,7 +79,7 @@ jobs:
           .venv\Scripts\Activate.ps1
           pytest ${{ env.PYTEST_ARGUMENTS }} -m solvers
 
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-system-solvers-tests-windows
@@ -131,7 +131,7 @@ jobs:
           source .venv/bin/activate
           pytest ${{ env.PYTEST_ARGUMENTS }} -m solvers
 
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-system-solvers-tests-linux
@@ -191,7 +191,7 @@ jobs:
             .venv\Scripts\Activate.ps1
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile -m general
 
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-system-general-tests-windows
@@ -255,7 +255,7 @@ jobs:
             source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile -m general
 
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-system-general-tests
