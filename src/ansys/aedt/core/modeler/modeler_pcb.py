@@ -758,7 +758,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         self.cleanup_objects()
         if isinstance(assignment, str):
             assignment = [assignment]
-        self.oeditor.Duplicate(["NAME:options", "count:=", count], ["NAME:elements", ",".join(assignment)], vector)
+        self.oeditor.Duplicate(["NAME:options", "count:=", count], ["NAME:elements"] + assignment, vector)
         return self.cleanup_objects()
 
     @pyaedt_function_handler(objects="assignment")
