@@ -198,9 +198,7 @@ class Objects(dict):
                 self.__obj_names[value.name] = value
                 if self.__obj_type == "o":
                     self.__parent._object_names_to_ids[value.name] = key
-            self.__refreshed = True
-        else:
-            self.__refreshed = False
+        self.__refreshed = False
 
 
 class GeometryModeler(Modeler):
@@ -964,7 +962,7 @@ class GeometryModeler(Modeler):
         all_objects = self.object_names
         all_unclassified = self.unclassified_names
         all_objs = all_objects + all_unclassified
-        if len(all_objs) != len(self._object_names_to_ids):
+        if sorted(all_objs) != sorted(list(self._object_names_to_ids.keys())):
             for old_id, obj in self.objects.items():
                 if obj.name in all_objs:
                     # Check if ID can change in boolean operations
@@ -3158,10 +3156,10 @@ class GeometryModeler(Modeler):
         self.oeditor.SweepAlongVector(vArg1, vArg2)
 
         if isinstance(assignment, list):
-            updated_obj = []
+            res = []
             for sel_obj in assignment:
-                updated_obj.append(self.update_object(sel_obj))
-            return updated_obj
+                res.append(self.update_object(sel_obj))
+            return res
         else:
             return self.update_object(assignment)
 
@@ -3213,7 +3211,13 @@ class GeometryModeler(Modeler):
 
         self.oeditor.SweepAlongPath(vArg1, vArg2)
 
-        return self.update_object(assignment)
+        if isinstance(assignment, list):
+            res = []
+            for sel_obj in assignment:
+                res.append(self.update_object(sel_obj))
+            return res
+        else:
+            return self.update_object(assignment)
 
     @pyaedt_function_handler(objid="assignment", cs_axis="axis")
     def sweep_around_axis(self, assignment, axis, sweep_angle=360, draft_angle=0, number_of_segments=0):
@@ -3263,7 +3267,13 @@ class GeometryModeler(Modeler):
 
         self.oeditor.SweepAroundAxis(vArg1, vArg2)
 
-        return self.update_object(assignment)
+        if isinstance(assignment, list):
+            res = []
+            for sel_obj in assignment:
+                res.append(self.update_object(sel_obj))
+            return res
+        else:
+            return self.update_object(assignment)
 
     @pyaedt_function_handler(object_list="assignment")
     def section(self, assignment, plane, create_new=True, section_cross_object=False):
@@ -4773,7 +4783,6 @@ class GeometryModeler(Modeler):
         separate_disjoints_lumped_object=False,
         import_free_surfaces=False,
         point_coicidence_tolerance=1e-6,
-        heal_stl=True,
         reduce_stl=False,
         reduce_percentage=0,
         reduce_error=0,
@@ -4807,8 +4816,6 @@ class GeometryModeler(Modeler):
             Either to import free surfaces parts. The default is ``False``.
         point_coicidence_tolerance : float, optional
             Tolerance on point. Default is ``1e-6``.
-        heal_stl : bool, optional
-            Whether to heal the stl file on import or not. Default is ``True``.
         reduce_stl : bool, optional
             Whether to reduce the stl file on import or not. Default is ``True``.
         reduce_percentage : int, optional
@@ -4835,6 +4842,7 @@ class GeometryModeler(Modeler):
                 "Assigning `0` or `1` to `healing` option is deprecated. Assign `True` or `False` instead.",
                 DeprecationWarning,
             )
+
         vArg1 = ["NAME:NativeBodyParameters"]
         vArg1.append("HealOption:="), vArg1.append(int(healing))
         vArg1.append("Options:="), vArg1.append("-1")
@@ -4848,7 +4856,7 @@ class GeometryModeler(Modeler):
             merge_angle if input_file.endswith(".stl") and merge_planar_faces else -1
         )
         if input_file.endswith(".stl"):
-            vArg1.append("HealSTL:="), vArg1.append(heal_stl)
+            vArg1.append("HealSTL:="), vArg1.append(True if int(healing) != 0 else False)
             vArg1.append("ReduceSTL:="), vArg1.append(reduce_stl)
             vArg1.append("ReduceMaxError:="), vArg1.append(reduce_error)
             vArg1.append("ReducePercentage:="), vArg1.append(reduce_percentage)

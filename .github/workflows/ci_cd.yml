@@ -57,6 +57,7 @@ jobs:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           sphinxopts: '-j auto --color -w build_errors.txt'
           check-links: false
+          needs-quarto: true
 
   smoke-tests:
     name: Build wheelhouse and smoke tests

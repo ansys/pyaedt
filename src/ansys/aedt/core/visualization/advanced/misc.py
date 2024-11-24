@@ -557,25 +557,18 @@ def _write_stl(nas_to_dict, decimation, working_directory, enable_planar_merge=T
     def _write_solid_stl(triangle, pp):
         try:
             # points = [nas_to_dict["Points"][id] for id in triangle]
-            points = [pp[i] for i in triangle]
+            points = [pp[i] for i in triangle[::-1]]
         except KeyError:  # pragma: no cover
             return
-        fc = GeometryOperators.get_polygon_centroid(points)
-        v1 = points[0]
-        v2 = points[1]
-        cv1 = GeometryOperators.v_points(fc, v1)
-        cv2 = GeometryOperators.v_points(fc, v2)
-        if cv2[0] == cv1[0] == 0.0 and cv2[1] == cv1[1] == 0.0:
-            n = [0, 0, 1]  # pragma: no cover
-        elif cv2[0] == cv1[0] == 0.0 and cv2[2] == cv1[2] == 0.0:
-            n = [0, 1, 0]  # pragma: no cover
-        elif cv2[1] == cv1[1] == 0.0 and cv2[2] == cv1[2] == 0.0:
-            n = [1, 0, 0]  # pragma: no cover
-        else:
+        fc = points[0]
+        v1 = points[1]
+        v2 = points[2]
+        cv1 = GeometryOperators.v_points(fc, v2)
+        cv2 = GeometryOperators.v_points(fc, v1)
+        try:
             n = GeometryOperators.v_cross(cv1, cv2)
 
-        normal = GeometryOperators.normalize_vector(n)
-        if normal:
+            normal = GeometryOperators.normalize_vector(n)
             f.write(f" facet normal {normal[0]} {normal[1]} {normal[2]}\n")
             f.write("  outer loop\n")
             f.write(f"   vertex {points[0][0]} {points[0][1]} {points[0][2]}\n")
@@ -583,6 +576,8 @@ def _write_stl(nas_to_dict, decimation, working_directory, enable_planar_merge=T
             f.write(f"   vertex {points[2][0]} {points[2][1]} {points[2][2]}\n")
             f.write("  endloop\n")
             f.write(" endfacet\n")
+        except Exception:  # pragma: no cover
+            logger.debug("Failed to normalize vector.")
 
     logger.info("Creating STL file with detected faces")
     enable_stl_merge = False if enable_planar_merge == "False" or enable_planar_merge is False else True

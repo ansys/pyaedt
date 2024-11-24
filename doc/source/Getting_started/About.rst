@@ -18,7 +18,7 @@ About AEDT
 `AEDT <https://www.ansys.com/products/electronics>`_ is a platform that enables true
 electronics system design. AEDT provides access to the Ansys gold-standard
 electro-magnetics simulation solutions, such as Ansys HFSS, Ansys Maxwell,
-Ansys Q3D Extractor, Ansys Siwave, and Ansys Icepak using electrical CAD (ECAD) and
+Ansys Q3D Extractor, Ansys SIwave, and Ansys Icepak using electrical CAD (ECAD) and
 Mechanical CAD (MCAD) workflows.
 
 In addition, AEDT includes direct links to the complete Ansys portfolio of thermal, fluid,
