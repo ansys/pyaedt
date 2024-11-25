@@ -3041,7 +3041,15 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Examples
         --------
-
+        >>> import ansys.aedt.core
+        >>> from ansys.aedt.core.generic.constants import SOLUTIONS
+        >>> m3d = ansys.aedt.core.Maxwell3d(solution_type="Transient")
+        >>> my_box = m3d.modeler.create_box(origin=[0, 0, 0], sizes=[0.4, -1, 0.8], material="copper")
+        >>> resistive_face = my_box.faces[0]
+        >>> bound = self.aedtapp.assign_resistive_sheet(assignment=resistive_face, resistance="3ohm")
+        >>> self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.Magnetostatic
+        >>> bound = self.aedtapp.assign_resistive_sheet(assignment=resistive_face, non_linear=True)
+        >>> m3d.release_desktop()
         """
         if self.solution_type not in ["EddyCurrent", "Transient", "Magnetostatic"]:
             self.logger.error(
