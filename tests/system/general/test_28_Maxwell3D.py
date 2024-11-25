@@ -1130,6 +1130,7 @@ class TestClass:
 
     def test_60_resistive_sheet(self):
         self.aedtapp.insert_design("ResistiveSheet")
+        self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
         my_box = self.aedtapp.modeler.create_box(
             origin=[0, 0, 0], sizes=[0.4, -1, 0.8], name="my_box", material="copper"
         )
