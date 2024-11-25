@@ -2965,35 +2965,70 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     def assign_resistive_sheet(
         self,
         assignment,
-        resistance,
+        resistance="1ohm",
         name=None,
         non_linear=False,
-        anode_a=300000000,
-        anode_b=5,
-        anode_c=110000000000000,
-        anode_d=2,
-        cathode_a=300000000,
-        cathode_b=10,
-        cathode_c=110000000000000,
-        cathode_d=2,
+        anode_a="300000000",
+        anode_b="5",
+        anode_c="110000000000000",
+        anode_d="2",
+        cathode_a="300000000",
+        cathode_b="10",
+        cathode_c="110000000000000",
+        cathode_d="2",
     ):
         """Assign a resistive sheet boundary between two conductors.
 
         Available for Maxwell 3D Magnetostatic, Eddy Current and Transient designs.
         For 3D Magnetostatic designs, the user can specify the nonlinear anode and cathode coefficients.
+        To understand the nonlinear relationship used by AEDT between the conductivity and current density,
+        please refer to Maxwell Help guide.
 
         Parameters
         ----------
         assignment : list of int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             List of objects to assign an end connection to.
-        resistance : str
+        resistance : str, optional
             Resistance value with unit.
             For 3D Magnetostatic designs if non_linear is ``True``, it is not available.
+            The default is ``1ohm``.
         name : str, optional
             Name of the boundary. The default is ``None``, in which case the default name is used.
         non_linear: bool, optional
             Whether the boundary is non-linear. The default is ``False``.
             Valid for 3D Magnetostatic designs only.
+        anode_a : str, optional
+            Anode a value that corresponds to the a coefficient in the non-linear relationship
+            between conductivity and current density.
+            The default value is ``"300000000"``.
+        anode_b : str, optional
+            Anode b value that corresponds to the b coefficient in the non-linear relationship
+            between conductivity and current density.
+            The default value is ``"10"``.
+        anode_c : str, optional
+            Anode c value that corresponds to the c coefficient in the non-linear relationship
+            between conductivity and current density.
+            The default value is ``"110000000000000"``.
+        anode_d : str, optional
+            Anode d value that corresponds to the d coefficient in the non-linear relationship
+            between conductivity and current density.
+            The default value is ``"2"``.
+        cathode_a : str, optional
+            Cathode a value that corresponds to the a coefficient in the non-linear relationship
+            between conductivity and current density.
+            The default value is ``"300000000"``.
+        cathode_b : str, optional
+            Cathode b value that corresponds to the b coefficient in the non-linear relationship
+            between conductivity and current density.
+            The default value is ``"10"``.
+        cathode_c : str, optional
+            Cathode c value that corresponds to the c coefficient in the non-linear relationship
+            between conductivity and current density.
+            The default value is ``"110000000000000"``.
+        cathode_d : str, optional
+            Cathode d value that corresponds to the d coefficient in the non-linear relationship
+            between conductivity and current density.
+            The default value is ``"2"``.
 
         Returns
         -------

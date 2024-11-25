@@ -1127,3 +1127,20 @@ class TestClass:
         self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.Magnetostatic
         floating = self.aedtapp.assign_floating(assignment=box, charge_value=3)
         assert not floating
+
+    def test_60_resistive_sheet(self):
+        self.aedtapp.insert_design("ResistiveSheet")
+        my_box = self.aedtapp.modeler.create_box(
+            origin=[0, 0, 0], sizes=[0.4, -1, 0.8], name="my_box", material="copper"
+        )
+        resistive_face = my_box.faces[0]
+        bound = self.aedtapp.assign_resistive_sheet(assignment=resistive_face, resistance="3ohm")
+        assert bound
+        assert bound.props["Faces"][0] == resistive_face.id
+        assert bound.props["Resistance"] == "3ohm"
+        self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.Magnetostatic
+        bound = self.aedtapp.assign_resistive_sheet(assignment=resistive_face, non_linear=True)
+        assert bound.props["Nonlinear"]
+        assert bound.props["Faces"][0] == resistive_face.id
+        self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.ACConduction
+        assert not self.aedtapp.assign_resistive_sheet(assignment=resistive_face, resistance="3ohm")
