@@ -1623,6 +1623,54 @@ class MonostaticRCSPlotter(object):
         self.all_scene_actors["results"]["waterfall"][waterfall_name] = rcs_mesh
 
     @pyaedt_function_handler()
+    def add_isar_2d(
+        self,
+        color_bar="jet",
+    ):
+        """Add the ISAR 2D."""
+        data_isar_2d = self.rcs_data.waterfall
+
+        ranges = np.unique(data_waterfall["Range"])
+        phis = np.unique(data_waterfall["IWavePhi"])
+        values = data_waterfall["Data"].to_numpy()
+
+        phis = np.deg2rad(phis)
+
+        ra, ph = np.meshgrid(ranges, phis)
+
+        x = -ra.T * np.cos(ph.T)
+        y = -ra.T * np.sin(ph.T)
+        z = np.zeros_like(x)
+
+        actor = pv.StructuredGrid(x, y, z)
+        actor.point_data["values"] = values
+
+        all_results_actors = list(self.all_scene_actors["results"].keys())
+
+        if "waterfall" not in all_results_actors:
+            self.all_scene_actors["results"]["waterfall"] = {}
+
+        index = 0
+        while f"waterfall_{index}" in self.all_scene_actors["results"]["waterfall"]:
+            index += 1
+
+        waterfall_name = f"waterfall_{index}"
+
+        waterfall_object = SceneMeshObject()
+        waterfall_object.name = waterfall_name
+
+        scalar_dict = dict(color="#000000", title="Waterfall")
+        waterfall_object.scalar_dict = scalar_dict
+
+        waterfall_object.cmap = color_bar
+
+        waterfall_object.mesh = actor
+
+        rcs_mesh = MeshObjectPlot(waterfall_object, waterfall_object.get_mesh())
+
+        self.all_scene_actors["results"]["waterfall"][waterfall_name] = rcs_mesh
+
+    @pyaedt_function_handler()
     def clear_scene(self, first_level=None, second_level=None, name=None):
         if not first_level:
             self.all_scene_actors["annotations"] = {}
