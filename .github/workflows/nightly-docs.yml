@@ -24,6 +24,8 @@ jobs:
         uses: ansys/actions/doc-build@v8
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          needs-quarto: true
+          use-python-cache: false
 
   upload-dev-doc:
     name: Upload dev documentation
