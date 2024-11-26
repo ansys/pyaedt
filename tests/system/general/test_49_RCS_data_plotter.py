@@ -259,3 +259,12 @@ class TestClass:
         plot = rcs_plotter.plot_scene(show=False)
         assert isinstance(plot, Plotter)
         assert rcs_plotter.clear_scene()
+
+    def test_13_rcs_plotter_add_isar_2d(self):
+        rcs_data = MonostaticRCSData(input_file=self.metadata_file)
+        rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_data)
+
+        rcs_plotter.add_isar_2d()
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
