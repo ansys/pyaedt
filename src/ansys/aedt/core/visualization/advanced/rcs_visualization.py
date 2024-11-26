@@ -904,7 +904,9 @@ class MonostaticRCSPlotter(object):
         return new
 
     @pyaedt_function_handler()
-    def plot_waterfall(self, title="Waterfall", output_file=None, show=True, is_polar=False, size=(1920, 1440)):
+    def plot_waterfall(
+        self, title="Waterfall", output_file=None, show=True, is_polar=False, size=(1920, 1440), figure=None
+    ):
         """Create a 2D contour plot of the waterfall.
 
         Parameters
@@ -964,12 +966,7 @@ class MonostaticRCSPlotter(object):
         }
 
         new.add_trace(plot_data, 2, props)
-        _ = new.plot_contour(
-            trace=0,
-            polar=is_polar,
-            snapshot_path=output_file,
-            show=show,
-        )
+        _ = new.plot_contour(trace=0, polar=is_polar, snapshot_path=output_file, show=show, figure=figure)
         return new
 
     @pyaedt_function_handler()
