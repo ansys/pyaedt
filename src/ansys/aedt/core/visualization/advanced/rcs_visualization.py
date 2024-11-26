@@ -1628,47 +1628,47 @@ class MonostaticRCSPlotter(object):
         color_bar="jet",
     ):
         """Add the ISAR 2D."""
-        data_isar_2d = self.rcs_data.waterfall
+        data_isar_2d = self.rcs_data.isar_2d
 
-        ranges = np.unique(data_waterfall["Range"])
-        phis = np.unique(data_waterfall["IWavePhi"])
-        values = data_waterfall["Data"].to_numpy()
+        down_range = data_isar_2d["Down-range"].unique()
+        cross_range = data_isar_2d["Cross-range"].unique()
 
-        phis = np.deg2rad(phis)
+        values_2d = data_isar_2d.pivot(index="Cross-range", columns="Down-range", values="Data").to_numpy()
 
-        ra, ph = np.meshgrid(ranges, phis)
-
-        x = -ra.T * np.cos(ph.T)
-        y = -ra.T * np.sin(ph.T)
+        x, y = np.meshgrid(down_range, cross_range)
         z = np.zeros_like(x)
 
-        actor = pv.StructuredGrid(x, y, z)
-        actor.point_data["values"] = values
+        actor = pv.StructuredGrid()
+        actor.points = np.c_[x.ravel(), y.ravel(), z.ravel()]
+
+        actor.dimensions = (len(down_range), len(cross_range), 1)
+
+        actor["values"] = values_2d.ravel()
 
         all_results_actors = list(self.all_scene_actors["results"].keys())
 
-        if "waterfall" not in all_results_actors:
-            self.all_scene_actors["results"]["waterfall"] = {}
+        if "isar_2d" not in all_results_actors:
+            self.all_scene_actors["results"]["isar_2d"] = {}
 
         index = 0
-        while f"waterfall_{index}" in self.all_scene_actors["results"]["waterfall"]:
+        while f"isar_2d_{index}" in self.all_scene_actors["results"]["isar_2d"]:
             index += 1
 
-        waterfall_name = f"waterfall_{index}"
+        isar_name = f"isar_2d_{index}"
 
-        waterfall_object = SceneMeshObject()
-        waterfall_object.name = waterfall_name
+        isar_object = SceneMeshObject()
+        isar_object.name = isar_name
 
-        scalar_dict = dict(color="#000000", title="Waterfall")
-        waterfall_object.scalar_dict = scalar_dict
+        scalar_dict = dict(color="#000000", title="ISAR 2D")
+        isar_object.scalar_dict = scalar_dict
 
-        waterfall_object.cmap = color_bar
+        isar_object.cmap = color_bar
 
-        waterfall_object.mesh = actor
+        isar_object.mesh = actor
 
-        rcs_mesh = MeshObjectPlot(waterfall_object, waterfall_object.get_mesh())
+        rcs_mesh = MeshObjectPlot(isar_object, isar_object.get_mesh())
 
-        self.all_scene_actors["results"]["waterfall"][waterfall_name] = rcs_mesh
+        self.all_scene_actors["results"]["isar_2d"][isar_name] = rcs_mesh
 
     @pyaedt_function_handler()
     def clear_scene(self, first_level=None, second_level=None, name=None):
