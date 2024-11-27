@@ -2292,13 +2292,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
                 self.oboundary.EditExcitations(
                     [
                         "NAME:Excitations",
-                        [source, f"pwl({ds_name_mag}, Freq)", f"pwl({ds_name_phase}, Freq)"],
+                        [source, f"pwl({ds_name_phase}, Freq)", f"pwl({ds_name_mag}, Freq)"],
                     ],
                     ["NAME:Terminations", [source, False, str(impedance) + "ohm", "0ohm"]],
                     ",".join(str_val),
                     [],
                 )
-
                 self.logger.info("Source Excitation updated with Dataset.")
                 return True
         self.logger.error("Port not found.")
