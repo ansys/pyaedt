@@ -66,6 +66,7 @@ class RMXprtModule(object):
             if name in dict_in.props:
                 if (
                     isinstance(dict_in.props[name], list)
+                    and isinstance(dict_in.props[name][0], str)
                     and ":=" in dict_in.props[name][0]
                     and not isinstance(value, list)
                 ):
