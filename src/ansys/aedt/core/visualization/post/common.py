@@ -185,7 +185,7 @@ class PostProcessorCommon(object):
             can be provided as a dictionary, where the key is the matrix name and the value
             the reduced matrix.
         is_siwave_dc : bool, optional
-            Whether the setup is Siwave DCIR. The default is ``False``.
+            Whether the setup is SIwave DCIR. The default is ``False``.
 
         Returns
         -------
@@ -218,7 +218,10 @@ class PostProcessorCommon(object):
                 "SimValueContext:=",
                 [37010, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "DCIRID", False, id_, "IDIID", False, "1"],
             ]
-        elif self._app.design_type in ["Maxwell 2D", "Maxwell 3D"] and self._app.solution_type == "EddyCurrent":
+        elif self._app.design_type in ["Maxwell 2D", "Maxwell 3D"] and self._app.solution_type in [
+            "EddyCurrent",
+            "Electrostatic",
+        ]:
             if isinstance(context, dict):
                 for k, v in context.items():
                     context = ["Context:=", k, "Matrix:=", v]
@@ -267,7 +270,7 @@ class PostProcessorCommon(object):
             For Maxwell 2D/3D Eddy Current solution types this can be provided as a dictionary
             where the key is the matrix name and value the reduced matrix.
         is_siwave_dc : bool, optional
-            Whether if the setup is Siwave DCIR or not. Default is ``False``.
+            Whether if the setup is SIwave DCIR or not. Default is ``False``.
         differential_pairs : bool, optional
             Whether if return differential pairs traces or not. Default is ``False``.
 
@@ -400,7 +403,10 @@ class PostProcessorCommon(object):
                 ]
             else:
                 context = ["Diff:=", "differential_pairs", "Domain:=", "Sweep"]
-        elif self._app.design_type in ["Maxwell 2D", "Maxwell 3D"] and self._app.solution_type == "EddyCurrent":
+        elif self._app.design_type in ["Maxwell 2D", "Maxwell 3D"] and self._app.solution_type in [
+            "EddyCurrent",
+            "Electrostatic",
+        ]:
             if isinstance(context, dict):
                 for k, v in context.items():
                     context = ["Context:=", k, "Matrix:=", v]
@@ -445,7 +451,7 @@ class PostProcessorCommon(object):
             For Maxwell 2D/3D Eddy Current solution types this can be provided as a dictionary
             where the key is the matrix name and value the reduced matrix.
         is_siwave_dc : bool, optional
-            Whether if the setup is Siwave DCIR or not. Default is ``False``.
+            Whether if the setup is SIwave DCIR or not. Default is ``False``.
 
         Returns
         -------
@@ -1289,8 +1295,8 @@ class PostProcessorCommon(object):
             report.matrix = context
         elif (
             self._app.design_type in ["Maxwell 2D", "Maxwell 3D"]
-            and self._app.solution_type == "EddyCurrent"
             and context
+            and self._app.solution_type in ["EddyCurrent", "Electrostatic"]
         ):
             if isinstance(context, dict):
                 for k, v in context.items():
@@ -1514,8 +1520,8 @@ class PostProcessorCommon(object):
             report.matrix = context
         elif (
             self._app.design_type in ["Maxwell 2D", "Maxwell 3D"]
-            and self._app.solution_type == "EddyCurrent"
             and context
+            and self._app.solution_type in ["EddyCurrent", "Electrostatic"]
         ):
             if isinstance(context, dict):
                 for k, v in context.items():

@@ -373,7 +373,6 @@ class TestClass:
     def test_19_dcir(self):
         import pandas as pd
 
-        self.dcir_example_project.analyze()
         setup = self.dcir_example_project.get_setup("SIwaveDCIR1")
         assert setup.is_solved
         assert self.dcir_example_project.get_dcir_solution_data("SIwaveDCIR1", "RL", "Path Resistance")
@@ -386,6 +385,10 @@ class TestClass:
             context="RL",
         )
         assert isinstance(self.dcir_example_project.get_dcir_element_data_current_source("SIwaveDCIR1"), pd.DataFrame)
+        p_layers = self.dcir_example_project.post.compute_power_by_layer()
+        p_nets = self.dcir_example_project.post.compute_power_by_nets(nets=["5V", "GND"])
+        assert p_nets
+        assert p_layers
 
     def test_20_change_options(self):
         assert self.aedtapp.change_options()
@@ -447,3 +450,19 @@ class TestClass:
         component: Components3DLayout = self.aedtapp.modeler.components["C1"]
         component.port_properties = ("10um", False, "0um", "0um")
         assert component.port_properties is None
+
+    def test_26_import_table(self):
+        self.aedtapp.insert_design("import_table")
+        file_header = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "table_header.csv")
+        file_invented = "invented.csv"
+
+        assert not self.aedtapp.import_table(file_header, column_separator="dummy")
+        assert not self.aedtapp.import_table(file_invented)
+
+        table = self.aedtapp.import_table(file_header)
+        assert table in self.aedtapp.existing_analysis_sweeps
+
+        assert not self.aedtapp.delete_imported_data("invented")
+
+        assert self.aedtapp.delete_imported_data(table)
+        assert table not in self.aedtapp.existing_analysis_sweeps
