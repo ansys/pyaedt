@@ -1035,13 +1035,10 @@ class IcepakMesh(object):
         self._app = app
 
         self._odesign = self._app._odesign
-        self.modeler = self._app.modeler
         design_type = self._odesign.GetDesignType()
         if design_type not in meshers:
             raise RuntimeError(f"Invalid design type {design_type}")  # pragma: no cover
         self.id = 0
-        self._oeditor = self.modeler.oeditor
-        self._model_units = self.modeler.model_units
         self.meshoperations = self._get_design_mesh_operations()
         self.meshregions = self._get_design_mesh_regions()
         try:
@@ -1049,6 +1046,18 @@ class IcepakMesh(object):
         except IndexError:
             self.global_mesh_region = GlobalMeshRegion(app)
         self._priorities_args = []
+
+    @property
+    def _modeler(self):
+        return self._app.modeler
+
+    @property
+    def _oeditor(self):
+        return self._app.oeditor
+
+    @property
+    def _model_units(self):
+        return self._modeler.model_units
 
     @property
     def meshregions_dict(self):
@@ -1083,7 +1092,7 @@ class IcepakMesh(object):
     @property
     def boundingdimension(self):
         """Bounding dimension."""
-        return self.modeler.get_bounding_dimension()
+        return self._modeler.get_bounding_dimension()
 
     @pyaedt_function_handler()
     def _get_design_mesh_operations(self):
@@ -1361,12 +1370,12 @@ class IcepakMesh(object):
             raise AttributeError("``assignment`` input must be a list of lists.")
         props = {"PriorityListParameters": []}
         self._app.logger.info("Parsing input objects information for priority assignment. This operation can take time")
-        udc = self.modeler.user_defined_components
+        udc = self._modeler.user_defined_components
         udc._parse_objs()
         for level, objects in enumerate(assignment):
             level += 1
             if isinstance(objects[0], str):
-                objects = [self.modeler.objects_by_name.get(o, udc.get(o, None)) for o in objects]
+                objects = [self._modeler.objects_by_name.get(o, udc.get(o, None)) for o in objects]
             obj_3d = [
                 o
                 for o in objects
@@ -1409,7 +1418,7 @@ class IcepakMesh(object):
         self._app.logger.info("Input objects information for priority assignment completed.")
         args = []
         _dict2arg(props, args)
-        self.modeler.oeditor.UpdatePriorityList(args[0])
+        self._modeler.oeditor.UpdatePriorityList(args[0])
         return True
 
     @pyaedt_function_handler(obj_list="assignment", comp_name="component")
@@ -1477,7 +1486,7 @@ class IcepakMesh(object):
             self._priorities_args.append(prio)
             args += self._priorities_args
         elif entity_type == 2:
-            o = self.modeler.user_defined_components[component]
+            o = self._modeler.user_defined_components[component]
             if (all(part.is3d for part in o.parts.values()) is False) and (
                 any(part.is3d for part in o.parts.values()) is True
             ):
@@ -1533,8 +1542,8 @@ class IcepakMesh(object):
                 self._priorities_args.append(prio_2d)
 
             args += self._priorities_args
-        self.modeler.oeditor.UpdatePriorityList(["NAME:UpdatePriorityListData"])
-        self.modeler.oeditor.UpdatePriorityList(args)
+        self._modeler.oeditor.UpdatePriorityList(["NAME:UpdatePriorityListData"])
+        self._modeler.oeditor.UpdatePriorityList(args)
         return True
 
     @pyaedt_function_handler(objectlist="assignment")
@@ -1564,15 +1573,15 @@ class IcepakMesh(object):
         if not name:
             name = generate_unique_name("MeshRegion")
         if assignment is None:
-            assignment = [i for i in self.modeler.object_names]
+            assignment = [i for i in self._modeler.object_names]
         meshregion = MeshRegion(self._app, assignment, name)
         meshregion.manual_settings = False
         meshregion.settings["MeshRegionResolution"] = level
-        all_objs = [i for i in self.modeler.object_names]
+        all_objs = [i for i in self._modeler.object_names]
         created = bool(meshregion)
         if created:
             if settings.aedt_version < "2024.1":
-                objectlist2 = self.modeler.object_names
+                objectlist2 = self._modeler.object_names
                 added_obj = [i for i in objectlist2 if i not in all_objs]
                 if not added_obj:
                     added_obj = [i for i in objectlist2 if i not in all_objs or i in assignment]

@@ -120,10 +120,78 @@ class MeshOperation(object):
     def __init__(self, mesh, name, props, meshoptype):
         self._mesh = mesh
         self._app = self._mesh._app
-        self.props = MeshProps(self, props)
-        self.type = meshoptype
+        self._props = None
+        if props is not None:
+            self._props = MeshProps(self, props)
+        self._type = meshoptype
         self._name = name
         self.auto_update = True
+
+    @property
+    def type(self):
+        if not self._type:
+            self._type = self.props.get("Type", None)
+        return self._type
+
+    @property
+    def props(self):
+        if not self._props:
+            props = {}
+            design_mesh = self._app.odesign.GetChildObject("Mesh")
+            child_object = design_mesh.GetChildObject(self._name)
+            for i in child_object.GetPropNames():
+                props[i] = child_object.GetPropValue(i)
+            try:
+                assignment = self.object_properties.props["Assignment"]
+                if "Face_" in assignment:
+                    props["Faces"] = [
+                        int(i.replace("Face_", "")) for i in assignment.split("(")[1].split(")")[0].split(",")
+                    ]
+                elif "Edge_" in assignment:
+                    props["Edges"] = [
+                        int(i.replace("Edge_", "")) for i in assignment.split("(")[1].split(")")[0].split(",")
+                    ]
+                else:
+                    props["Objects"] = assignment
+            except KeyError:
+                props["Objects"] = []
+                props["Faces"] = []
+                props["Edges"] = []
+                assigned_id = self.omeshmodule.GetMeshOpAssignment(ds)
+                for comp_id in assigned_id:
+                    if int(comp_id) in self._app.modeler.objects.keys():
+                        props["Objects"].append(self._app.oeditor.GetObjectNameByID(comp_id))
+                        continue
+                    for comp in self._app.modeler.object_list:
+                        faces = comp.faces
+                        face_ids = [face.id for face in faces]
+                        if int(comp_id) in face_ids:
+                            props["Faces"].append(int(comp_id))
+                            continue
+                        edges = comp.edges
+                        edge_ids = [edge.id for edge in edges]
+                        if int(comp_id) in edge_ids:
+                            props["Edges"].append(int(comp_id))
+                            continue
+            self._props = MeshProps(self, props)
+        return self._props
+
+    @property
+    def object_properties(self):
+        """Object-oriented properties.
+
+        Returns
+        -------
+        class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTreeNode`
+
+        """
+        from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
+
+        child_object = self._app.get_oo_object(self._app.odesign, f"Mesh/{self._name}")
+
+        if child_object:
+            return BinaryTreeNode(self.name, child_object, False)
+        return False
 
     @pyaedt_function_handler()
     def _get_args(self):
@@ -355,12 +423,15 @@ class Mesh(object):
         app.logger.reset_timer()
         self._app = app
         self._odesign = self._app.odesign
-        self.modeler = self._app.modeler
         self.logger = self._app.logger
         self.id = 0
         self._meshoperations = None
         self._globalmesh = None
         app.logger.info_timer("Mesh class has been initialized!")
+
+    @property
+    def _modeler(self):
+        return self._app.modeler
 
     @pyaedt_function_handler()
     def __getitem__(self, part_id):
@@ -516,47 +587,8 @@ class Mesh(object):
     def _get_design_mesh_operations(self):
         """ """
         meshops = []
-        try:
-            for ds in self.meshoperation_names:
-                props = {}
-                design_mesh = self._app.odesign.GetChildObject("Mesh")
-                for i in design_mesh.GetChildObject(ds).GetPropNames():
-                    props[i] = design_mesh.GetChildObject(ds).GetPropValue(i)
-                if self._app._desktop.GetVersion()[0:6] < "2023.1":
-                    if self._app.design_properties:
-                        props_parsed = self._app.design_properties["MeshSetup"]["MeshOperations"][ds]
-                        if "Edges" in props_parsed.keys():
-                            props["Edges"] = props_parsed["Edges"]
-                        if "Faces" in props_parsed.keys():
-                            props["Faces"] = props_parsed["Faces"]
-                        if "Objects" in props_parsed.keys():
-                            props["Objects"] = []
-                            for comp in props_parsed["Objects"]:
-                                props["Objects"].append(comp)
-                else:
-                    props["Objects"] = []
-                    props["Faces"] = []
-                    props["Edges"] = []
-                    assigned_id = self.omeshmodule.GetMeshOpAssignment(ds)
-                    for comp_id in assigned_id:
-                        if int(comp_id) in self._app.modeler.objects.keys():
-                            props["Objects"].append(self._app.modeler.oeditor.GetObjectNameByID(comp_id))
-                            continue
-                        for comp in self._app.modeler.object_list:
-                            faces = comp.faces
-                            face_ids = [face.id for face in faces]
-                            if int(comp_id) in face_ids:
-                                props["Faces"].append(int(comp_id))
-                                continue
-                            edges = comp.edges
-                            edge_ids = [edge.id for edge in edges]
-                            if int(comp_id) in edge_ids:
-                                props["Edges"].append(int(comp_id))
-                                continue
-
-                meshops.append(MeshOperation(self, ds, props, props["Type"]))
-        except Exception:
-            self.logger.debug("An error occurred while accessing design mesh operations.")  # pragma: no cover
+        for ds in self.meshoperation_names:
+            meshops.append(MeshOperation(self, ds, {}, ""))
         return meshops
 
     @pyaedt_function_handler(names="assignment", meshop_name="name")
@@ -591,7 +623,7 @@ class Mesh(object):
         >>> o = hfss.modeler.create_cylinder(0,[0, 0, 0],3,20,0)
         >>> surface = hfss.mesh.assign_surface_mesh(o.id,3,"Surface")
         """
-        assignment = self.modeler.convert_to_selections(assignment, True)
+        assignment = self._modeler.convert_to_selections(assignment, True)
         if name:
             for m in self.meshoperations:
                 if name == m.name:
@@ -656,7 +688,7 @@ class Mesh(object):
         >>> o = hfss.modeler.create_cylinder(0,[0, 0, 0],3,20,0)
         >>> surface = hfss.mesh.assign_surface_mesh_manual(o.id,1e-6,aspect_ratio=3,name="Surface_Manual")
         """
-        assignment = self.modeler.convert_to_selections(assignment, True)
+        assignment = self._modeler.convert_to_selections(assignment, True)
         if name:
             for m in self.meshoperations:
                 if name == m.name:
@@ -733,7 +765,7 @@ class Mesh(object):
         >>> o = hfss.modeler.create_cylinder(0,[0, 0, 0],3,20,0)
         >>> surface = hfss.mesh.assign_model_resolution(o,1e-4,"ModelRes1")
         """
-        assignment = self.modeler.convert_to_selections(assignment, True)
+        assignment = self._modeler.convert_to_selections(assignment, True)
         if name:
             for m in self.meshoperations:
                 if name == m.name:
@@ -986,7 +1018,7 @@ class Mesh(object):
 
         >>> oModule.AssignLengthOp
         """
-        assignment = self.modeler.convert_to_selections(assignment, True)
+        assignment = self._modeler.convert_to_selections(assignment, True)
         if name:
             for m in self.meshoperations:
                 if name == m.name:
@@ -998,7 +1030,7 @@ class Mesh(object):
             restrictlength = False
         else:
             restrictlength = True
-        length = self.modeler.modeler_variable(maximum_length)
+        length = self._modeler.modeler_variable(maximum_length)
 
         if maximum_elements is None:
             restrictel = False
@@ -1087,7 +1119,7 @@ class Mesh(object):
 
         >>> oModule.AssignSkinDepthOp
         """
-        assignment = self.modeler.convert_to_selections(assignment, True)
+        assignment = self._modeler.convert_to_selections(assignment, True)
 
         if self._app.design_type not in ["HFSS", "Maxwell 3D", "Maxwell 2D"]:
             raise MethodNotSupportedError
@@ -1159,7 +1191,7 @@ class Mesh(object):
 
         >>> oModule.AssignApplyCurvlinearElementsOp
         """
-        assignment = self.modeler.convert_to_selections(assignment, True)
+        assignment = self._modeler.convert_to_selections(assignment, True)
 
         if self._app.design_type != "HFSS" and self._app.design_type != "Maxwell 3D":
             raise MethodNotSupportedError
@@ -1212,7 +1244,7 @@ class Mesh(object):
 
         >>> oModule.AssignCurvatureExtractionOp
         """
-        assignment = self.modeler.convert_to_selections(assignment, True)
+        assignment = self._modeler.convert_to_selections(assignment, True)
 
         if self._app.solution_type != "SBR+":
             raise MethodNotSupportedError
@@ -1266,7 +1298,7 @@ class Mesh(object):
 
         >>> oModule.AssignRotationalLayerOp
         """
-        assignment = self.modeler.convert_to_selections(assignment, True)
+        assignment = self._modeler.convert_to_selections(assignment, True)
 
         if self._app.design_type != "Maxwell 3D":
             raise MethodNotSupportedError
@@ -1315,7 +1347,7 @@ class Mesh(object):
 
         >>> oModule.AssignRotationalLayerOp
         """
-        assignment = self.modeler.convert_to_selections(assignment, True)
+        assignment = self._modeler.convert_to_selections(assignment, True)
 
         if self._app.design_type != "Maxwell 3D":
             raise MethodNotSupportedError
@@ -1367,7 +1399,7 @@ class Mesh(object):
 
         >>> oModule.AssignDensityControlOp
         """
-        assignment = self.modeler.convert_to_selections(assignment, True)
+        assignment = self._modeler.convert_to_selections(assignment, True)
 
         if self._app.design_type != "Maxwell 3D":
             raise MethodNotSupportedError
@@ -1464,7 +1496,7 @@ class Mesh(object):
             if self._app.design_type != "Maxwell 2D" and self._app.design_type != "Maxwell 3D":
                 raise MethodNotSupportedError
 
-            entity = self.modeler.convert_to_selections(entity, True)
+            entity = self._modeler.convert_to_selections(entity, True)
             if len(entity) > 1:
                 self.logger.error("Cylindrical gap treatment cannot be assigned to multiple objects.")
                 raise ValueError

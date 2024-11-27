@@ -72,6 +72,23 @@ class CommonSetup(PropsManager, object):
         self.auto_update = True
 
     @property
+    def object_properties(self):
+        """Object-oriented properties.
+
+        Returns
+        -------
+        class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTreeNode`
+
+        """
+        from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
+
+        child_object = self._app.get_oo_object(self._app.odesign, f"Analysis/{self.name}")
+
+        if child_object:
+            return BinaryTreeNode(self.name, child_object, False)
+        return False
+
+    @property
     def default_intrinsics(self):
         """Retrieve default intrinsic for actual setup.
 
