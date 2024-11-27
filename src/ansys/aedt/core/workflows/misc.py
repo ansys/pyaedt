@@ -125,7 +125,7 @@ class ExtensionTheme:  # pragma: no cover
         }
 
         # Set default font
-        self.default_font = ("Helvetica", 10)
+        self.default_font = ("Arial", 12)
 
     def apply_light_theme(self, style):
         self._apply_theme(style, self.light)
