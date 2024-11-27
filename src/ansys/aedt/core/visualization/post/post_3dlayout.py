@@ -21,7 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
+from ansys.aedt.core import settings
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
 
@@ -47,7 +47,18 @@ class PostProcessor3DLayout(PostProcessor3D):
         if layers is None:
             layers = list(self._app.modeler.edb.stackup.signal_layers.keys())
         if nets is None:
-            nets = list(self._app.modeler.edb.nets.nets.keys())
+            nets = []
+            for k in self._app.modeler.edb.sources.values():
+                nets.append(k.net_name)
+                try:
+                    nets.append(k.reference_net_name)
+                except AttributeError:
+                    pass
+                try:
+                    nets.append(k.ref_terminal.net_name)
+                except AttributeError:
+                    pass
+            nets = list(set(nets))
         if solution is None:
             for setup in self._app.setups:
                 if setup.solver_type == "SIwaveDCIR":
@@ -82,6 +93,7 @@ class PostProcessor3DLayout(PostProcessor3D):
             self._app.logger.error("Check inputs.")
             return False
         power_by_layers = {}
+        solution_type = ["DC Fields"] if settings.aedt_version < "2025.1" else ["DCIR Fields"]
         for layer in layers:
             thickness = self._app.modeler.edb.stackup[layer].thickness
             operations = []
@@ -112,7 +124,7 @@ class PostProcessor3DLayout(PostProcessor3D):
                 "name": f"Power_{layer}",
                 "description": "Power Density",
                 "design_type": ["HFSS 3D Layout Design"],
-                "fields_type": ["DC Fields"],
+                "fields_type": solution_type,
                 "solution_type": "",
                 "primary_sweep": "",
                 "assignment": "",
@@ -151,6 +163,7 @@ class PostProcessor3DLayout(PostProcessor3D):
             self._app.logger.error("Check inputs.")
             return False
         power_by_nets = {}
+        solution_type = ["DC Fields"] if settings.aedt_version < "2025.1" else ["DCIR Fields"]
         for net in nets:
             operations = []
             idx = 0
@@ -181,7 +194,7 @@ class PostProcessor3DLayout(PostProcessor3D):
                 "name": f"Power_{net}",
                 "description": "Power Density",
                 "design_type": ["HFSS 3D Layout Design"],
-                "fields_type": ["DC Fields"],
+                "fields_type": solution_type,
                 "solution_type": "",
                 "primary_sweep": "",
                 "assignment": "",
