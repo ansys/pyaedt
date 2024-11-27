@@ -739,14 +739,14 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         assignment : list
             List of elements to duplicate.
         count : int
-
+            Number of clones.
         vector : list
             List of ``[x,y]`` coordinates for the direction vector.
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        tuple
+            List of added objects, List of removed names.
 
         References
         ----------
@@ -756,8 +756,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         assignment = self.convert_to_selections(assignment, True)
 
         self.cleanup_objects()
-        if isinstance(assignment, str):
-            assignment = [assignment]
         self.oeditor.Duplicate(["NAME:options", "count:=", count], ["NAME:elements"] + assignment, vector)
         return self.cleanup_objects()
 
