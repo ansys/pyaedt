@@ -2298,7 +2298,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
                     ",".join(str_val),
                     [],
                 )
-
                 self.logger.info("Source Excitation updated with Dataset.")
                 return True
         self.logger.error("Port not found.")

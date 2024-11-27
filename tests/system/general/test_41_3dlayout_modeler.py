@@ -344,6 +344,7 @@ class TestClass:
             y_scale=1e-3,
             data_format="Voltage",
         )
+        assert ...
         self.aedtapp.boundaries[0].object_properties.props["Boundary Type"] = "PEC"
         assert list(self.aedtapp.oboundary.GetAllBoundariesList())[0] == self.aedtapp.boundaries[0].name
 
