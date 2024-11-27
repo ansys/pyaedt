@@ -157,7 +157,7 @@ class MeshOperation(object):
                 props["Objects"] = []
                 props["Faces"] = []
                 props["Edges"] = []
-                assigned_id = self.omeshmodule.GetMeshOpAssignment(ds)
+                assigned_id = self._mesh.omeshmodule.GetMeshOpAssignment(ds)
                 for comp_id in assigned_id:
                     if int(comp_id) in self._app.modeler.objects.keys():
                         props["Objects"].append(self._app.oeditor.GetObjectNameByID(comp_id))
