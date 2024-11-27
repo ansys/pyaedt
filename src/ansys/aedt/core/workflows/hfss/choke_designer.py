@@ -193,7 +193,7 @@ def frontend():  # pragma: no cover
             label = ttk.Label(frame, text=field, width=20, style="PyAEDT.TLabel")
             label.pack(side=tkinter.LEFT)
 
-            entry = ttk.Entry(frame, width=15)
+            entry = ttk.Entry(frame, width=15, font=theme.default_font)
             entry.insert(0, str(value))
             entry.pack(side=tkinter.LEFT, padx=5)
 

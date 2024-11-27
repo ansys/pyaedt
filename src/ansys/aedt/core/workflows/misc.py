@@ -153,11 +153,15 @@ class ExtensionTheme:  # pragma: no cover
         # Apply the color for hover and active states
 
         # Apply the colors and font to the style for Frames and Containers
-        style.configure("PyAEDT.TFrame", background=colors["widget_bg"])
+        style.configure("PyAEDT.TFrame", background=colors["widget_bg"], font=self.default_font)
 
         # Apply the colors and font to the style for Tabs
-        style.configure("TNotebook", background=colors["tab_bg_inactive"], bordercolor=colors["tab_border"])
-        style.configure("TNotebook.Tab", background=colors["tab_bg_inactive"], foreground=colors["text"])
+        style.configure(
+            "TNotebook", background=colors["tab_bg_inactive"], bordercolor=colors["tab_border"], font=self.default_font
+        )
+        style.configure(
+            "TNotebook.Tab", background=colors["tab_bg_inactive"], foreground=colors["text"], font=self.default_font
+        )
         style.map("TNotebook.Tab", background=[("selected", colors["tab_bg_active"])])
 
         # Apply the colors and font to the style for Labels
