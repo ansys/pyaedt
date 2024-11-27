@@ -42,8 +42,7 @@ dependencies = [
     "pytomlpp; python_version < '3.12'",
     "rpyc>=6.0.0,<6.1",
     "pyyaml",
-    "defusedxml>=0.7,<8.0",
-    "sv-ttk"
+    "defusedxml>=0.7,<8.0"
 ]
 
 [project.optional-dependencies]

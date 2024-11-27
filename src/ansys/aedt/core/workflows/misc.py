@@ -76,6 +76,123 @@ def get_arguments(args=None, description=""):  # pragma: no cover
     return output_args
 
 
+class ExtensionTheme:  # pragma: no cover
+    def __init__(self):
+        # Define light and dark theme colors
+        self.light = {
+            "widget_bg": "#FFFFFF",
+            "text": "#000000",
+            "button_bg": "#E6E6E6",
+            "button_hover_bg": "#D9D9D9",
+            "button_active_bg": "#B8B8B8",
+            "tab_bg_inactive": "#F0F0F0",
+            "tab_bg_active": "#FFFFFF",
+            "tab_border": "#D9D9D9",
+            "label_bg": "#FFFFFF",
+            "label_fg": "#000000",
+            "labelframe_bg": "#FFFFFF",
+            "labelframe_fg": "#000000",
+            "labelframe_title_bg": "#FFFFFF",  # Background for title (text)
+            "labelframe_title_fg": "#000000",  # Text color for title
+            "radiobutton_bg": "#FFFFFF",  # Background for Radiobutton
+            "radiobutton_fg": "#000000",  # Text color for Radiobutton
+            "radiobutton_selected": "#E0E0E0",  # Color when selected
+            "radiobutton_unselected": "#FFFFFF",  # Color when unselected
+            "pane_bg": "#F0F0F0",  # Background for PanedWindow
+            "sash_color": "#C0C0C0",  # Color for sash (separator) in PanedWindo
+        }
+
+        self.dark = {
+            "widget_bg": "#3C3C3C",
+            "text": "#FFFFFF",
+            "button_bg": "#4D4D4D",
+            "button_hover_bg": "#606060",
+            "button_active_bg": "#808080",
+            "tab_bg_inactive": "#2E2E2E",
+            "tab_bg_active": "#3C3C3C",
+            "tab_border": "#505050",
+            "label_bg": "#3C3C3C",  # Background for labels
+            "label_fg": "#FFFFFF",  # Text color for labels
+            "labelframe_bg": "#3C3C3C",  # Background for LabelFrame
+            "labelframe_fg": "#FFFFFF",  # Text color for LabelFrame
+            "labelframe_title_bg": "#3C3C3C",  # Dark background for title (text)
+            "labelframe_title_fg": "#FFFFFF",  # Dark text color for title
+            "radiobutton_bg": "#2E2E2E",  # Background for Radiobutton
+            "radiobutton_fg": "#FFFFFF",  # Text color for Radiobutton
+            "radiobutton_selected": "#2E2E2E",  # Color when selected
+            "radiobutton_unselected": "#3C3C3C",  # Color when unselected
+            "pane_bg": "#2E2E2E",  # Background for PanedWindow
+        }
+
+        # Set default font
+        self.default_font = ("Helvetica", 10)
+
+    def apply_light_theme(self, style):
+        self._apply_theme(style, self.light)
+
+    def apply_dark_theme(self, style):
+        self._apply_theme(style, self.dark)
+
+    def _apply_theme(self, style, colors):
+        # Apply the colors and font to the style
+        style.theme_use("clam")
+
+        style.configure("TPanedwindow", background=colors["pane_bg"])
+
+        style.configure(
+            "PyAEDT.TButton", background=colors["button_bg"], foreground=colors["text"], font=self.default_font
+        )
+
+        # Apply the color for hover and active states
+        style.map(
+            "PyAEDT.TButton",
+            background=[("active", colors["button_active_bg"]), ("!active", colors["button_hover_bg"])],
+            foreground=[("active", colors["text"]), ("!active", colors["text"])],
+        )
+
+        # Apply the color for hover and active states
+
+        # Apply the colors and font to the style for Frames and Containers
+        style.configure("PyAEDT.TFrame", background=colors["widget_bg"])
+
+        # Apply the colors and font to the style for Tabs
+        style.configure("TNotebook", background=colors["tab_bg_inactive"], bordercolor=colors["tab_border"])
+        style.configure("TNotebook.Tab", background=colors["tab_bg_inactive"], foreground=colors["text"])
+        style.map("TNotebook.Tab", background=[("selected", colors["tab_bg_active"])])
+
+        # Apply the colors and font to the style for Labels
+        style.configure(
+            "PyAEDT.TLabel", background=colors["label_bg"], foreground=colors["label_fg"], font=self.default_font
+        )
+
+        # Apply the colors and font to the style for LabelFrames
+        style.configure(
+            "PyAEDT.TLabelframe",
+            background=colors["labelframe_bg"],
+            foreground=colors["labelframe_fg"],
+            font=self.default_font,
+        )
+        style.configure(
+            "PyAEDT.TLabelframe.Label",  # Specific style for the title text (label)
+            background=colors["labelframe_title_bg"],
+            foreground=colors["labelframe_title_fg"],
+            font=self.default_font,
+        )
+
+        # Apply the colors and font to the style for Radiobuttons
+        style.configure(
+            "PyAEDT.TRadiobutton",
+            background=colors["radiobutton_bg"],
+            foreground=colors["radiobutton_fg"],
+            font=self.default_font,
+        )
+
+        style.map(
+            "TRadiobutton",
+            background=[("selected", colors["radiobutton_selected"]), ("!selected", colors["radiobutton_unselected"])],
+        )
+
+
 def __string_to_bool(v):  # pragma: no cover
     """Change string to bool."""
     if isinstance(v, str) and v.lower() in ("true", "1"):

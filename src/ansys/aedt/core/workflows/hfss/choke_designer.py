@@ -95,7 +95,7 @@ def frontend():  # pragma: no cover
 
     import PIL.Image
     import PIL.ImageTk
-    import sv_ttk
+    from ansys.aedt.core.workflows.misc import ExtensionTheme
 
     # Create UI
     master = tkinter.Tk()
@@ -117,17 +117,20 @@ def frontend():  # pragma: no cover
 
     # Configure style for ttk buttons
     style = ttk.Style()
-    style.configure("Toolbutton.TButton", padding=6, font=("Helvetica", 8))
+    theme = ExtensionTheme()
+
+    theme.apply_light_theme(style)
+    master.theme = "light"
 
     # Load initial configuration
     config_dict = default_config.copy()
 
     # Main panel
-    main_frame = ttk.PanedWindow(master, orient=tkinter.HORIZONTAL)
+    main_frame = ttk.PanedWindow(master, orient=tkinter.HORIZONTAL, style="TPanedwindow")
     main_frame.pack(fill=tkinter.BOTH, expand=True)
 
     # Left panel
-    left_frame = ttk.Frame(main_frame, width=350)
+    left_frame = ttk.Frame(main_frame, width=350, style="PyAEDT.TFrame")
     main_frame.add(left_frame, weight=1)
 
     selected_options = {}
@@ -137,7 +140,7 @@ def frontend():  # pragma: no cover
         for category, options in config.items():
             if category in ["Number of Windings", "Layer", "Layer Type", "Similar Layer", "Mode", "Create Component"]:
                 if isinstance(options, dict) and all(isinstance(v, bool) for v in options.values()):
-                    group_frame = ttk.LabelFrame(parent, text=category)
+                    group_frame = ttk.LabelFrame(parent, text=category, style="PyAEDT.TLabelframe")
                     group_frame.pack(fill=tkinter.X, padx=10, pady=5)
 
                     selected_options[category] = tkinter.StringVar(
@@ -154,6 +157,7 @@ def frontend():  # pragma: no cover
                             text=option,
                             variable=selected_options[category],
                             value=option,
+                            style="PyAEDT.TRadiobutton",
                             command=lambda cat=category: update_config(cat, selected_options[cat]),
                         )
                         btn.pack(anchor=tkinter.W, padx=5)
@@ -161,7 +165,7 @@ def frontend():  # pragma: no cover
     create_boolean_options(left_frame, config_dict)
 
     # Right panel
-    right_frame = ttk.Notebook(master)
+    right_frame = ttk.Notebook(master, style="TNotebook")
     main_frame.add(right_frame, weight=3)
 
     entries_dict = {}
@@ -183,10 +187,10 @@ def frontend():  # pragma: no cover
                 pass  # Ignore invalid input
 
         for field, value in config[category].items():
-            frame = ttk.Frame(parent)
+            frame = ttk.Frame(parent, style="PyAEDT.TFrame")
             frame.pack(fill=tkinter.X, padx=10, pady=2)
 
-            label = ttk.Label(frame, text=field, width=20)
+            label = ttk.Label(frame, text=field, width=20, style="PyAEDT.TLabel")
             label.pack(side=tkinter.LEFT)
 
             entry = ttk.Entry(frame, width=15)
@@ -200,7 +204,7 @@ def frontend():  # pragma: no cover
 
     # Parameters
     for tab_name in ["Core", "Outer Winding", "Mid Winding", "Inner Winding", "Settings"]:
-        tab = ttk.Frame(right_frame)
+        tab = ttk.Frame(right_frame, style="PyAEDT.TFrame")
         right_frame.add(tab, text=tab_name)
         create_parameter_inputs(tab, config_dict, tab_name)
 
@@ -257,13 +261,20 @@ def frontend():  # pragma: no cover
                 messagebox.showerror("Error", f"Failed to save configuration: {str(e)}")
 
     def toggle_theme():
-        current_theme = sv_ttk.get_theme()
-        if current_theme == "light":
-            sv_ttk.set_theme("dark")
-            change_theme_button.config(text="\U0001F319")  # Cambiar a ícono de luna
+        if master.theme == "light":
+            set_dark_theme()
+            master.theme = "dark"
         else:
-            sv_ttk.set_theme("light")
-            change_theme_button.config(text="\u2600")  # Cambiar a ícono de sol
+            set_light_theme()
+            master.theme = "light"
+
+    def set_light_theme():
+        theme.apply_light_theme(style)
+        change_theme_button.config(text="\u263D")
+
+    def set_dark_theme():
+        theme.apply_dark_theme(style)
+        change_theme_button.config(text="\u2600")
 
     def update_radio_buttons():
         for category, options in config_dict.items():
@@ -282,12 +293,16 @@ def frontend():  # pragma: no cover
                     entry_widget.delete(0, tkinter.END)
                     entry_widget.insert(0, str(value))
 
-    button_frame = ttk.Frame(master)
-    button_frame.pack(fill=tkinter.X, pady=5)
+    button_frame = ttk.Frame(master, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2)
+    button_frame.pack(fill=tkinter.X, pady=0)
 
-    save_button = ttk.Button(button_frame, text="Save Configuration", command=save_configuration)
-    load_button = ttk.Button(button_frame, text="Load Configuration", command=load_configuration)
-    change_theme_button = ttk.Button(button_frame, text="\u2600", command=toggle_theme)
+    save_button = ttk.Button(
+        button_frame, text="Save Configuration", command=save_configuration, style="PyAEDT.TButton"
+    )
+    load_button = ttk.Button(
+        button_frame, text="Load Configuration", command=load_configuration, style="PyAEDT.TButton"
+    )
+    change_theme_button = ttk.Button(button_frame, text="\u263D", command=toggle_theme, style="PyAEDT.TButton")
     save_button.pack(side=tkinter.LEFT, padx=5)
     load_button.pack(side=tkinter.LEFT, padx=5)
     change_theme_button.pack(side=tkinter.RIGHT, padx=5, pady=40)
@@ -297,9 +312,9 @@ def frontend():  # pragma: no cover
         if validate_configuration(config_dict):
             master.destroy()
 
-    export_hfss = ttk.Button(button_frame, text="Export to HFSS", command=callback)
+    export_hfss = ttk.Button(button_frame, text="Export to HFSS", command=callback, style="PyAEDT.TButton")
     export_hfss.pack(side=tkinter.LEFT, padx=5)
-    sv_ttk.set_theme("light")
+
     tkinter.mainloop()
 
     choke_config = {}
