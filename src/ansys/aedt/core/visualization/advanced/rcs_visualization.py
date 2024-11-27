@@ -922,6 +922,9 @@ class MonostaticRCSPlotter(object):
             Whether to display in polar coordinates. The default is ``True``.
         size : tuple, optional
             Image size in pixel (width, height).
+        figure : :class:`matplotlib.pyplot.Figure`, optional
+            An existing Matplotlib `Figure` to which the plot is added.
+            If not provided, a new `Figure` and `Axes` object are created.
 
         Returns
         -------
@@ -970,7 +973,7 @@ class MonostaticRCSPlotter(object):
         return new
 
     @pyaedt_function_handler()
-    def plot_isar_2d(self, title="ISAR", output_file=None, show=True, size=(1920, 1440)):
+    def plot_isar_2d(self, title="ISAR", output_file=None, show=True, size=(1920, 1440), figure=None):
         """Create a 2D contour plot of the ISAR.
 
         Parameters
@@ -984,6 +987,9 @@ class MonostaticRCSPlotter(object):
             If ``False``, the Matplotlib instance of the plot is shown.
         size : tuple, optional
             Image size in pixel (width, height).
+        figure : :class:`matplotlib.pyplot.Figure`, optional
+            An existing Matplotlib `Figure` to which the plot is added.
+            If not provided, a new `Figure` and `Axes` object are created.
 
         Returns
         -------
@@ -1020,12 +1026,7 @@ class MonostaticRCSPlotter(object):
         }
 
         new.add_trace(plot_data, 2, props)
-        _ = new.plot_contour(
-            trace=0,
-            polar=False,
-            snapshot_path=output_file,
-            show=show,
-        )
+        _ = new.plot_contour(trace=0, polar=False, snapshot_path=output_file, show=show, figure=figure)
         return new
 
     @pyaedt_function_handler()
