@@ -168,8 +168,13 @@ def desktop():
         d.odesktop.SetDesktopConfiguration("All")
         d.odesktop.SetSchematicEnvironment(0)
     yield d
+    pid = d.aedt_process_id
     d.release_desktop(True, True)
     time.sleep(1)
+    try:
+        os.kill(pid, 9)
+    except OSError as e:
+        pass
 
 
 @pytest.fixture(scope="module")
