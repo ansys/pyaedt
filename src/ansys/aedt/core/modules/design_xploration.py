@@ -916,7 +916,7 @@ class SetupParam(CommonOptimetrics, object):
             Variation Step or Count depending on variation_type. Default is `100`.
         units : str, optional
             Variation units. Default is `None`.
-        variation_type : float or int
+        variation_type : str, optional
             Variation Type. Admitted values are `"SingleValue", `"LinearCount"`, `"LinearStep"`,
             `"DecadeCount"`, `"OctaveCount"`, `"ExponentialCount"`.
 
