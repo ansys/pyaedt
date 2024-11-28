@@ -151,7 +151,7 @@ def frontend():  # pragma: no cover
                         for key in config[cat]:
                             config[cat][key] = key == selected_option_u.get()
 
-                    for option, value in options.items():
+                    for option, _ in options.items():
                         btn = ttk.Radiobutton(
                             group_frame,
                             text=option,
@@ -368,7 +368,7 @@ def main(extension_args):
     list_object = hfss.modeler.create_choke(str(json_path))
 
     # Get core and winding objects
-    core = list_object[1]
+    _ = list_object[1]
     first_winding_list = list_object[2]
 
     # Get second winding list if it exists
