@@ -63,23 +63,10 @@ def main():
         # Add environment variables
         pyaedt_utils.environment_variables(oDesktop)
         # Run workflow
-        if pyaedt_utils.is_linux:
-            pyaedt_utils.set_ansys_em_environment(oDesktop)
-            my_env = dict(os.environ.copy())
-            command = [python_exe, pyaedt_script]
-            subprocess.Popen(command, env=my_env)
-        else:
-            toolkit_name = r"##TOOLKIT_NAME##"
-            runme = "run_pyaedt_toolkit_{0}.cmd".format(toolkit_name)
-            edt_temp = oDesktop.GetTempDirectory()
-            cmd = '"{0}"'.format(pyaedt_script)
-            target = os.path.join(edt_temp, runme)
-            my_env = dict(os.environ.copy())
-            with open(target, 'w') as cmdfile:
-                for env in my_env:
-                    cmdfile.write('SET {0}={1}\n'.format(env, my_env[env]))
-                cmdfile.write('"{0}" {1}\n'.format(python_exe, cmd))
-            oDesktop.RunProgram(runme, edt_temp, edt_temp, "")
+        pyaedt_utils.set_ansys_em_environment(oDesktop)
+        my_env = dict(os.environ.copy())
+        command = [python_exe, pyaedt_script]
+        subprocess.Popen(command, env=my_env)
     except Exception as e:
         pyaedt_utils.show_error(str(e), oDesktop)
 
