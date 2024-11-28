@@ -181,7 +181,7 @@ class CommonSetup(PropsManager, object):
                     setups_data = self.p_app.design_properties["AnalysisSetup"]["SolveSetups"]
                     if self.name in setups_data:
                         setup_data = setups_data[self.name]
-                        if "Sweeps" in setup_data and self.setuptype != 0:  # 0 and 7 represent setup HFSSDrivenAuto
+                        if "Sweeps" in setup_data and self.setuptype != 0:  # 0 represents setup HFSSDrivenAuto
                             if self.setuptype <= 4:
                                 app = setup_data["Sweeps"]
                                 app.pop("NextUniqueID", None)
