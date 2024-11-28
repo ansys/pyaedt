@@ -1833,6 +1833,8 @@ class Maxwell(object):
     ):
         """Enable the harmonic force calculation for the transient analysis.
 
+        Available for Maxwell Eddy Current and Transient designs.
+
         Parameters
         ----------
         assignment : list
@@ -1855,7 +1857,8 @@ class Maxwell(object):
             If False, the defined time range will be used. Default is ``True``.
         number_of_cycles_from_stop_time : int, optional
             Defines the number of cycles from stop time for harmonic force computation,
-            if `use_number_of_cycles_from_stop_time` is ``True``.
+            if `use_number_of_cycles_from_stop_time` is ``True``. For TransientZ and TransientAphiFormulation,
+            it is equal to 1.
         start_time : str, optional
             Defines the time range start time for harmonic force computation,
             if `use_number_of_cycles_from_stop_time` is ``False``.
@@ -1867,7 +1870,8 @@ class Maxwell(object):
             Default is ``True``.
         number_of_cycles_for_stop_time
             Defines the time range for harmonic force computation using the number of cycles,
-            if `use_number_of_cycles_for_stop_time` is ``True``.
+            if `use_number_of_cycles_for_stop_time` is ``True``. For TransientZ and TransientAphiFormulation,
+            it is equal to 1.
         stop_time : str, optional
             Defines the time range stop time for harmonic force computation,
             if `use_number_of_cycles_for_stop_time` is ``False``.
@@ -1894,14 +1898,13 @@ class Maxwell(object):
         if self.solution_type not in [
             "EddyCurrent",
             "Transient",
-            "TransientXY",
-            "TransientZ",
             "TransientAPhiFormulation",
         ]:
-            self.logger.error("This method is not valid for this solution type.")
+            self.logger.error(f"This method is not valid for {self.solution_type} solvers.")
             return False
         if self.solution_type == "EddyCurrent":
-            if self.is3d is False and axis != 2:
+            if not self.is3d and axis != 2:
+                axis = 2
                 self.logger.warning("For 2D EddyCurrent solver only Z-axis is available.")
             self.odesign.EnableHarmonicForceCalculation(
                 [
@@ -1916,20 +1919,28 @@ class Maxwell(object):
                 ]
             )
             return True
-        elif self.solution_type in ["Transient", "TransientXY", "TransientZ"]:
+        elif self.solution_type == "Transient":
             if calculate_force == 0:
                 calculate_force = "Harmonic"
             if calculate_force == 1:
                 calculate_force = "Transient"
             if calculate_force == 2:
                 calculate_force = "Harmonic and Transient"
-            if self.solution_type == "TransientZ" and force_type == 0 and calculate_force == 1:
-                calculate_force = 0
-                self.logger.warning(
-                    """Object-Based Transient Force calculation is not supported
-                                    for non-rotational transient solutions. Only Harmonic Force will
-                                    be calculated."""
-                )
+            if self.geometry_mode == "about Z" or self.solution_type == "TransientAphiFormulation":
+                if force_type == 0 and calculate_force == "Transient":
+                    calculate_force = "Harmonic"
+                    self.logger.warning(
+                        "Object-Based Transient Force calculation is not supported for "
+                        "non-rotational transient solutions. Only Harmonic Force will be calculated."
+                    )
+            if self.geometry_mode == "about Z" or self.solution_type == "TransientAphiFormulation":
+                if number_of_cycles_from_stop_time != 1 or number_of_cycles_for_stop_time != 1:
+                    self.logger.info(
+                        " ``number_of_cycles_from_stop_time´´ and ``number_of_cycles_for_stop_time´´"
+                        "are equal to 1 for TransientZ and TransientAphiFormulation."
+                    )
+                    number_of_cycles_from_stop_time = 1
+                    number_of_cycles_for_stop_time = 1
             self.odesign.EnableHarmonicForceCalculation(
                 [
                     "EnabledObjects:=",
