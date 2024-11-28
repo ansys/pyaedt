@@ -597,7 +597,9 @@ class TestClass:
 
     def test_26_duplicate(self):
         n2 = self.aedtapp.modeler.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle_d")
-        assert self.aedtapp.modeler.duplicate("myrectangle_d", 2, [1, 1])
+        n3 = self.aedtapp.modeler.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle_d2")
+        new_objects = self.aedtapp.modeler.duplicate([n2.name, n3.name], 2, [1, 1])
+        assert len(new_objects[0]) == 4
         assert self.aedtapp.modeler.duplicate_across_layers("myrectangle_d", "Bottom")
 
     def test_27_create_pin_port(self):
