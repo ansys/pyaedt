@@ -1,4 +1,4 @@
-Choke Designer
+Choke designer
 ==============
 
 You can design a choke in HFSS.
