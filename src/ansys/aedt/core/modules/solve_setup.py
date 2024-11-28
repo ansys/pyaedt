@@ -3498,22 +3498,29 @@ class SetupMaxwell(Setup, object):
     def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup=True):
         Setup.__init__(self, app, solution_type, name, is_new_setup)
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(range_type="sweep_type", start="start_frequency", end="stop_frequency", count="step_size")
     def add_eddy_current_sweep(
-        self, range_type="LinearStep", start=0.1, end=100, count=0.1, units="Hz", clear=True, save_all_fields=True
+        self,
+        sweep_type="LinearStep",
+        start_frequency=0.1,
+        stop_frequency=100,
+        step_size=0.1,
+        units="Hz",
+        clear=True,
+        save_all_fields=True,
     ):
         """Create a Maxwell Eddy Current Sweep.
 
         Parameters
         ----------
-        range_type : str
+        sweep_type : str
             Type of the subrange. Options are ``"LinearCount"``,
             ``"LinearStep"``, ``"LogScale"`` and ``"SinglePoints"``.
-        start : float
+        start_frequency : float
             Starting frequency.
-        end : float, optional
+        stop_frequency : float, optional
             Stopping frequency. Required for ``range_type="LinearCount"|"LinearStep"|"LogScale"``.
-        count : int or float, optional
+        step_size : int or float, optional
             Frequency count or frequency step. Required for ``range_type="LinearCount"|"LinearStep"|"LogScale"``.
         units : str, optional
             Unit of the frequency. For example, ``"MHz`` or ``"GHz"``. The default is ``"Hz"``.
@@ -3523,7 +3530,6 @@ class SetupMaxwell(Setup, object):
         save_all_fields : bool, optional
             Save fields at all frequency points to save fields for the entire set of sweep ranges.
             Default is ``True``.
-
 
         Returns
         -------
@@ -3536,19 +3542,20 @@ class SetupMaxwell(Setup, object):
             return False
         legacy_update = self.auto_update
         self.auto_update = False
-        sweep_props = {"RangeType": range_type, "RangeStart": f"{start}{units}"}
+        sweep_props = {
+            "RangeType": sweep_type,
+            "RangeStart": f"{start_frequency}{units}",
+            "RangeEnd": f"{stop_frequency}{units}",
+        }
         self.props["HasSweepSetup"] = True
-        if range_type == "LinearStep":
-            sweep_props["RangeEnd"] = f"{end}{units}"
-            sweep_props["RangeStep"] = f"{count}{units}"
-        elif range_type == "LinearCount":
-            sweep_props["RangeEnd"] = f"{end}{units}"
-            sweep_props["RangeCount"] = count
-        elif range_type == "LogScale":
-            sweep_props["RangeEnd"] = f"{end}{units}"
-            sweep_props["RangeSamples"] = count
-        elif range_type == "SinglePoints":
-            sweep_props["RangeEnd"] = f"{start}{units}"
+        if sweep_type == "LinearStep":
+            sweep_props["RangeStep"] = f"{step_size}{units}"
+        elif sweep_type == "LinearCount":
+            sweep_props["RangeCount"] = step_size
+        elif sweep_type == "LogScale":
+            sweep_props["RangeSamples"] = step_size
+        elif sweep_type == "SinglePoints":
+            sweep_props["RangeEnd"] = f"{start_frequency}{units}"
         if clear:
             self.props["SweepRanges"]["Subrange"] = sweep_props
         elif isinstance(self.props["SweepRanges"]["Subrange"], list):

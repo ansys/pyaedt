@@ -248,7 +248,7 @@ class TestClass:
         assert setup.props["SaveAllFields"]
         assert setup.add_eddy_current_sweep("LinearCount", dc_freq, stop_freq, count, clear=False)
         assert isinstance(setup.props["SweepRanges"]["Subrange"], list)
-        assert setup.add_eddy_current_sweep("SinglePoints", start=0.01, clear=False)
+        assert setup.add_eddy_current_sweep("SinglePoints", start_frequency=0.01, clear=False)
         assert setup.update()
         assert setup.enable_expression_cache(["CoreLoss"], "Fields", "Phase='0deg' ", True)
         assert setup.props["UseCacheFor"] == ["Pass", "Freq"]
