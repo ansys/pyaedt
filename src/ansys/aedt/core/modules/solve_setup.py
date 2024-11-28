@@ -3538,7 +3538,6 @@ class SetupMaxwell(Setup, object):
         self.auto_update = False
         sweep_props = {"RangeType": range_type, "RangeStart": f"{start}{units}"}
         self.props["HasSweepSetup"] = True
-        self.props["SweepRanges"] = {}
         if range_type == "LinearStep":
             sweep_props["RangeEnd"] = f"{end}{units}"
             sweep_props["RangeStep"] = f"{count}{units}"
