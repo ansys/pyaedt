@@ -1841,9 +1841,14 @@ class Maxwell(object):
             Defines a list of object names for force calculations, for example:
             ["arc_01","arc_02","arc_03"]
         coordinate_system: str, optional
+            Defines the coordinate system. The default is ``Global``.
         axis : int, optional
-        ``0`` for X-axis, ``1`` for Y-axis, ``2`` for Z-axis
+            Defines the rotation axis used to generate full model for a partial model
+            of electric machine.``0`` for X-axis, ``1`` for Y-axis, ``2`` for Z-axis.
+            The default is ``2``.
         is_positive : bool, optional
+            Defines the rotation axis direction: ``True`` if ``Positive`` and ``False`` if ``Negative``.
+            The default is ``True``.
         force_type : int, optional
             Force Type. ``0`` for Object Based, ``1`` for Element Based (Surface), ``2`` for
             Element Based (Volumetric).
