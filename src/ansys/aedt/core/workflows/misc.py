@@ -68,11 +68,15 @@ def get_arguments(args=None, description=""):  # pragma: no cover
     output_args = {"is_batch": False, "is_test": False}
 
     if len(sys.argv) != 1:  # pragma: no cover
-        parsed_args = __parse_arguments(args, description)
-        output_args["is_batch"] = True
-        for k, v in parsed_args.__dict__.items():
-            if v is not None:
-                output_args[k] = __string_to_bool(v)
+        try:
+            parsed_args = __parse_arguments(args, description)
+            output_args["is_batch"] = True
+            for k, v in parsed_args.__dict__.items():
+                if v is not None:
+                    output_args[k] = __string_to_bool(v)
+        except SystemExit as e:
+            print(f"Argument parsing failed: {e}")
+            raise
     return output_args
 
 
