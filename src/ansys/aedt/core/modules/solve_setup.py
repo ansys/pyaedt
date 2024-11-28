@@ -181,10 +181,7 @@ class CommonSetup(PropsManager, object):
                     setups_data = self.p_app.design_properties["AnalysisSetup"]["SolveSetups"]
                     if self.name in setups_data:
                         setup_data = setups_data[self.name]
-                        if "Sweeps" in setup_data and self.setuptype not in [
-                            0,
-                            7,
-                        ]:  # 0 and 7 represent setup HFSSDrivenAuto
+                        if "Sweeps" in setup_data and self.setuptype != 0:  # 0 and 7 represent setup HFSSDrivenAuto
                             if self.setuptype <= 4:
                                 app = setup_data["Sweeps"]
                                 app.pop("NextUniqueID", None)
@@ -3539,26 +3536,26 @@ class SetupMaxwell(Setup, object):
             return False
         legacy_update = self.auto_update
         self.auto_update = False
-        props = {}
-        props["RangeType"] = range_type
-        props["RangeStart"] = f"{start}{units}"
+        sweep_props = {"RangeType": range_type, "RangeStart": f"{start}{units}"}
+        self.props["HasSweepSetup"] = True
+        self.props["SweepRanges"] = {}
         if range_type == "LinearStep":
-            props["RangeEnd"] = f"{end}{units}"
-            props["RangeStep"] = f"{count}{units}"
+            sweep_props["RangeEnd"] = f"{end}{units}"
+            sweep_props["RangeStep"] = f"{count}{units}"
         elif range_type == "LinearCount":
-            props["RangeEnd"] = f"{end}{units}"
-            props["RangeCount"] = count
+            sweep_props["RangeEnd"] = f"{end}{units}"
+            sweep_props["RangeCount"] = count
         elif range_type == "LogScale":
-            props["RangeEnd"] = f"{end}{units}"
-            props["RangeSamples"] = count
+            sweep_props["RangeEnd"] = f"{end}{units}"
+            sweep_props["RangeSamples"] = count
         elif range_type == "SinglePoints":
-            props["RangeEnd"] = f"{start}{units}"
+            sweep_props["RangeEnd"] = f"{start}{units}"
         if clear:
-            self.props["SweepRanges"]["Subrange"] = props
+            self.props["SweepRanges"]["Subrange"] = sweep_props
         elif isinstance(self.props["SweepRanges"]["Subrange"], list):
-            self.props["SweepRanges"]["Subrange"].append(props)
+            self.props["SweepRanges"]["Subrange"].append(sweep_props)
         else:
-            self.props["SweepRanges"]["Subrange"] = [self.props["SweepRanges"]["Subrange"], props]
+            self.props["SweepRanges"]["Subrange"] = [self.props["SweepRanges"]["Subrange"], sweep_props]
         self.props["SaveAllFields"] = save_all_fields
         self.update()
         self.auto_update = legacy_update
