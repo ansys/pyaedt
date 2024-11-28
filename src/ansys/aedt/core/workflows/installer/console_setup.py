@@ -54,14 +54,14 @@ except ImportError:
         sys.path.append(os.path.join(console_setup_dir, "../..", "..", ".."))
     if version <= "2023.1":
         import pyaedt
+        from pyaedt import Desktop
+        from pyaedt.generic.general_methods import active_sessions
+        from pyaedt.generic.general_methods import is_windows
     else:
-        import ansys.aedt.core as pyaedt
-
-# ansys.aedt.core.settings.use_grpc_api = False
-settings = pyaedt.settings
-from pyaedt import Desktop
-from pyaedt.generic.general_methods import active_sessions
-from pyaedt.generic.general_methods import is_windows
+        import ansys.aedt.core
+        from ansys.aedt.core import Desktop
+        from ansys.aedt.core.generic.general_methods import active_sessions
+        from ansys.aedt.core.generic.general_methods import is_windows
 
 
 def release(d):
