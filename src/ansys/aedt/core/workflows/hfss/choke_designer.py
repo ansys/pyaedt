@@ -21,7 +21,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os.path
+from pathlib import Path
 import shutil
 import tempfile
 
@@ -102,13 +102,13 @@ def frontend():  # pragma: no cover
 
     master.geometry("900x800")
 
-    master.title("Choke designer")
+    master.title("Choke Designer")
 
     # Detect if user close the UI
     master.flag = False
 
     # Load the logo for the main window
-    icon_path = os.path.join(ansys.aedt.core.workflows.__path__[0], "images", "large", "logo.png")
+    icon_path = Path(ansys.aedt.core.workflows.__path__[0]) / "images" / "large" / "logo.png"
     im = PIL.Image.open(icon_path)
     photo = PIL.ImageTk.PhotoImage(im)
 
@@ -350,22 +350,22 @@ def main(extension_args):
     if active_design:
         design_name = active_design.GetName()
 
-    if not hfss:
+    if not hfss:  # pragma: no cover
         hfss = Hfss(project_name, design_name)
 
     hfss.solution_type = "Terminal"
 
     # Create temporary directory for JSON file
-    temp_dir = tempfile.mkdtemp()
-    json_path = os.path.join(temp_dir, "choke_params.json")
+    temp_dir = Path(tempfile.mkdtemp())
+    json_path = temp_dir / "choke_params.json"
 
-    write_configuration_file(choke_config, json_path)
+    write_configuration_file(choke_config, str(json_path))
 
     # Verify parameters
-    dictionary_values = hfss.modeler.check_choke_values(json_path, create_another_file=False)
+    dictionary_values = hfss.modeler.check_choke_values(str(json_path), create_another_file=False)
 
     # Create choke geometry
-    list_object = hfss.modeler.create_choke(json_path)
+    list_object = hfss.modeler.create_choke(str(json_path))
 
     # Get core and winding objects
     core = list_object[1]
@@ -482,7 +482,7 @@ def main(extension_args):
     # Save project
     hfss.save_project()
 
-    if os.path.exists(temp_dir):
+    if temp_dir.exists():
         shutil.rmtree(temp_dir, ignore_errors=True)
 
     if not extension_args["is_test"]:  # pragma: no cover
