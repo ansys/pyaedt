@@ -88,7 +88,7 @@ They are small automated workflow with a simple UI.
 
 .. grid:: 2
 
-   .. grid-item-card:: Choke Designer
+   .. grid-item-card:: Choke designer
             :link: pyaedt_extensions_doc/hfss/choke_designer
             :link-type: doc
             :margin: 2 2 0 0
