@@ -22,6 +22,7 @@
 # SOFTWARE.
 
 import os
+import pathlib
 import time
 from tkinter import filedialog
 from tkinter import messagebox
@@ -63,7 +64,7 @@ def frontend():  # pragma: no cover
     master.title("Arbitrary wave-port generator")
 
     # Load the logo for the main window
-    icon_path = os.path.join(os.path.dirname(ansys.aedt.core.workflows.__file__), "images", "large", "logo.png")
+    icon_path = pathlib.PurePath(os.path.dirname(ansys.aedt.core.workflows.__file__)).joinpath("images", "large", "logo.png")
     im = PIL.Image.open(icon_path)
     photo = PIL.ImageTk.PhotoImage(im)
 
@@ -166,10 +167,10 @@ def main(extension_args):
     edb_file = extension_args["source_path"]
     mounting_side_variable = extension_args["mounting_side"]
 
-    edb_project = os.path.join(working_dir, "arbitrary_wave_port.aedb")
-    out_3d_project = os.path.join(working_dir, "output_3d.aedt")
-    component_3d_file = os.path.join(working_dir, "wave_port.a3dcomp")
-    if os.path.exists(working_dir):
+    edb_project = pathlib.PurePath(working_dir).joinpath("arbitrary_wave_port.aedb")
+    out_3d_project = pathlib.PurePath(working_dir).joinpath("output_3d.aedt")
+    component_3d_file = pathlib.PurePath(working_dir).joinpath("wave_port.a3dcomp")
+    if pathlib.Path(working_dir).exists():
         if len(os.listdir(working_dir)) > 0:  # pragma: no cover
             res = messagebox.askyesno(
                 title="Warning",

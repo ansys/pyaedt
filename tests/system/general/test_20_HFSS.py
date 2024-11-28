@@ -24,6 +24,7 @@
 
 import math
 import os
+import pathlib
 import shutil
 
 import pytest
@@ -72,7 +73,7 @@ class TestClass:
 
     def test_01_save(self):
         project_name = "Test_Exercse201119"
-        test_project = os.path.join(self.local_scratch.path, project_name + ".aedt")
+        test_project = pathlib.PurePath(self.local_scratch.path).joinpath(project_name + ".aedt")
         self.aedtapp.save_project(test_project)
         assert os.path.exists(test_project)
 
@@ -924,8 +925,9 @@ class TestClass:
         assert self.aedtapp.setups[0].add_mesh_link(
             design=design_name, parameters=self.aedtapp.available_variations.nominal_w_values_dict
         )
-        example_project = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, diff_proj_name + ".aedt")
-        example_project_copy = os.path.join(self.local_scratch.path, diff_proj_name + "_copy.aedt")
+        example_project = (pathlib.PurePath(TESTS_GENERAL_PATH)
+                           .joinpath("example_models", test_subfolder, diff_proj_name + ".aedt"))
+        example_project_copy = pathlib.PurePath(self.local_scratch.path).joinpath(diff_proj_name + "_copy.aedt")
         shutil.copyfile(example_project, example_project_copy)
         assert self.aedtapp.setups[0].add_mesh_link(design=design_name, project=example_project_copy)
 
@@ -1027,7 +1029,7 @@ class TestClass:
         file_name = "test"
         self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10])
         assert self.aedtapp.export_3d_model(file_name, self.aedtapp.working_directory, ".x_t", [], [])
-        assert os.path.exists(os.path.join(self.aedtapp.working_directory, file_name + ".x_t"))
+        assert os.path.exists(pathlib.PurePath(self.aedtapp.working_directory).joinpath(file_name + ".x_t"))
 
     def test_42_floquet_port(self):
         self.aedtapp.insert_design("floquet")
@@ -1225,7 +1227,7 @@ class TestClass:
         assert self.aedtapp.mesh.initial_mesh_settings.props
 
     def test_47_convert_near_field(self):
-        example_project = os.path.join(TESTS_GENERAL_PATH, "example_models", "nf_test")
+        example_project = pathlib.PurePath(TESTS_GENERAL_PATH).joinpath("example_models", "nf_test")
         assert os.path.exists(convert_nearfield_data(example_project, output_folder=self.local_scratch.path))
 
     def test_48_traces(self):
@@ -1291,15 +1293,18 @@ class TestClass:
 
         if config["desktopVersion"] > "2023.1":
             dict_in = read_json(
-                os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "array_simple_232.json")
+                pathlib.PurePath(TESTS_GENERAL_PATH)
+                .joinpath("example_models", test_subfolder, "array_simple_232.json")
             )
-            dict_in["Circ_Patch_5GHz_232_1"] = os.path.join(
-                TESTS_GENERAL_PATH, "example_models", test_subfolder, component
-            )
+            dict_in["Circ_Patch_5GHz_232_1"] = (pathlib.PurePath(TESTS_GENERAL_PATH)
+                                                .joinpath("example_models", test_subfolder, component
+            ))
             dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz_232_1"}
         else:
-            dict_in = read_json(os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "array_simple.json"))
-            dict_in["Circ_Patch_5GHz1"] = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, component)
+            dict_in = read_json(pathlib.PurePath(TESTS_GENERAL_PATH)
+                                .joinpath("example_models", test_subfolder, "array_simple.json"))
+            dict_in["Circ_Patch_5GHz1"] = (pathlib.PurePath(TESTS_GENERAL_PATH)
+                                           .joinpath("example_models", test_subfolder, component))
             dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz1"}
 
         assert self.aedtapp.add_3d_component_array_from_json(dict_in)
@@ -1335,8 +1340,10 @@ class TestClass:
 
     def test_53_import_source_excitation(self, add_app):
         aedtapp = add_app(solution_type="Modal", project_name="test_53")
-        freq_domain = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "S Parameter Table 1.csv")
-        time_domain = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "Sinusoidal.csv")
+        freq_domain = (pathlib.PurePath(TESTS_GENERAL_PATH)
+                       .joinpath("example_models", test_subfolder, "S Parameter Table 1.csv"))
+        time_domain = (pathlib.PurePath(TESTS_GENERAL_PATH)
+                       .joinpath("example_models", test_subfolder, "Sinusoidal.csv"))
 
         box1 = aedtapp.modeler.create_box([0, 0, 0], [10, 20, 20])
         aedtapp.wave_port(assignment=box1.bottom_face_x, create_port_sheet=False, name="Port1")

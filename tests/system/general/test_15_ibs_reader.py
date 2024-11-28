@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+import pathlib
 
 from ansys.aedt.core import Circuit
 from ansys.aedt.core.generic import ibis_reader
@@ -47,7 +48,8 @@ class TestClass:
 
     def test_01_read_ibis(self):
         reader = ibis_reader.IbisReader(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "u26a_800_modified.ibs"), self.aedtapp
+            pathlib.PurePath(TESTS_GENERAL_PATH)
+            .joinpath("example_models", test_subfolder, "u26a_800_modified.ibs"), self.aedtapp
         )
         reader.parse_ibis_file()
         ibis = reader.ibis_model
@@ -92,13 +94,15 @@ class TestClass:
 
     def test_02_read_ibis_from_circuit(self):
         ibis_model = self.aedtapp.get_ibis_model_from_file(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "u26a_800_modified.ibs")
+            pathlib.PurePath(TESTS_GENERAL_PATH)
+            .joinpath("example_models", test_subfolder, "u26a_800_modified.ibs")
         )
         assert len(ibis_model.components) == 6
         assert len(ibis_model.models) == 17
 
     def test_03_read_ibis_ami(self):
         ibis_model = self.aedtapp.get_ibis_model_from_file(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "ibis_ami_example_tx.ibs"), is_ami=True
+            os.path.join(TESTS_GENERAL_PATH)
+            .joinpath("example_models", test_subfolder, "ibis_ami_example_tx.ibs"), is_ami=True
         )
         assert ibis_model.buffers["example_model_tx_ibis_ami_example_tx"].insert(0, 0)

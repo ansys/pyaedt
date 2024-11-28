@@ -28,6 +28,7 @@ from __future__ import absolute_import  # noreorder
 
 import io
 import os
+import pathlib
 import re
 import time
 
@@ -77,7 +78,7 @@ class Maxwell(object):
     @property
     def design_file(self):
         """Design file."""
-        design_file = os.path.join(self.working_directory, "design_data.json")
+        design_file = pathlib.PurePath(self.working_directory).joinpath("design_data.json")
         return design_file
 
     @pyaedt_function_handler()
@@ -477,14 +478,14 @@ class Maxwell(object):
             return False
 
         self._py_file = setupname + ".py"
-        ctl_file_path = os.path.join(self.working_directory, self._py_file)
+        ctl_file_path = pathlib.PurePath(self.working_directory).joinpath(self._py_file)
 
         if aedt_lib_dir:
             source_dir = aedt_lib_dir
         else:
             source_dir = self.pyaedt_dir
 
-        if os.path.exists(ctl_file_path) and keep_modifications:
+        if pathlib.Path(ctl_file_path).exists() and keep_modifications:
             with open_file(ctl_file_path, "r") as fi:
                 existing_data = fi.readlines()
             with open_file(ctl_file_path, "w") as fo:
@@ -504,7 +505,7 @@ class Maxwell(object):
             if file_str is not None:
                 with io.open(ctl_file_path, "w", newline="\n") as fo:
                     fo.write(file_str)
-                assert os.path.exists(ctl_file_path), "Control program file could not be created."
+                assert pathlib.Path(ctl_file_path).exists(), "Control program file could not be created."
 
         self.oanalysis.EditSetup(
             setupname,
@@ -3179,7 +3180,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
             "MaterialProperties": self.get_object_material_properties(solid_bodies),
         }
 
-        design_file = os.path.join(self.working_directory, "design_data.json")
+        design_file = pathlib.PurePath(self.working_directory).joinpath("design_data.json")
         write_configuration_file(self.design_data, design_file)
         return True
 
@@ -3193,7 +3194,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
             Dictionary of design data.
 
         """
-        design_file = os.path.join(self.working_directory, "design_data.json")
+        design_file = pathlib.PurePath(self.working_directory).joinpath("design_data.json")
         return read_configuration_file(design_file)
 
     @pyaedt_function_handler(edge_list="assignment", bound_name="boundary")

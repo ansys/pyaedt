@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+import pathlib
 import tempfile
 
 from ansys.aedt.core import downloads
@@ -58,11 +59,13 @@ class TestClass:
         assert self.examples.download_antenna_array()
 
     def test_05_download_antenna_sherlock(self):
-        assert self.examples.download_sherlock(destination=os.path.join(tempfile.gettempdir(), "sherlock"))
+        assert self.examples.download_sherlock(destination=pathlib.PurePath(tempfile.gettempdir())
+                                               .joinpath("sherlock"))
 
     @pytest.mark.skipif(is_linux, reason="Crashes on Linux")
     def test_06_download_multiparts(self):
-        assert self.examples.download_multiparts(destination=os.path.join(tempfile.gettempdir(), "multi"))
+        assert self.examples.download_multiparts(destination=pathlib.PurePath(tempfile.gettempdir())
+                                                 .joinpath("multi"))
 
     def test_07_download_wfp(self):
         assert self.examples.download_edb_merge_utility(True)

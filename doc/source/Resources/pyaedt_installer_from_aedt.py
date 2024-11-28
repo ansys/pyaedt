@@ -24,6 +24,7 @@
 
 import argparse
 import os
+import pathlib
 import platform
 import shutil
 import sys
@@ -61,14 +62,14 @@ def run_pyinstaller_from_c_python(oDesktop):
     # CPython interpreter executable
     if is_windows:
         python_exe = os.path.normpath(
-            os.path.join(
-                edt_root, "commonfiles", "CPython", python_version_new, "winx64", "Release", "python", "python.exe"
+            pathlib.PurePath(edt_root)
+            .joinpath("commonfiles", "CPython", python_version_new, "winx64", "Release", "python", "python.exe"
             )
         )
     else:
         python_exe = os.path.normpath(
-            os.path.join(
-                edt_root, "commonfiles", "CPython", python_version_new, "linx64", "Release", "python", "runpython"
+            pathlib.PurePath(edt_root)
+            .joinpath("commonfiles", "CPython", python_version_new, "linx64", "Release", "python", "runpython"
             )
         )
 
@@ -99,24 +100,24 @@ def run_pyinstaller_from_c_python(oDesktop):
     # Add PyAEDT tabs in AEDT
     # Virtual environment path and Python executable
     if is_windows:
-        venv_dir = os.path.join(os.environ["APPDATA"], VENV_DIR_PREFIX, python_version_new)
-        python_exe = os.path.join(venv_dir, "Scripts", "python.exe")
+        venv_dir = pathlib.PurePath(os.environ["APPDATA"]).joinpath(VENV_DIR_PREFIX, python_version_new)
+        python_exe = pathlib.PurePath(venv_dir).joinpath("Scripts", "python.exe")
     else:
-        venv_dir = os.path.join(os.environ["HOME"], VENV_DIR_PREFIX, python_version_new)
-        python_exe = os.path.join(venv_dir, "bin", "python")
-    pyaedt_path = os.path.join(venv_dir, "Lib", "site-packages", "ansys", "aedt", "core")
+        venv_dir = pathlib.PurePath(os.environ["HOME"]).joinpath(VENV_DIR_PREFIX, python_version_new)
+        python_exe = pathlib.PurePath(venv_dir).joinpath("bin", "python")
+    pyaedt_path = pathlib.PurePath(venv_dir).joinpath("Lib", "site-packages", "ansys", "aedt", "core")
     if is_linux:
         for dirpath, dirnames, _ in os.walk(venv_dir):
             if "site-packages" in dirnames:
-                pyaedt_path = os.path.normpath(os.path.join(dirpath, "site-packages", "ansys", "aedt", "core"))
-                if os.path.isdir(pyaedt_path):
+                pyaedt_path = os.path.normpath(pathlib.PurePath(dirpath).joinpath("site-packages", "ansys", "aedt", "core"))
+                if pathlib.Path(pyaedt_path).is_dir():
                     break
 
     # Create Toolkits in PersonalLib
     import tempfile
 
-    python_script = os.path.join(tempfile.gettempdir(), "configure_pyaedt.py")
-    if os.path.isfile(python_script):
+    python_script = pathlib.PurePath(tempfile.gettempdir()).joinpath("configure_pyaedt.py")
+    if pathlib.Path(python_script).is_file():
         os.remove(python_script)
     with open(python_script, "w") as f:
         # enable in debug mode
@@ -189,13 +190,13 @@ def install_pyaedt():
         python_version = "3_7"
 
     if is_windows:
-        venv_dir = os.path.join(os.environ["APPDATA"], VENV_DIR_PREFIX, python_version)
-        python_exe = os.path.join(venv_dir, "Scripts", "python.exe")
-        pip_exe = os.path.join(venv_dir, "Scripts", "pip.exe")
+        venv_dir = pathlib.PurePath(os.environ["APPDATA"]).joinpath(VENV_DIR_PREFIX, python_version)
+        python_exe = pathlib.PurePath(venv_dir).joinpath("Scripts", "python.exe")
+        pip_exe = pathlib.PurePath(venv_dir).joinpath("Scripts", "pip.exe")
     else:
-        venv_dir = os.path.join(os.environ["HOME"], VENV_DIR_PREFIX, python_version)
-        python_exe = os.path.join(venv_dir, "bin", "python")
-        pip_exe = os.path.join(venv_dir, "bin", "pip")
+        venv_dir = pathlib.PurePath(os.environ["HOME"]).joinpath(VENV_DIR_PREFIX, python_version)
+        python_exe = pathlib.PurePath(venv_dir).joinpath("bin", "python")
+        pip_exe = pathlib.PurePath(venv_dir).joinpath("bin", "pip")
         os.environ["ANSYSEM_ROOT{}".format(args.version)] = args.edt_root
         ld_library_path_dirs_to_add = [
             "{}/commonfiles/CPython/{}/linx64/Release/python/lib".format(
@@ -214,22 +215,22 @@ def install_pyaedt():
             args.edt_root, args.python_version.replace(".", "_")
         )
 
-    if not os.path.exists(venv_dir):
+    if not pathlib.Path(venv_dir).exists():
 
         if args.version == "231":
             subprocess.call([sys.executable, "-m", "venv", venv_dir, "--system-site-packages"])
         else:
             subprocess.call([sys.executable, "-m", "venv", venv_dir])
 
-        if args.wheel and os.path.exists(args.wheel):
+        if args.wheel and pathlib.Path(args.wheel).exists():
             wheel_pyaedt = args.wheel
             if wheel_pyaedt.endswith(".zip"):
                 import zipfile
 
-                unzipped_path = os.path.join(
-                    os.path.dirname(wheel_pyaedt), os.path.splitext(os.path.basename(wheel_pyaedt))[0]
-                )
-                if os.path.exists(unzipped_path):
+                unzipped_path = (pathlib.PurePath(pathlib.PurePath(wheel_pyaedt).parent)
+                                 .joinpath(pathlib.PurePath(wheel_pyaedt).stem)
+                                 )
+                if pathlib.Path(unzipped_path).exists():
                     shutil.rmtree(unzipped_path, ignore_errors=True)
                 with zipfile.ZipFile(wheel_pyaedt, "r") as zip_ref:
                     # Extract all contents to a directory. (You can specify a different extraction path if needed.)
@@ -277,14 +278,14 @@ def install_pyaedt():
     else:
         subprocess.call([pip_exe, "uninstall", "-y", "pyaedt"])
 
-        if args.wheel and os.path.exists(args.wheel):
+        if args.wheel and pathlib.Path(args.wheel).exists():
             wheel_pyaedt = args.wheel
             import zipfile
 
-            unzipped_path = os.path.join(
-                os.path.dirname(wheel_pyaedt), os.path.splitext(os.path.basename(wheel_pyaedt))[0]
-            )
-            if os.path.exists(unzipped_path):
+            unzipped_path = (pathlib.PurePath(pathlib.PurePath(wheel_pyaedt).parent)
+                             .joinpath(pathlib.PurePath(wheel_pyaedt).stem)
+                             )
+            if pathlib.Path(unzipped_path).exists():
                 shutil.rmtree(unzipped_path, ignore_errors=True)
             with zipfile.ZipFile(wheel_pyaedt, "r") as zip_ref:
                 # Extract all contents to a directory. (You can specify a different extraction path if needed.)
@@ -324,7 +325,7 @@ def install_pyaedt():
 
 def is_student_version(oDesktop):
     edt_root = os.path.normpath(oDesktop.GetExeDir())
-    if is_windows and os.path.isdir(edt_root):
+    if is_windows and pathlib.Path(edt_root).is_dir():
         if any("ansysedtsv" in fn.lower() for fn in os.listdir(edt_root)):
             return True
     return False
@@ -354,7 +355,7 @@ if __name__ == "__main__":
             script_args = ScriptArgument.split()
             if len(script_args) == 1:
                 wheelpyaedt = script_args[0]
-                if not os.path.exists(wheelpyaedt):
+                if not pathlib.Path(wheelpyaedt).exists():
                     wheelpyaedt = []
             run_pyinstaller_from_c_python(oDesktop)
         else:

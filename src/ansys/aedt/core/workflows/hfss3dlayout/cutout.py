@@ -22,6 +22,7 @@
 # SOFTWARE.
 
 import os
+import pathlib
 
 import ansys.aedt.core
 from ansys.aedt.core import Hfss3dLayout
@@ -88,7 +89,7 @@ def frontend():  # pragma: no cover
     master.title("Advanced Cutout")
 
     # Load the logo for the main window
-    icon_path = os.path.join(os.path.dirname(ansys.aedt.core.workflows.__file__), "images", "large", "logo.png")
+    icon_path = pathlib.PurePath(os.path.dirname(ansys.aedt.core.workflows.__file__)).joinpath( "images", "large", "logo.png")
     im = PIL.Image.open(icon_path)
     photo = PIL.ImageTk.PhotoImage(im)
 
@@ -210,7 +211,7 @@ def main(extension_args):
 
     active_project = app.active_project()
     active_design = app.active_design()
-    aedb_path = os.path.join(active_project.GetPath(), active_project.GetName() + ".aedb")
+    aedb_path = pathlib.PurePath(active_project.GetPath()).joinpath(active_project.GetName() + ".aedb")
     new_path = aedb_path[:-5] + generate_unique_name("_cutout", n=2) + ".aedb"
     edb = Edb(aedb_path, active_design.GetName().split(";")[1], edbversion=version)
     edb.save_edb_as(new_path)

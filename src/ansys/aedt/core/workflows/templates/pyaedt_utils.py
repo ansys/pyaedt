@@ -27,6 +27,7 @@
 It contains common methods for the PyAEDT panels.
 """
 import os
+import pathlib
 import random
 import string
 import sys
@@ -84,7 +85,7 @@ def which(program):
     else:
         for path in os.environ["PATH"].split(os.pathsep):
             path = path.strip('"')
-            exe_file = os.path.join(path, program)
+            exe_file = pathlib.PurePath(path).joinpath(program)
             if is_exe(exe_file):
                 return exe_file
 
@@ -121,25 +122,19 @@ def environment_variables(oDesktop):
         ]
         os.environ["LD_LIBRARY_PATH"] = ":".join(ld_library_path_dirs_to_add) + ":" + os.getenv("LD_LIBRARY_PATH", "")
         if version > "2023.1":
-            os.environ["TCL_LIBRARY"] = os.path.join(
-                "{}/commonfiles/CPython/3_10/linx64/Release/python/lib".format(edt_root), "tcl8.5"
-            )
-            os.environ["TK_LIBRARY"] = os.path.join(
-                "{}/commonfiles/CPython/3_10/linx64/Release/python/lib".format(edt_root), "tk8.5"
-            )
-            os.environ["TKPATH"] = os.path.join(
-                "{}/commonfiles/CPython/3_10/linx64/Release/python/lib".format(edt_root), "tk8.5"
-            )
+            os.environ["TCL_LIBRARY"] = str(pathlib.PurePath(
+                "{}/commonfiles/CPython/3_10/linx64/Release/python/lib".format(edt_root)).joinpath("tcl8.5"))
+            os.environ["TK_LIBRARY"] = str(pathlib.PurePath(
+                "{}/commonfiles/CPython/3_10/linx64/Release/python/lib".format(edt_root)).joinpath("tk8.5"))
+            os.environ["TKPATH"] = str(pathlib.PurePath(
+                "{}/commonfiles/CPython/3_10/linx64/Release/python/lib".format(edt_root)).joinpath("tk8.5"))
         else:
-            os.environ["TCL_LIBRARY"] = os.path.join(
-                "{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root), "tcl8.5"
-            )
-            os.environ["TK_LIBRARY"] = os.path.join(
-                "{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root), "tk8.5"
-            )
-            os.environ["TKPATH"] = os.path.join(
-                "{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root), "tk8.5"
-            )
+            os.environ["TCL_LIBRARY"] = str(pathlib.PurePath(
+                "{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root)).joinpath("tcl8.5"))
+            os.environ["TK_LIBRARY"] = str(pathlib.PurePath(
+                "{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root)).joinpath("tk8.5"))
+            os.environ["TKPATH"] = str(pathlib.PurePath(
+                "{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root)).joinpath("tk8.5"))
 
 
 def generate_unique_name(root_name, suffix="", n=6):

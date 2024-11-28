@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+import pathlib
 import time
 
 from ansys.aedt.core import Circuit
@@ -61,10 +62,10 @@ def circuitprj(add_app):
 
 @pytest.fixture(scope="class", autouse=True)
 def examples(local_scratch):
-    netlist_file1 = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, netlist1)
-    netlist_file2 = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, netlist2)
-    touchstone_file = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, touchstone)
-    touchstone_file2 = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, touchstone2)
+    netlist_file1 = pathlib.PurePath(TESTS_GENERAL_PATH).joinpath("example_models", test_subfolder, netlist1)
+    netlist_file2 = pathlib.PurePath(TESTS_GENERAL_PATH).joinpath("example_models", test_subfolder, netlist2)
+    touchstone_file = pathlib.PurePath(TESTS_GENERAL_PATH).joinpath("example_models", test_subfolder, touchstone)
+    touchstone_file2 = pathlib.PurePath(TESTS_GENERAL_PATH).joinpath("example_models", test_subfolder, touchstone2)
     netlist_file1 = local_scratch.copyfile(netlist_file1)
     netlist_file2 = local_scratch.copyfile(netlist_file2)
     touchstone_file = local_scratch.copyfile(touchstone_file)
@@ -243,7 +244,7 @@ class TestClass:
         time.sleep(2)
         solution_name = "Dom_LNA"
         sweep_name = None
-        file_name = os.path.join(self.local_scratch.path, "new.s2p")
+        file_name = pathlib.PurePath(self.local_scratch.path).joinpath("new.s2p")
         assert self.aedtapp.export_touchstone(solution_name, sweep_name, file_name)
         assert os.path.exists(file_name)
         assert self.aedtapp.existing_analysis_sweeps[0] == solution_name

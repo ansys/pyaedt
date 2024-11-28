@@ -23,6 +23,7 @@
 
 import csv
 import os
+import pathlib
 
 import ansys.aedt.core
 from ansys.aedt.core import Icepak
@@ -82,7 +83,7 @@ def frontend():  # pragma: no cover
     master.title("Create power maps from csv file")
 
     # Load the logo for the main window
-    icon_path = os.path.join(ansys.aedt.core.workflows.__path__[0], "images", "large", "logo.png")
+    icon_path = pathlib.PurePath(ansys.aedt.core.workflows.__path__[0]).joinpath("images", "large", "logo.png")
     im = PIL.Image.open(icon_path)
     photo = PIL.ImageTk.PhotoImage(im)
 

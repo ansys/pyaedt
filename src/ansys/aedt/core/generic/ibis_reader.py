@@ -24,6 +24,7 @@
 
 import json
 import os
+import pathlib
 import re
 import traceback
 
@@ -49,7 +50,7 @@ class Component:
 
         Examples
         --------
-        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> ibis = ibis_reader.IbisReader(pathlib.PurePath(path_to_ibis_files).joinpath("u26a_800_modified.ibs"), circuit)
         >>> ibis.components["MT47H64M4BP-3_25"].name
         'MT47H64M4BP-3_25'
 
@@ -67,7 +68,7 @@ class Component:
 
         Examples
         --------
-        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, 'u26a_800_modified.ibs'), circuit)
+        >>> ibis = ibis_reader.IbisReader(pathlib.PurePath(path_to_ibis_files).joinpath('u26a_800_modified.ibs'), circuit)
         >>> ibis.components["MT47H64M4BP-3_25"].manufacturer
         'Micron Technology, Inc.'
 
@@ -85,7 +86,7 @@ class Component:
 
         Examples
         --------
-        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> ibis = ibis_reader.IbisReader(pathlib.PurePath(path_to_ibis_files).joinpath("u26a_800_modified.ibs"), circuit)
         >>> pins = ibis.components["MT47H64M4BP-3_25"].pins
 
         """
@@ -140,7 +141,7 @@ class Pin:
 
         Examples
         --------
-        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> ibis = ibis_reader.IbisReader(pathlib.PurePath(path_to_ibis_files).joinpath("u26a_800_modified.ibs"), circuit)
         >>> ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800"].name
         'A1_MT47H64M4BP-3_25_u26a_800'
 
@@ -158,7 +159,7 @@ class Pin:
 
         Examples
         --------
-        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> ibis = ibis_reader.IbisReader(pathlib.PurePath(path_to_ibis_files).joinpath("u26a_800_modified.ibs"), circuit)
         >>> ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800"].short_name
         'A1'
 
@@ -175,7 +176,7 @@ class Pin:
 
         Examples
         --------
-        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> ibis = ibis_reader.IbisReader(pathlib.PurePath(path_to_ibis_files).joinpath("u26a_800_modified.ibs"), circuit)
         >>> ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800"].signal
         'VDD'
 
@@ -192,7 +193,7 @@ class Pin:
 
         Examples
         --------
-        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> ibis = ibis_reader.IbisReader(pathlib.PurePath(path_to_ibis_files).joinpath("u26a_800_modified.ibs"), circuit)
         >>> ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800"].signal
         'POWER'
 
@@ -209,7 +210,7 @@ class Pin:
 
         Examples
         --------
-        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> ibis = ibis_reader.IbisReader(pathlib.PurePath(path_to_ibis_files).joinpath("u26a_800_modified.ibs"), circuit)
         >>> ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800"].r_value
         '44.3m'
 
@@ -227,7 +228,7 @@ class Pin:
 
         Examples
         --------
-        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> ibis = ibis_reader.IbisReader(pathlib.PurePath(path_to_ibis_files).joinpath("u26a_800_modified.ibs"), circuit)
         >>> ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800"].l_value
         '1.99nH'
 
@@ -244,7 +245,7 @@ class Pin:
 
         Examples
         --------
-        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> ibis = ibis_reader.IbisReader(pathlib.PurePath(path_to_ibis_files).joinpath("u26a_800_modified.ibs"), circuit)
         >>> ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800"].c_value
         '0.59pF'
 
@@ -332,7 +333,7 @@ class DifferentialPin:
 
         Examples
         --------
-        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> ibis = ibis_reader.IbisReader(pathlib.PurePath(path_to_ibis_files).joinpath("u26a_800_modified.ibs"), circuit)
         >>> ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800"].signal
         'POWER'
 
@@ -409,7 +410,7 @@ class DifferentialPin:
 
         Examples
         --------
-        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> ibis = ibis_reader.IbisReader(pathlib.PurePath(path_to_ibis_files).joinpath("u26a_800_modified.ibs"), circuit)
         >>> ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800"].name
         'A1_MT47H64M4BP-3_25_u26a_800'
 
@@ -806,7 +807,7 @@ class IbisReader(object):
         >>> from ansys.aedt.core.generic import ibis_reader
         >>> desktop = Desktop()
         >>> circuit = Circuit()
-        >>> ibis = ibis_reader.IbisReader(os.path.join(desktop.install_path, "buflib", "IBIS", "u26a_800.ibs"), circuit)
+        >>> ibis = ibis_reader.IbisReader(pathlib.PurePath(desktop.install_path).joinpath("buflib", "IBIS", "u26a_800.ibs"), circuit)
 
         """
 
@@ -1231,7 +1232,7 @@ class AMIReader(IbisReader):
         >>> from ansys.aedt.core.generic import ibis_reader
         >>> desktop = Desktop()
         >>> circuit = Circuit()
-        >>> ibis = ibis_reader.IbisReader(os.path.join(desktop.install_path, "buflib", "IBIS", "u26a_800.ibs"), circuit)
+        >>> ibis = ibis_reader.IbisReader(pathlib.PurePath(desktop.install_path).joinpath("buflib", "IBIS", "u26a_800.ibs"), circuit)
         """
 
         if not check_if_path_exists(self._filename):
@@ -1358,7 +1359,8 @@ def ibis_parsing(file):
     with open_file(file, "r") as fp:
         ibis_data = list(enumerate(fp))
 
-    with open_file(os.path.join(os.path.dirname(os.path.abspath(__file__)), "ibis_v7.json"), "r") as f:
+    with open_file(str(pathlib.PurePath(pathlib.PurePath(pathlib.Path(__file__).absolute()).parent)
+                               .joinpath("ibis_v7.json")), "r") as f:
         ibis_ref = json.load(f)
     ibis_ref = lowercase_json(ibis_ref)
 

@@ -34,7 +34,7 @@ is_linux = os.name == "posix"
 if is_linux:
     import subprocessdotnet as subprocess
 
-toolkits_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+toolkits_dir = os.path.abspath(pathlib.PurePath(os.path.dirname(__file__)).joinpath('..', '..'))
 
 sys.path.append(toolkits_dir)
 
@@ -73,7 +73,7 @@ def main():
             runme = "run_pyaedt_toolkit_{0}.cmd".format(toolkit_name)
             edt_temp = oDesktop.GetTempDirectory()
             cmd = '"{0}"'.format(pyaedt_script)
-            target = os.path.join(edt_temp, runme)
+            target = pathlib.PurePath(edt_temp).joinpath(runme)
             my_env = dict(os.environ.copy())
             with open(target, 'w') as cmdfile:
                 for env in my_env:

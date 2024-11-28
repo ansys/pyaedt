@@ -21,7 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
+import pathlib
 from importlib import import_module
 import os
 import sys
@@ -94,7 +94,7 @@ def _set_api(aedt_version):
     numeric_version = int(aedt_version[-3:])
     desktop_path = os.environ.get(aedt_version)
     if desktop_path and numeric_version > 231:
-        path = os.path.join(desktop_path, "Delcross")
+        path = pathlib.PurePath(desktop_path).joinpath("Delcross")
         override_path_key = "ANSYS_DELCROSS_PYTHON_PATH"
         if override_path_key in os.environ:
             path = os.environ.get(override_path_key)

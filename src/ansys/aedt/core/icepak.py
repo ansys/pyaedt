@@ -28,6 +28,7 @@ from __future__ import absolute_import  # noreorder
 
 import csv
 import os
+import pathlib
 import re
 import warnings
 
@@ -1133,7 +1134,7 @@ class Icepak(FieldAnalysis3D):
 
         >>> oEditor.UpdatePriorityList
         """
-        temp_log = os.path.join(self.working_directory, "validation.log")
+        temp_log = pathlib.PurePath(self.working_directory).joinpath("validation.log")
         validate = self.odesign.ValidateDesign(temp_log)
         self.save_project()
         i = 2
@@ -1945,7 +1946,7 @@ class Icepak(FieldAnalysis3D):
         string = ""
         for el in parameter_dict_with_values:
             string += el + "='" + parameter_dict_with_values[el] + "' "
-        filename = os.path.join(savedir, filename + ".csv")
+        filename = pathlib.PurePath(savedir).joinpath(filename + ".csv")
         self.osolution.ExportFieldsSummary(
             [
                 "SolutionName:=",
@@ -2016,7 +2017,7 @@ class Icepak(FieldAnalysis3D):
         string = ""
         for el in parameter_dict_with_values:
             string += el + "='" + parameter_dict_with_values[el] + "' "
-        filename = os.path.join(savedir, filename + ".csv")
+        filename = pathlib.PurePath(savedir).joinpath(filename + ".csv")
         self.osolution.ExportFieldsSummary(
             [
                 "SolutionName:=",
@@ -2106,7 +2107,7 @@ class Icepak(FieldAnalysis3D):
         if not output_dir:
             output_dir = self.working_directory
         self.osolution.EditFieldsSummarySetting(arg)
-        if not os.path.exists(output_dir):
+        if not pathlib.Path(output_dir).exists():
             os.mkdir(output_dir)
         if not solution_name:
             solution_name = self.nominal_sweep
@@ -2119,7 +2120,7 @@ class Icepak(FieldAnalysis3D):
                         "DesignVariationKey:=",
                         variation + "='" + str(l) + "'",
                         "ExportFileName:=",
-                        os.path.join(output_dir, filename + "_" + quantity + "_" + str(l) + ".csv"),
+                        pathlib.PurePath(output_dir).joinpath(filename + "_" + quantity + "_" + str(l) + ".csv"),
                     ]
                 )
         else:
@@ -2130,7 +2131,7 @@ class Icepak(FieldAnalysis3D):
                     "DesignVariationKey:=",
                     "",
                     "ExportFileName:=",
-                    os.path.join(output_dir, filename + "_" + quantity + ".csv"),
+                    pathlib.PurePath(output_dir).joinpath(filename + "_" + quantity + ".csv"),
                 ]
             )
         return True
@@ -2602,7 +2603,7 @@ class Icepak(FieldAnalysis3D):
         )
 
         if close_linked_project_after_import and ".aedt" in project_name:
-            prjname = os.path.splitext(os.path.basename(project_name))[0]
+            prjname = pathlib.PurePath(project_name).stem
             self.close_project(prjname, save=False)
         self.logger.info("PCB component correctly created in Icepak.")
         return status
@@ -2987,16 +2988,16 @@ class Icepak(FieldAnalysis3D):
                 min_size = min(min_size, max_size / 4)
         object_lists = self.modeler.convert_to_selections(object_lists, True)
         file_name = self.project_name
-        sab_file_pointer = os.path.join(self.working_directory, file_name + ".sab")
-        mesh_file_pointer = os.path.join(self.working_directory, file_name + ".msh")
-        fl_uscript_file_pointer = os.path.join(self.working_directory, "FLUscript.jou")
-        if os.path.exists(mesh_file_pointer):
+        sab_file_pointer = pathlib.PurePath(self.working_directory).joinpath(file_name + ".sab")
+        mesh_file_pointer = pathlib.PurePath(self.working_directory).joinpath(file_name + ".msh")
+        fl_uscript_file_pointer = pathlib.PurePath(self.working_directory).joinpath("FLUscript.jou")
+        if pathlib.Path(mesh_file_pointer).exists():
             os.remove(mesh_file_pointer)
-        if os.path.exists(sab_file_pointer):
+        if pathlib.Path(sab_file_pointer).exists():
             os.remove(sab_file_pointer)
-        if os.path.exists(fl_uscript_file_pointer):
+        if pathlib.Path(fl_uscript_file_pointer).exists():
             os.remove(fl_uscript_file_pointer)
-        if os.path.exists(mesh_file_pointer + ".trn"):
+        if pathlib.Path(mesh_file_pointer + ".trn").exists():
             os.remove(mesh_file_pointer + ".trn")
         assert self.export_3d_model(file_name, self.working_directory, ".sab", object_lists), "Failed to export .sab"
 
@@ -3063,9 +3064,9 @@ class Icepak(FieldAnalysis3D):
         fluent_script.write("/file/stop-transcript\n")
         fluent_script.write("/exit,\n")
         fluent_script.close()
-        cmd = os.path.join(self.desktop_install_dir, "fluent", "ntbin", "win64", "fluent.exe")
+        cmd = pathlib.PurePath(self.desktop_install_dir).joinpath("fluent", "ntbin", "win64", "fluent.exe")
         if is_linux:  # pragma: no cover
-            cmd = os.path.join(ansys_install_dir, "fluent", "bin", "fluent")
+            cmd = pathlib.PurePath(ansys_install_dir).joinpath("fluent", "bin", "fluent")
         # Fluent command line parameters: -meshing -i <journal> -hidden -tm<x> (# processors for meshing) -wait
         fl_ucommand = [
             cmd,
@@ -3081,7 +3082,7 @@ class Icepak(FieldAnalysis3D):
             fl_ucommand = ["bash"] + fl_ucommand + ['"' + fl_uscript_file_pointer + '"']
         self.logger.info(" ".join(fl_ucommand))
         ansys.aedt.core.desktop.run_process(fl_ucommand)
-        if os.path.exists(mesh_file_pointer):
+        if pathlib.Path(mesh_file_pointer).exists():
             self.logger.info("'" + mesh_file_pointer + "' has been created.")
             return self.mesh.assign_mesh_from_file(object_lists, mesh_file_pointer)
         self.logger.error("Failed to create msh file")
@@ -3302,7 +3303,7 @@ class Icepak(FieldAnalysis3D):
                 library_path = board_path[:-3] + "emp"
             if board_path.endswith(".bdf"):
                 library_path = board_path[:-3] + "ldf"
-        if not control_path and os.path.exists(board_path[:-3] + "xml"):
+        if not control_path and pathlib.Path(board_path[:-3] + "xml").exists():
             control_path = board_path[:-3] + "xml"
         else:
             control_path = ""

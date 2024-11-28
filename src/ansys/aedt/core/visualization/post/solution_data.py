@@ -25,6 +25,7 @@
 import itertools
 import math
 import os
+import pathlib
 import warnings
 
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -1117,14 +1118,14 @@ class SolutionData(object):
             frames = t_matrix.shape[0]
         csv_list = []
         if os.path.exists(csv_path):
-            files = [os.path.join(csv_path, f) for f in os.listdir(csv_path) if csv_file_header in f and ".csv" in f]
+            files = [pathlib.PurePath(csv_path).joinpath(f) for f in os.listdir(csv_path) if csv_file_header in f and ".csv" in f]
             for file in files:
                 os.remove(file)
         else:
             os.mkdir(csv_path)
 
         for frame in range(frames):
-            output = os.path.join(csv_path, csv_file_header + str(frame) + ".csv")
+            output = pathlib.PurePath(csv_path).joinpath(csv_file_header + str(frame) + ".csv")
             list_full = [["x", "y", "z", "val"]]
             for i, y in enumerate(y_c_list):
                 for j, x in enumerate(x_c_list):

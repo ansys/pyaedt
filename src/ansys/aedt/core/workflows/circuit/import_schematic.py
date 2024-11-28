@@ -21,6 +21,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import os.path
+import pathlib
 
 import ansys.aedt.core
 from ansys.aedt.core import Circuit
@@ -57,7 +58,7 @@ def frontend():  # pragma: no cover
     master.title(extension_description)
 
     # Load the logo for the main window
-    icon_path = os.path.join(ansys.aedt.core.workflows.__path__[0], "images", "large", "logo.png")
+    icon_path = pathlib.PurePath(ansys.aedt.core.workflows.__path__[0]).joinpath("images", "large", "logo.png")
     im = PIL.Image.open(icon_path)
     photo = PIL.ImageTk.PhotoImage(im)
 
@@ -78,7 +79,7 @@ def frontend():  # pragma: no cover
     def browse_asc_folder():
         inital_dir = text.get("1.0", tkinter.END).strip()
         filename = filedialog.askopenfilename(
-            initialdir=os.path.dirname(inital_dir) if inital_dir else "/",
+            initialdir=pathlib.PurePath(inital_dir).parent if inital_dir else "/",
             title="Select configuration file",
             filetypes=(("LTSPice file", "*.asc"), ("Spice file", "*.cir *.sp"), ("Qcv file", "*.qcv")),
         )
@@ -106,7 +107,7 @@ def frontend():  # pragma: no cover
 
 def main(extension_args):
     asc_file = extension_args["asc_file"]
-    if not os.path.exists(asc_file):
+    if not pathlib.Path(asc_file).exists():
         raise Exception("Error. File doesn't exists.")
     cir = Circuit(design=os.path.split(asc_file)[-1][:-4])
     if asc_file.endswith(".asc"):

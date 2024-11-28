@@ -23,6 +23,7 @@
 
 import copy
 import os
+import pathlib
 import warnings
 
 import ansys.aedt.core
@@ -86,22 +87,22 @@ class FieldsCalculator:
 
     def __init__(self, app):
         self.expression_catalog = read_configuration_file(
-            os.path.join(
-                ansys.aedt.core.__path__[0],
+            str(pathlib.PurePath(ansys.aedt.core.__path__[0])
+            .joinpath(
                 "visualization",
                 "post",
                 "fields_calculator_files",
-                "expression_catalog.toml",
-            )
+                "expression_catalog.toml"
+            ))
         )
         self.expression_schema = read_configuration_file(
-            os.path.join(
-                ansys.aedt.core.__path__[0],
+            str(pathlib.PurePath(ansys.aedt.core.__path__[0])
+            .joinpath(
                 "visualization",
                 "post",
                 "fields_calculator_files",
                 "fields_calculator.schema.json",
-            )
+            ))
         )
         self.__app = app
         self.design_type = app.design_type
@@ -465,7 +466,7 @@ class FieldsCalculator:
         --------
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
-        >>> my_toml = os.path.join("my_path_to_toml", "my_toml.toml")
+        >>> my_toml = pathlib.PurePath("my_path_to_toml").joinpath("my_toml.toml")
         >>> new_catalog = hfss.post.fields_calculator.load_expression_file(my_toml)
         >>> hfss.release_desktop(False, False)
         """
@@ -551,7 +552,7 @@ class FieldsCalculator:
         >>> hfss = Hfss()
         >>> poly = hfss.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
         >>> expr_name = hfss.post.fields_calculator.add_expression("voltage_line", "Polyline1")
-        >>> file_path = os.path.join(hfss.working_directory, "my_expr.fld")
+        >>> file_path = pathlib.PurePath(hfss.working_directory).joinpath("my_expr.fld")
         >>> hfss.post.fields_calculator.calculator_write("voltage_line", file_path, hfss.nominal_adaptive)
         >>> hfss.release_desktop(False, False)
         """
@@ -594,7 +595,7 @@ class FieldsCalculator:
         >>> hfss = Hfss()
         >>> poly = hfss.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
         >>> expr_name = hfss.post.fields_calculator.add_expression("voltage_line", "Polyline1")
-        >>> file_path = os.path.join(hfss.working_directory, "my_expr.fld")
+        >>> file_path = pathlib.PurePath(hfss.working_directory).joinpath("my_expr.fld")
         >>> hfss.post.fields_calculator.write("voltage_line", file_path, hfss.nominal_adaptive)
         >>> hfss.release_desktop(False, False)
         """

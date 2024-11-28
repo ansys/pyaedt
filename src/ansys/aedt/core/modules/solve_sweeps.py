@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import copy
+import pathlib
 from difflib import SequenceMatcher
 import json
 import os
@@ -168,9 +169,10 @@ class SweepHFSS(object):
         list of float
             Frequency points.
         """
-        solutions_file = os.path.join(self._app.p_app.results_directory, f"{self._app.p_app.design_name}.asol")
+        solutions_file = (pathlib.PurePath(self._app.p_app.results_directory)
+                          .joinpath(f"{self._app.p_app.design_name}.asol"))
         fr = []
-        if os.path.exists(solutions_file):
+        if pathlib.Path(solutions_file).exists():
             solutions = load_entire_aedt_file(solutions_file)
             for k, v in solutions.items():
                 if "SolutionBlock" in k and "SolutionName" in v and v["SolutionName"] == self.name and "Fields" in v:
@@ -682,9 +684,10 @@ class SweepMatrix(object):
         list of float
             Frequency points.
         """
-        solutions_file = os.path.join(self._app.p_app.results_directory, f"{self._app.p_app.design_name}.asol")
+        solutions_file = (pathlib.PurePath(self._app.p_app.results_directory)
+                          .joinpath(f"{self._app.p_app.design_name}.asol"))
         fr = []
-        if os.path.exists(solutions_file):
+        if pathlib.Path(solutions_file).exists():
             solutions = load_entire_aedt_file(solutions_file)
             for k, v in solutions.items():
                 if "SolutionBlock" in k and "SolutionName" in v and v["SolutionName"] == self.name and "Fields" in v:
@@ -864,7 +867,7 @@ class SetupProps(dict):
         for k, v in self.items():
             if k not in FILTER_KEYS:
                 export_dict[k] = v
-        if os.path.isfile(file_path) and not overwrite:
+        if pathlib.Path(file_path).is_file() and not overwrite:
             settings.logger.warning("Unable to overwrite file: %s." % (file_path))
             return False
         else:

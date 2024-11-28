@@ -48,8 +48,8 @@ EMIT-HFSS link creation example:
     from ansys.aedt.core.generic.filesystem import Scratch
 
     scratch_path = ansys.aedt.core.generate_unique_folder_name()
-    temp_folder = os.path.join(scratch_path, ("EmitHFSSExample"))
-    if not os.path.exists(temp_folder):
+    temp_folder = pathlib.PurePath(scratch_path).joinpath("EmitHFSSExample")
+    if not pathlib.Path(temp_folder).exists():
         os.mkdir(temp_folder)
 
     # Launch AEDT
@@ -63,32 +63,32 @@ EMIT-HFSS link creation example:
     example_lock = example_aedt + ".lock"
     example_pdf_file = example_name + " Example.pdf"
 
-    example_dir = os.path.join(aedtapp.install_path, "Examples\\EMIT")
-    example_project = os.path.join(example_dir, example_aedt)
-    example_results_folder = os.path.join(example_dir, example_results)
-    example_pdf = os.path.join(example_dir, example_pdf_file)
+    example_dir = pathlib.PurePath(aedtapp.install_path).joinpath("Examples", "EMIT")
+    example_project = pathlib.PurePath(example_dir).joinpath(example_aedt)
+    example_results_folder = pathlib.PurePath(example_dir).joinpath(example_results)
+    example_pdf = pathlib.PurePath(example_dir).joinpath(example_pdf_file)
 
     # If the ``Cell Phone RFT Defense`` example is not
     # in the installation directory, exit from this example.
-    if not os.path.exists(example_project):
+    if not pathlib.Path(example_project).exists():
         exit()
 
     # Copy the project to a temp directory
-    my_project = os.path.join(temp_folder, example_aedt)
-    my_results_folder = os.path.join(temp_folder, example_results)
-    my_project_lock = os.path.join(temp_folder, example_lock)
-    my_project_pdf = os.path.join(temp_folder, example_pdf_file)
+    my_project = pathlib.PurePath(temp_folder).joinpath(example_aedt)
+    my_results_folder = pathlib.PurePath(temp_folder).joinpath(example_results)
+    my_project_lock = pathlib.PurePath(temp_folder).joinpath(example_lock)
+    my_project_pdf = pathlib.PurePath(temp_folder).joinpath(example_pdf_file)
 
-    if os.path.exists(my_project):
+    if pathlib.Path(my_project).exists():
         os.remove(my_project)
 
-    if os.path.exists(my_project_lock):
+    if pathlib.Path(my_project_lock).exists():
         os.remove(my_project_lock)
 
     with Scratch(scratch_path) as local_scratch:
         local_scratch.copyfile(example_project, my_project)
         local_scratch.copyfolder(example_results_folder, my_results_folder)
-        if os.path.exists(example_pdf):
+        if pathlib.Path(example_pdf).exists():
             local_scratch.copyfile(example_pdf, my_project_pdf)
 
     emit = Emit(my_project)

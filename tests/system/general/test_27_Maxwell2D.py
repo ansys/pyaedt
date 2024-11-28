@@ -25,6 +25,7 @@
 # SOFTWARE.
 
 import os
+import pathlib
 import shutil
 
 from ansys.aedt.core import Maxwell2d
@@ -186,7 +187,7 @@ class TestClass:
         assert "Dependent" in slave.name
 
     def test_14_check_design_preview_image(self):
-        jpg_file = os.path.join(self.local_scratch.path, "file.jpg")
+        jpg_file = pathlib.PurePath(self.local_scratch.path).joinpath("file.jpg")
         assert self.aedtapp.export_design_preview_to_jpg(jpg_file)
 
     def test_14a_model_depth(self):
@@ -382,7 +383,7 @@ class TestClass:
         setup_name = "setupTestMatrixRL"
         setup = self.aedtapp.create_setup(name=setup_name)
         setup.props["MaximumPasses"] = 2
-        export_path_1 = os.path.join(self.local_scratch.path, "export_rl_matrix_Test1.txt")
+        export_path_1 = pathlib.PurePath(self.local_scratch.path).joinpath("export_rl_matrix_Test1.txt")
         assert not self.aedtapp.export_rl_matrix("Test1", export_path_1)
         assert not self.aedtapp.export_rl_matrix("Test2", export_path_1, False, 10, 3, True)
         self.aedtapp.validate_simple()
@@ -390,7 +391,7 @@ class TestClass:
         assert self.aedtapp.export_rl_matrix("Test1", export_path_1)
         assert not self.aedtapp.export_rl_matrix("abcabc", export_path_1)
         assert os.path.exists(export_path_1)
-        export_path_2 = os.path.join(self.local_scratch.path, "export_rl_matrix_Test2.txt")
+        export_path_2 = pathlib.PurePath(self.local_scratch.path).joinpath("export_rl_matrix_Test2.txt")
         assert self.aedtapp.export_rl_matrix("Test2", export_path_2, False, 10, 3, True)
         assert os.path.exists(export_path_2)
 
@@ -438,8 +439,9 @@ class TestClass:
         assert self.aedtapp.setups[0].add_mesh_link(
             design="Y_Connections", parameters=self.aedtapp.available_variations.nominal_w_values_dict
         )
-        example_project = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, test_name + ".aedt")
-        example_project_copy = os.path.join(self.local_scratch.path, test_name + "_copy.aedt")
+        example_project = (pathlib.PurePath(TESTS_GENERAL_PATH)
+                           .joinpath("example_models", test_subfolder, test_name + ".aedt"))
+        example_project_copy = pathlib.PurePath(self.local_scratch.path).joinpath(test_name + "_copy.aedt")
         shutil.copyfile(example_project, example_project_copy)
         assert os.path.exists(example_project_copy)
         assert self.aedtapp.setups[0].add_mesh_link(design="Basis_Model_For_Test", project=example_project_copy)

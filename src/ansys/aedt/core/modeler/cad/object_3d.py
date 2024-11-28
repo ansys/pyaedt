@@ -35,6 +35,7 @@ objects (points, lines, sheets, and solids) within the AEDT 3D Modeler.
 from __future__ import absolute_import  # noreorder
 
 import os
+import pathlib
 import re
 
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -164,11 +165,11 @@ class Object3d(object):
 
         """
         tmp_path = self._primitives._app.working_directory
-        filename = os.path.join(tmp_path, self.name + ".sat")
+        filename = pathlib.PurePath(tmp_path).joinpath(self.name + ".sat")
 
         self._primitives._app.export_3d_model(self.name, tmp_path, ".sat", [self.name])
 
-        if not os.path.isfile(filename):
+        if not pathlib.Path(filename).is_file():
             raise Exception(f"Cannot export the ACIS SAT file for object {self.name}")
 
         with open_file(filename, "r") as fh:
@@ -303,7 +304,7 @@ class Object3d(object):
         """
         if self._primitives._app._aedt_version >= "2021.2":
             if not output_file:
-                output_file = os.path.join(self._primitives._app.working_directory, self.name + ".png")
+                output_file = pathlib.PurePath(self._primitives._app.working_directory).joinpath(self.name + ".png")
             model_obj = self._primitives._app.post.plot_model_obj(
                 objects=[self.name],
                 show=False,

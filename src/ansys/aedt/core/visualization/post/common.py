@@ -32,6 +32,7 @@ This module provides all functionalities for common AEDT post processing.
 from __future__ import absolute_import  # noreorder
 
 import os
+import pathlib
 import re
 
 from ansys.aedt.core.generic.data_handlers import _dict_items_to_list_items
@@ -837,11 +838,11 @@ class PostProcessorCommon(object):
             msg = f"Extension {extension} is not supported. Use one of {', '.join(supported_ext)}"
             raise ValueError(msg)
 
-        file_path = os.path.join(npath, plot_name + extension)
+        file_path = pathlib.PurePath(npath).joinpath(plot_name + extension)
         if unique_file:  # pragma: no cover
             while os.path.exists(file_path):
                 file_name = generate_unique_name(plot_name)
-                file_path = os.path.join(npath, file_name + extension)
+                file_path = pathlib.PurePath(npath).joinpath(file_name + extension)
 
         if extension == ".rdat":
             self.oreportsetup.ExportReportDataToFile(plot_name, file_path)
@@ -931,7 +932,7 @@ class PostProcessorCommon(object):
 
         >>> oModule.ExportImageToFile
         """
-        file_name = os.path.join(project_path, plot_name + "." + image_format)  # name of the image file
+        file_name = pathlib.PurePath(project_path).joinpath(plot_name + "." + image_format)  # name of the image file
         if self._app.desktop_class.non_graphical:  # pragma: no cover
             if width == 0:
                 width = 1980

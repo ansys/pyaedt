@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+import pathlib
 import re
 from warnings import warn
 
@@ -108,11 +109,11 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
     @property
     def _edb_folder(self):
-        return os.path.join(self._app.project_path, self._app.project_name + ".aedb")
+        return pathlib.PurePath(self._app.project_path).joinpath(self._app.project_name + ".aedb")
 
     @property
     def _edb_file(self):
-        return os.path.join(self._edb_folder, "edb.def")
+        return pathlib.PurePath(self._edb_folder).joinpath("edb.def")
 
     @property
     def edb(self):
@@ -130,7 +131,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             from pyedb import Edb
 
             self._edb = None
-            if os.path.exists(self._edb_file) or inside_desktop:
+            if pathlib.Path(self._edb_file).exists() or inside_desktop:
                 self._edb = Edb(
                     self._edb_folder,
                     self._app.design_name,
@@ -534,11 +535,10 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         if not output_dir:
             output_dir = self.projdir
         if not name:
-            name = os.path.basename(input_file)
-            name = os.path.splitext(name)[0]
+            name = pathlib.PurePath(input_file).stem
 
         self._oimportexport.ImportExtracta(
-            input_file, os.path.join(output_dir, name + ".aedb"), os.path.join(output_dir, name + ".xml")
+            input_file, pathlib.PurePath(output_dir).joinpath(name + ".aedb"), pathlib.PurePath(output_dir).joinpath(name + ".xml")
         )
         self._app.__init__(self._app.desktop_class.active_project().GetName())
         return True
@@ -588,11 +588,10 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         if not output_dir:
             output_dir = self.projdir
         if not name:
-            name = os.path.basename(input_file)
-            name = os.path.splitext(name)[0]
-
+            name = pathlib.PurePath(input_file).stem
         self._oimportexport.ImportIPC(
-            input_file, os.path.join(output_dir, name + ".aedb"), os.path.join(output_dir, name + ".xml")
+            input_file, pathlib.PurePath(output_dir).joinpath(name + ".aedb"),
+            pathlib.PurePath(output_dir).joinpath(name + ".xml")
         )
         self._app.__init__(self._app.desktop_class.active_project().GetName())
         return True

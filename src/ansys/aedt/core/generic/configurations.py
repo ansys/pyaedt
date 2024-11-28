@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import copy
+import pathlib
 from datetime import datetime
 import json
 import os
@@ -722,13 +723,13 @@ class Configurations(object):
         """
         if self._schema:
             return self._schema
-        pyaedt_installed_path = os.path.dirname(ansys.aedt.core.__file__)
+        pyaedt_installed_path = pathlib.PurePath(ansys.aedt.core.__file__).parent
 
         schema_bytes = None
 
-        config_schema_path = os.path.join(pyaedt_installed_path, "misc", "config.schema.json")
+        config_schema_path = pathlib.PurePath(pyaedt_installed_path).joinpath("misc", "config.schema.json")
 
-        if os.path.exists(config_schema_path):
+        if pathlib.Path(config_schema_path).exists():
             with open(config_schema_path, "rb") as schema:
                 schema_bytes = schema.read()
 
@@ -1245,7 +1246,7 @@ class Configurations(object):
         dict_out["general"]["object_mapping"] = {}
         dict_out["general"]["output_variables"] = {}
         if list(self._app.output_variables):
-            oo_out = os.path.join(tempfile.gettempdir(), generate_unique_name("oo") + ".txt")
+            oo_out = pathlib.PurePath(tempfile.gettempdir()).joinpath(generate_unique_name("oo") + ".txt")
             self._app.ooutput_variable.ExportOutputVariables(oo_out)
             with open_file(oo_out, "r") as f:
                 lines = f.readlines()
@@ -1479,9 +1480,9 @@ class Configurations(object):
             Exported config file.
         """
         if not config_file:
-            config_file = os.path.join(
-                self._app.working_directory, generate_unique_name(self._app.design_name) + ".json"
-            )
+            config_file = (pathlib.PurePath(self._app.working_directory)
+                           .joinpath(generate_unique_name(self._app.design_name) + ".json")
+                           )
         dict_out = {}
         self._export_general(dict_out)
         for key, value in vars(self.options).items():  # Retrieve the dict() from the object.
@@ -1490,7 +1491,7 @@ class Configurations(object):
 
         # update the json if it exists already
 
-        if os.path.exists(config_file) and not overwrite:
+        if pathlib.Path(config_file).exists() and not overwrite:
             dict_in = read_configuration_file(config_file)
             try:  # TODO: Allow import of config created with other versions of pyaedt.
                 if dict_in["general"]["pyaedt_version"] == __version__:
@@ -1881,13 +1882,10 @@ class ConfigurationsIcepak(Configurations):
         # Copy project to get dictionary
         from ansys.aedt.core.icepak import Icepak
 
-        directory = os.path.join(
-            self._app.toolkit_directory,
-            self._app.design_name,
-            generate_unique_folder_name("config_export_temp_project"),
-        )
+        directory = (pathlib.PurePath(self._app.toolkit_directory)
+                     .joinpath(self._app.design_name,generate_unique_folder_name("config_export_temp_project")))
         os.makedirs(directory)
-        tempproj_name = os.path.join(directory, "temp_proj.aedt")
+        tempproj_name = pathlib.PurePath(directory).joinpath("temp_proj.aedt")
         tempproj = Icepak(tempproj_name, version=self._app._aedt_version)
         empty_design = tempproj.design_list[0]
         self._app.modeler.refresh()
@@ -1906,9 +1904,9 @@ class ConfigurationsIcepak(Configurations):
         dictionary = load_keyword_in_aedt_file(tempproj_name, "UserDefinedModels")["UserDefinedModels"]
         for root, dirs, files in os.walk(directory, topdown=False):
             for name in files:
-                os.remove(os.path.join(root, name))
+                os.remove(pathlib.PurePath(root).joinpath(name))
             for name in dirs:
-                os.rmdir(os.path.join(root, name))
+                os.rmdir(pathlib.PurePath(root).joinpath(name))
         os.rmdir(directory)
         operation_dict = {"Source": {}, "Duplicate": {}}
         list_dictionaries = []

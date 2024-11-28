@@ -974,10 +974,10 @@ class CircuitComponent(object):
 
         Examples
         --------
-        >>> from ansys.aedt.core import Circuit
+import pathlib        >>> from ansys.aedt.core import Circuit
         >>> cir = Circuit(my_project)
         >>> cir.modeler.schematic_units = "mil"
-        >>> ts_path = os.path.join(current_path, "connector_model.s4p")
+        >>> ts_path = pathlib.PurePath(current_path).joinpath("connector_model.s4p")
         >>> ts_component = cir.modeler.schematic.create_touchstone_component(ts_path, show_bitmap=False)
         >>> pin_locations = {"left":
         ...                 ['DDR_CH3_DM_DBI0_BGA_BE47', 'DDR_CH3_DM_DBI1_BGA_BJ50','DDR_CH3_DM_DBI1_DIE_12471'],

@@ -1,3 +1,4 @@
+import pathlib
 import socket
 import os
 import random
@@ -53,9 +54,9 @@ class FileManagement(object):
         overwrite : bool, optional
             Either if overwrite the local file or not.
         """
-        if os.path.isdir(localpath):
+        if pathlib.Path(localpath).is_dir():
             self._upload_dir(localpath, remotepath)
-        elif os.path.isfile(localpath):
+        elif pathlib.Path(localpath).is_file():
             self._upload_file(localpath, remotepath)
 
     def download_folder(self, remotepath, localpath, overwrite=True):
@@ -105,9 +106,9 @@ class FileManagement(object):
         self.client.root.makedirs(remotepath)
         i = 0
         for fn in os.listdir(localpath):
-            lfn = os.path.join(localpath, fn)
+            lfn = pathlib.PurePath(localpath).joinpath(fn)
             rfn = remotepath + "/" + fn
-            if os.path.isdir(rfn):
+            if pathlib.Path(rfn).is_dir():
                 self._upload_dir(lfn, rfn, overwrite=overwrite)
             else:
                 self._upload_file(lfn, rfn, overwrite=overwrite)
@@ -127,13 +128,13 @@ class FileManagement(object):
         logger.info("File %s downloaded to %s", remote_file, local_file)
 
     def _download_dir(self, remotepath, localpath, overwrite=True):
-        if os.path.exists(localpath):
+        if pathlib.Path(localpath).exists():
             logger.warning("Folder already exists on the local machine.")
-        if not os.path.isdir(localpath):
+        if not pathlib.Path(localpath).is_dir():
             os.makedirs(localpath)
         i = 0
         for fn in self.client.root.listdir(remotepath):
-            lfn = os.path.join(localpath, fn)
+            lfn = pathlib.PurePath(localpath).joinpath(fn)
             rfn = remotepath + "/" + fn
             if self.client.root.isdir(rfn):
                 self._download_dir(rfn, lfn, overwrite=overwrite)
@@ -258,11 +259,12 @@ class PyaedtServiceWindows(rpyc.Service):
         str
         """
         if isinstance(script, list):
-            script_file = os.path.join(tempfile.gettempdir(), generate_unique_name("pyaedt_script") + ".py")
+            script_file = (pathlib.PurePath(tempfile.gettempdir())
+                           .joinpath(generate_unique_name("pyaedt_script") + ".py"))
             with open(script_file, "w") as f:
                 for line in script:
                     f.write(line + "\n")
-        elif os.path.exists(script):
+        elif pathlib.Path(script).exists():
             script_file = script
         else:
             return "Wrong file or wrong commands."
@@ -274,7 +276,7 @@ class PyaedtServiceWindows(rpyc.Service):
         if env_path(aedt_version) or ansysem_path:
             if not ansysem_path:
                 ansysem_path = env_path(aedt_version)
-            exe_path = os.path.join(ansysem_path, executable)
+            exe_path = pathlib.PurePath(ansysem_path).joinpath(executable)
             if not is_safe_path(exe_path):
                 return "Ansys EM path not safe."
             command = [exe_path]
@@ -895,7 +897,7 @@ class GlobalService(rpyc.Service):
         else:
             executable = "ansysedt.exe"
         if ansysem_path and not use_aedt_relative_path:
-            aedt_exe = os.path.join(ansysem_path, executable)
+            aedt_exe = pathlib.PurePath(ansysem_path).joinpath(executable)
         else:
             aedt_exe = executable
         if non_graphical:
@@ -1045,27 +1047,27 @@ class GlobalService(rpyc.Service):
 
     @staticmethod
     def exposed_create(filename,create_options="wb", encoding=None, override=True):
-        if os.path.exists(filename) and not override:
+        if pathlib.Path(filename).exists() and not override:
             return "File already exists"
         f = open(filename, create_options, encoding=encoding)
         return rpyc.restricted(f, ["read", "readlines", "write", "writelines", "close"], [])
 
     @staticmethod
     def exposed_makedirs(remotepath):
-        if os.path.exists(remotepath):
+        if pathlib.Path(remotepath).exists():
             return "Directory Exists!"
         os.makedirs(remotepath)
         return "Directory created!"
 
     @staticmethod
     def exposed_listdir(remotepath):
-        if os.path.exists(remotepath):
+        if pathlib.Path(remotepath).exists():
             return os.listdir(remotepath)
         return []
 
     @staticmethod
     def exposed_pathexists(remotepath):
-        if os.path.exists(remotepath):
+        if pathlib.Path(remotepath).exists():
             return True
         return False
 
@@ -1077,7 +1079,7 @@ class GlobalService(rpyc.Service):
 
     @staticmethod
     def exposed_isdir(remotepath):
-        return os.path.isdir(remotepath)
+        return pathlib.Path(remotepath).is_dir()
 
     @staticmethod
     def exposed_tempdir():
@@ -1132,7 +1134,7 @@ class ServiceManager(rpyc.Service):
                 else:
                     raise Exception("no ANSYSEM_ROOTXXX environment variable defined.")
             name = os.path.normpath(
-                os.path.join(os.path.abspath(os.path.dirname(__file__)), "local_server.py")
+                pathlib.PurePath(pathlib.Path(pathlib.PurePath(__file__).parent).absolute()).joinpath("local_server.py")
             )
             cmd_service = [sys.executable, name, ansysem_path, "1", str(port)]
             print(cmd_service)

@@ -24,6 +24,7 @@
 
 # coding=utf-8
 import os
+import pathlib
 from pathlib import Path
 import re
 from struct import unpack
@@ -75,7 +76,7 @@ class SpiSim:
     @pyaedt_function_handler()
     def _compute_spisim(self, parameter, out_file="", touchstone_file="", config_file=""):
         exec_name = "SPISimJNI_LX64.exe" if is_linux else "SPISimJNI_WIN64.exe"
-        spisimExe = os.path.join(self.desktop_install_dir, "spisim", "SPISim", "modules", "ext", exec_name)
+        spisimExe = pathlib.PurePath(self.desktop_install_dir).joinpath("spisim", "SPISim", "modules", "ext", exec_name)
 
         cfgCmmd = ""
         if touchstone_file != "":
@@ -91,9 +92,9 @@ class SpiSim:
         # Debug('%s %s' % (cmdList[0], ' '.join(arguments)))
         # try up to three times to be sure
         if out_file:
-            out_processing = os.path.join(out_file, generate_unique_name("spsim_out") + ".txt")
+            out_processing = pathlib.PurePath(out_file).joinpath(generate_unique_name("spsim_out") + ".txt")
         else:
-            out_processing = os.path.join(generate_unique_folder_name(), generate_unique_name("spsim_out") + ".txt")
+            out_processing = pathlib.PurePath(generate_unique_folder_name()).joinpath(generate_unique_name("spsim_out") + ".txt")
 
         my_env = os.environ.copy()
         my_env.update(settings.aedt_environment_variables)
@@ -102,7 +103,7 @@ class SpiSim:
             if "ANSYSEM_ROOT_PATH" not in my_env:  # pragma: no cover
                 my_env["ANSYSEM_ROOT_PATH"] = self.desktop_install_dir
             if "SPISIM_OUTPUT_LOG" not in my_env:  # pragma: no cover
-                my_env["SPISIM_OUTPUT_LOG"] = os.path.join(out_file, generate_unique_name("spsim_out") + ".log")
+                my_env["SPISIM_OUTPUT_LOG"] = pathlib.PurePath(out_file).joinpath(generate_unique_name("spsim_out") + ".log")
             with open_file(out_processing, "w") as outfile:
                 subprocess.Popen(command, env=my_env, stdout=outfile, stderr=outfile).wait()  # nosec
         else:
@@ -268,7 +269,7 @@ class SpiSim:
         cfg_dict["REFLRHO"] = permitted_reflection if permitted_reflection is not None else cfg_dict["REFLRHO"]
         cfg_dict["NCYCLES"] = reflections_length if reflections_length is not None else cfg_dict["NCYCLES"]
 
-        new_cfg_file = os.path.join(self.working_directory, "spisim_erl.cfg").replace("\\", "/")
+        new_cfg_file = pathlib.Path(pathlib.PurePath(self.working_directory).joinpath("spisim_erl.cfg")).resolve()
         with open_file(new_cfg_file, "w") as fp:
             for k, v in cfg_dict.items():
                 fp.write(f"# {k}: {k}\n")
@@ -376,7 +377,7 @@ class SpiSim:
         com_parameter.set_parameter("NEXTARY", next_snp)
         com_parameter.set_parameter("RESULT_DIR", result_dir)
 
-        cfg_file = os.path.join(com_parameter.parameters["RESULT_DIR"], "com_parameters.cfg")
+        cfg_file = pathlib.PurePath(com_parameter.parameters["RESULT_DIR"]).joinpath("com_parameters.cfg")
         com_parameter.export_spisim_cfg(cfg_file)
 
         out_processing = self._compute_spisim(parameter="COM", config_file=cfg_file)

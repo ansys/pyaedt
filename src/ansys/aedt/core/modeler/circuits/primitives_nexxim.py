@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+import pathlib
 import re
 import secrets
 import time
@@ -1683,13 +1684,14 @@ class NexximComponents(CircuitComponents):
         hspice_customization = self._get_comp_custom_settings(3, 1, 2, 3, 0, 0, "False", "", 3)
 
         if image_subcircuit_path:
-            _, file_extension = os.path.splitext(image_subcircuit_path)
+            _, file_extension = (pathlib.PurePath(image_subcircuit_path).stem,
+                                 pathlib.PurePath(image_subcircuit_path).suffix)
             if file_extension != ".gif" or file_extension != ".bmp" or file_extension != ".jpg":
                 image_subcircuit_path = None
                 warnings.warn("Image extension is not valid. Use default image instead.")
         if not image_subcircuit_path:
             image_subcircuit_path = os.path.normpath(
-                os.path.join(self._modeler._app.desktop_install_dir, "syslib", "Bitmaps", icon_file)
+                pathlib.PurePath(self._modeler._app.desktop_install_dir).joinpath("syslib", "Bitmaps", icon_file)
             )
         filename = ""
         comp_name_aux = generate_unique_name(source_design_name)
@@ -2058,7 +2060,7 @@ class NexximComponents(CircuitComponents):
         --------
         >>> from ansys.aedt.core import Circuit
         >>> cir = Circuit(version="2023.2")
-        >>> model = os.path.join("Your path", "test.lib")
+        >>> model = pathlib.PurePath("Your path").joinpath("test.lib")
         >>> cir.modeler.schematic.create_component_from_spicemodel(input_file=model,model="GRM1234",symbol="nexx_cap")
         >>> cir.release_desktop(False, False)
         """
@@ -2104,16 +2106,16 @@ class NexximComponents(CircuitComponents):
         :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Circuit Component Object.
         """
-        assert os.path.exists(input_file), "Project file doesn't exist"
-        comp_name = os.path.splitext(os.path.basename(input_file))[0]
+        assert pathlib.Path(input_file).exists(), "Project file doesn't exist"
+        comp_name = pathlib.PurePath(input_file).stem
         results_path = input_file + "averesults"
-        solution_path = os.path.join(results_path, comp_name + ".asol")
+        solution_path = pathlib.PurePath(results_path).joinpath(comp_name + ".asol")
         # out = load_entire_aedt_file(solution)
         out = load_keyword_in_aedt_file(solution_path, "Solutions")
         if not solution:
             solution = list(out["Solutions"]["SYZSolutions"].keys())[0]
-        results_folder = os.path.join(
-            results_path,
+        results_folder = pathlib.PurePath(
+            results_path).joinpath(
             out["Solutions"]["SYZSolutions"][solution]["DiskName"],
             out["Solutions"]["SYZSolutions"][solution]["DiskName"] + ".syzinfo",
         )

@@ -29,6 +29,7 @@ This module contains the `Mesh` class.
 from __future__ import absolute_import  # noreorder
 
 import os
+import pathlib
 import shutil
 
 from ansys.aedt.core.application.design_solutions import model_names
@@ -484,7 +485,7 @@ class Mesh(object):
             props = self._app.design_properties["MeshSetup"]["MeshSettings"]
         except Exception:
             temp_name = generate_unique_name("temp_prj")
-            temp_proj = os.path.join(self._app.working_directory, temp_name + ".aedt")
+            temp_proj = pathlib.PurePath(self._app.working_directory).joinpath(temp_name + ".aedt")
             oproject_target = self._app.odesktop.NewProject(temp_name)
             if self._app.solution_type == "Modal":
                 sol = "HFSS Modal Network"
@@ -503,9 +504,9 @@ class Mesh(object):
                 ]
             except Exception:
                 self.logger.debug("An error occurred while accessing design global mesh.")  # pragma: no cover
-            if os.path.exists(temp_proj):
+            if pathlib.Path(temp_proj).exists():
                 os.remove(temp_proj)
-            if os.path.exists(temp_proj + "results"):
+            if pathlib.Path(temp_proj + "results").exists():
                 shutil.rmtree(temp_proj + "results", True)
         if props:
             bound = MeshOperation(self, "MeshSettings", props, "InitialMeshSettings")

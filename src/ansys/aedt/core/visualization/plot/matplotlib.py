@@ -25,6 +25,7 @@
 import ast
 import math
 import os
+import pathlib
 import warnings
 
 from ansys.aedt.core import settings
@@ -687,7 +688,7 @@ class ReportPlotter:
         from PIL import Image
 
         if not self.logo:
-            self.logo = os.path.join(os.path.dirname(__file__), "../../generic/Ansys.png")
+            self.logo = pathlib.PurePath(os.path.dirname(__file__)).joinpath("../../generic/Ansys.png")
         image = Image.open(self.logo)  # Open the image
         image_array = np.array(image)  # Convert to a numpy array
         return image_array  # Output

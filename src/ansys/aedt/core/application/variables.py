@@ -42,6 +42,7 @@ from __future__ import division
 
 import ast
 import os
+import pathlib
 import re
 import types
 import warnings
@@ -2446,7 +2447,7 @@ class DataSet(object):
         >>> oDesign.ExportDataset
         """
         if not output_dir:
-            output_dir = os.path.join(self._app.working_directory, self.name + ".tab")
+            output_dir = pathlib.PurePath(self._app.working_directory).joinpath(self.name + ".tab")
         if self.name[0] == "$":
             self._app._oproject.ExportDataset(self.name, output_dir)
         else:

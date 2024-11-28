@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+import pathlib
 
 import defusedxml.ElementTree as ET
 import defusedxml.minidom
@@ -57,7 +58,7 @@ class TestClass:
         First write a dummy XML with a different Panel and then add PyAEDT's tabs
         :return:
         """
-        file_path = os.path.join(self.local_scratch.path, "Project", "TabConfig.xml")
+        file_path = pathlib.PurePath(self.local_scratch.path).joinpath("Project", "TabConfig.xml")
         with open(file_path, "w") as fid:
             fid.write(
                 """<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
@@ -83,7 +84,7 @@ class TestClass:
         assert "Panel_1" in panel_names
 
     def test_03_overwrite_existing_pyaedt_config(self):
-        file_path = os.path.join(self.local_scratch.path, "Project", "TabConfig.xml")
+        file_path = pathlib.PurePath(self.local_scratch.path).joinpath("Project", "TabConfig.xml")
         with open(file_path, "w") as fid:
             fid.write(
                 """<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
@@ -107,7 +108,7 @@ class TestClass:
         assert len(panel_names) == 2
 
     def test_04_write_to_existing_file_but_no_panels(self):
-        file_path = os.path.join(self.local_scratch.path, "Project", "TabConfig.xml")
+        file_path = pathlib.PurePath(self.local_scratch.path).joinpath("Project", "TabConfig.xml")
         with open(file_path, "w") as fid:
             fid.write(
                 """<?xml version="1.0" encoding="UTF-8" standalone="no" ?>

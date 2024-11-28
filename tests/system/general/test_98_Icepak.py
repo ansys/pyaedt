@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+import pathlib
 
 from ansys.aedt.core import Icepak
 from ansys.aedt.core.generic.settings import settings
@@ -74,9 +75,11 @@ def aedtapp(add_app):
 
 @pytest.fixture(scope="class", autouse=True)
 def examples(local_scratch):
-    project_path_origin = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, src_project_name + ".aedt")
+    project_path_origin = (pathlib.PurePath(TESTS_GENERAL_PATH)
+                           .joinpath("example_models", test_subfolder, src_project_name + ".aedt"))
     project_path = local_scratch.copyfile(project_path_origin)
-    source_project_path = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, src_project_name)
+    source_project_path = (pathlib.PurePath(TESTS_GENERAL_PATH)
+                           .joinpath("example_models", test_subfolder, src_project_name))
 
     return project_path, source_project_path
 
@@ -98,10 +101,10 @@ class TestClass:
         assert len(self.aedtapp.modeler.user_defined_component_names) == 1
 
     def test_02b_PCB_filters(self, local_scratch):
-        new_component = os.path.join(TESTS_GENERAL_PATH, "example_models", "T40", "Package.aedt")
-        new_component_edb = os.path.join(TESTS_GENERAL_PATH, "example_models", "T40", "Package.aedb")
-        new_component_dest = os.path.join(local_scratch.path, "Package.aedt")
-        local_scratch.copyfolder(new_component_edb, os.path.join(local_scratch.path, "Package.aedb"))
+        new_component = pathlib.PurePath(TESTS_GENERAL_PATH).joinpath("example_models", "T40", "Package.aedt")
+        new_component_edb = pathlib.PurePath(TESTS_GENERAL_PATH).joinpath("example_models", "T40", "Package.aedb")
+        new_component_dest = pathlib.PurePath(local_scratch.path).joinpath("Package.aedt")
+        local_scratch.copyfolder(new_component_edb, pathlib.PurePath(local_scratch.path).joinpath("Package.aedb"))
         local_scratch.copyfile(new_component, new_component_dest)
         cmp2 = self.aedtapp.create_ipk_3dcomponent_pcb(
             "Board_w_cmp",
@@ -322,7 +325,7 @@ class TestClass:
         assert self.aedtapp.copyGroupFrom("Group1", "uUSB", src_project_name, self.project_path)
 
     def test_05_EMLoss(self):
-        HFSSpath = os.path.join(self.local_scratch.path, src_project_name)
+        HFSSpath = pathlib.PurePath(self.local_scratch.path).joinpath(src_project_name)
         surface_list = [
             "USB_VCC",
             "USB_ID",
@@ -640,10 +643,10 @@ class TestClass:
     def test_34_import_idf(self):
         self.aedtapp.insert_design("IDF")
         assert self.aedtapp.import_idf(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "brd_board.emn")
+            pathlib.PurePath(TESTS_GENERAL_PATH).joinpath("example_models", test_subfolder, "brd_board.emn")
         )
         assert self.aedtapp.import_idf(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "brd_board.emn"),
+            pathlib.PurePath(TESTS_GENERAL_PATH).joinpath("example_models", test_subfolder, "brd_board.emn"),
             filter_cap=True,
             filter_ind=True,
             filter_res=True,
@@ -743,7 +746,8 @@ class TestClass:
     def test_42_import_idf(self):
         self.aedtapp.insert_design("IDF_2")
         assert self.aedtapp.import_idf(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "A1_uprev Cadence172.bdf"),
+            pathlib.PurePath(TESTS_GENERAL_PATH)
+            .joinpath("example_models", test_subfolder, "A1_uprev Cadence172.bdf"),
             filter_cap=True,
             filter_ind=True,
             filter_res=True,

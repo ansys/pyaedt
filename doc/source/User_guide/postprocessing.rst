@@ -131,7 +131,7 @@ This code creates the previous PDF report:
     report.add_sub_chapter("Charts")
     local_path = r'C:\result'
     report.add_section(portrait=False, page_format="a3")
-    report.add_image(os.path.join(local_path, "return_loss.jpg"), width=400, caption="S-Parameters")
+    report.add_image(pathlib.PurePath(local_path).joinpath("return_loss.jpg"), width=400, caption="S-Parameters")
     report.add_section(portrait=False, page_format="a5")
     report.add_table("MyTable", [["x", "y"], ["0", "1"], ["2", "3"], ["10", "20"]])
     report.add_section()

@@ -28,6 +28,7 @@ from __future__ import absolute_import  # noreorder
 
 import math
 import os
+import pathlib
 
 from ansys.aedt.core.application.analysis_maxwell_circuit import AnalysisMaxwellCircuit
 from ansys.aedt.core.generic.general_methods import open_file
@@ -234,7 +235,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
             Netlist file path when successful, ``False`` when failed.
 
         """
-        if os.path.splitext(output_file)[1] != ".sph":
+        if pathlib.PurePath(output_file).suffix != ".sph":
             self.logger.error("Invalid file extension. It must be ``.sph``.")
             return False
         try:

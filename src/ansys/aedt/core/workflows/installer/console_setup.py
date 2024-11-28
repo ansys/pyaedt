@@ -35,6 +35,7 @@ provided by the launcher
 
 import atexit
 import os
+import pathlib
 import sys
 
 aedt_process_id = int(sys.argv[1])
@@ -51,7 +52,7 @@ except ImportError:
     # to PyAEDT is created in the personal library.
     console_setup_dir = os.path.dirname(__file__)
     if "PersonalLib" in console_setup_dir:
-        sys.path.append(os.path.join(console_setup_dir, "../..", "..", ".."))
+        sys.path.append(str(pathlib.PurePath(console_setup_dir).joinpath("../..", "..", "..")))
     if version <= "2023.1":
         import pyaedt
     else:

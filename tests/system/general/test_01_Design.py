@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+import pathlib
 import tempfile
 
 from ansys.aedt.core import Hfss
@@ -137,8 +138,9 @@ class TestClass:
         assert os.path.exists(self.aedtapp.working_directory)
 
     def test_06a_set_temp_dir(self):
-        assert os.path.exists(self.aedtapp.set_temporary_directory(os.path.join(self.local_scratch.path, "temp_dir")))
-        assert self.aedtapp.set_temporary_directory(os.path.join(self.local_scratch.path, "temp_dir"))
+        assert os.path.exists(self.aedtapp.set_temporary_directory(
+            pathlib.PurePath(self.local_scratch.path).joinpath("temp_dir")))
+        assert self.aedtapp.set_temporary_directory(pathlib.PurePath(self.local_scratch.path).joinpath("temp_dir"))
         self.aedtapp.set_temporary_directory(tempfile.gettempdir())
 
     def test_08_objects(self):
@@ -196,8 +198,8 @@ class TestClass:
         self.aedtapp.delete_design("myduplicateddesign", "NewDesign")
 
     def test_15b_copy_design_from(self):
-        origin = os.path.join(self.local_scratch.path, "origin.aedt")
-        destin = os.path.join(self.local_scratch.path, "destin.aedt")
+        origin = pathlib.PurePath(self.local_scratch.path).joinpath("origin.aedt")
+        destin = pathlib.PurePath(self.local_scratch.path).joinpath("destin.aedt")
         self.aedtapp.save_project(file_name=origin)
         self.aedtapp.duplicate_design("myduplicateddesign")
         self.aedtapp.save_project(file_name=origin, refresh_ids=True)
@@ -225,8 +227,9 @@ class TestClass:
         assert self.aedtapp.design_name == "mydesign"
 
     def test_17_export_proj_var(self):
-        self.aedtapp.export_variables_to_csv(os.path.join(self.local_scratch.path, "my_variables.csv"))
-        assert os.path.exists(os.path.join(self.local_scratch.path, "my_variables.csv"))
+        self.aedtapp.export_variables_to_csv(pathlib.PurePath(self.local_scratch.path)
+                                             .joinpath("my_variables.csv"))
+        assert os.path.exists(pathlib.PurePath(self.local_scratch.path).joinpath("my_variables.csv"))
 
     def test_19_create_design_dataset(self):
         x = [1, 100]
@@ -273,7 +276,8 @@ class TestClass:
         assert len(ds.x) == xl + 1
 
     def test_19_import_dataset1d(self):
-        filename = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "ds_1d.tab")
+        filename = (pathlib.PurePath(TESTS_GENERAL_PATH)
+                    .joinpath("example_models", test_subfolder, "ds_1d.tab"))
         ds4 = self.aedtapp.import_dataset1d(filename)
         assert ds4.name == "$ds_1d"
         ds5 = self.aedtapp.import_dataset1d(filename, name="dataset_test", is_project_dataset=False)
@@ -287,21 +291,25 @@ class TestClass:
         assert ds5.delete()
 
     def test_19a_import_dataset3d(self):
-        filename = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "Dataset_3D.tab")
+        filename = (pathlib.PurePath(TESTS_GENERAL_PATH).
+                    joinpath("example_models", test_subfolder, "Dataset_3D.tab"))
         ds8 = self.aedtapp.import_dataset3d(filename)
         assert ds8.name == "$Dataset_3D"
-        filename = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "Dataset_3D.csv")
+        filename = (pathlib.PurePath(TESTS_GENERAL_PATH)
+                    .joinpath("example_models", test_subfolder, "Dataset_3D.csv"))
         ds8 = self.aedtapp.import_dataset3d(filename, name="dataset_csv")
         assert ds8.name == "$dataset_csv"
         assert ds8.delete()
         ds10 = self.aedtapp.import_dataset3d(filename, name="$dataset_test")
         assert ds10.zunit == "mm"
-        filename = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "Dataset_3D.csv")
+        filename = (pathlib.PurePath(TESTS_GENERAL_PATH)
+                    .joinpath("example_models", test_subfolder, "Dataset_3D.csv"))
         ds8 = self.aedtapp.import_dataset3d(filename, name="dataset_csv", encoding="utf-8-sig")
         assert ds8.name == "$dataset_csv"
 
     def test_19b_import_dataset3d_xlsx(self):
-        filename = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "Dataset_3D.xlsx")
+        filename = (pathlib.PurePath(TESTS_GENERAL_PATH)
+                    .joinpath("example_models", test_subfolder, "Dataset_3D.xlsx"))
         ds9 = self.aedtapp.import_dataset3d(filename, name="myExcel")
         assert ds9.name == "$myExcel"
 
@@ -320,7 +328,7 @@ class TestClass:
         assert not proj_dir4
 
     def test_22_export_aedtz(self):
-        aedtz_proj = os.path.join(self.local_scratch.path, "test.aedtz")
+        aedtz_proj = pathlib.PurePath(self.local_scratch.path).joinpath("test.aedtz")
         assert self.aedtapp.archive_project(aedtz_proj)
         assert os.path.exists(aedtz_proj)
 
@@ -334,7 +342,7 @@ class TestClass:
 
     def test_25_change_registry_from_file(self):
         assert self.aedtapp.set_registry_from_file(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "Test.acf")
+            pathlib.PurePath(TESTS_GENERAL_PATH).joinpath("example_models", test_subfolder, "Test.acf")
         )
 
     def test_26_odefinition_manager(self):
@@ -413,7 +421,7 @@ class TestClass:
         assert "Test" in d[[1, 0]].project_name
 
     def test_36_test_load(self, add_app):
-        file_name = os.path.join(self.local_scratch.path, "test_36.aedt")
+        file_name = pathlib.PurePath(self.local_scratch.path).joinpath("test_36.aedt")
         hfss = add_app(project_name=file_name, just_open=True)
         hfss.save_project()
         assert hfss
@@ -421,8 +429,8 @@ class TestClass:
         assert h3d
         h3d = add_app(project_name=file_name, application=Hfss3dLayout, just_open=True)
         assert h3d
-        file_name2 = os.path.join(self.local_scratch.path, "test_36_2.aedt")
-        file_name2_lock = os.path.join(self.local_scratch.path, "test_36_2.aedt.lock")
+        file_name2 = pathlib.PurePath(self.local_scratch.path).joinpath("test_36_2.aedt")
+        file_name2_lock = pathlib.PurePath(self.local_scratch.path).joinpath("test_36_2.aedt.lock")
         with open(file_name2, "w") as f:
             f.write(" ")
         with open(file_name2_lock, "w") as f:
@@ -432,8 +440,8 @@ class TestClass:
         except Exception:
             assert True
         try:
-            os.makedirs(os.path.join(self.local_scratch.path, "test_36_2.aedb"))
-            file_name3 = os.path.join(self.local_scratch.path, "test_36_2.aedb", "edb.def")
+            os.makedirs(pathlib.PurePath(self.local_scratch.path, "test_36_2.aedb"))
+            file_name3 = pathlib.PurePath(self.local_scratch.path).joinpath("test_36_2.aedb", "edb.def")
             with open(file_name3, "w") as f:
                 f.write(" ")
             hfss = Hfss3dLayout(project=file_name3, version=desktop_version)
@@ -444,7 +452,7 @@ class TestClass:
         assert customize_automation_tab.available_toolkits()
 
     def test_38_toolkit(self, desktop):
-        file = os.path.join(self.local_scratch.path, "test.py")
+        file = pathlib.PurePath(self.local_scratch.path).joinpath("test.py")
         with open(file, "w") as f:
             f.write("import ansys.aedt.core\n")
         assert customize_automation_tab.add_script_to_menu(name="test_toolkit", script_file=file)

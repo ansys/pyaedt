@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+import pathlib
 import random
 import shutil
 import string
@@ -44,12 +45,12 @@ def search_files(dirname, pattern="*"):
     """
     import pathlib
 
-    return [os.path.abspath(i) for i in pathlib.Path(dirname).glob(pattern)]
+    return [pathlib.Path(i).absolute() for i in pathlib.Path(dirname).glob(pattern)]
 
 
 def my_location():
     """ """
-    return os.path.normpath(os.path.dirname(__file__))
+    return os.path.normpath(pathlib.PurePath(__file__).parent)
 
 
 class Scratch:
@@ -69,8 +70,9 @@ class Scratch:
         self._volatile = volatile
         self._cleaned = True
         char_set = string.ascii_uppercase + string.digits
-        self._scratch_path = os.path.normpath(os.path.join(local_path, "scratch" + "".join(random.sample(char_set, 6))))
-        if os.path.exists(self._scratch_path):
+        self._scratch_path = os.path.normpath(pathlib.PurePath(local_path)
+                                              .joinpath("scratch" + "".join(random.sample(char_set, 6))))
+        if pathlib.Path(self._scratch_path).exists():
             try:
                 self.remove()
             except Exception:
@@ -85,7 +87,6 @@ class Scratch:
     def remove(self):
         """ """
         try:
-            # TODO check why on Anaconda 3.7 get errors with os.path.exists
             shutil.rmtree(self._scratch_path, ignore_errors=True)
         except Exception:
             logger.error(f"An error occurred while removing {self._scratch_path}")
@@ -112,10 +113,10 @@ class Scratch:
 
         """
         if dst_filename:
-            dst_file = os.path.join(self.path, dst_filename)
+            dst_file = pathlib.PurePath(self.path).joinpath(dst_filename)
         else:
-            dst_file = os.path.join(self.path, os.path.basename(src_file))
-        if os.path.exists(dst_file):
+            dst_file = pathlib.PurePath(self.path).joinpath(pathlib.PurePath(src_file).name)
+        if pathlib.Path(dst_file).exists():
             try:
                 os.unlink(dst_file)
             except OSError:  # pragma: no cover
@@ -170,7 +171,7 @@ def get_json_files(start_folder):
 def is_safe_path(path, allowed_extensions=None):
     """Validate if a path is safe to use."""
     # Ensure path is an existing file or directory
-    if not os.path.exists(path) or not os.path.isfile(path):
+    if not pathlib.Path(path).exists() or not pathlib.Path(path).is_file():
         return False
 
     # Restrict to allowed file extensions:

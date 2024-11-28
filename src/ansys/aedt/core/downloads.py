@@ -25,6 +25,7 @@
 """Download example datasets from https://github.com/ansys/example-data"""
 
 import os
+import pathlib
 import shutil
 import tempfile
 import urllib.request
@@ -36,7 +37,7 @@ from ansys.aedt.core.generic.general_methods import settings
 
 tmpfold = tempfile.gettempdir()
 EXAMPLE_REPO = "https://github.com/ansys/example-data/raw/master/"
-EXAMPLES_PATH = os.path.join(tmpfold, "PyAEDTExamples")
+EXAMPLES_PATH = pathlib.PurePath(tmpfold).joinpath("PyAEDTExamples")
 
 
 def delete_downloads():
@@ -62,15 +63,15 @@ def _retrieve_file(url, name, directory, destination=None, local_paths=None):
     # First check if file has already been downloaded
     if not destination:
         destination = EXAMPLES_PATH
-    local_path = os.path.join(destination, directory, os.path.basename(name))
-    local_path_no_zip = local_path.replace(".zip", "")
-    if os.path.isfile(local_path_no_zip) or os.path.isdir(local_path_no_zip):
+    local_path = pathlib.PurePath(destination).joinpath(directory, pathlib.PurePath(name).name)
+    local_path_no_zip = local_path.stem
+    if pathlib.Path(local_path_no_zip).is_file() or pathlib.Path(local_path_no_zip).is_dir():
         local_paths.append(local_path_no_zip)
 
     # grab the correct url retriever
     urlretrieve = urllib.request.urlretrieve
-    destination_dir = os.path.join(destination, directory)
-    if not os.path.isdir(destination_dir):
+    destination_dir = pathlib.PurePath(destination).joinpath(directory)
+    if not pathlib.Path(destination_dir).is_dir():
         os.makedirs(destination_dir)
     # Perform download
     if is_linux:
@@ -94,17 +95,17 @@ def _retrieve_folder(url, directory, destination=None, local_paths=None):
     if not destination:
         destination = EXAMPLES_PATH
     if directory.startswith("pyaedt/"):
-        local_path = os.path.join(destination, directory[7:])
+        local_path = pathlib.PurePath(destination).joinpath(directory[7:])
     else:
-        local_path = os.path.join(destination, directory)
+        local_path = pathlib.PurePath(destination).joinpath(directory)
     # Ensure that "/" is parsed as a path delimiter.
-    local_path = os.path.join(*local_path.split("/"))
+    local_path = pathlib.PurePath(*local_path.split("/"))
 
     _get_dir = _get_file_url(directory)
     with urllib.request.urlopen(_get_dir) as response:  # nosec
         data = response.read().decode("utf-8").split("\n")
 
-    if not os.path.isdir(local_path):
+    if not pathlib.Path(local_path).is_dir():
         try:
             os.mkdir(local_path)
         except FileNotFoundError:
@@ -141,7 +142,8 @@ def _download_file(directory, name=None, destination=None, local_paths=None):
             url = _get_file_url("pyaedt/" + directory, name)
         _retrieve_file(url, name, directory, destination, local_paths)
     if settings.remote_rpc_session:
-        remote_path = os.path.join(settings.remote_rpc_session_temp_folder, os.path.split(local_paths[-1])[-1])
+        remote_path = (pathlib.PurePath(settings.remote_rpc_session_temp_folder)
+                       .joinpath(os.path.split(local_paths[-1])[-1]))
         if not settings.remote_rpc_session.filemanager.pathexists(settings.remote_rpc_session_temp_folder):
             settings.remote_rpc_session.filemanager.makedirs(settings.remote_rpc_session_temp_folder)
         settings.remote_rpc_session.filemanager.upload(local_paths[-1], remote_path)
@@ -212,8 +214,8 @@ def download_edb_merge_utility(force_download=False, destination=None):
     if not destination:
         destination = EXAMPLES_PATH
     if force_download:
-        local_path = os.path.join(destination, "wpf_edb_merge")
-        if os.path.exists(local_path):
+        local_path = pathlib.PurePath(destination).joinpath("wpf_edb_merge")
+        if pathlib.Path(local_path).exists():
             shutil.rmtree(local_path, ignore_errors=True)
     local_paths = []
     _download_file("pyaedt/wpf_edb_merge/board.aedb", "edb.def", destination, local_paths)
@@ -498,7 +500,7 @@ def download_sherlock(destination=None):
     _download_file("pyaedt/sherlock", "TutorialBoard.stp", destination, local_paths)
     _download_file("pyaedt/sherlock/SherlockTutorial.aedb", "edb.def", destination, local_paths)
 
-    return os.path.join(destination, "sherlock")
+    return pathlib.PurePath(destination).joinpath("sherlock")
 
 
 def download_leaf(destination=None):
@@ -564,12 +566,12 @@ def download_custom_reports(force_download=False, destination=None):
     if not destination:
         destination = EXAMPLES_PATH
     if force_download:
-        local_path = os.path.join(destination, "custom_reports")
-        if os.path.exists(local_path):
+        local_path = pathlib.PurePath(destination).joinpath("custom_reports")
+        if pathlib.Path(local_path).exists():
             shutil.rmtree(local_path, ignore_errors=True)
     download_file("pyaedt/custom_reports", destination=destination)
 
-    return os.path.join(destination, "custom_reports")
+    return pathlib.PurePath(destination).joinpath("custom_reports")
 
 
 def download_3dcomponent(force_download=False, destination=None):
@@ -601,11 +603,11 @@ def download_3dcomponent(force_download=False, destination=None):
     if not destination:
         destination = EXAMPLES_PATH
     if force_download:
-        local_path = os.path.join(destination, "array_3d_component")
-        if os.path.exists(local_path):
+        local_path = pathlib.PurePath(destination).joinpath("array_3d_component")
+        if pathlib.Path(local_path).exists():
             shutil.rmtree(local_path, ignore_errors=True)
     download_file("pyaedt/array_3d_component", destination=destination)
-    return os.path.join(destination, "array_3d_component")
+    return pathlib.PurePath(destination).joinpath("array_3d_component")
 
 
 def download_FSS_3dcomponent(force_download=False, destination=None):
@@ -637,11 +639,11 @@ def download_FSS_3dcomponent(force_download=False, destination=None):
     if not destination:  # pragma: no cover
         destination = EXAMPLES_PATH
     if force_download:  # pragma: no cover
-        local_path = os.path.join(destination, "fss_3d_component")
-        if os.path.exists(local_path):  # pragma: no cover
+        local_path = pathlib.PurePath(destination).joinpath("fss_3d_component")
+        if pathlib.Path(local_path).exists():  # pragma: no cover
             shutil.rmtree(local_path, ignore_errors=True)
     download_file("pyaedt/fss_3d_component", destination=destination)
-    return os.path.join(destination, "fss_3d_component")
+    return pathlib.PurePath(destination).joinpath("fss_3d_component")
 
 
 def download_multiparts(destination=None):
@@ -671,13 +673,13 @@ def download_multiparts(destination=None):
     """
     if not destination:
         destination = EXAMPLES_PATH
-    dest_folder = os.path.join(destination, "multiparts")
-    if os.path.exists(os.path.join(dest_folder, "library")):
-        shutil.rmtree(os.path.join(dest_folder, "library"), ignore_errors=True)
+    dest_folder = pathlib.PurePath(destination).joinpath("multiparts")
+    if pathlib.Path(pathlib.PurePath(dest_folder).joinpath("library")).exists():
+        shutil.rmtree(pathlib.PurePath(dest_folder).joinpath("library"), ignore_errors=True)
     _download_file("pyaedt/multiparts", "library.zip", destination)
-    if os.path.exists(os.path.join(destination, "multiparts", "library.zip")):
-        unzip(os.path.join(destination, "multiparts", "library.zip"), dest_folder)
-    return os.path.join(dest_folder, "library")
+    if pathlib.Path(pathlib.PurePath(destination).joinpath("multiparts", "library.zip")).exists():
+        unzip(pathlib.PurePath(destination).joinpath("multiparts", "library.zip"), dest_folder)
+    return pathlib.PurePath(dest_folder).joinpath("library")
 
 
 def download_twin_builder_data(file_name, force_download=False, destination=None):
@@ -711,11 +713,11 @@ def download_twin_builder_data(file_name, force_download=False, destination=None
     if not destination:
         destination = EXAMPLES_PATH
     if force_download:
-        local_path = os.path.join(destination, os.path.join("twin_builder", file_name))
-        if os.path.exists(local_path):
+        local_path = pathlib.PurePath(destination).joinpath("twin_builder", file_name)
+        if pathlib.Path(local_path).exists():
             os.unlink(local_path)
     _download_file("pyaedt/twin_builder", file_name, destination)
-    return os.path.join(destination, "twin_builder")
+    return pathlib.PurePath(destination).joinpath("twin_builder")
 
 
 @pyaedt_function_handler(filename="name", directory="source")
@@ -761,7 +763,7 @@ def download_file(source, name=None, destination=None):
     else:
         if not destination:
             destination = EXAMPLES_PATH
-        destination_dir = os.path.join(destination, source)
+        destination_dir = pathlib.PurePath(destination).joinpath(source)
         return destination_dir
 
 

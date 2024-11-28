@@ -37,7 +37,7 @@ if is_linux:
 else:
     import subprocess
 
-toolkits_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+toolkits_dir = os.path.abspath(pathlib.PurePath(os.path.dirname(__file__)).joinpath('..', '..'))
 
 sys.path.append(toolkits_dir)
 
@@ -51,13 +51,13 @@ def main():
     os.chdir(proj_dir)
     # Extension directory
     current_dir = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))
-    pyaedt_toolkit_dir = os.path.normpath(os.path.join(current_dir, r"##TOOLKIT_REL_LIB_DIR##"))
+    pyaedt_toolkit_dir = os.path.normpath(pathlib.PurePath(current_dir).joinpath(r"##TOOLKIT_REL_LIB_DIR##"))
     # Jupyter interpreter
     jupyter_exe = r"##JUPYTER_EXE##" % version
     # Check if Jupyter version and AEDT release match
     python_exe = pyaedt_utils.sanitize_interpreter_path(jupyter_exe, version_short)
-    template = os.path.join(pyaedt_toolkit_dir, "jupyter_template.ipynb")
-    target = os.path.join(proj_dir, pyaedt_utils.generate_unique_name("pyaedt", ".ipynb", n=3))
+    template = pathlib.PurePath(pyaedt_toolkit_dir).joinpath("jupyter_template.ipynb")
+    target = pathlib.PurePath(proj_dir).joinpath(pyaedt_utils.generate_unique_name("pyaedt", ".ipynb", n=3))
     # Check executable
     jupyter_exe_flag = pyaedt_utils.check_file(jupyter_exe, oDesktop)
     if not jupyter_exe_flag:

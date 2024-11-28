@@ -25,6 +25,7 @@
 
 import logging
 import os
+import pathlib
 import shutil
 
 from ansys.aedt.core.generic.general_methods import read_toml
@@ -57,12 +58,12 @@ def add_pyaedt_to_aedt(
         personal_lib = d.personallib
         aedt_version = d.aedt_version_id
 
-    extensions_dir = os.path.join(personal_lib, "Toolkits")
+    extensions_dir = pathlib.PurePath(personal_lib).joinpath("Toolkits")
     os.makedirs(extensions_dir, exist_ok=True)
 
     templates_dir = os.path.dirname(ansys.aedt.core.workflows.templates.__file__)
-    script_file = os.path.join(templates_dir, "pyaedt_utils.py")
-    dest_script_path = os.path.join(extensions_dir, "pyaedt_utils.py")
+    script_file = pathlib.PurePath(templates_dir).joinpath("pyaedt_utils.py")
+    dest_script_path = pathlib.PurePath(extensions_dir).joinpath("pyaedt_utils.py")
     shutil.copy2(script_file, dest_script_path)
 
     __add_pyaedt_tabs(personal_lib, aedt_version)
@@ -73,7 +74,9 @@ def __add_pyaedt_tabs(personal_lib, aedt_version):
 
     pyaedt_tabs = ["Console", "Jupyter", "Run_Script", "ExtensionManager"]
 
-    extensions_catalog = read_toml(os.path.join(os.path.dirname(__file__), "extensions_catalog.toml"))
+    extensions_catalog = read_toml(str(pathlib.PurePath(os.path.dirname(__file__))
+                                       .joinpath("extensions_catalog.toml"))
+                                   )
 
     project_workflows_dir = os.path.dirname(__file__)
 
@@ -82,8 +85,9 @@ def __add_pyaedt_tabs(personal_lib, aedt_version):
             extension_info = extensions_catalog[extension]
             script_path = None
             if extension_info["script"]:
-                script_path = os.path.join(project_workflows_dir, extension_info["script"])
-            icon_file = os.path.join(project_workflows_dir, "images", "large", extension_info["icon"])
+                script_path = pathlib.PurePath(project_workflows_dir).joinpath(extension_info["script"])
+            icon_file = (pathlib.PurePath(project_workflows_dir)
+                         .joinpath("images", "large", extension_info["icon"]))
             template_name = extension_info["template"]
             customize_automation_tab.add_script_to_menu(
                 extension_info["name"],

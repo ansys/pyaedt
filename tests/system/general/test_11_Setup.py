@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+import pathlib
 
 from ansys.aedt.core import Circuit
 import pytest
@@ -215,10 +216,10 @@ class TestClass:
         oo = self.aedtapp.get_oo_object(self.aedtapp.odesign, f"Optimetrics\\{setup1.name}")
         oo_calculation = oo.GetCalculationInfo()[0]
         assert "Modal Solution Data" in oo_calculation
-        assert setup1.export_to_csv(os.path.join(self.local_scratch.path, "test.csv"))
-        assert os.path.exists(os.path.join(self.local_scratch.path, "test.csv"))
+        assert setup1.export_to_csv(pathlib.PurePath(self.local_scratch.path).joinpath("test.csv"))
+        assert os.path.exists(pathlib.PurePath(self.local_scratch.path).joinpath("test.csv"))
         assert self.aedtapp.parametrics.add_from_file(
-            os.path.join(self.local_scratch.path, "test.csv"), "ParametricsfromFile"
+            pathlib.PurePath(self.local_scratch.path).joinpath("test.csv"), "ParametricsfromFile"
         )
         oo = self.aedtapp.get_oo_object(self.aedtapp.odesign, r"Optimetrics\ParametricsfromFile")
         assert oo

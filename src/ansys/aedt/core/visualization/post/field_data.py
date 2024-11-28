@@ -21,7 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
+import pathlib
 from abc import abstractmethod
 from collections import defaultdict
 import csv
@@ -1698,7 +1698,7 @@ class FieldPlot:
         """
         self.oField.UpdateQuantityFieldsPlots(self.plot_folder)
         if not full_path:
-            full_path = os.path.join(self._postprocessor._app.working_directory, self.name + ".png")
+            full_path = pathlib.PurePath(self._postprocessor._app.working_directory).joinpath(self.name + ".png")
         status = self._postprocessor.export_field_jpg(
             full_path,
             self.name,

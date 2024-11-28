@@ -24,6 +24,7 @@
 
 import copy
 import json
+import pathlib
 from math import asin
 from math import ceil
 from math import cos
@@ -1431,21 +1432,22 @@ class Primitives3D(GeometryModeler):
         app = assignment.edit_definition(password=password)
         wcs = app.modeler.get_working_coordinate_system()
         if wcs != "Global":
-            temp_folder = os.path.join(
-                self._app.toolkit_directory, self._app.design_name, generate_unique_name("temp_folder")
-            )
-            os.makedirs(os.path.join(temp_folder))
-            if not os.path.exists(os.path.join(self._app.toolkit_directory, self._app.design_name)):  # pragma: no cover
-                os.makedirs(os.path.join(self._app.toolkit_directory, self._app.design_name))
-            new_proj_name = os.path.join(temp_folder, generate_unique_name("project") + ".aedt")
+            temp_folder = (pathlib.PurePath(self._app.toolkit_directory)
+                           .joinpath(self._app.design_name, generate_unique_name("temp_folder")
+            ))
+            os.makedirs(pathlib.PurePath(temp_folder))
+            if not (pathlib.Path(pathlib.PurePath(self._app.toolkit_directory).joinpath(self._app.design_name))
+                    .exists()):  # pragma: no cover
+                os.makedirs(pathlib.PurePath(self._app.toolkit_directory).joinpath(self._app.design_name))
+            new_proj_name = pathlib.PurePath(temp_folder).joinpath(generate_unique_name("project") + ".aedt")
             app.save_project(new_proj_name)
             o, q = app.modeler.invert_cs(wcs, to_global=True)
             app.oproject.Close()
             for root, dirs, files in os.walk(temp_folder, topdown=False):
                 for name in files:
-                    os.remove(os.path.join(root, name))
+                    os.remove(pathlib.PurePath(root).joinpath(name))
                 for name in dirs:
-                    os.rmdir(os.path.join(root, name))
+                    os.rmdir(pathlib.PurePath(root).joinpath(name))
             os.rmdir(temp_folder)
             phi, theta, psi = GeometryOperators.quaternion_to_euler_zxz(q)
             cs_name = assignment.name + "_" + wcs + "_ref"
@@ -1468,7 +1470,7 @@ class Primitives3D(GeometryModeler):
     def __create_temp_project(app):
         """Create temporary project with a duplicated design."""
         temp_proj_name = generate_unique_project_name()
-        ipkapp_temp = Icepak(project=os.path.join(app.toolkit_directory, temp_proj_name))
+        ipkapp_temp = Icepak(project=pathlib.PurePath(app.toolkit_directory).joinpath(temp_proj_name))
         ipkapp_temp.delete_design(ipkapp_temp.design_name)
         app.oproject.CopyDesign(app.design_name)
         ipkapp_temp.oproject.Paste()
@@ -1693,7 +1695,8 @@ class Primitives3D(GeometryModeler):
                 self._app.configurations.options.unset_all_import()
                 self._app.configurations.options.import_native_components = True
                 self._app.configurations.options.import_monitor = True
-                temp_dict_file = os.path.join(self._app.toolkit_directory, generate_unique_name("tempdict_"))
+                temp_dict_file = (pathlib.PurePath(self._app.toolkit_directory)
+                                  .joinpath(generate_unique_name("tempdict_")))
                 with open_file(temp_dict_file, "w") as f:
                     json.dump(temp_dict, f)
                 exclude_set = set([obj.name for _, obj in self._app.modeler.objects.items()])
@@ -1806,7 +1809,7 @@ class Primitives3D(GeometryModeler):
             self.logger.warning("Solution type must be terminal in HFSS or APhi in Maxwell")
             return False
 
-        component_name = os.path.splitext(os.path.basename(input_file))[0]
+        component_name = pathlib.PurePath(input_file).stem
         aedt_component_name = component_name
         if component_name not in self._app.o_component_manager.GetNames():
             compInfo = ["NAME:" + str(component_name), "Info:=", []]
@@ -1839,10 +1842,10 @@ class Primitives3D(GeometryModeler):
 
         # Open Layout component and get information
         aedb_component_path = input_file
-        if os.path.splitext(os.path.basename(input_file))[1] == ".aedbcomp":
-            aedb_project_path = os.path.join(self._app.project_path, self._app.project_name + ".aedb")
-            aedb_component_path = os.path.join(
-                aedb_project_path, "LayoutComponents", aedt_component_name, aedt_component_name + ".aedb"
+        if pathlib.PurePath(input_file).suffix == ".aedbcomp":
+            aedb_project_path = pathlib.PurePath(self._app.project_path).joinpath(self._app.project_name + ".aedb")
+            aedb_component_path = pathlib.PurePath(
+                aedb_project_path).joinpath("LayoutComponents", aedt_component_name, aedt_component_name + ".aedb"
             )
             aedb_component_path = normalize_path(aedb_component_path)
 
@@ -2053,7 +2056,7 @@ class Primitives3D(GeometryModeler):
 
     @pyaedt_function_handler()
     def _check_actor_folder(self, actor_folder):
-        if not os.path.exists(actor_folder):
+        if not pathlib.Path(actor_folder).exists():
             self.logger.error(f"Folder {actor_folder} does not exist.")
             return False
         if not any(fname.endswith(".json") for fname in os.listdir(actor_folder)) or not any(
@@ -3403,7 +3406,7 @@ class Primitives3D(GeometryModeler):
                 values["Inner Winding"]["Occupation(%)"] = occ
 
             if create_another_file:
-                root_path, extension_path = os.path.splitext(input_dir)
+                root_path, extension_path = pathlib.PurePath(input_dir).stem, pathlib.PurePath(input_dir).suffix
                 new_path = root_path + "_Corrected" + extension_path
                 with open_file(new_path, "w") as outfile:
                     json.dump(values, outfile)

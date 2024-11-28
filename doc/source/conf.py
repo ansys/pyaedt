@@ -81,7 +81,7 @@ def directory_size(directory_path):
     res = 0
     for path, _, files in os.walk(directory_path):
         for f in files:
-            fp = os.path.join(path, f)
+            fp = pathlib.PurePath(path).joinpath(f)
             res += os.stat(fp).st_size
     # Convert in megabytes
     res /= 1e6
@@ -106,15 +106,15 @@ def setup(app):
     app.connect('build-finished', remove_doctree)
 
 
-local_path = os.path.dirname(os.path.realpath(__file__))
+local_path = pathlib.PurePath(pathlib.Path(__file__).resolve()).parent
 module_path = pathlib.Path(local_path)
 root_path = module_path.parent.parent
 try:
     from ansys.aedt.core import __version__
 except ImportError:
 
-    sys.path.append(os.path.abspath(os.path.join(local_path)))
-    sys.path.append(os.path.join(root_path))
+    sys.path.append(pathlib.Path(pathlib.PurePath(local_path)).absolute())
+    sys.path.append(pathlib.PurePath(root_path))
     from ansys.aedt.core import __version__
 
 from ansys.aedt.core import is_windows

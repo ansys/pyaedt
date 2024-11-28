@@ -23,6 +23,7 @@
 
 # Generate a pdf report with output of simulation.
 import os
+import pathlib
 
 import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
@@ -73,7 +74,8 @@ def main(extension_args):
     report.add_text("This section contains all reports results.")
     for plot in aedtapp.post.plots:
         aedtapp.post.export_report_to_jpg(aedtapp.working_directory, plot.plot_name)
-        report.add_image(os.path.join(aedtapp.working_directory, plot.plot_name + ".jpg"), plot.plot_name)
+        report.add_image(str(pathlib.PurePath(aedtapp.working_directory).joinpath(plot.plot_name + ".jpg"))
+                         , plot.plot_name)
         report.add_page_break()
     report.add_toc()
     pdf_path = report.save_pdf(aedtapp.working_directory, "AEDT_Results.pdf")

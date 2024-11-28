@@ -22,6 +22,7 @@
 # SOFTWARE.
 
 import os
+import pathlib
 
 import ansys.aedt.core
 import ansys.aedt.core.workflows.hfss3dlayout
@@ -56,7 +57,7 @@ def frontend():  # pragma: no cover
     master.title("Layout exporter")
 
     # Load the logo for the main window
-    icon_path = os.path.join(os.path.dirname(ansys.aedt.core.workflows.__file__), "images", "large", "logo.png")
+    icon_path = pathlib.PurePath(os.path.dirname(ansys.aedt.core.workflows.__file__)).joinpath("images", "large", "logo.png")
     im = PIL.Image.open(icon_path)
     photo = PIL.ImageTk.PhotoImage(im)
 
@@ -131,7 +132,7 @@ def main(extension_args):
 
     active_project = app.active_project()
     active_design = app.active_design()
-    aedb_path = os.path.join(active_project.GetPath(), active_project.GetName() + ".aedb")
+    aedb_path = pathlib.PurePath(active_project.GetPath()).joinpath(active_project.GetName() + ".aedb")
     edb = Edb(aedb_path, active_design.GetName().split(";")[1], edbversion=version)
     if ipc:
         ipc_file = aedb_path[:-5] + "_ipc2581.xml"

@@ -21,7 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
+import pathlib
 from copy import copy
 import itertools
 import os
@@ -508,9 +508,9 @@ def check_touchstone_files(input_dir="", passivity=True, causality=True):
     for snpf in sNpFiles:
         out[snpf] = []
         if os.name == "nt":
-            genequiv_path = os.path.join(aedt_install_folder, "genequiv.exe")
+            genequiv_path = pathlib.PurePath(aedt_install_folder).joinpath("genequiv.exe")
         else:
-            genequiv_path = os.path.join(aedt_install_folder, "genequiv")
+            genequiv_path = pathlib.PurePath(aedt_install_folder).joinpath("genequiv")
         cmd = [genequiv_path]
         if passivity:
             cmd.append("-checkpassivity")
@@ -568,9 +568,9 @@ def find_touchstone_files(input_dir):
     if not os.path.exists(input_dir):
         return out
     pat_snp = re.compile(r"\.s\d+p$", re.IGNORECASE)
-    files = {f: os.path.join(input_dir, f) for f in os.listdir(input_dir) if re.search(pat_snp, f)}
+    files = {f: pathlib.PurePath(input_dir).joinpath(f) for f in os.listdir(input_dir) if re.search(pat_snp, f)}
     pat_ts = re.compile("\.ts$")
     for f in os.listdir(input_dir):
         if re.search(pat_ts, f):
-            files[f] = os.path.abspath(os.path.join(input_dir, f))
+            files[f] = pathlib.Path(pathlib.PurePath(input_dir).joinpath(f)).absolute()
     return files

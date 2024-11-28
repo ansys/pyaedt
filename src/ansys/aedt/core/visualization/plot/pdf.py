@@ -21,7 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
+import pathlib
 from dataclasses import dataclass
 from dataclasses import field
 import json
@@ -41,9 +41,9 @@ class ReportSpec:
     document_prefix: str = "ANSS"
     ansys_version: str = "2023R2"
     revision: str = "Rev 1.0"
-    logo_name: str = os.path.join(os.path.dirname(__file__), "../../generic/Ansys.png")
+    logo_name: str = pathlib.PurePath(os.path.dirname(__file__)).joinpath("../../generic/Ansys.png")
     company_name: str = "Ansys Inc."
-    template_name: str = os.path.join(os.path.dirname(__file__), "../../generic/AnsysTemplate.json")
+    template_name: str = pathlib.PurePath(os.path.dirname(__file__)).joinpath("../../generic/AnsysTemplate.json")
     design_name: str = "Design1"
     project_name: str = "Project1"
     pyaedt_version: str = __version__
@@ -268,7 +268,7 @@ class AnsysReport(FPDF):
         ]:
             msg = f"Simulation bounding box is {design.modeler.get_model_bounding_box()}."
             self.add_text(msg)
-            image_path = os.path.join(design.working_directory, "model.jpg")
+            image_path = pathlib.PurePath(design.working_directory).joinpath("model.jpg")
             design.plot(
                 show=False,
                 export_path=image_path,
@@ -284,7 +284,7 @@ class AnsysReport(FPDF):
             self.add_text(msg)
             msg = f"Furthermore, the layout has {stats.num_nets} nets, {stats.num_traces} traces,"
             msg += f" {stats.num_vias} vias. The stackup total thickness is {stats.stackup_thickness}."
-            image_path = os.path.join(design.working_directory, "model.jpg")
+            image_path = pathlib.PurePath(design.working_directory).joinpath("model.jpg")
             design.modeler.edb.nets.plot(show=False, save_plot=image_path)
             if os.path.exists(image_path):
                 self.add_image(image_path, "Model Image")
@@ -631,8 +631,8 @@ class AnsysReport(FPDF):
         file_name : str, optional
             File name.
         """
-        self.output(os.path.join(file_path, file_name))
-        return os.path.join(file_path, file_name)
+        self.output(str(pathlib.PurePath(file_path).joinpath(file_name)))
+        return pathlib.PurePath(file_path).joinpath(file_name)
 
     def add_chart(self, x_values, y_values, x_caption, y_caption, title):
         """Add a chart to the report using matplotlib.

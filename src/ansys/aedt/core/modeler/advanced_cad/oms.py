@@ -24,6 +24,7 @@
 
 import os
 import warnings
+import pathlib
 
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
@@ -356,7 +357,7 @@ class RoadPrep(object):
         el = roads.points[:, 2]
 
         roads["Elevation"] = el.ravel(order="F")
-        file_out = os.path.join(self.cad_path + "\\roads.stl")
+        file_out = pathlib.PurePath(self.cad_path).joinpath( "roads.stl")
         roads.save(file_out)
         return {"file_name": file_out, "mesh": roads, "graph": g_projected}
 

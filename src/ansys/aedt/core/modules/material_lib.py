@@ -31,6 +31,7 @@ import copy
 import fnmatch
 import math
 import os
+import pathlib
 import re
 import sys
 import warnings
@@ -182,19 +183,19 @@ class Materials(object):
             return mats
 
         amat_sys = [
-            os.path.join(dirpath, filename)
+            pathlib.PurePath(dirpath).joinpath(filename)
             for dirpath, _, filenames in os.walk(self._app.syslib)
             for filename in filenames
             if fnmatch.fnmatch(filename, "*.amat")
         ]
         amat_personal = [
-            os.path.join(dirpath, filename)
+            pathlib.PurePath(dirpath).joinpath(filename)
             for dirpath, _, filenames in os.walk(self._app.personallib)
             for filename in filenames
             if fnmatch.fnmatch(filename, "*.amat")
         ]
         amat_user = [
-            os.path.join(dirpath, filename)
+            pathlib.PurePath(dirpath).joinpath(filename)
             for dirpath, _, filenames in os.walk(self._app.userlib)
             for filename in filenames
             if fnmatch.fnmatch(filename, "*.amat")
@@ -819,11 +820,11 @@ class Materials(object):
             )
             input_file = kwargs["full_json_path"]
 
-        if input_file is None or not os.path.exists(input_file):
+        if input_file is None or not pathlib.Path(input_file).exists():
             self.logger.error("Incorrect path provided.")
             return False
 
-        _, file_extension = os.path.splitext(input_file)
+        _, file_extension = pathlib.PurePath(input_file).stem, pathlib.PurePath(input_file).suffix
         json_flag = True
         datasets = {}
         if file_extension.lower() == ".json":
@@ -927,9 +928,9 @@ class Materials(object):
             return False
         materials_added = []
         props = {}
-        if os.path.splitext(input_file)[1] == ".csv":
+        if pathlib.PurePath(input_file).suffix == ".csv":
             df = pd.read_csv(input_file, index_col=0)
-        elif os.path.splitext(input_file)[1] == ".xlsx":
+        elif pathlib.PurePath(input_file).suffix == ".xlsx":
             df = pd.read_excel(input_file, index_col=0)
         else:
             self.logger.error("Only csv and xlsx are supported.")
@@ -999,7 +1000,7 @@ class Materials(object):
         if name_suffix:
             mat_wb.mat_name_suffix = name_suffix
         # check if the xml file exists
-        if not os.path.isfile(input_file):
+        if not pathlib.Path(input_file).is_file():
             self.logger.error(f"The file specified does not exist: {input_file}")
             return False
         # import the materials in the xml

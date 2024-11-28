@@ -24,6 +24,7 @@
 
 import math
 import os
+import pathlib
 import secrets
 
 from ansys.aedt.core.application.variables import decompose_variable_value
@@ -471,12 +472,12 @@ class CircuitComponents(object):
             return portnames
 
         if not model_name:
-            model_name = os.path.splitext(os.path.basename(input_file))[0]
+            model_name = pathlib.PurePath(input_file).stem
             if "." in model_name:
                 model_name = model_name.replace(".", "_")
         if model_name in list(self.o_model_manager.GetNames()):
             model_name = generate_unique_name(model_name, n=2)
-        num_terminal = int(os.path.splitext(input_file)[1].lower().strip(".sp"))
+        num_terminal = int(str(pathlib.PurePath(input_file).suffix).lower().strip(".sp"))
         # with open_file(touchstone_full_path, "r") as f:
         # port_names = _parse_ports_name(f, num_terminal)
 
@@ -492,10 +493,10 @@ class CircuitComponents(object):
         image_subcircuit_path = ""
         bmp_file_name = ""
         if show_bitmap:
-            image_subcircuit_path = os.path.join(
-                self._modeler._app.desktop_install_dir, "syslib", "Bitmaps", "nport.bmp"
+            image_subcircuit_path = pathlib.PurePath(
+                self._modeler._app.desktop_install_dir).joinpath("syslib", "Bitmaps", "nport.bmp"
             )
-            bmp_file_name = os.path.basename(image_subcircuit_path)
+            bmp_file_name = pathlib.PurePath(image_subcircuit_path).name
 
         if not port_names:
             port_names = ["Port" + str(i + 1) for i in range(num_terminal)]
@@ -743,14 +744,14 @@ class CircuitComponents(object):
         >>> from ansys.aedt.core import Circuit
         >>> cir = Circuit()
         >>> comps = cir.modeler.components
-        >>> s_parameter_path = os.path.join("your_path", "s_param_file_name.s4p")
+        >>> s_parameter_path = pathlib.PurePath("your_path").joinpath("s_param_file_name.s4p")
         >>> circuit_comp = comps.create_touchstone_component(s_parameter_path, location=[0.0, 0.0], show_bitmap=False)
         """
         if location is None:
             location = []
         xpos, ypos = self._get_location(location)
         id = self.create_unique_id()
-        if os.path.exists(model_name):
+        if pathlib.Path(model_name).exists():
             model_name = self.create_model_from_touchstone(model_name, show_bitmap=show_bitmap)
         arg1 = ["NAME:ComponentProps", "Name:=", model_name, "Id:=", str(id)]
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
@@ -1358,7 +1359,7 @@ class ComponentCatalog(object):
             sys_files = recursive_glob(library_path, "*.aclb")
             root = os.path.normpath(library_path).split(os.path.sep)[-1]
         else:
-            sys_files = recursive_glob(os.path.join(self._app.syslib, self._component_manager.design_libray), "*.aclb")
+            sys_files = recursive_glob(str(pathlib.PurePath(self._app.syslib).joinpath(self._component_manager.design_libray)), "*.aclb")
             root = os.path.normpath(self._app.syslib).split(os.path.sep)[-1]
         for file in sys_files:
             comps1 = load_keyword_in_aedt_file(file, "DefInfo")
@@ -1366,7 +1367,8 @@ class ComponentCatalog(object):
             comps = comps1.get("DefInfo", {})
             comps.update(comps2.get("CompInfo", {}))
             for compname, comp_value in comps.items():
-                root_name, ext = os.path.splitext(os.path.normpath(file))
+                root_name, ext = (pathlib.PurePath(os.path.normpath(file)).stem,
+                                  pathlib.PurePath(os.path.normpath(file)).suffix)
                 full_path = root_name.split(os.path.sep)
                 id = full_path.index(root) + 1
                 if self._component_manager.design_libray in full_path[id:]:

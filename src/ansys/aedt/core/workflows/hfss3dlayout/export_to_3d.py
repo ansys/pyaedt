@@ -22,6 +22,7 @@
 # SOFTWARE.
 
 import os
+import pathlib
 
 import ansys.aedt.core
 import ansys.aedt.core.workflows.hfss3dlayout
@@ -58,7 +59,7 @@ def frontend():  # pragma: no cover
     master.title("Export to 3D")
 
     # Load the logo for the main window
-    icon_path = os.path.join(os.path.dirname(ansys.aedt.core.workflows.__file__), "images", "large", "logo.png")
+    icon_path = pathlib.PurePath(os.path.dirname(ansys.aedt.core.workflows.__file__)).joinpath("images", "large", "logo.png")
     im = PIL.Image.open(icon_path)
     photo = PIL.ImageTk.PhotoImage(im)
 

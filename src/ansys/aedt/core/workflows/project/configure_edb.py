@@ -22,6 +22,7 @@
 # SOFTWARE.
 
 import os
+import pathlib
 from pathlib import Path
 import tkinter as tk
 from tkinter import filedialog
@@ -64,7 +65,7 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
         if active_project:
             project_name = active_project.GetName()
             project_dir = active_project.GetPath()
-            project_file = os.path.join(project_dir, project_name + ".aedt")
+            project_file = pathlib.PurePath(project_dir).joinpath(project_name + ".aedt")
             desktop.release_desktop(False, False)
             return project_file
         else:
@@ -94,7 +95,7 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
         self.selected_cfg_file_folder = tk.StringVar(value="")
 
         # Load the logo for the main window
-        icon_path = os.path.join(os.path.dirname(ansys.aedt.core.workflows.__file__), "images", "large", "logo.png")
+        icon_path = pathlib.PurePath(os.path.dirname(ansys.aedt.core.workflows.__file__)).joinpath("images", "large", "logo.png")
         im = PIL.Image.open(icon_path)
         photo = PIL.ImageTk.PhotoImage(im)
 
@@ -217,8 +218,8 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
                 project_dir, project_file = data
             else:
                 return
-            file_save_path = os.path.join(
-                project_dir, Path(project_file).stem + "_" + generate_unique_name(Path(file_cfg_path).stem) + ".aedt"
+            file_save_path = pathlib.PurePath(
+                project_dir).joinpath(Path(project_file).stem + "_" + generate_unique_name(Path(file_cfg_path).stem) + ".aedt"
             )
             self._execute["active_load"].append(
                 {"project_file": project_file, "file_cfg_path": file_cfg_path, "file_save_path": file_save_path}
@@ -257,17 +258,17 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
             fname = Path(project_file).stem + "_" + generate_unique_name(Path(file_cfg_path).stem)
             if file_cfg_path.endswith(".json") or file_cfg_path.endswith(".toml"):
                 if self.selected_app_option.get() == "SIwave":
-                    file_save_path = os.path.join(Path(file_save_dir), fname + ".siw")
+                    file_save_path = pathlib.PurePath(pathlib.Path(file_save_dir)).joinpath(fname + ".siw")
                     self._execute["siwave_load"].append(
                         {"project_file": project_file, "file_cfg_path": file_cfg_path, "file_save_path": file_save_path}
                     )
                 elif self.selected_app_option.get() == "HFSS 3D Layout":
-                    file_save_path = os.path.join(Path(file_save_dir), fname + ".aedt")
+                    file_save_path = pathlib.PurePath(pathlib.Path(file_save_dir)).joinpath(fname + ".aedt")
                     self._execute["aedt_load"].append(
                         {"project_file": project_file, "file_cfg_path": file_cfg_path, "file_save_path": file_save_path}
                     )
                 else:
-                    file_save_path = os.path.join(file_save_dir, fname + ".aedt")
+                    file_save_path = pathlib.PurePath(file_save_dir).joinpath(fname + ".aedt")
                     self._execute["active_load"].append(
                         {"project_file": project_file, "file_cfg_path": file_cfg_path, "file_save_path": file_save_path}
                     )

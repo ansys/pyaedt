@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+import pathlib
 import shutil
 
 from ansys.aedt.core import Maxwell3d
@@ -582,7 +583,7 @@ class TestClass:
         setup_name = "setupTestMatrixRL"
         setup = self.aedtapp.create_setup(name=setup_name)
         setup.props["MaximumPasses"] = 2
-        export_path_1 = os.path.join(self.local_scratch.path, "export_rl_matrix_Test1.txt")
+        export_path_1 = pathlib.PurePath(self.local_scratch.path).joinpath("export_rl_matrix_Test1.txt")
         assert not self.aedtapp.export_rl_matrix("matrix_export_test", export_path_1)
         assert not self.aedtapp.export_rl_matrix("matrix_export_test", export_path_1, False, 10, 3, True)
         self.aedtapp.validate_simple()
@@ -590,7 +591,7 @@ class TestClass:
         assert self.aedtapp.export_rl_matrix("matrix_export_test", export_path_1)
         assert not self.aedtapp.export_rl_matrix("abcabc", export_path_1)
         assert os.path.exists(export_path_1)
-        export_path_2 = os.path.join(self.local_scratch.path, "export_rl_matrix_Test2.txt")
+        export_path_2 = pathlib.PurePath(self.local_scratch.path).joinpath("export_rl_matrix_Test2.txt")
         assert self.aedtapp.export_rl_matrix("matrix_export_test", export_path_2, False, 10, 3, True)
         assert os.path.exists(export_path_2)
 
@@ -884,7 +885,7 @@ class TestClass:
         assert m3dtransient.setups[0].add_mesh_link(
             design=m3dtransient.design_list[0], parameters=m3dtransient.available_variations.nominal_w_values_dict
         )
-        example_project = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, transient + ".aedt")
+        example_project = pathlib.PurePath(TESTS_GENERAL_PATH).joinpath("example_models", test_subfolder, transient + ".aedt")
         example_project_copy = os.path.join(self.local_scratch.path, transient + "_copy.aedt")
         shutil.copyfile(example_project, example_project_copy)
         assert m3dtransient.setups[0].add_mesh_link(design=m3dtransient.design_list[0], project=example_project_copy)

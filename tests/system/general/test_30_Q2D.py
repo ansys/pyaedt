@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+import pathlib
 import time
 
 from ansys.aedt.core import Q2d
@@ -50,7 +51,7 @@ def aedtapp(add_app):
 @pytest.fixture(scope="class", autouse=True)
 def examples(local_scratch):
     test_matrix = local_scratch.copyfile(
-        os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, q2d_q3d + ".aedt")
+        pathlib.PurePath(TESTS_GENERAL_PATH).joinpath("example_models", test_subfolder, q2d_q3d + ".aedt")
     )
     return test_matrix, None
 
@@ -63,7 +64,7 @@ class TestClass:
         self.test_matrix = examples[0]
 
     def test_01_save(self):
-        test_project = os.path.join(self.local_scratch.path, test_project_name + ".aedt")
+        test_project = pathlib.PurePath(self.local_scratch.path).joinpath(test_project_name + ".aedt")
         self.aedtapp.save_project(test_project)
         assert os.path.exists(test_project)
 
@@ -168,26 +169,27 @@ class TestClass:
         q2d.analyze_setup(q2d.active_setup, blocking=False)
         while q2d.desktop_class.are_there_simulations_running:
             time.sleep(1)
-        q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"))
-        assert q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), problem_type="CG")
+        q2d.export_matrix_data(pathlib.PurePath(self.local_scratch.path).joinpath("test_2d.txt"))
+        assert q2d.export_matrix_data(pathlib.PurePath(self.local_scratch.path)
+                                      .joinpath("test_2d.txt"), problem_type="CG")
         assert q2d.export_matrix_data(
-            os.path.join(self.local_scratch.path, "test_2d.txt"),
+            pathlib.PurePath(self.local_scratch.path).joinpath("test_2d.txt"),
             problem_type="CG",
             matrix_type="Maxwell, Spice, Couple",
         )
         assert not q2d.export_matrix_data(
-            os.path.join(self.local_scratch.path, "test_2d.txt"),
+            pathlib.PurePath(self.local_scratch.path).joinpath("test_2d.txt"),
             problem_type="RL",
             matrix_type="Maxwell, Spice, Couple",
         )
         assert q2d.export_matrix_data(
-            os.path.join(self.local_scratch.path, "test_2d.txt"), problem_type="RL", matrix_type="Maxwell, Couple"
+            pathlib.PurePath(self.local_scratch.path).joinpath("test_2d.txt"), problem_type="RL", matrix_type="Maxwell, Couple"
         )
         assert q2d.export_matrix_data(
-            os.path.join(self.local_scratch.path, "test_2d.txt"), problem_type="CG", setup="Setup1", sweep="Sweep1"
+            pathlib.PurePath(self.local_scratch.path).joinpath("test_2d.txt"), problem_type="CG", setup="Setup1", sweep="Sweep1"
         )
         assert q2d.export_matrix_data(
-            os.path.join(self.local_scratch.path, "test_2d.txt"),
+            pathlib.PurePath(self.local_scratch.path).joinpath("test_2d.txt"),
             problem_type="CG",
             setup="Setup1",
             sweep="LastAdaptive",

@@ -24,6 +24,7 @@
 
 import csv
 import os
+import pathlib
 import re
 import shutil
 
@@ -73,7 +74,7 @@ def clean_proj_folder(dir, name):
     bool
         ``True`` when successful, ``False`` when failed.
     """
-    if os.path.exists(dir):
+    if pathlib.Path(dir).exists():
         shutil.rmtree(dir, True)
     os.mkdir(dir)
     return True
@@ -97,18 +98,18 @@ def create_output_folder(ProjectDir):
     npath = os.path.normpath(ProjectDir)
 
     # set pathname for the Output
-    OutputPath = os.path.join(npath, os.path.basename(npath))
+    OutputPath = pathlib.PurePath(npath).joinpath(pathlib.PurePath(npath).name)
     # set pathname for the images
-    PicturePath = os.path.join(npath, os.path.basename(npath), "Pictures")
+    PicturePath = pathlib.PurePath(npath).joinpath(pathlib.PurePath(npath).name, "Pictures")
     # set pathname for the files
-    ResultsPath = os.path.join(npath, os.path.basename(npath), "Results")
+    ResultsPath = pathlib.PurePath(npath).joinpath(pathlib.PurePath(npath).name, "Results")
 
     # Add folders for outputs
-    if not os.path.exists(OutputPath):
+    if not pathlib.Path(OutputPath).exists():
         os.mkdir(OutputPath)
-    if not os.path.exists(PicturePath):
+    if not pathlib.Path(PicturePath).exists():
         os.mkdir(PicturePath)
-    if not os.path.exists(ResultsPath):
+    if not pathlib.Path(ResultsPath).exists():
         os.mkdir(ResultsPath)
     return PicturePath, ResultsPath
 
@@ -130,9 +131,9 @@ def change_objects_visibility(origfile, solid_list):
         ``True`` when successful, ``False`` when failed.
     """
     path, filename = os.path.split(origfile)
-    newfile = os.path.join(path, "aedttmp.tmp")
+    newfile = pathlib.PurePath(path).joinpath("aedttmp.tmp")
 
-    if not os.path.isfile(origfile + ".lock"):  # check if the project is closed
+    if not pathlib.Path(origfile + ".lock").is_file():  # check if the project is closed
         with open(origfile, "rb") as f, open(newfile, "wb") as n:
             # Reading file content
             content = f.read()
@@ -175,7 +176,7 @@ def change_model_orientation(origfile, bottom_dir):
         ``True`` when successful, ``False`` when failed.
     """
     path, filename = os.path.split(origfile)
-    newfile = os.path.join(path, "aedttmp.tmp")
+    newfile = pathlib.PurePath(path).joinpath("aedttmp.tmp")
 
     # directory of u, v vectors for view orientation
     orientation = {
@@ -199,7 +200,7 @@ def change_model_orientation(origfile, bottom_dir):
         "-100, 100, -100, 100, -100, 100) ",
     }
 
-    if not os.path.isfile(origfile + ".lock"):  # check if the project is closed
+    if not pathlib.Path(origfile + ".lock").is_file():  # check if the project is closed
         # Opening files
         with open(origfile, "rb") as f, open(newfile, "wb") as n:
             # Reading file content

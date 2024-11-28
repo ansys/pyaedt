@@ -22,6 +22,7 @@
 # SOFTWARE.
 
 import os.path
+import pathlib
 
 import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
@@ -59,7 +60,7 @@ def frontend():  # pragma: no cover
     master.title("Import Nastran or STL file")
 
     # Load the logo for the main window
-    icon_path = os.path.join(ansys.aedt.core.workflows.__path__[0], "images", "large", "logo.png")
+    icon_path = pathlib.PurePath(ansys.aedt.core.workflows.__path__[0]).joinpath("images", "large", "logo.png")
     im = PIL.Image.open(icon_path)
     photo = PIL.ImageTk.PhotoImage(im)
 
