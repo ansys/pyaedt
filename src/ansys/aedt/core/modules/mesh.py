@@ -38,6 +38,7 @@ from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.generic.load_aedt_file import load_keyword_in_aedt_file
+from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
@@ -108,7 +109,7 @@ class MeshProps(dict):
         dict.__setitem__(self, key, value)
 
 
-class MeshOperation(object):
+class MeshOperation(BinaryTreeNode):
     """MeshOperation class.
 
     Parameters
@@ -120,12 +121,17 @@ class MeshOperation(object):
     def __init__(self, mesh, name, props, meshoptype):
         self._mesh = mesh
         self._app = self._mesh._app
-        self._props = None
+        self._legacy_props = None
         if props is not None:
-            self._props = MeshProps(self, props)
+            self._legacy_props = MeshProps(self, props)
         self._type = meshoptype
         self._name = name
         self.auto_update = True
+
+        child_object = self._app.get_oo_object(self._app.odesign, f"Mesh/{self._name}")
+
+        if child_object:
+            BinaryTreeNode.__init__(self, self._name, child_object, False)
 
     @property
     def type(self):
@@ -135,14 +141,12 @@ class MeshOperation(object):
 
     @property
     def props(self):
-        if not self._props:
+        if not self._legacy_props:
             props = {}
-            design_mesh = self._app.odesign.GetChildObject("Mesh")
-            child_object = design_mesh.GetChildObject(self._name)
-            for i in child_object.GetPropNames():
-                props[i] = child_object.GetPropValue(i)
-            try:
-                assignment = self.object_properties.props["Assignment"]
+            for k, v in self.properties.items():
+                props[k] = v
+            if "Assignment" in props:
+                assignment = props["Assignment"]
                 if "Face_" in assignment:
                     props["Faces"] = [
                         int(i.replace("Face_", "")) for i in assignment.split("(")[1].split(")")[0].split(",")
@@ -153,7 +157,7 @@ class MeshOperation(object):
                     ]
                 else:
                     props["Objects"] = assignment
-            except KeyError:
+            else:
                 props["Objects"] = []
                 props["Faces"] = []
                 props["Edges"] = []
@@ -173,31 +177,14 @@ class MeshOperation(object):
                         if int(comp_id) in edge_ids:
                             props["Edges"].append(int(comp_id))
                             continue
-            self._props = MeshProps(self, props)
-        return self._props
-
-    @property
-    def object_properties(self):
-        """Object-oriented properties.
-
-        Returns
-        -------
-        class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTreeNode`
-
-        """
-        from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
-
-        child_object = self._app.get_oo_object(self._app.odesign, f"Mesh/{self._name}")
-
-        if child_object:
-            return BinaryTreeNode(self.name, child_object, False)
-        return False
+            self._legacy_props = MeshProps(self, props)
+        return self._legacy_props
 
     @pyaedt_function_handler()
     def _get_args(self):
         """Retrieve arguments."""
         props = self.props
-        arg = ["NAME:" + self.name]
+        arg = ["NAME:" + self._name]
         _dict2arg(props, arg)
         return arg
 
@@ -211,14 +198,17 @@ class MeshOperation(object):
            Name of the mesh operation.
 
         """
+        try:
+            self._name = self.properties["Name"]
+        except KeyError:
+            pass
         return self._name
 
     @name.setter
     def name(self, meshop_name):
-        if meshop_name not in self._mesh._app.odesign.GetChildObject("Mesh").GetChildNames():
-            self._mesh._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).SetPropValue("Name", meshop_name)
-            self._name = meshop_name
-        else:
+        try:
+            self.properties["Name"] = meshop_name
+        except KeyError:
             self._mesh.logger.warning("Name %s already assigned in the design", meshop_name)
 
     @pyaedt_function_handler()
@@ -257,6 +247,10 @@ class MeshOperation(object):
             self._mesh.omeshmodule.AssignCylindricalGapOp(self._get_args())
         else:
             return False
+        child_object = self._app.get_oo_object(self._app.odesign, f"Mesh/{self._name}")
+
+        if child_object:
+            BinaryTreeNode.__init__(self, self._name, child_object, False)
         return True
 
     @pyaedt_function_handler()

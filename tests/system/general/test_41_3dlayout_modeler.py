@@ -344,7 +344,7 @@ class TestClass:
             y_scale=1e-3,
             data_format="Voltage",
         )
-        self.aedtapp.boundaries[0].object_properties.props["Boundary Type"] = "PEC"
+        self.aedtapp.boundaries[0].properties["Boundary Type"] = "PEC"
         assert list(self.aedtapp.oboundary.GetAllBoundariesList())[0] == self.aedtapp.boundaries[0].name
 
     def test_14a_create_coaxial_port(self):
@@ -603,9 +603,9 @@ class TestClass:
         assert port.name == "PinPort1"
         port.props["Magnitude"] = "2V"
         assert port.props["Magnitude"] == "2V"
-        assert port.object_properties.props["Magnitude"] == "2V"
-        port.object_properties.props["Magnitude"] = "5V"
-        assert port.object_properties.props["Magnitude"] == "5V"
+        assert port.properties["Magnitude"] == "2V"
+        port.properties["Magnitude"] = "5V"
+        assert port.properties["Magnitude"] == "5V"
 
     def test_28_create_scattering(self):
         assert self.aedtapp.create_scattering()

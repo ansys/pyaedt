@@ -173,7 +173,7 @@ def desktop():
     time.sleep(1)
     try:
         os.kill(pid, 9)
-    except OSError as e:
+    except OSError:
         pass
 
 

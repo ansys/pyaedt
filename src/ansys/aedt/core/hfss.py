@@ -49,10 +49,10 @@ from ansys.aedt.core.modeler import cad
 from ansys.aedt.core.modeler.cad.component_array import ComponentArray
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
-from ansys.aedt.core.modules.boundary import BoundaryObject
-from ansys.aedt.core.modules.boundary import FarFieldSetup
-from ansys.aedt.core.modules.boundary import NativeComponentObject
-from ansys.aedt.core.modules.boundary import NearFieldSetup
+from ansys.aedt.core.modules.boundary.common import BoundaryObject
+from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
+from ansys.aedt.core.modules.boundary.hfss_boundary import NearFieldSetup
+from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 
 
@@ -249,10 +249,17 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         Returns
         -------
         List of :class:`ansys.aedt.core.modules.boundary.FarFieldSetup` and
-        :class:`ansys.aedt.core.modules.boundary.NearFieldSetup`
+        :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
         """
-        if not self._field_setups:
-            self._field_setups = self._get_rad_fields()
+        for field in self.field_setup_names:
+            obj_field = self.odesign.GetChildObject("Radiation").GetChildObject(field)
+            type_field = obj_field.GetPropValue("Type")
+            if type_field == "Infinite Sphere":
+                self._field_setups.append(FarFieldSetup(self, field, {}, "FarFieldSphere"))
+            else:
+                self._field_setups.append(NearFieldSetup(self, field, {}, f"NearField{type_field}"))
+        # if not self._field_setups:
+        #     self._field_setups = self._get_rad_fields()
         return self._field_setups
 
     @property
@@ -371,31 +378,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         elif source_name in self.excitations or source_name + ":1" in self.excitations:
             source_name = generate_unique_name(source_name)
         return source_name
-
-    @pyaedt_function_handler()
-    def _get_rad_fields(self):
-        if not self.design_properties:
-            return []
-        fields = []
-        if self.design_properties.get("RadField"):
-            if self.design_properties["RadField"].get("FarFieldSetups"):
-                for val in self.design_properties["RadField"]["FarFieldSetups"]:
-                    p = self.design_properties["RadField"]["FarFieldSetups"][val]
-                    if isinstance(p, dict) and p.get("Type") == "Infinite Sphere":
-                        fields.append(FarFieldSetup(self, val, p, "FarFieldSphere"))
-            if self.design_properties["RadField"].get("NearFieldSetups"):
-                for val in self.design_properties["RadField"]["NearFieldSetups"]:
-                    p = self.design_properties["RadField"]["NearFieldSetups"][val]
-                    if isinstance(p, dict):
-                        if p["Type"] == "Near Rectangle":
-                            fields.append(NearFieldSetup(self, val, p, "NearFieldRectangle"))
-                        elif p["Type"] == "Near Line":
-                            fields.append(NearFieldSetup(self, val, p, "NearFieldLine"))
-                        elif p["Type"] == "Near Box":
-                            fields.append(NearFieldSetup(self, val, p, "NearFieldBox"))
-                        elif p["Type"] == "Near Sphere":
-                            fields.append(NearFieldSetup(self, val, p, "NearFieldSphere"))
-        return fields
 
     @pyaedt_function_handler()
     def _create_boundary(self, name, props, boundary_type):
@@ -1482,7 +1464,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.NativeComponentObject`
+        :class:`ansys.aedt.core.modules.layout_boundary.NativeComponentObject`
             NativeComponentObject object.
 
         References
@@ -1608,7 +1590,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.NativeComponentObject`
+        :class:`ansys.aedt.core.modules.layout_boundary.NativeComponentObject`
 
         References
         ----------
@@ -5139,7 +5121,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.FarFieldSetup`
+        :class:`ansys.aedt.core.modules.hfss_boundary.FarFieldSetup`
         """
         if not self.oradfield:
             self.logger.error("Radiation Field not available in this solution.")
@@ -5231,7 +5213,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.NearFieldSetup`
+        :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
         """
         if not self.oradfield:
             self.logger.error("Radiation Field not available in this solution.")
@@ -5308,7 +5290,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.NearFieldSetup`
+        :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
         """
         if not self.oradfield:
             self.logger.error("Radiation Field not available in this solution.")
@@ -5377,7 +5359,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.NearFieldSetup`
+        :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
         """
         if not self.oradfield:
             self.logger.error("Radiation Field not available in this solution.")
@@ -5432,7 +5414,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.NearFieldSetup`
+        :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
         """
         if not self.oradfield:
             self.logger.error("Radiation Field not available in this solution.")

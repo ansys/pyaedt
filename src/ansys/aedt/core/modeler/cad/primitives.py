@@ -505,7 +505,9 @@ class GeometryModeler(Modeler):
         ----------
 
         >>> oDesign.GetGeometryMode"""
-        return self._odesign.GetGeometryMode()
+        if "GetGeometryMode" in dir(self._odesign):
+            return self._odesign.GetGeometryMode()
+        return
 
     @property
     def solid_bodies(self):

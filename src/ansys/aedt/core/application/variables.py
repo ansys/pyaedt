@@ -1354,7 +1354,7 @@ class VariableManager(object):
 
         """
         used = False
-        for _, v in history.props.items():
+        for _, v in history.properties.items():
             if isinstance(v, str) and var_name in re.findall("[a-zA-Z0-9_]+", v):
                 return True
         for el in history.children.values():

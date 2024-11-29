@@ -1418,7 +1418,10 @@ class BinaryTreeNode:
             if i == "OperandPart_" + saved_root_name or i == "OperandPart_" + saved_root_name.split("_")[0]:
                 continue
             elif not i.startswith("OperandPart_"):
-                self.children[i] = BinaryTreeNode(i, self.child_object.GetChildObject(i), root_name=saved_root_name)
+                try:
+                    self.children[i] = BinaryTreeNode(i, self.child_object.GetChildObject(i), root_name=saved_root_name)
+                except Exception:
+                    pass
             else:
                 names = self.child_object.GetChildObject(i).GetChildNames()
                 for name in names:
@@ -1433,7 +1436,7 @@ class BinaryTreeNode:
             del self.children[name]
 
     @property
-    def props(self):
+    def properties(self):
         """Properties data.
 
         Returns
@@ -1475,7 +1478,7 @@ class BinaryTreeNode:
         -------
         str
         """
-        return self.props.get("Command", "")
+        return self.properties.get("Command", "")
 
     def update_property(self, prop_name, prop_value):
         """Update the property of the binary tree node.
@@ -1503,7 +1506,7 @@ class BinaryTreeNode:
         childrend_dict = {}
         for _, node in binary_tree_node.children.items():
             childrend_dict.update(self._jsonalize_tree(node))
-        return {binary_tree_node.node: {"Props": binary_tree_node.props, "Children": childrend_dict}}
+        return {binary_tree_node.node: {"Props": binary_tree_node.properties, "Children": childrend_dict}}
 
     @pyaedt_function_handler
     def jsonalize_tree(self):
@@ -1518,7 +1521,7 @@ class BinaryTreeNode:
 
     @pyaedt_function_handler
     def _suppress(self, node, app, suppress):
-        if not node.command.startswith("Duplicate") and "Suppress Command" in node.props:
+        if not node.command.startswith("Duplicate") and "Suppress Command" in node.properties:
             app.oeditor.ChangeProperty(
                 [
                     "NAME:AllTabs",

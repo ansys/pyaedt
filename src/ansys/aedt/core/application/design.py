@@ -77,9 +77,9 @@ from ansys.aedt.core.generic.general_methods import remove_project_lock
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.generic.general_methods import write_csv
 from ansys.aedt.core.generic.load_aedt_file import load_entire_aedt_file
-from ansys.aedt.core.modules.boundary import BoundaryObject
-from ansys.aedt.core.modules.boundary import MaxwellParameters
-from ansys.aedt.core.modules.boundary import NetworkObject
+from ansys.aedt.core.modules.boundary.circuit_boundary import NetworkObject
+from ansys.aedt.core.modules.boundary.common import BoundaryObject
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
 
 if sys.version_info.major > 2:
     import base64
@@ -376,6 +376,12 @@ class Design(AedtObjects):
             current_excitation_types = ee[1::2]
             ff = [i.split(":")[0] for i in ee]
             bb.extend(ff)
+            for i in set(current_excitation_types):
+                if "GetExcitationsOfType" in self.oboundary.__dir__():
+                    ports = list(self.oboundary.GetExcitationsOfType(i))
+                    for p in ports:
+                        bb.append(p)
+                        bb.append(i)
         elif (
             self.oboundary
             and "Excitations" in self.get_oo_name(self.odesign)

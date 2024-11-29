@@ -32,6 +32,7 @@ from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
+from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modules.mesh import MeshOperation
 from ansys.aedt.core.modules.mesh import meshers
@@ -312,7 +313,7 @@ class CommonRegion(object):
         region = self.object
         create_region = region.history()
         set_type = ["Data", "Type"][int(padding_type)]
-        create_region.props[f"{direction} Padding {set_type}"] = value
+        create_region.properties[f"{direction} Padding {set_type}"] = value
 
     def _update_region_data(self):
         region = self.object
@@ -320,9 +321,9 @@ class CommonRegion(object):
         self._padding_type = []
         self._padding_value = []
         for padding_direction in ["+X", "-X", "+Y", "-Y", "+Z", "-Z"]:
-            self._padding_type.append(create_region.props[f"{padding_direction} Padding Type"])
-            self._padding_value.append(create_region.props[f"{padding_direction} Padding Data"])
-            self._coordinate_system = create_region.props["Coordinate System"]
+            self._padding_type.append(create_region.properties[f"{padding_direction} Padding Type"])
+            self._padding_value.append(create_region.properties[f"{padding_direction} Padding Data"])
+            self._coordinate_system = create_region.properties["Coordinate System"]
 
     def _get_region_data(self, direction=None, padding_type=True):
         self._update_region_data()
@@ -419,10 +420,8 @@ class SubRegion(CommonRegion):
             Dictionary with the part names as keys and ::class::modeler.cad.object_3d.Object3d as values.
         """
         if self.object:
-            return {
-                obj_name: self._app.modeler[obj_name]
-                for obj_name in self.object.history().props["Part Names"].split(",")
-            }
+            history = self.object.history().properties
+            return {obj_name: self._app.modeler[obj_name] for obj_name in history["Part Names"].split(",")}
         else:
             return {}
 
@@ -633,6 +632,10 @@ class MeshRegionCommon(object):
         self._name = name
         self._model_units = units
         self._app = app
+        child_object = self._app.get_oo_object(self._app.odesign, f"Mesh/{self._name}")
+
+        if child_object:
+            BinaryTreeNode.__init__(self, self._name, child_object, False)
 
     @abstractmethod
     def update(self):
@@ -743,6 +746,10 @@ class GlobalMeshRegion(MeshRegionCommon):
         self.delete()
         self.global_region = Region(self._app)
         self.global_region.create(self.padding_types, self.padding_values)
+        child_object = self._app.get_oo_object(self._app.odesign, f"Mesh/{self._name}")
+
+        if child_object:
+            BinaryTreeNode.__init__(self, self._name, child_object, False)
 
 
 class MeshRegion(MeshRegionCommon):
@@ -900,16 +907,18 @@ class MeshRegion(MeshRegionCommon):
                 for sr in sub_regions:
                     p1 = []
                     p2 = []
-                    if "Part Names" in self._app.modeler[sr].history().props:
-                        p1 = self._app.modeler[sr].history().props.get("Part Names", None)
+                    history = self._app.modeler[sr].history()
+                    history_props = history.properties
+                    if "Part Names" in history_props:
+                        p1 = history_props.get("Part Names", None)
                         if not isinstance(p1, list):
                             p1 = [p1]
-                    elif "Submodel Names" in self._app.modeler[sr].history().props:
-                        p2 = self._app.modeler[sr].history().props.get("Submodel Names", None)
+                    elif "Submodel Names" in history_props:
+                        p2 = history_props.get("Submodel Names", None)
                         if not isinstance(p2, list):
                             p2 = [p2]
                     p1 += p2
-                    if "CreateSubRegion" == self._app.modeler[sr].history().command and all(p in p1 for p in parts):
+                    if "CreateSubRegion" == history.command and all(p in p1 for p in parts):
                         self._assignment.name = sr
             return self._assignment
         elif isinstance(self._assignment, list):
@@ -950,6 +959,11 @@ class MeshRegion(MeshRegionCommon):
         self._app.mesh.meshregions.append(self)
         self._app.modeler.refresh_all_ids()
         self._assignment = self.assignment
+        child_object = self._app.get_oo_object(self._app.odesign, f"Mesh/{self._name}")
+
+        if child_object:
+            BinaryTreeNode.__init__(self, self._name, child_object, False)
+
         return True
 
     # backward compatibility
