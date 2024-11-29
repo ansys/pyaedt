@@ -371,7 +371,7 @@ def main(extension_args):
     first_winding_list = list_object[2]
 
     # Get second winding list if it exists
-    second_winding_list = list_object[3] if len(list_object) >= 3 else None
+    second_winding_list = list_object[3] if len(list_object) > 3 else None
 
     # Create ground plane
     ground_radius = 1.2 * dictionary_values[1]["Outer Winding"]["Outer Radius"]
