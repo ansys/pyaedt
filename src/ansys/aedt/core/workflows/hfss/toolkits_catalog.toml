@@ -12,3 +12,10 @@ script = "push_excitation_from_file.py"
 icon = "images/large/push.png"
 template = "run_pyaedt_toolkit_script"
 pip = ""
+
+[ChokeDesigner]
+name = "Choke Designer"
+script = "choke_designer.py"
+icon = "images/large/choke.png"
+template = "run_pyaedt_toolkit_script"
+pip = ""
