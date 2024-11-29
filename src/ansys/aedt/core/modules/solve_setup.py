@@ -2509,6 +2509,7 @@ class SetupHFSS(Setup, object):
         >>> hfss["der_var"] = "1mm"
         >>> setup = hfss.create_setup(setup_type=1)
         >>> setup.add_derivatives("der_var")
+        >>> hfss.analyze()
         >>> setup.set_tuning_offset({"der_var": 0.05})
         """
         variables = self.get_derivative_variables()
@@ -3249,6 +3250,7 @@ class SetupHFSSAuto(Setup, object):
         >>> hfss["der_var"] = "1mm"
         >>> setup = hfss.create_setup(setup_type=0)
         >>> setup.add_derivatives("der_var")
+        >>> hfss.analyze()
         >>> setup.set_tuning_offset({"der_var": 0.05})
         """
         variables = self.get_derivative_variables()
