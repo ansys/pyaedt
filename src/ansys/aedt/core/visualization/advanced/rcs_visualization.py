@@ -1623,9 +1623,20 @@ class MonostaticRCSPlotter(object):
     @pyaedt_function_handler()
     def add_isar_2d(
         self,
+        plot_type="Plane",
         color_bar="jet",
     ):
-        """Add the ISAR 2D."""
+        """Add the ISAR 2D.
+
+        Parameters
+        ----------
+        plot_type : str, optional
+            The type of plot to create for the range profile. It can be ``"Plane"``, ``"Relief"``, and `"Projection"``.
+            The default is ``"Plane"``.
+        color_bar : str, optional
+            Color mapping to be applied to the RCS data. It can be a color (``"blue"``,
+            ``"green"``, ...) or a colormap (``"jet"``, ``"viridis"``, ...). The default is ``"jet"``.
+        """
         data_isar_2d = self.rcs_data.isar_2d
 
         down_range = data_isar_2d["Down-range"].unique()
@@ -1635,6 +1646,9 @@ class MonostaticRCSPlotter(object):
 
         x, y = np.meshgrid(down_range, cross_range)
         z = np.zeros_like(x)
+
+        if plot_type.lower() == "relief":
+            z = values_2d
 
         actor = pv.StructuredGrid()
         actor.points = np.c_[x.ravel(), y.ravel(), z.ravel()]
