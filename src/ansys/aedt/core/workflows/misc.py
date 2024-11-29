@@ -107,24 +107,24 @@ class ExtensionTheme:  # pragma: no cover
         }
 
         self.dark = {
-            "widget_bg": "#3C3C3C",
+            "widget_bg": "#313335",
             "text": "#FFFFFF",
-            "button_bg": "#4D4D4D",
+            "button_bg": "#FFFFFF",
             "button_hover_bg": "#606060",
             "button_active_bg": "#808080",
-            "tab_bg_inactive": "#2E2E2E",
-            "tab_bg_active": "#3C3C3C",
-            "tab_border": "#505050",
-            "label_bg": "#3C3C3C",  # Background for labels
+            "tab_bg_inactive": "#313335",
+            "tab_bg_active": "#2B2B2B",
+            "tab_border": "#3E4042",
+            "label_bg": "#313335",  # Background for labels
             "label_fg": "#FFFFFF",  # Text color for labels
-            "labelframe_bg": "#3C3C3C",  # Background for LabelFrame
+            "labelframe_bg": "#313335",  # Background for LabelFrame
             "labelframe_fg": "#FFFFFF",  # Text color for LabelFrame
-            "labelframe_title_bg": "#3C3C3C",  # Dark background for title (text)
+            "labelframe_title_bg": "#313335",  # Dark background for title (text)
             "labelframe_title_fg": "#FFFFFF",  # Dark text color for title
             "radiobutton_bg": "#2E2E2E",  # Background for Radiobutton
             "radiobutton_fg": "#FFFFFF",  # Text color for Radiobutton
-            "radiobutton_selected": "#2E2E2E",  # Color when selected
-            "radiobutton_unselected": "#3C3C3C",  # Color when unselected
+            "radiobutton_selected": "#45494A",  # Color when selected
+            "radiobutton_unselected": "#313335",  # Color when unselected
             "pane_bg": "#2E2E2E",  # Background for PanedWindow
         }
 
