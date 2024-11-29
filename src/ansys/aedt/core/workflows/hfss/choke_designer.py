@@ -456,10 +456,10 @@ def main(extension_args):
 
     # Create 3D Component
     if choke_config["Create Component"]["True"]:
-        _ = hfss.modeler.replace_3dcomponent()
+        hfss.modeler.replace_3dcomponent()
 
     # Create region
-    _ = hfss.modeler.create_region(pad_percent=1000)
+    hfss.modeler.create_region(pad_percent=1000)
 
     # Create setup
     setup = hfss.create_setup("Setup1")
