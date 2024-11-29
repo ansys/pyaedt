@@ -3801,7 +3801,7 @@ class Design(AedtObjects):
             self.oproject.Save()
         if refresh_ids:
             self.modeler.refresh_all_ids()
-            self.modeler._refresh_all_ids_from_aedt_file()
+            self.modeler._refresh_all_ids_wrapper()
             self.mesh._refresh_mesh_operations()
         self._project_name = None
         self._project_path = None

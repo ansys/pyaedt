@@ -632,7 +632,7 @@ class TestClass:
         vArg2 = ["NAME:IntersectParameters", "KeepOriginals:=", False]
 
         self.aedtapp.modeler.oeditor.Intersect(vArg1, vArg2)
-        assert box1 in self.aedtapp.modeler.unclassified_objects
+        assert box1.name in self.aedtapp.modeler.unclassified_names
 
     def test_26a_delete_unclassified_object(self):
         unclassified = self.aedtapp.modeler.unclassified_objects

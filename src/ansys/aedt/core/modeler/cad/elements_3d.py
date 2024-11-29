@@ -1444,7 +1444,9 @@ class BinaryTreeNode:
             self._props = {}
             if settings.aedt_version >= "2024.2":
                 try:
-                    props = self._get_data_model()
+                    from ansys.aedt.core.application import _get_data_model
+
+                    props = _get_data_model(self.child_object)
                     for p in self.child_object.GetPropNames():
                         if p in props:
                             self._props[p] = props[p]
@@ -1474,21 +1476,6 @@ class BinaryTreeNode:
         str
         """
         return self.props.get("Command", "")
-
-    def _get_data_model(self):
-        import ast
-
-        input_str = self.child_object.GetDataModel(-1, 1, 1).replace("false", "False").replace("true", "True")
-        props_list = ast.literal_eval(input_str)
-        props = {}
-        for prop in props_list["properties"]:
-            if "value" in prop:
-                props[prop["name"]] = prop["value"]
-            elif "values" in prop:
-                props[prop["name"]] = prop["values"]
-            else:
-                props[prop["name"]] = None
-        return props
 
     def update_property(self, prop_name, prop_value):
         """Update the property of the binary tree node.
