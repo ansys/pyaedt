@@ -3259,7 +3259,7 @@ class SetupHFSSAuto(Setup, object):
                 offsets[v] = 0
         arg = ["NAME:TuningRanges"]
         for k, v in offsets.items():
-            arg.append(f"Range:=")
+            arg.append("Range:=")
             arg2 = [
                 f"DeltaOffset({k})",
                 abs(self._app.variable_manager[k].numeric_value) * (-0.1),
