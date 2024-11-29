@@ -2483,27 +2483,50 @@ class SetupHFSS(Setup, object):
     def set_tuning_offset(self, offsets):
         """Set derivative variable to a specific offset value.
 
+        This method adjusts the tuning ranges for derivative variables in the design, allowing for specific offset
+        values to be applied. If a variable is not specified in the ``offsets`` dictionary,
+        its offset is set to ``0`` by default. Each value must be within ±10% of the nominal
+        value of the corresponding variable.
+
         Parameters
         ----------
         offsets : dict
-            Dictionary containing the variable name and it's offset value.
+            Dictionary where keys are variable names and values are the corresponding offset values to be applied.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oDesign.SetTuningRanges
+
+        Examples
+        --------
+        >>> from ansys.aed.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss["der_var"] = "1mm"
+        >>> setup = hfss.create_setup()
+        >>> setup.add_derivatives("der_var")
+        >>> setup.set_tuning_offset({"der_var": 0.05})
         """
         variables = self.get_derivative_variables()
         for v in variables:
             if v not in offsets:
                 offsets[v] = 0
-        arg = []
+        arg = ["NAME:TuningRanges"]
         for k, v in offsets.items():
-            arg.append(f"DeltaOffset({k})")
-            arg.append(f"{abs(self._app.variable_manager[k].numeric_value) * (-0.1)}")
-            arg.append(f"{v}")
-            arg.append(f"{abs(self._app.variable_manager[k].numeric_value) * 0.1}")
+            arg.append(f"Range:=")
+            arg2 = [
+                f"DeltaOffset({k})",
+                abs(self._app.variable_manager[k].numeric_value) * (-0.1),
+                v,
+                abs(self._app.variable_manager[k].numeric_value) * 0.1,
+            ]
+            arg.append(arg2)
         if self.is_solved:
-            self._app.osolution.SetTuningOffsets(["TuningRanges:=", arg])
+            self._app.odesign.SetTuningRanges(arg)
             return True
         else:
             self._app.logger.error(f"Setup {self.name} is not solved. Solve it before tuning variables.")
