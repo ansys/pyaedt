@@ -819,3 +819,9 @@ class TestClass:
         val = self.aedtapp.post.update_report_dynamically
         self.aedtapp.post.update_report_dynamically = not val
         assert self.aedtapp.post.update_report_dynamically != val
+
+    def test_75_tune_derivative(self):
+        setup_derivative = self.aedtapp.setups[1]
+        setup_derivative_auto = self.aedtapp.setups[2]
+        assert setup_derivative.set_tuning_offset({"inner_radius": 0.1})
+        assert setup_derivative_auto.set_tuning_offset({"inner_radius": 0.1})
