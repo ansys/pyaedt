@@ -14,7 +14,7 @@ The following image shows the extension user interface:
 
 The available argument is: ``choke_config``.
 
-The ``choke_config`` parameter is a dictionary with choke configuration file. See more information: :ref:`choke-file`.
+The ``choke_config`` parameter is a dictionary with choke configuration file content. See more information: :ref:`choke-file`.
 
 You can also launch the extension user interface from the terminal. An example can be found here:
 
