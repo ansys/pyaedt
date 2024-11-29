@@ -23,7 +23,7 @@
 
 import logging
 import os
-import pathlib
+from pathlib import Path PurePath
 import shutil
 import subprocess  # nosec
 import sys
@@ -87,8 +87,8 @@ def add_automation_tab(
     if "/" in name:
         toolkit_name = name.replace("/", "_")
 
-    tab_config_file_path = pathlib.PurePath(lib_dir).joinpath(product, "TabConfig.xml")
-    if not pathlib.Path(tab_config_file_path).is_file() or overwrite:
+    tab_config_file_path = PurePath(lib_dir).joinpath(product, "TabConfig.xml")
+    if not Path(tab_config_file_path).is_file() or overwrite:
         root = ET.Element("TabConfig")
     else:
         try:
@@ -118,19 +118,19 @@ def add_automation_tab(
             panel_element.remove(b)
 
     if not icon_file:
-        icon_file = (pathlib.PurePath(pathlib.PurePath(ansys.aedt.core.workflows.__file__).parent)
+        icon_file = (PurePath(PurePath(ansys.aedt.core.workflows.__file__).parent)
                      .joinpath("images", "large", "pyansys.png"))
 
-    file_name = pathlib.PurePath(icon_file).name
+    file_name = PurePath(icon_file).name
 
-    dest_dir = os.path.normpath(pathlib.PurePath(lib_dir).joinpath(product, toolkit_name, "images", "large"))
-    dest_file = os.path.normpath(pathlib.PurePath(dest_dir).joinpath(file_name))
-    os.makedirs(pathlib.PurePath(dest_dir).parent, exist_ok=True)
-    if not pathlib.Path(dest_dir).exists():
+    dest_dir = os.path.normpath(PurePath(lib_dir).joinpath(product, toolkit_name, "images", "large"))
+    dest_file = os.path.normpath(PurePath(dest_dir).joinpath(file_name))
+    os.makedirs(PurePath(dest_dir).parent, exist_ok=True)
+    if not Path(dest_dir).exists():
         os.makedirs(dest_dir)
     shutil.copy(icon_file, dest_file)
 
-    relative_image_path = os.path.relpath(dest_file, pathlib.PurePath(lib_dir).joinpath(product))
+    relative_image_path = os.path.relpath(dest_file, PurePath(lib_dir).joinpath(product))
 
     ET.SubElement(
         panel_element,
@@ -142,7 +142,7 @@ def add_automation_tab(
     )
 
     # Backup any existing file if present
-    if pathlib.Path(tab_config_file_path).is_file():
+    if Path(tab_config_file_path).is_file():
         shutil.copy(tab_config_file_path, tab_config_file_path + ".orig")
 
     create_xml_tab(root, tab_config_file_path)
@@ -168,8 +168,8 @@ def create_xml_tab(root, output_file):
 
 def remove_xml_tab(toolkit_dir, name, panel="Panel_PyAEDT_Extensions"):
     """Remove a toolkit configuration file."""
-    tab_config_file_path = pathlib.PurePath(toolkit_dir).joinpath("TabConfig.xml")
-    if not pathlib.Path(tab_config_file_path).is_file():  # pragma: no cover
+    tab_config_file_path = PurePath(toolkit_dir).joinpath("TabConfig.xml")
+    if not Path(tab_config_file_path).is_file():  # pragma: no cover
         return True
     try:
         tree = defused_parse(tab_config_file_path)
@@ -218,9 +218,9 @@ def available_toolkits():
 
     product_toolkits = {}
     for product in product_list:
-        toml_file = (pathlib.PurePath(pathlib.PurePath(__file__).parent)
+        toml_file = (PurePath(PurePath(__file__).parent)
                      .joinpath(product.lower(), "toolkits_catalog.toml"))
-        if pathlib.Path(toml_file).is_file():
+        if Path(toml_file).is_file():
             toolkits_catalog = read_toml(toml_file)
             product_toolkits[product] = toolkits_catalog
     return product_toolkits
@@ -284,26 +284,26 @@ def add_script_to_menu(
         personal_lib = d.personallib
         aedt_version = d.aedt_version_id
         d.logger.error("WE ARE HERE 2.")
-    if script_file and not pathlib.Path(script_file).exists():  # pragma: no cover
+    if script_file and not Path(script_file).exists():  # pragma: no cover
         logger.error("Script does not exists.")
         return False
-    toolkit_dir = pathlib.PurePath(personal_lib).joinpath("Toolkits")
+    toolkit_dir = PurePath(personal_lib).joinpath("Toolkits")
     tool_map = __tab_map(product)
     file_name = name
     if "/" in file_name:  # pragma: no cover
         file_name = file_name.replace("/", "_")
-    tool_dir = pathlib.PurePath(toolkit_dir).joinpath(tool_map, file_name)
-    lib_dir = pathlib.PurePath(tool_dir).joinpath("Lib")
+    tool_dir = PurePath(toolkit_dir).joinpath(tool_map, file_name)
+    lib_dir = PurePath(tool_dir).joinpath("Lib")
     toolkit_rel_lib_dir = os.path.relpath(lib_dir, tool_dir)
     if is_linux and aedt_version <= "2023.1":  # pragma: no cover
-        toolkit_rel_lib_dir = pathlib.PurePath("Lib").joinpath(file_name)
-        lib_dir = pathlib.PurePath(toolkit_dir).joinpath(toolkit_rel_lib_dir)
+        toolkit_rel_lib_dir = PurePath("Lib").joinpath(file_name)
+        lib_dir = PurePath(toolkit_dir).joinpath(toolkit_rel_lib_dir)
         toolkit_rel_lib_dir = "../../" + toolkit_rel_lib_dir
     os.makedirs(lib_dir, exist_ok=True)
     os.makedirs(tool_dir, exist_ok=True)
     dest_script_path = None
     if script_file and copy_to_personal_lib:
-        dest_script_path = pathlib.PurePath(lib_dir).joinpath(os.path.split(script_file)[-1])
+        dest_script_path = PurePath(lib_dir).joinpath(os.path.split(script_file)[-1])
         shutil.copy2(script_file, dest_script_path)
 
     version_agnostic = True
@@ -317,13 +317,13 @@ def add_script_to_menu(
         version_agnostic = True
         executable_version_agnostic = executable_interpreter
 
-    templates_dir = pathlib.PurePath(ansys.aedt.core.workflows.templates.__file__).parent
+    templates_dir = PurePath(ansys.aedt.core.workflows.templates.__file__).parent
 
     ipython_executable = executable_version_agnostic.replace("python" + __exe(), "ipython" + __exe())
     jupyter_executable = executable_version_agnostic.replace("python" + __exe(), "jupyter" + __exe())
 
-    with open(pathlib.PurePath(templates_dir).joinpath(template_file + ".py_build"), "r") as build_file:
-        with open(pathlib.PurePath(tool_dir).joinpath(template_file + ".py"), "w") as out_file:
+    with open(PurePath(templates_dir).joinpath(template_file + ".py_build"), "r") as build_file:
+        with open(PurePath(tool_dir).joinpath(template_file + ".py"), "w") as out_file:
             build_file_data = build_file.read()
             build_file_data = build_file_data.replace("##TOOLKIT_REL_LIB_DIR##", toolkit_rel_lib_dir)
             build_file_data = build_file_data.replace("##IPYTHON_EXE##", ipython_executable)
@@ -406,7 +406,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
     python_version_new = python_version.replace(".", "_")
     if not is_linux:
         base_venv = os.path.normpath(
-            pathlib.PurePath(desktop_object.install_path)
+            PurePath(desktop_object.install_path)
             .joinpath(
                 "commonfiles",
                 "CPython",
@@ -419,7 +419,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
         )
     else:
         base_venv = os.path.normpath(
-            pathlib.PurePath(desktop_object.install_path)
+            PurePath(desktop_object.install_path)
             .joinpath(
                 "commonfiles",
                 "CPython",
@@ -434,16 +434,16 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
     version = desktop_object.odesktop.GetVersion()[2:6].replace(".", "")
 
     if not is_linux:
-        venv_dir = (pathlib.PurePath(os.environ["APPDATA"])
+        venv_dir = (PurePath(os.environ["APPDATA"])
                     .joinpath(".pyaedt_env", f"toolkits_{python_version_new}"))
-        python_exe = pathlib.PurePath(venv_dir).joinpath("Scripts", "python.exe")
-        pip_exe = pathlib.PurePath(venv_dir).joinpath("Scripts", "pip.exe")
-        package_dir = pathlib.PurePath(venv_dir).joinpath("Lib")
+        python_exe = PurePath(venv_dir).joinpath("Scripts", "python.exe")
+        pip_exe = PurePath(venv_dir).joinpath("Scripts", "pip.exe")
+        package_dir = PurePath(venv_dir).joinpath("Lib")
     else:
-        venv_dir = pathlib.PurePath(os.environ["HOME"]).joinpath(".pyaedt_env", f"toolkits_{python_version_new}")
-        python_exe = pathlib.PurePath(venv_dir).joinpath("bin", "python")
-        pip_exe = pathlib.PurePath(venv_dir).joinpath("bin", "pip")
-        package_dir = pathlib.PurePath(venv_dir).joinpath("lib")
+        venv_dir = PurePath(os.environ["HOME"]).joinpath(".pyaedt_env", f"toolkits_{python_version_new}")
+        python_exe = PurePath(venv_dir).joinpath("bin", "python")
+        pip_exe = PurePath(venv_dir).joinpath("bin", "pip")
+        package_dir = PurePath(venv_dir).joinpath("lib")
         edt_root = os.path.normpath(desktop_object.odesktop.GetExeDir())
         os.environ[f"ANSYSEM_ROOT{version}"] = edt_root
         ld_library_path_dirs_to_add = [
@@ -457,7 +457,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
 
     # Create virtual environment
 
-    if not pathlib.Path(venv_dir).exists():
+    if not Path(venv_dir).exists():
         desktop_object.logger.info("Creating virtual environment")
         command = [base_venv, "-m", "venv", venv_dir, "--system-site-packages"]
         run_command(command, desktop_object)
@@ -465,31 +465,31 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
 
     is_installed = False
     script_file = None
-    if pathlib.Path(os.path.normpath(pathlib.PurePath(package_dir).joinpath(toolkit_info["script"]))).is_dir():
-        script_file = os.path.normpath(pathlib.PurePath(package_dir).joinpath(toolkit_info["script"]))
+    if Path(os.path.normpath(PurePath(package_dir).joinpath(toolkit_info["script"]))).is_dir():
+        script_file = os.path.normpath(PurePath(package_dir).joinpath(toolkit_info["script"]))
     else:
         for dirpath, dirnames, _ in os.walk(package_dir):
             if "site-packages" in dirnames:
-                script_file = os.path.normpath(pathlib.PurePath(dirpath)
+                script_file = os.path.normpath(PurePath(dirpath)
                                                .joinpath("site-packages", toolkit_info["script"]))
                 break
-    if pathlib.Path(script_file).is_file():
+    if Path(script_file).is_file():
         is_installed = True
     if wheel_toolkit:
         wheel_toolkit = os.path.normpath(wheel_toolkit)
 
     desktop_object.logger.info(f"Installing dependencies")
-    if install and wheel_toolkit and pathlib.Path(wheel_toolkit).exists():
+    if install and wheel_toolkit and Path(wheel_toolkit).exists():
         desktop_object.logger.info("Starting offline installation")
         if is_installed:
             command = [pip_exe, "uninstall", "--yes", toolkit_info["pip"]]
             run_command(command, desktop_object)
         import zipfile
 
-        unzipped_path = (pathlib.PurePath(pathlib.PurePath(wheel_toolkit).parent)
-                         .joinpath(pathlib.PurePath(wheel_toolkit).stem)
+        unzipped_path = (PurePath(PurePath(wheel_toolkit).parent)
+                         .joinpath(PurePath(wheel_toolkit).stem)
                          )
-        if pathlib.Path(unzipped_path).exists():
+        if Path(unzipped_path).exists():
             shutil.rmtree(unzipped_path, ignore_errors=True)
         with zipfile.ZipFile(wheel_toolkit, "r") as zip_ref:
             zip_ref.extractall(unzipped_path)
@@ -512,16 +512,16 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
     else:
         desktop_object.logger.info("Incorrect input")
         return
-    toolkit_dir = pathlib.PurePath(desktop_object.personallib).joinpath("Toolkits")
-    tool_dir = pathlib.PurePath(toolkit_dir).joinpath(product_name, toolkit_info["name"])
+    toolkit_dir = PurePath(desktop_object.personallib).joinpath("Toolkits")
+    tool_dir = PurePath(toolkit_dir).joinpath(product_name, toolkit_info["name"])
 
-    script_image = pathlib.Path(
-        pathlib.PurePath(pathlib.PurePath(ansys.aedt.core.workflows.__file__).parent)
+    script_image = Path(
+        PurePath(PurePath(ansys.aedt.core.workflows.__file__).parent)
         .joinpath(product_name.lower(), toolkit_info["icon"])
     ).absolute()
 
     if install:
-        if not pathlib.Path(tool_dir).exists():
+        if not Path(tool_dir).exists():
             # Install toolkit inside AEDT
             add_script_to_menu(
                 name=toolkit_info["name"],
@@ -538,7 +538,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
             if version > "232":
                 desktop_object.odesktop.RefreshToolkitUI()
     else:
-        if pathlib.Path(tool_dir).exists():
+        if Path(tool_dir).exists():
             # Install toolkit inside AEDT
             remove_script_from_menu(
                 desktop_object=desktop_object,
@@ -566,12 +566,12 @@ def remove_script_from_menu(desktop_object, name, product="Project"):
     bool
     """
     product = __tab_map(product)
-    toolkit_dir = pathlib.PurePath(desktop_object.personallib).joinpath("Toolkits")
+    toolkit_dir = PurePath(desktop_object.personallib).joinpath("Toolkits")
     aedt_version = desktop_object.aedt_version_id
-    tool_dir = pathlib.PurePath(toolkit_dir).joinpath(product, name)
+    tool_dir = PurePath(toolkit_dir).joinpath(product, name)
     shutil.rmtree(tool_dir, ignore_errors=True)
     if aedt_version >= "2023.2":
-        remove_xml_tab(pathlib.PurePath(toolkit_dir).joinpath(product), name)
+        remove_xml_tab(PurePath(toolkit_dir).joinpath(product), name)
     desktop_object.logger.info(f"{name} toolkit removed successfully.")
     return True
 

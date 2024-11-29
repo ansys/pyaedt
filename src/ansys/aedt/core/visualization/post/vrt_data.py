@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 import os
-import pathlib
+from pathlib import Path PurePath
 
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
@@ -277,6 +277,6 @@ class VRTFieldPlot:
             Path to the file.
         """
         if not path:
-            path = pathlib.PurePath(self._postprocessor._app.working_directory).joinpath(self.name + ".hdm")
+            path = PurePath(self._postprocessor._app.working_directory).joinpath(self.name + ".hdm")
         self._ofield.ExportFieldPlot(self.name, False, path)
         return path

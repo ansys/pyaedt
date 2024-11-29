@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 import os
-import pathlib
+from pathlib import Path PurePath
 import random
 import shutil
 import string
@@ -43,14 +43,14 @@ def search_files(dirname, pattern="*"):
     -------
     list
     """
-    import pathlib
+    from pathlib import Path PurePath
 
-    return [pathlib.Path(i).absolute() for i in pathlib.Path(dirname).glob(pattern)]
+    return [Path(i).absolute() for i in Path(dirname).glob(pattern)]
 
 
 def my_location():
     """ """
-    return os.path.normpath(pathlib.PurePath(__file__).parent)
+    return os.path.normpath(PurePath(__file__).parent)
 
 
 class Scratch:
@@ -70,9 +70,9 @@ class Scratch:
         self._volatile = volatile
         self._cleaned = True
         char_set = string.ascii_uppercase + string.digits
-        self._scratch_path = os.path.normpath(pathlib.PurePath(local_path)
+        self._scratch_path = os.path.normpath(PurePath(local_path)
                                               .joinpath("scratch" + "".join(random.sample(char_set, 6))))
-        if pathlib.Path(self._scratch_path).exists():
+        if Path(self._scratch_path).exists():
             try:
                 self.remove()
             except Exception:
@@ -113,10 +113,10 @@ class Scratch:
 
         """
         if dst_filename:
-            dst_file = pathlib.PurePath(self.path).joinpath(dst_filename)
+            dst_file = PurePath(self.path).joinpath(dst_filename)
         else:
-            dst_file = pathlib.PurePath(self.path).joinpath(pathlib.PurePath(src_file).name)
-        if pathlib.Path(dst_file).exists():
+            dst_file = PurePath(self.path).joinpath(PurePath(src_file).name)
+        if Path(dst_file).exists():
             try:
                 os.unlink(dst_file)
             except OSError:  # pragma: no cover
@@ -171,7 +171,7 @@ def get_json_files(start_folder):
 def is_safe_path(path, allowed_extensions=None):
     """Validate if a path is safe to use."""
     # Ensure path is an existing file or directory
-    if not pathlib.Path(path).exists() or not pathlib.Path(path).is_file():
+    if not Path(path).exists() or not Path(path).is_file():
         return False
 
     # Restrict to allowed file extensions:

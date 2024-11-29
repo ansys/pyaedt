@@ -28,7 +28,7 @@ import copy
 import datetime
 import json
 import os.path
-import pathlib
+from pathlib import Path PurePath
 import warnings
 
 from ansys.aedt.core.application.variables import generate_validation_errors
@@ -413,11 +413,11 @@ class Modeler3D(Primitives3D):
                         del out_dict["coordinatesystems"][cs]
             with open_file(export_auxiliary, "w") as outfile:
                 json.dump(out_dict, outfile)
-        if not pathlib.Path(pathlib.PurePath(input_file).parent).is_dir():
-            self.logger.warning("Folder '" + pathlib.PurePath(input_file).parent + "' doesn't exist.")
+        if not Path(PurePath(input_file).parent).is_dir():
+            self.logger.warning("Folder '" + PurePath(input_file).parent + "' doesn't exist.")
             if create_folder:  # Folder doesn't exist.
-                os.mkdir(pathlib.PurePath(input_file).parent)
-                self.logger.warning("Created folder '" + pathlib.PurePath(input_file).parent + "'")
+                os.mkdir(PurePath(input_file).parent)
+                self.logger.warning("Created folder '" + PurePath(input_file).parent + "'")
             else:
                 self.logger.warning("Unable to create 3D Component: '" + input_file + "'")
                 return False
@@ -1301,7 +1301,7 @@ class Modeler3D(Primitives3D):
             road_dict = {"file_name": road_stl, "color": "black", "material": "asphalt"}
             parts_dict["roads"] = road_dict
 
-        json_path = pathlib.PurePath(output_path).joinpath(env_name + ".json")
+        json_path = PurePath(output_path).joinpath(env_name + ".json")
 
         scene = {
             "name": env_name,
@@ -1338,7 +1338,7 @@ class Modeler3D(Primitives3D):
         if import_in_aedt:
             self.model_units = "meter"
             for part in parts_dict:
-                if not pathlib.Path(parts_dict[part]["file_name"]).exists():
+                if not Path(parts_dict[part]["file_name"]).exists():
                     continue
                 obj_names = [i for i in self.object_names]
                 self.import_3d_cad(parts_dict[part]["file_name"], create_lightweigth_part=create_lightweigth_part)

@@ -25,7 +25,7 @@
 from __future__ import absolute_import
 
 import os
-import pathlib
+from pathlib import Path PurePath
 import random
 import re
 import warnings
@@ -972,7 +972,7 @@ class LayoutComponent(object):
                     self._edb_object = edb_object
                     return self._edb_object
 
-            if not aedb_component_path or not pathlib.Path(aedb_component_path).exists():  # pragma: no cover
+            if not aedb_component_path or not Path(aedb_component_path).exists():  # pragma: no cover
                 return False
 
             app = Edb(
@@ -1004,15 +1004,15 @@ class LayoutComponent(object):
                 self._primitives.oeditor, self._component.definition_name, key
             )
             self._edb_definition = edb_definition
-            aedb_folder = pathlib.Path(
-                pathlib.PurePath(self._primitives._app.project_path)
+            aedb_folder = Path(
+                PurePath(self._primitives._app.project_path)
                 .joinpath(self._primitives._app.project_name + ".aedb", "LayoutComponents", edb_definition)
             ).absolute()
-            if pathlib.Path(aedb_folder).exists():
+            if Path(aedb_folder).exists():
                 subdirs = next(os.walk(aedb_folder))[1]
                 for subdir in subdirs:
                     if subdir.endswith(".aedb"):
-                        self._edb_path = pathlib.Path(pathlib.PurePath(aedb_folder).joinpath(subdir)).absolute()
+                        self._edb_path = Path(PurePath(aedb_folder).joinpath(subdir)).absolute()
                         break
             return edb_definition
         else:

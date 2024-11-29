@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 import os
-import pathlib
+from pathlib import Path PurePath
 
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.generic.settings import is_linux
@@ -235,7 +235,7 @@ class TestClass:
         assert self.aedtapp.modeler.change_property(f"Excitations:{ports[0].name}", "Impedance", "49ohm", "EM Design")
 
     def test_06_assign_spice_model(self):
-        model_path = (pathlib.PurePath(TESTS_GENERAL_PATH)
+        model_path = (PurePath(TESTS_GENERAL_PATH)
                       .joinpath("example_models", test_subfolder, "GRM32ER72A225KA35_25C_0V.sp"))
         assert self.aedtapp.modeler.set_spice_model(
             assignment="C1", input_file=model_path, subcircuit_name="GRM32ER72A225KA35_25C_0V"
@@ -246,7 +246,7 @@ class TestClass:
         assert nets["GND"].name == "GND"
         assert len(nets) > 0
         assert len(nets["GND"].components) > 0
-        local_png1 = pathlib.PurePath(self.local_scratch.path).joinpath("test1.png")
+        local_png1 = PurePath(self.local_scratch.path).joinpath("test1.png")
         nets["AVCC_1V3"].plot(save_plot=local_png1, show=False)
         assert os.path.exists(local_png1)
 
@@ -322,7 +322,7 @@ class TestClass:
         self.aedtapp.modeler.layers.add_layer("diel", "dielectric")
         self.aedtapp.modeler.layers.add_layer("TOP", "signal")
         tol = 1e-12
-        encrypted_model_path = (pathlib.PurePath(TESTS_GENERAL_PATH)
+        encrypted_model_path = (PurePath(TESTS_GENERAL_PATH)
                                 .joinpath("example_models", test_subfolder, "SMA_RF_Jack.a3dcomp"))
         comp = self.aedtapp.modeler.place_3d_component(
             encrypted_model_path, 1, placement_layer="TOP", component_name="my_connector", pos_x=0.001, pos_y=0.002

@@ -31,7 +31,7 @@ from __future__ import absolute_import  # noreorder
 import copy
 import math
 import os
-import pathlib
+from pathlib import Path PurePath
 import random
 import string
 import time
@@ -4751,7 +4751,7 @@ class GeometryModeler(Modeler):
             "Selections:=",
             stringa,
             "File Name:=",
-            pathlib.PurePath(file_path).joinpath(file_name, file_format),
+            PurePath(file_path).joinpath(file_name, file_format),
             "Major Version:=",
             major_version,
             "Minor Version:=",
@@ -4893,7 +4893,7 @@ class GeometryModeler(Modeler):
         if not latest_version:  # pragma: no cover
             self.logger.error("SpaceClaim is not found.")
         else:
-            scdm_path = pathlib.PurePath(os.environ[latest_version]).joinpath("scdm")
+            scdm_path = PurePath(os.environ[latest_version]).joinpath("scdm")
         self.oeditor.CreateUserDefinedModel(
             [
                 "NAME:UserDefinedModelParameters",
@@ -7086,7 +7086,7 @@ class GeometryModeler(Modeler):
         if name:
             obj_name = name
         else:
-            obj_name, ext = pathlib.PurePath(dll).stem, pathlib.PurePath(dll).suffix
+            obj_name, ext = PurePath(dll).stem, PurePath(dll).suffix
         vArg2 = self._default_object_attributes(name=obj_name)
         obj_name = self.oeditor.CreateUserDefinedPart(vArg1, vArg2)
         return self._create_object(obj_name)
@@ -9006,7 +9006,7 @@ class PrimitivesBuilder(object):
             self.logger.error(msg)
             raise TypeError(msg)
         elif input_file:
-            file_format = pathlib.PurePath(input_file).suffix
+            file_format = PurePath(input_file).suffix
             if file_format == ".json":
                 props = json_to_dict(input_file)
             elif file_format == ".csv":

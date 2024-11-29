@@ -23,7 +23,7 @@
 
 import math
 import os
-import pathlib
+from pathlib import Path PurePath
 import sys
 
 import ansys.aedt.core
@@ -74,7 +74,7 @@ def main(extension_args):
         app.logger.error("An active TwinBuilder Design is needed.")
         sys.exit()
 
-    catalog = read_toml(str(pathlib.PurePath(ansys.aedt.core.__path__[0])
+    catalog = read_toml(str(PurePath(ansys.aedt.core.__path__[0])
                             .joinpath("misc", "tb_nexxim_mapping.toml")))
     scale = catalog["General"]["scale"]
     cir = ansys.aedt.core.Circuit(design=tb.design_name + "_Translated")

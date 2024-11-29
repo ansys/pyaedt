@@ -22,7 +22,7 @@
 # SOFTWARE.
 
 import os.path
-import pathlib
+from pathlib import Path PurePath
 
 import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
@@ -82,7 +82,7 @@ def frontend():  # pragma: no cover
 
     # Personal Lib directory
     all_files = os.listdir(aedtapp.personallib)
-    toml_files = [pathlib.PurePath(aedtapp.personallib).joinpath(f) for f in all_files if f.endswith(".toml")]
+    toml_files = [PurePath(aedtapp.personallib).joinpath(f) for f in all_files if f.endswith(".toml")]
     for toml_file in toml_files:
         aedtapp.post.fields_calculator.load_expression_file(toml_file)
 
@@ -112,7 +112,7 @@ def frontend():  # pragma: no cover
     master.title("Advanced fields calculator")
 
     # Load the logo for the main window
-    icon_path = pathlib.PurePath(ansys.aedt.core.workflows.__path__[0]).joinpath("images", "large", "logo.png")
+    icon_path = PurePath(ansys.aedt.core.workflows.__path__[0]).joinpath("images", "large", "logo.png")
     im = PIL.Image.open(icon_path)
     photo = PIL.ImageTk.PhotoImage(im)
 
@@ -225,7 +225,7 @@ def main(extension_args):
 
     # Personal Lib directory
     all_files = os.listdir(aedtapp.personallib)
-    toml_files = [pathlib.PurePath(aedtapp.personallib).joinpath(f) for f in all_files if f.endswith(".toml")]
+    toml_files = [PurePath(aedtapp.personallib).joinpath(f) for f in all_files if f.endswith(".toml")]
     for toml_file in toml_files:
         aedtapp.post.fields_calculator.load_expression_file(toml_file)
 

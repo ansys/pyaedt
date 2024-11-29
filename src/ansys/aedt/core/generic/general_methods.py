@@ -30,7 +30,7 @@ import csv
 import datetime
 import difflib
 import fnmatch
-import pathlib
+from pathlib import Path PurePath
 from functools import update_wrapper
 import inspect
 import itertools
@@ -349,7 +349,7 @@ def check_and_download_file(remote_path, overwrite=True):
     """
     if settings.remote_rpc_session:
         remote_path = _check_path(remote_path)
-        local_path = pathlib.PurePath(settings.remote_rpc_session_temp_folder).joinpath(os.path.split(remote_path)[-1])
+        local_path = PurePath(settings.remote_rpc_session_temp_folder).joinpath(os.path.split(remote_path)[-1])
         if settings.remote_rpc_session.filemanager.pathexists(remote_path):
             settings.remote_rpc_session.filemanager.download_file(remote_path, local_path, overwrite=overwrite)
             return local_path
@@ -372,7 +372,7 @@ def check_if_path_exists(path):
     """
     if settings.remote_rpc_session:
         return settings.remote_rpc_session.filemanager.pathexists(path)
-    return pathlib.Path(path).exists()
+    return Path(path).exists()
 
 
 @pyaedt_function_handler()
@@ -427,17 +427,17 @@ def open_file(file_path, file_options="r", encoding=None, override_existing=True
     file_path = str(file_path)
     file_path = file_path.replace("\\", "/") if file_path[0] != "\\" else file_path
 
-    dir_name = pathlib.PurePath(file_path).parent
+    dir_name = PurePath(file_path).parent
     if "r" in file_options:
-        if pathlib.Path(file_path).exists():
+        if Path(file_path).exists():
             return open(file_path, file_options, encoding=encoding)
         elif settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(
             file_path
         ):  # pragma: no cover
-            local_file = pathlib.PurePath(tempfile.gettempdir()).joinpath(os.path.split(file_path)[-1])
+            local_file = PurePath(tempfile.gettempdir()).joinpath(os.path.split(file_path)[-1])
             settings.remote_rpc_session.filemanager.download_file(file_path, local_file)
             return open(local_file, file_options, encoding=encoding)
-    elif pathlib.Path(dir_name).exists():
+    elif Path(dir_name).exists():
         return open(file_path, file_options, encoding=encoding)
     elif settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(dir_name):
         if "w" in file_options:
@@ -464,7 +464,7 @@ def read_configuration_file(file_path):
     dict or list
         Dictionary if configuration file is ``"toml"`` or ``"json"``, List is ``"csv"``, ``"tab"`` or ``"xlsx"``.
     """
-    ext = pathlib.PurePath(file_path).suffix
+    ext = PurePath(file_path).suffix
     if ext == ".toml":
         return read_toml(file_path)
     elif ext == ".tab":
@@ -705,7 +705,7 @@ def get_filename_without_extension(path):
     str
        Name of the file without extension.
     """
-    return pathlib.PurePath(path).stem
+    return PurePath(path).stem
 
 
 # FIXME: Remove usage of random module once IronPython compatibility is removed
@@ -762,10 +762,10 @@ def generate_unique_folder_name(root_name=None, folder_name=None):
             root_name = tempfile.gettempdir()
     if folder_name is None:
         folder_name = generate_unique_name("pyaedt_prj", n=3)
-    temp_folder = pathlib.PurePath(root_name).joinpath(folder_name)
+    temp_folder = PurePath(root_name).joinpath(folder_name)
     if settings.remote_rpc_session and not settings.remote_rpc_session.filemanager.pathexists(temp_folder):
         settings.remote_rpc_session.filemanager.makedirs(temp_folder)
-    elif not pathlib.Path(temp_folder).exists():
+    elif not Path(temp_folder).exists():
         os.makedirs(temp_folder)
 
     return temp_folder
@@ -797,10 +797,10 @@ def generate_unique_project_name(root_name=None, folder_name=None, project_name=
         project_name = generate_unique_name("Project", n=3)
     name_with_ext = project_name + "." + project_format
     folder_path = generate_unique_folder_name(root_name, folder_name=folder_name)
-    prj = pathlib.PurePath(folder_path).joinpath(name_with_ext)
+    prj = PurePath(folder_path).joinpath(name_with_ext)
     if check_if_path_exists(prj):
         name_with_ext = generate_unique_name(project_name, n=3) + "." + project_format
-        prj = pathlib.PurePath(folder_path).joinpath(name_with_ext)
+        prj = PurePath(folder_path).joinpath(name_with_ext)
     return prj
 
 
@@ -985,9 +985,9 @@ def available_license_feature(
         input_dir = list(aedt_versions.installed_versions.values())[0]
 
     if is_linux:
-        ansysli_util_path = pathlib.PurePath(input_dir).joinpath("licensingclient", "linx64", "lmutil")
+        ansysli_util_path = PurePath(input_dir).joinpath("licensingclient", "linx64", "lmutil")
     else:
-        ansysli_util_path = pathlib.PurePath(input_dir).joinpath("licensingclient", "winx64", "lmutil")
+        ansysli_util_path = PurePath(input_dir).joinpath("licensingclient", "winx64", "lmutil")
 
     my_env = os.environ.copy()
 
@@ -1040,7 +1040,7 @@ def remove_project_lock(project_path):
     if settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(project_path + ".lock"):
         settings.remote_rpc_session.filemanager.unlink(project_path + ".lock")
         return True
-    if pathlib.Path(project_path + ".lock").exists():
+    if Path(project_path + ".lock").exists():
         os.remove(project_path + ".lock")
     return True
 
@@ -1245,14 +1245,14 @@ def recursive_glob(path, file_pattern):
     if settings.remote_rpc_session:
         files = []
         for i in settings.remote_rpc_session.filemanager.listdir(path):
-            if settings.remote_rpc_session.filemanager.isdir(pathlib.PurePath(path).joinpath(i)):
-                files.extend(recursive_glob(str(pathlib.PurePath(path).joinpath(i)), file_pattern))
+            if settings.remote_rpc_session.filemanager.isdir(PurePath(path).joinpath(i)):
+                files.extend(recursive_glob(str(PurePath(path).joinpath(i)), file_pattern))
             elif fnmatch.fnmatch(i, file_pattern):
-                files.append(pathlib.PurePath(path).joinpath(i))
+                files.append(PurePath(path).joinpath(i))
         return files
     else:
         return [
-            pathlib.PurePath(dirpath).joinpath(filename)
+            PurePath(dirpath).joinpath(filename)
             for dirpath, _, filenames in os.walk(path)
             for filename in filenames
             if fnmatch.fnmatch(filename, file_pattern)
@@ -1305,8 +1305,8 @@ def _create_toml_file(input_dict, full_toml_path):
     else:
         import tomllib
 
-    if not pathlib.Path(pathlib.PurePath(full_toml_path).parent).exists():
-        os.makedirs(pathlib.PurePath(full_toml_path).parent)
+    if not Path(PurePath(full_toml_path).parent).exists():
+        os.makedirs(PurePath(full_toml_path).parent)
 
     def _dict_toml(d):
         new_dict = {}
@@ -1331,8 +1331,8 @@ def _create_toml_file(input_dict, full_toml_path):
 
 @pyaedt_function_handler()
 def _create_json_file(json_dict, full_json_path):
-    if not pathlib.Path(pathlib.PurePath(full_json_path).parent).exists():
-        os.makedirs(pathlib.PurePath(full_json_path).parent)
+    if not Path(PurePath(full_json_path).parent).exists():
+        os.makedirs(PurePath(full_json_path).parent)
 
     with open_file(full_json_path, "w") as fp:
         json.dump(json_dict, fp, indent=4)
@@ -1357,7 +1357,7 @@ def write_configuration_file(input_data, output_file):
     bool
         ``True`` when successful, ``False`` when failed.
     """
-    ext = pathlib.PurePath(output_file).suffix
+    ext = PurePath(output_file).suffix
     if ext == ".json":
         return _create_json_file(input_data, output_file)
     elif ext == ".toml":
@@ -1401,7 +1401,7 @@ def write_configuration_file(input_data, output_file):
 #     for p in psutil.process_iter():
 #         try:
 #             if p.name() in keys:
-#                 if long_version and _check_installed_version(pathlib.PurePath(p.exe()).parent, long_version):
+#                 if long_version and _check_installed_version(PurePath(p.exe()).parent, long_version):
 #                     sessions.append(p.pid)
 #                     continue
 #                 cmd = p.cmdline()
@@ -1869,7 +1869,7 @@ def tech_to_control_file(file_path, units="nm", output_file=None):
             elif len(line_split) > 1 and "UNIT" in line_split[0]:
                 units = line_split[1]
     if not output_file:
-        output_file = pathlib.PurePath(file_path).stem + ".xml"
+        output_file = PurePath(file_path).stem + ".xml"
     with open_file(output_file, "w") as f:
         f.write('<?xml version="1.0" encoding="UTF-8" standalone="no" ?>\n')
         f.write('    <c:Control xmlns:c="http://www.ansys.com/control" schemaVersion="1.0">\n')
@@ -2180,8 +2180,8 @@ def _check_installed_version(install_path, long_version):
     bool
 
     """
-    product_list_path = pathlib.PurePath(install_path).joinpath("config", "ProductList.txt")
-    if pathlib.Path(product_list_path).is_file():
+    product_list_path = PurePath(install_path).joinpath("config", "ProductList.txt")
+    if Path(product_list_path).is_file():
         try:
             with open_file(product_list_path, "r") as f:
                 install_version = f.readline().strip()[-6:]

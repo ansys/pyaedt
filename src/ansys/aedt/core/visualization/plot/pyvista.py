@@ -21,7 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-import pathlib
+from pathlib import Path PurePath
 from collections import defaultdict
 import csv
 from datetime import datetime
@@ -1338,7 +1338,7 @@ class ModelPlotter(CommonPlotter):
 
         def s_callback():  # pragma: no cover
             """save screenshots"""
-            exp = (pathlib.PurePath(path_image)
+            exp = (PurePath(path_image)
                    .joinpath(f'{root_name}{datetime.now().strftime("%Y_%M_%d_%H-%M-%S")}{format}')
                    )
             self.pv.screenshot(exp, return_img=False)

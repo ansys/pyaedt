@@ -25,7 +25,7 @@
 import itertools
 import json
 import os
-import pathlib
+from pathlib import Path PurePath
 
 from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.general_methods import generate_unique_name
@@ -1445,9 +1445,9 @@ class Cable:
                 self._app.logger.error(str(e))
 
     def _cable_properties_parser(self, omodule, working_dir):
-        file_path_export = pathlib.PurePath(working_dir).joinpath("export_cable_library_test.txt")
+        file_path_export = PurePath(working_dir).joinpath("export_cable_library_test.txt")
         omodule.ExportCableLibrary(file_path_export)
-        file_path_export_as_json = pathlib.PurePath(working_dir).joinpath("export_cable_library_as_json_test.json")
+        file_path_export_as_json = PurePath(working_dir).joinpath("export_cable_library_as_json_test.json")
         data = load_entire_aedt_file(file_path_export)
         with open_file(file_path_export_as_json, "w") as f:
             json.dump(data, f)

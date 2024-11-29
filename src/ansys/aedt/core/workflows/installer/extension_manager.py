@@ -22,7 +22,7 @@
 # SOFTWARE.
 
 import os
-import pathlib
+from pathlib import Path PurePath
 import sys
 import tkinter as tk
 from tkinter import ttk
@@ -53,13 +53,13 @@ python_version = "3.10" if version > "2023.1" else "3.7"
 VENV_DIR_PREFIX = ".pyaedt_env"
 
 if is_windows:
-    venv_dir = pathlib.PurePath(os.environ["APPDATA"]).joinpath(VENV_DIR_PREFIX, f"toolkits_{python_version.replace('.', '_')}")
-    python_exe = pathlib.PurePath(venv_dir).joinpath("Scripts", "python.exe")
-    package_dir = pathlib.PurePath(venv_dir).joinpath("Lib", "site-packages")
+    venv_dir = PurePath(os.environ["APPDATA"]).joinpath(VENV_DIR_PREFIX, f"toolkits_{python_version.replace('.', '_')}")
+    python_exe = PurePath(venv_dir).joinpath("Scripts", "python.exe")
+    package_dir = PurePath(venv_dir).joinpath("Lib", "site-packages")
 else:
-    venv_dir = pathlib.PurePath(os.environ["HOME"]).joinpath(VENV_DIR_PREFIX, f"toolkits_{python_version.replace('.', '_')}")
-    python_exe = pathlib.PurePath(venv_dir).joinpath("bin", "python")
-    package_dir = pathlib.PurePath(venv_dir).joinpath("lib", "site-packages")
+    venv_dir = PurePath(os.environ["HOME"]).joinpath(VENV_DIR_PREFIX, f"toolkits_{python_version.replace('.', '_')}")
+    python_exe = PurePath(venv_dir).joinpath("bin", "python")
+    package_dir = PurePath(venv_dir).joinpath("lib", "site-packages")
 
 
 def create_toolkit_page(frame, window_name, internal_toolkits):
@@ -161,7 +161,7 @@ def is_toolkit_installed(toolkit_name, window_name):
     if toolkit_name == "Custom":
         return False
     toolkits = available_toolkits()
-    script_file = os.path.normpath(pathlib.PurePath(package_dir)
+    script_file = os.path.normpath(PurePath(package_dir)
                                    .joinpath(toolkits[window_name][toolkit_name]["script"]))
     if os.path.isfile(script_file):
         return True
@@ -170,7 +170,7 @@ def is_toolkit_installed(toolkit_name, window_name):
         for dirpath, dirnames, _ in os.walk(lib_dir):
             if "site-packages" in dirnames:
                 script_file = os.path.normpath(
-                    pathlib.PurePath(dirpath).joinpath("site-packages", toolkits[window_name][toolkit_name]["script"])
+                    PurePath(dirpath).joinpath("site-packages", toolkits[window_name][toolkit_name]["script"])
                 )
                 if os.path.isfile(script_file):
                     return True
@@ -253,11 +253,11 @@ def button_is_clicked(
     if toolkit_level in toolkits and selected_toolkit_name in toolkits[toolkit_level]:
         selected_toolkit_info = toolkits[toolkit_level][selected_toolkit_name]
         if not selected_toolkit_info.get("pip"):
-            product_path = (pathlib.PurePath(os.path.dirname(ansys.aedt.core.workflows.__file__))
+            product_path = (PurePath(os.path.dirname(ansys.aedt.core.workflows.__file__))
                             .joinpath(toolkit_level.lower()))
-            file = os.path.abspath(pathlib.PurePath(product_path).joinpath(selected_toolkit_info.get("script")))
+            file = os.path.abspath(PurePath(product_path).joinpath(selected_toolkit_info.get("script")))
             name = selected_toolkit_info.get("name")
-            icon = os.path.abspath(pathlib.PurePath(product_path).joinpath(selected_toolkit_info.get("icon")))
+            icon = os.path.abspath(PurePath(product_path).joinpath(selected_toolkit_info.get("icon")))
 
     valid_name = name is not None and not os.path.isdir(name)
     valid_file = file is not None and os.path.isfile(file)
@@ -291,7 +291,7 @@ def button_is_clicked(
             executable_interpreter = sys.executable
 
             if not file:
-                file = pathlib.PurePath(
+                file = PurePath(
                     os.path.dirname(ansys.aedt.core.workflows.templates.__file__)).joinpath("extension_template.py"
                 )
 
@@ -325,7 +325,7 @@ root = tk.Tk()
 root.title("Extension Manager")
 
 # Load the logo for the main window
-icon_path = pathlib.PurePath(os.path.dirname(ansys.aedt.core.workflows.__file__)).joinpath("images", "large", "logo.png")
+icon_path = PurePath(os.path.dirname(ansys.aedt.core.workflows.__file__)).joinpath("images", "large", "logo.png")
 im = PIL.Image.open(icon_path)
 photo = PIL.ImageTk.PhotoImage(im)
 

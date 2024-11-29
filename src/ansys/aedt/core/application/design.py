@@ -32,7 +32,7 @@ These classes are inherited in the main tool class.
 
 from __future__ import absolute_import  # noreorder
 
-import pathlib
+from pathlib import Path PurePath
 from abc import abstractmethod
 import gc
 import json
@@ -242,8 +242,8 @@ class Design(AedtObjects):
         if (
             project_name
             and os.path.exists(project_name)
-            and (pathlib.PurePath(project_name).suffix == ".aedt" or
-                 pathlib.PurePath(project_name).suffix == ".a3dcomp")
+            and (PurePath(project_name).suffix == ".aedt" or
+                 PurePath(project_name).suffix == ".a3dcomp")
         ):
             self.__t = threading.Thread(target=load_aedt_thread, args=(project_name,), daemon=True)
             self.__t.start()
@@ -811,7 +811,7 @@ class Design(AedtObjects):
 
         """
         if self.project_path:
-            return pathlib.PurePath(self.project_path).joinpath(self.project_name + ".aedt")
+            return PurePath(self.project_path).joinpath(self.project_name + ".aedt")
 
     @property
     def lock_file(self):
@@ -824,7 +824,7 @@ class Design(AedtObjects):
 
         """
         if self.project_path:
-            return pathlib.PurePath(self.project_path).joinpath(self.project_name + ".aedt.lock")
+            return PurePath(self.project_path).joinpath(self.project_name + ".aedt.lock")
 
     @property
     def results_directory(self):
@@ -837,7 +837,7 @@ class Design(AedtObjects):
 
         """
         if self.project_path:
-            return pathlib.PurePath(self.project_path).joinpath(self.project_name + ".aedtresults")
+            return PurePath(self.project_path).joinpath(self.project_name + ".aedtresults")
 
     @property
     def solution_type(self):
@@ -955,7 +955,7 @@ class Design(AedtObjects):
            Full absolute path for the ``pyaedt`` directory.
 
         """
-        return os.path.realpath(pathlib.PurePath(self.src_dir).joinpath(".."))
+        return os.path.realpath(PurePath(self.src_dir).joinpath(".."))
 
     @property
     def library_list(self):
@@ -996,7 +996,7 @@ class Design(AedtObjects):
             name = self.project_name.replace(" ", "_")
         else:
             name = generate_unique_name("prj")
-        toolkit_directory = pathlib.PurePath(self.project_path).joinpath(name + ".pyaedt")
+        toolkit_directory = PurePath(self.project_path).joinpath(name + ".pyaedt")
         if settings.remote_rpc_session:
             toolkit_directory = self.project_path + "/" + name + ".pyaedt"
             try:
@@ -1028,7 +1028,7 @@ class Design(AedtObjects):
             name = self.design_name.replace(" ", "_")
         else:
             name = generate_unique_name("prj")
-        working_directory = pathlib.PurePath(os.path.normpath(self.toolkit_directory)).joinpath(name)
+        working_directory = PurePath(os.path.normpath(self.toolkit_directory)).joinpath(name)
         if settings.remote_rpc_session:
             working_directory = self.toolkit_directory + "/" + name
             settings.remote_rpc_session.filemanager.makedirs(working_directory)
@@ -1036,7 +1036,7 @@ class Design(AedtObjects):
             try:
                 os.makedirs(working_directory)
             except FileNotFoundError:
-                working_directory = pathlib.PurePath(self.toolkit_directory).joinpath(name + ".results")
+                working_directory = PurePath(self.toolkit_directory).joinpath(name + ".results")
         return working_directory
 
     @property
@@ -1196,7 +1196,7 @@ class Design(AedtObjects):
                 if ".aedtz" in proj_name:
                     name = self._generate_unique_project_name()
                     path = os.path.dirname(proj_name)
-                    self.odesktop.RestoreProjectArchive(proj_name, pathlib.PurePath(path).joinpath(name), True, True)
+                    self.odesktop.RestoreProjectArchive(proj_name, PurePath(path).joinpath(name), True, True)
                     time.sleep(0.5)
                     self._oproject = self.desktop_class.active_project()
                     self._add_handler()
@@ -1228,7 +1228,7 @@ class Design(AedtObjects):
                         if ".def" in proj_name:
                             oTool.ImportEDB(proj_name)
                         else:
-                            oTool.ImportEDB(pathlib.PurePath(proj_name).joinpath("edb.def"))
+                            oTool.ImportEDB(PurePath(proj_name).joinpath("edb.def"))
                         self._oproject = self.desktop_class.active_project()
                         self._oproject.Save()
                         self._add_handler()
@@ -1266,7 +1266,7 @@ class Design(AedtObjects):
                 if proj_name.endswith(".aedt"):
                     self._oproject.Rename(proj_name, True)
                 elif not proj_name.endswith(".aedtz"):
-                    self._oproject.Rename(pathlib.PurePath(self.project_path).joinpath(proj_name + ".aedt"), True)
+                    self._oproject.Rename(PurePath(self.project_path).joinpath(proj_name + ".aedt"), True)
                 self._add_handler()
                 self.logger.info("Project %s has been created.", self._oproject.GetName())
         if not self._oproject:
@@ -1293,7 +1293,7 @@ class Design(AedtObjects):
             if f"pyaedt_{self._oproject.GetName()}.log" in str(handler):
                 return
         self._logger = self._global_logger.add_file_logger(
-            pathlib.PurePath(self.toolkit_directory).joinpath(f"pyaedt_{self._oproject.GetName()}.log"),
+            PurePath(self.toolkit_directory).joinpath(f"pyaedt_{self._oproject.GetName()}.log"),
             project_name=self.project_name,
         )
 
@@ -1505,7 +1505,7 @@ class Design(AedtObjects):
         """
 
         if not output_file:
-            output_file = pathlib.PurePath(self.working_directory).joinpath(generate_unique_name("Profile") + ".prof")
+            output_file = PurePath(self.working_directory).joinpath(generate_unique_name("Profile") + ".prof")
         if not variation:
             val_str = []
             for el, val in self.available_variations.nominal_w_values_dict.items():
@@ -1518,11 +1518,11 @@ class Design(AedtObjects):
             for s in self.setups:
                 if s.name == setup:
                     if "CGDataBlock" in s.props:
-                        output_file = pathlib.PurePath(output_file).stem + "CG" + pathlib.PurePath(output_file).suffix
+                        output_file = PurePath(output_file).stem + "CG" + PurePath(output_file).suffix
                         self.odesign.ExportProfile(setup, variation, "CG", output_file, True)
                         self.logger.info(f"Exported Profile to file {output_file}")
                     if "RLDataBlock" in s.props:
-                        output_file = pathlib.PurePath(output_file).stem + "RL" + pathlib.PurePath(output_file).suffix
+                        output_file = PurePath(output_file).stem + "RL" + PurePath(output_file).suffix
                         self.odesign.ExportProfile(setup, variation, "RL", output_file, True)
                         self.logger.info(f"Exported Profile to file {output_file}")
                     break
@@ -1530,18 +1530,18 @@ class Design(AedtObjects):
             for s in self.setups:
                 if s.name == setup:
                     if "Cap" in s.props:
-                        output_file = (pathlib.PurePath(output_file).stem + "CG" +
-                                       pathlib.PurePath(output_file).suffix)
+                        output_file = (PurePath(output_file).stem + "CG" +
+                                       PurePath(output_file).suffix)
                         self.odesign.ExportProfile(setup, variation, "CG", output_file, True)
                         self.logger.info(f"Exported Profile to file {output_file}")
                     if "AC" in s.props:
-                        output_file = (pathlib.PurePath(output_file).suffix + "ACRL" +
-                                       pathlib.PurePath(output_file).suffix)
+                        output_file = (PurePath(output_file).suffix + "ACRL" +
+                                       PurePath(output_file).suffix)
                         self.odesign.ExportProfile(setup, variation, "AC RL", output_file, True)
                         self.logger.info(f"Exported Profile to file {output_file}")
                     if "DC" in s.props:
-                        output_file = (pathlib.PurePath(output_file).stem + "DC" +
-                                       pathlib.PurePath(output_file).suffix)
+                        output_file = (PurePath(output_file).stem + "DC" +
+                                       PurePath(output_file).suffix)
                         self.odesign.ExportProfile(setup, variation, "DC RL", output_file, True)
                         self.logger.info(f"Exported Profile to file {output_file}")
                     break
@@ -2613,7 +2613,7 @@ class Design(AedtObjects):
             self.logger.error("Input argument 'subdir' must be a string")
             return False
         dir_name = generate_unique_name(name)
-        project_dir = pathlib.PurePath(base_path).joinpath(dir_name)
+        project_dir = PurePath(base_path).joinpath(dir_name)
         try:
             if not os.path.exists(project_dir):
                 os.makedirs(project_dir)
@@ -3040,11 +3040,11 @@ class Design(AedtObjects):
         if is_project_dataset and "$" + name in self.project_datasets:
             self.logger.info("Dataset %s$ exists.", name)
             return True
-            # self.oproject.ExportDataSet("$"+name, pathlib.PurePath(self.temp_directory).joinpath("ds.tab"))
+            # self.oproject.ExportDataSet("$"+name, PurePath(self.temp_directory).joinpath("ds.tab"))
         elif not is_project_dataset and name in self.design_datasets:
             self.logger.info("Dataset %s exists.", name)
             return True
-            # self.odesign.ExportDataSet(name, pathlib.PurePath(self.temp_directory).joinpath("ds.tab"))
+            # self.odesign.ExportDataSet(name, PurePath(self.temp_directory).joinpath("ds.tab"))
         self.logger.info("Dataset %s doesn't exist.", name)
         return False
 
@@ -3225,7 +3225,7 @@ class Design(AedtObjects):
         """
         self.logger.info("Copy AEDT Project ")
         self.oproject.Save()
-        self.oproject.SaveAs(pathlib.PurePath(destination).joinpath(name + ".aedt"), True)
+        self.oproject.SaveAs(PurePath(destination).joinpath(name + ".aedt"), True)
         return True
 
     @pyaedt_function_handler(proj_name="name")
@@ -3288,7 +3288,7 @@ class Design(AedtObjects):
         self.logger.info(f"Closing the AEDT Project {name}")
         oproj = self.desktop_class.active_project(name)
         proj_path = oproj.GetPath()
-        proj_file = pathlib.PurePath(proj_path).joinpath(name + ".aedt")
+        proj_file = PurePath(proj_path).joinpath(name + ".aedt")
         if save:
             oproj.Save()
         if name == legacy_name:
@@ -3309,7 +3309,7 @@ class Design(AedtObjects):
         i = 0
         timeout = 10
         while True:
-            if not os.path.exists(pathlib.PurePath(proj_path).joinpath(name + ".aedt.lock")):
+            if not os.path.exists(PurePath(proj_path).joinpath(name + ".aedt.lock")):
                 self.logger.info(f"Project {name} closed correctly")
                 break
             elif i > timeout:
@@ -3764,7 +3764,7 @@ class Design(AedtObjects):
             Dictionary of the design data.
 
         """
-        design_file = pathlib.PurePath(self.working_directory).joinpath("design_data.json")
+        design_file = PurePath(self.working_directory).joinpath("design_data.json")
         with open_file(design_file, "r") as fps:
             design_data = json.load(fps)
         return design_data

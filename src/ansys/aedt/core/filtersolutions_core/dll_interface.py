@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 import ctypes
-import pathlib
+from pathlib import Path PurePath
 from enum import Enum
 import os
 import threading
@@ -60,7 +60,7 @@ class DllInterface:
             version + "CL" in aedt_versions.installed_versions
         ):
             raise ValueError(f"Specified version {version[0:6]} is not installed on your system")
-        self.dll_path = (pathlib.PurePath(aedt_versions.installed_versions[version])
+        self.dll_path = (PurePath(aedt_versions.installed_versions[version])
                          .joinpath("nuhertz", "FilterSolutionsAPI.dll"))
         print("DLL Path:", self.dll_path)
         if not os.path.isfile(self.dll_path):

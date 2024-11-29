@@ -25,7 +25,7 @@
 import json
 import math
 import os
-import pathlib
+from pathlib import Path PurePath
 import shutil
 import sys
 import warnings
@@ -178,7 +178,7 @@ class FfdSolutionData(object):
         elements = self.metadata["element_pattern"]
         for element_name, element_props in elements.items():
             location = element_props["location"]
-            pattern_file = pathlib.PurePath(self.output_dir).joinpath(element_props["file_name"])
+            pattern_file = PurePath(self.output_dir).joinpath(element_props["file_name"])
             incident_power = element_props["incident_power"]
             accepted_power = element_props["accepted_power"]
             radiated_power = element_props["radiated_power"]
@@ -241,7 +241,7 @@ class FfdSolutionData(object):
             raise Exception("Farfield information from ffd files can not be loaded.")
 
         # Load touchstone data
-        metadata_touchstone = pathlib.PurePath(self.output_dir).joinpath(self.metadata.get("touchstone_file", None))
+        metadata_touchstone = PurePath(self.output_dir).joinpath(self.metadata.get("touchstone_file", None))
 
         if not touchstone_file:
             touchstone_file = metadata_touchstone
@@ -1440,7 +1440,7 @@ class FfdSolutionData(object):
                             if component_obj in non_array_geometry:
                                 del non_array_geometry[component_obj]
 
-                            cad_path = pathlib.PurePath(self.output_dir).joinpath(model_info[component_obj][0])
+                            cad_path = PurePath(self.output_dir).joinpath(model_info[component_obj][0])
                             if os.path.exists(cad_path):
                                 model_pv.add_object(
                                     cad_path,
@@ -1493,7 +1493,7 @@ class FfdSolutionData(object):
             self.__model_units = first_value[3]
             model_pv.off_screen = off_screen
             for object_in in non_array_geometry.values():
-                cad_path = pathlib.PurePath(self.output_dir).joinpath(object_in[0])
+                cad_path = PurePath(self.output_dir).joinpath(object_in[0])
                 if os.path.exists(cad_path):
                     model_pv.add_object(
                         cad_path,
@@ -1671,7 +1671,7 @@ def export_pyaedt_antenna_metadata(
     if not touchstone_file:
         touchstone_file = ""
 
-    pyaedt_metadata_file = pathlib.PurePath(output_dir).joinpath("pyaedt_antenna_metadata.json")
+    pyaedt_metadata_file = PurePath(output_dir).joinpath("pyaedt_antenna_metadata.json")
     items = {"variation": variation, "element_pattern": {}, "touchstone_file": touchstone_file}
 
     if os.path.isfile(input_file) and os.path.basename(input_file).split(".")[1] == "xml":
@@ -1685,14 +1685,14 @@ def export_pyaedt_antenna_metadata(
             if ffd_files:
                 # Move ffd files to main directory
                 for ffd_file in ffd_files:
-                    output_file = pathlib.PurePath(output_dir).joinpath(ffd_file)
-                    pattern_file = pathlib.PurePath(dir_path).joinpath(ffd_file)
+                    output_file = PurePath(output_dir).joinpath(ffd_file)
+                    pattern_file = PurePath(dir_path).joinpath(ffd_file)
                     shutil.move(pattern_file, output_file)
             if sNp_files and not touchstone_file:
                 # Only one Touchstone allowed
                 sNp_name, sNp_path = next(iter(sNp_files.items()))
-                output_file = pathlib.PurePath(output_dir).joinpath(sNp_name)
-                exported_touchstone_file = pathlib.PurePath(sNp_path)
+                output_file = PurePath(output_dir).joinpath(sNp_name)
+                exported_touchstone_file = PurePath(sNp_path)
                 shutil.move(exported_touchstone_file, output_file)
                 items["touchstone_file"] = sNp_name
 
@@ -1734,7 +1734,7 @@ def export_pyaedt_antenna_metadata(
             }
 
             items["element_pattern"][metadata["name"]] = pattern
-            pattern_file = pathlib.PurePath(output_dir).joinpath(metadata["file_name"])
+            pattern_file = PurePath(output_dir).joinpath(metadata["file_name"])
             if not os.path.isfile(pattern_file):  # pragma: no cover
                 return False
 
@@ -1746,8 +1746,8 @@ def export_pyaedt_antenna_metadata(
             if sNp_files and not touchstone_file:
                 # Only one Touchstone allowed
                 sNp_name, sNp_path = next(iter(sNp_files.items()))
-                output_file = pathlib.PurePath(output_dir).joinpath(sNp_name)
-                exported_touchstone_file = pathlib.PurePath(sNp_path)
+                output_file = PurePath(output_dir).joinpath(sNp_name)
+                exported_touchstone_file = PurePath(sNp_path)
                 shutil.move(exported_touchstone_file, output_file)
                 items["touchstone_file"] = sNp_name
                 break

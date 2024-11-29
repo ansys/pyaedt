@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 import os
-import pathlib
+from pathlib import Path PurePath
 import sys
 import time
 
@@ -86,21 +86,21 @@ def flatten(add_app):
 
 @pytest.fixture(scope="class", autouse=True)
 def examples(local_scratch):
-    scdoc_file = pathlib.PurePath(TESTS_GENERAL_PATH).joinpath("example_models", test_subfolder, scdoc)
+    scdoc_file = PurePath(TESTS_GENERAL_PATH).joinpath("example_models", test_subfolder, scdoc)
     scdoc_file = local_scratch.copyfile(scdoc_file)
-    step_file = pathlib.PurePath(TESTS_GENERAL_PATH).joinpath("example_models", test_subfolder, step)
-    component3d_file = pathlib.PurePath(local_scratch.path).joinpath("comp_3d", component3d)
-    encrypted_cylinder = (pathlib.PurePath(TESTS_GENERAL_PATH)
+    step_file = PurePath(TESTS_GENERAL_PATH).joinpath("example_models", test_subfolder, step)
+    component3d_file = PurePath(local_scratch.path).joinpath("comp_3d", component3d)
+    encrypted_cylinder = (PurePath(TESTS_GENERAL_PATH)
                           .joinpath("example_models", test_subfolder, encrypted_cyl))
-    test_98_project = (pathlib.PurePath(TESTS_GENERAL_PATH)
+    test_98_project = (PurePath(TESTS_GENERAL_PATH)
                        .joinpath("example_models", test_subfolder, assembly2 + ".aedt"))
     test_98_project = local_scratch.copyfile(test_98_project)
-    test_99_project = (pathlib.PurePath(TESTS_GENERAL_PATH)
+    test_99_project = (PurePath(TESTS_GENERAL_PATH)
                        .joinpath("example_models", test_subfolder, assembly + ".aedt"))
     test_99_project = local_scratch.copyfile(test_99_project)
-    layout_component = (pathlib.PurePath(TESTS_GENERAL_PATH)
+    layout_component = (PurePath(TESTS_GENERAL_PATH)
                         .joinpath("example_models", test_subfolder, layout_comp))
-    discovery_file = pathlib.PurePath(TESTS_GENERAL_PATH).joinpath("example_models", test_subfolder, disco)
+    discovery_file = PurePath(TESTS_GENERAL_PATH).joinpath("example_models", test_subfolder, disco)
     discovery_file = local_scratch.copyfile(discovery_file)
     return (
         scdoc_file,
@@ -1446,7 +1446,7 @@ class TestClass:
     )
     def test_71_create_choke(self, filename):
         self.aedtapp.insert_design(generate_unique_name("Chokes"))
-        choke_file1 = pathlib.PurePath(TESTS_GENERAL_PATH).joinpath("example_models", "choke_json_file", filename)
+        choke_file1 = PurePath(TESTS_GENERAL_PATH).joinpath("example_models", "choke_json_file", filename)
 
         resolve1 = self.aedtapp.modeler.create_choke(choke_file1)
 

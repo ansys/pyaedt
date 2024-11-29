@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 import os
-import pathlib
+from pathlib import Path PurePath
 import tempfile
 
 from ansys.aedt.core import downloads
@@ -59,12 +59,12 @@ class TestClass:
         assert self.examples.download_antenna_array()
 
     def test_05_download_antenna_sherlock(self):
-        assert self.examples.download_sherlock(destination=pathlib.PurePath(tempfile.gettempdir())
+        assert self.examples.download_sherlock(destination=PurePath(tempfile.gettempdir())
                                                .joinpath("sherlock"))
 
     @pytest.mark.skipif(is_linux, reason="Crashes on Linux")
     def test_06_download_multiparts(self):
-        assert self.examples.download_multiparts(destination=pathlib.PurePath(tempfile.gettempdir())
+        assert self.examples.download_multiparts(destination=PurePath(tempfile.gettempdir())
                                                  .joinpath("multi"))
 
     def test_07_download_wfp(self):

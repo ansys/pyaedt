@@ -25,7 +25,7 @@
 from __future__ import absolute_import
 
 import os
-import pathlib
+from pathlib import Path PurePath
 import re
 
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -68,7 +68,7 @@ class ComponentArray(object):
         # Leverage csv file if possible (aedt version > 2023.2)
         if self.__app.settings.aedt_version > "2023.2":  # pragma: no cover
             self.export_array_info(output_file=None)
-            self.__array_info_path = pathlib.PurePath(self.__app.toolkit_directory).joinpath("array_info.csv")
+            self.__array_info_path = PurePath(self.__app.toolkit_directory).joinpath("array_info.csv")
         else:
             self.__app.save_project()
             self.__array_info_path = None
@@ -153,7 +153,7 @@ class ComponentArray(object):
     def properties(self):
         """Ordered dictionary of the properties of the component array."""
         # From 2024R1, array information can be loaded from a CSV
-        if self.__array_info_path and pathlib.Path(self.__array_info_path).exists():  # pragma: no cover
+        if self.__array_info_path and Path(self.__array_info_path).exists():  # pragma: no cover
             res = self.parse_array_info_from_csv(self.__array_info_path)
         else:
             res = self.__get_properties_from_aedt()
@@ -389,7 +389,7 @@ class ComponentArray(object):
             return False
 
         if not output_file:  # pragma: no cover
-            output_file = pathlib.PurePath(self.__app.toolkit_directory).joinpath("array_info.csv")
+            output_file = PurePath(self.__app.toolkit_directory).joinpath("array_info.csv")
         self.__app.omodelsetup.ExportArray(self.name, output_file)
         return output_file
 

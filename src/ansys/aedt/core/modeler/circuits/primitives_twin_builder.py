@@ -506,9 +506,9 @@ class TwinBuilderComponents(CircuitComponents):
 
         Examples
         --------
-import pathlib        >>> from ansys.aedt.core import TwinBuilder
+from pathlib import Path PurePath        >>> from ansys.aedt.core import TwinBuilder
         >>> tb = TwinBuilder(version="2025.1")
-        >>> input_file = pathlib.PurePath("Your path").joinpath("test.sml")
+        >>> input_file = PurePath("Your path").joinpath("test.sml")
         >>> model = "Thermal_ROM_SML"
         >>> pins_names = ["Input1_InternalHeatGeneration", "Input2_HeatFlow", "Output1_Temp1,Output2_Temp2"]
         >>> tb.modeler.schematic.create_component_from_sml(input_file=model, model=model, pins_names=pins_names)

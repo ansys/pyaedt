@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 import os
-import pathlib
+from pathlib import Path PurePath
 import warnings
 
 try:
@@ -3491,9 +3491,9 @@ class MachineLearningPatch(Patch, object):
             raise ImportError("Package Joblib is required to run ML.")
         training_file = None
         if 1e9 >= self.frequency.numeric_value >= 1e8:
-            training_file = pathlib.PurePath(pyaedt_path).joinpath("misc", "patch_svr_model_100MHz_1GHz.joblib")
+            training_file = PurePath(pyaedt_path).joinpath("misc", "patch_svr_model_100MHz_1GHz.joblib")
         elif 1e10 >= self.frequency.numeric_value > 1e9:
-            training_file = pathlib.PurePath(pyaedt_path).joinpath("misc", "patch_svr_model_1GHz_10GHz.joblib")
+            training_file = PurePath(pyaedt_path).joinpath("misc", "patch_svr_model_1GHz_10GHz.joblib")
         else:  # pragma: no cover
             self.application.logger.error("This ML algorithm can only predict patch antennas from 100 MHz to 10 GHz.")
         if training_file:

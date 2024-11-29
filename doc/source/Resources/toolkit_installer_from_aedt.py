@@ -25,7 +25,7 @@
 import os
 import sys
 import subprocessdotnet as subprocess
-import pathlib
+from pathlib import Path PurePath
 
 # This script installs PyAEDT tabs (PyAEDT Console, Jupyter, Run Script and Extension Manager)
 # using a specific Python interpreter.
@@ -48,8 +48,8 @@ def run_pyinstaller_from_c_python(oDesktop, pyaedt_interpreter):
 
     # Create Toolkits in PersonalLib
     import tempfile
-    python_script = pathlib.PurePath(tempfile.gettempdir()).joinpath("configure_pyaedt.py")
-    if pathlib.Path(python_script).is_file():
+    python_script = PurePath(tempfile.gettempdir()).joinpath("configure_pyaedt.py")
+    if Path(python_script).is_file():
         os.remove(python_script)
     with open(python_script, "w") as f:
         f.write("from ansys.aedt.core.workflows.installer.pyaedt_installer import add_pyaedt_to_aedt\n")
@@ -81,7 +81,7 @@ def run_pyinstaller_from_c_python(oDesktop, pyaedt_interpreter):
 if __name__ == "__main__":
 
     python_interpreter = os.getenv(pyaedt_enviroment_variable)
-    if python_interpreter and not pathlib.Path(python_interpreter).exists():
+    if python_interpreter and not Path(python_interpreter).exists():
         oDesktop.AddMessage("", "", 2, "Python environment does not exist.")
         sys.exit()
 
@@ -90,7 +90,7 @@ if __name__ == "__main__":
     script_args = ScriptArgument.split()
     if len(script_args) == 1 and not python_interpreter:
         python_interpreter = script_args[0]
-        if not pathlib.Path(python_interpreter).exists():
+        if not Path(python_interpreter).exists():
             oDesktop.AddMessage("", "", 2, "Python environment does not exist.")
             sys.exit()
 

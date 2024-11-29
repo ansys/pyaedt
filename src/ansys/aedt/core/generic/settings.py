@@ -38,7 +38,7 @@ The second class is intended for internal use only and shouldn't be modified by 
 
 import logging
 import os
-import pathlib
+from pathlib import Path PurePath
 import time
 from typing import Any
 from typing import List
@@ -215,9 +215,9 @@ class Settings(object):  # pragma: no cover
         pyaedt_settings_path = os.environ.get("PYAEDT_LOCAL_SETTINGS_PATH", "")
         if not pyaedt_settings_path:
             if os.name == "posix":
-                pyaedt_settings_path = pathlib.PurePath(os.environ["HOME"]).joinpath("pyaedt_settings.yaml")
+                pyaedt_settings_path = PurePath(os.environ["HOME"]).joinpath("pyaedt_settings.yaml")
             else:
-                pyaedt_settings_path = pathlib.PurePath(os.environ["APPDATA"]).joinpath("pyaedt_settings.yaml")
+                pyaedt_settings_path = PurePath(os.environ["APPDATA"]).joinpath("pyaedt_settings.yaml")
         self.load_yaml_configuration(pyaedt_settings_path)
         self.__block_figure_plot = False
 
@@ -680,7 +680,7 @@ class Settings(object):  # pragma: no cover
 
     @edb_dll_path.setter
     def edb_dll_path(self, value):
-        if pathlib.Path(value).exists():
+        if Path(value).exists():
             self.__edb_dll_path = value
 
     @property
@@ -759,7 +759,7 @@ class Settings(object):  # pragma: no cover
                     raise KeyError(f"Key '{key}' is not part of the allowed keys {allowed_keys}")
                 yield key, value
 
-        if pathlib.Path(path).exists():
+        if Path(path).exists():
             with open(path, "r") as yaml_file:
                 local_settings = yaml.safe_load(yaml_file)
             pairs = [
@@ -781,7 +781,7 @@ class Settings(object):  # pragma: no cover
         """Write the current settings into a YAML configuration file."""
         import yaml
 
-        if pathlib.Path(path).exists():
+        if Path(path).exists():
             yaml.safe_dump(settings, path)
 
 

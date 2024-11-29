@@ -32,7 +32,7 @@ from __future__ import absolute_import
 
 import ast
 import os
-import pathlib
+from pathlib import Path PurePath
 import random
 import string
 import warnings
@@ -513,7 +513,7 @@ class PostProcessor3D(PostProcessorCommon):
 
         variation.extend(intrinsics)
 
-        file_name = pathlib.PurePath(self._app.working_directory).joinpath(generate_unique_name("temp_fld") + ".fld")
+        file_name = PurePath(self._app.working_directory).joinpath(generate_unique_name("temp_fld") + ".fld")
         self.ofieldsreporter.CalculatorWrite(file_name, ["Solution:=", solution], variation)
         value = None
         if os.path.exists(file_name) or settings.remote_rpc_session:
@@ -646,9 +646,9 @@ class PostProcessor3D(PostProcessorCommon):
         if not solution:
             solution = self._app.existing_analysis_sweeps[0]
         if not file_name:
-            file_name = pathlib.PurePath(self._app.working_directory).joinpath(f"{quantity}_{solution.replace(' : ', '_')}.fld")
+            file_name = PurePath(self._app.working_directory).joinpath(f"{quantity}_{solution.replace(' : ', '_')}.fld")
         elif os.path.isdir(file_name):
-            file_name = pathlib.PurePath(file_name).joinpath(f"{quantity}_{solution.replace(' : ', '_')}.fld")
+            file_name = PurePath(file_name).joinpath(f"{quantity}_{solution.replace(' : ', '_')}.fld")
         self.ofieldsreporter.CalcStack("clear")
         try:
             self.ofieldsreporter.EnterQty(quantity)
@@ -841,7 +841,7 @@ class PostProcessor3D(PostProcessorCommon):
         if not output_file:
             appendix = ""
             ext = ".fld"
-            output_file = pathlib.PurePath(self._app.working_directory).joinpath(solution.replace(" : ", "_") + appendix + ext)
+            output_file = PurePath(self._app.working_directory).joinpath(solution.replace(" : ", "_") + appendix + ext)
         else:
             output_file = output_file.replace("//", "/").replace("\\", "/")
         self.ofieldsreporter.CalcStack("clear")
@@ -896,7 +896,7 @@ class PostProcessor3D(PostProcessorCommon):
                 export_options,
             )
         else:
-            sample_points_file = pathlib.PurePath(self._app.working_directory).joinpath("temp_points.pts")
+            sample_points_file = PurePath(self._app.working_directory).joinpath("temp_points.pts")
             with open_file(sample_points_file, "w") as f:
                 f.write(f"Unit={self.model_units}\n")
                 for point in sample_points:
@@ -953,11 +953,11 @@ class PostProcessor3D(PostProcessorCommon):
         """
         if not file_name:
             file_name = plot_name
-        output_dir = pathlib.PurePath(output_dir).joinpath(file_name + "." + file_format)
+        output_dir = PurePath(output_dir).joinpath(file_name + "." + file_format)
         try:
             self.ofieldsreporter.ExportFieldPlot(plot_name, False, output_dir)
             if settings.remote_rpc_session_temp_folder:  # pragma: no cover
-                local_path = (pathlib.PurePath(settings.remote_rpc_session_temp_folder)
+                local_path = (PurePath(settings.remote_rpc_session_temp_folder)
                               .joinpath(file_name + "." + file_format))
                 output_dir = check_and_download_file(local_path, output_dir)
             return output_dir
@@ -2094,7 +2094,7 @@ class PostProcessor3D(PostProcessorCommon):
         --------
         >>> from ansys.aedt.core import Q3d
         >>> q3d = Q3d(non_graphical=False)
-        >>> output_file = q3d.post.export_model_picture(full_name=pathlib.PurePath(q3d.working_directory) \
+        >>> output_file = q3d.post.export_model_picture(full_name=PurePath(q3d.working_directory) \
         .joinpath("images1.jpg"))
         """
         if selections:
@@ -2102,7 +2102,7 @@ class PostProcessor3D(PostProcessorCommon):
         else:
             selections = ""
         if not full_name:
-            full_name = (pathlib.PurePath(self._app.working_directory)
+            full_name = (PurePath(self._app.working_directory)
                          .joinpath(generate_unique_name(self._app.design_name) + ".jpg"))
 
         # open the 3D modeler and remove the selection on other objects
@@ -2251,7 +2251,7 @@ class PostProcessor3D(PostProcessorCommon):
         if export_as_multiple_objects:
             files_exported = []
             for el in assignment:
-                fname = pathlib.PurePath(export_path).joinpath(f"{el}.obj")
+                fname = PurePath(export_path).joinpath(f"{el}.obj")
                 self._app.modeler.oeditor.ExportModelMeshToFile(fname, [el])
 
                 fname = check_and_download_file(fname)
@@ -2266,7 +2266,7 @@ class PostProcessor3D(PostProcessorCommon):
                     files_exported.append([fname, self._app.modeler[el].color, 0.05])
             return files_exported
         else:
-            fname = pathlib.PurePath(export_path).joinpath("Model_AllObjs_AllMats.obj")
+            fname = PurePath(export_path).joinpath("Model_AllObjs_AllMats.obj")
             self._app.modeler.oeditor.ExportModelMeshToFile(fname, assignment)
             return [[fname, "aquamarine", 0.3]]
 

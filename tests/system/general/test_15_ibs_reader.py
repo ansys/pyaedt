@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 import os
-import pathlib
+from pathlib import Path PurePath
 
 from ansys.aedt.core import Circuit
 from ansys.aedt.core.generic import ibis_reader
@@ -48,7 +48,7 @@ class TestClass:
 
     def test_01_read_ibis(self):
         reader = ibis_reader.IbisReader(
-            pathlib.PurePath(TESTS_GENERAL_PATH)
+            PurePath(TESTS_GENERAL_PATH)
             .joinpath("example_models", test_subfolder, "u26a_800_modified.ibs"), self.aedtapp
         )
         reader.parse_ibis_file()
@@ -94,7 +94,7 @@ class TestClass:
 
     def test_02_read_ibis_from_circuit(self):
         ibis_model = self.aedtapp.get_ibis_model_from_file(
-            pathlib.PurePath(TESTS_GENERAL_PATH)
+            PurePath(TESTS_GENERAL_PATH)
             .joinpath("example_models", test_subfolder, "u26a_800_modified.ibs")
         )
         assert len(ibis_model.components) == 6

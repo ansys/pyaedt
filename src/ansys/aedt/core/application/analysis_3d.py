@@ -25,7 +25,7 @@
 import csv
 import ntpath
 import os
-import pathlib
+from pathlib import Path PurePath
 
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.generic.configurations import Configurations
@@ -210,17 +210,17 @@ class FieldAnalysis3D(Analysis, object):
         # libs = [syslib, userlib]
 
         libs = [
-            pathlib.PurePath(self.syslib).joinpath("3DComponents", self._design_type),
-            pathlib.PurePath(self.userlib).joinpath("3DComponents", self._design_type),
+            PurePath(self.syslib).joinpath("3DComponents", self._design_type),
+            PurePath(self.userlib).joinpath("3DComponents", self._design_type),
         ]
 
         for lib in libs:
-            if pathlib.Path(lib).exists():
+            if Path(lib).exists():
                 listfiles = []
                 for root, _, files in os.walk(lib):
                     for file in files:
                         if file.endswith(".a3dcomp"):
-                            listfiles.append(pathlib.PurePath(root).joinpath(file))
+                            listfiles.append(PurePath(root).joinpath(file))
                 for el in listfiles:
                     head, tail = ntpath.split(el)
                     components_dict[tail[:-8]] = el
@@ -325,7 +325,7 @@ class FieldAnalysis3D(Analysis, object):
         >>> oDesign.ExportMeshStats
         """
         if not mesh_path:
-            mesh_path = pathlib.PurePath(self.working_directory).joinpath("meshstats.ms")
+            mesh_path = PurePath(self.working_directory).joinpath("meshstats.ms")
         self.odesign.ExportMeshStats(setup, variations, mesh_path)
         return mesh_path
 

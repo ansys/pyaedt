@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 import os
-import pathlib
+from pathlib import Path PurePath
 import signal
 import sys
 import tempfile
@@ -362,10 +362,10 @@ def connect(server_name, aedt_client_port):
         except AttributeError:
             pass
         settings.remote_rpc_session = client
-        settings.remote_rpc_session_temp_folder = (pathlib.PurePath(tempfile.gettempdir())
+        settings.remote_rpc_session_temp_folder = (PurePath(tempfile.gettempdir())
                                                    .joinpath(server_name + "_" + str(aedt_client_port)
         ))
-        if not pathlib.Path(settings.remote_rpc_session_temp_folder).exists():
+        if not Path(settings.remote_rpc_session_temp_folder).exists():
             os.makedirs(settings.remote_rpc_session_temp_folder)
         return client
     except Exception:

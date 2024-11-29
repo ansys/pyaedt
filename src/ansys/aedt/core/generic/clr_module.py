@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 import os
-import pathlib
+from pathlib import Path PurePath
 import pkgutil
 import sys
 import warnings
@@ -31,12 +31,12 @@ import warnings
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 
 modules = [tup[1] for tup in pkgutil.iter_modules()]
-pyaedt_path = pathlib.PurePath(pathlib.PurePath(__file__).parent).parent
+pyaedt_path = PurePath(PurePath(__file__).parent).parent
 cpython = "IronPython" not in sys.version and ".NETFramework" not in sys.version
 is_linux = os.name == "posix"
 is_windows = not is_linux
 is_clr = False
-sys.path.append(str(pathlib.PurePath(pyaedt_path).joinpath("dlls", "PDFReport")))
+sys.path.append(str(PurePath(pyaedt_path).joinpath("dlls", "PDFReport")))
 if is_linux and cpython:  # pragma: no cover
     try:
         if os.environ.get("DOTNET_ROOT") is None:
@@ -44,17 +44,17 @@ if is_linux and cpython:  # pragma: no cover
             try:
                 import dotnet
 
-                runtime = pathlib.PurePath(pathlib.PurePath(dotnet.__path__).parent)
+                runtime = PurePath(PurePath(dotnet.__path__).parent)
             except Exception:
                 import dotnetcore2
 
-                runtime = pathlib.PurePath(pathlib.PurePath(dotnetcore2.__file__).parent).joinpath("bin")
+                runtime = PurePath(PurePath(dotnetcore2.__file__).parent).joinpath("bin")
             finally:
                 os.environ["DOTNET_ROOT"] = runtime
 
         from pythonnet import load
 
-        json_file = (pathlib.Path(pathlib.PurePath(pyaedt_path).joinpath("misc", "pyaedt.runtimeconfig.json"))
+        json_file = (Path(PurePath(pyaedt_path).joinpath("misc", "pyaedt.runtimeconfig.json"))
                      .absolute())
         load("coreclr", runtime_config=json_file, dotnet_root=os.environ["DOTNET_ROOT"])
         print("DotNet Core correctly loaded.")

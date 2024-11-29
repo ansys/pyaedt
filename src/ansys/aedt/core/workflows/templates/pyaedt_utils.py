@@ -27,7 +27,7 @@
 It contains common methods for the PyAEDT panels.
 """
 import os
-import pathlib
+from pathlib import Path PurePath
 import random
 import string
 import sys
@@ -85,7 +85,7 @@ def which(program):
     else:
         for path in os.environ["PATH"].split(os.pathsep):
             path = path.strip('"')
-            exe_file = pathlib.PurePath(path).joinpath(program)
+            exe_file = PurePath(path).joinpath(program)
             if is_exe(exe_file):
                 return exe_file
 
@@ -122,18 +122,18 @@ def environment_variables(oDesktop):
         ]
         os.environ["LD_LIBRARY_PATH"] = ":".join(ld_library_path_dirs_to_add) + ":" + os.getenv("LD_LIBRARY_PATH", "")
         if version > "2023.1":
-            os.environ["TCL_LIBRARY"] = str(pathlib.PurePath(
+            os.environ["TCL_LIBRARY"] = str(PurePath(
                 "{}/commonfiles/CPython/3_10/linx64/Release/python/lib".format(edt_root)).joinpath("tcl8.5"))
-            os.environ["TK_LIBRARY"] = str(pathlib.PurePath(
+            os.environ["TK_LIBRARY"] = str(PurePath(
                 "{}/commonfiles/CPython/3_10/linx64/Release/python/lib".format(edt_root)).joinpath("tk8.5"))
-            os.environ["TKPATH"] = str(pathlib.PurePath(
+            os.environ["TKPATH"] = str(PurePath(
                 "{}/commonfiles/CPython/3_10/linx64/Release/python/lib".format(edt_root)).joinpath("tk8.5"))
         else:
-            os.environ["TCL_LIBRARY"] = str(pathlib.PurePath(
+            os.environ["TCL_LIBRARY"] = str(PurePath(
                 "{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root)).joinpath("tcl8.5"))
-            os.environ["TK_LIBRARY"] = str(pathlib.PurePath(
+            os.environ["TK_LIBRARY"] = str(PurePath(
                 "{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root)).joinpath("tk8.5"))
-            os.environ["TKPATH"] = str(pathlib.PurePath(
+            os.environ["TKPATH"] = str(PurePath(
                 "{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root)).joinpath("tk8.5"))
 
 

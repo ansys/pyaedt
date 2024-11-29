@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 import os
-import pathlib
+from pathlib import Path PurePath
 
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
@@ -185,7 +185,7 @@ class Part(object):
         str
             Full name of the A3DCOMP file.
         """
-        return pathlib.PurePath(self._compdef["part_folder"]).joinpath( self["comp_name"])
+        return PurePath(self._compdef["part_folder"]).joinpath( self["comp_name"])
 
     # Create a unique coordinate system name for the part.
     @property
@@ -511,7 +511,7 @@ class Antenna(Part, object):
             else:
                 units = self._multiparts.units
         if self._compdef["ffd_name"]:
-            ffd = pathlib.PurePath(self._compdef["part_folder"]).joinpath(self._compdef["ffd_name"] + ".ffd")
+            ffd = PurePath(self._compdef["part_folder"]).joinpath(self._compdef["ffd_name"] + ".ffd")
             a = app.create_sbr_file_based_antenna(far_field_data=ffd, target_cs=target_cs, units=units, name=self.name)
         else:
             a = app.create_sbr_antenna(

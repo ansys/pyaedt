@@ -1,8 +1,8 @@
-import pathlib
+from pathlib import Path PurePath
 import sys
 import os
 
-sys.path.insert(0, str(pathlib.PurePath(pathlib.PurePath(__file__).parent).joinpath("..", "..")))
+sys.path.insert(0, str(PurePath(PurePath(__file__).parent).joinpath("..", "..")))
 
 from ansys.aedt.core.common_rpc import launch_server
 

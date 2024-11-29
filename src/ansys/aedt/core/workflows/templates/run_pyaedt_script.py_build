@@ -37,7 +37,7 @@ if is_linux:
 else:
     import subprocess
 
-toolkits_dir = os.path.abspath(pathlib.PurePath(os.path.dirname(__file__)).joinpath('..', '..'))
+toolkits_dir = os.path.abspath(PurePath(os.path.dirname(__file__)).joinpath('..', '..'))
 
 sys.path.append(toolkits_dir)
 

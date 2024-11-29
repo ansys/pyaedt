@@ -27,7 +27,7 @@
 from __future__ import absolute_import  # noreorder
 
 import os
-import pathlib
+from pathlib import Path PurePath
 import re
 import warnings
 
@@ -70,7 +70,7 @@ class QExtractor(FieldAnalysis3D, object):
     @property
     def design_file(self):
         """Design file."""
-        design_file = pathlib.PurePath(self.working_directory).joinpath("design_data.json")
+        design_file = PurePath(self.working_directory).joinpath("design_data.json")
         return design_file
 
     def __init__(
@@ -268,7 +268,7 @@ class QExtractor(FieldAnalysis3D, object):
         >>> oDesign.ExportMeshStats
         """
         if not mesh_path:
-            mesh_path = pathlib.PurePath(self.working_directory).joinpath("meshstats.ms")
+            mesh_path = PurePath(self.working_directory).joinpath("meshstats.ms")
         self.odesign.ExportMeshStats(setup, variations, setup_type, mesh_path)
         return mesh_path
 
@@ -515,7 +515,7 @@ class QExtractor(FieldAnalysis3D, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if pathlib.PurePath(file_name).suffix not in [".m", ".lvl", ".csv", ".txt"]:
+        if PurePath(file_name).suffix not in [".m", ".lvl", ".csv", ".txt"]:
             self.logger.error("Extension is invalid. Possible extensions are *.m, *.lvl, *.csv, and *.txt.")
             return False
 
@@ -936,7 +936,7 @@ class QExtractor(FieldAnalysis3D, object):
         >>> aedtapp.export_equivalent_circuit(output_file="test_export_circuit.cir",
         ...                                   setup=mysetup.name,sweep="LastAdaptive", variations=["d: 20mm"])
         """
-        if pathlib.PurePath(output_file).suffix not in [
+        if PurePath(output_file).suffix not in [
             ".cir",
             ".sml",
             ".sp",
@@ -2568,7 +2568,7 @@ class Q2d(QExtractor, object):
         exported_files = []
         if not export_folder:
             export_folder = self.working_directory
-        if not pathlib.Path(export_folder).exists():
+        if not Path(export_folder).exists():
             os.makedirs(export_folder)
         if analyze:
             self.analyze()
@@ -2584,7 +2584,7 @@ class Q2d(QExtractor, object):
                 if len(variation_array) == 1:
                     try:
                         export_file = f"{self.project_name}_{s}_{sweep}.sp"
-                        export_path = pathlib.PurePath(export_folder).joinpath(export_file)
+                        export_path = PurePath(export_folder).joinpath(export_file)
                         subckt_name = f"w_{self.project_name}"
                         self.oanalysis.ExportCircuit(
                             solution_name,
@@ -2628,7 +2628,7 @@ class Q2d(QExtractor, object):
                         varCount += 1
                         try:
                             export_file = f"{self.project_name}_{s}_{sweep}_{varCount}.sp"
-                            export_path = pathlib.PurePath(export_folder).joinpath(export_file)
+                            export_path = PurePath(export_folder).joinpath(export_file)
                             subckt_name = f"w_{self.project_name}_{varCount}"
                             self.oanalysis.ExportCircuit(
                                 solution_name,

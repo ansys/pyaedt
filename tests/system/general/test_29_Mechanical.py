@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 import os
-import pathlib
+from pathlib import Path PurePath
 import shutil
 
 from ansys.aedt.core import Hfss
@@ -49,7 +49,7 @@ class TestClass:
         self.local_scratch = local_scratch
 
     def test_01_save(self):
-        test_project = pathlib.PurePath(self.local_scratch.path).joinpath(test_project_name + ".aedt")
+        test_project = PurePath(self.local_scratch.path).joinpath(test_project_name + ".aedt")
         self.aedtapp.save_project(test_project)
         assert os.path.exists(test_project)
 
@@ -154,8 +154,8 @@ class TestClass:
             design="MechanicalDesign2", parameters=self.aedtapp.available_variations.nominal_w_values_dict
         )
         assert self.aedtapp.setups[0].add_mesh_link(design="MechanicalDesign2", solution="MySetupAuto : LastAdaptive")
-        example_project = pathlib.PurePath(self.local_scratch.path).joinpath(test_project_name + ".aedt")
-        example_project_copy = pathlib.PurePath(self.local_scratch.path).joinpath(test_project_name + "_copy.aedt")
+        example_project = PurePath(self.local_scratch.path).joinpath(test_project_name + ".aedt")
+        example_project_copy = PurePath(self.local_scratch.path).joinpath(test_project_name + "_copy.aedt")
         shutil.copyfile(example_project, example_project_copy)
         assert self.aedtapp.setups[0].add_mesh_link(design="MechanicalDesign2", project=example_project_copy)
         os.remove(example_project_copy)

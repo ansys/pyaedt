@@ -36,7 +36,7 @@ if is_linux:
 else:
     import subprocess
 
-extensions_dir = os.path.abspath(pathlib.PurePath(os.path.dirname(__file__)).joinpath('..', '..'))
+extensions_dir = os.path.abspath(PurePath(os.path.dirname(__file__)).joinpath('..', '..'))
 
 sys.path.append(extensions_dir)
 
@@ -51,8 +51,8 @@ def main():
         python_exe = r"##PYTHON_EXE##" % version
         # Extensions directory
         current_dir = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))
-        pyaedt_extensions_dir = os.path.normpath(pathlib.PurePath(current_dir).joinpath(r"##TOOLKIT_REL_LIB_DIR##"))
-        pyaedt_script = pathlib.PurePath(pyaedt_extensions_dir).joinpath("extension_manager.py")
+        pyaedt_extensions_dir = os.path.normpath(PurePath(current_dir).joinpath(r"##TOOLKIT_REL_LIB_DIR##"))
+        pyaedt_script = PurePath(pyaedt_extensions_dir).joinpath("extension_manager.py")
         # Check if CPython interpreter and AEDT release match
         python_exe = pyaedt_utils.sanitize_interpreter_path(python_exe, version_short)
         # Check python executable

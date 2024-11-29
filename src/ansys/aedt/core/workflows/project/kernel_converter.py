@@ -25,7 +25,7 @@
 
 import logging
 import os.path
-import pathlib
+from pathlib import Path PurePath
 
 from ansys.aedt.core import Desktop
 from ansys.aedt.core import Hfss
@@ -181,7 +181,7 @@ def check_missing(input_object, output_object, file_path):
             file_path=input_object.working_directory,
             assignment_to_export=[obj_name],
         )
-        output_object.modeler.import_3d_cad(pathlib.PurePath(input_object.working_directory).joinpath(obj_name + ".x_t"))
+        output_object.modeler.import_3d_cad(PurePath(input_object.working_directory).joinpath(obj_name + ".x_t"))
         list_of_suppressed.append([output_object.design_name, obj_name, "History"])
     from ansys.aedt.core.generic.general_methods import read_csv
     from ansys.aedt.core.generic.general_methods import write_csv

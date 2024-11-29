@@ -29,7 +29,7 @@ This module provides all functionalities for creating and editing reports.
 
 """
 import os
-import pathlib
+from pathlib import Path PurePath
 
 from ansys.aedt.core import generate_unique_name
 from ansys.aedt.core import pyaedt_function_handler
@@ -488,7 +488,7 @@ class AMIConturEyeDiagram(CommonReport):
             Output file path if a TAB file is created.
         """
         if not output_file:
-            output_file = pathlib.PurePath(self._post._app.working_directory).joinpath(f"{self.plot_name}_violations.tab")
+            output_file = PurePath(self._post._app.working_directory).joinpath(f"{self.plot_name}_violations.tab")
         self._post.oreportsetup.ExportEyeMaskViolation(self.plot_name, output_file)
         return output_file
 
@@ -1073,7 +1073,7 @@ class AMIEyeDiagram(CommonReport):
             Output file path if a TAB file is created.
         """
         if not output_file:
-            output_file = pathlib.PurePath(self._post._app.working_directory).joinpath(f"{self.plot_name}_violations.tab")
+            output_file = PurePath(self._post._app.working_directory).joinpath(f"{self.plot_name}_violations.tab")
         self._post.oreportsetup.ExportEyeMaskViolation(self.plot_name, output_file)
         return output_file
 

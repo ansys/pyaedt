@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 import os
-import pathlib
+from pathlib import Path PurePath
 import shutil
 import time
 
@@ -153,9 +153,9 @@ class FfdSolutionDataExporter:
         export_path = os.path.abspath(check_and_download_folder(local_path, export_path))
 
         # 2024.1
-        file_path_xml = pathlib.PurePath(export_path).joinpath(self.__app.design_name + ".xml")
+        file_path_xml = PurePath(export_path).joinpath(self.__app.design_name + ".xml")
         # 2023.2
-        file_path_txt = pathlib.PurePath(export_path).joinpath(exported_name_map)
+        file_path_txt = PurePath(export_path).joinpath(exported_name_map)
 
         input_file = file_path_xml
         if self.__app.desktop_class.aedt_version_id < "2024.1":  # pragma: no cover
@@ -196,7 +196,7 @@ class FfdSolutionDataExporter:
 
                     if touchstone_file:
                         touchstone_name = os.path.basename(touchstone_file)
-                        output_file = pathlib.PurePath(export_path).joinpath(touchstone_name)
+                        output_file = PurePath(export_path).joinpath(touchstone_name)
                         shutil.move(touchstone_file, output_file)
             else:
                 is_exported = self.__app.export_antenna_metadata(
@@ -217,7 +217,7 @@ class FfdSolutionDataExporter:
 
         # Export geometry
         if os.path.isfile(input_file):
-            geometry_path = pathlib.PurePath(export_path).joinpath("geometry")
+            geometry_path = PurePath(export_path).joinpath("geometry")
             if not os.path.exists(geometry_path):
                 os.mkdir(geometry_path)
             obj_list = self.__create_geometries(geometry_path)
@@ -344,14 +344,14 @@ class FfdSolutionDataExporter:
             object_name = os.path.basename(obj.path)
             name = os.path.splitext(object_name)[0]
             original_path = os.path.dirname(obj.path)
-            new_path = pathlib.PurePath(os.path.abspath(export_path)).joinpath(object_name)
+            new_path = PurePath(os.path.abspath(export_path)).joinpath(object_name)
 
             if not os.path.exists(new_path):
                 new_path = shutil.move(obj.path, export_path)
-            if os.path.exists(pathlib.PurePath(original_path).joinpath(name + ".mtl")):  # pragma: no cover
-                shutil.rmtree(pathlib.PurePath(original_path).joinpath(name + ".mtl"), ignore_errors=True)
+            if os.path.exists(PurePath(original_path).joinpath(name + ".mtl")):  # pragma: no cover
+                shutil.rmtree(PurePath(original_path).joinpath(name + ".mtl"), ignore_errors=True)
             obj_list[obj.name] = [
-                pathlib.PurePath(os.path.basename(export_path)).joinpath(object_name),
+                PurePath(os.path.basename(export_path)).joinpath(object_name),
                 obj.color,
                 obj.opacity,
                 obj.units,

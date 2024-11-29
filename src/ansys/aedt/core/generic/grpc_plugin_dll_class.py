@@ -21,7 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-import pathlib
+from pathlib import Path PurePath
 from ctypes import CFUNCTYPE
 from ctypes import PyDLL
 from ctypes import c_bool
@@ -262,8 +262,8 @@ class AEDT:
         is_windows = not is_linux
         self.original_path = pathDir
         self.pathDir = pathDir
-        self.pathDir = pathlib.PurePath(self.pathDir).parent  # PythonFiles
-        self.pathDir = pathlib.PurePath(self.pathDir).parent  # DesktopPlugin or Win64
+        self.pathDir = PurePath(self.pathDir).parent  # PythonFiles
+        self.pathDir = PurePath(self.pathDir).parent  # DesktopPlugin or Win64
 
         # Plugin filename depends on OS
         if is_linux:
@@ -271,20 +271,20 @@ class AEDT:
         else:
             pluginFileName = r"PyDesktopPlugin.dll"
 
-        AedtAPIDll_file = pathlib.PurePath(self.pathDir).joinpath(pluginFileName)  # install dir
+        AedtAPIDll_file = PurePath(self.pathDir).joinpath(pluginFileName)  # install dir
 
-        if not pathlib.Path(AedtAPIDll_file).is_file():
-            self.pathDir = pathlib.PurePath(self.pathDir).parent  # lib
-            self.pathDir = pathlib.PurePath(self.pathDir).parent  # core
-            self.pathDir = pathlib.PurePath(self.pathDir).parent  # view
-            AedtAPIDll_file = (pathlib.PurePath(self.pathDir)
+        if not Path(AedtAPIDll_file).is_file():
+            self.pathDir = PurePath(self.pathDir).parent  # lib
+            self.pathDir = PurePath(self.pathDir).parent  # core
+            self.pathDir = PurePath(self.pathDir).parent  # view
+            AedtAPIDll_file = (PurePath(self.pathDir)
                                .joinpath(r"build_output\64Release\PyDesktopPlugin.dll"))  # develop dir
-            # AedtAPIDll_file = pathlib.PurePath(pathDir).joinpath(r"PyAedtStub/x64/Debug/PyAedtStub.dll") #develop dir
+            # AedtAPIDll_file = PurePath(pathDir).joinpath(r"PyAedtStub/x64/Debug/PyAedtStub.dll") #develop dir
 
         # load dll
         if is_windows:
             # on windows, modify path
-            aedtDir = pathlib.PurePath(AedtAPIDll_file).parent
+            aedtDir = PurePath(AedtAPIDll_file).parent
             originalPath = os.environ["PATH"]
             os.environ["PATH"] = originalPath + os.pathsep + aedtDir
             AedtAPI = PyDLL(AedtAPIDll_file)
@@ -299,7 +299,7 @@ class AEDT:
         self.callbackCreateBlock = None
         self.callbackGetObjID = None
         version = None
-        with open(pathlib.PurePath(self.pathDir).joinpath("product.info"), "r") as f:
+        with open(PurePath(self.pathDir).joinpath("product.info"), "r") as f:
             for line in f:
                 if "AnsProductVersion" in line:
                     version = line.split("=")[1].strip('\n"')

@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 import os
-import pathlib
+from pathlib import Path PurePath
 import sys
 import tempfile
 
@@ -173,9 +173,9 @@ class TestClass:
             context="3D",
         )
         assert plot
-        assert plot.export_config(pathlib.PurePath(self.local_scratch.path).joinpath(f"{plot.plot_name}.json"))
+        assert plot.export_config(PurePath(self.local_scratch.path).joinpath(f"{plot.plot_name}.json"))
         assert field_test.post.create_report_from_configuration(
-            pathlib.PurePath(self.local_scratch.path)
+            PurePath(self.local_scratch.path)
             .joinpath(f"{plot.plot_name}.json"), solution_name=field_test.nominal_adaptive
         )
         report = AnsysReport()
@@ -211,14 +211,14 @@ class TestClass:
         new_report4.report_type = "Data Table"
         assert new_report4.create()
 
-        template = (pathlib.PurePath(TESTS_GENERAL_PATH)
+        template = (PurePath(TESTS_GENERAL_PATH)
                     .joinpath("example_models", test_subfolder, "template.rpt"))
         if not config["NonGraphical"]:
             assert new_report4.apply_report_template(template)
-            template2 = (pathlib.PurePath(TESTS_GENERAL_PATH)
+            template2 = (PurePath(TESTS_GENERAL_PATH)
                          .joinpath("example_models", test_subfolder, "template_invented.rpt"))
             assert not new_report4.apply_report_template(template2)
-            template3 = (pathlib.PurePath(TESTS_GENERAL_PATH)
+            template3 = (PurePath(TESTS_GENERAL_PATH)
                          .joinpath("example_models", test_subfolder, "template.csv"))
             assert not new_report4.apply_report_template(template3)
             assert not new_report4.apply_report_template(template3, property_type="Dummy")
@@ -239,7 +239,7 @@ class TestClass:
             report_category="Far Fields",
             context="3D",
         )
-        assert data.plot(snapshot_path=pathlib.PurePath(self.local_scratch.path).joinpath("reportC.jpg"), show=False)
+        assert data.plot(snapshot_path=PurePath(self.local_scratch.path).joinpath("reportC.jpg"), show=False)
         assert data.plot_3d(show=False)
         assert field_test.post.create_3d_plot(
             data,

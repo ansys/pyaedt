@@ -1,14 +1,14 @@
 """Read errors output from a sphinx build and remove duplicate groups"""
 import sys
 import os
-import pathlib
+from pathlib import Path PurePath
 
 sys.tracebacklimit = 0
-my_path = pathlib.Path(__file__).parent.resolve()
+my_path = Path(__file__).parent.resolve()
 
 errors = set()
-error_file = pathlib.PurePath(my_path).joinpath("build_errors.txt")
-if pathlib.Path(error_file).is_file():
+error_file = PurePath(my_path).joinpath("build_errors.txt")
+if Path(error_file).is_file():
     with open(error_file) as fid:
         group = []
         for line in fid.readlines():

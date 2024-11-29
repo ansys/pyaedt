@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 import os
-import pathlib
+from pathlib import Path PurePath
 
 from ansys.aedt.core.visualization.advanced.misc import parse_rdat_file
 import pytest
@@ -40,7 +40,7 @@ def desktop():
 
 
 def test_report_file_parser():
-    data = parse_rdat_file(pathlib.PurePath(TESTS_GENERAL_PATH)
+    data = parse_rdat_file(PurePath(TESTS_GENERAL_PATH)
                            .joinpath("example_models", test_subfolder, "test_report.rdat"))
     assert data == {
         "Calculator Expressions Plot 1": {
@@ -2979,6 +2979,6 @@ def test_report_file_parser():
         }
     }
     data1 = parse_rdat_file(
-        pathlib.PurePath(TESTS_GENERAL_PATH).joinpath("example_models", test_subfolder, "test_report_smith.rdat")
+        PurePath(TESTS_GENERAL_PATH).joinpath("example_models", test_subfolder, "test_report_smith.rdat")
     )
     assert len(data1["S Parameter Chart 1"]["S(1,1)"]["curves"]) == 8

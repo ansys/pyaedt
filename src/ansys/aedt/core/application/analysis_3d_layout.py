@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 import os
-import pathlib
+from pathlib import Path PurePath
 
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.generic.configurations import Configurations3DLayout
@@ -232,7 +232,7 @@ class FieldAnalysis3DLayout(Analysis):
         >>> oModule.ExportMeshStats
         """
         if not mesh_path:
-            mesh_path = pathlib.PurePath(self.working_directory).joinpath("meshstats.ms")
+            mesh_path = PurePath(self.working_directory).joinpath("meshstats.ms")
         self.odesign.ExportMeshStats(setup, variations, mesh_path)
         return mesh_path
 

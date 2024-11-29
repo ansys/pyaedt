@@ -32,7 +32,7 @@ calls to AEDT modules like the modeler, mesh, postprocessing, and setup.
 from __future__ import absolute_import  # noreorder
 
 import os
-import pathlib
+from pathlib import Path PurePath
 import re
 import shutil
 import subprocess  # nosec
@@ -798,7 +798,7 @@ class Analysis(Design, object):
         for report_name in self.post.all_report_names:
             name_no_space = report_name.replace(" ", "_")
             self.post.oreportsetup.UpdateReports([str(report_name)])
-            export_path = pathlib.PurePath(export_folder).joinpath("{self.project_name}_{self.design_name}_{name_no_space}.csv")
+            export_path = PurePath(export_folder).joinpath("{self.project_name}_{self.design_name}_{name_no_space}.csv")
             try:
                 self.post.oreportsetup.ExportToFile(str(report_name), export_path)
                 self.logger.info(f"Export Data: {export_path}")
@@ -849,12 +849,12 @@ class Analysis(Design, object):
                         varCount = 0
                         for variation in variations_list:
                             varCount += 1
-                            export_path = (pathlib.PurePath(export_folder)
+                            export_path = (PurePath(export_folder)
                                            .joinpath(f"{self.project_name}_{varCount}.prof"))
                             result = self.export_profile(setup_name, variation, export_path)
                             if result:
                                 exported_files.append(export_path)
-                            export_path = (pathlib.PurePath(export_folder)
+                            export_path = (PurePath(export_folder)
                                            .joinpath(f"{self.project_name}_{varCount}.conv"))
                             self.logger.info("Export Convergence: %s", export_path)
                             result = self.export_convergence(setup_name, variation, export_path)
@@ -881,10 +881,10 @@ class Analysis(Design, object):
                             # export touchstone as .sNp file
                             if self.design_type in ["HFSS3DLayout", "HFSS 3D Layout Design", "HFSS"]:
                                 if matrix_type != "S":
-                                    export_path = (pathlib.PurePath(export_folder)
+                                    export_path = (PurePath(export_folder)
                                                    .joinpath(f"{self.project_name}_{varCount}.tab"))
                                 else:
-                                    export_path = (pathlib.PurePath(export_folder)
+                                    export_path = (PurePath(export_folder)
                                                    .joinpath(f"{self.project_name}_{varCount}.s{excitations}p"
                                     ))
                                 self.logger.info(f"Export SnP: {export_path}")
@@ -915,7 +915,7 @@ class Analysis(Design, object):
                                 except Exception:
                                     self.logger.warning("Export SnP failed: no solutions found")
                             elif self.design_type == "2D Extractor":
-                                export_path = (pathlib.PurePath(export_folder)
+                                export_path = (PurePath(export_folder)
                                                .joinpath(f"{self.project_name}_{varCount}.s{2 * excitations}p"
                                 ))
                                 self.logger.info(f"Export SnP: {export_path}")
@@ -937,7 +937,7 @@ class Analysis(Design, object):
                                 except Exception:
                                     self.logger.warning("Export SnP failed: no solutions found")
                             elif self.design_type == "Q3D Extractor":
-                                export_path = (pathlib.PurePath(export_folder)
+                                export_path = (PurePath(export_folder)
                                                .joinpath(f"{self.project_name}_{varCount}.s{2 * excitations}p"
                                 ))
                                 self.logger.info(f"Export SnP: {export_path}")
@@ -989,7 +989,7 @@ class Analysis(Design, object):
         if " : " in setup:
             setup = setup.split(" : ")[0]
         if not output_file:
-            output_file = (pathlib.PurePath(self.working_directory)
+            output_file = (PurePath(self.working_directory)
                            .joinpath(generate_unique_name("Convergence") + ".prop"))
         if not variations:
             val_str = []
@@ -1000,11 +1000,11 @@ class Analysis(Design, object):
             for s in self.setups:
                 if s.name == setup:
                     if "CGDataBlock" in s.props:
-                        output_file = pathlib.PurePath(output_file).stem + "CG" + pathlib.PurePath(output_file).suffix
+                        output_file = PurePath(output_file).stem + "CG" + PurePath(output_file).suffix
                         self.odesign.ExportConvergence(setup, variations, "CG", output_file, True)
                         self.logger.info("Export Convergence to  %s", output_file)
                     if "RLDataBlock" in s.props:
-                        output_file = pathlib.PurePath(output_file).stem + "RL" + pathlib.PurePath(output_file).suffix
+                        output_file = PurePath(output_file).stem + "RL" + PurePath(output_file).suffix
                         self.odesign.ExportConvergence(setup, variations, "RL", output_file, True)
                         self.logger.info("Export Convergence to  %s", output_file)
 
@@ -1013,15 +1013,15 @@ class Analysis(Design, object):
             for s in self.setups:
                 if s.name == setup:
                     if "Cap" in s.props:
-                        output_file = pathlib.PurePath(output_file).stem + "CG" + pathlib.PurePath(output_file).suffix
+                        output_file = PurePath(output_file).stem + "CG" + PurePath(output_file).suffix
                         self.odesign.ExportConvergence(setup, variations, "CG", output_file, True)
                         self.logger.info("Export Convergence to  %s", output_file)
                     if "AC" in s.props:
-                        output_file = pathlib.PurePath(output_file).stem + "ACRL" + pathlib.PurePath(output_file).suffix
+                        output_file = PurePath(output_file).stem + "ACRL" + PurePath(output_file).suffix
                         self.odesign.ExportConvergence(setup, variations, "AC RL", output_file, True)
                         self.logger.info("Export Convergence to  %s", output_file)
                     if "DC" in s.props:
-                        output_file = pathlib.PurePath(output_file).stem + "DC" + pathlib.PurePath(output_file).suffix
+                        output_file = PurePath(output_file).stem + "DC" + PurePath(output_file).suffix
                         self.odesign.ExportConvergence(setup, variations, "DC RL", output_file, True)
                         self.logger.info("Export Convergence to  %s", output_file)
                     break
@@ -1818,15 +1818,15 @@ class Analysis(Design, object):
                     set_custom_dso = True
         elif self.design_type not in ["RMxprtSolution", "ModelCreation"] and (gpus or tasks or cores):
             config_name = "pyaedt_config"
-            source_name = pathlib.PurePath(self.pyaedt_dir).joinpath("misc", "pyaedt_local_config.acf")
+            source_name = PurePath(self.pyaedt_dir).joinpath("misc", "pyaedt_local_config.acf")
             if settings.remote_rpc_session:
-                target_name = (pathlib.PurePath(tempfile.gettempdir())
+                target_name = (PurePath(tempfile.gettempdir())
                                .joinpath(generate_unique_name("config") + ".acf"))
             else:
                 target_name = (
-                    pathlib.PurePath(self.working_directory).joinpath(config_name + ".acf")
+                    PurePath(self.working_directory).joinpath(config_name + ".acf")
                     if self.working_directory[0] != "\\"
-                    else pathlib.PurePath(self.working_directory).joinpath(config_name + ".acf")
+                    else PurePath(self.working_directory).joinpath(config_name + ".acf")
                 )
             skip_files = False
             try:
@@ -1878,7 +1878,7 @@ class Analysis(Design, object):
 
             if settings.remote_rpc_session:
                 remote_name = (
-                    pathlib.PurePath(self.working_directory).joinpath(config_name + ".acf")
+                    PurePath(self.working_directory).joinpath(config_name + ".acf")
                 )
                 settings.remote_rpc_session.filemanager.upload(target_name, remote_name)
                 target_name = remote_name
@@ -2034,12 +2034,12 @@ class Analysis(Design, object):
                     self.oanalysis.RevertSetupToInitial(setup)
             self.close_project()
         else:
-            project_name = pathlib.PurePath(file_name).stem
+            project_name = PurePath(file_name).stem
         queue_file = file_name + ".q"
         queue_file_completed = file_name + ".q.completed"
-        if pathlib.Path(queue_file).exists():
+        if Path(queue_file).exists():
             os.unlink(queue_file)
-        if pathlib.Path(queue_file_completed).exists():
+        if Path(queue_file_completed).exists():
             os.unlink(queue_file_completed)
 
         options = [
@@ -2098,7 +2098,7 @@ class Analysis(Design, object):
             self.logger.info("Batch job finished.")
 
         if machine == "localhost":
-            while not pathlib.Path(queue_file).exists():
+            while not Path(queue_file).exists():
                 time.sleep(0.5)
             with (open_file(queue_file, "r") as f):
                 lines = f.readlines()
@@ -2106,9 +2106,9 @@ class Analysis(Design, object):
                     if "JobID" in line:
                         ls = line.split("=")[1].strip().strip("'")
                         self.last_run_job = ls
-                        self.last_run_log = pathlib.PurePath(file_name + ".batchinfo"
+                        self.last_run_log = PurePath(file_name + ".batchinfo"
                                                              ).joinpath(project_name + "-" + ls + ".log")
-            while not pathlib.Path(queue_file_completed).exists():
+            while not Path(queue_file_completed).exists():
                 time.sleep(0.5)
         return True
 
@@ -2222,7 +2222,7 @@ class Analysis(Design, object):
             for v, vv in zip(variations, variations_value):
                 appendix += "_" + v + vv.replace("'", "")
             ext = ".S" + n + "p"
-            filename = (pathlib.PurePath(self.working_directory)
+            filename = (PurePath(self.working_directory)
                         .joinpath(setup_name + "_" + sweep_name + appendix + ext))
         else:
             filename = file_name.replace("//", "/").replace("\\", "/")
@@ -2397,7 +2397,7 @@ class Analysis(Design, object):
         if output_file is None:
             self.logger.error("File path to export R/L matrix must be provided.")
             return False
-        elif pathlib.PurePath(output_file).suffix != ".txt":
+        elif PurePath(output_file).suffix != ".txt":
             self.logger.error("File extension must be .txt")
             return False
 

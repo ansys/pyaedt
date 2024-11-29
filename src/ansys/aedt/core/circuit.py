@@ -29,7 +29,7 @@ from __future__ import absolute_import  # noreorder
 import io
 import math
 import os
-import pathlib
+from pathlib import Path PurePath
 import re
 import shutil
 import time
@@ -900,7 +900,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         if not design:
             design = self.design_name
         if not filename:
-            filename = pathlib.PurePath(self.working_directory).joinpath(self.design_name + ".sp")
+            filename = PurePath(self.working_directory).joinpath(self.design_name + ".sp")
         if is_solution_file:
             setup = design
             design = ""
@@ -954,11 +954,11 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                 "SYZDataInAutoMode:=",
                 False,
                 "ExportDirectory:=",
-                pathlib.PurePath(filename).parent,
+                PurePath(filename).parent,
                 "ExportSpiceFileName:=",
-                pathlib.PurePath(filename).name,
+                PurePath(filename).name,
                 "FullwaveSpiceFileName:=",
-                pathlib.PurePath(filename).name,
+                PurePath(filename).name,
                 "UseMultipleCores:=",
                 True,
                 "NumberOfCores:=",
@@ -1276,7 +1276,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         >>> oDesign.UpdateSources
         """
-        if not pathlib.Path(input_file).exists() or pathlib.PurePath(input_file).suffix != ".fds":
+        if not Path(input_file).exists() or PurePath(input_file).suffix != ".fds":
             self.logger.error("Introduced file is not correct. Check path and format.")
             return False
 
@@ -1365,7 +1365,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         arg.append("Pair:=")
         arg.append(arg1)
 
-        tmpfile1 = pathlib.PurePath(self.working_directory).joinpath(generate_unique_name("tmp"))
+        tmpfile1 = PurePath(self.working_directory).joinpath(generate_unique_name("tmp"))
         self.odesign.SaveDiffPairsToFile(tmpfile1)
         with open_file(tmpfile1, "r") as fh:
             lines = fh.read().splitlines()
@@ -1429,11 +1429,11 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         ----------
         >>> oDesign.LoadDiffPairsFromFile
         """
-        if not pathlib.Path(input_file).is_file():  # pragma: no cover
+        if not Path(input_file).is_file():  # pragma: no cover
             raise ValueError(f"{input_file}: The specified file could not be found.")
 
         try:
-            new_file = (pathlib.PurePath(pathlib.PurePath(input_file).parent)
+            new_file = (PurePath(PurePath(input_file).parent)
                         .joinpath(generate_unique_name("temp") + ".txt")
                         )
             with open_file(input_file, "r") as file:
@@ -1470,7 +1470,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         """
         self.odesign.SaveDiffPairsToFile(output_file)
 
-        return pathlib.Path(output_file).is_file()
+        return Path(output_file).is_file()
 
     @pyaedt_function_handler(netlist_file="input_file", datablock_name="name")
     def add_netlist_datablock(self, input_file, name=None):
@@ -1488,7 +1488,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if not pathlib.Path(input_file).exists():
+        if not Path(input_file).exists():
             self.logger.error("Netlist File doesn't exists")
             return False
         if not name:
@@ -1514,23 +1514,23 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         str
             File Path.
         """
-        if input_file and not pathlib.Path(os.path.normpath(input_file)).exists():
+        if input_file and not Path(os.path.normpath(input_file)).exists():
             self.logger.error("Path does not exist.")
             return None
         elif not input_file:
-            input_file = pathlib.PurePath(os.path.normpath(self.working_directory)).joinpath("logfile")
-            if not pathlib.Path(input_file).exists():
+            input_file = PurePath(os.path.normpath(self.working_directory)).joinpath("logfile")
+            if not Path(input_file).exists():
                 os.mkdir(input_file)
 
-        results_path = pathlib.PurePath(os.path.normpath(self.results_directory)).joinpath(self.design_name)
-        results_temp_path = pathlib.PurePath(results_path).joinpath("temp")
+        results_path = PurePath(os.path.normpath(self.results_directory)).joinpath(self.design_name)
+        results_temp_path = PurePath(results_path).joinpath("temp")
 
         # Check if .log exist in temp folder
-        if pathlib.Path(results_temp_path).exists() and search_files(results_temp_path, "*.log"):
+        if Path(results_temp_path).exists() and search_files(results_temp_path, "*.log"):
             # Check the most recent
             files = search_files(results_temp_path, "*.log")
             latest_file = max(files, key=os.path.getctime)
-        elif pathlib.Path(results_path).exists() and search_files(results_path, "*.log"):
+        elif Path(results_path).exists() and search_files(results_path, "*.log"):
             # Check the most recent
             files = search_files(results_path, "*.log")
             latest_file = max(files, key=os.path.getctime)
@@ -1539,8 +1539,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             return None
 
         shutil.copy(latest_file, input_file)
-        filename = pathlib.PurePath(latest_file).name
-        return pathlib.PurePath(input_file).joinpath(filename)
+        filename = PurePath(latest_file).name
+        return PurePath(input_file).joinpath(filename)
 
     @pyaedt_function_handler()
     def connect_circuit_models_from_multi_zone_cutout(
@@ -2487,7 +2487,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         if not config_file:
             configuration = read_configuration_file(
-                str(pathlib.PurePath(pathlib.PurePath(__file__).parent).joinpath("misc", "asc_circuit_mapping.json"))
+                str(PurePath(PurePath(__file__).parent).joinpath("misc", "asc_circuit_mapping.json"))
             )
         else:
             configuration = read_configuration_file(config_file)

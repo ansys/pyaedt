@@ -29,7 +29,7 @@ from __future__ import absolute_import  # noreorder
 import ast
 import math
 import os
-import pathlib
+from pathlib import Path PurePath
 import tempfile
 import warnings
 
@@ -1732,7 +1732,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         if assignment.project_name == self.project_name:
             project_name = "This Project*"
         else:
-            project_name = pathlib.PurePath(assignment.project_path).joinpath(assignment.project_name + ".aedt")
+            project_name = PurePath(assignment.project_path).joinpath(assignment.project_name + ".aedt")
         design_name = assignment.design_name
         if not setup:
             setup = assignment.nominal_adaptive
@@ -1862,7 +1862,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> hfss.release_desktop()
         """
         if output_file is None:
-            output_file = pathlib.PurePath(self.working_directory).joinpath("custom_array.sarr")
+            output_file = PurePath(self.working_directory).joinpath("custom_array.sarr")
 
         if frequencies is None:
             frequencies = [1.0]
@@ -4265,7 +4265,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         if not output_dir:
             output_dir = self.working_directory
         pname = self.project_name
-        validation_log_file = pathlib.PurePath(output_dir).joinpath(pname + "_" + design + "_validation.log")
+        validation_log_file = PurePath(output_dir).joinpath(pname + "_" + design + "_validation.log")
 
         # Desktop Messages
         msg = "Desktop messages:"
@@ -4277,7 +4277,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         # Run design validation and write out the lines to the log.
         temp_dir = tempfile.gettempdir()
-        temp_val_file = pathlib.PurePath(temp_dir).joinpath("val_temp.log")
+        temp_val_file = PurePath(temp_dir).joinpath("val_temp.log")
         simple_val_return = self.validate_simple(temp_val_file)
         if simple_val_return == 1:
             msg = "Design validation check PASSED."
@@ -4287,7 +4287,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         val_list.append(msg)
         msg = "Design validation messages:"
         val_list.append(msg)
-        if pathlib.Path(temp_val_file).is_file() or settings.remote_rpc_session:
+        if Path(temp_val_file).is_file() or settings.remote_rpc_session:
             with open_file(temp_val_file, "r") as df:
                 temp = df.read().splitlines()
                 val_list.extend(temp)
@@ -6112,7 +6112,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
 
-        if pathlib.Path(file_name).exists():
+        if Path(file_name).exists():
             return Parser(file_name).parse_message()
         return False
 
@@ -6851,7 +6851,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         command = [
             "ExportFileName:=",
-            pathlib.PurePath(output_dir).joinpath(element_name + ".ffd"),
+            PurePath(output_dir).joinpath(element_name + ".ffd"),
             "SetupName:=",
             sphere,
         ]

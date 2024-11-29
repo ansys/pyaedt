@@ -25,7 +25,7 @@
 import csv
 import logging
 import os
-import pathlib
+from pathlib import Path PurePath
 import re
 import warnings
 
@@ -172,8 +172,8 @@ def convert_nearfield_data(dat_folder, frequency=6, invert_phase_for_lower_faces
         output_folder = os.path.dirname(dat_folder)
     directory_name = os.path.basename(dat_folder)
     nfd_name = directory_name + ".nfd"
-    nfd_full_file = pathlib.PurePath(output_folder).joinpath(nfd_name)
-    and_full_file = pathlib.PurePath(output_folder).joinpath(directory_name + ".and")
+    nfd_full_file = PurePath(output_folder).joinpath(nfd_name)
+    and_full_file = PurePath(output_folder).joinpath(directory_name + ".and")
 
     commented_header_line = "#Index, X, Y, Z, Ex(real, imag), Ey(real, imag), Ez(real, imag), "
     commented_header_line += "Hx(real, imag), Hy(real, imag), Hz(real, imag)\n"
@@ -471,7 +471,7 @@ def _parse_nastran(file_path):
                 includes.append(line.split(" ")[1].replace("'", "").strip())
         pid = parse_lines(lines)
     for include in includes:
-        with open_file(str(pathlib.PurePath(os.path.dirname(file_path)).joinpath(include)), "r") as f:
+        with open_file(str(PurePath(os.path.dirname(file_path)).joinpath(include)), "r") as f:
             lines = f.read().splitlines()
             name = include.split(".")[0]
             pid = parse_lines(lines, pid, name)
@@ -598,7 +598,7 @@ def _write_stl(nas_to_dict, decimation, working_directory, enable_planar_merge=T
 
     output_stls = []
     for assembly_name, assembly in nas_to_dict["Assemblies"].items():
-        output_stl = pathlib.PurePath(working_directory).joinpath(assembly_name + ".stl")
+        output_stl = PurePath(working_directory).joinpath(assembly_name + ".stl")
         f = open(output_stl, "w")
         for tri_id, triangles in assembly["Triangles"].items():
             tri_out = triangles

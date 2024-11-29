@@ -23,7 +23,7 @@
 # SOFTWARE.
 import copy
 import os.path
-import pathlib
+from pathlib import Path PurePath
 from pathlib import Path
 import time
 
@@ -443,7 +443,7 @@ class VirtualCompliance:
         self._desktop_class.load_project(self._project_file)
         project = self._desktop_class.active_project()
         self._project_name = project.GetName()
-        self._output_folder = (pathlib.PurePath(project.GetPath())
+        self._output_folder = (PurePath(project.GetPath())
                                .joinpath(self._project_name + ".pyaedt"
                                          , generate_unique_name(self._template_name))
                                )
@@ -504,8 +504,8 @@ class VirtualCompliance:
     @specs_folder.setter
     def specs_folder(self, val):
         self._specs_folder = val
-        if self._specs_folder and os.path.exists(pathlib.PurePath(self._template_folder).joinpath(self._specs_folder)):
-            self._specs_folder = pathlib.PurePath(self._template_folder).joinpath(self._specs_folder)
+        if self._specs_folder and os.path.exists(PurePath(self._template_folder).joinpath(self._specs_folder)):
+            self._specs_folder = PurePath(self._template_folder).joinpath(self._specs_folder)
 
     @property
     def template_name(self):
@@ -652,7 +652,7 @@ class VirtualCompliance:
         for template_report in self._reports.values():
             config_file = template_report.config_file
             if (not os.path.exists(config_file) and not
-            os.path.exists(pathlib.PurePath(self._template_folder).joinpath(config_file))):
+            os.path.exists(PurePath(self._template_folder).joinpath(config_file))):
                 self._desktop_class.logger.error(f"{config_file} is not found.")
                 continue
             name = template_report.name
@@ -672,8 +672,8 @@ class VirtualCompliance:
                 except Exception:  # pragma: no cover
                     self._desktop_class.logger.error(f"Failed to retrieve design {design_name}")
                     continue
-            if os.path.exists(pathlib.PurePath(self._template_folder).joinpath(config_file)):
-                config_file = pathlib.PurePath(self._template_folder).joinpath(config_file)
+            if os.path.exists(PurePath(self._template_folder).joinpath(config_file)):
+                config_file = PurePath(self._template_folder).joinpath(config_file)
             if not os.path.exists(config_file):
                 continue
             local_config = read_configuration_file(config_file)
@@ -716,13 +716,13 @@ class VirtualCompliance:
                         try:
                             if self.use_portrait:
                                 pdf_report.add_image(
-                                    pathlib.PurePath(self._output_folder).joinpath(aedt_report.plot_name + ".jpg"),
+                                    PurePath(self._output_folder).joinpath(aedt_report.plot_name + ".jpg"),
                                     f"Plot {report_type} for {name}",
                                     width=pdf_report.epw - 50,
                                 )
                             else:
                                 pdf_report.add_image(
-                                    pathlib.PurePath(self._output_folder).joinpath(aedt_report.plot_name + ".jpg"),
+                                    PurePath(self._output_folder).joinpath(aedt_report.plot_name + ".jpg"),
                                     f"Plot {report_type} for {name}",
                                     height=pdf_report.eph - 100,
                                 )
@@ -738,7 +738,7 @@ class VirtualCompliance:
                 ):  # pragma: no cover
                     _design.logger.info("Checking lines violations")
                     table = self._add_lna_violations(aedt_report, pdf_report, image_name, local_config)
-                    write_csv(str(pathlib.PurePath(self._output_folder).joinpath(f"{name}_pass_fail.csv")), table)
+                    write_csv(str(PurePath(self._output_folder).joinpath(f"{name}_pass_fail.csv")), table)
                 if self.local_config.get("delete_after_export", True):
                     aedt_report.delete()
                 _design.logger.info(f"Successfully parsed report {name}")
@@ -779,13 +779,13 @@ class VirtualCompliance:
                             try:
                                 if self.use_portrait:
                                     pdf_report.add_image(
-                                        pathlib.PurePath(self._output_folder).joinpath(aedt_report.plot_name + ".jpg"),
+                                        PurePath(self._output_folder).joinpath(aedt_report.plot_name + ".jpg"),
                                         f"Plot {report_type} for trace {trace}",
                                         width=pdf_report.epw - 40,
                                     )
                                 else:
                                     pdf_report.add_image(
-                                        pathlib.PurePath(self._output_folder).joinpath(aedt_report.plot_name + ".jpg"),
+                                        PurePath(self._output_folder).joinpath(aedt_report.plot_name + ".jpg"),
                                         f"Plot {report_type} for trace {trace}",
                                         height=pdf_report.eph - 100,
                                     )
@@ -813,7 +813,7 @@ class VirtualCompliance:
                                     aedt_report, pdf_report, image_name, local_config
                                 )
                             if table:  # pragma: no cover
-                                write_csv(str(pathlib.PurePath(self._output_folder)
+                                write_csv(str(PurePath(self._output_folder)
                                               .joinpath(f"{name}{trace}_pass_fail.csv")), table)
                             else:
                                 _design.logger.warning(f"Failed to compute violation for chart {name}{trace}")
@@ -821,7 +821,7 @@ class VirtualCompliance:
                             _design.logger.info("Adding eye measurements.")
                             table = self._add_eye_measurement(aedt_report, pdf_report, image_name)
                             write_csv(
-                                pathlib.PurePath(
+                                PurePath(
                                     self._output_folder).joinpath(f"{name}{trace}_eye_meas.csv".replace("<", "").replace(">", "")
                                 ),
                                 table,
@@ -842,7 +842,7 @@ class VirtualCompliance:
         for template_report in self._parameters.values():
             config_file = template_report.config_file
             if not os.path.exists(config_file):
-                config_file = pathlib.PurePath(self._template_folder).joinpath(config_file)
+                config_file = PurePath(self._template_folder).joinpath(config_file)
             if not os.path.exists(config_file):
                 self._desktop_class.logger.error(f"{config_file} not found.")
                 continue
@@ -1006,7 +1006,7 @@ class VirtualCompliance:
     @pyaedt_function_handler()
     def _add_eye_diagram_violations(self, report, pdf_report, image_name):
         try:
-            out_eye = pathlib.PurePath(self._output_folder).joinpath("violations.tab")
+            out_eye = PurePath(self._output_folder).joinpath("violations.tab")
             viol = report.export_mask_violation(out_eye)
         except Exception:  # pragma: no cover
             viol = None
@@ -1071,7 +1071,7 @@ class VirtualCompliance:
     @pyaedt_function_handler()
     def _add_eye_measurement(self, report, pdf_report, image_name):
         report.add_all_eye_measurements()
-        out_eye = pathlib.PurePath(self._output_folder).joinpath(f"eye_measurements_{image_name}.csv")
+        out_eye = PurePath(self._output_folder).joinpath(f"eye_measurements_{image_name}.csv")
         report._post.oreportsetup.ExportTableToFile(report.plot_name, out_eye, "Legend")
         report.clear_all_eye_measurements()
         table = read_csv(out_eye)

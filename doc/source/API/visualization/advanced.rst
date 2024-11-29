@@ -40,9 +40,9 @@ Here an example on how to use TouchstoneData class.
 
     from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
 
-    ts1 = TouchstoneData(touchstone_file=pathlib.PurePath(test_T44_dir).joinpath("port_order_1234.s8p")
+    ts1 = TouchstoneData(touchstone_file=PurePath(test_T44_dir).joinpath("port_order_1234.s8p")
     assert ts1.get_mixed_mode_touchstone_data()
-    ts2 = TouchstoneData(touchstone_file=pathlib.PurePath(test_T44_dir).joinpath("port_order_1324.s8p")
+    ts2 = TouchstoneData(touchstone_file=PurePath(test_T44_dir).joinpath("port_order_1324.s8p")
     assert ts2.get_mixed_mode_touchstone_data(port_ordering="1324")
 
     assert ts1.plot_insertion_losses(plot=False)

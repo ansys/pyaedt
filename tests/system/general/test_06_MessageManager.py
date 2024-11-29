@@ -24,7 +24,7 @@
 
 import logging
 import os.path
-import pathlib
+from pathlib import Path PurePath
 
 from ansys.aedt.core import Icepak
 from ansys.aedt.core.aedt_logger import AedtLogger
@@ -72,9 +72,9 @@ class TestClass:
         assert len(msg.aedt_messages.project_level) >= 1
         ipk_app = add_app(application=Icepak)
         box = ipk_app.modeler.create_box([0, 0, 0], [1, 1, 1])
-        ipk_app.modeler.create_3dcomponent(pathlib.PurePath(self.local_scratch.path).joinpath("test_m.a3dcomp"))
+        ipk_app.modeler.create_3dcomponent(PurePath(self.local_scratch.path).joinpath("test_m.a3dcomp"))
         box.delete()
-        cmp = ipk_app.modeler.insert_3d_component(pathlib.PurePath(self.local_scratch.path)
+        cmp = ipk_app.modeler.insert_3d_component(PurePath(self.local_scratch.path)
                                                   .joinpath("test_m.a3dcomp"))
         ipk_app_comp = cmp.edit_definition()
         msg_comp = ipk_app_comp.logger

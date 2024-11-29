@@ -27,7 +27,7 @@
 from __future__ import absolute_import  # noreorder
 
 import os
-import pathlib
+from pathlib import Path PurePath
 import shutil
 
 from ansys.aedt.core.application.analysis_circuit_netlist import AnalysisCircuitNetlist
@@ -169,23 +169,23 @@ class CircuitNetlist(AnalysisCircuitNetlist, object):
         str
             File Path.
         """
-        if input_file and not pathlib.Path(os.path.normpath(input_file)).exists():
+        if input_file and not Path(os.path.normpath(input_file)).exists():
             self.logger.error("Path does not exist.")
             return None
         elif not input_file:
-            input_file = pathlib.PurePath(os.path.normpath(self.working_directory)).joinpath("logfile")
-            if not pathlib.Path(input_file).exists():
+            input_file = PurePath(os.path.normpath(self.working_directory)).joinpath("logfile")
+            if not Path(input_file).exists():
                 os.mkdir(input_file)
 
-        results_path = pathlib.PurePath(os.path.normpath(self.results_directory)).joinpath(self.design_name)
-        results_temp_path = pathlib.PurePath(results_path).joinpath("temp")
+        results_path = PurePath(os.path.normpath(self.results_directory)).joinpath(self.design_name)
+        results_temp_path = PurePath(results_path).joinpath("temp")
 
         # Check if .log exist in temp folder
-        if pathlib.Path(results_temp_path).exists() and search_files(results_temp_path, "*.log"):
+        if Path(results_temp_path).exists() and search_files(results_temp_path, "*.log"):
             # Check the most recent
             files = search_files(results_temp_path, "*.log")
             latest_file = max(files, key=os.path.getctime)
-        elif pathlib.Path(results_path).exists() and search_files(results_path, "*.log"):
+        elif Path(results_path).exists() and search_files(results_path, "*.log"):
             # Check the most recent
             files = search_files(results_path, "*.log")
             latest_file = max(files, key=os.path.getctime)
@@ -194,5 +194,5 @@ class CircuitNetlist(AnalysisCircuitNetlist, object):
             return None
 
         shutil.copy(latest_file, input_file)
-        filename = pathlib.PurePath(latest_file).name
-        return pathlib.PurePath(input_file).joinpath(filename)
+        filename = PurePath(latest_file).name
+        return PurePath(input_file).joinpath(filename)

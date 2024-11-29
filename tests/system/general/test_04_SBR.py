@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 import os
-import pathlib
+from pathlib import Path PurePath
 
 import pytest
 
@@ -53,7 +53,7 @@ else:
 
 test_subfolder = "T04"
 
-custom_array = (pathlib.PurePath(TESTS_GENERAL_PATH)
+custom_array = (PurePath(TESTS_GENERAL_PATH)
                 .joinpath( "example_models", test_subfolder, "custom_array.sarr"))
 
 
@@ -81,7 +81,7 @@ class TestClass:
         self.local_scratch = local_scratch
         if not is_linux:
             # this should be changed upstream to use a HOME or TEMP folder by default...
-            osmnx.settings.cache_folder = pathlib.PurePath(local_scratch.path).joinpath("cache")
+            osmnx.settings.cache_folder = PurePath(local_scratch.path).joinpath("cache")
 
     def test_01_open_source(self, source):
         assert self.aedtapp.create_sbr_linked_antenna(source, target_cs="feederPosition", field_type="farfield")
@@ -183,17 +183,17 @@ class TestClass:
     def test_03_add_ffd_antenna(self):
         self.aedtapp.insert_design("ffd_antenna")
         assert self.aedtapp.create_sbr_file_based_antenna(
-            far_field_data=pathlib.PurePath(TESTS_GENERAL_PATH)
+            far_field_data=PurePath(TESTS_GENERAL_PATH)
             .joinpath("example_models", test_subfolder, "test.ffd")
         )
 
         assert self.aedtapp.create_sbr_file_based_antenna(
-            far_field_data=pathlib.PurePath(TESTS_GENERAL_PATH)
+            far_field_data=PurePath(TESTS_GENERAL_PATH)
             .joinpath("example_models", test_subfolder, "test.ffd"), is_array=True
         )
 
         assert self.aedtapp.create_sbr_file_based_antenna(
-            far_field_data=pathlib.PurePath(TESTS_GENERAL_PATH)
+            far_field_data=PurePath(TESTS_GENERAL_PATH)
             .joinpath("example_models", test_subfolder, "test.ffd"),
             custom_array=custom_array,
         )
@@ -201,13 +201,13 @@ class TestClass:
     def test_04_add_environment(self):
         self.aedtapp.insert_design("Environment_test")
         self.aedtapp.solution_type = "SBR+"
-        env_folder = (pathlib.PurePath(TESTS_GENERAL_PATH)
+        env_folder = (PurePath(TESTS_GENERAL_PATH)
                       .joinpath("example_models", "library", "environment_library", tunnel))
         road1 = self.aedtapp.modeler.add_environment(env_folder)
         assert road1.name
 
     def test_05_add_person(self):
-        person_folder = (pathlib.PurePath(TESTS_GENERAL_PATH)
+        person_folder = (PurePath(TESTS_GENERAL_PATH)
                          .joinpath("example_models", "library", "actor_library", person))
         person1 = self.aedtapp.modeler.add_person(person_folder, 1.0, [25, 1.5, 0], 180)
         assert person1.offset == [25, 1.5, 0]
@@ -216,7 +216,7 @@ class TestClass:
         assert person1.roll == "0deg"
 
     def test_06_add_car(self):
-        car_folder = (pathlib.PurePath(TESTS_GENERAL_PATH)
+        car_folder = (PurePath(TESTS_GENERAL_PATH)
                       .joinpath("example_models", "library", "actor_library", vehicle))
         car1 = self.aedtapp.modeler.add_vehicle(car_folder, 1.0, [3, -2.5, 0])
         assert car1.offset == [3, -2.5, 0]

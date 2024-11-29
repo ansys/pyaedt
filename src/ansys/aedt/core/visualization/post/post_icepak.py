@@ -32,7 +32,7 @@ from __future__ import absolute_import  # noreorder
 
 import csv
 import os
-import pathlib
+from pathlib import Path PurePath
 import re
 
 from ansys.aedt.core import generate_unique_name
@@ -119,10 +119,10 @@ class PostProcessorIcepak(PostProcessor3D):
         if export_file is None:
             path = self._app.temp_directory
             base_name = f"{self._app.project_name}_{self._app.design_name}_FanOpPoint"
-            export_file = pathlib.PurePath(path).joinpath(base_name + ".csv")
+            export_file = PurePath(path).joinpath(base_name + ".csv")
             while os.path.exists(export_file):
                 file_name = generate_unique_name(base_name)
-                export_file = pathlib.PurePath(path).joinpath(file_name + ".csv")
+                export_file = PurePath(path).joinpath(file_name + ".csv")
         if setup_name is None:
             setup_name = f"{self._app.get_setups()[0]} : {self._app.solution_type}"
         if time_step is None:

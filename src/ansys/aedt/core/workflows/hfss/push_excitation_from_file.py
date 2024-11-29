@@ -22,7 +22,7 @@
 # SOFTWARE.
 
 import os.path
-import pathlib
+from pathlib import Path PurePath
 
 import ansys.aedt.core
 from ansys.aedt.core import Hfss
@@ -85,7 +85,7 @@ def frontend():  # pragma: no cover
     master.title("Assign push excitation to port from transient data")
 
     # Load the logo for the main window
-    icon_path = pathlib.PurePath(ansys.aedt.core.workflows.__path__[0]).joinpath("images", "large", "logo.png")
+    icon_path = PurePath(ansys.aedt.core.workflows.__path__[0]).joinpath("images", "large", "logo.png")
     im = PIL.Image.open(icon_path)
     photo = PIL.ImageTk.PhotoImage(im)
 

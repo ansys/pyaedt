@@ -22,7 +22,7 @@
 # SOFTWARE.
 
 import os
-import pathlib
+from pathlib import Path PurePath
 
 import ansys.aedt.core
 from ansys.aedt.core import Hfss3dLayout
@@ -76,7 +76,7 @@ def frontend():  # pragma: no cover
     active_project = app.active_project()
     active_project_path = active_project.GetPath()
     active_project_name = active_project.GetName()
-    aedb_path = pathlib.PurePath(active_project_path).joinpath(active_project_name + ".aedb")
+    aedb_path = PurePath(active_project_path).joinpath(active_project_name + ".aedb")
     active_design_name = app.active_design().GetName().split(";")[1]
 
     app.release_desktop(False, False)
@@ -95,7 +95,7 @@ def frontend():  # pragma: no cover
     master.title("Parametrize Layout")
 
     # Load the logo for the main window
-    icon_path = pathlib.PurePath(os.path.dirname(ansys.aedt.core.workflows.__file__)).joinpath("images", "large", "logo.png")
+    icon_path = PurePath(os.path.dirname(ansys.aedt.core.workflows.__file__)).joinpath("images", "large", "logo.png")
     im = PIL.Image.open(icon_path)
     photo = PIL.ImageTk.PhotoImage(im)
 
@@ -222,7 +222,7 @@ def frontend():  # pragma: no cover
         relative_ui = getattr(master, "relative_ui", extension_arguments["relative_parametric"])
 
         output_dict = {
-            "aedb_path": pathlib.PurePath(active_project_path).joinpath(active_project_name + ".aedb"),
+            "aedb_path": PurePath(active_project_path).joinpath(active_project_name + ".aedb"),
             "design_name": active_design_name,
             "parametrize_layers": layers_ui,
             "parametrize_materials": materials_ui,
@@ -262,7 +262,7 @@ def main(extension_arguments):
         )
         active_project = app.active_project()
         active_design = app.active_design()
-        aedb_path_ui = pathlib.PurePath(active_project.GetPath()).joinpath(active_project.GetName() + ".aedb")
+        aedb_path_ui = PurePath(active_project.GetPath()).joinpath(active_project.GetName() + ".aedb")
         design_name_ui = active_design.GetName().split(";")[1]
     edb = Edb(aedb_path_ui, design_name_ui, edbversion=version)
 
@@ -274,7 +274,7 @@ def main(extension_arguments):
         voids_ui = float(voids_ui) * 0.001
     except:
         voids_ui = None
-    new_project_aedb = pathlib.PurePath(os.path.dirname(aedb_path_ui)).joinpath(project_name_ui + ".aedb")
+    new_project_aedb = PurePath(os.path.dirname(aedb_path_ui)).joinpath(project_name_ui + ".aedb")
     edb.auto_parametrize_design(
         layers=layers_ui,
         materials=materials_ui,
