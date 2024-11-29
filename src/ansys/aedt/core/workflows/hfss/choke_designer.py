@@ -367,8 +367,7 @@ def main(extension_args):
     # Create choke geometry
     list_object = hfss.modeler.create_choke(str(json_path))
 
-    # Get core and winding objects
-    _ = list_object[1]
+    # Get winding objects
     first_winding_list = list_object[2]
 
     # Get second winding list if it exists
