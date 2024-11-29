@@ -44,8 +44,14 @@ print("Loading the PyAEDT Console.")
 try:
     if version <= "2023.1":
         import pyaedt
+        from pyaedt import Desktop
+        from pyaedt.generic.general_methods import active_sessions
+        from pyaedt.generic.general_methods import is_windows
     else:
-        import ansys.aedt.core as pyaedt
+        import ansys.aedt.core
+        from ansys.aedt.core import Desktop
+        from ansys.aedt.core.generic.general_methods import active_sessions
+        from ansys.aedt.core.generic.general_methods import is_windows
 except ImportError:
     # Debug only purpose. If the tool is added to the ribbon from a GitHub clone, then a link
     # to PyAEDT is created in the personal library.
@@ -54,14 +60,14 @@ except ImportError:
         sys.path.append(os.path.join(console_setup_dir, "../..", "..", ".."))
     if version <= "2023.1":
         import pyaedt
+        from pyaedt import Desktop
+        from pyaedt.generic.general_methods import active_sessions
+        from pyaedt.generic.general_methods import is_windows
     else:
-        import ansys.aedt.core as pyaedt
-
-# ansys.aedt.core.settings.use_grpc_api = False
-settings = pyaedt.settings
-from pyaedt import Desktop
-from pyaedt.generic.general_methods import active_sessions
-from pyaedt.generic.general_methods import is_windows
+        import ansys.aedt.core
+        from ansys.aedt.core import Desktop
+        from ansys.aedt.core.generic.general_methods import active_sessions
+        from ansys.aedt.core.generic.general_methods import is_windows
 
 
 def release(d):
@@ -79,7 +85,6 @@ sessions = active_sessions(version=version, student_version=False)
 if aedt_process_id in sessions:
     session_found = True
     if sessions[aedt_process_id] != -1:
-        # ansys.aedt.core.settings.use_grpc_api = True
         port = sessions[aedt_process_id]
 if not session_found:
     sessions = active_sessions(version=version, student_version=True)
@@ -87,7 +92,6 @@ if not session_found:
         session_found = True
         student_version = True
         if sessions[aedt_process_id] != -1:
-            # ansys.aedt.core.settings.use_grpc_api = True
             port = sessions[aedt_process_id]
 
 error = False
@@ -110,7 +114,7 @@ elif is_windows:
         student_version=student_version,
     )
 else:
-    print("Error. AEDT should be started in gRPC mode in Linux to connect to Pyaedt")
+    print("Error. AEDT should be started in gRPC mode in Linux to connect to PyAEDT")
     print("use ansysedt -grpcsrv portnumber command.")
     error = True
 if not error:

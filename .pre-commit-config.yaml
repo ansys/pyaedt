@@ -17,6 +17,7 @@ exclude: |
     (?x)(
         ^src/ansys/aedt/core/rpc/|
         ^src/ansys/aedt/core/sbrplus/matlab/|
+        ^src/ansys/aedt/core/workflows/installer|
         tests/system/general/example_models/|
         tests/system/solvers/example_models/
     )

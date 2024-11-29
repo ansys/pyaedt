@@ -1,3 +1,5 @@
+.. _choke-file:
+
 Choke file
 ==========
 
