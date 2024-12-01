@@ -168,6 +168,16 @@ HFSSSBR = dict(
 )
 """HFSS SBR+ setup properties and default values."""
 
+mw_subrange = dict(
+    {
+        "RangeType": "LinearStep",
+        "RangeStart": "500Hz",
+        "RangeEnd": "1kHz",
+        "RangeStep": "500Hz",
+    }
+)
+mw_subranges = dict({"Subrange": mw_subrange})
+
 MaxwellTransient = dict(
     {
         "Enabled": True,
@@ -191,6 +201,7 @@ MaxwellTransient = dict(
         "NumberSolveSteps": 1,
         "RangeStart": "0s",
         "RangeEnd": "0.1s",
+        "SweepRanges": mw_subranges,
     }
 )
 """Maxwell transient setup properties and default values."""
