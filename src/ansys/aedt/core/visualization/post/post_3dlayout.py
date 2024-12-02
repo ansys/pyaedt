@@ -21,9 +21,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-import re
-
 from pathlib import Path
+import re
 
 from ansys.aedt.core import settings
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -90,8 +89,7 @@ class PostProcessor3DLayout(PostProcessor3D):
                     break
             with open(file_net, "r") as f:
                 file_net_text = f.read()
-                match = re.search(r'B_NET_CLASSIFICATION\s+(.*?)\s+E_NET_CLASSIFICATION', file_net_text,
-                                  re.DOTALL)
+                match = re.search(r"B_NET_CLASSIFICATION\s+(.*?)\s+E_NET_CLASSIFICATION", file_net_text, re.DOTALL)
                 nets = []
                 for i in match.group(1).split("\n"):
                     net_name = i.lstrip(" ").split(" ")[1]
@@ -145,9 +143,7 @@ class PostProcessor3DLayout(PostProcessor3D):
                     self._app.post.fields_calculator.delete_expression(my_expression["name"])
                 self._app.post.fields_calculator.add_expression(my_expression, "")
 
-                loss = self._app.post.fields_calculator.evaluate(
-                    my_expression["name"], solution, intrinsics={}
-                )
+                loss = self._app.post.fields_calculator.evaluate(my_expression["name"], solution, intrinsics={})
 
                 power_loss_per_layer.append({"layer": layer_name, "net": net_name, "loss": float(loss)})
 
