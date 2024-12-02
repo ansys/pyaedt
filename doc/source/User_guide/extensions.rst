@@ -45,7 +45,7 @@ They are small automated workflow with a simple UI.
             :link-type: doc
             :margin: 2 2 0 0
 
-            Lear how to use the Advanced Fields Calculator.
+            Lear how to use the Advanced Fields Calculator extension.
 
 
    .. grid-item-card:: Kernel converter
@@ -59,12 +59,17 @@ They are small automated workflow with a simple UI.
 HFSS 3D Layout extensions
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Pre-installed extensions are available at HFSS 3D Layout level.
+They are small automated workflow with a simple UI.
+
+.. grid:: 2
+
    .. grid-item-card:: Parametrize Layout
             :link: pyaedt_extensions_doc/hfss3dlayout/parametrize_edb
             :link-type: doc
             :margin: 2 2 0 0
 
-            Learn how to parametrize a full aedb.
+            Parametrize a full layout design.
 
 
    .. grid-item-card:: Generate arbitrary wave ports
@@ -72,7 +77,39 @@ HFSS 3D Layout extensions
             :link-type: doc
             :margin: 2 2 0 0
 
-            Generate arbitrary wave ports in HFSS
+            Generate arbitrary wave ports in HFSS.
+
+
+HFSS extensions
+~~~~~~~~~~~~~~~
+
+Pre-installed extensions are available at HFSS level.
+They are small automated workflow with a simple UI.
+
+.. grid:: 2
+
+   .. grid-item-card:: Choke designer
+            :link: pyaedt_extensions_doc/hfss/choke_designer
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Design a choke and import it in HFSS.
+
+
+Icepak extensions
+~~~~~~~~~~~~~~~~~
+
+Pre-installed extensions are available at Icepak level.
+They are small automated workflow with a simple UI.
+
+.. grid:: 2
+
+   .. grid-item-card:: Create power map
+            :link: pyaedt_extensions_doc/icepak/create_power_map
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Import a CSV file containing sources layout and power dissipation information.
 
 
 .. toctree::
@@ -81,13 +118,15 @@ HFSS 3D Layout extensions
 
    pyaedt_extensions_doc/project/index
    pyaedt_extensions_doc/hfss3dlayout/index
+   pyaedt_extensions_doc/hfss/index
+   pyaedt_extensions_doc/icepak/index
 
 
 Open source toolkits
 --------------------
 
 Open source toolkits are available at application level.
-They are complex workflows where backend and frontend are split.
+They are advanced workflows where backend and frontend are split.
 They are also fully documented and tested.
 
 Here are some links to existing toolkits:

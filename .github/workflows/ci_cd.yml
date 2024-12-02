@@ -219,7 +219,7 @@ jobs:
 
       - name: Create virtual environment
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           python -m venv .venv
           source .venv/bin/activate
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
@@ -228,13 +228,13 @@ jobs:
 
       - name: Install pyaedt and tests dependencies
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           source .venv/bin/activate
           pip install .[tests]
 
       - name: Run tests marked with 'solvers'
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           source .venv/bin/activate
           pytest ${{ env.PYTEST_ARGUMENTS }} -m solvers
 
@@ -339,7 +339,7 @@ jobs:
 
       - name: Create virtual environment
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           python -m venv .venv
           source .venv/bin/activate
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
@@ -348,7 +348,7 @@ jobs:
 
       - name: Install pyaedt and tests dependencies
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           source .venv/bin/activate
           pip install .[tests]
 
@@ -366,7 +366,7 @@ jobs:
           retry_on: error
           timeout_minutes: 50
           command: |
-            export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
+            export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
             source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile -m general
 

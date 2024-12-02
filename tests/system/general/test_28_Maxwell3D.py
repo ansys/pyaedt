@@ -234,26 +234,26 @@ class TestClass:
 
     def test_07a_setup(self):
         adaptive_frequency = "200Hz"
-        Setup = self.aedtapp.create_setup()
-        Setup.props["MaximumPasses"] = 12
-        Setup.props["MinimumPasses"] = 2
-        Setup.props["MinimumConvergedPasses"] = 1
-        Setup.props["PercentRefinement"] = 30
-        Setup.props["Frequency"] = adaptive_frequency
+        setup = self.aedtapp.create_setup()
+        setup.props["MaximumPasses"] = 12
+        setup.props["MinimumPasses"] = 2
+        setup.props["MinimumConvergedPasses"] = 1
+        setup.props["PercentRefinement"] = 30
+        setup.props["Frequency"] = adaptive_frequency
         dc_freq = 0.1
         stop_freq = 10
         count = 1
-        assert Setup.add_eddy_current_sweep("LinearStep", dc_freq, stop_freq, count, clear=True)
-        assert isinstance(Setup.props["SweepRanges"]["Subrange"], dict)
-        assert Setup.props["SaveAllFields"]
-        assert Setup.add_eddy_current_sweep("LinearCount", dc_freq, stop_freq, count, clear=False)
-        assert isinstance(Setup.props["SweepRanges"]["Subrange"], list)
-
-        assert Setup.update()
-        assert Setup.enable_expression_cache(["CoreLoss"], "Fields", "Phase='0deg' ", True)
-        assert Setup.props["UseCacheFor"] == ["Pass", "Freq"]
-        assert Setup.disable()
-        assert Setup.enable()
+        assert setup.add_eddy_current_sweep("LinearStep", dc_freq, stop_freq, count, clear=True)
+        assert isinstance(setup.props["SweepRanges"]["Subrange"], dict)
+        assert setup.props["SaveAllFields"]
+        assert setup.add_eddy_current_sweep("LinearCount", dc_freq, stop_freq, count, clear=False)
+        assert isinstance(setup.props["SweepRanges"]["Subrange"], list)
+        assert setup.add_eddy_current_sweep("SinglePoints", start_frequency=0.01, clear=False)
+        assert setup.update()
+        assert setup.enable_expression_cache(["CoreLoss"], "Fields", "Phase='0deg' ", True)
+        assert setup.props["UseCacheFor"] == ["Pass", "Freq"]
+        assert setup.disable()
+        assert setup.enable()
 
     def test_07b_create_parametrics(self):
         self.aedtapp["w1"] = "10mm"
@@ -1127,3 +1127,21 @@ class TestClass:
         self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.Magnetostatic
         floating = self.aedtapp.assign_floating(assignment=box, charge_value=3)
         assert not floating
+
+    def test_60_resistive_sheet(self):
+        self.aedtapp.insert_design("ResistiveSheet")
+        self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
+        my_box = self.aedtapp.modeler.create_box(
+            origin=[0, 0, 0], sizes=[0.4, -1, 0.8], name="my_box", material="copper"
+        )
+        resistive_face = my_box.faces[0]
+        bound = self.aedtapp.assign_resistive_sheet(assignment=resistive_face, resistance="3ohm")
+        assert bound
+        assert bound.props["Faces"][0] == resistive_face.id
+        assert bound.props["Resistance"] == "3ohm"
+        self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.Magnetostatic
+        bound = self.aedtapp.assign_resistive_sheet(assignment=resistive_face, non_linear=True)
+        assert bound.props["Nonlinear"]
+        assert bound.props["Faces"][0] == resistive_face.id
+        self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.ACConduction
+        assert not self.aedtapp.assign_resistive_sheet(assignment=resistive_face, resistance="3ohm")
