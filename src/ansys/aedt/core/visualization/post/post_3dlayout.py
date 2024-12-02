@@ -107,11 +107,9 @@ class PostProcessor3DLayout(PostProcessor3D):
 
         power_loss_per_layer = []
         operations = []
-        idx = 0
         for layer_name, net_names in net_per_layer_names.items():
             if not net_names:
                 continue
-            power_loss_per_net = {}
             thickness = edbapp.stackup[layer_name].thickness
             for net_name in net_names:
                 assignment = f"{layer_name}_{net_name}"
