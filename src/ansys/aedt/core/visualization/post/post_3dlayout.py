@@ -43,6 +43,105 @@ class PostProcessor3DLayout(PostProcessor3D):
     def __init__(self, app):
         PostProcessor3D.__init__(self, app)
 
+    @pyaedt_function_handler
+    def compute_power_loss_per_layer(self, solution=None, fast_compute=True):
+        if solution is None:
+            for setup in self._app.setups:
+                if setup.solver_type == "SIwaveDCIR":
+                    solution = setup.name
+        else:
+            for setup in self._app.setups:
+                if setup.name == solution and setup.solver_type != "SIwaveDCIR":
+                    self._app.logger.error("Wrong Setup. It has to be an SIwave DCIR solution.")
+                    solution = None
+
+        edbapp = self._app.modeler.edb
+        net_per_layer_names = {i: [] for i in edbapp.stackup.signal_layers.keys()}
+        primitives = []
+
+        if fast_compute:
+            edbapp.extended_nets.auto_identify_power()
+
+            terminals = []
+            for k in edbapp.sources.values():
+                terminals.append(k)
+                ref_terminal = k.ref_terminal
+                if ref_terminal:
+                    terminals.append(ref_terminal)
+
+            nets = []
+            for t in terminals:
+                net_obj = t.net
+                xnets = net_obj.extended_net
+                if xnets:
+                    nets.extend([i for _, i in xnets.nets.items()])
+                else:
+                    nets.append(net_obj)
+            nets = list(set(nets))
+
+            for net in nets:
+                primitives.extend(net.primitives)
+        else:
+            primitives = edbapp.layout.primitives
+
+        for i in primitives:
+            layer_name = i.layer_name
+            net_name = i.net_name
+            if layer_name in net_per_layer_names:
+                if net_name not in net_per_layer_names[layer_name]:
+                    net_per_layer_names[layer_name].append(net_name)
+            else:
+                net_per_layer_names[layer_name] = [net_name]
+
+        power_by_layers = {}
+        operations = []
+        idx = 0
+        for layer_name, net_names in net_per_layer_names.items():
+            for net_name in net_names:
+                try:
+                    self._app.odesign.GetGeometryIdsForNetLayerCombination(net_name, layer_name, solution)
+                except Exception:  # pragma no cover
+                    continue
+
+                assignment = f"{layer_name}_{net_name}"
+                operations.extend(
+                    [
+                        "Fundamental_Quantity('P')",
+                        f"EnterSurface('{assignment}')",
+                        "Operation('SurfaceValue')",
+                        "Operation('Integrate')",
+                    ]
+                )
+                idx = idx + 1
+                if idx > 1:
+                    operations.append("Operation('+')")
+            if idx == 0:
+                continue
+            thickness = edbapp.stackup[layer_name].thickness
+            operations.extend([f"Scalar_Constant({thickness})", "Operation('*')"])
+
+            solution_type = ["DC Fields"] if settings.aedt_version < "2025.1" else ["DCIR Fields"]
+            my_expression = {
+                "name": f"Power_{layer_name}",
+                "description": "Power Density",
+                "design_type": ["HFSS 3D Layout Design"],
+                "fields_type": solution_type,
+                "solution_type": "",
+                "primary_sweep": "",
+                "assignment": "",
+                "assignment_type": ["Surface"],
+                "operations": operations,
+                "report": ["Data Table", "Rectangular Plot"],
+            }
+            if self._app.post.fields_calculator.is_expression_defined(my_expression["name"]):
+                self._app.post.fields_calculator.delete_expression(my_expression["name"])
+            self._app.post.fields_calculator.add_expression(my_expression, "")
+
+            power_by_layers[layer_name] = self._app.post.fields_calculator.evaluate(
+                my_expression["name"], solution, intrinsics={}
+            )
+        return power_by_layers
+
     def _check_inputs(self, layers=None, nets=None, solution=None):
         if layers is None:
             layers = list(self._app.modeler.edb.stackup.signal_layers.keys())
