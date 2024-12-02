@@ -389,6 +389,8 @@ class TestClass:
         p_nets = self.dcir_example_project.post.compute_power_by_net()
         assert p_nets
         assert p_layers
+        p_layers = self.dcir_example_project.post.compute_power_by_layer(solution="SIwaveDCIR1")
+        assert p_layers
 
     def test_20_change_options(self):
         assert self.aedtapp.change_options()

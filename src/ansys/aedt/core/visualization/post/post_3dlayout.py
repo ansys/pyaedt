@@ -53,17 +53,17 @@ class PostProcessor3DLayout(PostProcessor3D):
                 if setup.solver_type == "SIwaveDCIR":
                     solution = setup.name
                     break
-            if solution is None:
+            if solution is None:  # pragma: no cover
                 self._app.logger.error("No SIwave DC IR setup exist.")
                 return
         else:
-            solution_obj = self._app.setups.get(solution)
-            if solution_obj:
-                if solution_obj.solver_type != "SIwaveDCIR":
-                    self._app.logger.error("Solution {solution} is not a SIwave DC IR setup.")
+            solution_obj = [i for i in self._app.setups if i.name == solution]
+            if len(solution_obj):
+                if solution_obj[0].solver_type != "SIwaveDCIR":  # pragma: no cover
+                    self._app.logger.error(f"Solution {solution} is not a SIwave DC IR setup.")
                     return
-            else:
-                self._app.logger.error("Solution {solution} doesn't exist.")
+            else:  # pragma: no cover
+                self._app.logger.error(f"Solution {solution} doesn't exist.")
                 return
 
         solution_data_dir = Path(self._app.project_file).with_suffix(".aedtresults") / "main"
@@ -72,15 +72,15 @@ class PostProcessor3DLayout(PostProcessor3D):
         for folder in subfolders:
             file_exec = folder / "SIwave.exec"
             if not file_exec.exists():
-                continue
+                continue  # pragma: no cover
             with open(file_exec, "r") as f:
                 siwave_exec = f.read()
                 match = re.search(r'SetupName\s+"(.*?)"', siwave_exec)
                 if match.group(1) == solution:
                     dcir_solution_folder = folder
                     break
-        if dcir_solution_folder is None:
-            self._app.logger.error("Solution {solution} has no result.")
+        if dcir_solution_folder is None:  # pragma: no cover
+            self._app.logger.error(f"Solution {solution} has no result.")
         else:
             file_net = None
             for i in dcir_solution_folder.iterdir():
