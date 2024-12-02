@@ -2489,6 +2489,11 @@ class Primitives3D(GeometryModeler):
 
         with open_file(input_file, "r") as read_file:
             values = json.load(read_file)
+
+        # Change units
+        if "Settings" in values and "Units" in values["Settings"]:
+            self.model_units = values["Settings"]["Units"]
+
         self.logger.info("CHOKE INFO: " + str(values))
 
         sr = 1.1  # security factor
