@@ -1924,25 +1924,38 @@ class Maxwell(object):
                 ]
             )
             return True
-        elif self.solution_type == "Transient":
+        elif self.solution_type in ["Transient", "TransientAPhiFormulation"]:
             if calculate_force == 0:
                 calculate_force = "Harmonic"
             if calculate_force == 1:
                 calculate_force = "Transient"
             if calculate_force == 2:
                 calculate_force = "Harmonic and Transient"
-            if self.geometry_mode == "about Z" or self.solution_type == "TransientAphiFormulation":
+            if not self.is3d and self.geometry_mode == "about Z":
                 if force_type == 0 and calculate_force == "Transient":
                     calculate_force = "Harmonic"
                     self.logger.warning(
                         "Object-Based Transient Force calculation is not supported for "
                         "non-rotational transient solutions. Only Harmonic Force will be calculated."
                     )
-            if self.geometry_mode == "about Z" or self.solution_type == "TransientAphiFormulation":
                 if number_of_cycles_from_stop_time != 1 or number_of_cycles_for_stop_time != 1:
                     self.logger.info(
                         " ``number_of_cycles_from_stop_time´´ and ``number_of_cycles_for_stop_time´´"
-                        "are equal to 1 for TransientZ and TransientAphiFormulation."
+                        "are equal to 1 for TransientZ."
+                    )
+                    number_of_cycles_from_stop_time = 1
+                    number_of_cycles_for_stop_time = 1
+            if self.solution_type == "TransientAPhiFormulation":
+                if force_type == 0 and calculate_force == "Transient":
+                    calculate_force = "Harmonic"
+                    self.logger.warning(
+                        "Object-Based Transient Force calculation is not supported for "
+                        "non-rotational transient solutions. Only Harmonic Force will be calculated."
+                    )
+                if number_of_cycles_from_stop_time != 1 or number_of_cycles_for_stop_time != 1:
+                    self.logger.info(
+                        " ``number_of_cycles_from_stop_time´´ and ``number_of_cycles_for_stop_time´´"
+                        "are equal to 1 for TransientAphiFormulation."
                     )
                     number_of_cycles_from_stop_time = 1
                     number_of_cycles_for_stop_time = 1
