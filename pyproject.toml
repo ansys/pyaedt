@@ -33,6 +33,7 @@ classifiers = [
 ]
 
 dependencies = [
+    "ezdxf",
     "fpdf2",
     "jsonschema",
     "psutil",
