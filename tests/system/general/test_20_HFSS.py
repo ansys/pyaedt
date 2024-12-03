@@ -1532,13 +1532,22 @@ class TestClass:
         assert not self.aedtapp.set_phase_center_per_port(["Global"])
         assert not self.aedtapp.set_phase_center_per_port("Global")
 
-    @pytest.mark.skipif(config["NonGraphical"], reason="Test fails on build machine")
-    def test_64_import_dxf(self):
+    @pytest.mark.skipif(
+        config["NonGraphical"] and config["desktopVersion"] < "2024.2", reason="Test fails on build machine"
+    )
+    @pytest.mark.parametrize(
+        ("dxf_file", "object_count"),
+        (
+            (os.path.join(TESTS_GENERAL_PATH, "example_models", "cad", "DXF", "dxf2.dxf"), 1),
+            (os.path.join(TESTS_GENERAL_PATH, "example_models", "cad", "DXF", "old_dxf.dxf"), 4),
+        ),
+    )
+    def test_64_import_dxf(self, dxf_file: str, object_count: int):
         self.aedtapp.insert_design("dxf")
-        dxf_file = os.path.join(TESTS_GENERAL_PATH, "example_models", "cad", "DXF", "dxf2.dxf")
         dxf_layers = self.aedtapp.get_dxf_layers(dxf_file)
         assert isinstance(dxf_layers, list)
-        assert self.aedtapp.import_dxf(dxf_file, dxf_layers)
+        assert self.aedtapp.import_dxf(dxf_file, dxf_layers, self_stitch_tolerance=-1)
+        assert len(self.aedtapp.modeler.objects) == object_count
 
     def test_65_component_array(self, add_app):
         hfss_array = add_app(project_name=component_array, subfolder=test_subfolder)
