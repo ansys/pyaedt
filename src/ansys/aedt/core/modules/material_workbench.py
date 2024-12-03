@@ -368,15 +368,25 @@ class MaterialWorkbench:
         # Creating the material in Hfss
         imported_materials = []
         for material_name, props in mat_props.items():
-            mat = self._app.materials.add_material(self._aedt_material_name(material_name), props)
-            if not mat:
-                continue  # if the material is not created continues with the next one
-            imported_materials.append(mat)
-            if thermal_modifiers[material_name]:
-                for prop, data in thermal_modifiers[material_name].items():
-                    self._app.create_dataset(name=data["dataset_name"], x=data["dataset"][0], y=data["dataset"][1])
-                    x = getattr(mat, prop)
-                    x.add_thermal_modifier_dataset(f"${data['dataset_name']}")
-            if material_name in colors:
-                mat.material_appearance = colors[material_name]
+            mat = None
+            try:
+                mat = self._app.materials.add_material(self._aedt_material_name(material_name), props)
+                if not mat:
+                    failed_materials.append(material_name)
+                    continue  # if the material is not created continues with the next one
+                imported_materials.append(mat)
+                if thermal_modifiers[material_name]:
+                    for prop, data in thermal_modifiers[material_name].items():
+                        self._app.create_dataset(name=data["dataset_name"], x=data["dataset"][0], y=data["dataset"][1])
+                        x = getattr(mat, prop)
+                        x.add_thermal_modifier_dataset(f"${data['dataset_name']}")
+                if material_name in colors:
+                    mat.material_appearance = colors[material_name]
+            except (KeyError, IndexError, Exception):
+                failed_materials.append(material_name)
+                if mat:
+                    imported_materials.remove(mat)  # controlla se c'è prima, e se esiste mat
+                # controllare se il materiale esiste in AEDT, magari è creato parzialmente,
+                # ed eventualmente rimuoverlo
+
         return imported_materials, failed_materials
