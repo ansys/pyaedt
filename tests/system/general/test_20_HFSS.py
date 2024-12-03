@@ -1544,7 +1544,8 @@ class TestClass:
         ),
     )
     def test_64_import_dxf(self, dxf_file: str, object_count: int):
-        self.aedtapp.insert_design("dxf")
+        design_name = self.aedtapp.insert_design("test_64_import_dxf")
+        self.aedtapp.set_active_design(design_name)
         dxf_layers = self.aedtapp.get_dxf_layers(dxf_file)
         assert isinstance(dxf_layers, list)
         assert self.aedtapp.import_dxf(dxf_file, dxf_layers, self_stitch_tolerance=-1)
