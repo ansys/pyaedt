@@ -1533,7 +1533,8 @@ class TestClass:
         assert not self.aedtapp.set_phase_center_per_port("Global")
 
     @pytest.mark.skipif(
-        config["NonGraphical"] and config["desktopVersion"] < "2024.2", reason="Test fails on build machine"
+        config["NonGraphical"] and config["desktopVersion"] < "2024.2",
+        reason="Not working in non graphical before version 2024.2",
     )
     @pytest.mark.parametrize(
         ("dxf_file", "object_count"),
