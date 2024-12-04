@@ -131,7 +131,7 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
         )
         button_select_project_file.grid(row=s3_start_row, column=0)
 
-        # Siwave
+        # SIwave
         label_project_file = tk.Label(self, width=col_width[2], height=1, textvariable=self.selected_project_file)
         label_project_file.grid(row=s3_start_row + 1, column=0)
 

@@ -2,5 +2,5 @@
 name = "Schematic Importer"
 script = "import_schematic.py"
 icon = "images/large/schematic.png"
-template = "run_pyedb_toolkit_script"
+template = "run_pyaedt_toolkit_script"
 pip = ""

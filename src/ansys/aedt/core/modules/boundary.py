@@ -1776,6 +1776,8 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.AssignFluxTangential(self._get_args())
         elif bound_type == "Plane Incident Wave":
             self._app.oboundary.AssignPlaneWave(self._get_args())
+        elif bound_type == "ResistiveSheet":
+            self._app.oboundary.AssignResistiveSheet(self._get_args())
         else:
             return False
         return True
