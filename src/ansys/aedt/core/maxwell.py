@@ -1815,6 +1815,7 @@ class Maxwell(object):
         axis=2,
         is_positive=True,
         force_type=0,
+        calculate_force=0,
         window_function="Rectangular",
         use_number_of_cycles_from_stop_time=True,
         number_of_cycles_from_stop_time=1,
@@ -1826,7 +1827,6 @@ class Maxwell(object):
         output_frequency_range_start="0Hz",
         output_frequency_range_stop="1000Hz",
         number_of_output_frequencies=10,
-        calculate_force=0,
         enable_inverter_feedback=False,
         switching_frequency="4000Hz",
         maximum_frequency="8000Hz",
@@ -1873,7 +1873,8 @@ class Maxwell(object):
             If False, the time range stop time is defined using the stop time.
             The harmonic force will be computed using the transient force between the start time and the stop time.
             Default is ``True``.
-        number_of_cycles_for_stop_time
+            For TransientZ and TransientAphiFormulation, it is ``False``.
+        number_of_cycles_for_stop_time: int, optional
             Defines the time range for harmonic force computation using the number of cycles,
             if `use_number_of_cycles_for_stop_time` is ``True``. For TransientZ and TransientAphiFormulation,
             it is equal to 1.
@@ -1885,7 +1886,7 @@ class Maxwell(object):
             Available options are: ``"Use All"``, ``"Use Number"``, ``"Use Range"``.
         output_frequency_range_start : str, optional
         output_frequency_range_stop : str, optional
-        output_frequency_range_number : int, optional
+        number_of_output_frequencies : int, optional
             Number of frequencies to output.
         calculate_force : int, optional
             How to calculate force: ``0`` for ``"Harmonic"``, ``1`` for ``"Transient"``,
@@ -1938,13 +1939,13 @@ class Maxwell(object):
                         "Object-Based Transient Force calculation is not supported for "
                         "non-rotational transient solutions. Only Harmonic Force will be calculated."
                     )
-                if number_of_cycles_from_stop_time != 1 or number_of_cycles_for_stop_time != 1:
-                    self.logger.info(
+                if use_number_of_cycles_from_stop_time == True or use_number_of_cycles_for_stop_time == True:
+                    self.logger.warning(
                         " ``number_of_cycles_from_stop_time´´ and ``number_of_cycles_for_stop_time´´"
-                        "are equal to 1 for TransientZ."
+                        "are not available for TransientZ."
                     )
-                    number_of_cycles_from_stop_time = 1
-                    number_of_cycles_for_stop_time = 1
+                    use_number_of_cycles_from_stop_time = False
+                    use_number_of_cycles_for_stop_time = False
             if self.solution_type == "TransientAPhiFormulation":
                 if force_type == 0 and calculate_force == "Transient":
                     calculate_force = "Harmonic"
@@ -1952,13 +1953,13 @@ class Maxwell(object):
                         "Object-Based Transient Force calculation is not supported for "
                         "non-rotational transient solutions. Only Harmonic Force will be calculated."
                     )
-                if number_of_cycles_from_stop_time != 1 or number_of_cycles_for_stop_time != 1:
-                    self.logger.info(
+                if use_number_of_cycles_from_stop_time == True or use_number_of_cycles_for_stop_time == True:
+                    self.logger.warning(
                         " ``number_of_cycles_from_stop_time´´ and ``number_of_cycles_for_stop_time´´"
-                        "are equal to 1 for TransientAphiFormulation."
+                        "are not available for TransientAphiFormulation."
                     )
-                    number_of_cycles_from_stop_time = 1
-                    number_of_cycles_for_stop_time = 1
+                    use_number_of_cycles_from_stop_time = False
+                    use_number_of_cycles_for_stop_time = False
             self.odesign.EnableHarmonicForceCalculation(
                 [
                     "EnabledObjects:=",
