@@ -128,7 +128,12 @@ class BuildingsPrep(object):
         dict
             Info of generated stl file.
         """
-        gdf = ox.features.geometries_from_point(center_lat_lon, tags={"building": True}, dist=max_radius)
+        # TODO: Remove compatibility with <2.0 when releasing pyaedt v1.0 ?
+        try:
+            gdf = ox.geometries.geometries_from_point(center_lat_lon, tags={"building": True}, dist=max_radius)
+        # NOTE: Handle breaking changes introduced in osmn>=v2.0
+        except (AttributeError, ImportError):
+            gdf = ox.features.features_from_point(center_lat_lon, tags={"building": True}, dist=max_radius)
         utm_center = utm.from_latlon(center_lat_lon[0], center_lat_lon[1])
         center_offset_x = utm_center[0]
         center_offset_y = utm_center[1]
