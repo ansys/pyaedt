@@ -289,6 +289,7 @@ class MaxwellCircuitComponents(CircuitComponents):
             component.parameters["Name"] = name
         return component
 
+    @pyaedt_function_handler()
     def create_i_sin(self, name=None, value=1, location=None, angle=0, use_instance_id_netlist=False):
         """Create a sinusoidal current source.
 
@@ -335,6 +336,7 @@ class MaxwellCircuitComponents(CircuitComponents):
             component.parameters["Name"] = name
         return component
 
+    @pyaedt_function_handler()
     def create_v_sin(self, name=None, value=1, location=None, angle=0, use_instance_id_netlist=False):
         """Create a sinusoidal voltage source.
 

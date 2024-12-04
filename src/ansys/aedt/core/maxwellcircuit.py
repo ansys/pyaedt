@@ -150,11 +150,6 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
 
-    @property
-    def nb_pages(self):
-        """Number of circuit schematic pages."""
-        return self.oeditor.GetNumPages()
-
     @pyaedt_function_handler(file_to_import="input_file")
     def create_schematic_from_netlist(self, input_file):
         """Create a circuit schematic from an HSpice net list.
@@ -247,32 +242,3 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
             return output_file
         except Exception:
             return False
-
-    def create_page(self, name):
-        """Add a new page to circuit schematic.
-
-        Parameters
-        ----------
-        name : str, int or float
-            Name to be used when creating the new circuit schematic.
-
-        Returns
-        -------
-        bool
-            ``True`` when page added, ``False`` when failed.
-
-        References
-        ----------
-        >>> oEditor.CreatePage()
-
-        Examples
-        --------
-        >>>from ansys.aedt.core import MaxwellCircuit
-        >>>app=MaxwellCircuit()
-        >>>component=app.create_page(name="page_name")
-        """
-        if not isinstance(name, (str, int, float)):
-            self.logger.error("Wrong type for argument ``name``.")
-            return False
-        self.oeditor.CreatePage(name)
-        return True

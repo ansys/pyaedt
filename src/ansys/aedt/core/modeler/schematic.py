@@ -477,6 +477,42 @@ class ModelerCircuit(Modeler):
             val = f"{value}{units}"
         return val
 
+    @pyaedt_function_handler()
+    def create_page(self, name):
+        """Add a new circuit schematic page.
+
+        Parameters
+        ----------
+        name : str, int or float
+            Name to be used when creating the new circuit schematic.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oEditor.CreatePage()
+
+        Examples
+        --------
+        >>>from ansys.aedt.core import MaxwellCircuit
+        >>>app=MaxwellCircuit ()
+        >>>component=app.modeler.schematic.create_page(name=page_name)
+
+        """
+        if not isinstance(name, (str, int, float)):
+            self.logger.error("Wrong type for argument ``name``.")
+            return False
+        self.oeditor.CreatePage(name)
+        return True
+
+    @property
+    def nb_pages(self):
+        """Number of circuit schematic pages."""
+        return self.oeditor.GetNumPages()
+
 
 class ModelerNexxim(ModelerCircuit):
     """ModelerNexxim class.

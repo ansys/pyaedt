@@ -205,11 +205,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         except Exception:
             return from_rkm_to_aedt(value)
 
-    @property
-    def nb_pages(self):
-        """Number of circuit schematic pages."""
-        return self.oeditor.GetNumPages()
-
     @pyaedt_function_handler(file_to_import="input_file")
     def create_schematic_from_netlist(self, input_file):
         """Create a circuit schematic from an HSpice netlist.

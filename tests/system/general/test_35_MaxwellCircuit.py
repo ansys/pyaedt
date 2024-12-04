@@ -119,22 +119,22 @@ class TestClass:
     def test_09_create_voltage_source(self):
         name_type = ["voltage_source", 123, 1.23]
         for item in name_type:
-            self.component = self.aedtapp.modeler.schematic.create_v_sin(name=item, value=3.14, angle=90)
-            assert self.component.parameters["Name"] == item
-        assert self.component.parameters["Va"] == 3.14
+            component = self.aedtapp.modeler.schematic.create_v_sin(name=item, value=3.14, angle=90)
+            assert component.parameters["Name"] == item
+        assert component.parameters["Va"] == 3.14
 
     def test_10_create_current_source(self):
         name_type = ["current_source", 456, 4.56]
         for item in name_type:
-            self.component = self.aedtapp.modeler.schematic.create_i_sin(name=item, value=2.72, angle=90)
-            assert self.component.parameters["Name"] == item
-        assert self.component.parameters["Ia"] == 2.72
+            component = self.aedtapp.modeler.schematic.create_i_sin(name=item, value=2.72, angle=90)
+            assert component.parameters["Name"] == item
+        assert component.parameters["Ia"] == 2.72
 
     def test_11_create_page(self):
-        assert self.aedtapp.create_page("string_test") == True
+        assert self.aedtapp.create_page("string_test")
         assert self.aedtapp.nb_pages == 2
-        assert self.aedtapp.create_page(123) == True
+        assert self.aedtapp.create_page(123)
         assert self.aedtapp.nb_pages == 3
-        assert self.aedtapp.create_page(3.14) == True
+        assert self.aedtapp.create_page(3.14)
         assert self.aedtapp.nb_pages == 4
         assert not self.aedtapp.create_page(["create_page_test"])
