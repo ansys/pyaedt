@@ -25,6 +25,7 @@
 import json
 from pathlib import Path
 import sys
+from pyvistaqt import BackgroundPlotter
 
 current_python_version = sys.version_info[:2]
 if current_python_version < (3, 10):  # pragma: no cover
@@ -1637,6 +1638,9 @@ class MonostaticRCSPlotter(object):
             Color mapping to be applied to the RCS data. It can be a color (``"blue"``,
             ``"green"``, ...) or a colormap (``"jet"``, ``"viridis"``, ...). The default is ``"jet"``.
         """
+        if not self.modeler_window:
+            self.modeler_window = BackgroundPlotter(show=False)
+
         data_isar_2d = self.rcs_data.isar_2d
 
         down_range = data_isar_2d["Down-range"].unique()
@@ -1648,7 +1652,9 @@ class MonostaticRCSPlotter(object):
         z = np.zeros_like(x)
 
         if plot_type.lower() == "relief":
-            z = values_2d
+            m = self.modeler_window.bounds[-1]-self.modeler_window.bounds[-2]
+            b = self.modeler_window.bounds[-2]
+            z = (values_2d-values_2d.min())/(values_2d.max()-values_2d.min())*m+b
 
         actor = pv.StructuredGrid()
         actor.points = np.c_[x.ravel(), y.ravel(), z.ravel()]
