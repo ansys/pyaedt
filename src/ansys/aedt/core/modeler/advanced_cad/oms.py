@@ -287,9 +287,16 @@ class RoadPrep(object):
         dict
             Info of generated stl file.
         """
-        graph = ox.graph_from_point(
-            center_lat_lon, dist=max_radius, simplify=False, network_type="all", clean_periphery=True
-        )
+        # TODO: Remove compatibility with <2.0 when releasing pyaedt v1.0 ?
+        try:
+            graph = ox.graph_from_point(
+                center_lat_lon, dist=max_radius, simplify=False, network_type="all", clean_periphery=True
+            )
+        # NOTE: Handle breaking changes introduced in osmn>=v2.0
+        except TypeError:
+            graph = ox.graph_from_point(
+                center_lat_lon, dist=max_radius, simplify=False, network_type="all"
+            )
 
         g_projected = ox.project_graph(graph)
 
