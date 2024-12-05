@@ -286,7 +286,8 @@ class Settings(object):  # pragma: no cover
 
     @global_log_file_name.setter
     def global_log_file_name(self, value):
-        self.__global_log_file_name = value
+        if value is not None:
+            self.__global_log_file_name = value
 
     @property
     def enable_debug_methods_argument_logger(self):
@@ -472,7 +473,8 @@ class Settings(object):  # pragma: no cover
 
     @lsf_ui.setter
     def lsf_ui(self, value):
-        self.__lsf_ui = int(value)
+        if value is not None:
+            self.__lsf_ui = int(value)
 
     @property
     def lsf_timeout(self):
@@ -643,9 +645,10 @@ class Settings(object):  # pragma: no cover
 
     @aedt_version.setter
     def aedt_version(self, value):
-        self.__aedt_version = value
-        if self.__aedt_version >= "2023.1":
-            self.disable_bounding_box_sat = True
+        if value is not None:
+            self.__aedt_version = value
+            if self.__aedt_version >= "2023.1":
+                self.disable_bounding_box_sat = True
 
     @property
     def aedt_install_dir(self):
@@ -679,8 +682,9 @@ class Settings(object):  # pragma: no cover
 
     @edb_dll_path.setter
     def edb_dll_path(self, value):
-        if os.path.exists(value):
-            self.__edb_dll_path = value
+        if value is not None:
+            if os.path.exists(value):
+                self.__edb_dll_path = value
 
     @property
     def enable_pandas_output(self):
