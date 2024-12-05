@@ -1823,7 +1823,7 @@ class Maxwell(object):
         use_number_of_cycles_for_stop_time=True,
         number_of_cycles_for_stop_time=1,
         stop_time="0.01s",
-        output_frequency_range_type="Use All",
+        output_frequency_range_type=0,
         output_frequency_range_start="0Hz",
         output_frequency_range_stop="1000Hz",
         number_of_output_frequencies=10,
@@ -1881,9 +1881,10 @@ class Maxwell(object):
         stop_time : str, optional
             Defines the time range stop time for harmonic force computation,
             if `use_number_of_cycles_for_stop_time` is ``False``.
-        output_frequency_range_type : str, optional
-            Defines the type of the output frequency range. Default is ``"Use All"``.
-            Available options are: ``"Use All"``, ``"Use Number"``, ``"Use Range"``.
+        output_frequency_range_type : int, optional
+            Defines the type of the output frequency range. ``0`` for ``"Use All"``,
+            ``1`` for ``"Use Range"``, and ``2`` for ``"Use Number"``.
+            The default is ``0``.
         output_frequency_range_start : str, optional
         output_frequency_range_stop : str, optional
         number_of_output_frequencies : int, optional
@@ -1932,6 +1933,12 @@ class Maxwell(object):
                 calculate_force = "Transient"
             if calculate_force == 2:
                 calculate_force = "Harmonic and Transient"
+            if output_frequency_range_type == 0:
+                output_frequency_range_type = "Use All"
+            if output_frequency_range_type == 1:
+                output_frequency_range_type = "Use Range"
+            if output_frequency_range_type == 2:
+                output_frequency_range_type = "Use Number"
             if not self.is3d and self.geometry_mode == "about Z":
                 if force_type == 0 and calculate_force == "Transient":
                     calculate_force = "Harmonic"
