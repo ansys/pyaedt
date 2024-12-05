@@ -294,9 +294,7 @@ class RoadPrep(object):
             )
         # NOTE: Handle breaking changes introduced in osmn>=v2.0
         except TypeError:
-            graph = ox.graph_from_point(
-                center_lat_lon, dist=max_radius, simplify=False, network_type="all"
-            )
+            graph = ox.graph_from_point(center_lat_lon, dist=max_radius, simplify=False, network_type="all")
 
         g_projected = ox.project_graph(graph)
 
