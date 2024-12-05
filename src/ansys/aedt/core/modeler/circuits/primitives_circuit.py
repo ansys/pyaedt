@@ -763,7 +763,7 @@ class CircuitComponents(object):
     def create_component(
         self,
         name=None,
-        component_library="",
+        component_library="Resistors",
         component_name="RES_",
         location=None,
         angle=0,
@@ -988,13 +988,13 @@ class CircuitComponents(object):
         return True
 
     @pyaedt_function_handler()
-    def enable_use_instance_name(self, component_library="Resistors", component_name="RES_"):
+    def enable_use_instance_name(self, component_library="", component_name="RES_"):
         """Enable the use of the instance name.
 
         Parameters
         ----------
         component_library : str, optional
-             Name of the component library. The default is ``"Resistors"``.
+             Name of the component library. The default is ``""``.
         component_name : str, optional
              Name of the component. The default is ``"RES_"``.
 
