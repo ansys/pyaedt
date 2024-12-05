@@ -16,7 +16,7 @@ pip = ""
 name = "Configure layout"
 script = "configure_edb.py"
 icon = "images/large/aedb.png"
-template = "run_pyedb_toolkit_script"
+template = "run_pyaedt_toolkit_script"
 pip = ""
 
 [FieldsCalculator]
