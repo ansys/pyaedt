@@ -15,9 +15,9 @@ configuration.
 Here is an example of YAML file :download:`YAML configuration file <../Resources/pyaedt_settings.yaml>`
 
 .. warning::
-    In Linux, we recommend adding the ``ANS_NODEPCHECK`` environment variable for speed reasons.
-    This variable is commented out in the download file. Using this file without modifying it will
-    disable this option from the default settings behaviour.
+    In Linux, it is recommended to add the ``ANS_NODEPCHECK`` environment variable for speed reasons.
+    This variable is commented out in the download file. Using this file without modifying it disables
+    this option from the default settings behaviour.
 
 .. note::
     Not all settings from class ``Settings`` can be modified through this file
