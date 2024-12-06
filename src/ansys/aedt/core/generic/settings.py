@@ -515,7 +515,7 @@ class Settings(object):  # pragma: no cover
 
     @aedt_environment_variables.setter
     def aedt_environment_variables(self, value):
-        self._aedt_environment_variables = value
+        self.__aedt_environment_variables = value
 
     # ##################################### General properties ####################################
 
@@ -768,7 +768,6 @@ class Settings(object):  # pragma: no cover
             pairs = [
                 ("log", ALLOWED_LOG_SETTINGS),
                 ("lsf", ALLOWED_LSF_SETTINGS),
-                ("aedt_env_var", ALLOWED_AEDT_ENV_VAR_SETTINGS),
                 ("general", ALLOWED_GENERAL_SETTINGS),
             ]
             for setting_type, allowed_settings_key in pairs:
@@ -779,6 +778,13 @@ class Settings(object):  # pragma: no cover
                 else:
                     for key, value in filter_settings(settings, allowed_settings_key):
                         setattr(self, key, value)
+            # NOTE: Handle env var differently as they are loaded at once
+            setting_type = "aedt_env_var"
+            settings = local_settings.get(setting_type, {})
+            if settings:
+                if raise_on_wrong_key and any(key not in ALLOWED_AEDT_ENV_VAR_SETTINGS for key in settings.keys()):
+                    raise KeyError(f"An environment variable key is not part of the allowed keys.")
+                self.aedt_environment_variables = settings
 
     def writte_yaml_configuration(self, path: str):
         """Write the current settings into a YAML configuration file."""
