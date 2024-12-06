@@ -134,7 +134,7 @@ class _InnerProjectSettings:  # pragma: no cover
     time_stamp: Union[int, float] = 0
 
 
-class Settings(object):  # pragma: no cover
+class Settings(object):
     """Manages all PyAEDT environment variables and global settings."""
 
     def __init__(self):
