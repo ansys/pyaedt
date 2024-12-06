@@ -25,6 +25,7 @@
 """Test utility functions of PyAEDT.
 """
 
+import os
 from pathlib import Path
 
 from ansys.aedt.core.generic.settings import Settings
@@ -39,7 +40,14 @@ def test_settings_load_default_yaml(tmp_path):
     pyaedt_settings_path = project_root / "doc" / "source" / "Resources" / "pyaedt_settings.yaml"
     settings.load_yaml_configuration(str(pyaedt_settings_path))
 
-    # Compare everything except for the global log filename which is generated randomly
-    assert {
-        key: value for key, value in default_settings.__dict__.items() if key != "_Settings__global_log_file_name"
-    } == {key: value for key, value in settings.__dict__.items() if key != "_Settings__global_log_file_name"}
+    # Compare except for keys where it does not make sense, e.g. log filename, time_tick
+    default_settings_attributes = default_settings.__dict__
+    del default_settings_attributes["_Settings__global_log_file_name"]
+    del default_settings_attributes["_Settings__time_tick"]
+    if os.name == "posix":
+        del default_settings_attributes["_Settings__aedt_environment_variables"]["ANS_NODEPCHECK"]
+    settings_attributes = settings.__dict__
+    del settings_attributes["_Settings__global_log_file_name"]
+    del settings_attributes["_Settings__time_tick"]
+
+    assert default_settings_attributes == settings_attributes
