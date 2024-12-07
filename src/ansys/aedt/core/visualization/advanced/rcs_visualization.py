@@ -25,7 +25,8 @@
 import json
 from pathlib import Path
 import sys
-from pyvistaqt import BackgroundPlotter
+
+# from pyvistaqt import BackgroundPlotter
 
 current_python_version = sys.version_info[:2]
 if current_python_version < (3, 10):  # pragma: no cover
@@ -1638,8 +1639,8 @@ class MonostaticRCSPlotter(object):
             Color mapping to be applied to the RCS data. It can be a color (``"blue"``,
             ``"green"``, ...) or a colormap (``"jet"``, ``"viridis"``, ...). The default is ``"jet"``.
         """
-        if not self.modeler_window:
-            self.modeler_window = BackgroundPlotter(show=False)
+        # if not self.modeler_window:
+        #     self.modeler_window = BackgroundPlotter(show=False)
 
         data_isar_2d = self.rcs_data.isar_2d
 
@@ -1652,16 +1653,40 @@ class MonostaticRCSPlotter(object):
         z = np.zeros_like(x)
 
         if plot_type.lower() == "relief":
-            m = self.modeler_window.bounds[-1]-self.modeler_window.bounds[-2]
-            b = self.modeler_window.bounds[-2]
-            z = (values_2d-values_2d.min())/(values_2d.max()-values_2d.min())*m+b
+            # m = self.modeler_window.bounds[-1]-self.modeler_window.bounds[-2]
+            # b = self.modeler_window.bounds[-2]
+            m = 2.0
+            b = -1.0
+            z = (values_2d - values_2d.min()) / (values_2d.max() - values_2d.min()) * m + b
 
-        actor = pv.StructuredGrid()
-        actor.points = np.c_[x.ravel(), y.ravel(), z.ravel()]
+        if plot_type.lower() in ["relief", "plane"]:
+            actor = pv.StructuredGrid()
+            actor.points = np.c_[x.ravel(), y.ravel(), z.ravel()]
 
-        actor.dimensions = (len(down_range), len(cross_range), 1)
+            actor.dimensions = (len(down_range), len(cross_range), 1)
 
-        actor["values"] = values_2d.ravel()
+            actor["values"] = values_2d.ravel()
+
+        else:
+            scene_actors = self.all_scene_actors["model"]
+            if scene_actors is None:
+                return None
+            actor = pv.PolyData()
+            for model_actor in scene_actors.values():
+                mesh = model_actor.custom_object.get_mesh()
+                xypoints = mesh.points
+                cpos = values_2d.flatten()
+                xpos_ypos = np.column_stack((x.flatten(), y.flatten(), cpos))
+                all_indices = self.__find_nearest_neighbors(xpos_ypos, xypoints)
+
+                mag_for_color = np.ndarray.flatten(cpos[all_indices])
+                if not mesh.__class__.__name__ == "PolyData":
+                    mesh_triangulated = mesh.triangulate()
+                    model_actor.custom_object.mesh = pv.PolyData(mesh_triangulated.points, mesh_triangulated.cells)
+                else:
+                    model_actor.custom_object.mesh.clear_data()
+                model_actor.custom_object.mesh[self.rcs_data.data_conversion_function] = mag_for_color
+                actor += model_actor.custom_object.mesh
 
         all_results_actors = list(self.all_scene_actors["results"].keys())
 
