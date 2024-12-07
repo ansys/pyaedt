@@ -76,7 +76,7 @@ tests = [
     "tables; python_version >= '3.10'",
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.6",
-    "scikit-rf>=0.30.0,<1.5",
+    "scikit-rf>=0.30.0,<1.6",
     "SRTM.py",
     "utm",
 ]
@@ -113,7 +113,7 @@ all = [
     "tables; python_version >= '3.10'",
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.6",
-    "scikit-rf>=0.30.0,<1.5",
+    "scikit-rf>=0.30.0,<1.6",
     "SRTM.py",
     "utm",
 ]
@@ -128,7 +128,7 @@ installer = [
     "ansys-tools-visualization-interface; python_version >= '3.10'",
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.6",
-    "scikit-rf>=0.30.0,<1.5",
+    "scikit-rf>=0.30.0,<1.6",
     "SRTM.py",
     "utm",
     "jupyterlab>=3.6.0,<4.4",
