@@ -112,6 +112,7 @@ ALLOWED_AEDT_ENV_VAR_SETTINGS = [
     "ANSYSEM_FEATURE_SF222134_CABLE_MODELING_ENHANCEMENTS_ENABLE",
     "ANSYSEM_FEATURE_SF6694_NON_GRAPHICAL_COMMAND_EXECUTION_ENABLE",
     "ANS_MESHER_PROC_DUMP_PREPOST_BEND_SM3",
+    "ANS_NODEPCHECK",
 ]
 
 
@@ -133,7 +134,7 @@ class _InnerProjectSettings:  # pragma: no cover
     time_stamp: Union[int, float] = 0
 
 
-class Settings(object):  # pragma: no cover
+class Settings(object):
     """Manages all PyAEDT environment variables and global settings."""
 
     def __init__(self):
@@ -286,7 +287,8 @@ class Settings(object):  # pragma: no cover
 
     @global_log_file_name.setter
     def global_log_file_name(self, value):
-        self.__global_log_file_name = value
+        if value is not None:
+            self.__global_log_file_name = value
 
     @property
     def enable_debug_methods_argument_logger(self):
@@ -472,7 +474,8 @@ class Settings(object):  # pragma: no cover
 
     @lsf_ui.setter
     def lsf_ui(self, value):
-        self.__lsf_ui = int(value)
+        if value is not None:
+            self.__lsf_ui = int(value)
 
     @property
     def lsf_timeout(self):
@@ -513,7 +516,7 @@ class Settings(object):  # pragma: no cover
 
     @aedt_environment_variables.setter
     def aedt_environment_variables(self, value):
-        self._aedt_environment_variables = value
+        self.__aedt_environment_variables = value
 
     # ##################################### General properties ####################################
 
@@ -643,9 +646,10 @@ class Settings(object):  # pragma: no cover
 
     @aedt_version.setter
     def aedt_version(self, value):
-        self.__aedt_version = value
-        if self.__aedt_version >= "2023.1":
-            self.disable_bounding_box_sat = True
+        if value is not None:
+            self.__aedt_version = value
+            if self.__aedt_version >= "2023.1":
+                self.disable_bounding_box_sat = True
 
     @property
     def aedt_install_dir(self):
@@ -679,8 +683,9 @@ class Settings(object):  # pragma: no cover
 
     @edb_dll_path.setter
     def edb_dll_path(self, value):
-        if os.path.exists(value):
-            self.__edb_dll_path = value
+        if value is not None:
+            if os.path.exists(value):
+                self.__edb_dll_path = value
 
     @property
     def enable_pandas_output(self):
@@ -764,7 +769,6 @@ class Settings(object):  # pragma: no cover
             pairs = [
                 ("log", ALLOWED_LOG_SETTINGS),
                 ("lsf", ALLOWED_LSF_SETTINGS),
-                ("aedt_env_var", ALLOWED_AEDT_ENV_VAR_SETTINGS),
                 ("general", ALLOWED_GENERAL_SETTINGS),
             ]
             for setting_type, allowed_settings_key in pairs:
@@ -775,6 +779,13 @@ class Settings(object):  # pragma: no cover
                 else:
                     for key, value in filter_settings(settings, allowed_settings_key):
                         setattr(self, key, value)
+            # NOTE: Handle env var differently as they are loaded at once
+            setting_type = "aedt_env_var"
+            settings = local_settings.get(setting_type, {})
+            if settings:
+                if raise_on_wrong_key and any(key not in ALLOWED_AEDT_ENV_VAR_SETTINGS for key in settings.keys()):
+                    raise KeyError(f"An environment variable key is not part of the allowed keys.")
+                self.aedt_environment_variables = settings
 
     def writte_yaml_configuration(self, path: str):
         """Write the current settings into a YAML configuration file."""
