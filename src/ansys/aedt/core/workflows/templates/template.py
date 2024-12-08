@@ -21,7 +21,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Toolkit template if the user does not pass any valid script in the toolkit manager
+# Extension template to help get started
 
 import os
 
