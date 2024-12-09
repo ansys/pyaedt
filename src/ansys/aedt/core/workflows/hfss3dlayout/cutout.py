@@ -259,17 +259,17 @@ def main(extension_args):
 
     active_project = app.active_project()
     active_design = app.active_design()
-    aedb_path = os.path.join(active_project.GetPath(), active_project.GetName() + ".aedb")
-    new_path = aedb_path[:-5] + generate_unique_name("_cutout", n=2) + ".aedb"
-    edb = Edb(aedb_path, active_design.GetName().split(";")[1], edbversion=version)
-    edb.save_edb_as(new_path)
+    aedb_path = Path(active_project.GetPath()) / f"{active_project.GetName()}.aedb"
+    new_path = aedb_path.with_stem(aedb_path.stem + generate_unique_name("_cutout", n=2))
+    edb = Edb(str(aedb_path), active_design.GetName().split(";")[1], edbversion=version)
+    edb.save_edb_as(str(new_path))
     edb.cutout(
         signal_list=signal,
         reference_list=reference,
         extent_type=choice,
         expansion_size=float(expansion) / 1000,
         use_round_corner=False,
-        output_aedb_path=new_path,
+        output_aedb_path=str(new_path),
         open_cutout_at_end=True,
         use_pyaedt_cutout=True,
         number_of_threads=4,
@@ -293,7 +293,7 @@ def main(extension_args):
     edb.close_edb()
 
     # Open layout in HFSS 3D Layout
-    Hfss3dLayout(new_path)
+    Hfss3dLayout(str(new_path))
 
     if not extension_args["is_test"]:  # pragma: no cover
         app.logger.info("Project generated correctly.")
