@@ -104,6 +104,10 @@ class ExtensionTheme:  # pragma: no cover
             "radiobutton_unselected": "#FFFFFF",  # Color when unselected
             "pane_bg": "#F0F0F0",  # Background for PanedWindow
             "sash_color": "#C0C0C0",  # Color for sash (separator) in PanedWindow
+            "combobox_bg": "#FFFFFF",  # Matches widget_bg
+            "combobox_arrow_bg": "#E6E6E6",  # Matches button_bg
+            "combobox_arrow_fg": "#000000",  # Matches text
+            "combobox_readonly_bg": "#F0F0F0",  # Matches tab_bg_inactive
         }
 
         self.dark = {
@@ -126,6 +130,10 @@ class ExtensionTheme:  # pragma: no cover
             "radiobutton_selected": "#45494A",  # Color when selected
             "radiobutton_unselected": "#313335",  # Color when unselected
             "pane_bg": "#2E2E2E",  # Background for PanedWindow
+            "combobox_bg": "#313335",  # Matches widget_bg
+            "combobox_arrow_bg": "#606060",  # Matches button_hover_bg
+            "combobox_arrow_fg": "#FFFFFF",  # Matches text
+            "combobox_readonly_bg": "#2E2E2E",  # Matches pane_bg
         }
 
         # Set default font
@@ -198,6 +206,21 @@ class ExtensionTheme:  # pragma: no cover
         style.map(
             "TRadiobutton",
             background=[("selected", colors["radiobutton_selected"]), ("!selected", colors["radiobutton_unselected"])],
+        )
+
+        # Apply the colors and font to the style for Combobox
+        style.configure(
+            "PyAEDT.TCombobox",
+            fieldbackground=colors["combobox_bg"],
+            background=colors["combobox_arrow_bg"],
+            foreground=colors["text"],
+            font=self.default_font,
+            arrowcolor=colors["combobox_arrow_fg"],
+        )
+        style.map(
+            "PyAEDT.TCombobox",
+            fieldbackground=[("readonly", colors["combobox_readonly_bg"])],
+            foreground=[("readonly", colors["text"])],
         )
 
 

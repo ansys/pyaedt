@@ -79,6 +79,13 @@ They are small automated workflow with a simple UI.
 
             Generate arbitrary wave ports in HFSS.
 
+   .. grid-item-card:: Push excitation from file
+            :link: pyaedt_extensions_doc/hfss3dlayout/push_excitation
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Edit a source from file data in HFSS 3D Layout.
+
 
 HFSS extensions
 ~~~~~~~~~~~~~~~
@@ -94,6 +101,13 @@ They are small automated workflow with a simple UI.
             :margin: 2 2 0 0
 
             Design a choke and import it in HFSS.
+
+   .. grid-item-card:: Push excitation from file
+            :link: pyaedt_extensions_doc/hfss/push_excitation
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Edit a source from file data in HFSS.
 
 
 Icepak extensions
@@ -121,7 +135,7 @@ They are small automated workflow with a simple UI.
 .. grid:: 2
 
    .. grid-item-card:: Schematic import
-            :link: pyaedt_extensions_doc/icepak/create_power_map
+            :link: pyaedt_extensions_doc/circuit/import_schematic
             :link-type: doc
             :margin: 2 2 0 0
 
@@ -135,6 +149,7 @@ They are small automated workflow with a simple UI.
    pyaedt_extensions_doc/hfss3dlayout/index
    pyaedt_extensions_doc/hfss/index
    pyaedt_extensions_doc/icepak/index
+   pyaedt_extensions_doc/circuit/index
 
 
 Open source toolkits
