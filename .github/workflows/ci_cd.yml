@@ -97,6 +97,7 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-unit-tests
           files: ./coverage.xml
           flags: linux_unit
@@ -124,6 +125,7 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-integration-tests
           files: ./coverage.xml
           flags: linux_integration
@@ -182,6 +184,7 @@ jobs:
 
       - uses: codecov/codecov-action@v5
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-system-solvers-tests-windows
           files: ./coverage.xml
           flags: windows_system_solvers
@@ -237,6 +240,7 @@ jobs:
 
       - uses: codecov/codecov-action@v5
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-system-solvers-tests-linux
           files: ./coverage.xml
           flags: linux_system_solvers
@@ -300,6 +304,7 @@ jobs:
 
       - uses: codecov/codecov-action@v5
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-system-general-tests-windows
           files: ./coverage.xml
           flags: windows_system_general
@@ -367,6 +372,7 @@ jobs:
 
       - uses: codecov/codecov-action@v5
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-system-general-tests
           files: ./coverage.xml
           flags: linux_system_general
