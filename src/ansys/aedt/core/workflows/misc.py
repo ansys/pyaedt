@@ -103,7 +103,7 @@ class ExtensionTheme:  # pragma: no cover
             "radiobutton_selected": "#E0E0E0",  # Color when selected
             "radiobutton_unselected": "#FFFFFF",  # Color when unselected
             "pane_bg": "#F0F0F0",  # Background for PanedWindow
-            "sash_color": "#C0C0C0",  # Color for sash (separator) in PanedWindo
+            "sash_color": "#C0C0C0",  # Color for sash (separator) in PanedWindow
         }
 
         self.dark = {

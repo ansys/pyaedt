@@ -44,6 +44,7 @@ extension_description = "Import schematic to Circuit"
 
 def frontend():  # pragma: no cover
 
+    from pathlib import Path  # Make sure Path is imported
     import tkinter
     from tkinter import filedialog
     from tkinter import ttk
@@ -53,12 +54,10 @@ def frontend():  # pragma: no cover
     from ansys.aedt.core.workflows.misc import ExtensionTheme
 
     master = tkinter.Tk()
-
     master.geometry("650x150")
-
     master.title(extension_description)
 
-    # Detect if user close the UI
+    # Detect if user closes the UI
     master.flag = False
 
     # Load the logo for the main window
@@ -73,20 +72,25 @@ def frontend():  # pragma: no cover
     style = ttk.Style()
     theme = ExtensionTheme()
 
+    # Apply light theme initially
     theme.apply_light_theme(style)
     master.theme = "light"
+
+    # Set background color of the window (optional)
+    master.configure(bg=theme.light["widget_bg"])
 
     var2 = tkinter.StringVar()
     label2 = ttk.Label(master, textvariable=var2, style="PyAEDT.TLabel")
     var2.set("Browse file:")
-    label2.grid(row=0, column=0, pady=10)
+    label2.grid(row=0, column=0, pady=10, padx=10)
     text = tkinter.Text(master, width=40, height=1)
     text.grid(row=0, column=1, pady=10, padx=5)
+    text.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
 
     def browse_asc_folder():
         inital_dir = text.get("1.0", tkinter.END).strip()
         filename = filedialog.askopenfilename(
-            initialdir=Path(initial_dir).parent if inital_dir else "/",
+            initialdir=Path(inital_dir).parent if inital_dir else "/",
             title="Select configuration file",
             filetypes=(("LTSPice file", "*.asc"), ("Spice file", "*.cir *.sp"), ("Qcv file", "*.qcv")),
         )
@@ -95,12 +99,40 @@ def frontend():  # pragma: no cover
     b1 = ttk.Button(master, text="...", width=10, command=browse_asc_folder, style="PyAEDT.TButton")
     b1.grid(row=0, column=2, pady=10)
 
+    def toggle_theme():
+        if master.theme == "light":
+            set_dark_theme()
+            master.theme = "dark"
+        else:
+            set_light_theme()
+            master.theme = "light"
+
+    def set_light_theme():
+        master.configure(bg=theme.light["widget_bg"])
+        text.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
+        theme.apply_light_theme(style)
+        change_theme_button.config(text="\u263D")  # Sun icon for light theme
+
+    def set_dark_theme():
+        master.configure(bg=theme.dark["widget_bg"])
+        text.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
+        theme.apply_dark_theme(style)
+        change_theme_button.config(text="\u2600")  # Moon icon for dark theme
+
+    # Create a frame for the toggle button to position it correctly
+    button_frame = ttk.Frame(master, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2)
+    button_frame.grid(row=1, column=2, pady=10, padx=10)  # Place it in the second row, third column
+
+    # Add the toggle theme button inside the frame
+    change_theme_button = ttk.Button(button_frame, text="\u263D", command=toggle_theme, style="PyAEDT.TButton")
+    change_theme_button.grid(row=0, column=0, padx=0)
+
     def callback():
         master.flag = True
         master.asc_path_ui = text.get("1.0", tkinter.END).strip()
         master.destroy()
 
-    b3 = ttk.Button(master, text="Ok", width=40, command=callback, style="PyAEDT.TButton")
+    b3 = ttk.Button(master, text="Import", width=40, command=callback, style="PyAEDT.TButton")
     b3.grid(row=1, column=1, pady=10, padx=10)
 
     tkinter.mainloop()

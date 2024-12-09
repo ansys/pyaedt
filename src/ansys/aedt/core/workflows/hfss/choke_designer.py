@@ -269,10 +269,12 @@ def frontend():  # pragma: no cover
             master.theme = "light"
 
     def set_light_theme():
+        master.configure(bg=theme.light["widget_bg"])
         theme.apply_light_theme(style)
         change_theme_button.config(text="\u263D")
 
     def set_dark_theme():
+        master.configure(bg=theme.dark["widget_bg"])
         theme.apply_dark_theme(style)
         change_theme_button.config(text="\u2600")
 
