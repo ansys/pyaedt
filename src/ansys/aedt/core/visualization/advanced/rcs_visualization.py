@@ -715,7 +715,6 @@ class MonostaticRCSPlotter(object):
         :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
             PyAEDT matplotlib figure object.
         """
-
         curves = []
         all_secondary_sweep_value = secondary_sweep_value
         if primary_sweep.lower() == "freq" or primary_sweep.lower() == "frequency":
@@ -813,7 +812,6 @@ class MonostaticRCSPlotter(object):
             If ``show=True``, a Matplotlib figure instance of the plot is returned.
             If ``show=False``, the plotted curve is returned.
         """
-
         data = self.rcs_data.rcs_active_frequency
 
         rcs = data["Data"]
@@ -994,7 +992,6 @@ class MonostaticRCSPlotter(object):
         :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
             PyAEDT matplotlib figure object.
         """
-
         data_isar = self.rcs_data.isar_2d
 
         ranges = np.unique(data_isar["Down-range"])

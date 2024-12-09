@@ -336,7 +336,7 @@ class TouchstoneData(rf.Network):
 
     @pyaedt_function_handler()
     def get_fext_xtalk_index_from_prefix(self, tx_prefix, rx_prefix, skip_same_index_couples=True):
-        """Get the list of all the Far End XTalk from a list of exctitations and a prefix that will
+        """Get the list of all the Far End XTalk from a list of excitations and a prefix that will
         be used to retrieve driver and receivers names.
         If skip_same_index_couples is true, the tx and rx with same index
         position will be considered insertion losses and excluded from the list.
@@ -493,7 +493,7 @@ def check_touchstone_files(input_dir="", passivity=True, causality=True):
         Whether the causality check is enabled. The default is ``True``.
 
     Returns
-    ----------
+    -------
     dict
         Dictionary with the SNP file name as the key and a list if the passivity and/or causality checks are enabled.
         The first element in the list is a str with ``"passivity"`` or ``"causality"`` as a value. The second element
@@ -561,7 +561,7 @@ def find_touchstone_files(input_dir):
         Folder path. The default is ``""``.
 
     Returns
-    ----------
+    -------
     dict
         Dictionary with the SNP file names as the key and the absolute path as the value.
     """

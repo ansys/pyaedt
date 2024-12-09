@@ -409,7 +409,6 @@ class PostProcessorCircuit(PostProcessorCommon):
         >>> circuit = Circuit()
         >>> circuit.post.sample_ami_waveform(name,probe_name,source_name,circuit.available_variations.nominal)
         """
-
         new_tic = []
         for tic in clock_tics:
             new_tic.append(unit_converter(tic, unit_system="Time", input_units="s", output_units=waveform_sweep_unit))

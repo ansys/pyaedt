@@ -76,6 +76,7 @@ class BoxFacePointsAndFields(object):
             print("Error in set_field_component function.")
 
     def fill_empty_data(self):
+        """Fill empty data with zeros."""
         for el, val in self.re.items():
             if not val:
                 zero_field_z_faces = [0] * len(self.x)

@@ -875,7 +875,7 @@ class GlobalService(rpyc.Service):
 
     @staticmethod
     def aedt_grpc(port=None, beta_options=None, use_aedt_relative_path=False, non_graphical=True):
-        """Starts a new AEDT session on a specified gRPC port.
+        """Start a new AEDT session on a specified gRPC port.
 
         Returns
         -------

@@ -62,9 +62,9 @@ class CommonRegion(object):
 
     @property
     def padding_values(self):
-        """
-        Get a list of padding values (string or float) used,
-        one for each direction, in the following order:
+        """Get a list of padding values (string or float) used.
+
+        Get one for each direction, in the following order:
         +X, -X, +Y, -Y, +Z, -Z.
 
         Returns
@@ -696,7 +696,6 @@ class GlobalMeshRegion(MeshRegionCommon):
 
         References
         ----------
-
         >>> oModule.EditGlobalMeshRegion
         """
         args = ["NAME:Settings"]
@@ -712,22 +711,16 @@ class GlobalMeshRegion(MeshRegionCommon):
 
     @property
     def Objects(self):
-        """
-        Get the region object from the modeler.
-        """
+        """Get the region object from the modeler."""
         return self.global_region.name
 
     def delete(self):
-        """
-        Delete the region object in the modeler.
-        """
+        """Delete the region object in the modeler."""
         self.global_region.object.delete()
         self.global_region = None
 
     def create(self):
-        """
-        Create the region object in the modeler.
-        """
+        """Create the region object in the modeler."""
         self.delete()
         self.global_region = Region(self._app)
         self.global_region.create(self.padding_types, self.padding_values)
@@ -1424,12 +1417,10 @@ class IcepakMesh(object):
 
         References
         ----------
-
         >>> oEditor.UpdatePriorityList
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Icepak
         >>> app = Icepak()
         >>> app.mesh.add_priority(entity_type=1,assignment=app.modeler.object_names,priority=3)

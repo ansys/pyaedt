@@ -477,6 +477,7 @@ class PostProcessorCommon(object):
     @pyaedt_function_handler()
     def available_report_solutions(self, report_category=None):
         """Get the list of available solutions that can be used for the reports.
+
         This list differs from the one obtained with ``app.existing_analysis_sweeps``,
         because it includes additional elements like "AdaptivePass".
 
@@ -1607,7 +1608,6 @@ class PostProcessorCommon(object):
 
         Examples
         --------
-
         Create report from JSON file.
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()

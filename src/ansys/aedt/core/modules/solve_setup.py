@@ -27,7 +27,6 @@ This module contains these classes: `Setup`, `Setup3DLayout`, and `SetupCircuit`
 
 This module provides all functionalities for creating and editing setups in AEDT.
 It is based on templates to allow for easy creation and modification of setup properties.
-
 """
 
 from __future__ import absolute_import  # noreorder
@@ -1409,9 +1408,7 @@ class SetupCircuit(CommonSetup):
         -------
         list
             List of the data.
-
         """
-
         if isrelativeconvergence:
             userelative = 1
         else:
@@ -1948,10 +1945,8 @@ class Setup3DLayout(CommonSetup):
 
         References
         ----------
-
         >>> oModule.ExportToHfss
         """
-
         output_file = output_file
         if not os.path.isdir(os.path.dirname(output_file)):
             return False
@@ -4196,7 +4191,6 @@ class SetupIcepak(Setup, object):
 
         References
         ----------
-
         >>> oModule.EditSetup
 
         Examples
@@ -4204,9 +4198,7 @@ class SetupIcepak(Setup, object):
         >>> ipk = ansys.aedt.core.Icepak()
         >>> setup = ipk.get_setup("Setup1")
         >>> setup.start_continue_from_previous_setup(design="IcepakDesign1",solution="Setup1 : SteadyState")
-
         """
-
         auto_update = self.auto_update
         try:
             self.auto_update = False

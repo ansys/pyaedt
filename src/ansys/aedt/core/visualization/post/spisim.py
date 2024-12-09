@@ -212,7 +212,6 @@ class SpiSim:
         bool or float
             Effective return loss from the spisimExe command, ``False`` when failed.
         """
-
         cfg_dict = {
             "INPARRY": "",
             "MIXMODE": "",

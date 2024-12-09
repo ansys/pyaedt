@@ -2268,6 +2268,7 @@ class PostProcessor3D(PostProcessorCommon):
     @pyaedt_function_handler(setup_name="setup")
     def export_mesh_obj(self, setup=None, intrinsics=None, export_air_objects=False, on_surfaces=True):
         """Export the mesh in AEDTPLT format.
+
         The mesh has to be available in the selected setup.
         If a parametric model is provided, you can choose the mesh to export by providing a specific set of variations.
         This method applies only to ``Hfss``, ``Q3d``, ``Q2D``, ``Maxwell3d``, ``Maxwell2d``, ``Icepak``
@@ -3831,7 +3832,6 @@ class PostProcessor3D(PostProcessorCommon):
 
         Returns
         -------
-
         """
         if isinstance(frames, str) and os.path.exists(frames):
             with open_file(frames, "r") as f:

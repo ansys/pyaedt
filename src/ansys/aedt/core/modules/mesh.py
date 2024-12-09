@@ -22,9 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-This module contains the `Mesh` class.
-"""
+"""This module contains the `Mesh` class."""
 
 from __future__ import absolute_import  # noreorder
 
@@ -933,10 +931,8 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.DeleteOp
         """
-
         mesh_op_types = ["Length Based", "Surface Approximation Based"]
 
         if mesh_type:
@@ -1194,18 +1190,18 @@ class Mesh(object):
     def assign_curvature_extraction(self, assignment, disabled_for_faceted=True, name=None):
         """Assign curvature extraction.
 
-         Parameters
-         ----------
-         assignment : list
-            List of objects or faces.
-         disabled_for_faceted : bool, optional
-            Whether curvature extraction is enabled for faceted surfaces.
-            The default is ``True``.
-         name : str, optional
-            Name of the mesh operation. The default is ``None``.
+        Parameters
+        ----------
+        assignment : list
+        List of objects or faces.
+        disabled_for_faceted : bool, optional
+        Whether curvature extraction is enabled for faceted surfaces.
+        The default is ``True``.
+        name : str, optional
+        Name of the mesh operation. The default is ``None``.
 
-         Returns
-         -------
+        Returns
+        -------
         :class:`ansys.aedt.core.modules.mesh.MeshOperation`
             Mesh operation object.
 

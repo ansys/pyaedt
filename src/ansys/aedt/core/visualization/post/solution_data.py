@@ -91,8 +91,9 @@ class SolutionData(object):
 
     @property
     def enable_pandas_output(self):
-        """
-        Set/Get a flag to use Pandas to export dict and lists. This applies to Solution data output.
+        """Set/Get a flag to use Pandas to export dict and lists.
+
+        This applies to Solution data output.
         If ``True`` the property or method will return a pandas object in CPython environment.
         Default is ``False``.
 
