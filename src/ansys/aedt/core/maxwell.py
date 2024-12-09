@@ -166,6 +166,7 @@ class Maxwell(object):
             Only available if skew_type is ``User Defined``.
             The length of this list must be equal to number_of_slices.
             The default value is ``None``.
+
         Returns
         -------
         bool

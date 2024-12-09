@@ -219,6 +219,7 @@ class Bird(Actor, object):
         app : ansys.aedt.core.Hfss
         motion : bool
             Whether the bird is in motion. The default is ``True``.
+
         Returns
         -------
         bool

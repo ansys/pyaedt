@@ -1425,6 +1425,7 @@ class GeometryModeler(Modeler):
         ----------
         assignment : str, int
             Sheet object to cover.
+
         Returns
         -------
         bool
@@ -1432,7 +1433,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CoverLines
         """
         obj_to_cover = self.convert_to_selections(assignment, False)

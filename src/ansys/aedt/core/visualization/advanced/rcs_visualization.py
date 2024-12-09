@@ -928,7 +928,6 @@ class MonostaticRCSPlotter(object):
         :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
             PyAEDT matplotlib figure object.
         """
-
         data_range_waterfall = self.rcs_data.waterfall
 
         ranges = np.unique(data_range_waterfall["Range"])

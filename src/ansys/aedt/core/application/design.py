@@ -1757,6 +1757,7 @@ class Design(AedtObjects):
             Full name of the AEDT registry key.
         value : str, int
             Value for the AEDT registry key.
+
         Returns
         -------
         bool
@@ -1764,7 +1765,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.SetRegistryString
         >>> oDesktop.SetRegistryInt
         """

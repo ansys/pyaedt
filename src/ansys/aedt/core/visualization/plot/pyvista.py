@@ -583,6 +583,7 @@ class CommonPlotter(object):
     @property
     def camera_position(self):
         """Get or set the camera position value. This parameter disables the default iso view.
+
         Value for the camera position. The value is for ``"xy"``, ``"xz"`` or ``"yz"``.
 
         Returns
@@ -710,7 +711,9 @@ class CommonPlotter(object):
     @property
     def background_color(self):
         """Background color.
-        It can be a tuple of (r,g,b)  or color name."""
+
+        It can be a tuple of (r,g,b)  or color name.
+        """
         return self._background_color
 
     @background_color.setter
@@ -911,6 +914,7 @@ class ModelPlotter(CommonPlotter):
             Delauny tolerance value used for interpolating points.
         header_lines : int
             Number of lines to of the file containing header info that has to be removed.
+
         Returns
         -------
         bool

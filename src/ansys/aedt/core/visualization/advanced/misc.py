@@ -731,6 +731,7 @@ def simplify_stl(input_file, output_file=None, decimation=0.5, preview=False):
         original size and will remove 90% of the input triangles.
     preview : bool, optional
         Whether to preview the model in pyvista or skip it.
+
     Returns
     -------
     str

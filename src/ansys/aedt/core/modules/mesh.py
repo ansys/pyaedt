@@ -194,10 +194,12 @@ class MeshOperation(object):
     @pyaedt_function_handler()
     def update(self, key_name=None, value=None):
         """Update the mesh.
+
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
         References
         ----------
         >>> oModule.EditTrueSurfOp

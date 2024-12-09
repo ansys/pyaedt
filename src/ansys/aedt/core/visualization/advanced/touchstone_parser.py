@@ -307,7 +307,7 @@ class TouchstoneData(rf.Network):
 
     @pyaedt_function_handler()
     def get_next_xtalk_index(self, tx_prefix=""):
-        """Get the list of all the Near End XTalk a list of excitation
+        """Get the list of all the Near End XTalk a list of excitation.
 
         Optionally prefix can be used to retrieve driver names.
         Example: excitation_names ["1", "2", "3"] output ["S(1,2)", "S(1,3)", "S(2,3)"].
@@ -321,7 +321,6 @@ class TouchstoneData(rf.Network):
         -------
         list
             List of index couples representing Near End XTalks.
-
         """
         if tx_prefix:
             trlist = [i for i in self.port_names if tx_prefix in i]
@@ -355,7 +354,6 @@ class TouchstoneData(rf.Network):
         -------
         list
             List of index couples representing Far End XTalks.
-
         """
         trlist = [i for i in self.port_names if tx_prefix in i]
         reclist = [i for i in self.port_names if rx_prefix in i]
@@ -373,6 +371,7 @@ class TouchstoneData(rf.Network):
         ----------
         tx_prefix: str, optional
             Prefix for TX. Default value is ``""``.
+
         Returns
         -------
         bool
