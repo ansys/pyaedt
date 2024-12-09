@@ -440,7 +440,6 @@ class PostProcessor3D(PostProcessorCommon):
 
         References
         ----------
-
         >>> oModule.EnterQty
         >>> oModule.CopyNamedExprToStack
         >>> oModule.CalcOp
@@ -1416,6 +1415,7 @@ class PostProcessor3D(PostProcessorCommon):
     ):
         # type: (list, str, str, list, bool, dict, str) -> FieldPlot
         """Create a field plot of stacked layer plot.
+
         This plot is valid from AEDT 2023 R2 and later in HFSS 3D Layout. Nets can be used as a filter.
         Dielectrics will be included into the plot.
         It works when a layout components in 3d modeler is used.
@@ -1591,6 +1591,7 @@ class PostProcessor3D(PostProcessorCommon):
     ):
         # type: (list, str, str, dict, bool, str) -> FieldPlot
         """Create a field plot of stacked layer plot on specified matrix of layers and nets.
+
         This plot is valid from AEDT 2023 R2 and later in HFSS 3D Layout
         and any modeler where a layout component is used.
 

@@ -249,7 +249,7 @@ class TouchstoneData(rf.Network):
 
     @pyaedt_function_handler()
     def get_return_loss_index(self, excitation_name_prefix=""):
-        """Get the list of all the Returnloss from a list of exctitations.
+        """Get the list of all the Returnloss from a list of excitations.
 
         If no excitation is provided it will provide a full list of return losses.
 
@@ -259,8 +259,8 @@ class TouchstoneData(rf.Network):
         Parameters
         ----------
 
-        excitation_name_prefix :
-             (Default value = '')
+        excitation_name_prefix :str, optional
+            Prefix of the excitation. Default value is ``""``.
 
         Returns
         -------
@@ -306,14 +306,15 @@ class TouchstoneData(rf.Network):
 
     @pyaedt_function_handler()
     def get_next_xtalk_index(self, tx_prefix=""):
-        """Get the list of all the Near End XTalk a list of excitation. Optionally prefix can
-        be used to retrieve driver names.
+        """Get the list of all the Near End XTalk a list of excitation
+
+        Optionally prefix can be used to retrieve driver names.
         Example: excitation_names ["1", "2", "3"] output ["S(1,2)", "S(1,3)", "S(2,3)"].
 
         Parameters
         ----------
-        tx_prefix :
-            prefix for TX (eg. "DIE") (Default value = "")
+        tx_prefix :str, optional
+            Prefix for TX (eg. "DIE"). Default value is ``""``.
 
         Returns
         -------
@@ -369,6 +370,8 @@ class TouchstoneData(rf.Network):
 
         Parameters
         ----------
+        tx_prefix: str, optional
+            Prefix for TX. Default value is ``""``.
         Returns
         -------
         bool
@@ -386,10 +389,10 @@ class TouchstoneData(rf.Network):
         Parameters
         ----------
         tx_prefix : str
-            prefix for TX (eg. "DIE")
+            Prefix for TX (eg. "DIE").
         rx_prefix : str
-            prefix for RX (eg. "BGA")
-        skip_same_index_couples : bool
+            Prefix for RX (eg. "BGA").
+        skip_same_index_couples : bool, optional
             Boolean ignore TX and RX couple with same index. The default value is ``True``.
 
         Returns
@@ -426,9 +429,7 @@ class TouchstoneData(rf.Network):
         -------
         tuple
             Worst element, dictionary of ordered expression.
-
         """
-
         return_loss_freq = [float(i.center) for i in list(self.frequency)]
         if not freq_min:
             lower_id = 0

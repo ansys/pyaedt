@@ -220,7 +220,6 @@ class SolutionData(object):
         dict
             Updated sweeps.
         """
-
         names = list(self.nominal_variation.GetSweepNames())
         for data in self._original_data:
             for v in data.GetDesignVariableNames():
@@ -281,7 +280,7 @@ class SolutionData(object):
 
     @pyaedt_function_handler()
     def _init_solution_data_real(self):
-        """ """
+        """Initialize the real part of the solution data."""
         sols_data = {}
 
         for expression in self.expressions:

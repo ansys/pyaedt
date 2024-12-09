@@ -329,9 +329,7 @@ class SpiSim:
 
         Returns
         -------
-
         """
-
         com_param = COMParametersVer3p4()
         if standard == 0:
             if os.path.splitext(config_file)[-1] == ".cfg":
@@ -392,6 +390,7 @@ class SpiSim:
             Full path to configuration file to create.
         standard : int
             Index of the standard.
+
         Returns
         -------
         bool
@@ -424,9 +423,7 @@ def detect_encoding(file_path, expected_pattern="", re_flags=0):
 
 
 class DataSet(object):
-    """
-    Base class for storing all traces of a RAW file. Returned by the get_trace() or by the get_axis()
-    methods.
+    """Base class for storing all traces of a RAW file. Returned by the get_trace() or by the get_axis() methods.
 
     Normally the user doesn't have to be aware of this class. It is only used internally to encapsulate the different
     implementations of the wave population.

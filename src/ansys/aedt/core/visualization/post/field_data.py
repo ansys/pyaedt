@@ -387,14 +387,14 @@ class NumberFormat(BaseFolderPlot):
     def format_type(self, v):
         """Set the numeric format type of the scale.
 
-        Parameters:
-        -----------
-            v (str): The new format type to be set. Must be one of the accepted values
+        Parameters
+        ----------
+        v (str): The new format type to be set. Must be one of the accepted values
             ("Automatic", "Scientific" or "Decimal").
 
-        Raises:
-        -------
-            ValueError: If the provided value is not in the list of accepted values.
+        Raises
+        ------
+        ValueError: If the provided value is not in the list of accepted values.
         """
         if v is not None and v in self._accepted:
             self._format_type = v
@@ -981,7 +981,8 @@ class FieldPlot:
     def _parse_folder_settings(self):
         """Parse the folder settings for the field plot from the AEDT file.
 
-        Returns:
+        Returns
+        -------
             FolderPlotSettings or None: An instance of FolderPlotSettings if found, otherwise None.
         """
         folder_settings_data = load_keyword_in_aedt_file(

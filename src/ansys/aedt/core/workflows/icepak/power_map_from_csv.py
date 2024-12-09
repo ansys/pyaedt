@@ -179,8 +179,7 @@ def create_powermaps_from_csv(ipk, csv_file):
 
 
 def create_powermaps_from_info(ipk, geometric_info, source_value_info, source_unit_info):
-    """
-    Create power maps from geometric and source information.
+    """Create power maps from geometric and source information.
 
     Parameters
     ----------

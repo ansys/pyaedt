@@ -644,7 +644,6 @@ class PostProcessorCommon(object):
 
         References
         ----------
-
         >>> oModule.DeleteReports
         """
         try:
@@ -778,7 +777,8 @@ class PostProcessorCommon(object):
         step=None,
         use_trace_number_format=False,
     ):
-        """Export a 2D Plot data to a file.
+        r"""
+        Export a 2D Plot data to a file.
 
         This method leaves the data in the plot (as data) as a reference
         for the Plot after the loops.
@@ -1345,6 +1345,7 @@ class PostProcessorCommon(object):
         math_formula=None,
     ):
         """Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
+
         Data to be retrieved from Electronics Desktop are any simulation results available in that
         specific simulation context.
         Most of the argument have some defaults which works for most of the ``Standard`` report quantities.
@@ -2189,7 +2190,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(my_project)
         >>> report = hfss.post.reports_by_category.antenna_parameters("GainTotal", "Setup : LastAdaptive", "3D_Sphere")
@@ -2300,7 +2300,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(my_project)
         >>> report = hfss.post.reports_by_category.terminal_solution("dB(S(1,1))")
@@ -2338,7 +2337,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(my_project)
         >>> report = hfss.post.reports_by_category.eigenmode("dB(S(1,1))")
@@ -2446,7 +2444,6 @@ class Reports(object):
         >>> new_eye.unit_interval = "1e-9s"
         >>> new_eye.time_stop = "100ns"
         >>> new_eye.create()
-
         """
         if not setup:
             setup = self._post_app._app.nominal_sweep

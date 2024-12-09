@@ -410,7 +410,6 @@ class PostProcessorCircuit(PostProcessorCommon):
         >>> from ansys.aedt.core import Circuit
         >>> circuit = Circuit()
         >>> circuit.post.sample_ami_waveform(name,probe_name,source_name,circuit.available_variations.nominal)
-
         """
 
         new_tic = []

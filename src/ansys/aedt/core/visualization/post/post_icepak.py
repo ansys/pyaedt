@@ -74,8 +74,7 @@ class PostProcessorIcepak(PostProcessor3D):
 
     @pyaedt_function_handler(timestep="time_step", design_variation="variation")
     def get_fans_operating_point(self, export_file=None, setup_name=None, time_step=None, variation=None):
-        """
-        Get the operating point of the fans in the design.
+        """Get the operating point of the fans in the design.
 
         Parameters
         ----------
