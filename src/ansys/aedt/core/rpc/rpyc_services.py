@@ -167,14 +167,18 @@ class FileManagement(object):
         if self.client.root.pathexists(remotepath):
             return True
         return False
+
     def unlink(self, remotepath):
         if self.client.root.unlink(remotepath):
             return True
         return False
+
     def normpath(self, remotepath):
         return self.client.root.normpath(remotepath)
+
     def isdir(self, remotepath):
         return self.client.root.isdir(remotepath)
+
     def temp_dir(self):
         return self.client.root.temp_dir()
 
@@ -309,7 +313,7 @@ class PyaedtServiceWindows(rpyc.Service):
         edbversion="2021.2",
         use_ppe=False,
     ):
-        """Starts a new Hfss session.
+        """Start a new Hfss session.
 
         Parameters
         ----------
@@ -351,7 +355,7 @@ class PyaedtServiceWindows(rpyc.Service):
         version=None,
         non_graphical=True,
     ):
-        """Starts a new Hfss session.
+        """Start a new Hfss session.
 
         Parameters
         ----------
@@ -406,7 +410,7 @@ class PyaedtServiceWindows(rpyc.Service):
         version=None,
         non_graphical=True,
     ):
-        """Starts a new Hfss3dLayout session.
+        """Start a new Hfss3dLayout session.
 
         Parameters
         ----------
@@ -461,7 +465,7 @@ class PyaedtServiceWindows(rpyc.Service):
         version=None,
         non_graphical=True,
     ):
-        """Starts a new Maxwell3d session.
+        """Start a new Maxwell3d session.
 
         Parameters
         ----------
@@ -516,7 +520,7 @@ class PyaedtServiceWindows(rpyc.Service):
         version=None,
         non_graphical=True,
     ):
-        """Starts a new Maxwell32 session.
+        """Start a new Maxwell32 session.
 
         Parameters
         ----------
@@ -571,7 +575,7 @@ class PyaedtServiceWindows(rpyc.Service):
         version=None,
         non_graphical=True,
     ):
-        """Starts a new Icepak session.
+        """Start a new Icepak session.
 
         Parameters
         ----------
@@ -626,7 +630,7 @@ class PyaedtServiceWindows(rpyc.Service):
         version=None,
         non_graphical=True,
     ):
-        """Starts a new Circuit session.
+        """Start a new Circuit session.
 
         Parameters
         ----------
@@ -681,7 +685,7 @@ class PyaedtServiceWindows(rpyc.Service):
         version=None,
         non_graphical=True,
     ):
-        """Starts a new Mechanical session.
+        """Start a new Mechanical session.
 
         Parameters
         ----------
@@ -736,7 +740,7 @@ class PyaedtServiceWindows(rpyc.Service):
         version=None,
         non_graphical=True,
     ):
-        """Starts a new Q3d session.
+        """Start a new Q3d session.
 
         Parameters
         ----------
@@ -791,7 +795,7 @@ class PyaedtServiceWindows(rpyc.Service):
         version=None,
         non_graphical=True,
     ):
-        """Starts a new Q2d session.
+        """Start a new Q2d session.
 
         Parameters
         ----------
@@ -842,12 +846,14 @@ class GlobalService(rpyc.Service):
     """Global class to manage rpyc Server of PyAEDT."""
 
     def on_connect(self, connection):
+        """Initialize the service when the connection is created."""
         # code that runs when a connection is created
         # (to init the service, if needed)
         self.connection = connection
         pass
 
     def on_disconnect(self, connection):
+        """Finalize the service when the connection is closed."""
         # code that runs after the connection has already closed
         # (to finalize the service, if needed)
         if is_windows:

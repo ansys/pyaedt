@@ -428,11 +428,10 @@ class SubRegion(CommonRegion):
 
     @parts.setter
     def parts(self, parts):
-        """
-        Parts included in the subregion.
+        """Parts included in the subregion.
 
         Parameters
-        -------
+        ----------
         parts : List[str]
             List of strings containing all the parts that must be included in the subregion.
         """
@@ -440,8 +439,7 @@ class SubRegion(CommonRegion):
 
 
 class MeshSettings(object):
-    """
-    Class for managing mesh settings.
+    """Manages mesh settings.
 
     It can be used like a dictionary. Available keys change according
     to the type of settings chosen (manual or automatic).
@@ -497,8 +495,7 @@ class MeshSettings(object):
                 del self._instance_settings[arg]
 
     def parse_settings_as_args(self):
-        """
-        Parse mesh region settings.
+        """Parse mesh region settings.
 
         Returns
         -------
@@ -515,8 +512,7 @@ class MeshSettings(object):
         return out
 
     def parse_settings_as_dictionary(self):
-        """
-        Parse mesh region settings.
+        """Parse mesh region settings.
 
         Returns
         -------
@@ -532,8 +528,7 @@ class MeshSettings(object):
         return out
 
     def keys(self):
-        """
-        Get mesh region settings keys.
+        """Get mesh region settings keys.
 
         Returns
         -------
@@ -546,8 +541,7 @@ class MeshSettings(object):
             return set(self._automatic_mesh_settings.keys()) | set(self._common_mesh_settings.keys())
 
     def values(self):
-        """
-        Get mesh region settings values.
+        """Get mesh region settings values.
 
         Returns
         -------
@@ -636,21 +630,15 @@ class MeshRegionCommon(object):
 
     @abstractmethod
     def update(self):
-        """
-        Update the mesh region object.
-        """
+        """Update the mesh region object."""
 
     @abstractmethod
     def delete(self):
-        """
-        Delete the mesh region object.
-        """
+        """Delete the mesh region object."""
 
     @abstractmethod
     def create(self):
-        """
-        Create the mesh region object.
-        """
+        """Create the mesh region object."""
 
     # backward compatibility
     def __getattr__(self, name):
@@ -1065,7 +1053,6 @@ class IcepakMesh(object):
     @pyaedt_function_handler()
     def _refresh_mesh_operations(self):
         """Refresh all mesh operations."""
-
         self._meshoperations = self._get_design_mesh_operations()
         return len(self.meshoperations)
 
@@ -1349,12 +1336,10 @@ class IcepakMesh(object):
 
         References
         ----------
-
         >>> oEditor.UpdatePriorityList
 
         Examples
         --------
-
         >>> ipk.mesh.assign_priorities([["Box1", "Rectangle1"], ["Box2", "Fan1_1"], ["Heatsink1_1"]])
         """
         if not assignment or not isinstance(assignment, list) or not isinstance(assignment[0], list):
