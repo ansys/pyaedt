@@ -1252,17 +1252,18 @@ class FieldAnalysis3D(Analysis, object):
         list
             List of layers in the DXF file.
         """
-        try:
-            import ezdxf
-
-            doc = ezdxf.readfile(file_path)
-            return [layer.dxf.name for layer in doc.layers if layer.dxf.plot]
-        except ImportError:  # pragma: no cover
-            self.logger.warning(
-                "The ezdxf module is required to import DXF files.\n"
-                "Install with pip install pyaedt[all] or install with pip install ezdxf"
-            )
-            return []
+        layer_names = []
+        with open_file(file_path, encoding="utf8") as f:
+            lines = f.readlines()
+            indices = self._find_indices(lines, "AcDbLayerTableRecord\n")
+            index_offset = 1
+            if not indices:
+                indices = self._find_indices(lines, "LAYER\n")
+                index_offset = 3
+            for idx in indices:
+                if "2" in lines[idx + index_offset]:
+                    layer_names.append(lines[idx + index_offset + 1].replace("\n", ""))
+            return layer_names
 
     @pyaedt_function_handler(layers_list="layers")
     def import_dxf(
@@ -1474,3 +1475,20 @@ class FieldAnalysis3D(Analysis, object):
         )
         self.logger.info("GDS layer imported with elevations and thickness.")
         return True
+
+    @pyaedt_function_handler()
+    def _find_indices(self, list_to_check, item_to_find):
+        # type: (list, str|int) -> list
+        """Given a list, returns the list of indices for all occurrences of a given element.
+        Parameters
+        ----------
+        list_to_check: list
+            List to check.
+        item_to_find: str, int
+            Element to search for in the list.
+        Returns
+        -------
+        list
+            Indices of the occurrences of a given element.
+        """
+        return [idx for idx, value in enumerate(list_to_check) if value == item_to_find]
