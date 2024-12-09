@@ -3196,10 +3196,10 @@ class GeometryModeler(Modeler):
         self.oeditor.SweepAlongVector(vArg1, vArg2)
 
         if isinstance(assignment, list):
-            updated_obj = []
+            res = []
             for sel_obj in assignment:
-                updated_obj.append(self.update_object(sel_obj))
-            return updated_obj
+                res.append(self.update_object(sel_obj))
+            return res
         else:
             return self.update_object(assignment)
 
@@ -3251,7 +3251,13 @@ class GeometryModeler(Modeler):
 
         self.oeditor.SweepAlongPath(vArg1, vArg2)
 
-        return self.update_object(assignment)
+        if isinstance(assignment, list):
+            res = []
+            for sel_obj in assignment:
+                res.append(self.update_object(sel_obj))
+            return res
+        else:
+            return self.update_object(assignment)
 
     @pyaedt_function_handler(objid="assignment", cs_axis="axis")
     def sweep_around_axis(self, assignment, axis, sweep_angle=360, draft_angle=0, number_of_segments=0):
@@ -3301,7 +3307,13 @@ class GeometryModeler(Modeler):
 
         self.oeditor.SweepAroundAxis(vArg1, vArg2)
 
-        return self.update_object(assignment)
+        if isinstance(assignment, list):
+            res = []
+            for sel_obj in assignment:
+                res.append(self.update_object(sel_obj))
+            return res
+        else:
+            return self.update_object(assignment)
 
     @pyaedt_function_handler(object_list="assignment")
     def section(self, assignment, plane, create_new=True, section_cross_object=False):

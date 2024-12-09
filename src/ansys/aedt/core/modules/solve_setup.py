@@ -2552,27 +2552,51 @@ class SetupHFSS(Setup, object):
     def set_tuning_offset(self, offsets):
         """Set derivative variable to a specific offset value.
 
+        This method adjusts the tuning ranges for derivative variables in the design, allowing for specific offset
+        values to be applied. If a variable is not specified in the ``offsets`` dictionary,
+        its offset is set to ``0`` by default. Each value must be within ±10% of the nominal
+        value of the corresponding variable.
+
         Parameters
         ----------
         offsets : dict
-            Dictionary containing the variable name and it's offset value.
+            Dictionary where keys are variable names and values are the corresponding offset values to be applied.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oDesign.SetTuningRanges
+
+        Examples
+        --------
+        >>> from ansys.aed.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss["der_var"] = "1mm"
+        >>> setup = hfss.create_setup(setup_type=1)
+        >>> setup.add_derivatives("der_var")
+        >>> hfss.analyze()
+        >>> setup.set_tuning_offset({"der_var": 0.05})
         """
         variables = self.get_derivative_variables()
         for v in variables:
             if v not in offsets:
                 offsets[v] = 0
-        arg = []
+        arg = ["NAME:TuningRanges"]
         for k, v in offsets.items():
-            arg.append(f"DeltaOffset({k})")
-            arg.append(f"{abs(self._app.variable_manager[k].numeric_value) * (-0.1)}")
-            arg.append(f"{v}")
-            arg.append(f"{abs(self._app.variable_manager[k].numeric_value) * 0.1}")
+            arg.append("Range:=")
+            arg2 = [
+                f"DeltaOffset({k})",
+                abs(self._app.variable_manager[k].numeric_value) * (-0.1),
+                v,
+                abs(self._app.variable_manager[k].numeric_value) * 0.1,
+            ]
+            arg.append(arg2)
         if self.is_solved:
-            self._app.osolution.SetTuningOffsets(["TuningRanges:=", arg])
+            self._app.odesign.SetTuningRanges(arg)
             return True
         else:
             self._app.logger.error(f"Setup {self.name} is not solved. Solve it before tuning variables.")
@@ -3269,27 +3293,51 @@ class SetupHFSSAuto(Setup, object):
     def set_tuning_offset(self, offsets):
         """Set derivative variable to a specific offset value.
 
+        This method adjusts the tuning ranges for derivative variables in the design, allowing for specific offset
+        values to be applied. If a variable is not specified in the ``offsets`` dictionary,
+        its offset is set to ``0`` by default. Each value must be within ±10% of the nominal
+        value of the corresponding variable.
+
         Parameters
         ----------
         offsets : dict
-            Dictionary containing the variable name and it's offset value.
+            Dictionary where keys are variable names and values are the corresponding offset values to be applied.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oDesign.SetTuningRanges
+
+        Examples
+        --------
+        >>> from ansys.aed.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss["der_var"] = "1mm"
+        >>> setup = hfss.create_setup(setup_type=0)
+        >>> setup.add_derivatives("der_var")
+        >>> hfss.analyze()
+        >>> setup.set_tuning_offset({"der_var": 0.05})
         """
         variables = self.get_derivative_variables()
         for v in variables:
             if v not in offsets:
                 offsets[v] = 0
-        arg = []
+        arg = ["NAME:TuningRanges"]
         for k, v in offsets.items():
-            arg.append(f"DeltaOffset({k})")
-            arg.append(f"{abs(self._app.variable_manager[k].numeric_value) * (-0.1)}")
-            arg.append(f"{v}")
-            arg.append(f"{abs(self._app.variable_manager[k].numeric_value) * 0.1}")
+            arg.append("Range:=")
+            arg2 = [
+                f"DeltaOffset({k})",
+                abs(self._app.variable_manager[k].numeric_value) * (-0.1),
+                v,
+                abs(self._app.variable_manager[k].numeric_value) * 0.1,
+            ]
+            arg.append(arg2)
         if self.is_solved:
-            self._app.osolution.SetTuningOffsets(["TuningRanges:=", arg])
+            self._app.odesign.SetTuningRanges(arg)
             return True
         else:
             self._app.logger.error(f"Setup {self.name} is not solved. Solve it before tuning variables.")
@@ -3570,22 +3618,29 @@ class SetupMaxwell(Setup, object):
     def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup=True):
         Setup.__init__(self, app, solution_type, name, is_new_setup)
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(range_type="sweep_type", start="start_frequency", end="stop_frequency", count="step_size")
     def add_eddy_current_sweep(
-        self, range_type="LinearStep", start=0.1, end=100, count=0.1, units="Hz", clear=True, save_all_fields=True
+        self,
+        sweep_type="LinearStep",
+        start_frequency=0.1,
+        stop_frequency=100,
+        step_size=0.1,
+        units="Hz",
+        clear=True,
+        save_all_fields=True,
     ):
         """Create a Maxwell Eddy Current Sweep.
 
         Parameters
         ----------
-        range_type : str
+        sweep_type : str
             Type of the subrange. Options are ``"LinearCount"``,
             ``"LinearStep"``, ``"LogScale"`` and ``"SinglePoints"``.
-        start : float
+        start_frequency : float
             Starting frequency.
-        end : float, optional
+        stop_frequency : float, optional
             Stopping frequency. Required for ``range_type="LinearCount"|"LinearStep"|"LogScale"``.
-        count : int or float, optional
+        step_size : int or float, optional
             Frequency count or frequency step. Required for ``range_type="LinearCount"|"LinearStep"|"LogScale"``.
         units : str, optional
             Unit of the frequency. For example, ``"MHz`` or ``"GHz"``. The default is ``"Hz"``.
@@ -3595,7 +3650,6 @@ class SetupMaxwell(Setup, object):
         save_all_fields : bool, optional
             Save fields at all frequency points to save fields for the entire set of sweep ranges.
             Default is ``True``.
-
 
         Returns
         -------
@@ -3608,26 +3662,26 @@ class SetupMaxwell(Setup, object):
             return False
         legacy_update = self.auto_update
         self.auto_update = False
-        props = {}
-        props["RangeType"] = range_type
-        props["RangeStart"] = f"{start}{units}"
-        if range_type == "LinearStep":
-            props["RangeEnd"] = f"{end}{units}"
-            props["RangeStep"] = f"{count}{units}"
-        elif range_type == "LinearCount":
-            props["RangeEnd"] = f"{end}{units}"
-            props["RangeCount"] = count
-        elif range_type == "LogScale":
-            props["RangeEnd"] = f"{end}{units}"
-            props["RangeSamples"] = count
-        elif range_type == "SinglePoints":
-            props["RangeEnd"] = f"{start}{units}"
+        sweep_props = {
+            "RangeType": sweep_type,
+            "RangeStart": f"{start_frequency}{units}",
+            "RangeEnd": f"{stop_frequency}{units}",
+        }
+        self.props["HasSweepSetup"] = True
+        if sweep_type == "LinearStep":
+            sweep_props["RangeStep"] = f"{step_size}{units}"
+        elif sweep_type == "LinearCount":
+            sweep_props["RangeCount"] = step_size
+        elif sweep_type == "LogScale":
+            sweep_props["RangeSamples"] = step_size
+        elif sweep_type == "SinglePoints":
+            sweep_props["RangeEnd"] = f"{start_frequency}{units}"
         if clear:
-            self.props["SweepRanges"]["Subrange"] = props
+            self.props["SweepRanges"]["Subrange"] = sweep_props
         elif isinstance(self.props["SweepRanges"]["Subrange"], list):
-            self.props["SweepRanges"]["Subrange"].append(props)
+            self.props["SweepRanges"]["Subrange"].append(sweep_props)
         else:
-            self.props["SweepRanges"]["Subrange"] = [self.props["SweepRanges"]["Subrange"], props]
+            self.props["SweepRanges"]["Subrange"] = [self.props["SweepRanges"]["Subrange"], sweep_props]
         self.props["SaveAllFields"] = save_all_fields
         self.update()
         self.auto_update = legacy_update

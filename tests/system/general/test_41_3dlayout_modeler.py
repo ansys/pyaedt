@@ -336,6 +336,7 @@ class TestClass:
         assert self.aedtapp.create_edge_port("line1", 3, False)
         assert len(self.aedtapp.excitations) > 0
         time_domain = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "Sinusoidal.csv")
+        assert self.aedtapp.boundaries[0].properties["Magnitude"] == "1V"
         assert self.aedtapp.edit_source_from_file(
             source=port_wave.name,
             input_file=time_domain,
@@ -344,6 +345,8 @@ class TestClass:
             y_scale=1e-3,
             data_format="Voltage",
         )
+        assert self.aedtapp.boundaries[0].properties["Magnitude"] != "1V"
+        self.aedtapp.boundaries[0].oproperties["Boundary Type"] = "PEC"
         self.aedtapp.boundaries[0].properties["Boundary Type"] = "PEC"
         assert list(self.aedtapp.oboundary.GetAllBoundariesList())[0] == self.aedtapp.boundaries[0].name
 
@@ -595,7 +598,9 @@ class TestClass:
 
     def test_26_duplicate(self):
         n2 = self.aedtapp.modeler.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle_d")
-        assert self.aedtapp.modeler.duplicate("myrectangle_d", 2, [1, 1])
+        n3 = self.aedtapp.modeler.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle_d2")
+        new_objects = self.aedtapp.modeler.duplicate([n2.name, n3.name], 2, [1, 1])
+        assert len(new_objects[0]) == 4
         assert self.aedtapp.modeler.duplicate_across_layers("myrectangle_d", "Bottom")
 
     def test_27_create_pin_port(self):
