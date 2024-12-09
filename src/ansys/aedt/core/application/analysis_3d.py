@@ -33,7 +33,6 @@ from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
-import ezdxf
 
 
 class FieldAnalysis3D(Analysis, object):
@@ -1253,8 +1252,17 @@ class FieldAnalysis3D(Analysis, object):
         list
             List of layers in the DXF file.
         """
-        doc = ezdxf.readfile(file_path)
-        return [layer.dxf.name for layer in doc.layers if layer.dxf.plot]
+        try:
+            import ezdxf
+
+            doc = ezdxf.readfile(file_path)
+            return [layer.dxf.name for layer in doc.layers if layer.dxf.plot]
+        except ImportError:  # pragma: no cover
+            self.logger.warning(
+                "The ezdxf module is required to import DXF files.\n"
+                "Install with pip install pyaedt[all] or install with pip install ezdxf"
+            )
+            return []
 
     @pyaedt_function_handler(layers_list="layers")
     def import_dxf(
