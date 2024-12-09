@@ -93,6 +93,13 @@ They are small automated workflow with a simple UI.
 
             Advanced layout cutout.
 
+   .. grid-item-card:: Export layout
+            :link: pyaedt_extensions_doc/hfss3dlayout/export_layout
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Export layout.
+
 
 HFSS extensions
 ~~~~~~~~~~~~~~~

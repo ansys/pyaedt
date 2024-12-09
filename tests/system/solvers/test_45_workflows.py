@@ -457,10 +457,6 @@ class TestClass:
         )
         app.close_project()
 
-    @pytest.mark.skipif(
-        TEST_REVIEW_FLAG,
-        reason="Test under review in 2024.2",
-    )
     def test_12_export_layout(self, add_app, local_scratch):
         from ansys.aedt.core.workflows.hfss3dlayout.export_layout import main
 
