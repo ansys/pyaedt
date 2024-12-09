@@ -61,17 +61,6 @@ class TestClass:
 
         aedtapp.close_project(aedtapp.project_name)
 
-    def test_01a_template_get_started(self, add_app):
-        aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="workflow_test")
-
-        from ansys.aedt.core.workflows.templates.template_get_started import main
-
-        assert main({"is_test": True, "origin_x": 2})
-
-        assert len(aedtapp.modeler.object_list) == 1
-
-        aedtapp.close_project(aedtapp.project_name)
-
     def test_02_hfss_push(self, add_app):
         aedtapp = add_app(project_name=push_project, subfolder=test_subfolder)
 
@@ -585,3 +574,14 @@ class TestClass:
         }
         extension_args = {"is_test": True, "choke_config": choke_config}
         assert main(extension_args)
+
+    def test_18_template_get_started(self, add_app):
+        aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="workflow_test")
+
+        from ansys.aedt.core.workflows.templates.template_get_started import main
+
+        assert main({"is_test": True, "origin_x": 2})
+
+        assert len(aedtapp.modeler.object_list) == 1
+
+        aedtapp.close_project(aedtapp.project_name)

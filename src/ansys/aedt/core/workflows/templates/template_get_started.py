@@ -76,37 +76,37 @@ def frontend():
     theme.apply_light_theme(style)
     master.theme = "light"
 
+    # Main frame
+    main_frame = ttk.PanedWindow(master, style="PyAEDT.TFrame")
+    main_frame.pack(fill=tkinter.BOTH, expand=True)
+
+    # Buttons frame
+    buttons_frame = ttk.Frame(master, style="PyAEDT.TFrame")
+    buttons_frame.pack(side=tkinter.BOTTOM, expand=True)
+
     # Origin x entry
-    var = tkinter.StringVar()
-    label = tkinter.Label(master, textvariable=var)
-    var.set("Origin X:")
-    label.pack(side=tkinter.LEFT)
-    origin_x = ttk.Entry(master)
-    origin_x.pack(side=tkinter.LEFT, padx=5)
+    label = ttk.Label(main_frame, text="Origin X:", width=20, style="PyAEDT.TLabel")
+    label.grid(row=0, column=0, padx=15, pady=10)
+    origin_x = ttk.Entry(main_frame, font=theme.default_font)
+    origin_x.grid(row=0, column=1, padx=15, pady=10)
 
     # Origin y entry
-    var = tkinter.StringVar()
-    label = tkinter.Label(master, textvariable=var)
-    var.set("Origin Y:")
-    label.pack(side=tkinter.LEFT)
-    origin_x = ttk.Entry(master)
-    origin_x.pack(side=tkinter.LEFT, padx=5)
+    label = ttk.Label(main_frame, text="Origin Y:", width=20, style="PyAEDT.TLabel")
+    label.grid(row=1, column=0, padx=15, pady=10)
+    origin_x = ttk.Entry(main_frame, font=theme.default_font)
+    origin_x.grid(row=1, column=1, padx=15, pady=10)
 
     # Origin z entry
-    var = tkinter.StringVar()
-    label = tkinter.Label(master, textvariable=var)
-    var.set("Origin Z:")
-    label.pack(side=tkinter.LEFT)
-    origin_x = ttk.Entry(master)
-    origin_x.pack(side=tkinter.LEFT, padx=5)
+    label = ttk.Label(main_frame, text="Origin Y:", width=20, style="PyAEDT.TLabel")
+    label.grid(row=2, column=0, padx=15, pady=10)
+    origin_x = ttk.Entry(main_frame, font=theme.default_font)
+    origin_x.grid(row=2, column=1, padx=15, pady=10)
 
     # Radius entry
-    var = tkinter.StringVar()
-    label = tkinter.Label(master, textvariable=var)
-    var.set("Radius:")
-    label.pack(side=tkinter.LEFT)
-    origin_x = ttk.Entry(master)
-    origin_x.pack(side=tkinter.LEFT, padx=5)
+    label = ttk.Label(main_frame, text="Radius:", width=20, style="PyAEDT.TLabel")
+    label.grid(row=3, column=0, padx=15, pady=10)
+    origin_x = ttk.Entry(main_frame, font=theme.default_font)
+    origin_x.grid(row=3, column=1, padx=15, pady=10)
 
     def toggle_theme():
         if master.theme == "light":
@@ -127,13 +127,10 @@ def frontend():
     def callback():
         master.destroy()
 
-    button_frame = ttk.Frame(master, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2)
-    button_frame.pack(side=tkinter.LEFT, padx=5)
-
-    create_button = ttk.Button(button_frame, text="Create Sphere", command=callback, style="PyAEDT.TButton")
-    change_theme_button = ttk.Button(button_frame, text="\u263D", command=toggle_theme, style="PyAEDT.TButton")
-    create_button.pack(side=tkinter.LEFT, padx=5)
-    change_theme_button.pack(side=tkinter.RIGHT, padx=5, pady=40)
+    create_button = ttk.Button(buttons_frame, text="Create Sphere", command=callback, style="PyAEDT.TButton")
+    change_theme_button = ttk.Button(buttons_frame, text="\u263D", command=toggle_theme, style="PyAEDT.TButton")
+    create_button.grid(row=0, column=0, padx=15, pady=10)
+    change_theme_button.grid(row=1, column=0, padx=15, pady=10)
 
     tkinter.mainloop()
 
