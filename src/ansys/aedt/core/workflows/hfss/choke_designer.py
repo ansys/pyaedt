@@ -83,7 +83,7 @@ default_config = {
 
 # Extension batch arguments
 extension_arguments = {"choke_config": {}}
-extension_description = "Choke Designer in HFSS"
+extension_description = "Choke Designer"
 
 
 def frontend():  # pragma: no cover
@@ -102,7 +102,7 @@ def frontend():  # pragma: no cover
 
     master.geometry("900x800")
 
-    master.title("Choke Designer")
+    master.title(extension_description)
 
     # Detect if user close the UI
     master.flag = False

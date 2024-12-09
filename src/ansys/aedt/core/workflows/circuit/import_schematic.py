@@ -39,7 +39,7 @@ is_student = is_student()
 
 # Extension batch arguments
 extension_arguments = {"asc_file": ""}
-extension_description = "Import schematic to Circuit."
+extension_description = "Import schematic to Circuit"
 
 
 def frontend():  # pragma: no cover
@@ -50,12 +50,16 @@ def frontend():  # pragma: no cover
 
     import PIL.Image
     import PIL.ImageTk
+    from ansys.aedt.core.workflows.misc import ExtensionTheme
 
     master = tkinter.Tk()
 
-    master.geometry("750x250")
+    master.geometry("650x150")
 
     master.title(extension_description)
+
+    # Detect if user close the UI
+    master.flag = False
 
     # Load the logo for the main window
     icon_path = Path(ansys.aedt.core.workflows.__path__[0]) / "images" / "large" / "logo.png"
@@ -67,10 +71,13 @@ def frontend():  # pragma: no cover
 
     # Configure style for ttk buttons
     style = ttk.Style()
-    style.configure("Toolbutton.TButton", padding=6, font=("Helvetica", 8))
+    theme = ExtensionTheme()
+
+    theme.apply_light_theme(style)
+    master.theme = "light"
 
     var2 = tkinter.StringVar()
-    label2 = tkinter.Label(master, textvariable=var2)
+    label2 = ttk.Label(master, textvariable=var2, style="PyAEDT.TLabel")
     var2.set("Browse file:")
     label2.grid(row=0, column=0, pady=10)
     text = tkinter.Text(master, width=40, height=1)
@@ -85,23 +92,26 @@ def frontend():  # pragma: no cover
         )
         text.insert(tkinter.END, filename)
 
-    b1 = tkinter.Button(master, text="...", width=10, command=browse_asc_folder)
+    b1 = ttk.Button(master, text="...", width=10, command=browse_asc_folder, style="PyAEDT.TButton")
     b1.grid(row=0, column=2, pady=10)
 
     def callback():
+        master.flag = True
         master.asc_path_ui = text.get("1.0", tkinter.END).strip()
         master.destroy()
 
-    b3 = tkinter.Button(master, text="Ok", width=40, command=callback)
+    b3 = ttk.Button(master, text="Ok", width=40, command=callback, style="PyAEDT.TButton")
     b3.grid(row=1, column=1, pady=10, padx=10)
 
     tkinter.mainloop()
 
     asc_file_ui = getattr(master, "asc_path_ui", extension_arguments["asc_file"])
 
-    output_dict = {
-        "asc_file": asc_file_ui,
-    }
+    output_dict = {}
+    if master.flag:
+        output_dict = {
+            "asc_file": asc_file_ui,
+        }
     return output_dict
 
 
