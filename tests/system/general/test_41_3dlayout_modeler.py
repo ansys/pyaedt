@@ -346,8 +346,8 @@ class TestClass:
             data_format="Voltage",
         )
         assert self.aedtapp.boundaries[0].properties["Magnitude"] != "1V"
-        self.aedtapp.boundaries[0].oproperties["Boundary Type"] = "PEC"
         self.aedtapp.boundaries[0].properties["Boundary Type"] = "PEC"
+        assert self.aedtapp.boundaries[0].properties["Boundary Type"] == "PEC"
         assert list(self.aedtapp.oboundary.GetAllBoundariesList())[0] == self.aedtapp.boundaries[0].name
 
     def test_14a_create_coaxial_port(self):
