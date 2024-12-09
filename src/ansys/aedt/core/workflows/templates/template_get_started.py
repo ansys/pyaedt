@@ -140,10 +140,13 @@ def main(extension_args):
 
     aedtapp = get_pyaedt_app(project_name, design_name)
 
+    origin_x = extension_args.get("origin_x", extension_arguments["origin_x"])
+    origin_y = extension_args.get("origin_y", extension_arguments["origin_y"])
+    origin_z = extension_args.get("origin_z", extension_arguments["origin_z"])
+    radius = extension_args.get("radius", extension_arguments["radius"])
+
     # Your PyAEDT script
-    aedtapp.modeler.create_sphere(
-        [extension_args["origin_x"], extension_args["origin_y"], extension_args["origin_z"]], extension_args["radius"]
-    )
+    aedtapp.modeler.create_sphere([origin_x, origin_y, origin_z], radius)
 
     if not extension_args["is_test"]:  # pragma: no cover
         app.release_desktop(False, False)
