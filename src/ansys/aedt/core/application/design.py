@@ -343,7 +343,7 @@ class Design(AedtObjects):
         return self._design_datasets
 
     @property
-    def boundaries(self) -> list[BoundaryObject]:
+    def boundaries(self):
         """Design boundaries and excitations.
 
         Returns
