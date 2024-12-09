@@ -386,8 +386,10 @@ class TestClass:
         )
         assert isinstance(self.dcir_example_project.get_dcir_element_data_current_source("SIwaveDCIR1"), pd.DataFrame)
         p_layers = self.dcir_example_project.post.compute_power_by_layer()
-        p_nets = self.dcir_example_project.post.compute_power_by_nets(nets=["5V", "GND"])
+        p_nets = self.dcir_example_project.post.compute_power_by_net()
         assert p_nets
+        assert p_layers
+        p_layers = self.dcir_example_project.post.compute_power_by_layer(solution="SIwaveDCIR1")
         assert p_layers
 
     def test_20_change_options(self):
