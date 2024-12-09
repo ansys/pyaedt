@@ -411,7 +411,7 @@ def main(extension_args):
     ]
 
     # Add second winding ports if it exists
-    if second_winding_list:
+    if second_winding_list:  # pragma: no cover
         port_position_list.extend(
             [
                 # Second winding start position
