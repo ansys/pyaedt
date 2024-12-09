@@ -394,7 +394,7 @@ class SubRegion(CommonRegion):
         """
         Delete the subregion object.
 
-         Returns
+        Returns
         -------
         bool
            ``True`` when successful, ``False`` when failed.
@@ -413,7 +413,7 @@ class SubRegion(CommonRegion):
         """
         Parts included in the subregion.
 
-         Returns
+        Returns
         -------
         dict
             Dictionary with the part names as keys and ::class::modeler.cad.object_3d.Object3d as values.
