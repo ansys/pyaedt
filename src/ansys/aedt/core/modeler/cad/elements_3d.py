@@ -1443,31 +1443,30 @@ class BinaryTreeNode:
         -------
         :class:``ansys.aedt.coree.modeler.cad.elements_3d.HistoryProps``
         """
-        if self._props is None:
-            self._props = {}
-            if settings.aedt_version >= "2024.2":
-                try:
-                    from ansys.aedt.core.application import _get_data_model
+        self._props = {}
+        if settings.aedt_version >= "2024.2":
+            try:
+                from ansys.aedt.core.application import _get_data_model
 
-                    props = _get_data_model(self.child_object)
-                    for p in self.child_object.GetPropNames():
-                        if p in props:
-                            self._props[p] = props[p]
-                        else:
-                            self._props[p] = None
-                except Exception:
-                    for p in self.child_object.GetPropNames():
-                        try:
-                            self._props[p] = self.child_object.GetPropValue(p)
-                        except Exception:
-                            self._props[p] = None
-            else:
+                props = _get_data_model(self.child_object)
+                for p in self.child_object.GetPropNames():
+                    if p in props:
+                        self._props[p] = props[p]
+                    else:
+                        self._props[p] = None
+            except Exception:
                 for p in self.child_object.GetPropNames():
                     try:
                         self._props[p] = self.child_object.GetPropValue(p)
                     except Exception:
                         self._props[p] = None
-            self._props = HistoryProps(self, self._props)
+        else:
+            for p in self.child_object.GetPropNames():
+                try:
+                    self._props[p] = self.child_object.GetPropValue(p)
+                except Exception:
+                    self._props[p] = None
+        self._props = HistoryProps(self, self._props)
         return self._props
 
     @property
