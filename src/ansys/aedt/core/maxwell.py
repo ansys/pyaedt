@@ -1860,10 +1860,10 @@ class Maxwell(object):
             If True, the harmonic force will be computed using the transient force during the
             defined number of cycles backwards from stop time.
             If False, the defined time range will be used. Default is ``True``.
+            For ``"TransientZ"`` and ``"TransientAphiFormulation"`` it is ``False``.
         number_of_cycles_from_stop_time : int, optional
             Defines the number of cycles from stop time for harmonic force computation,
-            if `use_number_of_cycles_from_stop_time` is ``True``. For TransientZ and TransientAphiFormulation,
-            it is equal to 1.
+            if `use_number_of_cycles_from_stop_time` is ``True``.
         start_time : str, optional
             Defines the time range start time for harmonic force computation,
             if `use_number_of_cycles_from_stop_time` is ``False``.
@@ -1873,11 +1873,10 @@ class Maxwell(object):
             If False, the time range stop time is defined using the stop time.
             The harmonic force will be computed using the transient force between the start time and the stop time.
             Default is ``True``.
-            For TransientZ and TransientAphiFormulation, it is ``False``.
+            For ``"TransientZ"`` and ``"TransientAphiFormulation"`` it is ``False``.
         number_of_cycles_for_stop_time: int, optional
             Defines the time range for harmonic force computation using the number of cycles,
-            if `use_number_of_cycles_for_stop_time` is ``True``. For TransientZ and TransientAphiFormulation,
-            it is equal to 1.
+            if `use_number_of_cycles_for_stop_time` is ``True``.
         stop_time : str, optional
             Defines the time range stop time for harmonic force computation,
             if `use_number_of_cycles_for_stop_time` is ``False``.
@@ -1886,20 +1885,41 @@ class Maxwell(object):
             ``1`` for ``"Use Range"``, and ``2`` for ``"Use Number"``.
             The default is ``0``.
         output_frequency_range_start : str, optional
+            The start frequency of calculated harmonic force components.
         output_frequency_range_stop : str, optional
+            The end frequency of calculated harmonic force components.
         number_of_output_frequencies : int, optional
             Number of frequencies to output.
         calculate_force : int, optional
             How to calculate force: ``0`` for ``"Harmonic"``, ``1`` for ``"Transient"``,
             and ``2`` for``"Harmonic and Transient"``. The default is ``0``.
         enable_inverter_feedback : bool, optional
+            If ``True`` it enables inverter feedback. The default is ``False``.
         switching_frequency: str, optional
+            The switching frequency is available if `enable_inverter_feedback´ is ``True``.
+            The default value is ``"4000Hz"``.
         maximum_frequency: str, optional
+            The maximum frequency is available, if `enable_inverter_feedback´ is ``True``.
+            The default value is ``"8000Hz"``.
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        -----------
+
+        >>> odesign.EnableHarmonicForceCalculation
+
+        Examples
+        ---------
+
+        Enable harmonic force in Maxwell 3D for magnetic transient solver:
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d()
+        >>> m3d.enable_harmonic_force(assignment="Stator",number_of_cycles_from_stop_time=3)
 
         """
         if self.solution_type not in [
