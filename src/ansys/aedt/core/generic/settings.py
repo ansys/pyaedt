@@ -100,6 +100,7 @@ ALLOWED_GENERAL_SETTINGS = [
     "remote_rpc_service_manager_port",
     "pyaedt_server_path",
     "remote_rpc_session_temp_folder",
+    "block_figure_plot",
 ]
 ALLOWED_AEDT_ENV_VAR_SETTINGS = [
     "ANSYSEM_FEATURE_F335896_MECHANICAL_STRUCTURAL_SOLN_TYPE_ENABLE",
@@ -210,6 +211,7 @@ class Settings(object):
         self.__remote_api: bool = False
         self.__time_tick = time.time()
         self.__pyaedt_server_path = ""
+        self.__block_figure_plot = False
 
         # Load local settings if YAML configuration file exists.
         pyaedt_settings_path = os.environ.get("PYAEDT_LOCAL_SETTINGS_PATH", "")
@@ -219,7 +221,6 @@ class Settings(object):
             else:
                 pyaedt_settings_path = os.path.join(os.environ["APPDATA"], "pyaedt_settings.yaml")
         self.load_yaml_configuration(pyaedt_settings_path)
-        self.__block_figure_plot = False
 
     # ########################## Logging properties ##########################
 
@@ -773,6 +774,7 @@ class Settings(object):
             ]
             for setting_type, allowed_settings_key in pairs:
                 settings = local_settings.get(setting_type, {})
+                print(setting_type, allowed_settings_key)
                 if raise_on_wrong_key:
                     for key, value in filter_settings_with_raise(settings, allowed_settings_key):
                         setattr(self, key, value)
@@ -791,8 +793,14 @@ class Settings(object):
         """Write the current settings into a YAML configuration file."""
         import yaml
 
-        if os.path.exists(path):
-            yaml.safe_dump(settings, path)
+        data = {}
+        data["log"] = {key: getattr(self, key) for key in ALLOWED_LOG_SETTINGS}
+        data["lsf"] = {key: getattr(self, key) for key in ALLOWED_LSF_SETTINGS}
+        data["aedt_env_var"] = getattr(self, "aedt_environment_variables")
+        data["general"] = {key: getattr(self, key) for key in ALLOWED_GENERAL_SETTINGS}
+
+        with open(path, "w") as file:
+            yaml.safe_dump(data, file, sort_keys=False)
 
 
 settings = Settings()
