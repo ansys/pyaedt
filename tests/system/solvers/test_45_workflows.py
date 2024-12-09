@@ -440,10 +440,6 @@ class TestClass:
         # assert h3d.design_datasets
         h3d.close_project(h3d.project_name)
 
-    @pytest.mark.skipif(
-        TEST_REVIEW_FLAG,
-        reason="Test under review in 2024.2",
-    )
     def test_11_cutout(self, add_app, local_scratch):
         from ansys.aedt.core.workflows.hfss3dlayout.cutout import main
 
