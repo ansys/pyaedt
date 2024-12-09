@@ -233,7 +233,7 @@ class Analysis(Design, object):
         return self._materials
 
     @property
-    def setups(self) -> list[Setup]:
+    def setups(self):
         """Setups in the project.
 
         Returns
