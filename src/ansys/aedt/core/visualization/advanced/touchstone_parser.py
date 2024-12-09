@@ -113,13 +113,14 @@ class TouchstoneData(rf.Network):
 
     @pyaedt_function_handler()
     def get_insertion_loss_index(self, threshold=-3):
-        """Get all insertion losses. The first frequency point is used to determine whether two
-        ports are shorted.
+        """Get all insertion losses.
+
+        The first frequency point is used to determine whether two ports are shorted.
 
         Parameters
         ----------
         threshold : float, int, optional
-            Threshold to determine shorted ports in dB.
+            Threshold to determine shorted ports in dB. Default value is ``3``.
 
         Returns
         -------
@@ -141,13 +142,14 @@ class TouchstoneData(rf.Network):
         return temp_list
 
     def plot_insertion_losses(self, threshold=-3, plot=True):
-        """Plot all insertion losses. The first frequency point is used to determine whether two
-        ports are shorted.
+        """Plot all insertion losses.
+
+        The first frequency point is used to determine whether two ports are shorted.
 
         Parameters
         ----------
         threshold : float, int, optional
-            Threshold to determine shorted ports in dB.
+            Threshold to determine shorted ports in dB. Default value is ``3``.
         plot : bool, optional
             Whether to plot. The default is ``True``.
 
@@ -258,7 +260,6 @@ class TouchstoneData(rf.Network):
 
         Parameters
         ----------
-
         excitation_name_prefix :str, optional
             Prefix of the excitation. Default value is ``""``.
 

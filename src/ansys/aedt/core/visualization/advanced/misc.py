@@ -58,6 +58,7 @@ class BoxFacePointsAndFields(object):
         self.im = {"Ex": [], "Ey": [], "Ez": [], "Hx": [], "Hy": [], "Hz": []}
 
     def set_xyz_points(self, x, y, z):
+        """Set X, Y, Z coordinates."""
         self.x = x
         self.y = y
         self.z = z

@@ -261,6 +261,7 @@ class MonostaticRCSData(object):
     @property
     def data_conversion_function(self):
         """RCS data conversion function.
+
         The available functions are:
 
         - `"dB10"`: Converts the data to decibels using base 10 logarithm.
@@ -283,6 +284,7 @@ class MonostaticRCSData(object):
     @property
     def window(self):
         """Window function.
+
         The available functions are: Options are ``"Flat"``, ``"Hamming``", and ``"Hann"``.
         """
         return self.__window
@@ -1052,7 +1054,6 @@ class MonostaticRCSPlotter(object):
             Returns the ``Plotter`` object if ``show`` is set to ``False``. If ``show`` is ``True``,
             the plot is displayed and no value is returned.
         """
-
         pv_backend = PyVistaBackend(allow_picking=True, plot_picked_names=True)
         plotter = Plotter(backend=pv_backend)
 
@@ -1887,6 +1888,7 @@ class SceneMeshObject:
 
     @property
     def mesh(self):
+        """Get the mesh object."""
         return self.__mesh
 
     @mesh.setter
@@ -1896,6 +1898,7 @@ class SceneMeshObject:
 
     @property
     def z_offset(self):
+        "Offset in the Z direction."
         return self.__z_offset
 
     @z_offset.setter

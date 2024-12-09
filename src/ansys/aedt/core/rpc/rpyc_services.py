@@ -1091,6 +1091,7 @@ class ServiceManager(rpyc.Service):
     """Global class to manage rpyc Server of PyAEDT."""
 
     def on_connect(self, connection):
+        """Initiate the service when a connection is created."""
         # code that runs when a connection is created
         # (to init the service, if needed)
         self.connection = connection
@@ -1099,6 +1100,7 @@ class ServiceManager(rpyc.Service):
         pass
 
     def on_disconnect(self, connection):
+        """Finalize the service when the connection is closed."""
         # code that runs after the connection has already closed
         # (to finalize the service, if needed)
         if is_windows:
@@ -1150,7 +1152,7 @@ class ServiceManager(rpyc.Service):
         Parameters
         ----------
         port : int
-            port id on which there is the service to kill.
+            Port id on which there is the service to kill.
 
         Returns
         -------
