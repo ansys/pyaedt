@@ -32,10 +32,11 @@ from ansys.aedt.core.generic.constants import TraceType
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import write_configuration_file
+from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
-class LimitLine(object):
+class LimitLine(BinaryTreeNode):
     """Line Limit Management Class."""
 
     def __init__(self, report_setup, trace_name, oo=None):
@@ -43,24 +44,7 @@ class LimitLine(object):
         self._oreport_setup = report_setup
         self.line_name = trace_name
         self.LINESTYLE = LineStyle()
-
-    @property
-    def properties(self):
-        """Line properties.
-
-        Returns
-        -------
-            :class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTree` when successful,
-            ``False`` when failed.
-
-        """
-        from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
-
-        try:
-            parent = BinaryTreeNode(self.line_name, self._oo, False)
-            return parent.props
-        except Exception:
-            return []
+        BinaryTreeNode.__init__(self, self.line_name, self._oo, False)
 
     @pyaedt_function_handler()
     def _change_property(self, props_value):
@@ -113,31 +97,14 @@ class LimitLine(object):
         return self._change_property(props)
 
 
-class Note(object):
+class Note(BinaryTreeNode):
     """Note Management Class."""
 
     def __init__(self, report_setup, plot_note_name, oo=None):
         self._oo = oo
         self._oreport_setup = report_setup
         self.plot_note_name = plot_note_name
-
-    @property
-    def properties(self):
-        """Note properties.
-
-        Returns
-        -------
-            :class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTree` when successful,
-            ``False`` when failed.
-
-        """
-        from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
-
-        try:
-            parent = BinaryTreeNode(self.plot_note_name, self._oo, False)
-            return parent.props
-        except Exception:
-            return []
+        BinaryTreeNode.__init__(self, self.plot_note_name, self._oo, False)
 
     @pyaedt_function_handler()
     def _change_property(self, props_value):
@@ -257,7 +224,7 @@ class Note(object):
         return self._change_property(props)
 
 
-class Trace(object):
+class Trace(BinaryTreeNode):
     """Provides trace management."""
 
     def __init__(
@@ -283,31 +250,7 @@ class Trace(object):
         self._symbol_color = None
         self._show_symbol = False
         self._available_props = []
-
-    @property
-    def __all_props(self):
-        from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
-
-        try:
-            parent = BinaryTreeNode(self.aedt_name, self._oo, False)
-            return parent
-        except Exception:
-            return []
-
-    @property
-    def properties(self):
-        """All available properties.
-
-        Returns
-        -------
-            :class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTree` when successful,
-            ``False`` when failed.
-
-        """
-        try:
-            return self.__all_props.props
-        except Exception:
-            return {}
+        BinaryTreeNode.__init__(self, self.aedt_name, self._oo, False)
 
     @property
     def curve_properties(self):
@@ -319,8 +262,8 @@ class Trace(object):
             ``False`` when failed.
 
         """
-        if self.aedt_name.split(":")[-1] in self.__all_props.children:
-            return self.__all_props.children[self.aedt_name.split(":")[-1]].props
+        if self.aedt_name.split(":")[-1] in self.children:
+            return self.children[self.aedt_name.split(":")[-1]].properties
         return {}
 
     @property
@@ -435,64 +378,50 @@ class Trace(object):
         return self._change_property(props)
 
 
-class CommonReport(object):
+class CommonReport(BinaryTreeNode):
     """Provides common reports."""
 
     def __init__(self, app, report_category, setup_name, expressions=None):
         self._post = app
-        self._props = {}
-        self._props["report_category"] = report_category
+        self._legacy_props = {}
+        self._legacy_props["report_category"] = report_category
         self.setup = setup_name
-        self._props["report_type"] = "Rectangular Plot"
-        self._props["context"] = {}
-        self._props["context"]["domain"] = "Sweep"
-        self._props["context"]["primary_sweep"] = "Freq"
-        self._props["context"]["primary_sweep_range"] = ["All"]
-        self._props["context"]["secondary_sweep_range"] = ["All"]
-        self._props["context"]["variations"] = {"Freq": ["All"]}
+        self._legacy_props["report_type"] = "Rectangular Plot"
+        self._legacy_props["context"] = {}
+        self._legacy_props["context"]["domain"] = "Sweep"
+        self._legacy_props["context"]["primary_sweep"] = "Freq"
+        self._legacy_props["context"]["primary_sweep_range"] = ["All"]
+        self._legacy_props["context"]["secondary_sweep_range"] = ["All"]
+        self._legacy_props["context"]["variations"] = {"Freq": ["All"]}
         if hasattr(self._post._app, "available_variations") and self._post._app.available_variations:
             for el, k in self._post._app.available_variations.nominal_w_values_dict.items():
-                self._props["context"]["variations"][el] = k
-        self._props["expressions"] = None
-        self._props["plot_name"] = None
+                self._legacy_props["context"]["variations"][el] = k
+        self._legacy_props["expressions"] = None
+        self._legacy_props["plot_name"] = None
         if expressions:
             self.expressions = expressions
         self._is_created = False
         self.siwave_dc_category = 0
         self._traces = []
-        self._child_object = None
+        if self._is_created:
+            oo = self._post.oreportsetup.GetChildObject(self._legacy_props["plot_name"])
+            if oo:
+                BinaryTreeNode.__init__(self, self.plot_name, oo, False)
 
     @property
-    def _all_props(self):
-        if self._child_object:
-            return self._child_object
+    def __all_props(self):
         from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 
         try:
-            oo = self._post.oreportsetup.GetChildObject(self._props["plot_name"])
-            self._child_object = BinaryTreeNode(self.plot_name, oo, False)
-            for var in [i.split(" ,")[-1] for i in list(self._child_object.props.values())[4:]]:
-                if var in self._child_object.children:
-                    del self._child_object.children[var]
-            els = [i for i in self._child_object.children.keys() if i.startswith("LimitLine") or i.startswith("Note")]
+            oo = self._post.oreportsetup.GetChildObject(self._legacy_props["plot_name"])
+            _child_object = BinaryTreeNode(self.plot_name, oo, False)
+            for var in [i.split(" ,")[-1] for i in list(_child_object.properties.values())[4:]]:
+                if var in _child_object.children:
+                    del _child_object.children[var]
+            els = [i for i in _child_object.children.keys() if i.startswith("LimitLine") or i.startswith("Note")]
             for var in els:
-                del self._child_object.children[var]
-            return self._child_object
-        except Exception:
-            return {}
-
-    @property
-    def properties(self):
-        """Report properties.
-
-        Returns
-        -------
-            :class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTree` when successful,
-            ``False`` when failed.
-
-        """
-        try:
-            return self._all_props
+                del _child_object.children[var]
+            return _child_object
         except Exception:
             return {}
 
@@ -515,11 +444,11 @@ class CommonReport(object):
         bool
             ``True`` when differential pairs is enabled, ``False`` otherwise.
         """
-        return self._props["context"].get("differential_pairs", False)
+        return self._legacy_props["context"].get("differential_pairs", False)
 
     @differential_pairs.setter
     def differential_pairs(self, value):
-        self._props["context"]["differential_pairs"] = value
+        self._legacy_props["context"]["differential_pairs"] = value
 
     @property
     def matrix(self):
@@ -539,16 +468,16 @@ class CommonReport(object):
         ):
             try:
                 if "Parameter" in self.traces[0].properties:
-                    self._props["context"]["matrix"] = self.traces[0].properties["Parameter"]
+                    self._legacy_props["context"]["matrix"] = self.traces[0].properties["Parameter"]
                 elif "Matrix" in self.traces[0].properties:
-                    self._props["context"]["matrix"] = self.traces[0].properties["Matrix"]
+                    self._legacy_props["context"]["matrix"] = self.traces[0].properties["Matrix"]
             except Exception:
                 self._post._app.logger.warning("Property `matrix` not found.")
-        return self._props["context"].get("matrix", None)
+        return self._legacy_props["context"].get("matrix", None)
 
     @matrix.setter
     def matrix(self, value):
-        self._props["context"]["matrix"] = value
+        self._legacy_props["context"]["matrix"] = value
 
     @property
     def reduced_matrix(self):
@@ -559,11 +488,11 @@ class CommonReport(object):
         str
             Reduced matrix name.
         """
-        return self._props["context"].get("reduced_matrix", None)
+        return self._legacy_props["context"].get("reduced_matrix", None)
 
     @reduced_matrix.setter
     def reduced_matrix(self, value):
-        self._props["context"]["reduced_matrix"] = value
+        self._legacy_props["context"]["reduced_matrix"] = value
 
     @property
     def polyline(self):
@@ -576,14 +505,14 @@ class CommonReport(object):
         """
         if self._is_created and self.report_category != "Far Fields" and self.report_category.endswith("Fields"):
             try:
-                self._props["context"]["polyline"] = self.traces[0].properties["Geometry"]
+                self._legacy_props["context"]["polyline"] = self.traces[0].properties["Geometry"]
             except Exception:
                 self._post._app.logger.debug("Something went wrong while processing polyline.")
-        return self._props["context"].get("polyline", None)
+        return self._legacy_props["context"].get("polyline", None)
 
     @polyline.setter
     def polyline(self, value):
-        self._props["context"]["polyline"] = value
+        self._legacy_props["context"]["polyline"] = value
 
     @property
     def expressions(self):
@@ -595,27 +524,27 @@ class CommonReport(object):
             Expressions.
         """
         if self._is_created:
-            return [i.split(" ,")[-1] for i in list(self.properties.props.values())[4:]]
-        if self._props.get("expressions", None) is None:
+            return [i.split(" ,")[-1] for i in list(self.properties.values())[4:]]
+        if self._legacy_props.get("expressions", None) is None:
             return []
-        return [k.get("name", None) for k in self._props["expressions"] if k.get("name", None) is not None]
+        return [k.get("name", None) for k in self._legacy_props["expressions"] if k.get("name", None) is not None]
 
     @expressions.setter
     def expressions(self, value):
         if isinstance(value, dict):
-            self._props["expressions"].append(value)
+            self._legacy_props["expressions"].append(value)
         elif isinstance(value, list):
-            self._props["expressions"] = []
+            self._legacy_props["expressions"] = []
             for el in value:
                 if isinstance(el, dict):
-                    self._props["expressions"].append(el)
+                    self._legacy_props["expressions"].append(el)
                 else:
-                    self._props["expressions"].append({"name": el})
+                    self._legacy_props["expressions"].append({"name": el})
         elif isinstance(value, str):
-            if isinstance(self._props["expressions"], list):
-                self._props["expressions"].append({"name": value})
+            if isinstance(self._legacy_props["expressions"], list):
+                self._legacy_props["expressions"].append({"name": value})
             else:
-                self._props["expressions"] = [{"name": value}]
+                self._legacy_props["expressions"] = [{"name": value}]
 
     @property
     def report_category(self):
@@ -628,15 +557,15 @@ class CommonReport(object):
         """
         if self._is_created:
             try:
-                return self.properties.props["Report Type"]
+                return self.properties["Report Type"]
             except Exception:
-                return self._props["report_category"]
-        return self._props["report_category"]
+                return self._legacy_props["report_category"]
+        return self._legacy_props["report_category"]
 
     @report_category.setter
     def report_category(self, value):
         if not self._is_created:
-            self._props["report_category"] = value
+            self._legacy_props["report_category"] = value
 
     @property
     def report_type(self):
@@ -651,20 +580,20 @@ class CommonReport(object):
         """
         if self._is_created:
             try:
-                return self.properties.props["Display Type"]
+                return self.properties["Display Type"]
             except Exception:
-                return self._props["report_type"]
-        return self._props["report_type"]
+                return self._legacy_props["report_type"]
+        return self._legacy_props["report_type"]
 
     @report_type.setter
     def report_type(self, report):
         if not self._is_created:
-            self._props["report_type"] = report
+            self._legacy_props["report_type"] = report
             if not self.primary_sweep:
-                if self._props["report_type"] in ["3D Polar Plot", "3D Spherical Plot"]:
+                if self._legacy_props["report_type"] in ["3D Polar Plot", "3D Spherical Plot"]:
                     self.primary_sweep = "Phi"
                     self.secondary_sweep = "Theta"
-                elif self._props["report_type"] == "Radiation Pattern":
+                elif self._legacy_props["report_type"] == "Radiation Pattern":
                     self.primary_sweep = "Phi"
                 elif self.domain == "Sweep":
                     self.primary_sweep = "Freq"
@@ -711,7 +640,7 @@ class CommonReport(object):
     def _update_traces(self):
         for trace in self.traces[::]:
             trace_name = trace.name
-            for trace_val in self._props["expressions"]:
+            for trace_val in self._legacy_props["expressions"]:
                 if trace_val["name"] == trace_name:
                     trace_style = self.__props_with_default(trace_val, "trace_style")
                     trace_width = self.__props_with_default(trace_val, "width")
@@ -724,7 +653,7 @@ class CommonReport(object):
                         )
         for trace in self.traces[::]:
             trace_name = trace.name
-            for trace_val in self._props["expressions"]:
+            for trace_val in self._legacy_props["expressions"]:
                 if trace_val["name"] == trace_name:
                     if self.report_category in ["Eye Diagram", "Spectrum"]:
                         continue
@@ -743,7 +672,7 @@ class CommonReport(object):
                         )
         for trace in self.traces[::]:
             trace_name = trace.name
-            for trace_val in self._props["expressions"]:
+            for trace_val in self._legacy_props["expressions"]:
                 if trace_val["name"] == trace_name:
                     y_axis = self.__props_with_default(trace_val, "y_axis", "Y1")
                     if y_axis != "Y1":
@@ -761,61 +690,61 @@ class CommonReport(object):
                         )
 
         if (
-            "eye_mask" in self._props
+            "eye_mask" in self._legacy_props
             and self.report_category in ["Eye Diagram", "Statistical Eye"]
-            or ("quantity_type" in self._props and self.report_type == "Rectangular Contour Plot")
+            or ("quantity_type" in self._legacy_props and self.report_type == "Rectangular Contour Plot")
         ):
-            eye_xunits = self.__props_with_default(self._props["eye_mask"], "xunits", "ns")
-            eye_yunits = self.__props_with_default(self._props["eye_mask"], "yunits", "mV")
-            eye_points = self.__props_with_default(self._props["eye_mask"], "points")
-            eye_enable = self.__props_with_default(self._props["eye_mask"], "enable_limits", False)
-            eye_upper = self.__props_with_default(self._props["eye_mask"], "upper_limit", 500)
-            eye_lower = self.__props_with_default(self._props["eye_mask"], "lower_limit", 0.3)
-            eye_transparency = self.__props_with_default(self._props["eye_mask"], "transparency", 0.3)
-            eye_color = self.__props_with_default(self._props["eye_mask"], "color", (0, 128, 0))
-            eye_xoffset = self.__props_with_default(self._props["eye_mask"], "X Offset", "0ns")
-            eye_yoffset = self.__props_with_default(self._props["eye_mask"], "Y Offset", "0V")
-            if "quantity_type" in self._props and self.report_type == "Rectangular Contour Plot":
-                if "contours_number" in self._props.get("general", {}):
+            eye_xunits = self.__props_with_default(self._legacy_props["eye_mask"], "xunits", "ns")
+            eye_yunits = self.__props_with_default(self._legacy_props["eye_mask"], "yunits", "mV")
+            eye_points = self.__props_with_default(self._legacy_props["eye_mask"], "points")
+            eye_enable = self.__props_with_default(self._legacy_props["eye_mask"], "enable_limits", False)
+            eye_upper = self.__props_with_default(self._legacy_props["eye_mask"], "upper_limit", 500)
+            eye_lower = self.__props_with_default(self._legacy_props["eye_mask"], "lower_limit", 0.3)
+            eye_transparency = self.__props_with_default(self._legacy_props["eye_mask"], "transparency", 0.3)
+            eye_color = self.__props_with_default(self._legacy_props["eye_mask"], "color", (0, 128, 0))
+            eye_xoffset = self.__props_with_default(self._legacy_props["eye_mask"], "X Offset", "0ns")
+            eye_yoffset = self.__props_with_default(self._legacy_props["eye_mask"], "Y Offset", "0V")
+            if "quantity_type" in self._legacy_props and self.report_type == "Rectangular Contour Plot":
+                if "contours_number" in self._legacy_props.get("general", {}):
                     self._change_property(
                         "Contour",
                         f" Plot {self.traces[0].name}",
                         [
                             "NAME:ChangedProps",
-                            ["NAME:Num. Contours", "Value:=", str(self._props["general"]["contours_number"])],
+                            ["NAME:Num. Contours", "Value:=", str(self._legacy_props["general"]["contours_number"])],
                         ],
                     )
-                if "contours_scale" in self._props.get("general", {}):
+                if "contours_scale" in self._legacy_props.get("general", {}):
                     self._change_property(
                         "Contour",
                         f" Plot {self.traces[0].name}",
                         [
                             "NAME:ChangedProps",
-                            ["NAME:Axis Scale", "Value:=", str(self._props["general"]["contours_scale"])],
+                            ["NAME:Axis Scale", "Value:=", str(self._legacy_props["general"]["contours_scale"])],
                         ],
                     )
-                if "enable_contours_auto_limit" in self._props.get("general", {}):
+                if "enable_contours_auto_limit" in self._legacy_props.get("general", {}):
                     self._change_property(
                         "Contour",
                         f" Plot {self.traces[0].name}",
                         ["NAME:ChangedProps", ["NAME:Scale Type", "Value:=", "Auto Limits"]],
                     )
-                elif "contours_min_limit" in self._props.get("general", {}):
+                elif "contours_min_limit" in self._legacy_props.get("general", {}):
                     self._change_property(
                         "Contour",
                         f" Plot {self.traces[0].name}",
                         [
                             "NAME:ChangedProps",
-                            ["NAME:Min", "Value:=", str(self._props["general"]["contours_min_limit"])],
+                            ["NAME:Min", "Value:=", str(self._legacy_props["general"]["contours_min_limit"])],
                         ],
                     )
-                elif "contours_max_limit" in self._props.get("general", {}):
+                elif "contours_max_limit" in self._legacy_props.get("general", {}):
                     self._change_property(
                         "Contour",
                         f" Plot {self.traces[0].name}",
                         [
                             "NAME:ChangedProps",
-                            ["NAME:Max", "Value:=", str(self._props["general"]["contours_max_limit"])],
+                            ["NAME:Max", "Value:=", str(self._legacy_props["general"]["contours_max_limit"])],
                         ],
                     )
             self.eye_mask(
@@ -830,8 +759,8 @@ class CommonReport(object):
                 x_offset=eye_xoffset,
                 y_offset=eye_yoffset,
             )
-        if "limitLines" in self._props and self.report_category not in ["Eye Diagram", "Statistical Eye"]:
-            for line in self._props["limitLines"].values():
+        if "limitLines" in self._legacy_props and self.report_category not in ["Eye Diagram", "Statistical Eye"]:
+            for line in self._legacy_props["limitLines"].values():
                 if "equation" in line:
                     line_start = self.__props_with_default(line, "start")
                     line_stop = self.__props_with_default(line, "stop")
@@ -867,8 +796,8 @@ class CommonReport(object):
                     hatch_pixels=line_hatchpix,
                     color=line_color,
                 )
-        if "notes" in self._props:
-            for note in self._props["notes"].values():
+        if "notes" in self._legacy_props:
+            for note in self._legacy_props["notes"].values():
                 note_text = self.__props_with_default(note, "text")
                 note_position = self.__props_with_default(note, "position", [0, 0])
                 self.add_note(note_text, note_position[0], note_position[1])
@@ -895,12 +824,14 @@ class CommonReport(object):
                     bold=note_bold,
                     color=note_color,
                 )
-        if "general" in self._props:
-            if "show_rectangular_plot" in self._props["general"] and self.report_category in ["Eye Diagram"]:
-                eye_rectangular = self.__props_with_default(self._props["general"], "show_rectangular_plot", True)
+        if "general" in self._legacy_props:
+            if "show_rectangular_plot" in self._legacy_props["general"] and self.report_category in ["Eye Diagram"]:
+                eye_rectangular = self.__props_with_default(
+                    self._legacy_props["general"], "show_rectangular_plot", True
+                )
                 self.rectangular_plot(eye_rectangular)
-            if "legend" in self._props["general"] and self.report_type != "Rectangular Contour Plot":
-                legend = self._props["general"]["legend"]
+            if "legend" in self._legacy_props["general"] and self.report_type != "Rectangular Contour Plot":
+                legend = self._legacy_props["general"]["legend"]
                 legend_sol_name = self.__props_with_default(legend, "show_solution_name", True)
                 legend_var_keys = self.__props_with_default(legend, "show_variation_key", True)
                 leend_trace_names = self.__props_with_default(legend, "show_trace_name", True)
@@ -913,8 +844,8 @@ class CommonReport(object):
                     back_color=legend_color,
                     font_color=legend_font_color,
                 )
-            if "grid" in self._props["general"]:
-                grid = self._props["general"]["grid"]
+            if "grid" in self._legacy_props["general"]:
+                grid = self._legacy_props["general"]["grid"]
                 grid_major_color = self.__props_with_default(grid, "major_color", (200, 200, 200))
                 grid_minor_color = self.__props_with_default(grid, "minor_color", (230, 230, 230))
                 grid_enable_major_x = self.__props_with_default(grid, "major_x", True)
@@ -933,12 +864,12 @@ class CommonReport(object):
                     style_minor=grid_style_minor,
                     style_major=grid_style_major,
                 )
-            if "appearance" in self._props["general"]:
-                general = self._props["general"]["appearance"]
+            if "appearance" in self._legacy_props["general"]:
+                general = self._legacy_props["general"]["appearance"]
                 general_back_color = self.__props_with_default(general, "background_color", (255, 255, 255))
                 general_plot_color = self.__props_with_default(general, "plot_color", (255, 255, 255))
                 enable_y_stripes = self.__props_with_default(general, "enable_y_stripes", True)
-                if self._props["report_type"] == "Radiation Pattern":
+                if self._legacy_props["report_type"] == "Radiation Pattern":
                     enable_y_stripes = None
                 general_field_width = self.__props_with_default(general, "field_width", 4)
                 general_precision = self.__props_with_default(general, "precision", 4)
@@ -951,8 +882,8 @@ class CommonReport(object):
                     precision=general_precision,
                     use_scientific_notation=general_use_scientific_notation,
                 )
-            if "header" in self._props["general"]:
-                header = self._props["general"]["header"]
+            if "header" in self._legacy_props["general"]:
+                header = self._legacy_props["general"]["header"]
                 company_name = self.__props_with_default(header, "company_name", "")
                 show_design_name = self.__props_with_default(header, "show_design_name", True)
                 header_font = self.__props_with_default(header, "font", "Arial")
@@ -972,9 +903,9 @@ class CommonReport(object):
                     color=header_color,
                 )
 
-            for i in list(self._props["general"].keys()):
+            for i in list(self._legacy_props["general"].keys()):
                 if "axis" in i:
-                    axis = self._props["general"][i]
+                    axis = self._legacy_props["general"][i]
                     axis_font = self.__props_with_default(axis, "font", "Arial")
                     axis_size = self.__props_with_default(axis, "font_size", 12)
                     axis_italic = self.__props_with_default(axis, "italic", False)
@@ -1095,14 +1026,14 @@ class CommonReport(object):
         str
             Plot name.
         """
-        return self._props["plot_name"]
+        return self._legacy_props["plot_name"]
 
     @plot_name.setter
     def plot_name(self, name):
         if self._is_created:
             if name not in self._post.oreportsetup.GetAllReportNames():
-                self._post.oreportsetup.RenameReport(self._props["plot_name"], name)
-        self._props["plot_name"] = name
+                self._post.oreportsetup.RenameReport(self._legacy_props["plot_name"], name)
+        self._legacy_props["plot_name"] = name
 
     @property
     def variations(self):
@@ -1131,15 +1062,15 @@ class CommonReport(object):
                     variations[tr.properties["Primary Sweep"]] = ["All"]
                     if tr.properties.get("Secondary Sweep", None):
                         variations[tr.properties["Secondary Sweep"]] = ["All"]
-                self._props["context"]["variations"] = variations
+                self._legacy_props["context"]["variations"] = variations
             except Exception:
                 self._post._app.logger.debug("Something went wrong while processing variations.")
-        return self._props["context"]["variations"]
+        return self._legacy_props["context"]["variations"]
 
     @variations.setter
     def variations(self, value):
 
-        self._props["context"]["variations"] = value
+        self._legacy_props["context"]["variations"] = value
 
     @property
     def primary_sweep(self):
@@ -1151,14 +1082,14 @@ class CommonReport(object):
             Primary sweep.
         """
         if self._is_created:
-            return list(self.properties.props.values())[4].split(" ,")[0]
-        return self._props["context"]["primary_sweep"]
+            return list(self.properties.values())[4].split(" ,")[0]
+        return self._legacy_props["context"]["primary_sweep"]
 
     @primary_sweep.setter
     def primary_sweep(self, value):
-        if value == self._props["context"].get("secondary_sweep", None):
-            self._props["context"]["secondary_sweep"] = self._props["context"]["primary_sweep"]
-        self._props["context"]["primary_sweep"] = value
+        if value == self._legacy_props["context"].get("secondary_sweep", None):
+            self._legacy_props["context"]["secondary_sweep"] = self._legacy_props["context"]["primary_sweep"]
+        self._legacy_props["context"]["primary_sweep"] = value
         if value == "Time":
             self.variations.pop("Freq", None)
             self.variations["Time"] = ["All"]
@@ -1176,16 +1107,16 @@ class CommonReport(object):
             Secondary sweep.
         """
         if self._is_created:
-            els = list(self.properties.props.values())[4].split(" ,")
+            els = list(self.properties.values())[4].split(" ,")
 
             return els[1] if len(els) == 3 else None
-        return self._props["context"].get("secondary_sweep", None)
+        return self._legacy_props["context"].get("secondary_sweep", None)
 
     @secondary_sweep.setter
     def secondary_sweep(self, value):
-        if value == self._props["context"]["primary_sweep"]:
-            self._props["context"]["primary_sweep"] = self._props["context"]["secondary_sweep"]
-        self._props["context"]["secondary_sweep"] = value
+        if value == self._legacy_props["context"]["primary_sweep"]:
+            self._legacy_props["context"]["primary_sweep"] = self._legacy_props["context"]["secondary_sweep"]
+        self._legacy_props["context"]["secondary_sweep"] = value
         if value == "Time":
             self.variations.pop("Freq", None)
             self.variations["Time"] = ["All"]
@@ -1202,11 +1133,11 @@ class CommonReport(object):
         str
             Primary sweep range.
         """
-        return self._props["context"]["primary_sweep_range"]
+        return self._legacy_props["context"]["primary_sweep_range"]
 
     @primary_sweep_range.setter
     def primary_sweep_range(self, value):
-        self._props["context"]["primary_sweep_range"] = value
+        self._legacy_props["context"]["primary_sweep_range"] = value
 
     @property
     def secondary_sweep_range(self):
@@ -1217,11 +1148,11 @@ class CommonReport(object):
         str
             Secondary sweep range.
         """
-        return self._props["context"]["secondary_sweep_range"]
+        return self._legacy_props["context"]["secondary_sweep_range"]
 
     @secondary_sweep_range.setter
     def secondary_sweep_range(self, value):
-        self._props["context"]["secondary_sweep_range"] = value
+        self._legacy_props["context"]["secondary_sweep_range"] = value
 
     @property
     def _context(self):
@@ -1293,11 +1224,11 @@ class CommonReport(object):
                 return self.traces[0].properties["Domain"]
             except Exception:
                 self._post._app.logger.debug("Something went wrong while accessing trace's Domain property.")
-        return self._props["context"]["domain"]
+        return self._legacy_props["context"]["domain"]
 
     @domain.setter
     def domain(self, domain):
-        self._props["context"]["domain"] = domain
+        self._legacy_props["context"]["domain"] = domain
         if self._post._app.design_type in ["Maxwell 3D", "Maxwell 2D"]:
             return
         if self.primary_sweep == "Freq" and domain == "Time":
@@ -1318,11 +1249,11 @@ class CommonReport(object):
         bool
             ``True`` when option is enabled, ``False`` otherwise.
         """
-        return self._props["context"].get("use_pulse_in_tdr", False)
+        return self._legacy_props["context"].get("use_pulse_in_tdr", False)
 
     @use_pulse_in_tdr.setter
     def use_pulse_in_tdr(self, val):
-        self._props["context"]["use_pulse_in_tdr"] = val
+        self._legacy_props["context"]["use_pulse_in_tdr"] = val
 
     @pyaedt_function_handler()
     def _convert_dict_to_report_sel(self, sweeps):
@@ -1388,6 +1319,9 @@ class CommonReport(object):
         )
         self._post.plots.append(self)
         self._is_created = True
+        oo = self._post.oreportsetup.GetChildObject(self._legacy_props["plot_name"])
+        if oo:
+            BinaryTreeNode.__init__(self, self.plot_name, oo, False)
         return True
 
     @pyaedt_function_handler()
@@ -1458,7 +1392,7 @@ class CommonReport(object):
     def _export_expressions(self, output_dict):
         output_dict["expressions"] = {}
         for expr in self.traces:
-            name = self.properties.props[expr.name].split(" ,")[-1]
+            name = self.properties[expr.name].split(" ,")[-1]
             pr = expr.curve_properties
             output_dict["expressions"][name] = {}
             if "Trace Type" in pr:
@@ -1485,8 +1419,8 @@ class CommonReport(object):
         from ansys.aedt.core.visualization.report.eye import AMIEyeDiagram
         from ansys.aedt.core.visualization.report.eye import EyeDiagram
 
-        if isinstance(self, (AMIEyeDiagram, EyeDiagram)) and "EyeDisplayTypeProperty" in self.properties.children:
-            pr = self.properties.children["EyeDisplayTypeProperty"].props
+        if isinstance(self, (AMIEyeDiagram, EyeDiagram)) and "EyeDisplayTypeProperty" in self.children:
+            pr = self.children["EyeDisplayTypeProperty"].properties
             if pr.get("Mask/MaskPoints", None) and len(pr["Mask/MaskPoints"]) > 1:
                 pts_x = pr["Mask/MaskPoints"][1::2]
                 pts_y = pr["Mask/MaskPoints"][2::2]
@@ -1553,8 +1487,8 @@ class CommonReport(object):
         from ansys.aedt.core.visualization.report.eye import EyeDiagram
 
         output_dict["general"] = {}
-        if "AxisX" in self.properties.children:
-            axis = self.properties.children["AxisX"].props
+        if "AxisX" in self.children:
+            axis = self.children["AxisX"].properties
             output_dict["general"]["axisx"] = {
                 "label": axis["Name"],
                 "font": axis["Text Font/FaceName"],
@@ -1569,9 +1503,9 @@ class CommonReport(object):
             }
             if not isinstance(self, (AMIEyeDiagram, EyeDiagram)):
                 output_dict["general"]["axisx"]["linear_scaling"] = True if axis["Axis Scaling"] == "Linear" else False
-            y_axis_available = [i for i in self.properties.children.keys() if i.startswith("AxisY")]
+            y_axis_available = [i for i in self.children.keys() if i.startswith("AxisY")]
             for yaxis in y_axis_available:
-                axis = self.properties.children[yaxis].props
+                axis = self.children[yaxis].properties
                 output_dict["general"][yaxis.lower()] = {
                     "label": axis["Name"],
                     "font": axis["Text Font/FaceName"],
@@ -1587,8 +1521,8 @@ class CommonReport(object):
                     output_dict["general"][yaxis.lower()]["linear_scaling"] = (
                         True if axis["Axis Scaling"] == "Linear" else False
                     )
-        if "General" in self.properties.children:
-            props = self.properties.children["General"].props
+        if "General" in self.children:
+            props = self.children["General"].properties
             output_dict["general"]["appearance"] = {
                 "background_color": [
                     props["Back Color/Red"],
@@ -1607,8 +1541,8 @@ class CommonReport(object):
                 "use_scientific_notation": props["Use Scientific Notation"],
             }
 
-        if "Grid" in self.properties.children:
-            props = self.properties.children["Grid"].props
+        if "Grid" in self.children:
+            props = self.children["Grid"].properties
             output_dict["general"]["grid"] = {
                 "major_color": [
                     props["Major grid line color/Red"],
@@ -1627,8 +1561,8 @@ class CommonReport(object):
                 "style_major": props["Major grid line style"],
                 "style_minor": props["Minor grid line style"],
             }
-        if "Legend" in self.properties.children:
-            props = self.properties.children["Legend"].props
+        if "Legend" in self.children:
+            props = self.children["Legend"].properties
             output_dict["general"]["legend"] = {
                 "back_color": [
                     props["Back Color/Red"],
@@ -1644,8 +1578,8 @@ class CommonReport(object):
                 "show_variation_key": props["Show Variation Key"],
                 "show_trace_name": props["Show Trace Name"],
             }
-        if "Header" in self.properties.children:
-            props = self.properties.children["Header"].props
+        if "Header" in self.children:
+            props = self.children["Header"].properties
             output_dict["general"]["header"] = {
                 "font": props["Title Font/FaceName"],
                 "title_size": props["Title Font/Height"],

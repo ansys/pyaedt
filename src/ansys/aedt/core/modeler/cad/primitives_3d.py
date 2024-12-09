@@ -36,7 +36,6 @@ from math import tan
 import os
 
 from ansys.aedt.core import Edb
-from ansys.aedt.core import Icepak
 from ansys.aedt.core.generic import load_aedt_file
 from ansys.aedt.core.generic.desktop_sessions import _edb_sessions
 from ansys.aedt.core.generic.general_methods import generate_unique_name
@@ -1467,6 +1466,7 @@ class Primitives3D(GeometryModeler):
     @staticmethod
     def __create_temp_project(app):
         """Create temporary project with a duplicated design."""
+        from ansys.aedt.core import Icepak
         temp_proj_name = generate_unique_project_name()
         ipkapp_temp = Icepak(project=os.path.join(app.toolkit_directory, temp_proj_name))
         ipkapp_temp.delete_design(ipkapp_temp.design_name)
