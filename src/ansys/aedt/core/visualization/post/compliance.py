@@ -1082,6 +1082,7 @@ class VirtualCompliance:
     @pyaedt_function_handler()
     def add_specs_to_report(self, folder):
         """Add specs to the report from a given folder.
+
         All images in such folder will be added to the report.
 
         Parameters

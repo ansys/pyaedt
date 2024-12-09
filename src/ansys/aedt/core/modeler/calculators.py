@@ -349,7 +349,6 @@ class StandardWaveguide(object):
         str
             Waveguide name.
         """
-
         freq = constants.unit_converter(freq, "Frequency", units, "GHz")
         op_freq = freq * 0.8
 

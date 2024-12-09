@@ -22,9 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-This module contains the `Materials` class.
-"""
+"""Module containing the `Materials` class."""
 from __future__ import absolute_import  # noreorder
 
 import copy
@@ -809,9 +807,7 @@ class Materials(object):
         Returns
         -------
         List of :class:`ansys.aedt.core.modules.material.Material`
-
         """
-
         if "full_json_path" in kwargs and kwargs["full_json_path"] is not None:  # pragma: no cover
             warnings.warn(
                 "``full_json_path`` was deprecated in 0.8.1. Use ``full_path`` instead.",

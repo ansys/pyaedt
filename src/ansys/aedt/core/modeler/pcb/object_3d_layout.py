@@ -265,6 +265,7 @@ class Object3DLayout(object):
         ----------
         extra_soldermask_clearance : float, optional
             Extra Soldermask value in model units to be applied on component bounding box.
+
         Returns
         -------
             bool

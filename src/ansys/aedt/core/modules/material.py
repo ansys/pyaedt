@@ -50,8 +50,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
 class MatProperties(object):
-    """Contains a list of constant names for all materials with
-    mappings to their internal XML names.
+    """Contains a list of constant names for all materials with mappings to their internal XML names.
 
     Internal names are used in scripts, and XML names are used in the XML syntax.
     """
@@ -150,7 +149,8 @@ class MatProperties(object):
     @classmethod
     def wb_to_aedt_name(cls, wb_name):
         """Retrieve the corresponding AEDT property name for the specified Workbench property name.
-        The workbench names are specified in ``MatProperties.workbench_name``.
+
+        The Workbench names are specified in ``MatProperties.workbench_name``.
         The AEDT names are specified in ``MatProperties.aedtname``.
 
         Parameters
@@ -162,7 +162,6 @@ class MatProperties(object):
         -------
         str
             AEDT name of the property.
-
         """
         return cls.aedtname[cls.workbench_name.index(wb_name)]
 
@@ -179,7 +178,6 @@ class MatProperties(object):
         -------
         str
             Default unit if it exists.
-
         """
         if aedtname:
             return cls.defaultunit[cls.aedtname.index(aedtname)]
@@ -199,7 +197,6 @@ class MatProperties(object):
         -------
         float
             Default value if it exists.
-
         """
         if aedtname:
             return cls.defaultvalue[cls.aedtname.index(aedtname)]
@@ -212,7 +209,6 @@ class SurfMatProperties(object):
     mappings to their internal XML names.
 
     Internal names are used in scripts, and XML names are used in the XML syntax.
-
     """
 
     aedtname = [
@@ -789,18 +785,15 @@ class MatProperty(object):
 
         References
         ----------
-
         >>> oDefinitionManager.EditMaterial
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_copper2")
         >>> mat1.permittivity.add_thermal_modifier_closed_form(c1 = 1e-3)
         """
-
         if index > len(self._property_value):
             self.logger.error(
                 "Wrong index number. Index must be 0 for simple or nonlinear properties,"
@@ -942,6 +935,7 @@ class MatProperty(object):
     @pyaedt_function_handler()
     def _set_non_linear(self, x_unit=None, y_unit=None):
         """Enable non-linear material.
+
          This is a private method, and should not be used directly.
 
         Parameters
@@ -965,7 +959,6 @@ class MatProperty(object):
         >>> mat = hfss.materials.add_material("newMat")
         >>> b_h_dataset = [[b, h] for b, h in zip(B_value, H_value)]
         >>> mat.permeability = b_h_dataset
-
         """
         if self.name not in ["permeability", "conductivity", "permittivity"]:
             self.logger.error(
@@ -1225,18 +1218,15 @@ class MatProperty(object):
 
         References
         ----------
-
         >>> oDefinitionManager.EditMaterial
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_copper2")
         >>> mat1.add_spatial_modifier_dataset("$ds1")
         """
-
         formula = f"clp({dataset}, X,Y,Z)"
         self._property_value[index].spatialmodifier = formula
         return self._add_spatial_modifier(formula, index)
@@ -1335,7 +1325,6 @@ class CommonMaterial(object):
         update_aedt : bool, optional
             Whether to update the property in AEDT. The default is ``True``.
         """
-
         try:
             material_props = getattr(self, propname)
             material_props_type = material_props.type
@@ -1518,8 +1507,9 @@ class Material(CommonMaterial, object):
 
     @property
     def material_appearance(self):
-        """Material appearance specified as a list where the first three items are
-        RGB color and the fourth one is transparency.
+        """Material appearance specified as a list.
+
+        The first three items are RGB color and the fourth one is transparency.
 
         Returns
         -------
@@ -2765,7 +2755,6 @@ class Material(CommonMaterial, object):
         bool
             ``True`` if successful, ``False`` otherwise.
         """
-
         # K = f"({dk} * {df} - {sigma_dc} / (2 * pi * {i_freq} * e0)) / atan({freq_hi} / {i_freq})"
         K = f"({dk} * {df} - {sigma_dc} / (2 * pi * {frequency} * e0)) / atan({freq_hi} / {frequency})"
         epsilon_inf = f"({dk} - {K} / 2 * ln({freq_hi}**2 / {frequency}**2 + 1))"
@@ -2790,11 +2779,9 @@ class Material(CommonMaterial, object):
 
         References
         ----------
-
         >>> oDefinitionManager.AddMaterial
         >>> oDefinitionManager.EditMaterial
         """
-
         args = self._get_args()
         if not self._does_material_exists(self.name):
             self.odefinition_manager.AddMaterial(args)

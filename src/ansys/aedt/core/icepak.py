@@ -1699,6 +1699,7 @@ class Icepak(FieldAnalysis3D):
         skip_intersection_checks : bool, optional
             Whether to skip intersection checks during validation check.
             The default value is ``False``.
+
         Returns
         -------
         bool
@@ -1706,7 +1707,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oDesign.SetDesignSettings
         """
         #

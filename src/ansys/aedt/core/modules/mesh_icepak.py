@@ -62,9 +62,9 @@ class CommonRegion(object):
 
     @property
     def padding_values(self):
-        """
-        Get a list of padding values (string or float) used,
-        one for each direction, in the following order:
+        """Get a list of padding values (string or float) used.
+
+        Get one for each direction, in the following order:
         +X, -X, +Y, -Y, +Z, -Z.
 
         Returns
@@ -394,7 +394,7 @@ class SubRegion(CommonRegion):
         """
         Delete the subregion object.
 
-         Returns
+        Returns
         -------
         bool
            ``True`` when successful, ``False`` when failed.
@@ -413,7 +413,7 @@ class SubRegion(CommonRegion):
         """
         Parts included in the subregion.
 
-         Returns
+        Returns
         -------
         dict
             Dictionary with the part names as keys and ::class::modeler.cad.object_3d.Object3d as values.
@@ -428,11 +428,10 @@ class SubRegion(CommonRegion):
 
     @parts.setter
     def parts(self, parts):
-        """
-        Parts included in the subregion.
+        """Parts included in the subregion.
 
         Parameters
-        -------
+        ----------
         parts : List[str]
             List of strings containing all the parts that must be included in the subregion.
         """
@@ -440,8 +439,7 @@ class SubRegion(CommonRegion):
 
 
 class MeshSettings(object):
-    """
-    Class for managing mesh settings.
+    """Manages mesh settings.
 
     It can be used like a dictionary. Available keys change according
     to the type of settings chosen (manual or automatic).
@@ -497,8 +495,7 @@ class MeshSettings(object):
                 del self._instance_settings[arg]
 
     def parse_settings_as_args(self):
-        """
-        Parse mesh region settings.
+        """Parse mesh region settings.
 
         Returns
         -------
@@ -515,8 +512,7 @@ class MeshSettings(object):
         return out
 
     def parse_settings_as_dictionary(self):
-        """
-        Parse mesh region settings.
+        """Parse mesh region settings.
 
         Returns
         -------
@@ -532,8 +528,7 @@ class MeshSettings(object):
         return out
 
     def keys(self):
-        """
-        Get mesh region settings keys.
+        """Get mesh region settings keys.
 
         Returns
         -------
@@ -546,8 +541,7 @@ class MeshSettings(object):
             return set(self._automatic_mesh_settings.keys()) | set(self._common_mesh_settings.keys())
 
     def values(self):
-        """
-        Get mesh region settings values.
+        """Get mesh region settings values.
 
         Returns
         -------
@@ -636,21 +630,15 @@ class MeshRegionCommon(object):
 
     @abstractmethod
     def update(self):
-        """
-        Update the mesh region object.
-        """
+        """Update the mesh region object."""
 
     @abstractmethod
     def delete(self):
-        """
-        Delete the mesh region object.
-        """
+        """Delete the mesh region object."""
 
     @abstractmethod
     def create(self):
-        """
-        Create the mesh region object.
-        """
+        """Create the mesh region object."""
 
     # backward compatibility
     def __getattr__(self, name):
@@ -708,7 +696,6 @@ class GlobalMeshRegion(MeshRegionCommon):
 
         References
         ----------
-
         >>> oModule.EditGlobalMeshRegion
         """
         args = ["NAME:Settings"]
@@ -724,22 +711,16 @@ class GlobalMeshRegion(MeshRegionCommon):
 
     @property
     def Objects(self):
-        """
-        Get the region object from the modeler.
-        """
+        """Get the region object from the modeler."""
         return self.global_region.name
 
     def delete(self):
-        """
-        Delete the region object in the modeler.
-        """
+        """Delete the region object in the modeler."""
         self.global_region.object.delete()
         self.global_region = None
 
     def create(self):
-        """
-        Create the region object in the modeler.
-        """
+        """Create the region object in the modeler."""
         self.delete()
         self.global_region = Region(self._app)
         self.global_region.create(self.padding_types, self.padding_values)
@@ -1065,7 +1046,6 @@ class IcepakMesh(object):
     @pyaedt_function_handler()
     def _refresh_mesh_operations(self):
         """Refresh all mesh operations."""
-
         self._meshoperations = self._get_design_mesh_operations()
         return len(self.meshoperations)
 
@@ -1349,12 +1329,10 @@ class IcepakMesh(object):
 
         References
         ----------
-
         >>> oEditor.UpdatePriorityList
 
         Examples
         --------
-
         >>> ipk.mesh.assign_priorities([["Box1", "Rectangle1"], ["Box2", "Fan1_1"], ["Heatsink1_1"]])
         """
         if not assignment or not isinstance(assignment, list) or not isinstance(assignment[0], list):
@@ -1439,12 +1417,10 @@ class IcepakMesh(object):
 
         References
         ----------
-
         >>> oEditor.UpdatePriorityList
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Icepak
         >>> app = Icepak()
         >>> app.mesh.add_priority(entity_type=1,assignment=app.modeler.object_names,priority=3)

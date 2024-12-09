@@ -143,7 +143,6 @@ class MonostaticRCSExporter:
     @pyaedt_function_handler()
     def get_monostatic_rcs(self):
         """Get RCS solution data."""
-
         variations = self.variations
         variations["IWaveTheta"] = ["All"]
         variations["IWavePhi"] = ["All"]
@@ -163,7 +162,6 @@ class MonostaticRCSExporter:
     @pyaedt_function_handler()
     def export_rcs(self, name="rcs_data", metadata_name="pyaedt_rcs_metadata"):
         """Export RCS solution data."""
-
         # Output directory
         solution_setup_name = self.setup_name.replace(":", "_").replace(" ", "")
         full_setup = f"{solution_setup_name}"

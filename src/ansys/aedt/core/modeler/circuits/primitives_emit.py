@@ -396,6 +396,7 @@ class EmitComponent(object):
     @pyaedt_function_handler()
     def port_names(self):
         """Get the names of the component's ports.
+
         Returns
         -------
         List
@@ -403,7 +404,6 @@ class EmitComponent(object):
 
         References
         ----------
-
         >>> oEditor.GetComponentPorts
         """
         return self.oeditor.GetComponentPorts(self.name)

@@ -91,8 +91,9 @@ class SolutionData(object):
 
     @property
     def enable_pandas_output(self):
-        """
-        Set/Get a flag to use Pandas to export dict and lists. This applies to Solution data output.
+        """Set/Get a flag to use Pandas to export dict and lists.
+
+        This applies to Solution data output.
         If ``True`` the property or method will return a pandas object in CPython environment.
         Default is ``False``.
 
@@ -220,7 +221,6 @@ class SolutionData(object):
         dict
             Updated sweeps.
         """
-
         names = list(self.nominal_variation.GetSweepNames())
         for data in self._original_data:
             for v in data.GetDesignVariableNames():
@@ -281,7 +281,7 @@ class SolutionData(object):
 
     @pyaedt_function_handler()
     def _init_solution_data_real(self):
-        """ """
+        """Initialize the real part of the solution data."""
         sols_data = {}
 
         for expression in self.expressions:

@@ -504,7 +504,6 @@ class FieldsCalculator:
         dict or bool
             Expression if the input expression is valid, ``False`` otherwise.
         """
-
         if not isinstance(expression, dict):
             self.__app.logger.error("Incorrect data type.")
             return False
@@ -780,6 +779,7 @@ class FieldsCalculator:
             The default is ``[0, 0, 0]``.
         is_vector : bool, optional
             Whether the quantity is a vector. The  default is ``False``.
+
         Returns
         -------
         bool or str

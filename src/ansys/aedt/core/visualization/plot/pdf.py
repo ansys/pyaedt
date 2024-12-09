@@ -301,8 +301,8 @@ class AnsysReport(FPDF):
     @property
     def template_name(self):
         """Name of the template to use.
-        It can be a full json path or a string of a json contained in ``"Images"`` folder.
 
+        It can be a full json path or a string of a json contained in ``"Images"`` folder.
 
         Returns
         -------
@@ -505,6 +505,7 @@ class AnsysReport(FPDF):
         col_widths=None,
     ):
         """Add a new table from a list of data.
+
         Data shall be a list of list where every line is either a row or a column.
 
         Parameters
@@ -520,7 +521,6 @@ class AnsysReport(FPDF):
         col_widths : list, optional
             List of column widths.
         """
-
         self.set_font(self.report_specs.font.lower(), size=self.report_specs.text_font_size)
         self.set_font(self.report_specs.font.lower(), size=self.report_specs.table_font_size)
         with self.table(

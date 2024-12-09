@@ -5521,7 +5521,6 @@ class NetworkObject(BoundaryObject):
 
         Examples
         --------
-
         >>> import ansys.aedt.core
         >>> app = ansys.aedt.core.Icepak()
         >>> network = ansys.aedt.core.modules.boundary.Network(app)
@@ -5530,7 +5529,6 @@ class NetworkObject(BoundaryObject):
         >>> [network.add_face_node(faces_ids[i]) for i in range(2)]
         >>> connection = {"Name": "LinkTest", "Link": [faces_ids[1], faces_ids[0], "1cel_per_w"]}
         >>> network.add_links_from_dictionaries(connection)
-
         """
         if isinstance(connections, dict):
             connections = [connections]
@@ -5573,9 +5571,7 @@ class NetworkObject(BoundaryObject):
 
     @pyaedt_function_handler()
     def update_assignment(self):
-        """
-        Update assignments of the network.
-        """
+        """Update assignments of the network."""
         return self.update()
 
     class _Link:
@@ -5647,16 +5643,13 @@ class NetworkObject(BoundaryObject):
 
         @pyaedt_function_handler()
         def delete_node(self):
-            """
-            Delete node from network.
-            """
+            """Delete node from network."""
             self._network.props["Nodes"].pop(self.name)
             self._network._nodes.remove(self)
 
         @property
         def node_type(self):
-            """
-            Get node type.
+            """Get node type.
 
             Returns
             -------
@@ -5679,8 +5672,7 @@ class NetworkObject(BoundaryObject):
 
         @property
         def props(self):
-            """
-            Get properties of the node.
+            """Get properties of the node.
 
             Returns
             -------
@@ -5691,8 +5683,7 @@ class NetworkObject(BoundaryObject):
 
         @props.setter
         def props(self, props):
-            """
-            Set properties of the node.
+            """Set properties of the node.
 
             Parameters
             ----------
@@ -5776,8 +5767,7 @@ def _create_boundary(bound):
 
 
 class BoundaryDictionary:
-    """
-    Handles Icepak transient and temperature-dependent boundary condition assignments.
+    """Handles Icepak transient and temperature-dependent boundary condition assignments.
 
     Parameters
     ----------
@@ -5821,8 +5811,7 @@ class BoundaryDictionary:
 
 
 class LinearDictionary(BoundaryDictionary):
-    """
-    Manages linear conditions assignments, which are children of the ``BoundaryDictionary`` class.
+    """Manages linear conditions assignments, which are children of the ``BoundaryDictionary`` class.
 
     This class applies a condition ``y`` dependent on the time ``t``:
         ``y=a+b*t``
@@ -5848,23 +5837,22 @@ class LinearDictionary(BoundaryDictionary):
 
 
 class PowerLawDictionary(BoundaryDictionary):
-    """
-    Manages power law condition assignments, which are children of the ``BoundaryDictionary`` class.
+    """Manages power law condition assignments, which are children of the ``BoundaryDictionary`` class.
 
      This class applies a condition ``y`` dependent on the time ``t``:
          ``y=a+b*t^c``
 
-     Parameters
-     ----------
-     intercept : str
-         Value of the assignment condition at the initial time, which
-         corresponds to the coefficient ``a`` in the formula.
-     coefficient : str
-         Coefficient that multiplies the power term, which
-         corresponds to the coefficient ``b`` in the formula.
-     scaling_exponent : str
-         Exponent of the power term, which
-         corresponds to the coefficient ``c`` in the formula.
+    Parameters
+    ----------
+    intercept : str
+        Value of the assignment condition at the initial time, which
+        corresponds to the coefficient ``a`` in the formula.
+    coefficient : str
+        Coefficient that multiplies the power term, which
+        corresponds to the coefficient ``b`` in the formula.
+    scaling_exponent : str
+        Exponent of the power term, which
+        corresponds to the coefficient ``c`` in the formula.
     """
 
     def __init__(self, intercept, coefficient, scaling_exponent):
@@ -5879,8 +5867,7 @@ class PowerLawDictionary(BoundaryDictionary):
 
 
 class ExponentialDictionary(BoundaryDictionary):
-    """
-    Manages exponential condition assignments, which are children of the ``BoundaryDictionary`` class.
+    """Manages exponential condition assignments, which are children of the ``BoundaryDictionary`` class.
 
     This class applies a condition ``y`` dependent on the time ``t``:
         ``y=a+b*exp(c*t)``
@@ -5910,8 +5897,7 @@ class ExponentialDictionary(BoundaryDictionary):
 
 
 class SinusoidalDictionary(BoundaryDictionary):
-    """
-    Manages sinusoidal condition assignments, which are children of the ``BoundaryDictionary`` class.
+    """Manages sinusoidal condition assignments, which are children of the ``BoundaryDictionary`` class.
 
     This class applies a condition ``y`` dependent on the time ``t``:
         ``y=a+b*sin(2*pi(t-t0)/T)``
@@ -5945,8 +5931,7 @@ class SinusoidalDictionary(BoundaryDictionary):
 
 
 class SquareWaveDictionary(BoundaryDictionary):
-    """
-    Manages square wave condition assignments, which are children of the ``BoundaryDictionary`` class.
+    """Manages square wave condition assignments, which are children of the ``BoundaryDictionary`` class.
 
     Parameters
     ----------

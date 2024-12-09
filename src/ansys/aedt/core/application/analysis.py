@@ -407,11 +407,9 @@ class Analysis(Design, object):
 
         References
         ----------
-
         >>> oModule.GelAllSolutionNames
         >>> oModule.GetSweeps
         """
-
         if len(self.existing_analysis_sweeps) > 1:
             return self.existing_analysis_sweeps[1]
         else:

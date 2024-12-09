@@ -212,7 +212,6 @@ class SpiSim:
         bool or float
             Effective return loss from the spisimExe command, ``False`` when failed.
         """
-
         cfg_dict = {
             "INPARRY": "",
             "MIXMODE": "",
@@ -329,9 +328,7 @@ class SpiSim:
 
         Returns
         -------
-
         """
-
         com_param = COMParametersVer3p4()
         if standard == 0:
             if os.path.splitext(config_file)[-1] == ".cfg":
@@ -392,6 +389,7 @@ class SpiSim:
             Full path to configuration file to create.
         standard : int
             Index of the standard.
+
         Returns
         -------
         bool
@@ -424,9 +422,8 @@ def detect_encoding(file_path, expected_pattern="", re_flags=0):
 
 
 class DataSet(object):
-    """
-    This is the base class for storing all traces of a RAW file. Returned by the get_trace() or by the get_axis()
-    methods.
+    """Base class for storing all traces of a RAW file. Returned by the get_trace() or by the get_axis() methods.
+
     Normally the user doesn't have to be aware of this class. It is only used internally to encapsulate the different
     implementations of the wave population.
     Data can be retrieved directly by using the [] operator.
@@ -442,7 +439,9 @@ class DataSet(object):
         datalen,
     ):
         """Base Class for both Axis and Trace Classes.
-        Defines the common operations between both."""
+
+        Defines the common operations between both.
+        """
         self.name = name
         self.whattype = whattype
         self.data = zeros(datalen, dtype=float64)
@@ -470,6 +469,7 @@ class DataSet(object):
 
 class Trace(DataSet):
     """This class is used to represent a trace.
+
     This class is constructed by the get_trace() command.
     If numpy is available the get_wave() method will return a numpy array.
     """
@@ -617,8 +617,7 @@ class SpiSimRawRead(object):
 
     @property
     def trace_names(self):
-        """
-        Returns a list of exiting trace names of the RAW file.
+        """Returns a list of exiting trace names of the RAW file.
 
         Returns
         -------
@@ -628,7 +627,7 @@ class SpiSimRawRead(object):
         return [trace.name for trace in self._traces]
 
     def get_trace(self, trace_ref):
-        """Retrieves the trace with the requested name (trace_ref).
+        """Retrieve the trace with the requested name (trace_ref).
 
         Parameters
         ----------
@@ -648,7 +647,7 @@ class SpiSimRawRead(object):
             return self._traces[trace_ref]
 
     def get_wave(self, trace_ref):
-        """Retrieves the trace data with the requested name (trace_ref).
+        """Retrieve the wave data with the requested name (trace_ref).
 
         Parameters
         ----------
@@ -663,7 +662,7 @@ class SpiSimRawRead(object):
         return self.get_trace(trace_ref).wave
 
     def get_axis(self):
-        """This function is equivalent to get_trace(0).wave instruction.
+        """Function equivalent to get_trace(0).wave instruction.
 
         Returns
         -------

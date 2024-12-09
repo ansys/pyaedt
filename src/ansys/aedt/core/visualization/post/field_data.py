@@ -127,7 +127,8 @@ class ColorMapSettings(BaseFolderPlot):
     def color(self):
         """Get the color based on the map type.
 
-        Returns:
+        Returns
+        -------
             str or list of float: The color scheme based on the map type.
         """
         if self.map_type == "Spectrum":
@@ -387,14 +388,14 @@ class NumberFormat(BaseFolderPlot):
     def format_type(self, v):
         """Set the numeric format type of the scale.
 
-        Parameters:
-        -----------
-            v (str): The new format type to be set. Must be one of the accepted values
+        Parameters
+        ----------
+        v (str): The new format type to be set. Must be one of the accepted values
             ("Automatic", "Scientific" or "Decimal").
 
-        Raises:
-        -------
-            ValueError: If the provided value is not in the list of accepted values.
+        Raises
+        ------
+        ValueError: If the provided value is not in the list of accepted values.
         """
         if v is not None and v in self._accepted:
             self._format_type = v
@@ -633,7 +634,7 @@ class MarkerSettings(BaseFolderPlot):
     def marker_type(self, v):
         """Set the type of maker to use.
 
-        Parameters:
+        Parameters
         ----------
         v : str
             Marker type. Must be one of the allowed types
@@ -981,7 +982,8 @@ class FieldPlot:
     def _parse_folder_settings(self):
         """Parse the folder settings for the field plot from the AEDT file.
 
-        Returns:
+        Returns
+        -------
             FolderPlotSettings or None: An instance of FolderPlotSettings if found, otherwise None.
         """
         folder_settings_data = load_keyword_in_aedt_file(
