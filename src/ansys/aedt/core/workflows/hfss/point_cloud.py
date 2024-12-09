@@ -21,21 +21,25 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os.path
-import open3d as o3d
-import numpy as np
 import csv
-import string
+import os.path
 import random
+import string
 import tkinter as tk
-from tkinter import ttk, messagebox, filedialog
-from PIL import Image, ImageTk
+from tkinter import filedialog
+from tkinter import messagebox
+from tkinter import ttk
+
+from PIL import Image
+from PIL import ImageTk
 import ansys.aedt.core
 from ansys.aedt.core import Hfss
 from ansys.aedt.core.workflows.misc import get_aedt_version
 from ansys.aedt.core.workflows.misc import get_port
 from ansys.aedt.core.workflows.misc import get_process_id
 from ansys.aedt.core.workflows.misc import is_student
+import numpy as np
+import open3d as o3d
 
 port = get_port()
 version = get_aedt_version()
@@ -46,8 +50,8 @@ is_student = is_student()
 # Function to save the point cloud to a CSV file
 def save_point_cloud_to_csv(pcd, csv_file):
     points = np.asarray(pcd.points)
-    with open(csv_file, 'w', newline='') as file:
-        writer = csv.writer(file, delimiter='\t')
+    with open(csv_file, "w", newline="") as file:
+        writer = csv.writer(file, delimiter="\t")
         for point in points:
             writer.writerow(point / 1000)
 
@@ -67,7 +71,7 @@ def visualize_point_cloud(pcd):
 # Function to generate a random alphanumeric sequence
 def generate_random_sequence():
     characters = string.ascii_letters + string.digits
-    sequence = ''.join(random.choices(characters, k=5))
+    sequence = "".join(random.choices(characters, k=5))
     return sequence
 
 
@@ -90,31 +94,33 @@ class PointCloudApp:
 
     def init_hfss(self):
 
-        self.aedt = Hfss(version=version, new_desktop=False, student_version=is_student )
+        self.aedt = Hfss(version=version, new_desktop=False, student_version=is_student)
         self.aedt.oproject.GetActiveDesign()
-        self.aedt.modeler.model_units = 'mm'
-        self.cs = 'Global'
+        self.aedt.modeler.model_units = "mm"
+        self.cs = "Global"
         self.aedt.modeler.set_working_coordinate_system(name=self.cs)
         self.aedt_solids = self.aedt.modeler.get_objects_in_group("Solids")
         self.aedt_sheets = self.aedt.modeler.get_objects_in_group("Sheets")
-
 
         bounds = self.aedt.oboundary.GetNumBoundariesOfType("Radiation")
         bounds = bounds + self.aedt.oboundary.GetNumBoundariesOfType("FE-BI")
         bounds = bounds + self.aedt.oboundary.GetNumHybridRegionsOfType("FE-BI")
 
-
         if self.aedt.solution_type != "SBR+" and bounds == 0:
-            messagebox.showerror("Error",
-                                 "Please change solution type to SBR+ or insert a radiation boundary and run the script again!")
+            messagebox.showerror(
+                "Error", "Please change solution type to SBR+ or insert a radiation boundary and run the script again!"
+            )
             raise ValueError(
-                "Please change solution type to SBR+ or insert a radiation boundary and run the script again!")
+                "Please change solution type to SBR+ or insert a radiation boundary and run the script again!"
+            )
 
         if not self.aedt_solids and not self.aedt_sheets:
-            messagebox.showerror("Error","No solids or sheets are defined in this design. Please add them and run the script again!")
+            messagebox.showerror(
+                "Error", "No solids or sheets are defined in this design. Please add them and run the script again!"
+            )
             raise ValueError(
-                "No solids or sheets are defined in this design. Please add them and run the script again!")
-
+                "No solids or sheets are defined in this design. Please add them and run the script again!"
+            )
 
     def create_ui(self):
         # Dropdown label
@@ -123,7 +129,7 @@ class PointCloudApp:
 
         # Dropdown menu for objects and surfaces
         self.dropdown = ttk.Combobox(self.root, state="readonly")
-        self.dropdown['values'] = self.populate_dropdown_values()
+        self.dropdown["values"] = self.populate_dropdown_values()
         self.dropdown.pack(pady=5)
 
         # Points input
@@ -134,13 +140,15 @@ class PointCloudApp:
         self.points_input.pack(pady=5)
 
         # Preview button
-        preview_button = tk.Button(self.root, text="Preview", bg="#707070", fg="white",
-                                   command=self.preview_point_cloud)
+        preview_button = tk.Button(
+            self.root, text="Preview", bg="#707070", fg="white", command=self.preview_point_cloud
+        )
         preview_button.pack(pady=(10, 5))
 
         # Generate button
-        generate_button = tk.Button(self.root, text="Generate Point Cloud", bg="#707070", fg="white",
-                                     command=self.generate_point_cloud)
+        generate_button = tk.Button(
+            self.root, text="Generate Point Cloud", bg="#707070", fg="white", command=self.generate_point_cloud
+        )
         generate_button.pack(pady=(5, 10))
 
     def populate_dropdown_values(self):
@@ -154,7 +162,6 @@ class PointCloudApp:
             values.extend(self.aedt_sheets)
 
         return values
-
 
     def preview_point_cloud(self):
         try:
@@ -193,7 +200,7 @@ class PointCloudApp:
             pcd = CAD_to_point_cloud(obj_file, num_points=num_points)
 
             # Save point cloud to file
-            pts_file = str(self.aedt.project_path) + 'point_cloud.pts'
+            pts_file = str(self.aedt.project_path) + "point_cloud.pts"
             save_point_cloud_to_csv(pcd, pts_file)
 
             # Insert point list setup in HFSS
@@ -201,9 +208,12 @@ class PointCloudApp:
             self.aedt.oradfield.InsertPointListSetup(
                 [
                     "NAME:" + str(unique_name),
-                    "UseCustomRadiationSurface:=", False,
-                    "CoordSystem:=", self.cs,
-                    "PointListFile:=", pts_file
+                    "UseCustomRadiationSurface:=",
+                    False,
+                    "CoordSystem:=",
+                    self.cs,
+                    "PointListFile:=",
+                    pts_file,
                 ]
             )
 
