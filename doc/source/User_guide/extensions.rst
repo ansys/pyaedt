@@ -112,6 +112,21 @@ They are small automated workflow with a simple UI.
             Import a CSV file containing sources layout and power dissipation information.
 
 
+Circuit extensions
+~~~~~~~~~~~~~~~~~~
+
+Pre-installed extensions are available at Circuit level.
+They are small automated workflow with a simple UI.
+
+.. grid:: 2
+
+   .. grid-item-card:: Schematic import
+            :link: pyaedt_extensions_doc/icepak/create_power_map
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Import different schematic files (.asc, .sp, .cir, .qcv) into Circuit.
+
 .. toctree::
    :hidden:
    :maxdepth: 1
