@@ -43,8 +43,6 @@ extension_description = "Import schematic to Circuit"
 
 
 def frontend():  # pragma: no cover
-
-    from pathlib import Path  # Make sure Path is imported
     import tkinter
     from tkinter import filedialog
     from tkinter import ttk
