@@ -393,7 +393,7 @@ class Mesh(object):
         return None
 
     @property
-    def meshoperations(self) -> list[MeshOperation]:
+    def meshoperations(self):
         """Return the available mesh operations.
 
         Returns
