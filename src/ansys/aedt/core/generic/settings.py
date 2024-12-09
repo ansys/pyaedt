@@ -786,7 +786,7 @@ class Settings(object):
             settings = local_settings.get(setting_type, {})
             if settings:
                 if raise_on_wrong_key and any(key not in ALLOWED_AEDT_ENV_VAR_SETTINGS for key in settings.keys()):
-                    raise KeyError(f"An environment variable key is not part of the allowed keys.")
+                    raise KeyError("An environment variable key is not part of the allowed keys.")
                 self.aedt_environment_variables = settings
 
     def writte_yaml_configuration(self, path: str):

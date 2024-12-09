@@ -204,11 +204,11 @@ def test_settings_attributes():
     default_settings = Settings()
 
     for attr in ALLOWED_LOG_SETTINGS + ALLOWED_GENERAL_SETTINGS + ALLOWED_LSF_SETTINGS:
-        getattr(default_settings, attr)
+        _ = getattr(default_settings, attr)
     for attr in ALLOWED_AEDT_ENV_VAR_SETTINGS:
         if os.name != "posix" and attr == "ANS_NODEPCHECK":
             continue
-        getattr(default_settings, "aedt_environment_variables")[attr]
+        _ = getattr(default_settings, "aedt_environment_variables")[attr]
 
 
 def test_settings_check_allowed_attributes():
