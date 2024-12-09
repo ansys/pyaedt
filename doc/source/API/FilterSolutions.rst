@@ -1,4 +1,4 @@
-Filter solutions
+Filter design
 ==========================
 The ``FilterSolutions`` module contains all classes needed to create and edit an object including. 
 

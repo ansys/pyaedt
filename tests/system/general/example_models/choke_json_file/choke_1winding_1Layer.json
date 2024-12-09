@@ -56,5 +56,6 @@
     "Turns": 20,
     "Coil Pit(deg)": 3.8227,
     "Occupation(%)": 84.94888888888889
-  }
+  },
+  "Units": "mm"
 }

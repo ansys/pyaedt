@@ -218,7 +218,10 @@ class PostProcessorCommon(object):
                 "SimValueContext:=",
                 [37010, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "DCIRID", False, id_, "IDIID", False, "1"],
             ]
-        elif self._app.design_type in ["Maxwell 2D", "Maxwell 3D"] and self._app.solution_type == "EddyCurrent":
+        elif self._app.design_type in ["Maxwell 2D", "Maxwell 3D"] and self._app.solution_type in [
+            "EddyCurrent",
+            "Electrostatic",
+        ]:
             if isinstance(context, dict):
                 for k, v in context.items():
                     context = ["Context:=", k, "Matrix:=", v]
@@ -400,7 +403,10 @@ class PostProcessorCommon(object):
                 ]
             else:
                 context = ["Diff:=", "differential_pairs", "Domain:=", "Sweep"]
-        elif self._app.design_type in ["Maxwell 2D", "Maxwell 3D"] and self._app.solution_type == "EddyCurrent":
+        elif self._app.design_type in ["Maxwell 2D", "Maxwell 3D"] and self._app.solution_type in [
+            "EddyCurrent",
+            "Electrostatic",
+        ]:
             if isinstance(context, dict):
                 for k, v in context.items():
                     context = ["Context:=", k, "Matrix:=", v]
@@ -1289,8 +1295,8 @@ class PostProcessorCommon(object):
             report.matrix = context
         elif (
             self._app.design_type in ["Maxwell 2D", "Maxwell 3D"]
-            and self._app.solution_type == "EddyCurrent"
             and context
+            and self._app.solution_type in ["EddyCurrent", "Electrostatic"]
         ):
             if isinstance(context, dict):
                 for k, v in context.items():
@@ -1301,7 +1307,7 @@ class PostProcessorCommon(object):
             else:
                 report.matrix = context
         elif report_category == "Far Fields":
-            if not context and self._app._field_setups:
+            if not context and self._app.field_setups:
                 report.far_field_sphere = self._app.field_setups[0].name
             else:
                 if isinstance(context, dict):
@@ -1514,8 +1520,8 @@ class PostProcessorCommon(object):
             report.matrix = context
         elif (
             self._app.design_type in ["Maxwell 2D", "Maxwell 3D"]
-            and self._app.solution_type == "EddyCurrent"
             and context
+            and self._app.solution_type in ["EddyCurrent", "Electrostatic"]
         ):
             if isinstance(context, dict):
                 for k, v in context.items():
@@ -1532,6 +1538,11 @@ class PostProcessorCommon(object):
         elif report_category == "Far Fields":
             if not context and self._app.field_setups:
                 report.far_field_sphere = self._app.field_setups[0].name
+                if "Theta" not in report.variations:
+                    report.variations["Theta"] = ["All"]
+                if "Phi" not in report.variations:
+                    report.variations["Phi"] = ["All"]
+                report.primary_sweep = "Theta"
             else:
                 if isinstance(context, dict):
                     if "Context" in context.keys() and "SourceContext" in context.keys():

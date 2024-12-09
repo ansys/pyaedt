@@ -916,7 +916,7 @@ class SetupParam(CommonOptimetrics, object):
             Variation Step or Count depending on variation_type. Default is `100`.
         units : str, optional
             Variation units. Default is `None`.
-        variation_type : float or int
+        variation_type : str, optional
             Variation Type. Admitted values are `"SingleValue", `"LinearCount"`, `"LinearStep"`,
             `"DecadeCount"`, `"OctaveCount"`, `"ExponentialCount"`.
 
@@ -1159,7 +1159,7 @@ class ParametricSetups(object):
             Variation End Point. This parameter is optional if a Single Value is defined.
         step : float or int
             Variation Step or Count depending on variation_type. The default is ``100``.
-        variation_type : float or int
+        variation_type : str, optional
             Variation Type. Admitted values are `"LinearCount"`, `"LinearStep"`, `"LogScale"`, `"SingleValue"`.
         solution : str, optional
             Type of the solution. The default is ``None``, in which case the default

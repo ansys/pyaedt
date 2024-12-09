@@ -450,3 +450,19 @@ class TestClass:
         component: Components3DLayout = self.aedtapp.modeler.components["C1"]
         component.port_properties = ("10um", False, "0um", "0um")
         assert component.port_properties is None
+
+    def test_26_import_table(self):
+        self.aedtapp.insert_design("import_table")
+        file_header = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "table_header.csv")
+        file_invented = "invented.csv"
+
+        assert not self.aedtapp.import_table(file_header, column_separator="dummy")
+        assert not self.aedtapp.import_table(file_invented)
+
+        table = self.aedtapp.import_table(file_header)
+        assert table in self.aedtapp.existing_analysis_sweeps
+
+        assert not self.aedtapp.delete_imported_data("invented")
+
+        assert self.aedtapp.delete_imported_data(table)
+        assert table not in self.aedtapp.existing_analysis_sweeps
