@@ -17,9 +17,16 @@ HFSS 3D Layout extensions
 
             Generate arbitrary wave ports in HFSS
 
-      .. grid-item-card:: Push excitation from file
-            :link: push_excitation
+   .. grid-item-card:: Push excitation from file
+        :link: push_excitation
+        :link-type: doc
+        :margin: 2 2 0 0
+
+        Edit a source from file data in HFSS.
+
+   .. grid-item-card:: Cutout
+            :link: cutout
             :link-type: doc
             :margin: 2 2 0 0
 
-            Edit a source from file data in HFSS.
+            Advanced layout cutout.

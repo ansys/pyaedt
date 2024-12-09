@@ -86,6 +86,13 @@ They are small automated workflow with a simple UI.
 
             Edit a source from file data in HFSS 3D Layout.
 
+   .. grid-item-card:: Cutout
+            :link: pyaedt_extensions_doc/hfss3dlayout/cutout
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Advanced layout cutout.
+
 
 HFSS extensions
 ~~~~~~~~~~~~~~~
