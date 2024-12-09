@@ -202,8 +202,8 @@ class Emit(Design, object):
 
         Returns
         -------
-        ansys.aedt.core.modeler.schematic.ModelerEmit
-            Design oModeler
+        :class:`ansys.aedt.core.modeler.schematic.ModelerEmit`
+            Design oModeler.
         """
         return self._modeler
 

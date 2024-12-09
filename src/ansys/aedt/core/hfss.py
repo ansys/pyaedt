@@ -6071,7 +6071,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         Parameters
         ----------
         assignment : list
-            List of IDs or :class:`ansys.aedt.core.modeler.Object3d.FacePrimitive`.
+            List of IDs or :class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`.
         name : str, optional
             Name of the boundary.
             If a name is not provided, one is automatically generated.

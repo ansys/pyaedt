@@ -445,7 +445,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent` or bool
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent` or bool
             Circuit component object if successful or ``False`` if fails.
 
         References
