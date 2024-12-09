@@ -779,9 +779,9 @@ class ObjectMonitor:
 
     @pyaedt_function_handler(setup_name="setup")
     def value(self, quantity=None, setup=None, design_variation_dict=None, si_out=True):
-        """
-        Get a list of values obtained from the monitor object. If the simulation is steady state,
-        the list will contain just one element.
+        """Get a list of values obtained from the monitor object.
+
+        If the simulation is steady state, the list will contain just one element.
 
         Parameters
         ----------

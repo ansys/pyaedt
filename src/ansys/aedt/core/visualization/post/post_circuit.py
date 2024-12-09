@@ -196,7 +196,6 @@ class PostProcessorCircuit(PostProcessorCommon):
 
         References
         ----------
-
         >>> oModule.CreateReport
         """
         if not plot_name:
@@ -298,7 +297,6 @@ class PostProcessorCircuit(PostProcessorCommon):
 
         References
         ----------
-
         >>> oModule.CreateReport
         """
         if not plot_name:

@@ -2023,7 +2023,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Q3d
         >>> q3d = Q3d(my_project)
         >>> report = q3d.post.reports_by_category.cg_fields("SmoothQ", "Setup : LastAdaptive", "Polyline1")
@@ -2064,7 +2063,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Q3d
         >>> q3d = Q3d(my_project)
         >>> report = q3d.post.reports_by_category.dc_fields("Mag_VolumeJdc", "Setup : LastAdaptive", "Polyline1")
@@ -2105,7 +2103,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Q3d
         >>> q3d = Q3d(my_project)
         >>> report = q3d.post.reports_by_category.rl_fields("Mag_SurfaceJac", "Setup : LastAdaptive", "Polyline1")
@@ -2149,7 +2146,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(my_project)
         >>> report = hfss.post.reports_by_category.far_field("GainTotal", "Setup : LastAdaptive", "3D_Sphere")
@@ -2227,7 +2223,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(my_project)
         >>> report = hfss.post.reports_by_category.near_field("GainTotal", "Setup : LastAdaptive", "NF_1")
@@ -2264,7 +2259,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(my_project)
         >>> report = hfss.post.reports_by_category.modal_solution("dB(S(1,1))")
@@ -2379,7 +2373,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Circuit
         >>> cir= Circuit()
         >>> new_eye = cir.post.reports_by_category.statistical_eye_contour("V(Vout)")
@@ -2437,7 +2430,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Circuit
         >>> cir= Circuit()
         >>> new_eye = cir.post.reports_by_category.eye_diagram("V(Vout)")
@@ -2489,7 +2481,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Circuit
         >>> cir= Circuit()
         >>> new_eye = cir.post.reports_by_category.spectral("V(Vout)")
@@ -2525,12 +2516,10 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Circuit
         >>> cir= Circuit()
         >>> new_eye = cir.post.emi_receiver()
         >>> new_eye.create()
-
         """
         if not setup_name:
             setup_name = self._post_app._app.nominal_sweep

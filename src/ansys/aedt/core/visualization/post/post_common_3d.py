@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 """
-This module contains this class: `PostProcessor3D`.
+Module containing the class: `PostProcessor3D`.
 
 This module provides all functionalities for creating and editing plots in the 3D tools.
 
@@ -1967,7 +1967,6 @@ class PostProcessor3D(PostProcessorCommon):
 
         References
         ----------
-
         >>> oModule.ExportPlotImageToFile
         >>> oModule.ExportModelImageToFile
         """
@@ -2181,7 +2180,6 @@ class PostProcessor3D(PostProcessorCommon):
 
         References
         ----------
-
         >>> oModule.GetSolutionDataPerVariation
         """
         if not isinstance(expressions, list):
@@ -2980,20 +2978,19 @@ class PostProcessor3D(PostProcessorCommon):
           .. note::
               .assign_curvature_extraction Jupyter Notebook is not supported by IronPython.
 
-         Parameters
-         ----------
-         show_axis : bool, optional
-             Whether to show the axes. The default is ``True``.
-         show_grid : bool, optional
-             Whether to show the grid. The default is ``True``.
-         show_ruler : bool, optional
-             Whether to show the ruler. The default is ``True``.
+        Parameters
+        ----------
+        show_axis : bool, optional
+            Whether to show the axes. The default is ``True``.
+        show_grid : bool, optional
+            Whether to show the grid. The default is ``True``.
+        show_ruler : bool, optional
+            Whether to show the ruler. The default is ``True``.
 
         Returns
         -------
         :class:`IPython.core.display.Image`
             Jupyter notebook image.
-
         """
         try:
             from IPython.display import Image
@@ -3804,7 +3801,6 @@ class PostProcessor3D(PostProcessorCommon):
         log_multiplier=10.0,
     ):
         """Plot the current model 3D scene with overlapping animation coming from a file list and save the gif.
-
 
         Parameters
         ----------

@@ -440,7 +440,9 @@ class DataSet(object):
         datalen,
     ):
         """Base Class for both Axis and Trace Classes.
-        Defines the common operations between both."""
+
+        Defines the common operations between both.
+        """
         self.name = name
         self.whattype = whattype
         self.data = zeros(datalen, dtype=float64)
@@ -616,8 +618,7 @@ class SpiSimRawRead(object):
 
     @property
     def trace_names(self):
-        """
-        Returns a list of exiting trace names of the RAW file.
+        """Returns a list of exiting trace names of the RAW file.
 
         Returns
         -------
@@ -627,7 +628,7 @@ class SpiSimRawRead(object):
         return [trace.name for trace in self._traces]
 
     def get_trace(self, trace_ref):
-        """Retrieves the trace with the requested name (trace_ref).
+        """Retrieve the trace with the requested name (trace_ref).
 
         Parameters
         ----------
@@ -647,7 +648,7 @@ class SpiSimRawRead(object):
             return self._traces[trace_ref]
 
     def get_wave(self, trace_ref):
-        """Retrieves the trace data with the requested name (trace_ref).
+        """Retrieve the wave data with the requested name (trace_ref).
 
         Parameters
         ----------
@@ -662,7 +663,7 @@ class SpiSimRawRead(object):
         return self.get_trace(trace_ref).wave
 
     def get_axis(self):
-        """This function is equivalent to get_trace(0).wave instruction.
+        """Function equivalent to get_trace(0).wave instruction.
 
         Returns
         -------

@@ -103,7 +103,6 @@ class PostProcessorIcepak(PostProcessor3D):
 
         References
         ----------
-
         >>> oModule.ExportFanOperatingPoint
 
         Examples
@@ -113,7 +112,6 @@ class PostProcessorIcepak(PostProcessor3D):
         >>> ipk.create_fan()
         >>> filename, vol_flow_name, p_rise_name, op_dict= ipk.get_fans_operating_point()
         """
-
         if export_file is None:
             path = self._app.temp_directory
             base_name = f"{self._app.project_name}_{self._app.design_name}_FanOpPoint"

@@ -171,9 +171,7 @@ def create_powermaps_from_csv(ipk, csv_file):
     ----------
     csv_file : str
         The file path to the CSV file to be processed.
-
     """
-
     geometric_info, source_value_info, source_unit_info = extract_info(csv_file)
     create_powermaps_from_info(ipk, geometric_info, source_value_info, source_unit_info)
 

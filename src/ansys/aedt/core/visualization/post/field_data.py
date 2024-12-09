@@ -127,7 +127,8 @@ class ColorMapSettings(BaseFolderPlot):
     def color(self):
         """Get the color based on the map type.
 
-        Returns:
+        Returns
+        -------
             str or list of float: The color scheme based on the map type.
         """
         if self.map_type == "Spectrum":
@@ -633,7 +634,7 @@ class MarkerSettings(BaseFolderPlot):
     def marker_type(self, v):
         """Set the type of maker to use.
 
-        Parameters:
+        Parameters
         ----------
         v : str
             Marker type. Must be one of the allowed types
