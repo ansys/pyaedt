@@ -112,21 +112,18 @@ def frontend():  # pragma: no cover
     # Set background color of the window (optional)
     master.configure(bg=theme.light["widget_bg"])
 
-    var = tkinter.StringVar()
-    label = ttk.Label(master, textvariable=var, style="PyAEDT.TLabel")
-
-    var.set("Choose a port:")
+    label = ttk.Label(master, text="Choose a port:", style="PyAEDT.TLabel")
     label.grid(row=0, column=0, pady=10, padx=10)
+
     combo = ttk.Combobox(master, width=30, style="PyAEDT.TCombobox")
     combo["values"] = port_selection
     combo.current(0)
     combo.grid(row=0, column=1, pady=10, padx=5)
     combo.focus_set()
-    var2 = tkinter.StringVar()
-    label2 = ttk.Label(master, textvariable=var2, style="PyAEDT.TLabel")
 
-    var2.set("Browse file:")
+    label2 = ttk.Label(master, text="Browse file:", style="PyAEDT.TLabel")
     label2.grid(row=1, column=0, pady=10, padx=10)
+
     text = tkinter.Text(master, width=50, height=1)
     text.grid(row=1, column=1, pady=10, padx=5)
     text.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
