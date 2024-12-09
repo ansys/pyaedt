@@ -78,8 +78,8 @@ aedt_env_var:
   ANSYSEM_FEATURE_SF222134_CABLE_MODELING_ENHANCEMENTS_ENABLE: '1'
   ANSYSEM_FEATURE_SF6694_NON_GRAPHICAL_COMMAND_EXECUTION_ENABLE: '1'
   ANS_MESHER_PROC_DUMP_PREPOST_BEND_SM3: '1'
-  # Environment variable used in Linux to skip the dependency check for speed
-  # ANS_NODEPCHECK: '1'
+  # Environment variable useful in Linux to skip the dependency check which improves speed
+  ANS_NODEPCHECK: '1'
 
 general:
   # Enable or disable the lazy load
@@ -122,3 +122,5 @@ general:
   pyaedt_server_path: ''
   # Remote temp folder
   remote_rpc_session_temp_folder: ''
+  # Block figure plot during python script run
+  block_figure_plot: false
