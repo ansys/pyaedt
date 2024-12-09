@@ -1307,7 +1307,7 @@ class PostProcessorCommon(object):
             else:
                 report.matrix = context
         elif report_category == "Far Fields":
-            if not context and self._app._field_setups:
+            if not context and self._app.field_setups:
                 report.far_field_sphere = self._app.field_setups[0].name
             else:
                 if isinstance(context, dict):
@@ -1538,6 +1538,11 @@ class PostProcessorCommon(object):
         elif report_category == "Far Fields":
             if not context and self._app.field_setups:
                 report.far_field_sphere = self._app.field_setups[0].name
+                if "Theta" not in report.variations:
+                    report.variations["Theta"] = ["All"]
+                if "Phi" not in report.variations:
+                    report.variations["Phi"] = ["All"]
+                report.primary_sweep = "Theta"
             else:
                 if isinstance(context, dict):
                     if "Context" in context.keys() and "SourceContext" in context.keys():

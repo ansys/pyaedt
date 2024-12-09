@@ -261,6 +261,7 @@ class GeometryModeler(Modeler):
         self._unclassified = []
         self._all_object_names = []
         self._model_units = None
+        self.rescale_model = False
         self._object_names_to_ids = {}
         self.objects = Objects(self, "o")
         self.user_defined_components = Objects(self, "u")
@@ -423,11 +424,23 @@ class GeometryModeler(Modeler):
     def model_units(self):
         """Model units as a string. For example, ``"mm"``.
 
+        This property allows you to get or set the model units. When setting the model units,
+        you can specify whether to rescale the model by adjusting the ``rescale_model`` attribute.
+
         References
         ----------
 
         >>> oEditor.GetModelUnits
         >>> oEditor.SetModelUnits
+
+        Examples
+        --------
+
+        >>> from ansys.aedt.core import hfss
+        >>> hfss = Hfss()
+        >>> hfss.modeler.model_units = "cm"
+        >>> hfss.modeler.rescale_model = True
+        >>> hfss.modeler.model_units = "mm"
         """
         if not self._model_units:
             self._model_units = self.oeditor.GetModelUnits()
@@ -436,7 +449,7 @@ class GeometryModeler(Modeler):
     @model_units.setter
     def model_units(self, units):
         assert units in AEDT_UNITS["Length"], f"Invalid units string {units}."
-        self.oeditor.SetModelUnits(["NAME:Units Parameter", "Units:=", units, "Rescale:=", False])
+        self.oeditor.SetModelUnits(["NAME:Units Parameter", "Units:=", units, "Rescale:=", self.rescale_model])
         self._model_units = units
 
     @property
