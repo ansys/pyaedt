@@ -50,8 +50,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
 class MatProperties(object):
-    """Contains a list of constant names for all materials with
-    mappings to their internal XML names.
+    """Contains a list of constant names for all materials with mappings to their internal XML names.
 
     Internal names are used in scripts, and XML names are used in the XML syntax.
     """
