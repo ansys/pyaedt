@@ -165,12 +165,10 @@ def main(extension_args):
 
 
 def create_powermaps_from_csv(ipk, csv_file):
-    """
-    Creates powermap from an Icepak classic CSV file.
+    """Create powermap from an Icepak classic CSV file.
 
     Parameters
     ----------
-
     csv_file : str
         The file path to the CSV file to be processed.
 
@@ -182,16 +180,15 @@ def create_powermaps_from_csv(ipk, csv_file):
 
 def create_powermaps_from_info(ipk, geometric_info, source_value_info, source_unit_info):
     """
-    Creates power maps from geometric and source information.
+    Create power maps from geometric and source information.
 
-     Parameters
-     ----------
-
+    Parameters
+    ----------
     ipk:
-     geometric_info : list
-         A list of dictionaries, each containing:
-             - "name": The name of the geometric object.
-             - "vertices": A list of vertex coordinates.
+    geometric_info : list
+        A list of dictionaries, each containing:
+            - "name": The name of the geometric object.
+            - "vertices": A list of vertex coordinates.
     source_value_info: dict
          A dictionary mapping geometric object to its power value.
     source_unit_info: dict
@@ -222,12 +219,10 @@ def create_powermaps_from_info(ipk, geometric_info, source_value_info, source_un
 
 
 def extract_info(csv_file):
-    """
-    Extracts source and geometric information from an Icepak classic CSV file.
+    """Extracts source and geometric information from an Icepak classic CSV file.
 
     Parameters
     ----------
-
     csv_file (str): The file path to the CSV file to be processed.
 
     Returns

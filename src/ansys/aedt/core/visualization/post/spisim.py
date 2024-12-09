@@ -425,8 +425,9 @@ def detect_encoding(file_path, expected_pattern="", re_flags=0):
 
 class DataSet(object):
     """
-    This is the base class for storing all traces of a RAW file. Returned by the get_trace() or by the get_axis()
+    Base class for storing all traces of a RAW file. Returned by the get_trace() or by the get_axis()
     methods.
+
     Normally the user doesn't have to be aware of this class. It is only used internally to encapsulate the different
     implementations of the wave population.
     Data can be retrieved directly by using the [] operator.
@@ -470,6 +471,7 @@ class DataSet(object):
 
 class Trace(DataSet):
     """This class is used to represent a trace.
+
     This class is constructed by the get_trace() command.
     If numpy is available the get_wave() method will return a numpy array.
     """
