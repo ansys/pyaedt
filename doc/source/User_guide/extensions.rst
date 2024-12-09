@@ -79,6 +79,27 @@ They are small automated workflow with a simple UI.
 
             Generate arbitrary wave ports in HFSS.
 
+   .. grid-item-card:: Push excitation from file
+            :link: pyaedt_extensions_doc/hfss3dlayout/push_excitation
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Edit a source from file data in HFSS 3D Layout.
+
+   .. grid-item-card:: Cutout
+            :link: pyaedt_extensions_doc/hfss3dlayout/cutout
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Advanced layout cutout.
+
+   .. grid-item-card:: Export layout
+            :link: pyaedt_extensions_doc/hfss3dlayout/export_layout
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Export layout.
+
 
 HFSS extensions
 ~~~~~~~~~~~~~~~
@@ -94,6 +115,13 @@ They are small automated workflow with a simple UI.
             :margin: 2 2 0 0
 
             Design a choke and import it in HFSS.
+
+   .. grid-item-card:: Push excitation from file
+            :link: pyaedt_extensions_doc/hfss/push_excitation
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Edit a source from file data in HFSS.
 
 
 Icepak extensions
@@ -112,6 +140,21 @@ They are small automated workflow with a simple UI.
             Import a CSV file containing sources layout and power dissipation information.
 
 
+Circuit extensions
+~~~~~~~~~~~~~~~~~~
+
+Pre-installed extensions are available at Circuit level.
+They are small automated workflow with a simple UI.
+
+.. grid:: 2
+
+   .. grid-item-card:: Schematic import
+            :link: pyaedt_extensions_doc/circuit/import_schematic
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Import different schematic files (.asc, .sp, .cir, .qcv) into Circuit.
+
 .. toctree::
    :hidden:
    :maxdepth: 1
@@ -120,6 +163,7 @@ They are small automated workflow with a simple UI.
    pyaedt_extensions_doc/hfss3dlayout/index
    pyaedt_extensions_doc/hfss/index
    pyaedt_extensions_doc/icepak/index
+   pyaedt_extensions_doc/circuit/index
 
 
 Open source toolkits
