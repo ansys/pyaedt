@@ -511,6 +511,8 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
             self._app.oboundary.AssignFluxTangential(self._get_args())
         elif bound_type == "Plane Incident Wave":
             self._app.oboundary.AssignPlaneWave(self._get_args())
+        elif bound_type == "ResistiveSheet":
+            self._app.oboundary.AssignResistiveSheet(self._get_args())
         else:
             return False
         if self._child_object:
@@ -659,6 +661,8 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
             self._app.oboundary.EditTerminal(self._boundary_name, self._get_args())
         elif bound_type == "Plane Incident Wave":
             self._app.oboundary.EditIncidentWave(self._boundary_name, self._get_args())
+        elif bound_type == "ResistiveSheet":
+            self._app.oboundary.EditResistiveSheet(self._boundary_name, self._get_args())
         else:
             return False  # pragma: no cover
 
