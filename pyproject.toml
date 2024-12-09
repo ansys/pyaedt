@@ -79,7 +79,6 @@ tests = [
     "scikit-rf>=0.30.0,<1.6",
     "SRTM.py",
     "utm",
-    "ezdxf",
 ]
 dotnet = [
     "ansys-pythonnet>=3.1.0rc3",
@@ -117,7 +116,6 @@ all = [
     "scikit-rf>=0.30.0,<1.6",
     "SRTM.py",
     "utm",
-    "ezdxf",
 ]
 installer = [
     "matplotlib>=3.5.0,<3.10",
