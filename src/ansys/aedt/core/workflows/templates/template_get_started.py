@@ -49,6 +49,7 @@ def frontend():
 
     import PIL.Image
     import PIL.ImageTk
+    from ansys.aedt.core.workflows.misc import ExtensionTheme
 
     # Create UI
     master = tkinter.Tk()
@@ -56,6 +57,9 @@ def frontend():
     master.geometry()
 
     master.title("Create sphere")
+
+    # Detect if user close the UI
+    master.flag = False
 
     # Load the logo for the main window
     icon_path = os.path.join(ansys.aedt.core.workflows.__path__[0], "images", "large", "logo.png")
@@ -67,46 +71,69 @@ def frontend():
 
     # Configure style for ttk buttons
     style = ttk.Style()
-    style.configure("Toolbutton.TButton", padding=6, font=("Helvetica", 8))
+    theme = ExtensionTheme()
+
+    theme.apply_light_theme(style)
+    master.theme = "light"
 
     # Origin x entry
     var = tkinter.StringVar()
     label = tkinter.Label(master, textvariable=var)
     var.set("Origin X:")
-    label.grid(row=0, column=0, padx=15, pady=10)
+    label.pack(side=tkinter.LEFT)
     origin_x = ttk.Entry(master)
-    origin_x.grid(row=0, column=1, padx=15, pady=10)
+    origin_x.pack(side=tkinter.LEFT, padx=5)
 
     # Origin y entry
     var = tkinter.StringVar()
     label = tkinter.Label(master, textvariable=var)
     var.set("Origin Y:")
-    label.grid(row=1, column=0, padx=15, pady=10)
+    label.pack(side=tkinter.LEFT)
     origin_x = ttk.Entry(master)
-    origin_x.grid(row=1, column=1, padx=15, pady=10)
+    origin_x.pack(side=tkinter.LEFT, padx=5)
 
     # Origin z entry
     var = tkinter.StringVar()
     label = tkinter.Label(master, textvariable=var)
     var.set("Origin Z:")
-    label.grid(row=2, column=0, padx=15, pady=10)
+    label.pack(side=tkinter.LEFT)
     origin_x = ttk.Entry(master)
-    origin_x.grid(row=2, column=1, padx=15, pady=10)
+    origin_x.pack(side=tkinter.LEFT, padx=5)
 
     # Radius entry
     var = tkinter.StringVar()
     label = tkinter.Label(master, textvariable=var)
     var.set("Radius:")
-    label.grid(row=3, column=0, padx=15, pady=10)
+    label.pack(side=tkinter.LEFT)
     origin_x = ttk.Entry(master)
-    origin_x.grid(row=3, column=1, padx=15, pady=10)
+    origin_x.pack(side=tkinter.LEFT, padx=5)
+
+    def toggle_theme():
+        if master.theme == "light":
+            set_dark_theme()
+            master.theme = "dark"
+        else:
+            set_light_theme()
+            master.theme = "light"
+
+    def set_light_theme():
+        theme.apply_light_theme(style)
+        change_theme_button.config(text="\u263D")
+
+    def set_dark_theme():
+        theme.apply_dark_theme(style)
+        change_theme_button.config(text="\u2600")
 
     def callback():
         master.destroy()
 
-    # Add "Create" button
-    b = ttk.Button(master, text="Create", width=20, command=callback, style="PyAEDT.TButton")
-    b.grid(row=4, column=1, pady=15)
+    button_frame = ttk.Frame(master, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2)
+    button_frame.pack(side=tkinter.LEFT, padx=5)
+
+    create_button = ttk.Button(button_frame, text="Create Sphere", command=callback, style="PyAEDT.TButton")
+    change_theme_button = ttk.Button(button_frame, text="\u263D", command=toggle_theme, style="PyAEDT.TButton")
+    create_button.pack(side=tkinter.LEFT, padx=5)
+    change_theme_button.pack(side=tkinter.RIGHT, padx=5, pady=40)
 
     tkinter.mainloop()
 
