@@ -404,9 +404,8 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
-        >>> oEditor = oDesign.SetActiveEditor("3D Modeler")"""
-
+        >>> oEditor = oDesign.SetActiveEditor("3D Modeler")
+        """
         return self._app.oeditor
 
     @property
@@ -429,13 +428,11 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetModelUnits
         >>> oEditor.SetModelUnits
 
         Examples
         --------
-
         >>> from ansys.aedt.core import hfss
         >>> hfss = Hfss()
         >>> hfss.modeler.model_units = "cm"
@@ -458,7 +455,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetSelections
         """
         return self.oeditor.GetSelections()
@@ -469,7 +465,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetModelBoundingBox
         """
         return self.oeditor.GetModelBoundingBox()
@@ -485,7 +480,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oDesign.Is2D
         """
         try:
@@ -505,7 +499,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oDesign.GetDesignType
         """
         return self._app.design_type
@@ -516,7 +509,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oDesign.GetGeometryMode"""
         return self._odesign.GetGeometryMode()
 
@@ -534,7 +526,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetObjectsInGroup
         """
         if self.dimension == "3D":
@@ -1599,9 +1590,7 @@ class GeometryModeler(Modeler):
         Returns
         -------
         :class:`ansys.aedt.core.modeler.Modeler.FaceCoordinateSystem`
-
         """
-
         if name:
             cs_names = [i.name for i in self.coordinate_systems]
             if name in cs_names:  # pragma: no cover

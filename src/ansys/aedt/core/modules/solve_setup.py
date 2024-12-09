@@ -1823,7 +1823,6 @@ class Setup3DLayout(CommonSetup):
         type
             Setup type.
         """
-
         if "SolveSetupType" in self.props:
             return self.props["SolveSetupType"]
         else:

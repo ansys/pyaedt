@@ -616,7 +616,6 @@ class Layer3D(object):
         :class:`ansys.aedt.core.modules.material.Material`
             Material object.
         """
-
         if isinstance(material_name, Material):  # Make sure material_name is of type str.
             material_name = material_name.name
         if isinstance(cloned_material_name, Material):  # Make sure cloned_material_name is of type str.
@@ -671,7 +670,6 @@ class Layer3D(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss()
@@ -681,7 +679,6 @@ class Layer3D(object):
         >>> top = my_stackup.add_signal_layer("top")
         >>> my_patch = top.add_patch(frequency=None, patch_width=51, patch_name="MLPatch")
         >>> my_stackup.resize_around_element(my_patch)
-
         """
         if not patch_name:
             patch_name = generate_unique_name(f"{self._name}_patch", n=3)

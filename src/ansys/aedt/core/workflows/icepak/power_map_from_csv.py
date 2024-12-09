@@ -190,9 +190,7 @@ def create_powermaps_from_info(ipk, geometric_info, source_value_info, source_un
          A dictionary mapping geometric object to its power value.
     source_unit_info: dict
          A dictionary mapping geometric object to its power unit.
-
     """
-
     for info in geometric_info:
         name = info["name"]
         points = []

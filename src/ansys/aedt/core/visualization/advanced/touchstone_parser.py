@@ -179,7 +179,6 @@ class TouchstoneData(rf.Network):
         -------
         :class:`matplotlib.plt`
         """
-
         if not index_couples:
             index_couples = self.port_tuples[:]
 

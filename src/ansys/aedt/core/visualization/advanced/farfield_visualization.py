@@ -1328,7 +1328,6 @@ class FfdSolutionData(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-
         for element, element_data in element_info.items():
             self.__raw_data[element] = {}
             self.__frequencies = []

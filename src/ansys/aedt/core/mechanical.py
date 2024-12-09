@@ -500,7 +500,6 @@ class Mechanical(FieldAnalysis3D, object):
 
         >>> oModule.AssignFrictionlessSupport
         """
-
         if not (self.solution_type == "Structural" or "Modal" in self.solution_type):
             self.logger.error("This method works only in Mechanical Structural analysis.")
             return False

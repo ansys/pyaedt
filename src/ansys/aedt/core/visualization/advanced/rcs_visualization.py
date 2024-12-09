@@ -434,7 +434,6 @@ class MonostaticRCSData(object):
     @property
     def isar_2d(self):
         """ISAR 2D."""
-
         phis = self.available_incident_wave_phi
         thetas = self.available_incident_wave_theta
         nfreq = len(self.frequencies)
@@ -880,7 +879,6 @@ class MonostaticRCSPlotter(object):
         :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
             PyAEDT matplotlib figure object.
         """
-
         data_range_profile = self.rcs_data.range_profile
 
         ranges = np.unique(data_range_profile["Range"])
