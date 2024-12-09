@@ -358,7 +358,7 @@ class CircuitComponents(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -392,7 +392,7 @@ class CircuitComponents(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -727,7 +727,7 @@ class CircuitComponents(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -793,7 +793,7 @@ class CircuitComponents(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -1298,7 +1298,7 @@ class ComponentInfo(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Circuit Component Object.
 
         References

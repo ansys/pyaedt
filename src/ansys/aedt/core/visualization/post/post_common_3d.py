@@ -659,7 +659,7 @@ class PostProcessor3D(PostProcessorCommon):
                 self.ofieldsreporter.EnterScalar(0)
                 self.ofieldsreporter.CalcOp("AtPhase")
                 self.ofieldsreporter.CalcOp("Mag")
-        units = self.modeler.model_units
+        units = self._modeler.model_units
         ang_units = "deg"
         if grid_type == "Cartesian":
             grid_center = ["0mm", "0mm", "0mm"]
@@ -1883,17 +1883,17 @@ class PostProcessor3D(PostProcessorCommon):
 
         >>> oModule.CreateFieldPlot
         """
-        assignment = self.modeler.convert_to_selections(assignment, True)
+        assignment = self._modeler.convert_to_selections(assignment, True)
 
         list_type = "ObjList"
         obj_list = []
         for element in assignment:
-            if element not in list(self.modeler.objects_by_name.keys()):
+            if element not in list(self._modeler.objects_by_name.keys()):
                 self.logger.error(f"{element} does not exist in current design")
                 return False
             elif (
-                self.modeler.objects_by_name[element].is_conductor
-                and not self.modeler.objects_by_name[element].solve_inside
+                self._modeler.objects_by_name[element].is_conductor
+                and not self._modeler.objects_by_name[element].solve_inside
             ):
                 self.logger.warning(f"Solve inside is unchecked for {element} object. Creating a surface plot instead.")
                 list_type = "FacesList"
@@ -1979,14 +1979,14 @@ class PostProcessor3D(PostProcessorCommon):
                         wireframes.append(el)
                         self._primitives[el].display_wireframe = True
             if self._app._aedt_version < "2021.2":
-                bound = self.modeler.get_model_bounding_box()
+                bound = self._modeler.get_model_bounding_box()
                 center = [
                     (float(bound[0]) + float(bound[3])) / 2,
                     (float(bound[1]) + float(bound[4])) / 2,
                     (float(bound[2]) + float(bound[5])) / 2,
                 ]
                 view = ORIENTATION_TO_VIEW.get(orientation, "iso")
-                cs = self.modeler.create_coordinate_system(origin=center, mode="view", view=view)
+                cs = self._modeler.create_coordinate_system(origin=center, mode="view", view=view)
                 self.ofieldsreporter.ExportPlotImageToFile(file_name, folder_name, plot_name, cs.name)
                 cs.delete()
             else:
@@ -2095,7 +2095,7 @@ class PostProcessor3D(PostProcessorCommon):
         >>> output_file = q3d.post.export_model_picture(full_name=os.path.join(q3d.working_directory, "images1.jpg"))
         """
         if selections:
-            selections = self.modeler.convert_to_selections(selections, False)
+            selections = self._modeler.convert_to_selections(selections, False)
         else:
             selections = ""
         if not full_name:
@@ -2111,7 +2111,7 @@ class PostProcessor3D(PostProcessorCommon):
             ]:
                 self.oeditor.ShowWindow()
                 self.steal_focus_oneditor()
-            self.modeler.fit_all()
+            self._modeler.fit_all()
         # export the image
         if field_selections:
             if isinstance(field_selections, str):
@@ -2446,7 +2446,7 @@ class PostProcessor3D(PostProcessorCommon):
                     mult = multiplier_from_dataset(exp, temperature)
 
                 for objs in bc_obj.props["Objects"]:
-                    obj_name = self.modeler[objs].name
+                    obj_name = self._modeler[objs].name
                     power_dict_obj[obj_name] = power_value * mult
 
                 power_dict[bc_obj.name] = power_value * n * mult
@@ -2471,12 +2471,12 @@ class PostProcessor3D(PostProcessorCommon):
 
                     if "Objects" in bc_obj.props:
                         for objs in bc_obj.props["Objects"]:
-                            obj_name = self.modeler[objs].name
+                            obj_name = self._modeler[objs].name
                             power_dict_obj[obj_name] = power_value * mult
 
                     elif "Faces" in bc_obj.props:
                         for facs in bc_obj.props["Faces"]:
-                            obj_name = self.modeler.oeditor.GetObjectNameByFaceID(facs) + "_FaceID" + str(facs)
+                            obj_name = self._modeler.oeditor.GetObjectNameByFaceID(facs) + "_FaceID" + str(facs)
                             power_dict_obj[obj_name] = power_value * mult
 
                     power_dict[bc_obj.name] = power_value * n * mult
@@ -2505,22 +2505,22 @@ class PostProcessor3D(PostProcessorCommon):
                     power_value = 0.0
                     if "Faces" in bc_obj.props:
                         for component in bc_obj.props["Faces"]:
-                            area = self.modeler.get_face_area(component)
+                            area = self._modeler.get_face_area(component)
                             area = unit_converter(
                                 area,
                                 unit_system="Area",
-                                input_units=self.modeler.model_units + "2",
+                                input_units=self._modeler.model_units + "2",
                                 output_units="m2",
                             )
                             power_value += heat_value * area * mult
                     elif "Objects" in bc_obj.props:
                         for component in bc_obj.props["Objects"]:
-                            object_assigned = self.modeler[component]
+                            object_assigned = self._modeler[component]
                             for f in object_assigned.faces:
                                 area = unit_converter(
                                     f.area,
                                     unit_system="Area",
-                                    input_units=self.modeler.model_units + "2",
+                                    input_units=self._modeler.model_units + "2",
                                     output_units="m2",
                                 )
                                 power_value += heat_value * area * mult
@@ -2529,12 +2529,12 @@ class PostProcessor3D(PostProcessorCommon):
 
                     if "Objects" in bc_obj.props:
                         for objs in bc_obj.props["Objects"]:
-                            obj_name = self.modeler[objs].name
+                            obj_name = self._modeler[objs].name
                             power_dict_obj[obj_name] = power_value
 
                     elif "Faces" in bc_obj.props:
                         for facs in bc_obj.props["Faces"]:
-                            obj_name = self.modeler.oeditor.GetObjectNameByFaceID(facs) + "_FaceID" + str(facs)
+                            obj_name = self._modeler.oeditor.GetObjectNameByFaceID(facs) + "_FaceID" + str(facs)
                             power_dict_obj[obj_name] = power_value
 
                     power_dict[bc_obj.name] = power_value
@@ -2549,7 +2549,7 @@ class PostProcessor3D(PostProcessorCommon):
                         value = unit_converter(value[0], unit_system="Power", input_units=value[1], output_units=units)
                         power_value += value
 
-                obj_name = self.modeler.oeditor.GetObjectNameByFaceID(bc_obj.props["Faces"][0])
+                obj_name = self._modeler.oeditor.GetObjectNameByFaceID(bc_obj.props["Faces"][0])
                 for facs in bc_obj.props["Faces"]:
                     obj_name += "_FaceID" + str(facs)
                 power_dict_obj[obj_name] = power_value
@@ -2576,12 +2576,12 @@ class PostProcessor3D(PostProcessorCommon):
 
                 if "Objects" in bc_obj.props:
                     for objs in bc_obj.props["Objects"]:
-                        obj_name = self.modeler[objs].name
+                        obj_name = self._modeler[objs].name
                         power_dict_obj[obj_name] = power_value * mult
 
                 elif "Faces" in bc_obj.props:
                     for facs in bc_obj.props["Faces"]:
-                        obj_name = self.modeler.oeditor.GetObjectNameByFaceID(facs) + "_FaceID" + str(facs)
+                        obj_name = self._modeler.oeditor.GetObjectNameByFaceID(facs) + "_FaceID" + str(facs)
                         power_dict_obj[obj_name] = power_value * mult
 
                 power_dict[bc_obj.name] = power_value * n * mult
@@ -2600,22 +2600,22 @@ class PostProcessor3D(PostProcessorCommon):
                     power_value = 0.0
                     if "Faces" in bc_obj.props:
                         for component in bc_obj.props["Faces"]:
-                            area = self.modeler.get_face_area(component)
+                            area = self._modeler.get_face_area(component)
                             area = unit_converter(
                                 area,
                                 unit_system="Area",
-                                input_units=self.modeler.model_units + "2",
+                                input_units=self._modeler.model_units + "2",
                                 output_units="m2",
                             )
                             power_value += heat_value * area * mult
                     if "Objects" in bc_obj.props:
                         for component in bc_obj.props["Objects"]:
-                            object_assigned = self.modeler[component]
+                            object_assigned = self._modeler[component]
                             for f in object_assigned.faces:
                                 area = unit_converter(
                                     f.area,
                                     unit_system="Area",
-                                    input_units=self.modeler.model_units + "2",
+                                    input_units=self._modeler.model_units + "2",
                                     output_units="m2",
                                 )
                                 power_value += heat_value * area * mult
@@ -2624,12 +2624,12 @@ class PostProcessor3D(PostProcessorCommon):
 
                     if "Objects" in bc_obj.props:
                         for objs in bc_obj.props["Objects"]:
-                            obj_name = self.modeler[objs].name
+                            obj_name = self._modeler[objs].name
                             power_dict_obj[obj_name] = power_value
 
                     elif "Faces" in bc_obj.props:
                         for facs in bc_obj.props["Faces"]:
-                            obj_name = self.modeler.oeditor.GetObjectNameByFaceID(facs) + "_FaceID" + str(facs)
+                            obj_name = self._modeler.oeditor.GetObjectNameByFaceID(facs) + "_FaceID" + str(facs)
                             power_dict_obj[obj_name] = power_value
 
                     power_dict[bc_obj.name] = power_value
@@ -2643,7 +2643,7 @@ class PostProcessor3D(PostProcessorCommon):
                 )
 
                 for objs in bc_obj.props["Objects"]:
-                    obj_name = self.modeler[objs].name
+                    obj_name = self._modeler[objs].name
                     power_dict_obj[obj_name] = power_value * mult
 
                 power_dict[bc_obj.name] = power_value * n * mult
@@ -2659,13 +2659,13 @@ class PostProcessor3D(PostProcessorCommon):
 
                 power_dict[bc_obj.name] = power_value
 
-        for native_comps in self.modeler.user_defined_components.keys():
-            if hasattr(self.modeler.user_defined_components[native_comps], "native_properties"):
+        for native_comps in self._modeler.user_defined_components.keys():
+            if hasattr(self._modeler.user_defined_components[native_comps], "native_properties"):
                 native_key = "NativeComponentDefinitionProvider"
-                if native_key in self.modeler.user_defined_components[native_comps].native_properties:
-                    power_key = self.modeler.user_defined_components[native_comps].native_properties[native_key]
+                if native_key in self._modeler.user_defined_components[native_comps].native_properties:
+                    power_key = self._modeler.user_defined_components[native_comps].native_properties[native_key]
                 else:
-                    power_key = self.modeler.user_defined_components[native_comps].native_properties
+                    power_key = self._modeler.user_defined_components[native_comps].native_properties
                 power_value = None
                 if "Power" in power_key:
                     power_value = list(decompose_variable_value(power_key["Power"]))
@@ -3129,7 +3129,7 @@ class PostProcessor3D(PostProcessorCommon):
 
         model = ModelPlotter()
         model.off_screen = True
-        units = self.modeler.model_units
+        units = self._modeler.model_units
         for file in files:
             if force_opacity_value:
                 model.add_object(file[0], file[1], force_opacity_value, units)
@@ -3326,7 +3326,7 @@ class PostProcessor3D(PostProcessorCommon):
         if file_to_add:
             model.add_field_from_file(
                 file_to_add,
-                coordinate_units=self.modeler.model_units,
+                coordinate_units=self._modeler.model_units,
                 show_edges=mesh_plot,
                 log_scale=log_scale,
             )

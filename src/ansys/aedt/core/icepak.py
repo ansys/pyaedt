@@ -212,6 +212,21 @@ class Icepak(FieldAnalysis3D):
         self.__init__(*args, **kwargs)
 
     @property
+    def post(self):
+        """PostProcessor.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.visualization.post.post_icepak.PostProcessorIcepak`
+            PostProcessor object.
+        """
+        if self._post is None and self._odesign:
+            from ansys.aedt.core.visualization.post import post_processor
+
+            self._post = post_processor(self)
+        return self._post
+
+    @property
     def problem_type(self):
         """Problem type of the Icepak design. Options are ``"TemperatureAndFlow"``, ``"TemperatureOnly"``,
         and ``"FlowOnly"``.
@@ -444,7 +459,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        List[:class:`ansys.aedt.core.modules.boundary.BoundaryObject`]
             List of boundaries inserted.
 
         References
@@ -895,7 +910,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        List[:class:`ansys.aedt.core.modules.boundary.BoundaryObject`]
             List of boundary objects created.
 
         References

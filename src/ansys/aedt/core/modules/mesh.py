@@ -393,14 +393,13 @@ class Mesh(object):
         return None
 
     @property
-    def meshoperations(self):
+    def meshoperations(self) -> list[MeshOperation]:
         """Return the available mesh operations.
 
         Returns
         -------
-        List
-            List of :class:`ansys.aedt.core.modules.mesh.MeshOperation`
-                        List of mesh operation object.
+        List[:class:`ansys.aedt.core.modules.mesh.MeshOperation`]
+            List of mesh operation object.
 
         Examples
         --------

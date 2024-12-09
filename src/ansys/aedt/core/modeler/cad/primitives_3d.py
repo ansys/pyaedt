@@ -1382,7 +1382,7 @@ class Primitives3D(GeometryModeler):
 
         Returns
         -------
-        bool, :class:`ansys.aedt.core.modeler.Object3d.Polyline`
+        bool, :class:`ansys.aedt.core.modeler.cad.elements_3d.Polyline`
             Polyline object or ``False`` if it fails.
         """
         if internal_radius < 0:

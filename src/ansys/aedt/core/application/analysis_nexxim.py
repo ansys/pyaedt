@@ -217,7 +217,12 @@ class FieldAnalysisCircuit(Analysis):
 
     @property
     def modeler(self):
-        """Modeler object."""
+        """Modeler object.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.schematic.ModelerNexxim`
+        """
         if self._modeler is None and self._odesign:
             self.logger.reset_timer()
             from ansys.aedt.core.modeler.schematic import ModelerNexxim

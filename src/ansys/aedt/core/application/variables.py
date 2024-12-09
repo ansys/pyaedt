@@ -468,9 +468,11 @@ class VariableManager(object):
 
         Returns
         -------
-        dict
+
+        dict[str, :class:`ansys.aedt.core.application.variables.Variable`]
             Dictionary of the `Variable` objects for each project variable and each
             design property in the active design.
+
 
         References
         ----------

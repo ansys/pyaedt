@@ -183,8 +183,7 @@ class FieldAnalysis3D(Analysis, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.visualization.post.post_common_3d.PostProcessor3D` or
-        :class:`ansys.aedt.core.visualization.post.post_icepak.PostProcessorIcepak`
+        :class:`ansys.aedt.core.visualization.post.post_common_3d.PostProcessor3D`
             PostProcessor object.
         """
         if self._post is None and self._odesign:

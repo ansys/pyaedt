@@ -337,7 +337,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object_3d.VertexPrimitive`
+        List[:class:`ansys.aedt.core.modeler.cad.elements_3d.VertexPrimitive`]
             List of vertices.
 
         References
@@ -516,7 +516,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object_3d.EdgePrimitive`
+        List[:class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`]
             List of Edges.
 
         References
@@ -536,7 +536,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object_3d.VertexPrimitive`
+        List[:class:`ansys.aedt.core.modeler.cad.elements_3d.VertexPrimitive`]
             List of Vertices.
 
         References
@@ -680,7 +680,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3d.EdgePrimitive`
+        :class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`
 
         References
         ----------
@@ -701,7 +701,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3d.EdgePrimitive`
+        :class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`
 
         """
         try:
@@ -717,7 +717,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3d.EdgePrimitive`
+        :class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`
 
         """
         try:
@@ -733,7 +733,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3d.EdgePrimitive`
+        :class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`
 
         """
         try:
@@ -749,7 +749,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3d.EdgePrimitive`
+        :class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`
 
         """
         try:
@@ -765,7 +765,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3d.EdgePrimitive`
+        :class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`
 
         """
         try:
@@ -985,7 +985,7 @@ class Point(object):
     >>> aedtapp = Hfss()
     >>> primitives = aedtapp.modeler
 
-    Create a point, to return an :class:`ansys.aedt.core.modeler.Object3d.Point`.
+    Create a point, to return an :class:`ansys.aedt.core.modeler.cad.elements_3d.Point`.
 
     >>> point = primitives.create_point([30, 30, 0], "my_point", (0, 195, 255))
     >>> my_point = primitives.points[point.name]
@@ -1184,7 +1184,7 @@ class Plane(object):
     >>> aedtapp = Hfss()
     >>> primitives = aedtapp.modeler
 
-    Create a plane, to return an :class:`ansys.aedt.core.modeler.Object3d.Plane`.
+    Create a plane, to return an :class:`ansys.aedt.core.modeler.cad.elements_3d.Plane`.
 
     >>> plane = primitives.create_plane("my_plane", "-0.7mm", "0.3mm", "0mm", "0.7mm", "-0.3mm", "0mm", "(0, 195, 255)")
     >>> my_plane = primitives.planes[plane.name]

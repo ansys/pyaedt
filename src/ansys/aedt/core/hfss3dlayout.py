@@ -473,7 +473,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modules.boundary.BoundaryObject3dLayout`
+        List[:class:`ansys.aedt.core.modules.boundary.BoundaryObject3dLayout`]
             Port Objects when successful.
 
         References
