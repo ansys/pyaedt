@@ -70,7 +70,7 @@ class AMIConturEyeDiagram(CommonReport):
             Expressions.
         """
         if self._is_created:
-            return [i.split(" ,")[-1] for i in list(self.properties.props.values())[4:]]
+            return [i.split(" ,")[-1] for i in list(self.properties.values())[4:]]
         if self._legacy_props.get("expressions", None) is None:
             return []
         expr_head = "Eye"
@@ -526,7 +526,7 @@ class AMIEyeDiagram(CommonReport):
             Expressions.
         """
         if self._is_created:
-            return [i.split(" ,")[-1] for i in list(self.properties.props.values())[4:]]
+            return [i.split(" ,")[-1] for i in list(self.properties.values())[4:]]
         if self._legacy_props.get("expressions", None) is None:
             return []
         expr_head = "Wave"

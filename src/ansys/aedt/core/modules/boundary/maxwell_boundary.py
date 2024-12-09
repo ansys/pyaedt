@@ -317,7 +317,7 @@ class MaxwellMatrix(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if old_source not in self.sources.keys():
+        if old_source not in self.sources:
             self._app.logger.error("Source does not exist.")
             return False
         else:
@@ -345,7 +345,7 @@ class MaxwellMatrix(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if source not in self.sources.keys():
+        if source not in self.sources:
             self._app.logger.error("Invalid source name.")
             return False
         self._app.o_maxwell_parameters.DeleteReduceOp(self.parent_matrix, self.name, source)

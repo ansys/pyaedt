@@ -129,7 +129,7 @@ class Sources(object):
             if source_type in SourceKeys.SourceNames:
                 command_template = SourceKeys.SourceTemplates[source_type]
                 commands = copy.deepcopy(command_template)
-                props = [value for value in commands if type(value) == list]
+                props = [value for value in commands if isinstance(value, list)]
                 for el in props[0]:
                     if isinstance(el, list):
                         if el[0] == "CosimDefinition":
@@ -158,7 +158,7 @@ class Sources(object):
         if fds_filename:
             commands[14] = fds_filename
         cont = 0
-        props = [value for value in commands if type(value) == list]
+        props = [value for value in commands if isinstance(value, list)]
         for command in props[0]:
             if isinstance(command, list) and command[0] in source_prop_dict.keys() and command[0] != "CosimDefinition":
                 if command[0] == "Netlist":
@@ -245,7 +245,7 @@ class Sources(object):
         for source_name in self._app.sources:
             excitation_source = []
             for port in self._app.excitations:
-                aa = self._app.excitation_objects[port]._props
+                self._app.excitation_objects[port]._props
                 if source_name in self._app.excitation_objects[port]._props["EnabledPorts"]:
                     excitation_source.append(port)
             arg3.append(source_name + ":=")

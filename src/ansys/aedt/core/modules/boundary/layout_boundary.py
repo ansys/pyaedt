@@ -508,50 +508,6 @@ class NativeComponentPCB(NativeComponentObject, object):
         self.props["NativeComponentDefinitionProvider"]["HighSide"] = high_rad
         return True
 
-    @pyaedt_function_handler()
-    @disable_auto_update
-    def set_low_side_radiation(
-        self,
-        enabled,
-        surface_material="Steel-oxidised-surface",
-        radiate_to_ref_temperature=False,
-        view_factor=1,
-        ref_temperature="AmbientTemp",
-    ):
-        """Set low side radiation properties.
-
-        Parameters
-        ----------
-        enabled : bool
-            Whether high side radiation is enabled.
-        surface_material : str, optional
-            Surface material to apply. Default is ``"Steel-oxidised-surface"``.
-        radiate_to_ref_temperature : bool, optional
-            Whether to radiate to a reference temperature instead of objects in the model.
-            Default is ``False``.
-        view_factor : float, optional
-            View factor to use for radiation computation if ``radiate_to_ref_temperature``
-            is set to True. Default is 1.
-        ref_temperature : str, optional
-            Reference temperature to use for radiation computation if
-            ``radiate_to_ref_temperature`` is set to ``True``. Default is ``"AmbientTemp"``.
-
-        Returns
-        -------
-        bool
-            ``True`` if successful, else ``False``.
-        """
-        low_side = {
-            "Radiate": enabled,
-            "RadiateTo": "RefTemperature - High" if radiate_to_ref_temperature else "AllObjects",
-            "Surface Material": surface_material,
-        }
-        if radiate_to_ref_temperature:
-            low_side["Ref. Temperature"] = (ref_temperature,)
-            low_side["View Factor"] = view_factor
-        self.props["NativeComponentDefinitionProvider"]["LowSide"] = low_side
-        return True
-
     @power.setter
     @disable_auto_update
     def power(self, value):
@@ -693,11 +649,6 @@ class NativeComponentPCB(NativeComponentObject, object):
         """
         self.props["NativeComponentDefinitionProvider"]["Power"] = value
 
-    @property
-    def force_source_solve(self):
-        """Force source solution option."""
-        return self.props["NativeComponentDefinitionProvider"].get("DefnLink", {}).get("ForceSourceToSolve", False)
-
     @force_source_solve.setter
     @disable_auto_update
     def force_source_solve(self, val):
@@ -713,11 +664,6 @@ class NativeComponentPCB(NativeComponentObject, object):
             return
         return self.props["NativeComponentDefinitionProvider"]["DefnLink"].update({"ForceSourceToSolve": val})
 
-    @property
-    def preserve_partner_solution(self):
-        """Preserve parner solution option."""
-        return self.props["NativeComponentDefinitionProvider"].get("DefnLink", {}).get("PreservePartnerSoln", False)
-
     @preserve_partner_solution.setter
     @disable_auto_update
     def preserve_partner_solution(self, val):
@@ -732,17 +678,6 @@ class NativeComponentPCB(NativeComponentObject, object):
             self._app.logger.error("Only boolean can be accepted.")
             return
         return self.props["NativeComponentDefinitionProvider"]["DefnLink"].update({"PreservePartnerSoln": val})
-
-    @property
-    def included_parts(self):
-        """Parts options."""
-        p = self.props["NativeComponentDefinitionProvider"].get("PartsChoice", 0)
-        if p == 0:
-            return None
-        elif p == 1:
-            return PCBSettingsDeviceParts(self, self._app)
-        elif p == 2:
-            return PCBSettingsPackageParts(self, self._app)
 
     @included_parts.setter
     @disable_auto_update
@@ -1159,7 +1094,7 @@ class PCBSettingsDeviceParts(object):
         else:
             new_filters = self.pcb.props["NativeComponentDefinitionProvider"].get("Filters", [])
             map2arg = {v: k for k, v in self._filter_map2name.items()}
-            for f in self._filter_map2name.keys():
+            for f, _ in self._filter_map2name.items():
                 if f in new_filters:
                     new_filters.remove(f)
             new_filters += [map2arg[o] for o in object_type]

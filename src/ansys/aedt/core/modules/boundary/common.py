@@ -110,7 +110,6 @@ class BoundaryCommon(PropsManager):
             self._app.oboundary.DeleteBoundaries([self.name])
             if self.name in self._app.excitation_objects.keys():
                 self._app.excitation_objects.pop(self.name)
-        self._app.boundaries
         return True
 
     def _get_boundary_data(self, ds):
@@ -219,6 +218,10 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
         self._type = boundarytype
         self._boundary_name = self.name
         self.auto_update = auto_update
+        self._initialize_bynary_tree()
+
+    @pyaedt_function_handler()
+    def _initialize_bynary_tree(self):
         if self._child_object:
             BinaryTreeNode.__init__(self, self._name, self._child_object, False)
 
@@ -294,8 +297,8 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
                     self._type = self.props["Type"]
                 elif "BoundType" in self.available_properties:
                     self._type = self.props["BoundType"]
-            elif self.object_properties and self.object_properties.props["Type"]:
-                self._type = self.object_properties.props["Type"]
+            elif self.properties and self.properties["Type"]:
+                self._type = self.properties["Type"]
 
         if self._app.design_type == "Icepak" and self._type == "Source":
             return "SourceIcepak"
@@ -515,8 +518,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
             self._app.oboundary.AssignResistiveSheet(self._get_args())
         else:
             return False
-        if self._child_object:
-            BinaryTreeNode.__init__(self, self._name, self._child_object, False)
+        self._initialize_bynary_tree()
 
         return True
 
