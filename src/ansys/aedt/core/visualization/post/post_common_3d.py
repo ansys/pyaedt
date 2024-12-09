@@ -2233,7 +2233,7 @@ class PostProcessor3D(PostProcessorCommon):
         if not assignment:
             self._app.modeler.refresh_all_ids()
             non_model = self._app.modeler.non_model_objects[:]
-            assignment = [i for i in self._app.modeler.object_names if i not in non_model]
+            assignment = [i for i in self._app.modeler.object_names if i not in non_model and "PML_" not in i]
             if not air_objects:
                 assignment = [
                     i
