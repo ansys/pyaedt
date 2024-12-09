@@ -38,6 +38,7 @@ import pytest
 SETTINGS_RELEASE_ON_EXCEPTION = settings.release_on_exception
 SETTINGS_ENABLE_ERROR_HANDLER = settings.enable_error_handler
 ERROR_MESSAGE = "Dummy message."
+TOML_DATA = {"key_0": "dummy", "key_1": 12, "key_2": [1, 2], "key_3": {"key_4": 42}}
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -163,3 +164,31 @@ def test_settings_load_yaml_with_non_allowed_key(tmp_path):
     with pytest.raises(KeyError) as excinfo:
         default_settings.load_yaml_configuration(str(yaml_path), raise_on_wrong_key=True)
         assert str(excinfo) in "Key 'dummy' is not part of the allowed keys"
+
+
+def test_read_toml(tmp_path):
+    """Test loading a TOML file."""
+    from ansys.aedt.core.generic.general_methods import read_toml
+
+    file_path = tmp_path / "dummy.toml"
+    content = """
+    key_0 = 'dummy'
+    key_1 = 12
+    key_2 = [1,2]
+    [key_3]
+    key_4 = 42
+    """
+    file_path.write_text(content, encoding="utf-8")
+
+    res = read_toml(file_path)
+    assert TOML_DATA == res
+
+
+def test_write_toml(tmp_path):
+    """Test writing a TOML file."""
+    from ansys.aedt.core.generic.general_methods import _create_toml_file
+
+    file_path = tmp_path / "dummy.toml"
+    _create_toml_file(TOML_DATA, file_path)
+
+    assert file_path.exists()
