@@ -20,7 +20,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-import os.path
+
+from pathlib import Path
 
 import ansys.aedt.core
 from ansys.aedt.core import Circuit
@@ -57,7 +58,7 @@ def frontend():  # pragma: no cover
     master.title(extension_description)
 
     # Load the logo for the main window
-    icon_path = os.path.join(ansys.aedt.core.workflows.__path__[0], "images", "large", "logo.png")
+    icon_path = Path(ansys.aedt.core.workflows.__path__[0]) / "images" / "large" / "logo.png"
     im = PIL.Image.open(icon_path)
     photo = PIL.ImageTk.PhotoImage(im)
 
@@ -78,7 +79,7 @@ def frontend():  # pragma: no cover
     def browse_asc_folder():
         inital_dir = text.get("1.0", tkinter.END).strip()
         filename = filedialog.askopenfilename(
-            initialdir=os.path.dirname(inital_dir) if inital_dir else "/",
+            initialdir=Path(initial_dir).parent if inital_dir else "/",
             title="Select configuration file",
             filetypes=(("LTSPice file", "*.asc"), ("Spice file", "*.cir *.sp"), ("Qcv file", "*.qcv")),
         )
@@ -105,18 +106,28 @@ def frontend():  # pragma: no cover
 
 
 def main(extension_args):
-    asc_file = extension_args["asc_file"]
-    if not os.path.exists(asc_file):
-        raise Exception("Error. File doesn't exists.")
-    cir = Circuit(design=os.path.split(asc_file)[-1][:-4])
-    if asc_file.endswith(".asc"):
-        cir.create_schematic_from_asc_file(asc_file)
-    elif asc_file.endswith(".sp") or asc_file.endswith(".cir"):
-        cir.create_schematic_from_netlist(asc_file)
-    elif asc_file.endswith(".qcv"):
-        cir.create_schematic_from_mentor_netlist(asc_file)
+    asc_file = Path(extension_args["asc_file"])
+    if not asc_file.exists():
+        raise Exception("File does not exist.")
+
+    app = ansys.aedt.core.Desktop(
+        new_desktop=False,
+        version=version,
+        port=port,
+        aedt_process_id=aedt_process_id,
+        student_version=is_student,
+    )
+
+    cir = Circuit(design=asc_file.stem)
+
+    if asc_file.suffix == ".asc":
+        cir.create_schematic_from_asc_file(str(asc_file))
+    elif asc_file.suffix in {".sp", ".cir"}:
+        cir.create_schematic_from_netlist(str(asc_file))
+    elif asc_file.suffix == ".qcv":
+        cir.create_schematic_from_mentor_netlist(str(asc_file))
     if not extension_args["is_test"]:  # pragma: no cover
-        cir.release_desktop(False, False)
+        app.release_desktop(False, False)
     return True
 
 
@@ -130,5 +141,6 @@ if __name__ == "__main__":  # pragma: no cover
             for output_name, output_value in output.items():
                 if output_name in extension_arguments:
                     args[output_name] = output_value
-
-    main(args)
+            main(args)
+    else:
+        main(args)
