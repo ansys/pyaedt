@@ -150,7 +150,8 @@ class MatProperties(object):
     @classmethod
     def wb_to_aedt_name(cls, wb_name):
         """Retrieve the corresponding AEDT property name for the specified Workbench property name.
-        The workbench names are specified in ``MatProperties.workbench_name``.
+
+        The Workbench names are specified in ``MatProperties.workbench_name``.
         The AEDT names are specified in ``MatProperties.aedtname``.
 
         Parameters
@@ -162,7 +163,6 @@ class MatProperties(object):
         -------
         str
             AEDT name of the property.
-
         """
         return cls.aedtname[cls.workbench_name.index(wb_name)]
 
@@ -179,7 +179,6 @@ class MatProperties(object):
         -------
         str
             Default unit if it exists.
-
         """
         if aedtname:
             return cls.defaultunit[cls.aedtname.index(aedtname)]
@@ -199,7 +198,6 @@ class MatProperties(object):
         -------
         float
             Default value if it exists.
-
         """
         if aedtname:
             return cls.defaultvalue[cls.aedtname.index(aedtname)]
@@ -212,7 +210,6 @@ class SurfMatProperties(object):
     mappings to their internal XML names.
 
     Internal names are used in scripts, and XML names are used in the XML syntax.
-
     """
 
     aedtname = [
