@@ -108,6 +108,10 @@ class ExtensionTheme:  # pragma: no cover
             "combobox_arrow_bg": "#E6E6E6",  # Matches button_bg
             "combobox_arrow_fg": "#000000",  # Matches text
             "combobox_readonly_bg": "#F0F0F0",  # Matches tab_bg_inactive
+            "checkbutton_bg": "#FFFFFF",  # Matches widget_bg
+            "checkbutton_fg": "#000000",  # Matches text
+            "checkbutton_indicator_bg": "#D9D9D9",  # Matches button_hover_bg
+            "checkbutton_active_bg": "#B8B8B8",  # Matches button_active_bg
         }
 
         self.dark = {
@@ -134,6 +138,10 @@ class ExtensionTheme:  # pragma: no cover
             "combobox_arrow_bg": "#606060",  # Matches button_hover_bg
             "combobox_arrow_fg": "#FFFFFF",  # Matches text
             "combobox_readonly_bg": "#2E2E2E",  # Matches pane_bg
+            "checkbutton_bg": "#313335",  # Matches widget_bg
+            "checkbutton_fg": "#FFFFFF",  # Matches text
+            "checkbutton_indicator_bg": "#2E2E2E",  # Matches pane_bg
+            "checkbutton_active_bg": "#45494A",  # Matches radiobutton_selected
         }
 
         # Set default font
@@ -221,6 +229,21 @@ class ExtensionTheme:  # pragma: no cover
             "PyAEDT.TCombobox",
             fieldbackground=[("readonly", colors["combobox_readonly_bg"])],
             foreground=[("readonly", colors["text"])],
+        )
+
+        # Style for Checkbutton
+        style.configure(
+            "PyAEDT.TCheckbutton",
+            background=colors["checkbutton_bg"],
+            foreground=colors["checkbutton_fg"],
+            font=self.default_font,
+            indicatorcolor=colors["checkbutton_indicator_bg"],
+            focuscolor=colors["checkbutton_active_bg"],  # For focus/active state
+        )
+        style.map(
+            "PyAEDT.TCheckbutton",
+            background=[("active", colors["checkbutton_active_bg"])],
+            indicatorcolor=[("selected", colors["checkbutton_indicator_bg"])],
         )
 
 
