@@ -96,6 +96,9 @@ def frontend():  # pragma: no cover
 
     master.title(extension_description)
 
+    # Detect if user closes the UI
+    master.flag = False
+
     # Load the logo for the main window
     icon_path = Path(ansys.aedt.core.workflows.__path__[0]) / "images" / "large" / "logo.png"
     im = PIL.Image.open(icon_path)
