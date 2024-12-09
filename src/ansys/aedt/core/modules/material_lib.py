@@ -735,7 +735,7 @@ class Materials(object):
 
     @pyaedt_function_handler(full_json_path="output_file")
     def export_materials_to_file(self, output_file):
-        """Export all materials to a JSON  or TOML file.
+        """Export all materials to a JSON or TOML file.
 
         Parameters
         ----------
