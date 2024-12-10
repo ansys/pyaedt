@@ -2035,7 +2035,6 @@ class NetworkObject(BoundaryObject):
 
         Examples
         --------
-
         >>> import ansys.aedt.core
         >>> app = ansys.aedt.core.Icepak()
         >>> network = ansys.aedt.core.modules.boundary.Network(app)
@@ -2091,7 +2090,6 @@ class NetworkObject(BoundaryObject):
 
         Examples
         --------
-
         >>> import ansys.aedt.core
         >>> app = ansys.aedt.core.Icepak()
         >>> network = ansys.aedt.core.modules.boundary.Network(app)
@@ -2166,7 +2164,6 @@ class NetworkObject(BoundaryObject):
 
         Examples
         --------
-
         >>> import ansys.aedt.core
         >>> app = ansys.aedt.core.Icepak()
         >>> network = ansys.aedt.core.modules.boundary.Network(app)
@@ -2288,7 +2285,6 @@ class NetworkObject(BoundaryObject):
 
         Examples
         --------
-
         >>> import ansys.aedt.core
         >>> app = ansys.aedt.core.Icepak()
         >>> network = ansys.aedt.core.modules.boundary.Network(app)
@@ -2301,7 +2297,6 @@ class NetworkObject(BoundaryObject):
         >>>         {"FaceID": faces_ids[2], "ThermalResistance": "Specified", "Resistance": "2cel_per_w"},
         >>>         {"Name": "Junction", "Power": "1W"}]
         >>> network.add_nodes_from_dictionaries(nodes_dict)
-
         """
         if isinstance(nodes, dict):
             nodes = [nodes]
@@ -2358,7 +2353,6 @@ class NetworkObject(BoundaryObject):
 
         Examples
         --------
-
         >>> import ansys.aedt.core
         >>> app = ansys.aedt.core.Icepak()
         >>> network = ansys.aedt.core.modules.boundary.Network(app)
@@ -2366,7 +2360,6 @@ class NetworkObject(BoundaryObject):
         >>> faces_ids = [face.id for face in box.faces]
         >>> connection = {"Name": "LinkTest", "Connection": [faces_ids[1], faces_ids[0]], "Value": "1cel_per_w"}
         >>> network.add_links_from_dictionaries(connection)
-
         """
         if name is None:
             new_name = True
@@ -2403,7 +2396,6 @@ class NetworkObject(BoundaryObject):
 
         Examples
         --------
-
         >>> import ansys.aedt.core
         >>> app = ansys.aedt.core.Icepak()
         >>> network = ansys.aedt.core.modules.boundary.Network(app)
@@ -2412,7 +2404,6 @@ class NetworkObject(BoundaryObject):
         >>> [network.add_face_node(faces_ids[i]) for i in range(2)]
         >>> connection = {"Name": "LinkTest", "Link": [faces_ids[1], faces_ids[0], "1cel_per_w"]}
         >>> network.add_links_from_dictionaries(connection)
-
         """
         if isinstance(connections, dict):
             connections = [connections]
@@ -2455,9 +2446,7 @@ class NetworkObject(BoundaryObject):
 
     @pyaedt_function_handler()
     def update_assignment(self):
-        """
-        Update assignments of the network.
-        """
+        """Update assignments of the network."""
         return self.update()
 
     class _Link:
@@ -2529,16 +2518,13 @@ class NetworkObject(BoundaryObject):
 
         @pyaedt_function_handler()
         def delete_node(self):
-            """
-            Delete node from network.
-            """
+            """Delete node from network."""
             self._network.props["Nodes"].pop(self.name)
             self._network._nodes.remove(self)
 
         @property
         def node_type(self):
-            """
-            Get node type.
+            """Get node type.
 
             Returns
             -------
@@ -2561,8 +2547,7 @@ class NetworkObject(BoundaryObject):
 
         @property
         def props(self):
-            """
-            Get properties of the node.
+            """Get properties of the node.
 
             Returns
             -------
@@ -2573,8 +2558,7 @@ class NetworkObject(BoundaryObject):
 
         @props.setter
         def props(self, props):
-            """
-            Set properties of the node.
+            """Set properties of the node.
 
             Parameters
             ----------

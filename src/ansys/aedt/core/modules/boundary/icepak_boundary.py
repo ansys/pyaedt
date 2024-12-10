@@ -28,8 +28,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
 class BoundaryDictionary:
-    """
-    Handles Icepak transient and temperature-dependent boundary condition assignments.
+    """Handles Icepak transient and temperature-dependent boundary condition assignments.
 
     Parameters
     ----------
@@ -73,8 +72,7 @@ class BoundaryDictionary:
 
 
 class LinearDictionary(BoundaryDictionary):
-    """
-    Manages linear conditions assignments, which are children of the ``BoundaryDictionary`` class.
+    """Manages linear conditions assignments, which are children of the ``BoundaryDictionary`` class.
 
     This class applies a condition ``y`` dependent on the time ``t``:
         ``y=a+b*t``
@@ -100,10 +98,9 @@ class LinearDictionary(BoundaryDictionary):
 
 
 class PowerLawDictionary(BoundaryDictionary):
-    """
-    Manages power law condition assignments, which are children of the ``BoundaryDictionary`` class.
+    """Manages power law condition assignments, which are children of the ``BoundaryDictionary`` class.
 
-     This class applies a condition ``y`` dependent on the time ``t``:
+    This class applies a condition ``y`` dependent on the time ``t``:
          ``y=a+b*t^c``
 
      Parameters
@@ -131,8 +128,7 @@ class PowerLawDictionary(BoundaryDictionary):
 
 
 class ExponentialDictionary(BoundaryDictionary):
-    """
-    Manages exponential condition assignments, which are children of the ``BoundaryDictionary`` class.
+    """Manages exponential condition assignments, which are children of the ``BoundaryDictionary`` class.
 
     This class applies a condition ``y`` dependent on the time ``t``:
         ``y=a+b*exp(c*t)``
@@ -162,8 +158,7 @@ class ExponentialDictionary(BoundaryDictionary):
 
 
 class SinusoidalDictionary(BoundaryDictionary):
-    """
-    Manages sinusoidal condition assignments, which are children of the ``BoundaryDictionary`` class.
+    """Manages sinusoidal condition assignments, which are children of the ``BoundaryDictionary`` class.
 
     This class applies a condition ``y`` dependent on the time ``t``:
         ``y=a+b*sin(2*pi(t-t0)/T)``
@@ -197,8 +192,7 @@ class SinusoidalDictionary(BoundaryDictionary):
 
 
 class SquareWaveDictionary(BoundaryDictionary):
-    """
-    Manages square wave condition assignments, which are children of the ``BoundaryDictionary`` class.
+    """Manages square wave condition assignments, which are children of the ``BoundaryDictionary`` class.
 
     Parameters
     ----------
