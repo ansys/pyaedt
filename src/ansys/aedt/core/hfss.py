@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""This module contains these classes: ``Hfss`` and ``BoundaryType``."""
+"""This module contains the ``Hfss`` class."""
 
 from __future__ import absolute_import  # noreorder
 
