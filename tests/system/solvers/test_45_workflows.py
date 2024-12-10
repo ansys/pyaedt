@@ -39,6 +39,7 @@ twinbuilder_circuit = "TB_test"
 report = "report"
 fields_calculator = "fields_calculator_solved"
 m2d_electrostatic = "maxwell_fields_calculator"
+point_cloud_generator = "point_cloud_generator"
 
 test_subfolder = "T45"
 TEST_REVIEW_FLAG = True
@@ -573,3 +574,19 @@ class TestClass:
         }
         extension_args = {"is_test": True, "choke_config": choke_config}
         assert main(extension_args)
+
+    def test_18_point_cloud_generator(self, local_scratch, add_app):
+        aedtapp = add_app(project_name=point_cloud_generator, subfolder=test_subfolder)
+
+        import tkinter as tk
+        from ansys.aedt.core.workflows.hfss.point_cloud import PointCloudApp, CAD_to_point_cloud
+
+        obj_file_path = os.path.join(local_scratch.path, "cube.obj")
+        assert(CAD_to_point_cloud(obj_file_path, 100))
+
+        root = tk.TK()
+        pc = PointCloudApp(root)
+        assert(pc.init_hfss())
+
+        aedtapp.close_project()
+
