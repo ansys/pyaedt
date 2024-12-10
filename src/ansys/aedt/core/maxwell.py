@@ -3053,9 +3053,14 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         if not name:
             boundary = generate_unique_name("ResistiveSheet")
 
-        props = {
-            "Faces": assignment,
-        }
+        listobj = self.modeler.convert_to_selections(assignment, True)
+
+        props = {"Objects": [], "Faces": []}
+        for sel in listobj:
+            if isinstance(sel, str):
+                props["Objects"].append(sel)
+            elif isinstance(sel, int):
+                props["Faces"].append(sel)
 
         if self.solution_type in ["EddyCurrent", "Transient"]:
             props["Resistance"] = resistance
