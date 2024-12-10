@@ -36,7 +36,7 @@ Using the extension
 4. Select the desired options and click **Create Cutout** to generate the cutout.
 
 
-Command Line
+Command line
 ------------
 
 The extension can also be used directly via the command line for batch processing.
