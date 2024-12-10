@@ -186,10 +186,6 @@ class TestClass:
 
         assert main({"is_test": True})
 
-    @pytest.mark.skipif(
-        TEST_REVIEW_FLAG,
-        reason="Test under review in 2024.2",
-    )
     def test_08_configure_a3d(self, local_scratch):
         from ansys.aedt.core.workflows.project.configure_edb import main
 
