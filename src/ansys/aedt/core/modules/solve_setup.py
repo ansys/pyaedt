@@ -27,7 +27,6 @@ This module contains these classes: `Setup`, `Setup3DLayout`, and `SetupCircuit`
 
 This module provides all functionalities for creating and editing setups in AEDT.
 It is based on templates to allow for easy creation and modification of setup properties.
-
 """
 
 from __future__ import absolute_import  # noreorder
@@ -114,7 +113,8 @@ class CommonSetup(PropsManager, BinaryTreeNode):
         Returns
         -------
         dict
-            Dictionary which keys are typically Freq, Phase or Time."""
+            Dictionary which keys are typically Freq, Phase or Time.
+        """
         intr = {}
         if "HFSS 3D Layout" in self._app.design_type:  # pragma no cover
             try:
@@ -1061,9 +1061,7 @@ class Setup(CommonSetup):
         >>> m2d = ansys.aedt.core.Maxwell2d()
         >>> setup = m2d.get_setup("Setup1")
         >>> setup.start_continue_from_previous_setup(design="IM",solution="Setup1 : Transient")
-
         """
-
         auto_update = self.auto_update
         try:
             self.auto_update = False
@@ -1452,9 +1450,7 @@ class SetupCircuit(CommonSetup):
         -------
         list
             List of the data.
-
         """
-
         if isrelativeconvergence:
             userelative = 1
         else:
@@ -1646,6 +1642,7 @@ class SetupCircuit(CommonSetup):
         sweep=None,
     ):
         """Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
+
         Data to be retrieved from Electronics Desktop are any simulation results available in that
         specific simulation context.
         Most of the argument have some defaults which works for most of the ``Standard`` report quantities.
@@ -2020,10 +2017,8 @@ class Setup3DLayout(CommonSetup):
 
         References
         ----------
-
         >>> oModule.ExportToHfss
         """
-
         output_file = output_file
         if not os.path.isdir(os.path.dirname(output_file)):
             return False
@@ -2286,10 +2281,8 @@ class Setup3DLayout(CommonSetup):
 
         References
         ----------
-
         >>> oModule.ExportToQ3d
         """
-
         if not os.path.isdir(os.path.dirname(output_file)):
             return False
         output_file = os.path.splitext(output_file)[0] + ".aedt"
@@ -4270,7 +4263,6 @@ class SetupIcepak(Setup, object):
 
         References
         ----------
-
         >>> oModule.EditSetup
 
         Examples
@@ -4278,9 +4270,7 @@ class SetupIcepak(Setup, object):
         >>> ipk = ansys.aedt.core.Icepak()
         >>> setup = ipk.get_setup("Setup1")
         >>> setup.start_continue_from_previous_setup(design="IcepakDesign1",solution="Setup1 : SteadyState")
-
         """
-
         auto_update = self.auto_update
         try:
             self.auto_update = False

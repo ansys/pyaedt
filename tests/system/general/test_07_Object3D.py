@@ -768,3 +768,11 @@ class TestClass:
         )
         assert not self.aedtapp.modeler.simplify_objects(assignment=None)
         assert not self.aedtapp.modeler.simplify_objects(assignment=1)
+
+    def test_30_rescale(self):
+        self.aedtapp.modeler.model_units = "meter"
+        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [5, 10, 2], material="Copper")
+        assert box1.mass == 893300.0
+        self.aedtapp.modeler.rescale_model = True
+        self.aedtapp.modeler.model_units = "mm"
+        assert round(box1.mass, 5) == 0.00089

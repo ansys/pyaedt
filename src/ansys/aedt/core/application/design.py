@@ -1505,10 +1505,8 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.ExportProfile
         """
-
         if not output_file:
             output_file = os.path.join(self.working_directory, generate_unique_name("Profile") + ".prof")
         if not variation:
@@ -1584,7 +1582,6 @@ class Design(AedtObjects):
         >>> hfss.logger.info("Global info message")
         >>> hfss.logger.project_logger.info("Project info message")
         >>> hfss.logger.design_logger.info("Design info message")
-
         """
         warnings.warn(
             "`add_info_message` is deprecated. Use `logger.design_logger.info` instead.",
@@ -1627,7 +1624,6 @@ class Design(AedtObjects):
         >>> hfss.logger.warning("Global warning message", "Global")
         >>> hfss.logger.project_logger.warning("Project warning message", "Project")
         >>> hfss.logger.design_logger.warning("Design warning message")
-
         """
         warnings.warn(
             "`add_warning_message` is deprecated. Use `logger.design_logger.warning` instead.",
@@ -1671,7 +1667,6 @@ class Design(AedtObjects):
         >>> hfss.logger.error("Global error message", "Global")
         >>> hfss.logger.project_logger.error("Project error message", "Project")
         >>> hfss.logger.design_logger.error("Design error message")
-
         """
         warnings.warn(
             "`add_error_message` is deprecated. Use `logger.design_logger.error` instead.",
@@ -1764,6 +1759,7 @@ class Design(AedtObjects):
             Full name of the AEDT registry key.
         value : str, int
             Value for the AEDT registry key.
+
         Returns
         -------
         bool
@@ -1771,7 +1767,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.SetRegistryString
         >>> oDesktop.SetRegistryInt
         """

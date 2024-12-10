@@ -422,7 +422,6 @@ class Monitor:
 
         Examples
         --------
-
         Create a rectangle named ``"Surface1"`` and assign a temperature monitor to that surface.
 
         >>> surface = icepak.modeler.create_rectangle(icepak.PLANE.XY,[0, 0, 0],[10, 20],name="Surface1")
@@ -520,12 +519,10 @@ class Monitor:
 
         References
         ----------
-
         >>> oModule.AssignPointMonitor
 
         Examples
         --------
-
         Create a box named ``"BlockBox1"`` and assign a temperature monitor point to that object.
 
         >>> box = icepak.modeler.create_box([1, 1, 1],[3, 3, 3],"BlockBox1","copper")
@@ -782,9 +779,9 @@ class ObjectMonitor:
 
     @pyaedt_function_handler(setup_name="setup")
     def value(self, quantity=None, setup=None, design_variation_dict=None, si_out=True):
-        """
-        Get a list of values obtained from the monitor object. If the simulation is steady state,
-        the list will contain just one element.
+        """Get a list of values obtained from the monitor object.
+
+        If the simulation is steady state, the list will contain just one element.
 
         Parameters
         ----------

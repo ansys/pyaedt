@@ -477,6 +477,7 @@ class PostProcessorCommon(object):
     @pyaedt_function_handler()
     def available_report_solutions(self, report_category=None):
         """Get the list of available solutions that can be used for the reports.
+
         This list differs from the one obtained with ``app.existing_analysis_sweeps``,
         because it includes additional elements like "AdaptivePass".
 
@@ -644,7 +645,6 @@ class PostProcessorCommon(object):
 
         References
         ----------
-
         >>> oModule.DeleteReports
         """
         try:
@@ -778,7 +778,8 @@ class PostProcessorCommon(object):
         step=None,
         use_trace_number_format=False,
     ):
-        """Export a 2D Plot data to a file.
+        r"""
+        Export a 2D Plot data to a file.
 
         This method leaves the data in the plot (as data) as a reference
         for the Plot after the loops.
@@ -1307,7 +1308,7 @@ class PostProcessorCommon(object):
             else:
                 report.matrix = context
         elif report_category == "Far Fields":
-            if not context and self._app._field_setups:
+            if not context and self._app.field_setups:
                 report.far_field_sphere = self._app.field_setups[0].name
             else:
                 if isinstance(context, dict):
@@ -1345,6 +1346,7 @@ class PostProcessorCommon(object):
         math_formula=None,
     ):
         """Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
+
         Data to be retrieved from Electronics Desktop are any simulation results available in that
         specific simulation context.
         Most of the argument have some defaults which works for most of the ``Standard`` report quantities.
@@ -1538,6 +1540,11 @@ class PostProcessorCommon(object):
         elif report_category == "Far Fields":
             if not context and self._app.field_setups:
                 report.far_field_sphere = self._app.field_setups[0].name
+                if "Theta" not in report.variations:
+                    report.variations["Theta"] = ["All"]
+                if "Phi" not in report.variations:
+                    report.variations["Phi"] = ["All"]
+                report.primary_sweep = "Theta"
             else:
                 if isinstance(context, dict):
                     if "Context" in context.keys() and "SourceContext" in context.keys():
@@ -1601,7 +1608,6 @@ class PostProcessorCommon(object):
 
         Examples
         --------
-
         Create report from JSON file.
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
@@ -2019,7 +2025,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Q3d
         >>> q3d = Q3d(my_project)
         >>> report = q3d.post.reports_by_category.cg_fields("SmoothQ", "Setup : LastAdaptive", "Polyline1")
@@ -2060,7 +2065,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Q3d
         >>> q3d = Q3d(my_project)
         >>> report = q3d.post.reports_by_category.dc_fields("Mag_VolumeJdc", "Setup : LastAdaptive", "Polyline1")
@@ -2101,7 +2105,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Q3d
         >>> q3d = Q3d(my_project)
         >>> report = q3d.post.reports_by_category.rl_fields("Mag_SurfaceJac", "Setup : LastAdaptive", "Polyline1")
@@ -2145,7 +2148,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(my_project)
         >>> report = hfss.post.reports_by_category.far_field("GainTotal", "Setup : LastAdaptive", "3D_Sphere")
@@ -2186,7 +2188,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(my_project)
         >>> report = hfss.post.reports_by_category.antenna_parameters("GainTotal", "Setup : LastAdaptive", "3D_Sphere")
@@ -2224,7 +2225,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(my_project)
         >>> report = hfss.post.reports_by_category.near_field("GainTotal", "Setup : LastAdaptive", "NF_1")
@@ -2261,7 +2261,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(my_project)
         >>> report = hfss.post.reports_by_category.modal_solution("dB(S(1,1))")
@@ -2297,7 +2296,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(my_project)
         >>> report = hfss.post.reports_by_category.terminal_solution("dB(S(1,1))")
@@ -2335,7 +2333,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(my_project)
         >>> report = hfss.post.reports_by_category.eigenmode("dB(S(1,1))")
@@ -2378,7 +2375,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Circuit
         >>> cir= Circuit()
         >>> new_eye = cir.post.reports_by_category.statistical_eye_contour("V(Vout)")
@@ -2436,14 +2432,12 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Circuit
         >>> cir= Circuit()
         >>> new_eye = cir.post.reports_by_category.eye_diagram("V(Vout)")
         >>> new_eye.unit_interval = "1e-9s"
         >>> new_eye.time_stop = "100ns"
         >>> new_eye.create()
-
         """
         if not setup:
             setup = self._post_app._app.nominal_sweep
@@ -2489,7 +2483,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Circuit
         >>> cir= Circuit()
         >>> new_eye = cir.post.reports_by_category.spectral("V(Vout)")
@@ -2525,12 +2518,10 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Circuit
         >>> cir= Circuit()
         >>> new_eye = cir.post.emi_receiver()
         >>> new_eye.create()
-
         """
         if not setup_name:
             setup_name = self._post_app._app.nominal_sweep

@@ -49,9 +49,9 @@ class NexximComponents(CircuitComponents):
     ----------
     modeler : :class:`ansys.aedt.core.modeler.schematic.ModelerNexxim`
         Inherited parent object.
+
     Examples
     --------
-
     >>> from ansys.aedt.core import Circuit
     >>> aedtapp = Circuit()
     >>> prim = aedtapp.modeler.schematic
@@ -70,6 +70,7 @@ class NexximComponents(CircuitComponents):
     @pyaedt_function_handler()
     def __getitem__(self, partname):
         """Get the object ID if the part name is an integer or the object name if it is a string.
+
         Parameters
         ----------
         partname : int or str

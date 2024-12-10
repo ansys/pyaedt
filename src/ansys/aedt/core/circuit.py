@@ -981,8 +981,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         differential_pairs=False,
         subdesign_id=None,
     ):
-        """
-        Create a Touchstone plot.
+        """Create a Touchstone plot.
 
         Parameters
         ----------
@@ -998,6 +997,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             Whether the plot is on differential pairs traces. The default is ``False``.
         subdesign_id : int, optional
             Specify a subdesign ID to export a Touchstone file of this subdesign. The default value is ``None``.
+
         Returns
         -------
         bool
@@ -1005,7 +1005,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.CreateReport
         """
         if not solution:
