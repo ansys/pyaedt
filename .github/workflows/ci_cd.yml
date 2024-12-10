@@ -95,11 +95,10 @@ jobs:
           optional-dependencies-name: unit-tests
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-unit-tests
-          file: ./coverage.xml
+          files: ./coverage.xml
           flags: linux_unit
 
       - name: Upload pytest test results
@@ -123,11 +122,10 @@ jobs:
           optional-dependencies-name: integration-tests
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-integration-tests
-          file: ./coverage.xml
+          files: ./coverage.xml
           flags: linux_integration
 
       - name: Upload pytest test results
@@ -182,11 +180,10 @@ jobs:
           .venv\Scripts\Activate.ps1
           pytest ${{ env.PYTEST_ARGUMENTS }} -m solvers
 
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-system-solvers-tests-windows
-          file: ./coverage.xml
+          files: ./coverage.xml
           flags: windows_system_solvers
 
       - name: Upload pytest test results
@@ -238,11 +235,10 @@ jobs:
           source .venv/bin/activate
           pytest ${{ env.PYTEST_ARGUMENTS }} -m solvers
 
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-system-solvers-tests-linux
-          file: ./coverage.xml
+          files: ./coverage.xml
           flags: linux_system_solvers
 
       - name: Upload pytest test results
@@ -302,11 +298,10 @@ jobs:
             .venv\Scripts\Activate.ps1
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile -m general
 
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-system-general-tests-windows
-          file: ./coverage.xml
+          files: ./coverage.xml
           flags: windows_system_general
 
       - name: Upload pytest test results
@@ -370,11 +365,10 @@ jobs:
             source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile -m general
 
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-system-general-tests
-          file: ./coverage.xml
+          files: ./coverage.xml
           flags: linux_system_general
 
       - name: Upload pytest test results
