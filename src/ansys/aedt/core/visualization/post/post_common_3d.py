@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 """
-This module contains this class: `PostProcessor3D`.
+Module containing the class: `PostProcessor3D`.
 
 This module provides all functionalities for creating and editing plots in the 3D tools.
 
@@ -440,7 +440,6 @@ class PostProcessor3D(PostProcessorCommon):
 
         References
         ----------
-
         >>> oModule.EnterQty
         >>> oModule.CopyNamedExprToStack
         >>> oModule.CalcOp
@@ -1416,6 +1415,7 @@ class PostProcessor3D(PostProcessorCommon):
     ):
         # type: (list, str, str, list, bool, dict, str) -> FieldPlot
         """Create a field plot of stacked layer plot.
+
         This plot is valid from AEDT 2023 R2 and later in HFSS 3D Layout. Nets can be used as a filter.
         Dielectrics will be included into the plot.
         It works when a layout components in 3d modeler is used.
@@ -1591,6 +1591,7 @@ class PostProcessor3D(PostProcessorCommon):
     ):
         # type: (list, str, str, dict, bool, str) -> FieldPlot
         """Create a field plot of stacked layer plot on specified matrix of layers and nets.
+
         This plot is valid from AEDT 2023 R2 and later in HFSS 3D Layout
         and any modeler where a layout component is used.
 
@@ -1966,7 +1967,6 @@ class PostProcessor3D(PostProcessorCommon):
 
         References
         ----------
-
         >>> oModule.ExportPlotImageToFile
         >>> oModule.ExportModelImageToFile
         """
@@ -2180,7 +2180,6 @@ class PostProcessor3D(PostProcessorCommon):
 
         References
         ----------
-
         >>> oModule.GetSolutionDataPerVariation
         """
         if not isinstance(expressions, list):
@@ -2233,7 +2232,7 @@ class PostProcessor3D(PostProcessorCommon):
         if not assignment:
             self._app.modeler.refresh_all_ids()
             non_model = self._app.modeler.non_model_objects[:]
-            assignment = [i for i in self._app.modeler.object_names if i not in non_model]
+            assignment = [i for i in self._app.modeler.object_names if i not in non_model and "PML_" not in i]
             if not air_objects:
                 assignment = [
                     i
@@ -2269,6 +2268,7 @@ class PostProcessor3D(PostProcessorCommon):
     @pyaedt_function_handler(setup_name="setup")
     def export_mesh_obj(self, setup=None, intrinsics=None, export_air_objects=False, on_surfaces=True):
         """Export the mesh in AEDTPLT format.
+
         The mesh has to be available in the selected setup.
         If a parametric model is provided, you can choose the mesh to export by providing a specific set of variations.
         This method applies only to ``Hfss``, ``Q3d``, ``Q2D``, ``Maxwell3d``, ``Maxwell2d``, ``Icepak``
@@ -2979,20 +2979,19 @@ class PostProcessor3D(PostProcessorCommon):
           .. note::
               .assign_curvature_extraction Jupyter Notebook is not supported by IronPython.
 
-         Parameters
-         ----------
-         show_axis : bool, optional
-             Whether to show the axes. The default is ``True``.
-         show_grid : bool, optional
-             Whether to show the grid. The default is ``True``.
-         show_ruler : bool, optional
-             Whether to show the ruler. The default is ``True``.
+        Parameters
+        ----------
+        show_axis : bool, optional
+            Whether to show the axes. The default is ``True``.
+        show_grid : bool, optional
+            Whether to show the grid. The default is ``True``.
+        show_ruler : bool, optional
+            Whether to show the ruler. The default is ``True``.
 
         Returns
         -------
         :class:`IPython.core.display.Image`
             Jupyter notebook image.
-
         """
         try:
             from IPython.display import Image
@@ -3117,7 +3116,6 @@ class PostProcessor3D(PostProcessorCommon):
         :class:`ansys.aedt.core.generic.plot.ModelPlotter`
             Model Object.
         """
-
         if self._app._aedt_version < "2021.2":
             raise RuntimeError("Object is supported from AEDT 2021 R2.")  # pragma: no cover
 
@@ -3804,7 +3802,6 @@ class PostProcessor3D(PostProcessorCommon):
     ):
         """Plot the current model 3D scene with overlapping animation coming from a file list and save the gif.
 
-
         Parameters
         ----------
         frames : list or str
@@ -3834,7 +3831,6 @@ class PostProcessor3D(PostProcessorCommon):
 
         Returns
         -------
-
         """
         if isinstance(frames, str) and os.path.exists(frames):
             with open_file(frames, "r") as f:

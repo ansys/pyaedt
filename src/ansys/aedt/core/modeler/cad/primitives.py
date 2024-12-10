@@ -261,6 +261,7 @@ class GeometryModeler(Modeler):
         self._unclassified = []
         self._all_object_names = []
         self._model_units = None
+        self.rescale_model = False
         self._object_names_to_ids = {}
         self.objects = Objects(self, "o")
         self.user_defined_components = Objects(self, "u")
@@ -403,9 +404,8 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
-        >>> oEditor = oDesign.SetActiveEditor("3D Modeler")"""
-
+        >>> oEditor = oDesign.SetActiveEditor("3D Modeler")
+        """
         return self._app.oeditor
 
     @property
@@ -423,11 +423,21 @@ class GeometryModeler(Modeler):
     def model_units(self):
         """Model units as a string. For example, ``"mm"``.
 
+        This property allows you to get or set the model units. When setting the model units,
+        you can specify whether to rescale the model by adjusting the ``rescale_model`` attribute.
+
         References
         ----------
-
         >>> oEditor.GetModelUnits
         >>> oEditor.SetModelUnits
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import hfss
+        >>> hfss = Hfss()
+        >>> hfss.modeler.model_units = "cm"
+        >>> hfss.modeler.rescale_model = True
+        >>> hfss.modeler.model_units = "mm"
         """
         if not self._model_units:
             self._model_units = self.oeditor.GetModelUnits()
@@ -436,7 +446,7 @@ class GeometryModeler(Modeler):
     @model_units.setter
     def model_units(self, units):
         assert units in AEDT_UNITS["Length"], f"Invalid units string {units}."
-        self.oeditor.SetModelUnits(["NAME:Units Parameter", "Units:=", units, "Rescale:=", False])
+        self.oeditor.SetModelUnits(["NAME:Units Parameter", "Units:=", units, "Rescale:=", self.rescale_model])
         self._model_units = units
 
     @property
@@ -445,7 +455,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetSelections
         """
         return self.oeditor.GetSelections()
@@ -456,7 +465,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetModelBoundingBox
         """
         return self.oeditor.GetModelBoundingBox()
@@ -472,7 +480,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oDesign.Is2D
         """
         try:
@@ -492,7 +499,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oDesign.GetDesignType
         """
         return self._app.design_type
@@ -503,7 +509,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oDesign.GetGeometryMode"""
         return self._odesign.GetGeometryMode()
 
@@ -521,7 +526,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetObjectsInGroup
         """
         if self.dimension == "3D":
@@ -1412,6 +1416,7 @@ class GeometryModeler(Modeler):
         ----------
         assignment : str, int
             Sheet object to cover.
+
         Returns
         -------
         bool
@@ -1419,7 +1424,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CoverLines
         """
         obj_to_cover = self.convert_to_selections(assignment, False)
@@ -1586,9 +1590,7 @@ class GeometryModeler(Modeler):
         Returns
         -------
         :class:`ansys.aedt.core.modeler.Modeler.FaceCoordinateSystem`
-
         """
-
         if name:
             cs_names = [i.name for i in self.coordinate_systems]
             if name in cs_names:  # pragma: no cover
