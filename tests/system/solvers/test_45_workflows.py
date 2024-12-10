@@ -581,7 +581,10 @@ class TestClass:
         from ansys.aedt.core.workflows.templates.template_get_started import main
 
         assert main({"is_test": True, "origin_x": 2})
-
         assert len(aedtapp.modeler.object_list) == 1
+
+        file_path = os.path.join(solver_local_path, "example_models", "T00", "test_solve.aedt")
+        assert main({"is_test": True, "file_path": file_path})
+        assert len(aedtapp.project_list) == 2
 
         aedtapp.close_project(aedtapp.project_name)
