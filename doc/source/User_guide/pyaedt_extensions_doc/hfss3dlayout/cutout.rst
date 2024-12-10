@@ -33,7 +33,6 @@ Using the extension
    - **Reference nets**: A button to apply selected reference nets.
    - **Expansion factor**: A text box to define the expansion factor for the cutout (in mm).
    - **Fix disjoint nets**: A checkbox to enable or disable fixing of disjoint nets.
-
 4. Select the desired options and click **Create Cutout** to generate the cutout.
 
 

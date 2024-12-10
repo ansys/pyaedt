@@ -100,6 +100,13 @@ They are small automated workflows with a simple UI.
 
             Export layout.
 
+   .. grid-item-card:: Export to 3D
+            :link: pyaedt_extensions_doc/hfss3dlayout/export_3d
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Export layout to 3D.
+
 
 HFSS extensions
 ~~~~~~~~~~~~~~~

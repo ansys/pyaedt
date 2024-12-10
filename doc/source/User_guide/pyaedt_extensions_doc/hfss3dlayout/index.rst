@@ -37,3 +37,10 @@ HFSS 3D Layout extensions
             :margin: 2 2 0 0
 
             Export layout.
+
+   .. grid-item-card:: Export to 3D
+            :link: export_3d
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Export layout to 3D.
