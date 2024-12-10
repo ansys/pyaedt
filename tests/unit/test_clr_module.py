@@ -27,6 +27,7 @@ from pathlib import Path
 import sys
 from unittest.mock import MagicMock
 from unittest.mock import patch
+import warnings
 
 from ansys.aedt.core import DOTNET_LINUX_WARNING
 import pytest
@@ -75,21 +76,20 @@ def test_use_system_dotnet(mock_get_coreclr, mock_load, clean_environment):
 @patch("dotnetcore2.__file__", new=DOTNETCORE2_FILE)
 @patch("pythonnet.load")
 @patch("clr_loader.get_coreclr", side_effect=Exception("Dummy exception"))
-def test_use_dotnetcore2(mock_get_coreclr, mock_load, clean_environment, capsys):
+@patch.object(warnings, "warn")
+def test_use_dotnetcore2(mock_warn, mock_get_coreclr, mock_load, clean_environment):
     import ansys.aedt.core.generic.clr_module as cm
-
-    captured = capsys.readouterr()
 
     assert cm.is_clr
     assert DOTNETCORE2_BIN == os.environ["DOTNET_ROOT"]
-    assert DOTNET_LINUX_WARNING in captured.out
+    mock_warn.assert_any_call(DOTNET_LINUX_WARNING)
 
 
 @pytest.mark.skipif(os.name != "posix", reason="test for linux behavior")
 @patch("dotnetcore2.__file__", new=DOTNETCORE2_FILE)
 @patch("pythonnet.load")
 @patch("clr_loader.find_runtimes", return_value=[])
-def test_use_dotnet_root_env_variable_failure(mock_find_runtimes, mock_load, clean_environment, capsys):
+def test_use_dotnet_root_env_variable_failure(mock_find_runtimes, mock_load, clean_environment):
     os.environ["DOTNET_ROOT"] = DOTNET_ROOT
 
     with pytest.raises(RuntimeError):
@@ -99,23 +99,23 @@ def test_use_dotnet_root_env_variable_failure(mock_find_runtimes, mock_load, cle
 @pytest.mark.skipif(os.name != "posix", reason="test for linux behavior")
 @patch("dotnetcore2.__file__", new=DOTNETCORE2_FILE)
 @patch("pythonnet.load")
-def test_use_dotnet_root_env_variable_success_dotnetcore2(mock_load, clean_environment, capsys):
+@patch.object(warnings, "warn")
+def test_use_dotnet_root_env_variable_success_dotnetcore2(mock_warn, mock_load, clean_environment, capsys):
     os.environ["DOTNET_ROOT"] = DOTNETCORE2_BIN
 
     import ansys.aedt.core.generic.clr_module as cm
 
-    captured = capsys.readouterr()
-
     assert cm.is_clr
     assert DOTNETCORE2_BIN == os.environ["DOTNET_ROOT"]
-    assert DOTNET_LINUX_WARNING not in captured.out
+    assert all(DOTNET_LINUX_WARNING not in call.args for call in mock_warn.call_args_list)
+    exit([call for call in mock_warn.call_args_list])
 
 
 @pytest.mark.skipif(os.name != "posix", reason="test for linux behavior")
 @patch("dotnetcore2.__file__", new=DOTNETCORE2_FILE)
 @patch("pythonnet.load")
 @patch("clr_loader.find_runtimes")
-def test_use_dotnet_root_env_variable_success(mock_find_runtimes, mock_load, clean_environment, capsys):
+def test_use_dotnet_root_env_variable_success(mock_find_runtimes, mock_load, clean_environment):
     os.environ["DOTNET_ROOT"] = DOTNET_ROOT
     mock_runtime = MagicMock()
     mock_runtime.name = "Microsoft.NETCore.App"
