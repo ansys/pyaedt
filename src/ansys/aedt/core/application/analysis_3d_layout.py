@@ -147,7 +147,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         Returns
         -------
-        :class:`ansys.aedt.core.visualization.post.post_processor`
+        :class:`ansys.aedt.core.visualization.post.post_3dlayout.PostProcessor3DLayout`
             PostProcessor object.
         """
         if self._post is None and self._odesign:

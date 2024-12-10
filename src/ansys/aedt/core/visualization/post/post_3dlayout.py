@@ -47,7 +47,7 @@ class PostProcessor3DLayout(PostProcessor3D):
         PostProcessor3D.__init__(self, app)
 
     @pyaedt_function_handler
-    def _compute_power_loss(self, solution=None):
+    def _compute_power_loss(self, net_filter=None, layer_filter=None, solution=None):
         if solution is None:
             for setup in self._app.setups:
                 if setup.solver_type == "SIwaveDCIR":
@@ -95,15 +95,23 @@ class PostProcessor3DLayout(PostProcessor3D):
                     net_name = i.lstrip(" ").split(" ")[1]
                     nets.append(net_name)
 
+        if net_filter is not None:
+            nets = [i for i in nets if i in net_filter]
+
         edbapp = self._app.modeler.edb
-        net_per_layer_names = {i: [] for i in edbapp.stackup.signal_layers.keys()}
+
+        if layer_filter is None:
+            net_per_layer_names = {i: [] for i in edbapp.stackup.signal_layers.keys()}
+        else:
+            net_per_layer_names = {i: [] for i in edbapp.stackup.signal_layers.keys() if i in layer_filter}
 
         for net_name in nets:
             net_obj = edbapp.nets[net_name]
             layer_names = [i.layer_name for i in net_obj.primitives]
             layer_names = list(set(layer_names))
             for i in layer_names:
-                net_per_layer_names[i].append(net_name)
+                if i in net_per_layer_names:
+                    net_per_layer_names[i].append(net_name)
 
         power_loss_per_layer = []
         operations = []
@@ -148,12 +156,14 @@ class PostProcessor3DLayout(PostProcessor3D):
         return power_loss_per_layer
 
     @pyaedt_function_handler()
-    def compute_power_by_layer(self, solution=None):
+    def compute_power_by_layer(self, layers=None, solution=None):
         """Computes the power by layer. This applies only to SIwave DC Analysis.
 
         Parameters
         ----------
-        solution : str
+        layers : list, optional
+            Layers to include in power calculation.
+        solution : str, optional
             SIwave DCIR solution.
 
         Returns
@@ -162,7 +172,7 @@ class PostProcessor3DLayout(PostProcessor3D):
             Power by layer.
         """
         power_by_layers = {}
-        power_loss = self._compute_power_loss(solution)
+        power_loss = self._compute_power_loss(layer_filter=layers, solution=solution)
         for i in power_loss:
             layer_name = i["layer"]
             loss = i["loss"]
@@ -173,12 +183,14 @@ class PostProcessor3DLayout(PostProcessor3D):
         return power_by_layers
 
     @pyaedt_function_handler()
-    def compute_power_by_net(self, solution=None):
+    def compute_power_by_net(self, nets=None, solution=None):
         """Computes the power by nets. This applies only to SIwave DC Analysis.
 
         Parameters
         ----------
-        solution : str
+        nets : list, optional
+            Layers to include in power calculation.
+        solution : str, optional
             SIwave DCIR solution.
 
         Returns
@@ -187,7 +199,7 @@ class PostProcessor3DLayout(PostProcessor3D):
             Power by nets.
         """
         power_by_nets = {}
-        power_loss = self._compute_power_loss(solution)
+        power_loss = self._compute_power_loss(net_filter=nets, solution=solution)
         for i in power_loss:
             net_name = i["net"]
             loss = i["loss"]
