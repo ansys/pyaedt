@@ -301,14 +301,17 @@ class TestClass:
     def test_24_create_edge_cut(self):
         assert self.aedtapp.mesh.assign_edge_cut(["Coil"])
 
-    def test_24_density_control(self):
+    def test_24a_density_control(self):
         assert self.aedtapp.mesh.assign_density_control(["Coil"], maximum_element_length="2mm", layers_number="3")
 
-    def test_24_density_control(self):
+    def test_24b_density_control(self):
         assert self.aedtapp.mesh.assign_rotational_layer(["Coil"])
 
-    def test_25_assign_initial_mesh(self):
+    def test_25a_assign_initial_mesh(self):
         assert self.aedtapp.mesh.assign_initial_mesh_from_slider(4)
+
+    def test_25b_assign_initial_mesh(self):
+        assert self.aedtapp.mesh.assign_initial_mesh(surface_deviation="2mm")
 
     @pytest.mark.skipif(is_linux, reason="Crashing on Linux")
     def test_26_create_udp(self):
