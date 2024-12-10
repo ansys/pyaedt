@@ -118,7 +118,9 @@ class Standard(CommonReport):
 
     @property
     def time_windowing(self):
-        """Returns the TDR time windowing. Options are:
+        """Returns the TDR time windowing.
+
+        Options are:
             * ``0`` : Rectangular
             * ``1`` : Bartlett
             * ``2`` : Blackman

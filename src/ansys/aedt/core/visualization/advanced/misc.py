@@ -58,6 +58,7 @@ class BoxFacePointsAndFields(object):
         self.im = {"Ex": [], "Ey": [], "Ez": [], "Hx": [], "Hy": [], "Hz": []}
 
     def set_xyz_points(self, x, y, z):
+        """Set X, Y, Z coordinates."""
         self.x = x
         self.y = y
         self.z = z
@@ -75,6 +76,7 @@ class BoxFacePointsAndFields(object):
             print("Error in set_field_component function.")
 
     def fill_empty_data(self):
+        """Fill empty data with zeros."""
         for el, val in self.re.items():
             if not val:
                 zero_field_z_faces = [0] * len(self.x)
@@ -730,6 +732,7 @@ def simplify_stl(input_file, output_file=None, decimation=0.5, preview=False):
         original size and will remove 90% of the input triangles.
     preview : bool, optional
         Whether to preview the model in pyvista or skip it.
+
     Returns
     -------
     str
