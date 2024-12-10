@@ -87,8 +87,11 @@ class TestClass:
         self.m2d_circuit = m2d_circuit
         self.local_scratch = local_scratch
 
-    def test_03_assign_initial_mesh_from_slider(self):
+    def test_03a_assign_initial_mesh_from_slider(self):
         assert self.aedtapp.mesh.assign_initial_mesh_from_slider(4)
+
+    def test_03b_assign_initial_mesh(self):
+        assert self.aedtapp.mesh.assign_initial_mesh(surface_deviation="2mm")
 
     def test_04_create_winding(self):
         bounds = self.aedtapp.assign_winding(assignment=["Coil"], current=20e-3)

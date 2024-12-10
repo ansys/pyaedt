@@ -902,8 +902,12 @@ class TestClass:
         mesh.delete()
         assert len(self.aedtapp.mesh.meshoperations) == 2
 
-    def test_30_assign_initial_mesh(self):
+    def test_30a_assign_initial_mesh(self):
         assert self.aedtapp.mesh.assign_initial_mesh_from_slider(6)
+
+    def test_03b_assign_initial_mesh(self):
+        assert self.aedtapp.mesh.assign_initial_mesh()
+        assert self.aedtapp.mesh.assign_initial_mesh(normal_deviation="25deg", surface_deviation=0.2, aspect_ratio=20)
 
     def test_30a_add_mesh_link(self):
         design_name = self.aedtapp.design_name
