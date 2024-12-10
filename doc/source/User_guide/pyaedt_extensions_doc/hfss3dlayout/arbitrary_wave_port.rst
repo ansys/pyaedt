@@ -13,7 +13,7 @@ Features
 
 The following image shows the extension user interface:
 
-.. image:: ../../../_static/extensions/arbitrary_wave_port_ui.png
+.. image:: ../../../_static/extensions/arbitrary_waveport_ui.png
   :width: 800
   :alt: Arbitrary Wave Port Creator UI
 
