@@ -12,19 +12,7 @@ The following image shows the extension user interface:
   :alt: Import schematic UI
 
 
-Supported File Types
---------------------
-
-The following schematic file formats are supported:
-- **.asc**: LTSpice schematic files
-- **.sp**: SPICE netlist files
-- **.cir**: Circuit schematic files
-- **.qcv**: QCV-specific files
-
-Each file type can be imported using the user interface or through the command line.
-Ensure that the file exists at the specified path and is properly formatted.
-
-Using the Extension
+Using the extension
 --------------------
 
 1. Open the **Automation** tab in the Circuit interface.
@@ -36,7 +24,7 @@ Using the Extension
 4. Toggle between light and dark themes using the button in the bottom-right corner.
 
 
-Command Line
+Command line
 ------------
 
 You can also launch the extension directly from the terminal.
@@ -54,3 +42,16 @@ Use the following command syntax:
    :maxdepth: 2
 
    ../commandline
+
+
+Supported file types
+--------------------
+
+The following schematic file formats are supported:
+- **.asc**: LTSpice schematic files
+- **.sp**: SPICE netlist files
+- **.cir**: Circuit schematic files
+- **.qcv**: QCV-specific files
+
+Each file type can be imported using the user interface or through the command line.
+Ensure that the file exists at the specified path and is properly formatted.
