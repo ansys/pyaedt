@@ -385,10 +385,11 @@ class TestClass:
             context="RL",
         )
         assert isinstance(self.dcir_example_project.get_dcir_element_data_current_source("SIwaveDCIR1"), pd.DataFrame)
-        p_layers = self.dcir_example_project.post.compute_power_by_layer()
-        p_nets = self.dcir_example_project.post.compute_power_by_nets(nets=["5V", "GND"])
-        assert p_nets
-        assert p_layers
+        assert self.dcir_example_project.post.compute_power_by_layer()
+        assert self.dcir_example_project.post.compute_power_by_layer(layers=["1_Top"])
+        assert self.dcir_example_project.post.compute_power_by_net()
+        assert self.dcir_example_project.post.compute_power_by_net(nets=["5V", "GND"])
+        assert self.dcir_example_project.post.compute_power_by_layer(solution="SIwaveDCIR1")
 
     def test_20_change_options(self):
         assert self.aedtapp.change_options()
