@@ -23,7 +23,7 @@
 
 # Extension template to help get started
 
-import os
+from pathlib import Path
 
 import ansys.aedt.core
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
@@ -73,7 +73,7 @@ def frontend():
     master.flag = False
 
     # Load the logo for the main window
-    icon_path = os.path.join(ansys.aedt.core.workflows.__path__[0], "images", "large", "logo.png")
+    icon_path = Path(ansys.aedt.core.workflows.__path__[0], "images", "large", "logo.png")
     im = PIL.Image.open(icon_path)
     photo = PIL.ImageTk.PhotoImage(im)
 
