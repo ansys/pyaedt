@@ -41,7 +41,6 @@ from ansys.aedt.core.workflows.misc import is_student
 import numpy as np
 import pyvista as pv
 
-
 port = get_port()
 version = get_aedt_version()
 aedt_process_id = get_process_id()
@@ -56,6 +55,7 @@ def save_point_cloud_to_csv(pcd, csv_file):
         for point in points:
             writer.writerow(point / 1000)
 
+
 def CAD_to_point_cloud(obj_file, num_points=10):
     # Load the mesh
     mesh = pv.read(obj_file)
@@ -64,7 +64,7 @@ def CAD_to_point_cloud(obj_file, num_points=10):
     mesh = mesh.triangulate()
 
     # Get the areas of each triangle
-    triangle_areas = mesh.compute_cell_sizes()['Area']
+    triangle_areas = mesh.compute_cell_sizes()["Area"]
 
     # Normalize the areas to get probabilities
     probabilities = triangle_areas / triangle_areas.sum()
@@ -94,9 +94,8 @@ def CAD_to_point_cloud(obj_file, num_points=10):
 # Function to visualize the point cloud
 def visualize_point_cloud(point_cloud):
     plotter = pv.Plotter()
-    plotter.add_mesh(point_cloud, color='white', point_size=5, render_points_as_spheres=True)
+    plotter.add_mesh(point_cloud, color="white", point_size=5, render_points_as_spheres=True)
     plotter.show()
-
 
 
 # Function to generate a random alphanumeric sequence
@@ -120,8 +119,8 @@ class PointCloudApp:
         self.icon_img = ImageTk.PhotoImage(self.icon_img)
         self.root.iconphoto(False, self.icon_img)
 
-        #self.init_hfss()
-        #self.create_ui()
+        # self.init_hfss()
+        # self.create_ui()
 
     def init_hfss(self):
 
