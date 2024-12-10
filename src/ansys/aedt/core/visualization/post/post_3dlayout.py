@@ -21,6 +21,9 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+import re
+from pathlib import Path
+
 from ansys.aedt.core import settings
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
