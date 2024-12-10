@@ -155,3 +155,5 @@ if "win32com" in modules:
             import win32com.client as win32_client
         except ImportError:
             win32_client = None
+
+warnings.showwarning = existing_showwarning
