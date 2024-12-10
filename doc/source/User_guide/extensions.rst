@@ -112,6 +112,19 @@ They are small automated workflow with a simple UI.
             Import a CSV file containing sources layout and power dissipation information.
 
 
+Templates
+~~~~~~~~~
+Templates to show how to build an extension consisting of a small automated workflow with a simple UI.
+
+.. grid:: 2
+
+   .. grid-item-card:: Extension template
+            :link: pyaedt_extensions_doc/templates/getting_started
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Simple extension template to get started.
+
 .. toctree::
    :hidden:
    :maxdepth: 1
@@ -120,6 +133,7 @@ They are small automated workflow with a simple UI.
    pyaedt_extensions_doc/hfss3dlayout/index
    pyaedt_extensions_doc/hfss/index
    pyaedt_extensions_doc/icepak/index
+   pyaedt_extensions_doc/templates/index
 
 
 Open source toolkits
