@@ -1,5 +1,5 @@
-Conver to circuit
-=================
+Convert to circuit
+==================
 
 The extension allows users to create a circuit design
 from a Twin Builder design by mapping components from Twin Builder to circuit components.

@@ -19,7 +19,7 @@ Using the extension
 1. Open the **Automation** tab in the Circuit interface.
 2. Locate and click the **Import Schematic** icon under the Extension Manager.
 3. In the user interface:
-   - Browse for a supported schematic file by clicking the "..." button.
+   - Browse for a supported schematic file.
    - Select the file and ensure its path appears in the text field.
    - Click **Import** to load the schematic into Circuit.
 4. Toggle between light and dark themes using the button in the bottom-right corner.
@@ -49,7 +49,7 @@ Supported file types
 --------------------
 
 The following schematic file formats are supported:
-- **.asc**: LTSpice schematic files
+- **.asc**: Schematic files
 - **.sp**: SPICE netlist files
 - **.cir**: Circuit schematic files
 - **.qcv**: QCV-specific files

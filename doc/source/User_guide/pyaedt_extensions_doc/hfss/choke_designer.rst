@@ -46,9 +46,6 @@ Command line
 
 The extension can also be used directly via the command line for batch processing.
 
-Supported arguments include:
-
-- **choke_config**: Specifies the path to a `.json` file containing choke configuration parameters.
 
 Use the following syntax to run the extension:
 
