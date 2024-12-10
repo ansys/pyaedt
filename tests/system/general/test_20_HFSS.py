@@ -1537,18 +1537,18 @@ class TestClass:
         reason="Not working in non graphical before version 2024.2",
     )
     @pytest.mark.parametrize(
-        ("dxf_file", "object_count"),
+        ("dxf_file", "object_count", "self_stitch_tolerance"),
         (
-            (os.path.join(TESTS_GENERAL_PATH, "example_models", "cad", "DXF", "dxf2.dxf"), 1),
-            (os.path.join(TESTS_GENERAL_PATH, "example_models", "cad", "DXF", "old_dxf.dxf"), 4),
+            (os.path.join(TESTS_GENERAL_PATH, "example_models", "cad", "DXF", "dxf2.dxf"), 1, 0.0),
+            (os.path.join(TESTS_GENERAL_PATH, "example_models", "cad", "DXF", "dxf_r12.dxf"), 4, -1),
         ),
     )
-    def test_64_import_dxf(self, dxf_file: str, object_count: int):
+    def test_64_import_dxf(self, dxf_file: str, object_count: int, self_stitch_tolerance: float):
         design_name = self.aedtapp.insert_design("test_64_import_dxf")
         self.aedtapp.set_active_design(design_name)
         dxf_layers = self.aedtapp.get_dxf_layers(dxf_file)
         assert isinstance(dxf_layers, list)
-        assert self.aedtapp.import_dxf(dxf_file, dxf_layers, self_stitch_tolerance=-1)
+        assert self.aedtapp.import_dxf(dxf_file, dxf_layers, self_stitch_tolerance=self_stitch_tolerance)
         assert len(self.aedtapp.modeler.objects) == object_count
 
     def test_65_component_array(self, add_app):
