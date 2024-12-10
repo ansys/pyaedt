@@ -39,7 +39,8 @@ from ansys.aedt.core.workflows.misc import get_port
 from ansys.aedt.core.workflows.misc import get_process_id
 from ansys.aedt.core.workflows.misc import is_student
 import numpy as np
-import open3d as o3d
+import pyvista as pv
+
 
 port = get_port()
 version = get_aedt_version()
@@ -55,17 +56,47 @@ def save_point_cloud_to_csv(pcd, csv_file):
         for point in points:
             writer.writerow(point / 1000)
 
+def CAD_to_point_cloud(obj_file, num_points=10):
+    # Load the mesh
+    mesh = pv.read(obj_file)
 
-# Function to convert CAD to point cloud
-def CAD_to_point_cloud(obj_file, num_points=1000):
-    mesh = o3d.io.read_triangle_mesh(obj_file)
-    pcd = mesh.sample_points_poisson_disk(num_points)
-    return pcd
+    # Ensure the mesh is triangulated
+    mesh = mesh.triangulate()
+
+    # Get the areas of each triangle
+    triangle_areas = mesh.compute_cell_sizes()['Area']
+
+    # Normalize the areas to get probabilities
+    probabilities = triangle_areas / triangle_areas.sum()
+
+    # Randomly sample triangles based on area
+    sampled_triangle_indices = np.random.choice(len(probabilities), size=num_points, p=probabilities)
+
+    # Get the vertices of the sampled triangles
+    sampled_points = []
+    for idx in sampled_triangle_indices:
+        triangle = mesh.extract_cells(idx)
+        vertices = triangle.points
+        # Sample a random point inside the triangle using barycentric coordinates
+        r1, r2 = np.random.rand(2)
+        sqrt_r1 = np.sqrt(r1)
+        u = 1 - sqrt_r1
+        v = r2 * sqrt_r1
+        w = 1 - u - v
+        random_point = u * vertices[0] + v * vertices[1] + w * vertices[2]
+        sampled_points.append(random_point)
+
+    # Create a point cloud from the sampled points
+    point_cloud = pv.PolyData(np.array(sampled_points))
+    return point_cloud
 
 
 # Function to visualize the point cloud
-def visualize_point_cloud(pcd):
-    o3d.visualization.draw_geometries([pcd])
+def visualize_point_cloud(point_cloud):
+    plotter = pv.Plotter()
+    plotter.add_mesh(point_cloud, color='white', point_size=5, render_points_as_spheres=True)
+    plotter.show()
+
 
 
 # Function to generate a random alphanumeric sequence
@@ -89,8 +120,8 @@ class PointCloudApp:
         self.icon_img = ImageTk.PhotoImage(self.icon_img)
         self.root.iconphoto(False, self.icon_img)
 
-        self.init_hfss()
-        self.create_ui()
+        #self.init_hfss()
+        #self.create_ui()
 
     def init_hfss(self):
 
@@ -121,6 +152,8 @@ class PointCloudApp:
             raise ValueError(
                 "No solids or sheets are defined in this design. Please add them and run the script again!"
             )
+
+        return True
 
     def create_ui(self):
         # Dropdown label
@@ -172,7 +205,7 @@ class PointCloudApp:
             if num_points <= 0:
                 raise ValueError("Number of points must be greater than zero.")
 
-            obj_file = str(self.aedt.project_path) + str(selected_item) + ".obj"  # path to OBJ file
+            obj_file = os.path.join(self.aedt.project_path, str(selected_item) + ".obj")
 
             # Export the mesh and generate point cloud
             self.aedt.modeler.oeditor.ExportModelMeshToFile(obj_file, [selected_item])
@@ -193,7 +226,7 @@ class PointCloudApp:
             if num_points <= 0:
                 raise ValueError("Number of points must be greater than zero.")
 
-            obj_file = str(self.aedt.project_path) + str(selected_item) + ".obj"  # path to OBJ file
+            obj_file = os.path.join(self.aedt.project_path, str(selected_item) + ".obj")  # path to OBJ file
 
             # Export the mesh and generate point cloud
             self.aedt.modeler.oeditor.ExportModelMeshToFile(obj_file, [selected_item])
@@ -218,6 +251,7 @@ class PointCloudApp:
             )
 
             messagebox.showinfo("Success", "Point cloud generated and added to HFSS.")
+            return True
         except Exception as e:
             messagebox.showerror("Error", str(e))
 
@@ -225,4 +259,6 @@ class PointCloudApp:
 if __name__ == "__main__":
     root = tk.Tk()
     app = PointCloudApp(root)
+    app.init_hfss()
+    app.create_ui()
     root.mainloop()
