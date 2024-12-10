@@ -25,7 +25,7 @@ The following image shows the extension user interface:
 Using the extension
 -------------------
 
-1. Open the **Automation** tab in the HFSS interface.
+1. Open the **Automation** tab in the HFSS 3D Layout interface.
 2. Locate and click the **Layout Cutout** icon under the Extension Manager.
 3. The main window displays the following elements:
    - **Cutout type**: A dropdown menu to select the desired cutout type (e.g., ConvexHull, Bounding, Conforming).
