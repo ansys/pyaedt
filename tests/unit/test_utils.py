@@ -266,4 +266,3 @@ def test_write_toml(tmp_path):
     _create_toml_file(TOML_DATA, file_path)
 
     assert file_path.exists()
-
