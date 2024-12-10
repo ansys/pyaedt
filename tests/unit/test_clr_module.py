@@ -108,7 +108,6 @@ def test_use_dotnet_root_env_variable_success_dotnetcore2(mock_warn, mock_load, 
     assert cm.is_clr
     assert DOTNETCORE2_BIN == os.environ["DOTNET_ROOT"]
     assert all(DOTNET_LINUX_WARNING not in call.args for call in mock_warn.call_args_list)
-    exit([call for call in mock_warn.call_args_list])
 
 
 @pytest.mark.skipif(os.name != "posix", reason="test for linux behavior")
