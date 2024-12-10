@@ -245,7 +245,7 @@ class Sources(object):
         for source_name in self._app.sources:
             excitation_source = []
             for port in self._app.excitations:
-                self._app.excitation_objects[port]._props
+                # self._app.excitation_objects[port]._props
                 if source_name in self._app.excitation_objects[port]._props["EnabledPorts"]:
                     excitation_source.append(port)
             arg3.append(source_name + ":=")

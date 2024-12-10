@@ -1420,7 +1420,7 @@ class BinaryTreeNode:
             elif not i.startswith("OperandPart_"):
                 try:
                     self.children[i] = BinaryTreeNode(i, self.child_object.GetChildObject(i), root_name=saved_root_name)
-                except Exception:
+                except Exception:  # nosec
                     pass
             else:
                 names = self.child_object.GetChildObject(i).GetChildNames()

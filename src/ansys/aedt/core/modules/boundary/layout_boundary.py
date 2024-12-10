@@ -1147,15 +1147,15 @@ class PCBSettingsDeviceParts(object):
         return self.filters.get("Exclude2DObjects", False)
 
     @objects_2d_filter.setter
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(filter="enable")
     @disable_auto_update
-    def objects_2d_filter(self, filter):
+    def objects_2d_filter(self, enable):
         """Set whether 2d objects are filtered.
 
         Parameters
         ----------
-        filter : bool
-            Whether 2d objects are filtered
+        enable : bool
+            Whether 2d objects are filtered.
         """
         if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
             self._app.logger.error(
@@ -1165,8 +1165,8 @@ class PCBSettingsDeviceParts(object):
         new_filters = self.pcb.props["NativeComponentDefinitionProvider"].get("Filters", [])
         if "HeightExclude2D" in new_filters:
             new_filters.remove("HeightExclude2D")
-        if filter:
-            new_filters.append("HeightExclude2D")
+        if enable:
+            new_filters.append(enable)
         self.pcb.props["NativeComponentDefinitionProvider"]["Filters"] = new_filters
 
     @property
