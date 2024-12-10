@@ -113,13 +113,14 @@ class TouchstoneData(rf.Network):
 
     @pyaedt_function_handler()
     def get_insertion_loss_index(self, threshold=-3):
-        """Get all insertion losses. The first frequency point is used to determine whether two
-        ports are shorted.
+        """Get all insertion losses.
+
+        The first frequency point is used to determine whether two ports are shorted.
 
         Parameters
         ----------
         threshold : float, int, optional
-            Threshold to determine shorted ports in dB.
+            Threshold to determine shorted ports in dB. Default value is ``3``.
 
         Returns
         -------
@@ -141,13 +142,14 @@ class TouchstoneData(rf.Network):
         return temp_list
 
     def plot_insertion_losses(self, threshold=-3, plot=True):
-        """Plot all insertion losses. The first frequency point is used to determine whether two
-        ports are shorted.
+        """Plot all insertion losses.
+
+        The first frequency point is used to determine whether two ports are shorted.
 
         Parameters
         ----------
         threshold : float, int, optional
-            Threshold to determine shorted ports in dB.
+            Threshold to determine shorted ports in dB. Default value is ``3``.
         plot : bool, optional
             Whether to plot. The default is ``True``.
 
@@ -177,7 +179,6 @@ class TouchstoneData(rf.Network):
         -------
         :class:`matplotlib.plt`
         """
-
         if not index_couples:
             index_couples = self.port_tuples[:]
 
@@ -249,7 +250,7 @@ class TouchstoneData(rf.Network):
 
     @pyaedt_function_handler()
     def get_return_loss_index(self, excitation_name_prefix=""):
-        """Get the list of all the Returnloss from a list of exctitations.
+        """Get the list of all the Returnloss from a list of excitations.
 
         If no excitation is provided it will provide a full list of return losses.
 
@@ -258,9 +259,8 @@ class TouchstoneData(rf.Network):
 
         Parameters
         ----------
-
-        excitation_name_prefix :
-             (Default value = '')
+        excitation_name_prefix :str, optional
+            Prefix of the excitation. Default value is ``""``.
 
         Returns
         -------
@@ -306,20 +306,20 @@ class TouchstoneData(rf.Network):
 
     @pyaedt_function_handler()
     def get_next_xtalk_index(self, tx_prefix=""):
-        """Get the list of all the Near End XTalk a list of excitation. Optionally prefix can
-        be used to retrieve driver names.
+        """Get the list of all the Near End XTalk a list of excitation.
+
+        Optionally prefix can be used to retrieve driver names.
         Example: excitation_names ["1", "2", "3"] output ["S(1,2)", "S(1,3)", "S(2,3)"].
 
         Parameters
         ----------
-        tx_prefix :
-            prefix for TX (eg. "DIE") (Default value = "")
+        tx_prefix :str, optional
+            Prefix for TX (eg. "DIE"). Default value is ``""``.
 
         Returns
         -------
         list
             List of index couples representing Near End XTalks.
-
         """
         if tx_prefix:
             trlist = [i for i in self.port_names if tx_prefix in i]
@@ -335,7 +335,7 @@ class TouchstoneData(rf.Network):
 
     @pyaedt_function_handler()
     def get_fext_xtalk_index_from_prefix(self, tx_prefix, rx_prefix, skip_same_index_couples=True):
-        """Get the list of all the Far End XTalk from a list of exctitations and a prefix that will
+        """Get the list of all the Far End XTalk from a list of excitations and a prefix that will
         be used to retrieve driver and receivers names.
         If skip_same_index_couples is true, the tx and rx with same index
         position will be considered insertion losses and excluded from the list.
@@ -353,7 +353,6 @@ class TouchstoneData(rf.Network):
         -------
         list
             List of index couples representing Far End XTalks.
-
         """
         trlist = [i for i in self.port_names if tx_prefix in i]
         reclist = [i for i in self.port_names if rx_prefix in i]
@@ -369,6 +368,9 @@ class TouchstoneData(rf.Network):
 
         Parameters
         ----------
+        tx_prefix: str, optional
+            Prefix for TX. Default value is ``""``.
+
         Returns
         -------
         bool
@@ -386,10 +388,10 @@ class TouchstoneData(rf.Network):
         Parameters
         ----------
         tx_prefix : str
-            prefix for TX (eg. "DIE")
+            Prefix for TX (eg. "DIE").
         rx_prefix : str
-            prefix for RX (eg. "BGA")
-        skip_same_index_couples : bool
+            Prefix for RX (eg. "BGA").
+        skip_same_index_couples : bool, optional
             Boolean ignore TX and RX couple with same index. The default value is ``True``.
 
         Returns
@@ -426,9 +428,7 @@ class TouchstoneData(rf.Network):
         -------
         tuple
             Worst element, dictionary of ordered expression.
-
         """
-
         return_loss_freq = [float(i.center) for i in list(self.frequency)]
         if not freq_min:
             lower_id = 0
@@ -492,7 +492,7 @@ def check_touchstone_files(input_dir="", passivity=True, causality=True):
         Whether the causality check is enabled. The default is ``True``.
 
     Returns
-    ----------
+    -------
     dict
         Dictionary with the SNP file name as the key and a list if the passivity and/or causality checks are enabled.
         The first element in the list is a str with ``"passivity"`` or ``"causality"`` as a value. The second element
@@ -560,7 +560,7 @@ def find_touchstone_files(input_dir):
         Folder path. The default is ``""``.
 
     Returns
-    ----------
+    -------
     dict
         Dictionary with the SNP file names as the key and the absolute path as the value.
     """

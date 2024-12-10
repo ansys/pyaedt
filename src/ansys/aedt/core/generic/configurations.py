@@ -1714,8 +1714,7 @@ class ConfigurationsIcepak(Configurations):
 
     @pyaedt_function_handler()
     def update_monitor(self, m_case, m_object, m_quantity, m_name):
-        """
-        Generic method for inserting monitor object
+        """Generic method for inserting monitor object
 
         Parameters
         ----------
@@ -1727,6 +1726,7 @@ class ConfigurationsIcepak(Configurations):
             Name or list of names of the quantity being monitored.
         m_name : str
             Name of the monitor object.
+
         Returns
         -------
         bool
