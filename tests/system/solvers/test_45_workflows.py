@@ -465,10 +465,6 @@ class TestClass:
         assert main({"is_test": True, "export_ipc": True, "export_configuration": True, "export_bom": True})
         app.close_project()
 
-    @pytest.mark.skipif(
-        TEST_REVIEW_FLAG,
-        reason="Test under review in 2024.2",
-    )
     def test_13_parametrize_layout(self, local_scratch):
         from ansys.aedt.core.workflows.hfss3dlayout.parametrize_edb import main
 
