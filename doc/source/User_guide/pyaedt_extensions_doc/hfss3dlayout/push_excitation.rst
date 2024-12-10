@@ -45,7 +45,7 @@ Supported arguments include:
 
 - **file_path**: Path to the excitation file.
 - **choice**: Name of the port to assign the excitation.
-- **is_batch**: Boolean flag to enable batch mode.
+- **is batch**: Boolean flag to enable batch mode.
 
 Use the following syntax to run the extension:
 

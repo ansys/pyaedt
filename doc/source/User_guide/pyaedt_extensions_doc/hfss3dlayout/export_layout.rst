@@ -46,10 +46,10 @@ The extension can also be used directly via the command line for batch processin
 Supported arguments include:
 
 
-- **export_ipc**: Boolean flag to export the IPC2581 file.
-- **export_configuration**: Boolean flag to export the configuration file.
-- **export_bom**: Boolean flag to export the BOM file.
-- **is_batch**: Boolean flag to enable batch mode (useful for automated workflows).
+- **export ipc**: Boolean flag to export the IPC2581 file.
+- **export configuration**: Boolean flag to export the configuration file.
+- **export bom**: Boolean flag to export the BOM file.
+- **is batch**: Boolean flag to enable batch mode (useful for automated workflows).
 
 Use the following syntax to run the extension:
 

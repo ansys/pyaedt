@@ -29,9 +29,9 @@ The extension can also be used directly via the command line for batch processin
 
 Supported arguments include:
 
-- **file_path**: The path to the CSV file that contains geometric and source data.
-- **is_batch**: Boolean flag to enable batch mode (set to `True` for batch processing).
-- **is_test**: Boolean flag to indicate if the operation is a test (set to `False` in production).
+- **file path**: The path to the CSV file that contains geometric and source data.
+- **is batch**: Boolean flag to enable batch mode (set to `True` for batch processing).
+- **is test**: Boolean flag to indicate if the operation is a test (set to `False` in production).
 
 Use the following syntax to run the extension in batch mode:
 

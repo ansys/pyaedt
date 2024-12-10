@@ -34,7 +34,7 @@ Using the extension
    - **Parametrize Traces**: A checkbox to enable parametrization of traces.
    - **Extend Polygons (mm)**: A text box to define the expansion size for polygons in mm.
    - **Extend Voids (mm)**: A text box to define the expansion size for voids in mm.
-   - **Select Nets**: A list box to select nets (or leave empty for all nets) that will be parametrized.
+   - **Select Nets**: A list box to select nets (or leave empty for all nets) that is parametrized.
 4. Select the desired options and click **Create Parametric Model** to generate the parametric model.
 
 
@@ -43,18 +43,18 @@ Command line
 
 Supported arguments include:
 
-- **aedb_path**: Path to the input AEDB file.
-- **design_name**: Name of the design in the AEDB file.
-- **parametrize_layers**: Boolean flag to enable parametrization of layers.
-- **parametrize_materials**: Boolean flag to enable parametrization of materials.
-- **parametrize_padstacks**: Boolean flag to enable parametrization of padstacks.
-- **parametrize_traces**: Boolean flag to enable parametrization of traces.
-- **nets_filter**: List of nets to apply parametrization to (leave empty for all nets).
-- **expansion_polygon_mm**: Expansion size for polygons in mm.
-- **expansion_void_mm**: Expansion size for voids in mm.
-- **relative_parametric**: Boolean flag to apply relative parameters.
-- **project_name**: Name for the new parametric project.
-- **is_batch**: Boolean flag to enable batch mode.
+- **aedb path**: Path to the input AEDB file.
+- **design name**: Name of the design in the AEDB file.
+- **parametrize layers**: Boolean flag to enable parametrization of layers.
+- **parametrize materials**: Boolean flag to enable parametrization of materials.
+- **parametrize padstacks**: Boolean flag to enable parametrization of padstacks.
+- **parametrize traces**: Boolean flag to enable parametrization of traces.
+- **nets filter**: List of nets to apply parametrization to (leave empty for all nets).
+- **expansion polygon mm**: Expansion size for polygons in mm.
+- **expansion void mm**: Expansion size for voids in mm.
+- **relative parametric**: Boolean flag to apply relative parameters.
+- **project name**: Name for the new parametric project.
+- **is batch**: Boolean flag to enable batch mode.
 
 Use the following syntax to run the extension:
 

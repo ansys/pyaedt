@@ -30,7 +30,7 @@ Using the extension
 3. Click **Export** to export the design.
 
 
-Command Line
+Command line
 ------------
 
 The extension can also be used directly via the command line for batch processing.
@@ -39,7 +39,7 @@ Supported arguments include:
 
 - **choice**: The export option to choose (`"Export to HFSS"`, `"Export to Q3D"`, `"Export to Maxwell 3D"`,
 or `"Export to Icepak"`).
-- **is_batch**: Boolean flag to indicate if the extension should run in batch mode.
+- **is batch**: Boolean flag to indicate if the extension should run in batch mode.
 
 Use the following syntax to run the extension:
 

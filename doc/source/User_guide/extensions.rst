@@ -249,7 +249,7 @@ The Python script requires a common initial part to define the port and the vers
     active_project = app.active_project()
     active_design = app.active_design(active_project)
 
-    # no need to hardcode you application but get_pyaedt_app will detect it for you
+    # no need to hardcode you application but get_pyaedt_app detects it for you
     aedtapp = ansys.aedt.core.get_pyaedt_app(design_name=active_design.GetName(), desktop=app)
 
     # your workflow

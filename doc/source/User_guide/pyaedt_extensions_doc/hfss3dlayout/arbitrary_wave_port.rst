@@ -38,8 +38,8 @@ Using the extension
 1. Open the **Automation** tab in the HFSS 3D Layout interface.
 2. Locate and click the **Layout Cutout** icon under the Extension Manager.
 3. The main window displays the following elements:
-   - **Working directory**: A text box to specify the directory where output files will be saved.
-   - **Source layout**: A text box to specify the source layout design file (e.g., PCB files).
+   - **Working directory**: A text box to specify the directory where output files is saved.
+   - **Source layout**: A text box to specify the source layout design file (PCB files).
    - **Mounting side**: A dropdown menu to select the mounting side (top or bottom) for the wave port.
    - **Import EDB**: A checkbox to enable or disable the import of EDB files for the layout.
    - **Theme toggle**: A button to switch between light and dark modes for the UI.
@@ -53,12 +53,12 @@ The extension can also be used directly via the command line for batch processin
 
 Supported arguments include:
 
-- **working_path**: The directory where output files are saved.
+- **working path**: The directory where output files are saved.
 - **source_path**: The path to the source layout design file.
-- **mounting_side**: The side to mount the wave port on ("top" or "bottom").
-- **import_edb**: Boolean flag to enable or disable EDB import.
-- **is_batch**: Boolean flag to enable batch mode (skip GUI).
-- **is_test**: Boolean flag to enable or disable test mode.
+- **mounting side**: The side to mount the wave port on ("top" or "bottom").
+- **import edb**: Boolean flag to enable or disable EDB import.
+- **is batch**: Boolean flag to enable batch mode (skip GUI).
+- **is test**: Boolean flag to enable or disable test mode.
 
 Use the following syntax to run the extension:
 
