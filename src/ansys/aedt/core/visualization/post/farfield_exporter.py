@@ -142,7 +142,6 @@ class FfdSolutionDataExporter:
     @pyaedt_function_handler()
     def export_farfield(self):
         """Export far field solution data of each element."""
-
         # Output directory
         exported_name_map = "element.txt"
         solution_setup_name = self.setup_name.replace(":", "_").replace(" ", "")

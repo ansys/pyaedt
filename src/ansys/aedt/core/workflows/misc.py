@@ -64,7 +64,6 @@ def is_student():
 
 def get_arguments(args=None, description=""):  # pragma: no cover
     """Get extension arguments."""
-
     output_args = {"is_batch": False, "is_test": False}
 
     if len(sys.argv) != 1:  # pragma: no cover
