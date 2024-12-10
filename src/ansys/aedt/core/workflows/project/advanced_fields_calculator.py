@@ -21,7 +21,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os.path
+from pathlib import Path
 
 import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
@@ -41,7 +41,7 @@ is_student = is_student()
 
 # Extension batch arguments
 extension_arguments = {"setup": "", "calculation": "", "assignment": []}
-extension_description = "Simplified use of Fields Calculator"
+extension_description = "Advanced fields calculator"
 
 
 def frontend():  # pragma: no cover
@@ -51,6 +51,7 @@ def frontend():  # pragma: no cover
 
     import PIL.Image
     import PIL.ImageTk
+    from ansys.aedt.core.workflows.misc import ExtensionTheme
 
     # Get ports
     app = ansys.aedt.core.Desktop(
@@ -73,15 +74,14 @@ def frontend():  # pragma: no cover
     aedtapp = get_pyaedt_app(project_name, design_name)
 
     # Load new expressions from file
-    current_directory = os.getcwd()
-    all_files = os.listdir(current_directory)
-    toml_files = [f for f in all_files if f.endswith(".toml")]
+    current_directory = Path.cwd()
+    toml_files = list(current_directory.glob("*.toml"))
     for toml_file in toml_files:
         aedtapp.post.fields_calculator.load_expression_file(toml_file)
 
     # Personal Lib directory
-    all_files = os.listdir(aedtapp.personallib)
-    toml_files = [os.path.join(aedtapp.personallib, f) for f in all_files if f.endswith(".toml")]
+    personal_lib_directory = Path(aedtapp.personallib)
+    toml_files = list(personal_lib_directory.glob("*.toml"))
     for toml_file in toml_files:
         aedtapp.post.fields_calculator.load_expression_file(toml_file)
 
@@ -106,12 +106,15 @@ def frontend():  # pragma: no cover
     # Create UI
     master = tkinter.Tk()
 
-    master.geometry("700x150")
+    master.geometry("800x200")
 
-    master.title("Advanced fields calculator")
+    master.title(extension_description)
+
+    # Detect if user closes the UI
+    master.flag = False
 
     # Load the logo for the main window
-    icon_path = os.path.join(ansys.aedt.core.workflows.__path__[0], "images", "large", "logo.png")
+    icon_path = Path(ansys.aedt.core.workflows.__path__[0]) / "images" / "large" / "logo.png"
     im = PIL.Image.open(icon_path)
     photo = PIL.ImageTk.PhotoImage(im)
 
@@ -120,59 +123,96 @@ def frontend():  # pragma: no cover
 
     # Configure style for ttk buttons
     style = ttk.Style()
-    style.configure("Toolbutton.TButton", padding=6, font=("Helvetica", 8))
+    theme = ExtensionTheme()
 
-    var = tkinter.StringVar()
-    label = tkinter.Label(master, textvariable=var)
-    var.set("Solved setup:")
+    # Apply light theme initially
+    theme.apply_light_theme(style)
+    master.theme = "light"
+
+    # Set background color of the window (optional)
+    master.configure(bg=theme.light["widget_bg"])
+
+    label = ttk.Label(master, text="Solved setup:", style="PyAEDT.TLabel")
     label.grid(row=0, column=0, pady=10, padx=15)
-    combo_setup = ttk.Combobox(master, width=30)
+
+    combo_setup = ttk.Combobox(master, width=30, style="PyAEDT.TCombobox")
     combo_setup["values"] = available_setups
     combo_setup.current(0)
     combo_setup.grid(row=0, column=1, pady=10, padx=10)
     combo_setup.focus_set()
 
-    var = tkinter.StringVar()
-    label = tkinter.Label(master, textvariable=var)
-    var.set("Calculations:")
+    label = ttk.Label(master, text="Calculations:", style="PyAEDT.TLabel")
     label.grid(row=1, column=0, pady=10, padx=15)
-    combo_calculation = ttk.Combobox(master, width=30)
+
+    combo_calculation = ttk.Combobox(master, width=30, style="PyAEDT.TCombobox")
     combo_calculation["values"] = list(available_descriptions.values())
     combo_calculation.current(0)
     combo_calculation.grid(row=1, column=1, pady=10, padx=10)
     combo_calculation.focus_set()
 
+    def toggle_theme():
+        if master.theme == "light":
+            set_dark_theme()
+            master.theme = "dark"
+        else:
+            set_light_theme()
+            master.theme = "light"
+
+    def set_light_theme():
+        master.configure(bg=theme.light["widget_bg"])
+        theme.apply_light_theme(style)
+        change_theme_button.config(text="\u263D")  # Sun icon for light theme
+
+    def set_dark_theme():
+        master.configure(bg=theme.dark["widget_bg"])
+        theme.apply_dark_theme(style)
+        change_theme_button.config(text="\u2600")  # Moon icon for dark theme
+
+    # Create a frame for the toggle button to position it correctly
+    button_frame = ttk.Frame(master, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2)
+    button_frame.grid(row=2, column=2, pady=10, padx=10)
+
+    # Add the toggle theme button inside the frame
+    change_theme_button = ttk.Button(
+        button_frame, width=20, text="\u263D", command=toggle_theme, style="PyAEDT.TButton"
+    )
+
+    change_theme_button.grid(row=0, column=0, padx=0)
+
     def callback():
+        master.flag = True
         master.setup = combo_setup.get()
         master.calculation = combo_calculation.get()
         master.destroy()
 
-    b = tkinter.Button(master, text="Ok", width=40, command=callback)
+    b = ttk.Button(master, text="Ok", width=40, command=callback, style="PyAEDT.TButton")
     b.grid(row=2, column=1, pady=10)
 
     tkinter.mainloop()
 
-    setup_ui = getattr(master, "setup", extension_arguments["setup"])
-    if getattr(master, "setup"):
-        setup = setup_ui
-    else:
-        setup = extension_arguments["setup"]
+    output_dict = {}
 
-    calculation_ui = getattr(master, "calculation", extension_arguments["calculation"])
-    calculation = extension_arguments["setup"]
+    if master.flag:
+        setup_ui = getattr(master, "setup", extension_arguments["setup"])
+        if getattr(master, "setup"):
+            setup = setup_ui
+        else:
+            setup = extension_arguments["setup"]
 
-    if getattr(master, "setup"):
-        calculation_description = calculation_ui
-        for k, v in available_descriptions.items():
-            if calculation_description == v:
-                calculation = k
-                break
+        calculation_ui = getattr(master, "calculation", extension_arguments["calculation"])
+        calculation = extension_arguments["setup"]
 
-    assignments = aedtapp.modeler.convert_to_selections(aedtapp.modeler.selections, True)
+        if getattr(master, "setup"):
+            calculation_description = calculation_ui
+            for k, v in available_descriptions.items():
+                if calculation_description == v:
+                    calculation = k
+                    break
+
+        assignments = aedtapp.modeler.convert_to_selections(aedtapp.modeler.selections, True)
+        output_dict = {"setup": setup, "calculation": calculation, "assignment": assignments}
 
     app.release_desktop(False, False)
-
-    output_dict = {"setup": setup, "calculation": calculation, "assignment": assignments}
 
     return output_dict
 
@@ -216,16 +256,16 @@ def main(extension_args):
 
     # Load new expressions from file
     # Current directory
-    current_directory = os.getcwd()
-    all_files = os.listdir(current_directory)
-    toml_files = [f for f in all_files if f.endswith(".toml")]
+    # Load new expressions from file
+    current_directory = Path.cwd()
+    toml_files = list(current_directory.glob("*.toml"))
     for toml_file in toml_files:
         aedtapp.post.fields_calculator.load_expression_file(toml_file)
 
     # Personal Lib directory
-    all_files = os.listdir(aedtapp.personallib)
-    toml_files = [os.path.join(aedtapp.personallib, f) for f in all_files if f.endswith(".toml")]
-    for toml_file in toml_files:
+    personal_lib_directory = Path(aedtapp.personallib)
+    toml_files = list(personal_lib_directory.glob("*.toml"))
+    for toml_file in toml_files:  # pragma: no cover
         aedtapp.post.fields_calculator.load_expression_file(toml_file)
 
     names = []
@@ -233,7 +273,7 @@ def main(extension_args):
     if not aedtapp.post.fields_calculator.is_general_expression(calculation):
         for assignment in assignments:
             assignment_str = assignment
-            if isinstance(assignment_str, FacePrimitive):
+            if isinstance(assignment_str, FacePrimitive):  # pragma: no cover
                 assignment_str = str(assignment.id)
             elif not isinstance(assignment_str, str):  # pragma: no cover
                 assignment_str = generate_unique_name(calculation)
@@ -270,5 +310,6 @@ if __name__ == "__main__":  # pragma: no cover
             for output_name, output_value in output.items():
                 if output_name in extension_arguments:
                     args[output_name] = output_value
-
-    main(args)
+            main(args)
+    else:
+        main(args)
