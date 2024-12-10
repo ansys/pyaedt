@@ -20,7 +20,7 @@ Project extensions
 ~~~~~~~~~~~~~~~~~~
 
 Pre-installed extensions are available at project level so they are available for all AEDT applications.
-They are small automated workflow with a simple UI.
+They are small automated workflows with a simple UI.
 
 .. grid:: 2
 
@@ -60,7 +60,7 @@ HFSS 3D Layout extensions
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Pre-installed extensions are available at HFSS 3D Layout level.
-They are small automated workflow with a simple UI.
+They are small automated workflows with a simple UI.
 
 .. grid:: 2
 
@@ -105,7 +105,7 @@ HFSS extensions
 ~~~~~~~~~~~~~~~
 
 Pre-installed extensions are available at HFSS level.
-They are small automated workflow with a simple UI.
+They are small automated workflows with a simple UI.
 
 .. grid:: 2
 
@@ -128,7 +128,7 @@ Icepak extensions
 ~~~~~~~~~~~~~~~~~
 
 Pre-installed extensions are available at Icepak level.
-They are small automated workflow with a simple UI.
+They are small automated workflows with a simple UI.
 
 .. grid:: 2
 
@@ -144,7 +144,7 @@ Circuit extensions
 ~~~~~~~~~~~~~~~~~~
 
 Pre-installed extensions are available at Circuit level.
-They are small automated workflow with a simple UI.
+They are small automated workflows with a simple UI.
 
 .. grid:: 2
 
