@@ -24,7 +24,7 @@ DesignXploration
 docstring
 [Dd]ocstrings
 doppler
-dotnet
+[Dd]otnet
 EDB
 EDT
 efields
@@ -58,6 +58,7 @@ netlist
 Nexxim
 numpy
 numpydoc
+openssl
 [Oo]ptimetrics
 padstack
 padstacks

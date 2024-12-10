@@ -23,50 +23,91 @@
 # SOFTWARE.
 
 import os
+from pathlib import Path
 import pkgutil
 import sys
 import warnings
 
+import ansys.aedt.core
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 
+existing_showwarning = warnings.showwarning
+
+
+def custom_show_warning(message, category, filename, lineno, file=None, line=None):
+    """Custom warning used to remove <stdin>:loc: pattern."""
+    print(f"{category.__name__}: {message}", file=file or sys.stderr)
+
+
+warnings.showwarning = custom_show_warning
+
 modules = [tup[1] for tup in pkgutil.iter_modules()]
-pyaedt_path = os.path.dirname(os.path.dirname(__file__))
 cpython = "IronPython" not in sys.version and ".NETFramework" not in sys.version
 is_linux = os.name == "posix"
 is_windows = not is_linux
 is_clr = False
-sys.path.append(os.path.join(pyaedt_path, "dlls", "PDFReport"))
-if is_linux and cpython:  # pragma: no cover
-    try:
-        if os.environ.get("DOTNET_ROOT") is None:
-            runtime = None
-            try:
-                import dotnet
+pyaedt_path = Path(ansys.aedt.core.__file__).parent
 
-                runtime = os.path.join(os.path.dirname(dotnet.__path__))
-            except Exception:
-                import dotnetcore2
+if is_linux and cpython:
+    from pythonnet import load
 
-                runtime = os.path.join(os.path.dirname(dotnetcore2.__file__), "bin")
-            finally:
-                os.environ["DOTNET_ROOT"] = runtime
+    dotnet_root = None
+    runtime_config = None
+    # Use system .NET core runtime or fall back to dotnetcore2
+    if os.environ.get("DOTNET_ROOT") is None:
+        try:
+            from clr_loader import get_coreclr
 
-        from pythonnet import load
+            runtime = get_coreclr()
+            load(runtime)
+            os.environ["DOTNET_ROOT"] = runtime.dotnet_root.as_posix()
+            is_clr = True
+        # TODO: Fall backing to dotnetcore2 should be removed in a near future.
+        except Exception:
+            warnings.warn(
+                "Unable to set .NET root and locate the runtime configuration file. "
+                "Falling back to using dotnetcore2."
+            )
+            warnings.warn(ansys.aedt.core.DOTNET_LINUX_WARNING)
 
-        json_file = os.path.abspath(os.path.join(pyaedt_path, "misc", "pyaedt.runtimeconfig.json"))
-        load("coreclr", runtime_config=json_file, dotnet_root=os.environ["DOTNET_ROOT"])
-        print("DotNet Core correctly loaded.")
-        if "mono" not in os.getenv("LD_LIBRARY_PATH", ""):
-            warnings.warn("LD_LIBRARY_PATH needs to be setup to use pyaedt.")
-            warnings.warn("export ANSYSEM_ROOT232=/path/to/AnsysEM/v232/Linux64")
-            msg = "export LD_LIBRARY_PATH="
-            msg += "$ANSYSEM_ROOT232/common/mono/Linux64/lib64:$LD_LIBRARY_PATH"
-            msg += "If PyAEDT will run on AEDT<2023.2 then $ANSYSEM_ROOT222/Delcross should be added to LD_LIBRARY_PATH"
+            import dotnetcore2
+
+            dotnet_root = Path(dotnetcore2.__file__).parent / "bin"
+            runtime_config = pyaedt_path / "misc" / "pyaedt.runtimeconfig.json"
+    # Use specified .NET root folder
+    else:
+        dotnet_root = Path(os.environ["DOTNET_ROOT"])
+        # Patch the case where DOTNET_ROOT leads to dotnetcore2.
+        # TODO: Remove once dotnetcore2 is deprecated
+        if dotnet_root.parent.name == "dotnetcore2":
+            runtime_config = pyaedt_path / "misc" / "pyaedt.runtimeconfig.json"
+        else:
+            from clr_loader import find_runtimes
+
+            candidates = [rt for rt in find_runtimes() if rt.name == "Microsoft.NETCore.App"]
+            candidates.sort(key=lambda spec: spec.version, reverse=True)
+            if not candidates:
+                raise RuntimeError(
+                    "Configuration file could not be found from DOTNET_ROOT. "
+                    "Please ensure that .NET SDK is correctly installed or "
+                    "that DOTNET_ROOT is correctly set."
+                )
+            runtime_config = candidates[0]
+    # Use specific .NET core runtime
+    if dotnet_root is not None and runtime_config is not None:
+        try:
+            load("coreclr", runtime_config=str(runtime_config), dotnet_root=str(dotnet_root))
+            os.environ["DOTNET_ROOT"] = dotnet_root.as_posix()
+            if "mono" not in os.getenv("LD_LIBRARY_PATH", ""):
+                warnings.warn("LD_LIBRARY_PATH needs to be setup to use pyaedt.")
+                warnings.warn("export ANSYSEM_ROOT242=/path/to/AnsysEM/v242/Linux64")
+                msg = "export LD_LIBRARY_PATH="
+                msg += "$ANSYSEM_ROOT242/common/mono/Linux64/lib64:$LD_LIBRARY_PATH"
+                warnings.warn(msg)
+            is_clr = True
+        except ImportError:
+            msg = "pythonnet or dotnetcore not installed. PyAEDT will work only in client mode."
             warnings.warn(msg)
-        is_clr = True
-    except ImportError:
-        msg = "pythonnet or dotnetcore not installed. Pyaedt will work only in client mode."
-        warnings.warn(msg)
 else:
     try:
         from pythonnet import load
@@ -77,9 +118,8 @@ else:
     except Exception:
         logger.error("An error occurred while loading clr.")
 
-
-try:  # work around a number formatting bug in the EDB API for non-English locales
-    # described in #1980
+# Work around a number formatting bug in the EDB API for non-English locales, see #1980
+try:
     import clr as _clr  # isort:skip
     from System.Globalization import CultureInfo as _CultureInfo
 
@@ -93,15 +133,10 @@ try:  # work around a number formatting bug in the EDB API for non-English local
     from System.Collections.Generic import List
 
     edb_initialized = True
-
 except ImportError:  # pragma: no cover
     if is_windows:
-        warnings.warn(
-            "The clr is missing. Install PythonNET or use an IronPython version if you want to use the EDB module."
-        )
+        warnings.warn("The clr is missing.")
         edb_initialized = False
-    elif sys.version[0] == 3 and sys.version[1] < 7:
-        warnings.warn("EDB requires Linux Python 3.7 or later.")
     _clr = None
     String = None
     Double = None
@@ -111,6 +146,7 @@ except ImportError:  # pragma: no cover
     Dictionary = None
     Array = None
     edb_initialized = False
+
 if "win32com" in modules:
     try:
         import win32com.client as win32_client
@@ -119,3 +155,5 @@ if "win32com" in modules:
             import win32com.client as win32_client
         except ImportError:
             win32_client = None
+
+warnings.showwarning = existing_showwarning
