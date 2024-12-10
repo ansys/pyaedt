@@ -3,7 +3,8 @@ Import schematic
 
 Import different schematic files (.asc, .sp, .cir, .qcv) into Circuit.
 
-You can access the extension from the icon created on the **Automation** tab using the Extension Manager.
+The extension provides a graphical user interface for configuration,
+or it can be used in batch mode via command line arguments.
 
 The following image shows the extension user interface:
 

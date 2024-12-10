@@ -4,7 +4,8 @@ Choke designer
 The **Choke designer** extension enables users to create and customize choke configurations and export the generated
 geometry to HFSS.
 
-You can access the extension from the icon created on the Automation tab using the Extension Manager.
+The extension provides a graphical user interface for configuration,
+or it can be used in batch mode via command line arguments.
 
 The following image shows the extension user interface:
 
@@ -24,13 +25,13 @@ The extension supports:
 - Switching between light and dark themes in the user interface.
 
 
-Using the Extension
+Using the extension
 --------------------
 
-1. Open the **Automation** tab in the Circuit interface.
-2. Locate and click the **Choke Designer** icon under the Extension Manager.
+1. Open the **Automation** tab in the HFSS interface.
+2. Locate and click the **Choke designer** icon under the Extension Manager.
 3. In the user interface:
-   - Adjust configuration parameters in the **Left Panel** using radio buttons for options such as number of windings and layer types.
+   - Adjust configuration parameters in the **Left panel** using radio buttons for options such as number of windings and layer types.
    - Modify detailed parameters for the core and windings in the **Right Panel** under respective tabs.
    - Use the buttons at the bottom to:
      - Save the current configuration as a `.json` file.
