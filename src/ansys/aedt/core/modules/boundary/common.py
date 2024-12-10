@@ -95,6 +95,11 @@ class BoundaryCommon(PropsManager):
         return arg
 
     @pyaedt_function_handler()
+    def _initialize_bynary_tree(self):
+        if self._child_object:
+            BinaryTreeNode.__init__(self, self._name, self._child_object, False)
+
+    @pyaedt_function_handler()
     def delete(self):
         """Delete the boundary.
 
@@ -219,11 +224,6 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
         self._boundary_name = self.name
         self.auto_update = auto_update
         self._initialize_bynary_tree()
-
-    @pyaedt_function_handler()
-    def _initialize_bynary_tree(self):
-        if self._child_object:
-            BinaryTreeNode.__init__(self, self._name, self._child_object, False)
 
     @property
     def _child_object(self):
