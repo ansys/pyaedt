@@ -157,11 +157,6 @@ class CircuitComponents(object):
         return self._app._aedt_version
 
     @property
-    def design_types(self):
-        """Design types."""
-        return self._app._modeler
-
-    @property
     def model_units(self):
         """Model units."""
         return self._modeler.model_units
@@ -492,9 +487,7 @@ class CircuitComponents(object):
         image_subcircuit_path = ""
         bmp_file_name = ""
         if show_bitmap:
-            image_subcircuit_path = os.path.join(
-                self._modeler._app.desktop_install_dir, "syslib", "Bitmaps", "nport.bmp"
-            )
+            image_subcircuit_path = os.path.join(self._app.desktop_install_dir, "syslib", "Bitmaps", "nport.bmp")
             bmp_file_name = os.path.basename(image_subcircuit_path)
 
         if not port_names:

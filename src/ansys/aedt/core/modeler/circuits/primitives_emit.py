@@ -56,11 +56,6 @@ class EmitComponents(object):
         return self._parent._aedt_version
 
     @property
-    def design_types(self):
-        """Design types."""
-        return self._parent._modeler
-
-    @property
     def model_units(self):
         """Model units."""
         return self.modeler.model_units

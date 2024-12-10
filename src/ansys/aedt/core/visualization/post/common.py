@@ -552,14 +552,9 @@ class PostProcessorCommon(object):
         return self._app._oproject
 
     @property
-    def _modeler(self):
-        """Modeler."""
-        return self._app._modeler
-
-    @property
     def oeditor(self):
         try:
-            return self._modeler.oeditor
+            return self.app.modeler.oeditor
         except AttributeError:
             return
 
@@ -1061,7 +1056,7 @@ class PostProcessorCommon(object):
                 ctxt = ["Context:=", context]
         elif context:
             ctxt = ["Context:=", context]
-            if context in self._modeler.line_names:
+            if context in self._app.modeler.line_names:
                 ctxt.append("PointCount:=")
                 ctxt.append(polyline_points)
 
@@ -1306,7 +1301,7 @@ class PostProcessorCommon(object):
                 for k, v in context.items():
                     report.matrix = k
                     report.reduced_matrix = v
-            elif context in self._modeler.line_names or context in self._modeler.point_names:
+            elif context in self._app.modeler.line_names or context in self._app.modeler.point_names:
                 report.polyline = context
             else:
                 report.matrix = context
@@ -1326,7 +1321,7 @@ class PostProcessorCommon(object):
         elif report_category == "Near Fields":
             report.near_field = context
         elif context:
-            if context in self._modeler.line_names or context in self._modeler.point_names:
+            if context in self._app.modeler.line_names or context in self._app.modeler.point_names:
                 report.polyline = context
 
         result = report.create(plot_name)
@@ -1532,9 +1527,9 @@ class PostProcessorCommon(object):
                     report.matrix = k
                     report.reduced_matrix = v
             elif (
-                hasattr(self._modeler, "line_names")
-                and hasattr(self._modeler, "point_names")
-                and context in self._modeler.point_names + self._modeler.line_names
+                hasattr(self._app.modeler, "line_names")
+                and hasattr(self._app.modeler, "point_names")
+                and context in self._app.modeler.point_names + self._app.modeler.line_names
             ):
                 report.polyline = context
             else:
@@ -1559,9 +1554,9 @@ class PostProcessorCommon(object):
                     self.logger.warning(f"Parameter {attribute} is not available, check syntax.")
         elif context:
             if (
-                hasattr(self._modeler, "line_names")
-                and hasattr(self._modeler, "point_names")
-                and context in self._modeler.point_names + self._modeler.line_names
+                hasattr(self._app.modeler, "line_names")
+                and hasattr(self._app.modeler, "point_names")
+                and context in self._app.modeler.point_names + self._app.modeler.line_names
             ):
                 report.polyline = context
             elif context in [
