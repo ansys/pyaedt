@@ -162,6 +162,23 @@ They are small automated workflows with a simple UI.
 
             Import different schematic files (.asc, .sp, .cir, .qcv) into Circuit.
 
+
+Twin Builder extensions
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Pre-installed extensions are available at Twin Builder level.
+They are small automated workflows with a simple UI.
+
+.. grid:: 2
+
+   .. grid-item-card:: Convert to Circuit
+            :link: pyaedt_extensions_doc/twinbuilder/convert_to_circuit
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Convert Twin Builder design to Circuit.
+
+
 .. toctree::
    :hidden:
    :maxdepth: 1
@@ -171,6 +188,7 @@ They are small automated workflows with a simple UI.
    pyaedt_extensions_doc/hfss/index
    pyaedt_extensions_doc/icepak/index
    pyaedt_extensions_doc/circuit/index
+   pyaedt_extensions_doc/twinbuilder/index
 
 
 Open source toolkits
