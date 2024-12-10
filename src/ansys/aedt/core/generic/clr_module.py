@@ -36,7 +36,7 @@ existing_showwarning = warnings.showwarning
 
 def custom_show_warning(message, category, filename, lineno, file=None, line=None):
     """Custom warning used to remove <stdin>:loc: pattern."""
-    print(f"{category.__name__}: {message}")
+    print(f"{category.__name__}: {message}", file=file or sys.stderr)
 
 
 warnings.showwarning = custom_show_warning
