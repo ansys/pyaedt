@@ -544,7 +544,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+        List[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
             3D object.
         """
         # self._refresh_solids()
@@ -556,7 +556,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+        List[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
             3D object.
         """
         self._refresh_sheets()
@@ -568,7 +568,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+        List[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
             3D object.
         """
         self._refresh_lines()
@@ -580,7 +580,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+        List[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
             3D object.
         """
         self._refresh_points()
@@ -592,7 +592,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+        List[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
             3D object.
         """
         self._refresh_unclassified()
@@ -604,7 +604,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+        List[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
             3D object.
         """
         self._refresh_object_types()
@@ -2986,7 +2986,7 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        assignment : list, str, int, :class:`ansys.aedt.core.modeler.Object3d.Object3d`
+        assignment : list, str, int, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Name or ID of the object.
         vector : list
             List of ``[x1,y1,z1]`` coordinates or the Application.Position object for
@@ -3034,7 +3034,7 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        assignment : list, str, int, :class:`ansys.aedt.core.modeler.Object3d.Object3d`
+        assignment : list, str, int, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Name or ID of the object.
         thickness : float, str
             Amount to thicken the sheet by.
@@ -3072,7 +3072,7 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        assignment : list, str, int, :class:`ansys.aedt.core.modeler.Object3d.Object3d`
+        assignment : list, str, int, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Name or ID of the object.
         faces : int or list
             Face or list of faces to sweep.
@@ -3123,7 +3123,7 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        assignment : list, str, int, :class:`ansys.aedt.core.modeler.Object3d.Object3d`
+        assignment : list, str, int, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Name or ID of the object.
         sweep_vector : float
             List of ``[x1, y1, z1]`` coordinates or Application.Position object for
@@ -3179,7 +3179,7 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        assignment : list, str, int, :class:`ansys.aedt.core.modeler.Object3d.Object3d`
+        assignment : list, str, int, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Name or ID of the object.
         sweep_object : str, int
             Name or ID of the sweep.
@@ -3227,7 +3227,7 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        assignment : list, str, int, :class:`ansys.aedt.core.modeler.Object3d.Object3d`
+        assignment : list, str, int, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Name or ID of the object.
         axis :
             Coordinate system axis or the Application.AXIS object.
@@ -3283,7 +3283,7 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        assignment : list, str, int, or  :class:`ansys.aedt.core.modeler.Object3d.Object3d`
+        assignment : list, str, int, or  :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             One or more objects to section.
         plane : str
             Coordinate plane or Application.PLANE object.
@@ -3335,7 +3335,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        ansys.aedt.core.modeler.Object3d.Object3d, bool
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` or bool
             3D object.
             ``False`` when failed.
 
@@ -3372,7 +3372,7 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        assignment :  list, str, int, or  :class:`ansys.aedt.core.modeler.Object3d.Object3d`
+        assignment :  list, str, int, or  :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
              ID of the object.
         axis : str
             Coordinate system axis or the Application.AXIS object.
@@ -3412,7 +3412,7 @@ class GeometryModeler(Modeler):
         ----------
         blank_list : str, Object3d, int or List of str, int and Object3d.
             List of objects to subtract from. The list can be of
-            either :class:`ansys.aedt.core.modeler.Object3d.Object3d` objects or object IDs.
+            either :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` objects or object IDs.
         tool_list : list, str
             List of objects to subtract. The list can be of
             either Object3d objects or object IDs.
@@ -3452,7 +3452,7 @@ class GeometryModeler(Modeler):
         ----------
         blank_list : list of Object3d or list of int
             List of objects to imprint from. The list can be of
-            either :class:`ansys.aedt.core.modeler.Object3d.Object3d` objects or object IDs.
+            either :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` objects or object IDs.
         tool_list : list of Object3d or list of int
             List of objects to imprint. The list can be of
             either Object3d objects or object IDs.
@@ -3830,7 +3830,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        ansys.aedt.core.modeler.Object3d.Object3d, bool
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d.Object3d` or bool
             3D object.
             ``False`` when failed.
 
@@ -5489,7 +5489,7 @@ class GeometryModeler(Modeler):
         Parameters
         ----------
         assignment : list
-            List of Face ID or List of :class:`ansys.aedt.core.modeler.Object3d.FacePrimitive` object or mixed.
+            List[int] or List[:class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`] object or mixed.
         offset : float, optional
              Offset to apply in model units. The default is ``1.0``.
 
@@ -5550,7 +5550,7 @@ class GeometryModeler(Modeler):
         Parameters
         ----------
         assignment : list
-            List of Edge ID or List of :class:`ansys.aedt.core.modeler.Object3d.EdgePrimitive` object or mixed.
+            List of Edge ID or List[:class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`] object or mixed.
         offset : float, optional
              Offset to apply in model units. The default is ``1.0``.
 
@@ -5725,9 +5725,9 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        sheet : str, :class:`ansys.aedt.core.modeler.Object3d.Object3d`
+        sheet : str, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Sheet name or sheet object.
-        object : str, :class:`ansys.aedt.core.modeler.Object3d.Object3d`
+        object : str, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Object name or solid object.
         imprinted : bool, optional
             Either if imprint or not over the sheet. Default is ``False``.
@@ -6269,12 +6269,12 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler(obj="assignment")
     def update_object(self, assignment):
-        """Update any :class:`ansys.aedt.core.modeler.Object3d.Object3d` derivatives
+        """Update any :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` derivatives
         that have potentially been modified by a modeler operation.
 
         Parameters
         ----------
-        assignment : int, str, or :class:`ansys.aedt.core.modeler.Object3d.Object3d`
+        assignment : int, str, or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Object to be updated after a modeler operation.
 
         Returns
@@ -6646,14 +6646,14 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        assignment : list, int or :class:`ansys.aedt.core.modeler.Object3d.FacePrimitive`
-            Face ID or :class:`ansys.aedt.core.modeler.Object3d.FacePrimitive` object or Face List.
+        assignment : list, int or :class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`
+            Face ID or :class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive` object or Face List.
         non_model : bool, optional
             Either if create the new object as model or non-model. The default is `False`.
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.Object3d.Object3d` or list of :class:`ansys.aedt.core.modeler.Object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` or list
             3D objects.
 
         References
@@ -6696,14 +6696,14 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        assignment : list, int or :class:`ansys.aedt.core.modeler.Object3d.FacePrimitive`
-            Face ID or :class:`ansys.aedt.core.modeler.Object3d.FacePrimitive` object or Face List.
+        assignment : list, int or :class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`
+            Face ID or :class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive` object or Face List.
         non_model : bool, optional
             Either if create the new object as model or non-model. Default is `False`.
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.Object3d.Object3d` or list of :class:`ansys.aedt.core.modeler.Object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` or list
             3D objects.
 
         References
@@ -6987,7 +6987,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.Object3d.Polyline`
+        :class:`ansys.aedt.core.modeler.cad.elements_3d.Polyline`
         """
         # fmt: off
         if isinstance(assignment, FacePrimitive):
@@ -7085,7 +7085,7 @@ class GeometryModeler(Modeler):
         Examples
         --------
         >>> my_udp = self.aedtapp.modeler.create_udp(dll="RMxprt/ClawPoleCore",parameters=my_udpPairs,library="syslib")
-        <class 'ansys.aedt.core.modeler.Object3d.Object3d'>
+        <class 'ansys.aedt.core.modeler.cad.object_3d.Object3d'>
 
         """
         if ".dll" not in dll and ".py" not in dll:
