@@ -81,9 +81,8 @@ jobs:
 
       - uses: codecov/codecov-action@v5
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-system-solvers-tests-windows
-          file: ./coverage.xml
+          files: ./coverage.xml
           flags: system,solvers,windows
 
       - name: Upload pytest test results
@@ -133,9 +132,8 @@ jobs:
 
       - uses: codecov/codecov-action@v5
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-system-solvers-tests-linux
-          file: ./coverage.xml
+          files: ./coverage.xml
           flags: system,solver,linux
 
       - name: Upload pytest test results
@@ -193,9 +191,8 @@ jobs:
 
       - uses: codecov/codecov-action@v5
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-system-general-tests-windows
-          file: ./coverage.xml
+          files: ./coverage.xml
           flags: system,general,windows
 
       - name: Upload pytest test results
@@ -257,9 +254,8 @@ jobs:
 
       - uses: codecov/codecov-action@v5
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-system-general-tests
-          file: ./coverage.xml
+          files: ./coverage.xml
           flags: system,solver,linux
 
       - name: Upload pytest test results
