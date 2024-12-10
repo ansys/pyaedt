@@ -90,7 +90,7 @@ class Objects(dict):
             if self.__obj_type == "o":
                 self.__parent.logger.info("Parsing design objects. This operation can take time")
                 self.__parent.logger.reset_timer()
-                self.__parent._refresh_all_ids_from_aedt_file()
+                self.__parent._refresh_all_ids_wrapper()
                 self.__parent.add_new_solids()
                 self.__parent.cleanup_solids()
                 self.__parent.logger.info_timer("3D Modeler objects parsed.")
@@ -510,7 +510,9 @@ class GeometryModeler(Modeler):
         References
         ----------
         >>> oDesign.GetGeometryMode"""
-        return self._odesign.GetGeometryMode()
+        if "GetGeometryMode" in dir(self._odesign):
+            return self._odesign.GetGeometryMode()
+        return
 
     @property
     def solid_bodies(self):
@@ -820,7 +822,7 @@ class GeometryModeler(Modeler):
         self.user_defined_components = Objects(self, "u")
         self._refresh_object_types()
         if not settings.objects_lazy_load:
-            self._refresh_all_ids_from_aedt_file()
+            self._refresh_all_ids_wrapper()
             self.refresh_all_ids()
 
     @pyaedt_function_handler()
@@ -852,7 +854,45 @@ class GeometryModeler(Modeler):
         return point
 
     @pyaedt_function_handler()
+    def _refresh_all_ids_wrapper(self):
+        if settings.aedt_version >= "2025.1":
+            return self._refresh_all_ids_from_data_model()
+        else:
+            return self._refresh_all_ids_from_aedt_file()
+
+    @pyaedt_function_handler()
+    def _refresh_all_ids_from_data_model(self):
+        self._app.logger.info("Refreshing objects from Data Model")
+        from ansys.aedt.core.application import _get_data_model
+
+        dm = _get_data_model(self.oeditor, 2)
+
+        for attribs in dm.get("children", []):
+            if attribs["type"] == "Part":
+                pid = 0
+                is_polyline = False
+                try:
+                    if attribs["children"][0]["Command"] == "CreatePolyline":
+                        is_polyline = True
+                except Exception:
+                    is_polyline = False
+
+                o = self._create_object(name=attribs["Name"], pid=pid, use_cached=True, is_polyline=is_polyline)
+                o._part_coordinate_system = attribs["Orientation"]
+                o._model = attribs["Model"]
+                o._wireframe = attribs["Display Wireframe"]
+                o._m_groupName = attribs["Model"]
+                o._color = (attribs["Color/Red"], attribs["Color/Green"], attribs["Color/Blue"])
+                o._material_name = attribs.get("Material", None)
+                o._surface_material = attribs.get("Surface Material", None)
+                o._solve_inside = attribs.get("Solve Inside", False)
+                o._is_updated = True
+                # pid+=1
+        return len(self.objects)
+
+    @pyaedt_function_handler()
     def _refresh_all_ids_from_aedt_file(self):
+        self._app.logger.info("Refreshing objects from AEDT file")
 
         dp = copy.deepcopy(self._app.design_properties)
         if not dp or "ModelSetup" not in dp:
@@ -964,7 +1004,7 @@ class GeometryModeler(Modeler):
         new_object_id_dict = {}
 
         all_objects = self.object_names
-        all_unclassified = self.unclassified_names
+        all_unclassified = self._unclassified
         all_objs = all_objects + all_unclassified
         if sorted(all_objs) != sorted(list(self._object_names_to_ids.keys())):
             for old_id, obj in self.objects.items():
