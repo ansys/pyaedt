@@ -535,6 +535,7 @@ class CommonReport(BinaryTreeNode):
         list
             Expressions.
         """
+        self._initialize_tree_node()
         if self._is_created:
             return [i.split(" ,")[-1] for i in list(self.properties.values())[4:]]
         if self._legacy_props.get("expressions", None) is None:
