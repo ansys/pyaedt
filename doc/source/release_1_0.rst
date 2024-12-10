@@ -186,9 +186,9 @@ The following table list the name changes with the old and new paths:
 +----------------------------------------------------------------+--------------------------------------------------------------------------+
 
 Dotnet changes in Linux
----------------------
+-----------------------
 
-To improve compatibility with system libraries, the Python package `dotnetcore2` is being removed from PyAEDT's dotnet installation target.
+To improve compatibility with system libraries in Linux, the Python package `dotnetcore2` is being removed from PyAEDT's dotnet installation target.
 Indeed, the embedded version of `.NET` associated to `dotnetcore2` is old and has **incompatibilities** with recent versions of `openssl` such as the one installed by default in Ubuntu 22.04.
 
 The impact of this decision is that users need to install `.NET` themselves.
