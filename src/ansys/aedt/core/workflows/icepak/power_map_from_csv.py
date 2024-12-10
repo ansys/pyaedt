@@ -22,7 +22,7 @@
 # SOFTWARE.
 
 import csv
-import os
+from pathlib import Path
 
 import ansys.aedt.core
 from ansys.aedt.core import Icepak
@@ -51,6 +51,7 @@ def frontend():  # pragma: no cover
 
     import PIL.Image
     import PIL.ImageTk
+    from ansys.aedt.core.workflows.misc import ExtensionTheme
 
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
@@ -77,12 +78,15 @@ def frontend():  # pragma: no cover
     # Create UI
     master = tkinter.Tk()
 
-    master.geometry("600x150")
+    master.geometry("800x150")
 
-    master.title("Create power maps from csv file")
+    master.title(extension_description)
+
+    # Detect if user closes the UI
+    master.flag = False
 
     # Load the logo for the main window
-    icon_path = os.path.join(ansys.aedt.core.workflows.__path__[0], "images", "large", "logo.png")
+    icon_path = Path(ansys.aedt.core.workflows.__path__[0]) / "images" / "large" / "logo.png"
     im = PIL.Image.open(icon_path)
     photo = PIL.ImageTk.PhotoImage(im)
 
@@ -91,12 +95,20 @@ def frontend():  # pragma: no cover
 
     # Configure style for ttk buttons
     style = ttk.Style()
-    style.configure("Toolbutton.TButton", padding=6, font=("Helvetica", 8))
-    var2 = tkinter.StringVar()
-    label2 = tkinter.Label(master, textvariable=var2)
-    var2.set("Browse file:")
+    theme = ExtensionTheme()
+
+    # Apply light theme initially
+    theme.apply_light_theme(style)
+    master.theme = "light"
+
+    # Set background color of the window (optional)
+    master.configure(bg=theme.light["widget_bg"])
+
+    label2 = ttk.Label(master, text="Browse file:", style="PyAEDT.TLabel")
     label2.grid(row=1, column=0, pady=10)
+
     text = tkinter.Text(master, width=50, height=1)
+    text.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
     text.grid(row=1, column=1, pady=10, padx=5)
 
     def browseFiles():
@@ -107,28 +119,61 @@ def frontend():  # pragma: no cover
         )
         text.insert(tkinter.END, filename)
 
-    b1 = tkinter.Button(master, text="...", width=10, command=browseFiles)
+    b1 = ttk.Button(master, text="...", width=10, command=browseFiles, style="PyAEDT.TButton")
     b1.grid(row=3, column=0)
     b1.grid(row=1, column=2, pady=10)
 
+    def toggle_theme():
+        if master.theme == "light":
+            set_dark_theme()
+            master.theme = "dark"
+        else:
+            set_light_theme()
+            master.theme = "light"
+
+    def set_light_theme():
+        master.configure(bg=theme.light["widget_bg"])
+        text.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
+        theme.apply_light_theme(style)
+        change_theme_button.config(text="\u263D")  # Sun icon for light theme
+
+    def set_dark_theme():
+        master.configure(bg=theme.dark["widget_bg"])
+        text.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
+        theme.apply_dark_theme(style)
+        change_theme_button.config(text="\u2600")  # Moon icon for dark theme
+
+    # Create a frame for the toggle button to position it correctly
+    button_frame = ttk.Frame(master, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2)
+    button_frame.grid(row=2, column=2, pady=10, padx=10)
+
+    # Add the toggle theme button inside the frame
+    change_theme_button = ttk.Button(
+        button_frame, width=20, text="\u263D", command=toggle_theme, style="PyAEDT.TButton"
+    )
+
+    change_theme_button.grid(row=0, column=0, padx=0)
+
     def callback():
+        master.flag = True
         master.file_path_ui = text.get("1.0", tkinter.END).strip()
         master.destroy()
 
-    b = tkinter.Button(master, text="Create", width=40, command=callback)
+    b = ttk.Button(master, text="Create", width=40, command=callback, style="PyAEDT.TButton")
     b.grid(row=2, column=1, pady=10)
 
     tkinter.mainloop()
 
-    file_path_ui = getattr(master, "file_path_ui", extension_arguments["file_path"])
+    file_path_ui = Path(getattr(master, "file_path_ui", extension_arguments["file_path"]))
 
-    if not file_path_ui or not os.path.isfile(file_path_ui):
+    if not file_path_ui or not file_path_ui.is_file():
         app.logger.error("File does not exist.")
 
     ipk.release_desktop(False, False)
 
-    output_dict = {"file_path": file_path_ui}
-
+    output_dict = {}
+    if master.flag and file_path_ui.is_file():
+        output_dict = {"file_path": str(file_path_ui)}
     return output_dict
 
 
@@ -273,5 +318,6 @@ if __name__ == "__main__":  # pragma: no cover
             for output_name, output_value in output.items():
                 if output_name in extension_arguments:
                     args[output_name] = output_value
-
-    main(args)
+            main(args)
+    else:
+        main(args)
