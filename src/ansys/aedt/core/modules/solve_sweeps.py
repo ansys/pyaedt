@@ -145,6 +145,7 @@ class SweepHFSS(object):
     @property
     def frequencies(self):
         """List of all frequencies of the active sweep.
+
         To see values, the project must be saved and solved.
 
         Returns
@@ -161,6 +162,7 @@ class SweepHFSS(object):
     @property
     def basis_frequencies(self):
         """List of all frequencies that have fields available.
+
         To see values, the project must be saved and solved.
 
         Returns
@@ -659,6 +661,7 @@ class SweepMatrix(object):
     @property
     def frequencies(self):
         """List of all frequencies of the active sweep.
+
         To see values, the project must be saved and solved.
 
         Returns
@@ -675,6 +678,7 @@ class SweepMatrix(object):
     @property
     def basis_frequencies(self):
         """Get the list of all frequencies that have fields available.
+
         The project has to be saved and solved to see values.
 
         Returns
