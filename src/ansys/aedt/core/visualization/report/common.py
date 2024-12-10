@@ -44,6 +44,10 @@ class LimitLine(BinaryTreeNode):
         self._oreport_setup = report_setup
         self.line_name = trace_name
         self.LINESTYLE = LineStyle()
+        self._initialize_tree_node()
+
+    @pyaedt_function_handler()
+    def _initialize_tree_node(self):
         BinaryTreeNode.__init__(self, self.line_name, self._oo, False)
 
     @pyaedt_function_handler()
@@ -250,6 +254,10 @@ class Trace(BinaryTreeNode):
         self._symbol_color = None
         self._show_symbol = False
         self._available_props = []
+        self._initialize_tree_node()
+
+    @pyaedt_function_handler()
+    def _initialize_tree_node(self):
         BinaryTreeNode.__init__(self, self.aedt_name, self._oo, False)
 
     @property
@@ -403,6 +411,10 @@ class CommonReport(BinaryTreeNode):
         self._is_created = False
         self.siwave_dc_category = 0
         self._traces = []
+        self._initialize_tree_node()
+
+    @pyaedt_function_handler()
+    def _initialize_tree_node(self):
         if self._is_created:
             oo = self._post.oreportsetup.GetChildObject(self._legacy_props["plot_name"])
             if oo:
@@ -1319,9 +1331,7 @@ class CommonReport(BinaryTreeNode):
         )
         self._post.plots.append(self)
         self._is_created = True
-        oo = self._post.oreportsetup.GetChildObject(self._legacy_props["plot_name"])
-        if oo:
-            BinaryTreeNode.__init__(self, self.plot_name, oo, False)
+        self._initialize_tree_node()
         return True
 
     @pyaedt_function_handler()
@@ -2482,6 +2492,7 @@ class CommonReport(BinaryTreeNode):
         props = [f"{plot_name}:=", traces_list]
         try:
             self._post.oreportsetup.DeleteTraces(props)
+            self._initialize_tree_node()
             return True
         except Exception:
             return False
@@ -2519,6 +2530,7 @@ class CommonReport(BinaryTreeNode):
                 self._convert_dict_to_report_sel(variations if variations else self.variations),
                 self._trace_info,
             )
+            self._initialize_tree_node()
             return True
         except Exception:
             return False
