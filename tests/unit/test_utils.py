@@ -26,11 +26,16 @@
 """
 
 import logging
+import os
 from unittest.mock import MagicMock
 from unittest.mock import PropertyMock
 from unittest.mock import patch
 
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.settings import ALLOWED_AEDT_ENV_VAR_SETTINGS
+from ansys.aedt.core.generic.settings import ALLOWED_GENERAL_SETTINGS
+from ansys.aedt.core.generic.settings import ALLOWED_LOG_SETTINGS
+from ansys.aedt.core.generic.settings import ALLOWED_LSF_SETTINGS
 from ansys.aedt.core.generic.settings import Settings
 from ansys.aedt.core.generic.settings import settings
 import pytest
@@ -144,7 +149,7 @@ def test_settings_load_yaml(tmp_path):
     assert default_settings.desktop_launch_timeout == 12
 
 
-def test_settings_load_yaml_with_non_allowed_key(tmp_path):
+def test_settings_load_yaml_with_non_allowed_attribute_key(tmp_path):
     """Test loading a configuration file with invalid key."""
     default_settings = Settings()
 
@@ -152,6 +157,10 @@ def test_settings_load_yaml_with_non_allowed_key(tmp_path):
     yaml_path = tmp_path / "pyaedt_settings.yaml"
     yaml_path.write_text(
         """
+    # Valid key
+    log:
+        enable_debug_edb_logger: false
+    # Invalid key
     general:
         dummy: 12.0
     """
@@ -163,3 +172,68 @@ def test_settings_load_yaml_with_non_allowed_key(tmp_path):
     with pytest.raises(KeyError) as excinfo:
         default_settings.load_yaml_configuration(str(yaml_path), raise_on_wrong_key=True)
         assert str(excinfo) in "Key 'dummy' is not part of the allowed keys"
+
+
+def test_settings_load_yaml_with_non_allowed_env_variable_key(tmp_path):
+    """Test loading a configuration file with invalid key."""
+    default_settings = Settings()
+
+    # Create temporary YAML configuration file
+    yaml_path = tmp_path / "pyaedt_settings.yaml"
+    yaml_path.write_text(
+        """
+    # Valid key
+    log:
+        enable_debug_edb_logger: false
+    # Invalid key
+    aedt_env_var:
+        AEDT_DUMMY: 12.0
+    """
+    )
+
+    default_settings.load_yaml_configuration(str(yaml_path), raise_on_wrong_key=False)
+    assert "AEDT_DUMMY" in default_settings.aedt_environment_variables
+
+    with pytest.raises(KeyError) as excinfo:
+        default_settings.load_yaml_configuration(str(yaml_path), raise_on_wrong_key=True)
+        assert str(excinfo) in "An environment variable key is not part of the allowed keys."
+
+
+def test_settings_attributes():
+    """Test accessing settings attributes."""
+    default_settings = Settings()
+
+    for attr in ALLOWED_LOG_SETTINGS + ALLOWED_GENERAL_SETTINGS + ALLOWED_LSF_SETTINGS:
+        _ = getattr(default_settings, attr)
+    for attr in ALLOWED_AEDT_ENV_VAR_SETTINGS:
+        if os.name != "posix" and attr == "ANS_NODEPCHECK":
+            continue
+        _ = getattr(default_settings, "aedt_environment_variables")[attr]
+
+
+def test_settings_check_allowed_attributes():
+    """Test that every non python setting is an allowed settings."""
+    default_settings = Settings()
+    # All allowed attributes
+    allowed_attrs_expected = (
+        ALLOWED_LOG_SETTINGS + ALLOWED_GENERAL_SETTINGS + ALLOWED_LSF_SETTINGS + ["aedt_environment_variables"]
+    )
+    # Check attributes that are not related to Python objects (otherwise they are not 'allowed')
+    attrs_ignored = ["formatter", "logger", "remote_rpc_session", "time_tick"]
+    settings_attrs = (
+        key.split("_Settings__")[-1] for key in default_settings.__dict__.keys() if key.startswith("_Settings__")
+    )
+    settings_attrs = filter(lambda attr: attr not in attrs_ignored, settings_attrs)
+
+    assert sorted(allowed_attrs_expected) == sorted(settings_attrs)
+
+
+def test_settings_check_allowed_env_variables():
+    """Test that known environment variables are allowed."""
+    default_settings = Settings()
+    env_variables = default_settings.aedt_environment_variables.keys()
+    allowed_env_var_expected = ALLOWED_AEDT_ENV_VAR_SETTINGS
+    if os.name != "posix":
+        allowed_env_var_expected.remove("ANS_NODEPCHECK")
+
+    assert sorted(allowed_env_var_expected) == sorted(env_variables)
