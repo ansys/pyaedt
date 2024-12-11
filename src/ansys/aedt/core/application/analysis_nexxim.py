@@ -26,14 +26,14 @@ from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
-from ansys.aedt.core.modules.boundary import CurrentSinSource
-from ansys.aedt.core.modules.boundary import Excitations
-from ansys.aedt.core.modules.boundary import PowerIQSource
-from ansys.aedt.core.modules.boundary import PowerSinSource
-from ansys.aedt.core.modules.boundary import Sources
-from ansys.aedt.core.modules.boundary import VoltageDCSource
-from ansys.aedt.core.modules.boundary import VoltageFrequencyDependentSource
-from ansys.aedt.core.modules.boundary import VoltageSinSource
+from ansys.aedt.core.modules.boundary.circuit_boundary import CurrentSinSource
+from ansys.aedt.core.modules.boundary.circuit_boundary import Excitations
+from ansys.aedt.core.modules.boundary.circuit_boundary import PowerIQSource
+from ansys.aedt.core.modules.boundary.circuit_boundary import PowerSinSource
+from ansys.aedt.core.modules.boundary.circuit_boundary import Sources
+from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageDCSource
+from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageFrequencyDependentSource
+from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageSinSource
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.modules.solve_setup import SetupCircuit
 

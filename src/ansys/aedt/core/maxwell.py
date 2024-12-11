@@ -43,8 +43,8 @@ from ansys.aedt.core.generic.general_methods import write_configuration_file
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
-from ansys.aedt.core.modules.boundary import BoundaryObject
-from ansys.aedt.core.modules.boundary import MaxwellParameters
+from ansys.aedt.core.modules.boundary.common import BoundaryObject
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 
 
@@ -3204,9 +3204,14 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         if not name:
             boundary = generate_unique_name("ResistiveSheet")
 
-        props = {
-            "Faces": assignment,
-        }
+        listobj = self.modeler.convert_to_selections(assignment, True)
+
+        props = {"Objects": [], "Faces": []}
+        for sel in listobj:
+            if isinstance(sel, str):
+                props["Objects"].append(sel)
+            elif isinstance(sel, int):
+                props["Faces"].append(sel)
 
         if self.solution_type in ["EddyCurrent", "Transient"]:
             props["Resistance"] = resistance
