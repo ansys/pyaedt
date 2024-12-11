@@ -1900,7 +1900,7 @@ class Maxwell(object):
             The switching frequency is available if `enable_inverter_feedback´ is ``True``.
             The default value is ``"4000Hz"``.
         maximum_frequency: str, optional
-            The maximum frequency is available, if `enable_inverter_feedback´ is ``True``.
+            The maximum frequency is available if `enable_inverter_feedback´ is ``True``.
             The default value is ``"8000Hz"``.
 
         Returns
@@ -1948,43 +1948,21 @@ class Maxwell(object):
             )
             return True
         elif self.solution_type in ["Transient", "TransientAPhiFormulation"]:
-            if calculate_force == 0:
-                calculate_force = "Harmonic"
-            if calculate_force == 1:
-                calculate_force = "Transient"
-            if calculate_force == 2:
-                calculate_force = "Harmonic and Transient"
-            if output_frequency_range_type == 0:
-                output_frequency_range_type = "Use All"
-            if output_frequency_range_type == 1:
-                output_frequency_range_type = "Use Range"
-            if output_frequency_range_type == 2:
-                output_frequency_range_type = "Use Number"
-            if not self.is3d and self.geometry_mode == "about Z":
+            force = ["Harmonic", "Transient", "Harmonic and Transient"]
+            calculate_force = force[calculate_force]
+            range_type = ["Use All", "Use Range", "Use Number"]
+            output_frequency_range_type = range_type[output_frequency_range_type]
+            if not self.is3d and self.geometry_mode == "about Z" or self.solution_type == "TransientAPhiFormulation":
                 if force_type == 0 and calculate_force == "Transient":
                     calculate_force = "Harmonic"
                     self.logger.warning(
                         "Object-Based Transient Force calculation is not supported for "
                         "non-rotational transient solutions. Only Harmonic Force will be calculated."
                     )
-                if use_number_of_cycles_from_stop_time == True or use_number_of_cycles_for_stop_time == True:
+                if use_number_of_cycles_from_stop_time or use_number_of_cycles_for_stop_time:
                     self.logger.warning(
                         " ``number_of_cycles_from_stop_time´´ and ``number_of_cycles_for_stop_time´´"
                         "are not available for TransientZ."
-                    )
-                    use_number_of_cycles_from_stop_time = False
-                    use_number_of_cycles_for_stop_time = False
-            if self.solution_type == "TransientAPhiFormulation":
-                if force_type == 0 and calculate_force == "Transient":
-                    calculate_force = "Harmonic"
-                    self.logger.warning(
-                        "Object-Based Transient Force calculation is not supported for "
-                        "non-rotational transient solutions. Only Harmonic Force will be calculated."
-                    )
-                if use_number_of_cycles_from_stop_time == True or use_number_of_cycles_for_stop_time == True:
-                    self.logger.warning(
-                        " ``number_of_cycles_from_stop_time´´ and ``number_of_cycles_for_stop_time´´"
-                        "are not available for TransientAphiFormulation."
                     )
                     use_number_of_cycles_from_stop_time = False
                     use_number_of_cycles_for_stop_time = False

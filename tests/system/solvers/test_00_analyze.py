@@ -503,9 +503,9 @@ class TestClass:
             ["Stator"],
             force_type=2,
             window_function="Rectangular",
-            use_number_of_last_cycles=True,
-            last_cycles_number=3,
-            calculate_force="Harmonic",
+            use_number_of_cycles_from_stop_time=True,
+            number_of_cycles_from_stop_time=3,
+            calculate_force=0,
         )
         m3dtransient.save_project()
         m3dtransient.analyze(m3dtransient.active_setup, cores=4, use_auto_settings=False)
@@ -513,6 +513,10 @@ class TestClass:
             start_frequency=1, stop_frequency=100, number_of_frequency=None
         )
         assert m3dtransient.export_element_based_harmonic_force(number_of_frequency=5)
+        m3dtransient.solution_type = m3dtransient.SOLUTIONS.Maxwell3d.EddyCurrent
+        assert m3dtransient.enable_harmonic_force(assignment=["Stator"])
+        m3dtransient.solution_type = m3dtransient.SOLUTIONS.Maxwell3d.Magnetostatic
+        assert not m3dtransient.enable_harmonic_force(assignment=["Stator"])
 
     def test_07_export_maxwell_fields(self, m3dtransient):
         m3dtransient.analyze(m3dtransient.active_setup, cores=4, use_auto_settings=False)
