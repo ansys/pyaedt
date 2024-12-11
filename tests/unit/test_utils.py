@@ -43,6 +43,7 @@ import pytest
 SETTINGS_RELEASE_ON_EXCEPTION = settings.release_on_exception
 SETTINGS_ENABLE_ERROR_HANDLER = settings.enable_error_handler
 ERROR_MESSAGE = "Dummy message."
+TOML_DATA = {"key_0": "dummy", "key_1": 12, "key_2": [1, 2], "key_3": {"key_4": 42}}
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -237,3 +238,31 @@ def test_settings_check_allowed_env_variables():
         allowed_env_var_expected.remove("ANS_NODEPCHECK")
 
     assert sorted(allowed_env_var_expected) == sorted(env_variables)
+
+
+def test_read_toml(tmp_path):
+    """Test loading a TOML file."""
+    from ansys.aedt.core.generic.general_methods import read_toml
+
+    file_path = tmp_path / "dummy.toml"
+    content = """
+    key_0 = 'dummy'
+    key_1 = 12
+    key_2 = [1,2]
+    [key_3]
+    key_4 = 42
+    """
+    file_path.write_text(content, encoding="utf-8")
+
+    res = read_toml(file_path)
+    assert TOML_DATA == res
+
+
+def test_write_toml(tmp_path):
+    """Test writing a TOML file."""
+    from ansys.aedt.core.generic.general_methods import _create_toml_file
+
+    file_path = tmp_path / "dummy.toml"
+    _create_toml_file(TOML_DATA, file_path)
+
+    assert file_path.exists()
