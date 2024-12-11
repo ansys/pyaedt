@@ -515,8 +515,8 @@ class Desktop(object):
         if getattr(self, "_initialized", None) is not None and self._initialized:
             try:
                 self.grpc_plugin.recreate_application(True)
-            except Exception:  # nosec
-                pass
+            except Exception:
+                pyaedt_logger.debug("Failed to recreate application.")
             return
         else:
             self._initialized = True
