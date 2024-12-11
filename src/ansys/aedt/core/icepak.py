@@ -302,7 +302,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -349,7 +349,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -459,7 +459,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.modules.boundary.BoundaryObject`]
+        List[:class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`]
             List of boundaries inserted.
 
         References
@@ -525,7 +525,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -634,7 +634,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         """
@@ -723,7 +723,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -816,7 +816,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         References
@@ -910,7 +910,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.modules.boundary.BoundaryObject`]
+        List[:class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`]
             List of boundary objects created.
 
         References
@@ -3426,7 +3426,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         References
@@ -3653,7 +3653,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -3789,7 +3789,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         References
@@ -3852,7 +3852,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         References
@@ -3988,7 +3988,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         References
@@ -4145,7 +4145,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -4373,7 +4373,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -4483,7 +4483,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -4686,7 +4686,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -4825,7 +4825,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -4898,7 +4898,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -4981,7 +4981,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -5021,7 +5021,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -5069,7 +5069,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -5220,7 +5220,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -5345,7 +5345,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -5433,7 +5433,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -5517,7 +5517,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -5602,7 +5602,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -5752,7 +5752,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -5835,7 +5835,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -5967,7 +5967,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         """
@@ -6066,7 +6066,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         """
@@ -6123,7 +6123,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         """
@@ -6179,7 +6179,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         """
@@ -6235,7 +6235,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         """
@@ -6345,7 +6345,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.LinearDictionary`
+        :class:`ansys.aedt.core.modules.boundary.icepak_boundary.LinearDictionary`
             Boundary dictionary object that can be passed to boundary condition assignment functions.
         """
         return LinearDictionary(intercept, slope)

@@ -275,7 +275,7 @@ class FieldAnalysisCircuit(Analysis):
 
         Returns
         -------
-        List of :class:`ansys.aedt.core.modules.boundary.Sources`
+        List of :class:`ansys.aedt.core.modules.boundary.circuit_boundary.Sources`
             List of sources.
 
         """

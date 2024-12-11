@@ -348,7 +348,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.modules.boundary.BoundaryObject`]
+        List[:class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`]
 
         """
         bb = []
@@ -466,7 +466,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        Dict[str, :class:`ansys.aedt.core.modules.boundary.BoundaryObject`]
+        Dict[str, :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`]
         """
         _dict_out = {}
         for bound in self.boundaries:
@@ -2353,7 +2353,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.modules.boundary.BoundaryObject`]
+        List[:class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`]
         """
         boundaries = []
         if self.design_properties and "BoundarySetup" in self.design_properties:
