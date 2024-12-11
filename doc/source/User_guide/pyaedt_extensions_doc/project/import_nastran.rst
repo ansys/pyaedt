@@ -13,10 +13,8 @@ The following image shows the extension user interface:
   :alt: Import Nastran UI
 
 
-Supported features
--------------------
-
-The extension supports:
+Features
+--------
 
 - Importing Nastran or STL files into AEDT.
 - Configuring the import process with options such as:

@@ -14,10 +14,8 @@ The following image shows the extension user interface:
   :alt: Choke Designer UI
 
 
-Supported features
--------------------
-
-The extension supports:
+Features
+--------
 
 - Configuring choke parameters including core dimensions, windings, layers, and material properties.
 - Exporting designs to HFSS.
@@ -26,7 +24,7 @@ The extension supports:
 
 
 Using the extension
---------------------
+-------------------
 
 1. Open the **Automation** tab in the HFSS interface.
 2. Locate and click the **Choke designer** icon under the Extension Manager.
