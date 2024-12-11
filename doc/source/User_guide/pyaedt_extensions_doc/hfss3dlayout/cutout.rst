@@ -47,7 +47,7 @@ Supported arguments include:
 - **choice**: Type of cutout to apply ("ConvexHull").
 - **signals**: List of signal nets to use for the cutout.
 - **reference**: List of reference nets to use for the cutout.
-- **expansion factor**: Expansion factor in mm for the cutout.
+- **expansion factor**: Expansion factor in "mm" for the cutout.
 - **fix disjoints**: Boolean flag to enable or disable fixing of disjoint nets.
 - **is batch**: Boolean flag to enable batch mode.
 
