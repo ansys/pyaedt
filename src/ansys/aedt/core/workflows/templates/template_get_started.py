@@ -40,7 +40,7 @@ is_student = is_student()
 
 # Extension batch arguments
 extension_arguments = {"origin_x": 0, "origin_y": 0, "origin_z": 0, "radius": 1, "file_path": ""}
-extension_description = "Extension template - Create sphere"
+extension_description = "Extension template"
 
 
 def frontend():
@@ -67,7 +67,7 @@ def frontend():
 
     master.geometry()
 
-    master.title("Create sphere")
+    master.title(extension_description)
 
     # Detect if user close the UI
     master.flag = False
@@ -158,6 +158,9 @@ def frontend():
         browse_file_entry.configure(
             background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
         )
+        project_name_entry.configure(
+            background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
+        )
         theme.apply_light_theme(style)
         change_theme_button.config(text="\u263D")
 
@@ -168,6 +171,7 @@ def frontend():
         origin_z_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
         radius_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
         browse_file_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
+        project_name_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
         theme.apply_dark_theme(style)
         change_theme_button.config(text="\u2600")
 
