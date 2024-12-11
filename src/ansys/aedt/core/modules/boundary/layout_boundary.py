@@ -1166,7 +1166,7 @@ class PCBSettingsDeviceParts(object):
         if "HeightExclude2D" in new_filters:
             new_filters.remove("HeightExclude2D")
         if enable:
-            new_filters.append(enable)
+            new_filters.append("HeightExclude2D")
         self.pcb.props["NativeComponentDefinitionProvider"]["Filters"] = new_filters
 
     @property
