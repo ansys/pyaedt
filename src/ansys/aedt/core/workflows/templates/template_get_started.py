@@ -61,6 +61,10 @@ def frontend():
     )
 
     active_project = app.active_project()
+    if not active_project:
+        active_project_name = "No active project"
+    else:
+        active_project_name = active_project.GetName()
 
     # Create UI
     master = tk.Tk()
@@ -129,7 +133,7 @@ def frontend():
     project_name_label = ttk.Label(master, text="Project Name:", width=20, style="PyAEDT.TLabel")
     project_name_label.grid(row=5, column=0, pady=10)
     project_name_entry = tk.Text(master, width=40, height=1)
-    project_name_entry.insert(tk.INSERT, active_project.GetName())
+    project_name_entry.insert(tk.INSERT, active_project_name)
     project_name_entry.grid(row=5, column=1, pady=15, padx=10)
     project_name_entry.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
 
