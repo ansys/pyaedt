@@ -1513,7 +1513,9 @@ class PostProcessor3D(PostProcessorCommon):
         self, nets, quantity, setup=None, layers=None, plot_on_surface=True, intrinsics=None, name=None
     ):
         # type: (list, str, str, list, bool, dict, str) -> FieldPlot
-        """Create a field plot of stacked layer plot based on a net selections. Layers can be used as a filter.
+        """Create a field plot of stacked layer plot based on a net selections.
+
+        Layers can be used as a filter.
         Dielectrics will be excluded from the plot.
         This plot is valid from AEDT 2023 R2 and later in HFSS 3D Layout.
         It works when a layout components in 3d modeler is used.

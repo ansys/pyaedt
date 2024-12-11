@@ -305,6 +305,7 @@ class Object3DLayout(object):
     @property
     def location(self):
         """Retrieve/Set the absolute location in model units.
+
         Location is computed with combination of 3d Layout location and model center.
 
         Returns
@@ -314,7 +315,6 @@ class Object3DLayout(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         if self.prim_type == "component":

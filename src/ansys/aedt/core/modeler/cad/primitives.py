@@ -1018,14 +1018,12 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler()
     def add_new_objects(self):
-        """Add objects that have been created in the modeler by
-        previous operations.
+        """Add objects that have been created in the modeler by previous operations.
 
         Returns
         -------
         list
             List of added objects.
-
         """
         added_objects = []
         objs_ids = {}
@@ -1035,14 +1033,12 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler()
     def add_new_solids(self):
-        """Add objects that have been created in the modeler by
-        previous operations.
+        """Add objects that have been created in the modeler by previous operations.
 
         Returns
         -------
         list
             List of added objects.
-
         """
         added_objects = []
 

@@ -2172,16 +2172,16 @@ class MaxwellParameters(BoundaryCommon, object):
 
     @pyaedt_function_handler()
     def join_series(self, sources, matrix_name=None, join_name=None):
-        """
+        """Create a series matrix reduction.
 
         Parameters
         ----------
         sources : list
             Sources to be included in matrix reduction.
         matrix_name :  str, optional
-            name of the string to create.
+            Name of the string to create. Default is ``None``.
         join_name : str, optional
-            Name of the Join operation.
+            Name of the Join operation. Default is ``None``.
 
         Returns
         -------
@@ -2195,22 +2195,21 @@ class MaxwellParameters(BoundaryCommon, object):
 
     @pyaedt_function_handler()
     def join_parallel(self, sources, matrix_name=None, join_name=None):
-        """
+        """Apply parallel matrix reduction.
 
         Parameters
         ----------
         sources : list
             Sources to be included in matrix reduction.
         matrix_name :  str, optional
-            name of the string to create.
+            Name of the string to create. Default is ``None``.
         join_name : str, optional
-            Name of the Join operation.
+            Name of the Join operation. Default is ``None``.
 
         Returns
         -------
         (str, str)
             Matrix name and Joint name.
-
         """
         return self._create_matrix_reduction(
             red_type="Parallel", sources=sources, matrix_name=matrix_name, join_name=join_name

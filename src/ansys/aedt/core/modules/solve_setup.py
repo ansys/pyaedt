@@ -282,6 +282,7 @@ class CommonSetup(PropsManager, object):
         sweep=None,
     ):
         """Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
+
         Data to be retrieved from Electronics Desktop are any simulation results available in that
         specific simulation context.
         Most of the argument have some defaults which works for most of the ``Standard`` report quantities.
@@ -332,7 +333,6 @@ class CommonSetup(PropsManager, object):
 
         References
         ----------
-
         >>> oModule.GetSolutionDataPerVariation
 
         Examples
