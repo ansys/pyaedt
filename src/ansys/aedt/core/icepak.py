@@ -48,18 +48,18 @@ from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
-from ansys.aedt.core.modules.boundary import BoundaryDictionary
-from ansys.aedt.core.modules.boundary import BoundaryObject
-from ansys.aedt.core.modules.boundary import ExponentialDictionary
-from ansys.aedt.core.modules.boundary import LinearDictionary
-from ansys.aedt.core.modules.boundary import NativeComponentObject
-from ansys.aedt.core.modules.boundary import NativeComponentPCB
-from ansys.aedt.core.modules.boundary import NetworkObject
-from ansys.aedt.core.modules.boundary import PieceWiseLinearDictionary
-from ansys.aedt.core.modules.boundary import PowerLawDictionary
-from ansys.aedt.core.modules.boundary import SinusoidalDictionary
-from ansys.aedt.core.modules.boundary import SquareWaveDictionary
-from ansys.aedt.core.modules.boundary import _create_boundary
+from ansys.aedt.core.modules.boundary.circuit_boundary import NetworkObject
+from ansys.aedt.core.modules.boundary.common import BoundaryObject
+from ansys.aedt.core.modules.boundary.icepak_boundary import BoundaryDictionary
+from ansys.aedt.core.modules.boundary.icepak_boundary import ExponentialDictionary
+from ansys.aedt.core.modules.boundary.icepak_boundary import LinearDictionary
+from ansys.aedt.core.modules.boundary.icepak_boundary import PieceWiseLinearDictionary
+from ansys.aedt.core.modules.boundary.icepak_boundary import PowerLawDictionary
+from ansys.aedt.core.modules.boundary.icepak_boundary import SinusoidalDictionary
+from ansys.aedt.core.modules.boundary.icepak_boundary import SquareWaveDictionary
+from ansys.aedt.core.modules.boundary.icepak_boundary import _create_boundary
+from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
+from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.visualization.post.monitor_icepak import Monitor
 
@@ -1699,6 +1699,7 @@ class Icepak(FieldAnalysis3D):
         skip_intersection_checks : bool, optional
             Whether to skip intersection checks during validation check.
             The default value is ``False``.
+
         Returns
         -------
         bool
@@ -1706,7 +1707,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oDesign.SetDesignSettings
         """
         #

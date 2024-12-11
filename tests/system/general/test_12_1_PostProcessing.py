@@ -418,7 +418,7 @@ class TestClass:
         assert not new_report.add_trace_to_report(traces, setup, variations)
 
     def test_09f_update_trace_name(self):
-        report = [plot for plot in self.aedtapp.post.plots if plot.plot_name == "add_traces_test"][0]
+        report = self.aedtapp.create_scattering("add_traces_test_2")
         old_trace_name = report.traces[0].name
         assert old_trace_name in report.traces[0].aedt_name
         new_name = "update_trace_name_test"
