@@ -170,10 +170,10 @@ def frontend():  # pragma: no cover
 
             simplify_stl(master.file_path_ui, decimation=master.decimate_ui, preview=True)
 
-    b2 = ttk.Button(master, text="Preview", width=40, command=preview)
+    b2 = ttk.Button(master, text="Preview", width=40, command=preview, style="PyAEDT.TButton")
     b2.grid(row=5, column=0, pady=10, padx=10)
 
-    b3 = ttk.Button(master, text="Ok", width=40, command=callback)
+    b3 = ttk.Button(master, text="Ok", width=40, command=callback, style="PyAEDT.TButton")
     b3.grid(row=5, column=1, pady=10, padx=10)
 
     tkinter.mainloop()
