@@ -38,8 +38,8 @@ from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
-from ansys.aedt.core.modules.boundary import BoundaryObject
-from ansys.aedt.core.modules.boundary import Matrix
+from ansys.aedt.core.modules.boundary.common import BoundaryObject
+from ansys.aedt.core.modules.boundary.q3d_boundary import Matrix
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 
 try:
@@ -157,7 +157,7 @@ class QExtractor(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.Matrix`
+        :class:`ansys.aedt.core.modules.q3d_boundary.Matrix`
             Matrix object.
         """
         if not reduced_matrix:
