@@ -109,13 +109,11 @@ def frontend():  # pragma: no cover
 
     def set_light_theme():
         master.configure(bg=theme.light["widget_bg"])
-        expansion.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
         theme.apply_light_theme(style)
         change_theme_button.config(text="\u263D")  # Sun icon for light theme
 
     def set_dark_theme():
         master.configure(bg=theme.dark["widget_bg"])
-        expansion.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
         theme.apply_dark_theme(style)
         change_theme_button.config(text="\u2600")  # Moon icon for dark theme
 
