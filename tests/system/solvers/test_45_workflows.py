@@ -579,14 +579,15 @@ class TestClass:
         aedtapp = add_app(project_name=point_cloud_generator, subfolder=test_subfolder)
 
         import tkinter as tk
-        from ansys.aedt.core.workflows.hfss.point_cloud import PointCloudApp, CAD_to_point_cloud
+
+        from ansys.aedt.core.workflows.hfss.point_cloud import CAD_to_point_cloud
+        from ansys.aedt.core.workflows.hfss.point_cloud import PointCloudApp
 
         obj_file_path = os.path.join(solver_local_path, "example_models", "T45", "cube.obj")
-        assert(CAD_to_point_cloud(obj_file_path, 100))
+        assert CAD_to_point_cloud(obj_file_path, 100)
 
         root = tk.Tk()
         pc = PointCloudApp(root)
-        assert(pc.init_hfss())
+        assert pc.init_hfss()
 
         aedtapp.close_project()
-
