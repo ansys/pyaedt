@@ -105,9 +105,6 @@ def frontend():  # pragma: no cover
 
     # Create UI
     master = tkinter.Tk()
-
-    master.geometry("800x200")
-
     master.title(extension_description)
 
     # Detect if user closes the UI

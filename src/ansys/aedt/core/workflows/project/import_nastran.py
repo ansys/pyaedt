@@ -54,9 +54,6 @@ def frontend():  # pragma: no cover
     from ansys.aedt.core.workflows.misc import ExtensionTheme
 
     master = tkinter.Tk()
-
-    master.geometry("950x250")
-
     master.title("Import Nastran or STL file")
 
     # Detect if user closes the UI

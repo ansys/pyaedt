@@ -55,9 +55,6 @@ def frontend():  # pragma: no cover
     from ansys.aedt.core.workflows.misc import ExtensionTheme
 
     master = tkinter.Tk()
-
-    master.geometry("1000x220")
-
     master.minsize(1000, 220)
     master.maxsize(1000, 220)
 

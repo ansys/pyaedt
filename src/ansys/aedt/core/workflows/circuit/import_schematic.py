@@ -52,7 +52,6 @@ def frontend():  # pragma: no cover
     from ansys.aedt.core.workflows.misc import ExtensionTheme
 
     master = tkinter.Tk()
-    master.geometry("650x150")
     master.title(extension_description)
 
     # Detect if user closes the UI
