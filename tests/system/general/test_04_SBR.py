@@ -161,7 +161,7 @@ class TestClass:
         array.native_properties["Array Length In Wavelength"] = "10"
         assert array.update()
 
-        assert array.object_properties.props["Name"] == array.name
+        assert array.properties["Name"] == array.name
 
         native_components = len(self.aedtapp.native_component_names)
         array.name = "new_name"

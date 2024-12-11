@@ -514,11 +514,10 @@ def read_toml(file_path):  # pragma: no cover
     dict
         Parsed TOML file as a dictionary.
     """
-    current_python_version = sys.version_info[:2]
-    if current_python_version < (3, 12):
-        import pytomlpp as tomllib
-    else:
+    try:
         import tomllib
+    except (ImportError, ModuleNotFoundError):
+        import tomli as tomllib
 
     with open_file(file_path, "rb") as fb:
         return tomllib.load(fb)
@@ -1298,11 +1297,7 @@ def number_aware_string_key(s):
 
 @pyaedt_function_handler()
 def _create_toml_file(input_dict, full_toml_path):
-    current_python_version = sys.version_info[:2]
-    if current_python_version < (3, 12):
-        import pytomlpp as tomllib
-    else:
-        import tomllib
+    import tomli_w
 
     if not os.path.exists(os.path.dirname(full_toml_path)):
         os.makedirs(os.path.dirname(full_toml_path))
@@ -1322,8 +1317,8 @@ def _create_toml_file(input_dict, full_toml_path):
         return new_dict
 
     new_dict = _dict_toml(input_dict)
-    with open_file(full_toml_path, "w") as fp:
-        tomllib.dump(new_dict, fp)
+    with open_file(full_toml_path, "wb") as fp:
+        tomli_w.dump(new_dict, fp)
     settings.logger.info(f"{full_toml_path} correctly created.")
     return True
 
