@@ -1,4 +1,4 @@
-Extension Templates
+Extension templates
 ===================
 
 .. grid:: 2
