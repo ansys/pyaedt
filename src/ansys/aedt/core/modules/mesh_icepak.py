@@ -862,36 +862,41 @@ class MeshRegion(MeshRegionCommon):
         list
         """
         if isinstance(self._assignment, SubRegion):
-            # try to update name
             if self.name in self._app.odesign.GetChildObject("Mesh").GetChildNames():
-                parts = []
-                subparts = []
-                if "Parts" in self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropNames():
-                    parts = self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropValue("Parts")
-                if "Submodels" in self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropNames():
-                    subparts = (
-                        self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropValue("Submodels")
+                if self._app.settings.aedt_version < "2024.2":
+                    # try to update name, APIs lacking a lot
+                    parts = []
+                    subparts = []
+                    if "Parts" in self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropNames():
+                        parts = self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropValue("Parts")
+                    if "Submodels" in self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropNames():
+                        subparts = (
+                            self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropValue("Submodels")
+                        )
+                    if not isinstance(parts, list):
+                        parts = [parts]
+                    if not isinstance(subparts, list):
+                        subparts = [subparts]
+                    parts += subparts
+                    sub_regions = self._app.modeler.non_model_objects
+                    for sr in sub_regions:
+                        p1 = []
+                        p2 = []
+                        if "Part Names" in self._app.modeler[sr].history().props:
+                            p1 = self._app.modeler[sr].history().props.get("Part Names", None)
+                            if not isinstance(p1, list):
+                                p1 = [p1]
+                        elif "Submodel Names" in self._app.modeler[sr].history().props:
+                            p2 = self._app.modeler[sr].history().props.get("Submodel Names", None)
+                            if not isinstance(p2, list):
+                                p2 = [p2]
+                        p1 += p2
+                        if "CreateSubRegion" == self._app.modeler[sr].history().command and all(p in p1 for p in parts):
+                            self._assignment.name = sr
+                else:
+                    self._assignment.name = (
+                        self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropValue("Assignment")
                     )
-                if not isinstance(parts, list):
-                    parts = [parts]
-                if not isinstance(subparts, list):
-                    subparts = [subparts]
-                parts += subparts
-                sub_regions = self._app.modeler.non_model_objects
-                for sr in sub_regions:
-                    p1 = []
-                    p2 = []
-                    if "Part Names" in self._app.modeler[sr].history().props:
-                        p1 = self._app.modeler[sr].history().props.get("Part Names", None)
-                        if not isinstance(p1, list):
-                            p1 = [p1]
-                    elif "Submodel Names" in self._app.modeler[sr].history().props:
-                        p2 = self._app.modeler[sr].history().props.get("Submodel Names", None)
-                        if not isinstance(p2, list):
-                            p2 = [p2]
-                    p1 += p2
-                    if "CreateSubRegion" == self._app.modeler[sr].history().command and all(p in p1 for p in parts):
-                        self._assignment.name = sr
             return self._assignment
         elif isinstance(self._assignment, list):
             return self._assignment

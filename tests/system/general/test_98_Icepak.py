@@ -318,6 +318,19 @@ class TestClass:
         assert self.aedtapp.mesh.meshregions_dict
         assert pcb_mesh_region.delete()
 
+    def test_03b_MultipleMeshRegions(self):
+        # test issue 5485
+        self.aedtapp.insert_design("test03b")
+        c1 = self.aedtapp.modeler.create_cylinder(orientation=0, origin=[0, 0, 0], radius=5, height=10)
+        c2 = self.aedtapp.modeler.create_cylinder(orientation=1, origin=[1, 1, 1], radius=2, height=15)
+        mesh_class = self.aedtapp.mesh
+        mess1 = self.aedtapp.logger.get_messages()
+        m1 = mesh_class.assign_mesh_region([c1.name, c2.name])
+        m2 = mesh_class.assign_mesh_region([c2.name])
+        assert m1.assignment.name != m2.assignment.name
+        mess2 = self.aedtapp.logger.get_messages()
+        assert len(mess1.global_level) == len(mess2.global_level)
+
     def test_04_ImportGroup(self):
         assert self.aedtapp.copyGroupFrom("Group1", "uUSB", src_project_name, self.project_path)
 
