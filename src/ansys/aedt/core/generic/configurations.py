@@ -43,10 +43,10 @@ from ansys.aedt.core.generic.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
-from ansys.aedt.core.modules.boundary import BoundaryObject
-from ansys.aedt.core.modules.boundary import BoundaryProps
-from ansys.aedt.core.modules.boundary import NativeComponentObject
-from ansys.aedt.core.modules.boundary import NativeComponentPCB
+from ansys.aedt.core.modules.boundary.common import BoundaryObject
+from ansys.aedt.core.modules.boundary.common import BoundaryProps
+from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
+from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
 from ansys.aedt.core.modules.design_xploration import SetupOpti
 from ansys.aedt.core.modules.design_xploration import SetupParam
 from ansys.aedt.core.modules.material_lib import Material
@@ -1714,8 +1714,7 @@ class ConfigurationsIcepak(Configurations):
 
     @pyaedt_function_handler()
     def update_monitor(self, m_case, m_object, m_quantity, m_name):
-        """
-        Generic method for inserting monitor object
+        """Generic method for inserting monitor object
 
         Parameters
         ----------
@@ -1727,6 +1726,7 @@ class ConfigurationsIcepak(Configurations):
             Name or list of names of the quantity being monitored.
         m_name : str
             Name of the monitor object.
+
         Returns
         -------
         bool

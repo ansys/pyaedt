@@ -474,6 +474,7 @@ class PostProcessorCommon(object):
     @pyaedt_function_handler()
     def available_report_solutions(self, report_category=None):
         """Get the list of available solutions that can be used for the reports.
+
         This list differs from the one obtained with ``app.existing_analysis_sweeps``,
         because it includes additional elements like "AdaptivePass".
 
@@ -511,7 +512,7 @@ class PostProcessorCommon(object):
                 report = TEMPLATES_BY_NAME.get(report_type, TEMPLATES_BY_NAME["Standard"])
 
                 plots.append(report(self, report_type, None))
-                plots[-1]._props["plot_name"] = name
+                plots[-1]._legacy_props["plot_name"] = name
                 plots[-1]._is_created = True
                 plots[-1].report_type = obj.GetPropValue("Display Type")
         return plots
@@ -643,7 +644,6 @@ class PostProcessorCommon(object):
 
         References
         ----------
-
         >>> oModule.DeleteReports
         """
         try:
@@ -777,7 +777,8 @@ class PostProcessorCommon(object):
         step=None,
         use_trace_number_format=False,
     ):
-        """Export a 2D Plot data to a file.
+        r"""
+        Export a 2D Plot data to a file.
 
         This method leaves the data in the plot (as data) as a reference
         for the Plot after the loops.
@@ -1306,7 +1307,7 @@ class PostProcessorCommon(object):
             else:
                 report.matrix = context
         elif report_category == "Far Fields":
-            if not context and self._app._field_setups:
+            if not context and self._app.field_setups:
                 report.far_field_sphere = self._app.field_setups[0].name
             else:
                 if isinstance(context, dict):
@@ -1344,6 +1345,7 @@ class PostProcessorCommon(object):
         math_formula=None,
     ):
         """Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
+
         Data to be retrieved from Electronics Desktop are any simulation results available in that
         specific simulation context.
         Most of the argument have some defaults which works for most of the ``Standard`` report quantities.
@@ -1537,6 +1539,11 @@ class PostProcessorCommon(object):
         elif report_category == "Far Fields":
             if not context and self._app.field_setups:
                 report.far_field_sphere = self._app.field_setups[0].name
+                if "Theta" not in report.variations:
+                    report.variations["Theta"] = ["All"]
+                if "Phi" not in report.variations:
+                    report.variations["Phi"] = ["All"]
+                report.primary_sweep = "Theta"
             else:
                 if isinstance(context, dict):
                     if "Context" in context.keys() and "SourceContext" in context.keys():
@@ -1600,7 +1607,6 @@ class PostProcessorCommon(object):
 
         Examples
         --------
-
         Create report from JSON file.
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
@@ -1687,15 +1693,15 @@ class PostProcessorCommon(object):
                 props.get("context", {"context": {}}).get("secondary_sweep", "") == ""
                 and props.get("report_type", "") != "Rectangular Contour Plot"
             ):
-                report._props["context"]["secondary_sweep"] = ""
-            _update_props(props, report._props)
+                report._legacy_props["context"]["secondary_sweep"] = ""
+            _update_props(props, report._legacy_props)
             for el, k in self._app.available_variations.nominal_w_values_dict.items():
                 if (
-                    report._props.get("context", None)
-                    and report._props["context"].get("variations", None)
-                    and el not in report._props["context"]["variations"]
+                    report._legacy_props.get("context", None)
+                    and report._legacy_props["context"].get("variations", None)
+                    and el not in report._legacy_props["context"]["variations"]
                 ):
-                    report._props["context"]["variations"][el] = k
+                    report._legacy_props["context"]["variations"][el] = k
             _ = report.expressions
             if matplotlib:
                 if props.get("report_type", "").lower() in ["eye diagram", "statistical eye"]:  # pragma: no cover
@@ -1715,40 +1721,42 @@ class PostProcessorCommon(object):
     def _report_plotter(self, report):
         sols = report.get_solution_data()
         report_plotter = ReportPlotter()
-        report_plotter.title = report._props.get("plot_name", "PyAEDT Report")
+        report_plotter.title = report._legacy_props.get("plot_name", "PyAEDT Report")
         try:
             report_plotter.general_back_color = [
-                i / 255 for i in report._props["general"]["appearance"]["background_color"]
+                i / 255 for i in report._legacy_props["general"]["appearance"]["background_color"]
             ]
         except KeyError:
             pass
         try:
 
-            report_plotter.general_plot_color = [i / 255 for i in report._props["general"]["appearance"]["plot_color"]]
+            report_plotter.general_plot_color = [
+                i / 255 for i in report._legacy_props["general"]["appearance"]["plot_color"]
+            ]
         except KeyError:
             pass
         try:
-            report_plotter.grid_enable_major_x = report._props["general"]["grid"]["major_x"]
+            report_plotter.grid_enable_major_x = report._legacy_props["general"]["grid"]["major_x"]
         except KeyError:
             pass
         try:
-            report_plotter.grid_enable_minor_x = report._props["general"]["grid"]["minor_x"]
+            report_plotter.grid_enable_minor_x = report._legacy_props["general"]["grid"]["minor_x"]
         except KeyError:
             pass
         try:
-            report_plotter.grid_enable_major_y = report._props["general"]["grid"]["major_y"]
+            report_plotter.grid_enable_major_y = report._legacy_props["general"]["grid"]["major_y"]
         except KeyError:
             pass
         try:
-            report_plotter.grid_enable_minor_yi = report._props["general"]["grid"]["minor_y"]
+            report_plotter.grid_enable_minor_yi = report._legacy_props["general"]["grid"]["minor_y"]
         except KeyError:
             pass
         try:
-            report_plotter.grid_color = [i / 255 for i in report._props["general"]["grid"]["major_color"]]
+            report_plotter.grid_color = [i / 255 for i in report._legacy_props["general"]["grid"]["major_color"]]
         except KeyError:
             pass
         try:
-            report_plotter.show_legend = True if report._props["general"]["legend"] else False
+            report_plotter.show_legend = True if report._legacy_props["general"]["legend"] else False
         except KeyError:
             pass
         sw = sols.primary_sweep_values
@@ -1757,7 +1765,7 @@ class PostProcessorCommon(object):
                 "x_label": sols.primary_sweep,
                 "y_label": curve,
             }
-            pp = [i for i in report._props["expressions"] if i["name"] == curve]
+            pp = [i for i in report._legacy_props["expressions"] if i["name"] == curve]
             if pp:
                 pp = pp[0]
                 try:
@@ -1794,7 +1802,7 @@ class PostProcessorCommon(object):
                 except KeyError:
                     pass
             report_plotter.add_trace([sw, sols.data_real(curve)], 0, properties=props, name=curve)
-        for name, line in report._props.get("limitLines", {}).items():
+        for name, line in report._legacy_props.get("limitLines", {}).items():
             props = {}
             try:
                 props["trace_width"] = line["width"]
@@ -1808,16 +1816,16 @@ class PostProcessorCommon(object):
                 report_plotter.add_limit_line([line["xpoints"], line["ypoints"]], 0, properties=props, name=name)
             except KeyError:
                 self.logger.warning("Equation lines not supported yet.")
-        if report._props.get("report_type", "Rectangular Plot") == "Rectangular Plot":
+        if report._legacy_props.get("report_type", "Rectangular Plot") == "Rectangular Plot":
             _ = report_plotter.plot_2d()
             return report_plotter
-        elif report._props.get("report_type", "Rectangular Plot") == "Polar Plot":
+        elif report._legacy_props.get("report_type", "Rectangular Plot") == "Polar Plot":
             _ = report_plotter.plot_polar()
             return report_plotter
-        elif report._props.get("report_type", "Rectangular Plot") == "Rectangular Contour Plot":
+        elif report._legacy_props.get("report_type", "Rectangular Plot") == "Rectangular Contour Plot":
             _ = report_plotter.plot_contour()
             return report_plotter
-        elif report._props.get("report_type", "Rectangular Plot") in ["3D Polar Plot", "3D Spherical Plot"]:
+        elif report._legacy_props.get("report_type", "Rectangular Plot") in ["3D Polar Plot", "3D Spherical Plot"]:
             _ = report_plotter.plot_3d()
             return report_plotter
 
@@ -2016,7 +2024,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Q3d
         >>> q3d = Q3d(my_project)
         >>> report = q3d.post.reports_by_category.cg_fields("SmoothQ", "Setup : LastAdaptive", "Polyline1")
@@ -2057,7 +2064,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Q3d
         >>> q3d = Q3d(my_project)
         >>> report = q3d.post.reports_by_category.dc_fields("Mag_VolumeJdc", "Setup : LastAdaptive", "Polyline1")
@@ -2098,7 +2104,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Q3d
         >>> q3d = Q3d(my_project)
         >>> report = q3d.post.reports_by_category.rl_fields("Mag_SurfaceJac", "Setup : LastAdaptive", "Polyline1")
@@ -2142,7 +2147,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(my_project)
         >>> report = hfss.post.reports_by_category.far_field("GainTotal", "Setup : LastAdaptive", "3D_Sphere")
@@ -2183,7 +2187,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(my_project)
         >>> report = hfss.post.reports_by_category.antenna_parameters("GainTotal", "Setup : LastAdaptive", "3D_Sphere")
@@ -2221,7 +2224,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(my_project)
         >>> report = hfss.post.reports_by_category.near_field("GainTotal", "Setup : LastAdaptive", "NF_1")
@@ -2258,7 +2260,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(my_project)
         >>> report = hfss.post.reports_by_category.modal_solution("dB(S(1,1))")
@@ -2294,7 +2295,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(my_project)
         >>> report = hfss.post.reports_by_category.terminal_solution("dB(S(1,1))")
@@ -2332,7 +2332,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(my_project)
         >>> report = hfss.post.reports_by_category.eigenmode("dB(S(1,1))")
@@ -2375,7 +2374,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Circuit
         >>> cir= Circuit()
         >>> new_eye = cir.post.reports_by_category.statistical_eye_contour("V(Vout)")
@@ -2433,14 +2431,12 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Circuit
         >>> cir= Circuit()
         >>> new_eye = cir.post.reports_by_category.eye_diagram("V(Vout)")
         >>> new_eye.unit_interval = "1e-9s"
         >>> new_eye.time_stop = "100ns"
         >>> new_eye.create()
-
         """
         if not setup:
             setup = self._post_app._app.nominal_sweep
@@ -2486,7 +2482,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Circuit
         >>> cir= Circuit()
         >>> new_eye = cir.post.reports_by_category.spectral("V(Vout)")
@@ -2522,12 +2517,10 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Circuit
         >>> cir= Circuit()
         >>> new_eye = cir.post.emi_receiver()
         >>> new_eye.create()
-
         """
         if not setup_name:
             setup_name = self._post_app._app.nominal_sweep

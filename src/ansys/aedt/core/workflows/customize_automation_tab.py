@@ -77,9 +77,7 @@ def add_automation_tab(
     -------
     str
         Automation tab path.
-
     """
-
     product = __tab_map(product)
 
     toolkit_name = name

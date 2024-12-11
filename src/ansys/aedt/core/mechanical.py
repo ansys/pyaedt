@@ -29,7 +29,7 @@ from __future__ import absolute_import  # noreorder
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.modules.boundary import BoundaryObject
+from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 
 
@@ -500,7 +500,6 @@ class Mechanical(FieldAnalysis3D, object):
 
         >>> oModule.AssignFrictionlessSupport
         """
-
         if not (self.solution_type == "Structural" or "Modal" in self.solution_type):
             self.logger.error("This method works only in Mechanical Structural analysis.")
             return False

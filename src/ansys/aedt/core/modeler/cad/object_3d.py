@@ -358,11 +358,12 @@ class Object3d(object):
         ----------
         assignment : str, :class:`Object3d`
             Object to check.
+
         Returns
         -------
         list
-            list of objects and faces touching."""
-
+            list of objects and faces touching.
+        """
         _names = []
         if isinstance(assignment, Object3d):
             assignment = assignment.name
