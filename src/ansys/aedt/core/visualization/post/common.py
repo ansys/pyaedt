@@ -555,7 +555,7 @@ class PostProcessorCommon(object):
     @property
     def oeditor(self):
         try:
-            return self.app.modeler.oeditor
+            return self._app.modeler.oeditor
         except AttributeError:
             return
 

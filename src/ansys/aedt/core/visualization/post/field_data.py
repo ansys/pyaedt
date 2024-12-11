@@ -1073,12 +1073,12 @@ class FieldPlot:
             if self._postprocessor._app.design_type == "HFSS 3D Layout Design":
                 model_faces = [str(i) for i in self.surfaces]
             else:
-                models = self._postprocessor._modeler.model_objects
+                models = self._postprocessor._app.modeler.model_objects
                 for index in self.surfaces:
                     try:
                         if isinstance(index, FacePrimitive):
                             index = index.id
-                        oname = self._postprocessor._modeler.oeditor.GetObjectNameByFaceID(index)
+                        oname = self._postprocessor._app.modeler.oeditor.GetObjectNameByFaceID(index)
                         if oname in models:
                             model_faces.append(str(index))
                         else:
