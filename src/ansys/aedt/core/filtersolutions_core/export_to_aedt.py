@@ -1661,6 +1661,7 @@ class ExportToAedt:
 
     def modelithics_capacitor_remove_family(self, modelithics_capacitor) -> str:
         """Remove a specified ``Modelithics`` capacitor family from the capacitor family list.
+
         Parameters
         ----------
         modelithics_capacitor : str
@@ -1694,8 +1695,10 @@ class ExportToAedt:
     @property
     def modelithics_resistor_selection(self) -> str:
         """Selected ``Modelithics`` resistor family from the loaded list.
+
         The Modelithics resistor family selection allows you to choose a specific resistor model from the
         Modelithics library.
+
         Returns
         -------
         str

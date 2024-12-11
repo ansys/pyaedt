@@ -166,6 +166,7 @@ class Maxwell(object):
             Only available if skew_type is ``User Defined``.
             The length of this list must be equal to number_of_slices.
             The default value is ``None``.
+
         Returns
         -------
         bool
@@ -2595,7 +2596,6 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         >>> impedance_assignment = m3d.assign_impedance(assignment=shield_faces,impedance="ShieldImpedance")
         >>> m3d.release_desktop(True, True)
         """
-
         if self.solution_type in [
             "EddyCurrent",
             "Transient",
@@ -2697,7 +2697,6 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             Boundary object.
 
         """
-
         bound = BoundaryObject(self, name, props, boundary_type)
         result = bound.create()
         if result:
@@ -2776,7 +2775,6 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.AssignIndependent
         >>> oModule.AssignDependent
         """
@@ -2872,12 +2870,10 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.AssignFluxTangential
 
         Examples
         --------
-
         Create a box and assign a flux tangential boundary to one of its faces.
 
         >>> from ansys.aedt.core import Maxwell3d
@@ -2934,12 +2930,10 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.AssignLayoutForce
 
         Examples
         --------
-
         Create a dictionary to give as an input to assign_layout_force method.
         >>> nets_layers = {"<no-net>": ["PWR","TOP","UNNAMED_000","UNNAMED_002"],
         >>>                "GND": ["LYR_1","LYR_2","UNNAMED_006"]}
@@ -2951,7 +2945,6 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         >>> m3d.assign_layout_force(net_layers=nets_layers,component_name="LC1_1")
         >>> m3d.release_desktop(True, True)
         """
-
         for key in net_layers.keys():
             if not isinstance(net_layers[key], list):
                 net_layers[key] = list(net_layers[key])
@@ -3033,7 +3026,6 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.AssignTangentialHField
         """
         if self.solution_type not in ["EddyCurrent", "Magnetostatic"]:
@@ -3092,7 +3084,6 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.AssignZeroTangentialHField
         """
         if self.solution_type not in ["EddyCurrent"]:
@@ -3316,7 +3307,6 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
     ``designname`` in a project named ``projectname``.
 
     >>> m2d = Maxwell2d(projectname,designname)
-
     """
 
     @property  # for legacy purposes
@@ -3421,7 +3411,6 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-
         """
 
         def convert(obj):

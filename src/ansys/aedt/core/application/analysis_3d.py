@@ -1256,9 +1256,13 @@ class FieldAnalysis3D(Analysis, object):
         with open_file(file_path, encoding="utf8") as f:
             lines = f.readlines()
             indices = self._find_indices(lines, "AcDbLayerTableRecord\n")
+            index_offset = 1
+            if not indices:
+                indices = self._find_indices(lines, "LAYER\n")
+                index_offset = 3
             for idx in indices:
-                if "2" in lines[idx + 1]:
-                    layer_names.append(lines[idx + 2].replace("\n", ""))
+                if "2" in lines[idx + index_offset]:
+                    layer_names.append(lines[idx + index_offset + 1].replace("\n", ""))
             return layer_names
 
     @pyaedt_function_handler(layers_list="layers")
@@ -1295,7 +1299,7 @@ class FieldAnalysis3D(Analysis, object):
             Whether to join multiple straight line segments to form polylines.
             The default is ``True``.
         self_stitch_tolerance : float, optional
-            Self stitch tolerance value. The default is ``0``.
+            Self stitch tolerance value. If negative, let importer use its default tolerance. The default is ``0``.
         scale : float, optional
             Scaling factor. The default is ``0.001``. The units are ``mm``.
         defeature_geometry : bool, optional
@@ -1330,7 +1334,7 @@ class FieldAnalysis3D(Analysis, object):
         >>> oEditor.ImportDXF
 
         """
-        if self.desktop_class.non_graphical:
+        if self.desktop_class.non_graphical and self.desktop_class.aedt_version_id < "2024.2":
             self.logger.error("Method is supported only in graphical mode.")
             return False
         dxf_layers = self.get_dxf_layers(file_path)
@@ -1349,7 +1353,8 @@ class FieldAnalysis3D(Analysis, object):
         vArg1.append("Scale:="), vArg1.append(scale)
         vArg1.append("AutoDetectClosed:="), vArg1.append(auto_detect_close)
         vArg1.append("SelfStitch:="), vArg1.append(self_stitch)
-        vArg1.append("SelfStitchTolerance:="), vArg1.append(self_stitch_tolerance)
+        if self_stitch_tolerance >= 0.0:
+            vArg1.append("SelfStitchTolerance:="), vArg1.append(self_stitch_tolerance)
         vArg1.append("DefeatureGeometry:="), vArg1.append(defeature_geometry)
         vArg1.append("DefeatureDistance:="), vArg1.append(defeature_distance)
         vArg1.append("RoundCoordinates:="), vArg1.append(round_coordinates)
@@ -1475,21 +1480,15 @@ class FieldAnalysis3D(Analysis, object):
     def _find_indices(self, list_to_check, item_to_find):
         # type: (list, str|int) -> list
         """Given a list, returns the list of indices for all occurrences of a given element.
-
         Parameters
         ----------
         list_to_check: list
             List to check.
         item_to_find: str, int
             Element to search for in the list.
-
         Returns
         -------
         list
             Indices of the occurrences of a given element.
         """
-        indices = []
-        for idx, value in enumerate(list_to_check):
-            if value == item_to_find:
-                indices.append(idx)
-        return indices
+        return [idx for idx, value in enumerate(list_to_check) if value == item_to_find]
