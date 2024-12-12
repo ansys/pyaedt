@@ -50,7 +50,7 @@ from ansys.aedt.core.modules.setup_templates import SetupKeys
 
 class Maxwell(object):
     def __init__(self):
-        self.solution_type = None
+        pass
 
     @property
     def symmetry_multiplier(self):
