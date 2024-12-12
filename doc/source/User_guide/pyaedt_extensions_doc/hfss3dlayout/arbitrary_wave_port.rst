@@ -34,7 +34,7 @@ If not void are found the tool shows an error message, you might have to change 
    only folders are displayed since EDB is an AEDB folder.
 
 The tool also supports other format when the user does not check `Import EDB` box.
-The following file formats are available: ODB++, BRD, MCM or ZIP are allowed.
+The following file formats are available: ODB++, BRD, MCM, or ZIP are allowed.
 
 
 Using the extension
