@@ -845,17 +845,16 @@ class Mesh(object):
 
         >>> oModule.InitialMeshSettings
         """
-        if self._app.design_type == "2D Extractor" or self._app.design_type == "Maxwell 2D":
+        if self._app.design_type in ["2D Extractor", "Maxwell 2D"]:
             mesh_methods = ["Auto", "AnsoftClassic"]
         else:
             mesh_methods = ["Auto", "AnsoftTAU", "AnsoftClassic"]
         if method not in mesh_methods:
-            raise RuntimeError(f"Invalid mesh method {method}")  # pragma: no cover
+            raise ValueError(f"Invalid mesh method {method}")
 
         modelres = ["NAME:GlobalModelRes", "UseAutoLength:=", auto_model_resolution]
         if not auto_model_resolution:
-            modelres.append("DefeatureLength:=")
-            modelres.append(model_resolution_length)
+            modelres += ["DefeatureLength:=", model_resolution_length]
         surface_appr = [
             "NAME:GlobalSurfApproximation",
             "CurvedSurfaceApproxChoice:=",
@@ -863,7 +862,8 @@ class Mesh(object):
             "SliderMeshSettings:=",
             level,
         ]
-        if self._app.design_type == "2D Extractor" or self._app.design_type == "Maxwell 2D":
+
+        if self._app.design_type in ["2D Extractor", "Maxwell 2D"]:
             args = ["NAME:MeshSettings", surface_appr, modelres, "MeshMethod:=", method]
         else:
             args = [
@@ -881,10 +881,7 @@ class Mesh(object):
                 flex_mesh,
             ]
         if self._app.design_type == "HFSS":
-            args.append("UseAlternativeMeshMethodsAsFallBack:=")
-            args.append(fallback)
-            args.append("AllowPhiForLayeredGeometry:=")
-            args.append(phi)
+            args += ["UseAlternativeMeshMethodsAsFallBack:=", fallback, "AllowPhiForLayeredGeometry:=", phi]
         self.omeshmodule.InitialMeshSettings(args)
         return True
 
@@ -998,10 +995,7 @@ class Mesh(object):
                 flex_mesh,
             ]
         if self._app.design_type == "HFSS":
-            args.append("UseAlternativeMeshMethodsAsFallBack:=")
-            args.append(fallback)
-            args.append("AllowPhiForLayeredGeometry:=")
-            args.append(phi)
+            args += ["UseAlternativeMeshMethodsAsFallBack:=", fallback, "AllowPhiForLayeredGeometry:=", phi]
         self.omeshmodule.InitialMeshSettings(args)
         return True
 

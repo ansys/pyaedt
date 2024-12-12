@@ -90,10 +90,14 @@ class TestClass:
     def test_03a_assign_initial_mesh_from_slider(self):
         assert self.aedtapp.mesh.assign_initial_mesh_from_slider(4)
 
+    def test_03a_assign_initial_mesh_from_slider_failure_due_to_wrong_method(self):
+        with pytest.raises(ValueError):
+            self.aedtapp.mesh.assign_initial_mesh_from_slider(method="dummy")
+
     def test_03b_assign_initial_mesh(self):
         assert self.aedtapp.mesh.assign_initial_mesh(surface_deviation="2mm")
 
-    def test_03c_assign_initial_mesh_failure_due_to_wrong_method(self):
+    def test_03b_assign_initial_mesh_failure_due_to_wrong_method(self):
         with pytest.raises(ValueError):
             self.aedtapp.mesh.assign_initial_mesh(method="dummy")
 
