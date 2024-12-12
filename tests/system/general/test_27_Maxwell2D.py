@@ -96,6 +96,7 @@ class TestClass:
     def test_03c_assign_initial_mesh_failure_due_to_wrong_method(self):
         with pytest.raises(ValueError):
             self.aedtapp.mesh.assign_initial_mesh(method="dummy")
+
     def test_04_create_winding(self):
         bounds = self.aedtapp.assign_winding(assignment=["Coil"], current=20e-3)
         assert bounds
