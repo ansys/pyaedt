@@ -1247,7 +1247,7 @@ class ExportToAedt:
         The value can be either a string or an instance of the ``SubstrateEr`` enum.
         The default is ``9.8`` for ``SubstrateEr.ALUMINA``.
 
-        Returns:
+        Returns
         -------
         Union[SubstrateEr, str]
 
@@ -1282,7 +1282,7 @@ class ExportToAedt:
         The value can be either a string or an instance of the ``SubstrateResistivity`` enum.
         The default is ``1.43`` for ``SubstrateResistivity.GOLD``.
 
-        Returns:
+        Returns
         -------
         Union[SubstrateResistivity, str]
         """
@@ -1315,7 +1315,7 @@ class ExportToAedt:
         The value can be either a string or an instance of the ``SubstrateEr`` enum.
         The default is ``0.0005`` for ``SubstrateEr.ALUMINA``.
 
-        Returns:
+        Returns
         -------
         Union[SubstrateEr, str]
         """

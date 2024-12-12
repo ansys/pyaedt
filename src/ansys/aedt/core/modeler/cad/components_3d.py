@@ -423,7 +423,7 @@ class UserDefinedComponent(object):
 
         Returns
         -------
-        Dict[str, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
+        dict[str, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
 
         """
         if self.is3dcomponent:

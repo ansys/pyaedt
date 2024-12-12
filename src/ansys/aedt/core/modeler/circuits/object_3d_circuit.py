@@ -607,7 +607,7 @@ class CircuitComponent(object):
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitPins`]
+        list[:class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitPins`]
 
         """
         if self._pins:

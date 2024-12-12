@@ -546,7 +546,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
+        list[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
             3D object.
         """
         # self._refresh_solids()
@@ -558,7 +558,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
+        list[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
             3D object.
         """
         self._refresh_sheets()
@@ -570,7 +570,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
+        list[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
             3D object.
         """
         self._refresh_lines()
@@ -582,7 +582,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
+        list[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
             3D object.
         """
         self._refresh_points()
@@ -594,7 +594,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
+        list[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
             3D object.
         """
         self._refresh_unclassified()
@@ -606,7 +606,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
+        list[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
             3D object.
         """
         self._refresh_object_types()
@@ -3838,7 +3838,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
+        list[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
             List of objects resulting from the operation (including the original one).
 
         References
@@ -5529,7 +5529,7 @@ class GeometryModeler(Modeler):
         Parameters
         ----------
         assignment : list
-            List[int] or List[:class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`] object or mixed.
+            List[int] or list[:class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`] object or mixed.
         offset : float, optional
              Offset to apply in model units. The default is ``1.0``.
 
@@ -5590,7 +5590,7 @@ class GeometryModeler(Modeler):
         Parameters
         ----------
         assignment : list
-            List of Edge ID or List[:class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`] object or mixed.
+            List of Edge ID or list[:class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`] object or mixed.
         offset : float, optional
              Offset to apply in model units. The default is ``1.0``.
 

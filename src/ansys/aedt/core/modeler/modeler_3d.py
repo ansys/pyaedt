@@ -898,7 +898,7 @@ class Modeler3D(Primitives3D):
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`] or bool
+        list[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`] or bool
             List of 3D object or ``False`` if it fails.
 
         References
@@ -982,7 +982,7 @@ class Modeler3D(Primitives3D):
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
+        list[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
         """
         if len(bounding_box) != 6:
             raise ValueError("Bounding box list must have dimension 6.")
@@ -1371,7 +1371,7 @@ class Modeler3D(Primitives3D):
         assignment : list, str
             List of objects to apply the segmentation to.
             It can either be a list of strings (object names), integers (object IDs), or
-            a List[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`] classes.
+            a list[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`] classes.
         segmentation_thickness : float, optional
             Segmentation thickness.
             Model units are automatically assigned. The default is ``None``.
