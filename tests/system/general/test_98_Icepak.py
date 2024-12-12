@@ -2010,10 +2010,10 @@ class TestClass:
         # test issue 5485
         self.aedtapp.insert_design("test83")
         c1 = self.aedtapp.modeler.create_cylinder(orientation=0, origin=[0, 0, 0], radius=5, height=10)
-        c2 = self.aedtapp.modeler.create_cylinder(orientation=1, origin=[1, 1, 1], radius=2, height=15)
+        c2 = self.aedtapp.modeler.create_cylinder(orientation=1, origin=[100, 100, 100], radius=2, height=15)
         mesh_class = self.aedtapp.mesh
         mess1 = self.aedtapp.logger.get_messages()
-        m1 = mesh_class.assign_mesh_region([c1.name, c2.name])
+        m1 = mesh_class.assign_mesh_region([c1.name])
         m2 = mesh_class.assign_mesh_region([c2.name])
         assert m1.assignment.name != m2.assignment.name
         mess2 = self.aedtapp.logger.get_messages()
