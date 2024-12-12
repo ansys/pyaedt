@@ -206,61 +206,6 @@ def _arg2dict(arg, dict_out):
 
 
 @pyaedt_function_handler()
-def create_list_for_csharp(input_list, return_strings=False):
-    """
-
-    Parameters
-    ----------
-    input_list :
-
-    return_strings :
-         (Default value = False)
-
-    Returns
-    -------
-
-    """
-    from ansys.aedt.core.generic.clr_module import Double
-    from ansys.aedt.core.generic.clr_module import List
-
-    if return_strings:
-        col = List[str]()
-    else:
-        col = List[Double]()
-
-    for el in input_list:
-        if return_strings:
-            col.Add(str(el))
-        else:
-            col.Add(el)
-    return col
-
-
-@pyaedt_function_handler()
-def create_table_for_csharp(input_list_of_list, return_strings=True):
-    """
-
-    Parameters
-    ----------
-    input_list_of_list :
-
-    return_strings :
-         (Default value = True)
-
-    Returns
-    -------
-
-    """
-    from ansys.aedt.core.generic.clr_module import List
-
-    new_table = List[List[str]]()
-    for col in input_list_of_list:
-        newcol = create_list_for_csharp(col, return_strings)
-        new_table.Add(newcol)
-    return new_table
-
-
-@pyaedt_function_handler()
 def format_decimals(el):
     """
 
