@@ -35,7 +35,7 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode):
 
     Examples
     --------
-    In this example the sphere1 returned object is a ``ansys.aedt.core.modules.boundary.FarFieldSetup``
+    In this example the sphere1 returned object is a ``ansys.aedt.core.modules.boundary.hfss_boundary.FarFieldSetup``
     >>> from ansys.aedt.core import Hfss
     >>> hfss = Hfss()
     >>> sphere1 = hfss.insert_infinite_sphere()
@@ -171,7 +171,7 @@ class FarFieldSetup(FieldSetup, object):
 
     Examples
     --------
-    in this example the sphere1 returned object is a ``ansys.aedt.core.modules.boundary.FarFieldSetup``
+    in this example the sphere1 returned object is a ``ansys.aedt.core.modules.boundary.hfss_boundary.FarFieldSetup``
     >>> from ansys.aedt.core import Hfss
     >>> hfss = Hfss()
     >>> sphere1 = hfss.insert_infinite_sphere()
@@ -511,7 +511,9 @@ class NearFieldSetup(FieldSetup, object):
 
     Examples
     --------
-    in this example the rectangle1 returned object is a ``ansys.aedt.core.modules.boundary.NearFieldSetup``
+    In this example the rectangle1 returned object is a
+    ``ansys.aedt.core.modules.boundary.hfss_boundary.NearFieldSetup``
+
     >>> from ansys.aedt.core import Hfss
     >>> hfss = Hfss()
     >>> rectangle1 = hfss.insert_near_field_rectangle()

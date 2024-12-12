@@ -178,7 +178,7 @@ class Modeler2D(Primitives2D):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object_3d`
+        list[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
         """
         if len(bounding_box) != 4 and len(bounding_box) != 6:
             raise ValueError("Bounding box must be a list of 4 or 6 elements.")

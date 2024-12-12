@@ -806,8 +806,8 @@ class SolutionData(object):
             curves = self.expressions
         if isinstance(curves, str):
             curves = [curves]
-        if not formula:
-            formula = "mag"
+        # if not formula:
+        #     formula = "mag"
         if to_radians:
             sw = self.to_radians(self.primary_sweep_values)
         else:
