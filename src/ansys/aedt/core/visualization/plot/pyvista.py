@@ -583,6 +583,7 @@ class CommonPlotter(object):
     @property
     def camera_position(self):
         """Get or set the camera position value. This parameter disables the default iso view.
+
         Value for the camera position. The value is for ``"xy"``, ``"xz"`` or ``"yz"``.
 
         Returns
@@ -710,7 +711,9 @@ class CommonPlotter(object):
     @property
     def background_color(self):
         """Background color.
-        It can be a tuple of (r,g,b)  or color name."""
+
+        It can be a tuple of (r,g,b)  or color name.
+        """
         return self._background_color
 
     @background_color.setter
@@ -774,7 +777,7 @@ class ModelPlotter(CommonPlotter):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modules.advanced_post_processing.FieldClass`
+        list[:class:`ansys.aedt.core.visualization.plot.FieldClass`]
         """
         return self._fields
 
@@ -784,7 +787,7 @@ class ModelPlotter(CommonPlotter):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modules.advanced_post_processing.FieldClass`
+        list[:class:`ansys.aedt.core.visualization.plot.FieldClass`]
         """
         return self._frames
 
@@ -794,7 +797,7 @@ class ModelPlotter(CommonPlotter):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modules.advanced_post_processing.ObjClass`
+        list[:class:`ansys.aedt.core.visualization.plot.pyvista.ObjClass`]
         """
         return self._objects
 
@@ -838,6 +841,7 @@ class ModelPlotter(CommonPlotter):
         show_edges=True,
     ):
         """Add a field file to the scenario.
+
         It can be aedtplt, fld or csv file or any txt file with 4 column [x,y,z,field].
         If text file they have to be space separated column.
 
@@ -910,6 +914,7 @@ class ModelPlotter(CommonPlotter):
             Delauny tolerance value used for interpolating points.
         header_lines : int
             Number of lines to of the file containing header info that has to be removed.
+
         Returns
         -------
         bool
@@ -1314,7 +1319,6 @@ class ModelPlotter(CommonPlotter):
 
         Parameters
         ----------
-
         export_image_path : str, optional
             Path to image to save. Default is None
         show : bool, optional
@@ -1337,7 +1341,7 @@ class ModelPlotter(CommonPlotter):
             root_name = "Image"  # pragma: no cover
 
         def s_callback():  # pragma: no cover
-            """save screenshots"""
+            """Save screenshots."""
             exp = os.path.join(path_image, f'{root_name}{datetime.now().strftime("%Y_%M_%d_%H-%M-%S")}{format}')
             self.pv.screenshot(exp, return_img=False)
 
@@ -1431,17 +1435,17 @@ class ModelPlotter(CommonPlotter):
             self.pv.open_gif(self.gif_file)
 
         def q_callback():
-            """exit when user wants to leave"""
+            """Exit when user wants to leave."""
             self._animating = False
 
         self._pause = False
 
         def p_callback():
-            """exit when user wants to leave"""
+            """Exit when user wants to leave."""
             self._pause = not self._pause
 
         self.pv.add_text(
-            "Press p for Play/Pause, Press q to exit ", font_size=8, position="upper_left", color=tuple(axes_color)
+            "Press p for Play/Pause, Press q to exit.", font_size=8, position="upper_left", color=tuple(axes_color)
         )
         self.pv.add_text(" ", font_size=10, position=[0, 0], color=tuple(axes_color))
         self.pv.add_key_event("q", q_callback)

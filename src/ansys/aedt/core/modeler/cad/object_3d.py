@@ -68,7 +68,7 @@ class Object3d(object):
     >>> aedtapp = Hfss()
     >>> prim = aedtapp.modeler
 
-    Create a part, such as box, to return an :class:`ansys.aedt.core.modeler.Object3d.Object3d`.
+    Create a part, such as box, to return an :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`.
 
     >>> id = prim.create_box([0, 0, 0],[10, 10, 5],"Mybox","Copper")
     >>> part = prim[id]
@@ -358,11 +358,12 @@ class Object3d(object):
         ----------
         assignment : str, :class:`Object3d`
             Object to check.
+
         Returns
         -------
         list
-            list of objects and faces touching."""
-
+            list of objects and faces touching.
+        """
         _names = []
         if isinstance(assignment, Object3d):
             assignment = assignment.name
@@ -378,7 +379,7 @@ class Object3d(object):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`
+        list[:class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`]
 
         References
         ----------
@@ -404,7 +405,7 @@ class Object3d(object):
 
         Returns
         -------
-        List of :class:`ansys.aedt.core.modeler.Object3d.FacePrimitive`
+        list[:class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`]
         """
         f_list = []
         for face in self.faces:
@@ -447,7 +448,7 @@ class Object3d(object):
 
         Returns
         -------
-        List of :class:`ansys.aedt.core.modeler.Object3d.FacePrimitive`
+        list[:class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`]
         """
         f = []
         for face in self.faces:
@@ -462,7 +463,7 @@ class Object3d(object):
 
         Returns
         -------
-        List of :class:`ansys.aedt.core.modeler.Object3d.EdgePrimitive`
+        list[:class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`]
         """
         e = []
         for edge in self.edges:
@@ -477,7 +478,7 @@ class Object3d(object):
 
         Returns
         -------
-        List of :class:`ansys.aedt.core.modeler.Object3d.FacePrimitive`
+        list[:class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`]
         """
         f = []
         for face in self.faces:
@@ -492,7 +493,7 @@ class Object3d(object):
 
         Returns
         -------
-        List of :class:`ansys.aedt.core.modeler.Object3d.EdgePrimitive`
+        list[:class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`]
         """
         e = []
         for edge in self.edges:
@@ -736,7 +737,7 @@ class Object3d(object):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`
+        list[:class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`]
 
         References
         ----------
@@ -758,7 +759,7 @@ class Object3d(object):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.elements_3d.VertexPrimitive`
+        list[:class:`ansys.aedt.core.modeler.cad.elements_3d.VertexPrimitive`]
 
         References
         ----------
@@ -1608,7 +1609,7 @@ class Object3d(object):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+        list[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
             List of names of the newly added objects.
 
         References
@@ -1778,7 +1779,7 @@ class Object3d(object):
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
+        list[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
             List of object resulting from the operation.
 
         References
@@ -1843,7 +1844,7 @@ class Object3d(object):
 
         Parameters
         ----------
-        object_name : str, :class:`ansys.aedt.core.modeler.Object3d.Object3d`
+        object_name : str, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Object name or solid object or sheet name.
         imprinted : bool, optional
             Either if imprint or not over the sheet. Default is `False`.
@@ -1894,7 +1895,7 @@ class Object3d(object):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`
+        list[:class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`]
             List of face primitives.
         """
 
@@ -1938,7 +1939,7 @@ class Object3d(object):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`
+        list[:class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`]
             List of edge primitives.
         """
         filters = ["==", "<=", ">=", "<", ">"]

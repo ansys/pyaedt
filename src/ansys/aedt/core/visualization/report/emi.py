@@ -43,7 +43,7 @@ class EMIReceiver(CommonReport):
         self.domain = "EMI Receiver"
         self.available_nets = []
         self._net = "0"
-        for comp in app.modeler.components.components.values():
+        for comp in app._app.modeler.components.components.values():
             if comp.name == "CompInst@EMI_RCVR":
                 self.available_nets.append(comp.pins[0].net)
         if self.available_nets:
@@ -82,11 +82,11 @@ class EMIReceiver(CommonReport):
         str
             Band name.
         """
-        return self._props["context"].get("band", None)
+        return self._legacy_props["context"].get("band", None)
 
     @band.setter
     def band(self, value):
-        self._props["context"]["band"] = value
+        self._legacy_props["context"]["band"] = value
 
     @property
     def emission(self):
@@ -105,10 +105,10 @@ class EMIReceiver(CommonReport):
     def emission(self, value):
         if value == "CE":
             self._emission = value
-            self._props["context"]["emission"] = "0"
+            self._legacy_props["context"]["emission"] = "0"
         elif value == "RE":
             self._emission = value
-            self._props["context"]["emission"] = "1"
+            self._legacy_props["context"]["emission"] = "1"
         else:
             self.logger.error(f"Emission must be 'CE' or 'RE', value '{value}' is not valid.")
 
@@ -121,11 +121,11 @@ class EMIReceiver(CommonReport):
         str
             Time start.
         """
-        return self._props["context"].get("time_start", None)
+        return self._legacy_props["context"].get("time_start", None)
 
     @time_start.setter
     def time_start(self, value):
-        self._props["context"]["time_start"] = value
+        self._legacy_props["context"]["time_start"] = value
 
     @property
     def time_stop(self):
@@ -136,11 +136,11 @@ class EMIReceiver(CommonReport):
         str
             Time stop.
         """
-        return self._props["context"].get("time_stop", None)
+        return self._legacy_props["context"].get("time_stop", None)
 
     @time_stop.setter
     def time_stop(self, value):
-        self._props["context"]["time_stop"] = value
+        self._legacy_props["context"]["time_stop"] = value
 
     @property
     def _context(self):

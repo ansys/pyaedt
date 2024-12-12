@@ -334,7 +334,7 @@ class Trace:
 
         Returns
         -------
-        List[:class:`numpy.array`]
+        list[:class:`numpy.array`]
             List of data.
         """
         return self._cartesian_data
@@ -357,7 +357,7 @@ class Trace:
 
         Returns
         -------
-        List[:class:`numpy.array`]
+        list[:class:`numpy.array`]
             List of data.
         """
         return self._spherical_data
@@ -486,7 +486,7 @@ class ReportPlotter:
 
         Returns
         -------
-         Dict[str, :class:`ansys.aedt.core.visualization.plot.matplotlib.Trace`]
+         dict[str, :class:`ansys.aedt.core.visualization.plot.matplotlib.Trace`]
         """
         return self._traces
 
@@ -496,7 +496,7 @@ class ReportPlotter:
 
         Returns
         -------
-         List[:class:`ansys.aedt.core.visualization.plot.matplotlib.Trace`]
+         list[:class:`ansys.aedt.core.visualization.plot.matplotlib.Trace`]
         """
         return list(self._traces.values())
 
@@ -516,7 +516,7 @@ class ReportPlotter:
 
         Returns
         -------
-         Dict[str, :class:`ansys.aedt.core.visualization.plot.matplotlib.LimitLine`]
+         dict[str, :class:`ansys.aedt.core.visualization.plot.matplotlib.LimitLine`]
         """
         return self._limit_lines
 

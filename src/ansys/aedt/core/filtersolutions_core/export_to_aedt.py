@@ -1247,7 +1247,7 @@ class ExportToAedt:
         The value can be either a string or an instance of the ``SubstrateEr`` enum.
         The default is ``9.8`` for ``SubstrateEr.ALUMINA``.
 
-        Returns:
+        Returns
         -------
         Union[SubstrateEr, str]
 
@@ -1282,7 +1282,7 @@ class ExportToAedt:
         The value can be either a string or an instance of the ``SubstrateResistivity`` enum.
         The default is ``1.43`` for ``SubstrateResistivity.GOLD``.
 
-        Returns:
+        Returns
         -------
         Union[SubstrateResistivity, str]
         """
@@ -1315,7 +1315,7 @@ class ExportToAedt:
         The value can be either a string or an instance of the ``SubstrateEr`` enum.
         The default is ``0.0005`` for ``SubstrateEr.ALUMINA``.
 
-        Returns:
+        Returns
         -------
         Union[SubstrateEr, str]
         """
@@ -1661,6 +1661,7 @@ class ExportToAedt:
 
     def modelithics_capacitor_remove_family(self, modelithics_capacitor) -> str:
         """Remove a specified ``Modelithics`` capacitor family from the capacitor family list.
+
         Parameters
         ----------
         modelithics_capacitor : str
@@ -1694,8 +1695,10 @@ class ExportToAedt:
     @property
     def modelithics_resistor_selection(self) -> str:
         """Selected ``Modelithics`` resistor family from the loaded list.
+
         The Modelithics resistor family selection allows you to choose a specific resistor model from the
         Modelithics library.
+
         Returns
         -------
         str

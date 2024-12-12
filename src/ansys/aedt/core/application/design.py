@@ -43,6 +43,7 @@ import string
 import sys
 import threading
 import time
+from typing import List
 import warnings
 
 from ansys.aedt.core.application.aedt_objects import AedtObjects
@@ -77,9 +78,9 @@ from ansys.aedt.core.generic.general_methods import remove_project_lock
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.generic.general_methods import write_csv
 from ansys.aedt.core.generic.load_aedt_file import load_entire_aedt_file
-from ansys.aedt.core.modules.boundary import BoundaryObject
-from ansys.aedt.core.modules.boundary import MaxwellParameters
-from ansys.aedt.core.modules.boundary import NetworkObject
+from ansys.aedt.core.modules.boundary.common import BoundaryObject
+from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
 
 if sys.version_info.major > 2:
     import base64
@@ -324,7 +325,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        Dict[str, :class:`ansys.aedt.core.application.variables.DataSet`]
+        dict[str, :class:`ansys.aedt.core.application.variables.DataSet`]
         """
         if not self._project_datasets:
             self._project_datasets = self._get_project_datasets()
@@ -336,19 +337,21 @@ class Design(AedtObjects):
 
         Returns
         -------
-        Dict[str, :class:`ansys.aedt.core.application.variables.DataSet`]
+        dict[str, :class:`ansys.aedt.core.application.variables.DataSet`]
         """
         if not self._design_datasets:
             self._design_datasets = self._get_design_datasets()
         return self._design_datasets
 
     @property
-    def boundaries(self):
+    def boundaries(self) -> List[BoundaryObject]:
         """Design boundaries and excitations.
+
 
         Returns
         -------
-        List of :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        list[:class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`]
+            Boundaries available in design.
         """
         bb = []
         if self.oboundary and "GetBoundaries" in self.oboundary.__dir__():
@@ -376,6 +379,12 @@ class Design(AedtObjects):
             current_excitation_types = ee[1::2]
             ff = [i.split(":")[0] for i in ee]
             bb.extend(ff)
+            for i in set(current_excitation_types):
+                if "GetExcitationsOfType" in self.oboundary.__dir__():
+                    ports = list(self.oboundary.GetExcitationsOfType(i))
+                    for p in ports:
+                        bb.append(p)
+                        bb.append(i)
         elif (
             self.oboundary
             and "Excitations" in self.get_oo_name(self.odesign)
@@ -431,6 +440,7 @@ class Design(AedtObjects):
                     del self._boundaries[k]
         for boundary, boundarytype in zip(current_boundaries, current_types):
             if boundary in self._boundaries:
+                self._boundaries[boundary]._initialize_bynary_tree()
                 continue
             if boundarytype == "MaxwellParameters":
                 maxwell_parameter_type = self.get_oo_property_value(self.odesign, f"Parameters\\{boundary}", "Type")
@@ -458,7 +468,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        Dictionary of boundaries.
+        dict[str, :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`]
         """
         _dict_out = {}
         for bound in self.boundaries:
@@ -1498,10 +1508,8 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.ExportProfile
         """
-
         if not output_file:
             output_file = os.path.join(self.working_directory, generate_unique_name("Profile") + ".prof")
         if not variation:
@@ -1577,7 +1585,6 @@ class Design(AedtObjects):
         >>> hfss.logger.info("Global info message")
         >>> hfss.logger.project_logger.info("Project info message")
         >>> hfss.logger.design_logger.info("Design info message")
-
         """
         warnings.warn(
             "`add_info_message` is deprecated. Use `logger.design_logger.info` instead.",
@@ -1620,7 +1627,6 @@ class Design(AedtObjects):
         >>> hfss.logger.warning("Global warning message", "Global")
         >>> hfss.logger.project_logger.warning("Project warning message", "Project")
         >>> hfss.logger.design_logger.warning("Design warning message")
-
         """
         warnings.warn(
             "`add_warning_message` is deprecated. Use `logger.design_logger.warning` instead.",
@@ -1664,7 +1670,6 @@ class Design(AedtObjects):
         >>> hfss.logger.error("Global error message", "Global")
         >>> hfss.logger.project_logger.error("Project error message", "Project")
         >>> hfss.logger.design_logger.error("Design error message")
-
         """
         warnings.warn(
             "`add_error_message` is deprecated. Use `logger.design_logger.error` instead.",
@@ -1757,6 +1762,7 @@ class Design(AedtObjects):
             Full name of the AEDT registry key.
         value : str, int
             Value for the AEDT registry key.
+
         Returns
         -------
         bool
@@ -1764,7 +1770,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.SetRegistryString
         >>> oDesktop.SetRegistryInt
         """
@@ -2350,7 +2355,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        [:class:`ansys.aedt.core.modules.boundary.BoundaryObject`]
+        list[:class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`]
         """
         boundaries = []
         if self.design_properties and "BoundarySetup" in self.design_properties:
@@ -3801,7 +3806,7 @@ class Design(AedtObjects):
             self.oproject.Save()
         if refresh_ids:
             self.modeler.refresh_all_ids()
-            self.modeler._refresh_all_ids_from_aedt_file()
+            self.modeler._refresh_all_ids_wrapper()
             self.mesh._refresh_mesh_operations()
         self._project_name = None
         self._project_path = None

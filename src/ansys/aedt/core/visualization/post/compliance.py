@@ -454,7 +454,7 @@ class VirtualCompliance:
 
         Returns
         -------
-        Dict[str, :class:`ansys.aedt.core.generic.compliance.ReportTemplate`]
+        dict[str, :class:`ansys.aedt.core.generic.compliance.ReportTemplate`]
         """
         return self._reports
 
@@ -468,7 +468,7 @@ class VirtualCompliance:
 
         Returns
         -------
-        Dict[str, :class:`ansys.aedt.core.generic.compliance.ParametersTemplate`]
+        dict[str, :class:`ansys.aedt.core.generic.compliance.ParametersTemplate`]
         """
         return self._parameters
 
@@ -1082,6 +1082,7 @@ class VirtualCompliance:
     @pyaedt_function_handler()
     def add_specs_to_report(self, folder):
         """Add specs to the report from a given folder.
+
         All images in such folder will be added to the report.
 
         Parameters

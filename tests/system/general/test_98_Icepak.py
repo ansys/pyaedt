@@ -26,10 +26,10 @@ import os
 
 from ansys.aedt.core import Icepak
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.modules.boundary import NativeComponentObject
-from ansys.aedt.core.modules.boundary import NetworkObject
-from ansys.aedt.core.modules.boundary import PCBSettingsDeviceParts
-from ansys.aedt.core.modules.boundary import PCBSettingsPackageParts
+from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
+from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
+from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
+from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsPackageParts
 from ansys.aedt.core.modules.mesh_icepak import MeshRegion
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.visualization.post.field_data import FolderPlotSettings
@@ -1228,10 +1228,12 @@ class TestClass:
         self.aedtapp.modeler.user_defined_components[fan.name].duplicate_along_line([4, 5, 6])
         fan_1_history = self.aedtapp.modeler.user_defined_components[fan.name].history()
         assert fan_1_history.command == "Move"
-        assert all(fan_1_history.props["Move Vector/" + i] == j + "mm" for i, j in [("X", "1"), ("Y", "2"), ("Z", "3")])
+        assert all(
+            fan_1_history.properties["Move Vector/" + i] == j + "mm" for i, j in [("X", "1"), ("Y", "2"), ("Z", "3")]
+        )
         assert fan_1_history.children["DuplicateAlongLine:1"].command == "DuplicateAlongLine"
         assert all(
-            fan_1_history.children["DuplicateAlongLine:1"].props["Vector/" + i] == j + "mm"
+            fan_1_history.children["DuplicateAlongLine:1"].properties["Vector/" + i] == j + "mm"
             for i, j in [("X", "4"), ("Y", "5"), ("Z", "6")]
         )
 

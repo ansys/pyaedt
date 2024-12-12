@@ -1270,7 +1270,7 @@ class Layers(object):
 
         Returns
         -------
-        Dict[str, :class:`ansys.aedt.core.modules.layer_stackup.Layer`]
+        dict[str, :class:`ansys.aedt.core.modules.layer_stackup.Layer`]
            Conductor layers.
 
         References
@@ -1286,7 +1286,7 @@ class Layers(object):
 
         Returns
         -------
-        Dict[str, :class:`ansys.aedt.core.modules.layer_stackup.Layer`]
+        dict[str, :class:`ansys.aedt.core.modules.layer_stackup.Layer`]
            Dielectric layers.
 
         References
@@ -1302,7 +1302,7 @@ class Layers(object):
 
         Returns
         -------
-        Dict[str, :class:`ansys.aedt.core.modules.layer_stackup.Layer`]
+        dict[str, :class:`ansys.aedt.core.modules.layer_stackup.Layer`]
            Drawing layers.
 
         References
@@ -1348,7 +1348,7 @@ class Layers(object):
 
         Returns
         -------
-         Dict[int, :class:`ansys.aedt.core.modules.layer_stackup.Layer`]
+         dict[int, :class:`ansys.aedt.core.modules.layer_stackup.Layer`]
             Number of layers in the current stackup.
         """
         layers = {}

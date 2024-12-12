@@ -56,11 +56,6 @@ class EmitComponents(object):
         return self._parent._aedt_version
 
     @property
-    def design_types(self):
-        """Design types."""
-        return self._parent._modeler
-
-    @property
     def model_units(self):
         """Model units."""
         return self.modeler.model_units
@@ -396,6 +391,7 @@ class EmitComponent(object):
     @pyaedt_function_handler()
     def port_names(self):
         """Get the names of the component's ports.
+
         Returns
         -------
         List
@@ -403,7 +399,6 @@ class EmitComponent(object):
 
         References
         ----------
-
         >>> oEditor.GetComponentPorts
         """
         return self.oeditor.GetComponentPorts(self.name)

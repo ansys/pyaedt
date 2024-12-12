@@ -1,10 +1,11 @@
 Parametrize Layout
 ==================
 
-You can parametrize stackup, materials, padstacks and traces of an existing 3D Layout design and also
-and change the size of voids and polygons to conduct corner analysis.
+The extension allows users to apply parametrization to layouts in HFSS 3D Layout designs.
+This includes layers, materials, padstacks, traces, and nets, providing a flexible way to create parametric models.
 
-The extension is accessible through the icon created by the Extension Manager in the **Automation** tab.
+The extension provides a graphical user interface (GUI) for configuration,
+or it can be used in batch mode via command line arguments.
 
 The following image shows the extension user interface:
 
@@ -13,20 +14,50 @@ The following image shows the extension user interface:
   :alt: Parametrize Layout UI
 
 
-The available arguments are: ``aedb_path``, ``design_name``, ``parametrize_layers``,
-``parametrize_materials``, ``parametrize_padstacks``, ``parametrize_traces``, ``nets_filter``,
-``expansion_polygon_mm``, ``expansion_void_mm``, ``relative_parametric``, ``project_name``.
+Features
+--------
 
-``aedb_path`` and ``design_name`` define the source aedb project.
-``parametrize_layers``, ``parametrize_materials``, ``parametrize_padstacks``, ``parametrize_traces``
-define which part of the aedb has to be parametrized while the ``nets_filter`` defines which net has to be included.
-``expansion_polygon_mm`` and ``expansion_void_mm`` define if and which value of expansion has to be applied on
-polygons and voids.
-``relative_parametric`` defines if the parameters have to be considered as a delta of the original value.
-``project_name`` is the new project name.
+- Allow users to parametrize layers, materials, padstacks, nets, and traces, with support for relative and absolute parameters.
+- Support the expansion of polygons and voids by a specified amount (in mm).
 
-The extension user interface can also be launched from the terminal. An example can be found here:
 
+Using the extension
+-------------------
+
+1. Open the **Automation** tab in the HFSS 3D Layout interface.
+2. Locate and click the **Layout Parametrization** icon under the Extension Manager.
+3. In the GUI, users can interact with the following elements:
+   - **Project Name**: A text box to specify the name for the new parametric project.
+   - **Use Relative Parameters**: A checkbox to enable or disable relative parameters for the design.
+   - **Parametrize Layers**: A checkbox to enable parametrization of layers in the layout.
+   - **Parametrize Materials**: A checkbox to enable parametrization of materials.
+   - **Parametrize Padstacks**: A checkbox to enable parametrization of padstacks.
+   - **Parametrize Traces**: A checkbox to enable parametrization of traces.
+   - **Extend Polygons (mm)**: A text box to define the expansion size for polygons in mm.
+   - **Extend Voids (mm)**: A text box to define the expansion size for voids in mm.
+   - **Select Nets**: A list box to select nets (or leave empty for all nets) that is parametrized.
+4. Select the desired options and click **Create Parametric Model** to generate the parametric model.
+
+
+Command line
+------------
+
+Supported arguments include:
+
+- **aedb path**: Path to the input AEDB file.
+- **design name**: Name of the design in the AEDB file.
+- **parametrize layers**: Boolean flag to enable parametrization of layers.
+- **parametrize materials**: Boolean flag to enable parametrization of materials.
+- **parametrize padstacks**: Boolean flag to enable parametrization of padstacks.
+- **parametrize traces**: Boolean flag to enable parametrization of traces.
+- **nets filter**: List of nets to apply parametrization to (leave empty for all nets).
+- **expansion polygon mm**: Expansion size for polygons in mm.
+- **expansion void mm**: Expansion size for voids in mm.
+- **relative parametric**: Boolean flag to apply relative parameters.
+- **project name**: Name for the new parametric project.
+- **is batch**: Boolean flag to enable batch mode.
+
+Use the following syntax to run the extension:
 
 .. toctree::
    :maxdepth: 2

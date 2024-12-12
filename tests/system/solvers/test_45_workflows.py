@@ -53,11 +53,15 @@ class TestClass:
     def test_01_template(self, add_app):
         aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="workflow_test")
 
-        from ansys.aedt.core.workflows.templates.extension_template import main
+        from ansys.aedt.core.workflows.templates.template_get_started import main
 
-        assert main({"is_test": True})
-
+        assert main({"is_test": True, "origin_x": 2})
         assert len(aedtapp.modeler.object_list) == 1
+
+        file_path = os.path.join(solver_local_path, "example_models", "T00", "test_solve.aedt")
+        assert main({"is_test": True, "file_path": file_path})
+        assert len(aedtapp.project_list) == 2
+
         aedtapp.close_project(aedtapp.project_name)
 
     def test_02_hfss_push(self, add_app):
@@ -186,10 +190,6 @@ class TestClass:
 
         assert main({"is_test": True})
 
-    @pytest.mark.skipif(
-        TEST_REVIEW_FLAG,
-        reason="Test under review in 2024.2",
-    )
     def test_08_configure_a3d(self, local_scratch):
         from ansys.aedt.core.workflows.project.configure_edb import main
 
@@ -440,10 +440,6 @@ class TestClass:
         # assert h3d.design_datasets
         h3d.close_project(h3d.project_name)
 
-    @pytest.mark.skipif(
-        TEST_REVIEW_FLAG,
-        reason="Test under review in 2024.2",
-    )
     def test_11_cutout(self, add_app, local_scratch):
         from ansys.aedt.core.workflows.hfss3dlayout.cutout import main
 
@@ -461,10 +457,6 @@ class TestClass:
         )
         app.close_project()
 
-    @pytest.mark.skipif(
-        TEST_REVIEW_FLAG,
-        reason="Test under review in 2024.2",
-    )
     def test_12_export_layout(self, add_app, local_scratch):
         from ansys.aedt.core.workflows.hfss3dlayout.export_layout import main
 
@@ -473,10 +465,6 @@ class TestClass:
         assert main({"is_test": True, "export_ipc": True, "export_configuration": True, "export_bom": True})
         app.close_project()
 
-    @pytest.mark.skipif(
-        TEST_REVIEW_FLAG,
-        reason="Test under review in 2024.2",
-    )
     def test_13_parametrize_layout(self, local_scratch):
         from ansys.aedt.core.workflows.hfss3dlayout.parametrize_edb import main
 
@@ -513,10 +501,22 @@ class TestClass:
 
     def test_15_import_asc(self, local_scratch, add_app):
         aedtapp = add_app("Circuit", application=ansys.aedt.core.Circuit)
-        file_path = os.path.join(local_path, "example_models", "T21", "butter.asc")
+
         from ansys.aedt.core.workflows.circuit.import_schematic import main
 
+        file_path = os.path.join(local_path, "example_models", "T21", "butter.asc")
         assert main({"is_test": True, "asc_file": file_path})
+
+        file_path = os.path.join(local_path, "example_models", "T21", "netlist_small.cir")
+        assert main({"is_test": True, "asc_file": file_path})
+
+        file_path = os.path.join(local_path, "example_models", "T21", "Schematic1.qcv")
+        assert main({"is_test": True, "asc_file": file_path})
+
+        file_path_invented = os.path.join(local_path, "example_models", "T21", "butter_invented.asc")
+        with pytest.raises(Exception) as execinfo:
+            main({"is_test": True, "asc_file": file_path_invented})
+            assert execinfo.args[0] == "File does not exist."
         aedtapp.close_project()
 
     @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")

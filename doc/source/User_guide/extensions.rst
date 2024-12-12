@@ -1,7 +1,7 @@
 Extension manager
 =================
 
-Extensions provide a simplified interface to perform automated workflows in AEDT, they are generally tool-specific and are therefore only accessible given the appropriate context.
+Extensions provide a simplified graphical user interface (GUI) to perform automated workflows in AEDT, they are generally tool-specific and are therefore only accessible given the appropriate context.
 In AEDT, you can use the `Extension manager <https://aedt.docs.pyansys.com/version/stable/Getting_started/Installation.html#extension-manager>`_ to add or remove extensions.
 The Extension manager allows the user to install three different types of extensions:
 
@@ -20,7 +20,7 @@ Project extensions
 ~~~~~~~~~~~~~~~~~~
 
 Pre-installed extensions are available at project level so they are available for all AEDT applications.
-They are small automated workflow with a simple UI.
+They are small automated workflows with a simple GUI.
 
 .. grid:: 2
 
@@ -60,7 +60,7 @@ HFSS 3D Layout extensions
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Pre-installed extensions are available at HFSS 3D Layout level.
-They are small automated workflow with a simple UI.
+They are small automated workflows with a simple GUI.
 
 .. grid:: 2
 
@@ -79,12 +79,40 @@ They are small automated workflow with a simple UI.
 
             Generate arbitrary wave ports in HFSS.
 
+   .. grid-item-card:: Push excitation from file
+            :link: pyaedt_extensions_doc/hfss3dlayout/push_excitation
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Edit a source from file data in HFSS 3D Layout.
+
+   .. grid-item-card:: Cutout
+            :link: pyaedt_extensions_doc/hfss3dlayout/cutout
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Advanced layout cutout.
+
+   .. grid-item-card:: Export layout
+            :link: pyaedt_extensions_doc/hfss3dlayout/export_layout
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Export layout.
+
+   .. grid-item-card:: Export to 3D
+            :link: pyaedt_extensions_doc/hfss3dlayout/export_3d
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Export layout to 3D.
+
 
 HFSS extensions
 ~~~~~~~~~~~~~~~
 
 Pre-installed extensions are available at HFSS level.
-They are small automated workflow with a simple UI.
+They are small automated workflows with a simple GUI.
 
 .. grid:: 2
 
@@ -95,12 +123,19 @@ They are small automated workflow with a simple UI.
 
             Design a choke and import it in HFSS.
 
+   .. grid-item-card:: Push excitation from file
+            :link: pyaedt_extensions_doc/hfss/push_excitation
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Edit a source from file data in HFSS.
+
 
 Icepak extensions
 ~~~~~~~~~~~~~~~~~
 
 Pre-installed extensions are available at Icepak level.
-They are small automated workflow with a simple UI.
+They are small automated workflows with a simple GUI.
 
 .. grid:: 2
 
@@ -112,6 +147,51 @@ They are small automated workflow with a simple UI.
             Import a CSV file containing sources layout and power dissipation information.
 
 
+Circuit extensions
+~~~~~~~~~~~~~~~~~~
+
+Pre-installed extensions are available at Circuit level.
+They are small automated workflows with a simple GUI.
+
+.. grid:: 2
+
+   .. grid-item-card:: Schematic import
+            :link: pyaedt_extensions_doc/circuit/import_schematic
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Import different schematic files (ACS, SP, CIR, QCV) into Circuit.
+
+
+Twin Builder extensions
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Pre-installed extensions are available at Twin Builder level.
+They are small automated workflows with a simple GUI.
+
+.. grid:: 2
+
+   .. grid-item-card:: Convert to Circuit
+            :link: pyaedt_extensions_doc/twinbuilder/convert_to_circuit
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Convert Twin Builder design to Circuit.
+
+
+Templates
+~~~~~~~~~
+Templates to show how to build an extension consisting of a small automated workflow with a simple UI.
+
+.. grid:: 2
+
+   .. grid-item-card:: Extension template
+            :link: pyaedt_extensions_doc/templates/getting_started
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Simple extension template to get started.
+
 .. toctree::
    :hidden:
    :maxdepth: 1
@@ -120,6 +200,9 @@ They are small automated workflow with a simple UI.
    pyaedt_extensions_doc/hfss3dlayout/index
    pyaedt_extensions_doc/hfss/index
    pyaedt_extensions_doc/icepak/index
+   pyaedt_extensions_doc/circuit/index
+   pyaedt_extensions_doc/twinbuilder/index
+   pyaedt_extensions_doc/templates/index
 
 
 Open source toolkits
@@ -180,7 +263,7 @@ The Python script requires a common initial part to define the port and the vers
     active_project = app.active_project()
     active_design = app.active_design(active_project)
 
-    # no need to hardcode you application but get_pyaedt_app will detect it for you
+    # no need to hardcode your application since get_pyaedt_app detects it for you
     aedtapp = ansys.aedt.core.get_pyaedt_app(design_name=active_design.GetName(), desktop=app)
 
     # your workflow

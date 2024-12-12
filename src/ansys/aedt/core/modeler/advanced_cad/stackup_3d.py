@@ -23,26 +23,6 @@
 # SOFTWARE.
 
 import os
-import warnings
-
-try:
-    import joblib
-except ImportError:  # pragma: no cover
-    joblib = None
-    warnings.warn(
-        "The Joblib module is required to use functionalities provided by the module "
-        "ansys.aedt.core.modeler.advanced_cad.stackup_3d.\n"
-        "Install with \n\npip install joblib"
-    )
-try:
-    import numpy as np
-except ImportError:  # pragma: no cover
-    np = None
-    warnings.warn(
-        "The Numpy module is required to use functionalities provided by the module "
-        "ansys.aedt.core.modeler.advanced_cad.stackup_3d.\n"
-        "Install with \n\npip install numpy"
-    )
 
 from ansys.aedt.core import constants
 from ansys.aedt.core import pyaedt_path
@@ -616,7 +596,6 @@ class Layer3D(object):
         :class:`ansys.aedt.core.modules.material.Material`
             Material object.
         """
-
         if isinstance(material_name, Material):  # Make sure material_name is of type str.
             material_name = material_name.name
         if isinstance(cloned_material_name, Material):  # Make sure cloned_material_name is of type str.
@@ -671,7 +650,6 @@ class Layer3D(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss()
@@ -681,7 +659,6 @@ class Layer3D(object):
         >>> top = my_stackup.add_signal_layer("top")
         >>> my_patch = top.add_patch(frequency=None, patch_width=51, patch_name="MLPatch")
         >>> my_stackup.resize_around_element(my_patch)
-
         """
         if not patch_name:
             patch_name = generate_unique_name(f"{self._name}_patch", n=3)
@@ -3486,8 +3463,11 @@ class MachineLearningPatch(Patch, object):
         self.predict_length()
 
     def predict_length(self):
-        if joblib is None:  # pragma: no cover
-            raise ImportError("Package Joblib is required to run ML.")
+        try:
+            import joblib
+            import numpy as np
+        except ImportError:  # pragma: no cover
+            raise ImportError("Package Joblib and Numpy are required to run ML.")
         training_file = None
         if 1e9 >= self.frequency.numeric_value >= 1e8:
             training_file = os.path.join(pyaedt_path, "misc", "patch_svr_model_100MHz_1GHz.joblib")

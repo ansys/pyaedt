@@ -55,9 +55,9 @@ from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.modules.boundary import MaxwellParameters
-from ansys.aedt.core.modules.boundary import NativeComponentObject
-from ansys.aedt.core.modules.boundary import NativeComponentPCB
+from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
+from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
 from ansys.aedt.core.modules.design_xploration import OptimizationSetups
 from ansys.aedt.core.modules.design_xploration import ParametricSetups
 from ansys.aedt.core.modules.solve_setup import Setup
@@ -238,7 +238,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.modules.solve_setup.Setup`]
+        list[:class:`ansys.aedt.core.modules.solve_setup.Setup`]
             Setups in the project.
 
         """
@@ -407,11 +407,9 @@ class Analysis(Design, object):
 
         References
         ----------
-
         >>> oModule.GelAllSolutionNames
         >>> oModule.GetSweeps
         """
-
         if len(self.existing_analysis_sweeps) > 1:
             return self.existing_analysis_sweeps[1]
         else:
@@ -1539,14 +1537,16 @@ class Analysis(Design, object):
             setup = SetupSBR(self, setuptype, name, is_new_setup=False)
         elif self.design_type in ["Q3D Extractor", "2D Extractor", "HFSS"]:
             setup = SetupHFSS(self, setuptype, name, is_new_setup=False)
-            if setup.props and setup.props.get("SetupType", "") == "HfssDrivenAuto":
+            if setup.properties:
+                if "Auto Solver Setting" in setup.properties:
+                    setup = SetupHFSSAuto(self, 0, name, is_new_setup=False)
+            elif setup.props and setup.props.get("SetupType", "") == "HfssDrivenAuto":
                 setup = SetupHFSSAuto(self, 0, name, is_new_setup=False)
         elif self.design_type in ["Maxwell 2D", "Maxwell 3D"]:
             setup = SetupMaxwell(self, setuptype, name, is_new_setup=False)
         else:
             setup = Setup(self, setuptype, name, is_new_setup=False)
-        if setup.props:
-            self.active_setup = name
+        self.active_setup = name
         return setup
 
     @pyaedt_function_handler()
