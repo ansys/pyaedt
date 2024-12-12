@@ -420,47 +420,47 @@ class Polyline(Object3d):
         if h_segments:
             for i, c in enumerate(h_segments.values()):
                 # evaluate the number of points in the segment
-                attrb = list(c.props.keys())
+                attrb = list(c.properties.keys())
                 n_points = 0
                 for j in range(1, len(attrb) + 1):
                     if "Point" + str(j) in attrb:
                         n_points += 1
                 # get the segment type
-                s_type = c.props["Segment Type"]
+                s_type = c.properties["Segment Type"]
                 if i == 0:  # append the first point only for the first segment
                     if s_type != "Center Point Arc":
                         p = [
-                            c.props["Point1/X"],
-                            c.props["Point1/Y"],
-                            c.props["Point1/Z"],
+                            c.properties["Point1/X"],
+                            c.properties["Point1/Y"],
+                            c.properties["Point1/Z"],
                         ]
                         points.append(_convert_points(p, self._primitives.model_units))
                     else:
                         p = [
-                            c.props["Start Point/X"],
-                            c.props["Start Point/Y"],
-                            c.props["Start Point/Z"],
+                            c.properties["Start Point/X"],
+                            c.properties["Start Point/Y"],
+                            c.properties["Start Point/Z"],
                         ]
                         points.append(_convert_points(p, self._primitives.model_units))
                 if s_type == "Line":
                     segments.append(PolylineSegment("Line"))
                     p = [
-                        c.props["Point2/X"],
-                        c.props["Point2/Y"],
-                        c.props["Point2/Z"],
+                        c.properties["Point2/X"],
+                        c.properties["Point2/Y"],
+                        c.properties["Point2/Z"],
                     ]
                     points.append(_convert_points(p, self._primitives.model_units))
                 elif s_type == "3 Point Arc":
                     segments.append(PolylineSegment("Arc"))
                     p2 = [
-                        c.props["Point2/X"],
-                        c.props["Point2/Y"],
-                        c.props["Point2/Z"],
+                        c.properties["Point2/X"],
+                        c.properties["Point2/Y"],
+                        c.properties["Point2/Z"],
                     ]
                     p3 = [
-                        c.props["Point3/X"],
-                        c.props["Point3/Y"],
-                        c.props["Point3/Z"],
+                        c.properties["Point3/X"],
+                        c.properties["Point3/Y"],
+                        c.properties["Point3/Z"],
                     ]
 
                     points.append(_convert_points(p2, self._primitives.model_units))
@@ -470,27 +470,27 @@ class Polyline(Object3d):
                     for p in range(2, n_points + 1):
                         point_attr = "Point" + str(p)
                         p2 = [
-                            c.props[f"{point_attr}/X"],
-                            c.props[f"{point_attr}/Y"],
-                            c.props[f"{point_attr}/Z"],
+                            c.properties[f"{point_attr}/X"],
+                            c.properties[f"{point_attr}/Y"],
+                            c.properties[f"{point_attr}/Z"],
                         ]
 
                         points.append(_convert_points(p2, self._primitives.model_units))
                 elif s_type == "Center Point Arc":
                     p2 = [
-                        c.props["Start Point/X"],
-                        c.props["Start Point/Y"],
-                        c.props["Start Point/Z"],
+                        c.properties["Start Point/X"],
+                        c.properties["Start Point/Y"],
+                        c.properties["Start Point/Z"],
                     ]
                     p3 = [
-                        c.props["Center Point/X"],
-                        c.props["Center Point/Y"],
-                        c.props["Center Point/Z"],
+                        c.properties["Center Point/X"],
+                        c.properties["Center Point/Y"],
+                        c.properties["Center Point/Z"],
                     ]
                     start = _convert_points(p2, self._primitives.model_units)
                     center = _convert_points(p3, self._primitives.model_units)
-                    plane = c.props["Plane"]
-                    angle = c.props["Angle"]
+                    plane = c.properties["Plane"]
+                    angle = c.properties["Angle"]
                     arc_seg = PolylineSegment("AngularArc", arc_angle=angle, arc_center=center, arc_plane=plane)
                     segments.append(arc_seg)
                     self._evaluate_arc_angle_extra_points(arc_seg, start)
@@ -498,8 +498,8 @@ class Polyline(Object3d):
 
         # perform validation
         if history:
-            nn_segments = int(history.props["Number of curves"])
-            nn_points = int(history.props["Number of points"])
+            nn_segments = int(history.properties["Number of curves"])
+            nn_points = int(history.properties["Number of points"])
         else:
             nn_segments = None
             nn_points = None

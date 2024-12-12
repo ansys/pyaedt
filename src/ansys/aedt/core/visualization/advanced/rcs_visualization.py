@@ -263,6 +263,7 @@ class MonostaticRCSData(object):
     @property
     def data_conversion_function(self):
         """RCS data conversion function.
+
         The available functions are:
 
         - `"dB10"`: Converts the data to decibels using base 10 logarithm.
@@ -285,6 +286,7 @@ class MonostaticRCSData(object):
     @property
     def window(self):
         """Window function.
+
         The available functions are: Options are ``"Flat"``, ``"Hamming``", and ``"Hann"``.
         """
         return self.__window
@@ -434,7 +436,6 @@ class MonostaticRCSData(object):
     @property
     def isar_2d(self):
         """ISAR 2D."""
-
         phis = self.available_incident_wave_phi
         thetas = self.available_incident_wave_theta
         nfreq = len(self.frequencies)
@@ -715,7 +716,6 @@ class MonostaticRCSPlotter(object):
         :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
             PyAEDT matplotlib figure object.
         """
-
         curves = []
         all_secondary_sweep_value = secondary_sweep_value
         if primary_sweep.lower() == "freq" or primary_sweep.lower() == "frequency":
@@ -813,7 +813,6 @@ class MonostaticRCSPlotter(object):
             If ``show=True``, a Matplotlib figure instance of the plot is returned.
             If ``show=False``, the plotted curve is returned.
         """
-
         data = self.rcs_data.rcs_active_frequency
 
         rcs = data["Data"]
@@ -882,7 +881,6 @@ class MonostaticRCSPlotter(object):
         :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
             PyAEDT matplotlib figure object.
         """
-
         data_range_profile = self.rcs_data.range_profile
 
         ranges = np.unique(data_range_profile["Range"])
@@ -933,7 +931,6 @@ class MonostaticRCSPlotter(object):
         :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
             PyAEDT matplotlib figure object.
         """
-
         data_range_waterfall = self.rcs_data.waterfall
 
         ranges = np.unique(data_range_waterfall["Range"])
@@ -998,7 +995,6 @@ class MonostaticRCSPlotter(object):
         :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
             PyAEDT matplotlib figure object.
         """
-
         data_isar = self.rcs_data.isar_2d
 
         ranges = np.unique(data_isar["Down-range"])
@@ -1052,7 +1048,6 @@ class MonostaticRCSPlotter(object):
             Returns the ``Plotter`` object if ``show`` is set to ``False``. If ``show`` is ``True``,
             the plot is displayed and no value is returned.
         """
-
         pv_backend = PyVistaBackend(allow_picking=True, plot_picked_names=True)
         plotter = Plotter(backend=pv_backend)
 
@@ -1978,6 +1973,7 @@ class SceneMeshObject:
 
     @property
     def mesh(self):
+        """Get the mesh object."""
         return self.__mesh
 
     @mesh.setter
@@ -1987,6 +1983,7 @@ class SceneMeshObject:
 
     @property
     def z_offset(self):
+        "Offset in the Z direction."
         return self.__z_offset
 
     @z_offset.setter
