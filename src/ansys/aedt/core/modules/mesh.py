@@ -463,9 +463,8 @@ class Mesh(object):
 
         Returns
         -------
-        List
-            List of :class:`ansys.aedt.core.modules.mesh.MeshOperation`
-                        List of mesh operation object.
+        List[:class:`ansys.aedt.core.modules.mesh.MeshOperation`]
+            List of mesh operation object.
 
         Examples
         --------
