@@ -179,6 +179,19 @@ They are small automated workflows with a simple GUI.
             Convert Twin Builder design to Circuit.
 
 
+Templates
+~~~~~~~~~
+Templates to show how to build an extension consisting of a small automated workflow with a simple UI.
+
+.. grid:: 2
+
+   .. grid-item-card:: Extension template
+            :link: pyaedt_extensions_doc/templates/getting_started
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Simple extension template to get started.
+
 .. toctree::
    :hidden:
    :maxdepth: 1
@@ -189,6 +202,7 @@ They are small automated workflows with a simple GUI.
    pyaedt_extensions_doc/icepak/index
    pyaedt_extensions_doc/circuit/index
    pyaedt_extensions_doc/twinbuilder/index
+   pyaedt_extensions_doc/templates/index
 
 
 Open source toolkits

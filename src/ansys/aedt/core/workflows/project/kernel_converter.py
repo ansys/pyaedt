@@ -130,7 +130,7 @@ def frontend():  # pragma: no cover
     def browseFiles():
         filename = filedialog.askopenfilename(
             initialdir="/",
-            title="Select a Electronics File",
+            title="Select an Electronics File",
             filetypes=(("AEDT", ".aedt *.a3dcomp"), ("all files", "*.*")),
         )
         text.insert(tkinter.END, filename)
