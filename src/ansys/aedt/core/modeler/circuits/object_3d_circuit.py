@@ -164,7 +164,7 @@ class CircuitPins(object):
 
         Parameters
         ----------
-        assignment : :class:`ansys.aedt.core.modeler.circuits.primitives_nexxim.CircuitPins`
+        assignment : :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitPins`
            Component pin to attach.
         page_name : str, optional
             Page port name. The default value is ``None``, in which case
@@ -607,7 +607,7 @@ class CircuitComponent(object):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.Object3d.CircuitPins`
+        List[:class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitPins`]
 
         """
         if self._pins:
