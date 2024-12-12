@@ -97,8 +97,7 @@ class DllInterface:
         self._dll.getVersion.restype = ctypes.c_int
 
     def get_string(self, dll_function: Callable, max_size=100) -> str:
-        """
-        Call a DLL function that returns a string.
+        """Call a DLL function that returns a string.
 
         Parameters
         ----------
@@ -108,13 +107,13 @@ class DllInterface:
             Maximum number of string characters to return. This value is used for the string buffer size.
 
         Raises
-        -------
+        ------
         If there is an error in the execution of the DLL function, an exception is raised.
 
         Returns
-        --------
+        -------
         str
-        Return value of the called DLL function.
+            Return value of the called DLL function.
         """
         text_buffer = ctypes.create_string_buffer(max_size)
         status = dll_function(text_buffer, max_size)

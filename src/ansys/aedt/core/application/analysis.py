@@ -238,7 +238,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.modules.solve_setup.Setup`]
+        list[:class:`ansys.aedt.core.modules.solve_setup.Setup`]
             Setups in the project.
 
         """

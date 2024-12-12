@@ -47,7 +47,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode):
     Examples
     --------
 
-    Create a matrix in Maxwell3D return a ``ansys.aedt.core.modules.boundary.BoundaryObject``
+    Create a matrix in Maxwell3D return a ``ansys.aedt.core.modules.boundary.common.BoundaryObject``
 
     >>> from ansys.aedt.core import Maxwell2d
     >>> maxwell_2d = Maxwell2d()
