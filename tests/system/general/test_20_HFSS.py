@@ -139,7 +139,7 @@ class TestClass:
         coat = self.aedtapp.assign_coating([id, "inner_1", 41], **args)
         coat.name = "Coating1inner"
         assert coat.update()
-        assert coat.object_properties
+        assert coat.properties
         material = coat.props.get("Material", "")
         assert material == "aluminum"
         assert not self.aedtapp.assign_coating(["insulator2", 45])
@@ -164,7 +164,7 @@ class TestClass:
             terminals_rename=False,
         )
 
-        assert port.object_properties
+        assert port.properties
         assert port.name == "sheet1_Port"
         assert port.name in [i.name for i in self.aedtapp.boundaries]
         assert port.props["RenormalizeAllTerminals"] is False
