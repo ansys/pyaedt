@@ -36,10 +36,7 @@ from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 
 test_subfolder = "TMaxwell"
-if config["desktopVersion"] > "2022.2":
-    test_name = "Motor_EM_R2019R3_231"
-else:
-    test_name = "Motor_EM_R2019R3"
+test_name = "Motor_EM_R2019R3_231"
 
 ctrl_prg = "TimeStepCtrl"
 ctrl_prg_file = "timestep_only.py"
@@ -54,9 +51,6 @@ def aedtapp(add_app):
     app = add_app(
         project_name=test_name, design_name="Basis_Model_For_Test", application=Maxwell2d, subfolder=test_subfolder
     )
-    if config["desktopVersion"] < "2023.1":
-        app.duplicate_design("design_for_test")
-        app.set_active_design("Basis_Model_For_Test")
     return app
 
 
