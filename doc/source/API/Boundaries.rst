@@ -20,7 +20,7 @@ app methods and can be used to edit or delete a boundary condition.
    layout_boundary.BoundaryObject3dLayout
    icepak_boundary.NetworkObject
 
-Circuit Excitations
+Circuit excitations
 -------------------
 To facilitate excitations assignment in Circuit, multiple classes have been created.
 
