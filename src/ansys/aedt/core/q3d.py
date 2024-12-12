@@ -1083,9 +1083,6 @@ class QExtractor(FieldAnalysis3D, object):
 
         if model is None:
             model = self.project_name
-        elif model != self.project_name:
-            self.logger.error("Invalid project name.")
-            return False
 
         if decompose_variable_value(lumped_length)[1] not in [
             "cm",
