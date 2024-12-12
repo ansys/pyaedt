@@ -777,7 +777,7 @@ class ModelPlotter(CommonPlotter):
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.visualization.plot.FieldClass`]
+        list[:class:`ansys.aedt.core.visualization.plot.FieldClass`]
         """
         return self._fields
 
@@ -787,7 +787,7 @@ class ModelPlotter(CommonPlotter):
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.visualization.plot.FieldClass`]
+        list[:class:`ansys.aedt.core.visualization.plot.FieldClass`]
         """
         return self._frames
 
@@ -797,7 +797,7 @@ class ModelPlotter(CommonPlotter):
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.visualization.plot.pyvista.ObjClass`]
+        list[:class:`ansys.aedt.core.visualization.plot.pyvista.ObjClass`]
         """
         return self._objects
 

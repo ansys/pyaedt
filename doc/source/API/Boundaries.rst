@@ -11,13 +11,32 @@ app methods and can be used to edit or delete a boundary condition.
    :toctree: _autosummary
    :nosignatures:
 
-   BoundaryObject
-   BoundaryObject3dLayout
-   NetworkObject
-   FarFieldSetup
-   Matrix
-   BoundaryObject3dLayout
+   common.BoundaryObject
+   hfss_boundary.FarFieldSetup
+   hfss_boundary.NearFieldSetup
+   q3d_boundary.Matrix
+   maxwell_boundary.MaxwellParameters
+   maxwell_boundary.MaxwellMatrix
+   layout_boundary.BoundaryObject3dLayout
+   icepak_boundary.NetworkObject
+
+Circuit Excitations
+-------------------
+To facilitate excitations assignment in Circuit, multiple classes have been created.
+
+.. currentmodule:: ansys.aedt.core.modules.boundary.circuit_boundary
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
    Sources
+   PowerSinSource
+   PowerIQSource
+   VoltageFrequencyDependentSource
+   VoltageDCSource
+   VoltageSinSource
+   CurrentSinSource
    Excitations
 
 Native components
@@ -25,12 +44,16 @@ Native components
 
 When native components object are created, the ``NativeComponentObject`` class is returned. For PCB components, ``NativeComponentPCB`` is returned.
 
+.. currentmodule:: ansys.aedt.core.modules.boundary.layout_boundary
+
 .. autosummary::
    :toctree: _autosummary
    :nosignatures:
 
-   NativeComponentObject
    NativeComponentPCB
+   NativeComponentObject
+   PCBSettingsDeviceParts
+   PCBSettingsPackageParts
 
 ``Native Component Object`` example:
 
@@ -50,14 +73,16 @@ Icepak transient assignments
 ----------------------------
 To facilitate transient assignment handling in Icepak, it is possible to use one of the following classes:
 
+.. currentmodule:: ansys.aedt.core.modules.boundary.icepak_boundary
+
 .. autosummary::
    :toctree: _autosummary
    :nosignatures:
 
+   SinusoidalDictionary
    LinearDictionary
    PowerLawDictionary
    ExponentialDictionary
-   SinusoidalDictionary
    SquareWaveDictionary
    PieceWiseLinearDictionary
 
