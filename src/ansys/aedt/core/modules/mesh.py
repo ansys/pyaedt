@@ -944,7 +944,7 @@ class Mesh(object):
 
         >>> oModule.InitialMeshSettings
         """
-        if self._app.design_type == "2D Extractor" or self._app.design_type == "Maxwell 2D":
+        if self._app.design_type in ["2D Extractor", "Maxwell 2D"]:
             mesh_methods = ["Auto", "AnsoftClassic"]
         else:
             mesh_methods = ["Auto", "AnsoftTAU", "AnsoftClassic"]
