@@ -293,7 +293,7 @@ class Maxwell(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         References
@@ -703,7 +703,7 @@ class Maxwell(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         References
@@ -829,7 +829,7 @@ class Maxwell(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject` or ``False``
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject` or ``False``
             Boundary object or bool if not successful.
 
         References
@@ -927,7 +927,7 @@ class Maxwell(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         References
@@ -979,7 +979,7 @@ class Maxwell(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
             ``False`` when failed.
 
@@ -1036,7 +1036,7 @@ class Maxwell(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
             ``False`` when failed.
 
@@ -1181,7 +1181,7 @@ class Maxwell(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Bounding object for the winding, otherwise only the bounding object.
             ``False`` when failed.
 
@@ -1269,7 +1269,7 @@ class Maxwell(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Bounding object for the winding, otherwise only the bounding object.
             ``False`` when failed.
 
@@ -1767,7 +1767,7 @@ class Maxwell(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Radiation objects. If the method fails to execute it returns ``False``.
 
         References
@@ -2475,7 +2475,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object if successful, ``False`` otherwise.
 
         References
@@ -2554,7 +2554,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object if successful, ``False`` otherwise.
 
         References
@@ -2671,7 +2671,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         """
@@ -2747,8 +2747,8 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`,
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`,
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Master and slave objects. If the method fails to execute it returns ``False``.
 
         References
@@ -2830,7 +2830,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
     @pyaedt_function_handler(objects_list="assignment")
     def assign_flux_tangential(self, assignment, flux_name=None):
-        # type : (list, str = None) -> from ansys.aedt.core.modules.boundary.BoundaryObject
+        # type : (list, str = None) -> from ansys.aedt.core.modules.boundary.common.BoundaryObject
         """Assign a flux tangential boundary for a transient A-Phi solver.
 
         Parameters
@@ -2843,7 +2843,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object if successful, ``False`` otherwise.
 
         References
@@ -2999,7 +2999,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Newly created object when successful, ``False`` when failed.
 
         References
@@ -3057,7 +3057,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Newly created object. ``False`` if it fails.
 
         References
@@ -3152,7 +3152,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Newly created object. ``False`` if it fails.
 
         References
@@ -3457,7 +3457,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object. If the method fails to execute it returns ``False``.
 
         References
@@ -3507,7 +3507,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Vector Potential Object. ``False`` if it fails.
 
         References
@@ -3565,8 +3565,8 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`,
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`,
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Master and slave objects. If the method fails to execute it returns ``False``.
 
         References
@@ -3623,7 +3623,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Newly created object. ``False`` if it fails.
 
         References

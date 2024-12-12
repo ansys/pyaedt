@@ -1525,7 +1525,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Source object.
 
         References
@@ -1579,7 +1579,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Source object.
 
         References
@@ -1611,7 +1611,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Sink object.
 
         References
@@ -1687,7 +1687,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Sink object.
 
         References
@@ -1742,7 +1742,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Source object.
 
         References
@@ -2043,7 +2043,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Source object.
         """
         assignment = self.modeler.convert_to_selections(assignment, True)
@@ -2440,7 +2440,7 @@ class Q2d(QExtractor, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Source object.
 
         References
@@ -2493,7 +2493,7 @@ class Q2d(QExtractor, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Source object.
 
         References

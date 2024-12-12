@@ -294,7 +294,7 @@ class Pin:
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.Object3d.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Circuit Component Object.
 
         """
@@ -455,7 +455,7 @@ class DifferentialPin:
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.Object3d.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Circuit Component Object.
 
         """
@@ -516,7 +516,7 @@ class Buffer:
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.Object3d.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Circuit Component Object.
 
         """

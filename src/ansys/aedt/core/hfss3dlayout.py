@@ -254,7 +254,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.layout_boundary.BoundaryObject3dLayout`
+        :class:`ansys.aedt.core.modules.boundary.layout_boundary.BoundaryObject3dLayout`
             Port objcet port when successful, ``False`` when failed.
 
         References
@@ -354,7 +354,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.layout_boundary.BoundaryObject3dLayout`
+        :class:`ansys.aedt.core.modules.boundary.layout_boundary.BoundaryObject3dLayout`
             Port objcet port when successful, ``False`` when failed.
 
         References
@@ -395,7 +395,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.layout_boundary.BoundaryObject3dLayout`
+        :class:`ansys.aedt.core.modules.boundary.layout_boundary.BoundaryObject3dLayout`
             Port objcet port when successful, ``False`` when failed.
 
         References
@@ -473,7 +473,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modules.layout_boundary.BoundaryObject3dLayout`
+        List[:class:`ansys.aedt.core.modules.boundary.layout_boundary.BoundaryObject3dLayout`]
             Port Objects when successful.
 
         References
@@ -550,7 +550,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.layout_boundary.BoundaryObject3dLayout`
+        :class:`ansys.aedt.core.modules.boundary.layout_boundary.BoundaryObject3dLayout`
             Port Object when successful, ``False`` when failed.
 
         References
@@ -599,7 +599,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.layout_boundary.BoundaryObject3dLayout`
+        :class:`ansys.aedt.core.modules.boundary.layout_boundary.BoundaryObject3dLayout`
             Port Object when successful, ``False`` when failed.
 
         References
@@ -652,7 +652,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.layout_boundary.BoundaryObject3dLayout`
+        :class:`ansys.aedt.core.modules.boundary.layout_boundary.BoundaryObject3dLayout`
 
             ``True`` when successful, ``False`` when failed.
 
