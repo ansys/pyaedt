@@ -949,7 +949,7 @@ class Mesh(object):
         else:
             mesh_methods = ["Auto", "AnsoftTAU", "AnsoftClassic"]
         if method not in mesh_methods:
-            raise RuntimeError(f"Invalid mesh method {method}")  # pragma: no cover
+            raise ValueError(f"Invalid mesh method {method}")
 
         modelres = ["NAME:GlobalModelRes", "UseAutoLength:=", auto_model_resolution]
         if not auto_model_resolution:
@@ -966,27 +966,21 @@ class Mesh(object):
         if not surface_deviation:
             surface_appr.append(0)
         else:
-            surface_appr.append(2)
-            surface_appr.append("SurfDev:=")
-            surface_appr.append(surface_deviation)
+            surface_appr += [2, "SurfDev:=", surface_deviation]
 
         surface_appr.append("NormalDevChoice:=")
         if not normal_deviation:
             surface_appr.append(1)
         else:
-            surface_appr.append(2)
-            surface_appr.append("NormalDev:=")
-            surface_appr.append(normal_deviation)
+            surface_appr += [2, "NormalDev:=", normal_deviation]
 
         surface_appr.append("AspectRatioChoice:=")
         if not aspect_ratio:
             surface_appr.append(1)
         else:
-            surface_appr.append(2)
-            surface_appr.append("AspectRatio:=")
-            surface_appr.append(aspect_ratio)
+            surface_appr += [2, "AspectRatio:=", aspect_ratio]
 
-        if self._app.design_type == "2D Extractor" or self._app.design_type == "Maxwell 2D":
+        if self._app.design_type in ["2D Extractor", "Maxwell 2D"]:
             args = ["NAME:MeshSettings", surface_appr, modelres, "MeshMethod:=", method]
         else:
             args = [
