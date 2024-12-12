@@ -2,16 +2,10 @@ Parametrize Layout
 ==================
 
 The extension allows users to apply parametrization to layouts in HFSS 3D Layout designs.
-
 This includes layers, materials, padstacks, traces, and nets, providing a flexible way to create parametric models.
 
-
-Features
---------
-
-- **Graphical User Interface (GUI)**: Provides an intuitive interface to configure and apply parametrization to various design elements.
-- **Customizable Parameters**: Allows users to parametrize layers, materials, padstacks, nets, and traces, with support for relative and absolute parameters.
-- **Polygon and void expansion**: Supports the expansion of polygons and voids by a specified amount (in mm).
+The extension provides a graphical user interface (GUI) for configuration,
+or it can be used in batch mode via command line arguments.
 
 The following image shows the extension user interface:
 
@@ -20,12 +14,19 @@ The following image shows the extension user interface:
   :alt: Parametrize Layout UI
 
 
+Features
+--------
+
+- Allow users to parametrize layers, materials, padstacks, nets, and traces, with support for relative and absolute parameters.
+- Support the expansion of polygons and voids by a specified amount (in mm).
+
+
 Using the extension
 -------------------
 
 1. Open the **Automation** tab in the HFSS 3D Layout interface.
 2. Locate and click the **Layout Parametrization** icon under the Extension Manager.
-3. The main window displays the following elements:
+3. In the GUI, users can interact with the following elements:
    - **Project Name**: A text box to specify the name for the new parametric project.
    - **Use Relative Parameters**: A checkbox to enable or disable relative parameters for the design.
    - **Parametrize Layers**: A checkbox to enable parametrization of layers in the layout.
