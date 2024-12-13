@@ -468,9 +468,11 @@ class VariableManager(object):
 
         Returns
         -------
-        dict
+
+        dict[str, :class:`ansys.aedt.core.application.variables.Variable`]
             Dictionary of the `Variable` objects for each project variable and each
             design property in the active design.
+
 
         References
         ----------
@@ -1353,7 +1355,7 @@ class VariableManager(object):
 
         """
         used = False
-        for _, v in history.props.items():
+        for _, v in history.properties.items():
             if isinstance(v, str) and var_name in re.findall("[a-zA-Z0-9_]+", v):
                 return True
         for el in history.children.values():

@@ -103,7 +103,7 @@ class TestClass:
         o = self.aedtapp.create_rectangle([6, 6], [5, 3], name="Rectangle1", material="Copper")
         o = self.aedtapp.create_rectangle([0, 0], [5, 3], name="Rectangle2", material="Copper")
         assert self.aedtapp.auto_assign_conductors()
-        assert self.aedtapp.boundaries[0].object_properties
+        assert self.aedtapp.boundaries[0].properties
         assert len(self.aedtapp.boundaries) == 2
 
     def test_10_toggle_conductor(self):
@@ -221,7 +221,7 @@ class TestClass:
     def test_15_export_equivalent_circuit(self, add_app):
         q2d = add_app(application=Q2d, project_name=self.test_matrix, just_open=True)
         q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.Float, "Circle2", "Test4")
-        assert q2d.matrices[4].name == "Test4"
+        assert q2d.matrices[-1].name == "Test4"
         assert len(q2d.setups[0].sweeps[0].frequencies) > 0
         assert q2d.setups[0].sweeps[0].basis_frequencies == []
         assert q2d.export_equivalent_circuit(os.path.join(self.local_scratch.path, "test_export_circuit.cir"))
@@ -298,7 +298,7 @@ class TestClass:
         assert q2d.export_equivalent_circuit(
             output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model=q2d_q3d
         )
-        assert not q2d.export_equivalent_circuit(
+        assert q2d.export_equivalent_circuit(
             output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model="test"
         )
         self.aedtapp.close_project(q2d.project_name, save=False)

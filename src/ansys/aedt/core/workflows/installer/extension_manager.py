@@ -257,7 +257,12 @@ def button_is_clicked(
             icon = os.path.abspath(os.path.join(product_path, selected_toolkit_info.get("icon")))
 
     valid_name = name is not None and not os.path.isdir(name)
-    valid_file = file is not None and os.path.isfile(file)
+
+    valid_file = False
+    if not file:
+        valid_file = True
+    elif os.path.isfile(file):
+        valid_file = True
 
     if selected_toolkit_name != "Custom" and selected_toolkit_info.get("pip"):
         if is_toolkit_installed(selected_toolkit_name, toolkit_level) and install_action:
@@ -289,7 +294,7 @@ def button_is_clicked(
 
             if not file:
                 file = os.path.join(
-                    os.path.dirname(ansys.aedt.core.workflows.templates.__file__), "extension_template.py"
+                    os.path.dirname(ansys.aedt.core.workflows.templates.__file__), "template_get_started.py"
                 )
 
             if os.path.isfile(executable_interpreter):

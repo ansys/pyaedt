@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""This module contains these classes: ``Hfss`` and ``BoundaryType``."""
+"""This module contains the ``Hfss`` class."""
 
 from __future__ import absolute_import  # noreorder
 
@@ -49,10 +49,10 @@ from ansys.aedt.core.modeler import cad
 from ansys.aedt.core.modeler.cad.component_array import ComponentArray
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
-from ansys.aedt.core.modules.boundary import BoundaryObject
-from ansys.aedt.core.modules.boundary import FarFieldSetup
-from ansys.aedt.core.modules.boundary import NativeComponentObject
-from ansys.aedt.core.modules.boundary import NearFieldSetup
+from ansys.aedt.core.modules.boundary.common import BoundaryObject
+from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
+from ansys.aedt.core.modules.boundary.hfss_boundary import NearFieldSetup
+from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 
 
@@ -248,11 +248,18 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        List of :class:`ansys.aedt.core.modules.boundary.FarFieldSetup` and
-        :class:`ansys.aedt.core.modules.boundary.NearFieldSetup`
+        List of :class:`ansys.aedt.core.modules.boundary.hfss_boundary.FarFieldSetup` and
+        :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
         """
-        if not self._field_setups:
-            self._field_setups = self._get_rad_fields()
+        for field in self.field_setup_names:
+            obj_field = self.odesign.GetChildObject("Radiation").GetChildObject(field)
+            type_field = obj_field.GetPropValue("Type")
+            if type_field == "Infinite Sphere":
+                self._field_setups.append(FarFieldSetup(self, field, {}, "FarFieldSphere"))
+            else:
+                self._field_setups.append(NearFieldSetup(self, field, {}, f"NearField{type_field}"))
+        # if not self._field_setups:
+        #     self._field_setups = self._get_rad_fields()
         return self._field_setups
 
     @property
@@ -373,31 +380,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         return source_name
 
     @pyaedt_function_handler()
-    def _get_rad_fields(self):
-        if not self.design_properties:
-            return []
-        fields = []
-        if self.design_properties.get("RadField"):
-            if self.design_properties["RadField"].get("FarFieldSetups"):
-                for val in self.design_properties["RadField"]["FarFieldSetups"]:
-                    p = self.design_properties["RadField"]["FarFieldSetups"][val]
-                    if isinstance(p, dict) and p.get("Type") == "Infinite Sphere":
-                        fields.append(FarFieldSetup(self, val, p, "FarFieldSphere"))
-            if self.design_properties["RadField"].get("NearFieldSetups"):
-                for val in self.design_properties["RadField"]["NearFieldSetups"]:
-                    p = self.design_properties["RadField"]["NearFieldSetups"][val]
-                    if isinstance(p, dict):
-                        if p["Type"] == "Near Rectangle":
-                            fields.append(NearFieldSetup(self, val, p, "NearFieldRectangle"))
-                        elif p["Type"] == "Near Line":
-                            fields.append(NearFieldSetup(self, val, p, "NearFieldLine"))
-                        elif p["Type"] == "Near Box":
-                            fields.append(NearFieldSetup(self, val, p, "NearFieldBox"))
-                        elif p["Type"] == "Near Sphere":
-                            fields.append(NearFieldSetup(self, val, p, "NearFieldSphere"))
-        return fields
-
-    @pyaedt_function_handler()
     def _create_boundary(self, name, props, boundary_type):
         """Create a boundary.
 
@@ -412,7 +394,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         """
@@ -737,7 +719,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         References
@@ -1482,7 +1464,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.NativeComponentObject`
+        :class:`ansys.aedt.core.modules.boundary.layout_boundary.NativeComponentObject`
             NativeComponentObject object.
 
         References
@@ -1608,7 +1590,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.NativeComponentObject`
+        :class:`ansys.aedt.core.modules.boundary.layout_boundary.NativeComponentObject`
 
         References
         ----------
@@ -1975,7 +1957,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         References
@@ -2017,7 +1999,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         Examples
@@ -2201,7 +2183,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         References
@@ -2256,7 +2238,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         References
@@ -2305,7 +2287,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         References
@@ -2367,7 +2349,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
 
@@ -2462,7 +2444,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         References
@@ -2576,7 +2558,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         References
@@ -2635,7 +2617,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         References
@@ -2743,7 +2725,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject` or bool
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject` or bool
             Boundary object if successful, ``False`` otherwise.
 
         References
@@ -2761,7 +2743,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> perfect_e = hfss.create_perfecte_from_objects("perfect1","perfect2",hfss.AxisDir.ZNeg,"PerfectE")
         PyAEDT INFO: Connection Correctly created
         >>> type(perfect_e)
-        <class 'from ansys.aedt.core.modules.boundary.BoundaryObject'>
+        <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
 
         """
 
@@ -2811,7 +2793,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject` or bool
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject` or bool
             Boundary object if successful, ``False`` otherwise.
 
         References
@@ -2829,7 +2811,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> perfect_h = hfss.create_perfecth_from_objects("perfect1","perfect2",hfss.AxisDir.ZNeg,"Perfect H")
         PyAEDT INFO: Connection Correctly created
         >>> type(perfect_h)
-        <class 'from ansys.aedt.core.modules.boundary.BoundaryObject'>
+        <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
 
         """
 
@@ -2986,7 +2968,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject` or bool
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject` or bool
             Boundary object if successful, ``False`` otherwise.
 
         References
@@ -3087,7 +3069,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject` or bool
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject` or bool
             Boundary object if successful, ``False`` otherwise.
 
         References
@@ -3164,7 +3146,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         """
@@ -3256,7 +3238,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         References
@@ -3308,7 +3290,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         References
@@ -3358,7 +3340,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         References
@@ -3375,7 +3357,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         ...                                       [10, 2], name="PerfectESheet", material="Copper")
         >>> perfect_e_from_sheet = hfss.assign_perfecte_to_sheets(sheet.name,"PerfectEFromSheet")
         >>> type(perfect_e_from_sheet)
-        <class 'from ansys.aedt.core.modules.boundary.BoundaryObject'>
+        <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
 
         """
         assignment = self.modeler.convert_to_selections(assignment, True)
@@ -3400,7 +3382,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         References
@@ -3417,7 +3399,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         ...                                       [10, 2], name="PerfectHSheet", material="Copper")
         >>> perfect_h_from_sheet = hfss.assign_perfecth_to_sheets(sheet.name,"PerfectHFromSheet")
         >>> type(perfect_h_from_sheet)
-        <class 'from ansys.aedt.core.modules.boundary.BoundaryObject'>
+        <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
 
         """
 
@@ -3475,7 +3457,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object if successful, ``False`` otherwise.
 
         References
@@ -3494,7 +3476,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> lumped_rlc_to_sheet = hfss.assign_lumped_rlc_to_sheet(sheet.name,hfss.AxisDir.XPos,resistance=50,
         ...                                                       inductance=1e-9,capacitance=1e-6)
         >>> type(lumped_rlc_to_sheet)
-        <class 'from ansys.aedt.core.modules.boundary.BoundaryObject'>
+        <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
         >>> h2 = hfss.assign_lumped_rlc_to_sheet(sheet.name,[sheet.bottom_edge_x.midpoint,
         ...                                      sheet.bottom_edge_y.midpoint],resistance=50,inductance=1e-9,
         ...                                      capacitance=1e-6)
@@ -3571,7 +3553,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object if successful, ``False`` otherwise.
 
         References
@@ -3685,7 +3667,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         References
@@ -4484,7 +4466,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         References
@@ -4500,7 +4482,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> radiation_box = hfss.modeler.create_box([0, -200, -200],[200, 200, 200],name="Radiation_box")
         >>> radiation = hfss.assign_radiation_boundary_to_objects("Radiation_box")
         >>> type(radiation)
-        <class 'from ansys.aedt.core.modules.boundary.BoundaryObject'>
+        <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
 
         """
 
@@ -4527,7 +4509,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         References
@@ -4543,7 +4525,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> box = hfss.modeler.create_box([0, -200, -200],[200, 200, 200],name="Radiation_box")
         >>> sbr_box = hfss.assign_hybrid_region("Radiation_box")
         >>> type(sbr_box)
-        <class 'from ansys.aedt.core.modules.boundary.BoundaryObject'>
+        <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
 
         """
 
@@ -4570,7 +4552,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         References
@@ -4586,7 +4568,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> box = hfss.modeler.create_box([0, -200, -200],[200, 200, 200],name="Radiation_box")
         >>> febi_box = hfss.assign_febi("Radiation_box")
         >>> type(febi_box)
-        <class 'from ansys.aedt.core.modules.boundary.BoundaryObject'>
+        <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
 
         """
 
@@ -4612,7 +4594,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         References
@@ -4630,7 +4612,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> ids = [i.id for i in hfss.modeler["RadiationForFaces"].faces]
         >>> radiation = hfss.assign_radiation_boundary_to_faces(ids)
         >>> type(radiation)
-        <class 'from ansys.aedt.core.modules.boundary.BoundaryObject'>
+        <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
 
         """
         faces_list = self.modeler.convert_to_selections(assignment, True)
@@ -5139,7 +5121,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.FarFieldSetup`
+        :class:`ansys.aedt.core.modules.hfss_boundary.FarFieldSetup`
         """
         if not self.oradfield:
             self.logger.error("Radiation Field not available in this solution.")
@@ -5231,7 +5213,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.NearFieldSetup`
+        :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
         """
         if not self.oradfield:
             self.logger.error("Radiation Field not available in this solution.")
@@ -5308,7 +5290,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.NearFieldSetup`
+        :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
         """
         if not self.oradfield:
             self.logger.error("Radiation Field not available in this solution.")
@@ -5377,7 +5359,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.NearFieldSetup`
+        :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
         """
         if not self.oradfield:
             self.logger.error("Radiation Field not available in this solution.")
@@ -5432,7 +5414,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.NearFieldSetup`
+        :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
         """
         if not self.oradfield:
             self.logger.error("Radiation Field not available in this solution.")
@@ -6071,7 +6053,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         Parameters
         ----------
         assignment : list
-            List of IDs or :class:`ansys.aedt.core.modeler.Object3d.FacePrimitive`.
+            List of IDs or :class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`.
         name : str, optional
             Name of the boundary.
             If a name is not provided, one is automatically generated.
@@ -6081,7 +6063,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         References
@@ -6098,7 +6080,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> ids = [i.id for i in hfss.modeler["SymmetryForFaces"].faces]
         >>> symmetry = hfss.assign_symmetry(ids)
         >>> type(symmetry)
-        <class 'from ansys.aedt.core.modules.boundary.BoundaryObject'>
+        <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
 
         """
         try:
@@ -6307,7 +6289,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         References
@@ -6400,7 +6382,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Port object.
 
         Examples
@@ -6532,7 +6514,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Port object.
 
         References

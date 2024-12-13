@@ -301,14 +301,17 @@ class TestClass:
     def test_24_create_edge_cut(self):
         assert self.aedtapp.mesh.assign_edge_cut(["Coil"])
 
-    def test_24_density_control(self):
+    def test_24a_density_control(self):
         assert self.aedtapp.mesh.assign_density_control(["Coil"], maximum_element_length="2mm", layers_number="3")
 
-    def test_24_density_control(self):
+    def test_24b_density_control(self):
         assert self.aedtapp.mesh.assign_rotational_layer(["Coil"])
 
-    def test_25_assign_initial_mesh(self):
+    def test_25a_assign_initial_mesh(self):
         assert self.aedtapp.mesh.assign_initial_mesh_from_slider(4)
+
+    def test_25b_assign_initial_mesh(self):
+        assert self.aedtapp.mesh.assign_initial_mesh(surface_deviation="2mm")
 
     @pytest.mark.skipif(is_linux, reason="Crashing on Linux")
     def test_26_create_udp(self):
@@ -1131,17 +1134,19 @@ class TestClass:
     def test_60_resistive_sheet(self):
         self.aedtapp.insert_design("ResistiveSheet")
         self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
-        my_box = self.aedtapp.modeler.create_box(
-            origin=[0, 0, 0], sizes=[0.4, -1, 0.8], name="my_box", material="copper"
+        self.aedtapp.modeler.create_box(origin=[0, 0, 0], sizes=[0.4, -1, 0.8], name="my_box", material="copper")
+        my_rectangle = self.aedtapp.modeler.create_rectangle(
+            orientation=1, origin=[0, 0, 0.8], sizes=[-1, 0.4], name="my_rect"
         )
-        resistive_face = my_box.faces[0]
-        bound = self.aedtapp.assign_resistive_sheet(assignment=resistive_face, resistance="3ohm")
+
+        # From 2025.1, this boundary can only be assigned to Sheets that touch conductor Solids.
+        bound = self.aedtapp.assign_resistive_sheet(assignment=my_rectangle.faces[0], resistance="3ohm")
         assert bound
-        assert bound.props["Faces"][0] == resistive_face.id
+        assert bound.props["Faces"][0] == my_rectangle.faces[0].id
         assert bound.props["Resistance"] == "3ohm"
         self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.Magnetostatic
-        bound = self.aedtapp.assign_resistive_sheet(assignment=resistive_face, non_linear=True)
+        bound = self.aedtapp.assign_resistive_sheet(assignment=my_rectangle.name, non_linear=True)
         assert bound.props["Nonlinear"]
-        assert bound.props["Faces"][0] == resistive_face.id
+        assert bound.props["Objects"][0] == my_rectangle.name
         self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.ACConduction
-        assert not self.aedtapp.assign_resistive_sheet(assignment=resistive_face, resistance="3ohm")
+        assert not self.aedtapp.assign_resistive_sheet(assignment=my_rectangle, resistance="3ohm")

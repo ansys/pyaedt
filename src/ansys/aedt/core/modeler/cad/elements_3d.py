@@ -337,7 +337,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object_3d.VertexPrimitive`
+        list[:class:`ansys.aedt.core.modeler.cad.elements_3d.VertexPrimitive`]
             List of vertices.
 
         References
@@ -516,7 +516,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object_3d.EdgePrimitive`
+        list[:class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`]
             List of Edges.
 
         References
@@ -536,7 +536,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object_3d.VertexPrimitive`
+        list[:class:`ansys.aedt.core.modeler.cad.elements_3d.VertexPrimitive`]
             List of Vertices.
 
         References
@@ -680,7 +680,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3d.EdgePrimitive`
+        :class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`
 
         References
         ----------
@@ -701,7 +701,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3d.EdgePrimitive`
+        :class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`
 
         """
         try:
@@ -717,7 +717,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3d.EdgePrimitive`
+        :class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`
 
         """
         try:
@@ -733,7 +733,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3d.EdgePrimitive`
+        :class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`
 
         """
         try:
@@ -749,7 +749,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3d.EdgePrimitive`
+        :class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`
 
         """
         try:
@@ -765,7 +765,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3d.EdgePrimitive`
+        :class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`
 
         """
         try:
@@ -985,7 +985,7 @@ class Point(object):
     >>> aedtapp = Hfss()
     >>> primitives = aedtapp.modeler
 
-    Create a point, to return an :class:`ansys.aedt.core.modeler.Object3d.Point`.
+    Create a point, to return an :class:`ansys.aedt.core.modeler.cad.elements_3d.Point`.
 
     >>> point = primitives.create_point([30, 30, 0], "my_point", (0, 195, 255))
     >>> my_point = primitives.points[point.name]
@@ -1184,7 +1184,7 @@ class Plane(object):
     >>> aedtapp = Hfss()
     >>> primitives = aedtapp.modeler
 
-    Create a plane, to return an :class:`ansys.aedt.core.modeler.Object3d.Plane`.
+    Create a plane, to return an :class:`ansys.aedt.core.modeler.cad.elements_3d.Plane`.
 
     >>> plane = primitives.create_plane("my_plane", "-0.7mm", "0.3mm", "0mm", "0.7mm", "-0.3mm", "0mm", "(0, 195, 255)")
     >>> my_plane = primitives.planes[plane.name]
@@ -1418,7 +1418,10 @@ class BinaryTreeNode:
             if i == "OperandPart_" + saved_root_name or i == "OperandPart_" + saved_root_name.split("_")[0]:
                 continue
             elif not i.startswith("OperandPart_"):
-                self.children[i] = BinaryTreeNode(i, self.child_object.GetChildObject(i), root_name=saved_root_name)
+                try:
+                    self.children[i] = BinaryTreeNode(i, self.child_object.GetChildObject(i), root_name=saved_root_name)
+                except Exception:  # nosec
+                    pass
             else:
                 names = self.child_object.GetChildObject(i).GetChildNames()
                 for name in names:
@@ -1433,36 +1436,37 @@ class BinaryTreeNode:
             del self.children[name]
 
     @property
-    def props(self):
+    def properties(self):
         """Properties data.
 
         Returns
         -------
         :class:``ansys.aedt.coree.modeler.cad.elements_3d.HistoryProps``
         """
-        if self._props is None:
-            self._props = {}
-            if settings.aedt_version >= "2024.2":
-                try:
-                    props = self._get_data_model()
-                    for p in self.child_object.GetPropNames():
-                        if p in props:
-                            self._props[p] = props[p]
-                        else:
-                            self._props[p] = None
-                except Exception:
-                    for p in self.child_object.GetPropNames():
-                        try:
-                            self._props[p] = self.child_object.GetPropValue(p)
-                        except Exception:
-                            self._props[p] = None
-            else:
+        self._props = {}
+        if settings.aedt_version >= "2024.2":
+            try:
+                from ansys.aedt.core.application import _get_data_model
+
+                props = _get_data_model(self.child_object)
+                for p in self.child_object.GetPropNames():
+                    if p in props:
+                        self._props[p] = props[p]
+                    else:
+                        self._props[p] = None
+            except Exception:
                 for p in self.child_object.GetPropNames():
                     try:
                         self._props[p] = self.child_object.GetPropValue(p)
                     except Exception:
                         self._props[p] = None
-            self._props = HistoryProps(self, self._props)
+        else:
+            for p in self.child_object.GetPropNames():
+                try:
+                    self._props[p] = self.child_object.GetPropValue(p)
+                except Exception:
+                    self._props[p] = None
+        self._props = HistoryProps(self, self._props)
         return self._props
 
     @property
@@ -1473,22 +1477,7 @@ class BinaryTreeNode:
         -------
         str
         """
-        return self.props.get("Command", "")
-
-    def _get_data_model(self):
-        import ast
-
-        input_str = self.child_object.GetDataModel(-1, 1, 1).replace("false", "False").replace("true", "True")
-        props_list = ast.literal_eval(input_str)
-        props = {}
-        for prop in props_list["properties"]:
-            if "value" in prop:
-                props[prop["name"]] = prop["value"]
-            elif "values" in prop:
-                props[prop["name"]] = prop["values"]
-            else:
-                props[prop["name"]] = None
-        return props
+        return self.properties.get("Command", "")
 
     def update_property(self, prop_name, prop_value):
         """Update the property of the binary tree node.
@@ -1516,7 +1505,7 @@ class BinaryTreeNode:
         childrend_dict = {}
         for _, node in binary_tree_node.children.items():
             childrend_dict.update(self._jsonalize_tree(node))
-        return {binary_tree_node.node: {"Props": binary_tree_node.props, "Children": childrend_dict}}
+        return {binary_tree_node.node: {"Props": binary_tree_node.properties, "Children": childrend_dict}}
 
     @pyaedt_function_handler
     def jsonalize_tree(self):
@@ -1531,7 +1520,7 @@ class BinaryTreeNode:
 
     @pyaedt_function_handler
     def _suppress(self, node, app, suppress):
-        if not node.command.startswith("Duplicate") and "Suppress Command" in node.props:
+        if not node.command.startswith("Duplicate") and "Suppress Command" in node.properties:
             app.oeditor.ChangeProperty(
                 [
                     "NAME:AllTabs",

@@ -647,7 +647,7 @@ class Modeler3D(Primitives3D):
         -------
         tuple
             Contains the inner, outer, and dielectric coax as
-            :class:`ansys.aedt.core.modeler.Object3d.Object3d` objects.
+            :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` objects.
 
         References
         ----------
@@ -727,9 +727,8 @@ class Modeler3D(Primitives3D):
 
         Returns
         -------
-        tuple
-            Tuple of :class:`Object3d <ansys.aedt.core.modeler.Object3d.Object3d>`
-            objects created by the waveguide.
+        Tuple[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
+            Objects created by the waveguide.
 
         References
         ----------
@@ -899,7 +898,7 @@ class Modeler3D(Primitives3D):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`, bool
+        list[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`] or bool
             List of 3D object or ``False`` if it fails.
 
         References
@@ -983,7 +982,7 @@ class Modeler3D(Primitives3D):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object_3d`
+        list[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
         """
         if len(bounding_box) != 6:
             raise ValueError("Bounding box list must have dimension 6.")
@@ -1076,7 +1075,7 @@ class Modeler3D(Primitives3D):
 
         Returns
         -------
-        List of :class:`ansys.aedt.core.modeler.Object3d.Object3d`, dict
+        List of :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`, dict
             New object created and nastran dictionary.
         """
         autosave = (
@@ -1372,7 +1371,7 @@ class Modeler3D(Primitives3D):
         assignment : list, str
             List of objects to apply the segmentation to.
             It can either be a list of strings (object names), integers (object IDs), or
-            a list of :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` classes.
+            a list[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`] classes.
         segmentation_thickness : float, optional
             Segmentation thickness.
             Model units are automatically assigned. The default is ``None``.
