@@ -1464,7 +1464,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.layout_boundary.NativeComponentObject`
+        :class:`ansys.aedt.core.modules.boundary.layout_boundary.NativeComponentObject`
             NativeComponentObject object.
 
         References
@@ -1590,7 +1590,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.layout_boundary.NativeComponentObject`
+        :class:`ansys.aedt.core.modules.boundary.layout_boundary.NativeComponentObject`
 
         References
         ----------

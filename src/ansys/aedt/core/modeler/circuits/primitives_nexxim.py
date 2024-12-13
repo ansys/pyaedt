@@ -284,7 +284,7 @@ class NexximComponents(CircuitComponents):
 
         Parameters
         ----------
-        assignment : List[:class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`]
+        assignment : list[:class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`]
            List of Components to connect. It can be a list of objects or component names.
         use_wire : bool, optional
             Whether to use wires or a page port to connect the pins.
@@ -327,7 +327,7 @@ class NexximComponents(CircuitComponents):
 
         Parameters
         ----------
-        assignment : List[:class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`]
+        assignment : list[:class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`]
            List of Components to connect. It can be a list of objects or component names.
 
         Returns

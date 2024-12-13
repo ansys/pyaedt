@@ -1189,7 +1189,7 @@ class IcepakMesh(object):
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.modules.mesh.MeshOperation`]
+        list[:class:`ansys.aedt.core.modules.mesh.MeshOperation`]
             ``True`` when successful, ``False`` when failed.
 
         References

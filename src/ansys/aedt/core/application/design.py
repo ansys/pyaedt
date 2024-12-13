@@ -43,6 +43,7 @@ import string
 import sys
 import threading
 import time
+from typing import List
 import warnings
 
 from ansys.aedt.core.application.aedt_objects import AedtObjects
@@ -77,8 +78,8 @@ from ansys.aedt.core.generic.general_methods import remove_project_lock
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.generic.general_methods import write_csv
 from ansys.aedt.core.generic.load_aedt_file import load_entire_aedt_file
-from ansys.aedt.core.modules.boundary.circuit_boundary import NetworkObject
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
+from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
 
 if sys.version_info.major > 2:
@@ -324,7 +325,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        Dict[str, :class:`ansys.aedt.core.application.variables.DataSet`]
+        dict[str, :class:`ansys.aedt.core.application.variables.DataSet`]
         """
         if not self._project_datasets:
             self._project_datasets = self._get_project_datasets()
@@ -336,20 +337,21 @@ class Design(AedtObjects):
 
         Returns
         -------
-        Dict[str, :class:`ansys.aedt.core.application.variables.DataSet`]
+        dict[str, :class:`ansys.aedt.core.application.variables.DataSet`]
         """
         if not self._design_datasets:
             self._design_datasets = self._get_design_datasets()
         return self._design_datasets
 
     @property
-    def boundaries(self):
+    def boundaries(self) -> List[BoundaryObject]:
         """Design boundaries and excitations.
+
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`]
-
+        list[:class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`]
+            Boundaries available in design.
         """
         bb = []
         if self.oboundary and "GetBoundaries" in self.oboundary.__dir__():
@@ -466,7 +468,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        Dict[str, :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`]
+        dict[str, :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`]
         """
         _dict_out = {}
         for bound in self.boundaries:
@@ -2353,7 +2355,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`]
+        list[:class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`]
         """
         boundaries = []
         if self.design_properties and "BoundarySetup" in self.design_properties:

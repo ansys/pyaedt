@@ -337,7 +337,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.modeler.cad.elements_3d.VertexPrimitive`]
+        list[:class:`ansys.aedt.core.modeler.cad.elements_3d.VertexPrimitive`]
             List of vertices.
 
         References
@@ -516,7 +516,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`]
+        list[:class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`]
             List of Edges.
 
         References
@@ -536,7 +536,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.modeler.cad.elements_3d.VertexPrimitive`]
+        list[:class:`ansys.aedt.core.modeler.cad.elements_3d.VertexPrimitive`]
             List of Vertices.
 
         References

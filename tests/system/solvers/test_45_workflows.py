@@ -53,11 +53,15 @@ class TestClass:
     def test_01_template(self, add_app):
         aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="workflow_test")
 
-        from ansys.aedt.core.workflows.templates.extension_template import main
+        from ansys.aedt.core.workflows.templates.template_get_started import main
 
-        assert main({"is_test": True})
-
+        assert main({"is_test": True, "origin_x": 2})
         assert len(aedtapp.modeler.object_list) == 1
+
+        file_path = os.path.join(solver_local_path, "example_models", "T00", "test_solve.aedt")
+        assert main({"is_test": True, "file_path": file_path})
+        assert len(aedtapp.project_list) == 2
+
         aedtapp.close_project(aedtapp.project_name)
 
     def test_02_hfss_push(self, add_app):
