@@ -1411,19 +1411,26 @@ class Design(AedtObjects):
         object
             Aedt Object if Any.
         """
+        # Retrieve the child object. If the child object doesn't exist, AEDT
+        # will throw an error.
         try:
-            # Retrieve the child object. If the child object doesn't exist, AEDT
-            # will throw an error.
+            child_object = aedt_object.GetChildObject(object_name)
+        except:
+            child_object = None
             if '/' in object_name:
                 child_names = aedt_object.GetChildNames(object_name.split('/')[0])  # Get names of valid objects.
                 if object_name in child_names:
-                    return aedt_object.GetChildObject(object_name)
+                    child_object = aedt_object.GetChildObject(object_name)
                 else:
-                    return None
-            else:  # Base objects like "Mesh" and "Boundaries" always exist.
-                return aedt_object.GetChildObject(object_name)
-        except AttributeError:
+                    child_object = None
+        if not child_object:
             return None
+        else:
+            return child_object
+        #else:  # Base objects like "Mesh" and "Boundaries" always exist.
+        #    return aedt_object.GetChildObject(object_name)
+        #except AttributeError:
+        #    return None
 
     @pyaedt_function_handler()
     def get_oo_properties(self, aedt_object, object_name):
