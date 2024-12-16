@@ -56,7 +56,7 @@ class TestClass:
         )
 
         assert aedtapp.mesh.assign_initial_mesh_from_slider(4)
-        with pytest.raises(RuntimeError):
+        with pytest.raises(ValueError):
             aedtapp.mesh.assign_initial_mesh_from_slider(method="dummy")
         with pytest.raises(ValueError):
             aedtapp.mesh.assign_initial_mesh(method="dummy")
