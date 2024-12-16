@@ -1708,7 +1708,6 @@ class TestClass:
         assert len(self.aedtapp.modeler.sheet_names) == 3
         assert self.aedtapp.import_gds_3d(gds_file, {7: (100e-3, 10e-3), 9: (110e-3, 5e-3)}, "mm", 0)
         assert len(self.aedtapp.modeler.solid_names) == 6
-        self.aedtapp.save_project(r"C:\Users\slopez\Downloads\test.aedt")
         assert not self.aedtapp.import_gds_3d(gds_file, {})
         gds_file = os.path.join(TESTS_GENERAL_PATH, "example_models", "cad", "GDS", "gds1not.gds")
         assert not self.aedtapp.import_gds_3d(gds_file, {7: (100, 10), 9: (110, 5)})
