@@ -127,7 +127,15 @@ def _dict2arg(d, arg_out):
                 arg = ["NAME:" + k, v[0], v[1]]
                 arg_out.append(arg)
         elif k == "Range":
-            if isinstance(v[0], (list, tuple)):
+            if isinstance(v[0], dict):
+                for rr in v:
+                    arg_out.append("Range:=")
+                    new_range = []
+                    for rk, ri in rr.items():
+                        new_range.append(rk + ":=")
+                        new_range.append(ri)
+                    arg_out.append(new_range)
+            elif isinstance(v[0], (list, tuple)):
                 for e in v:
                     arg_out.append(k + ":=")
                     arg_out.append([i for i in e])
@@ -165,6 +173,19 @@ def _arg2dict(arg, dict_out):
                 dict_out[arg[0][5:]].append(list(arg[1:]))
         else:
             dict_out[arg[0][5:]] = list(arg[1:])
+    elif "NAME:Ranges" in arg[0]:
+        dict_out["Ranges"] = {"Range": []}
+        for el, val in enumerate(arg[1:]):
+            if val == "Range:=":
+                rr = {}
+                vals = arg[el + 2]
+                k = 0
+                while k < len(vals):
+                    rr[vals[k][:-2]] = vals[k + 1]
+                    k += 2
+                dict_out["Ranges"]["Range"].append(rr)
+        pass
+
     elif arg[0][:5] == "NAME:":
         top_key = arg[0][5:]
         dict_in = {}

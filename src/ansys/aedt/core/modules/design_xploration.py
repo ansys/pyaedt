@@ -114,11 +114,18 @@ class CommonOptimetrics(PropsManager, object):
                 if self._app._is_object_oriented_enabled():
                     oparams = self.omodule.GetChildObject(self.name).GetCalculationInfo()
                     oparam = [i for i in oparams[0]]
-                    calculation = ["NAME:Goal"]
-                    calculation.extend(oparam)
-                    arg1 = {}
-                    _arg2dict(calculation, arg1)
-                    self.props["Goals"] = arg1
+                    idx = oparam[1:].index(oparam[0]) + 1
+                    if idx:
+                        oparam = [["NAME:Goal"] + oparam[k : idx + k] for k in range(0, len(oparam), idx)]
+                    else:
+                        oparam = [["NAME:Goal"] + oparam]
+
+                    self.props["Goals"]["Goal"] = []
+                    for param in oparam:
+                        arg1 = {}
+                        _arg2dict(param, arg1)
+                        self._get_setup_props(arg1)
+                        self.props["Goals"]["Goal"].append(SetupProps(self, arg1["Goal"]))
 
             if inputd.get("Variables"):  # pragma: no cover
                 for var in inputd.get("Variables"):
@@ -135,6 +142,17 @@ class CommonOptimetrics(PropsManager, object):
                     self.props["Variables"][var] = output_list
 
         self.auto_update = True
+
+    def _get_setup_props(self, arg1):
+        for k, v in arg1.items():
+            if isinstance(v, dict):
+                arg1[k] = SetupProps(self, v)
+                self._get_setup_props(v)
+            elif isinstance(v, list):
+                for el in range(len(v)):
+                    if isinstance(v[el], dict):
+                        v[el] = SetupProps(self, v[el])
+        pass
 
     @pyaedt_function_handler()
     def _get_context(
