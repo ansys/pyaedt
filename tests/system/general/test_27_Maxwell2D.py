@@ -58,6 +58,8 @@ class TestClass:
         assert aedtapp.mesh.assign_initial_mesh_from_slider(4)
         with pytest.raises(RuntimeError):
             aedtapp.mesh.assign_initial_mesh_from_slider(method="dummy")
+        with pytest.raises(ValueError):
+            aedtapp.mesh.assign_initial_mesh(method="dummy")
         aedtapp.close_project(aedtapp.project_name)
 
     def test_assign_winding(self, add_app):

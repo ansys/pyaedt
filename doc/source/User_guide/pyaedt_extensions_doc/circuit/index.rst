@@ -8,4 +8,4 @@ Circuit extensions
             :link-type: doc
             :margin: 2 2 0 0
             
-            Import different schematic files (.asc, .sp, .cir, .qcv) into Circuit.
+            Import different schematic files (ACS, SP, CIR, QCV) into Circuit.

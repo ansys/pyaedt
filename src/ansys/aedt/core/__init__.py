@@ -37,6 +37,13 @@ PYTHON_VERSION_WARNING = (
     "take full advantage of the latest features and improvements, we strongly "
     "recommend updating the Python version being used."
 )
+DOTNET_LINUX_WARNING = (
+    "Due to compatibility issues between .NET Core and libssl on some Linux versions, "
+    "for example Ubuntu 22.04, we are going to stop depending on `dotnetcore2`."
+    "Instead of using this package which embeds .NET Core 3, users will be required to "
+    "install .NET themselves. For more information, see "
+    "https://aedt.docs.pyansys.com/version/stable/release_1_0.html#dotnet-changes-in-linux"
+)
 
 
 def deprecation_warning():
@@ -64,7 +71,7 @@ deprecation_warning()
 #
 
 pyaedt_path = os.path.dirname(__file__)
-__version__ = "0.12.dev0"
+__version__ = "0.13.dev0"
 version = __version__
 
 # isort: off

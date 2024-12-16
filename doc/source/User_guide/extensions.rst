@@ -1,7 +1,7 @@
 Extension manager
 =================
 
-Extensions provide a simplified interface to perform automated workflows in AEDT, they are generally tool-specific and are therefore only accessible given the appropriate context.
+Extensions provide a simplified graphical user interface (GUI) to perform automated workflows in AEDT, they are generally tool-specific and are therefore only accessible given the appropriate context.
 In AEDT, you can use the `Extension manager <https://aedt.docs.pyansys.com/version/stable/Getting_started/Installation.html#extension-manager>`_ to add or remove extensions.
 The Extension manager allows the user to install three different types of extensions:
 
@@ -20,7 +20,7 @@ Project extensions
 ~~~~~~~~~~~~~~~~~~
 
 Pre-installed extensions are available at project level so they are available for all AEDT applications.
-They are small automated workflows with a simple UI.
+They are small automated workflows with a simple GUI.
 
 .. grid:: 2
 
@@ -60,7 +60,7 @@ HFSS 3D Layout extensions
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Pre-installed extensions are available at HFSS 3D Layout level.
-They are small automated workflows with a simple UI.
+They are small automated workflows with a simple GUI.
 
 .. grid:: 2
 
@@ -112,7 +112,7 @@ HFSS extensions
 ~~~~~~~~~~~~~~~
 
 Pre-installed extensions are available at HFSS level.
-They are small automated workflows with a simple UI.
+They are small automated workflows with a simple GUI.
 
 .. grid:: 2
 
@@ -135,7 +135,7 @@ Icepak extensions
 ~~~~~~~~~~~~~~~~~
 
 Pre-installed extensions are available at Icepak level.
-They are small automated workflows with a simple UI.
+They are small automated workflows with a simple GUI.
 
 .. grid:: 2
 
@@ -151,7 +151,7 @@ Circuit extensions
 ~~~~~~~~~~~~~~~~~~
 
 Pre-installed extensions are available at Circuit level.
-They are small automated workflows with a simple UI.
+They are small automated workflows with a simple GUI.
 
 .. grid:: 2
 
@@ -160,14 +160,14 @@ They are small automated workflows with a simple UI.
             :link-type: doc
             :margin: 2 2 0 0
 
-            Import different schematic files (.asc, .sp, .cir, .qcv) into Circuit.
+            Import different schematic files (ACS, SP, CIR, QCV) into Circuit.
 
 
 Twin Builder extensions
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 Pre-installed extensions are available at Twin Builder level.
-They are small automated workflows with a simple UI.
+They are small automated workflows with a simple GUI.
 
 .. grid:: 2
 
@@ -179,6 +179,19 @@ They are small automated workflows with a simple UI.
             Convert Twin Builder design to Circuit.
 
 
+Templates
+~~~~~~~~~
+Templates to show how to build an extension consisting of a small automated workflow with a simple UI.
+
+.. grid:: 2
+
+   .. grid-item-card:: Extension template
+            :link: pyaedt_extensions_doc/templates/getting_started
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Simple extension template to get started.
+
 .. toctree::
    :hidden:
    :maxdepth: 1
@@ -189,6 +202,7 @@ They are small automated workflows with a simple UI.
    pyaedt_extensions_doc/icepak/index
    pyaedt_extensions_doc/circuit/index
    pyaedt_extensions_doc/twinbuilder/index
+   pyaedt_extensions_doc/templates/index
 
 
 Open source toolkits
@@ -249,7 +263,7 @@ The Python script requires a common initial part to define the port and the vers
     active_project = app.active_project()
     active_design = app.active_design(active_project)
 
-    # no need to hardcode your application but get_pyaedt_app detects it for you
+    # no need to hardcode your application since get_pyaedt_app detects it for you
     aedtapp = ansys.aedt.core.get_pyaedt_app(design_name=active_design.GetName(), desktop=app)
 
     # your workflow

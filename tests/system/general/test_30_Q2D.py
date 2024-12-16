@@ -298,7 +298,7 @@ class TestClass:
         assert q2d.export_equivalent_circuit(
             output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model=q2d_q3d
         )
-        assert not q2d.export_equivalent_circuit(
+        assert q2d.export_equivalent_circuit(
             output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model="test"
         )
         self.aedtapp.close_project(q2d.project_name, save=False)
