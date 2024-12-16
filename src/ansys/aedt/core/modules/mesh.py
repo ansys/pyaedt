@@ -198,10 +198,8 @@ class MeshOperation(BinaryTreeNode):
         """
         try:
             self._name = self.properties["Name"]
-        except KeyError:
+        except (KeyError, AttributeError):
             pass
-        except AttributeError:  # If the mesh operation has not yet been defined in AEDT.
-            return self._name
         return self._name
 
     @name.setter
@@ -1178,7 +1176,6 @@ class Mesh(object):
         )
 
         mop = MeshOperation(self, name, props, "LengthBased")
-        # if hasattr(mop, "name"):
         for meshop in self.meshoperations[:]:
             if meshop.name == mop.name:
                 meshop.delete()
