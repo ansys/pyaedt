@@ -770,7 +770,7 @@ class Primitives3DLayout(object):
                     if p[0] == "NAME:psd":
                         props = p
                 except Exception:
-                    pass
+                    self.logger.debug("Couldn't access first property.")
             self._padstacks[name] = Padstack(name, self.opadstackmanager, self.model_units)
 
             for prop in props:
@@ -820,9 +820,8 @@ class Primitives3DLayout(object):
                             self._padstacks[name].layers[lay_name].connectiony = lay[14]
                             self._padstacks[name].layers[lay_name].connectiondir = lay[16]
                             i += 1
-                        pass
                 except Exception:
-                    pass
+                    self.logger.debug(f"Exception caught when updating padstack '{name}' properties.")
 
         return self._padstacks
 

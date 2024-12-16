@@ -26,7 +26,7 @@ from copy import copy
 import itertools
 import os
 import re
-import subprocess
+import subprocess  # nosec
 import warnings
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
@@ -519,7 +519,7 @@ def check_touchstone_files(input_dir="", passivity=True, causality=True):
 
         cmd.append(path)
         my_env = os.environ.copy()
-        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env, text=True, check=True)
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env, text=True, check=True)  # nosec
         output_lst = result.stdout.splitlines()
 
         for line in output_lst:

@@ -104,7 +104,7 @@ class Modeler3D(Primitives3D):
         is_encrypted=False,
         allow_edit=False,
         security_message="",
-        password=None,
+        password=None,  # nosec
         edit_password=None,
         password_type="UserSuppliedPassword",
         hide_contents=False,
@@ -195,8 +195,10 @@ class Modeler3D(Primitives3D):
             name = self._app.design_name
         dt_string = datetime.datetime.now().strftime("%H:%M:%S %p %b %d, %Y")
         if password_type not in ["UserSuppliedPassword", "InternalPassword"]:
+            self.logger.error("Password type must be 'UserSuppliedPassword' or 'InternalPassword'")
             return False
         if component_outline not in ["BoundingBox", "None"]:
+            self.logger.error("Component outline must be 'BoundingBox' or 'None'")
             return False
         if password is None:
             password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
@@ -311,17 +313,11 @@ class Modeler3D(Primitives3D):
             boundaries = self.get_boundaries_name()
         arg2.append("Boundaries:="), arg2.append(boundaries)
         if self._app.design_type == "Icepak":
-            meshregions = [mr.name for mr in self._app.mesh.meshregions]
-            try:
-                meshregions.remove("Global")
-            except Exception:
-                pass
-            if meshregions:
-                arg2.append("MeshRegions:="), arg2.append(meshregions)
+            mesh_regions = [mr.name for mr in self._app.mesh.meshregions if mr.name != "Global"]
+            if mesh_regions:
+                args2 += ["MeshRegions:=", mesh_regions]
         else:
-            if excitations is not None:
-                excitations = excitations
-            else:
+            if excitations is None:
                 excitations = self._app.excitations
                 if self._app.design_type == "HFSS":
                     exc = self._app.get_oo_name(self._app.odesign, "Excitations")
@@ -557,13 +553,9 @@ class Modeler3D(Primitives3D):
         if boundaries:
             arg2.append("Boundaries:="), arg2.append(boundaries)
         if self._app.design_type == "Icepak":
-            meshregions = [mr.name for mr in self._app.mesh.meshregions]
-            try:
-                meshregions.remove("Global")
-            except Exception:
-                pass
-            if meshregions:
-                arg2.append("MeshRegions:="), arg2.append(meshregions)
+            mesh_regions = [mr.name for mr in self._app.mesh.meshregions if mr.name != "Global"]
+            if mesh_regions:
+                arg2 += ["MeshRegions:=", mesh_regions]
         else:
             if excitations:
                 excitations = excitations

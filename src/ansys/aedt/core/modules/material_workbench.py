@@ -30,13 +30,13 @@ It includes a method to import materials from a Workbench Engineering Data XML f
 
 from collections import defaultdict
 import copy
+import defusedxml
+from defusedxml.ElementTree import ParseError
 import re
-from xml.etree.ElementTree import ParseError
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.data_handlers import normalize_string_format
 from ansys.aedt.core.modules.material import MatProperties
-import defusedxml
 
 defusedxml.defuse_stdlib()
 
