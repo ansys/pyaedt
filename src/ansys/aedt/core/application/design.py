@@ -1418,8 +1418,8 @@ class Design(AedtObjects):
         try:
             child_object = aedt_object.GetChildObject(object_name)
         except Exception as e:  # Exception type is always GRPC Error.
-            if '/' in object_name:  # Enable extraction of sub-objects using GetChildObject
-                child_names = aedt_object.GetChildNames(object_name.split('/')[0])  # Get names of valid objects.
+            if "/" in object_name:  # Enable extraction of sub-objects using GetChildObject
+                child_names = aedt_object.GetChildNames(object_name.split("/")[0])  # Get names of valid objects.
                 if object_name in child_names:
                     child_object = aedt_object.GetChildObject(object_name)
         return child_object
