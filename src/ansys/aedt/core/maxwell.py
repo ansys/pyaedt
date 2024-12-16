@@ -1667,7 +1667,7 @@ class Maxwell(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if self.solution_type in ["EddyCurrent", "Magnetostatic"]:
+        if self.solution_type in ["EddyCurrent", "Magnetostatic", "Transient"]:
             if current_density_name is None:
                 current_density_name = generate_unique_name("CurrentDensity")
             if re.compile(r"(\d+)\s*(\w+)").match(phase).groups()[1] not in ["deg", "degmin", "degsec", "rad"]:
@@ -1722,7 +1722,6 @@ class Maxwell(object):
                         props[current_density_group_names[0]] = dict(
                             {
                                 "Objects": objects_list,
-                                "Phase": phase,
                                 "Value": current_density_2d,
                                 "CoordinateSystem": "",
                             }
@@ -1732,7 +1731,6 @@ class Maxwell(object):
                         props = dict(
                             {
                                 "Objects": objects_list,
-                                "Phase": phase,
                                 "Value": current_density_2d,
                                 "CoordinateSystem": "",
                             }
