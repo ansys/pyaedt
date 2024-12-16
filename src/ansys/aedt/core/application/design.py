@@ -43,7 +43,10 @@ import string
 import sys
 import threading
 import time
+from typing import Any
 from typing import List
+from typing import Optional
+from typing import Union
 import warnings
 
 from ansys.aedt.core.application.aedt_objects import AedtObjects
@@ -86,7 +89,15 @@ if sys.version_info.major > 2:
     import base64
 
 
-def load_aedt_thread(project_path):
+def load_aedt_thread(project_path) -> None:
+    """
+    Load an AEDT file in a separate thread and update project settings.
+
+    Parameters
+    ----------
+    project_path : str
+        Path to the AEDT project file.
+    """
     pp = load_entire_aedt_file(project_path)
     inner_project_settings.properties[os.path.normpath(project_path)] = pp
     inner_project_settings.time_stamp = os.path.getmtime(project_path)
@@ -95,7 +106,7 @@ def load_aedt_thread(project_path):
 class Design(AedtObjects):
     """Contains all functions and objects connected to the active project and design.
 
-    This class is inherited in the caller application and is accessible through it (for
+    This class is inherited in the caller application and is accessible through it for
     example, ``hfss.method_name``.
 
     Parameters
@@ -140,6 +151,101 @@ class Design(AedtObjects):
         The default is ``False``, which means to not unlock
         the existing project if needed and raise an exception.
     """
+
+    def __init__(
+        self,
+        design_type: str,
+        project_name: Optional[str] = None,
+        design_name: Optional[str] = None,
+        solution_type: Optional[str] = None,
+        version: Optional[Union[str, int, float]] = None,
+        non_graphical: bool = False,
+        new_desktop: bool = False,
+        close_on_exit: bool = False,
+        student_version: bool = False,
+        machine: str = "",
+        port: int = 0,
+        aedt_process_id: Optional[int] = None,
+        ic_mode: Optional[bool] = None,
+        remove_lock: bool = False,
+    ) -> None:
+        self._design_name: Optional[str] = None
+        self._project_name: Optional[str] = None
+        self._project_path: Optional[str] = None
+        self.__t: Optional[threading.Thread] = None
+        if (
+            project_name
+            and os.path.exists(project_name)
+            and (os.path.splitext(project_name)[1] == ".aedt" or os.path.splitext(project_name)[1] == ".a3dcomp")
+        ):
+            self.__t = threading.Thread(target=load_aedt_thread, args=(project_name,), daemon=True)
+            self.__t.start()
+        self._init_variables()
+        self._ic_mode: Optional[bool] = ic_mode
+        self._design_type: str = design_type
+        self.last_run_log: str = ""
+        self.last_run_job: str = ""
+        self._design_dictionary: Optional[Dict] = None
+        self._project_dictionary: Dict = {}
+        self._boundaries: Dict = {}
+        self._project_datasets: List = []
+        self._design_datasets: List = []
+        self.close_on_exit: bool = close_on_exit
+        self._desktop_class = None
+        self._desktop_class = _init_desktop_from_design(
+            version,
+            non_graphical,
+            new_desktop,
+            close_on_exit,
+            student_version,
+            machine,
+            port,
+            aedt_process_id,
+        )
+        self._global_logger = self._desktop_class.logger
+        self._logger = self._desktop_class.logger
+
+        self.student_version = self._desktop_class.student_version
+        if self.student_version:
+            settings.disable_bounding_box_sat = True
+
+        self._mttime: Optional[float] = None
+        self._desktop = self._desktop_class.odesktop
+        self._desktop_install_dir: Optional[str] = settings.aedt_install_dir
+        self._odesign: Optional[Any] = None
+        self._oproject: Optional[Any] = None
+
+        if design_type == "HFSS":
+            self.design_solutions = HFSSDesignSolution(None, design_type, self._aedt_version)
+        elif design_type == "Icepak":
+            self.design_solutions = IcepakDesignSolution(None, design_type, self._aedt_version)
+        elif design_type == "Maxwell 2D":
+            self.design_solutions = Maxwell2DDesignSolution(None, design_type, self._aedt_version)
+        elif design_type == "RMxprtSolution" or design_type == "ModelCreation":
+            self.design_solutions = RmXprtDesignSolution(None, design_type, self._aedt_version)
+        else:
+            self.design_solutions = DesignSolution(None, design_type, self._aedt_version)
+        self.design_solutions._solution_type = solution_type
+
+        self._temp_solution_type: Optional[str] = solution_type
+        self._remove_lock: bool = remove_lock
+        self.oproject: Optional[str] = project_name
+        self.odesign: Optional[str] = design_name
+
+        self._logger.oproject = self.oproject
+        self._logger.odesign = self.odesign
+        AedtObjects.__init__(self, self._desktop_class, self.oproject, self.odesign, is_inherithed=True)
+        self.logger.info("Aedt Objects correctly read")
+        if not self.__t and not settings.lazy_load and os.path.exists(self.project_file):
+            self.__t = threading.Thread(target=load_aedt_thread, args=(self.project_file,), daemon=True)
+            self.__t.start()
+
+        self._variable_manager = VariableManager(self)
+        self._project_datasets = []
+        self._design_datasets = []
+
+        if self._design_type not in ["Maxwell Circuit", "Circuit Netlist"]:
+            self.design_settings = DesignSettings(self)
 
     @property
     def _pyaedt_details(self):
@@ -217,97 +323,6 @@ class Design(AedtObjects):
             machine=self._desktop_class.machine,
             port=self._desktop_class.port,
         )
-
-    def __init__(
-        self,
-        design_type,
-        project_name=None,
-        design_name=None,
-        solution_type=None,
-        version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
-        student_version=False,
-        machine="",
-        port=0,
-        aedt_process_id=None,
-        ic_mode=None,
-        remove_lock=False,
-    ):
-        self._design_name = None
-        self._project_name = None
-        self._project_path = None
-        self.__t = None
-        if (
-            project_name
-            and os.path.exists(project_name)
-            and (os.path.splitext(project_name)[1] == ".aedt" or os.path.splitext(project_name)[1] == ".a3dcomp")
-        ):
-            self.__t = threading.Thread(target=load_aedt_thread, args=(project_name,), daemon=True)
-            self.__t.start()
-        self._init_variables()
-        self._ic_mode = ic_mode
-        self._design_type = design_type
-        self.last_run_log = ""
-        self.last_run_job = ""
-        self._design_dictionary = None
-        # Get Desktop from global Desktop Environment
-        self._project_dictionary = {}
-        self._boundaries = {}
-        self._project_datasets = {}
-        self._design_datasets = {}
-        self.close_on_exit = close_on_exit
-        self._desktop_class = None
-        self._desktop_class = _init_desktop_from_design(
-            version,
-            non_graphical,
-            new_desktop,
-            close_on_exit,
-            student_version,
-            machine,
-            port,
-            aedt_process_id,
-        )
-        self._global_logger = self._desktop_class.logger
-        self._logger = self._desktop_class.logger
-
-        self.student_version = self._desktop_class.student_version
-        if self.student_version:
-            settings.disable_bounding_box_sat = True
-        self._mttime = None
-        self._desktop = self._desktop_class.odesktop
-
-        self._desktop_install_dir = settings.aedt_install_dir
-        self._odesign = None
-        self._oproject = None
-        if design_type == "HFSS":
-            self.design_solutions = HFSSDesignSolution(None, design_type, self._aedt_version)
-        elif design_type == "Icepak":
-            self.design_solutions = IcepakDesignSolution(None, design_type, self._aedt_version)
-        elif design_type == "Maxwell 2D":
-            self.design_solutions = Maxwell2DDesignSolution(None, design_type, self._aedt_version)
-        elif design_type == "RMxprtSolution" or design_type == "ModelCreation":
-            self.design_solutions = RmXprtDesignSolution(None, design_type, self._aedt_version)
-        else:
-            self.design_solutions = DesignSolution(None, design_type, self._aedt_version)
-        self.design_solutions._solution_type = solution_type
-        self._temp_solution_type = solution_type
-        self._remove_lock = remove_lock
-        self.oproject = project_name
-        self.odesign = design_name
-        self._logger.oproject = self.oproject
-        self._logger.odesign = self.odesign
-        AedtObjects.__init__(self, self._desktop_class, self.oproject, self.odesign, is_inherithed=True)
-        self.logger.info("Aedt Objects correctly read")
-        if not self.__t and not settings.lazy_load and os.path.exists(self.project_file):
-            self.__t = threading.Thread(target=load_aedt_thread, args=(self.project_file,), daemon=True)
-            self.__t.start()
-        self._variable_manager = VariableManager(self)
-        self._project_datasets = []
-        self._design_datasets = []
-        if self._design_type not in ["Maxwell Circuit", "Circuit Netlist"]:
-            self.design_settings = DesignSettings(self)
 
     @property
     def desktop_class(self):
@@ -4245,11 +4260,11 @@ class DesignSettings:
     """
 
     def __init__(self, app):
-        self._app = app
-        self.manipulate_inputs = None
+        self._app: Any = app
+        self.manipulate_inputs: Optional[DesignSettingsManipulation] = None
 
     @property
-    def design_settings(self):
+    def design_settings(self) -> Optional[Any]:
         """Design settings."""
         try:
             return self._app.odesign.GetChildObject("Design Settings")
@@ -4258,18 +4273,18 @@ class DesignSettings:
             return None
 
     @property
-    def available_properties(self):
+    def available_properties(self) -> List[str]:
         """Available properties names for the current design."""
         return [prop for prop in self.design_settings.GetPropNames() if not prop.endswith("/Choices")]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         lines = ["{"]
         for prop in self.available_properties:
             lines.append(f"\t{prop}: {self.design_settings.GetPropValue(prop)}")
         lines.append("}")
         return "\n".join(lines)
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: str, value: Any) -> Union[bool, None]:
         if key in self.available_properties:
             if self.manipulate_inputs is not None:
                 value = self.manipulate_inputs.execute(key, value)
@@ -4285,18 +4300,18 @@ class DesignSettings:
         else:
             self._app.logger.error(f"{key} property is not available in design settings.")
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str) -> Optional[Any]:
         if key in self.available_properties:
             return self.design_settings.GetPropValue(key)
         else:
             self._app.logger.error(f"{key} property is not available in design settings.")
             return None
 
-    def __contains__(self, item):
+    def __contains__(self, item: str) -> bool:
         return item in self.available_properties
 
 
 class DesignSettingsManipulation:
     @abstractmethod
-    def execute(self, k, v):
+    def execute(self, k: str, v: Any) -> Any:
         pass
