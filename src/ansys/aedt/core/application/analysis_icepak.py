@@ -25,14 +25,15 @@
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.application.design import DesignSettingsManipulation
 from ansys.aedt.core.generic.configurations import ConfigurationsIcepak
+from ansys.aedt.core.modules.boundary.icepak_boundary import BoundaryDictionary
 from ansys.aedt.core.visualization.post.monitor_icepak import Monitor
 
 
 class FieldAnalysisIcepak(FieldAnalysis3D, object):
     """Manages Icepak field analysis setup.
 
-    This class is automatically initialized by an application call from one of
-    the 3D tools. See the application function for parameter definitions.
+    This class is automatically initialized by an application call from one Icepak.
+    See the application function for parameter definitions.
 
     Parameters
     ----------
@@ -80,20 +81,20 @@ class FieldAnalysisIcepak(FieldAnalysis3D, object):
 
     def __init__(
         self,
-        application,
-        project,
-        design,
-        solution_type,
-        setup=None,
-        version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
+        application: str,
+        project: str,
+        design: str,
+        solution_type: str,
+        setup: Optional[str] = None,
+        version: Optional[Union[str, int, float]] = None,
+        non_graphical: bool = False,
+        new_desktop: bool = False,
+        close_on_exit: bool = False,
         student_version=False,
-        machine="",
-        port=0,
-        aedt_process_id=None,
-        remove_lock=False,
+        machine: str = "",
+        port: int = 0,
+        aedt_process_id: Optional[int] = None,
+        remove_lock: bool = False,
     ):
         FieldAnalysis3D.__init__(
             self,
@@ -118,7 +119,7 @@ class FieldAnalysisIcepak(FieldAnalysis3D, object):
 
     @property
     def post(self):
-        """PostProcessor.
+        """Icepak post processor.
 
         Returns
         -------
@@ -144,10 +145,40 @@ class FieldAnalysisIcepak(FieldAnalysis3D, object):
 
 
 class IcepakDesignSettingsManipulation(DesignSettingsManipulation):
+    """Manages Icepak design settings.
+
+    This class provides methods to modify specific design settings like ambient temperature,
+    gauge pressure, and gravity vector. The settings are managed through key-value pairs
+    and validated based on specific rules for each key.
+
+    Parameters
+    ----------
+    app : FieldAnalysisIcepak
+        Icepak application that is to initialize the call.
+    """
+
     def __init__(self, app):
         self.app = app
 
-    def execute(self, k, v):
+    def execute(self, k, v) -> str:
+        """
+        Modify the design settings for the given key with the specified value.
+
+        Handles specific keys like ``"AmbTemp"``, ``"AmbRadTemp"``, ``"AmbGaugePressure"``, and ``"GravityVec"``,
+        applying custom logic to validate and format the values before assignment.
+
+        Parameters
+        ----------
+            k : str
+                The design setting key to modify.
+            v: float, int, str
+                The value to assign to the setting. The expected type and format depend on the key.
+        Returns
+        -------
+        str
+             Updated value after processing, or an error message if the operation fails.
+        """
+
         if k in ["AmbTemp", "AmbRadTemp"]:
             if k == "AmbTemp" and isinstance(v, (dict, BoundaryDictionary)):
                 self.app.logger.error("Failed. Use `edit_design_settings` function.")
