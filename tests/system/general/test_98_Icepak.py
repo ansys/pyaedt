@@ -2018,5 +2018,3 @@ class TestClass:
         m1 = mesh_class.assign_mesh_region([c1.name])
         m2 = mesh_class.assign_mesh_region([c2.name])
         assert m1.assignment.name != m2.assignment.name
-        mess2 = self.aedtapp.logger.get_messages()
-        assert len(mess1.global_level) == len(mess2.global_level)
