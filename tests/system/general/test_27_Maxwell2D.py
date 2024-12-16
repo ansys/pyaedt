@@ -46,6 +46,7 @@ m2d_fields = "maxwell_e_line_export_field"
 
 
 class TestClass:
+
     def test_assign_initial_mesh_from_slider(self, add_app):
         aedtapp = add_app(
             project_name=test_name,
@@ -55,6 +56,8 @@ class TestClass:
         )
 
         assert aedtapp.mesh.assign_initial_mesh_from_slider(4)
+        with pytest.raises(RuntimeError):
+            aedtapp.mesh.assign_initial_mesh_from_slider(method="dummy")
         aedtapp.close_project(aedtapp.project_name)
 
     def test_assign_winding(self, add_app):
