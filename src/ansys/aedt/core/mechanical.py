@@ -237,7 +237,7 @@ class Mechanical(FieldAnalysis3D, object):
         if not assignment:
             allObjects = self.modeler.object_names
         else:
-            allObjects = assignment[:]
+            allObjects = surface_objects + assignment[:]
         surfaces = surface_objects
         if map_frequency:
             intr = [map_frequency]
