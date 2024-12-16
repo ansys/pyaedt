@@ -806,8 +806,8 @@ class SolutionData(object):
             curves = self.expressions
         if isinstance(curves, str):
             curves = [curves]
-        if not formula:
-            formula = "mag"
+        # if not formula:
+        #     formula = "mag"
         if to_radians:
             sw = self.to_radians(self.primary_sweep_values)
         else:
@@ -1039,9 +1039,9 @@ class SolutionData(object):
         temp_e_comp_y = e_real_y + 1j * e_imag_y
         temp_e_comp_z = e_real_z + 1j * e_imag_z
 
-        e_comp_x = np.zeros((len(freq), len(v), len(u)), dtype="complex_")
-        e_comp_y = np.zeros((len(freq), len(v), len(u)), dtype="complex_")
-        e_comp_z = np.zeros((len(freq), len(v), len(u)), dtype="complex_")
+        e_comp_x = np.zeros((len(freq), len(v), len(u)), dtype=np.complex128)
+        e_comp_y = np.zeros((len(freq), len(v), len(u)), dtype=np.complex128)
+        e_comp_z = np.zeros((len(freq), len(v), len(u)), dtype=np.complex128)
         if window:
             timewin = np.hanning(len(freq))
 

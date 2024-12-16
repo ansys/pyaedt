@@ -142,15 +142,15 @@ class ColorMapSettings(BaseFolderPlot):
     def color(self, v):
         """Set the colormap based on the map type.
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
         v : str or list[float]
             The color value to be set. If a string, it should represent a valid color
             spectrum specification (`"Magenta"`, `"Rainbow"`, `"Temperature"` or `"Gray"`).
             If a tuple, it should contain three elements representing RGB values.
 
-        Raises:
-        -------
+        Raises
+        ------
             ValueError: If the provided color value is not valid for the specified map type.
         """
         if self.map_type == "Spectrum":
@@ -508,14 +508,16 @@ class Scale3DSettings(BaseFolderPlot):
     def scale_type(self, value):
         """Set the scale type used for the field plot.
 
-        Parameters:
-        -----------
-            value (str): The type of scaling to set.
-            Must be one of the accepted values ("Auto", "MinMax" or "Specified").
+        Parameters
+        ----------
+            value : str
+                The type of scaling to set.
+                Must be one of the accepted values ("Auto", "MinMax" or "Specified").
 
-        Raises:
-        -------
-            ValueError: If the provided value is not in the list of accepted values.
+        Raises
+        ------
+            ValueError
+               If the provided value is not in the list of accepted values.
         """
         if value is not None and value not in self._accepted:
             raise ValueError(f"{value} is not valid. Accepted values are {', '.join(self._accepted)}.")
@@ -743,13 +745,15 @@ class ArrowSettings(BaseFolderPlot):
     def arrow_type(self, v):
         """Set the type of arrows for the field plot.
 
-        Parameters:
-        -----------
-            v (str): The type of arrows to use. Must be one of the allowed types ("Line", "Cylinder", "Umbrella").
+        Parameters
+        ----------
+            v : str
+                The type of arrows to use. Must be one of the allowed types ("Line", "Cylinder", "Umbrella").
 
-        Raises:
-        -------
-            ValueError: If the provided value is not in the list of allowed arrow types.
+        Raises
+        ------
+            ValueError
+                If the provided value is not in the list of allowed arrow types.
         """
         if v in self._allowed_arrow_types:
             self._arrow_type = v
@@ -1073,12 +1077,12 @@ class FieldPlot:
             if self._postprocessor._app.design_type == "HFSS 3D Layout Design":
                 model_faces = [str(i) for i in self.surfaces]
             else:
-                models = self._postprocessor.modeler.model_objects
+                models = self._postprocessor._app.modeler.model_objects
                 for index in self.surfaces:
                     try:
                         if isinstance(index, FacePrimitive):
                             index = index.id
-                        oname = self._postprocessor.modeler.oeditor.GetObjectNameByFaceID(index)
+                        oname = self._postprocessor._app.modeler.oeditor.GetObjectNameByFaceID(index)
                         if oname in models:
                             model_faces.append(str(index))
                         else:

@@ -139,7 +139,7 @@ class TestClass:
         coat = self.aedtapp.assign_coating([id, "inner_1", 41], **args)
         coat.name = "Coating1inner"
         assert coat.update()
-        assert coat.object_properties
+        assert coat.properties
         material = coat.props.get("Material", "")
         assert material == "aluminum"
         assert not self.aedtapp.assign_coating(["insulator2", 45])
@@ -164,7 +164,7 @@ class TestClass:
             terminals_rename=False,
         )
 
-        assert port.object_properties
+        assert port.properties
         assert port.name == "sheet1_Port"
         assert port.name in [i.name for i in self.aedtapp.boundaries]
         assert port.props["RenormalizeAllTerminals"] is False
@@ -902,8 +902,12 @@ class TestClass:
         mesh.delete()
         assert len(self.aedtapp.mesh.meshoperations) == 2
 
-    def test_30_assign_initial_mesh(self):
+    def test_30a_assign_initial_mesh(self):
         assert self.aedtapp.mesh.assign_initial_mesh_from_slider(6)
+
+    def test_03b_assign_initial_mesh(self):
+        assert self.aedtapp.mesh.assign_initial_mesh()
+        assert self.aedtapp.mesh.assign_initial_mesh(normal_deviation="25deg", surface_deviation=0.2, aspect_ratio=20)
 
     def test_30a_add_mesh_link(self):
         design_name = self.aedtapp.design_name

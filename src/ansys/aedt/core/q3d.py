@@ -38,8 +38,8 @@ from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
-from ansys.aedt.core.modules.boundary import BoundaryObject
-from ansys.aedt.core.modules.boundary import Matrix
+from ansys.aedt.core.modules.boundary.common import BoundaryObject
+from ansys.aedt.core.modules.boundary.q3d_boundary import Matrix
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 
 try:
@@ -157,7 +157,7 @@ class QExtractor(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.Matrix`
+        :class:`ansys.aedt.core.modules.q3d_boundary.Matrix`
             Matrix object.
         """
         if not reduced_matrix:
@@ -1083,9 +1083,6 @@ class QExtractor(FieldAnalysis3D, object):
 
         if model is None:
             model = self.project_name
-        elif model != self.project_name:
-            self.logger.error("Invalid project name.")
-            return False
 
         if decompose_variable_value(lumped_length)[1] not in [
             "cm",
@@ -1525,7 +1522,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Source object.
 
         References
@@ -1579,7 +1576,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Source object.
 
         References
@@ -1611,7 +1608,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Sink object.
 
         References
@@ -1687,7 +1684,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Sink object.
 
         References
@@ -1742,7 +1739,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Source object.
 
         References
@@ -2043,7 +2040,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Source object.
         """
         assignment = self.modeler.convert_to_selections(assignment, True)
@@ -2440,7 +2437,7 @@ class Q2d(QExtractor, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Source object.
 
         References
@@ -2493,7 +2490,7 @@ class Q2d(QExtractor, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Source object.
 
         References
