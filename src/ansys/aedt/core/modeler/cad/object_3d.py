@@ -785,8 +785,8 @@ class Object3d(object):
 
     @property
     def _oeditor(self):
-        """Pointer to the oEditor object in the AEDT API. This property is
-        intended primarily for use by FacePrimitive, EdgePrimitive, and
+        """Pointer to the oEditor object in the AEDT API.
+        This property is intended primarily for use by FacePrimitive, EdgePrimitive, and
         VertexPrimitive child objects.
 
         Returns
@@ -812,7 +812,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 

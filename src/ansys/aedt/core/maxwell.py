@@ -2754,6 +2754,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     ):
         # type: (dict, str, str, str, bool) -> bool
         """Assign the layout force to a component in a Transient A-Phi solver.
+
         To access layout component features the Beta option has to be enabled first.
 
         Parameters

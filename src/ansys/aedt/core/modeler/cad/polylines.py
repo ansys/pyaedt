@@ -392,6 +392,7 @@ class Polyline(Object3d):
 
     def _update_segments_and_points(self):
         """Updates the self._segment_types and the self._positions from the history.
+
         This internal method is called by properties ``points`` and ``segment_types``.
         It will be called only once after opening a new project, then the internal
         variables are maintained updated.
@@ -1076,12 +1077,13 @@ class Polyline(Object3d):
     @pyaedt_function_handler()
     def _get_segment_id_from_point_n(self, pn, at_start, allow_inner_points=False):
         """Get the segment id for a given point index considering the segment types in the polyline.
+
         If a segment cannot be found with the specified rules, the function returns False.
 
         Parameters
         ----------
         pn : int
-            point number along the polyline
+            Point number along the polyline.
         at_start : bool
             If set to ``True`` the segment id that begins with the point pn is returned.
             If set to ``False`` the segment id that terminates with the point pn is returned.

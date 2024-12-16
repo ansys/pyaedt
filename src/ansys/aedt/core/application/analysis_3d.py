@@ -444,6 +444,7 @@ class FieldAnalysis3D(Analysis, object):
     @pyaedt_function_handler(object_list="assignment")
     def copy_solid_bodies_from(self, design, assignment=None, no_vacuum=True, no_pec=True, include_sheets=False):
         """Copy a list of objects and user defined models from one design to the active design.
+
         If user defined models are selected, the project will be saved automatically.
 
         Parameters
@@ -1060,7 +1061,9 @@ class FieldAnalysis3D(Analysis, object):
 
     @pyaedt_function_handler(component_name="components")
     def flatten_3d_components(self, components=None, purge_history=True, password=None):
-        """Flatten one or multiple 3d components in the actual layout. Each 3d Component is replaced with objects.
+        """Flatten one or multiple 3d components in the actual layout.
+
+        Each 3d Component is replaced with objects.
         This function will work only if the reference coordinate system of the 3d component is the global one.
 
         Parameters
@@ -1154,8 +1157,9 @@ class FieldAnalysis3D(Analysis, object):
     @pyaedt_function_handler(object_name="assignment")
     def identify_touching_conductors(self, assignment=None):
         # type: (str) -> dict
-        """Identify all touching components and group in a dictionary. This method requires that
-        the ``pyvista`` package is installed.
+        """Identify all touching components and group in a dictionary.
+
+        This method requires that the ``pyvista`` package is installed.
 
         Parameters
         ----------

@@ -3683,6 +3683,7 @@ class SetupMaxwell(Setup, object):
     @pyaedt_function_handler()
     def enable_control_program(self, control_program_path, control_program_args=" ", call_after_last_step=False):
         """Enable control program option is solution setup.
+
         Provide externally created executable files, or Python (*.py) scripts that are called after each time step,
         and allow you to control the source input, circuit elements, mechanical quantities, time step,
         and stopping criteria, based on the updated solutions.

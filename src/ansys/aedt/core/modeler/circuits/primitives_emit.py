@@ -1108,6 +1108,7 @@ class EmitComponentPropNode(object):
     @pyaedt_function_handler()
     def set_channel_sampling(self, sampling_type="Uniform", percentage=None, max_channels=None, seed=None):
         """Set the channel sampling for the radio.
+
         If a percentage is specified, then it will be used instead of max_channels.
 
         Parameters
