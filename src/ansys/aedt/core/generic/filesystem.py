@@ -92,6 +92,7 @@ class Scratch:
 
     def copyfile(self, src_file, dst_filename=None):
         """Copy a file to the scratch directory.
+
         The target filename is optional. If omitted, the target file name is identical to the source file name.
 
         Parameters

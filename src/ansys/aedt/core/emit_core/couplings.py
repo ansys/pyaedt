@@ -135,6 +135,7 @@ class CouplingsEmit(object):
 
     def update_link(self, coupling_name):
         """Update the link if it's a valid link.
+
         Check if anything in the linked design has changed and retrieve updated data if it has.
 
         Parameters
