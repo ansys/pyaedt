@@ -1558,6 +1558,7 @@ class Q3d(QExtractor, object):
     @pyaedt_function_handler(objects="assignment", axisdir="direction")
     def source(self, assignment=None, direction=0, name=None, net_name=None, terminal_type="voltage"):
         """Generate a source on a face of an object or a group of faces or face ids.
+
         The face ID is selected based on the axis direction. It is the face that
         has the maximum/minimum in this axis direction.
 
@@ -1581,7 +1582,6 @@ class Q3d(QExtractor, object):
 
         References
         ----------
-
         >>> oModule.AssignSource
         """
         return self._assign_source_or_sink(assignment, direction, name, net_name, terminal_type, "Source")
@@ -2024,7 +2024,9 @@ class Q3d(QExtractor, object):
 
     @pyaedt_function_handler()
     def assign_thin_conductor(self, assignment, material="copper", thickness=1, name=""):
-        """Assign a thin conductor to a sheet. The method accepts both a sheet name or a face id.
+        """Assign a thin conductor to a sheet.
+
+        The method accepts both a sheet name or a face id.
         If a face it is provided, then a sheet will be created and the boundary assigned to it.
 
         Parameters

@@ -163,16 +163,15 @@ class FieldAnalysis3D(Analysis, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.mesh.Mesh` or :class:`ansys.aedt.core.modules.mesh_icepak.IcepakMesh`
+        :class:`ansys.aedt.core.modules.mesh.Mesh`
             Mesh object.
         """
         if self._mesh is None and self._odesign:
             self.logger.reset_timer()
 
             from ansys.aedt.core.modules.mesh import Mesh
-            from ansys.aedt.core.modules.mesh_icepak import IcepakMesh
 
-            self._mesh = IcepakMesh(self) if self.design_type == "Icepak" else Mesh(self)
+            self._mesh = Mesh(self)
             self.logger.info_timer("Mesh class has been initialized!")
 
         return self._mesh
@@ -444,6 +443,7 @@ class FieldAnalysis3D(Analysis, object):
     @pyaedt_function_handler(object_list="assignment")
     def copy_solid_bodies_from(self, design, assignment=None, no_vacuum=True, no_pec=True, include_sheets=False):
         """Copy a list of objects and user defined models from one design to the active design.
+
         If user defined models are selected, the project will be saved automatically.
 
         Parameters
@@ -1060,7 +1060,9 @@ class FieldAnalysis3D(Analysis, object):
 
     @pyaedt_function_handler(component_name="components")
     def flatten_3d_components(self, components=None, purge_history=True, password=None):
-        """Flatten one or multiple 3d components in the actual layout. Each 3d Component is replaced with objects.
+        """Flatten one or multiple 3d components in the actual layout.
+
+        Each 3d Component is replaced with objects.
         This function will work only if the reference coordinate system of the 3d component is the global one.
 
         Parameters
@@ -1154,8 +1156,9 @@ class FieldAnalysis3D(Analysis, object):
     @pyaedt_function_handler(object_name="assignment")
     def identify_touching_conductors(self, assignment=None):
         # type: (str) -> dict
-        """Identify all touching components and group in a dictionary. This method requires that
-        the ``pyvista`` package is installed.
+        """Identify all touching components and group in a dictionary.
+
+        This method requires that the ``pyvista`` package is installed.
 
         Parameters
         ----------
@@ -1333,7 +1336,7 @@ class FieldAnalysis3D(Analysis, object):
         >>> oEditor.ImportDXF
 
         """
-        if self.desktop_class.non_graphical and self.desktop_class.aedt_version_id < "2024.2":
+        if self.desktop_class.non_graphical and self.desktop_class.aedt_version_id < "2024.2":  # pragma: no cover
             self.logger.error("Method is supported only in graphical mode.")
             return False
         dxf_layers = self.get_dxf_layers(file_path)
@@ -1376,7 +1379,7 @@ class FieldAnalysis3D(Analysis, object):
         return True
 
     @pyaedt_function_handler(gds_file="input_file", gds_number="mapping_layers", unit="units")
-    def import_gds_3d(self, input_file, mapping_layers, units="um", import_method=1):  # pragma: no cover
+    def import_gds_3d(self, input_file: str, mapping_layers: dict, units: str = "um", import_method: int = 1) -> bool:
         """Import a GDSII file.
 
         Parameters
@@ -1385,7 +1388,7 @@ class FieldAnalysis3D(Analysis, object):
             Path to the GDS file.
         mapping_layers : dict
             Dictionary keys are GDS layer numbers, and the value is a tuple with the thickness and elevation.
-        units : string, optional
+        units : str, optional
             Length unit values. The default is ``"um"``.
         import_method : integer, optional
             GDSII import method. The default is ``1``. Options are:
@@ -1414,7 +1417,7 @@ class FieldAnalysis3D(Analysis, object):
 
         """
 
-        if self.desktop_class.non_graphical:
+        if self.desktop_class.non_graphical and self.desktop_class.aedt_version_id < "2024.1":  # pragma: no cover
             self.logger.error("Method is supported only in graphical mode.")
             return False
         if not os.path.exists(input_file):

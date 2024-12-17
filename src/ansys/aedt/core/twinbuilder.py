@@ -354,8 +354,10 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
     @pyaedt_function_handler()
     def create_subsheet(self, name, design_name):
-        """Create a subsheet from a parent design. If the parent design does not exist, it will add at top level. Nested
-        subsheets are currently not supported.
+        """Create a subsheet from a parent design.
+
+        If the parent design does not exist, it will add at top level.
+        Nested subsheets are currently not supported.
 
         Parameters
         ----------

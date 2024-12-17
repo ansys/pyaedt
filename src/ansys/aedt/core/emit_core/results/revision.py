@@ -307,9 +307,7 @@ class Revision:
 
     @pyaedt_function_handler()
     def get_band_names(self, radio_name, tx_rx_mode=None):
-        """
-        Get a list of all ``tx`` or ``rx`` bands (or waveforms) in
-        a given radio/emitter.
+        """Get a list of all ``tx`` or ``rx`` bands (or waveforms) in a given radio/emitter.
 
         Parameters
         ----------

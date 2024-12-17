@@ -36,13 +36,13 @@ import random
 import string
 import warnings
 
-from ansys.aedt.core import generate_unique_name
-from ansys.aedt.core import pyaedt_function_handler
-from ansys.aedt.core import settings
 from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.general_methods import check_and_download_file
+from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 from ansys.aedt.core.visualization.post.common import PostProcessorCommon
@@ -1513,7 +1513,9 @@ class PostProcessor3D(PostProcessorCommon):
         self, nets, quantity, setup=None, layers=None, plot_on_surface=True, intrinsics=None, name=None
     ):
         # type: (list, str, str, list, bool, dict, str) -> FieldPlot
-        """Create a field plot of stacked layer plot based on a net selections. Layers can be used as a filter.
+        """Create a field plot of stacked layer plot based on a net selections.
+
+        Layers can be used as a filter.
         Dielectrics will be excluded from the plot.
         This plot is valid from AEDT 2023 R2 and later in HFSS 3D Layout.
         It works when a layout components in 3d modeler is used.
