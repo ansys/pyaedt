@@ -28,6 +28,7 @@ from typing import Union
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.application.design import DesignSettingsManipulation
 from ansys.aedt.core.generic.configurations import ConfigurationsIcepak
+from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.boundary.icepak_boundary import BoundaryDictionary
 
 
