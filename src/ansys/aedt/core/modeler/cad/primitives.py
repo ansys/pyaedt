@@ -5280,7 +5280,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateUserDefinedModel
         >>> oEditor.BreakUDMConnection
         """
@@ -9001,12 +9000,10 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> aedtapp = Hfss()
         >>> edge_object = aedtapp.modeler.create_object_from_edge("my_edge")
