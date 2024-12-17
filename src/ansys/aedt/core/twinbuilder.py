@@ -259,7 +259,6 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
         """
         self.set_sim_setup_parameter("Tend", expression)
@@ -281,7 +280,6 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
         """
         self.set_sim_setup_parameter("Hmin", expression)
@@ -303,7 +301,6 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
         """
         self.set_sim_setup_parameter("Hmax", expression)
@@ -329,7 +326,6 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
         """
         if isinstance(expression, Variable):
@@ -452,7 +448,6 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
         References
         ----------
-
         >>> oComponentManager.AddDynamicNPortData
 
         Examples

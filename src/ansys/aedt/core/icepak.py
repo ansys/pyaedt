@@ -275,7 +275,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.AssignGrilleBoundary
         """
         if boundary_name is None:
@@ -322,7 +321,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.AssignOpeningBoundary
 
         Examples
@@ -377,7 +375,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.AddTwoWayCoupling
 
         Examples
@@ -432,7 +429,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.AssignBlockBoundary
 
         Examples
@@ -498,7 +494,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.AssignBlockBoundary
 
         Examples
@@ -696,7 +691,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.AssignSourceBoundary
 
         Examples
@@ -789,7 +783,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.AssignNetworkBoundary
 
         Examples
@@ -883,7 +876,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.AssignNetworkBoundary
 
         Examples
@@ -949,7 +941,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.AssignFaceMonitor
 
         Examples
@@ -1019,7 +1010,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.AssignPointMonitor
 
         Examples
@@ -1051,7 +1041,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.AssignBlockBoundary
         """
         with open_file(csv_name) as csvfile:
@@ -1113,7 +1102,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oEditor.UpdatePriorityList
         """
         temp_log = os.path.join(self.working_directory, "validation.log")
@@ -1156,7 +1144,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oEditor.GetModelBoundingBox
         """
         dirs = ["-X", "+X", "-Y", "+Y", "-Z", "+Z"]
@@ -1805,7 +1792,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.AssignEMLoss
         """
         if surface_objects is None:
@@ -1908,7 +1894,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.ExportFieldsSummary
         """
         name = generate_unique_name(quantity_name)
@@ -1981,7 +1966,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.ExportFieldsSummary
         """
         if not savedir:
@@ -2057,7 +2041,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.EditFieldsSummarySetting
         >>> oModule.ExportFieldsSummary
         """
@@ -2249,7 +2232,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.InsertNativeComponent
         """
         if not name:
@@ -2392,7 +2374,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.InsertNativeComponent
         """
         if "extenttype" in kwargs:
@@ -2552,7 +2533,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.InsertNativeComponent
         """
         if "extenttype" in kwargs:
@@ -2612,7 +2592,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oEditor.Copy
         >>> oeditor.Paste
         """
@@ -2702,7 +2681,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.EditGlobalMeshRegion
         """
         bounding_box = self.modeler.oeditor.GetModelBoundingBox()
@@ -2783,7 +2761,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oeditor.ChangeProperty
         """
         warnings.warn(
@@ -2847,7 +2824,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.DeleteBoundaries
         """
         self.oboundary.DeleteBoundaries([bound_name])
@@ -2869,7 +2845,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oEditor.Delete
         """
         arg = ["NAME:Selections", "Selections:=", comp_name]
@@ -3110,7 +3085,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oDesign.SetDesignSettings
         """
 
@@ -3142,7 +3116,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
         """
         objs = ["NAME:PropServers"]
@@ -3276,7 +3249,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oDesign.ImportIDF
         """
         active_design_name = self.desktop_class.active_design(self.oproject).GetName()
@@ -3625,7 +3597,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.AssignStationaryWallBoundary
         """
         if not name:
@@ -3761,7 +3732,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.AssignStationaryWallBoundary
         """
         return self.assign_stationary_wall(
@@ -3824,7 +3794,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.AssignStationaryWallBoundary
         """
         return self.assign_stationary_wall(
@@ -3960,7 +3929,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.AssignStationaryWallBoundary
         """
         return self.assign_stationary_wall(
@@ -4019,7 +3987,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.InsertSetup
 
         Examples
@@ -4117,7 +4084,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.AssignSourceBoundary
 
         Examples
@@ -4214,7 +4180,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.AssignNetworkBoundary
 
         Examples
@@ -4262,7 +4227,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.AssignNetworkBoundary
 
         Examples
@@ -4345,7 +4309,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.AssignBlockBoundary
 
         Examples
@@ -4455,7 +4418,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.AssignBlockBoundary
 
         Examples
@@ -4569,7 +4531,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.ExportFanOperatingPoint
 
         Examples
@@ -4993,7 +4954,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.AssignSymmetryWallBoundary
         """
         if not boundary_name:
@@ -5041,7 +5001,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.AssignAdiabaticPlateBoundary
 
         Examples
@@ -5192,7 +5151,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.AssignResistanceBoundary
 
         Examples
@@ -5317,7 +5275,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.AssignResistanceBoundary
 
         Examples
@@ -5405,7 +5362,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.AssignResistanceBoundary
 
         Examples
@@ -5489,7 +5445,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.AssignResistanceBoundary
 
         Examples
@@ -5574,7 +5529,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.AssignRecircBoundary
 
         Examples
@@ -5724,7 +5678,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.AssignBlowerBoundary
 
         Examples
@@ -5807,7 +5760,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.AssignBlowerBoundary
 
         Examples
@@ -6437,7 +6389,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oDesign.ClearLinkedData
         """
         try:

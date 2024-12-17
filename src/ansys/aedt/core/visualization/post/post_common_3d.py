@@ -145,7 +145,6 @@ class PostProcessor3D(PostProcessorCommon):
 
         References
         ----------
-
         >>> oDesign.GetModule("FieldsReporter")
         """
         return self._app.ofieldsreporter
@@ -330,7 +329,6 @@ class PostProcessor3D(PostProcessorCommon):
 
         References
         ----------
-
         >>> oModule.EnterQty
         >>> oModule.EnterVol
         >>> oModule.CalcOp
@@ -364,7 +362,6 @@ class PostProcessor3D(PostProcessorCommon):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
         """
         self._odesign.ChangeProperty(
@@ -613,7 +610,6 @@ class PostProcessor3D(PostProcessorCommon):
 
         References
         ----------
-
         >>> oModule.EnterQty
         >>> oModule.CopyNamedExprToStack
         >>> oModule.CalcOp
@@ -800,7 +796,6 @@ class PostProcessor3D(PostProcessorCommon):
 
         References
         ----------
-
         >>> oModule.EnterQty
         >>> oModule.CopyNamedExprToStack
         >>> oModule.CalcOp
@@ -994,7 +989,6 @@ class PostProcessor3D(PostProcessorCommon):
 
         References
         ----------
-
         >>> oModule.SetPlotFolderSettings
         """
         args = ["NAME:FieldsPlotSettings", "Real Time mode:=", True]
@@ -1883,7 +1877,6 @@ class PostProcessor3D(PostProcessorCommon):
 
         References
         ----------
-
         >>> oModule.CreateFieldPlot
         """
         assignment = self._app.modeler.convert_to_selections(assignment, True)
@@ -2029,7 +2022,6 @@ class PostProcessor3D(PostProcessorCommon):
 
         References
         ----------
-
         >>> oModule.DeleteFieldPlot
         """
         self.ofieldsreporter.DeleteFieldPlot([name])
@@ -2087,7 +2079,6 @@ class PostProcessor3D(PostProcessorCommon):
 
         References
         ----------
-
         >>> oEditor.ExportModelImageToFile
 
         Examples
@@ -2365,7 +2356,6 @@ class PostProcessor3D(PostProcessorCommon):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
         """
         available_bcs = self._app.boundaries
@@ -2903,7 +2893,6 @@ class PostProcessor3D(PostProcessorCommon):
 
         Parameters
         ----------
-
         max_frequency : str, optional
             Maximum Frequency. Default is ``1GHz``.
         ray_density : int, optional

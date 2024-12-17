@@ -135,7 +135,6 @@ class CircuitComponents(object):
 
         References
         ----------
-
         >>> oDefinitionManager = oProject.GetDefinitionManager()
         """
         return self._app.oproject.GetDefinitionManager()
@@ -283,7 +282,6 @@ class CircuitComponents(object):
 
         References
         ----------
-
         >>> oeditor.AddPinIPorts
         """
         comp_id = "CompInst@" + name + ";" + str(id_num) + ";395"
@@ -312,7 +310,6 @@ class CircuitComponents(object):
 
         References
         ----------
-
         >>> oEditor.CreateIPort
         """
         if location is None:
@@ -357,7 +354,6 @@ class CircuitComponents(object):
 
         References
         ----------
-
         >>> oEditor.CreatePagePort
         """
         location = [] if location is None else location
@@ -431,7 +427,6 @@ class CircuitComponents(object):
 
         References
         ----------
-
         >>> oModelManager.Add
         >>> oComponentManager.Add
         """
@@ -724,7 +719,6 @@ class CircuitComponents(object):
 
         References
         ----------
-
         >>> oModelManager.Add
         >>> oComponentManager.Add
         >>> oEditor.CreateComponent
@@ -790,7 +784,6 @@ class CircuitComponents(object):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
 
         Examples
@@ -839,7 +832,6 @@ class CircuitComponents(object):
 
         References
         ----------
-
         >>> oComponentManager.GetData
         >>> oComponentManager.Edit
         """
@@ -876,7 +868,6 @@ class CircuitComponents(object):
 
         References
         ----------
-
         >>> oComponentManager.GetData
         >>> oComponentManager.Edit
         """
@@ -917,7 +908,6 @@ class CircuitComponents(object):
 
         References
         ----------
-
         >>> oSymbolManager.Add
         """
         numpins = len(pins)
@@ -997,7 +987,6 @@ class CircuitComponents(object):
 
         References
         ----------
-
         >>> oComponentManager.GetData
         >>> oComponentManager.Edit
         """
@@ -1032,7 +1021,6 @@ class CircuitComponents(object):
 
         References
         ----------
-
         >>> oEditor.GetAllElements()
         """
         obj = self.oeditor.GetAllElements()
@@ -1123,7 +1111,6 @@ class CircuitComponents(object):
 
         References
         ----------
-
         >>> oEditor.GetComponentPins
         """
         if isinstance(assignment, CircuitComponent):
@@ -1154,7 +1141,6 @@ class CircuitComponents(object):
 
         References
         ----------
-
         >>> oEditor.GetComponentPinLocation
 
         """
@@ -1232,7 +1218,6 @@ class CircuitComponents(object):
 
         References
         ----------
-
         >>> oEditor.CreateWire
         """
         points = [str(tuple(self._convert_point_to_meter(i))) for i in points]
@@ -1295,7 +1280,6 @@ class ComponentInfo(object):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location is None:

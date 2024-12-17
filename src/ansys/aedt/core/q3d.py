@@ -188,7 +188,6 @@ class QExtractor(FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.GetAllSources
         """
         return self.sources(0, False)
@@ -916,7 +915,6 @@ class QExtractor(FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.ExportCircuit
 
         Examples
@@ -1348,7 +1346,6 @@ class Q3d(QExtractor, object):
 
         References
         ----------
-
         >>> oModule.ListNets
         """
         nets_data = list(self.oboundary.ListNets())
@@ -1478,7 +1475,6 @@ class Q3d(QExtractor, object):
 
         References
         ----------
-
         >>> oModule.AutoIdentifyNets
         """
         original_nets = [i for i in self.nets]
@@ -1527,7 +1523,6 @@ class Q3d(QExtractor, object):
 
         References
         ----------
-
         >>> oModule.AssignSignalNet
         >>> oModule.AssignGroundNet
         >>> oModule.AssignFloatingNet
@@ -1613,7 +1608,6 @@ class Q3d(QExtractor, object):
 
         References
         ----------
-
         >>> oModule.AssignSource
         """
         return self._assign_source_or_sink(assignment, direction, name, net_name, terminal_type, "Sink")
@@ -1689,7 +1683,6 @@ class Q3d(QExtractor, object):
 
         References
         ----------
-
         >>> oModule.AssignSink
         """
         warnings.warn(
@@ -1744,7 +1737,6 @@ class Q3d(QExtractor, object):
 
         References
         ----------
-
         >>> oModule.AssignSink
         """
         warnings.warn(
@@ -1819,7 +1811,6 @@ class Q3d(QExtractor, object):
 
         References
         ----------
-
         >>> oModule.InsertSweep
         """
         if sweepname is None:
@@ -1896,7 +1887,6 @@ class Q3d(QExtractor, object):
 
         References
         ----------
-
         >>> oModule.InsertSweep
         """
         if sweepname is None:
@@ -1983,7 +1973,6 @@ class Q3d(QExtractor, object):
 
         Parameters
         ----------
-
         name : str, optional
             Name of the setup. The default is "Setup1".
         **kwargs : dict, optional
@@ -1997,7 +1986,6 @@ class Q3d(QExtractor, object):
 
         References
         ----------
-
         >>> oModule.InsertSetup
 
         Examples
@@ -2368,7 +2356,6 @@ class Q2d(QExtractor, object):
 
         References
         ----------
-
         >>> oEditor.CreateRectangle
         """
         return self.modeler.create_rectangle(origin=origin, sizes=sizes, name=name, material=material)
@@ -2395,7 +2382,6 @@ class Q2d(QExtractor, object):
 
         References
         ----------
-
         >>> oModule.AssignSingleSignalLine
         >>> oModule.AssignSingleReferenceGround
         """
@@ -2444,7 +2430,6 @@ class Q2d(QExtractor, object):
 
         References
         ----------
-
         >>> oModule.AssignSingleSignalLine
         >>> oModule.AssignSingleReferenceGround
         """
@@ -2497,7 +2482,6 @@ class Q2d(QExtractor, object):
 
         References
         ----------
-
         >>> oMdoule.AssignFiniteCond
         """
         if not name:
@@ -2720,7 +2704,6 @@ class Q2d(QExtractor, object):
 
         References
         ----------
-
         >>> oModule.InsertSetup
 
         Examples

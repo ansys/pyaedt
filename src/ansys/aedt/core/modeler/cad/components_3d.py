@@ -200,7 +200,6 @@ class UserDefinedComponent(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
@@ -238,7 +237,6 @@ class UserDefinedComponent(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
@@ -267,7 +265,6 @@ class UserDefinedComponent(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
@@ -360,7 +357,6 @@ class UserDefinedComponent(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
@@ -393,7 +389,6 @@ class UserDefinedComponent(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
@@ -450,7 +445,6 @@ class UserDefinedComponent(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
@@ -484,7 +478,6 @@ class UserDefinedComponent(object):
 
         References
         ----------
-
         >>> oEditor.Delete
 
         Examples
@@ -524,7 +517,6 @@ class UserDefinedComponent(object):
 
         References
         ----------
-
         >>> oEditor.DuplicateMirror
         """
         return self._primitives.duplicate_and_mirror(self.name, origin=origin, vector=vector, is_3d_comp=True)
@@ -549,7 +541,6 @@ class UserDefinedComponent(object):
 
         References
         ----------
-
         >>> oEditor.Mirror
         """
         if self.is3dcomponent:
@@ -583,7 +574,6 @@ class UserDefinedComponent(object):
 
         References
         ----------
-
         >>> oEditor.Rotate
         """
         if self.is3dcomponent:
@@ -646,7 +636,6 @@ class UserDefinedComponent(object):
 
         References
         ----------
-
         >>> oEditor.DuplicateAroundAxis
 
         """
@@ -678,7 +667,6 @@ class UserDefinedComponent(object):
 
         References
         ----------
-
         >>> oEditor.DuplicateAlongLine
 
         """
@@ -1171,7 +1159,6 @@ class LayoutComponent(object):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
         """
 

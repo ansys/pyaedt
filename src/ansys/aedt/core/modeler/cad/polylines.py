@@ -383,7 +383,6 @@ class Polyline(Object3d):
 
         References
         ----------
-
         >>> oEditor.GetVertexIDsFromObject
         >>> oEditor.GetVertexPosition
 
@@ -541,7 +540,6 @@ class Polyline(Object3d):
 
         References
         ----------
-
         >>> oEditor.GetVertexIDsFromObject
         >>> oEditor.GetVertexPosition
 
@@ -769,7 +767,6 @@ class Polyline(Object3d):
 
         References
         ----------
-
         >>> oEditor.Copy
         >>> oEditor.Paste
 
@@ -816,7 +813,6 @@ class Polyline(Object3d):
 
         References
         ----------
-
         >>> oEditor.DeletePolylinePoint
 
         Examples
@@ -907,7 +903,6 @@ class Polyline(Object3d):
 
         References
         ----------
-
         >>> oEditor.DeletePolylinePoint
 
         Examples
@@ -988,7 +983,6 @@ class Polyline(Object3d):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
 
         Examples
@@ -1139,7 +1133,6 @@ class Polyline(Object3d):
 
         References
         ----------
-
         >>> oEditor.InsertPolylineSegment
 
         """

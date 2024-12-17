@@ -477,7 +477,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariables
         >>> oDesign.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
@@ -529,7 +528,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oDesign.GetVariables
         >>> oDesign.GetChildObject("Variables").GetChildNames
         """
@@ -546,7 +544,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
         """
@@ -564,7 +561,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariables
         >>> oDesign.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
@@ -593,7 +589,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariables
         >>> oDesign.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
@@ -612,7 +607,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
         """
@@ -630,7 +624,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oDesign.GetVariables
         >>> oDesign.GetChildObject("Variables").GetChildNames
         """
@@ -648,7 +641,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariables
         >>> oDesign.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
@@ -667,7 +659,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
         """
@@ -685,7 +676,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oDesign.GetVariables
         >>> oDesign.GetChildObject("Variables").GetChildNames
         """
@@ -702,7 +692,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
         """
@@ -714,7 +703,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oDesign.GetVariables
         >>> oDesign.GetChildObject("Variables").GetChildNames"""
         return [var_name for var_name in self.design_variables]
@@ -725,7 +713,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
         """
@@ -737,7 +724,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oDesign.GetVariables
         >>> oDesign.GetChildObject("Variables").GetChildNames"""
         return [var_name for var_name in self.independent_design_variables]
@@ -748,7 +734,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariables
         >>> oDesign.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
@@ -761,7 +746,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
         """
@@ -773,7 +757,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oDesign.GetVariables
         >>> oDesign.GetChildObject("Variables").GetChildNames"""
         return [var_name for var_name in self.dependent_design_variables]
@@ -784,7 +767,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariables
         >>> oDesign.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
@@ -931,7 +913,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariableValue
         >>> oDesign.GetVariableValue
         """
@@ -1218,7 +1199,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.ChangeProperty
         >>> oDesign.ChangeProperty
         """
@@ -1259,7 +1239,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.ChangeProperty
         >>> oDesign.ChangeProperty
         """
@@ -2280,7 +2259,6 @@ class DataSet(object):
 
         References
         ----------
-
         >>> oProject.AddDataset
         >>> oDesign.AddDataset
         """
@@ -2312,7 +2290,6 @@ class DataSet(object):
 
         References
         ----------
-
         >>> oProject.EditDataset
         >>> oDesign.EditDataset
         """
@@ -2339,7 +2316,6 @@ class DataSet(object):
 
         References
         ----------
-
         >>> oProject.EditDataset
         >>> oDesign.EditDataset
         """
@@ -2365,7 +2341,6 @@ class DataSet(object):
 
         References
         ----------
-
         >>> oProject.EditDataset
         >>> oDesign.EditDataset
         """
@@ -2390,7 +2365,6 @@ class DataSet(object):
 
         References
         ----------
-
         >>> oProject.EditDataset
         >>> oDesign.EditDataset
         """
@@ -2414,7 +2388,6 @@ class DataSet(object):
 
         References
         ----------
-
         >>> oProject.DeleteDataset
         >>> oDesign.DeleteDataset
         """
@@ -2443,7 +2416,6 @@ class DataSet(object):
 
         References
         ----------
-
         >>> oProject.ExportDataset
         >>> oDesign.ExportDataset
         """

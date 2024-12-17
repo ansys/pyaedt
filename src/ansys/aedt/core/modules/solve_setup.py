@@ -189,7 +189,6 @@ class CommonSetup(PropsManager, BinaryTreeNode):
 
         References
         ----------
-
         >>> oDesign.Analyze
         """
         self._app.analyze(
@@ -475,7 +474,6 @@ class CommonSetup(PropsManager, BinaryTreeNode):
 
         References
         ----------
-
         >>> oModule.CreateReport
 
         Examples
@@ -541,7 +539,6 @@ class Setup(CommonSetup):
 
         References
         ----------
-
         >>> oModule.InsertSetup
         """
         soltype = SetupKeys.SetupNames[self.setuptype]
@@ -571,7 +568,6 @@ class Setup(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         legacy_update = self.auto_update
@@ -764,7 +760,6 @@ class Setup(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         arg = ["NAME:" + self.name]
@@ -797,7 +792,6 @@ class Setup(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         if not name:
@@ -822,7 +816,6 @@ class Setup(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         if not name:
@@ -878,7 +871,6 @@ class Setup(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditSetup
 
         Examples
@@ -1053,7 +1045,6 @@ class Setup(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditSetup
 
         Examples
@@ -1151,7 +1142,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.AddLinearNetworkAnalysis
         >>> oModule.AddDCAnalysis
         >>> oModule.AddTransient
@@ -1220,7 +1210,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditLinearNetworkAnalysis
         >>> oModule.EditDCAnalysis
         >>> oModule.EditTransient
@@ -1265,7 +1254,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditLinearNetworkAnalysis
         >>> oModule.EditDCAnalysis
         >>> oModule.EditTransient
@@ -1323,7 +1311,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditLinearNetworkAnalysis
         >>> oModule.EditDCAnalysis
         >>> oModule.EditTransient
@@ -1380,7 +1367,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditLinearNetworkAnalysis
         >>> oModule.EditDCAnalysis
         >>> oModule.EditTransient
@@ -1568,7 +1554,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         arg = ["Name:SimSetup"]
@@ -1596,7 +1581,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         if not name:
@@ -1620,7 +1604,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         if not name:
@@ -1696,7 +1679,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.GetSolutionDataPerVariation
         """
         return self._app.post.get_solution_data(
@@ -1770,7 +1752,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.CreateReport
         """
         return self._app.post.create_report(
@@ -1912,7 +1893,6 @@ class Setup3DLayout(CommonSetup):
 
         References
         ----------
-
         >>> oModule.Add
         """
         arg = ["NAME:" + self.name]
@@ -1936,7 +1916,6 @@ class Setup3DLayout(CommonSetup):
 
         References
         ----------
-
         >>> oModule.Edit
         """
         if properties:
@@ -1963,7 +1942,6 @@ class Setup3DLayout(CommonSetup):
 
         References
         ----------
-
         >>> oModule.Edit
         """
         self.props["Properties"]["Enable"] = "true"
@@ -1986,7 +1964,6 @@ class Setup3DLayout(CommonSetup):
 
         References
         ----------
-
         >>> oModule.Edit
         """
         self.props["Properties"]["Enable"] = "false"
@@ -2319,7 +2296,6 @@ class Setup3DLayout(CommonSetup):
 
         References
         ----------
-
         >>> oModule.AddSweep
         """
         if not name:
@@ -2531,7 +2507,6 @@ class SetupHFSS(Setup, object):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         if not isinstance(derivative_list, list):
@@ -2649,7 +2624,6 @@ class SetupHFSS(Setup, object):
 
         References
         ----------
-
         >>> oModule.InsertFrequencySweep
 
         Examples
@@ -2743,7 +2717,6 @@ class SetupHFSS(Setup, object):
 
         References
         ----------
-
         >>> oModule.InsertFrequencySweep
 
         Examples
@@ -2825,7 +2798,6 @@ class SetupHFSS(Setup, object):
 
         References
         ----------
-
         >>> oModule.InsertFrequencySweep
 
         Examples
@@ -2903,7 +2875,6 @@ class SetupHFSS(Setup, object):
 
         References
         ----------
-
         >>> oModule.InsertFrequencySweep
         """
         if not name:
@@ -2965,7 +2936,6 @@ class SetupHFSS(Setup, object):
 
         References
         ----------
-
         >>> oModules.GetSweeps
 
         Examples
@@ -2993,7 +2963,6 @@ class SetupHFSS(Setup, object):
 
         References
         ----------
-
         >>> oModule.DeleteSweep
 
         Examples
@@ -3272,7 +3241,6 @@ class SetupHFSSAuto(Setup, object):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         if not isinstance(derivative_list, list):
@@ -3895,7 +3863,6 @@ class SetupQ3D(Setup, object):
 
         References
         ----------
-
         >>> oModule.InsertFrequencySweep
 
         Examples
@@ -4053,7 +4020,6 @@ class SetupQ3D(Setup, object):
 
         References
         ----------
-
         >>> oModule.InsertFrequencySweep
         """
         if not name:
@@ -4193,7 +4159,6 @@ class SetupQ3D(Setup, object):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         legacy_update = self.auto_update

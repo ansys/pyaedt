@@ -71,7 +71,6 @@ class EmitComponents(object):
 
         References
         ----------
-
         >>> oDefinitionManager = oProject.GetDefinitionManager()
         """
         return self._parent._oproject.GetDefinitionManager()
@@ -82,7 +81,6 @@ class EmitComponents(object):
 
         References
         ----------
-
         >>> oSymbolManager = oDefinitionManager.GetManager("Symbol")
         """
         return self._parent.o_symbol_manager
@@ -93,7 +91,6 @@ class EmitComponents(object):
 
         References
         ----------
-
         >>> oComponentManager = oDefinitionManager.GetManager("Component")
         """
         return self._parent.o_component_manager
@@ -158,7 +155,6 @@ class EmitComponents(object):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         # Pass an empty string to allow name to be automatically assigned.
@@ -202,7 +198,6 @@ class EmitComponents(object):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         # Pass an empty string to allow name to be automatically assigned.
@@ -423,7 +418,6 @@ class EmitComponent(object):
 
         References
         ----------
-
         >>> oEditor.GetWireAtPort
         >>> oEditor.GetWireConnections
         """
@@ -448,7 +442,6 @@ class EmitComponent(object):
 
         References
         ----------
-
         >>> oDesign.GetComponentNodeNames
         """
         node_names = sorted(self.odesign.GetComponentNodeNames(self.name))
@@ -483,7 +476,6 @@ class EmitComponent(object):
 
         References
         ----------
-
         >>> oDesign.GetComponentNodeNames
         >>> oDesign.GetComponentNodeProperties
         """

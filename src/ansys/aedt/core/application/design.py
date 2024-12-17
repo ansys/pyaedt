@@ -666,7 +666,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.GetVersion()
         """
         return aedt_versions.get_version_env_variable(self._aedt_version)
@@ -686,7 +685,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.GetName
         >>> oDesign.RenameDesignInstance
 
@@ -743,7 +741,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.GetTopDesignList()
         """
         deslist = list(self.oproject.GetTopDesignList())
@@ -782,7 +779,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.GetName
         """
         if self._project_name:
@@ -808,7 +804,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.GetProjectList
         """
         return list(self.odesktop.GetProjectList())
@@ -824,7 +819,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.GetPath
         """
         if not self._project_path and self.oproject:
@@ -896,7 +890,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.GetSolutionType
         >>> oDesign.SetSolutionType
         """
@@ -942,7 +935,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.GetPersonalLibDirectory
         """
         return self.desktop_class.personallib
@@ -958,7 +950,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.GetUserLibDirectory
         """
         return self.desktop_class.userlib
@@ -974,7 +965,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.GetLibraryDirectory
         """
         return self.desktop_class.syslib
@@ -1167,7 +1157,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.SetActiveDesign
         >>> oProject.InsertDesign
         """
@@ -1215,7 +1204,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.GetActiveProject
         >>> oDesktop.SetActiveProject
         >>> oDesktop.NewProject
@@ -1781,7 +1769,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.SetRegistryString
         """
         try:
@@ -1847,7 +1834,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.GetRegistryString
         """
         return self.odesktop.GetRegistryString(name)
@@ -1868,7 +1854,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.GetRegistryInt
         """
         return self.odesktop.GetRegistryInt(name)
@@ -1889,7 +1874,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.GetRegistryString
         """
         limit = 100
@@ -1936,7 +1920,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.SetRegistryString
         """
         try:
@@ -1967,7 +1950,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.SetRegistryFromFile
         """
         try:
@@ -2089,7 +2071,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
         """
         arg = ["NAME:AllTabs"]
@@ -2120,7 +2101,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
         """
         arg = ["NAME:AllTabs"]
@@ -2151,7 +2131,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
         """
         arg = ["NAME:AllTabs"]
@@ -2182,7 +2161,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
         """
         arg = ["NAME:AllTabs"]
@@ -2209,7 +2187,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
         """
         arg = ["NAME:AllTabs"]
@@ -2236,7 +2213,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
         """
         arg = ["NAME:AllTabs"]
@@ -2263,7 +2239,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
         """
         arg = ["NAME:AllTabs"]
@@ -2290,7 +2265,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
         """
         arg = ["NAME:AllTabs"]
@@ -2320,7 +2294,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
 
         Examples
@@ -2374,7 +2347,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
 
         Examples
@@ -2571,7 +2543,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.EnableAutoSave
         """
         self.odesktop.EnableAutoSave(False)
@@ -2588,7 +2559,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.EnableAutoSave
         """
         self.odesktop.EnableAutoSave(True)
@@ -2686,7 +2656,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.OpenProject
         """
         proj = self.odesktop.OpenProject(file_name)
@@ -2730,7 +2699,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.AddDataset
         >>> oDesign.AddDataset
         """
@@ -2762,7 +2730,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.AddDataset
         >>> oDesign.AddDataset
         """
@@ -2816,7 +2783,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.AddDataset
         """
         if name[0] == "$":
@@ -2860,7 +2826,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.AddDataset
         >>> oDesign.AddDataset
         """
@@ -2918,7 +2883,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.AddDataset
         """
         index_of_dot = input_file.rfind(".")
@@ -3039,7 +3003,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.AddDataset
         >>> oDesign.AddDataset
         """
@@ -3130,7 +3093,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.SetDesignSettings
         """
         if lossy_dielectric:
@@ -3156,7 +3118,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.SetDesignSettings
         """
         if material_override:
@@ -3188,7 +3149,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.SetDesignSettings
         """
         self.logger.info("Changing the validation design settings")
@@ -3258,7 +3218,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.SaveAs
         """
         self.logger.info("Copy AEDT Project ")
@@ -3282,7 +3241,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.NewProject
         """
         self.logger.info("Creating new Project ")
@@ -3312,7 +3270,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.CloseProject
         """
         legacy_name = self.project_name
@@ -3381,7 +3338,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.DeleteDesign
         """
         if not name:
@@ -3427,7 +3383,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.ChangeProperty
         >>> oDesign.ChangeProperty
         """
@@ -3444,7 +3399,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.ChangeProperty
         >>> oDesign.ChangeProperty
         """
@@ -3486,7 +3440,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.InsertDesign
         """
         self._close_edb()
@@ -3599,7 +3552,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.RenameDesignInstance
         """
         self._odesign.RenameDesignInstance(self.design_name, name)
@@ -3636,7 +3588,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.CopyDesign
         >>> oProject.Paste
         """
@@ -3695,7 +3646,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.CopyDesign
         >>> oProject.Paste
         """
@@ -3769,7 +3719,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.GetProperties
         >>> oDesign.GetProperties
         >>> oProject.GetVariableValue
@@ -3828,7 +3777,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.Save
         >>> oProject.SaveAs
         """
@@ -3884,7 +3832,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.Save
         >>> oProject.SaveProjectArchive
         """
@@ -3915,7 +3862,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.DeleteProject
         """
         if self.project_name == name:
@@ -3934,7 +3880,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.SetActiveDesign
         """
         self._close_edb()
@@ -3958,7 +3903,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.ValidateDesign
         """
         if log_file:
@@ -3985,7 +3929,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.GetNominalVariation
         >>> oDesign.GetVariationVariableValue
 
@@ -4112,7 +4055,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.GetNominalVariation
         """
         nominal = self._odesign.GetNominalVariation()
@@ -4232,7 +4174,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.SetTempDirectory()
         """
         self.odesktop.SetTempDirectory(path)
@@ -4256,7 +4197,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.EditNotes()
 
         Examples
@@ -4278,7 +4218,6 @@ class DesignSettings:
 
     References
     ----------
-
     >>> oDesign.GetChildObject("Design Settings")
     """
 

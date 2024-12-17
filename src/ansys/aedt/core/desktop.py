@@ -747,7 +747,6 @@ class Desktop(object):
 
         References
         ----------
-
         >>> oProject.GetActiveDesign
         >>> oProject.SetActiveDesign
         """
@@ -774,7 +773,6 @@ class Desktop(object):
 
         References
         ----------
-
         >>> oDesktop.GetActiveProject
         >>> oDesktop.SetActiveProject
         """
@@ -807,7 +805,6 @@ class Desktop(object):
 
         References
         ----------
-
         >>> oDesktop.CloseAllWindows
         """
         self.odesktop.CloseAllWindows()
@@ -1852,7 +1849,6 @@ class Desktop(object):
 
         References
         ----------
-
         >>> oDesktop.SubmitJob
         """
 
@@ -1959,7 +1955,6 @@ class Desktop(object):
 
         References
         ----------
-
         >>> oDesktop.SubmitJob
 
         Examples

@@ -826,7 +826,6 @@ class MeshRegion(MeshRegionCommon):
 
         References
         ----------
-
         >>> oModule.EditMeshRegion
         """
         args = ["NAME:" + self.name, "Enable:=", self.enable]
@@ -850,7 +849,6 @@ class MeshRegion(MeshRegionCommon):
 
         References
         ----------
-
         >>> oModule.DeleteMeshRegions()
         """
         self._app.omeshmodule.DeleteMeshRegions([self.name])
@@ -925,7 +923,6 @@ class MeshRegion(MeshRegionCommon):
 
         References
         ----------
-
         >>> oModule.AssignMeshRegion
         """
         if self.name == "Settings":
@@ -1076,7 +1073,6 @@ class IcepakMesh(object):
 
         References
         ----------
-
         >>> oDesign.GetModule("MeshRegion")
         """
         return self._app.omeshmodule
@@ -1189,7 +1185,6 @@ class IcepakMesh(object):
 
         References
         ----------
-
         >>> oModule.AssignMeshOperation
         """
         level_order = {}
@@ -1230,7 +1225,6 @@ class IcepakMesh(object):
 
         References
         ----------
-
         >>> oModule.AssignMeshOperation
         """
         objs = self._app.modeler.convert_to_selections(assignment, True)
@@ -1273,7 +1267,6 @@ class IcepakMesh(object):
 
         References
         ----------
-
         >>> oModule.EditMeshOperation
         """
         warnings.warn("This method was deprecated in version 8.14.", DeprecationWarning)
@@ -1314,7 +1307,6 @@ class IcepakMesh(object):
 
         References
         ----------
-
         >>> oModule.EditMeshOperation
         """
         xsize = self.boundingdimension[0] / (10 * accuracy * accuracy)
@@ -1555,7 +1547,6 @@ class IcepakMesh(object):
 
         References
         ----------
-
         >>> oModule.AssignMeshRegion
         """
         if not name:
@@ -1596,7 +1587,6 @@ class IcepakMesh(object):
 
         References
         ----------
-
         >>> oDesign.GenerateMesh
         """
         if name is None:
@@ -1638,7 +1628,6 @@ class IcepakMesh(object):
 
         References
         ----------
-
         >>> oModule.AssignMeshOperation
         """
         if name:
@@ -1681,7 +1670,6 @@ class IcepakMesh(object):
 
         References
         ----------
-
         >>> oModule.AssignMeshOperation
         """
         if not os.path.exists(mesh_file):
