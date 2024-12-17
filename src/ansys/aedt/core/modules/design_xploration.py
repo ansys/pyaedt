@@ -154,10 +154,9 @@ class CommonOptimetrics(PropsManager, object):
                 arg1[k] = SetupProps(self, v)
                 self._get_setup_props(v)
             elif isinstance(v, list):
-                for el in range(len(v)):
-                    if isinstance(v[el], dict):
-                        v[el] = SetupProps(self, v[el])
-        pass
+                for idx, item in enumerate(v):
+                    if isinstance(item, dict):
+                        v[idx] = SetupProps(self, item)
 
     @pyaedt_function_handler()
     def _get_context(
