@@ -1333,7 +1333,7 @@ class FieldAnalysis3D(Analysis, object):
         >>> oEditor.ImportDXF
 
         """
-        if self.desktop_class.non_graphical and self.desktop_class.aedt_version_id < "2024.2":
+        if self.desktop_class.non_graphical and self.desktop_class.aedt_version_id < "2024.2":  # pragma: no cover
             self.logger.error("Method is supported only in graphical mode.")
             return False
         dxf_layers = self.get_dxf_layers(file_path)
@@ -1376,7 +1376,7 @@ class FieldAnalysis3D(Analysis, object):
         return True
 
     @pyaedt_function_handler(gds_file="input_file", gds_number="mapping_layers", unit="units")
-    def import_gds_3d(self, input_file, mapping_layers, units="um", import_method=1):  # pragma: no cover
+    def import_gds_3d(self, input_file: str, mapping_layers: dict, units: str = "um", import_method: int = 1) -> bool:
         """Import a GDSII file.
 
         Parameters
@@ -1385,7 +1385,7 @@ class FieldAnalysis3D(Analysis, object):
             Path to the GDS file.
         mapping_layers : dict
             Dictionary keys are GDS layer numbers, and the value is a tuple with the thickness and elevation.
-        units : string, optional
+        units : str, optional
             Length unit values. The default is ``"um"``.
         import_method : integer, optional
             GDSII import method. The default is ``1``. Options are:
@@ -1414,7 +1414,7 @@ class FieldAnalysis3D(Analysis, object):
 
         """
 
-        if self.desktop_class.non_graphical:
+        if self.desktop_class.non_graphical and self.desktop_class.aedt_version_id < "2024.1":  # pragma: no cover
             self.logger.error("Method is supported only in graphical mode.")
             return False
         if not os.path.exists(input_file):
