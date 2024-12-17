@@ -36,8 +36,8 @@ import os
 import tempfile
 import warnings
 
-from ansys.aedt.core import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 try:
     import pandas as pd

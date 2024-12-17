@@ -127,7 +127,7 @@ class Primitives3D(GeometryModeler):
 
         Returns
         -------
-        bool, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` or bool
             3D object or ``False`` if it fails.
 
         References
@@ -200,7 +200,7 @@ class Primitives3D(GeometryModeler):
 
         Returns
         -------
-        bool, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+        bool or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             3D object or ``False`` if it fails.
 
         References
@@ -285,7 +285,7 @@ class Primitives3D(GeometryModeler):
 
         Returns
         -------
-        bool, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` or bool
             3D object or ``False`` if it fails.
 
         References
@@ -366,7 +366,7 @@ class Primitives3D(GeometryModeler):
 
         Returns
         -------
-        bool, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` or bool
             3D object or ``False`` if it fails.
 
         References
@@ -447,7 +447,7 @@ class Primitives3D(GeometryModeler):
 
         Returns
         -------
-        bool, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` or bool
             3D object or ``False`` if it fails.
 
         References
@@ -518,7 +518,7 @@ class Primitives3D(GeometryModeler):
 
         Returns
         -------
-        bool, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` or bool
             3D object or ``False`` if it fails.
 
         References
@@ -744,7 +744,7 @@ class Primitives3D(GeometryModeler):
 
         Returns
         -------
-        bool, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` or bool
             3D object or ``False`` if it fails.
 
         References
@@ -1191,7 +1191,7 @@ class Primitives3D(GeometryModeler):
 
         Returns
         -------
-        bool, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` or bool
             3D object or ``False`` if it fails.
 
         References

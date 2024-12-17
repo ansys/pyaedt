@@ -163,16 +163,15 @@ class FieldAnalysis3D(Analysis, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.mesh.Mesh` or :class:`ansys.aedt.core.modules.mesh_icepak.IcepakMesh`
+        :class:`ansys.aedt.core.modules.mesh.Mesh`
             Mesh object.
         """
         if self._mesh is None and self._odesign:
             self.logger.reset_timer()
 
             from ansys.aedt.core.modules.mesh import Mesh
-            from ansys.aedt.core.modules.mesh_icepak import IcepakMesh
 
-            self._mesh = IcepakMesh(self) if self.design_type == "Icepak" else Mesh(self)
+            self._mesh = Mesh(self)
             self.logger.info_timer("Mesh class has been initialized!")
 
         return self._mesh

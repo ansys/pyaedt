@@ -213,7 +213,7 @@ class GeometryModeler(Modeler):
     """
 
     @pyaedt_function_handler()
-    def __getitem__(self, partId):
+    def __getitem__(self, partId) -> Object3d:
         """Get the object ``Object3D`` for a given object ID or object name.
 
         Parameters
