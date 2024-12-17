@@ -485,8 +485,7 @@ class Trace(DataSet):
         self.axis = axis
 
     def __len__(self):
-        """
-        Returns the length of the axis.
+        """Return the length of the axis.
 
         Returns
         -------

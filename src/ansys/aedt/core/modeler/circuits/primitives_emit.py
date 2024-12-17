@@ -968,7 +968,7 @@ class EmitRadioComponent(EmitComponent):
         return len(nodes) > 0
 
     def get_connected_antennas(self):
-        """Returns a list of antennas connected to this radio instance.
+        """Return a list of antennas connected to this radio instance.
 
         Parameters
         ----------
@@ -1153,7 +1153,7 @@ class EmitComponentPropNode(object):
 
     @pyaedt_function_handler()
     def _set_prop_value(self, props=None):
-        """Sets the property values for this node.
+        """Set the property values for this node.
 
         Parameters
         ----------
@@ -1183,7 +1183,7 @@ class EmitComponentPropNode(object):
 
     @enabled.setter
     def enabled(self, value):
-        """Sets the node enabled or disabled.
+        """Set the node enabled or disabled.
 
         Parameters
         ----------

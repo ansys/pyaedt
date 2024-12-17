@@ -3399,7 +3399,6 @@ class Icepak(FieldAnalysisIcepak):
 
         References
         ----------
-
         >>> oModule.AssignNetworkBoundary
 
         Examples

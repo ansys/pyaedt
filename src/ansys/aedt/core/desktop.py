@@ -241,7 +241,7 @@ def _find_free_port():
 
 
 def exception_to_desktop(ex_value, tb_data):  # pragma: no cover
-    """Writes the trace stack to AEDT when a Python error occurs.
+    """Write the trace stack to AEDT when a Python error occurs.
 
     The message is added to the AEDT global logger and to the log file (if present).
 

@@ -277,8 +277,7 @@ def deprecate_kwargs(func_name, kwargs, aliases):
 
 
 def pyaedt_function_handler(direct_func=None, **deprecated_kwargs):
-    """Provides an exception handler, logging mechanism, and argument converter for client-server
-    communications.
+    """Provide an exception handler, logging mechanism, and argument converter for client-server communications.
 
     This method returns the function itself if correctly executed. Otherwise, it returns ``False``
     and displays errors.
