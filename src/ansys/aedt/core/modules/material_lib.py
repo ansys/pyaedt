@@ -469,7 +469,6 @@ class Materials(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.materials.add_material("MyMaterial")
@@ -641,12 +640,10 @@ class Materials(object):
 
         References
         ----------
-
         >>> oDefinitionManager.RemoveMaterial
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.materials.add_material("MyMaterial")

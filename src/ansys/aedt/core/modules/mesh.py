@@ -522,7 +522,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.InitialMeshSettings
         """
         if not self._globalmesh:
@@ -669,7 +668,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignTrueSurfOp
 
         Examples
@@ -1125,7 +1123,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignLengthOp
         """
         assignment = self._modeler.convert_to_selections(assignment, True)

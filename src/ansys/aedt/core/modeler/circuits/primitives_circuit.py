@@ -45,7 +45,6 @@ class CircuitComponents(object):
 
     Examples
     --------
-
     >>> from ansys.aedt.core import Circuit
     >>> aedtapp = Circuit()
     >>> prim = aedtapp.modeler.schematic
