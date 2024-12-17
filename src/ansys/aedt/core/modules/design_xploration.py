@@ -24,6 +24,9 @@
 
 import copy
 import csv
+from typing import Any
+from typing import Dict
+from typing import Optional
 
 from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.data_handlers import _dict2arg
@@ -278,7 +281,7 @@ class CommonOptimetrics(PropsManager, object):
         return sweep_definition
 
     @pyaedt_function_handler()
-    def update(self, update_dictionary=None):
+    def update(self, update_dictionary: Optional[Dict[str, Any]] = None) -> bool:
         """Update the setup based on stored properties.
 
         Parameters
@@ -313,7 +316,7 @@ class CommonOptimetrics(PropsManager, object):
         return True
 
     @pyaedt_function_handler()
-    def create(self):
+    def create(self) -> bool:
         """Create a setup.
 
         Returns
@@ -545,16 +548,16 @@ class CommonOptimetrics(PropsManager, object):
     @pyaedt_function_handler(num_cores="cores", num_tasks="tasks", num_gpu="gpus")
     def analyze(
         self,
-        cores=1,
-        tasks=1,
-        gpus=0,
-        acf_file=None,
-        use_auto_settings=True,
-        solve_in_batch=False,
-        machine="localhost",
-        run_in_thread=False,
-        revert_to_initial_mesh=False,
-    ):
+        cores: int = 1,
+        tasks: int = 1,
+        gpus: int = 0,
+        acf_file: str = None,
+        use_auto_settings: bool = True,
+        solve_in_batch: bool = False,
+        machine: str = "localhost",
+        run_in_thread: bool = False,
+        revert_to_initial_mesh: bool = False,
+    ) -> bool:
         """Solve the active design.
 
         Parameters
