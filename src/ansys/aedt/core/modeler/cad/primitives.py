@@ -22,9 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-This module contains these Primitives classes: `Polyline` and `Primitives`.
-"""
+"""This module contains these Primitives classes: `Polyline` and `Primitives`."""
 
 from __future__ import absolute_import  # noreorder
 

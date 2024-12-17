@@ -683,9 +683,7 @@ class GlobalMeshRegion(MeshRegionCommon):
 
     @property
     def name(self):
-        """
-        Mesh region name.
-        """
+        """Mesh region name."""
         return "Global"
 
     @pyaedt_function_handler

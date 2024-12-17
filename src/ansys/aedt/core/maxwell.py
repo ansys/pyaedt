@@ -2302,9 +2302,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         aedt_process_id=None,
         remove_lock=False,
     ):
-        """
-        Initialize the ``Maxwell`` class.
-        """
+        """Initialize the ``Maxwell`` class."""
         self.is3d = True
         FieldAnalysis3D.__init__(
             self,
