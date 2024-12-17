@@ -145,7 +145,7 @@ class CommonOptimetrics(PropsManager, object):
 
         self.auto_update = True
 
-    def _get_setup_props(self, arg1):
+    def _get_setup_props(self, arg1: Dict[str, Any]) -> None:
         for k, v in arg1.items():
             if isinstance(v, dict):
                 arg1[k] = SetupProps(self, v)
@@ -175,17 +175,16 @@ class CommonOptimetrics(PropsManager, object):
         did = 3
         if domain != "Sweep":
             did = 1
-        sweepdefinition = {}
-        sweepdefinition["ReportType"] = report_category
+        sweep_definition = {"ReportType": report_category}
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_sweep
-        sweepdefinition["Solution"] = setup_sweep_name
+        sweep_definition["Solution"] = setup_sweep_name
         ctxt = {}
 
         if self._app.solution_type in ["TR", "AC", "DC"]:
             ctxt["SimValueContext"] = [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]
             setup_sweep_name = self._app.solution_type
-            sweepdefinition["Solution"] = setup_sweep_name
+            sweep_definition["Solution"] = setup_sweep_name
 
         elif self._app.solution_type in ["HFSS3DLayout"]:
             if context == "Differential Pairs":
@@ -235,12 +234,12 @@ class CommonOptimetrics(PropsManager, object):
                 ctxt["PointCount"] = polyline_points
         else:
             ctxt = {"Domain": domain}
-        sweepdefinition["SimValueContext"] = ctxt
-        sweepdefinition["Calculation"] = expressions
-        sweepdefinition["Name"] = expressions
-        sweepdefinition["Ranges"] = {}
+        sweep_definition["SimValueContext"] = ctxt
+        sweep_definition["Calculation"] = expressions
+        sweep_definition["Name"] = expressions
+        sweep_definition["Ranges"] = {}
         if context and context in self._app.modeler.line_names and intrinsics and "Distance" not in intrinsics:
-            sweepdefinition["Ranges"]["Range"] = ("Var:=", "Distance", "Type:=", "a")
+            sweep_definition["Ranges"]["Range"] = ("Var:=", "Distance", "Type:=", "a")
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_sweep
             if not setup_sweep_name:
@@ -259,24 +258,24 @@ class CommonOptimetrics(PropsManager, object):
                 elif isinstance(k, (list, str)):
                     r = {"Var": v, "Type": "d", "DiscreteValues": ",".join(k) if isinstance(k, list) else k}
                 r = SetupProps(self, r)
-                if not sweepdefinition["Ranges"]:
-                    sweepdefinition["Ranges"]["Range"] = [r]
-                elif isinstance(sweepdefinition["Ranges"]["Range"], list):
-                    sweepdefinition["Ranges"]["Range"].append(r)
+                if not sweep_definition["Ranges"]:
+                    sweep_definition["Ranges"]["Range"] = [r]
+                elif isinstance(sweep_definition["Ranges"]["Range"], list):
+                    sweep_definition["Ranges"]["Range"].append(r)
                 else:
-                    sweepdefinition["Ranges"]["Range"] = [sweepdefinition["Ranges"]["Range"]]
-                    sweepdefinition["Ranges"]["Range"].append(r)
+                    sweep_definition["Ranges"]["Range"] = [sweep_definition["Ranges"]["Range"]]
+                    sweep_definition["Ranges"]["Range"].append(r)
         if is_goal:
-            sweepdefinition["Condition"] = condition
+            sweep_definition["Condition"] = condition
             goal_value = {
                 "GoalValueType": "Independent",
                 "Format": "Real/Imag",
                 "bG": ["v:=", f"[{goal_value};]"],
             }
             goal_value = SetupProps(self, goal_value)
-            sweepdefinition["GoalValue"] = goal_value
-            sweepdefinition["Weight"] = f"[{goal_weight};]"
-        return sweepdefinition
+            sweep_definition["GoalValue"] = goal_value
+            sweep_definition["Weight"] = f"[{goal_weight};]"
+        return sweep_definition
 
     @pyaedt_function_handler()
     def update(self, update_dictionary=None):
