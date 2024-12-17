@@ -114,7 +114,9 @@ class CommonOptimetrics(PropsManager, object):
                 if self._app._is_object_oriented_enabled():
                     oparams = self.omodule.GetChildObject(self.name).GetCalculationInfo()
                     oparam = [i for i in oparams[0]]
-                    idx = oparam[1:].index(oparam[0]) + 1
+                    idx = None
+                    if oparam[0] in oparam[1:]:
+                        idx = oparam[1:].index(oparam[0]) + 1
                     if idx:
                         oparam = [["NAME:Goal"] + oparam[k : idx + k] for k in range(0, len(oparam), idx)]
                     else:
@@ -249,38 +251,30 @@ class CommonOptimetrics(PropsManager, object):
             return False
         if intrinsics:
             for v, k in intrinsics.items():
+                r = {}
                 if not k:
-                    r = ["Var:=", v, "Type:=", "a"]
+                    r = {"Var": v, "Type": "a"}
                 elif isinstance(k, tuple):
-                    r = ["Var:=", v, "Type:=", "rd"]
-                    r.append("Start:=")
-                    r.append(k[0])
-                    r.append("Stop:=")
-                    r.append(k[1])
-                    r.append("DiscreteValues:=")
-                    r.append("")
+                    r = {"Var": v, "Type": "rd", "Start": k[0], "Stop": k[1], "DiscreteValues": ""}
                 elif isinstance(k, (list, str)):
-                    r = ["Var:=", v, "Type:=", "d"]
-                    r.append("DiscreteValues:=")
-                    if isinstance(k, list):
-                        r.append(",".join(k))
-                    else:
-                        r.append(k)
-
+                    r = {"Var": v, "Type": "d", "DiscreteValues": ",".join(k) if isinstance(k, list) else k}
+                r = SetupProps(self, r)
                 if not sweepdefinition["Ranges"]:
-                    sweepdefinition["Ranges"]["Range"] = tuple(r)
+                    sweepdefinition["Ranges"]["Range"] = [r]
                 elif isinstance(sweepdefinition["Ranges"]["Range"], list):
-                    sweepdefinition["Ranges"]["Range"].append(tuple(r))
+                    sweepdefinition["Ranges"]["Range"].append(r)
                 else:
                     sweepdefinition["Ranges"]["Range"] = [sweepdefinition["Ranges"]["Range"]]
-                    sweepdefinition["Ranges"]["Range"].append(tuple(r))
+                    sweepdefinition["Ranges"]["Range"].append(r)
         if is_goal:
             sweepdefinition["Condition"] = condition
-            sweepdefinition["GoalValue"] = {
+            goal_value = {
                 "GoalValueType": "Independent",
                 "Format": "Real/Imag",
                 "bG": ["v:=", f"[{goal_value};]"],
             }
+            goal_value = SetupProps(self, goal_value)
+            sweepdefinition["GoalValue"] = goal_value
             sweepdefinition["Weight"] = f"[{goal_weight};]"
         return sweepdefinition
 
@@ -413,7 +407,7 @@ class CommonOptimetrics(PropsManager, object):
             optigoalname = "Goals"
         if "Goal" in self.props[optigoalname]:
             if type(self.props[optigoalname]["Goal"]) is not list:
-                self.props[optigoalname]["Goal"] = [self.props[optigoalname]["Goal"], sweepdefinition]
+                self.props[optigoalname]["Goal"] = [self.props[optigoalname]["Goal"], SetupProps(self, sweepdefinition)]
             else:
                 self.props[optigoalname]["Goal"].append(sweepdefinition)
         else:
