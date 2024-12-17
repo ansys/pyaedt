@@ -306,7 +306,7 @@ class SolutionData(object):
 
     @pyaedt_function_handler()
     def _init_solution_data_imag(self):
-        """ """
+        """Initialize the imaginary part of the solution data."""
         sols_data = {}
 
         for expression in self.expressions:

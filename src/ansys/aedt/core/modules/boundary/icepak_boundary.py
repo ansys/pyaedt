@@ -1100,9 +1100,7 @@ class NetworkObject(BoundaryObject):
 
         @pyaedt_function_handler()
         def delete_link(self):
-            """
-            Delete link from network.
-            """
+            """Delete link from network."""
             self._network.props["Links"].pop(self.name)
             self._network._links.remove(self)
 

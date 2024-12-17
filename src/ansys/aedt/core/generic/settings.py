@@ -440,7 +440,9 @@ class Settings(object):
 
     @property
     def lsf_aedt_command(self):
-        """Command to launch the task in the LSF Scheduler. The default is ``"ansysedt"``.
+        """Command to launch the task in the LSF Scheduler.
+
+        The default is ``"ansysedt"``.
         This attribute is valid only on Linux systems running LSF Scheduler."""
         return self.__lsf_aedt_command
 
@@ -450,8 +452,9 @@ class Settings(object):
 
     @property
     def lsf_num_cores(self):
-        """Number of LSF cores. This attribute is valid only
-        on Linux systems running LSF Scheduler."""
+        """Number of LSF cores.
+
+        This attribute is valid only on Linux systems running LSF Scheduler."""
         return self.__lsf_num_cores
 
     @lsf_num_cores.setter
@@ -460,8 +463,9 @@ class Settings(object):
 
     @property
     def lsf_ram(self):
-        """RAM allocated for the LSF job. This attribute is valid
-        only on Linux systems running LSF Scheduler."""
+        """RAM allocated for the LSF job.
+
+        This attribute is valid only on Linux systems running LSF Scheduler."""
         return self.__lsf_ram
 
     @lsf_ram.setter
@@ -641,8 +645,9 @@ class Settings(object):
 
     @property
     def aedt_version(self):
-        """AEDT version in the form ``"2023.x"``. In AEDT 2022 R2 and later,
-        evaluating a bounding box by exporting a SAT file is disabled."""
+        """AEDT version in the form ``"2023.x"``.
+
+        In AEDT 2022 R2 and later, evaluating a bounding box by exporting a SAT file is disabled."""
         return self.__aedt_version
 
     @aedt_version.setter

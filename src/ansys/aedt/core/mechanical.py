@@ -213,7 +213,6 @@ class Mechanical(FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.AssignEMLoss
         """
         if surface_objects is None:
@@ -319,7 +318,6 @@ class Mechanical(FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.AssignThermalCondition
         """
         if parameters is None:
@@ -402,7 +400,6 @@ class Mechanical(FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.AssignConvection
         """
         assert "Thermal" in self.solution_type, "This method works only in a Mechanical Thermal analysis."
@@ -451,7 +448,6 @@ class Mechanical(FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.AssignTemperature
         """
         assert "Thermal" in self.solution_type, "This method works only in a Mechanical Thermal analysis."
@@ -497,7 +493,6 @@ class Mechanical(FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.AssignFrictionlessSupport
         """
         if not (self.solution_type == "Structural" or "Modal" in self.solution_type):
@@ -542,7 +537,6 @@ class Mechanical(FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.AssignFixedSupport
         """
         if not (self.solution_type == "Structural" or "Modal" in self.solution_type):
@@ -573,7 +567,6 @@ class Mechanical(FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.GetSetups
         """
         setup_list = self.existing_analysis_setups
@@ -605,7 +598,6 @@ class Mechanical(FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.AssignHeatFlux
         """
         assert "Thermal" in self.solution_type, "This method works only in a Mechanical Thermal analysis."
@@ -653,7 +645,6 @@ class Mechanical(FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.AssignHeatGeneration
         """
         assert "Thermal" in self.solution_type, "This method works only in a Mechanical Thermal analysis."
@@ -692,7 +683,6 @@ class Mechanical(FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.AddTwoWayCoupling
 
         Examples
@@ -747,7 +737,6 @@ class Mechanical(FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.InsertSetup
 
         Examples

@@ -22,9 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-This module contains these classes: ``BoundaryCommon`` and ``BoundaryObject``.
-"""
+"""This module contains these classes: ``BoundaryCommon`` and ``BoundaryObject``."""
 
 import warnings
 

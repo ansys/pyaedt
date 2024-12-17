@@ -360,7 +360,6 @@ class ComponentArray(object):
 
         References
         ----------
-
         >>> oModule.DeleteArray
 
         """
@@ -379,7 +378,6 @@ class ComponentArray(object):
 
         References
         ----------
-
         >>> oModule.ExportArray
 
         """
@@ -505,7 +503,6 @@ class ComponentArray(object):
 
         References
         ----------
-
         >>> oModule.EditArray
         """
 

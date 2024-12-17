@@ -241,7 +241,7 @@ def _find_free_port():
 
 
 def exception_to_desktop(ex_value, tb_data):  # pragma: no cover
-    """Writes the trace stack to AEDT when a Python error occurs.
+    """Write the trace stack to AEDT when a Python error occurs.
 
     The message is added to the AEDT global logger and to the log file (if present).
 
@@ -440,7 +440,6 @@ class Desktop(object):
     PyAEDT INFO: Python version ...
     >>> hfss = ansys.aedt.core.Hfss(design="HFSSDesign1")
     PyAEDT INFO: No project is defined. Project...
-
     """
 
     # _sessions = {}
@@ -748,7 +747,6 @@ class Desktop(object):
 
         References
         ----------
-
         >>> oProject.GetActiveDesign
         >>> oProject.SetActiveDesign
         """
@@ -775,7 +773,6 @@ class Desktop(object):
 
         References
         ----------
-
         >>> oDesktop.GetActiveProject
         >>> oDesktop.SetActiveProject
         """
@@ -808,7 +805,6 @@ class Desktop(object):
 
         References
         ----------
-
         >>> oDesktop.CloseAllWindows
         """
         self.odesktop.CloseAllWindows()
@@ -1853,7 +1849,6 @@ class Desktop(object):
 
         References
         ----------
-
         >>> oDesktop.SubmitJob
         """
 
@@ -1960,7 +1955,6 @@ class Desktop(object):
 
         References
         ----------
-
         >>> oDesktop.SubmitJob
 
         Examples
