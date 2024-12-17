@@ -383,7 +383,6 @@ class Polyline(Object3d):
 
         References
         ----------
-
         >>> oEditor.GetVertexIDsFromObject
         >>> oEditor.GetVertexPosition
 
@@ -391,7 +390,7 @@ class Polyline(Object3d):
         return self.points[-1]
 
     def _update_segments_and_points(self):
-        """Updates the self._segment_types and the self._positions from the history.
+        """Update the self._segment_types and the self._positions from the history.
 
         This internal method is called by properties ``points`` and ``segment_types``.
         It will be called only once after opening a new project, then the internal
@@ -541,7 +540,6 @@ class Polyline(Object3d):
 
         References
         ----------
-
         >>> oEditor.GetVertexIDsFromObject
         >>> oEditor.GetVertexPosition
 
@@ -769,7 +767,6 @@ class Polyline(Object3d):
 
         References
         ----------
-
         >>> oEditor.Copy
         >>> oEditor.Paste
 
@@ -816,7 +813,6 @@ class Polyline(Object3d):
 
         References
         ----------
-
         >>> oEditor.DeletePolylinePoint
 
         Examples
@@ -907,7 +903,6 @@ class Polyline(Object3d):
 
         References
         ----------
-
         >>> oEditor.DeletePolylinePoint
 
         Examples
@@ -988,7 +983,6 @@ class Polyline(Object3d):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
 
         Examples
@@ -1139,7 +1133,6 @@ class Polyline(Object3d):
 
         References
         ----------
-
         >>> oEditor.InsertPolylineSegment
 
         """

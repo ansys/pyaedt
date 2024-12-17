@@ -295,7 +295,6 @@ class CommonOptimetrics(PropsManager, object):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         if update_dictionary:
@@ -325,7 +324,6 @@ class CommonOptimetrics(PropsManager, object):
 
         References
         ----------
-
         >>> oModule.InsertSetup
         """
         arg = ["NAME:" + self.name]
@@ -590,7 +588,6 @@ class CommonOptimetrics(PropsManager, object):
 
         References
         ----------
-
         >>> oDesign.Analyze
         """
         return self._app.analyze(
@@ -674,7 +671,6 @@ class SetupOpti(CommonOptimetrics, object):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         return self._add_calculation(
@@ -741,7 +737,6 @@ class SetupOpti(CommonOptimetrics, object):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
 
@@ -940,7 +935,6 @@ class SetupParam(CommonOptimetrics, object):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         if sweep_variable not in self._app.variable_manager.variables:
@@ -1010,7 +1004,6 @@ class SetupParam(CommonOptimetrics, object):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         if type(self.props["Sweeps"]["SweepDefinition"]) is not list:
@@ -1083,7 +1076,6 @@ class SetupParam(CommonOptimetrics, object):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         return self._add_calculation(
@@ -1188,7 +1180,6 @@ class ParametricSetups(object):
 
         References
         ----------
-
         >>> oModule.InsertSetup
         """
         if variable not in self._app.variable_manager.variables:
@@ -1438,7 +1429,6 @@ class OptimizationSetups(object):
 
         References
         ----------
-
         >>> oModule.InsertSetup
         """
         if not solution and not self._app.nominal_sweep:

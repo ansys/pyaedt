@@ -489,7 +489,6 @@ class MatProperty(object):
 
         References
         ----------
-
         >>> oDefinitionManager.EditMaterial
         """
         if thermal_value is None:
@@ -694,7 +693,6 @@ class MatProperty(object):
 
         References
         ----------
-
         >>> oDefinitionManager.EditMaterial
 
         Examples
@@ -727,7 +725,6 @@ class MatProperty(object):
 
         References
         ----------
-
         >>> oDefinitionManager.EditMaterial
 
         Examples
@@ -1006,7 +1003,6 @@ class MatProperty(object):
 
         References
         ----------
-
         >>> oDefinitionManager.EditMaterial
         """
         if spatial_value is None:
@@ -1184,7 +1180,6 @@ class MatProperty(object):
 
         References
         ----------
-
         >>> oDefinitionManager.EditMaterial
 
         Examples
@@ -1579,7 +1574,6 @@ class Material(CommonMaterial, object):
 
         References
         ----------
-
         >>> oDefinitionManager.EditMaterial
         """
         return self._permittivity
@@ -1599,7 +1593,6 @@ class Material(CommonMaterial, object):
 
         References
         ----------
-
         >>> oDefinitionManager.EditMaterial
         """
         return self._permeability
@@ -1619,7 +1612,6 @@ class Material(CommonMaterial, object):
 
         References
         ----------
-
         >>> oDefinitionManager.EditMaterial
         """
         return self._conductivity
@@ -1654,7 +1646,6 @@ class Material(CommonMaterial, object):
 
         References
         ----------
-
         >>> oDefinitionManager.EditMaterial
         """
         return self._magnetic_loss_tangent
@@ -1674,7 +1665,6 @@ class Material(CommonMaterial, object):
 
         References
         ----------
-
         >>> oDefinitionManager.EditMaterial
         """
         return self._thermal_conductivity
@@ -1696,7 +1686,6 @@ class Material(CommonMaterial, object):
 
         References
         ----------
-
         >>> oDefinitionManager.EditMaterial
         """
         return self._mass_density
@@ -1716,7 +1705,6 @@ class Material(CommonMaterial, object):
 
         References
         ----------
-
         >>> oDefinitionManager.EditMaterial
         """
         return self._specific_heat
@@ -1736,7 +1724,6 @@ class Material(CommonMaterial, object):
 
         References
         ----------
-
         >>> oDefinitionManager.EditMaterial
         """
         return self._thermal_expansion_coefficient
@@ -1756,7 +1743,6 @@ class Material(CommonMaterial, object):
 
         References
         ----------
-
         >>> oDefinitionManager.EditMaterial
         """
         return self._youngs_modulus
@@ -1778,7 +1764,6 @@ class Material(CommonMaterial, object):
 
         References
         ----------
-
         >>> oDefinitionManager.EditMaterial
         """
         return self._poissons_ratio
@@ -1800,7 +1785,6 @@ class Material(CommonMaterial, object):
 
         References
         ----------
-
         >>> oDefinitionManager.EditMaterial
         """
         return self._diffusivity
@@ -1820,7 +1804,6 @@ class Material(CommonMaterial, object):
 
         References
         ----------
-
         >>> oDefinitionManager.EditMaterial
         """
         return self._magnetic_coercivity
@@ -1842,7 +1825,6 @@ class Material(CommonMaterial, object):
 
         References
         ----------
-
         >>> oDefinitionManager.EditMaterial
         """
         return self._molecular_mass
@@ -1862,7 +1844,6 @@ class Material(CommonMaterial, object):
 
         References
         ----------
-
         >>> oDefinitionManager.EditMaterial
         """
         return self._viscosity
@@ -1882,7 +1863,6 @@ class Material(CommonMaterial, object):
 
         References
         ----------
-
         >>> oDefinitionManager.EditMaterial
         """
         return self._stacking_type
@@ -1915,7 +1895,6 @@ class Material(CommonMaterial, object):
 
         References
         ----------
-
         >>> oDefinitionManager.EditMaterial
         """
         return self._wire_type
@@ -1940,7 +1919,6 @@ class Material(CommonMaterial, object):
 
         References
         ----------
-
         >>> oDefinitionManager.EditMaterial
         """
         return self._wire_thickness_direction
@@ -1965,7 +1943,6 @@ class Material(CommonMaterial, object):
 
         References
         ----------
-
         >>> oDefinitionManager.EditMaterial
         """
         return self._wire_width_direction
@@ -1990,7 +1967,6 @@ class Material(CommonMaterial, object):
 
         References
         ----------
-
         >>> oDefinitionManager.EditMaterial
         """
         return self._strand_number
@@ -2012,7 +1988,6 @@ class Material(CommonMaterial, object):
 
         References
         ----------
-
         >>> oDefinitionManager.EditMaterial
         """
         return self._wire_thickness
@@ -2034,7 +2009,6 @@ class Material(CommonMaterial, object):
 
         References
         ----------
-
         >>> oDefinitionManager.EditMaterial
         """
         return self._wire_diameter
@@ -2056,7 +2030,6 @@ class Material(CommonMaterial, object):
 
         References
         ----------
-
         >>> oDefinitionManager.EditMaterial
         """
         return self._wire_width
@@ -2078,7 +2051,6 @@ class Material(CommonMaterial, object):
 
         References
         ----------
-
         >>> oDefinitionManager.EditMaterial
         """
         return self._stacking_factor
@@ -2100,7 +2072,6 @@ class Material(CommonMaterial, object):
 
         References
         ----------
-
         >>> oDefinitionManager.EditMaterial
         """
         return self._stacking_direction
@@ -2324,7 +2295,6 @@ class Material(CommonMaterial, object):
 
         References
         ----------
-
         >>> oDefinitionManager.EditMaterial
 
         Examples
@@ -2857,7 +2827,6 @@ class SurfaceMaterial(CommonMaterial, object):
 
         References
         ----------
-
         >>> oDefinitionManager.EditSurfaceMaterial
         """
         return self._surface_emissivity
@@ -2879,7 +2848,6 @@ class SurfaceMaterial(CommonMaterial, object):
 
         References
         ----------
-
         >>> oDefinitionManager.EditSurfaceMaterial
         """
         return self._surface_diffuse_absorptance
@@ -2901,7 +2869,6 @@ class SurfaceMaterial(CommonMaterial, object):
 
         References
         ----------
-
         >>> oDefinitionManager.EditSurfaceMaterial
         """
         return self._surface_incident_absorptance
@@ -2923,7 +2890,6 @@ class SurfaceMaterial(CommonMaterial, object):
 
         References
         ----------
-
         >>> oDefinitionManager.EditSurfaceMaterial
         """
         return self._surface_roughness
@@ -2945,7 +2911,6 @@ class SurfaceMaterial(CommonMaterial, object):
 
         References
         ----------
-
         >>> oDefinitionManager.DoesSurfaceMaterialExist
         >>> oDefinitionManager.AddSurfaceMaterial
         >>> oDefinitionManager.EditSurfaceMaterial

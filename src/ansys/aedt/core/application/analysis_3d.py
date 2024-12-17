@@ -400,7 +400,6 @@ class FieldAnalysis3D(Analysis, object):
 
         References
         ----------
-
         >>> oDesign.GetPropertyValue
         """
         boundary = {"HFSS": "HfssTab", "Icepak": "Icepak", "Q3D": "Q3D", "Maxwell3D": "Maxwell3D"}
@@ -587,7 +586,6 @@ class FieldAnalysis3D(Analysis, object):
 
         References
         ----------
-
         >>> oEditor.Import
         """
         return self.modeler.import_3d_cad(
@@ -650,7 +648,6 @@ class FieldAnalysis3D(Analysis, object):
 
         References
         ----------
-
         >>> oEditor.Export
         """
         return self.modeler.export_3d_model(
@@ -674,7 +671,6 @@ class FieldAnalysis3D(Analysis, object):
 
         References
         ----------
-
         >>> oModule.GetAllSources
         """
         return list(self.osolution.GetAllSources())
@@ -690,7 +686,6 @@ class FieldAnalysis3D(Analysis, object):
 
         References
         ----------
-
         >>> oModule.GetAllSources
         """
         return list(self.osolution.GetAllSourceModes())
@@ -713,7 +708,6 @@ class FieldAnalysis3D(Analysis, object):
 
         References
         ----------
-
         >>> oModule.SetSourceContexts
         """
 
@@ -746,7 +740,6 @@ class FieldAnalysis3D(Analysis, object):
 
         References
         ----------
-
         >>> oEditor.AssignMaterial
 
         Examples
@@ -845,7 +838,6 @@ class FieldAnalysis3D(Analysis, object):
 
         References
         ----------
-
         >>> oEditor.GetObjectsByMaterial
         """
         if len(self.modeler.objects) != len(self.modeler.object_names):
@@ -917,7 +909,6 @@ class FieldAnalysis3D(Analysis, object):
 
         References
         ----------
-
         >>> oEditor.AssignMaterial
         """
         with open_file(material_file) as csvfile:
@@ -1332,7 +1323,6 @@ class FieldAnalysis3D(Analysis, object):
 
         References
         ----------
-
         >>> oEditor.ImportDXF
 
         """

@@ -58,7 +58,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.GetSymmetryMultiplier()
         """
         return int(self.omodelsetup.GetSymmetryMultiplier())
@@ -69,7 +68,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.GetExcitationsOfType("Winding Group")"""
         windings = self.oboundary.GetExcitationsOfType("Winding Group")
         return list(windings)
@@ -97,7 +95,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oDesign.SetDesignSettings
         """
         return self.change_design_settings({"Multiplier": value})
@@ -122,7 +119,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oDesign.SetDesignSettings
         """
         return self.change_design_settings(
@@ -237,7 +233,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.SetCoreLoss
 
         Examples
@@ -298,7 +293,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.AssignMatrix
 
         Examples
@@ -552,7 +546,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.SetEddyEffect
         """
         solid_objects_names = self.get_all_conductors_names()
@@ -650,7 +643,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.SetupYConnection
 
         Examples
@@ -708,7 +700,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.AssignCurrent
 
         Examples
@@ -834,7 +825,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.AssignBand
         """
         assert self.solution_type == SOLUTIONS.Maxwell3d.Transient, "Motion applies only to the Transient setup."
@@ -932,7 +922,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.AssignBand
         """
         assert self.solution_type == SOLUTIONS.Maxwell3d.Transient, "Motion applies only to the Transient setup."
@@ -985,7 +974,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.AssignVoltage
         """
         if isinstance(amplitude, (int, float)):
@@ -1042,7 +1030,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.AssignVoltageDrop
         """
         if isinstance(amplitude, (int, float)):
@@ -1187,7 +1174,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.AssignWindingGroup
         """
 
@@ -1242,7 +1228,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.AddWindingTerminals
         >>> oModule.AddWindingCoils
         """
@@ -1275,7 +1260,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.AssignCoil
         """
         if polarity.lower() == "positive":
@@ -1347,7 +1331,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.AssignForce
 
         Examples
@@ -1437,7 +1420,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.AssignTorque
         """
         if self.solution_type not in ["ACConduction", "DCConduction"]:
@@ -1496,7 +1478,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
         """
         self.modeler[name].solve_inside = activate
@@ -1515,7 +1496,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.ResetSetupToTimeZero
         """
         if self.solution_type != "Transient":
@@ -1543,7 +1523,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
         """
         self.odesign.ChangeProperty(
@@ -1584,7 +1563,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.AssignSymmetry
         """
         try:
@@ -1770,7 +1748,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.Radiation
 
         Examples
@@ -2302,9 +2279,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         aedt_process_id=None,
         remove_lock=False,
     ):
-        """
-        Initialize the ``Maxwell`` class.
-        """
+        """Initialize the ``Maxwell`` class."""
         self.is3d = True
         FieldAnalysis3D.__init__(
             self,
@@ -2349,7 +2324,6 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.AssignInsulating
 
         Examples
@@ -2428,7 +2402,6 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.AssignImpedance
 
         Examples
@@ -3173,7 +3146,6 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oDesign.GetGeometryMode"""
         return self.odesign.GetGeometryMode()
 
@@ -3332,7 +3304,6 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.AssignBalloon
 
 
@@ -3382,7 +3353,6 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.AssignVectorPotential
 
 
@@ -3498,7 +3468,6 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.AssignEndConnection
         """
         if self.solution_type not in ["EddyCurrent", "Transient"]:

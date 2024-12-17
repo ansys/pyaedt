@@ -88,7 +88,6 @@ class AedtObjects(object):
 
         References
         ----------
-
         >>> oDesign.GetModule("RadField")
         """
         if self.design_type == "HFSS" and self._odesign.GetSolutionType() not in ["EigenMode", "Characteristic Mode"]:
@@ -111,7 +110,6 @@ class AedtObjects(object):
 
         References
         ----------
-
         >>> oSymbolManager = oDefinitionManager.GetManager("Symbol")
         """
         if self.odefinition_manager:
@@ -124,7 +122,6 @@ class AedtObjects(object):
 
         References
         ----------
-
         >>> oPadstackManger = oDefinitionManager.GetManager("Padstack")
         """
         if self._oproject and not self._opadstackmanager:
@@ -153,7 +150,6 @@ class AedtObjects(object):
 
         References
         ----------
-
         >>> oDesktop.GetTool("ImportExport")
         """
         if not self._oimport_export:
@@ -166,7 +162,6 @@ class AedtObjects(object):
 
         References
         ----------
-
         >>> oDesign.GetModule("Optimetrics")
         """
         if not self._ooptimetrics and self.design_type not in ["Circuit Netlist", "Maxwell Circuit", "EMIT"]:
@@ -179,7 +174,6 @@ class AedtObjects(object):
 
         References
         ----------
-
         >>> oDesign.GetModule("OutputVariable")
         """
         if not self._ooutput_variable and self.design_type not in ["EMIT", "Maxwell Circuit", "Circuit Netlist"]:
@@ -192,7 +186,6 @@ class AedtObjects(object):
 
         References
         ----------
-
         >>> oDesign.GetModule("SolveSetups")
         >>> oDesign.GetModule("SimSetup")
         >>> oDesign.GetModule("AnalysisSetup")
@@ -215,7 +208,6 @@ class AedtObjects(object):
 
         References
         ----------
-
         >>> oDefinitionManager = oProject.GetDefinitionManager()
         """
         if not self._odefinition_manager and self._oproject:
@@ -228,7 +220,6 @@ class AedtObjects(object):
 
         References
         ----------
-
         >>> oMaterialManager = oDefinitionManager.GetManager("Material")
         """
         if self.odefinition_manager and not self._omaterial_manager:
@@ -241,7 +232,6 @@ class AedtObjects(object):
 
         References
         ----------
-
         >>> oDesign.GetModule("ModelSetup")
         """
         if self.design_type not in ["Maxwell 3D", "Maxwell 2D", "HFSS"]:
@@ -261,7 +251,6 @@ class AedtObjects(object):
 
         References
         ----------
-
         >>> oDesign.GetModule("MaxwellParameterSetup")
         """
         if self._odesign and self.design_type not in ["Maxwell 3D", "Maxwell 2D"]:
@@ -285,7 +274,6 @@ class AedtObjects(object):
 
         References
         ----------
-
         >>> oModule = oDesign.GetModule("Solutions")
         """
         if not self._osolution:
@@ -310,7 +298,6 @@ class AedtObjects(object):
 
         References
         ----------
-
         >>> oModule = oDesign.GetModule("Excitations")
         """
         if self.design_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
@@ -339,7 +326,6 @@ class AedtObjects(object):
 
         References
         ----------
-
         >>> oDesign.GetModule("FieldsReporter")
         """
         if self.design_type in [
@@ -366,7 +352,6 @@ class AedtObjects(object):
 
         References
         ----------
-
         >>> oDesign.GetModule("ReportSetup")
         """
         if not self._oreportsetup:
@@ -379,7 +364,6 @@ class AedtObjects(object):
 
         References
         ----------
-
         >>> oDesign.GetModule("MeshRegion")
         """
         meshers = {
@@ -403,7 +387,6 @@ class AedtObjects(object):
 
         References
         ----------
-
         >>> oEditor = oDesign.SetActiveEditor("SchematicEditor")"""
         if not self._oeditor and self._odesign:
             if self.design_type in ["Circuit Design", "Twin Builder", "Maxwell Circuit", "EMIT"]:
@@ -427,7 +410,6 @@ class AedtObjects(object):
 
         References
         ----------
-
         >>> oDesign.SetActiveEditor("Layout")
         """
         if not self._layouteditor and self.design_type in ["Circuit Design"]:

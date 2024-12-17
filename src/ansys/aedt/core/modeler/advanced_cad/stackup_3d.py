@@ -2608,7 +2608,6 @@ class Trace(CommonObject, object):
 
     Parameters
     ----------
-
     application : :class:`ansys.aedt.core.hfss.Hfss`
         HFSS design or project where the variable is to be created.
     frequency : float, None

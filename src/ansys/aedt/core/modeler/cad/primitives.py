@@ -22,9 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-This module contains these Primitives classes: `Polyline` and `Primitives`.
-"""
+"""This module contains these Primitives classes: `Polyline` and `Primitives`."""
 
 from __future__ import absolute_import  # noreorder
 
@@ -684,7 +682,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Get3DComponentDefinitionNames
         >>> oEditor.Get3DComponentInstanceNames
         """
@@ -1170,7 +1167,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetObjectsByMaterial
 
         """
@@ -1378,7 +1374,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.FitAll
 
         Examples
@@ -1436,7 +1431,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CoverLines
         """
         obj_to_cover = self.convert_to_selections(assignment, False)
@@ -1549,7 +1543,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateRelativeCS
         """
         if name:
@@ -1812,7 +1805,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.SetWCS
         """
         if isinstance(name, BaseCoordinateSystem):
@@ -1836,7 +1828,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetActiveCoordinateSystem
         """
 
@@ -1941,7 +1932,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateRelativeCS
         """
         cs_names = [i.name for i in self.coordinate_systems]
@@ -2103,7 +2093,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oDesign.SetObjectDeformation
         """
         self.logger.info("Enabling deformation feedback")
@@ -2139,7 +2128,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oDesign.SetObjectTemperature
         """
         self.logger.info("Set model temperature and enabling Thermal Feedback")
@@ -2300,7 +2288,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreatePolyline
         """
         if orientation > 2:
@@ -2463,7 +2450,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oModule.GetBoundaries
         """
         if self._app.design_type == "Icepak":
@@ -2490,7 +2476,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
         """
         selections = self.convert_to_selections(assignment, True)
@@ -2521,7 +2506,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetObjectsInGroup
         """
         if not isinstance(group, str):
@@ -2548,7 +2532,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetObjectsInGroup
         >>> oEditor.GetModelBoundingBox
         """
@@ -2671,7 +2654,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Split
         """
         if plane is None and not tool or plane and tool:
@@ -2819,7 +2801,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.DuplicateMirror
         """
         return self.mirror(
@@ -2856,7 +2837,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Mirror
         >>> oEditor.DuplicateMirror
         """
@@ -2915,7 +2895,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Move
         """
         Xvec, Yvec, Zvec = self._pos_with_arg(vector)
@@ -2968,7 +2947,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.DuplicateAroundAxis
         """
         selections = self.convert_to_selections(assignment)
@@ -3041,7 +3019,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.DuplicateAlongLine
         """
         selections = self.convert_to_selections(assignment)
@@ -3082,7 +3059,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.ThickenSheet
         """
         selections = self.convert_to_selections(assignment)
@@ -3120,7 +3096,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.SweepFacesAlongNormal
         """
         if not isinstance(faces, list):
@@ -3177,7 +3152,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.SweepAlongVector
         """
         selections = self.convert_to_selections(assignment)
@@ -3235,7 +3209,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.SweepAlongPath
         """
         selections = self.convert_to_selections(assignment) + "," + self.convert_to_selections(sweep_object)
@@ -3280,7 +3253,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.SweepAroundAxis
         """
         selections = self.convert_to_selections(assignment)
@@ -3335,7 +3307,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Section
         """
         section_plane = GeometryOperators.cs_plane_to_plane_str(plane)
@@ -3376,7 +3347,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.SeparateBody
         """
         try:
@@ -3425,7 +3395,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Rotate
         """
         selections = self.convert_to_selections(assignment)
@@ -3461,7 +3430,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Subtract
         """
         if "keepOriginals" in kwargs:
@@ -3501,7 +3469,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Imprint
         """
         szList = self.convert_to_selections(blank_list)
@@ -3565,7 +3532,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.ImprintProjection
         """
         return self._imprint_projection(assignment, keep_originals, True)
@@ -3599,7 +3565,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.ImprintProjection
         """
         return self._imprint_projection(assignment, keep_originals, False, vector_points, distance)
@@ -3620,7 +3585,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.PurgeHistory
         """
         szList = self.convert_to_selections(assignment)
@@ -3643,7 +3607,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetModelBoundingBox
         """
         bb = list(self.oeditor.GetModelBoundingBox())
@@ -3670,7 +3633,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Unite
         """
         slice = min(100, len(assignment))
@@ -3723,7 +3685,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Copy
         >>> oEditor.Paste
         """
@@ -3747,7 +3708,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Copy
         """
         # convert to string
@@ -3772,7 +3732,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Paste
         """
         self.add_new_objects()
@@ -3798,7 +3757,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Intersect
         """
         if "keeporiginal" in kwargs:
@@ -3838,7 +3796,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.DetachFaces
 
         """
@@ -3871,7 +3828,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Connect
         """
         try:
@@ -3911,7 +3867,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Subtract
         """
         self.logger.info("Subtract all objects from Chassis object - exclude vacuum objs")
@@ -4039,7 +3994,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetMatchedObjectName
         """
         return self.oeditor.GetMatchedObjectName(search_string)
@@ -4060,7 +4014,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.RenamePart
         """
         cad_suffix = main_part_name + "_"
@@ -4099,7 +4052,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateBox
         """
         self.logger.info("Adding Airbox to the Bounding ")
@@ -4160,7 +4112,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateRegion
         """
         return self.create_region(pad_percent=[x_pos, x_neg, y_pos, y_neg, z_pos, z_neg], is_percentage=is_percentage)
@@ -4182,7 +4133,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
         """
         arg = ["NAME:AllTabs"]
@@ -4219,7 +4169,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateEntityList
         """
         if name:
@@ -4259,7 +4208,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateEntityList
         """
         if name:
@@ -4297,7 +4245,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GenerateHistory
         """
         assignment = self.convert_to_selections(assignment)
@@ -4446,7 +4393,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetEntityListIDByName
         """
         id = self.oeditor.GetEntityListIDByName(name)
@@ -4492,7 +4438,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Subtract
         >>> oEditor.PurgeHistory
         """
@@ -4584,7 +4529,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetModelBoundingBox
         """
         oBoundingBox = list(self.oeditor.GetModelBoundingBox())
@@ -4610,7 +4554,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetEdgeIDsFromObject
         """
         for object in self.solid_names + self.sheet_names + self.line_names:
@@ -4633,7 +4576,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetModelBoundingBox
         """
         bound = self.get_model_bounding_box()
@@ -4682,7 +4624,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetVertexIDsFromObject
         """
         position_list = []
@@ -4748,7 +4689,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Export
         """
 
@@ -4871,7 +4811,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Import
         """
         if str(healing) in ["0", "1"]:
@@ -4924,7 +4863,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateUserDefinedModel
         """
         env_var = os.environ
@@ -5145,7 +5083,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateUserDefinedModel
         """
         if is_linux:  # pragma: no cover
@@ -5258,7 +5195,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.BreakUDMConnection
         """
         args = ["NAME:Selections", "Selections:=", "SpaceClaim1"]
@@ -5282,7 +5218,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateUserDefinedModel
         >>> oEditor.BreakUDMConnection
         """
@@ -5307,7 +5242,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetObjectsByMaterial
         >>> oEditor.GetFaceIDs
         """
@@ -5349,7 +5283,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Scale
         """
         selections = self.convert_to_selections(assignment, True)
@@ -5374,7 +5307,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetFaceIDs
         """
         self.logger.info("Selecting outer faces.")
@@ -5399,7 +5331,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.SetPropertyValue
         """
         oObjects = list(self.oeditor.GetObjectsInGroup("Solids"))
@@ -5436,7 +5367,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.ThickenSheet
         """
         aedt_bounding_box = self.get_model_bounding_box()
@@ -5535,7 +5465,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.MoveFaces
 
         """
@@ -5596,7 +5525,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.MoveEdges
 
         """
@@ -5664,7 +5592,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateGroup
         """
         if components is None and groups is None and objects is None:
@@ -5728,7 +5655,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Ungroup
         """
         group_list = self.convert_to_selections(groups, return_list=True)
@@ -5747,7 +5673,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.FlattenGroup
         """
         self.oeditor.FlattenGroup(["Groups:=", ["Model"]])
@@ -6141,7 +6066,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateBox
 
         Examples
@@ -6213,7 +6137,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateBox
 
         Examples
@@ -6504,7 +6427,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateRegion
         """
         if name is None:
@@ -6531,7 +6453,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateRegion
         """
         is_percentage = region.padding_types in ["Percentage Offset", "Transverse Percentage Offset"]
@@ -6653,7 +6574,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateRegion
         """
         # backward compatibility
@@ -6694,7 +6614,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateObjectFromFaces
         """
         edge_ids = self.convert_to_selections(assignment, True)
@@ -6744,7 +6663,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateObjectFromFaces
         """
         face_ids = self.convert_to_selections(assignment, True)
@@ -6910,7 +6828,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreatePolyline
 
         Examples
@@ -7115,7 +7032,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateUserDefinedPart
 
         Examples
@@ -7173,7 +7089,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateUserDefinedPart
 
         Examples
@@ -7222,7 +7137,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Delete
 
         """
@@ -7279,7 +7193,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Delete
 
         """
@@ -7636,7 +7549,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetFaceIDs
 
         """
@@ -7667,7 +7579,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetEdgeIDsFromObject
 
         """
@@ -7697,7 +7608,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetEdgeIDsFromFace
 
         """
@@ -7721,7 +7631,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetVertexIDsFromObject
 
         """
@@ -7753,7 +7662,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetVertexIDsFromFace
 
         """
@@ -7806,7 +7714,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetVertexIDsFromEdge
 
         """
@@ -7834,7 +7741,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetVertexPosition
 
         """
@@ -7862,7 +7768,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetFaceArea
 
         """
@@ -7887,7 +7792,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetFaceCenter
 
         """
@@ -7989,7 +7893,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetBodyNamesByPosition
 
         """
@@ -8066,7 +7969,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetEdgeIDsFromObject
         >>> oEditor.GetVertexIDsFromEdge
 
@@ -8102,7 +8004,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetFaceByPosition
 
         """
@@ -9003,12 +8904,10 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> aedtapp = Hfss()
         >>> edge_object = aedtapp.modeler.create_object_from_edge("my_edge")
