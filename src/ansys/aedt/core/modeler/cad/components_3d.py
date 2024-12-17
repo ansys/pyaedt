@@ -477,7 +477,9 @@ class UserDefinedComponent(object):
 
     @pyaedt_function_handler()
     def delete(self):
-        """Delete the object. The project must be saved after the operation to update the list
+        """Delete the object.
+
+        The project must be saved after the operation to update the list
         of names for user-defined components.
 
         References

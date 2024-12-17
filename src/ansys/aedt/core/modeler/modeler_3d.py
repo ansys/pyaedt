@@ -1043,8 +1043,9 @@ class Modeler3D(Primitives3D):
         preview=False,
         merge_angle=1e-3,
     ):
-        """Import Nastran file into 3D Modeler by converting the faces to stl and reading it. The solids are
-        translated directly to AEDT format.
+        """Import Nastran file into 3D Modeler by converting the faces to stl and reading it.
+
+        The solids are translated directly to AEDT format.
 
         Parameters
         ----------

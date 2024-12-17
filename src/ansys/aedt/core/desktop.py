@@ -440,7 +440,6 @@ class Desktop(object):
     PyAEDT INFO: Python version ...
     >>> hfss = ansys.aedt.core.Hfss(design="HFSSDesign1")
     PyAEDT INFO: No project is defined. Project...
-
     """
 
     # _sessions = {}
