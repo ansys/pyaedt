@@ -267,7 +267,6 @@ class PostProcessorIcepak(PostProcessor3D):
 
         References
         ----------
-
         >>> oModule.ExportFieldsSummary
         """
         if variations is None:

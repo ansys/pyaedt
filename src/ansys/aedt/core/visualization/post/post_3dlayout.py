@@ -184,7 +184,7 @@ class PostProcessor3DLayout(PostProcessor3D):
 
     @pyaedt_function_handler()
     def compute_power_by_net(self, nets=None, solution=None):
-        """Computes the power by nets. This applies only to SIwave DC Analysis.
+        """Compute the power by nets. This applies only to SIwave DC Analysis.
 
         Parameters
         ----------
