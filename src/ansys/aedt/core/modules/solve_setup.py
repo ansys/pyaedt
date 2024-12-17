@@ -208,6 +208,23 @@ class CommonSetup(PropsManager, BinaryTreeNode):
 
     @property
     def props(self):
+        """AEDT boundary component internal properties.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.solve_sweeps.SetupProps`
+        """
+        warnings.warn("This method is deprecated. Use properties instead.", DeprecationWarning)
+        return self.properties
+
+    @property
+    def properties(self):
+        """AEDT boundary component internal properties.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.solve_sweeps.SetupProps`
+        """
         if self._legacy_props:
             return self._legacy_props
         if self._is_new_setup:
@@ -231,6 +248,13 @@ class CommonSetup(PropsManager, BinaryTreeNode):
 
     @props.setter
     def props(self, value):
+        """AEDT boundary component internal properties."""
+        warnings.warn("This method is deprecated. Use properties instead.", DeprecationWarning)
+        self.properties = value
+
+    @properties.setter
+    def properties(self, value):
+        """AEDT boundary component internal properties."""
         self._legacy_props = SetupProps(self, value)
 
     @property
@@ -1113,6 +1137,23 @@ class SetupCircuit(CommonSetup):
 
     @property
     def props(self):
+        """AEDT boundary component internal properties.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.solve_sweeps.SetupProps`
+        """
+        warnings.warn("This method is deprecated. Use properties instead.", DeprecationWarning)
+        return self.properties
+
+    @property
+    def properties(self):
+        """AEDT boundary component internal properties.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.solve_sweeps.SetupProps`
+        """
         if self._legacy_props:
             return self._legacy_props
         if self._is_new_setup:
@@ -1826,6 +1867,23 @@ class Setup3DLayout(CommonSetup):
 
     @property
     def props(self):
+        """AEDT boundary component internal properties.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.solve_sweeps.SetupProps`
+        """
+        warnings.warn("This method is deprecated. Use properties instead.", DeprecationWarning)
+        return self.properties
+
+    @property
+    def properties(self):
+        """AEDT boundary component internal properties.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.solve_sweeps.SetupProps`
+        """
         if self._legacy_props:
             return self._legacy_props
         if self._is_new_setup:
@@ -1847,6 +1905,13 @@ class Setup3DLayout(CommonSetup):
 
     @props.setter
     def props(self, value):
+        """AEDT boundary component internal properties."""
+        warnings.warn("This method is deprecated. Use properties instead.", DeprecationWarning)
+        self.properties = value
+
+    @properties.setter
+    def properties(self, value):
+        """AEDT boundary component internal properties."""
         self._legacy_props = SetupProps(self, value)
 
     @property
