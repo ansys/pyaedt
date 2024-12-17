@@ -340,6 +340,7 @@ def _generate_property_validation_errors(property_name, expected, actual):
 @pyaedt_function_handler()
 def generate_validation_errors(property_names, expected_settings, actual_settings):
     """From the given property names, expected settings and actual settings, return a list of validation errors.
+
     If no errors are found, an empty list is returned. The validation of values such as "10mm"
     ensures that they are close to within a relative tolerance.
     For example an expected setting of "10mm", and actual of "10.000000001mm" will not yield a validation error.

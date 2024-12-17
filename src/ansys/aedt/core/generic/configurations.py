@@ -1461,8 +1461,8 @@ class Configurations(object):
     @pyaedt_function_handler()
     def export_config(self, config_file=None, overwrite=False):
         """Export current design properties to a JSON or TOML file.
-        The sections to be exported are defined with ``configuration.options`` class.
 
+        The sections to be exported are defined with ``configuration.options`` class.
 
         Parameters
         ----------

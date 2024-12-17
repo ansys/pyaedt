@@ -1058,14 +1058,12 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler()
     def add_new_objects(self):
-        """Add objects that have been created in the modeler by
-        previous operations.
+        """Add objects that have been created in the modeler by previous operations.
 
         Returns
         -------
         list
             List of added objects.
-
         """
         added_objects = []
         objs_ids = {}
@@ -1075,14 +1073,12 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler()
     def add_new_solids(self):
-        """Add objects that have been created in the modeler by
-        previous operations.
+        """Add objects that have been created in the modeler by previous operations.
 
         Returns
         -------
         list
             List of added objects.
-
         """
         added_objects = []
 
@@ -1107,8 +1103,7 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler()
     def add_new_points(self):
-        """Add objects that have been created in the modeler by
-        previous operations.
+        """Add objects that have been created in the modeler by previous operations.
 
         Returns
         -------
@@ -5761,6 +5756,7 @@ class GeometryModeler(Modeler):
     @pyaedt_function_handler(sheet_name="sheet", object_name="object")
     def wrap_sheet(self, sheet, object, imprinted=False):
         """Execute the sheet wrapping around an object.
+
         If wrapping produces an unclassified operation it will be reverted.
 
         Parameters

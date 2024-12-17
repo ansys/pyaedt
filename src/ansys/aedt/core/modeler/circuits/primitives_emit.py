@@ -1039,8 +1039,7 @@ class EmitComponentPropNode(object):
 
     @property
     def enabled(self):
-        """Returns ''True'' if the node is enabled and
-        ''False'' if the node is disabled.
+        """Returns ''True'' if the node is enabled and ''False'' if the node is disabled.
 
         Parameters
         ----------
@@ -1108,8 +1107,9 @@ class EmitComponentPropNode(object):
 
     @pyaedt_function_handler()
     def set_channel_sampling(self, sampling_type="Uniform", percentage=None, max_channels=None, seed=None):
-        """Set the channel sampling for the radio. If a percentage is
-        specified, then it will be used instead of max_channels.
+        """Set the channel sampling for the radio.
+
+        If a percentage is specified, then it will be used instead of max_channels.
 
         Parameters
         ----------

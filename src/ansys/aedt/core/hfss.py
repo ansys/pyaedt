@@ -2644,7 +2644,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
     def _create_pec_cap(self, sheet_name, obj_name, pecthick):
         """Create a PEC object to back a wave port.
 
-
         Parameters
         ----------
         sheet_name : str
@@ -2658,7 +2657,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         -------
         bool
            ``True`` when successful, ``False`` when failed.
-
         """
         if isinstance(sheet_name, str) and isinstance(obj_name, cad.elements_3d.FacePrimitive):
             obj = obj_name.create_object()  # Create face object of type cad.object_3d.Object3d from FacePrimitive
@@ -3909,6 +3907,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         window="hamming",
     ):
         """Edit a source from file data.
+
         File data is a CSV containing either frequency data or time domain data that will be converted through FFT.
 
         Parameters
@@ -3942,7 +3941,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         -------
         bool
         """
-
         if not assignment:
             self.osolution.LoadSourceWeights(input_file)
             return True
