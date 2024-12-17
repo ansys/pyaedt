@@ -22,11 +22,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from typing import Optional
+from typing import Union
+
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.application.design import DesignSettingsManipulation
 from ansys.aedt.core.generic.configurations import ConfigurationsIcepak
 from ansys.aedt.core.modules.boundary.icepak_boundary import BoundaryDictionary
-from ansys.aedt.core.visualization.post.monitor_icepak import Monitor
 
 
 class FieldAnalysisIcepak(FieldAnalysis3D, object):
@@ -113,9 +115,16 @@ class FieldAnalysisIcepak(FieldAnalysis3D, object):
             aedt_process_id,
             remove_lock=remove_lock,
         )
-        self._monitor = Monitor(self)
-        self._configurations = ConfigurationsIcepak(self)
+
         self.design_settings.manipulate_inputs = IcepakDesignSettingsManipulation(self)
+        self._mesh = None
+        self._post = None
+        self._monitor = None
+        self._configurations = ConfigurationsIcepak(self)
+        if not settings.lazy_load:
+            self._mesh = self.mesh
+            self._post = self.post
+            self._monitor = self.monitor
 
     @property
     def post(self):
@@ -133,6 +142,24 @@ class FieldAnalysisIcepak(FieldAnalysis3D, object):
         return self._post
 
     @property
+    def mesh(self):
+        """Mesh.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.mesh_icepak.IcepakMesh`
+            Mesh object.
+        """
+        if self._mesh is None and self._odesign:
+            self.logger.reset_timer()
+
+            from ansys.aedt.core.modules.mesh_icepak import IcepakMesh
+
+            self._mesh = IcepakMesh(self)
+            self.logger.info_timer("Mesh class has been initialized!")
+        return self._mesh
+
+    @property
     def monitor(self):
         """Property to handle monitor objects.
 
@@ -140,6 +167,11 @@ class FieldAnalysisIcepak(FieldAnalysis3D, object):
         -------
         :class:`ansys.aedt.core.modules.monitor_icepak.Monitor`
         """
+        if self._monitor is None:
+            from ansys.aedt.core.visualization.post.monitor_icepak import Monitor
+
+            self._monitor = Monitor(self)
+
         self._monitor._delete_removed_monitors()  # force update. some operations may delete monitors
         return self._monitor
 
