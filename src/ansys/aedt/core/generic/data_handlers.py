@@ -184,7 +184,6 @@ def _arg2dict(arg, dict_out):
                     rr[vals[k][:-2]] = vals[k + 1]
                     k += 2
                 dict_out["Ranges"]["Range"].append(rr)
-        pass
 
     elif arg[0][:5] == "NAME:":
         top_key = arg[0][5:]
