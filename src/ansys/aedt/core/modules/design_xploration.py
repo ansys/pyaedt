@@ -45,15 +45,15 @@ class CommonOptimetrics(PropsManager, object):
 
     Parameters
     ----------
-    p_app :
-
-    name :
-
-    dictinputs
-
+    p_app : :class:`ansys.aedt.core.application.analysis.Analysis`
+        PyAEDT analysis instance.
+    name : str
+        Optimetrics setup name.
+    dictinputs : dict
+        Input setup parameters.
     optimtype : str
-        Type of the optimization.
-
+        Type of the optimization. Available options are: ``"OptiParametric"``, ``"OptiDesignExplorer"`,
+        ``"OptiOptimization"``, ``"OptiSensitivity"``, ``"OptiStatistical"``, ``"OptiDXDOE"``, and ``"optiSLang"``.
     """
 
     def __init__(self, p_app, name, dictinputs, optimtype):
