@@ -1177,9 +1177,13 @@ class Mesh(object):
 
         mop = MeshOperation(self, name, props, "LengthBased")
         for meshop in self.meshoperations[:]:
-            if meshop.name == mop.name:
-                meshop.delete()
-                break
+            try:
+                if meshop.name == mop.name:
+                    meshop.delete()
+                    break
+            # Handle case where mop has no child_object
+            except AttributeError:
+                continue
         mop.create()
         self.meshoperations.append(mop)
         return mop
