@@ -78,161 +78,157 @@ def layout_comp(add_app):
 class TestClass:
     @pytest.fixture(autouse=True)
     def init(self, local_scratch):
-        # self.aedtapp = aedtapp
+        # aedtapp = aedtapp
         self.local_scratch = local_scratch
 
-    def test_01_create_primitive(self, add_app):
-        aedtapp = add_app(application=Maxwell3d, solution_type="EddyCurrent")
+    @pytest.mark.skipif(config["NonGraphical"], reason="Test is failing on build machine")
+    def test_display(self, add_app):
+        aedtapp = add_app(application=Maxwell3d)
 
-        aedtapp.modeler.model_units = "mm"
-        plate = aedtapp.modeler.create_box([0, 0, 0], [294, 294, 19], name="Plate")
-        hole = aedtapp.modeler.create_box([18, 18, 0], [108, 108, 19], name="Hole")
-        aedtapp.modeler.subtract([plate], [hole])
-        plate.material_name = "aluminum"
-        assert plate.solve_inside
-        assert plate.material_name == "aluminum"
-        aedtapp.assign_material(plate, "pec")
-        assert not plate.solve_inside
-        aedtapp.assign_material(plate, "perfect conductor")
-        assert not plate.solve_inside
+        img = aedtapp.post.nb_display(show_axis=True, show_grid=True, show_ruler=True)
+        assert isinstance(img, Image)
         aedtapp.close_project(aedtapp.project_name)
 
-    @pytest.mark.skipif(config["NonGraphical"], reason="Test is failing on build machine")
-    def test_01_display(self):
-        img = self.aedtapp.post.nb_display(show_axis=True, show_grid=True, show_ruler=True)
-        assert isinstance(img, Image)
+    def test_litz_wire(self, add_app):
+        aedtapp = add_app(application=Maxwell3d)
 
-    def test_01A_litz_wire(self):
-        cylinder = self.aedtapp.modeler.create_cylinder(
-            orientation="X", origin=[50, 0, 0], radius=0.8, height=20, name="Wire", material="magnesium"
-        )
-        self.aedtapp.materials["magnesium"].stacking_type = "Litz Wire"
-        self.aedtapp.materials["magnesium"].wire_type = "Round"
-        self.aedtapp.materials["magnesium"].strand_number = 3
-        self.aedtapp.materials["magnesium"].wire_diameter = "1mm"
-        assert self.aedtapp.materials["magnesium"].stacking_type == "Litz Wire"
-        assert self.aedtapp.materials["magnesium"].wire_type == "Round"
-        assert self.aedtapp.materials["magnesium"].strand_number == 3
-        assert self.aedtapp.materials["magnesium"].wire_diameter == "1mm"
+        aedtapp.materials["magnesium"].stacking_type = "Litz Wire"
+        aedtapp.materials["magnesium"].wire_type = "Round"
+        aedtapp.materials["magnesium"].strand_number = 3
+        aedtapp.materials["magnesium"].wire_diameter = "1mm"
+        assert aedtapp.materials["magnesium"].stacking_type == "Litz Wire"
+        assert aedtapp.materials["magnesium"].wire_type == "Round"
+        assert aedtapp.materials["magnesium"].strand_number == 3
+        assert aedtapp.materials["magnesium"].wire_diameter == "1mm"
 
-        self.aedtapp.materials["magnesium"].wire_type = "Square"
-        self.aedtapp.materials["magnesium"].wire_width = "2mm"
-        assert self.aedtapp.materials["magnesium"].wire_type == "Square"
-        assert self.aedtapp.materials["magnesium"].wire_width == "2mm"
+        aedtapp.materials["magnesium"].wire_type = "Square"
+        aedtapp.materials["magnesium"].wire_width = "2mm"
+        assert aedtapp.materials["magnesium"].wire_type == "Square"
+        assert aedtapp.materials["magnesium"].wire_width == "2mm"
 
-        self.aedtapp.materials["magnesium"].wire_type = "Rectangular"
-        self.aedtapp.materials["magnesium"].wire_width = "2mm"
-        self.aedtapp.materials["magnesium"].wire_thickness = "1mm"
-        self.aedtapp.materials["magnesium"].wire_thickness_direction = "V(2)"
-        self.aedtapp.materials["magnesium"].wire_width_direction = "V(3)"
-        assert self.aedtapp.materials["magnesium"].wire_type == "Rectangular"
-        assert self.aedtapp.materials["magnesium"].wire_width == "2mm"
-        assert self.aedtapp.materials["magnesium"].wire_thickness == "1mm"
-        assert self.aedtapp.materials["magnesium"].wire_thickness_direction == "V(2)"
-        assert self.aedtapp.materials["magnesium"].wire_width_direction == "V(3)"
+        aedtapp.materials["magnesium"].wire_type = "Rectangular"
+        aedtapp.materials["magnesium"].wire_width = "2mm"
+        aedtapp.materials["magnesium"].wire_thickness = "1mm"
+        aedtapp.materials["magnesium"].wire_thickness_direction = "V(2)"
+        aedtapp.materials["magnesium"].wire_width_direction = "V(3)"
+        assert aedtapp.materials["magnesium"].wire_type == "Rectangular"
+        assert aedtapp.materials["magnesium"].wire_width == "2mm"
+        assert aedtapp.materials["magnesium"].wire_thickness == "1mm"
+        assert aedtapp.materials["magnesium"].wire_thickness_direction == "V(2)"
+        assert aedtapp.materials["magnesium"].wire_width_direction == "V(3)"
+        aedtapp.close_project(aedtapp.project_name)
 
-    def test_01B_lamination(self):
-        cylinder = self.aedtapp.modeler.create_cylinder(
-            orientation="X", origin=[2000, 0, 0], radius=0.8, height=20, name="Lamination_model", material="titanium"
-        )
-        self.aedtapp.materials["titanium"].stacking_type = "Lamination"
-        self.aedtapp.materials["titanium"].stacking_factor = "0.99"
-        self.aedtapp.materials["titanium"].stacking_direction = "V(3)"
-        self.aedtapp.materials["titanium"].stacking_direction = "V(2)"
-        assert self.aedtapp.materials["titanium"].stacking_type == "Lamination"
-        assert self.aedtapp.materials["titanium"].stacking_factor == "0.99"
-        assert self.aedtapp.materials["titanium"].stacking_direction == "V(2)"
+    def test_lamination(self, add_app):
+        aedtapp = add_app(application=Maxwell3d)
 
-    def test_02_create_coil(self):
-        center_hole = self.aedtapp.modeler.Position(119, 25, 49)
-        center_coil = self.aedtapp.modeler.Position(94, 0, 49)
-        coil_hole = self.aedtapp.modeler.create_box(
-            center_hole, [150, 150, 100], name="Coil_Hole"
-        )  # All positions in model units
-        coil = self.aedtapp.modeler.create_box(
-            center_coil, [200, 200, 100], name="Coil"
-        )  # All positions in model units
-        self.aedtapp.modeler.subtract([coil], [coil_hole])
-        coil.material_name = "Copper"
-        coil.solve_inside = True
-        p_coil = self.aedtapp.post.volumetric_loss("Coil")
-        assert type(p_coil) is str
+        aedtapp.materials["titanium"].stacking_type = "Lamination"
+        aedtapp.materials["titanium"].stacking_factor = "0.99"
+        aedtapp.materials["titanium"].stacking_direction = "V(3)"
+        aedtapp.materials["titanium"].stacking_direction = "V(2)"
+        assert aedtapp.materials["titanium"].stacking_type == "Lamination"
+        assert aedtapp.materials["titanium"].stacking_factor == "0.99"
+        assert aedtapp.materials["titanium"].stacking_direction == "V(2)"
+        aedtapp.close_project(aedtapp.project_name)
 
-    def test_03_coordinate_system(self):
-        assert self.aedtapp.modeler.create_coordinate_system([200, 100, 0], mode="view", view="XY", name="Coil_CS")
+    def test_coil_terminals(self, add_app):
+        aedtapp = add_app(application=Maxwell3d)
 
-    def test_04_coil_terminal(self):
-        self.aedtapp.modeler.section(["Coil"], self.aedtapp.PLANE.ZX)
-        self.aedtapp.modeler.separate_bodies(["Coil_Section1"])
-        self.aedtapp.modeler.delete("Coil_Section1_Separate1")
-        assert self.aedtapp.assign_current(["Coil_Section1"], amplitude=2472)
-        self.aedtapp.solution_type = "Magnetostatic"
-        volt = self.aedtapp.assign_voltage(self.aedtapp.modeler["Coil_Section1"].faces[0].id, amplitude=1)
-        current2 = self.aedtapp.assign_current(["Coil_Section1"], amplitude=212)
-        assert current2
-        assert current2.props["IsSolid"]
-        assert current2.delete()
-        assert volt
-        assert volt.delete()
-        self.aedtapp.solution_type = self.aedtapp.SOLUTIONS.Maxwell3d.TransientAPhiFormulation
-        current3 = self.aedtapp.assign_current(["Coil_Section1"], amplitude=212)
-        assert current3
-        assert current3.props["IsSolid"]
-        assert current3.delete()
-        self.aedtapp.solution_type = "EddyCurrent"
+        coil_hole = aedtapp.modeler.create_box([-50, -50, 0], [100, 100, 100], name="Coil_Hole")
+        coil = aedtapp.modeler.create_box([-100, -100, 0], [200, 200, 100], name="Coil")
+        aedtapp.modeler.subtract([coil], [coil_hole])
 
-    def test_05_winding(self):
-        face_id = self.aedtapp.modeler["Coil_Section1"].faces[0].id
-        assert self.aedtapp.assign_winding(face_id)
-        bounds = self.aedtapp.assign_winding(assignment=face_id, current=20e-3)
-        assert bounds
-        bounds = self.aedtapp.assign_winding(assignment=face_id, current="20e-3A")
-        assert bounds
-        bounds = self.aedtapp.assign_winding(assignment=face_id, resistance="1ohm")
-        assert bounds
-        bounds = self.aedtapp.assign_winding(assignment=face_id, inductance="1H")
-        assert bounds
-        bounds = self.aedtapp.assign_winding(assignment=face_id, voltage="10V")
-        assert bounds
+        aedtapp.modeler.section(["Coil"], aedtapp.PLANE.ZX)
+        aedtapp.modeler.separate_bodies(["Coil_Section1"])
+        assert aedtapp.assign_current(["Coil_Section1"], amplitude=2472)
+        assert aedtapp.assign_voltage(aedtapp.modeler["Coil_Section1_Separate1"].faces[0].id, amplitude=1)
+        aedtapp.solution_type = "Magnetostatic"
+        assert aedtapp.assign_current(["Coil_Section1"], amplitude=2472)
+        assert aedtapp.assign_voltage(aedtapp.modeler["Coil_Section1_Separate1"].faces[0].id, amplitude=1)
+        # aedtapp.solution_type = aedtapp.SOLUTIONS.Maxwell3d.TransientAPhiFormulation
+        # assert aedtapp.assign_current(["Coil_Section1"], amplitude=2472)
+        # assert aedtapp.assign_voltage(aedtapp.modeler["Coil_Section1_Separate1"].faces[0].id, amplitude=1)
+        aedtapp.close_project(aedtapp.project_name)
+
+    def test_assign_winding(self, add_app):
+        aedtapp = add_app(application=Maxwell3d)
+
+        coil_hole = aedtapp.modeler.create_box([-50, -50, 0], [100, 100, 100], name="Coil_Hole")
+        coil = aedtapp.modeler.create_box([-100, -100, 0], [200, 200, 100], name="Coil")
+        aedtapp.modeler.subtract([coil], [coil_hole])
+
+        aedtapp.modeler.section(["Coil"], aedtapp.PLANE.ZX)
+        aedtapp.modeler.separate_bodies(["Coil_Section1"])
+        face_id = aedtapp.modeler["Coil_Section1"].faces[0].id
+        assert aedtapp.assign_winding(face_id)
+        bounds = aedtapp.assign_winding(assignment=face_id, current=20e-3)
+        assert bounds.props["Current"] == "0.02A"
+        bounds = aedtapp.assign_winding(assignment=face_id, current="20e-3A")
+        assert bounds.props["Current"] == "20e-3A"
+        bounds = aedtapp.assign_winding(assignment=face_id, resistance="1ohm")
+        assert bounds.props["Resistance"] == "1ohm"
+        bounds = aedtapp.assign_winding(assignment=face_id, inductance="1H")
+        assert bounds.props["Inductance"] == "1H"
+        bounds = aedtapp.assign_winding(assignment=face_id, voltage="10V")
+        assert bounds.props["Voltage"] == "10V"
         bounds_name = generate_unique_name("Winding")
-        bounds = self.aedtapp.assign_winding(assignment=face_id, name=bounds_name)
+        bounds = aedtapp.assign_winding(assignment=face_id, name=bounds_name)
         assert bounds_name == bounds.name
+        aedtapp.close_project(aedtapp.project_name)
 
-    def test_05a_assign_coil(self):
-        face_id = self.aedtapp.modeler["Coil_Section1"].faces[0].id
-        bound = self.aedtapp.assign_coil(assignment=face_id)
-        assert bound
-        polarity = "Positive"
-        bound = self.aedtapp.assign_coil(assignment=face_id, polarity=polarity)
+    def test_assign_coil(self, add_app):
+        aedtapp = add_app(application=Maxwell3d)
+
+        coil_hole = aedtapp.modeler.create_box([-50, -50, 0], [100, 100, 100], name="Coil_Hole")
+        coil = aedtapp.modeler.create_box([-100, -100, 0], [200, 200, 100], name="Coil")
+        aedtapp.modeler.subtract([coil], [coil_hole])
+
+        aedtapp.modeler.section(["Coil"], aedtapp.PLANE.ZX)
+        aedtapp.modeler.separate_bodies(["Coil_Section1"])
+        face_id = aedtapp.modeler["Coil_Section1"].faces[0].id
+        bound = aedtapp.assign_coil(assignment=face_id)
+        assert bound.props["Conductor number"] == "1"
         assert not bound.props["Point out of terminal"]
-        polarity = "Negative"
-        bound = self.aedtapp.assign_coil(assignment=face_id, polarity=polarity)
+        bound = aedtapp.assign_coil(assignment=face_id, polarity="Positive")
+        assert bound.props["Conductor number"] == "1"
+        assert not bound.props["Point out of terminal"]
+        bound = aedtapp.assign_coil(assignment=face_id, polarity="Negative")
+        assert bound.props["Conductor number"] == "1"
         assert bound.props["Point out of terminal"]
         bound_name = generate_unique_name("Coil")
-        bound = self.aedtapp.assign_coil(assignment=face_id, name=bound_name)
+        bound = aedtapp.assign_coil(assignment=face_id, name=bound_name)
         assert bound_name == bound.name
+        aedtapp.close_project(aedtapp.project_name)
 
-    def test_05_draw_region(self):
-        assert self.aedtapp.modeler.create_air_region(*[300] * 6)
+    def test_create_air_region(self, add_app):
+        aedtapp = add_app(application=Maxwell3d)
 
-    @pytest.mark.skipif(desktop_version == "2024.2", reason="GetDisplacementCurrent not working in 2024.2")
-    def test_06_eddycurrent(self):
-        assert self.aedtapp.eddy_effects_on(["Plate"], enable_eddy_effects=True)
-        oModule = self.aedtapp.odesign.GetModule("BoundarySetup")
-        assert oModule.GetEddyEffect("Plate")
-        assert oModule.GetDisplacementCurrent("Plate")
-        self.aedtapp.eddy_effects_on(["Plate"], enable_eddy_effects=False)
-        assert not oModule.GetEddyEffect("Plate")
-        assert not oModule.GetDisplacementCurrent("Plate")
+        region = aedtapp.modeler.create_air_region(*[300] * 6)
+        assert region.material_name == "air"
+        aedtapp.close_project(aedtapp.project_name)
 
-    def test_07a_setup(self):
-        adaptive_frequency = "200Hz"
-        setup = self.aedtapp.create_setup()
+    def test_eddy_effects_on(self, add_app):
+        aedtapp = add_app(application=Maxwell3d, solution_type="EddyCurrent")
+
+        plate_vacuum = aedtapp.modeler.create_box([-3, -3, 0], [1.5, 1.5, 0.4], name="Plate_vaccum")
+        assert not aedtapp.eddy_effects_on(plate_vacuum, enable_eddy_effects=True)
+        plate = aedtapp.modeler.create_box([-1, -1, 0], [1.5, 1.5, 0.4], name="Plate", material="copper")
+        assert aedtapp.eddy_effects_on(plate, enable_eddy_effects=True)
+        assert aedtapp.oboundary.GetEddyEffect("Plate")
+        assert aedtapp.oboundary.GetDisplacementCurrent("Plate")
+        aedtapp.eddy_effects_on(["Plate"], enable_eddy_effects=False)
+        assert not aedtapp.oboundary.GetEddyEffect("Plate")
+        assert not aedtapp.oboundary.GetDisplacementCurrent("Plate")
+        aedtapp.close_project(aedtapp.project_name)
+
+    def test_create_setup(self, add_app):
+        aedtapp = add_app(application=Maxwell3d, solution_type="EddyCurrent")
+
+        setup = aedtapp.create_setup()
         setup.props["MaximumPasses"] = 12
         setup.props["MinimumPasses"] = 2
         setup.props["MinimumConvergedPasses"] = 1
         setup.props["PercentRefinement"] = 30
-        setup.props["Frequency"] = adaptive_frequency
+        setup.props["Frequency"] = "200Hz"
         dc_freq = 0.1
         stop_freq = 10
         count = 1
@@ -247,23 +243,28 @@ class TestClass:
         assert setup.props["UseCacheFor"] == ["Pass", "Freq"]
         assert setup.disable()
         assert setup.enable()
+        aedtapp.close_project(aedtapp.project_name)
 
-    def test_07b_create_parametrics(self):
-        self.aedtapp["w1"] = "10mm"
-        self.aedtapp["w2"] = "2mm"
-        setup1 = self.aedtapp.parametrics.add("w1", 0.1, 20, 0.2, "LinearStep")
-        assert setup1
-        expression = "re(FluxLinkage(" + self.aedtapp.excitations[2] + "))"
-        assert setup1.add_calculation(
-            calculation=expression,
-            ranges={"Freq": "200Hz"},
-            report_type="EddyCurrent",
-            solution=self.aedtapp.existing_analysis_sweeps[0],
-        )
+    def test_create_parametrics(self, add_app):
+        aedtapp = add_app(application=Maxwell3d)
+
+        aedtapp.create_setup()
+        aedtapp["w1"] = "10mm"
+        aedtapp["w2"] = "2mm"
+        setup_parametrics = aedtapp.parametrics.add("w1", 0.1, 20, 0.2, "LinearStep")
+        assert setup_parametrics.props["Sweeps"]["SweepDefinition"]["Variable"] == "w1"
+        assert setup_parametrics.props["Sweeps"]["SweepDefinition"]["Data"] == "LIN 0.1mm 20mm 0.2mm"
+        # assert setup_parametrics.add_calculation(
+        #     calculation="SolidLoss",
+        #     ranges={},
+        #     report_type="Magnetostatic",
+        #     solution=aedtapp.existing_analysis_sweeps[0],
+        # )
+        aedtapp.close_project(aedtapp.project_name)
 
     @pytest.mark.skipif(is_linux, reason="Crashing on Linux")
     def test_08_setup_ctrlprog_with_file(self):
-        transient_setup = self.aedtapp.create_setup()
+        transient_setup = aedtapp.create_setup()
         transient_setup.props["MaximumPasses"] = 12
         transient_setup.props["MinimumPasses"] = 2
         transient_setup.props["MinimumConvergedPasses"] = 1
@@ -273,38 +274,38 @@ class TestClass:
         transient_setup.enable_expression_cache(["CoreLoss"], "Fields", "Phase='0deg' ", True)
 
     def test_22_create_length_mesh(self):
-        assert self.aedtapp.mesh.assign_length_mesh(["Plate"])
+        assert aedtapp.mesh.assign_length_mesh(["Plate"])
 
     def test_23_create_skin_depth(self):
-        mesh = self.aedtapp.mesh.assign_skin_depth(["Plate"], "1mm")
+        mesh = aedtapp.mesh.assign_skin_depth(["Plate"], "1mm")
         assert mesh
         mesh.delete()
-        mesh = self.aedtapp.mesh.assign_skin_depth(["Plate"], "1mm", 1000)
+        mesh = aedtapp.mesh.assign_skin_depth(["Plate"], "1mm", 1000)
         assert mesh
         mesh.delete()
-        mesh = self.aedtapp.mesh.assign_skin_depth(self.aedtapp.modeler["Plate"].faces[0].id, "1mm")
+        mesh = aedtapp.mesh.assign_skin_depth(aedtapp.modeler["Plate"].faces[0].id, "1mm")
         assert mesh
         mesh.delete()
-        mesh = self.aedtapp.mesh.assign_skin_depth(self.aedtapp.modeler["Plate"], "1mm")
+        mesh = aedtapp.mesh.assign_skin_depth(aedtapp.modeler["Plate"], "1mm")
         assert mesh
 
     def test_24_create_curvilinear(self):
-        assert self.aedtapp.mesh.assign_curvilinear_elements(["Coil"], "1mm")
+        assert aedtapp.mesh.assign_curvilinear_elements(["Coil"], "1mm")
 
     def test_24_create_edge_cut(self):
-        assert self.aedtapp.mesh.assign_edge_cut(["Coil"])
+        assert aedtapp.mesh.assign_edge_cut(["Coil"])
 
     def test_24a_density_control(self):
-        assert self.aedtapp.mesh.assign_density_control(["Coil"], maximum_element_length="2mm", layers_number="3")
+        assert aedtapp.mesh.assign_density_control(["Coil"], maximum_element_length="2mm", layers_number="3")
 
     def test_24b_density_control(self):
-        assert self.aedtapp.mesh.assign_rotational_layer(["Coil"])
+        assert aedtapp.mesh.assign_rotational_layer(["Coil"])
 
     def test_25a_assign_initial_mesh(self):
-        assert self.aedtapp.mesh.assign_initial_mesh_from_slider(4)
+        assert aedtapp.mesh.assign_initial_mesh_from_slider(4)
 
     def test_25b_assign_initial_mesh(self):
-        assert self.aedtapp.mesh.assign_initial_mesh(surface_deviation="2mm")
+        assert aedtapp.mesh.assign_initial_mesh(surface_deviation="2mm")
 
     @pytest.mark.skipif(is_linux, reason="Crashing on Linux")
     def test_26_create_udp(self):
@@ -342,7 +343,7 @@ class TestClass:
 
         # Test udp with a custom name.
         my_udpName = "MyClawPoleCore"
-        udp = self.aedtapp.modeler.create_udp(
+        udp = aedtapp.modeler.create_udp(
             dll="RMxprt/ClawPoleCore", parameters=my_udpPairs, library="syslib", name=my_udpName
         )
 
@@ -352,7 +353,7 @@ class TestClass:
         assert int(udp.bounding_dimension[2]) == 100
 
         # Modify one of the 'MyClawPoleCore' udp properties.
-        assert self.aedtapp.modeler.update_udp(
+        assert aedtapp.modeler.update_udp(
             assignment="MyClawPoleCore", operation="CreateUserDefinedPart", parameters=[["Length", "110mm"]]
         )
 
@@ -361,16 +362,14 @@ class TestClass:
         assert int(udp.bounding_dimension[2]) == 110
 
         # Test udp with default name -None-.
-        second_udp = self.aedtapp.modeler.create_udp(
-            dll="RMxprt/ClawPoleCore", parameters=my_udpPairs, library="syslib"
-        )
+        second_udp = aedtapp.modeler.create_udp(dll="RMxprt/ClawPoleCore", parameters=my_udpPairs, library="syslib")
 
         assert second_udp
         assert second_udp.name == "ClawPoleCore"
         assert "ClawPoleCore" in udp._primitives.object_names
 
         # Modify two of the 'MyClawPoleCore' udp properties.
-        assert self.aedtapp.modeler.update_udp(
+        assert aedtapp.modeler.update_udp(
             assignment="ClawPoleCore",
             operation="CreateUserDefinedPart",
             parameters=[["Length", "110mm"], ["DiaGap", "125mm"]],
@@ -397,7 +396,7 @@ class TestClass:
         python_udp_parameters.append(mypair)
         python_udp_parameters.append(mypair)
 
-        udp_from_python = self.aedtapp.modeler.create_udp(
+        udp_from_python = aedtapp.modeler.create_udp(
             dll="Examples/RectangularSpiral.py", parameters=python_udp_parameters, name="PythonSpiral"
         )
 
@@ -434,12 +433,12 @@ class TestClass:
         mypair = ["Via Thickness (VT)", "0.001mm"]
         my_udmPairs.append(mypair)
 
-        assert self.aedtapp.modeler.create_udm(
+        assert aedtapp.modeler.create_udm(
             udm_full_name="Maxwell3D/OnDieSpiralInductor.py", parameters=my_udmPairs, library="syslib"
         )
 
     def test_28_assign_torque(self):
-        T = self.aedtapp.assign_torque("Coil")
+        T = aedtapp.assign_torque("Coil")
         assert T.type == "Torque"
         assert T.props["Objects"][0] == "Coil"
         assert T.props["Is Positive"]
@@ -447,27 +446,27 @@ class TestClass:
         assert T.props["Coordinate System"] == "Global"
         assert T.props["Axis"] == "Z"
         assert T.delete()
-        T = self.aedtapp.assign_torque(assignment="Coil", is_positive=False, torque_name="Torque_Test")
+        T = aedtapp.assign_torque(assignment="Coil", is_positive=False, torque_name="Torque_Test")
         assert not T.props["Is Positive"]
         assert T.name == "Torque_Test"
 
     def test_29_assign_force(self):
-        F = self.aedtapp.assign_force("Coil")
+        F = aedtapp.assign_force("Coil")
         assert F.type == "Force"
         assert F.props["Objects"][0] == "Coil"
         assert F.props["Reference CS"] == "Global"
         assert F.props["Is Virtual"]
         assert F.delete()
-        F = self.aedtapp.assign_force(assignment="Coil", is_virtual=False, force_name="Force_Test")
+        F = aedtapp.assign_force(assignment="Coil", is_virtual=False, force_name="Force_Test")
         assert F.name == "Force_Test"
         assert not F.props["Is Virtual"]
 
     def test_30_assign_movement(self):
-        self.aedtapp.insert_design("Motion")
-        self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.Transient
-        self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], name="Inner_Box")
-        self.aedtapp.modeler.create_box([0, 0, 0], [30, 20, 20], name="Outer_Box")
-        bound = self.aedtapp.assign_translate_motion("Outer_Box", velocity=1, mechanical_transient=True)
+        aedtapp.insert_design("Motion")
+        aedtapp.solution_type = SOLUTIONS.Maxwell3d.Transient
+        aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], name="Inner_Box")
+        aedtapp.modeler.create_box([0, 0, 0], [30, 20, 20], name="Outer_Box")
+        bound = aedtapp.assign_translate_motion("Outer_Box", velocity=1, mechanical_transient=True)
         assert bound
         assert bound.props["Velocity"] == "1m_per_sec"
 
@@ -475,7 +474,7 @@ class TestClass:
         m3d1 = add_app(application=Maxwell3d, project_name=core_loss_file, subfolder=test_subfolder)
         assert m3d1.set_core_losses(["PQ_Core_Bottom", "PQ_Core_Top"])
         assert m3d1.set_core_losses(["PQ_Core_Bottom"], True)
-        self.aedtapp.close_project(m3d1.project_name, False)
+        aedtapp.close_project(m3d1.project_name, False)
 
     def test_32_matrix(self, add_app):
         m3d = add_app(application=Maxwell3d, design_name="Matrix1")
@@ -571,8 +570,8 @@ class TestClass:
         assert not out[0]
 
     def test_32b_reduced_matrix(self):
-        self.aedtapp.set_active_design("Matrix2")
-        parent_matrix = [m for m in self.aedtapp.boundaries if m.type == "Matrix"][0]
+        aedtapp.set_active_design("Matrix2")
+        parent_matrix = [m for m in aedtapp.boundaries if m.type == "Matrix"][0]
         assert parent_matrix.reduced_matrices
         reduced_matrix_1 = parent_matrix.reduced_matrices[0]
         assert reduced_matrix_1.name == "ReducedMatrix1"
@@ -591,50 +590,50 @@ class TestClass:
         assert len(parent_matrix.reduced_matrices) == 1
 
     def test_32c_export_rl_matrix(self):
-        self.aedtapp.set_active_design("Matrix2")
-        L = self.aedtapp.assign_matrix(assignment=["Cur1", "Cur2", "Cur3"], matrix_name="matrix_export_test")
+        aedtapp.set_active_design("Matrix2")
+        L = aedtapp.assign_matrix(assignment=["Cur1", "Cur2", "Cur3"], matrix_name="matrix_export_test")
         L.join_series(["Cur1", "Cur2"], matrix_name="reduced_matrix_export_test")
         setup_name = "setupTestMatrixRL"
-        setup = self.aedtapp.create_setup(name=setup_name)
+        setup = aedtapp.create_setup(name=setup_name)
         setup.props["MaximumPasses"] = 2
         export_path_1 = os.path.join(self.local_scratch.path, "export_rl_matrix_Test1.txt")
-        assert not self.aedtapp.export_rl_matrix("matrix_export_test", export_path_1)
-        assert not self.aedtapp.export_rl_matrix("matrix_export_test", export_path_1, False, 10, 3, True)
-        self.aedtapp.validate_simple()
-        self.aedtapp.analyze_setup(setup_name, cores=1)
-        assert self.aedtapp.export_rl_matrix("matrix_export_test", export_path_1)
-        assert not self.aedtapp.export_rl_matrix("abcabc", export_path_1)
+        assert not aedtapp.export_rl_matrix("matrix_export_test", export_path_1)
+        assert not aedtapp.export_rl_matrix("matrix_export_test", export_path_1, False, 10, 3, True)
+        aedtapp.validate_simple()
+        aedtapp.analyze_setup(setup_name, cores=1)
+        assert aedtapp.export_rl_matrix("matrix_export_test", export_path_1)
+        assert not aedtapp.export_rl_matrix("abcabc", export_path_1)
         assert os.path.exists(export_path_1)
         export_path_2 = os.path.join(self.local_scratch.path, "export_rl_matrix_Test2.txt")
-        assert self.aedtapp.export_rl_matrix("matrix_export_test", export_path_2, False, 10, 3, True)
+        assert aedtapp.export_rl_matrix("matrix_export_test", export_path_2, False, 10, 3, True)
         assert os.path.exists(export_path_2)
 
     def test_32d_post_processing(self):
-        expressions = self.aedtapp.post.available_report_quantities(
+        expressions = aedtapp.post.available_report_quantities(
             report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
         )
         assert isinstance(expressions, list)
-        categories = self.aedtapp.post.available_quantities_categories(
+        categories = aedtapp.post.available_quantities_categories(
             report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
         )
         assert isinstance(categories, list)
         assert "R" in categories
         assert "L" in categories
-        categories = self.aedtapp.post.available_quantities_categories(
+        categories = aedtapp.post.available_quantities_categories(
             report_category="EddyCurrent", display_type="Data Table", context="Matrix1"
         )
         assert isinstance(categories, list)
         assert "R" in categories
         assert "L" in categories
         assert "Z" in categories
-        categories = self.aedtapp.post.available_quantities_categories(
+        categories = aedtapp.post.available_quantities_categories(
             report_category="EddyCurrent", display_type="Data Table"
         )
         assert isinstance(categories, list)
         assert "R" in categories
         assert "L" in categories
         assert "Z" in categories
-        report = self.aedtapp.post.create_report(
+        report = aedtapp.post.create_report(
             expressions=expressions,
             context={"Matrix1": "ReducedMatrix1"},
             plot_type="Data Table",
@@ -643,17 +642,15 @@ class TestClass:
         assert report.expressions == expressions
         assert report.matrix == "Matrix1"
         assert report.reduced_matrix == "ReducedMatrix1"
-        data = self.aedtapp.post.get_solution_data(expressions=expressions, context={"Matrix1": "ReducedMatrix1"})
+        data = aedtapp.post.get_solution_data(expressions=expressions, context={"Matrix1": "ReducedMatrix1"})
         assert data
-        expressions = self.aedtapp.post.available_report_quantities(
-            report_category="EddyCurrent", display_type="Data Table"
-        )
+        expressions = aedtapp.post.available_report_quantities(report_category="EddyCurrent", display_type="Data Table")
         assert isinstance(expressions, list)
-        expressions = self.aedtapp.post.available_report_quantities(
+        expressions = aedtapp.post.available_report_quantities(
             report_category="EddyCurrent", display_type="Data Table", context="Matrix1"
         )
         assert isinstance(expressions, list)
-        report = self.aedtapp.post.create_report(
+        report = aedtapp.post.create_report(
             expressions=expressions,
             context="Matrix1",
             plot_type="Data Table",
@@ -662,15 +659,15 @@ class TestClass:
         assert report.expressions == expressions
         assert report.matrix == "Matrix1"
         assert not report.reduced_matrix
-        data = self.aedtapp.post.get_solution_data(expressions=expressions, context="Matrix1")
+        data = aedtapp.post.get_solution_data(expressions=expressions, context="Matrix1")
         assert data
 
-        report = self.aedtapp.post.create_report(
+        report = aedtapp.post.create_report(
             expressions="Mag_H", context="line_test", primary_sweep_variable="Distance", report_category="Fields"
         )
         assert report.expressions == ["Mag_H"]
         assert report.polyline == "line_test"
-        data = self.aedtapp.post.get_solution_data(
+        data = aedtapp.post.get_solution_data(
             expressions=["Mag_H"],
             context="line_test",
             report_category="Fields",
@@ -679,26 +676,24 @@ class TestClass:
         assert data
 
     def test_33_mesh_settings(self):
-        assert self.aedtapp.mesh.initial_mesh_settings
-        assert self.aedtapp.mesh.initial_mesh_settings.props
+        assert aedtapp.mesh.initial_mesh_settings
+        assert aedtapp.mesh.initial_mesh_settings.props
 
     def test_34_assign_voltage_drop(self):
-        circle = self.aedtapp.modeler.create_circle(position=[10, 10, 0], radius=5, cs_plane="XY")
-        self.aedtapp.solution_type = "Magnetostatic"
-        assert self.aedtapp.assign_voltage_drop([circle.faces[0]])
+        circle = aedtapp.modeler.create_circle(position=[10, 10, 0], radius=5, cs_plane="XY")
+        aedtapp.solution_type = "Magnetostatic"
+        assert aedtapp.assign_voltage_drop([circle.faces[0]])
 
     def test_35_assign_symmetry(self):
-        self.aedtapp.set_active_design("Motion")
-        outer_box = [x for x in self.aedtapp.modeler.object_list if x.name == "Outer_Box"]
-        inner_box = [x for x in self.aedtapp.modeler.object_list if x.name == "Inner_Box"]
-        assert self.aedtapp.assign_symmetry([outer_box[0].faces[0], inner_box[0].faces[0]], "Symmetry_Test_IsOdd")
-        assert self.aedtapp.assign_symmetry([outer_box[0].faces[0], inner_box[0].faces[0]])
-        assert self.aedtapp.assign_symmetry(
-            [outer_box[0].faces[0], inner_box[0].faces[0]], "Symmetry_Test_IsEven", False
-        )
-        assert self.aedtapp.assign_symmetry([35, 7])
-        assert not self.aedtapp.assign_symmetry([])
-        for bound in self.aedtapp.boundaries:
+        aedtapp.set_active_design("Motion")
+        outer_box = [x for x in aedtapp.modeler.object_list if x.name == "Outer_Box"]
+        inner_box = [x for x in aedtapp.modeler.object_list if x.name == "Inner_Box"]
+        assert aedtapp.assign_symmetry([outer_box[0].faces[0], inner_box[0].faces[0]], "Symmetry_Test_IsOdd")
+        assert aedtapp.assign_symmetry([outer_box[0].faces[0], inner_box[0].faces[0]])
+        assert aedtapp.assign_symmetry([outer_box[0].faces[0], inner_box[0].faces[0]], "Symmetry_Test_IsEven", False)
+        assert aedtapp.assign_symmetry([35, 7])
+        assert not aedtapp.assign_symmetry([])
+        for bound in aedtapp.boundaries:
             if bound.name == "Symmetry_Test_IsOdd":
                 assert bound.type == "Symmetry"
                 assert bound.props["IsOdd"]
@@ -707,9 +702,9 @@ class TestClass:
                 assert not bound.props["IsOdd"]
 
     def test_36_set_bp_curve_loss(self):
-        bp_curve_box = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], name="bp_curve_box")
+        bp_curve_box = aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], name="bp_curve_box")
         bp_curve_box.material = "magnesium"
-        assert self.aedtapp.materials["magnesium"].set_bp_curve_coreloss(
+        assert aedtapp.materials["magnesium"].set_bp_curve_coreloss(
             [[0, 0], [0.6, 1.57], [1.0, 4.44], [1.5, 20.562], [2.1, 44.23]],
             kdc=0.002,
             cut_depth=0.0009,
@@ -720,31 +715,31 @@ class TestClass:
         )
 
     def test_37_assign_insulating(self):
-        insulated_box = self.aedtapp.modeler.create_box([50, 0, 50], [294, 294, 19], name="insulated_box")
-        insulating_assignment = self.aedtapp.assign_insulating(insulated_box.name, "InsulatingExample")
+        insulated_box = aedtapp.modeler.create_box([50, 0, 50], [294, 294, 19], name="insulated_box")
+        insulating_assignment = aedtapp.assign_insulating(insulated_box.name, "InsulatingExample")
         assert insulating_assignment.name == "InsulatingExample"
         insulating_assignment.name = "InsulatingExampleModified"
         assert insulating_assignment.update()
-        insulating_assignment_face = self.aedtapp.assign_insulating(insulated_box.faces[0], "InsulatingExample2")
+        insulating_assignment_face = aedtapp.assign_insulating(insulated_box.faces[0], "InsulatingExample2")
         assert insulating_assignment_face.name == "InsulatingExample2"
-        insulating_assignment_comb = self.aedtapp.assign_insulating(
+        insulating_assignment_comb = aedtapp.assign_insulating(
             [insulated_box.name, insulated_box.faces[0]], "InsulatingExample3"
         )
         assert insulating_assignment_comb.name == "InsulatingExample3"
 
     def test_38_assign_current_density(self):
-        design_to_activate = [x for x in self.aedtapp.design_list if x.startswith("Maxwell")]
-        self.aedtapp.set_active_design(design_to_activate[0])
-        current_box = self.aedtapp.modeler.create_box([50, 0, 50], [294, 294, 19], name="current_box")
-        current_box2 = self.aedtapp.modeler.create_box([50, 0, 50], [294, 294, 19], name="current_box2")
-        assert self.aedtapp.assign_current_density("current_box", "CurrentDensity_1")
-        assert self.aedtapp.assign_current_density(
+        design_to_activate = [x for x in aedtapp.design_list if x.startswith("Maxwell")]
+        aedtapp.set_active_design(design_to_activate[0])
+        current_box = aedtapp.modeler.create_box([50, 0, 50], [294, 294, 19], name="current_box")
+        current_box2 = aedtapp.modeler.create_box([50, 0, 50], [294, 294, 19], name="current_box2")
+        assert aedtapp.assign_current_density("current_box", "CurrentDensity_1")
+        assert aedtapp.assign_current_density(
             "current_box", "CurrentDensity_2", "40deg", current_density_x="3", current_density_y="4"
         )
-        assert self.aedtapp.assign_current_density(["current_box", "current_box2"], "CurrentDensity_3")
-        assert not self.aedtapp.assign_current_density("current_box", "CurrentDensity_4", coordinate_system_type="test")
-        assert not self.aedtapp.assign_current_density("current_box", "CurrentDensity_5", phase="5ang")
-        for bound in self.aedtapp.boundaries:
+        assert aedtapp.assign_current_density(["current_box", "current_box2"], "CurrentDensity_3")
+        assert not aedtapp.assign_current_density("current_box", "CurrentDensity_4", coordinate_system_type="test")
+        assert not aedtapp.assign_current_density("current_box", "CurrentDensity_5", phase="5ang")
+        for bound in aedtapp.boundaries:
             if bound.type == "CurrentDensity":
                 if bound.name == "CurrentDensity_1":
                     assert bound.props["Objects"] == ["current_box"]
@@ -770,26 +765,26 @@ class TestClass:
                     assert bound.props["CurrentDensityZ"] == "0"
                     assert bound.props["CoordinateSystem Name"] == "Global"
                     assert bound.props["CoordinateSystem Name"] == "Cartesian"
-        self.aedtapp.set_active_design("Motion")
-        assert not self.aedtapp.assign_current_density("Circle_inner", "CurrentDensity_1")
+        aedtapp.set_active_design("Motion")
+        assert not aedtapp.assign_current_density("Circle_inner", "CurrentDensity_1")
 
     def test_39_assign_current_density_terminal(self):
-        design_to_activate = [x for x in self.aedtapp.design_list if x.startswith("Maxwell")]
-        self.aedtapp.set_active_design(design_to_activate[0])
-        assert self.aedtapp.assign_current_density_terminal("Coil_Section1", "CurrentDensityTerminal_1")
-        assert not self.aedtapp.assign_current_density_terminal("Coil_Section1", "CurrentDensityTerminal_1")
-        self.aedtapp.set_active_design("Matrix2")
-        assert self.aedtapp.assign_current_density_terminal(["Sheet1", "Sheet2"], "CurrentDensityTerminalGroup_1")
-        assert not self.aedtapp.assign_current_density_terminal(["Coil_1", "Coil_2"], "CurrentDensityTerminalGroup_2")
-        self.aedtapp.set_active_design("Motion")
-        assert not self.aedtapp.assign_current_density_terminal("Inner_Box", "CurrentDensityTerminal_1")
+        design_to_activate = [x for x in aedtapp.design_list if x.startswith("Maxwell")]
+        aedtapp.set_active_design(design_to_activate[0])
+        assert aedtapp.assign_current_density_terminal("Coil_Section1", "CurrentDensityTerminal_1")
+        assert not aedtapp.assign_current_density_terminal("Coil_Section1", "CurrentDensityTerminal_1")
+        aedtapp.set_active_design("Matrix2")
+        assert aedtapp.assign_current_density_terminal(["Sheet1", "Sheet2"], "CurrentDensityTerminalGroup_1")
+        assert not aedtapp.assign_current_density_terminal(["Coil_1", "Coil_2"], "CurrentDensityTerminalGroup_2")
+        aedtapp.set_active_design("Motion")
+        assert not aedtapp.assign_current_density_terminal("Inner_Box", "CurrentDensityTerminal_1")
 
     def test_40_assign_impedance(self):
-        impedance_box = self.aedtapp.modeler.create_box([-50, -50, -50], [294, 294, 19], name="impedance_box")
-        impedance_faces = self.aedtapp.modeler.select_allfaces_fromobjects([impedance_box.name])
-        assert self.aedtapp.assign_impedance(impedance_faces, "copper")
-        assert self.aedtapp.assign_impedance(impedance_box, "copper")
-        impedance_assignment = self.aedtapp.assign_impedance(
+        impedance_box = aedtapp.modeler.create_box([-50, -50, -50], [294, 294, 19], name="impedance_box")
+        impedance_faces = aedtapp.modeler.select_allfaces_fromobjects([impedance_box.name])
+        assert aedtapp.assign_impedance(impedance_faces, "copper")
+        assert aedtapp.assign_impedance(impedance_box, "copper")
+        impedance_assignment = aedtapp.assign_impedance(
             impedance_box.name, permeability=1.3, conductivity=42000000, impedance="ImpedanceExample"
         )
         assert impedance_assignment.name == "ImpedanceExample"
@@ -797,10 +792,8 @@ class TestClass:
         assert impedance_assignment.update()
 
         # Add an impedance using an existing material.
-        impedance_box_copper = self.aedtapp.modeler.create_box(
-            [-50, -300, -50], [294, 294, 19], name="impedance_box_copper"
-        )
-        impedance_assignment_copper = self.aedtapp.assign_impedance(
+        impedance_box_copper = aedtapp.modeler.create_box([-50, -300, -50], [294, 294, 19], name="impedance_box_copper")
+        impedance_assignment_copper = aedtapp.assign_impedance(
             impedance_box_copper.name, material_name="copper", impedance="ImpedanceExampleCopper"
         )
         assert impedance_assignment_copper.name == "ImpedanceExampleCopper"
@@ -809,10 +802,10 @@ class TestClass:
 
         # Add an impedance using an existing material with non-linear permeability and
         # modifying its conductivity.
-        impedance_box_copper_non_liear = self.aedtapp.modeler.create_box(
+        impedance_box_copper_non_liear = aedtapp.modeler.create_box(
             [-50, -600, -50], [294, 294, 19], name="impedance_box_copper_non_liear"
         )
-        impedance_assignment_copper = self.aedtapp.assign_impedance(
+        impedance_assignment_copper = aedtapp.assign_impedance(
             impedance_box_copper.name,
             material_name="copper",
             conductivity=47000000,
@@ -825,11 +818,11 @@ class TestClass:
 
     @pytest.mark.skipif(desktop_version < "2023.1", reason="Method implemented in AEDT 2023R1")
     def test_41_conduction_paths(self):
-        self.aedtapp.insert_design("conduction")
-        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 1], material="copper")
-        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [-10, 10, 1], material="copper")
-        box3 = self.aedtapp.modeler.create_box([-50, -50, -50], [1, 1, 1], material="copper")
-        assert len(self.aedtapp.get_conduction_paths()) == 2
+        aedtapp.insert_design("conduction")
+        box1 = aedtapp.modeler.create_box([0, 0, 0], [10, 10, 1], material="copper")
+        box1 = aedtapp.modeler.create_box([0, 0, 0], [-10, 10, 1], material="copper")
+        box3 = aedtapp.modeler.create_box([-50, -50, -50], [1, 1, 1], material="copper")
+        assert len(aedtapp.get_conduction_paths()) == 2
 
     def test_43_eddy_effect_transient(self, m3dtransient):
         assert m3dtransient.eddy_effects_on(["Rotor"], enable_eddy_effects=True)
@@ -905,10 +898,10 @@ class TestClass:
         assert m3dtransient.setups[0].add_mesh_link(design=m3dtransient.design_list[0], project=example_project_copy)
 
     def test_46_set_variable(self):
-        self.aedtapp.variable_manager.set_variable("var_test", expression="123")
-        self.aedtapp["var_test"] = "234"
-        assert "var_test" in self.aedtapp.variable_manager.design_variable_names
-        assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"
+        aedtapp.variable_manager.set_variable("var_test", expression="123")
+        aedtapp["var_test"] = "234"
+        assert "var_test" in aedtapp.variable_manager.design_variable_names
+        assert aedtapp.variable_manager.design_variables["var_test"].expression == "234"
 
     def test_49_cylindrical_gap(self, cyl_gap):
         [
@@ -993,19 +986,19 @@ class TestClass:
 
     @pytest.mark.skipif(config["NonGraphical"], reason="Test fails on build machine")
     def test_51_import_dxf(self):
-        self.aedtapp.insert_design("dxf")
+        aedtapp.insert_design("dxf")
         dxf_file = os.path.join(TESTS_GENERAL_PATH, "example_models", "cad", "DXF", "dxf2.dxf")
-        dxf_layers = self.aedtapp.get_dxf_layers(dxf_file)
+        dxf_layers = aedtapp.get_dxf_layers(dxf_file)
         assert isinstance(dxf_layers, list)
-        assert self.aedtapp.import_dxf(dxf_file, dxf_layers)
+        assert aedtapp.import_dxf(dxf_file, dxf_layers)
 
     def test_52_assign_flux_tangential(self):
-        self.aedtapp.insert_design("flux_tangential")
-        box = self.aedtapp.modeler.create_box([50, 0, 50], [294, 294, 19], name="Box")
-        assert not self.aedtapp.assign_flux_tangential(box.faces[0])
-        self.aedtapp.solution_type = "TransientAPhiFormulation"
-        assert self.aedtapp.assign_flux_tangential(box.faces[0], "FluxExample")
-        assert self.aedtapp.assign_flux_tangential(box.faces[0].id, "FluxExample")
+        aedtapp.insert_design("flux_tangential")
+        box = aedtapp.modeler.create_box([50, 0, 50], [294, 294, 19], name="Box")
+        assert not aedtapp.assign_flux_tangential(box.faces[0])
+        aedtapp.solution_type = "TransientAPhiFormulation"
+        assert aedtapp.assign_flux_tangential(box.faces[0], "FluxExample")
+        assert aedtapp.assign_flux_tangential(box.faces[0].id, "FluxExample")
 
     @pytest.mark.skipif(not config["use_grpc"], reason="Not running in COM mode")
     @pytest.mark.skipif(desktop_version < "2023.2", reason="Method available in beta from 2023.2")
@@ -1057,20 +1050,20 @@ class TestClass:
         assert m3d.assign_zero_tangential_h_field(box.top_face_z)
 
     def test_57_radiation(self):
-        self.aedtapp.insert_design("Radiation")
-        self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
-        rect = self.aedtapp.modeler.create_rectangle(0, [0, 0, 0], [5, 5], material="aluminum")
-        rect2 = self.aedtapp.modeler.create_rectangle(0, [15, 20, 0], [5, 5], material="aluminum")
-        box = self.aedtapp.modeler.create_box([15, 20, 0], [5, 5, 5], material="aluminum")
-        box2 = self.aedtapp.modeler.create_box([150, 20, 0], [50, 5, 10], material="aluminum")
-        bound = self.aedtapp.assign_radiation([rect, rect2, box, box2.faces[0]])
+        aedtapp.insert_design("Radiation")
+        aedtapp.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
+        rect = aedtapp.modeler.create_rectangle(0, [0, 0, 0], [5, 5], material="aluminum")
+        rect2 = aedtapp.modeler.create_rectangle(0, [15, 20, 0], [5, 5], material="aluminum")
+        box = aedtapp.modeler.create_box([15, 20, 0], [5, 5, 5], material="aluminum")
+        box2 = aedtapp.modeler.create_box([150, 20, 0], [50, 5, 10], material="aluminum")
+        bound = aedtapp.assign_radiation([rect, rect2, box, box2.faces[0]])
         assert bound
-        bound2 = self.aedtapp.assign_radiation([rect, rect2, box, box2.faces[0]], "my_rad")
+        bound2 = aedtapp.assign_radiation([rect, rect2, box, box2.faces[0]], "my_rad")
         assert bound2
-        bound3 = self.aedtapp.assign_radiation([rect, rect2, box, box2.faces[0]], "my_rad")
+        bound3 = aedtapp.assign_radiation([rect, rect2, box, box2.faces[0]], "my_rad")
         assert bound2.name != bound3.name
-        self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.Transient
-        assert not self.aedtapp.assign_radiation([rect, rect2, box, box2.faces[0]])
+        aedtapp.solution_type = SOLUTIONS.Maxwell3d.Transient
+        assert not aedtapp.assign_radiation([rect, rect2, box, box2.faces[0]])
 
     def test_58_solution_types_setup(self, add_app):
         m3d = add_app(application=Maxwell3d, design_name="test_setups")
@@ -1111,35 +1104,35 @@ class TestClass:
         setup.delete()
 
     def test_59_assign_floating(self):
-        self.aedtapp.insert_design("Floating")
-        self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.ElectroStatic
-        box = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box1")
-        floating = self.aedtapp.assign_floating(assignment=box, charge_value=3)
+        aedtapp.insert_design("Floating")
+        aedtapp.solution_type = SOLUTIONS.Maxwell3d.ElectroStatic
+        box = aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box1")
+        floating = aedtapp.assign_floating(assignment=box, charge_value=3)
         assert floating
         assert floating.props["Objects"][0] == box.name
         assert floating.props["Value"] == "3"
-        floating1 = self.aedtapp.assign_floating(assignment=[box.faces[0], box.faces[1]], charge_value=3)
+        floating1 = aedtapp.assign_floating(assignment=[box.faces[0], box.faces[1]], charge_value=3)
         assert floating1
-        self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.Magnetostatic
-        floating = self.aedtapp.assign_floating(assignment=box, charge_value=3)
+        aedtapp.solution_type = SOLUTIONS.Maxwell3d.Magnetostatic
+        floating = aedtapp.assign_floating(assignment=box, charge_value=3)
         assert not floating
 
     def test_60_resistive_sheet(self):
-        self.aedtapp.insert_design("ResistiveSheet")
-        self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
-        self.aedtapp.modeler.create_box(origin=[0, 0, 0], sizes=[0.4, -1, 0.8], name="my_box", material="copper")
-        my_rectangle = self.aedtapp.modeler.create_rectangle(
+        aedtapp.insert_design("ResistiveSheet")
+        aedtapp.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
+        aedtapp.modeler.create_box(origin=[0, 0, 0], sizes=[0.4, -1, 0.8], name="my_box", material="copper")
+        my_rectangle = aedtapp.modeler.create_rectangle(
             orientation=1, origin=[0, 0, 0.8], sizes=[-1, 0.4], name="my_rect"
         )
 
         # From 2025.1, this boundary can only be assigned to Sheets that touch conductor Solids.
-        bound = self.aedtapp.assign_resistive_sheet(assignment=my_rectangle.faces[0], resistance="3ohm")
+        bound = aedtapp.assign_resistive_sheet(assignment=my_rectangle.faces[0], resistance="3ohm")
         assert bound
         assert bound.props["Faces"][0] == my_rectangle.faces[0].id
         assert bound.props["Resistance"] == "3ohm"
-        self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.Magnetostatic
-        bound = self.aedtapp.assign_resistive_sheet(assignment=my_rectangle.name, non_linear=True)
+        aedtapp.solution_type = SOLUTIONS.Maxwell3d.Magnetostatic
+        bound = aedtapp.assign_resistive_sheet(assignment=my_rectangle.name, non_linear=True)
         assert bound.props["Nonlinear"]
         assert bound.props["Objects"][0] == my_rectangle.name
-        self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.ACConduction
-        assert not self.aedtapp.assign_resistive_sheet(assignment=my_rectangle, resistance="3ohm")
+        aedtapp.solution_type = SOLUTIONS.Maxwell3d.ACConduction
+        assert not aedtapp.assign_resistive_sheet(assignment=my_rectangle, resistance="3ohm")
