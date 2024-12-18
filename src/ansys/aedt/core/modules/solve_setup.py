@@ -211,7 +211,6 @@ class CommonSetup(PropsManager, BinaryTreeNode):
 
         References
         ----------
-
         >>> oDesign.Analyze
         """
         self._app.analyze(
@@ -334,6 +333,7 @@ class CommonSetup(PropsManager, BinaryTreeNode):
         sweep=None,
     ):
         """Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
+
         Data to be retrieved from Electronics Desktop are any simulation results available in that
         specific simulation context.
         Most of the argument have some defaults which works for most of the ``Standard`` report quantities.
@@ -384,7 +384,6 @@ class CommonSetup(PropsManager, BinaryTreeNode):
 
         References
         ----------
-
         >>> oModule.GetSolutionDataPerVariation
 
         Examples
@@ -497,7 +496,6 @@ class CommonSetup(PropsManager, BinaryTreeNode):
 
         References
         ----------
-
         >>> oModule.CreateReport
 
         Examples
@@ -563,7 +561,6 @@ class Setup(CommonSetup):
 
         References
         ----------
-
         >>> oModule.InsertSetup
         """
         soltype = SetupKeys.SetupNames[self.setuptype]
@@ -589,7 +586,6 @@ class Setup(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         legacy_update = self.auto_update
@@ -782,7 +778,6 @@ class Setup(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         arg = ["NAME:" + self.name]
@@ -815,7 +810,6 @@ class Setup(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         if not name:
@@ -840,7 +834,6 @@ class Setup(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         if not name:
@@ -896,7 +889,6 @@ class Setup(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditSetup
 
         Examples
@@ -1071,7 +1063,6 @@ class Setup(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditSetup
 
         Examples
@@ -1169,7 +1160,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.AddLinearNetworkAnalysis
         >>> oModule.AddDCAnalysis
         >>> oModule.AddTransient
@@ -1235,7 +1225,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditLinearNetworkAnalysis
         >>> oModule.EditDCAnalysis
         >>> oModule.EditTransient
@@ -1280,7 +1269,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditLinearNetworkAnalysis
         >>> oModule.EditDCAnalysis
         >>> oModule.EditTransient
@@ -1338,7 +1326,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditLinearNetworkAnalysis
         >>> oModule.EditDCAnalysis
         >>> oModule.EditTransient
@@ -1395,7 +1382,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditLinearNetworkAnalysis
         >>> oModule.EditDCAnalysis
         >>> oModule.EditTransient
@@ -1583,7 +1569,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         arg = ["Name:SimSetup"]
@@ -1611,7 +1596,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         if not name:
@@ -1635,7 +1619,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         if not name:
@@ -1711,7 +1694,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.GetSolutionDataPerVariation
         """
         return self._app.post.get_solution_data(
@@ -1785,7 +1767,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.CreateReport
         """
         return self._app.post.create_report(
@@ -1927,7 +1908,6 @@ class Setup3DLayout(CommonSetup):
 
         References
         ----------
-
         >>> oModule.Add
         """
         arg = ["NAME:" + self.name]
@@ -1952,7 +1932,6 @@ class Setup3DLayout(CommonSetup):
 
         References
         ----------
-
         >>> oModule.Edit
         """
         if properties:
@@ -1979,7 +1958,6 @@ class Setup3DLayout(CommonSetup):
 
         References
         ----------
-
         >>> oModule.Edit
         """
         self.props["Properties"]["Enable"] = "true"
@@ -2002,7 +1980,6 @@ class Setup3DLayout(CommonSetup):
 
         References
         ----------
-
         >>> oModule.Edit
         """
         self.props["Properties"]["Enable"] = "false"
@@ -2335,7 +2312,6 @@ class Setup3DLayout(CommonSetup):
 
         References
         ----------
-
         >>> oModule.AddSweep
         """
         if not name:
@@ -2547,7 +2523,6 @@ class SetupHFSS(Setup, object):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         if not isinstance(derivative_list, list):
@@ -2665,7 +2640,6 @@ class SetupHFSS(Setup, object):
 
         References
         ----------
-
         >>> oModule.InsertFrequencySweep
 
         Examples
@@ -2759,7 +2733,6 @@ class SetupHFSS(Setup, object):
 
         References
         ----------
-
         >>> oModule.InsertFrequencySweep
 
         Examples
@@ -2841,7 +2814,6 @@ class SetupHFSS(Setup, object):
 
         References
         ----------
-
         >>> oModule.InsertFrequencySweep
 
         Examples
@@ -2919,7 +2891,6 @@ class SetupHFSS(Setup, object):
 
         References
         ----------
-
         >>> oModule.InsertFrequencySweep
         """
         if not name:
@@ -2981,7 +2952,6 @@ class SetupHFSS(Setup, object):
 
         References
         ----------
-
         >>> oModules.GetSweeps
 
         Examples
@@ -3009,7 +2979,6 @@ class SetupHFSS(Setup, object):
 
         References
         ----------
-
         >>> oModule.DeleteSweep
 
         Examples
@@ -3288,7 +3257,6 @@ class SetupHFSSAuto(Setup, object):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         if not isinstance(derivative_list, list):
@@ -3699,6 +3667,7 @@ class SetupMaxwell(Setup, object):
     @pyaedt_function_handler()
     def enable_control_program(self, control_program_path, control_program_args=" ", call_after_last_step=False):
         """Enable control program option is solution setup.
+
         Provide externally created executable files, or Python (*.py) scripts that are called after each time step,
         and allow you to control the source input, circuit elements, mechanical quantities, time step,
         and stopping criteria, based on the updated solutions.
@@ -3910,7 +3879,6 @@ class SetupQ3D(Setup, object):
 
         References
         ----------
-
         >>> oModule.InsertFrequencySweep
 
         Examples
@@ -4068,7 +4036,6 @@ class SetupQ3D(Setup, object):
 
         References
         ----------
-
         >>> oModule.InsertFrequencySweep
         """
         if not name:
@@ -4208,7 +4175,6 @@ class SetupQ3D(Setup, object):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         legacy_update = self.auto_update

@@ -397,7 +397,6 @@ class MeshOperation(BinaryTreeNode):
 
         References
         ----------
-
         >>> oModule.DeleteOp
         """
         self._mesh.omeshmodule.DeleteOp([self.name])
@@ -538,7 +537,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.InitialMeshSettings
         """
         if not self._globalmesh:
@@ -551,7 +549,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oDesign.GetModule("MeshSetup")
         """
         return self._app.omeshmodule
@@ -620,7 +617,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignTrueSurfOp
 
         Examples
@@ -685,7 +681,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignTrueSurfOp
 
         Examples
@@ -762,7 +757,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignModelResolutionOp
 
         Examples
@@ -857,7 +851,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.InitialMeshSettings
         """
         if self._app.design_type in ["2D Extractor", "Maxwell 2D"]:
@@ -953,7 +946,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.InitialMeshSettings
         """
         if self._app.design_type in ["2D Extractor", "Maxwell 2D"]:
@@ -1033,7 +1025,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignSurfPriorityForTauOp
         """
         meshop_name = generate_unique_name("SurfaceRepPriority")
@@ -1059,7 +1050,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oDesign.GenerateMesh
 
         Examples
@@ -1141,7 +1131,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignLengthOp
         """
         assignment = self._modeler.convert_to_selections(assignment, True)
@@ -1244,7 +1233,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignSkinDepthOp
         """
         assignment = self._modeler.convert_to_selections(assignment, True)
@@ -1316,7 +1304,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignApplyCurvlinearElementsOp
         """
         assignment = self._modeler.convert_to_selections(assignment, True)
@@ -1369,7 +1356,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignCurvatureExtractionOp
         """
         assignment = self._modeler.convert_to_selections(assignment, True)
@@ -1423,7 +1409,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignRotationalLayerOp
         """
         assignment = self._modeler.convert_to_selections(assignment, True)
@@ -1472,7 +1457,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignRotationalLayerOp
         """
         assignment = self._modeler.convert_to_selections(assignment, True)
@@ -1524,7 +1508,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignDensityControlOp
         """
         assignment = self._modeler.convert_to_selections(assignment, True)
@@ -1617,7 +1600,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignCylindricalGapOp
         """
         try:

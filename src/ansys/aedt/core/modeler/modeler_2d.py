@@ -49,7 +49,6 @@ class ModelerRMxprt(Modeler):
 
         References
         ----------
-
         >>> oEditor = oDesign.SetActiveEditor("Machine")"""
         return self._app.oeditor
 

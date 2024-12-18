@@ -304,7 +304,6 @@ class Rmxprt(FieldAnalysisRMxprt):
 
         References
         ----------
-
         >>> oModule.InsertSetup
 
         Examples

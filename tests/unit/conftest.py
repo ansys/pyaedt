@@ -31,7 +31,6 @@ import pytest
 @pytest.fixture
 def maxwell_3d_setup():
     """Fixture used to setup a Maxwell3d instance."""
-
     with patch("ansys.aedt.core.maxwell.FieldAnalysis3D") as mock_fiel_analysis_3d, patch(
         "ansys.aedt.core.maxwell.Maxwell"
     ) as mock_maxwell:

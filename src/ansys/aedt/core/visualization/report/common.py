@@ -2597,7 +2597,6 @@ class CommonReport(BinaryTreeNode):
 
         References
         ----------
-
         >>> oModule.ApplyReportTemplate
         """
         if not os.path.exists(input_file):  # pragma: no cover

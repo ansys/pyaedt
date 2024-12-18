@@ -8,7 +8,7 @@ import signal
 import sys
 import time
 
-from ansys.aedt.core import generate_unique_name
+from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import env_path
 
 from ansys.aedt.core.generic.settings import is_linux
