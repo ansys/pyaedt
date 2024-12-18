@@ -24,8 +24,8 @@
 from pathlib import Path
 import re
 
-from ansys.aedt.core import settings
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
 
 
@@ -184,7 +184,7 @@ class PostProcessor3DLayout(PostProcessor3D):
 
     @pyaedt_function_handler()
     def compute_power_by_net(self, nets=None, solution=None):
-        """Computes the power by nets. This applies only to SIwave DC Analysis.
+        """Compute the power by nets. This applies only to SIwave DC Analysis.
 
         Parameters
         ----------

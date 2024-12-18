@@ -454,7 +454,7 @@ class VirtualCompliance:
 
         Returns
         -------
-        Dict[str, :class:`ansys.aedt.core.generic.compliance.ReportTemplate`]
+        dict[str, :class:`ansys.aedt.core.generic.compliance.ReportTemplate`]
         """
         return self._reports
 
@@ -468,7 +468,7 @@ class VirtualCompliance:
 
         Returns
         -------
-        Dict[str, :class:`ansys.aedt.core.generic.compliance.ParametersTemplate`]
+        dict[str, :class:`ansys.aedt.core.generic.compliance.ParametersTemplate`]
         """
         return self._parameters
 

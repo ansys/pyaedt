@@ -67,6 +67,7 @@ class BuildingsPrep(object):
     @pyaedt_function_handler()
     def create_building_roof(all_pos):
         """Generate a filled in polygon from outline.
+
         Includes concave and convex shapes.
 
         Parameters

@@ -495,7 +495,7 @@ class MonostaticRCSData(object):
             self.__logger.warning("ny should be at least as large as the number of azimuth angles.")
             nxrng = nangles
 
-        iq = np.zeros((ndrng, nxrng), dtype=np.complex_)
+        iq = np.zeros((ndrng, nxrng), dtype=np.complex128)
         xshift = (ndrng - nfreq) // 2
         yshift = (nxrng - nangles) // 2
         iq[xshift : xshift + nfreq, yshift : yshift + nangles] = np.multiply(rdata, winx * winy)

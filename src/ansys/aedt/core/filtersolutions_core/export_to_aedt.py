@@ -96,7 +96,8 @@ class SubstrateType(Enum):
 
 
 class SubstrateEr(Enum):
-    """Provides an enum of substrate relative permitivity (``Er``) for various materials..
+    """Provides an enum of substrate relative permitivity (``Er``) for various materials.
+
     The enum values represent common materials used in substrates and their associated ``Er`` value.
 
     **Attributes:**
@@ -141,6 +142,7 @@ class SubstrateEr(Enum):
 
 class SubstrateResistivity(Enum):
     """Provides an enum of substrate resistivity types for various materials.
+
     The enum values represent common materials used in substrates and their associated resistivity index.
 
     **Attributes:**
@@ -569,8 +571,7 @@ class ExportToAedt:
 
     @property
     def include_vgsl_enabled(self) -> bool:
-        """Flag indicating if the voltage gain source load report will be created upon
-         export to ``AEDT``.
+        """Flag indicating if the voltage gain source load report will be created upon export to ``AEDT``.
 
         Returns
         -------
@@ -588,8 +589,7 @@ class ExportToAedt:
 
     @property
     def include_vgin_enabled(self) -> bool:
-        """Flag indicating if the voltage gain insertion report will be created upon
-        export to ``AEDT``.
+        """Flag indicating if the voltage gain insertion report will be created upon export to ``AEDT``.
 
         Returns
         -------
@@ -626,8 +626,7 @@ class ExportToAedt:
 
     @property
     def include_forward_transfer_s21_enabled(self) -> bool:
-        """Flag indicating if the forward transfer gain report will be created upon
-        export to ``AEDT``.
+        """Flag indicating if the forward transfer gain report will be created upon export to ``AEDT``.
 
         Returns
         -------
@@ -740,8 +739,7 @@ class ExportToAedt:
 
     @property
     def polar_plot_enabled(self) -> bool:
-        """Flag indicating if the polar report format in the
-         exported filter to ``AEDT`` is enabled.
+        """Flag indicating if the polar report format in the exported filter to ``AEDT`` is enabled.
 
         Returns
         -------
@@ -759,8 +757,7 @@ class ExportToAedt:
 
     @property
     def table_data_enabled(self) -> bool:
-        """Flag indicating if the table data format in the
-         exported filter to ``AEDT`` is enabled.
+        """Flag indicating if the table data format in the exported filter to ``AEDT`` is enabled.
 
         Returns
         -------
@@ -778,8 +775,7 @@ class ExportToAedt:
 
     @property
     def optimitrics_enabled(self) -> bool:
-        """Flag indicating if the optimitric parameters in the
-         exported filter to ``AEDT`` is enabled.
+        """Flag indicating if the optimitric parameters in the exported filter to ``AEDT`` is enabled.
 
         Returns
         -------
@@ -815,6 +811,7 @@ class ExportToAedt:
 
     def export_design(self, export_format=None, export_creation_mode=None, export_path=None):
         """Export the design directly to ``AEDT` or generate a ``Python`` script for exporting.
+
         When exporting to ``AEDT``, the design can either be appended to an existing project or overwrite it.
         When generating a Python script, the script is created and saved to the specified file location.
 
@@ -861,12 +858,12 @@ class ExportToAedt:
     @property
     def part_libraries(self) -> PartLibraries:
         """Part libraries selection. The default is ``LUMPED``.
+
         The ``PartLibraries`` enum provides a list of all options.
 
         Returns
         -------
         :enum:`PartLibraries`
-
         """
         index = c_int()
         part_libraries_list = list(PartLibraries)
@@ -883,6 +880,7 @@ class ExportToAedt:
     @property
     def interconnect_length_to_width_ratio(self) -> str:
         """Length to width ratio of interconnect line.
+
         The length to width ratio is a measure of the proportion between the length and width of the interconnect line.
         This ratio is important for determining the electrical characteristics of the interconnect, such as impedance
         and signal integrity.
@@ -902,6 +900,7 @@ class ExportToAedt:
     @property
     def interconnect_minimum_length_to_width_ratio(self) -> str:
         """Minimum length to width ratio of interconnect line.
+
         The minimum length to width ratio is a measure of the smallest proportion between the length and width
         of the interconnect line that is allowed. This parameter is used to determine the minimum dimensions of
         interconnect lines for optimization purposes.
@@ -925,6 +924,7 @@ class ExportToAedt:
     @property
     def interconnect_maximum_length_to_width_ratio(self) -> str:
         """Maximum length to width ratio of interconnect line.
+
         The maximum length to width ratio is a measure of the largest proportion between the length and width
         of the interconnect line that is allowed. This parameter is used to determine the maximum dimensions of
         interconnect lines for optimization purposes.
@@ -948,6 +948,7 @@ class ExportToAedt:
     @property
     def interconnect_line_to_termination_width_ratio(self) -> str:
         """Line width to termination width ratio of interconnect line.
+
         The line width to termination width ratio is a measure of the proportion between the width of the
         interconnect line and the width of its termination. This ratio is crucial for ensuring proper
         impedance matching and signal integrity at the points where the interconnect line connects to
@@ -972,6 +973,7 @@ class ExportToAedt:
     @property
     def interconnect_minimum_line_to_termination_width_ratio(self) -> str:
         """Minimum line width to termination width ratio of interconnect line.
+
         The minimum line width to termination width ratio is a measure of the smallest proportion between the
         width of the interconnect line and the width of its termination that is allowed. This parameter is used
         to determine the minimum dimensions of interconnect lines for optimization purposes.
@@ -997,6 +999,7 @@ class ExportToAedt:
     @property
     def interconnect_maximum_line_to_termination_width_ratio(self) -> str:
         """Maximum line width to termination width ratio of interconnect line.
+
         The maximum line width to termination width ratio is a measure of the largest proportion between the
         width of the interconnect line and the width of its termination that is allowed. This parameter is used
         to determine the maximum dimensions of interconnect lines for optimization purposes.
@@ -1022,6 +1025,7 @@ class ExportToAedt:
     @property
     def interconnect_length_value(self) -> str:
         """Interconnect physical length value.
+
         The interconnect physical length value represents the actual length of the interconnect line in the design.
         This value is crucial for determining the electrical characteristics of the interconnect, such as signal delay,
         impedance, and potential signal loss. Accurate length measurements are essential for ensuring that the
@@ -1247,7 +1251,7 @@ class ExportToAedt:
         The value can be either a string or an instance of the ``SubstrateEr`` enum.
         The default is ``9.8`` for ``SubstrateEr.ALUMINA``.
 
-        Returns:
+        Returns
         -------
         Union[SubstrateEr, str]
 
@@ -1282,7 +1286,7 @@ class ExportToAedt:
         The value can be either a string or an instance of the ``SubstrateResistivity`` enum.
         The default is ``1.43`` for ``SubstrateResistivity.GOLD``.
 
-        Returns:
+        Returns
         -------
         Union[SubstrateResistivity, str]
         """
@@ -1315,7 +1319,7 @@ class ExportToAedt:
         The value can be either a string or an instance of the ``SubstrateEr`` enum.
         The default is ``0.0005`` for ``SubstrateEr.ALUMINA``.
 
-        Returns:
+        Returns
         -------
         Union[SubstrateEr, str]
         """

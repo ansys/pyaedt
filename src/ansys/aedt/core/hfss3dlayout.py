@@ -259,7 +259,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         References
         ----------
-
         >>> oEditor.CreateEdgePort
         """
         assignment = self.modeler.convert_to_selections(assignment, False)
@@ -400,7 +399,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         References
         ----------
-
         >>> oEditor.CreateEdgePort
         """
         if edge_numbers is None:
@@ -473,12 +471,11 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.modules.boundary.layout_boundary.BoundaryObject3dLayout`]
+        list[:class:`ansys.aedt.core.modules.boundary.layout_boundary.BoundaryObject3dLayout`]
             Port Objects when successful.
 
         References
         ----------
-
         >>> oEditor.CreateEdgePort
         """
         listp = self.port_list
@@ -522,7 +519,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         References
         ----------
-
         >>> oEditor.CreateEdgePort
         """
         if isinstance(nets, list):
@@ -555,7 +551,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         References
         ----------
-
         >>> oEditor.CreateEdgePort
         """
         listp = self.port_list
@@ -604,7 +599,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         References
         ----------
-
         >>> oEditor.CreateEdgePort
         """
         listp = self.port_list
@@ -658,7 +652,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         References
         ----------
-
         >>> oEditor.CreatePin
         """
         layers = self.modeler.layers.all_signal_layers
@@ -711,7 +704,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.Delete
         """
         self.oexcitation.Delete(name)
@@ -736,7 +728,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.ImportEDB
         """
         if "edb.def" not in input_folder:
@@ -770,7 +761,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         References
         ----------
-
         >>> oDesign.ValidateDesign
         """
         if name is None:
@@ -875,7 +865,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.CreateReport
         """
         solution_data = "Standard"
@@ -910,7 +899,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         References
         ----------
-
         >>> oDesign.DesignOptions
         """
         touchstone_settings = []
@@ -1153,7 +1141,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.AddSweep
         """
         if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
@@ -1266,7 +1253,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.AddSweep
         """
         if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
@@ -1348,7 +1334,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.AddSweep
         """
         if name is None:
@@ -1565,7 +1550,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.ImportExtracta
         """
         return self._import_cad(input_file, "brd", output_dir, control_file, set_as_active, close_active_project)
@@ -1713,7 +1697,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         References
         ----------
-
         >>> oDesign.EditCoSimulationOptions
 
         Examples
@@ -2533,7 +2516,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         References
         ----------
-
         >>> oDesign.SetDesignSettings
         """
         if export:

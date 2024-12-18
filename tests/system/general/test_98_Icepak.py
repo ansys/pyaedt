@@ -26,7 +26,7 @@ import os
 
 from ansys.aedt.core import Icepak
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.modules.boundary.circuit_boundary import NetworkObject
+from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
 from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsPackageParts

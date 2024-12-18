@@ -32,9 +32,7 @@ import re
 import warnings
 
 import ansys.aedt.core
-from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
-from ansys.aedt.core.application.design import DesignSettingsManipulation
-from ansys.aedt.core.generic.configurations import ConfigurationsIcepak
+from ansys.aedt.core.application.analysis_icepak import FieldAnalysisIcepak
 from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.data_handlers import random_string
@@ -48,11 +46,11 @@ from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
-from ansys.aedt.core.modules.boundary.circuit_boundary import NetworkObject
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.icepak_boundary import BoundaryDictionary
 from ansys.aedt.core.modules.boundary.icepak_boundary import ExponentialDictionary
 from ansys.aedt.core.modules.boundary.icepak_boundary import LinearDictionary
+from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
 from ansys.aedt.core.modules.boundary.icepak_boundary import PieceWiseLinearDictionary
 from ansys.aedt.core.modules.boundary.icepak_boundary import PowerLawDictionary
 from ansys.aedt.core.modules.boundary.icepak_boundary import SinusoidalDictionary
@@ -61,10 +59,9 @@ from ansys.aedt.core.modules.boundary.icepak_boundary import _create_boundary
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
 from ansys.aedt.core.modules.setup_templates import SetupKeys
-from ansys.aedt.core.visualization.post.monitor_icepak import Monitor
 
 
-class Icepak(FieldAnalysis3D):
+class Icepak(FieldAnalysisIcepak):
     """Provides the Icepak application interface.
 
     This class allows you to connect to an existing Icepak design or create a
@@ -187,7 +184,7 @@ class Icepak(FieldAnalysis3D):
         aedt_process_id=None,
         remove_lock=False,
     ):
-        FieldAnalysis3D.__init__(
+        FieldAnalysisIcepak.__init__(
             self,
             "Icepak",
             project,
@@ -204,27 +201,9 @@ class Icepak(FieldAnalysis3D):
             aedt_process_id,
             remove_lock=remove_lock,
         )
-        self._monitor = Monitor(self)
-        self._configurations = ConfigurationsIcepak(self)
-        self.design_settings.manipulate_inputs = IcepakDesignSettingsManipulation(self)
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
-
-    @property
-    def post(self):
-        """PostProcessor.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.visualization.post.post_icepak.PostProcessorIcepak`
-            PostProcessor object.
-        """
-        if self._post is None and self._odesign:
-            from ansys.aedt.core.visualization.post import post_processor
-
-            self._post = post_processor(self)
-        return self._post
 
     @property
     def problem_type(self):
@@ -253,17 +232,6 @@ class Icepak(FieldAnalysis3D):
         for el in setup_list:
             sweep_list.append(el + " : " + s_type)
         return sweep_list
-
-    @property
-    def monitor(self):
-        """Property to handle monitor objects.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.monitor_icepak.Monitor`
-        """
-        self._monitor._delete_removed_monitors()  # force update. some operations may delete monitors
-        return self._monitor
 
     @pyaedt_function_handler()
     def assign_grille(
@@ -307,7 +275,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.AssignGrilleBoundary
         """
         if boundary_name is None:
@@ -354,7 +321,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.AssignOpeningBoundary
 
         Examples
@@ -409,7 +375,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.AddTwoWayCoupling
 
         Examples
@@ -459,12 +424,11 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`]
+        list[:class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`]
             List of boundaries inserted.
 
         References
         ----------
-
         >>> oModule.AssignBlockBoundary
 
         Examples
@@ -530,7 +494,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.AssignBlockBoundary
 
         Examples
@@ -728,7 +691,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.AssignSourceBoundary
 
         Examples
@@ -821,7 +783,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.AssignNetworkBoundary
 
         Examples
@@ -910,12 +871,11 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`]
+        list[:class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`]
             List of boundary objects created.
 
         References
         ----------
-
         >>> oModule.AssignNetworkBoundary
 
         Examples
@@ -981,7 +941,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.AssignFaceMonitor
 
         Examples
@@ -1051,7 +1010,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.AssignPointMonitor
 
         Examples
@@ -1083,7 +1041,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.AssignBlockBoundary
         """
         with open_file(csv_name) as csvfile:
@@ -1145,7 +1102,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oEditor.UpdatePriorityList
         """
         temp_log = os.path.join(self.working_directory, "validation.log")
@@ -1188,7 +1144,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oEditor.GetModelBoundingBox
         """
         dirs = ["-X", "+X", "-Y", "+Y", "-Z", "+Z"]
@@ -1837,7 +1792,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.AssignEMLoss
         """
         if surface_objects is None:
@@ -1940,7 +1894,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.ExportFieldsSummary
         """
         name = generate_unique_name(quantity_name)
@@ -2013,7 +1966,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.ExportFieldsSummary
         """
         if not savedir:
@@ -2089,7 +2041,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.EditFieldsSummarySetting
         >>> oModule.ExportFieldsSummary
         """
@@ -2276,12 +2227,11 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.NativeComponentObject`
+        :class:`ansys.aedt.core.modules.boundary.layout_boundary.NativeComponentObject`
             NativeComponentObject object.
 
         References
         ----------
-
         >>> oModule.InsertNativeComponent
         """
         if not name:
@@ -2419,12 +2369,11 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.NativeComponentPCB`
+        :class:`ansys.aedt.core.modules.boundary.layout_boundary.NativeComponentPCB`
             NativeComponentObject object.
 
         References
         ----------
-
         >>> oModule.InsertNativeComponent
         """
         if "extenttype" in kwargs:
@@ -2584,7 +2533,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.InsertNativeComponent
         """
         if "extenttype" in kwargs:
@@ -2644,7 +2592,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oEditor.Copy
         >>> oeditor.Paste
         """
@@ -2734,7 +2681,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.EditGlobalMeshRegion
         """
         bounding_box = self.modeler.oeditor.GetModelBoundingBox()
@@ -2815,7 +2761,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oeditor.ChangeProperty
         """
         warnings.warn(
@@ -2879,7 +2824,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.DeleteBoundaries
         """
         self.oboundary.DeleteBoundaries([bound_name])
@@ -2901,7 +2845,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oEditor.Delete
         """
         arg = ["NAME:Selections", "Selections:=", comp_name]
@@ -3142,7 +3085,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oDesign.SetDesignSettings
         """
 
@@ -3174,7 +3116,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
         """
         objs = ["NAME:PropServers"]
@@ -3308,7 +3249,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oDesign.ImportIDF
         """
         active_design_name = self.desktop_class.active_design(self.oproject).GetName()
@@ -3431,7 +3371,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.AssignNetworkBoundary
 
         Examples
@@ -3658,7 +3597,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.AssignStationaryWallBoundary
         """
         if not name:
@@ -3794,7 +3732,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.AssignStationaryWallBoundary
         """
         return self.assign_stationary_wall(
@@ -3857,7 +3794,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.AssignStationaryWallBoundary
         """
         return self.assign_stationary_wall(
@@ -3993,7 +3929,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.AssignStationaryWallBoundary
         """
         return self.assign_stationary_wall(
@@ -4052,7 +3987,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.InsertSetup
 
         Examples
@@ -4150,7 +4084,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.AssignSourceBoundary
 
         Examples
@@ -4242,12 +4175,11 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryNetwork`
+        :class:`ansys.aedt.core.modules.boundary.icepak_boundary.NetworkObject`
             Boundary network object when successful or ``None`` when failed.
 
         References
         ----------
-
         >>> oModule.AssignNetworkBoundary
 
         Examples
@@ -4295,7 +4227,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.AssignNetworkBoundary
 
         Examples
@@ -4378,7 +4309,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.AssignBlockBoundary
 
         Examples
@@ -4488,7 +4418,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.AssignBlockBoundary
 
         Examples
@@ -4602,7 +4531,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.ExportFanOperatingPoint
 
         Examples
@@ -5026,7 +4954,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.AssignSymmetryWallBoundary
         """
         if not boundary_name:
@@ -5074,7 +5001,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.AssignAdiabaticPlateBoundary
 
         Examples
@@ -5225,7 +5151,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.AssignResistanceBoundary
 
         Examples
@@ -5350,7 +5275,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.AssignResistanceBoundary
 
         Examples
@@ -5438,7 +5362,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.AssignResistanceBoundary
 
         Examples
@@ -5522,7 +5445,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.AssignResistanceBoundary
 
         Examples
@@ -5607,7 +5529,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.AssignRecircBoundary
 
         Examples
@@ -5757,7 +5678,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.AssignBlowerBoundary
 
         Examples
@@ -5840,7 +5760,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.AssignBlowerBoundary
 
         Examples
@@ -6266,7 +6185,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        bool or :class:`PieceWiseLinearDictionary`
+        bool or :class:`ansys.aedt.core.modules.boundary.icepak_boundary.PieceWiseLinearDictionary`
             Created dataset condition assignments when successful, ``False`` when failed.
         """
         ds = None
@@ -6297,7 +6216,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.PieceWiseLinearDictionary`
+        :class:`ansys.aedt.core.modules.boundary.icepak_boundary.PieceWiseLinearDictionary`
             Boundary dictionary object that can be passed to boundary condition assignment functions.
 
         """
@@ -6317,7 +6236,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.PieceWiseLinearDictionary`
+        :class:`ansys.aedt.core.modules.boundary.icepak_boundary.PieceWiseLinearDictionary`
             Boundary dictionary object that can be passed to boundary condition assignment functions.
 
         """
@@ -6372,7 +6291,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.PowerLawDictionary`
+        :class:`ansys.aedt.core.modules.boundary.icepak_boundary.PowerLawDictionary`
             Boundary dictionary object that can be passed to boundary condition assignment functions.
         """
         return PowerLawDictionary(intercept, coefficient, scaling_exponent)
@@ -6399,7 +6318,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.ExponentialDictionary`
+        :class:`ansys.aedt.core.modules.boundary.icepak_boundary.ExponentialDictionary`
             Boundary dictionary object that can be passed to boundary condition assignment functions.
         """
         return ExponentialDictionary(vertical_offset, coefficient, exponent_coefficient)
@@ -6428,7 +6347,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.SinusoidalDictionary`
+        :class:`ansys.aedt.core.modules.boundary.icepak_boundary.SinusoidalDictionary`
             Boundary dictionary object that can be passed to boundary condition assignment functions.
         """
         return SinusoidalDictionary(vertical_offset, vertical_scaling, period, period_offset)
@@ -6453,7 +6372,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.SquareWaveDictionary`
+        :class:`ansys.aedt.core.modules.boundary.icepak_boundary.SquareWaveDictionary`
             Boundary dictionary object that can be passed to boundary condition assignment functions.
         """
         return SquareWaveDictionary(on_value, initial_time_off, on_time, off_time, off_value)
@@ -6470,7 +6389,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oDesign.ClearLinkedData
         """
         try:
@@ -6479,48 +6397,3 @@ class Icepak(FieldAnalysis3D):
             return False
         else:
             return True
-
-
-class IcepakDesignSettingsManipulation(DesignSettingsManipulation):
-    def __init__(self, app):
-        self.app = app
-
-    def execute(self, k, v):
-        if k in ["AmbTemp", "AmbRadTemp"]:
-            if k == "AmbTemp" and isinstance(v, (dict, BoundaryDictionary)):
-                self.app.logger.error("Failed. Use `edit_design_settings` function.")
-                return self.app.design_settings["AmbTemp"]
-                # FIXME: Bug in native API. Uncomment when fixed
-                # if not self.solution_type == "Transient":
-                #     self.logger.error("Transient assignment is supported only in transient designs.")
-                #     return False
-                # ambtemp = getattr(self, "_parse_variation_data")(
-                #     "AmbientTemperature",
-                #     "Transient",
-                #     variation_value=v["Values"],
-                #     function=v["Function"],
-                # )
-                # if ambtemp is not None:
-                #     return ambtemp
-                # else:
-                #     self.logger.error("Transient dictionary is not valid.")
-                #     return False
-            else:
-                return self.app.value_with_units(v, "cel")
-        elif k == "AmbGaugePressure":
-            return self.app.value_with_units(v, "n_per_meter_sq")
-        elif k == "GravityVec":
-            if isinstance(v, (float, int)):
-                self.app.design_settings["GravityDir"] = ["Positive", "Negative"][v // 3]
-                v = f'Global::{["X", "Y", "Z"][v - v // 3 * 3]}'
-                return v
-            else:
-                if len(v.split("::")) == 1 and len(v) < 3:
-                    if v.startswith("+") or v.startswith("-"):
-                        self.app.design_settings["GravityDir"] = ["Positive", "Negative"][int(v.startswith("-"))]
-                        v = v[-1]
-                    return f"Global::{v}"
-                else:
-                    return v
-        else:
-            return v
