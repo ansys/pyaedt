@@ -53,6 +53,7 @@ from ansys.aedt.core.modules.solve_sweeps import identify_setup
 
 
 class CommonSetup(PropsManager, BinaryTreeNode):
+
     def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup=True):
         self.auto_update = False
         self._app = None
@@ -71,10 +72,31 @@ class CommonSetup(PropsManager, BinaryTreeNode):
         self._is_new_setup = is_new_setup
         # self._init_props(is_new_setup)
         self.auto_update = True
-        child_object = self._app.get_oo_object(self._app.odesign, f"Analysis/{self._name}")
+        self._initialize_bynary_tree()
 
-        if child_object:
-            BinaryTreeNode.__init__(self, self._name, child_object, False)
+    @property
+    def _child_object(self):
+        """Object-oriented properties.
+
+        Returns
+        -------
+        class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTreeNode`
+
+        """
+        child_object = None
+        design_childs = self._app.get_oo_name(self._app.odesign)
+
+        if "Analysis" in design_childs:
+            cc = self._app.get_oo_object(self._app.odesign, "Analysis")
+            cc_names = self._app.get_oo_name(cc)
+            if self._name in cc_names:
+                child_object = cc.GetChildObject(self._name)
+        return child_object
+
+    @pyaedt_function_handler()
+    def _initialize_bynary_tree(self):
+        if self._child_object:
+            BinaryTreeNode.__init__(self, self._name, self._child_object, False)
 
     @property
     def sweeps(self):
@@ -548,11 +570,7 @@ class Setup(CommonSetup):
         arg = ["NAME:" + self._name]
         _dict2arg(self.props, arg)
         self.omodule.InsertSetup(soltype, arg)
-        child_object = self._app.get_oo_object(self._app.odesign, f"Analysis/{self._name}")
-
-        if child_object:
-            BinaryTreeNode.__init__(self, self._name, child_object, False)
-
+        self._initialize_bynary_tree()
         return arg
 
     @pyaedt_function_handler(update_dictionary="properties")
@@ -1163,10 +1181,7 @@ class SetupCircuit(CommonSetup):
         arg = ["NAME:SimSetup"]
         _dict2arg(self.props, arg)
         self._setup(soltype, arg)
-        child_object = self._app.get_oo_object(self._app.odesign, f"Analysis/{self._name}")
-
-        if child_object:
-            BinaryTreeNode.__init__(self, self._name, child_object, False)
+        self._initialize_bynary_tree()
         return arg
 
     @pyaedt_function_handler()
@@ -1918,6 +1933,7 @@ class Setup3DLayout(CommonSetup):
         arg = ["NAME:" + self.name]
         _dict2arg(self.props, arg)
         self.omodule.Add(arg)
+        self._initialize_bynary_tree()
         return True
 
     @pyaedt_function_handler(update_dictionary="properties")

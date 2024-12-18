@@ -1411,18 +1411,10 @@ class Design(AedtObjects):
         object
             Aedt Object if Any.
         """
-        # Retrieve the child object. If the child object doesn't exist, AEDT
-        # will throw an error.
-
-        child_object = None
         try:
-            child_object = aedt_object.GetChildObject(object_name)
-        except Exception as e:  # Exception type is always GRPC Error.
-            if "/" in object_name:  # Enable extraction of sub-objects using GetChildObject
-                child_names = aedt_object.GetChildNames(object_name.split("/")[0])  # Get names of valid objects.
-                if object_name in child_names:
-                    child_object = aedt_object.GetChildObject(object_name)
-        return child_object
+            return aedt_object.GetChildObject(object_name)
+        except Exception:
+            return False
 
     @pyaedt_function_handler()
     def get_oo_properties(self, aedt_object, object_name):

@@ -660,11 +660,11 @@ class TestClass:
         box_subtract.split("XY")
         box_history = box.history()
         box_clone_history = box_clone.history()
-        assert box_history.node == "box_history"
+        assert box_history._node == "box_history"
         assert box_history.command == "CreateBox"
         assert box_history.properties["Command"] == "CreateBox"
         assert box_history.children == {}
-        assert box_clone_history.node == "box_history1"
+        assert box_clone_history._node == "box_history1"
         assert box_clone_history.command == box_history.command
         assert box_clone_history.properties["Command"] == box_history.properties["Command"]
         assert box_clone_history.properties["Position/X"] == box_history.properties["Position/X"]

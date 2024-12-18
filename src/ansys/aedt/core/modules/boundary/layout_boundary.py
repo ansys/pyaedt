@@ -105,9 +105,24 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode):
             self._update_props(self.__props, props)
         self.native_properties = self.__props["NativeComponentDefinitionProvider"]
         self.auto_update = True
-        child_object = self._app.get_oo_object(self._app.oeditor, self._name)
-        if child_object:
-            BinaryTreeNode.__init__(self, self._name, child_object, False)
+
+        self._initialize_bynary_tree()
+
+    @property
+    def _child_object(self):
+        """Object-oriented properties.
+
+        Returns
+        -------
+        class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTreeNode`
+
+        """
+        child_object = None
+        design_childs = self._app.get_oo_name(self._app.oeditor)
+
+        if self._name in design_childs:
+            child_object = self._app.get_oo_object(self._app.oeditor, self._name)
+        return child_object
 
     @property
     def props(self):
@@ -128,14 +143,16 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode):
     @name.setter
     def name(self, component_name):
         if component_name != self._name:
-            if component_name not in self._app.native_component_names:
-                self.properties["Name"] = component_name
-                self._app.native_components.update({component_name: self})
-                del self._app.native_components[self._name]
-                del self._app.modeler.user_defined_components[self._name]
-                self._name = component_name
-        else:  # pragma: no cover
-            self._app._logger.warning("Name %s already assigned in the design", component_name)
+            if component_name not in self._app.native_component_names and self._child_object:
+                try:
+                    self.properties["Name"] = component_name
+                    self._app.native_components.update({component_name: self})
+                    del self._app.native_components[self._name]
+                    del self._app.modeler.user_defined_components[self._name]
+                except KeyError:
+                    self._app.logger.error("Name %s already assigned in the design", component_name)
+            else:  # pragma: no cover
+                self._app._logger.warning("Name %s already assigned in the design", component_name)
 
     @property
     def definition_name(self):
@@ -208,9 +225,7 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode):
             self.excitation_name = a[0].split(":")[0]
         except (GrpcApiError, IndexError):
             self.excitation_name = self.name
-        child_object = self._app.get_oo_object(self._app.oeditor, self._name)
-        if child_object:
-            BinaryTreeNode.__init__(self, self._name, child_object, False)
+        self._initialize_bynary_tree()
         return True
 
     @pyaedt_function_handler()

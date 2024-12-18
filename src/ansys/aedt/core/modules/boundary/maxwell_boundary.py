@@ -66,8 +66,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode):
         self.auto_update = True
         self.__reduced_matrices = None
         self.matrix_assignment = None
-        if self._child_object:
-            BinaryTreeNode.__init__(self, self.name, self._child_object, False)
+        self._initialize_bynary_tree()
 
     @property
     def reduced_matrices(self):
@@ -125,13 +124,18 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode):
 
     @property
     def name(self):
-        """Boundary name."""
+        """Boundary Name."""
+        if self._child_object:
+            self._name = self.properties["Name"]
         return self._name
 
     @name.setter
     def name(self, value):
-        self._name = value
-        self.update()
+        if self._child_object:
+            try:
+                self.properties["Name"] = value
+            except KeyError:
+                self._app.logger.error("Name %s already assigned in the design", value)
 
     @pyaedt_function_handler()
     def _get_args(self, props=None):
@@ -174,8 +178,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode):
             self._app.o_maxwell_parameters.AssignLayoutForce(self._get_args())
         else:
             return False
-        if self._child_object:
-            BinaryTreeNode.__init__(self, self.name, self._child_object, False)
+        self._initialize_bynary_tree()
         return True
 
     @pyaedt_function_handler()
