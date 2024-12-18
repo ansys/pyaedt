@@ -3091,9 +3091,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
     def create_boundary(
         self, boundary_type=BoundaryType.PerfectE, assignment=None, name=None, is_inifinite_ground=False
     ):
-        """Assign a boundary condition to a sheet or surface. This method is generally
-           used by other methods in the ``Hfss`` class such as the :meth:``Hfss.assign_febi``
-           or :meth:``Hfss.assign_radiation_boundary_to_faces`` method.
+        """Assign a boundary condition to a sheet or surface.
+
+        This method is generally
+        used by other methods in the ``Hfss`` class such as the :meth:``Hfss.assign_febi``
+        or :meth:``Hfss.assign_radiation_boundary_to_faces`` method.
 
         Parameters
         ----------
@@ -3124,7 +3126,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Boundary object.
 
         """
-
         props = {}
         assignment = self.modeler.convert_to_selections(assignment, True)
         if type(assignment) is list:
@@ -3221,7 +3222,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Examples
         --------
-
         Create a sheet and assign to it some voltage.
 
         >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY,[0, 0, -70],[10, 2],
@@ -3231,7 +3231,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         ...                                     sheet.bottom_edge_y.midpoint],50)
 
         """
-
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
             if isinstance(start_direction, list):
                 if len(start_direction) != 2 or len(start_direction[0]) != len(start_direction[1]):

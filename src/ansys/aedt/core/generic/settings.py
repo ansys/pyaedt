@@ -695,9 +695,12 @@ class Settings(object):
 
     @property
     def enable_pandas_output(self):
-        """Flag for whether Pandas is being used to export dictionaries and lists. This attribute
-        applies to Solution data output.  The default is ``False``. If ``True``, the property or
-        method returns a Pandas object. This property is valid only in the CPython environment."""
+        """Flag for whether Pandas is being used to export dictionaries and lists.
+
+        This attribute applies to Solution data output.
+        The default is ``False``. If ``True``, the property or method returns a Pandas object.
+        This property is valid only in the CPython environment.
+        """
         return self.__enable_pandas_output
 
     @enable_pandas_output.setter
@@ -706,9 +709,10 @@ class Settings(object):
 
     @property
     def force_error_on_missing_project(self):
-        """Flag for whether to check the project path. The default is ``False``. If
-        ``True``, when passing a project path, the project has to exist. Otherwise, an
-        error is raised."""
+        """Flag for whether to check the project path. The default is ``False``.
+        If ``True``, when passing a project path, the project has to exist.
+        Otherwise, an error is raised.
+        """
         return self.__force_error_on_missing_project
 
     @force_error_on_missing_project.setter

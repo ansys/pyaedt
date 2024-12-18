@@ -358,15 +358,16 @@ class Polyline(Object3d):
 
     @property
     def start_point(self):
-        """List of the ``[x, y, z]`` coordinates for the starting point in the polyline
-        object in the object's coordinate system.
+        """Get the starting point in the polyline object.
+
+        This is a list of the ``[x, y, z]`` coordinates for the starting point in the polyline
+        object in the object's coordinate system
 
         Returns
         -------
         list
             List of the ``[x, y, z]`` coordinates for the starting point in the polyline
             object.
-
         """
         return self.points[0]
 
@@ -567,7 +568,6 @@ class Polyline(Object3d):
         Returns
         -------
         list
-
         """
         position_list = self.points
         segment_types = self.segment_types

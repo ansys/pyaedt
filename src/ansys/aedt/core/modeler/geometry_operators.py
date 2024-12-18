@@ -1334,12 +1334,11 @@ class GeometryOperators(object):
     @staticmethod
     @pyaedt_function_handler()
     def cs_xy_pointing_expression(yaw, pitch, roll):
-        """Return x_pointing and y_pointing vectors as expressions from
-        the yaw, ptich, and roll input (as strings).
+        """Return x_pointing and y_pointing vectors as expressions from the yaw, pitch, and roll input (as strings).
 
         Parameters
         ----------
-        yaw : str, required
+        yaw : str
             String expression for the yaw angle (rotation about Z-axis)
         pitch : str
             String expression for the pitch angle (rotation about Y-axis)
@@ -1397,7 +1396,6 @@ class GeometryOperators(object):
         Returns
         -------
             bool
-
         """
         n = GeometryOperators.get_numeric(s)
         return True if math.fabs(n) < 2.0 * abs(sys.float_info.epsilon) else False

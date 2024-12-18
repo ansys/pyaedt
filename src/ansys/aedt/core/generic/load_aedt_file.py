@@ -456,7 +456,7 @@ def _walk_through_structure(keyword, save_dict, design_name=None):
 
 
 def _read_aedt_file(filename):
-    """Read the entire AEDT file discard binary and put ascii line in a list
+    """Read the entire AEDT file discard binary and put ascii line in a list.
 
     Parameters
     ----------
@@ -488,7 +488,7 @@ def _read_aedt_file(filename):
 
 
 def _load_entire_aedt_file(filename):
-    """Load the entire AEDT file and return the dictionary
+    """Load the entire AEDT file and return the dictionary.
 
     Parameters
     ----------
@@ -519,7 +519,7 @@ def _load_entire_aedt_file(filename):
 
 
 def _load_keyword_in_aedt_file(filename, keyword, design_name=None):
-    """Load a specific keyword in the AEDT file and return the dictionary
+    """Load a specific keyword in the AEDT file and return the dictionary.
 
     Parameters
     ----------
@@ -527,12 +527,13 @@ def _load_keyword_in_aedt_file(filename, keyword, design_name=None):
         AEDT filename with path
     keyword :
         keyword to search and load
+    design_name : str, optional
+        Name of the design. Default value is ``None``.
 
     Returns
     -------
     type
         dictionary containing the decoded AEDT file
-
     """
     _read_aedt_file(filename)
     # load the aedt file
