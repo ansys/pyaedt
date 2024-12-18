@@ -1934,13 +1934,14 @@ class Maxwell(object):
                         "Object-Based Transient Force calculation is not supported for "
                         "non-rotational transient solutions. Only Harmonic Force will be calculated."
                     )
-                if use_number_of_cycles_from_stop_time or use_number_of_cycles_for_stop_time:
-                    self.logger.warning(
-                        " ``number_of_cycles_from_stop_time´´ and ``number_of_cycles_for_stop_time´´"
-                        "are not available for TransientZ."
-                    )
-                    use_number_of_cycles_from_stop_time = False
-                    use_number_of_cycles_for_stop_time = False
+                if not self.is3d and self.geometry_mode == "about Z":
+                    if use_number_of_cycles_from_stop_time or use_number_of_cycles_for_stop_time:
+                        self.logger.warning(
+                            " ``number_of_cycles_from_stop_time´´ and ``number_of_cycles_for_stop_time´´"
+                            "are not available for TransientZ."
+                        )
+                        use_number_of_cycles_from_stop_time = False
+                        use_number_of_cycles_for_stop_time = False
             self.odesign.EnableHarmonicForceCalculation(
                 [
                     "EnabledObjects:=",

@@ -115,12 +115,6 @@ def circuit_com(add_app):
     return app
 
 
-@pytest.fixture(scope="class")
-def m3dtransient(add_app):
-    app = add_app(application=Maxwell3d, project_name=transient, subfolder=test_subfolder)
-    return app
-
-
 class TestClass:
     @pytest.fixture(autouse=True)
     def init(self, local_scratch, icepak_app, hfss3dl_solve):
@@ -498,8 +492,10 @@ class TestClass:
         setup = circuit_app.create_setup(setup_name, setup_type="NexximTransient")
         assert circuit_app.push_time_excitations(instance="U1", setup=setup_name)
 
-    def test_06_m3d_harmonic_forces(self, m3dtransient):
-        assert m3dtransient.enable_harmonic_force(
+    def test_06_m3d_harmonic_forces(self, add_app):
+        aedtapp = add_app(application=Maxwell3d, project_name=transient, subfolder=test_subfolder)
+
+        assert aedtapp.enable_harmonic_force(
             ["Stator"],
             force_type=2,
             window_function="Rectangular",
@@ -507,23 +503,28 @@ class TestClass:
             number_of_cycles_from_stop_time=3,
             calculate_force=0,
         )
-        m3dtransient.save_project()
-        m3dtransient.analyze(m3dtransient.active_setup, cores=4, use_auto_settings=False)
-        assert m3dtransient.export_element_based_harmonic_force(
+        aedtapp.save_project()
+        aedtapp.analyze(aedtapp.active_setup, cores=4, use_auto_settings=False)
+        assert aedtapp.export_element_based_harmonic_force(
             start_frequency=1, stop_frequency=100, number_of_frequency=None
         )
-        assert m3dtransient.export_element_based_harmonic_force(number_of_frequency=5)
-        m3dtransient.solution_type = m3dtransient.SOLUTIONS.Maxwell3d.EddyCurrent
-        assert m3dtransient.enable_harmonic_force(assignment=["Stator"])
-        m3dtransient.solution_type = m3dtransient.SOLUTIONS.Maxwell3d.Magnetostatic
-        assert not m3dtransient.enable_harmonic_force(assignment=["Stator"])
+        assert aedtapp.export_element_based_harmonic_force(number_of_frequency=5)
+        aedtapp.solution_type = aedtapp.SOLUTIONS.Maxwell3d.EddyCurrent
+        assert aedtapp.enable_harmonic_force(assignment=["Stator"])
+        aedtapp.solution_type = aedtapp.SOLUTIONS.Maxwell3d.Magnetostatic
+        assert not aedtapp.enable_harmonic_force(assignment=["Stator"])
+        aedtapp.solution_type = aedtapp.SOLUTIONS.Maxwell3d.TransientAPhiFormulation
+        assert aedtapp.enable_harmonic_force(assignment=["Stator"])
+        aedtapp.close_project(aedtapp.project_name)
 
-    def test_07_export_maxwell_fields(self, m3dtransient):
-        m3dtransient.analyze(m3dtransient.active_setup, cores=4, use_auto_settings=False)
+    def test_07_export_maxwell_fields(self, add_app):
+        aedtapp = add_app(application=Maxwell3d, project_name=transient, subfolder=test_subfolder)
+
+        aedtapp.analyze(aedtapp.active_setup, cores=4, use_auto_settings=False)
         fld_file_3 = os.path.join(self.local_scratch.path, "test_fld_3.fld")
-        assert m3dtransient.post.export_field_file(
+        assert aedtapp.post.export_field_file(
             quantity="Mag_B",
-            solution=m3dtransient.nominal_sweep,
+            solution=aedtapp.nominal_sweep,
             variations={},
             output_file=fld_file_3,
             assignment="Coil_A2",
@@ -532,23 +533,24 @@ class TestClass:
         )
         assert os.path.exists(fld_file_3)
         fld_file_4 = os.path.join(self.local_scratch.path, "test_fld_4.fld")
-        assert not m3dtransient.post.export_field_file(
+        assert not aedtapp.post.export_field_file(
             quantity="Mag_B",
-            solution=m3dtransient.nominal_sweep,
-            variations=m3dtransient.available_variations.nominal_w_values_dict,
+            solution=aedtapp.nominal_sweep,
+            variations=aedtapp.available_variations.nominal_w_values_dict,
             output_file=fld_file_4,
             assignment="Coil_A2",
             objects_type="invalid",
         )
-        setup = m3dtransient.setups[0]
-        m3dtransient.setups[0].delete()
-        assert not m3dtransient.post.export_field_file(
+        setup = aedtapp.setups[0]
+        aedtapp.setups[0].delete()
+        assert not aedtapp.post.export_field_file(
             quantity="Mag_B", variations={}, output_file=fld_file_4, assignment="Coil_A2"
         )
 
-        new_setup = m3dtransient.create_setup(name=setup.name, setup_type=setup.setuptype)
+        new_setup = aedtapp.create_setup(name=setup.name, setup_type=setup.setuptype)
         new_setup.props = setup.props
         new_setup.update()
+        aedtapp.close_project(aedtapp.project_name)
 
     def test_08_compute_erl(self, circuit_erl):
         touchstone_file = circuit_erl.export_touchstone()
