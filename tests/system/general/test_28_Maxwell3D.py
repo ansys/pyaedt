@@ -44,19 +44,14 @@ except ImportError:
 
 test_subfolder = "TMaxwell"
 test_project_name = "eddy"
-if config["desktopVersion"] > "2022.2":
-    core_loss_file = "PlanarTransformer_231"
-else:
-    core_loss_file = "PlanarTransformer"
+
+core_loss_file = "PlanarTransformer"
+
 transient = "Transient_StrandedWindings"
+
 cyl_gap_name = "Motor3D_cyl_gap"
+
 layout_component_name = "LayoutForce"
-
-
-@pytest.fixture(scope="class")
-def aedtapp(add_app):
-    app = add_app(application=Maxwell3d, solution_type="EddyCurrent")
-    return app
 
 
 @pytest.fixture(scope="class")
@@ -82,27 +77,25 @@ def layout_comp(add_app):
 
 class TestClass:
     @pytest.fixture(autouse=True)
-    def init(self, aedtapp, local_scratch):
-        self.aedtapp = aedtapp
+    def init(self, local_scratch):
+        # self.aedtapp = aedtapp
         self.local_scratch = local_scratch
 
-    def test_01_create_primitive(self):
-        self.aedtapp.modeler.model_units = "mm"
+    def test_01_create_primitive(self, add_app):
+        aedtapp = add_app(application=Maxwell3d, solution_type="EddyCurrent")
 
-        plate_pos = self.aedtapp.modeler.Position(0, 0, 0)
-        hole_pos = self.aedtapp.modeler.Position(18, 18, 0)
-        # Create plate with hole
-        plate = self.aedtapp.modeler.create_box(plate_pos, [294, 294, 19], name="Plate")  # All positions in model units
-        hole = self.aedtapp.modeler.create_box(hole_pos, [108, 108, 19], name="Hole")  # All positions in model units
-        self.aedtapp.modeler.subtract([plate], [hole])
+        aedtapp.modeler.model_units = "mm"
+        plate = aedtapp.modeler.create_box([0, 0, 0], [294, 294, 19], name="Plate")
+        hole = aedtapp.modeler.create_box([18, 18, 0], [108, 108, 19], name="Hole")
+        aedtapp.modeler.subtract([plate], [hole])
         plate.material_name = "aluminum"
         assert plate.solve_inside
         assert plate.material_name == "aluminum"
-
-        self.aedtapp.assign_material(plate, "pec")
+        aedtapp.assign_material(plate, "pec")
         assert not plate.solve_inside
-        self.aedtapp.assign_material(plate, "perfect conductor")
+        aedtapp.assign_material(plate, "perfect conductor")
         assert not plate.solve_inside
+        aedtapp.close_project(aedtapp.project_name)
 
     @pytest.mark.skipif(config["NonGraphical"], reason="Test is failing on build machine")
     def test_01_display(self):
