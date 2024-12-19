@@ -43,9 +43,6 @@ except ImportError:
     ipython_available = False
 
 test_subfolder = "TMaxwell"
-test_project_name = "eddy"
-
-core_loss_file = "PlanarTransformer"
 
 transient = "Transient_StrandedWindings"
 
@@ -263,88 +260,138 @@ class TestClass:
         aedtapp.close_project(aedtapp.project_name)
 
     @pytest.mark.skipif(is_linux, reason="Crashing on Linux")
-    def test_08_setup_ctrlprog_with_file(self):
-        transient_setup = aedtapp.create_setup()
-        transient_setup.props["MaximumPasses"] = 12
-        transient_setup.props["MinimumPasses"] = 2
-        transient_setup.props["MinimumConvergedPasses"] = 1
-        transient_setup.props["PercentRefinement"] = 30
-        transient_setup.props["Frequency"] = "200Hz"
-        transient_setup.update()
-        transient_setup.enable_expression_cache(["CoreLoss"], "Fields", "Phase='0deg' ", True)
+    def test_expression_cache(self, add_app):
+        aedtapp = add_app(application=Maxwell3d)
 
-    def test_22_create_length_mesh(self):
-        assert aedtapp.mesh.assign_length_mesh(["Plate"])
+        setup = aedtapp.create_setup()
+        setup.props["MaximumPasses"] = 12
+        setup.props["MinimumPasses"] = 2
+        setup.props["MinimumConvergedPasses"] = 1
+        setup.props["PercentRefinement"] = 30
+        setup.props["Frequency"] = "200Hz"
+        setup.update()
+        assert setup.enable_expression_cache(["CoreLoss"], "Fields", "Phase='0deg' ", True)
+        aedtapp.close_project(aedtapp.project_name)
 
-    def test_23_create_skin_depth(self):
-        mesh = aedtapp.mesh.assign_skin_depth(["Plate"], "1mm")
+    def test_assign_length_mesh(self, add_app):
+        aedtapp = add_app(application=Maxwell3d)
+
+        plate = aedtapp.modeler.create_box([0, 0, 0], [1.5, 1.5, 0.5], name="Plate")
+        assert aedtapp.mesh.assign_length_mesh(plate)
+        assert aedtapp.mesh.assign_length_mesh(plate, maximum_length=1, maximum_elements=1200)
+        assert aedtapp.mesh.assign_length_mesh(plate, name="test_mesh")
+        assert aedtapp.mesh.assign_length_mesh(plate, name="test_mesh")
+        aedtapp.close_project(aedtapp.project_name)
+
+    def test_assign_skin_depth(self, add_app):
+        aedtapp = add_app(application=Maxwell3d)
+
+        plate = aedtapp.modeler.create_box([0, 0, 0], [1.5, 1.5, 0.5], name="Plate")
+        mesh = aedtapp.mesh.assign_skin_depth(plate, "1mm")
         assert mesh
         mesh.delete()
-        mesh = aedtapp.mesh.assign_skin_depth(["Plate"], "1mm", 1000)
+        mesh = aedtapp.mesh.assign_skin_depth(plate, "1mm", 1000)
         assert mesh
         mesh.delete()
-        mesh = aedtapp.mesh.assign_skin_depth(aedtapp.modeler["Plate"].faces[0].id, "1mm")
+        mesh = aedtapp.mesh.assign_skin_depth(plate.faces[0].id, "1mm")
         assert mesh
         mesh.delete()
-        mesh = aedtapp.mesh.assign_skin_depth(aedtapp.modeler["Plate"], "1mm")
+        mesh = aedtapp.mesh.assign_skin_depth(plate, "1mm")
         assert mesh
+        aedtapp.close_project(aedtapp.project_name)
 
-    def test_24_create_curvilinear(self):
-        assert aedtapp.mesh.assign_curvilinear_elements(["Coil"], "1mm")
+    def test_assign_curvilinear_elements(self, add_app):
+        aedtapp = add_app(application=Maxwell3d)
 
-    def test_24_create_edge_cut(self):
-        assert aedtapp.mesh.assign_edge_cut(["Coil"])
+        box = aedtapp.modeler.create_box([30, 0, 0], [40, 10, 5])
+        assert aedtapp.mesh.assign_curvilinear_elements(box, "1mm")
+        assert aedtapp.mesh.assign_curvilinear_elements(box, "1mm", name="test")
+        assert aedtapp.mesh.assign_curvilinear_elements(box, "1mm", name="test")
+        aedtapp.close_project(aedtapp.project_name)
 
-    def test_24a_density_control(self):
-        assert aedtapp.mesh.assign_density_control(["Coil"], maximum_element_length="2mm", layers_number="3")
+    def test_assign_edge_cut(self, add_app):
+        aedtapp = add_app(application=Maxwell3d)
 
-    def test_24b_density_control(self):
-        assert aedtapp.mesh.assign_rotational_layer(["Coil"])
+        box = aedtapp.modeler.create_box([30, 0, 0], [40, 10, 5])
+        assert aedtapp.mesh.assign_edge_cut(box)
+        assert aedtapp.mesh.assign_edge_cut(box, name="edge_cute")
+        assert aedtapp.mesh.assign_edge_cut(box, name="edge_cute")
+        aedtapp.close_project(aedtapp.project_name)
 
-    def test_25a_assign_initial_mesh(self):
+    def test_assign_density_control(self, add_app):
+        aedtapp = add_app(application=Maxwell3d)
+
+        box = aedtapp.modeler.create_box([30, 0, 0], [40, 10, 5])
+        assert aedtapp.mesh.assign_density_control(box, maximum_element_length="2mm", layers_number="3")
+        assert aedtapp.mesh.assign_density_control(
+            box, maximum_element_length="2mm", layers_number="3", name="density_ctrl"
+        )
+        assert aedtapp.mesh.assign_density_control(
+            box, maximum_element_length="2mm", layers_number="3", name="density_ctrl"
+        )
+        aedtapp.close_project(aedtapp.project_name)
+
+    def test_assign_rotational_layer(self, add_app):
+        aedtapp = add_app(application=Maxwell3d)
+
+        box = aedtapp.modeler.create_box([30, 0, 0], [40, 10, 5])
+        assert aedtapp.mesh.assign_rotational_layer(box)
+        assert aedtapp.mesh.assign_rotational_layer(box, name="my_rotational")
+        assert aedtapp.mesh.assign_rotational_layer(box, name="my_rotational")
+        aedtapp.close_project(aedtapp.project_name)
+
+    def test_assign_initial_mesh_slider(self, add_app):
+        aedtapp = add_app(application=Maxwell3d)
+
         assert aedtapp.mesh.assign_initial_mesh_from_slider(4)
+        aedtapp.close_project(aedtapp.project_name)
 
-    def test_25b_assign_initial_mesh(self):
+    def test_assign_initial_mesh(self, add_app):
+        aedtapp = add_app(application=Maxwell3d)
+
         assert aedtapp.mesh.assign_initial_mesh(surface_deviation="2mm")
+        aedtapp.close_project(aedtapp.project_name)
 
     @pytest.mark.skipif(is_linux, reason="Crashing on Linux")
-    def test_26_create_udp(self):
-        my_udpPairs = []
-        mypair = ["DiaGap", "102mm"]
-        my_udpPairs.append(mypair)
-        mypair = ["Length", "100mm"]
-        my_udpPairs.append(mypair)
-        mypair = ["Poles", "8"]
-        my_udpPairs.append(mypair)
-        mypair = ["EmbraceTip", "0.29999999999999999"]
-        my_udpPairs.append(mypair)
-        mypair = ["EmbraceRoot", "1.2"]
-        my_udpPairs.append(mypair)
-        mypair = ["ThickTip", "5mm"]
-        my_udpPairs.append(mypair)
-        mypair = ["ThickRoot", "10mm"]
-        my_udpPairs.append(mypair)
-        mypair = ["ThickShoe", "8mm"]
-        my_udpPairs.append(mypair)
-        mypair = ["DepthSlot", "12mm"]
-        my_udpPairs.append(mypair)
-        mypair = ["ThickYoke", "10mm"]
-        my_udpPairs.append(mypair)
-        mypair = ["LengthPole", "90mm"]
-        my_udpPairs.append(mypair)
-        mypair = ["LengthMag", "0mm"]
-        my_udpPairs.append(mypair)
-        mypair = ["SegAngle", "5deg"]
-        my_udpPairs.append(mypair)
-        mypair = ["LenRegion", "200mm"]
-        my_udpPairs.append(mypair)
-        mypair = ["InfoCore", "0"]
-        my_udpPairs.append(mypair)
+    def test_create_udp(self, add_app):
+        aedtapp = add_app(application=Maxwell3d)
+
+        my_udp = []
+        udp_data = ["DiaGap", "102mm"]
+        my_udp.append(udp_data)
+        udp_data = ["Length", "100mm"]
+        my_udp.append(udp_data)
+        udp_data = ["Poles", "8"]
+        my_udp.append(udp_data)
+        udp_data = ["EmbraceTip", "0.29999999999999999"]
+        my_udp.append(udp_data)
+        udp_data = ["EmbraceRoot", "1.2"]
+        my_udp.append(udp_data)
+        udp_data = ["ThickTip", "5mm"]
+        my_udp.append(udp_data)
+        udp_data = ["ThickRoot", "10mm"]
+        my_udp.append(udp_data)
+        udp_data = ["ThickShoe", "8mm"]
+        my_udp.append(udp_data)
+        udp_data = ["DepthSlot", "12mm"]
+        my_udp.append(udp_data)
+        udp_data = ["ThickYoke", "10mm"]
+        my_udp.append(udp_data)
+        udp_data = ["LengthPole", "90mm"]
+        my_udp.append(udp_data)
+        udp_data = ["LengthMag", "0mm"]
+        my_udp.append(udp_data)
+        udp_data = ["SegAngle", "5deg"]
+        my_udp.append(udp_data)
+        udp_data = ["LenRegion", "200mm"]
+        my_udp.append(udp_data)
+        udp_data = ["InfoCore", "0"]
+        my_udp.append(udp_data)
 
         # Test udp with a custom name.
         my_udpName = "MyClawPoleCore"
         udp = aedtapp.modeler.create_udp(
-            dll="RMxprt/ClawPoleCore", parameters=my_udpPairs, library="syslib", name=my_udpName
+            dll="RMxprt/ClawPoleCore", parameters=my_udp, library="syslib", name=my_udpName
         )
 
         assert udp
@@ -362,7 +409,7 @@ class TestClass:
         assert int(udp.bounding_dimension[2]) == 110
 
         # Test udp with default name -None-.
-        second_udp = aedtapp.modeler.create_udp(dll="RMxprt/ClawPoleCore", parameters=my_udpPairs, library="syslib")
+        second_udp = aedtapp.modeler.create_udp(dll="RMxprt/ClawPoleCore", parameters=my_udp, library="syslib")
 
         assert second_udp
         assert second_udp.name == "ClawPoleCore"
@@ -381,20 +428,19 @@ class TestClass:
 
         # Create an udp from a *.py file.
         python_udp_parameters = []
-        mypair = ["Xpos", "0mm"]
-        python_udp_parameters.append(mypair)
-        mypair = ["Ypos", "0mm"]
-        python_udp_parameters.append(mypair)
-        mypair = ["Dist", "5mm"]
-        python_udp_parameters.append(mypair)
-        mypair = ["Turns", "2"]
-        # mypair = ["Turns", "2", "IntParam"]
-        python_udp_parameters.append(mypair)
-        mypair = ["Width", "2mm"]
-        python_udp_parameters.append(mypair)
-        mypair = ["Thickness", "1mm"]
-        python_udp_parameters.append(mypair)
-        python_udp_parameters.append(mypair)
+        udp_data = ["Xpos", "0mm"]
+        python_udp_parameters.append(udp_data)
+        udp_data = ["Ypos", "0mm"]
+        python_udp_parameters.append(udp_data)
+        udp_data = ["Dist", "5mm"]
+        python_udp_parameters.append(udp_data)
+        udp_data = ["Turns", "2"]
+        python_udp_parameters.append(udp_data)
+        udp_data = ["Width", "2mm"]
+        python_udp_parameters.append(udp_data)
+        udp_data = ["Thickness", "1mm"]
+        python_udp_parameters.append(udp_data)
+        python_udp_parameters.append(udp_data)
 
         udp_from_python = aedtapp.modeler.create_udp(
             dll="Examples/RectangularSpiral.py", parameters=python_udp_parameters, name="PythonSpiral"
@@ -405,76 +451,91 @@ class TestClass:
         assert "PythonSpiral" in udp_from_python._primitives.object_names
         assert int(udp_from_python.bounding_dimension[0]) == 22.0
         assert int(udp_from_python.bounding_dimension[1]) == 22.0
+        aedtapp.close_project(aedtapp.project_name)
 
     @pytest.mark.skipif(is_linux, reason="Feature not supported in Linux")
-    def test_27_create_udm(self):
-        my_udmPairs = []
-        mypair = ["ILD Thickness (ILD)", "0.006mm"]
-        my_udmPairs.append(mypair)
-        mypair = ["Line Spacing (LS)", "0.004mm"]
-        my_udmPairs.append(mypair)
-        mypair = ["Line Thickness (LT)", "0.005mm"]
-        my_udmPairs.append(mypair)
-        mypair = ["Line Width (LW)", "0.004mm"]
-        my_udmPairs.append(mypair)
-        mypair = ["No. of Turns (N)", 2]
-        my_udmPairs.append(mypair)
-        mypair = ["Outer Diameter (OD)", "0.15mm"]
-        my_udmPairs.append(mypair)
-        mypair = ["Substrate Thickness", "0.2mm"]
-        my_udmPairs.append(mypair)
-        mypair = [
+    def test_create_udm(self, add_app):
+        aedtapp = add_app(application=Maxwell3d)
+
+        my_udm = []
+        udm_data = ["ILD Thickness (ILD)", "0.006mm"]
+        my_udm.append(udm_data)
+        udm_data = ["Line Spacing (LS)", "0.004mm"]
+        my_udm.append(udm_data)
+        udm_data = ["Line Thickness (LT)", "0.005mm"]
+        my_udm.append(udm_data)
+        udm_data = ["Line Width (LW)", "0.004mm"]
+        my_udm.append(udm_data)
+        udm_data = ["No. of Turns (N)", 2]
+        my_udm.append(udm_data)
+        udm_data = ["Outer Diameter (OD)", "0.15mm"]
+        my_udm.append(udm_data)
+        udm_data = ["Substrate Thickness", "0.2mm"]
+        my_udm.append(udm_data)
+        udm_data = [
             "Inductor Type",
             '"Square,Square,Octagonal,Circular,Square-Differential,Octagonal-Differential,Circular-Differential"',
         ]
-        my_udmPairs.append(mypair)
-        mypair = ["Underpass Thickness (UT)", "0.001mm"]
-        my_udmPairs.append(mypair)
-        mypair = ["Via Thickness (VT)", "0.001mm"]
-        my_udmPairs.append(mypair)
+        my_udm.append(udm_data)
+        udm_data = ["Underpass Thickness (UT)", "0.001mm"]
+        my_udm.append(udm_data)
+        udm_data = ["Via Thickness (VT)", "0.001mm"]
+        my_udm.append(udm_data)
 
         assert aedtapp.modeler.create_udm(
-            udm_full_name="Maxwell3D/OnDieSpiralInductor.py", parameters=my_udmPairs, library="syslib"
+            udm_full_name="Maxwell3D/OnDieSpiralInductor.py", parameters=my_udm, library="syslib"
         )
+        aedtapp.close_project(aedtapp.project_name)
 
-    def test_28_assign_torque(self):
-        T = aedtapp.assign_torque("Coil")
-        assert T.type == "Torque"
-        assert T.props["Objects"][0] == "Coil"
-        assert T.props["Is Positive"]
-        assert T.props["Is Virtual"]
-        assert T.props["Coordinate System"] == "Global"
-        assert T.props["Axis"] == "Z"
-        assert T.delete()
-        T = aedtapp.assign_torque(assignment="Coil", is_positive=False, torque_name="Torque_Test")
-        assert not T.props["Is Positive"]
-        assert T.name == "Torque_Test"
+    def test_assign_torque(self, add_app):
+        aedtapp = add_app(application=Maxwell3d)
 
-    def test_29_assign_force(self):
-        F = aedtapp.assign_force("Coil")
-        assert F.type == "Force"
-        assert F.props["Objects"][0] == "Coil"
-        assert F.props["Reference CS"] == "Global"
-        assert F.props["Is Virtual"]
-        assert F.delete()
-        F = aedtapp.assign_force(assignment="Coil", is_virtual=False, force_name="Force_Test")
-        assert F.name == "Force_Test"
-        assert not F.props["Is Virtual"]
+        coil = aedtapp.modeler.create_box([-100, -100, 0], [200, 200, 100], name="Coil")
+        torque = aedtapp.assign_torque(coil)
+        assert torque.type == "Torque"
+        assert torque.props["Objects"][0] == "Coil"
+        assert torque.props["Is Positive"]
+        assert torque.props["Is Virtual"]
+        assert torque.props["Coordinate System"] == "Global"
+        assert torque.props["Axis"] == "Z"
+        assert torque.delete()
+        torque = aedtapp.assign_torque(assignment="Coil", is_positive=False, torque_name="Torque_Test")
+        assert not torque.props["Is Positive"]
+        assert torque.name == "Torque_Test"
+        aedtapp.close_project(aedtapp.project_name)
 
-    def test_30_assign_movement(self):
-        aedtapp.insert_design("Motion")
-        aedtapp.solution_type = SOLUTIONS.Maxwell3d.Transient
+    def test_assign_force(self, add_app):
+        aedtapp = add_app(application=Maxwell3d)
+
+        coil = aedtapp.modeler.create_box([-100, -100, 0], [200, 200, 100], name="Coil")
+        force = aedtapp.assign_force(coil)
+        assert force.type == "Force"
+        assert force.props["Objects"][0] == "Coil"
+        assert force.props["Reference CS"] == "Global"
+        assert force.props["Is Virtual"]
+        assert force.delete()
+        force = aedtapp.assign_force(assignment="Coil", is_virtual=False, force_name="Force_Test")
+        assert force.name == "Force_Test"
+        assert not force.props["Is Virtual"]
+        aedtapp.close_project(aedtapp.project_name)
+
+    def test_assign_translate_motion(self, add_app):
+        aedtapp = add_app(application=Maxwell3d, solution_type="Transient")
+
         aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], name="Inner_Box")
         aedtapp.modeler.create_box([0, 0, 0], [30, 20, 20], name="Outer_Box")
         bound = aedtapp.assign_translate_motion("Outer_Box", velocity=1, mechanical_transient=True)
         assert bound
         assert bound.props["Velocity"] == "1m_per_sec"
+        aedtapp.close_project(aedtapp.project_name)
 
-    def test_31_core_losses(self, add_app):
-        m3d1 = add_app(application=Maxwell3d, project_name=core_loss_file, subfolder=test_subfolder)
-        assert m3d1.set_core_losses(["PQ_Core_Bottom", "PQ_Core_Top"])
-        assert m3d1.set_core_losses(["PQ_Core_Bottom"], True)
-        aedtapp.close_project(m3d1.project_name, False)
+    def test_set_core_losses(self, add_app):
+        aedtapp = add_app(application=Maxwell3d, solution_type="EddyCurrent")
+
+        aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], name="my_box", material="Material_3F3")
+        assert aedtapp.set_core_losses(["my_box"])
+        assert aedtapp.set_core_losses(["my_box"], True)
+        aedtapp.close_project(aedtapp.project_name, False)
 
     def test_32_matrix(self, add_app):
         m3d = add_app(application=Maxwell3d, design_name="Matrix1")
