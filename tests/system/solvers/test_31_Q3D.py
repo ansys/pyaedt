@@ -185,13 +185,13 @@ class TestClass:
 
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
-        o1 = self.aedtapp.modeler.create_cylinder(
+        self.aedtapp.modeler.create_cylinder(
             self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, name="MyCylinder", material="brass"
         )
 
         udp = self.aedtapp.modeler.Position(10, 10, 0)
         coax_dimension = 30
-        o2 = self.aedtapp.modeler.create_cylinder(
+        self.aedtapp.modeler.create_cylinder(
             self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, name="GND", material="brass"
         )
 

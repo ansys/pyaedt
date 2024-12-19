@@ -288,13 +288,13 @@ class BoundaryObject3dLayout(BoundaryCommon, BinaryTreeNode):
         An AEDT application from ``ansys.aedt.core.application``.
     name : str
         Name of the boundary.
-    props : dict
+    props : dict, optional
         Properties of the boundary.
     boundarytype : str
         Type of the boundary.
     """
 
-    def __init__(self, app, name, props, boundarytype):
+    def __init__(self, app, name, props=None, boundarytype="Port"):
         self.auto_update = False
         self._app = app
         self._name = name
@@ -303,8 +303,7 @@ class BoundaryObject3dLayout(BoundaryCommon, BinaryTreeNode):
             self.__props = BoundaryProps(self, props)
         self.type = boundarytype
         self.auto_update = True
-        if self._child_object:
-            BinaryTreeNode.__init__(self, self.name, self._child_object, False)
+        self._initialize_bynary_tree()
 
     @property
     def _child_object(self):
