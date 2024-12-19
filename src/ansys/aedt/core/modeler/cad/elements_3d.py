@@ -1423,10 +1423,7 @@ class BinaryTreeNode:
 
                 props = _get_data_model(self.child_object)
                 for p in self.child_object.GetPropNames():
-                    if p in props:
-                        self._props[p] = props[p]
-                    else:
-                        self._props[p] = None
+                    self._props[p] = props.get(p, None)
             except Exception:
                 for p in self.child_object.GetPropNames():
                     try:
