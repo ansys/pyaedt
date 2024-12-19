@@ -231,43 +231,50 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
         class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTreeNode`
 
         """
-        child_object = None
         design_childs = self._app.get_oo_name(self._app.odesign)
+
+        if "Nets" in design_childs:
+            cc = self._app.get_oo_object(self._app.odesign, "Nets")
+            cc_names = self._app.get_oo_name(cc)
+            if self._name in cc_names:
+                return cc.GetChildObject(self._name)
+            for name in cc_names:
+                cc = self._app.get_oo_object(self._app.odesign, f"Nets\\{name}")
+                cc_names = self._app.get_oo_name(cc)
+                if self._name in cc_names:
+                    return cc.GetChildObject(self._name)
 
         if "Thermal" in design_childs:
             cc = self._app.get_oo_object(self._app.odesign, "Thermal")
             cc_names = self._app.get_oo_name(cc)
             if self._name in cc_names:
-                child_object = cc.GetChildObject(self._name)
-        elif "Boundaries" in design_childs:
+                return cc.GetChildObject(self._name)
+
+        if "Boundaries" in design_childs:
             cc = self._app.get_oo_object(self._app.odesign, "Boundaries")
             if self._name in cc.GetChildNames():
-                child_object = cc.GetChildObject(self._name)
-            elif "Excitations" in design_childs and self._name in self._app.get_oo_name(
-                self._app.odesign, "Excitations"
-            ):
-                child_object = self._app.get_oo_object(self._app.odesign, "Excitations").GetChildObject(self._name)
-            elif self._app.design_type in ["Maxwell 3D", "Maxwell 2D"] and "Model" in design_childs:
-                model = self._app.get_oo_object(self._app.odesign, "Model")
-                if self._name in model.GetChildNames():
-                    child_object = model.GetChildObject(self._name)
-            elif "Excitations" in design_childs and self._app.get_oo_name(self._app.odesign, "Excitations"):
+                return cc.GetChildObject(self._name)
+
+        if "Excitations" in design_childs:
+            if self._name in self._app.get_oo_name(self._app.odesign, "Excitations"):
+                return self._app.get_oo_object(self._app.odesign, "Excitations").GetChildObject(self._name)
+            elif self._app.get_oo_name(self._app.odesign, "Excitations"):
                 for port in self._app.get_oo_name(self._app.odesign, "Excitations"):
                     terminals = self._app.get_oo_name(self._app.odesign, f"Excitations\\{port}")
                     if self._name in terminals:
-                        child_object = self._app.get_oo_object(self._app.odesign, f"Excitations\\{port}\\{self._name}")
-            elif "Conductors" in design_childs and self._app.get_oo_name(self._app.odesign, "Conductors"):
-                for port in self._app.get_oo_name(self._app.odesign, "Conductors"):
-                    if self._name == port:
-                        child_object = self._app.get_oo_object(self._app.odesign, f"Conductors\\{port}")
+                        return self._app.get_oo_object(self._app.odesign, f"Excitations\\{port}\\{self._name}")
 
-        if not child_object and "Nets" in design_childs:
-            cc = self._app.get_oo_object(self._app.odesign, "Nets")
-            cc_names = self._app.get_oo_name(cc)
-            if self._name in cc_names:
-                child_object = cc.GetChildObject(self._name)
+        if self._app.design_type in ["Maxwell 3D", "Maxwell 2D"] and "Model" in design_childs:
+            model = self._app.get_oo_object(self._app.odesign, "Model")
+            if self._name in model.GetChildNames():
+                return model.GetChildObject(self._name)
 
-        return child_object
+        if "Conductors" in design_childs and self._app.get_oo_name(self._app.odesign, "Conductors"):
+            for port in self._app.get_oo_name(self._app.odesign, "Conductors"):
+                if self._name == port:
+                    return self._app.get_oo_object(self._app.odesign, f"Conductors\\{port}")
+
+        return None
 
     @property
     def props(self):
@@ -325,6 +332,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
         if self._child_object:
             try:
                 self.properties["Name"] = value
+                self._app._boundaries[value] = self
             except KeyError:
                 self._app.logger.error("Name %s already assigned in the design", value)
 

@@ -180,12 +180,31 @@ class TestClass:
         assert sink.name == "Sink1"
         assert len(self.aedtapp.excitations) > 0
 
-    def test_07B_create_source_tosheet(self):
+    def test_07b_create_source_to_sheet(self):
+        self.aedtapp.insert_design("source_to_sheet")
+
+        udp = self.aedtapp.modeler.Position(0, 0, 0)
+        coax_dimension = 30
+        o1 = self.aedtapp.modeler.create_cylinder(
+            self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, name="MyCylinder", material="brass"
+        )
+
+        udp = self.aedtapp.modeler.Position(10, 10, 0)
+        coax_dimension = 30
+        o2 = self.aedtapp.modeler.create_cylinder(
+            self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, name="GND", material="brass"
+        )
+
+        self.aedtapp.auto_identify_nets()
         self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, [0, 0, 0], 4, name="Source1")
-        self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, [10, 10, 10], 4, name="Sink1")
+        self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, [0, 0, coax_dimension], 4, name="Sink1")
+
+        self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, [10, 10, 0], 4, name="Source2")
+        self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, [10, 10, coax_dimension], 4, name="Sink2")
 
         source = self.aedtapp.source("Source1", name="Source3")
         sink = self.aedtapp.sink("Sink1", name="Sink3")
+
         assert source.name == "Source3"
         assert sink.name == "Sink3"
         assert source.props["TerminalType"] == "ConstantVoltage"
@@ -193,19 +212,20 @@ class TestClass:
 
         self.aedtapp.modeler.delete("Source1")
         self.aedtapp.modeler.delete("Sink1")
+
         self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, [0, 0, 0], 4, name="Source1")
-        self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, [10, 10, 10], 4, name="Sink1")
+        self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, [0, 0, coax_dimension], 4, name="Sink1")
+
         source = self.aedtapp.source("Source1", name="Source3", terminal_type="current")
         sink = self.aedtapp.sink("Sink1", name="Sink3", terminal_type="current")
+
         assert source.props["TerminalType"] == "UniformCurrent"
         assert sink.props["TerminalType"] == "UniformCurrent"
 
-        self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, [0, 0, 0], 4, name="Source1")
-        self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, [10, 10, 10], 4, name="Sink1")
+        source = self.aedtapp.source("Source2", name="Cylinder1", net_name="GND")
+        source.props["Objects"] = ["Source2"]
+        sink = self.aedtapp.sink("Sink2", net_name="GND")
 
-        source = self.aedtapp.source(["Source1", "Sink1"], name="Cylinder1", net_name="GND")
-        source.props["Objects"] = ["Source1"]
-        sink = self.aedtapp.sink("Sink1", net_name="GND")
         assert source
         assert sink
         sink.name = "My_new_name"
