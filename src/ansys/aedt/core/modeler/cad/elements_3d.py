@@ -1375,9 +1375,9 @@ class BinaryTreeNode:
         self._node = node
         self.child_object = child_object
         self.auto_update = True
-        self._first_level = first_level
         self._children = {}
-        if self._first_level:
+        self.__first_level = first_level
+        if first_level:
             self._update_children()
 
     def _update_children(self):
@@ -1412,7 +1412,7 @@ class BinaryTreeNode:
                     self._children[name] = BinaryTreeNode(
                         name, self.child_object.GetChildObject(i).GetChildObject(name), root_name=self._saved_root_name
                     )
-        if self._first_level:
+        if self.__first_level:
 
             self.child_object = self._children[name].child_object
             self._props = self._children[name].properties
