@@ -1417,6 +1417,8 @@ class BinaryTreeNode:
         :class:``ansys.aedt.coree.modeler.cad.elements_3d.HistoryProps``
         """
         self._props = {}
+        if not getattr(self, "child_object", None):
+            return self._props
         if settings.aedt_version >= "2024.2":
             try:
                 from ansys.aedt.core.application import _get_data_model

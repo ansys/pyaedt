@@ -325,13 +325,13 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
     @property
     def name(self):
         """Boundary Name."""
-        if self._child_object:
+        if getattr(self, "child_object", None):
             self._name = str(self.properties["Name"])
         return self._name
 
     @name.setter
     def name(self, value):
-        if self._child_object:
+        if getattr(self, "child_object", None):
             try:
                 self.properties["Name"] = value
                 self._app._boundaries[value] = self
