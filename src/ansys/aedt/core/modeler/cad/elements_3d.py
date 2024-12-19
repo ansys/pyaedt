@@ -1370,43 +1370,59 @@ class BinaryTreeNode:
         self._props = None
         if not root_name:
             root_name = node
-        saved_root_name = node if first_level else root_name
+        self._saved_root_name = node if first_level else root_name
+        self._get_child_obj_arg = get_child_obj_arg
         self._node = node
         self.child_object = child_object
-        self.children = {}
         self.auto_update = True
+        self._first_level = first_level
+        self._children = {}
+
+    def _update_children(self):
+        self._children = {}
         name = None
         try:
-            if get_child_obj_arg is None:
-                child_names = [i for i in list(child_object.GetChildNames()) if not i.startswith("CachedBody")]
+            if self._get_child_obj_arg is None:
+                child_names = [i for i in list(self.child_object.GetChildNames()) if not i.startswith("CachedBody")]
             else:
                 child_names = [
-                    i for i in list(child_object.GetChildNames(get_child_obj_arg)) if not i.startswith("CachedBody")
+                    i
+                    for i in list(self.child_object.GetChildNames(self._get_child_obj_arg))
+                    if not i.startswith("CachedBody")
                 ]
         except Exception:  # pragma: no cover
             child_names = []
         for i in child_names:
             if not name:
                 name = i
-            if i == "OperandPart_" + saved_root_name or i == "OperandPart_" + saved_root_name.split("_")[0]:
+            if i == "OperandPart_" + self._saved_root_name or i == "OperandPart_" + self._saved_root_name.split("_")[0]:
                 continue
             elif not i.startswith("OperandPart_"):
                 try:
-                    self.children[i] = BinaryTreeNode(i, self.child_object.GetChildObject(i), root_name=saved_root_name)
+                    self._children[i] = BinaryTreeNode(
+                        i, self.child_object.GetChildObject(i), root_name=self._saved_root_name
+                    )
                 except Exception:  # nosec
                     pass
             else:
                 names = self.child_object.GetChildObject(i).GetChildNames()
                 for name in names:
-                    self.children[name] = BinaryTreeNode(
-                        name, self.child_object.GetChildObject(i).GetChildObject(name), root_name=saved_root_name
+                    self._children[name] = BinaryTreeNode(
+                        name, self.child_object.GetChildObject(i).GetChildObject(name), root_name=self._saved_root_name
                     )
-        if first_level:
-            self.child_object = self.children[name].child_object
-            self._props = self.children[name]._props
+        if self._first_level:
+
+            self.child_object = self._children[name].child_object
+            self._props = self._children[name].properties
             if name == "CreatePolyline:1":
-                self.segments = self.children[name].children
-            del self.children[name]
+                self.segments = self._children[name].children
+            del self._children[name]
+
+    @property
+    def children(self):
+        if not self._children:
+            self._update_children()
+        return self._children
 
     @property
     def properties(self):
