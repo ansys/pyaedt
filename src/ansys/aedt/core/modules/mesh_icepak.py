@@ -870,8 +870,8 @@ class MeshRegion(MeshRegionCommon):
         """
         if isinstance(self._assignment, SubRegion):
             if self.name in self._app.odesign.GetChildObject("Mesh").GetChildNames():
-                if self._app.settings.aedt_version < "2024.2":
-                    # try to update name, APIs lacking a lot
+                if self._app.settings.aedt_version < "2024.2":  # pragma : no cover
+                    # try to update name, APIs lacking an easy method before 242
                     parts = []
                     subparts = []
                     if "Parts" in self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropNames():
