@@ -3437,7 +3437,7 @@ class PostProcessor3D(PostProcessorCommon):
 
         Returns
         -------
-        :class:`ansys.aedt.core.generic.plot.ModelPlotter`
+        :class:`ansys.aedt.core.visualization.plot.pyvista.ModelPlotter`
             Model Object.
         """
         intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
