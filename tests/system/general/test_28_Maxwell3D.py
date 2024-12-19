@@ -606,6 +606,7 @@ class TestClass:
         matrix = aedtapp.assign_matrix(assignment="Voltage1")
         assert matrix.props["MatrixEntry"]["MatrixEntry"][0]["Source"] == "Voltage1"
         assert matrix.props["MatrixEntry"]["MatrixEntry"][0]["NumberOfTurns"] == "1"
+        # IMPROVE
         cat = aedtapp.post.available_quantities_categories(context=matrix.name)
         assert isinstance(cat, list)
         assert "C" in cat
