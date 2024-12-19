@@ -159,7 +159,7 @@ class MeshOperation(BinaryTreeNode):
         """
         if not self._legacy_props:
             props = {}
-            for k, v in self.properties.items():
+            for k, v in super().properties.items():
                 props[k] = v
             if "Assignment" in props:
                 assignment = props["Assignment"]
