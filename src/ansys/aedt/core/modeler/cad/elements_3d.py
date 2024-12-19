@@ -1370,43 +1370,60 @@ class BinaryTreeNode:
         self._props = None
         if not root_name:
             root_name = node
-        saved_root_name = node if first_level else root_name
-        self.node = node
+        self._saved_root_name = node if first_level else root_name
+        self._get_child_obj_arg = get_child_obj_arg
+        self._node = node
         self.child_object = child_object
-        self.children = {}
         self.auto_update = True
+        self._children = {}
+        self.__first_level = first_level
+        if first_level:
+            self._update_children()
+
+    def _update_children(self):
+        self._children = {}
         name = None
         try:
-            if get_child_obj_arg is None:
-                child_names = [i for i in list(child_object.GetChildNames()) if not i.startswith("CachedBody")]
+            if self._get_child_obj_arg is None:
+                child_names = [i for i in list(self.child_object.GetChildNames()) if not i.startswith("CachedBody")]
             else:
                 child_names = [
-                    i for i in list(child_object.GetChildNames(get_child_obj_arg)) if not i.startswith("CachedBody")
+                    i
+                    for i in list(self.child_object.GetChildNames(self._get_child_obj_arg))
+                    if not i.startswith("CachedBody")
                 ]
         except Exception:  # pragma: no cover
             child_names = []
         for i in child_names:
             if not name:
                 name = i
-            if i == "OperandPart_" + saved_root_name or i == "OperandPart_" + saved_root_name.split("_")[0]:
+            if i == "OperandPart_" + self._saved_root_name or i == "OperandPart_" + self._saved_root_name.split("_")[0]:
                 continue
             elif not i.startswith("OperandPart_"):
                 try:
-                    self.children[i] = BinaryTreeNode(i, self.child_object.GetChildObject(i), root_name=saved_root_name)
+                    self._children[i] = BinaryTreeNode(
+                        i, self.child_object.GetChildObject(i), root_name=self._saved_root_name
+                    )
                 except Exception:  # nosec
                     pass
             else:
                 names = self.child_object.GetChildObject(i).GetChildNames()
                 for name in names:
-                    self.children[name] = BinaryTreeNode(
-                        name, self.child_object.GetChildObject(i).GetChildObject(name), root_name=saved_root_name
+                    self._children[name] = BinaryTreeNode(
+                        name, self.child_object.GetChildObject(i).GetChildObject(name), root_name=self._saved_root_name
                     )
-        if first_level:
-            self.child_object = self.children[name].child_object
-            self._props = self.children[name]._props
+        if name and self.__first_level:
+            self.child_object = self._children[name].child_object
+            self._props = self._children[name].properties
             if name == "CreatePolyline:1":
-                self.segments = self.children[name].children
-            del self.children[name]
+                self.segments = self._children[name].children
+            del self._children[name]
+
+    @property
+    def children(self):
+        if not self._children:
+            self._update_children()
+        return self._children
 
     @property
     def properties(self):
@@ -1417,6 +1434,8 @@ class BinaryTreeNode:
         :class:``ansys.aedt.coree.modeler.cad.elements_3d.HistoryProps``
         """
         self._props = {}
+        if not getattr(self, "child_object", None):
+            return self._props
         if settings.aedt_version >= "2024.2":
             try:
                 from ansys.aedt.core.application import _get_data_model
@@ -1464,18 +1483,28 @@ class BinaryTreeNode:
         bool
             ``True`` when successful, ``False`` when failed.
         """
+        if prop_value is None:
+            settings.logger.warning(f"Property {prop_name} set to None ignored.")
+            return
         try:
-            self.child_object.SetPropValue(prop_name, prop_value)
-            return True
+            result = self.child_object.SetPropValue(prop_name, prop_value)
+            if result:
+                if prop_name == "Name" and getattr(self, "_name", False):
+                    setattr(self, "_name", prop_value)
+            else:
+                settings.logger.warning(f"Property {prop_name} is read-only.")
+                # Property Name duplicated
+                return
         except Exception:  # pragma: no cover
-            return False
+            # Property read-only
+            raise KeyError
 
     @pyaedt_function_handler
     def _jsonalize_tree(self, binary_tree_node):
         childrend_dict = {}
         for _, node in binary_tree_node.children.items():
             childrend_dict.update(self._jsonalize_tree(node))
-        return {binary_tree_node.node: {"Props": binary_tree_node.properties, "Children": childrend_dict}}
+        return {binary_tree_node._node: {"Props": binary_tree_node.properties, "Children": childrend_dict}}
 
     @pyaedt_function_handler
     def jsonalize_tree(self):
@@ -1496,7 +1525,7 @@ class BinaryTreeNode:
                     "NAME:AllTabs",
                     [
                         "NAME:Geometry3DCmdTab",
-                        ["NAME:PropServers", node.child_object.GetObjPath().split("/")[3] + ":" + node.node],
+                        ["NAME:PropServers", node.child_object.GetObjPath().split("/")[3] + ":" + node._node],
                         ["NAME:ChangedProps", ["NAME:Suppress Command", "Value:=", suppress]],
                     ],
                 ]

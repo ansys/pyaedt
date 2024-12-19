@@ -52,9 +52,26 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode):
         self._name = component_name
         self.__props = BoundaryProps(self, props) if props else {}
         self.auto_update = True
-        child_object = self._app.get_oo_object(self._app.odesign, f"Radiation/{self._name}")
-        if child_object:
-            BinaryTreeNode.__init__(self, self._name, child_object, False)
+        self._initialize_bynary_tree()
+
+    @property
+    def _child_object(self):
+        """Object-oriented properties.
+
+        Returns
+        -------
+        class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTreeNode`
+
+        """
+        child_object = None
+        design_childs = self._app.get_oo_name(self._app.odesign)
+
+        if "Radiation" in design_childs:
+            cc = self._app.get_oo_object(self._app.odesign, "Radiation")
+            cc_names = self._app.get_oo_name(cc)
+            if self._name in cc_names:
+                child_object = cc.GetChildObject(self._name)
+        return child_object
 
     @property
     def props(self):
@@ -76,13 +93,18 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode):
 
     @property
     def name(self):
-        """Variable name."""
+        """Boundary Name."""
+        if self._child_object:
+            self._name = str(self.properties["Name"])
         return self._name
 
     @name.setter
     def name(self, value):
-        self._app.oradfield.RenameSetup(self._name, value)
-        self._name = value
+        if self._child_object:
+            try:
+                self.properties["Name"] = value
+            except KeyError:
+                self._app.logger.error("Name %s already assigned in the design", value)
 
     @pyaedt_function_handler()
     def _get_args(self, props=None):
@@ -102,7 +124,6 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode):
             ``True`` when successful, ``False`` when failed.
 
         """
-
         if self.type == "FarFieldSphere":
             self._app.oradfield.InsertInfiniteSphereSetup(self._get_args())
         elif self.type == "NearFieldBox":
@@ -117,10 +138,7 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode):
             self._app.oradfield.AddAntennaOverlay(self._get_args())
         elif self.type == "FieldSourceGroup":
             self._app.oradfield.AddRadFieldSourceGroup(self._get_args())
-        child_object = self._app.get_oo_object(self._app.odesign, f"Radiation/{self._name}")
-        if child_object:
-            BinaryTreeNode.__init__(self, self._name, child_object, False)
-        return True
+        return self._initialize_bynary_tree()
 
     @pyaedt_function_handler()
     def update(self):
