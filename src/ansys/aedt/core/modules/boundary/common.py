@@ -419,6 +419,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
             self._app.oboundary.AssignDependent(self._get_args())
         elif bound_type == "Band":
             self._app.omodelsetup.AssignBand(self._get_args())
+            return True
         elif bound_type == "InfiniteGround":
             self._app.oboundary.AssignInfiniteGround(self._get_args())
         elif bound_type == "ThinConductor":
