@@ -302,7 +302,6 @@ class BoundaryObject3dLayout(BoundaryCommon, BinaryTreeNode):
         if props:
             self.__props = BoundaryProps(self, props)
         self.type = boundarytype
-        self._boundary_name = self.name
         self.auto_update = True
         if self._child_object:
             BinaryTreeNode.__init__(self, self.name, self._child_object, False)

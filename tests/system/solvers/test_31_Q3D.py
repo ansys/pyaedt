@@ -206,7 +206,6 @@ class TestClass:
         source = self.aedtapp.source(["Source1", "Sink1"], name="Cylinder1", net_name="GND")
         source.props["Objects"] = ["Source1"]
         sink = self.aedtapp.sink("Sink1", net_name="GND")
-        sink.properties
         assert source
         assert sink
         sink.name = "My_new_name"
