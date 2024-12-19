@@ -73,7 +73,10 @@ class RMXprtModule(object):
                     prps = dict_in.properties[name][::]
                     prps[1] = value
                     value = prps
-                dict_in.properties[name] = value
+                try:
+                    dict_in.properties[name] = value
+                except KeyError:
+                    self._app.logger.error(f"{name} is read only.")
                 return True
             else:
                 for _, child in dict_in.children.items():
