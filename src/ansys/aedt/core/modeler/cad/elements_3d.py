@@ -1412,8 +1412,7 @@ class BinaryTreeNode:
                     self._children[name] = BinaryTreeNode(
                         name, self.child_object.GetChildObject(i).GetChildObject(name), root_name=self._saved_root_name
                     )
-        if self.__first_level:
-
+        if name and self.__first_level:
             self.child_object = self._children[name].child_object
             self._props = self._children[name].properties
             if name == "CreatePolyline:1":
