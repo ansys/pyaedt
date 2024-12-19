@@ -133,7 +133,7 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode):
     def name(self):
         """Boundary Name."""
         if self._child_object:
-            self._name = self.properties["Name"]
+            self._name = str(self.properties["Name"])
         return self._name
 
     @name.setter
@@ -218,8 +218,7 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode):
             self.excitation_name = a[0].split(":")[0]
         except (GrpcApiError, IndexError):
             self.excitation_name = self._name
-        self._initialize_bynary_tree()
-        return True
+        return self._initialize_bynary_tree()
 
     @pyaedt_function_handler()
     def update(self):

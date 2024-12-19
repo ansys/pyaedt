@@ -125,7 +125,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode):
     def name(self):
         """Boundary Name."""
         if self._child_object:
-            self._name = self.properties["Name"]
+            self._name = str(self.properties["Name"])
         return self._name
 
     @name.setter
@@ -177,8 +177,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode):
             self._app.o_maxwell_parameters.AssignLayoutForce(self._get_args())
         else:
             return False
-        self._initialize_bynary_tree()
-        return True
+        return self._initialize_bynary_tree()
 
     @pyaedt_function_handler()
     def update(self):

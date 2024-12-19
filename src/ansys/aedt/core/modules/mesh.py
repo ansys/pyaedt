@@ -212,7 +212,7 @@ class MeshOperation(BinaryTreeNode):
 
         """
         if self._child_object:
-            self._name = self.properties["Name"]
+            self._name = str(self.properties["Name"])
         return self._name
 
     @name.setter
@@ -259,8 +259,7 @@ class MeshOperation(BinaryTreeNode):
             self._mesh.omeshmodule.AssignCylindricalGapOp(self._get_args())
         else:
             return False
-        self._initialize_bynary_tree()
-        return True
+        return self._initialize_bynary_tree()
 
     @pyaedt_function_handler()
     def update(self, key_name=None, value=None):
@@ -409,6 +408,8 @@ class MeshOperation(BinaryTreeNode):
     def _initialize_bynary_tree(self):
         if self._child_object:
             BinaryTreeNode.__init__(self, self._name, self._child_object, False)
+            return True
+        return False
 
 
 class Mesh(object):

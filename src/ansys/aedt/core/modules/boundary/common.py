@@ -96,6 +96,8 @@ class BoundaryCommon(PropsManager):
     def _initialize_bynary_tree(self):
         if self._child_object:
             BinaryTreeNode.__init__(self, self._name, self._child_object, False)
+            return True
+        return False
 
     @pyaedt_function_handler()
     def delete(self):
@@ -324,7 +326,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
     def name(self):
         """Boundary Name."""
         if self._child_object:
-            self._name = self.properties["Name"]
+            self._name = str(self.properties["Name"])
         return self._name
 
     @name.setter
@@ -523,10 +525,12 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
             )
         elif bound_type == "SBRTxRxSettings":
             self._app.oboundary.SetSBRTxRxSettings(self._get_args())
+            return True
         elif bound_type == "EndConnection":
             self._app.oboundary.AssignEndConnection(self._get_args())
         elif bound_type == "Hybrid":
             self._app.oboundary.AssignHybridRegion(self._get_args())
+            return True
         elif bound_type == "FluxTangential":
             self._app.oboundary.AssignFluxTangential(self._get_args())
         elif bound_type == "Plane Incident Wave":
@@ -536,9 +540,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
         else:
             return False
 
-        self._initialize_bynary_tree()
-
-        return True
+        return self._initialize_bynary_tree()
 
     @pyaedt_function_handler()
     def update(self):

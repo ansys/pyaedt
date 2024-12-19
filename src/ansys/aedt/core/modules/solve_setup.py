@@ -97,6 +97,8 @@ class CommonSetup(PropsManager, BinaryTreeNode):
     def _initialize_bynary_tree(self):
         if self._child_object:
             BinaryTreeNode.__init__(self, self._name, self._child_object, False)
+            return True
+        return False
 
     @property
     def sweeps(self):
@@ -556,8 +558,8 @@ class Setup(CommonSetup):
 
         Returns
         -------
-        dict
-            Dictionary of arguments.
+        bool
+            Result of operation.
 
         References
         ----------
@@ -567,8 +569,7 @@ class Setup(CommonSetup):
         arg = ["NAME:" + self._name]
         _dict2arg(self.props, arg)
         self.omodule.InsertSetup(soltype, arg)
-        self._initialize_bynary_tree()
-        return arg
+        return self._initialize_bynary_tree()
 
     @pyaedt_function_handler(update_dictionary="properties")
     def update(self, properties=None):
@@ -1155,8 +1156,8 @@ class SetupCircuit(CommonSetup):
 
         Returns
         -------
-        dict
-            Dictionary of the arguments.
+        bool
+            Result of operation.
 
         References
         ----------
@@ -1171,8 +1172,7 @@ class SetupCircuit(CommonSetup):
         arg = ["NAME:SimSetup"]
         _dict2arg(self.props, arg)
         self._setup(soltype, arg)
-        self._initialize_bynary_tree()
-        return arg
+        return self._initialize_bynary_tree()
 
     @pyaedt_function_handler()
     def _setup(self, soltype, arg, newsetup=True):
@@ -1913,8 +1913,7 @@ class Setup3DLayout(CommonSetup):
         arg = ["NAME:" + self.name]
         _dict2arg(self.props, arg)
         self.omodule.Add(arg)
-        self._initialize_bynary_tree()
-        return True
+        return self._initialize_bynary_tree()
 
     @pyaedt_function_handler(update_dictionary="properties")
     def update(self, properties=None):

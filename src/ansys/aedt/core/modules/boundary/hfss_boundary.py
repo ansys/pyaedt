@@ -95,7 +95,7 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode):
     def name(self):
         """Boundary Name."""
         if self._child_object:
-            self._name = self.properties["Name"]
+            self._name = str(self.properties["Name"])
         return self._name
 
     @name.setter
@@ -138,8 +138,7 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode):
             self._app.oradfield.AddAntennaOverlay(self._get_args())
         elif self.type == "FieldSourceGroup":
             self._app.oradfield.AddRadFieldSourceGroup(self._get_args())
-        self._initialize_bynary_tree()
-        return True
+        return self._initialize_bynary_tree()
 
     @pyaedt_function_handler()
     def update(self):
