@@ -618,6 +618,11 @@ class TestClass:
     def test_reduced_matrix(self, add_app):
         aedtapp = add_app(application=Maxwell3d, solution_type="EddyCurrent")
 
+        aedtapp.modeler.create_box([0, 1.5, 0], [1, 2.5, 5], name="Coil_1", material="aluminum")
+        aedtapp.modeler.create_box([8.5, 1.5, 0], [1, 2.5, 5], name="Coil_2", material="aluminum")
+        aedtapp.modeler.create_box([16, 1.5, 0], [1, 2.5, 5], name="Coil_3", material="aluminum")
+        aedtapp.modeler.create_box([32, 1.5, 0], [1, 2.5, 5], name="Coil_4", material="aluminum")
+
         rectangle1 = aedtapp.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
         rectangle2 = aedtapp.modeler.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
         rectangle3 = aedtapp.modeler.create_rectangle(0, [16.5, 1.5, 0], [2.5, 5], name="Sheet3")
@@ -635,11 +640,13 @@ class TestClass:
         aedtapp.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
         out = matrix.join_series(sources=["Cur1", "Cur2"], matrix_name="ReducedMatrix1")
         assert matrix.reduced_matrices
-        assert isinstance(out[0], str)
-        assert isinstance(out[1], str)
+        assert matrix.reduced_matrices[0].name == "ReducedMatrix1"
+        assert matrix.reduced_matrices[0].parent_matrix == "Matrix1"
+        assert out[1] in matrix.reduced_matrices[0].sources.keys()
         out = matrix.join_parallel(["Cur1", "Cur3"], matrix_name="ReducedMatrix2")
-        assert isinstance(out[0], str)
-        assert isinstance(out[1], str)
+        assert matrix.reduced_matrices[1].name == "ReducedMatrix2"
+        assert matrix.reduced_matrices[1].parent_matrix == "Matrix1"
+        assert out[1] in matrix.reduced_matrices[1].sources.keys()
         out = matrix.join_parallel(["Cur5"])
         assert not out[0]
         aedtapp.close_project(aedtapp.project_name)
