@@ -1377,6 +1377,8 @@ class BinaryTreeNode:
         self.auto_update = True
         self._first_level = first_level
         self._children = {}
+        if self._first_level:
+            self._update_children()
 
     def _update_children(self):
         self._children = {}
