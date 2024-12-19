@@ -649,6 +649,6 @@ class TestClass:
         m3d = app.create_maxwell_design("Setup1", maxwell_2d=False)
         assert m3d.design_type == "Maxwell 3D"
         config = app.export_configuration(os.path.join(self.local_scratch.path, "assm.json"))
-        app2 = add_app("assm_test2", application=Rmxprt)
+        app2 = add_app("assm_test2", application=Rmxprt, solution_type="ASSM")
         app2.import_configuration(config)
         assert app2.circuit

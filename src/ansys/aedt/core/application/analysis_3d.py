@@ -1377,7 +1377,7 @@ class FieldAnalysis3D(Analysis, object):
         input_file : str
             Path to the GDS file.
         mapping_layers : dict
-            Dictionary keys are GDS layer numbers, and the value is a tuple with the thickness and elevation.
+            Dictionary keys are GDS layer numbers, and the value is a tuple with the elevation and thickness.
         units : str, optional
             Length unit values. The default is ``"um"``.
         import_method : integer, optional

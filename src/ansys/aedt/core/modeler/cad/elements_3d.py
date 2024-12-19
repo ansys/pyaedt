@@ -1371,7 +1371,7 @@ class BinaryTreeNode:
         if not root_name:
             root_name = node
         saved_root_name = node if first_level else root_name
-        self.node = node
+        self._node = node
         self.child_object = child_object
         self.children = {}
         self.auto_update = True
@@ -1464,18 +1464,28 @@ class BinaryTreeNode:
         bool
             ``True`` when successful, ``False`` when failed.
         """
+        if prop_value is None:
+            settings.logger.warning(f"Property {prop_name} set to None ignored.")
+            return
         try:
-            self.child_object.SetPropValue(prop_name, prop_value)
-            return True
+            result = self.child_object.SetPropValue(prop_name, prop_value)
+            if result:
+                if prop_name == "Name" and getattr(self, "_name", False):
+                    setattr(self, "_name", prop_value)
+            else:
+                settings.logger.warning(f"Property {prop_name} is read-only.")
+                # Property Name duplicated
+                return
         except Exception:  # pragma: no cover
-            return False
+            # Property read-only
+            raise KeyError
 
     @pyaedt_function_handler
     def _jsonalize_tree(self, binary_tree_node):
         childrend_dict = {}
         for _, node in binary_tree_node.children.items():
             childrend_dict.update(self._jsonalize_tree(node))
-        return {binary_tree_node.node: {"Props": binary_tree_node.properties, "Children": childrend_dict}}
+        return {binary_tree_node._node: {"Props": binary_tree_node.properties, "Children": childrend_dict}}
 
     @pyaedt_function_handler
     def jsonalize_tree(self):
@@ -1496,7 +1506,7 @@ class BinaryTreeNode:
                     "NAME:AllTabs",
                     [
                         "NAME:Geometry3DCmdTab",
-                        ["NAME:PropServers", node.child_object.GetObjPath().split("/")[3] + ":" + node.node],
+                        ["NAME:PropServers", node.child_object.GetObjPath().split("/")[3] + ":" + node._node],
                         ["NAME:ChangedProps", ["NAME:Suppress Command", "Value:=", suppress]],
                     ],
                 ]

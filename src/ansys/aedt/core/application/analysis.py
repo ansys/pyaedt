@@ -530,6 +530,16 @@ class Analysis(Design, object):
             if el.name in exc_names:
                 self._excitation_objects[el.name] = el
 
+        # Delete objects that are not anymore available
+        keys_to_remove = [
+            internal_excitation
+            for internal_excitation in self._excitation_objects
+            if internal_excitation not in self.excitations
+        ]
+
+        for key in keys_to_remove:
+            del self._excitation_objects[key]
+
         return self._excitation_objects
 
     @pyaedt_function_handler()
