@@ -1464,14 +1464,18 @@ class BinaryTreeNode:
         bool
             ``True`` when successful, ``False`` when failed.
         """
+        if prop_value is None:
+            settings.logger.warning(f"Property {prop_name} set to None ignored.")
+            return
         try:
             result = self.child_object.SetPropValue(prop_name, prop_value)
             if result:
                 if prop_name == "Name" and getattr(self, "_name", False):
                     setattr(self, "_name", prop_value)
             else:
+                settings.logger.warning(f"Property {prop_name} is read-only.")
                 # Property Name duplicated
-                raise KeyError
+                return
         except Exception:  # pragma: no cover
             # Property read-only
             raise KeyError

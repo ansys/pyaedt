@@ -118,10 +118,11 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode):
 
         """
         child_object = None
-        design_childs = self._app.get_oo_name(self._app.oeditor)
-
-        if self._name in design_childs:
-            child_object = self._app.get_oo_object(self._app.oeditor, self._name)
+        for el in self._app.oeditor.GetChildNames("ComponentDefinition"):
+            design_childs = self._app.get_oo_object(self._app.oeditor, el).GetChildNames()
+            if self._name in design_childs:
+                child_object = self._app.get_oo_object(self._app.oeditor, f"{el}\\{self._name}")
+                break
         return child_object
 
     @property
@@ -130,29 +131,21 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode):
 
     @property
     def name(self):
-        """Name of the object.
-
-        Returns
-        -------
-        str
-           Name of the object.
-
-        """
+        """Boundary Name."""
+        if self._child_object:
+            self._name = self.properties["Name"]
         return self._name
 
     @name.setter
-    def name(self, component_name):
-        if component_name != self._name:
-            if component_name not in self._app.native_component_names and self._child_object:
-                try:
-                    self.properties["Name"] = component_name
-                    self._app.native_components.update({component_name: self})
-                    del self._app.native_components[self._name]
-                    del self._app.modeler.user_defined_components[self._name]
-                except KeyError:
-                    self._app.logger.error("Name %s already assigned in the design", component_name)
-            else:  # pragma: no cover
-                self._app._logger.warning("Name %s already assigned in the design", component_name)
+    def name(self, value):
+        if self._child_object:
+            try:
+                legacy_name = self._name
+                self.properties["Name"] = value
+                self._app.modeler.user_defined_components[self._name] = self
+                del self._app.modeler.user_defined_components[legacy_name]
+            except KeyError:
+                self._app.logger.error("Name %s already assigned in the design", value)
 
     @property
     def definition_name(self):
@@ -224,7 +217,7 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode):
             a = [i for i in self._app.excitations if i not in names]
             self.excitation_name = a[0].split(":")[0]
         except (GrpcApiError, IndexError):
-            self.excitation_name = self.name
+            self.excitation_name = self._name
         self._initialize_bynary_tree()
         return True
 

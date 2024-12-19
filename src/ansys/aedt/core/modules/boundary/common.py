@@ -681,8 +681,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
             self._app.oboundary.EditResistiveSheet(self.name, self._get_args())
         else:
             return False  # pragma: no cover
-        # self._app._boundaries[self.name] = self._app._boundaries.pop(self._boundary_name)
-        # self._boundary_name = self.name
+
         return True
 
     @pyaedt_function_handler()

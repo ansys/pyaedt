@@ -62,7 +62,6 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode):
         self._name = name
         self.__props = BoundaryProps(self, props) if props else {}
         self.type = boundarytype
-        self._boundary_name = self.name
         self.auto_update = True
         self.__reduced_matrices = None
         self.matrix_assignment = None
@@ -98,10 +97,10 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode):
 
         cc = self._app.odesign.GetChildObject("Parameters")
         child_object = None
-        if self.name in cc.GetChildNames():
-            child_object = self._app.odesign.GetChildObject("Parameters").GetChildObject(self.name)
-        elif self.name in self._app.odesign.GetChildObject("Parameters").GetChildNames():
-            child_object = self._app.odesign.GetChildObject("Parameters").GetChildObject(self.name)
+        if self._name in cc.GetChildNames():
+            child_object = self._app.odesign.GetChildObject("Parameters").GetChildObject(self._name)
+        elif self._name in self._app.odesign.GetChildObject("Parameters").GetChildNames():
+            child_object = self._app.odesign.GetChildObject("Parameters").GetChildObject(self._name)
 
         return child_object
 
@@ -192,14 +191,13 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode):
 
         """
         if self.type == "Matrix":
-            self._app.o_maxwell_parameters.EditMatrix(self._boundary_name, self._get_args())
+            self._app.o_maxwell_parameters.EditMatrix(self.name, self._get_args())
         elif self.type == "Force":
-            self._app.o_maxwell_parameters.EditForce(self._boundary_name, self._get_args())
+            self._app.o_maxwell_parameters.EditForce(self.name, self._get_args())
         elif self.type == "Torque":
-            self._app.o_maxwell_parameters.EditTorque(self._boundary_name, self._get_args())
+            self._app.o_maxwell_parameters.EditTorque(self.name, self._get_args())
         else:
             return False
-        self._boundary_name = self.name
         return True
 
     @pyaedt_function_handler()
