@@ -847,9 +847,7 @@ class FolderPlotSettings(BaseFolderPlot):
         self._folder_name = folder_name
 
     def update(self):
-        """
-        Update folder plot settings.
-        """
+        """Update folder plot settings."""
         out = []
         _dict2arg(self.to_dict(), out)
         self._postprocessor.ofieldsreporter.SetPlotFolderSettings(self._folder_name, out[0])

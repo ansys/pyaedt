@@ -467,7 +467,6 @@ class Modeler3D(Primitives3D):
 
         References
         ----------
-
         >>> oEditor.ReplaceWith3DComponent
         """
         if not variables_to_include:
@@ -651,7 +650,6 @@ class Modeler3D(Primitives3D):
 
         References
         ----------
-
         >>> oEditor.CreateCylinder
         >>> oEditor.AssignMaterial
 
@@ -732,7 +730,6 @@ class Modeler3D(Primitives3D):
 
         References
         ----------
-
         >>> oEditor.CreateBox
         >>> oEditor.AssignMaterial
 
@@ -903,7 +900,6 @@ class Modeler3D(Primitives3D):
 
         References
         ----------
-
         >>> oEditor.CreatePolyline
         >>> oEditor.SweepAroundAxis
         >>> oEditor.ThickenSheet
@@ -1043,8 +1039,9 @@ class Modeler3D(Primitives3D):
         preview=False,
         merge_angle=1e-3,
     ):
-        """Import Nastran file into 3D Modeler by converting the faces to stl and reading it. The solids are
-        translated directly to AEDT format.
+        """Import Nastran file into 3D Modeler by converting the faces to stl and reading it.
+
+        The solids are translated directly to AEDT format.
 
         Parameters
         ----------

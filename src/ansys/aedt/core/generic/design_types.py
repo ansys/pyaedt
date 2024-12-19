@@ -97,7 +97,7 @@ def launch_desktop(
     port=0,
     aedt_process_id=None,
 ):
-    """Initializes AEDT based on the inputs provided.
+    """Initialize AEDT based on the inputs provided.
 
     Parameters
     ----------
@@ -187,7 +187,7 @@ app_map = {
 
 
 def get_pyaedt_app(project_name=None, design_name=None, desktop=None):
-    """Gets the PyAEDT object with a given project name and design name.
+    """Get the PyAEDT object with a given project name and design name.
 
     Parameters
     ----------

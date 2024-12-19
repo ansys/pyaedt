@@ -98,7 +98,7 @@ _recognized_keywords = [
     "Rotation",
     "PostProcessingCells",
 ]
-_recognized_subkeys = ["simple(", "IDMap(", "WireSeg(", "PC("]
+_recognized_subkeys = ["simple(", "IDMap(", "WireSeg(", "PC(", "Range("]
 
 # global variables
 _all_lines = []
@@ -200,6 +200,14 @@ def _decode_recognized_subkeys(sk, d):
         else:
             d["PC"] = []
             d["PC"].append(pclist)
+        return True
+    if sk.startswith(_recognized_subkeys[4]):
+        pclist = [i for i in sk.lstrip("Range(").rstrip(")").split(", ")]
+        if "Range" in d.keys():
+            d["Range"].append(pclist)
+        else:
+            d["Range"] = []
+            d["Range"].append(pclist)
         return True
     return False
 

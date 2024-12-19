@@ -26,7 +26,7 @@ import os
 import warnings
 
 import ansys.aedt.core
-from ansys.aedt.core import generate_unique_name
+from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import generate_unique_project_name
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler

@@ -257,7 +257,6 @@ class Materials(object):
 
         References
         ----------
-
         >>> oDefinitionManager.GetProjectMaterialNames
         >>> oMaterialManager.GetData
         """
@@ -283,7 +282,6 @@ class Materials(object):
 
         References
         ----------
-
         >>> oDefinitionManager.GetProjectMaterialNames
         >>> oMaterialManager.GetData
         """
@@ -347,7 +345,6 @@ class Materials(object):
 
         References
         ----------
-
         >>> oDefinitionManager.AddMaterial
 
         Examples
@@ -399,7 +396,6 @@ class Materials(object):
 
         References
         ----------
-
         >>> oDefinitionManager.AddSurfaceMaterial
 
         Examples
@@ -464,12 +460,10 @@ class Materials(object):
 
         References
         ----------
-
         >>> oDefinitionManager.AddMaterial
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.materials.add_material("MyMaterial")
@@ -527,7 +521,6 @@ class Materials(object):
 
         References
         ----------
-
         >>> oDefinitionManager.AddMaterial
 
         Examples
@@ -602,7 +595,6 @@ class Materials(object):
 
         References
         ----------
-
         >>> oDefinitionManager.AddSurfaceMaterial
 
         Examples
@@ -641,12 +633,10 @@ class Materials(object):
 
         References
         ----------
-
         >>> oDefinitionManager.RemoveMaterial
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.materials.add_material("MyMaterial")
@@ -965,7 +955,6 @@ class Materials(object):
 
         References
         ----------
-
         >>> oDefinitionManager.GetInUseProjectMaterialNames
         """
         return self.odefinition_manager.GetInUseProjectMaterialNames()

@@ -36,7 +36,7 @@ This interface works only on Windows and uses .NET COM objects.
 .. code:: python
 
 
-    from ansys.aedt.core import settings
+    from ansys.aedt.core.generic.settings import settings
 
     settings.use_grpc_api = False
 
