@@ -176,6 +176,7 @@ def frontend():  # pragma: no cover
             aedt_process_id=aedt_process_id,
             student_version=is_student,
         )
+        hfss.save_project()
         primitives = hfss.modeler.objects_by_layer(layer="via_merging")
         if not primitives:
             messagebox.showwarning(message="No primitives found on layer defined for merging padstack instances.")
