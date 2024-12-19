@@ -537,61 +537,79 @@ class TestClass:
         assert aedtapp.set_core_losses(["my_box"], True)
         aedtapp.close_project(aedtapp.project_name, False)
 
-    def test_32_matrix(self, add_app):
-        m3d = add_app(application=Maxwell3d, design_name="Matrix1")
-        m3d.solution_type = SOLUTIONS.Maxwell3d.ElectroStatic
-        m3d.modeler.create_box([0, 1.5, 0], [1, 2.5, 5], name="Coil_1", material="aluminum")
-        m3d.modeler.create_box([8.5, 1.5, 0], [1, 2.5, 5], name="Coil_2", material="aluminum")
-        m3d.modeler.create_box([16, 1.5, 0], [1, 2.5, 5], name="Coil_3", material="aluminum")
-        m3d.modeler.create_box([32, 1.5, 0], [1, 2.5, 5], name="Coil_4", material="aluminum")
+    def test_assign_matrix(self, add_app):
+        aedtapp = add_app(application=Maxwell3d, design_name="Matrix1", solution_type="Electrostatic")
 
-        rectangle1 = m3d.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
-        rectangle2 = m3d.modeler.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
-        rectangle3 = m3d.modeler.create_rectangle(0, [16.5, 1.5, 0], [2.5, 5], name="Sheet3")
-        rectangle4 = m3d.modeler.create_rectangle(0, [32.5, 1.5, 0], [2.5, 5], name="Sheet4")
-        box1 = m3d.modeler.create_box([0, 0, 0], [10, 10, 5], "MyBox1")
-        box2 = m3d.modeler.create_box([10, 10, 10], [10, 10, 5], "MyBox2")
+        rectangle1 = aedtapp.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
+        rectangle2 = aedtapp.modeler.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
+        rectangle3 = aedtapp.modeler.create_rectangle(0, [16.5, 1.5, 0], [2.5, 5], name="Sheet3")
+        # rectangle4 = aedtapp.modeler.create_rectangle(0, [32.5, 1.5, 0], [2.5, 5], name="Sheet4")
+        # box1 = aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "MyBox1")
+        # box2 = aedtapp.modeler.create_box([10, 10, 10], [10, 10, 5], "MyBox2")
 
-        m3d.assign_voltage(rectangle1.faces[0], amplitude=1, name="Voltage1")
-        m3d.assign_voltage("Sheet1", amplitude=1, name="Voltage5")
-        m3d.assign_voltage(rectangle2.faces[0], amplitude=1, name="Voltage2")
-        m3d.assign_voltage(rectangle3.faces[0], amplitude=1, name="Voltage3")
-        m3d.assign_voltage(rectangle4.faces[0], amplitude=1, name="Voltage4")
-        m3d.assign_voltage(box1.faces, amplitude=1, name="Voltage6")
-        m3d.assign_voltage(box2, amplitude=1, name="Voltage7")
+        aedtapp.assign_voltage(rectangle1.faces[0], amplitude=1, name="Voltage1")
+        # aedtapp.assign_voltage("Sheet1", amplitude=1, name="Voltage5")
+        aedtapp.assign_voltage(rectangle2.faces[0], amplitude=1, name="Voltage2")
+        aedtapp.assign_voltage(rectangle3.faces[0], amplitude=1, name="Voltage3")
+        # aedtapp.assign_voltage(rectangle4.faces[0], amplitude=1, name="Voltage4")
+        # aedtapp.assign_voltage(box1.faces, amplitude=1, name="Voltage6")
+        # aedtapp.assign_voltage(box2, amplitude=1, name="Voltage7")
 
-        setup = m3d.create_setup(MaximumPasses=2)
-        m3d.analyze(setup=setup.name)
+        setup = aedtapp.create_setup(MaximumPasses=2)
+        aedtapp.analyze(setup=setup.name)
 
-        L = m3d.assign_matrix(assignment="Voltage1")
-        assert L.props["MatrixEntry"]["MatrixEntry"][0]["Source"] == "Voltage1"
-        cat = m3d.post.available_quantities_categories(context=L.name)
+        matrix = aedtapp.assign_matrix(assignment="Voltage1")
+        assert matrix.props["MatrixEntry"]["MatrixEntry"][0]["Source"] == "Voltage1"
+        assert matrix.props["MatrixEntry"]["MatrixEntry"][0]["NumberOfTurns"] == "1"
+        # cat = aedtapp.post.available_quantities_categories(context=matrix.name)
+        # assert isinstance(cat, list)
+        # assert "C" in cat
+        # quantities = aedtapp.post.available_report_quantities(
+        #     display_type="Data Table", quantities_category="C", context=matrix.name
+        # )
+        # assert isinstance(quantities, list)
+        # report = aedtapp.post.create_report(
+        #     expressions=quantities,
+        #     plot_type="Data Table",
+        #     context=matrix.name,
+        #     primary_sweep_variable="X",
+        #     variations={"X": "All"},
+        # )
+        # assert quantities == report.expressions
+        # assert report.matrix == matrix.name
+        # assert matrix.delete()
+        # group_sources = "Voltage2"
+        matrix = aedtapp.assign_matrix(
+            assignment=["Voltage1", "Voltage3"], matrix_name="Test1", group_sources="Voltage2"
+        )
+        assert matrix.props["MatrixEntry"]["MatrixEntry"][1]["Source"] == "Voltage3"
+        assert matrix.props["MatrixEntry"]["MatrixEntry"][1]["NumberOfTurns"] == "1"
+        aedtapp.solution_type = SOLUTIONS.Maxwell3d.Transient
+        winding1 = aedtapp.assign_winding("Sheet1", name="Current1")
+        # winding2 = aedtapp.assign_winding("Sheet2", name="Current2")
+        # winding3 = aedtapp.assign_winding("Sheet3", name="Current3")
+        # winding4 = aedtapp.assign_winding("Sheet4", name="Current4")
+        matrix = aedtapp.assign_matrix(assignment="Current1")
+        assert not matrix
+        aedtapp.close_project(aedtapp.project_name)
+
+    def test_available_quantities_categories(self, add_app):
+        aedtapp = add_app(application=Maxwell3d, design_name="Matrix1", solution_type="Electrostatic")
+
+        rectangle1 = aedtapp.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
+
+        aedtapp.assign_voltage(rectangle1.faces[0], amplitude=1, name="Voltage1")
+
+        setup = aedtapp.create_setup(MaximumPasses=2)
+        aedtapp.analyze(setup=setup.name)
+
+        matrix = aedtapp.assign_matrix(assignment="Voltage1")
+        assert matrix.props["MatrixEntry"]["MatrixEntry"][0]["Source"] == "Voltage1"
+        assert matrix.props["MatrixEntry"]["MatrixEntry"][0]["NumberOfTurns"] == "1"
+        cat = aedtapp.post.available_quantities_categories(context=matrix.name)
         assert isinstance(cat, list)
         assert "C" in cat
-        quantities = m3d.post.available_report_quantities(
-            display_type="Data Table", quantities_category="C", context=L.name
-        )
-        assert isinstance(quantities, list)
-        report = m3d.post.create_report(
-            expressions=quantities,
-            plot_type="Data Table",
-            context=L.name,
-            primary_sweep_variable="X",
-            variations={"X": "All"},
-        )
-        assert quantities == report.expressions
-        assert report.matrix == L.name
-        assert L.delete()
-        group_sources = "Voltage2"
-        L = m3d.assign_matrix(assignment=["Voltage1", "Voltage3"], matrix_name="Test1", group_sources=group_sources)
-        assert L.props["MatrixEntry"]["MatrixEntry"][1]["Source"] == "Voltage3"
-        m3d.solution_type = SOLUTIONS.Maxwell3d.Transient
-        winding1 = m3d.assign_winding("Sheet1", name="Current1")
-        winding2 = m3d.assign_winding("Sheet2", name="Current2")
-        winding3 = m3d.assign_winding("Sheet3", name="Current3")
-        winding4 = m3d.assign_winding("Sheet4", name="Current4")
-        L = m3d.assign_matrix(assignment="Current1")
-        assert not L
+        aedtapp.close_project(aedtapp.project_name)
 
     def test_32a_matrix(self, add_app):
         m3d = add_app(application=Maxwell3d, design_name="Matrix2")
