@@ -380,6 +380,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
             self._app.oboundary.AssignRadiation(self._get_args())
         elif bound_type == "FE-BI":
             self._app.oboundary.AssignFEBI(self._get_args())
+            return True
         elif bound_type == "Finite Conductivity":
             self._app.oboundary.AssignFiniteCond(self._get_args())
         elif bound_type == "Lumped RLC":
