@@ -256,7 +256,7 @@ def create_powermaps_from_info(ipk, geometric_info, source_value_info, source_un
 
 
 def extract_info(csv_file):
-    """Extracts source and geometric information from an Icepak classic CSV file.
+    """Extract source and geometric information from an Icepak classic CSV file.
 
     Parameters
     ----------

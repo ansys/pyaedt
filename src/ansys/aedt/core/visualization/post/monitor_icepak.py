@@ -370,7 +370,6 @@ class Monitor:
 
         References
         ----------
-
         >>> oModule.AssignPointMonitor
 
         """
@@ -417,7 +416,6 @@ class Monitor:
 
         References
         ----------
-
         >>> oModule.AssignFaceMonitor
 
         Examples
@@ -472,7 +470,6 @@ class Monitor:
 
         References
         ----------
-
         >>> oModule.AssignFaceMonitor
         """
         if isinstance(face_id, int):
@@ -579,7 +576,6 @@ class Monitor:
 
         References
         ----------
-
         >>> oModule.DeleteMonitors
 
         """

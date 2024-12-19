@@ -221,14 +221,14 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode):
 
     @pyaedt_function_handler()
     def join_series(self, sources, matrix_name=None, join_name=None):
-        """
+        """Create matrix reduction by joining sources in series.
 
         Parameters
         ----------
         sources : list
             Sources to be included in matrix reduction.
         matrix_name :  str, optional
-            name of the string to create.
+            Name of the string to create.
         join_name : str, optional
             Name of the Join operation.
 
@@ -244,14 +244,14 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode):
 
     @pyaedt_function_handler()
     def join_parallel(self, sources, matrix_name=None, join_name=None):
-        """
+        """Create matrix reduction by joining sources in parallel.
 
         Parameters
         ----------
         sources : list
             Sources to be included in matrix reduction.
         matrix_name :  str, optional
-            name of the string to create.
+            Name of the matrix to create.
         join_name : str, optional
             Name of the Join operation.
 
