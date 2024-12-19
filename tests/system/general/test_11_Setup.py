@@ -275,7 +275,21 @@ class TestClass:
             if "NAME:Ranges" in el:
                 break
         assert "rd" in el[2]
+
+        assert setup2.props["Goals"]["Goal"][0]["Ranges"]["Range"][0]["DiscreteValues"] == "2.5GHz"
+
+        setup2.props["Goals"]["Goal"][0]["Ranges"]["Range"][0]["DiscreteValues"] = "2.7GHz"
+
+        oo = self.aedtapp.get_oo_object(self.aedtapp.odesign, f"Optimetrics\\{setup2.name}")
+        oo_calculation = oo.GetCalculationInfo()[0]
+        for el in oo_calculation:
+            if "NAME:Ranges" in el:
+                break
+        assert el[2][5] == "2.7GHz"
+
         assert self.aedtapp.optimizations.delete(setup2.name)
+
+        assert not self.aedtapp.get_oo_object(self.aedtapp.odesign, f"Optimetrics\\{setup2.name}")
 
     def test_27_create_doe(self):
         calculation = "db(S(1,1))"

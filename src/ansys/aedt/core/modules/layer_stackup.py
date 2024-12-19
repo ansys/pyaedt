@@ -881,7 +881,6 @@ class Layer(object):
 
         References
         ----------
-
         >>> oEditor.ChangeLayer
         """
         rgb = [r, g, b]
@@ -899,7 +898,6 @@ class Layer(object):
 
         References
         ----------
-
         >>> oEditor.AddStackupLayer
         """
         self.remove_stackup_layer()
@@ -1124,7 +1122,6 @@ class Layer(object):
 
         References
         ----------
-
         >>> oEditor.ChangeLayer
         """
         self.oeditor.ChangeLayer(self._get_layer_arg)
@@ -1141,7 +1138,6 @@ class Layer(object):
 
         References
         ----------
-
         >>> oEditor.RemoveLayer
         """
         if self.name in self.oeditor.GetStackupLayerNames():
@@ -1180,7 +1176,6 @@ class Layers(object):
 
         References
         ----------
-
         >>> oEditor = oDesign.SetActiveEditor("Layout")
         """
         return self._modeler.oeditor
@@ -1216,7 +1211,6 @@ class Layers(object):
 
         References
         ----------
-
         >>> oEditor.GetStackupLayerNames()
         """
         return [i for i in self.oeditor.GetAllLayerNames() if ";" not in i]
@@ -1232,7 +1226,6 @@ class Layers(object):
 
         References
         ----------
-
         >>> oEditor.GetAllLayerNames()
         """
         return [v for k, v in self.layers.items() if v.type not in ["signal", "via", "dielectric"]]
@@ -1248,7 +1241,6 @@ class Layers(object):
 
         References
         ----------
-
         >>> oEditor.GetAllLayerNames()
         """
         return [v for k, v in self.layers.items() if v.type in ["signal", "via", "dielectric"]]
@@ -1270,12 +1262,11 @@ class Layers(object):
 
         Returns
         -------
-        Dict[str, :class:`ansys.aedt.core.modules.layer_stackup.Layer`]
+        dict[str, :class:`ansys.aedt.core.modules.layer_stackup.Layer`]
            Conductor layers.
 
         References
         ----------
-
         >>> oEditor.GetAllLayerNames()
         """
         return {k: v for k, v in self.layers.items() if v.type == "signal"}
@@ -1286,12 +1277,11 @@ class Layers(object):
 
         Returns
         -------
-        Dict[str, :class:`ansys.aedt.core.modules.layer_stackup.Layer`]
+        dict[str, :class:`ansys.aedt.core.modules.layer_stackup.Layer`]
            Dielectric layers.
 
         References
         ----------
-
         >>> oEditor.GetAllLayerNames()
         """
         return {k: v for k, v in self.layers.items() if v.type == "dielectric"}
@@ -1302,12 +1292,11 @@ class Layers(object):
 
         Returns
         -------
-        Dict[str, :class:`ansys.aedt.core.modules.layer_stackup.Layer`]
+        dict[str, :class:`ansys.aedt.core.modules.layer_stackup.Layer`]
            Drawing layers.
 
         References
         ----------
-
         >>> oEditor.GetAllLayerNames()
         """
         return {k: v for k, v in self.layers.items() if v.type in ["signal", "via", "dielectric"]}
@@ -1348,7 +1337,7 @@ class Layers(object):
 
         Returns
         -------
-         Dict[int, :class:`ansys.aedt.core.modules.layer_stackup.Layer`]
+         dict[int, :class:`ansys.aedt.core.modules.layer_stackup.Layer`]
             Number of layers in the current stackup.
         """
         layers = {}

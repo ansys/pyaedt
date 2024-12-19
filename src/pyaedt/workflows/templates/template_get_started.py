@@ -1,0 +1,1 @@
+from ansys.aedt.core.workflows.templates.template_get_started import *

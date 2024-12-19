@@ -777,7 +777,7 @@ class ModelPlotter(CommonPlotter):
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.visualization.plot.FieldClass`]
+        list[:class:`ansys.aedt.core.visualization.plot.FieldClass`]
         """
         return self._fields
 
@@ -787,7 +787,7 @@ class ModelPlotter(CommonPlotter):
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.visualization.plot.FieldClass`]
+        list[:class:`ansys.aedt.core.visualization.plot.FieldClass`]
         """
         return self._frames
 
@@ -797,7 +797,7 @@ class ModelPlotter(CommonPlotter):
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.visualization.plot.pyvista.ObjClass`]
+        list[:class:`ansys.aedt.core.visualization.plot.pyvista.ObjClass`]
         """
         return self._objects
 
@@ -992,10 +992,10 @@ class ModelPlotter(CommonPlotter):
                 cad._cached_polydata = filedata
             color_cad = [i / 255 for i in cad.color]
             cad._cached_mesh = self.pv.add_mesh(cad._cached_polydata, color=color_cad, opacity=cad.opacity)
-            if self.meshes:
-                self.meshes += cad._cached_polydata
-            else:
-                self.meshes = cad._cached_polydata
+            # if self.meshes:
+            #     self.meshes += cad._cached_polydata
+            # else:
+            #     self.meshes = cad._cached_polydata
         obj_to_iterate = [i for i in self._fields]
         if read_frames:
             for i in self.frames:

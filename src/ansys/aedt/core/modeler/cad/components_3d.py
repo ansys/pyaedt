@@ -200,7 +200,6 @@ class UserDefinedComponent(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
@@ -238,7 +237,6 @@ class UserDefinedComponent(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
@@ -267,7 +265,6 @@ class UserDefinedComponent(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
@@ -360,7 +357,6 @@ class UserDefinedComponent(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
@@ -393,7 +389,6 @@ class UserDefinedComponent(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
@@ -423,7 +418,7 @@ class UserDefinedComponent(object):
 
         Returns
         -------
-        Dict[str, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
+        dict[str, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
 
         """
         if self.is3dcomponent:
@@ -450,7 +445,6 @@ class UserDefinedComponent(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
@@ -477,12 +471,13 @@ class UserDefinedComponent(object):
 
     @pyaedt_function_handler()
     def delete(self):
-        """Delete the object. The project must be saved after the operation to update the list
+        """Delete the object.
+
+        The project must be saved after the operation to update the list
         of names for user-defined components.
 
         References
         ----------
-
         >>> oEditor.Delete
 
         Examples
@@ -522,7 +517,6 @@ class UserDefinedComponent(object):
 
         References
         ----------
-
         >>> oEditor.DuplicateMirror
         """
         return self._primitives.duplicate_and_mirror(self.name, origin=origin, vector=vector, is_3d_comp=True)
@@ -547,7 +541,6 @@ class UserDefinedComponent(object):
 
         References
         ----------
-
         >>> oEditor.Mirror
         """
         if self.is3dcomponent:
@@ -581,7 +574,6 @@ class UserDefinedComponent(object):
 
         References
         ----------
-
         >>> oEditor.Rotate
         """
         if self.is3dcomponent:
@@ -644,7 +636,6 @@ class UserDefinedComponent(object):
 
         References
         ----------
-
         >>> oEditor.DuplicateAroundAxis
 
         """
@@ -676,7 +667,6 @@ class UserDefinedComponent(object):
 
         References
         ----------
-
         >>> oEditor.DuplicateAlongLine
 
         """
@@ -1169,7 +1159,6 @@ class LayoutComponent(object):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
         """
 

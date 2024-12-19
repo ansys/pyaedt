@@ -259,7 +259,6 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
         """
         self.set_sim_setup_parameter("Tend", expression)
@@ -281,7 +280,6 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
         """
         self.set_sim_setup_parameter("Hmin", expression)
@@ -303,7 +301,6 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
         """
         self.set_sim_setup_parameter("Hmax", expression)
@@ -329,7 +326,6 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
         """
         if isinstance(expression, Variable):
@@ -354,8 +350,10 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
     @pyaedt_function_handler()
     def create_subsheet(self, name, design_name):
-        """Create a subsheet from a parent design. If the parent design does not exist, it will add at top level. Nested
-        subsheets are currently not supported.
+        """Create a subsheet from a parent design.
+
+        If the parent design does not exist, it will add at top level.
+        Nested subsheets are currently not supported.
 
         Parameters
         ----------
@@ -450,7 +448,6 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
         References
         ----------
-
         >>> oComponentManager.AddDynamicNPortData
 
         Examples

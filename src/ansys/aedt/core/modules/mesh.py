@@ -386,7 +386,6 @@ class MeshOperation(BinaryTreeNode):
 
         References
         ----------
-
         >>> oModule.DeleteOp
         """
         self._mesh.omeshmodule.DeleteOp([self.name])
@@ -463,7 +462,7 @@ class Mesh(object):
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.modules.mesh.MeshOperation`]
+        list[:class:`ansys.aedt.core.modules.mesh.MeshOperation`]
             List of mesh operation object.
 
         Examples
@@ -522,7 +521,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.InitialMeshSettings
         """
         if not self._globalmesh:
@@ -535,7 +533,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oDesign.GetModule("MeshSetup")
         """
         return self._app.omeshmodule
@@ -604,7 +601,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignTrueSurfOp
 
         Examples
@@ -669,7 +665,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignTrueSurfOp
 
         Examples
@@ -746,7 +741,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignModelResolutionOp
 
         Examples
@@ -786,43 +780,51 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(
+        usedynamicsurface="dynamic_surface",
+        useflexmesh="flex_mesh",
+        applycurvilinear="curvilinear",
+        usefallback="fallback",
+        usephi="phi",
+        automodelresolution="auto_model_resolution",
+        modelresolutionlength="model_resolution_length",
+    )
     def assign_initial_mesh_from_slider(
         self,
         level=5,
         method="Auto",
-        usedynamicsurface=True,
-        useflexmesh=False,
-        applycurvilinear=False,
-        usefallback=True,
-        usephi=True,
-        automodelresolution=True,
-        modelresolutionlength="0.0001mm",
+        dynamic_surface=True,
+        flex_mesh=False,
+        curvilinear=False,
+        fallback=True,
+        phi=True,
+        auto_model_resolution=True,
+        model_resolution_length="0.0001mm",
     ):
         """Assign a surface mesh level to an object.
 
         Parameters
         ----------
         level : int, optional
-            Level of the surface mesh. Options are ``1`` through ``10``. The default is ``5.``
+            Level of the surface mesh. Options are ``1`` through ``10``. The default is ``5``.
         method : str, optional
             Meshing method. Options are ``"Auto"``, ``"AnsoftTAU"``, and ``"AnsoftClassic"``
             The default is ``"Auto"``.
-        usedynamicsurface : bool, optional
-            Whether to use a dynamic surface. The default is ``True``.
-        useflexmesh : bool, optional
-            Whether to use a flexible mesh. The default is ``False``.
-        applycurvilinear : bool, optional
+        dynamic_surface : bool, optional
+            Whether to use dynamic surface resolution. The default is ``True``.
+        flex_mesh : bool, optional
+            Whether to use flexible mesh for TAU volume mesh. The default is ``False``.
+        curvilinear : bool, optional
             Whether to apply curvilinear elements. The default is ``False``.
-        usefallback : bool, optional
+        fallback : bool, optional
             Whether to retain as a fallback. The default is ``True``.
-        usephi : bool, optional
+        phi : bool, optional
             Whether to use the Phi mesher for layered geometry.
             The default is ``True``.
-        automodelresolution : bool, optional
+        auto_model_resolution : bool, optional
             Whether to automatically calculate the resolution length
             based on each object's effective thickness. The default is ``True``.
-        modelresolutionlength : float, optional
+        model_resolution_length : float, optional
              Resolution thickness with units if ``automodelresolution=False``.
              The default ``"0.0001mm"``.
 
@@ -833,20 +835,18 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.InitialMeshSettings
         """
-        if self._app.design_type == "2D Extractor" or self._app.design_type == "Maxwell 2D":
+        if self._app.design_type in ["2D Extractor", "Maxwell 2D"]:
             mesh_methods = ["Auto", "AnsoftClassic"]
         else:
             mesh_methods = ["Auto", "AnsoftTAU", "AnsoftClassic"]
         if method not in mesh_methods:
-            raise RuntimeError(f"Invalid mesh method {method}")  # pragma: no cover
+            raise ValueError(f"Invalid mesh method {method}")
 
-        modelres = ["NAME:GlobalModelRes", "UseAutoLength:=", automodelresolution]
-        if not automodelresolution:
-            modelres.append("DefeatureLength:=")
-            modelres.append(modelresolutionlength)
+        modelres = ["NAME:GlobalModelRes", "UseAutoLength:=", auto_model_resolution]
+        if not auto_model_resolution:
+            modelres += ["DefeatureLength:=", model_resolution_length]
         surface_appr = [
             "NAME:GlobalSurfApproximation",
             "CurvedSurfaceApproxChoice:=",
@@ -854,28 +854,139 @@ class Mesh(object):
             "SliderMeshSettings:=",
             level,
         ]
-        if self._app.design_type == "2D Extractor" or self._app.design_type == "Maxwell 2D":
+
+        if self._app.design_type in ["2D Extractor", "Maxwell 2D"]:
             args = ["NAME:MeshSettings", surface_appr, modelres, "MeshMethod:=", method]
         else:
             args = [
                 "NAME:MeshSettings",
                 surface_appr,
-                ["NAME:GlobalCurvilinear", "Apply:=", applycurvilinear],
+                ["NAME:GlobalCurvilinear", "Apply:=", curvilinear],
                 modelres,
                 "MeshMethod:=",
                 method,
                 "UseLegacyFaceterForTauVolumeMesh:=",
                 False,
                 "DynamicSurfaceResolution:=",
-                usedynamicsurface,
+                dynamic_surface,
                 "UseFlexMeshingForTAUvolumeMesh:=",
-                useflexmesh,
+                flex_mesh,
             ]
         if self._app.design_type == "HFSS":
-            args.append("UseAlternativeMeshMethodsAsFallBack:=")
-            args.append(usefallback)
-            args.append("AllowPhiForLayeredGeometry:=")
-            args.append(usephi)
+            args += ["UseAlternativeMeshMethodsAsFallBack:=", fallback, "AllowPhiForLayeredGeometry:=", phi]
+        self.omeshmodule.InitialMeshSettings(args)
+        return True
+
+    @pyaedt_function_handler()
+    def assign_initial_mesh(
+        self,
+        method="Auto",
+        surface_deviation=None,
+        normal_deviation=None,
+        aspect_ratio=None,
+        flex_mesh=False,
+        curvilinear=False,
+        fallback=True,
+        phi=True,
+        auto_model_resolution=True,
+        model_resolution_length="0.0001mm",
+    ):
+        """Assign a surface mesh level to an object.
+
+        Parameters
+        ----------
+        method : str, optional
+            Meshing method. Options are ``"Auto"``, ``"AnsoftTAU"``, and ``"AnsoftClassic"``
+            The default is ``"Auto"``.
+        surface_deviation : float or str, optional
+             Surface deviation.
+             The default is ``None``, in which case the default value is assigned.
+        normal_deviation : float or str, optional
+             Normal deviation.
+             The default is ``None``, in which case the default value is assigned.
+        aspect_ratio : float or str, optional
+             Aspect ratio.
+             The default is ``None``, in which case the default value is assigned.
+        flex_mesh : bool, optional
+            Whether to use flexible mesh for TAU volume mesh. The default is ``False``.
+        curvilinear : bool, optional
+            Whether to apply curvilinear elements. The default is ``False``.
+        fallback : bool, optional
+            Whether to retain as a fallback. The default is ``True``.
+        phi : bool, optional
+            Whether to use the Phi mesher for layered geometry.
+            The default is ``True``.
+        auto_model_resolution : bool, optional
+            Whether to automatically calculate the resolution length
+            based on each object's effective thickness. The default is ``True``.
+        model_resolution_length : float or str, optional
+             Resolution thickness with units if ``automodelresolution=False``.
+             The default ``"0.0001mm"``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.InitialMeshSettings
+        """
+        if self._app.design_type in ["2D Extractor", "Maxwell 2D"]:
+            mesh_methods = ["Auto", "AnsoftClassic"]
+        else:
+            mesh_methods = ["Auto", "AnsoftTAU", "AnsoftClassic"]
+        if method not in mesh_methods:
+            raise ValueError(f"Invalid mesh method {method}")
+
+        modelres = ["NAME:GlobalModelRes", "UseAutoLength:=", auto_model_resolution]
+        if not auto_model_resolution:
+            modelres.append("DefeatureLength:=")
+            modelres.append(model_resolution_length)
+
+        surface_appr = [
+            "NAME:GlobalSurfApproximation",
+            "CurvedSurfaceApproxChoice:=",
+            "ManualSettings",
+            "SurfDevChoice:=",
+        ]
+
+        if not surface_deviation:
+            surface_appr.append(0)
+        else:
+            surface_appr += [2, "SurfDev:=", surface_deviation]
+
+        surface_appr.append("NormalDevChoice:=")
+        if not normal_deviation:
+            surface_appr.append(1)
+        else:
+            surface_appr += [2, "NormalDev:=", normal_deviation]
+
+        surface_appr.append("AspectRatioChoice:=")
+        if not aspect_ratio:
+            surface_appr.append(1)
+        else:
+            surface_appr += [2, "AspectRatio:=", aspect_ratio]
+
+        if self._app.design_type in ["2D Extractor", "Maxwell 2D"]:
+            args = ["NAME:MeshSettings", surface_appr, modelres, "MeshMethod:=", method]
+        else:
+            args = [
+                "NAME:MeshSettings",
+                surface_appr,
+                ["NAME:GlobalCurvilinear", "Apply:=", curvilinear],
+                modelres,
+                "MeshMethod:=",
+                method,
+                "UseLegacyFaceterForTauVolumeMesh:=",
+                False,
+                "DynamicSurfaceResolution:=",
+                False,
+                "UseFlexMeshingForTAUvolumeMesh:=",
+                flex_mesh,
+            ]
+        if self._app.design_type == "HFSS":
+            args += ["UseAlternativeMeshMethodsAsFallBack:=", fallback, "AllowPhiForLayeredGeometry:=", phi]
         self.omeshmodule.InitialMeshSettings(args)
         return True
 
@@ -898,7 +1009,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignSurfPriorityForTauOp
         """
         meshop_name = generate_unique_name("SurfaceRepPriority")
@@ -924,7 +1034,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oDesign.GenerateMesh
 
         Examples
@@ -1006,7 +1115,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignLengthOp
         """
         assignment = self._modeler.convert_to_selections(assignment, True)
@@ -1058,9 +1166,13 @@ class Mesh(object):
 
         mop = MeshOperation(self, name, props, "LengthBased")
         for meshop in self.meshoperations[:]:
-            if meshop.name == mop.name:
-                meshop.delete()
-                break
+            try:
+                if meshop.name == mop.name:
+                    meshop.delete()
+                    break
+            # Handle case where mop has no child_object
+            except AttributeError:
+                continue
         mop.create()
         self.meshoperations.append(mop)
         return mop
@@ -1107,7 +1219,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignSkinDepthOp
         """
         assignment = self._modeler.convert_to_selections(assignment, True)
@@ -1179,7 +1290,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignApplyCurvlinearElementsOp
         """
         assignment = self._modeler.convert_to_selections(assignment, True)
@@ -1232,7 +1342,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignCurvatureExtractionOp
         """
         assignment = self._modeler.convert_to_selections(assignment, True)
@@ -1286,7 +1395,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignRotationalLayerOp
         """
         assignment = self._modeler.convert_to_selections(assignment, True)
@@ -1335,7 +1443,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignRotationalLayerOp
         """
         assignment = self._modeler.convert_to_selections(assignment, True)
@@ -1387,7 +1494,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignDensityControlOp
         """
         assignment = self._modeler.convert_to_selections(assignment, True)
@@ -1480,7 +1586,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignCylindricalGapOp
         """
         try:

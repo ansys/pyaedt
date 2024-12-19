@@ -49,7 +49,7 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode):
     Examples
     --------
     This example the par_beam returned object is a
-    ``ansys.aedt.core.modules.boundary.icepak_boundary.NativeComponentObject``.
+    :class:`ansys.aedt.core.modules.boundary.layout_boundary.NativeComponentObject`.
 
     >>> from ansys.aedt.core import Hfss
     >>> hfss = Hfss(solution_type="SBR+")

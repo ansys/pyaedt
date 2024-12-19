@@ -284,7 +284,7 @@ class NexximComponents(CircuitComponents):
 
         Parameters
         ----------
-        assignment : List[:class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`]
+        assignment : list[:class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`]
            List of Components to connect. It can be a list of objects or component names.
         use_wire : bool, optional
             Whether to use wires or a page port to connect the pins.
@@ -327,7 +327,7 @@ class NexximComponents(CircuitComponents):
 
         Parameters
         ----------
-        assignment : List[:class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`]
+        assignment : list[:class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`]
            List of Components to connect. It can be a list of objects or component names.
 
         Returns
@@ -375,7 +375,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oProject.CopyDesign
         >>> oEditor.PasteDesign
         """
@@ -412,7 +411,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oModelManager.Add
         >>> oComponentManager.Add
         """
@@ -667,7 +665,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location is None:
@@ -704,7 +701,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location is None:
@@ -747,7 +743,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location == None:
@@ -790,7 +785,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location == None:
@@ -939,7 +933,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if value_lists is None:
@@ -997,7 +990,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if value_lists is None:
@@ -1110,7 +1102,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location is None:
@@ -1157,7 +1148,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location == None:
@@ -1202,7 +1192,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location is None:
@@ -1244,7 +1233,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location is None:
@@ -1286,7 +1274,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location is None:
@@ -1348,7 +1335,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oModelManager.Add
         >>> oComponentManager.Add
         """
@@ -1572,7 +1558,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oModelManager.Add
         >>> oComponentManager.Add
         >>> oDesign.AddCompInstance
@@ -1658,7 +1643,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oModelManager.Add
         >>> oComponentManager.Add
         >>> oDesign.AddCompInstance
@@ -1926,7 +1910,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oProject.ChangeProperty
         """
         if option == "simulate":
@@ -1956,7 +1939,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oProject.ChangeProperty
         """
         arg = ["NAME:Solution", "Value:=", solution_name]
@@ -2002,7 +1984,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oComponentManager.UpdateDynamicLink
         """
         if "@" in name:
