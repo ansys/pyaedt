@@ -151,17 +151,17 @@ class TestClass:
         mysetup = self.aedtapp.create_setup()
         mysetup.props["SaveFields"] = True
         assert mysetup.update()
-        sweep2 = mysetup.create_frequency_sweep(sweepname="mysweep2", unit="GHz", freqstart=1, freqstop=4)
+        sweep2 = mysetup.create_frequency_sweep(name="mysweep2", unit="GHz", start_frequency=1, stop_frequency=4)
         assert sweep2
-        sweep2_1 = mysetup.create_frequency_sweep(sweepname="mysweep2", unit="GHz", freqstart=1, freqstop=4)
+        sweep2_1 = mysetup.create_frequency_sweep(name="mysweep2", unit="GHz", start_frequency=1, stop_frequency=4)
         assert sweep2_1
         assert sweep2.name != sweep2_1.name
         assert sweep2.props["RangeEnd"] == "4GHz"
-        sweep3 = mysetup.create_frequency_sweep(unit="GHz", freqstart=1, freqstop=4)
+        sweep3 = mysetup.create_frequency_sweep(unit="GHz", start_frequency=1, stop_frequency=4)
         assert sweep3
         with pytest.raises(AttributeError) as execinfo:
             mysetup.create_frequency_sweep(
-                sweepname="mysweep4", unit="GHz", freqstart=1, freqstop=4, sweep_type="Invalid"
+                name="mysweep4", unit="GHz", start_frequency=1, stop_frequency=4, sweep_type="Invalid"
             )
             assert (
                 execinfo.args[0]
@@ -206,6 +206,7 @@ class TestClass:
         source = self.aedtapp.source(["Source1", "Sink1"], name="Cylinder1", net_name="GND")
         source.props["Objects"] = ["Source1"]
         sink = self.aedtapp.sink("Sink1", net_name="GND")
+        sink.properties
         assert source
         assert sink
         sink.name = "My_new_name"
