@@ -549,6 +549,10 @@ class Maxwell(object):
         >>> oModule.SetEddyEffect
         """
         solid_objects_names = self.get_all_conductors_names()
+        if not solid_objects_names:
+            self.logger.error("No conductors defined in active design.")
+            return False
+        assignment = self.modeler.convert_to_selections(assignment, True)
 
         EddyVector = ["NAME:EddyEffectVector"]
         if self.modeler._is3d:
