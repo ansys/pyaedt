@@ -65,7 +65,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode):
         self.auto_update = True
         self.__reduced_matrices = None
         self.matrix_assignment = None
-        self._initialize_bynary_tree()
+        self._initialize_tree_node()
 
     @property
     def reduced_matrices(self):
@@ -177,7 +177,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode):
             self._app.o_maxwell_parameters.AssignLayoutForce(self._get_args())
         else:
             return False
-        return self._initialize_bynary_tree()
+        return self._initialize_tree_node()
 
     @pyaedt_function_handler()
     def update(self):

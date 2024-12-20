@@ -49,6 +49,7 @@ class LimitLine(BinaryTreeNode):
     @pyaedt_function_handler()
     def _initialize_tree_node(self):
         BinaryTreeNode.__init__(self, self.line_name, self._oo, False)
+        return True
 
     @pyaedt_function_handler()
     def _change_property(self, props_value):
@@ -259,6 +260,7 @@ class Trace(BinaryTreeNode):
     @pyaedt_function_handler()
     def _initialize_tree_node(self):
         BinaryTreeNode.__init__(self, self.aedt_name, self._oo, False)
+        return True
 
     @property
     def curve_properties(self):
@@ -419,6 +421,8 @@ class CommonReport(BinaryTreeNode):
             oo = self._post.oreportsetup.GetChildObject(self._legacy_props["plot_name"])
             if oo:
                 BinaryTreeNode.__init__(self, self._legacy_props["plot_name"], oo, False)
+                return True
+        return False
 
     @property
     def __all_props(self):

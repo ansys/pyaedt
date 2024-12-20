@@ -662,11 +662,13 @@ class MeshRegionCommon(BinaryTreeNode):
     @pyaedt_function_handler()
     def _initialize_tree_node(self):
         if self._name == "Settings":
-            return
+            return True
         if self._child_object:
             child_object = self._app.get_oo_object(self._app.odesign, f"Mesh/{self._name}")
             if child_object:
                 BinaryTreeNode.__init__(self, self._name, child_object, False)
+                return True
+        return False
 
     # backward compatibility
     def __getattr__(self, name):
