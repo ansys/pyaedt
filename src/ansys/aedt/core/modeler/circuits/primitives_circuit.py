@@ -1239,23 +1239,6 @@ class CircuitComponents(object):
         except Exception:
             return False
 
-    @pyaedt_function_handler()
-    def component_path(self, component_name):
-        """Component definition path.
-        Parameters
-        ----------
-        component_name: str
-            Name of the component.
-        """
-        for component in self.components.values():
-            if component.component_info["InstanceName"] == component_name:
-                component_definition = component.component_info["Info"]
-                if not self.o_component_manager.GetData(component_definition):
-                    self.logger.warning("Component has no path")
-                    return False
-                else:
-                    return (self.o_component_manager.GetData(component_definition)[24][1][12][1].split(" ")[1])[1:-1]
-
 
 class ComponentInfo(object):
     """Manages Circuit Catalog info."""
