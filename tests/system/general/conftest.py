@@ -51,6 +51,7 @@ import sys
 import tempfile
 import time
 
+import ansys.aedt.core
 from ansys.aedt.core.generic.settings import settings
 import pytest
 
@@ -81,7 +82,6 @@ sys.path.append(local_path)
 
 # Initialize default desktop configuration
 default_version = "2024.2"
-
 
 if inside_desktop and "oDesktop" in dir(sys.modules["__main__"]):
     default_version = sys.modules["__main__"].oDesktop.GetVersion()[0:6]
@@ -249,3 +249,17 @@ def add_edb(local_scratch):
         )
 
     return _method
+
+
+@pytest.fixture(scope="module")
+def m2d_app(add_app):
+    app = add_app(application=ansys.aedt.core.Maxwell2d)
+    yield app
+    app.close_project(app.project_name)
+
+
+@pytest.fixture(scope="module")
+def m3d_app(add_app):
+    app = add_app(application=ansys.aedt.core.Maxwell3d)
+    yield app
+    app.close_project(app.project_name)
