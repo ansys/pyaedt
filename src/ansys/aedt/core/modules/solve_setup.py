@@ -72,7 +72,7 @@ class CommonSetup(PropsManager, BinaryTreeNode):
         self._is_new_setup = is_new_setup
         # self._init_props(is_new_setup)
         self.auto_update = True
-        self._initialize_bynary_tree()
+        self._initialize_tree_node()
 
     @property
     def _child_object(self):
@@ -94,7 +94,7 @@ class CommonSetup(PropsManager, BinaryTreeNode):
         return child_object
 
     @pyaedt_function_handler()
-    def _initialize_bynary_tree(self):
+    def _initialize_tree_node(self):
         if self._child_object:
             BinaryTreeNode.__init__(self, self._name, self._child_object, False)
             return True
@@ -569,7 +569,7 @@ class Setup(CommonSetup):
         arg = ["NAME:" + self._name]
         _dict2arg(self.props, arg)
         self.omodule.InsertSetup(soltype, arg)
-        return self._initialize_bynary_tree()
+        return self._initialize_tree_node()
 
     @pyaedt_function_handler(update_dictionary="properties")
     def update(self, properties=None):
@@ -1172,7 +1172,7 @@ class SetupCircuit(CommonSetup):
         arg = ["NAME:SimSetup"]
         _dict2arg(self.props, arg)
         self._setup(soltype, arg)
-        return self._initialize_bynary_tree()
+        return self._initialize_tree_node()
 
     @pyaedt_function_handler()
     def _setup(self, soltype, arg, newsetup=True):
@@ -1913,7 +1913,7 @@ class Setup3DLayout(CommonSetup):
         arg = ["NAME:" + self.name]
         _dict2arg(self.props, arg)
         self.omodule.Add(arg)
-        return self._initialize_bynary_tree()
+        return self._initialize_tree_node()
 
     @pyaedt_function_handler(update_dictionary="properties")
     def update(self, properties=None):

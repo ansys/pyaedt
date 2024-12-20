@@ -125,7 +125,7 @@ class MeshOperation(BinaryTreeNode):
         self._type = meshoptype
         self._name = name
         self.auto_update = True
-        self._initialize_bynary_tree()
+        self._initialize_tree_node()
 
     @property
     def _child_object(self):
@@ -259,7 +259,7 @@ class MeshOperation(BinaryTreeNode):
             self._mesh.omeshmodule.AssignCylindricalGapOp(self._get_args())
         else:
             return False
-        return self._initialize_bynary_tree()
+        return self._initialize_tree_node()
 
     @pyaedt_function_handler()
     def update(self, key_name=None, value=None):
@@ -405,7 +405,7 @@ class MeshOperation(BinaryTreeNode):
         return True
 
     @pyaedt_function_handler()
-    def _initialize_bynary_tree(self):
+    def _initialize_tree_node(self):
         if self._child_object:
             BinaryTreeNode.__init__(self, self._name, self._child_object, False)
             return True
