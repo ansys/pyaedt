@@ -683,21 +683,33 @@ class MeshRegionCommon(BinaryTreeNode):
                 return self.__dict__[name]
 
     def __setattr__(self, name, value):
-        skip_properties = ["manual_settings", "settings", "_name", "_model_units", "_app", "_assignment", "enable", "name"]
-        skip_properties_binary = ["_props", "_saved_root_name", "_get_child_obj_arg",
-                                  "_node", "child_object", "auto_update", "_children", "_BinaryTreeNode__first_level"]
+        skip_properties = [
+            "manual_settings",
+            "settings",
+            "_name",
+            "_model_units",
+            "_app",
+            "_assignment",
+            "enable",
+            "name",
+        ]
+        skip_properties_binary = [
+            "_props",
+            "_saved_root_name",
+            "_get_child_obj_arg",
+            "_node",
+            "child_object",
+            "auto_update",
+            "_children",
+            "_BinaryTreeNode__first_level",
+        ]
         if ("settings" in self.__dict__) and (name in self.settings):
             self.settings[name] = value
         elif name == "UserSpecifiedSettings":
             self.__dict__["manual_settings"] = value
         elif name in skip_properties_binary:
             super(BinaryTreeNode, self).__setattr__(name, value)
-        elif (
-            ("settings" in self.__dict__)
-            and not (name in self.settings)
-            and name
-            not in skip_properties
-        ):
+        elif ("settings" in self.__dict__) and not (name in self.settings) and name not in skip_properties:
             self._app.logger.error(
                 f"Setting name {name} is not available. Available parameters are: {', '.join(self.settings.keys())}."
             )
