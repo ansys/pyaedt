@@ -109,6 +109,14 @@ solutions_types = {
             "default_adaptive": "LastAdaptive",
             "intrinsics": ["Freq", "Phase"],
         },
+        "DCBiasedEddyCurrent": {
+            "name": "DCBiasedEddyCurrent",
+            "options": None,
+            "report_type": "EddyCurrent",
+            "default_setup": 60,
+            "default_adaptive": "LastAdaptive",
+            "intrinsics": ["Freq", "Phase"],
+        },
         "Transient": {
             "name": "Transient",
             "options": None,
