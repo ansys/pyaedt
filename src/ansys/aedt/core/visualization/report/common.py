@@ -418,7 +418,7 @@ class CommonReport(BinaryTreeNode):
         if self._is_created:
             oo = self._post.oreportsetup.GetChildObject(self._legacy_props["plot_name"])
             if oo:
-                BinaryTreeNode.__init__(self, self.plot_name, oo, False)
+                BinaryTreeNode.__init__(self, self._legacy_props["plot_name"], oo, False)
 
     @property
     def __all_props(self):
@@ -1314,6 +1314,7 @@ class CommonReport(BinaryTreeNode):
         bool
             ``True`` when successful, ``False`` when failed.
         """
+        self._is_created = False
         if not name:
             self.plot_name = generate_unique_name("Plot")
         else:
