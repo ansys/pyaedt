@@ -52,7 +52,7 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode):
         self._name = component_name
         self.__props = BoundaryProps(self, props) if props else {}
         self.auto_update = True
-        self._initialize_bynary_tree()
+        self._initialize_tree_node()
 
     @property
     def _child_object(self):
@@ -138,7 +138,7 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode):
             self._app.oradfield.AddAntennaOverlay(self._get_args())
         elif self.type == "FieldSourceGroup":
             self._app.oradfield.AddRadFieldSourceGroup(self._get_args())
-        return self._initialize_bynary_tree()
+        return self._initialize_tree_node()
 
     @pyaedt_function_handler()
     def update(self):

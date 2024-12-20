@@ -106,7 +106,7 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode):
         self.native_properties = self.__props["NativeComponentDefinitionProvider"]
         self.auto_update = True
 
-        self._initialize_bynary_tree()
+        self._initialize_tree_node()
 
     @property
     def _child_object(self):
@@ -218,7 +218,7 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode):
             self.excitation_name = a[0].split(":")[0]
         except (GrpcApiError, IndexError):
             self.excitation_name = self._name
-        return self._initialize_bynary_tree()
+        return self._initialize_tree_node()
 
     @pyaedt_function_handler()
     def update(self):
@@ -295,7 +295,7 @@ class BoundaryObject3dLayout(BoundaryCommon, BinaryTreeNode):
             self.__props = BoundaryProps(self, props)
         self.type = boundarytype
         self.auto_update = True
-        self._initialize_bynary_tree()
+        self._initialize_tree_node()
 
     @property
     def _child_object(self):

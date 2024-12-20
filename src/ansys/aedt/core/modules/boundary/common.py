@@ -93,7 +93,7 @@ class BoundaryCommon(PropsManager):
         return arg
 
     @pyaedt_function_handler()
-    def _initialize_bynary_tree(self):
+    def _initialize_tree_node(self):
         if self._child_object:
             BinaryTreeNode.__init__(self, self._name, self._child_object, False)
             return True
@@ -222,7 +222,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
         self.__props = BoundaryProps(self, props) if props else {}
         self._type = boundarytype
         self.auto_update = auto_update
-        self._initialize_bynary_tree()
+        self._initialize_tree_node()
 
     @property
     def _child_object(self):
@@ -542,7 +542,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
         else:
             return False
 
-        return self._initialize_bynary_tree()
+        return self._initialize_tree_node()
 
     @pyaedt_function_handler()
     def update(self):
