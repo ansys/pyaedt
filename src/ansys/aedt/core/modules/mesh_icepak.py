@@ -628,14 +628,24 @@ class MeshRegionCommon(BinaryTreeNode):
         self._app = app
         self._initialize_tree_node()
 
-    @pyaedt_function_handler()
-    def _initialize_tree_node(self):
-        if self._name == "Settings":
-            return
+    @property
+    def _child_object(self):
+        """Object-oriented properties.
 
-        child_object = self._app.get_oo_object(self._app.odesign, f"Mesh/{self._name}")
-        if child_object:
-            BinaryTreeNode.__init__(self, self._name, child_object, False)
+        Returns
+        -------
+        class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTreeNode`
+
+        """
+        child_object = None
+        design_childs = self._app.get_oo_name(self._app.odesign)
+
+        if "Mesh" in design_childs:
+            cc = self._app.get_oo_object(self._app.odesign, "Mesh")
+            cc_names = self._app.get_oo_name(cc)
+            if self._name in cc_names:
+                child_object = cc.GetChildObject(self._name)
+        return child_object
 
     @abstractmethod
     def update(self):
@@ -649,27 +659,42 @@ class MeshRegionCommon(BinaryTreeNode):
     def create(self):
         """Create the mesh region object."""
 
+    @pyaedt_function_handler()
+    def _initialize_tree_node(self):
+        if self._name == "Settings":
+            return
+        if self._child_object:
+            child_object = self._app.get_oo_object(self._app.odesign, f"Mesh/{self._name}")
+            if child_object:
+                BinaryTreeNode.__init__(self, self._name, child_object, False)
+
     # backward compatibility
     def __getattr__(self, name):
-        if "settings" in self.__dict__ and name in self.__dict__["settings"]:
-            return self.__dict__["settings"][name]
-        elif name == "UserSpecifiedSettings":
-            return self.__dict__["manual_settings"]
-        else:
-            return self.__dict__[name]
+        try:
+            self.__getattribute__(name)
+        except AttributeError:
+            if "settings" in self.__dict__ and name in self.__dict__["settings"]:
+                return self.__dict__["settings"][name]
+            elif name == "UserSpecifiedSettings":
+                return self.__dict__["manual_settings"]
+            else:
+                return self.__dict__[name]
 
     def __setattr__(self, name, value):
-        skip_properties_binary_tree = list(BinaryTreeNode.__dict__.keys())
         skip_properties = ["manual_settings", "settings", "_name", "_model_units", "_app", "_assignment", "enable", "name"]
+        skip_properties_binary = ["_props", "_saved_root_name", "_get_child_obj_arg",
+                                  "_node", "child_object", "auto_update", "_children", "_BinaryTreeNode__first_level"]
         if ("settings" in self.__dict__) and (name in self.settings):
             self.settings[name] = value
         elif name == "UserSpecifiedSettings":
             self.__dict__["manual_settings"] = value
+        elif name in skip_properties_binary:
+            super(BinaryTreeNode, self).__setattr__(name, value)
         elif (
             ("settings" in self.__dict__)
             and not (name in self.settings)
             and name
-            not in skip_properties + skip_properties_binary_tree
+            not in skip_properties
         ):
             self._app.logger.error(
                 f"Setting name {name} is not available. Available parameters are: {', '.join(self.settings.keys())}."
@@ -801,6 +826,8 @@ class MeshRegion(MeshRegionCommon):
         -------
         str
         """
+        if self._child_object:
+            self._name = str(self.properties["Name"])
         return self._name
 
     @name.setter
@@ -817,7 +844,8 @@ class MeshRegion(MeshRegionCommon):
         )
         self._app.modeler.refresh()
         self._name = value
-        if isinstance(self.assignment, SubRegion):
+        result = self._initialize_tree_node()
+        if isinstance(self.assignment, SubRegion) and result:
             self._assignment = self.assignment
 
     @pyaedt_function_handler
@@ -839,7 +867,7 @@ class MeshRegion(MeshRegionCommon):
         args += ["UserSpecifiedSettings:=", self.manual_settings]
         try:
             self._app.omeshmodule.EditMeshRegion(self.name, args)
-            return True
+            return self._initialize_tree_node()
         except GrpcApiError:  # pragma : no cover
             return False
 
@@ -939,8 +967,10 @@ class MeshRegion(MeshRegionCommon):
         self._app.omeshmodule.AssignMeshRegion(args)
         self._app.mesh.meshregions.append(self)
         self._app.modeler.refresh_all_ids()
-        self._assignment = self.assignment
-        return self._initialize_tree_node()
+        result = self._initialize_tree_node()
+        if result:
+            self._assignment = self.assignment
+        return result
 
     # backward compatibility
     @property
