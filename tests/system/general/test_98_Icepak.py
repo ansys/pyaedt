@@ -659,6 +659,12 @@ class TestClass:
         fan = self.aedtapp.create_fan("Fan1", cross_section="YZ", radius="15mm", hub_radius="5mm", origin=[5, 21, 1])
         assert fan
         assert fan.name in self.aedtapp.modeler.oeditor.Get3DComponentInstanceNames(fan.definition_name)[0]
+        fan.name = "Fan2"
+        assert fan.name in self.aedtapp.modeler.oeditor.Get3DComponentInstanceNames(fan.definition_name)[0]
+        assert fan.name in self.aedtapp.modeler.user_defined_components
+        assert fan.name in self.aedtapp.native_components
+        assert not "Fan1" in self.aedtapp.native_components
+        assert not "Fan1" in self.aedtapp.modeler.user_defined_components
         self.aedtapp.delete_design()
 
     def test_36_create_heat_sink(self):

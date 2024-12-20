@@ -14,7 +14,7 @@ In AEDT 2022 R2 and later, PyAEDT fully supports the gRPC API (except for EDB):
 
     # Launch the latest installed version of AEDT in graphical mode.
     from ansys.aedt.core import Hfss
-    from ansys.aedt.core import settings
+    from ansys.aedt.core.generic.settings import settings
     settings.use_grpc_api=True
     hfss = Hfss(machine="fullmachinename", port=portnumber)
 

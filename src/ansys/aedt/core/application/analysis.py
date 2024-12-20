@@ -206,7 +206,6 @@ class Analysis(Design, object):
 
         References
         ----------
-
         >>> oModule.GetOutputVariables()
         """
         return self.ooutput_variable.GetOutputVariables()
@@ -312,7 +311,6 @@ class Analysis(Design, object):
 
         References
         ----------
-
         >>> oModule.GetAllSolutionSetups()
         """
         if self._setup:
@@ -345,7 +343,6 @@ class Analysis(Design, object):
 
         References
         ----------
-
         >>> oModule.GelAllSolutionNames
         >>> oModule.GetSweeps
         """
@@ -386,7 +383,6 @@ class Analysis(Design, object):
 
         References
         ----------
-
         >>> oModule.GelAllSolutionNames
         >>> oModule.GetSweeps
         """
@@ -426,7 +422,6 @@ class Analysis(Design, object):
 
         References
         ----------
-
         >>> oModule.GetSetups
         """
         setups = []
@@ -447,7 +442,6 @@ class Analysis(Design, object):
 
         References
         ----------
-
         >>> oModule.GetSetups
         """
         setup_names = []
@@ -489,7 +483,6 @@ class Analysis(Design, object):
 
         References
         ----------
-
         >>> oModule.GetExcitations
         """
         try:
@@ -529,7 +522,6 @@ class Analysis(Design, object):
 
         References
         ----------
-
         >>> oModule.GetExcitations
         """
         exc_names = self.excitations[::]
@@ -537,6 +529,16 @@ class Analysis(Design, object):
         for el in self.boundaries:
             if el.name in exc_names:
                 self._excitation_objects[el.name] = el
+
+        # Delete objects that are not anymore available
+        keys_to_remove = [
+            internal_excitation
+            for internal_excitation in self._excitation_objects
+            if internal_excitation not in self.excitations
+        ]
+
+        for key in keys_to_remove:
+            del self._excitation_objects[key]
 
         return self._excitation_objects
 
@@ -676,7 +678,6 @@ class Analysis(Design, object):
 
         References
         ----------
-
         >>> oModule.ListVariations
         """
 
@@ -761,7 +762,6 @@ class Analysis(Design, object):
 
         References
         ----------
-
         >>> oModule.GetAllPortsList
         >>> oDesign.ExportProfile
         >>> oModule.ExportToFile
@@ -977,7 +977,6 @@ class Analysis(Design, object):
 
         References
         ----------
-
         >>> oModule.ExportConvergence
         """
         if " : " in setup:
@@ -1098,7 +1097,6 @@ class Analysis(Design, object):
 
             References
             ----------
-
             >>> oModule.GetAvailableVariations
             """
             variations_string = self.get_variation_strings(setup_sweep)
@@ -1150,7 +1148,6 @@ class Analysis(Design, object):
 
             References
             ----------
-
             >>> oModule.GetAvailableVariations
             """
             if not setup_sweep:
@@ -1177,7 +1174,6 @@ class Analysis(Design, object):
 
             References
             ----------
-
             >>> oDesign.GetChildObject('Variables').GetChildNames
             >>> oDesign.GetVariables
             >>> oDesign.GetVariableValue
@@ -1200,7 +1196,6 @@ class Analysis(Design, object):
 
             References
             ----------
-
             >>> oDesign.GetChildObject('Variables').GetChildNames
             >>> oDesign.GetVariables
             >>> oDesign.GetVariableValue
@@ -1223,7 +1218,6 @@ class Analysis(Design, object):
 
             References
             ----------
-
             >>> oDesign.GetChildObject('Variables').GetChildNames
             >>> oDesign.GetVariables
             >>> oDesign.GetVariableValue
@@ -1259,7 +1253,6 @@ class Analysis(Design, object):
 
         References
         ----------
-
         >>> oModule.GetSetups
         """
         setups = self.oanalysis.GetSetups()
@@ -1301,7 +1294,6 @@ class Analysis(Design, object):
 
         References
         ----------
-
         >>> oModule.GetSweeps
         """
         sweeps = self.oanalysis.GetSweeps(name)
@@ -1328,7 +1320,6 @@ class Analysis(Design, object):
 
         References
         ----------
-
         >>> oModule.ExportParametricResults
         """
         self.ooptimetrics.ExportParametricResults(sweep, output_file, export_units)
@@ -1467,7 +1458,6 @@ class Analysis(Design, object):
 
         References
         ----------
-
         >>> oModule.DeleteSetups
 
         Examples
@@ -1506,7 +1496,6 @@ class Analysis(Design, object):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
 
@@ -1573,7 +1562,6 @@ class Analysis(Design, object):
 
         References
         ----------
-
         >>> oModule.CreateOutputVariable
         """
         if context is None:
@@ -1611,7 +1599,6 @@ class Analysis(Design, object):
 
         References
         ----------
-
         >>> oDesign.GetNominalVariation
         >>> oModule.GetOutputVariableValue
         """
@@ -1658,7 +1645,7 @@ class Analysis(Design, object):
         dict = {}
         for entry in assignment:
             mat_name = self.modeler[entry].material_name
-            mat_props = self._materials[mat_name]
+            mat_props = self.materials.material_keys[mat_name]
             if prop_names is None:
                 dict[entry] = mat_props._props
             else:
@@ -1722,7 +1709,6 @@ class Analysis(Design, object):
 
         References
         ----------
-
         >>> oDesign.Analyze
         """
         if solve_in_batch:
@@ -1795,7 +1781,6 @@ class Analysis(Design, object):
 
         References
         ----------
-
         >>> oDesign.Analyze
         """
         start = time.time()
@@ -2139,7 +2124,6 @@ class Analysis(Design, object):
 
         References
         ----------
-
         >>> oDesktop.SubmitJob
         """
         return self.desktop_class.submit_job(
@@ -2464,7 +2448,6 @@ class Analysis(Design, object):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
         """
         if isinstance(property_value, list) and len(property_value) == 3:

@@ -1741,10 +1741,12 @@ class GeometryOperators(object):
     @staticmethod
     @pyaedt_function_handler()
     def is_segment_intersecting_polygon(a, b, polygon):
-        """
-        Determine if a segment defined by two points ``a`` and ``b`` intersects a polygon.
+        """Determine if a segment defined by two points ``a`` and ``b`` intersects a polygon.
+
         Points on the vertices and on the polygon boundaries are not considered intersecting.
 
+        Parameters
+        ----------
         a : List
             First point of the segment. List of ``[x, y]`` coordinates.
         b : List

@@ -27,8 +27,8 @@ import math
 import os
 import warnings
 
-from ansys.aedt.core import settings
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.settings import settings
 
 try:
     import numpy as np

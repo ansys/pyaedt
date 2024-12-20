@@ -306,7 +306,7 @@ class SolutionData(object):
 
     @pyaedt_function_handler()
     def _init_solution_data_imag(self):
-        """ """
+        """Initialize the imaginary part of the solution data."""
         sols_data = {}
 
         for expression in self.expressions:
@@ -962,9 +962,15 @@ class SolutionData(object):
 
         min_r = 1e12
         max_r = -1e12
-        for el in r:
-            min_r = min(min_r, el.values.min())
-            max_r = max(max_r, el.values.max())
+        if self.enable_pandas_output:
+            for el in r:
+                min_r = min(min_r, el.values.min())
+                max_r = max(max_r, el.values.max())
+        else:
+            for el in r:
+                min_r = min(min_r, min(el))
+                max_r = max(max_r, max(el))
+
         if min_r < 0:
             r = [i + np.abs(min_r) for i in r]
         theta_grid, phi_grid = np.meshgrid(theta, phi)
@@ -1039,9 +1045,9 @@ class SolutionData(object):
         temp_e_comp_y = e_real_y + 1j * e_imag_y
         temp_e_comp_z = e_real_z + 1j * e_imag_z
 
-        e_comp_x = np.zeros((len(freq), len(v), len(u)), dtype="complex_")
-        e_comp_y = np.zeros((len(freq), len(v), len(u)), dtype="complex_")
-        e_comp_z = np.zeros((len(freq), len(v), len(u)), dtype="complex_")
+        e_comp_x = np.zeros((len(freq), len(v), len(u)), dtype=np.complex128)
+        e_comp_y = np.zeros((len(freq), len(v), len(u)), dtype=np.complex128)
+        e_comp_z = np.zeros((len(freq), len(v), len(u)), dtype=np.complex128)
         if window:
             timewin = np.hanning(len(freq))
 
