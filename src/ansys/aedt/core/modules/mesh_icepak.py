@@ -607,7 +607,7 @@ class MeshSettings(object):
         return x in self.keys()
 
 
-class MeshRegionCommon(object):
+class MeshRegionCommon(BinaryTreeNode):
     """
     Manages Icepak mesh region settings.
 
@@ -626,8 +626,14 @@ class MeshRegionCommon(object):
         self._name = name
         self._model_units = units
         self._app = app
-        child_object = self._app.get_oo_object(self._app.odesign, f"Mesh/{self._name}")
+        self._initialize_tree_node()
 
+    @pyaedt_function_handler()
+    def _initialize_tree_node(self):
+        if self._name == "Settings":
+            return
+
+        child_object = self._app.get_oo_object(self._app.odesign, f"Mesh/{self._name}")
         if child_object:
             BinaryTreeNode.__init__(self, self._name, child_object, False)
 
@@ -653,6 +659,8 @@ class MeshRegionCommon(object):
             return self.__dict__[name]
 
     def __setattr__(self, name, value):
+        skip_properties_binary_tree = list(BinaryTreeNode.__dict__.keys())
+        skip_properties = ["manual_settings", "settings", "_name", "_model_units", "_app", "_assignment", "enable", "name"]
         if ("settings" in self.__dict__) and (name in self.settings):
             self.settings[name] = value
         elif name == "UserSpecifiedSettings":
@@ -661,7 +669,7 @@ class MeshRegionCommon(object):
             ("settings" in self.__dict__)
             and not (name in self.settings)
             and name
-            not in ["manual_settings", "settings", "_name", "_model_units", "_app", "_assignment", "enable", "name"]
+            not in skip_properties + skip_properties_binary_tree
         ):
             self._app.logger.error(
                 f"Setting name {name} is not available. Available parameters are: {', '.join(self.settings.keys())}."
@@ -725,10 +733,7 @@ class GlobalMeshRegion(MeshRegionCommon):
         self.delete()
         self.global_region = Region(self._app)
         self.global_region.create(self.padding_types, self.padding_values)
-        child_object = self._app.get_oo_object(self._app.odesign, f"Mesh/{self._name}")
-
-        if child_object:
-            BinaryTreeNode.__init__(self, self._name, child_object, False)
+        return self._initialize_tree_node()
 
 
 class MeshRegion(MeshRegionCommon):
@@ -935,12 +940,7 @@ class MeshRegion(MeshRegionCommon):
         self._app.mesh.meshregions.append(self)
         self._app.modeler.refresh_all_ids()
         self._assignment = self.assignment
-        child_object = self._app.get_oo_object(self._app.odesign, f"Mesh/{self._name}")
-
-        if child_object:
-            BinaryTreeNode.__init__(self, self._name, child_object, False)
-
-        return True
+        return self._initialize_tree_node()
 
     # backward compatibility
     @property
