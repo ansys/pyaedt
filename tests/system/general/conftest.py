@@ -51,7 +51,6 @@ import sys
 import tempfile
 import time
 
-import ansys.aedt.core
 from ansys.aedt.core.generic.settings import settings
 import pytest
 
@@ -249,17 +248,3 @@ def add_edb(local_scratch):
         )
 
     return _method
-
-
-@pytest.fixture(scope="module")
-def m2d_app(add_app):
-    app = add_app(application=ansys.aedt.core.Maxwell2d)
-    yield app
-    app.close_project(app.project_name)
-
-
-@pytest.fixture(scope="module")
-def m3d_app(add_app):
-    app = add_app(application=ansys.aedt.core.Maxwell3d)
-    yield app
-    app.close_project(app.project_name)

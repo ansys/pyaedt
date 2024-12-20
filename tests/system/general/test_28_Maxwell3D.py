@@ -22,10 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# import os
-# import shutil
+import os
 
-# from ansys.aedt.core import Maxwell3d
+from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.generic.constants import SOLUTIONS
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
@@ -33,6 +32,9 @@ import pytest
 
 # from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
+
+# import shutil
+
 
 # from tests.system.general.conftest import desktop_version
 
@@ -50,6 +52,14 @@ transient = "Transient_StrandedWindings"
 cyl_gap_name = "Motor3D_cyl_gap"
 
 layout_component_name = "LayoutForce"
+
+
+@pytest.fixture()
+def m3d_app(add_app):
+    app = add_app(application=Maxwell3d)
+    yield app
+    app.close_project(app.project_name)
+
 
 # @pytest.fixture(scope="class")
 # def m3dtransient(add_app):
@@ -566,49 +576,54 @@ class TestClass:
         assert matrix.reduced_matrices[1].name == "ReducedMatrix2"
         assert matrix.reduced_matrices[1].parent_matrix == "Matrix1"
         assert out[1] in matrix.reduced_matrices[1].sources.keys()
+        reduced_matrix_1 = matrix.reduced_matrices[0]
+        assert reduced_matrix_1.parent_matrix == matrix.name
+        source_name = list(reduced_matrix_1.sources.keys())[0]
+        assert reduced_matrix_1.update(old_source=source_name, source_type="series", new_source="new_series")
+        assert list(reduced_matrix_1.sources.keys())[0] == "new_series"
+        assert reduced_matrix_1.update(old_source="new_series", source_type="series", new_excitations="Cur2, Cur3")
+        assert list(reduced_matrix_1.sources.keys())[0] == "new_series"
+        assert not reduced_matrix_1.update(old_source="invalid", source_type="series", new_excitations="Cur2, Cur3")
+        assert not reduced_matrix_1.update(old_source="new_series", source_type="invalid", new_excitations="Cur2, Cur3")
+        assert not reduced_matrix_1.delete(source="invalid")
+        assert reduced_matrix_1.delete(source="new_series")
+        assert len(matrix.reduced_matrices) == 1
         out = matrix.join_parallel(["Cur5"])
         assert not out[0]
 
-    # def test_32b_reduced_matrix(self):
-    #     m3d_app.set_active_design("Matrix2")
-    #     parent_matrix = [m for m in m3d_app.boundaries if m.type == "Matrix"][0]
-    #     assert parent_matrix.reduced_matrices
-    #     reduced_matrix_1 = parent_matrix.reduced_matrices[0]
-    #     assert reduced_matrix_1.name == "ReducedMatrix1"
-    #     assert reduced_matrix_1.parent_matrix == parent_matrix.name
-    #     source_name = list(reduced_matrix_1.sources.keys())[0]
-    #     assert reduced_matrix_1.update(old_source=source_name, source_type="series", new_source="new_series")
-    #     assert list(reduced_matrix_1.sources.keys())[0] == "new_series"
-    #     assert reduced_matrix_1.sources["new_series"] == "Cur1, Cur2"
-    #     assert reduced_matrix_1.update(old_source="new_series", source_type="series", new_excitations="Cur2, Cur3")
-    #     assert list(reduced_matrix_1.sources.keys())[0] == "new_series"
-    #     assert reduced_matrix_1.sources["new_series"] == "Cur2, Cur3"
-    #     assert not reduced_matrix_1.update(old_source="invalid", source_type="series", new_excitations="Cur2, Cur3")
-    #     assert not reduced_matrix_1.update(old_source="new_series",
-    #     source_type="invalid", new_excitations="Cur2, Cur3")
-    #     assert not reduced_matrix_1.delete(source="invalid")
-    #     assert reduced_matrix_1.delete(source="new_series")
-    #     assert len(parent_matrix.reduced_matrices) == 1
-    #
-    # def test_32c_export_rl_matrix(self):
-    #     m3d_app.set_active_design("Matrix2")
-    #     L = m3d_app.assign_matrix(assignment=["Cur1", "Cur2", "Cur3"], matrix_name="matrix_export_test")
-    #     L.join_series(["Cur1", "Cur2"], matrix_name="reduced_matrix_export_test")
-    #     setup_name = "setupTestMatrixRL"
-    #     setup = m3d_app.create_setup(name=setup_name)
-    #     setup.props["MaximumPasses"] = 2
-    #     export_path_1 = os.path.join(self.local_scratch.path, "export_rl_matrix_Test1.txt")
-    #     assert not m3d_app.export_rl_matrix("matrix_export_test", export_path_1)
-    #     assert not m3d_app.export_rl_matrix("matrix_export_test", export_path_1, False, 10, 3, True)
-    #     m3d_app.validate_simple()
-    #     m3d_app.analyze_setup(setup_name, cores=1)
-    #     assert m3d_app.export_rl_matrix("matrix_export_test", export_path_1)
-    #     assert not m3d_app.export_rl_matrix("abcabc", export_path_1)
-    #     assert os.path.exists(export_path_1)
-    #     export_path_2 = os.path.join(self.local_scratch.path, "export_rl_matrix_Test2.txt")
-    #     assert m3d_app.export_rl_matrix("matrix_export_test", export_path_2, False, 10, 3, True)
-    #     assert os.path.exists(export_path_2)
-    #
+    def test_export_rl_matrix(self, local_scratch, m3d_app):
+        m3d_app.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
+
+        m3d_app.modeler.create_box([0, 1.5, 0], [1, 2.5, 5], name="Coil_1", material="aluminum")
+        m3d_app.modeler.create_box([8.5, 1.5, 0], [1, 2.5, 5], name="Coil_2", material="aluminum")
+        m3d_app.modeler.create_box([16, 1.5, 0], [1, 2.5, 5], name="Coil_3", material="aluminum")
+        m3d_app.modeler.create_box([32, 1.5, 0], [1, 2.5, 5], name="Coil_4", material="aluminum")
+
+        rectangle1 = m3d_app.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
+        rectangle2 = m3d_app.modeler.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
+        rectangle3 = m3d_app.modeler.create_rectangle(0, [16.5, 1.5, 0], [2.5, 5], name="Sheet3")
+
+        m3d_app.assign_current(rectangle1.faces[0], amplitude=1, name="Cur1")
+        m3d_app.assign_current(rectangle2.faces[0], amplitude=1, name="Cur2")
+        m3d_app.assign_current(rectangle3.faces[0], amplitude=1, name="Cur3")
+
+        matrix = m3d_app.assign_matrix(assignment=["Cur1", "Cur2", "Cur3"], matrix_name="matrix_export_test")
+        matrix.join_series(["Cur1", "Cur2"], matrix_name="reduced_matrix_export_test")
+        setup_name = "setupTestMatrixRL"
+        setup = m3d_app.create_setup(name=setup_name)
+        setup.props["MaximumPasses"] = 2
+        export_path_1 = os.path.join(local_scratch.path, "export_rl_matrix_Test1.txt")
+        assert not m3d_app.export_rl_matrix("matrix_export_test", export_path_1)
+        assert not m3d_app.export_rl_matrix("matrix_export_test", export_path_1, False, 10, 3, True)
+        m3d_app.validate_simple()
+        m3d_app.analyze_setup(setup_name, cores=1)
+        assert m3d_app.export_rl_matrix("matrix_export_test", export_path_1)
+        assert not m3d_app.export_rl_matrix("abcabc", export_path_1)
+        assert os.path.exists(export_path_1)
+        export_path_2 = os.path.join(local_scratch.path, "export_rl_matrix_Test2.txt")
+        assert m3d_app.export_rl_matrix("matrix_export_test", export_path_2, False, 10, 3, True)
+        assert os.path.exists(export_path_2)
+
     # def test_32d_post_processing(self):
     #     expressions = m3d_app.post.available_report_quantities(
     #         report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}

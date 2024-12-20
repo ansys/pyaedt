@@ -71,6 +71,13 @@ def m2d_ctrl_prg(add_app):
     app.close_project(app.project_name)
 
 
+@pytest.fixture()
+def m2d_app(add_app):
+    app = add_app(application=ansys.aedt.core.Maxwell2d)
+    yield app
+    app.close_project(app.project_name)
+
+
 class TestClass:
 
     def test_assign_initial_mesh_from_slider(self, aedtapp):
