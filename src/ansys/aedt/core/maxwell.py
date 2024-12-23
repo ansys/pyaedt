@@ -81,6 +81,7 @@ class Maxwell(object):
     @pyaedt_function_handler()
     def change_symmetry_multiplier(self, value=1):
         """Set the design symmetry multiplier to a specified value.
+
         The symmetry multiplier is automatically applied to all input quantities.
 
         Parameters

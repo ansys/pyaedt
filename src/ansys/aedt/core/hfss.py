@@ -4194,7 +4194,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
     def validate_full_design(self, design=None, output_dir=None, ports=None):
         """Validate a design based on an expected value and save information to the log file.
 
-
         Parameters
         ----------
         design : str,  optional
@@ -4219,16 +4218,13 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Examples
         --------
-
         Validate the current design and save the log file in the current project directory.
 
         >>> validation = hfss.validate_full_design()
         PyAEDT INFO: Design Validation Checks
         >>> validation[1]
         False
-
         """
-
         self.logger.info("Design validation checks.")
         validation_ok = True
         val_list = []
@@ -5529,6 +5525,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
     @pyaedt_function_handler(array_name="name", json_file="input_data")
     def add_3d_component_array_from_json(self, input_data, name=None):
         """Add or edit a 3D component array from a JSON file, TOML file, or dictionary.
+
         The 3D component is placed in the layout if it is not present.
 
         Parameters

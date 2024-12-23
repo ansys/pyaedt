@@ -49,9 +49,9 @@ class CommonRegion(object):
 
     @property
     def padding_types(self):
-        """
-        Get a list of strings containing thepadding types used,
-        one for each direction, in the following order:
+        """Get a list of strings containing the padding types used.
+
+        One for each direction in the following order:
         +X, -X, +Y, -Y, +Z, -Z.
 
         Returns

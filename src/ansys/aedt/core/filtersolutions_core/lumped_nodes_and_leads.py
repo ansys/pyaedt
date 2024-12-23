@@ -120,6 +120,7 @@ class LumpedNodesandLeads:
     @property
     def l_node_capacitor(self) -> str:
         """Shunt capacitance assigned to each inductor node.
+
         The default is` ``0``.
 
         Returns
@@ -169,6 +170,7 @@ class LumpedNodesandLeads:
     @property
     def r_lead_inductor(self) -> str:
         """Series inductance assigned to each resistor lead.
+
         The default is ``0``.
 
         Returns

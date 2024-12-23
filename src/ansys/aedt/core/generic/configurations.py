@@ -1045,6 +1045,7 @@ class Configurations(object):
     @pyaedt_function_handler()
     def validate(self, config):
         """Validate a configuration file against the schema.
+
         The default schema can be found in ``pyaedt/misc/config.schema.json``.
 
         Parameters

@@ -151,7 +151,7 @@ def _separate_list_elements(v):
 
 
 def _decode_recognized_subkeys(sk, d):
-    """Special decodings for sub-keys belonging to _recognized_subkeys
+    """Special decodings for sub-keys belonging to _recognized_subkeys.
 
     Parameters
     ----------
@@ -165,7 +165,6 @@ def _decode_recognized_subkeys(sk, d):
     -------
     bool
         Returns ``True`` if it finds and decodes a recognized value, ``False`` otherwise.
-
     """
     if sk.startswith(_recognized_subkeys[0]):  # 'simple(' is at the beginning of the value
         m = _round_bracket_list.search(sk)

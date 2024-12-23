@@ -134,6 +134,7 @@ class LumpedParasitics:
     @property
     def capacitor_ls(self) -> str:
         """Series inductance value of non-ideal capacitors in the synthesized circuit.
+
         The default is ``0``.
 
         Returns
@@ -183,6 +184,7 @@ class LumpedParasitics:
     @property
     def inductor_rp(self) -> str:
         """Shunt resistor value of non-ideal inductors in the synthesized circuit.
+
         The default is ``infinite``.
 
         Returns
@@ -199,6 +201,7 @@ class LumpedParasitics:
     @property
     def inductor_cp(self) -> str:
         """Shunt capacitor value of non-ideal inductors in the synthesized circuit.
+
         The default is ``0``.
 
         Returns

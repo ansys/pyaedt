@@ -655,6 +655,7 @@ class Attributes:
     @property
     def filter_implementation(self) -> FilterImplementation:
         """Technology for implementing the filter. The default is ``LUMPED``.
+
         The ``FilterImplementation`` enum provides a list of all implementations.
 
         Returns
@@ -870,6 +871,7 @@ class Attributes:
     @property
     def delay_time(self) -> str:
         """Filter delay time.
+
         The default is ``1 ns``.
 
         Returns
@@ -886,6 +888,7 @@ class Attributes:
     @property
     def pass_band_definition(self) -> PassbandDefinition:
         """Pass band frequency entry options.
+
         The default is ``CENTER_FREQUENCY``.
 
         Returns
@@ -1082,6 +1085,7 @@ class Attributes:
     @property
     def stop_band_definition(self) -> StopbandDefinition:
         """Stop band parameter entry option.
+
         The default is ``RATIO``.
 
         Returns
@@ -1103,6 +1107,7 @@ class Attributes:
     @property
     def stop_band_ratio(self) -> str:
         """Filter stop band ratio.
+
         The default is ``1.2``.
 
         Returns
@@ -1207,6 +1212,7 @@ class Attributes:
     @property
     def raised_cosine_alpha_percentage(self) -> RaisedCosineAlphaPercentage:
         """Raised cosine alpha percentage.
+
         The default is ''FORTY''.
 
         Returns
@@ -1326,6 +1332,7 @@ class Attributes:
     @property
     def bessel_normalized_delay_period(self) -> str:
         """Bessel filter normalized delay period.
+
         The default is ''2''.
 
         Returns
@@ -1345,6 +1352,7 @@ class Attributes:
     @property
     def bessel_normalized_delay_percentage(self) -> int:
         """Bessel filter ripple percentage.
+
         The default is ''0''.
 
         Returns

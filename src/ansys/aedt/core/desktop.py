@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 """This module contains the ``Desktop`` class.
+
 This module is used to initialize AEDT and the message manager for managing AEDT.
 You can initialize this module before launching an app or
 have the app automatically initialize it to the latest installed AEDT version.
@@ -377,8 +378,10 @@ def is_student_version(oDesktop):
 
 
 def _init_desktop_from_design(*args, **kwargs):
-    """Distinguishes if the ``Desktop`` class is initialized internally from the ``Design``
-    class or directly from the user. For example, ``desktop=Desktop()``)."""
+    """Distinguishes if the ``Desktop`` class is initialized internally.
+
+    It can be initialized from the ``Design`` class or directly from the user.
+    For example, ``desktop=Desktop()``)."""
     Desktop._invoked_from_design = True
     return Desktop(*args, **kwargs)
 

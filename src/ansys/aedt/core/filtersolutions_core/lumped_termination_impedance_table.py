@@ -377,6 +377,7 @@ class LumpedTerminationImpedance:
     @property
     def compensation_order(self) -> int:
         """Order of impedance compensation.
+
         The default is` ``2``.
 
         Returns

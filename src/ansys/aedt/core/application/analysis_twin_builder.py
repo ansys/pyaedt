@@ -31,14 +31,12 @@ from ansys.aedt.core.modules.solve_setup import SetupCircuit
 
 class AnalysisTwinBuilder(Analysis):
     """Provides the Twin Builder Analysis Setup (TwinBuilder).
+
     It is automatically initialized by Application call (Twin Builder).
     Refer to Application function for inputs definition
 
     Parameters
     ----------
-    Returns
-    -------
-
     """
 
     @property

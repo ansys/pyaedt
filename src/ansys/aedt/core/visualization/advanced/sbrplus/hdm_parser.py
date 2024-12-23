@@ -114,9 +114,10 @@ class Parser:
         return res
 
     def _parse_list(self, type=None, base=None, size=1):
-        """
-        Parser for vector or list. A vector is interpreted in the linear algebra sense
-        and converted to a NumPy array. A list is converted to a Python list. Only simple base types can be
+        """Parser for vector or list.
+
+        A vector is interpreted in the linear algebra sense and converted to a NumPy array.
+        A list is converted to a Python list. Only simple base types can be
         interpreted as a NumPy array.
         """
         if base is None:  # pragma: no cover

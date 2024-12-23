@@ -265,6 +265,7 @@ class Settings(object):
     @property
     def enable_global_log_file(self):
         """Enable or disable the global PyAEDT log file located in the global temp folder.
+
         The default is ``True``."""
         return self.__enable_global_log_file
 
@@ -275,6 +276,7 @@ class Settings(object):
     @property
     def enable_local_log_file(self):
         """Enable or disable the local PyAEDT log file located in the ``projectname.pyaedt`` project folder.
+
         The default is ``True``."""
         return self.__enable_local_log_file
 
@@ -295,6 +297,7 @@ class Settings(object):
     @property
     def enable_debug_methods_argument_logger(self):
         """Flag for whether to write out the method's arguments in the debug logger.
+
         The default is ``False``."""
         return self.__enable_debug_methods_argument_logger
 
@@ -379,7 +382,9 @@ class Settings(object):
     @property
     def enable_debug_geometry_operator_logger(self):
         """Enable or disable the logging for the geometry operators.
-        This setting is useful for debug purposes."""
+
+        This setting is useful for debug purposes.
+        """
         return self.__enable_debug_geometry_operator_logger
 
     @enable_debug_geometry_operator_logger.setter
@@ -389,7 +394,9 @@ class Settings(object):
     @property
     def enable_debug_internal_methods_logger(self):
         """Enable or disable the logging for internal methods.
-        This setting is useful for debug purposes."""
+
+        This setting is useful for debug purposes.
+        """
         return self.__enable_debug_internal_methods_logger
 
     @enable_debug_internal_methods_logger.setter
@@ -421,8 +428,9 @@ class Settings(object):
 
     @property
     def lsf_queue(self):
-        """LSF queue name. This attribute is valid only on Linux
-        systems running LSF Scheduler."""
+        """LSF queue name.
+
+        This attribute is valid only on Linux systems running LSF Scheduler."""
         return self.__lsf_queue
 
     @lsf_queue.setter
@@ -431,8 +439,9 @@ class Settings(object):
 
     @property
     def use_lsf_scheduler(self):
-        """Whether to use LSF Scheduler. This attribute is valid only on Linux
-        systems running LSF Scheduler."""
+        """Whether to use LSF Scheduler.
+
+        This attribute is valid only on Linux systems running LSF Scheduler."""
         return self.__use_lsf_scheduler
 
     @use_lsf_scheduler.setter
@@ -610,6 +619,7 @@ class Settings(object):
     @property
     def wait_for_license(self):
         """Enable or disable the use of the flag `-waitforlicense` when launching Electronic Desktop.
+
         The default value is ``False``."""
         return self.__wait_for_license
 
@@ -670,8 +680,8 @@ class Settings(object):
     @property
     def use_multi_desktop(self):
         """Flag indicating if multiple desktop sessions are enabled in the same Python script.
-        Current limitations follow:
 
+        Current limitations follow:
         - Release without closing the desktop is not possible,
         - The first desktop created must be the last to be closed.
 

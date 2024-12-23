@@ -126,6 +126,7 @@ class TransmissionZeros:
     @property
     def row_count(self) -> int:
         """Number of transmission zeros in the transmission zeros table.
+
         The default is ``2``.
 
         Returns

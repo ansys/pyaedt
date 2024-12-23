@@ -35,6 +35,7 @@ LAYERS = {"s": "signal", "g": "ground", "d": "dielectric"}
 
 def _replace_by_underscore(character, string):
     """Replace each character of a string by underscores.
+
     This method is used to create Hfss variable relative to a material,
     and so reformat the material name into the variable name format.
 
@@ -53,7 +54,6 @@ def _replace_by_underscore(character, string):
     >>> name = _replace_by_underscore(" ", name)
     >>> name = _replace_by_underscore("(", name)
     >>> name = _replace_by_underscore(")", name)
-
     """
     if not isinstance(character, str):
         raise TypeError("character must be str")
@@ -1524,6 +1524,7 @@ class Stackup3D(object):
         self, name, layer_type="S", material_name="copper", thickness=0.035, fill_material="FR4_epoxy", frequency=None
     ):
         """Add a new layer to the stackup.
+
         The new layer can be a signal (S), ground (G), or dielectric (D).
         The layer is entirely filled with the specified fill material. Anything will be drawn
         material.
@@ -1604,6 +1605,7 @@ class Stackup3D(object):
     @pyaedt_function_handler()
     def add_signal_layer(self, name, material="copper", thickness=0.035, fill_material="FR4_epoxy", frequency=None):
         """Add a new ground layer to the stackup.
+
         A signal layer is positive. The layer is entirely filled with the fill material.
         Anything will be drawn material.
 
@@ -1738,7 +1740,7 @@ class Stackup3D(object):
 
     @pyaedt_function_handler()
     def _layer_position_manager(self, layer):
-        """
+        """Set the last layer of the stackup.
 
         Parameters
         ----------
@@ -2609,8 +2611,10 @@ class Patch(CommonObject, object):
 
 
 class Trace(CommonObject, object):
-    """Trace Class in Stackup3D. Create a parametrized trace. It is preferable to use the add_trace method
-    in the class Layer3D than directly the class constructor.
+    """Trace Class in Stackup3D. Create a parametrized trace.
+
+    It is preferable to use the add_trace method in the class Layer3D
+    than directly the class constructor.
 
     Parameters
     ----------

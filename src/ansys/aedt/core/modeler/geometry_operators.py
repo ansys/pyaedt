@@ -1235,6 +1235,7 @@ class GeometryOperators(object):
     @pyaedt_function_handler()
     def q_rotation(v, q):
         """Evaluate the rotation of a vector, defined by a quaternion.
+
         Evaluated as:
         ``"q = q0 + q' = q0 + iq1 + jq2 + kq3"``,
         ``"w = qvq* = (q0^2 - |q'|^2)v + 2(q' • v)q' + 2q0(q' x v)"``.
@@ -1502,6 +1503,7 @@ class GeometryOperators(object):
     @pyaedt_function_handler()
     def v_angle_sign(va, vb, vn, right_handed=True):
         """Evaluate the signed angle between two geometry vectors.
+
         The sign is evaluated respect to the normal to the plane containing the two vectors as per the following rule.
         In case of opposite vectors, it returns an angle equal to 180deg (always positive).
         Assuming that the plane normal is normalized (vb == 1), the signed angle is simplified.

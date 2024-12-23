@@ -663,8 +663,7 @@ class ExportToAedt:
 
     @property
     def include_output_return_loss_s22_enabled(self) -> bool:
-        """Flag indicating if the output return loss report will be created upon
-        export to ``AEDT``.
+        """Flag indicating if the output return loss report will be created upon export to ``AEDT``.
 
         Returns
         -------
@@ -1046,6 +1045,7 @@ class ExportToAedt:
     @property
     def interconnect_minimum_length_value(self) -> str:
         """Minimum value of interconnect physical length.
+
         The minimum value of the interconnect physical length represents the smallest length that the interconnect
         line can have in the design. This value is used to determine the minimum dimensions of interconnect lines
         for optimization purposes.
@@ -1253,6 +1253,7 @@ class ExportToAedt:
     @property
     def substrate_er(self) -> Union[SubstrateType, str]:
         """Substrate's relative permittivity ``Er``.
+
         The value can be either a string or an instance of the ``SubstrateEr`` enum.
         The default is ``9.8`` for ``SubstrateEr.ALUMINA``.
 
@@ -1387,6 +1388,7 @@ class ExportToAedt:
     @property
     def substrate_unbalanced_lower_dielectric_height(self) -> str:
         """Substrate's lower dielectric height for unbalanced stripline substrate type.
+
         The default is ``6.35 mm``.
 
         Returns
@@ -1407,6 +1409,7 @@ class ExportToAedt:
     @property
     def substrate_suspend_dielectric_height(self) -> str:
         """Substrate's suspend dielectric height above ground plane for suspend and inverted substrate types.
+
         The default is ``1.27 mm``.
 
         Returns
@@ -1523,6 +1526,7 @@ class ExportToAedt:
     @property
     def modelithics_inductor_selection(self) -> str:
         """Selected ``Modelithics`` inductor family from the loaded list.
+
         The Modelithics inductor family selection allows you to choose a specific inductor model from the
         Modelithics library.
 
@@ -1614,6 +1618,7 @@ class ExportToAedt:
     @property
     def modelithics_capacitor_selection(self) -> str:
         """Selected ``Modelithics`` capacitor family from the loaded list.
+
         The Modelithics capacitor family selection allows you to choose a specific capacitor model from the
         Modelithics library.
 

@@ -313,15 +313,18 @@ def unique_string_list(element_list, only_string=True):
 
 @pyaedt_function_handler()
 def string_list(element_list):
-    """
+    """Convert a string to a list if it is not already a list.
+
+    Input must be a list or a string.
 
     Parameters
     ----------
-    element_list :
-
+    element_list : list, str
+        List or string to be converted to a list
 
     Returns
     -------
+    list
 
     """
     if isinstance(element_list, str):
