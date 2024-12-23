@@ -62,12 +62,10 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode):
         self._name = name
         self.__props = BoundaryProps(self, props) if props else {}
         self.type = boundarytype
-        self._boundary_name = self.name
         self.auto_update = True
         self.__reduced_matrices = None
         self.matrix_assignment = None
-        if self._child_object:
-            BinaryTreeNode.__init__(self, self.name, self._child_object, False)
+        self._initialize_tree_node()
 
     @property
     def reduced_matrices(self):
@@ -99,10 +97,10 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode):
 
         cc = self._app.odesign.GetChildObject("Parameters")
         child_object = None
-        if self.name in cc.GetChildNames():
-            child_object = self._app.odesign.GetChildObject("Parameters").GetChildObject(self.name)
-        elif self.name in self._app.odesign.GetChildObject("Parameters").GetChildNames():
-            child_object = self._app.odesign.GetChildObject("Parameters").GetChildObject(self.name)
+        if self._name in cc.GetChildNames():
+            child_object = self._app.odesign.GetChildObject("Parameters").GetChildObject(self._name)
+        elif self._name in self._app.odesign.GetChildObject("Parameters").GetChildNames():
+            child_object = self._app.odesign.GetChildObject("Parameters").GetChildObject(self._name)
 
         return child_object
 
@@ -125,13 +123,18 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode):
 
     @property
     def name(self):
-        """Boundary name."""
+        """Boundary Name."""
+        if self._child_object:
+            self._name = str(self.properties["Name"])
         return self._name
 
     @name.setter
     def name(self, value):
-        self._name = value
-        self.update()
+        if self._child_object:
+            try:
+                self.properties["Name"] = value
+            except KeyError:
+                self._app.logger.error("Name %s already assigned in the design", value)
 
     @pyaedt_function_handler()
     def _get_args(self, props=None):
@@ -174,9 +177,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode):
             self._app.o_maxwell_parameters.AssignLayoutForce(self._get_args())
         else:
             return False
-        if self._child_object:
-            BinaryTreeNode.__init__(self, self.name, self._child_object, False)
-        return True
+        return self._initialize_tree_node()
 
     @pyaedt_function_handler()
     def update(self):
@@ -189,14 +190,13 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode):
 
         """
         if self.type == "Matrix":
-            self._app.o_maxwell_parameters.EditMatrix(self._boundary_name, self._get_args())
+            self._app.o_maxwell_parameters.EditMatrix(self.name, self._get_args())
         elif self.type == "Force":
-            self._app.o_maxwell_parameters.EditForce(self._boundary_name, self._get_args())
+            self._app.o_maxwell_parameters.EditForce(self.name, self._get_args())
         elif self.type == "Torque":
-            self._app.o_maxwell_parameters.EditTorque(self._boundary_name, self._get_args())
+            self._app.o_maxwell_parameters.EditTorque(self.name, self._get_args())
         else:
             return False
-        self._boundary_name = self.name
         return True
 
     @pyaedt_function_handler()
