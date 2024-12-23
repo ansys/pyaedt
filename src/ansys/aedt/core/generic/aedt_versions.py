@@ -48,6 +48,7 @@ class AedtVersions:
     @property
     def list_installed_ansysem(self):
         """Return a list of installed AEDT versions on ``ANSYSEM_ROOT``.
+
         The list is ordered: first normal versions, then client versions, finally student versions."""
         if self._list_installed_ansysem is None:
             aedt_env_var_prefix = "ANSYSEM_ROOT"

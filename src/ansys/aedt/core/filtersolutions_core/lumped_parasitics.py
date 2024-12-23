@@ -101,6 +101,7 @@ class LumpedParasitics:
     @property
     def capacitor_rs(self) -> str:
         """Series resistor value of non-ideal capacitors in the synthesized circuit.
+
         The default is ``0``.
 
         Returns
@@ -165,6 +166,7 @@ class LumpedParasitics:
     @property
     def inductor_rs(self) -> str:
         """Series resistor value of non-ideal inductors in the synthesized circuit.
+
         The default is` ``0``.
 
         Returns

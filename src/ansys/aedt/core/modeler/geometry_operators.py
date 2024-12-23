@@ -1424,8 +1424,9 @@ class GeometryOperators(object):
     @staticmethod
     @pyaedt_function_handler()
     def orient_polygon(x, y, clockwise=True):
-        """
-        Orient a polygon clockwise or counterclockwise. The vertices should be already ordered either way.
+        """Orient a polygon clockwise or counterclockwise.
+
+        The vertices should be already ordered either way.
         Use this function to change the orientation.
         The polygon is represented by its vertices coordinates.
 
@@ -1546,6 +1547,7 @@ class GeometryOperators(object):
     @pyaedt_function_handler()
     def v_angle_sign_2D(va, vb, right_handed=True):
         """Evaluate the signed angle between two 2D geometry vectors.
+
         Iit the 2D version of the ``GeometryOperators.v_angle_sign`` considering vn = [0,0,1].
         In case of opposite vectors, it returns an angle equal to 180deg (always positive).
 

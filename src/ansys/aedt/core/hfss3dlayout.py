@@ -1883,7 +1883,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         # type: () -> list
         """Get the list defined differential pairs.
 
-
         Returns
         -------
         list
@@ -2157,6 +2156,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         window="hamming",
     ):
         """Edit a source from file data.
+
         File data is a csv containing either frequency data or time domain data that will be converted through FFT.
 
         Parameters

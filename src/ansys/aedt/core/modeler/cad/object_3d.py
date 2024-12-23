@@ -282,7 +282,6 @@ class Object3d(object):
     def export_image(self, output_file=None):
         """Export the current object to a specified file path.
 
-
         .. note::
            Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
 
@@ -315,6 +314,7 @@ class Object3d(object):
     @pyaedt_function_handler()
     def touching_conductors(self):
         """Get the conductors of given object.
+
         See :func:`ansys.aedt.core.application.analysis_3d.FieldAnalysis3D.identify_touching_conductors`.
 
         Returns

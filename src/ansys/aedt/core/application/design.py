@@ -1026,7 +1026,6 @@ class Design(AedtObjects):
     def toolkit_directory(self) -> str:
         """Path to the toolkit directory.
 
-
         Returns
         -------
         str

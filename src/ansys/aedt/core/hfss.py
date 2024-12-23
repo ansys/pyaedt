@@ -5894,6 +5894,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         variation_name=None,
     ):
         """Export the radar cross-section data.
+
         This method returns an instance of the ``RcsSolutionDataExporter`` object.
 
         Parameters

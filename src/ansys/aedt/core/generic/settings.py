@@ -236,6 +236,7 @@ class Settings(object):
     @property
     def block_figure_plot(self):
         """Block matplotlib figure plot during python script run until the user close it manually.
+
         Default is ``False``."""
         return self.__block_figure_plot
 
@@ -709,7 +710,9 @@ class Settings(object):
 
     @property
     def force_error_on_missing_project(self):
-        """Flag for whether to check the project path. The default is ``False``.
+        """Flag for whether to check the project path.
+
+        The default is ``False``.
         If ``True``, when passing a project path, the project has to exist.
         Otherwise, an error is raised.
         """

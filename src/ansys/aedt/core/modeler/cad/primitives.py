@@ -1014,8 +1014,7 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler()
     def cleanup_points(self):
-        """Clean up points that no longer exist in the modeler because
-        they were removed by previous operations.
+        """Clean up points that no longer exist in the modeler because they were removed by previous operations.
 
         This method also updates object IDs that may have changed via
         a modeler operation such as :func:`ansys.aedt.core.modeler.Model3D.Modeler3D.unite`

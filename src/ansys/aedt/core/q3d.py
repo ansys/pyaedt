@@ -2064,6 +2064,7 @@ class Q3d(QExtractor, object):
         self, source1, sink1, source2, sink2, calculation="ACL", setup_sweep_name=None, variations=None
     ):
         """Get mutual coupling between two terminals.
+
         User has to provide the pair, source and sink of each terminal. If the provided sinks are not part of the
         original matrix, a new matrix will be created.
 

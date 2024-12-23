@@ -1044,8 +1044,8 @@ class Configurations(object):
 
     @pyaedt_function_handler()
     def validate(self, config):
-        """Validate a configuration file against the schema. The default schema
-            can be found in ``pyaedt/misc/config.schema.json``.
+        """Validate a configuration file against the schema.
+        The default schema can be found in ``pyaedt/misc/config.schema.json``.
 
         Parameters
         ----------
@@ -1082,6 +1082,7 @@ class Configurations(object):
     @pyaedt_function_handler()
     def import_config(self, config_file, *args):
         """Import configuration settings from a JSON or TOML file and apply it to the current design.
+
         The sections to be applied are defined with the ``configuration.options`` class.
         The import operation result is saved in the ``configuration.results`` class.
 

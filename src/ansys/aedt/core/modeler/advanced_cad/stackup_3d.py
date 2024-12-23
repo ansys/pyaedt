@@ -292,8 +292,10 @@ class DuplicatedParametrizedMaterial(object):
 
 
 class Layer3D(object):
-    """Provides a class for a management of a parametric layer in 3D Modeler. The Layer3D class is not intended
-    to be used with its constructor, but by using the method "add_layer" available in the Stackup3D class.
+    """Provides a class for a management of a parametric layer in 3D Modeler.
+
+    The Layer3D class is not intended to be used with its constructor,
+    but by using the method "add_layer" available in the Stackup3D class.
 
     Parameters
     ----------
@@ -1691,7 +1693,9 @@ class Stackup3D(object):
 
     @pyaedt_function_handler()
     def add_ground_layer(self, name, material="copper", thickness=0.035, fill_material="air", frequency=None):
-        """Add a new ground layer to the stackup. A ground layer is negative.
+        """Add a new ground layer to the stackup.
+
+        A ground layer is negative.
         The layer is entirely filled with  metal. Any polygon will draw a void in it.
 
         Parameters
@@ -2529,7 +2533,9 @@ class Patch(CommonObject, object):
         return port
 
     def quarter_wave_feeding_line(self, impedance_to_adapt=50):
-        """Create a Trace to feed the patch. The trace length is the quarter wavelength, and this width is calculated
+        """Create a Trace to feed the patch.
+
+        The trace length is the quarter wavelength, and this width is calculated
         to return the desired impedance.
 
         Parameters

@@ -227,16 +227,16 @@ def _arg2dict(arg, dict_out):
 
 @pyaedt_function_handler()
 def format_decimals(el):
-    """
+    """provide a formatted string for a decimal number.
 
     Parameters
     ----------
-    el :
-
+    el : float, int, str
+        Decimal number to be formatted.
 
     Returns
     -------
-
+    str
     """
     if float(el) > 1000:
         num = f"{Decimal(el):,.0f}"
@@ -249,7 +249,7 @@ def format_decimals(el):
 
 @pyaedt_function_handler()
 def random_string(length=6, only_digits=False, char_set=None):
-    """Generate a random string
+    """Generate a random string.
 
     Parameters
     ----------
@@ -333,16 +333,17 @@ def string_list(element_list):
 
 @pyaedt_function_handler()
 def ensure_list(element_list):
-    """
+    """Ensure that an object is a list.
+
+    If it is not, it will be converted to a list.
 
     Parameters
     ----------
-    element_list :
+    element_list : object
+        Object to be checked.
 
-
-    Returns
-    -------
-
+    Returns:
+    None
     """
     if not isinstance(element_list, list):
         element_list = [element_list]

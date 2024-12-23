@@ -167,8 +167,7 @@ class TransmissionZeros:
         return zero_value_string, position_value_string
 
     def update_row(self, row_index, zero="", position=""):
-        """Update the transmission zero ratio or bandwidth and its position
-        for a row in the transmission zeros table.
+        """Update the transmission zero ratio or bandwidth and its position for a row in the transmission zeros table.
 
         Parameters
         ----------

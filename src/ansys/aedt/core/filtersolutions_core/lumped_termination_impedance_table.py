@@ -332,13 +332,13 @@ class LumpedTerminationImpedance:
     @property
     def reactance_type(self) -> ComplexReactanceType:
         """Reactance type of complex impedance in the complex impedance table.
+
         The default is ``reactance``.
 
         Returns
         -------
         :enum:`ComplexReactanceType`
         """
-
         type_string_buffer = create_string_buffer(100)
         status = self._dll.getLumpedComplexReactanceType(
             type_string_buffer,

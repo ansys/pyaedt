@@ -500,8 +500,8 @@ class ExportToAedt:
     @property
     def schematic_name(self) -> str:
         """Name of the exported schematic in ``AEDT``, displayed as the project and design names.
-        The default name is ``FilterSolutions`` if not specified.
 
+        The default name is ``FilterSolutions`` if not specified.
 
         Returns
         -------
@@ -1092,6 +1092,7 @@ class ExportToAedt:
     @property
     def interconnect_line_width_value(self) -> str:
         """Interconnect conductor width value.
+
         The interconnect conductor width value represents the actual width of the interconnect line in the design.
         This value is crucial for determining the electrical characteristics of the interconnect, such as impedance,
         signal integrity, and potential signal loss. Accurate width measurements are essential for ensuring that the
@@ -1116,6 +1117,7 @@ class ExportToAedt:
     @property
     def interconnect_minimum_width_value(self) -> str:
         """Minimum value of interconnect conductor width.
+
         The minimum value of the interconnect conductor width represents the smallest width that the interconnect
         line can have in the design. This value is used to determine the minimum dimensions of interconnect lines
         for optimization purposes.
@@ -1139,6 +1141,7 @@ class ExportToAedt:
     @property
     def interconnect_maximum_width_value(self) -> str:
         """Maximum value of interconnect conductor width.
+
         The maximum value of the interconnect conductor width represents the largest width that the interconnect
         line can have in the design. This value is used to determine the maximum dimensions of interconnect lines
         for optimization purposes.
@@ -1182,6 +1185,7 @@ class ExportToAedt:
     @property
     def interconnect_capacitor_tolerance_value(self) -> str:
         """Tolerance value of interconnect capacitor in ``%``.
+
         The default is ``1``.
 
         Returns
@@ -1230,6 +1234,7 @@ class ExportToAedt:
     @property
     def substrate_type(self) -> SubstrateType:
         """Subctrate type of the filter.
+
         The ``SubstrateType`` enum provides a list of all substrate types.
 
         Returns
@@ -1316,6 +1321,7 @@ class ExportToAedt:
     @property
     def substrate_loss_tangent(self) -> Union[SubstrateEr, str]:
         """Substrate's loss tangent.
+
         The value can be either a string or an instance of the ``SubstrateEr`` enum.
         The default is ``0.0005`` for ``SubstrateEr.ALUMINA``.
 

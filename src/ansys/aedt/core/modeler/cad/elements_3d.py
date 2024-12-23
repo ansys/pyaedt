@@ -34,11 +34,11 @@ from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 @pyaedt_function_handler()
 def _dict2arg(d, arg_out):
-    """
+    """Convert a dictionary to an argument list.
 
     Parameters
     ----------
-    d :
+    d : dict
 
     arg_out :
 
@@ -440,7 +440,13 @@ class EdgePrimitive(EdgeTypePrimitive, object):
 
 
 class FacePrimitive(object):
-    """Contains the face object within the AEDT Desktop Modeler."""
+    """Contains the face object within the AEDT Desktop Modeler.
+
+    Parameters
+    ----------
+        object3d : :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+        obj_id : int
+    """
 
     def __str__(self):
         return str(self.id)
@@ -449,13 +455,6 @@ class FacePrimitive(object):
         return str(self.id)
 
     def __init__(self, object3d, obj_id):
-        """
-
-        Parameters
-        ----------
-        object3d : :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
-        obj_id : int
-        """
         self._id = obj_id
         self._object3d = object3d
         self._is_planar = None

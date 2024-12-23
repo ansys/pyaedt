@@ -636,6 +636,7 @@ class Attributes:
     @property
     def filter_class(self) -> FilterClass:
         """Class (band definition) of the filter. The default is ``LOW_PASS``.
+
         The ``FilterClass`` enum provides a list of all classes.
 
         Returns
@@ -812,6 +813,7 @@ class Attributes:
     @property
     def minimum_order_group_delay_error_percent(self) -> str:
         """Filter maximum group delay in % for calculation of the filter minimum order.
+
         The default is ``5``.
 
         Returns
@@ -938,6 +940,7 @@ class Attributes:
     @property
     def lower_frequency(self) -> str:
         """Filter lower corner frequency.
+
         The default is ``905 MHz``.
 
         Returns
@@ -1003,6 +1006,7 @@ class Attributes:
     @property
     def diplexer_lower_center_frequency(self) -> str:
         """Diplexer lower center frequency for ``BP2`` and ``Triplexer2`` diplexer types.
+
         The default is ``500 MHz``.
 
         Returns
@@ -1115,6 +1119,7 @@ class Attributes:
     @property
     def stop_band_frequency(self) -> str:
         """Filter stop band frequency.
+
         The default is ``1.2 GHz``.
 
         Returns
@@ -1361,6 +1366,7 @@ class Attributes:
     @property
     def pass_band_ripple(self) -> str:
         """Filter pass band ripple in dB.
+
         The default is ''0.05 dB''.
 
         Returns
@@ -1473,6 +1479,7 @@ class Attributes:
     @property
     def asymmetric_high_stop_band_ratio(self) -> str:
         """Stop-band ratio for high side of an asymmetric filter.
+
         The default is ''1.2''.
 
         Returns
@@ -1494,6 +1501,7 @@ class Attributes:
     @property
     def asymmetric_low_stop_band_attenuation_db(self) -> str:
         """Stop-band attenuation for low side of an asymmetric filter.
+
         The default is ''60 dB''.
 
         Returns

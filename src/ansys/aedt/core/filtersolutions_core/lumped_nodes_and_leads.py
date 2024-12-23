@@ -136,6 +136,7 @@ class LumpedNodesandLeads:
     @property
     def l_lead_inductor(self) -> str:
         """Series inductance assigned to each inductor lead.
+
         The default is ``0``.
 
         Returns
