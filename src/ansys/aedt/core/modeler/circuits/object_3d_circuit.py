@@ -1084,17 +1084,17 @@ class CircuitComponent(object):
         self._circuit_components.oeditor.MovePins(self.composed_name, -0, -0, 0, 0, ["NAME:PinMoveData"])
         return True
 
-    @pyaedt_function_handler()
+    @property
     def component_path(self):
         """Component definition path."""
         component_definition = self.component_info["Info"]
         if not self._circuit_components.o_component_manager.GetData(component_definition):
-            self.logger.warning("Component has no path")
+            self._circuit_components._app.logger.warning("Component has no path")
             return False
-        else:
-            return (
-                self._circuit_components.o_component_manager.GetData(component_definition)[24][1][12][1].split(" ")[1]
-            )[1:-1]
+        for i in self._circuit_components.o_component_manager.GetData(component_definition):
+            if type(i) == list and type(i[0]) == str:
+                if i[0] == "NAME:CosimDefinitions":
+                    return (i[1][12][1].split(" ")[1])[1:-1]
 
 
 class Wire(object):

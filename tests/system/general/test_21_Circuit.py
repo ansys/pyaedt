@@ -410,6 +410,7 @@ class TestClass:
         assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model)
         assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2345", False)
         assert not self.aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2346")
+        assert list(self.aedtapp.modeler.components.components.values())[0].component_path
 
     def test_29a_create_circuit_from_spice_edit_symbol(self):
         model = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "test.lib")
@@ -1011,3 +1012,10 @@ class TestClass:
 
         assert self.aedtapp.delete_imported_data(table)
         assert table not in self.aedtapp.existing_analysis_sweeps
+
+    def test_54_get_component_path(self):
+        model = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "test.lib")
+        assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model)
+        assert list(self.aedtapp.modeler.components.components.values())[0].component_path
+        assert self.aedtapp.modeler.components.create_component(component_library="", component_name="RES_")
+        assert not list(self.aedtapp.modeler.components.components.values())[1].component_path
