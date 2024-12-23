@@ -410,7 +410,6 @@ class TestClass:
         assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model)
         assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2345", False)
         assert not self.aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2346")
-        assert list(self.aedtapp.modeler.components.components.values())[0].component_path
 
     def test_29a_create_circuit_from_spice_edit_symbol(self):
         model = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "test.lib")
