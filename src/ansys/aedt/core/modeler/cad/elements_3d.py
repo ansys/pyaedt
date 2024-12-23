@@ -416,6 +416,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
     @pyaedt_function_handler()
     def move_along_normal(self, offset=1.0):
         """Move this edge.
+
         This method moves an edge which belong to the same solid.
 
         Parameters
@@ -431,7 +432,6 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         References
         ----------
         >>> oEditor.MoveEdges
-
         """
         if self._object3d.object_type == "Solid":
             self._object3d.logger.error("Edge Movement applies only to 2D objects.")

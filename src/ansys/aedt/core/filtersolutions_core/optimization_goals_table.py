@@ -110,6 +110,7 @@ class OptimizationGoalsTable:
     @property
     def row_count(self) -> int:
         """Number of golas in the optimization goals table.
+
         The default is `0`.
 
         Returns

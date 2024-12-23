@@ -75,13 +75,6 @@ class Object3d(object):
     """
 
     def __init__(self, primitives, name=None):
-        """
-        Parameters
-        ----------
-        primitives : :class:`ansys.aedt.core.modeler.cad.primitives_3d.Primitives3D`
-            Inherited parent object.
-        name : str
-        """
         self._id = None
         if name:
             self._m_name = name

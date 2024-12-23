@@ -795,6 +795,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
     @pyaedt_function_handler(setupname="name", setuptype="setup_type")
     def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
         """Create an analysis setup for HFSS.
+
         Optional arguments are passed along with ``setup_type`` and ``name``. Keyword
         names correspond to the ``setup_type`` corresponding to the native AEDT API.
         The list of keywords here is not exhaustive.
@@ -3609,6 +3610,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         deembed=False,
     ):
         """Create a circuit port from two edges.
+
         The integration line is from edge 2 to edge 1.
 
         .. deprecated:: 0.6.70

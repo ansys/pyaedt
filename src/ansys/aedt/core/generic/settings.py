@@ -344,7 +344,8 @@ class Settings(object):
     @property
     def logger_formatter(self):
         """Message format of the log entries.
-        The default is ``'%(asctime)s:%(destination)s:%(extra)s%(levelname)-8s:%(message)s'``"""
+
+        The default is ``'%(asctime)s:%(destination)s:%(extra)s%(levelname)-8s:%(message)s'``."""
         return self.__logger_formatter
 
     @logger_formatter.setter
@@ -354,6 +355,7 @@ class Settings(object):
     @property
     def logger_datefmt(self):
         """Date format of the log entries.
+
         The default is ``'%Y/%m/%d %H.%M.%S'``"""
         return self.__logger_datefmt
 

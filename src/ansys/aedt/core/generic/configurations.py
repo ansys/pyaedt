@@ -1569,9 +1569,7 @@ class ConfigurationOptions3DLayout(ConfigurationsOptions):
 
 
 class Configurations3DLayout(Configurations):
-    """Enables export and import configuration options to be applied to a
-    new or existing 3DLayout design.
-    """
+    """Enables export and import configuration options to be applied to a new or existing 3DLayout design."""
 
     def __init__(self, app):
         Configurations.__init__(self, app)
@@ -1804,6 +1802,7 @@ class ConfigurationsIcepak(Configurations):
     @pyaedt_function_handler()
     def import_config(self, config_file, *args):
         """Import configuration settings from a JSON or TOML file and apply it to the current design.
+
         The sections to be applied are defined with ``configuration.options`` class.
         The import operation result is saved in the ``configuration.results`` class.
 

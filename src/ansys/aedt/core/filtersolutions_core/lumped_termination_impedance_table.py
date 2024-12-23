@@ -172,6 +172,7 @@ class LumpedTerminationImpedance:
     @property
     def row_count(self) -> int:
         """Count of the accumulated complex impedances in the complex impedances's table.
+
         The default is ``3``.
 
         Returns

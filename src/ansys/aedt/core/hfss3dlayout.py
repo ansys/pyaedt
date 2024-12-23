@@ -2291,6 +2291,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
     @pyaedt_function_handler(setup_name="setup")
     def get_dcir_solution_data(self, setup, show="RL", category="Loop_Resistance"):
         """Retrieve dcir solution data. Available element_names are dependent on element_type as below.
+
         Sources ["Voltage", "Current", "Power"]
         "RL" ['Loop Resistance', 'Path Resistance', 'Resistance', 'Inductance']
         "Vias" ['X', 'Y', 'Current', 'Limit', 'Resistance', 'IR Drop', 'Power']

@@ -772,6 +772,7 @@ class Attributes:
     @property
     def minimum_order_stop_band_attenuation_db(self) -> str:
         """Filter stop band attenuation in dB for calculation of the filter minimum order.
+
         The default is ``50``.
 
         Returns
@@ -793,6 +794,7 @@ class Attributes:
     @property
     def minimum_order_stop_band_frequency(self) -> str:
         """Filter stop band frequency for calculation of the filter minimum order.
+
         The default is ``10 GHz``.
 
         Returns
@@ -960,6 +962,7 @@ class Attributes:
     @property
     def upper_frequency(self) -> str:
         """Filter upper corner frequency.
+
         The default is ``1.105 MHz``.
 
         Returns
@@ -993,6 +996,7 @@ class Attributes:
     @property
     def diplexer_outer_band_width(self) -> str:
         """Diplexer outer band width for ``BP1`` and ``Triplexer1`` diplexer types.
+
         The default is ``2 GHz``.
 
         Returns
@@ -1252,6 +1256,7 @@ class Attributes:
     @property
     def group_delay_ripple_period(self) -> str:
         """Filter approximate normalized group delay ripple period.
+
         The default is ''2''.
 
         Returns
@@ -1271,6 +1276,7 @@ class Attributes:
     @property
     def normalized_group_delay_percentage(self) -> int:
         """Normalized group delay percentage.
+
         The default is ''0''.
 
         Returns
@@ -1553,6 +1559,7 @@ class Attributes:
     @property
     def gaussian_transition(self) -> GaussianTransition:
         """Gaussian filter transition option.
+
         The default is ''TRANSITION_NONE''.
 
         Returns
@@ -1699,6 +1706,7 @@ class Attributes:
     @property
     def constrict_ripple_percent(self) -> str:
         """Filter ripple constriction percentage.
+
         The default is ''50%''.
 
         Returns
@@ -1733,6 +1741,7 @@ class Attributes:
     @property
     def single_point_ripple_inf_zeros(self) -> SinglePointRippleInfZeros:
         """Filter number of single point ripple infinite zeros.
+
         The default is ''RIPPLE_INF_ZEROS_1''.
 
         Returns

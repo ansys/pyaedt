@@ -85,6 +85,7 @@ class LumpedParasitics:
     @property
     def capacitor_q(self) -> str:
         """Q factor value of non-ideal capacitors in the synthesized circuit.
+
         The default is ``infinite``.
 
         Returns

@@ -552,8 +552,7 @@ class ExportToAedt:
 
     @property
     def include_gt_gain_enabled(self) -> bool:
-        """Flag indicating if the total voltage gain report will be created upon
-        export to ``AEDT``.
+        """Flag indicating if the total voltage gain report will be created upon export to ``AEDT``.
 
         Returns
         -------
@@ -644,8 +643,7 @@ class ExportToAedt:
 
     @property
     def include_reverse_transfer_s12_enabled(self) -> bool:
-        """Flag indicating if the reverse transfer gain report will be created upon
-        export to ``AEDT``.
+        """Flag indicating if the reverse transfer gain report will be created upon export to ``AEDT``.
 
         Returns
         -------
@@ -681,8 +679,7 @@ class ExportToAedt:
 
     @property
     def db_format_enabled(self) -> bool:
-        """Flag indicating if the report format in dB in the
-        exported filter to ``AEDT`` is enabled.
+        """Flag indicating if the report format in dB in the exported filter to ``AEDT`` is enabled.
 
         Returns
         -------
@@ -1165,6 +1162,7 @@ class ExportToAedt:
     @property
     def interconnect_inductor_tolerance_value(self) -> str:
         """Tolerance value of interconnect inductor in ``%``.
+
         The default is ``1``.
 
         Returns
@@ -1289,6 +1287,7 @@ class ExportToAedt:
     @property
     def substrate_resistivity(self) -> Union[SubstrateResistivity, str]:
         """Substrate's resistivity.
+
         The value can be either a string or an instance of the ``SubstrateResistivity`` enum.
         The default is ``1.43`` for ``SubstrateResistivity.GOLD``.
 
@@ -1356,6 +1355,7 @@ class ExportToAedt:
     @property
     def substrate_conductor_thickness(self) -> str:
         """Substrate's conductor thickness.
+
         The default is ``2.54 um``.
 
         Returns
@@ -1372,6 +1372,7 @@ class ExportToAedt:
     @property
     def substrate_dielectric_height(self) -> str:
         """Substrate's dielectric height.
+
         The default is ``1.27 mm``.
 
         Returns

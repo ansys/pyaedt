@@ -386,7 +386,6 @@ class Design(AedtObjects):
     def boundaries(self) -> List[BoundaryObject]:
         """Design boundaries and excitations.
 
-
         Returns
         -------
         list[:class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`]
