@@ -187,6 +187,7 @@ class NamedVariable(object):
 
 class DuplicatedParametrizedMaterial(object):
     """Provides a class to duplicate a material and manage its duplication in PyAEDT and in AEDT.
+
     For each material property a NamedVariable is created as attribute.
 
     Parameters
@@ -1956,12 +1957,13 @@ class CommonObject(object):
 
 
 class Patch(CommonObject, object):
-    """Patch Class in Stackup3D. Create a parametrized patch. It is preferable to use the add_patch method
+    """Patch Class in Stackup3D. Create a parametrized patch.
+
+    It is preferable to use the add_patch method
     in the class Layer3D than directly the class constructor.
 
     Parameters
     ----------
-
     application : :class:`ansys.aedt.core.hfss.Hfss`
         HFSS design or project where the variable is to be created.
     frequency : float, None
@@ -1990,7 +1992,6 @@ class Patch(CommonObject, object):
 
     Examples
     --------
-
     >>> from ansys.aedt.core import Hfss
     >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
     >>> hfss = Hfss()
@@ -2607,7 +2608,6 @@ class Trace(CommonObject, object):
 
     Parameters
     ----------
-
     application : :class:`ansys.aedt.core.hfss.Hfss`
         HFSS design or project where the variable is to be created.
     frequency : float, None

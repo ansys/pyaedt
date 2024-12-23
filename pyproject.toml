@@ -43,7 +43,8 @@ dependencies = [
     "tomli-w",
     "rpyc>=6.0.0,<6.1",
     "pyyaml",
-    "defusedxml>=0.7,<8.0"
+    "defusedxml>=0.7,<8.0",
+    "attrs!=24.3.0",
 ]
 
 [project.optional-dependencies]
@@ -53,7 +54,7 @@ unit-tests = [
     "mock>=5.1.0,<5.2",
 ]
 integration-tests = [
-    "matplotlib>=3.5.0,<3.10",
+    "matplotlib>=3.5.0,<3.11",
     "mock>=5.1.0,<5.2",
     "numpy>=1.20.0,<2.3",
     "pandas>=1.1.0,<2.3",
@@ -61,9 +62,9 @@ integration-tests = [
     "pytest-cov>=4.0.0,<6.1",
 ]
 tests = [
-    "ipython>=7.30.0,<8.31",
+    "ipython>=7.30.0,<8.32",
     "joblib>=1.0.0,<1.5",
-    "matplotlib>=3.5.0,<3.10",
+    "matplotlib>=3.5.0,<3.11",
     "mock>=5.1.0,<5.2",
     "numpy>=1.20.0,<2.3",
     "openpyxl>=3.1.0,<3.3",
@@ -103,7 +104,7 @@ doc = [
     "pyvista[io]>=0.38.0,<0.45",
 ]
 all = [
-    "matplotlib>=3.5.0,<3.10",
+    "matplotlib>=3.5.0,<3.11",
     "numpy>=1.20.0,<2.3",
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<2.1",
@@ -119,7 +120,7 @@ all = [
     "utm",
 ]
 installer = [
-    "matplotlib>=3.5.0,<3.10",
+    "matplotlib>=3.5.0,<3.11",
     "numpy>=1.20.0,<2.3",
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<2.1",
@@ -133,7 +134,7 @@ installer = [
     "SRTM.py",
     "utm",
     "jupyterlab>=3.6.0,<4.4",
-    "ipython>=7.30.0,<8.31",
+    "ipython>=7.30.0,<8.32",
     "ipyvtklink>=0.2.0,<0.2.4",
 ]
 

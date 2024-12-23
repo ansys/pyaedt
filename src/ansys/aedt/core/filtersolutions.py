@@ -40,7 +40,8 @@ from ansys.aedt.core.filtersolutions_core.transmission_zeros import Transmission
 
 
 class FilterSolutions:
-    """Provides the `FilterSolutions` application interface.
+    """Provides the :doc:`FilterSolutions` application interface.
+
     This class has access to ideal filter attributes and calculated output parameters.
 
     Parameters

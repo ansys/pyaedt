@@ -169,9 +169,7 @@ def frontend():  # pragma: no cover
 
     def create_parameter_inputs(parent, config, category):
         def update_config(cat, field, entry_widget):
-            """
-            Update config_dict when the user changes an input.
-            """
+            """Update config_dict when the user changes an input."""
             try:
                 # Save numeric values as floats, others as strings
                 new_value = (

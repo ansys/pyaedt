@@ -34,7 +34,7 @@ import csv
 import os
 import re
 
-from ansys.aedt.core import generate_unique_name
+from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
@@ -205,7 +205,6 @@ class PostProcessorIcepak(PostProcessor3D):
 
         References
         ----------
-
         >>> oModule.ExportFieldsSummary
         """
         if variations is None:
@@ -267,7 +266,6 @@ class PostProcessorIcepak(PostProcessor3D):
 
         References
         ----------
-
         >>> oModule.ExportFieldsSummary
         """
         if variations is None:
@@ -320,7 +318,6 @@ class PostProcessorIcepak(PostProcessor3D):
 
         References
         ----------
-
         >>> oModule.ExportFieldsSummary
         """
         if variations is None:
@@ -386,7 +383,6 @@ class PostProcessorIcepak(PostProcessor3D):
 
         References
         ----------
-
         >>> oModule.ExportFieldsSummary
         """
         if variations is None:

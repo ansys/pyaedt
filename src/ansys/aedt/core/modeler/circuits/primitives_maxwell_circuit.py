@@ -103,7 +103,6 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location == None:
@@ -146,7 +145,6 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location == None:
@@ -189,7 +187,6 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location is None:
@@ -229,7 +226,6 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location is None:
@@ -269,7 +265,6 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location is None:

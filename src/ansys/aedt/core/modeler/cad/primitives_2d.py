@@ -90,7 +90,6 @@ class Primitives2D(GeometryModeler, object):
 
         References
         ----------
-
         >>> oEditor.CreateCircle
 
         Examples
@@ -168,7 +167,6 @@ class Primitives2D(GeometryModeler, object):
 
         References
         ----------
-
         >>> oEditor.CreateEllipse
 
         Examples
@@ -221,7 +219,6 @@ class Primitives2D(GeometryModeler, object):
 
         References
         ----------
-
         >>> oEditor.CreateRectangle
 
         Examples
@@ -284,7 +281,6 @@ class Primitives2D(GeometryModeler, object):
 
         References
         ----------
-
         >>> oEditor.CreateRegularPolygon
 
         Examples
@@ -346,7 +342,6 @@ class Primitives2D(GeometryModeler, object):
 
         References
         ----------
-
         >>> oEditor.CreateRegion
         """
         # backward compatibility
