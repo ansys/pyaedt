@@ -479,7 +479,7 @@ class Design(AedtObjects):
                     del self._boundaries[k]
         for boundary, boundarytype in zip(current_boundaries, current_types):
             if boundary in self._boundaries:
-                self._boundaries[boundary]._initialize_bynary_tree()
+                self._boundaries[boundary]._initialize_tree_node()
                 continue
             if boundarytype == "MaxwellParameters":
                 maxwell_parameter_type = self.get_oo_property_value(self.odesign, f"Parameters\\{boundary}", "Type")
