@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 import ansys.aedt.core
-from ansys.aedt.core.filtersolutions_core.attributes import FilterImplementation
+import ansys.aedt.core.filtersolutions
 from ansys.aedt.core.filtersolutions_core.ideal_response import FrequencyResponseColumn
 from ansys.aedt.core.filtersolutions_core.ideal_response import PoleZerosResponseColumn
 from ansys.aedt.core.filtersolutions_core.ideal_response import SParametersResponseColumn
@@ -40,7 +40,7 @@ from ..resources import read_resource_file
 @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
 class TestClass:
     def test_frequency_response_getter(self):
-        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
 
         mag_db = design.ideal_response._frequency_response_getter(FrequencyResponseColumn.MAGNITUDE_DB)
         assert len(mag_db) == 500
@@ -94,7 +94,8 @@ class TestClass:
         assert freqs[-1] == 31214328219.225075
 
     def test_time_response_getter(self):
-        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         step_response = design.ideal_response._time_response_getter(TimeResponseColumn.STEP_RESPONSE)
         assert len(step_response) == 300
         assert step_response[100] == pytest.approx(1.0006647872833518)
@@ -132,7 +133,8 @@ class TestClass:
         assert time[-1] == pytest.approx(9.966666666666667e-09)
 
     def test_sparameters_response_getter(self):
-        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         s11_response_db = design.ideal_response._sparamaters_response_getter(SParametersResponseColumn.S11_DB)
         assert len(s11_response_db) == 500
         assert s11_response_db[100] == pytest.approx(-41.93847819973562)
@@ -160,7 +162,8 @@ class TestClass:
         assert freqs[-1] == pytest.approx(31214328219.225075)
 
     def test_pole_zeros_response_getter(self):
-        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         pole_zero_den_x = design.ideal_response._pole_zeros_response_getter(PoleZerosResponseColumn.TX_ZERO_DEN_X)
         assert len(pole_zero_den_x) == 5
         assert pole_zero_den_x[0] == pytest.approx(-1000000000.0)
@@ -271,13 +274,15 @@ class TestClass:
         assert proto_rx_zero_num_y[4] == pytest.approx(0.0)
 
     def test_filter_vsg_analysis_enabled(self):
-        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         assert design.ideal_response.vsg_analysis_enabled is False
         design.ideal_response.vsg_analysis_enabled = True
         assert design.ideal_response.vsg_analysis_enabled
 
     def test_frequency_response(self):
-        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         freq, mag_db = design.ideal_response.frequency_response(
             y_axis_parameter=FrequencyResponseColumn.MAGNITUDE_DB,
             minimum_frequency=None,
@@ -304,7 +309,8 @@ class TestClass:
         assert mag_db[-1] == pytest.approx(-47.41677994558435)
 
     def test_time_response(self):
-        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         time, step_response = design.ideal_response.time_response(
             y_axis_parameter=TimeResponseColumn.STEP_RESPONSE,
             minimum_time=None,
@@ -331,7 +337,8 @@ class TestClass:
         assert step_response[-1] == pytest.approx(0.9999962734156826)
 
     def test_s_parameters(self):
-        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         freq, s21_db = design.ideal_response.s_parameters(
             y_axis_parameter=SParametersResponseColumn.S21_DB,
             minimum_frequency=None,
@@ -356,7 +363,8 @@ class TestClass:
         assert s21_db[-1] == pytest.approx(-47.41677994558435)
 
     def test_pole_zero_locations(self):
-        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         tx_zero_den_x, tx_zero_den_y = design.ideal_response.pole_zero_locations(
             x_axis_parameter=PoleZerosResponseColumn.TX_ZERO_DEN_X,
             y_axis_parameter=PoleZerosResponseColumn.TX_ZERO_DEN_Y,
@@ -375,7 +383,8 @@ class TestClass:
         assert tx_zero_den_y[4] == pytest.approx(-951056516.2951534)
 
     def test_transfer_function_response(self):
-        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         assert design.ideal_response.transfer_function_response().splitlines() == read_resource_file(
-            "transferfunction.ckt"
+            "transferfunction.ckt", "Lumped"
         )

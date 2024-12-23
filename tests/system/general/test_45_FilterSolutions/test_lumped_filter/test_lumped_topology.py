@@ -23,9 +23,9 @@
 # SOFTWARE.
 
 import ansys.aedt.core
+import ansys.aedt.core.filtersolutions
 from ansys.aedt.core.filtersolutions_core.attributes import DiplexerType
 from ansys.aedt.core.filtersolutions_core.attributes import FilterClass
-from ansys.aedt.core.filtersolutions_core.attributes import FilterImplementation
 from ansys.aedt.core.filtersolutions_core.attributes import FilterType
 from ansys.aedt.core.generic.general_methods import is_linux
 import pytest
@@ -39,50 +39,59 @@ from ..resources import read_resource_file
 @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
 class TestClass:
     def test_lumped_generator_resistor_30(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         assert lumpdesign.topology.generator_resistor == "50"
         lumpdesign.topology.generator_resistor = "30"
         assert lumpdesign.topology.generator_resistor == "30"
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("generator_resistor.ckt")
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file(
+            "generator_resistor.ckt", "Lumped"
+        )
 
     def test_lumped_load_resistor_30(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         assert lumpdesign.topology.load_resistor == "50"
         lumpdesign.topology.load_resistor = "30"
         assert lumpdesign.topology.load_resistor == "30"
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("laod_resistor.ckt")
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("laod_resistor.ckt", "Lumped")
 
     def test_lumped_current_source(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         assert lumpdesign.topology.current_source is False
         lumpdesign.topology.current_source = True
         assert lumpdesign.topology.current_source
 
     def test_lumped_first_shunt(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         assert lumpdesign.topology.first_shunt
         lumpdesign.topology.first_shunt = True
         assert lumpdesign.topology.first_shunt
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("first_shunt.ckt")
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("first_shunt.ckt", "Lumped")
 
     def test_lumped_first_series(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         assert lumpdesign.topology.first_shunt
         lumpdesign.topology.first_shunt = False
         assert lumpdesign.topology.first_shunt is False
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("first_series.ckt")
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("first_series.ckt", "Lumped")
 
     def test_lumped_bridge_t(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         lumpdesign.attributes.filter_type = FilterType.ELLIPTIC
         assert lumpdesign.attributes.filter_type == FilterType.ELLIPTIC
         assert lumpdesign.topology.bridge_t is False
         lumpdesign.topology.bridge_t = True
         assert lumpdesign.topology.bridge_t
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("bridge_t.ckt")
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("bridge_t.ckt", "Lumped")
 
     def test_lumped_bridge_t_low(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         lumpdesign.attributes.filter_class = FilterClass.DIPLEXER_1
         assert lumpdesign.attributes.filter_class == FilterClass.DIPLEXER_1
         lumpdesign.attributes.diplexer_type = DiplexerType.HI_LO
@@ -92,10 +101,11 @@ class TestClass:
         assert lumpdesign.topology.bridge_t_low is False
         lumpdesign.topology.bridge_t_low = True
         assert lumpdesign.topology.bridge_t_low
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("bridge_t_low.ckt")
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("bridge_t_low.ckt", "Lumped")
 
     def test_lumped_bridge_t_high(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         lumpdesign.attributes.filter_class = FilterClass.DIPLEXER_1
         assert lumpdesign.attributes.filter_class == FilterClass.DIPLEXER_1
         lumpdesign.attributes.diplexer_type = DiplexerType.HI_LO
@@ -105,19 +115,23 @@ class TestClass:
         assert lumpdesign.topology.bridge_t_high is False
         lumpdesign.topology.bridge_t_high = True
         assert lumpdesign.topology.bridge_t_high
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("bridge_t_high.ckt")
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("bridge_t_high.ckt", "Lumped")
 
     def test_lumped_equal_inductors(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         lumpdesign.attributes.filter_class = FilterClass.BAND_PASS
         assert lumpdesign.attributes.filter_class == FilterClass.BAND_PASS
         assert lumpdesign.topology.equal_inductors is False
         lumpdesign.topology.equal_inductors = True
         assert lumpdesign.topology.equal_inductors
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("equal_inductors.ckt")
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file(
+            "equal_inductors.ckt", "Lumped"
+        )
 
     def test_lumped_equal_capacitors(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         lumpdesign.attributes.filter_class = FilterClass.BAND_PASS
         lumpdesign.attributes.filter_type = FilterType.ELLIPTIC
         lumpdesign.topology.zig_zag = True
@@ -130,28 +144,33 @@ class TestClass:
         lumpdesign.topology.equal_capacitors = True
         assert lumpdesign.topology.min_cap
         assert lumpdesign.topology.equal_capacitors
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("equal_capacitors.ckt")
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file(
+            "equal_capacitors.ckt", "Lumped"
+        )
 
     def test_lumped_equal_legs(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         lumpdesign.attributes.filter_class = FilterClass.BAND_PASS
         assert lumpdesign.attributes.filter_class == FilterClass.BAND_PASS
         assert lumpdesign.topology.equal_legs is False
         lumpdesign.topology.equal_legs = True
         assert lumpdesign.topology.equal_legs
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("equal_legs.ckt")
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("equal_legs.ckt", "Lumped")
 
     def test_lumped_high_low_pass(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         lumpdesign.attributes.filter_class = FilterClass.BAND_PASS
         assert lumpdesign.attributes.filter_class == FilterClass.BAND_PASS
         assert lumpdesign.topology.high_low_pass is False
         lumpdesign.topology.high_low_pass = True
         assert lumpdesign.topology.high_low_pass
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("high_low_pass.ckt")
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("high_low_pass.ckt", "Lumped")
 
     def test_lumped_high_low_pass_min_ind(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         lumpdesign.attributes.filter_class = FilterClass.BAND_PASS
         lumpdesign.attributes.filter_type = FilterType.ELLIPTIC
         assert lumpdesign.attributes.filter_class == FilterClass.BAND_PASS
@@ -159,10 +178,13 @@ class TestClass:
         assert lumpdesign.topology.high_low_pass_min_ind is False
         lumpdesign.topology.high_low_pass_min_ind = True
         assert lumpdesign.topology.high_low_pass_min_ind
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("high_low_pass_min_ind.ckt")
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file(
+            "high_low_pass_min_ind.ckt", "Lumped"
+        )
 
     def test_lumped_zig_zag(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         lumpdesign.attributes.filter_class = FilterClass.BAND_PASS
         lumpdesign.attributes.filter_type = FilterType.ELLIPTIC
         assert lumpdesign.attributes.filter_class == FilterClass.BAND_PASS
@@ -170,10 +192,11 @@ class TestClass:
         assert lumpdesign.topology.zig_zag is False
         lumpdesign.topology.zig_zag = True
         assert lumpdesign.topology.zig_zag
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("zig_zag.ckt")
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("zig_zag.ckt", "Lumped")
 
     def test_lumped_min_ind(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         lumpdesign.attributes.filter_class = FilterClass.BAND_PASS
         lumpdesign.attributes.filter_type = FilterType.ELLIPTIC
         lumpdesign.topology.zig_zag = True
@@ -183,10 +206,11 @@ class TestClass:
         assert lumpdesign.topology.min_ind
         lumpdesign.topology.min_ind = True
         assert lumpdesign.topology.min_ind
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("min_ind.ckt")
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("min_ind.ckt", "Lumped")
 
     def test_lumped_min_cap(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         lumpdesign.attributes.filter_class = FilterClass.BAND_PASS
         lumpdesign.attributes.filter_type = FilterType.ELLIPTIC
         lumpdesign.topology.zig_zag = True
@@ -196,10 +220,11 @@ class TestClass:
         assert lumpdesign.topology.min_cap is False
         lumpdesign.topology.min_cap = True
         assert lumpdesign.topology.min_cap
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("min_cap.ckt")
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("min_cap.ckt", "Lumped")
 
     def test_lumped_set_source_res(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         lumpdesign.attributes.filter_class = FilterClass.BAND_PASS
         lumpdesign.attributes.filter_type = FilterType.ELLIPTIC
         lumpdesign.topology.zig_zag = True
@@ -210,10 +235,11 @@ class TestClass:
         assert lumpdesign.topology.zig_zag
         lumpdesign.topology.set_source_res = True
         assert lumpdesign.topology.set_source_res
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("set_source_res.ckt")
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("set_source_res.ckt", "Lumped")
 
     def test_lumped_trap_topology(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         lumpdesign.attributes.filter_class = FilterClass.BAND_PASS
         lumpdesign.attributes.filter_type = FilterType.ELLIPTIC
         lumpdesign.topology.zig_zag = True
@@ -223,10 +249,11 @@ class TestClass:
         assert lumpdesign.topology.trap_topology is False
         lumpdesign.topology.trap_topology = True
         assert lumpdesign.topology.trap_topology
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("trap_topology.ckt")
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("trap_topology.ckt", "Lumped")
 
     def test_lumped_node_cap_ground(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         lumpdesign.attributes.filter_class = FilterClass.BAND_PASS
         lumpdesign.attributes.filter_type = FilterType.ELLIPTIC
         assert lumpdesign.attributes.filter_class == FilterClass.BAND_PASS
@@ -234,10 +261,13 @@ class TestClass:
         assert lumpdesign.topology.node_cap_ground is False
         lumpdesign.topology.node_cap_ground = True
         assert lumpdesign.topology.node_cap_ground
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("node_cap_ground.ckt")
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file(
+            "node_cap_ground.ckt", "Lumped"
+        )
 
     def test_lumped_match_impedance(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         lumpdesign.attributes.filter_class = FilterClass.BAND_PASS
         lumpdesign.topology.generator_resistor = "75"
         assert lumpdesign.attributes.filter_class == FilterClass.BAND_PASS
@@ -245,69 +275,88 @@ class TestClass:
         assert lumpdesign.topology.match_impedance is False
         lumpdesign.topology.match_impedance = True
         assert lumpdesign.topology.match_impedance
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("match_impedance.ckt")
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file(
+            "match_impedance.ckt", "Lumped"
+        )
 
     def test_lumped_complex_termination(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         assert lumpdesign.topology.complex_termination is False
         lumpdesign.topology.complex_termination = True
         assert lumpdesign.topology.complex_termination
 
     def test_complex_element_tune_enabled(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         lumpdesign.topology.complex_termination = True
         assert lumpdesign.topology.complex_element_tune_enabled
         lumpdesign.topology.complex_element_tune_enabled = False
         assert lumpdesign.topology.complex_element_tune_enabled is False
 
     def test_lumped_circuit_export(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("netlist.ckt")
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("netlist.ckt", "Lumped")
 
     def test_lumped_diplexer1_hi_lo(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         lumpdesign.attributes.filter_class = FilterClass.DIPLEXER_1
         lumpdesign.attributes.diplexer_type = DiplexerType.HI_LO
         assert lumpdesign.attributes.filter_class == FilterClass.DIPLEXER_1
         assert lumpdesign.attributes.diplexer_type == DiplexerType.HI_LO
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("diplexer1_hi_lo.ckt")
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file(
+            "diplexer1_hi_lo.ckt", "Lumped"
+        )
 
     def test_lumped_diplexer1_bp_1(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         lumpdesign.attributes.filter_class = FilterClass.DIPLEXER_1
         lumpdesign.attributes.diplexer_type = DiplexerType.BP_1
         assert lumpdesign.attributes.filter_class == FilterClass.DIPLEXER_1
         assert lumpdesign.attributes.diplexer_type == DiplexerType.BP_1
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("diplexer1_bp_1.ckt")
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("diplexer1_bp_1.ckt", "Lumped")
 
     def test_lumped_diplexer1_bp_2(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         lumpdesign.attributes.filter_class = FilterClass.DIPLEXER_1
         lumpdesign.attributes.diplexer_type = DiplexerType.BP_2
         assert lumpdesign.attributes.filter_class == FilterClass.DIPLEXER_1
         assert lumpdesign.attributes.diplexer_type == DiplexerType.BP_2
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("diplexer1_bp_2.ckt")
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("diplexer1_bp_2.ckt", "Lumped")
 
     def test_lumped_diplexer2_bp_bs(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         lumpdesign.attributes.filter_class = FilterClass.DIPLEXER_2
         lumpdesign.attributes.diplexer_type = DiplexerType.BP_BS
         assert lumpdesign.attributes.filter_class == FilterClass.DIPLEXER_2
         assert lumpdesign.attributes.diplexer_type == DiplexerType.BP_BS
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("diplexer2_bp_bs.ckt")
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file(
+            "diplexer2_bp_bs.ckt", "Lumped"
+        )
 
     def test_lumped_diplexer2_triplexer_1(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         lumpdesign.attributes.filter_class = FilterClass.DIPLEXER_2
         lumpdesign.attributes.diplexer_type = DiplexerType.TRIPLEXER_1
         assert lumpdesign.attributes.filter_class == FilterClass.DIPLEXER_2
         assert lumpdesign.attributes.diplexer_type == DiplexerType.TRIPLEXER_1
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("diplexer2_triplexer_1.ckt")
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file(
+            "diplexer2_triplexer_1.ckt", "Lumped"
+        )
 
     def test_lumped_diplexer2_triplexer_2(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         lumpdesign.attributes.filter_class = FilterClass.DIPLEXER_2
         lumpdesign.attributes.diplexer_type = DiplexerType.TRIPLEXER_2
         assert lumpdesign.attributes.filter_class == FilterClass.DIPLEXER_2
         assert lumpdesign.attributes.diplexer_type == DiplexerType.TRIPLEXER_2
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("diplexer2_triplexer_2.ckt")
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file(
+            "diplexer2_triplexer_2.ckt", "Lumped"
+        )

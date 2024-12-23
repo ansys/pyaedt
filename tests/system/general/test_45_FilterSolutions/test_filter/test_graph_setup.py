@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 import ansys.aedt.core
-from ansys.aedt.core.filtersolutions_core.attributes import FilterImplementation
+import ansys.aedt.core.filtersolutions
 from ansys.aedt.core.generic.general_methods import is_linux
 import pytest
 
@@ -35,25 +35,29 @@ from tests.system.general.conftest import config
 class TestClass:
 
     def test_minimum_frequency(self):
-        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         assert design.graph_setup.minimum_frequency == "200 MHz"
         design.graph_setup.minimum_frequency = "500 MHz"
         assert design.graph_setup.minimum_frequency == "500 MHz"
 
     def test_maximum_frequency(self):
-        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         assert design.graph_setup.maximum_frequency == "5 GHz"
         design.graph_setup.maximum_frequency = "2 GHz"
         assert design.graph_setup.maximum_frequency == "2 GHz"
 
     def test_minimum_time(self):
-        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         assert design.graph_setup.minimum_time == "0"
         design.graph_setup.minimum_time = "5 ns"
         assert design.graph_setup.minimum_time == "5 ns"
 
     def test_maximum_time(self):
-        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         assert design.graph_setup.maximum_time == "10 ns"
         design.graph_setup.maximum_time = "8 ns"
         assert design.graph_setup.maximum_time == "8 ns"

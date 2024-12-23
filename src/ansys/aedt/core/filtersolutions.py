@@ -22,9 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import ansys.aedt.core
+import ansys.aedt.core.filtersolutions_core
 from ansys.aedt.core.filtersolutions_core.attributes import Attributes
-from ansys.aedt.core.filtersolutions_core.attributes import FilterImplementation
+from ansys.aedt.core.filtersolutions_core.distributed_topology import DistributedTopology
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import ExportToAedt
 from ansys.aedt.core.filtersolutions_core.graph_setup import GraphSetup
 from ansys.aedt.core.filtersolutions_core.ideal_response import IdealResponse
@@ -40,49 +40,45 @@ from ansys.aedt.core.filtersolutions_core.transmission_zeros import Transmission
 
 
 class FilterSolutions:
-    """
-    Provides the :doc:`FilterSolutions` application interface.
+    """Provides the `FilterSolutions` application interface.
     This class has access to ideal filter attributes and calculated output parameters.
 
     Parameters
     ----------
     version : str, optional
         Version of AEDT in ``xxxx.x`` format. The default is ``None``.
-    implementation_type : FilterImplementation, optional
-        Technology used to implement the filter. The default is ``LUMPED``.
-        The ``FilterImplementation`` enum provides the list of implementations.
 
     Examples
     --------
     Create a ``FilterSolutions`` instance with a band-pass elliptic ideal filter.
 
     >>> import ansys.aedt.core
-    >>> from ansys.aedt.core.filtersolutions_core.attributes import FilterImplementation
+    >>> import ansys.aedt.core.filtersolutions
+    >>> from ansys.aedt.core.filtersolutions_core.dll_interface import DllInterface
+    >>> desktop_version = DllInterface.desktop_version
 
-    >>> design = ansys.aedt.core.FilterSolutions(version="2025 R1", projectname= "fs1",
-    >>> implementation_type= FilterImplementation.LUMPED,
-    >>> )
+    >>> design = ansys.aedt.core.FilterSolutions.LumpDesign(version= desktop_version)
+
+    See Also
+    --------
+    :doc:`filtersolutions`
     """
 
-    def __init__(self, version=None, implementation_type=None):
+    def __init__(self, version=None):
         self.version = version
-        self.implementation_type = implementation_type
         ansys.aedt.core.filtersolutions_core._dll_interface(version)
 
-        if implementation_type == FilterImplementation.LUMPED or implementation_type is None:
-            self._init_lumped_design()
-        else:
-            raise RuntimeError("The " + str(implementation_type) + " is not supported in this release.")
+
+class LumpDesign(FilterSolutions):
+    def __init__(self, version=None):
+        super().__init__(version)
+        self._init_lumped_design()
 
     def _init_lumped_design(self):
         """Initialize the ``FilterSolutions`` object to support a lumped filter design."""
-
         self.attributes = Attributes()
         self.ideal_response = IdealResponse()
         self.graph_setup = GraphSetup()
-        self.topology = LumpedTopology()
-        self.parasitics = LumpedParasitics()
-        self.leads_and_nodes = LumpedNodesandLeads()
         self.source_impedance_table = LumpedTerminationImpedance(TerminationType.SOURCE)
         self.load_impedance_table = LumpedTerminationImpedance(TerminationType.LOAD)
         self.multiple_bands_table = MultipleBandsTable()
@@ -90,3 +86,26 @@ class FilterSolutions:
         self.transmission_zeros_bandwidth = TransmissionZeros(TableFormat.BANDWIDTH)
         self.export_to_aedt = ExportToAedt()
         self.optimization_goals_table = OptimizationGoalsTable()
+        self.topology = LumpedTopology()
+        self.parasitics = LumpedParasitics()
+        self.leads_and_nodes = LumpedNodesandLeads()
+
+
+class DistributedDesign(FilterSolutions):
+    def __init__(self, version=None):
+        super().__init__(version)
+        self._init_distributed_design()
+
+    def _init_distributed_design(self):
+        """Initialize the ``FilterSolutions`` object to support a distributed filter design."""
+        self.attributes = Attributes()
+        self.ideal_response = IdealResponse()
+        self.graph_setup = GraphSetup()
+        self.source_impedance_table = LumpedTerminationImpedance(TerminationType.SOURCE)
+        self.load_impedance_table = LumpedTerminationImpedance(TerminationType.LOAD)
+        self.multiple_bands_table = MultipleBandsTable()
+        self.transmission_zeros_ratio = TransmissionZeros(TableFormat.RATIO)
+        self.transmission_zeros_bandwidth = TransmissionZeros(TableFormat.BANDWIDTH)
+        self.export_to_aedt = ExportToAedt()
+        self.optimization_goals_table = OptimizationGoalsTable()
+        self.topology = DistributedTopology()

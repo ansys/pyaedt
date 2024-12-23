@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 import ansys.aedt.core
-from ansys.aedt.core.filtersolutions_core.attributes import FilterImplementation
+import ansys.aedt.core.filtersolutions
 from ansys.aedt.core.filtersolutions_core.optimization_goals_table import OptimizationGoalParameter
 from ansys.aedt.core.generic.general_methods import is_linux
 import pytest
@@ -36,13 +36,15 @@ from tests.system.general.conftest import config
 class TestClass:
 
     def test_row_count(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         lumpdesign.export_to_aedt._open_aedt_export()
         lumpdesign.optimization_goals_table.restore_design_goals()
         assert lumpdesign.optimization_goals_table.row_count == 2
 
     def test_row(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         lumpdesign.export_to_aedt._open_aedt_export()
         lumpdesign.optimization_goals_table.restore_design_goals()
         assert lumpdesign.optimization_goals_table.row(0) == [
@@ -70,7 +72,8 @@ class TestClass:
         assert lumpdesign.optimization_goals_table.row(1)[OptimizationGoalParameter.WEIGHT.value] == "0.5"
 
     def test_update_row(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         lumpdesign.export_to_aedt._open_aedt_export()
         lumpdesign.optimization_goals_table.restore_design_goals()
         lumpdesign.optimization_goals_table.update_row(
@@ -87,7 +90,8 @@ class TestClass:
         ]
 
     def test_append_row(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         lumpdesign.export_to_aedt._open_aedt_export()
         lumpdesign.optimization_goals_table.restore_design_goals()
         lumpdesign.optimization_goals_table.append_row("100 MHz", "2 GHz", "-3", ">", "dB(S(Port2,Port2))", "0.3", "Y")
@@ -102,7 +106,8 @@ class TestClass:
         ]
 
     def test_insert_row(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         lumpdesign.export_to_aedt._open_aedt_export()
         lumpdesign.optimization_goals_table.restore_design_goals()
         lumpdesign.optimization_goals_table.insert_row(
@@ -119,7 +124,8 @@ class TestClass:
         ]
 
     def test_remove_row(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         lumpdesign.export_to_aedt._open_aedt_export()
         lumpdesign.optimization_goals_table.restore_design_goals()
         lumpdesign.optimization_goals_table.remove_row(1)
@@ -135,7 +141,8 @@ class TestClass:
         ]
 
     def test_adjust_goal_frequency(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         lumpdesign.export_to_aedt._open_aedt_export()
         lumpdesign.optimization_goals_table.restore_design_goals()
         lumpdesign.optimization_goals_table.adjust_goal_frequency("150 MHz")

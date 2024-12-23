@@ -21,22 +21,3 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
-import ansys.aedt.core
-import ansys.aedt.core.filtersolutions
-from ansys.aedt.core.generic.general_methods import is_linux
-import pytest
-
-from tests.system.general.conftest import config
-from tests.system.general.test_45_FilterSolutions.test_filter import test_transmission_zeros
-
-
-@pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
-@pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
-class TestClass:
-    def test_raise_error(self):
-        design = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
-
-        with pytest.raises(RuntimeError) as info:
-            design.transmission_zeros_ratio.row(0)
-        assert info.value.args[0] == test_transmission_zeros.TestClass.no_transmission_zero_msg

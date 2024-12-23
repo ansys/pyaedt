@@ -110,7 +110,7 @@ class FilterImplementation(Enum):
     """
 
     LUMPED = 0
-    DISTRIB = 1
+    DISTRIBUTED = 1
     ACTIVE = 2
     SWCAP = 3
     DIGITAL = 4
@@ -303,9 +303,9 @@ class Attributes:
         self._dll.getFilterClass.argtypes = [c_char_p, c_int]
         self._dll.getFilterClass.restype = int
 
-        self._dll.setFilterImplementation.argtype = c_char_p
+        self._dll.setFilterImplementation.argtype = c_int
         self._dll.setFilterImplementation.restype = c_int
-        self._dll.getFilterImplementation.argtypes = [c_char_p, c_int]
+        self._dll.getFilterImplementation.argtype = POINTER(c_int)
         self._dll.getFilterImplementation.restype = c_int
 
         self._dll.setMultipleBandsEnabled.argtype = c_bool
@@ -659,14 +659,17 @@ class Attributes:
         -------
         :enum:`FilterImplementation`
         """
-        type_string = self._dll_interface.get_string(self._dll.getFilterImplementation)
-        return self._dll_interface.string_to_enum(FilterImplementation, type_string)
+        index = c_int()
+        filter_implementation = list(FilterImplementation)
+        status = self._dll.getFilterImplementation(byref(index))
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        filter_implementation = filter_implementation[index.value]
+        return filter_implementation
 
     @filter_implementation.setter
-    def filter_implementation(self, filter_implementation: FilterImplementation):
-        if filter_implementation:
-            string_value = self._dll_interface.enum_to_string(filter_implementation)
-            self._dll_interface.set_string(self._dll.setFilterImplementation, string_value)
+    def filter_implementation(self, column: FilterImplementation):
+        status = self._dll.setFilterImplementation(column.value)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def diplexer_type(self) -> DiplexerType:

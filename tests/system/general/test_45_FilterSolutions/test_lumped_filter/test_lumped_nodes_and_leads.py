@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 import ansys.aedt.core
-from ansys.aedt.core.filtersolutions_core.attributes import FilterImplementation
+import ansys.aedt.core.filtersolutions
 from ansys.aedt.core.generic.general_methods import is_linux
 import pytest
 
@@ -37,57 +37,81 @@ from ..resources import read_resource_file
 class TestClass:
 
     def test_lumped_c_node_capacitor(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         assert lumpdesign.leads_and_nodes.c_node_capacitor == "0"
         lumpdesign.leads_and_nodes.c_node_capacitor = "1n"
         assert lumpdesign.leads_and_nodes.c_node_capacitor == "1n"
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("c_node_capacitor.ckt")
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file(
+            "c_node_capacitor.ckt", "Lumped"
+        )
 
     def test_lumped_c_lead_inductor(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         assert lumpdesign.leads_and_nodes.c_lead_inductor == "0"
         lumpdesign.leads_and_nodes.c_lead_inductor = "1n"
         assert lumpdesign.leads_and_nodes.c_lead_inductor == "1n"
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("c_lead_inductor.ckt")
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file(
+            "c_lead_inductor.ckt", "Lumped"
+        )
 
     def test_lumped_l_node_capacitor(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         assert lumpdesign.leads_and_nodes.l_node_capacitor == "0"
         lumpdesign.leads_and_nodes.l_node_capacitor = "1n"
         assert lumpdesign.leads_and_nodes.l_node_capacitor == "1n"
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("l_node_capacitor.ckt")
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file(
+            "l_node_capacitor.ckt", "Lumped"
+        )
 
     def test_lumped_l_lead_inductor(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         assert lumpdesign.leads_and_nodes.l_lead_inductor == "0"
         lumpdesign.leads_and_nodes.l_lead_inductor = "1n"
         assert lumpdesign.leads_and_nodes.l_lead_inductor == "1n"
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("l_lead_inductor.ckt")
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file(
+            "l_lead_inductor.ckt", "Lumped"
+        )
 
     def test_lumped_r_node_capacitor(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         assert lumpdesign.leads_and_nodes.r_node_capacitor == "0"
         lumpdesign.leads_and_nodes.r_node_capacitor = "1n"
         assert lumpdesign.leads_and_nodes.r_node_capacitor == "1n"
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("r_node_capacitor.ckt")
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file(
+            "r_node_capacitor.ckt", "Lumped"
+        )
 
     def test_lumped_r_lead_inductor(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         assert lumpdesign.leads_and_nodes.r_lead_inductor == "0"
         lumpdesign.leads_and_nodes.r_lead_inductor = "1n"
         assert lumpdesign.leads_and_nodes.r_lead_inductor == "1n"
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("r_lead_inductor.ckt")
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file(
+            "r_lead_inductor.ckt", "Lumped"
+        )
 
     def test_lumped_c_node_compensate(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         assert lumpdesign.leads_and_nodes.c_node_compensate is False
         lumpdesign.leads_and_nodes.c_node_compensate = True
         assert lumpdesign.leads_and_nodes.c_node_compensate
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("c_node_compensate.ckt")
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file(
+            "c_node_compensate.ckt", "Lumped"
+        )
 
     def test_lumped_l_node_compensate(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         assert lumpdesign.leads_and_nodes.l_node_compensate is False
         lumpdesign.leads_and_nodes.l_node_compensate = True
         assert lumpdesign.leads_and_nodes.l_node_compensate
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("l_node_compensate.ckt")
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file(
+            "l_node_compensate.ckt", "Lumped"
+        )

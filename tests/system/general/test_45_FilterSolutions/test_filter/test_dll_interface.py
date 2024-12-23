@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 import ansys.aedt.core
-from ansys.aedt.core.filtersolutions_core.attributes import FilterImplementation
+import ansys.aedt.core.filtersolutions
 from ansys.aedt.core.filtersolutions_core.attributes import FilterType
 from ansys.aedt.core.generic.general_methods import is_linux
 import pytest
@@ -50,7 +50,8 @@ class TestClass:
         assert ansys.aedt.core.filtersolutions_core._dll_interface().enum_to_string(FilterType.GAUSSIAN) == "gaussian"
 
     def test_raise_error(self):
-        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
+
         with pytest.raises(RuntimeError) as info:
             design.transmission_zeros_ratio.row(0)
         assert info.value.args[0] == test_transmission_zeros.TestClass.no_transmission_zero_msg

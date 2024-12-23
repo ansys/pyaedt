@@ -52,7 +52,6 @@ Simplorer = TwinBuilder
 
 def FilterSolutions(
     version=None,
-    implementation_type=None,
 ):
     """Initialize a ``FilterSolutions` instance.
 
@@ -83,7 +82,6 @@ def FilterSolutions(
 
     return app(
         version=version,
-        implementation_type=implementation_type,
     )
 
 

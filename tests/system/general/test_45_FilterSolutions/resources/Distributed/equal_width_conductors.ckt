@@ -1,0 +1,37 @@
+*
+*Length Units: Meters
+*
+V1 1 0 AC 1 PULSE 0 1 0 1.592E-13 0
+Rg 1 2 50
+MTSeg0 2 3 Wid=0.0009521 Len=0.00873 Er=9.8 Height=0.00127 Thick=2.54E-06 Rho=1.43 Tand=0.0005
+MT1S1 3 19 Wid=0.0001914 Len=0.01932 Er=9.8 Height=0.00127 Thick=2.54E-06 Rho=1.43 Tand=0.0005
+MTSeg1 3 4 Wid=0.0009521 Len=0.00873 Er=9.8 Height=0.00127 Thick=2.54E-06 Rho=1.43 Tand=0.0005
+MXTcoup2 5 4 7 6 Wid=0.0009521 Gap=0.0004417 Len=0.02915 Er=9.8 Height=0.00127 Thick=2.54E-06 Rho=1.43 Tand=0.0005
+MXTcoup3 8 7 10 9 Wid=0.001061 Gap=0.001016 Len=0.02886 Er=9.8 Height=0.00127 Thick=2.54E-06 Rho=1.43 Tand=0.0005
+MXTcoup4 11 10 13 12 Wid=0.001061 Gap=0.001016 Len=0.02886 Er=9.8 Height=0.00127 Thick=2.54E-06 Rho=1.43 Tand=0.0005
+MXTcoup5 14 13 16 15 Wid=0.0009521 Gap=0.0004417 Len=0.02915 Er=9.8 Height=0.00127 Thick=2.54E-06 Rho=1.43 Tand=0.0005
+MTSeg6 16 17 Wid=0.0009521 Len=0.00873 Er=9.8 Height=0.00127 Thick=2.54E-06 Rho=1.43 Tand=0.0005
+MT1S7 17 26 Wid=0.0001914 Len=0.01932 Er=9.8 Height=0.00127 Thick=2.54E-06 Rho=1.43 Tand=0.0005
+MTSeg7 17 18 Wid=0.0009521 Len=0.00873 Er=9.8 Height=0.00127 Thick=2.54E-06 Rho=1.43 Tand=0.0005
+Rl 18 0 50
+*
+* The Following Dummy Resistors May Be Required For Spice.
+*
+Rseg8 3 0 5E+09
+Rstb9 19 0 5E+09
+Rstb10 20 0 5E+09
+Rseg11 4 0 5E+09
+Rseg12 17 0 5E+09
+Rstb13 26 0 5E+09
+Rstb14 27 0 5E+09
+*
+* End Dummy Resistors
+*
+*
+.AC DEC 200 2E+08 5E+09
+.PLOT AC VDB(Rl) -180 0
+.PLOT AC VP(Rl) -200 200
+.PLOT AC VG(Rl) -4E-08 3E-08
+.TRAN  5E-11 1E-08 0
+.PLOT TRAN V(Rl) -0.06 0.06
+.END
