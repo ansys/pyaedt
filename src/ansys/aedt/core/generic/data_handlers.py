@@ -320,7 +320,7 @@ def string_list(element_list):
     Parameters
     ----------
     element_list : list, str
-        List or string to be converted to a list
+        List or strings to be converted to a list.
 
     Returns
     -------
