@@ -127,12 +127,11 @@ class Primitives3D(GeometryModeler):
 
         Returns
         -------
-        bool, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` or bool
             3D object or ``False`` if it fails.
 
         References
         ----------
-
         >>> oEditor.CreateBox
 
         Examples
@@ -200,12 +199,11 @@ class Primitives3D(GeometryModeler):
 
         Returns
         -------
-        bool, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` or bool
             3D object or ``False`` if it fails.
 
         References
         ----------
-
         >>> oEditor.CreateCylinder
 
         Examples
@@ -285,12 +283,11 @@ class Primitives3D(GeometryModeler):
 
         Returns
         -------
-        bool, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` or bool
             3D object or ``False`` if it fails.
 
         References
         ----------
-
         >>> oEditor.CreateRegularPolyhedron
 
         Examples
@@ -366,12 +363,11 @@ class Primitives3D(GeometryModeler):
 
         Returns
         -------
-        bool, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` or bool
             3D object or ``False`` if it fails.
 
         References
         ----------
-
         >>> oEditor.CreateCone
 
         Examples
@@ -447,12 +443,11 @@ class Primitives3D(GeometryModeler):
 
         Returns
         -------
-        bool, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` or bool
             3D object or ``False`` if it fails.
 
         References
         ----------
-
         >>> oEditor.CreateSphere
 
         Examples
@@ -518,12 +513,11 @@ class Primitives3D(GeometryModeler):
 
         Returns
         -------
-        bool, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` or bool
             3D object or ``False`` if it fails.
 
         References
         ----------
-
         >>> oEditor.CreateTorus
 
         Examples
@@ -629,7 +623,6 @@ class Primitives3D(GeometryModeler):
 
         References
         ----------
-
         >>> oEditor.CreateBondwire
 
         Examples
@@ -744,12 +737,11 @@ class Primitives3D(GeometryModeler):
 
         Returns
         -------
-        bool, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` or bool
             3D object or ``False`` if it fails.
 
         References
         ----------
-
         >>> oEditor.CreateRectangle
         """
         if len(sizes) != 2:
@@ -809,7 +801,6 @@ class Primitives3D(GeometryModeler):
 
         References
         ----------
-
         >>> oEditor.CreateCircle
 
         Examples
@@ -902,7 +893,6 @@ class Primitives3D(GeometryModeler):
 
         References
         ----------
-
         >>> oEditor.CreateEllipse
 
         Examples
@@ -1009,7 +999,6 @@ class Primitives3D(GeometryModeler):
 
         References
         ----------
-
         >>> oEditor.CreateEquationCurve
 
         Examples
@@ -1111,7 +1100,6 @@ class Primitives3D(GeometryModeler):
 
         References
         ----------
-
         >>> oEditor.CreateEquationSurface
 
         Examples
@@ -1191,12 +1179,11 @@ class Primitives3D(GeometryModeler):
 
         Returns
         -------
-        bool, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` or bool
             3D object or ``False`` if it fails.
 
         References
         ----------
-
         >>> oEditor.CreateHelix
 
         Examples
@@ -1285,7 +1272,6 @@ class Primitives3D(GeometryModeler):
 
         References
         ----------
-
         >>> oEditor.CreateUserDefinedModel
 
         """
@@ -1586,7 +1572,6 @@ class Primitives3D(GeometryModeler):
 
         References
         ----------
-
         >>> oEditor.Insert3DComponent
         """
         if password is None:
@@ -1789,7 +1774,6 @@ class Primitives3D(GeometryModeler):
 
         References
         ----------
-
         >>> oEditor.InsertNativeComponent
 
         Examples
@@ -2040,7 +2024,6 @@ class Primitives3D(GeometryModeler):
 
         References
         ----------
-
         >>> oeditor.GetChildObject
         """
         if self._app._is_object_oriented_enabled():
@@ -2161,7 +2144,6 @@ class Primitives3D(GeometryModeler):
 
         References
         ----------
-
         >>> oEditor.Insert3DComponent
         """
         self._initialize_multipart()
@@ -2250,7 +2232,6 @@ class Primitives3D(GeometryModeler):
 
         References
         ----------
-
         >>> oEditor.Insert3DComponent
         """
         self._initialize_multipart()
@@ -2353,7 +2334,6 @@ class Primitives3D(GeometryModeler):
 
         References
         ----------
-
         >>> oEditor.Insert3DComponent
 
         Examples
@@ -2434,7 +2414,6 @@ class Primitives3D(GeometryModeler):
 
         References
         ----------
-
         >>> oEditor.Insert3DComponent
 
         """

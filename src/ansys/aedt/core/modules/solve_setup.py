@@ -53,6 +53,7 @@ from ansys.aedt.core.modules.solve_sweeps import identify_setup
 
 
 class CommonSetup(PropsManager, BinaryTreeNode):
+
     def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup=True):
         self.auto_update = False
         self._app = None
@@ -71,10 +72,33 @@ class CommonSetup(PropsManager, BinaryTreeNode):
         self._is_new_setup = is_new_setup
         # self._init_props(is_new_setup)
         self.auto_update = True
-        child_object = self._app.get_oo_object(self._app.odesign, f"Analysis/{self._name}")
+        self._initialize_tree_node()
 
-        if child_object:
-            BinaryTreeNode.__init__(self, self._name, child_object, False)
+    @property
+    def _child_object(self):
+        """Object-oriented properties.
+
+        Returns
+        -------
+        class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTreeNode`
+
+        """
+        child_object = None
+        design_childs = self._app.get_oo_name(self._app.odesign)
+
+        if "Analysis" in design_childs:
+            cc = self._app.get_oo_object(self._app.odesign, "Analysis")
+            cc_names = self._app.get_oo_name(cc)
+            if self._name in cc_names:
+                child_object = cc.GetChildObject(self._name)
+        return child_object
+
+    @pyaedt_function_handler()
+    def _initialize_tree_node(self):
+        if self._child_object:
+            BinaryTreeNode.__init__(self, self._name, self._child_object, False)
+            return True
+        return False
 
     @property
     def sweeps(self):
@@ -189,7 +213,6 @@ class CommonSetup(PropsManager, BinaryTreeNode):
 
         References
         ----------
-
         >>> oDesign.Analyze
         """
         self._app.analyze(
@@ -312,6 +335,7 @@ class CommonSetup(PropsManager, BinaryTreeNode):
         sweep=None,
     ):
         """Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
+
         Data to be retrieved from Electronics Desktop are any simulation results available in that
         specific simulation context.
         Most of the argument have some defaults which works for most of the ``Standard`` report quantities.
@@ -362,7 +386,6 @@ class CommonSetup(PropsManager, BinaryTreeNode):
 
         References
         ----------
-
         >>> oModule.GetSolutionDataPerVariation
 
         Examples
@@ -475,7 +498,6 @@ class CommonSetup(PropsManager, BinaryTreeNode):
 
         References
         ----------
-
         >>> oModule.CreateReport
 
         Examples
@@ -536,24 +558,18 @@ class Setup(CommonSetup):
 
         Returns
         -------
-        dict
-            Dictionary of arguments.
+        bool
+            Result of operation.
 
         References
         ----------
-
         >>> oModule.InsertSetup
         """
         soltype = SetupKeys.SetupNames[self.setuptype]
         arg = ["NAME:" + self._name]
         _dict2arg(self.props, arg)
         self.omodule.InsertSetup(soltype, arg)
-        child_object = self._app.get_oo_object(self._app.odesign, f"Analysis/{self._name}")
-
-        if child_object:
-            BinaryTreeNode.__init__(self, self._name, child_object, False)
-
-        return arg
+        return self._initialize_tree_node()
 
     @pyaedt_function_handler(update_dictionary="properties")
     def update(self, properties=None):
@@ -571,7 +587,6 @@ class Setup(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         legacy_update = self.auto_update
@@ -764,7 +779,6 @@ class Setup(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         arg = ["NAME:" + self.name]
@@ -797,7 +811,6 @@ class Setup(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         if not name:
@@ -822,7 +835,6 @@ class Setup(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         if not name:
@@ -878,7 +890,6 @@ class Setup(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditSetup
 
         Examples
@@ -1053,7 +1064,6 @@ class Setup(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditSetup
 
         Examples
@@ -1146,12 +1156,11 @@ class SetupCircuit(CommonSetup):
 
         Returns
         -------
-        dict
-            Dictionary of the arguments.
+        bool
+            Result of operation.
 
         References
         ----------
-
         >>> oModule.AddLinearNetworkAnalysis
         >>> oModule.AddDCAnalysis
         >>> oModule.AddTransient
@@ -1163,11 +1172,7 @@ class SetupCircuit(CommonSetup):
         arg = ["NAME:SimSetup"]
         _dict2arg(self.props, arg)
         self._setup(soltype, arg)
-        child_object = self._app.get_oo_object(self._app.odesign, f"Analysis/{self._name}")
-
-        if child_object:
-            BinaryTreeNode.__init__(self, self._name, child_object, False)
-        return arg
+        return self._initialize_tree_node()
 
     @pyaedt_function_handler()
     def _setup(self, soltype, arg, newsetup=True):
@@ -1220,7 +1225,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditLinearNetworkAnalysis
         >>> oModule.EditDCAnalysis
         >>> oModule.EditTransient
@@ -1265,7 +1269,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditLinearNetworkAnalysis
         >>> oModule.EditDCAnalysis
         >>> oModule.EditTransient
@@ -1323,7 +1326,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditLinearNetworkAnalysis
         >>> oModule.EditDCAnalysis
         >>> oModule.EditTransient
@@ -1380,7 +1382,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditLinearNetworkAnalysis
         >>> oModule.EditDCAnalysis
         >>> oModule.EditTransient
@@ -1568,7 +1569,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         arg = ["Name:SimSetup"]
@@ -1596,7 +1596,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         if not name:
@@ -1620,7 +1619,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         if not name:
@@ -1696,7 +1694,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.GetSolutionDataPerVariation
         """
         return self._app.post.get_solution_data(
@@ -1770,7 +1767,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.CreateReport
         """
         return self._app.post.create_report(
@@ -1912,13 +1908,12 @@ class Setup3DLayout(CommonSetup):
 
         References
         ----------
-
         >>> oModule.Add
         """
         arg = ["NAME:" + self.name]
         _dict2arg(self.props, arg)
         self.omodule.Add(arg)
-        return True
+        return self._initialize_tree_node()
 
     @pyaedt_function_handler(update_dictionary="properties")
     def update(self, properties=None):
@@ -1936,7 +1931,6 @@ class Setup3DLayout(CommonSetup):
 
         References
         ----------
-
         >>> oModule.Edit
         """
         if properties:
@@ -1963,7 +1957,6 @@ class Setup3DLayout(CommonSetup):
 
         References
         ----------
-
         >>> oModule.Edit
         """
         self.props["Properties"]["Enable"] = "true"
@@ -1986,7 +1979,6 @@ class Setup3DLayout(CommonSetup):
 
         References
         ----------
-
         >>> oModule.Edit
         """
         self.props["Properties"]["Enable"] = "false"
@@ -2319,7 +2311,6 @@ class Setup3DLayout(CommonSetup):
 
         References
         ----------
-
         >>> oModule.AddSweep
         """
         if not name:
@@ -2531,7 +2522,6 @@ class SetupHFSS(Setup, object):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         if not isinstance(derivative_list, list):
@@ -2649,7 +2639,6 @@ class SetupHFSS(Setup, object):
 
         References
         ----------
-
         >>> oModule.InsertFrequencySweep
 
         Examples
@@ -2743,7 +2732,6 @@ class SetupHFSS(Setup, object):
 
         References
         ----------
-
         >>> oModule.InsertFrequencySweep
 
         Examples
@@ -2825,7 +2813,6 @@ class SetupHFSS(Setup, object):
 
         References
         ----------
-
         >>> oModule.InsertFrequencySweep
 
         Examples
@@ -2903,7 +2890,6 @@ class SetupHFSS(Setup, object):
 
         References
         ----------
-
         >>> oModule.InsertFrequencySweep
         """
         if not name:
@@ -2965,7 +2951,6 @@ class SetupHFSS(Setup, object):
 
         References
         ----------
-
         >>> oModules.GetSweeps
 
         Examples
@@ -2993,7 +2978,6 @@ class SetupHFSS(Setup, object):
 
         References
         ----------
-
         >>> oModule.DeleteSweep
 
         Examples
@@ -3272,7 +3256,6 @@ class SetupHFSSAuto(Setup, object):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         if not isinstance(derivative_list, list):
@@ -3683,6 +3666,7 @@ class SetupMaxwell(Setup, object):
     @pyaedt_function_handler()
     def enable_control_program(self, control_program_path, control_program_args=" ", call_after_last_step=False):
         """Enable control program option is solution setup.
+
         Provide externally created executable files, or Python (*.py) scripts that are called after each time step,
         and allow you to control the source input, circuit elements, mechanical quantities, time step,
         and stopping criteria, based on the updated solutions.
@@ -3894,7 +3878,6 @@ class SetupQ3D(Setup, object):
 
         References
         ----------
-
         >>> oModule.InsertFrequencySweep
 
         Examples
@@ -4052,7 +4035,6 @@ class SetupQ3D(Setup, object):
 
         References
         ----------
-
         >>> oModule.InsertFrequencySweep
         """
         if not name:
@@ -4192,7 +4174,6 @@ class SetupQ3D(Setup, object):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         legacy_update = self.auto_update

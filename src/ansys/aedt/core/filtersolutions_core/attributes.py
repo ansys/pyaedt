@@ -617,6 +617,7 @@ class Attributes:
     @property
     def filter_type(self) -> FilterType:
         """Type (mathematical formulation) of the filter. The default is ``BUTTERWORTH``.
+
         The ``FilterType`` enum provides a list of all types.
 
         Returns
@@ -832,6 +833,7 @@ class Attributes:
     @property
     def minimum_order_group_delay_cutoff(self) -> str:
         """Filter group delay cutoff frequency for calculation of the filter minimum order.
+
         The default is ``10 GHz``.
 
         Returns
@@ -903,6 +905,7 @@ class Attributes:
     @property
     def pass_band_center_frequency(self) -> str:
         """Filter pass band or center frequency.
+
         The default is ``1 GHz``.
 
         Returns
@@ -967,6 +970,7 @@ class Attributes:
     @property
     def diplexer_inner_band_width(self) -> str:
         """Diplexer inner band width for ``BP1`` and ``Triplexer1`` diplexer types.
+
         The default is ``200 MHz``.
 
         Returns
@@ -1019,6 +1023,7 @@ class Attributes:
     @property
     def diplexer_upper_center_frequency(self) -> str:
         """Diplexer upper center frequency for ``BP2`` and ``Triplexer2`` diplexer types.
+
         The default is ``2 GHz``.
 
         Returns
@@ -1039,6 +1044,7 @@ class Attributes:
     @property
     def diplexer_lower_band_width(self) -> str:
         """Diplexer lower band width for ``BP2`` and ``Triplexer2`` diplexer types.
+
         The default is ``500 MHz``.
 
         Returns
@@ -1055,6 +1061,7 @@ class Attributes:
     @property
     def diplexer_upper_band_width(self) -> str:
         """Diplexer upper band width for ``BP2`` and ``Triplexer2`` diplexer types.
+
         The default is ``2 GHz``.
 
         Returns
@@ -1124,6 +1131,7 @@ class Attributes:
     @property
     def stop_band_attenuation_db(self) -> str:
         """Filter stop band attenuation in dB.
+
         The default is ``60 dB``.
 
         Returns
@@ -1273,6 +1281,7 @@ class Attributes:
     @property
     def standard_pass_band_attenuation_value_db(self) -> str:
         """Filter cut off attenuation in dB.
+
         The default is ''3.01 dB''.
 
         Returns
@@ -1404,6 +1413,7 @@ class Attributes:
     @property
     def asymmetric_low_order(self) -> int:
         """Order for low side of an asymmetric filter.
+
         The default is ''5''.
 
         Returns
@@ -1423,6 +1433,7 @@ class Attributes:
     @property
     def asymmetric_high_order(self) -> int:
         """Order for high side of an asymmetric filter.
+
         The default is ''5''.
 
         Returns
@@ -1442,6 +1453,7 @@ class Attributes:
     @property
     def asymmetric_low_stop_band_ratio(self) -> str:
         """Stop-band ratio for low side of an asymmetric filter.
+
         The default is ''1.2''.
 
         Returns
@@ -1503,6 +1515,7 @@ class Attributes:
     @property
     def asymmetric_high_stop_band_attenuation_db(self) -> str:
         """Stop-band attenuation for high side of an asymmetric filter.
+
         The default is ''60 dB''.
 
         Returns
@@ -1686,6 +1699,7 @@ class Attributes:
     @property
     def ripple_constriction_band(self) -> RippleConstrictionBandSelect:
         """Filter ripple constriction band option.
+
         The default is ''STOP''.
 
         Returns
@@ -1738,6 +1752,7 @@ class Attributes:
     @property
     def delay_equalizer_order(self) -> int:
         """Filter delay equalizer order.
+
         The default is ''2''.
 
         Returns
@@ -1775,6 +1790,7 @@ class Attributes:
     @property
     def standard_delay_equ_pass_band_attenuation_value_db(self) -> str:
         """Filter standard delay equalizer cut Off attenuation in dB.
+
         The default is ''3.01 dB''.
 
         Returns

@@ -251,6 +251,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         List of :class:`ansys.aedt.core.modules.boundary.hfss_boundary.FarFieldSetup` and
         :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
         """
+        self._field_setups = []
         for field in self.field_setup_names:
             obj_field = self.odesign.GetChildObject("Radiation").GetChildObject(field)
             type_field = obj_field.GetPropValue("Type")
@@ -330,7 +331,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.GetValidISolutionList
         """
         table_names = []
@@ -724,7 +724,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.AssignFiniteCond
 
         Examples
@@ -825,7 +824,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.InsertSetup
 
         Examples
@@ -916,7 +914,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.InsertFrequencySweep
 
         Examples
@@ -1029,7 +1026,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.InsertFrequencySweep
 
         Examples
@@ -1111,7 +1107,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.InsertFrequencySweep
 
         Examples
@@ -1469,7 +1464,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oEditor.InsertNativeComponent
 
         Examples
@@ -1594,7 +1588,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oEditor.InsertNativeComponent
 
         Examples
@@ -1713,7 +1706,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oEditor.InsertNativeComponent
 
         Examples
@@ -1962,7 +1954,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.SetSBRTxRxSettings
         """
         if self.solution_type != "SBR+":
@@ -2188,7 +2179,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.AssignVoltage
 
         Examples
@@ -2243,7 +2233,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.AssignCurrent
 
         Examples
@@ -2292,7 +2281,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.AssignVoltage
         >>> oModule.AssignCurrent
         """
@@ -2355,7 +2343,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.AssignFloquetPort
         """
         face_id = self.modeler.convert_to_selections(assignment, True)
@@ -2449,7 +2436,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.AssignLatticePair
         """
         props = {}
@@ -2491,7 +2477,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.AutoIdentifyLatticePair
         """
         objectname = self.modeler.convert_to_selections(assignment, True)
@@ -2563,7 +2548,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.AssignSecondary
         """
         props = {}
@@ -2622,7 +2606,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.AssignPrimary
         """
         props = {}
@@ -2644,7 +2627,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
     def _create_pec_cap(self, sheet_name, obj_name, pecthick):
         """Create a PEC object to back a wave port.
 
-
         Parameters
         ----------
         sheet_name : str
@@ -2658,7 +2640,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         -------
         bool
            ``True`` when successful, ``False`` when failed.
-
         """
         if isinstance(sheet_name, str) and isinstance(obj_name, cad.elements_3d.FacePrimitive):
             obj = obj_name.create_object()  # Create face object of type cad.object_3d.Object3d from FacePrimitive
@@ -2730,7 +2711,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.AssignPerfectE
 
         Examples
@@ -2798,7 +2778,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.AssignPerfectH
 
         Examples
@@ -2860,7 +2839,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oDesign.SARSetup
         """
         self.odesign.SARSetup(tissue_mass, material_density, assignment, voxel_size, average_sar_method)
@@ -2891,7 +2869,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.CreateOpenRegion
         """
         vars = [
@@ -2973,7 +2950,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.AssignLumpedRLC
 
         Examples
@@ -3074,7 +3050,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.AssignImpedance
 
         Examples
@@ -3243,7 +3218,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.AssignVoltage
 
         Examples
@@ -3295,7 +3269,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.AssignCurrent
 
         Examples
@@ -3345,7 +3318,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.AssignPerfectE
 
         Examples
@@ -3387,7 +3359,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.AssignPerfectH
 
         Examples
@@ -3462,7 +3433,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.AssignLumpedRLC
 
         Examples
@@ -3558,7 +3528,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.AssignImpedance
 
         Examples
@@ -3672,7 +3641,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.AssignCircuitPort
 
         Examples
@@ -3855,7 +3823,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.EditSources
 
         Examples
@@ -3909,6 +3876,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         window="hamming",
     ):
         """Edit a source from file data.
+
         File data is a CSV containing either frequency data or time domain data that will be converted through FFT.
 
         Parameters
@@ -3942,7 +3910,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         -------
         bool
         """
-
         if not assignment:
             self.osolution.LoadSourceWeights(input_file)
             return True
@@ -4093,7 +4060,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oEditor.ThickenSheet
 
         Examples
@@ -4250,7 +4216,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oDesign.ValidateDesign
 
         Examples
@@ -4386,7 +4351,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.CreateReport
 
         Examples
@@ -4438,7 +4402,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.CreateReport
 
         """
@@ -4471,7 +4434,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.AssignRadiation
 
         Examples
@@ -4514,7 +4476,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.AssignHybridRegion
 
         Examples
@@ -4557,7 +4518,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.AssignFEBI
 
         Examples
@@ -4599,7 +4559,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.AssignRadiation
 
         Examples
@@ -4733,7 +4692,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.InsertSetup
 
         """
@@ -4839,7 +4797,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.InsertSetup
         """
         if self.solution_type != "SBR+":
@@ -4936,7 +4893,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.InsertSetup
         """
         if self.solution_type != "SBR+":
@@ -5456,7 +5412,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.EditGlobalCurrentSourcesOption
         """
         if self.solution_type != "SBR+":
@@ -6068,7 +6023,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.AssignSymmetry
 
         Examples
@@ -6119,7 +6073,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.ChangeImpedanceMult
 
         Examples
@@ -6160,7 +6113,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.SetPhaseCenterPerPort
 
         Examples
@@ -6294,7 +6246,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.AssignCircuitPort
 
         Examples
@@ -6519,7 +6470,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.AssignWavePort
 
         Examples
@@ -6695,7 +6645,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.AssignPlaneWave
 
         Examples
@@ -6855,7 +6804,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oDesign.SetDoMeshAssembly
 
         Examples
@@ -6945,7 +6893,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.ExportElementPatternToFile
         """
         self.logger.info("Exporting embedded element patterns...")
@@ -7026,7 +6973,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.ExportMetadata
         """
         self.logger.info("Exporting antenna metadata...")
@@ -7126,7 +7072,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         References
         ----------
-
         >>> oDesign.SetDesignSettings
         """
         if export:
