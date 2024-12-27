@@ -50,6 +50,7 @@ from ansys.aedt.core.modeler.advanced_cad.multiparts import Environment
 from ansys.aedt.core.modeler.advanced_cad.multiparts import MultiPartComponent
 from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
+from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
 
 
 class Primitives3D(GeometryModeler):
@@ -1555,7 +1556,7 @@ class Primitives3D(GeometryModeler):
             Material parameters. The default is ``""``.
         design_parameters : str, optional
             Design parameters. The default is ``""``.
-        coordinate_system : str, optional
+        coordinate_system : str, CoordinateSystem optional
             Target coordinate system. The default is ``"Global"``.
         name : str, optional
             3D component name. The default is ``None``.
@@ -1600,6 +1601,8 @@ class Primitives3D(GeometryModeler):
 
         if geometry_parameters:
             sz_geo_params = "".join([f"{par}='{val}' " for par, val in geometry_parameters.items()])
+        if type(coordinate_system) == CoordinateSystem:  # Allow a CoordinateSystem instance as an argument.
+            coordinate_system = coordinate_system.name
         vArg1.append("TargetCS:=")
         vArg1.append(coordinate_system)
         vArg1.append("ComponentFile:=")
