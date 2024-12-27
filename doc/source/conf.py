@@ -339,5 +339,5 @@ linkcheck_ignore = [
 # available until the release is published.
 if switcher_version != "dev":
     linkcheck_ignore.append(
-        f"https://github.com/ansys/pyansys-geometry/releases/tag/v{__version__}"
+        f"https://github.com/ansys/pyaedt/releases/tag/v{__version__}"
     )  # noqa: E501
