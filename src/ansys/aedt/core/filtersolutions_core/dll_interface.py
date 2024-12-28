@@ -191,6 +191,13 @@ class DllInterface:
             raise RuntimeError(error_message)
 
     @property
-    def desktop_version(self):
-        """Return the version of the AEDT."""
+    def desktop_version(self) -> str:
+        """Return the version of the AEDT.
+
+        Returns
+        -------
+        str
+            Desktop version.
+        """
+
         return self._version

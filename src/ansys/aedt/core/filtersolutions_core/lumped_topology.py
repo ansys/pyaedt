@@ -41,6 +41,7 @@ class LumpedTopology:
         self._dll = ansys.aedt.core.filtersolutions_core._dll_interface()._dll
         self._dll_interface = ansys.aedt.core.filtersolutions_core._dll_interface()
         self._define_topology_dll_functions()
+        self._set_lump_implementation()
 
     def _define_topology_dll_functions(self):
         """Define C++ API DLL functions."""
@@ -153,6 +154,11 @@ class LumpedTopology:
         self._dll.getLumpedCircuitResponseSize.restype = c_int
         self._dll.getLumpedCircuitResponse.argtypes = [c_char_p, c_int]
         self._dll.getLumpedCircuitResponse.restype = c_int
+
+    def _set_lump_implementation(self):
+        """Set ``FilterSolutions`` attributes to lump design."""
+        filter_implementation_status = self._dll.setFilterImplementation(0)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(filter_implementation_status)
 
     @property
     def generator_resistor(self) -> str:

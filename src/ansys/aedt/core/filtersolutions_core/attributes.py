@@ -97,25 +97,6 @@ class FilterClass(Enum):
     STOP_STOP = 9
 
 
-class FilterImplementation(Enum):
-    """Provides an enum of filter implementation types.
-
-    **Attributes:**
-
-    - LUMPED: Represents a lumped implementation.
-    - DISTRIB: Represents a distributed implementation.
-    - ACTIVE: Represents an active implementation.
-    - SWCAP: Represents a switched capacitor implementation.
-    - DIGITAL: Represents a digital implementation.
-    """
-
-    LUMPED = 0
-    DISTRIBUTED = 1
-    ACTIVE = 2
-    SWCAP = 3
-    DIGITAL = 4
-
-
 class DiplexerType(Enum):
     """Provides an enum of diplexer and triplexer types.
 
@@ -649,27 +630,6 @@ class Attributes:
         if filter_class:
             string_value = self._dll_interface.enum_to_string(filter_class)
             self._dll_interface.set_string(self._dll.setFilterClass, string_value)
-
-    @property
-    def filter_implementation(self) -> FilterImplementation:
-        """Technology for implementing the filter. The default is ``LUMPED``.
-        The ``FilterImplementation`` enum provides a list of all implementations.
-
-        Returns
-        -------
-        :enum:`FilterImplementation`
-        """
-        index = c_int()
-        filter_implementation = list(FilterImplementation)
-        status = self._dll.getFilterImplementation(byref(index))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
-        filter_implementation = filter_implementation[index.value]
-        return filter_implementation
-
-    @filter_implementation.setter
-    def filter_implementation(self, column: FilterImplementation):
-        status = self._dll.setFilterImplementation(column.value)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def diplexer_type(self) -> DiplexerType:

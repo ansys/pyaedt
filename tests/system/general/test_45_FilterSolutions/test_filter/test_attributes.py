@@ -27,7 +27,6 @@ import ansys.aedt.core.filtersolutions
 from ansys.aedt.core.filtersolutions_core.attributes import BesselRipplePercentage
 from ansys.aedt.core.filtersolutions_core.attributes import DiplexerType
 from ansys.aedt.core.filtersolutions_core.attributes import FilterClass
-from ansys.aedt.core.filtersolutions_core.attributes import FilterImplementation
 from ansys.aedt.core.filtersolutions_core.attributes import FilterType
 from ansys.aedt.core.filtersolutions_core.attributes import GaussianBesselReflection
 from ansys.aedt.core.filtersolutions_core.attributes import GaussianTransition
@@ -48,14 +47,10 @@ class TestClass:
         design = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
 
         assert design.attributes.filter_type == FilterType.BUTTERWORTH
-
         assert len(FilterType) == 10
-
-        for fimp in [FilterImplementation.LUMPED]:
-            design.attributes.filter_implementation = fimp
-            for ftype in FilterType:
-                design.attributes.filter_type = ftype
-                assert design.attributes.filter_type == ftype
+        for ftype in FilterType:
+            design.attributes.filter_type = ftype
+            assert design.attributes.filter_type == ftype
 
     def test_filter_class(self):
         design = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
@@ -96,14 +91,6 @@ class TestClass:
         assert design.attributes.filter_multiple_bands_high_pass_frequency == "1G"
         design.attributes.filter_multiple_bands_high_pass_frequency = "500M"
         assert design.attributes.filter_multiple_bands_high_pass_frequency == "500M"
-
-    def test_filter_implementation(self):
-        design = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
-
-        assert len(FilterImplementation) == 5
-        for fimplementation in FilterImplementation:
-            design.attributes.filter_implementation = fimplementation
-            assert design.attributes.filter_implementation == fimplementation
 
     def test_diplexer_type(self):
         design = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
