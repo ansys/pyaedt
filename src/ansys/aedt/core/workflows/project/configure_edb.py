@@ -32,7 +32,7 @@ import PIL.Image
 import PIL.ImageTk
 import ansys.aedt.core
 from ansys.aedt.core import Hfss3dLayout
-from ansys.aedt.core import generate_unique_name
+from ansys.aedt.core.generic.general_methods import generate_unique_name
 import ansys.aedt.core.workflows.hfss3dlayout
 from ansys.aedt.core.workflows.misc import get_aedt_version
 from ansys.aedt.core.workflows.misc import get_port
