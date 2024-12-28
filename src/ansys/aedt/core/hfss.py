@@ -811,8 +811,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             ``"HFSSDrivenAuto"``, ``"HFSSDrivenDefault"``, ``"HFSSEigen"``, ``"HFSSTransient"``,
             and ``"HFSSSBR"``. The default is ``"HFSSDrivenAuto"``.
         **kwargs : dict, optional
-            Extra arguments to set up the circuit.
-            Available keys depend on the setup chosen.
+            Keyword arguments from the native AEDT API.
             For more information, see
             :doc:`../SetupTemplatesHFSS`.
 
