@@ -151,7 +151,7 @@ class TestClass:
         design.attributes.minimum_order_group_delay_cutoff = "500 MHz"
         assert design.attributes.minimum_order_group_delay_cutoff == "500 MHz"
 
-    def test_minimum_order_stop_band_freq(self):
+    def test_minimum_order_stop_band_freq_second_time(self):
         design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         assert design.attributes.minimum_order_stop_band_frequency == "10 GHz"
         design.attributes.minimum_order_stop_band_frequency = "500 MHz"
