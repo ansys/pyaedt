@@ -1128,13 +1128,13 @@ class Icepak(FieldAnalysisIcepak):
                 i += 1
         return True
 
-    @pyaedt_function_handler()
-    def find_top(self, gravityDir):
+    @pyaedt_function_handler(gravityDir="gravity_dir")
+    def find_top(self, gravity_dir):
         """Find the top location of the layout given a gravity.
 
         Parameters
         ----------
-        gravityDir :
+        gravity_dir :
             Gravity direction from -X to +Z. Options are ``0`` to ``5``.
 
         Returns
@@ -1159,10 +1159,10 @@ class Icepak(FieldAnalysisIcepak):
             ]
             self.modeler.oeditor.ChangeProperty(args)
         oBoundingBox = self.modeler.get_model_bounding_box()
-        if gravityDir < 3:
-            return oBoundingBox[gravityDir + 3]
+        if gravity_dir < 3:
+            return oBoundingBox[gravity_dir + 3]
         else:
-            return oBoundingBox[gravityDir - 3]
+            return oBoundingBox[gravity_dir - 3]
 
     @pyaedt_function_handler(matname="material")
     def create_parametric_fin_heat_sink(
