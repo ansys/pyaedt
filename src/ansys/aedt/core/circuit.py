@@ -1707,11 +1707,15 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         center_y = sub.location[1]
         left = 0
         delta_y = -1 * sub.location[1] - 2000 - 50 * len(tx_schematic_pins)
+
         if differential:
             tdr_probe = self.modeler.components.components_catalog["TDR_Differential_Ended"]
         else:
             tdr_probe = self.modeler.components.components_catalog["TDR_Single_Ended"]
+
         tdr_probe_names = []
+        n_pin = None
+
         for i, probe_pin in enumerate(tx_schematic_pins):
             pos_y = unit_converter(delta_y - left * 1000, input_units="mil", output_units=self.modeler.schematic_units)
             left += 1
