@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -23,6 +23,8 @@
 # SOFTWARE.
 
 from __future__ import absolute_import
+
+import warnings
 
 from ansys.aedt.core.generic.general_methods import _dim_arg
 from ansys.aedt.core.generic.general_methods import clamp
@@ -1424,6 +1426,17 @@ class BinaryTreeNode:
         if not self._children:
             self._update_children()
         return self._children
+
+    @property
+    def props(self):
+        """Properties data.
+
+        Returns
+        -------
+        :class:``ansys.aedt.coree.modeler.cad.elements_3d.HistoryProps``
+        """
+        warnings.warn("This method is deprecated. Use properties instead.", DeprecationWarning)
+        return self.properties
 
     @property
     def properties(self):

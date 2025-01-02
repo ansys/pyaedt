@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -25,6 +25,7 @@
 import math
 import os
 import secrets
+import warnings
 
 from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -1252,7 +1253,13 @@ class ComponentInfo(object):
 
     @property
     def props(self):
-        """Retrieve the component properties."""
+        """Component properties."""
+        warnings.warn("This method is deprecated. Use properties instead.", DeprecationWarning)
+        return self.properties
+
+    @property
+    def properties(self):
+        """Component properties."""
         if not self._props:
             self._props = load_keyword_in_aedt_file(self.file_name, self.name)
         return self._props
