@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -1663,71 +1663,73 @@ class Maxwell(object):
 
             try:
                 if self.modeler._is3d:
+                    if self.solution_type == "Transient":
+                        self.logger.error(
+                            "Current density can only be applied to Eddy current or Magnetostatic " "solution types."
+                        )
+                        return False
+
+                    common_props = {
+                        "Objects": objects_list,
+                        "CurrentDensityX": current_density_x,
+                        "CurrentDensityY": current_density_y,
+                        "CurrentDensityZ": current_density_z,
+                        "CoordinateSystem Name": coordinate_system,
+                        "CoordinateSystem Type": coordinate_system_type,
+                    }
+
                     if len(objects_list) > 1:
                         current_density_group_names = []
                         for x in range(0, len(objects_list)):
                             current_density_group_names.append(current_density_name + f"_{str(x + 1)}")
-                        props = {}
-                        props["items"] = current_density_group_names
-                        props[current_density_group_names[0]] = dict(
-                            {
-                                "Objects": objects_list,
-                                "Phase": phase,
-                                "CurrentDensityX": current_density_x,
-                                "CurrentDensityY": current_density_y,
-                                "CurrentDensityZ": current_density_z,
-                                "CoordinateSystem Name": coordinate_system,
-                                "CoordinateSystem Type": coordinate_system_type,
-                            }
-                        )
-                        bound = BoundaryObject(self, current_density_group_names[0], props, "CurrentDensityGroup")
+                        bound_props = {"items": current_density_group_names}
+                        if self.solution_type == "EddyCurrent":
+                            common_props["Phase"] = phase
+                        bound_props[current_density_group_names[0]] = common_props.copy()
+                        bound_name = current_density_group_names[0]
+                        bound_type = "CurrentDensityGroup"
                     else:
-                        props = dict(
-                            {
-                                "Objects": objects_list,
-                                "Phase": phase,
-                                "CurrentDensityX": current_density_x,
-                                "CurrentDensityY": current_density_y,
-                                "CurrentDensityZ": current_density_z,
-                                "CoordinateSystem Name": coordinate_system,
-                                "CoordinateSystem Type": coordinate_system_type,
-                            }
-                        )
-                        bound = BoundaryObject(self, current_density_name, props, "CurrentDensity")
+                        if self.solution_type == "EddyCurrent":
+                            common_props["Phase"] = phase
+                        bound_props = common_props
+                        bound_name = current_density_name
+                        bound_type = "CurrentDensity"
+                    bound = BoundaryObject(self, bound_name, bound_props, bound_type)
                 else:
+                    common_props = {
+                        "Objects": objects_list,
+                        "Value": current_density_2d,
+                        "CoordinateSystem": "",
+                    }
                     if len(objects_list) > 1:
                         current_density_group_names = []
                         for x in range(0, len(objects_list)):
                             current_density_group_names.append(current_density_name + f"_{str(x + 1)}")
-                        props = {}
-                        props["items"] = current_density_group_names
-                        props[current_density_group_names[0]] = dict(
-                            {
-                                "Objects": objects_list,
-                                "Value": current_density_2d,
-                                "CoordinateSystem": "",
-                            }
-                        )
-                        bound = BoundaryObject(self, current_density_group_names[0], props, "CurrentDensityGroup")
+                        bound_props = {"items": current_density_group_names}
+                        if self.solution_type == "EddyCurrent":
+                            common_props["Phase"] = phase
+                        bound_props[current_density_group_names[0]] = common_props.copy()
+                        bound_name = current_density_group_names[0]
+                        bound_type = "CurrentDensityGroup"
                     else:
-                        props = dict(
-                            {
-                                "Objects": objects_list,
-                                "Value": current_density_2d,
-                                "CoordinateSystem": "",
-                            }
-                        )
-                        bound = BoundaryObject(self, current_density_name, props, "CurrentDensity")
+                        if self.solution_type == "EddyCurrent":
+                            common_props["Phase"] = phase
+                        bound_props = common_props
+                        bound_name = current_density_name
+                        bound_type = "CurrentDensity"
+                    bound = BoundaryObject(self, bound_name, bound_props, bound_type)
 
                 if bound.create():
                     self._boundaries[bound.name] = bound
                     return bound
-                return True
+                return False
             except Exception:
                 self.logger.error("Couldn't assign current density to desired list of objects.")
                 return False
         else:
-            self.logger.error("Current density can only be applied to Eddy current or magnetostatic solution types.")
+            self.logger.error(
+                "Current density can only be applied to Eddy current, Magnetostatic and 2D Transient " "solution types."
+            )
             return False
 
     @pyaedt_function_handler(input_object="assignment", radiation_name="radiation")
@@ -2457,8 +2459,8 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Parameters
         ----------
-        assignment : list
-            Objects to assign the current to.
+        assignment : list of int or :class:`ansys.aedt.core.modeler.elements_3d.FacePrimitive`
+            Faces or sheet objects to assign the current density terminal to.
         current_density_name : str, optional
             Current density name.
             If no name is provided a random name is generated.
@@ -2474,23 +2476,28 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
             objects_list = self.modeler.convert_to_selections(assignment, True)
 
-            existing_2d_objects_list = [x.name for x in self.modeler.object_list if not x.is3d]
-            if [x for x in objects_list if x not in existing_2d_objects_list]:
-                self.logger.error("Entity provided not a planar entity.")
-                return False
+            # existing_2d_objects_list = [x.name for x in self.modeler.object_list if not x.is3d]
+            # if [x for x in objects_list if x not in existing_2d_objects_list]:
+            #     self.logger.error("Entity provided not a planar entity.")
+            #     return False
 
             try:
+                if self.modeler._is3d:
+                    bound_objects = {"Faces": objects_list}
+                else:
+                    bound_objects = {"Objects": objects_list}
                 if len(objects_list) > 1:
                     current_density_group_names = []
                     for x in range(0, len(objects_list)):
                         current_density_group_names.append(current_density_name + f"_{str(x + 1)}")
-                    props = {}
-                    props["items"] = current_density_group_names
-                    props[current_density_group_names[0]] = dict({"Objects": objects_list})
-                    bound = BoundaryObject(self, current_density_group_names[0], props, "CurrentDensityTerminalGroup")
+                    bound_name = current_density_group_names[0]
+                    props = {"items": current_density_group_names, bound_name: bound_objects}
+                    bound_type = "CurrentDensityTerminalGroup"
                 else:
-                    props = dict({"Objects": objects_list})
-                    bound = BoundaryObject(self, current_density_name, props, "CurrentDensityTerminal")
+                    props = dict(bound_objects)
+                    bound_name = current_density_name
+                    bound_type = "CurrentDensityTerminal"
+                bound = BoundaryObject(self, bound_name, props, bound_type)
 
                 if bound.create():
                     self._boundaries[bound.name] = bound
@@ -2499,7 +2506,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             except Exception:
                 return False
         else:
-            self.logger.error("Current density can only be applied to Eddy current or magnetostatic solution types.")
+            self.logger.error("Current density can only be applied to Eddy current or Magnetostatic solution types.")
             return False
 
     @pyaedt_function_handler()

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -513,7 +513,7 @@ class TestClass:
         assert isinstance(cat, list)
         assert "C" in cat
 
-    def test_available_report_categories(self, m3d_app):
+    def test_available_report_quantities(self, m3d_app):
         m3d_app.solution_type = SOLUTIONS.Maxwell3d.ElectroStatic
 
         rectangle1 = m3d_app.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
@@ -526,9 +526,6 @@ class TestClass:
         matrix = m3d_app.assign_matrix(assignment="Voltage1")
         assert matrix.props["MatrixEntry"]["MatrixEntry"][0]["Source"] == "Voltage1"
         assert matrix.props["MatrixEntry"]["MatrixEntry"][0]["NumberOfTurns"] == "1"
-        cat = m3d_app.post.available_quantities_categories(context=matrix.name)
-        assert isinstance(cat, list)
-        assert "C" in cat
         quantities = m3d_app.post.available_report_quantities(
             display_type="Data Table", quantities_category="C", context=matrix.name
         )
@@ -624,177 +621,139 @@ class TestClass:
         assert m3d_app.export_rl_matrix("matrix_export_test", export_path_2, False, 10, 3, True)
         assert os.path.exists(export_path_2)
 
-    # def test_32d_post_processing(self):
-    #     expressions = m3d_app.post.available_report_quantities(
-    #         report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
-    #     )
-    #     assert isinstance(expressions, list)
-    #     categories = m3d_app.post.available_quantities_categories(
-    #         report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
-    #     )
-    #     assert isinstance(categories, list)
-    #     assert "R" in categories
-    #     assert "L" in categories
-    #     categories = m3d_app.post.available_quantities_categories(
-    #         report_category="EddyCurrent", display_type="Data Table", context="Matrix1"
-    #     )
-    #     assert isinstance(categories, list)
-    #     assert "R" in categories
-    #     assert "L" in categories
-    #     assert "Z" in categories
-    #     categories = m3d_app.post.available_quantities_categories(
-    #         report_category="EddyCurrent", display_type="Data Table"
-    #     )
-    #     assert isinstance(categories, list)
-    #     assert "R" in categories
-    #     assert "L" in categories
-    #     assert "Z" in categories
-    #     report = m3d_app.post.create_report(
-    #         expressions=expressions,
-    #         context={"Matrix1": "ReducedMatrix1"},
-    #         plot_type="Data Table",
-    #         plot_name="reduced_matrix",
-    #     )
-    #     assert report.expressions == expressions
-    #     assert report.matrix == "Matrix1"
-    #     assert report.reduced_matrix == "ReducedMatrix1"
-    #     data = m3d_app.post.get_solution_data(expressions=expressions, context={"Matrix1": "ReducedMatrix1"})
-    #     assert data
-    #     expressions = m3d_app.post.available_report_quantities(report_category="EddyCurrent",
-    #     display_type="Data Table")
-    #     assert isinstance(expressions, list)
-    #     expressions = m3d_app.post.available_report_quantities(
-    #         report_category="EddyCurrent", display_type="Data Table", context="Matrix1"
-    #     )
-    #     assert isinstance(expressions, list)
-    #     report = m3d_app.post.create_report(
-    #         expressions=expressions,
-    #         context="Matrix1",
-    #         plot_type="Data Table",
-    #         plot_name="reduced_matrix",
-    #     )
-    #     assert report.expressions == expressions
-    #     assert report.matrix == "Matrix1"
-    #     assert not report.reduced_matrix
-    #     data = m3d_app.post.get_solution_data(expressions=expressions, context="Matrix1")
-    #     assert data
-    #
-    #     report = m3d_app.post.create_report(
-    #         expressions="Mag_H", context="line_test", primary_sweep_variable="Distance", report_category="Fields"
-    #     )
-    #     assert report.expressions == ["Mag_H"]
-    #     assert report.polyline == "line_test"
-    #     data = m3d_app.post.get_solution_data(
-    #         expressions=["Mag_H"],
-    #         context="line_test",
-    #         report_category="Fields",
-    #         primary_sweep_variable="Distance",
-    #     )
-    #     assert data
-    #
-    # def test_33_mesh_settings(self):
-    #     assert m3d_app.mesh.initial_mesh_settings
-    #     assert m3d_app.mesh.initial_mesh_settings.props
-    #
-    # def test_34_assign_voltage_drop(self):
-    #     circle = m3d_app.modeler.create_circle(position=[10, 10, 0], radius=5, cs_plane="XY")
-    #     m3d_app.solution_type = "Magnetostatic"
-    #     assert m3d_app.assign_voltage_drop([circle.faces[0]])
-    #
-    # def test_35_assign_symmetry(self):
-    #     m3d_app.set_active_design("Motion")
-    #     outer_box = [x for x in m3d_app.modeler.object_list if x.name == "Outer_Box"]
-    #     inner_box = [x for x in m3d_app.modeler.object_list if x.name == "Inner_Box"]
-    #     assert m3d_app.assign_symmetry([outer_box[0].faces[0], inner_box[0].faces[0]], "Symmetry_Test_IsOdd")
-    #     assert m3d_app.assign_symmetry([outer_box[0].faces[0], inner_box[0].faces[0]])
-    #     assert m3d_app.assign_symmetry([outer_box[0].faces[0], inner_box[0].faces[0]], "Symmetry_Test_IsEven", False)
-    #     assert m3d_app.assign_symmetry([35, 7])
-    #     assert not m3d_app.assign_symmetry([])
-    #     for bound in m3d_app.boundaries:
-    #         if bound.name == "Symmetry_Test_IsOdd":
-    #             assert bound.type == "Symmetry"
-    #             assert bound.props["IsOdd"]
-    #         if bound.name == "Symmetry_Test_IsEven":
-    #             assert bound.type == "Symmetry"
-    #             assert not bound.props["IsOdd"]
-    #
-    # def test_36_set_bp_curve_loss(self):
-    #     bp_curve_box = m3d_app.modeler.create_box([0, 0, 0], [10, 10, 10], name="bp_curve_box")
-    #     bp_curve_box.material = "magnesium"
-    #     assert m3d_app.materials["magnesium"].set_bp_curve_coreloss(
-    #         [[0, 0], [0.6, 1.57], [1.0, 4.44], [1.5, 20.562], [2.1, 44.23]],
-    #         kdc=0.002,
-    #         cut_depth=0.0009,
-    #         units="w/kg",
-    #         bunit="tesla",
-    #         frequency=50,
-    #         thickness="0.5mm",
-    #     )
-    #
-    # def test_37_assign_insulating(self):
-    #     insulated_box = m3d_app.modeler.create_box([50, 0, 50], [294, 294, 19], name="insulated_box")
-    #     insulating_assignment = m3d_app.assign_insulating(insulated_box.name, "InsulatingExample")
-    #     assert insulating_assignment.name == "InsulatingExample"
-    #     insulating_assignment.name = "InsulatingExampleModified"
-    #     assert insulating_assignment.update()
-    #     insulating_assignment_face = m3d_app.assign_insulating(insulated_box.faces[0], "InsulatingExample2")
-    #     assert insulating_assignment_face.name == "InsulatingExample2"
-    #     insulating_assignment_comb = m3d_app.assign_insulating(
-    #         [insulated_box.name, insulated_box.faces[0]], "InsulatingExample3"
-    #     )
-    #     assert insulating_assignment_comb.name == "InsulatingExample3"
-    #
-    # def test_38_assign_current_density(self):
-    #     design_to_activate = [x for x in m3d_app.design_list if x.startswith("Maxwell")]
-    #     m3d_app.set_active_design(design_to_activate[0])
-    #     current_box = m3d_app.modeler.create_box([50, 0, 50], [294, 294, 19], name="current_box")
-    #     current_box2 = m3d_app.modeler.create_box([50, 0, 50], [294, 294, 19], name="current_box2")
-    #     assert m3d_app.assign_current_density("current_box", "CurrentDensity_1")
-    #     assert m3d_app.assign_current_density(
-    #         "current_box", "CurrentDensity_2", "40deg", current_density_x="3", current_density_y="4"
-    #     )
-    #     assert m3d_app.assign_current_density(["current_box", "current_box2"], "CurrentDensity_3")
-    #     assert not m3d_app.assign_current_density("current_box", "CurrentDensity_4", coordinate_system_type="test")
-    #     assert not m3d_app.assign_current_density("current_box", "CurrentDensity_5", phase="5ang")
-    #     for bound in m3d_app.boundaries:
-    #         if bound.type == "CurrentDensity":
-    #             if bound.name == "CurrentDensity_1":
-    #                 assert bound.props["Objects"] == ["current_box"]
-    #                 assert bound.props["Phase"] == "0deg"
-    #                 assert bound.props["CurrentDensityX"] == "0"
-    #                 assert bound.props["CurrentDensityY"] == "0"
-    #                 assert bound.props["CurrentDensityZ"] == "0"
-    #                 assert bound.props["CoordinateSystem Name"] == "Global"
-    #                 assert bound.props["CoordinateSystem Type"] == "Cartesian"
-    #             if bound.name == "CurrentDensity_2":
-    #                 assert bound.props["Objects"] == ["current_box"]
-    #                 assert bound.props["Phase"] == "40deg"
-    #                 assert bound.props["CurrentDensityX"] == "3"
-    #                 assert bound.props["CurrentDensityY"] == "4"
-    #                 assert bound.props["CurrentDensityZ"] == "0"
-    #                 assert bound.props["CoordinateSystem Name"] == "Global"
-    #                 assert bound.props["CoordinateSystem Type"] == "Cartesian"
-    #             if bound.name == "CurrentDensity_3":
-    #                 assert bound.props["Objects"] == ["current_box", "current_box2"]
-    #                 assert bound.props["Phase"] == "0deg"
-    #                 assert bound.props["CurrentDensityX"] == "0"
-    #                 assert bound.props["CurrentDensityY"] == "0"
-    #                 assert bound.props["CurrentDensityZ"] == "0"
-    #                 assert bound.props["CoordinateSystem Name"] == "Global"
-    #                 assert bound.props["CoordinateSystem Name"] == "Cartesian"
-    #     m3d_app.set_active_design("Motion")
-    #     assert not m3d_app.assign_current_density("Circle_inner", "CurrentDensity_1")
-    #
-    # def test_39_assign_current_density_terminal(self):
-    #     design_to_activate = [x for x in m3d_app.design_list if x.startswith("Maxwell")]
-    #     m3d_app.set_active_design(design_to_activate[0])
-    #     assert m3d_app.assign_current_density_terminal("Coil_Section1", "CurrentDensityTerminal_1")
-    #     assert not m3d_app.assign_current_density_terminal("Coil_Section1", "CurrentDensityTerminal_1")
-    #     m3d_app.set_active_design("Matrix2")
-    #     assert m3d_app.assign_current_density_terminal(["Sheet1", "Sheet2"], "CurrentDensityTerminalGroup_1")
-    #     assert not m3d_app.assign_current_density_terminal(["Coil_1", "Coil_2"], "CurrentDensityTerminalGroup_2")
-    #     m3d_app.set_active_design("Motion")
-    #     assert not m3d_app.assign_current_density_terminal("Inner_Box", "CurrentDensityTerminal_1")
+    def test_get_solution_data(self, m3d_app):
+        m3d_app.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
+
+        m3d_app.modeler.create_box([0, 1.5, 0], [1, 2.5, 5], name="Coil_1", material="aluminum")
+        m3d_app.modeler.create_box([8.5, 1.5, 0], [1, 2.5, 5], name="Coil_2", material="aluminum")
+        m3d_app.modeler.create_box([16, 1.5, 0], [1, 2.5, 5], name="Coil_3", material="aluminum")
+        m3d_app.modeler.create_box([32, 1.5, 0], [1, 2.5, 5], name="Coil_4", material="aluminum")
+
+        rectangle1 = m3d_app.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
+        rectangle2 = m3d_app.modeler.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
+        rectangle3 = m3d_app.modeler.create_rectangle(0, [16.5, 1.5, 0], [2.5, 5], name="Sheet3")
+
+        m3d_app.assign_current(rectangle1.faces[0], amplitude=1, name="Cur1")
+        m3d_app.assign_current(rectangle2.faces[0], amplitude=1, name="Cur2")
+        m3d_app.assign_current(rectangle3.faces[0], amplitude=1, name="Cur3")
+
+        matrix = m3d_app.assign_matrix(assignment=["Cur1", "Cur2", "Cur3"], matrix_name="Matrix1")
+        matrix.join_series(sources=["Cur1", "Cur2"], matrix_name="ReducedMatrix1")
+
+        setup = m3d_app.create_setup(MaximumPasses=2)
+        m3d_app.analyze(setup=setup.name)
+
+        expressions = m3d_app.post.available_report_quantities(
+            report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
+        )
+        data = m3d_app.post.get_solution_data(expressions=expressions, context={"Matrix1": "ReducedMatrix1"})
+        assert data
+
+        expressions = m3d_app.post.available_report_quantities(report_category="EddyCurrent", display_type="Data Table")
+        assert isinstance(expressions, list)
+        expressions = m3d_app.post.available_report_quantities(
+            report_category="EddyCurrent", display_type="Data Table", context="Matrix1"
+        )
+        data = m3d_app.post.get_solution_data(expressions=expressions, context="Matrix1")
+        assert data
+
+    def test_initial_mesh_settings(self, m3d_app):
+        assert m3d_app.mesh.initial_mesh_settings
+        assert m3d_app.mesh.initial_mesh_settings.props
+
+    def test_assign_voltage_drop(self, m3d_app):
+        m3d_app.solution_type = SOLUTIONS.Maxwell3d.Magnetostatic
+
+        circle = m3d_app.modeler.create_circle(position=[10, 10, 0], radius=5, cs_plane="XY")
+        v_drop = m3d_app.assign_voltage_drop([circle.faces[0]])
+        assert v_drop.props["Faces"] == circle.faces[0].id
+        assert v_drop.props["Voltage Drop"] == "1mV"
+
+    def test_assign_symmetry(self, m3d_app):
+        box = m3d_app.modeler.create_box([0, 1.5, 0], [1, 2.5, 5], name="Coil_1", material="aluminum")
+        symmetry = m3d_app.assign_symmetry([box.faces[0]], "symmetry_test")
+        assert symmetry
+        assert symmetry.props["Faces"][0] == box.faces[0].id
+        assert symmetry.props["Name"] == "symmetry_test"
+        assert symmetry.props["IsOdd"]
+        symmetry_1 = m3d_app.assign_symmetry([box.faces[1]], "symmetry_test_1", False)
+        assert symmetry_1
+        assert symmetry_1.props["Faces"][0] == box.faces[1].id
+        assert symmetry_1.props["Name"] == "symmetry_test_1"
+        assert not symmetry_1.props["IsOdd"]
+        assert all([bound.type == "Symmetry" for bound in m3d_app.boundaries])
+
+    def test_set_bp_curve_loss(self, m3d_app):
+        bp_curve_box = m3d_app.modeler.create_box([0, 0, 0], [10, 10, 10], name="bp_curve_box")
+        bp_curve_box.material = "magnesium"
+        assert m3d_app.materials["magnesium"].set_bp_curve_coreloss(
+            [[0, 0], [0.6, 1.57], [1.0, 4.44], [1.5, 20.562], [2.1, 44.23]],
+            kdc=0.002,
+            cut_depth=0.0009,
+            units="w/kg",
+            bunit="tesla",
+            frequency=50,
+            thickness="0.5mm",
+        )
+
+    def test_assign_insulating(self, m3d_app):
+        box = m3d_app.modeler.create_box([50, 0, 50], [294, 294, 19], name="box")
+        insulating_assignment = m3d_app.assign_insulating(box.name, "insulating")
+        assert insulating_assignment.name == "insulating"
+        insulating_assignment.name = "insulating_update"
+        assert insulating_assignment.update()
+        assert insulating_assignment.name == "insulating_update"
+        insulating_assignment_face = m3d_app.assign_insulating(box.faces[0], "insulating_2")
+        assert insulating_assignment_face.name == "insulating_2"
+        insulating_assignment_comb = m3d_app.assign_insulating([box.name, box.faces[0]], "insulating_3")
+        assert insulating_assignment_comb.name == "insulating_3"
+
+    def test_assign_current_density(self, m3d_app):
+        box = m3d_app.modeler.create_box([50, 0, 50], [294, 294, 19], name="box")
+        box1 = m3d_app.modeler.create_box([50, 0, 50], [294, 294, 19], name="box1")
+
+        bound = m3d_app.assign_current_density(box.name, "current_density")
+        assert bound
+        assert bound.props["Objects"] == [box.name]
+        assert bound.props["CurrentDensityX"] == "0"
+        assert bound.props["CurrentDensityY"] == "0"
+        assert bound.props["CurrentDensityZ"] == "0"
+        assert bound.props["CoordinateSystem Name"] == "Global"
+        assert bound.props["CoordinateSystem Type"] == "Cartesian"
+
+        m3d_app.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
+        bound = m3d_app.assign_current_density(
+            box.name, "current_density_1", "40deg", current_density_x="3", current_density_y="4"
+        )
+        assert bound
+        assert bound.props["Objects"] == [box.name]
+        assert bound.props["Phase"] == "40deg"
+        assert bound.props["CurrentDensityX"] == "3"
+        assert bound.props["CurrentDensityY"] == "4"
+        assert bound.props["CurrentDensityZ"] == "0"
+        assert bound.props["CoordinateSystem Name"] == "Global"
+        assert bound.props["CoordinateSystem Type"] == "Cartesian"
+
+        bound = m3d_app.assign_current_density([box.name, box1.name], "current_density_2")
+        assert bound
+        assert bound.props[bound.name]["Objects"] == [box.name, box1.name]
+        assert bound.props[bound.name]["Phase"] == "0deg"
+        assert bound.props[bound.name]["CurrentDensityX"] == "0"
+        assert bound.props[bound.name]["CurrentDensityY"] == "0"
+        assert bound.props[bound.name]["CurrentDensityZ"] == "0"
+        assert bound.props[bound.name]["CoordinateSystem Name"] == "Global"
+
+        assert not m3d_app.assign_current_density(box.name, "current_density_3", coordinate_system_type="test")
+        assert not m3d_app.assign_current_density(box.name, "current_density_4", phase="5ang")
+
+    def test_assign_current_density_terminal(self, m3d_app):
+        box = m3d_app.modeler.create_box([50, 0, 50], [294, 294, 19], name="box")
+        assert m3d_app.assign_current_density_terminal(box.faces[0], "current_density_t_1")
+        assert not m3d_app.assign_current_density_terminal(box.faces[0], "current_density_t_1")
+        assert m3d_app.assign_current_density_terminal([box.faces[0], box.faces[1]], "current_density_t_2")
+        m3d_app.solution_type = SOLUTIONS.Maxwell3d.Transient
+        assert not m3d_app.assign_current_density_terminal(box.faces[0], "current_density_t_3")
+
     #
     # def test_40_assign_impedance(self):
     #     impedance_box = m3d_app.modeler.create_box([-50, -50, -50], [294, 294, 19], name="impedance_box")
