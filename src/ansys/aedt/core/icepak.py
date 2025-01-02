@@ -207,8 +207,9 @@ class Icepak(FieldAnalysisIcepak):
 
     @property
     def problem_type(self):
-        """Problem type of the Icepak design. Options are ``"TemperatureAndFlow"``, ``"TemperatureOnly"``,
-        and ``"FlowOnly"``.
+        """Problem type of the Icepak design.
+
+        Options are ``"TemperatureAndFlow"``, ``"TemperatureOnly"``, and ``"FlowOnly"``.
         """
         return self.design_solutions.problem_type
 

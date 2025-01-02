@@ -75,6 +75,7 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode):
 
     @property
     def props(self):
+        """Field Properties."""
         if not self.__props and self._app.design_properties:
             if (
                 self.type == "FarFieldSphere"
@@ -148,9 +149,7 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-
         """
-
         if self.type == "FarFieldSphere":
             self._app.oradfield.EditInfiniteSphereSetup(self.name, self._get_args())
         elif self.type == "NearFieldBox":

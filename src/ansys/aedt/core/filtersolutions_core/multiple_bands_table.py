@@ -68,6 +68,7 @@ class MultipleBandsTable:
     @property
     def row_count(self) -> int:
         """Total number of rows present in the multiple bands table.
+
         The default is ``2``.
 
         Returns

@@ -1542,7 +1542,6 @@ class Analysis(Design, object):
     def create_output_variable(self, variable, expression, solution=None, context=None):
         """Create or modify an output variable.
 
-
         Parameters
         ----------
         variable : str, optional

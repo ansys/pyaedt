@@ -884,6 +884,7 @@ class IcepakDesignSolution(DesignSolution, object):
     @property
     def problem_type(self):
         """Get/Set the problem type of the icepak Design.
+
         It can be any of`"TemperatureAndFlow"`, `"TemperatureOnly"`,`"FlowOnly"`.
         """
         if self._odesign:

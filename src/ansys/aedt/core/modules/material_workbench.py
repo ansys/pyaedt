@@ -44,13 +44,10 @@ defusedxml.defuse_stdlib()
 class MaterialWorkbench:
     """Manages the import of materials from a Workbench Engineering Data XML file.
 
-
     Parameters
     ----------
     app : :class:`ansys.aedt.core`
         Inherited parent object.
-
-
     """
 
     def __init__(self, app):

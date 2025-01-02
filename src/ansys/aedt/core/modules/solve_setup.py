@@ -231,6 +231,7 @@ class CommonSetup(PropsManager, BinaryTreeNode):
 
     @property
     def props(self):
+        """Properties of the setup."""
         if self._legacy_props:
             return self._legacy_props
         if self._is_new_setup:

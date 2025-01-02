@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 """This module contains the ``AedtVersions`` class.
+
 The constant ``CURRENT_STABLE_AEDT_VERSION`` set in this module should be updated
 every time a new stable version is released.
 Ideally, it should be the same as ``conftest.default_version``"""
@@ -35,6 +36,7 @@ CURRENT_STABLE_AEDT_VERSION = 2024.2
 
 class AedtVersions:
     """Class to get the AEDT versions on the system.
+
     It caches the data to avoid inspecting the environment variables multiple times."""
 
     def __init__(self):
@@ -48,6 +50,7 @@ class AedtVersions:
     @property
     def list_installed_ansysem(self):
         """Return a list of installed AEDT versions on ``ANSYSEM_ROOT``.
+
         The list is ordered: first normal versions, then client versions, finally student versions."""
         if self._list_installed_ansysem is None:
             aedt_env_var_prefix = "ANSYSEM_ROOT"

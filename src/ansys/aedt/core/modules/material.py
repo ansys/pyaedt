@@ -1232,12 +1232,9 @@ class CommonMaterial(object):
     Parameters
     ----------
     materials : :class:`ansys.aedt.core.modules.material_lib.Materials`
-
     name : str
-
     props : dict
         The default is ``None``.
-
     """
 
     def __init__(self, materials, name, props=None):

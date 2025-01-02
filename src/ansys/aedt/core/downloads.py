@@ -226,6 +226,7 @@ def download_edb_merge_utility(force_download=False, destination=None):
 
 def download_netlist(destination=None):
     """Download an example of netlist File and return the def path.
+
     Examples files are downloaded to a persistent cache to avoid
     re-downloading the same file twice.
 

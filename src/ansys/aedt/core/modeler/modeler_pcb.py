@@ -41,6 +41,7 @@ from ansys.aedt.core.modules.layer_stackup import Layers
 
 class Modeler3DLayout(Modeler, Primitives3DLayout):
     """Manages Modeler 3D layouts.
+
     This class is inherited in the caller application and is accessible through the modeler variable
     object (for example, ``hfss3dlayout.modeler``).
 

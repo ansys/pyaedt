@@ -718,7 +718,6 @@ class SweepType(object):
 class BasisOrder(object):
     """Enumeration-class for HFSS basis order settings.
 
-
     Warning: the value ``single`` has been renamed to ``Single`` for consistency. Please update references to
     ``single``.
     """

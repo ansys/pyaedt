@@ -147,9 +147,11 @@ class ExtensionTheme:  # pragma: no cover
         self.default_font = ("Arial", 12)
 
     def apply_light_theme(self, style):
+        """Apply light theme."""
         self._apply_theme(style, self.light)
 
     def apply_dark_theme(self, style):
+        """Apply dark theme."""
         self._apply_theme(style, self.dark)
 
     def _apply_theme(self, style, colors):

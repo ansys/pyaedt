@@ -28,6 +28,7 @@ from ansys.aedt.core.generic.settings import settings
 
 class AnalysisMaxwellCircuit(Analysis):
     """Provides the Maxwell Circuit (MaxwellCircuit) interface.
+
     Maxwell Circuit Editor has no setup, solution, analysis or postprocessor
     It is automatically initialized by Application call (Maxwell Circuit).
     Refer to Application function for inputs definition
