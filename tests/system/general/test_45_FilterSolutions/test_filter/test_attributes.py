@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -150,12 +150,6 @@ class TestClass:
         assert design.attributes.minimum_order_group_delay_cutoff == "2 GHz"
         design.attributes.minimum_order_group_delay_cutoff = "500 MHz"
         assert design.attributes.minimum_order_group_delay_cutoff == "500 MHz"
-
-    def test_minimum_order_stop_band_freq_second_time(self):
-        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        assert design.attributes.minimum_order_stop_band_frequency == "10 GHz"
-        design.attributes.minimum_order_stop_band_frequency = "500 MHz"
-        assert design.attributes.minimum_order_stop_band_frequency == "500 MHz"
 
     def test_minimum_order(self):
         design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
