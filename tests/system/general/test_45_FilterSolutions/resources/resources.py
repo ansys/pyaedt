@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -32,10 +32,12 @@ def resources_directory():
     return resources_path
 
 
-def resource_path(resource_file_name):
+def resource_path(resource_file_name, implementation=None):
+    if implementation:
+        return os.path.join(resources_directory(), implementation, resource_file_name)
     return os.path.join(resources_directory(), resource_file_name)
 
 
-def read_resource_file(filename):
-    with open(resource_path(filename)) as f:
+def read_resource_file(filename, implementation=None):
+    with open(resource_path(filename, implementation)) as f:
         return f.read().splitlines()

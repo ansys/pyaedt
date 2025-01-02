@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -36,6 +36,7 @@ class DllInterface:
     """Interfaces with the FilterSolutions C++ API DLL."""
 
     def __init__(self, show_gui=False, version=None):
+        self._version = version
         self._init_dll_path(version)
         self._init_dll(show_gui)
 
@@ -63,7 +64,7 @@ class DllInterface:
         print("DLL Path:", self.dll_path)
         if not os.path.isfile(self.dll_path):
             raise RuntimeError(f"The 'FilterSolutions' API DLL was not found at {self.dll_path}.")  # pragma: no cover
-        self.version = version
+        self._version = version
 
     def _init_dll(self, show_gui):
         """Load DLL and initialize application parameters to default values."""
@@ -188,3 +189,15 @@ class DllInterface:
         if error_status != 0:
             error_message = self.get_string(self._dll.getErrorMessage, 4096)
             raise RuntimeError(error_message)
+
+    @property
+    def desktop_version(self) -> str:
+        """Return the version of the AEDT.
+
+        Returns
+        -------
+        str
+            Desktop version.
+        """
+
+        return self._version
