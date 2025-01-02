@@ -251,6 +251,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         List of :class:`ansys.aedt.core.modules.boundary.hfss_boundary.FarFieldSetup` and
         :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
         """
+        self._field_setups = []
         for field in self.field_setup_names:
             obj_field = self.odesign.GetChildObject("Radiation").GetChildObject(field)
             type_field = obj_field.GetPropValue("Type")

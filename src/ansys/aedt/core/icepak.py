@@ -952,7 +952,7 @@ class Icepak(FieldAnalysisIcepak):
         >>> icepak.assign_surface_monitor("Surface1", monitor_name="monitor")
         'monitor'
         """
-        return self._monitor.assign_surface_monitor(face_name, monitor_quantity=monitor_type, monitor_name=monitor_name)
+        return self.monitor.assign_surface_monitor(face_name, monitor_quantity=monitor_type, monitor_name=monitor_name)
 
     @pyaedt_function_handler()
     def assign_point_monitor(self, point_position, monitor_type="Temperature", monitor_name=None):
@@ -985,7 +985,7 @@ class Icepak(FieldAnalysisIcepak):
         'monitor1'
 
         """
-        return self._monitor.assign_point_monitor(
+        return self.monitor.assign_point_monitor(
             point_position, monitor_quantity=monitor_type, monitor_name=monitor_name
         )
 
@@ -1021,7 +1021,7 @@ class Icepak(FieldAnalysisIcepak):
         >>> icepak.assign_point_monitor(box.name, monitor_name="monitor2")
         "'monitor2'
         """
-        return self._monitor.assign_point_monitor_in_object(
+        return self.monitor.assign_point_monitor_in_object(
             name, monitor_quantity=monitor_type, monitor_name=monitor_name
         )
 
