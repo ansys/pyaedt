@@ -928,6 +928,7 @@ class GlobalService(rpyc.Service):
                     return port
                 except socket.error:
                     logger.debug(f"Service not available yet, new try in {check_interval}s.")
+                    timeout -= 2
                     time.sleep(check_interval)
 
         process.terminate()
