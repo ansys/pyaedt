@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -514,8 +514,8 @@ class Desktop(object):
         if getattr(self, "_initialized", None) is not None and self._initialized:
             try:
                 self.grpc_plugin.recreate_application(True)
-            except Exception:  # nosec
-                pass
+            except Exception:
+                pyaedt_logger.debug("Failed to recreate application.")
             return
         else:
             self._initialized = True

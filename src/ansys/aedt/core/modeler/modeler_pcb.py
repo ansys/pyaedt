@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -175,7 +175,8 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
     @model_units.setter
     def model_units(self, units):
-        assert units in AEDT_UNITS["Length"], f"Invalid units string {units}."
+        if not units in AEDT_UNITS["Length"]:
+            raise ValueError(f"Invalid units '{units}'")
         self.oeditor.SetActiveUnits(units)
         self._model_units = units
 
@@ -356,7 +357,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                     comp_name = str(i)
                     break
             except Exception:
-                continue
+                self.logger.debug(f"Couldn't get component name from component {i}")
         if not comp_name:
             return False
         comp = ComponentsSubCircuit3DLayout(self, comp_name)
@@ -647,8 +648,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                 objnames.append(el)
             elif "name" in dir(el):
                 objnames.append(el.name)
-            else:
-                pass
         if return_list:
             return objnames
         else:

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -1066,12 +1066,12 @@ class Geometries3DLayout(Object3DLayout, object):
     def name(self, value):
         try:
             del self._primitives._lines[self.name]
-            vMaterial = ["NAME:Name", "Value:=", value]
-            self.change_property(vMaterial)
+            args = ["NAME:Name", "Value:=", value]
+            self.change_property(args)
             self._name = value
             self._primitives._lines[self._name] = self
         except Exception:
-            pass
+            self.logger.debug(f"Couldn't update geometry name into '{value}'.")
 
     @property
     def is_closed(self):
