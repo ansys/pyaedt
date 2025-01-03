@@ -1312,9 +1312,6 @@ class FieldAnalysis3D(Analysis, object):
         import_method : int, bool
             Whether the import method is ``Script`` or ``Acis``.
             The default is ``1``, which means that the ``Acis`` is used.
-        sheet_bodies_2d : bool, optional
-            Whether importing as 2D sheet bodies causes imported objects to
-            be organized in terms of 2D sheets. The default is ``True``.
 
         Returns
         -------
