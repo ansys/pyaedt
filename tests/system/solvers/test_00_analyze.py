@@ -202,8 +202,7 @@ class TestClass:
         hfss_app.add_3d_component_array_from_json(dict_in)
         exported_files = hfss_app.export_results()
         assert len(exported_files) == 0
-        setup_driven = hfss_app.create_setup(name="test", setup_type="HFSSDriven",
-                                             MaximumPasses=1)
+        setup_driven = hfss_app.create_setup(name="test", setup_type="HFSSDriven", MaximumPasses=1)
         exported_files = hfss_app.export_results()
         solve_freq = setup_driven.props["Frequency"]
         assert len(exported_files) == 0
@@ -235,8 +234,11 @@ class TestClass:
         assert os.path.exists(fld_file2)
         fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss4.fld")
         assert hfss_app.post.export_field_file(
-            quantity="Mag_E", output_file=fld_file2, assignment="Box1",
-            intrinsics={"frequency": solve_freq}, phase="30deg",
+            quantity="Mag_E",
+            output_file=fld_file2,
+            assignment="Box1",
+            intrinsics={"frequency": solve_freq},
+            phase="30deg",
         )
         assert os.path.exists(fld_file2)
         fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss5.fld")
