@@ -2595,6 +2595,7 @@ class Icepak(FieldAnalysisIcepak):
         >>> oEditor.Copy
         >>> oeditor.Paste
         """
+        pj_names = self.project_list
         if "groupName" in kwargs:
             warnings.warn(
                 "The ``groupName`` parameter was deprecated in 0.6.43. Use the ``group_name`` parameter instead.",
@@ -2903,9 +2904,9 @@ class Icepak(FieldAnalysisIcepak):
         meshtype : str, optional
             Mesh type. Options are ``"tethraedral"`` or ``"hexcore"``.
         min_size : float, optional
-            Minimum mesh size. Default is smallest edge of objects/20.
+            Minimum mesh size. Default is the smallest edge of objects/20.
         max_size : float, optional
-            Maximum mesh size. Default is smallest edge of objects/5.
+            Maximum mesh size. Default is the smallest edge of objects/5.
         inflation_layer_number : int, optional
             Inflation layer number. Default is ``3``.
         inflation_growth_rate : float, optional
