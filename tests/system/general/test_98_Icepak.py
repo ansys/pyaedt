@@ -2013,3 +2013,16 @@ class TestClass:
         fs.scale_settings.unit = "kel"
         assert fs.scale_settings.unit == "kel"
         app.close_project()
+
+    def test_83_get_object_material_properties(self):
+        self.aedtapp.modeler.create_box(
+            origin=[0, 0, 0],
+            sizes=[10, 10, 10],
+            name="myBox",
+            material="Al-Extruded",
+        )
+        obj_mat_prop = self.aedtapp.get_object_material_properties(
+            assignment=["myBox"], prop_names="thermal_conductivity"
+        )
+        assert obj_mat_prop["myBox"]["thermal_conductivity"] == "205"
+        
