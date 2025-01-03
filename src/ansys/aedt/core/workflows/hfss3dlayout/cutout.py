@@ -21,11 +21,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
+from pathlib import Path
 
 import ansys.aedt.core
 from ansys.aedt.core import Hfss3dLayout
-from ansys.aedt.core import generate_unique_name
+from ansys.aedt.core.generic.general_methods import generate_unique_name
 import ansys.aedt.core.workflows.hfss3dlayout
 from ansys.aedt.core.workflows.misc import get_aedt_version
 from ansys.aedt.core.workflows.misc import get_arguments
@@ -51,6 +51,13 @@ extension_description = "Layout Cutout"
 
 
 def frontend():  # pragma: no cover
+    import tkinter
+    from tkinter import ttk
+
+    import PIL.Image
+    import PIL.ImageTk
+    from ansys.aedt.core.workflows.misc import ExtensionTheme
+
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
         version=version,
@@ -75,20 +82,16 @@ def frontend():  # pragma: no cover
     objs_net = {}
     for net in h3d.oeditor.GetNets():
         objs_net[net] = h3d.modeler.objects_by_net(net)
-    import tkinter
-    from tkinter import ttk
-
-    import PIL.Image
-    import PIL.ImageTk
 
     master = tkinter.Tk()
 
-    master.geometry("700x450")
+    master.title(extension_description)
 
-    master.title("Advanced Cutout")
+    # Detect if user closes the UI
+    master.flag = False
 
     # Load the logo for the main window
-    icon_path = os.path.join(os.path.dirname(ansys.aedt.core.workflows.__file__), "images", "large", "logo.png")
+    icon_path = Path(ansys.aedt.core.workflows.__path__[0]) / "images" / "large" / "logo.png"
     im = PIL.Image.open(icon_path)
     photo = PIL.ImageTk.PhotoImage(im)
 
@@ -97,16 +100,22 @@ def frontend():  # pragma: no cover
 
     # Configure style for ttk buttons
     style = ttk.Style()
-    style.configure("Toolbutton.TButton", padding=6, font=("Helvetica", 10))
+    theme = ExtensionTheme()
 
-    var = tkinter.StringVar()
-    label = tkinter.Label(master, textvariable=var)
-    var.set("Cutout Type:")
-    label.grid(row=0, column=0, pady=10)
-    combo = ttk.Combobox(master, width=40)  # Set the width of the combobox
+    # Apply light theme initially
+    theme.apply_light_theme(style)
+    master.theme = "light"
+
+    # Set background color of the window (optional)
+    master.configure(bg=theme.light["widget_bg"])
+
+    label = ttk.Label(master, text="Cutout Type:", style="PyAEDT.TLabel")
+    label.grid(row=0, column=0, pady=10, padx=10)
+
+    combo = ttk.Combobox(master, width=40, style="PyAEDT.TCombobox")  # Set the width of the combobox
     combo["values"] = ("ConvexHull", "Bounding", "Conforming")
     combo.current(0)
-    combo.grid(row=0, column=1, pady=10)
+    combo.grid(row=0, column=1, pady=10, padx=10)
 
     combo.focus_set()
     master.signal_ui = [i for i in h3d.modeler.signal_nets.keys()]
@@ -139,40 +148,77 @@ def frontend():  # pragma: no cover
             var3.set("Empty selection. Select nets from layout and retry.")
 
     var2 = tkinter.StringVar()
-    label2 = tkinter.Label(master, textvariable=var2, relief=tkinter.RAISED)
+    label2 = ttk.Label(master, textvariable=var2, style="PyAEDT.TLabel")
     var2.set("Select")
-    label2.grid(row=1, column=2, pady=10)
-    b_sig = tkinter.Button(master, text="Select signal nets in layout and Apply", width=40, command=apply_signal)
-    b_sig.grid(row=1, column=1, pady=10)
+    label2.grid(row=1, column=2, pady=10, padx=10)
+
+    b_sig = ttk.Button(
+        master, text="Select signal nets in layout and Apply", width=40, command=apply_signal, style="PyAEDT.TButton"
+    )
+    b_sig.grid(row=1, column=1, pady=10, padx=10)
+
     var3 = tkinter.StringVar()
-    label3 = tkinter.Label(master, textvariable=var3, relief=tkinter.RAISED)
+    label3 = ttk.Label(master, textvariable=var3, style="PyAEDT.TLabel")
     var3.set("Select")
-    label3.grid(row=2, column=2, pady=10)
-    b_ref = tkinter.Button(master, text="Apply Reference Nets", width=40, command=apply_reference)
+    label3.grid(row=2, column=2, pady=10, padx=10)
+
+    b_ref = ttk.Button(master, text="Apply Reference Nets", width=40, command=apply_reference, style="PyAEDT.TButton")
     b_ref.grid(row=2, column=1, pady=10)
 
-    var_exp = tkinter.StringVar()
-    label_exp = tkinter.Label(master, textvariable=var_exp)
-    var_exp.set("Expansion factor(mm):")
-    label_exp.grid(row=3, column=0, pady=10)
+    label_exp = ttk.Label(master, text="Expansion factor (mm):", style="PyAEDT.TLabel")
+    label_exp.grid(row=3, column=0, pady=10, padx=10)
+
     expansion = tkinter.Text(master, width=20, height=1)
+    expansion.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
     expansion.insert(tkinter.END, "3")
-    expansion.grid(row=3, column=1, pady=10, padx=5)
-    var_disj = tkinter.StringVar()
-    label_disj = tkinter.Label(master, textvariable=var_disj)
-    var_disj.set("Fix disjoint nets:")
+    expansion.grid(row=3, column=1, pady=10, padx=10)
+
+    label_disj = ttk.Label(master, text="Fix disjoint nets:", style="PyAEDT.TLabel")
     label_disj.grid(row=4, column=0, pady=10)
+
     disjoint_check = tkinter.IntVar()
-    check2 = tkinter.Checkbutton(master, width=30, variable=disjoint_check)
-    check2.grid(row=4, column=1, pady=10, padx=5)
+    check2 = ttk.Checkbutton(master, variable=disjoint_check, style="PyAEDT.TCheckbutton")
+    check2.grid(row=4, column=1, pady=10)
+
+    def toggle_theme():
+        if master.theme == "light":
+            set_dark_theme()
+            master.theme = "dark"
+        else:
+            set_light_theme()
+            master.theme = "light"
+
+    def set_light_theme():
+        master.configure(bg=theme.light["widget_bg"])
+        expansion.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
+        theme.apply_light_theme(style)
+        change_theme_button.config(text="\u263D")  # Sun icon for light theme
+
+    def set_dark_theme():
+        master.configure(bg=theme.dark["widget_bg"])
+        expansion.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
+        theme.apply_dark_theme(style)
+        change_theme_button.config(text="\u2600")  # Moon icon for dark theme
+
+    # Create a frame for the toggle button to position it correctly
+    button_frame = ttk.Frame(master, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2)
+    button_frame.grid(row=6, column=2, pady=10, padx=10)
+
+    # Add the toggle theme button inside the frame
+    change_theme_button = ttk.Button(
+        button_frame, width=20, text="\u263D", command=toggle_theme, style="PyAEDT.TButton"
+    )
+
+    change_theme_button.grid(row=0, column=0, padx=0)
 
     def callback():
+        master.flag = True
         master.choice_ui = combo.get()
         master.disjoints_ui = True if disjoint_check.get() == 1 else False
         master.expansion_ui = expansion.get("1.0", tkinter.END).strip()
         master.destroy()
 
-    b = tkinter.Button(master, text="Create Cutout", width=40, command=callback)
+    b = ttk.Button(master, text="Create Cutout", width=40, command=callback, style="PyAEDT.TButton")
     b.grid(row=6, column=1, pady=10)
 
     tkinter.mainloop()
@@ -182,15 +228,16 @@ def frontend():  # pragma: no cover
     expansion_ui = getattr(master, "expansion_ui", extension_arguments["expansion_factor"])
     signal_ui = getattr(master, "signal_ui", extension_arguments["signals"])
     reference_ui = getattr(master, "reference_ui", extension_arguments["reference"])
-
-    output_dict = {
-        "choice": choice_ui,
-        "signals": signal_ui,
-        "reference": reference_ui,
-        "expansion_factor": expansion_ui,
-        "fix_disjoints": disjoints_ui,
-    }
+    output_dict = {}
     app.release_desktop(False, False)
+    if master.flag:
+        output_dict = {
+            "choice": choice_ui,
+            "signals": signal_ui,
+            "reference": reference_ui,
+            "expansion_factor": expansion_ui,
+            "fix_disjoints": disjoints_ui,
+        }
     return output_dict
 
 
@@ -210,17 +257,17 @@ def main(extension_args):
 
     active_project = app.active_project()
     active_design = app.active_design()
-    aedb_path = os.path.join(active_project.GetPath(), active_project.GetName() + ".aedb")
-    new_path = aedb_path[:-5] + generate_unique_name("_cutout", n=2) + ".aedb"
-    edb = Edb(aedb_path, active_design.GetName().split(";")[1], edbversion=version)
-    edb.save_edb_as(new_path)
+    aedb_path = Path(active_project.GetPath()) / f"{active_project.GetName()}.aedb"
+    new_path = aedb_path.with_stem(aedb_path.stem + generate_unique_name("_cutout", n=2))
+    edb = Edb(str(aedb_path), active_design.GetName().split(";")[1], edbversion=version)
+    edb.save_edb_as(str(new_path))
     edb.cutout(
         signal_list=signal,
         reference_list=reference,
         extent_type=choice,
         expansion_size=float(expansion) / 1000,
         use_round_corner=False,
-        output_aedb_path=new_path,
+        output_aedb_path=str(new_path),
         open_cutout_at_end=True,
         use_pyaedt_cutout=True,
         number_of_threads=4,
@@ -242,7 +289,10 @@ def main(extension_args):
     if disjoint:
         edb.nets.find_and_fix_disjoint_nets(reference)
     edb.close_edb()
-    h3d = Hfss3dLayout(new_path)
+
+    # Open layout in HFSS 3D Layout
+    Hfss3dLayout(str(new_path))
+
     if not extension_args["is_test"]:  # pragma: no cover
         app.logger.info("Project generated correctly.")
         app.release_desktop(False, False)
@@ -259,5 +309,6 @@ if __name__ == "__main__":  # pragma: no cover
             for output_name, output_value in output.items():
                 if output_name in extension_arguments:
                     args[output_name] = output_value
-
-    main(args)
+            main(args)
+    else:
+        main(args)

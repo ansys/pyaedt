@@ -83,7 +83,7 @@ default_config = {
 
 # Extension batch arguments
 extension_arguments = {"choke_config": {}}
-extension_description = "Choke Designer in HFSS"
+extension_description = "Choke Designer"
 
 
 def frontend():  # pragma: no cover
@@ -99,10 +99,7 @@ def frontend():  # pragma: no cover
 
     # Create UI
     master = tkinter.Tk()
-
-    master.geometry("900x800")
-
-    master.title("Choke Designer")
+    master.title(extension_description)
 
     # Detect if user close the UI
     master.flag = False
@@ -172,9 +169,7 @@ def frontend():  # pragma: no cover
 
     def create_parameter_inputs(parent, config, category):
         def update_config(cat, field, entry_widget):
-            """
-            Update config_dict when the user changes an input.
-            """
+            """Update config_dict when the user changes an input."""
             try:
                 # Save numeric values as floats, others as strings
                 new_value = (
@@ -269,10 +264,12 @@ def frontend():  # pragma: no cover
             master.theme = "light"
 
     def set_light_theme():
+        master.configure(bg=theme.light["widget_bg"])
         theme.apply_light_theme(style)
         change_theme_button.config(text="\u263D")
 
     def set_dark_theme():
+        master.configure(bg=theme.dark["widget_bg"])
         theme.apply_dark_theme(style)
         change_theme_button.config(text="\u2600")
 
@@ -409,7 +406,7 @@ def main(extension_args):
     ]
 
     # Add second winding ports if it exists
-    if second_winding_list:
+    if second_winding_list:  # pragma: no cover
         port_position_list.extend(
             [
                 # Second winding start position

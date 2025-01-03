@@ -36,7 +36,6 @@ class AnalysisTwinBuilder(Analysis):
 
     Parameters
     ----------
-
     Returns
     -------
 
@@ -48,7 +47,6 @@ class AnalysisTwinBuilder(Analysis):
 
         References
         ----------
-
         >>> oModule.GetAllSolutionSetups"""
         setups = list(self.oanalysis.GetAllSolutionSetups())
         return setups
@@ -59,7 +57,6 @@ class AnalysisTwinBuilder(Analysis):
 
         References
         ----------
-
         >>> oModule.GetAllSolutionSetups"""
         return list(self.oanalysis.GetAllSolutionSetups())
 

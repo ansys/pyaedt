@@ -45,7 +45,6 @@ class CircuitComponents(object):
 
     Examples
     --------
-
     >>> from ansys.aedt.core import Circuit
     >>> aedtapp = Circuit()
     >>> prim = aedtapp.modeler.schematic
@@ -136,7 +135,6 @@ class CircuitComponents(object):
 
         References
         ----------
-
         >>> oDefinitionManager = oProject.GetDefinitionManager()
         """
         return self._app.oproject.GetDefinitionManager()
@@ -155,11 +153,6 @@ class CircuitComponents(object):
     def version(self):
         """Version."""
         return self._app._aedt_version
-
-    @property
-    def design_types(self):
-        """Design types."""
-        return self._app._modeler
 
     @property
     def model_units(self):
@@ -289,7 +282,6 @@ class CircuitComponents(object):
 
         References
         ----------
-
         >>> oeditor.AddPinIPorts
         """
         comp_id = "CompInst@" + name + ";" + str(id_num) + ";395"
@@ -313,12 +305,11 @@ class CircuitComponents(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.Excitation`
+        :class:`ansys.aedt.core.modules.boundary.icepak_boundary.Excitation`
             Circuit Excitation Object.
 
         References
         ----------
-
         >>> oEditor.CreateIPort
         """
         if location is None:
@@ -358,12 +349,11 @@ class CircuitComponents(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Circuit Component Object.
 
         References
         ----------
-
         >>> oEditor.CreatePagePort
         """
         location = [] if location is None else location
@@ -392,7 +382,7 @@ class CircuitComponents(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -437,7 +427,6 @@ class CircuitComponents(object):
 
         References
         ----------
-
         >>> oModelManager.Add
         >>> oComponentManager.Add
         """
@@ -492,9 +481,7 @@ class CircuitComponents(object):
         image_subcircuit_path = ""
         bmp_file_name = ""
         if show_bitmap:
-            image_subcircuit_path = os.path.join(
-                self._modeler._app.desktop_install_dir, "syslib", "Bitmaps", "nport.bmp"
-            )
+            image_subcircuit_path = os.path.join(self._app.desktop_install_dir, "syslib", "Bitmaps", "nport.bmp")
             bmp_file_name = os.path.basename(image_subcircuit_path)
 
         if not port_names:
@@ -727,12 +714,11 @@ class CircuitComponents(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Circuit Component Object.
 
         References
         ----------
-
         >>> oModelManager.Add
         >>> oComponentManager.Add
         >>> oEditor.CreateComponent
@@ -793,12 +779,11 @@ class CircuitComponents(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Circuit Component Object.
 
         References
         ----------
-
         >>> oEditor.CreateComponent
 
         Examples
@@ -847,7 +832,6 @@ class CircuitComponents(object):
 
         References
         ----------
-
         >>> oComponentManager.GetData
         >>> oComponentManager.Edit
         """
@@ -884,7 +868,6 @@ class CircuitComponents(object):
 
         References
         ----------
-
         >>> oComponentManager.GetData
         >>> oComponentManager.Edit
         """
@@ -925,7 +908,6 @@ class CircuitComponents(object):
 
         References
         ----------
-
         >>> oSymbolManager.Add
         """
         numpins = len(pins)
@@ -1005,7 +987,6 @@ class CircuitComponents(object):
 
         References
         ----------
-
         >>> oComponentManager.GetData
         >>> oComponentManager.Edit
         """
@@ -1040,7 +1021,6 @@ class CircuitComponents(object):
 
         References
         ----------
-
         >>> oEditor.GetAllElements()
         """
         obj = self.oeditor.GetAllElements()
@@ -1131,7 +1111,6 @@ class CircuitComponents(object):
 
         References
         ----------
-
         >>> oEditor.GetComponentPins
         """
         if isinstance(assignment, CircuitComponent):
@@ -1162,7 +1141,6 @@ class CircuitComponents(object):
 
         References
         ----------
-
         >>> oEditor.GetComponentPinLocation
 
         """
@@ -1240,7 +1218,6 @@ class CircuitComponents(object):
 
         References
         ----------
-
         >>> oEditor.CreateWire
         """
         points = [str(tuple(self._convert_point_to_meter(i))) for i in points]
@@ -1298,12 +1275,11 @@ class ComponentInfo(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Circuit Component Object.
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location is None:

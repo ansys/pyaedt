@@ -29,7 +29,7 @@ from __future__ import absolute_import  # noreorder
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.modules.boundary import BoundaryObject
+from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 
 
@@ -209,11 +209,10 @@ class Mechanical(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
 
         References
         ----------
-
         >>> oModule.AssignEMLoss
         """
         if surface_objects is None:
@@ -237,7 +236,7 @@ class Mechanical(FieldAnalysis3D, object):
         if not assignment:
             allObjects = self.modeler.object_names
         else:
-            allObjects = assignment[:]
+            allObjects = surface_objects + assignment[:]
         surfaces = surface_objects
         if map_frequency:
             intr = [map_frequency]
@@ -319,7 +318,6 @@ class Mechanical(FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.AssignThermalCondition
         """
         if parameters is None:
@@ -402,7 +400,6 @@ class Mechanical(FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.AssignConvection
         """
         assert "Thermal" in self.solution_type, "This method works only in a Mechanical Thermal analysis."
@@ -451,7 +448,6 @@ class Mechanical(FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.AssignTemperature
         """
         assert "Thermal" in self.solution_type, "This method works only in a Mechanical Thermal analysis."
@@ -497,7 +493,6 @@ class Mechanical(FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.AssignFrictionlessSupport
         """
         if not (self.solution_type == "Structural" or "Modal" in self.solution_type):
@@ -542,7 +537,6 @@ class Mechanical(FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.AssignFixedSupport
         """
         if not (self.solution_type == "Structural" or "Modal" in self.solution_type):
@@ -573,7 +567,6 @@ class Mechanical(FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.GetSetups
         """
         setup_list = self.existing_analysis_setups
@@ -605,7 +598,6 @@ class Mechanical(FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.AssignHeatFlux
         """
         assert "Thermal" in self.solution_type, "This method works only in a Mechanical Thermal analysis."
@@ -653,7 +645,6 @@ class Mechanical(FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.AssignHeatGeneration
         """
         assert "Thermal" in self.solution_type, "This method works only in a Mechanical Thermal analysis."
@@ -692,7 +683,6 @@ class Mechanical(FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.AddTwoWayCoupling
 
         Examples
@@ -747,7 +737,6 @@ class Mechanical(FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.InsertSetup
 
         Examples

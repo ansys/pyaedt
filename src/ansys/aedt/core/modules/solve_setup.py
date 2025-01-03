@@ -43,6 +43,7 @@ from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.modules.solve_sweeps import SetupProps
 from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
@@ -51,7 +52,8 @@ from ansys.aedt.core.modules.solve_sweeps import SweepMatrix
 from ansys.aedt.core.modules.solve_sweeps import identify_setup
 
 
-class CommonSetup(PropsManager, object):
+class CommonSetup(PropsManager, BinaryTreeNode):
+
     def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup=True):
         self.auto_update = False
         self._app = None
@@ -65,10 +67,68 @@ class CommonSetup(PropsManager, object):
         else:
             self.setuptype = self.p_app.design_solutions._solution_options[solution_type]["default_setup"]
         self._name = name
-        self.props = {}
-        self.sweeps = []
-        self._init_props(is_new_setup)
+        self._legacy_props = {}
+        self._sweeps = []
+        self._is_new_setup = is_new_setup
+        # self._init_props(is_new_setup)
         self.auto_update = True
+        self._initialize_tree_node()
+
+    @property
+    def _child_object(self):
+        """Object-oriented properties.
+
+        Returns
+        -------
+        class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTreeNode`
+
+        """
+        child_object = None
+        design_childs = self._app.get_oo_name(self._app.odesign)
+
+        if "Analysis" in design_childs:
+            cc = self._app.get_oo_object(self._app.odesign, "Analysis")
+            cc_names = self._app.get_oo_name(cc)
+            if self._name in cc_names:
+                child_object = cc.GetChildObject(self._name)
+        return child_object
+
+    @pyaedt_function_handler()
+    def _initialize_tree_node(self):
+        if self._child_object:
+            BinaryTreeNode.__init__(self, self._name, self._child_object, False)
+            return True
+        return False
+
+    @property
+    def sweeps(self):
+        if self._sweeps:
+            return self._sweeps
+        try:
+            setups_data = self.p_app.design_properties["AnalysisSetup"]["SolveSetups"]
+            if self.name in setups_data:
+                setup_data = setups_data[self.name]
+                if "Sweeps" in setup_data and self.setuptype not in [
+                    0,
+                    7,
+                ]:  # 0 and 7 represent setup HFSSDrivenAuto
+                    if self.setuptype <= 4:
+                        app = setup_data["Sweeps"]
+                        app.pop("NextUniqueID", None)
+                        app.pop("MoveBackForward", None)
+                        app.pop("MoveBackwards", None)
+                        for el in app:
+                            if isinstance(app[el], dict):
+                                self._sweeps.append(SweepHFSS(self, el, props=app[el]))
+                    else:
+                        app = setup_data["Sweeps"]
+                        for el in app:
+                            if isinstance(app[el], dict):
+                                self._sweeps.append(SweepMatrix(self, el, props=app[el]))
+                    setup_data.pop("Sweeps", None)
+        except (TypeError, KeyError):
+            pass
+        return self._sweeps
 
     @property
     def default_intrinsics(self):
@@ -153,7 +213,6 @@ class CommonSetup(PropsManager, object):
 
         References
         ----------
-
         >>> oDesign.Analyze
         """
         self._app.analyze(
@@ -170,38 +229,32 @@ class CommonSetup(PropsManager, object):
             blocking=blocking,
         )
 
-    @pyaedt_function_handler()
-    def _init_props(self, is_new_setup=False):
-        if is_new_setup:
+    @property
+    def props(self):
+        if self._legacy_props:
+            return self._legacy_props
+        if self._is_new_setup:
             setup_template = SetupKeys.get_setup_templates()[self.setuptype]
-            self.props = SetupProps(self, setup_template)
+            setup_template["Name"] = self._name
+            self._legacy_props = SetupProps(self, setup_template)
+            self._is_new_setup = False
         else:
             try:
                 if "AnalysisSetup" in self.p_app.design_properties.keys():
                     setups_data = self.p_app.design_properties["AnalysisSetup"]["SolveSetups"]
                     if self.name in setups_data:
                         setup_data = setups_data[self.name]
-                        if "Sweeps" in setup_data and self.setuptype != 0:  # 0 represents setup HFSSDrivenAuto
-                            if self.setuptype <= 4:
-                                app = setup_data["Sweeps"]
-                                app.pop("NextUniqueID", None)
-                                app.pop("MoveBackForward", None)
-                                app.pop("MoveBackwards", None)
-                                for el in app:
-                                    if isinstance(app[el], dict):
-                                        self.sweeps.append(SweepHFSS(self, el, props=app[el]))
-                            else:
-                                app = setup_data["Sweeps"]
-                                for el in app:
-                                    if isinstance(app[el], dict):
-                                        self.sweeps.append(SweepMatrix(self, el, props=app[el]))
-                            setup_data.pop("Sweeps", None)
-                        self.props = SetupProps(self, setup_data)
+                        self._legacy_props = SetupProps(self, setup_data)
                 elif "SimSetups" in self.p_app.design_properties.keys():
                     setup_data = self.p_app.design_properties["SimSetups"]["SimSetup"]
-                    self.props = SetupProps(self, setup_data)
+                    self._legacy_props = SetupProps(self, setup_data)
             except Exception:
-                self.props = SetupProps(self, {})
+                self._legacy_props = SetupProps(self, {})
+        return self._legacy_props
+
+    @props.setter
+    def props(self, value):
+        self._legacy_props = SetupProps(self, value)
 
     @property
     def is_solved(self):
@@ -282,6 +335,7 @@ class CommonSetup(PropsManager, object):
         sweep=None,
     ):
         """Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
+
         Data to be retrieved from Electronics Desktop are any simulation results available in that
         specific simulation context.
         Most of the argument have some defaults which works for most of the ``Standard`` report quantities.
@@ -332,7 +386,6 @@ class CommonSetup(PropsManager, object):
 
         References
         ----------
-
         >>> oModule.GetSolutionDataPerVariation
 
         Examples
@@ -445,7 +498,6 @@ class CommonSetup(PropsManager, object):
 
         References
         ----------
-
         >>> oModule.CreateReport
 
         Examples
@@ -506,19 +558,18 @@ class Setup(CommonSetup):
 
         Returns
         -------
-        dict
-            Dictionary of arguments.
+        bool
+            Result of operation.
 
         References
         ----------
-
         >>> oModule.InsertSetup
         """
         soltype = SetupKeys.SetupNames[self.setuptype]
-        arg = ["NAME:" + self.name]
+        arg = ["NAME:" + self._name]
         _dict2arg(self.props, arg)
         self.omodule.InsertSetup(soltype, arg)
-        return arg
+        return self._initialize_tree_node()
 
     @pyaedt_function_handler(update_dictionary="properties")
     def update(self, properties=None):
@@ -536,7 +587,6 @@ class Setup(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         legacy_update = self.auto_update
@@ -729,7 +779,6 @@ class Setup(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         arg = ["NAME:" + self.name]
@@ -762,7 +811,6 @@ class Setup(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         if not name:
@@ -787,7 +835,6 @@ class Setup(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         if not name:
@@ -843,7 +890,6 @@ class Setup(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditSetup
 
         Examples
@@ -1018,7 +1064,6 @@ class Setup(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditSetup
 
         Examples
@@ -1076,14 +1121,17 @@ class SetupCircuit(CommonSetup):
     def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup=True):
         CommonSetup.__init__(self, app, solution_type, name, is_new_setup)
 
-    @pyaedt_function_handler(isnewsetup="is_new_setup")
-    def _init_props(self, is_new_setup=False):
-        props = {}
-        if is_new_setup:
+    @property
+    def props(self):
+        if self._legacy_props:
+            return self._legacy_props
+        if self._is_new_setup:
             setup_template = SetupKeys.get_setup_templates()[self.setuptype]
-            self.props = SetupProps(self, setup_template)
+            setup_template["Name"] = self.name
+            self._legacy_props = SetupProps(self, setup_template)
+            self._is_new_setup = False
         else:
-            self.props = SetupProps(self, {})
+            self._legacy_props = SetupProps(self, {})
             try:
                 setups_data = self.p_app.design_properties["SimSetups"]["SimSetup"]
                 if not isinstance(setups_data, list):
@@ -1092,10 +1140,10 @@ class SetupCircuit(CommonSetup):
                     if self.name == setup["Name"]:
                         setup_data = setup
                         setup_data.pop("Sweeps", None)
-                        self.props = SetupProps(self, setup_data)
+                        self._legacy_props = SetupProps(self, setup_data)
             except Exception:
-                self.props = SetupProps(self, {})
-        self.props["Name"] = self.name
+                self._legacy_props = SetupProps(self, {})
+        return self._legacy_props
 
     @property
     def _odesign(self):
@@ -1108,12 +1156,11 @@ class SetupCircuit(CommonSetup):
 
         Returns
         -------
-        dict
-            Dictionary of the arguments.
+        bool
+            Result of operation.
 
         References
         ----------
-
         >>> oModule.AddLinearNetworkAnalysis
         >>> oModule.AddDCAnalysis
         >>> oModule.AddTransient
@@ -1125,7 +1172,7 @@ class SetupCircuit(CommonSetup):
         arg = ["NAME:SimSetup"]
         _dict2arg(self.props, arg)
         self._setup(soltype, arg)
-        return arg
+        return self._initialize_tree_node()
 
     @pyaedt_function_handler()
     def _setup(self, soltype, arg, newsetup=True):
@@ -1178,7 +1225,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditLinearNetworkAnalysis
         >>> oModule.EditDCAnalysis
         >>> oModule.EditTransient
@@ -1223,7 +1269,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditLinearNetworkAnalysis
         >>> oModule.EditDCAnalysis
         >>> oModule.EditTransient
@@ -1281,7 +1326,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditLinearNetworkAnalysis
         >>> oModule.EditDCAnalysis
         >>> oModule.EditTransient
@@ -1338,7 +1382,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditLinearNetworkAnalysis
         >>> oModule.EditDCAnalysis
         >>> oModule.EditTransient
@@ -1526,7 +1569,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         arg = ["Name:SimSetup"]
@@ -1554,7 +1596,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         if not name:
@@ -1578,7 +1619,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         if not name:
@@ -1654,7 +1694,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.GetSolutionDataPerVariation
         """
         return self._app.post.get_solution_data(
@@ -1728,7 +1767,6 @@ class SetupCircuit(CommonSetup):
 
         References
         ----------
-
         >>> oModule.CreateReport
         """
         return self._app.post.create_report(
@@ -1765,26 +1803,47 @@ class Setup3DLayout(CommonSetup):
     def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup=True):
         CommonSetup.__init__(self, app, solution_type, name, is_new_setup)
 
-    @pyaedt_function_handler(isnewsetup="is_new_setup")
-    def _init_props(self, is_new_setup=False):
-        if is_new_setup:
+    @property
+    def sweeps(self):
+        if self._sweeps:
+            return self._sweeps
+        try:
+            setups_data = self._app.design_properties["Setup"]["Data"]
+            if self.name in setups_data:
+                setup_data = setups_data[self.name]
+                if "Data" in setup_data:  # 0 and 7 represent setup HFSSDrivenAuto
+                    app = setup_data["Data"]
+                    for el in app:
+                        if isinstance(app[el], dict):
+                            self._sweeps.append(SweepHFSS3DLayout(self, el, props=app[el]))
+        except (KeyError, TypeError):
+            pass
+        return self._sweeps
+
+    @property
+    def props(self):
+        if self._legacy_props:
+            return self._legacy_props
+        if self._is_new_setup:
             setup_template = SetupKeys.get_setup_templates()[self.setuptype]
-            self.props = SetupProps(self, setup_template)
+            setup_template["Name"] = self.name
+            self._legacy_props = SetupProps(self, setup_template)
+            self._is_new_setup = False
+
         else:
             try:
                 setups_data = self._app.design_properties["Setup"]["Data"]
                 if self.name in setups_data:
                     setup_data = setups_data[self.name]
-                    if "Data" in setup_data:  # 0 and 7 represent setup HFSSDrivenAuto
-                        app = setup_data["Data"]
-                        for el in app:
-                            if isinstance(app[el], dict):
-                                self.sweeps.append(SweepHFSS3DLayout(self, el, props=app[el]))
-
-                    self.props = SetupProps(self, setup_data)
+                    self._legacy_props = SetupProps(self, setup_data)
             except Exception:
-                self.props = SetupProps(self, {})
+                self._legacy_props = SetupProps(self, {})
                 settings.logger.error("Unable to set props.")
+        return self._legacy_props
+
+    @props.setter
+    def props(self, value):
+        self._legacy_props = SetupProps(self, value)
 
     @property
     def is_solved(self):
@@ -1795,22 +1854,28 @@ class Setup3DLayout(CommonSetup):
         bool
             `True` if solutions are available.
         """
-        if self.props.get("SolveSetupType", "HFSS") == "HFSS":
+        if self.properties:
+            props = self.properties
+            key = "Solver"
+        else:
+            props = self.props
+            key = "SolveSetupType"
+        if props.get(key, "HFSS") == "HFSS":
             combined_name = f"{self.name} : Last Adaptive"
             expressions = [i for i in self.p_app.post.available_report_quantities(solution=combined_name)]
             sol = self._app.post.reports_by_category.standard(expressions=expressions[0], setup=combined_name)
-        elif self.props.get("SolveSetupType", "HFSS") == "SIwave":
+        elif props.get(key, "HFSS") == "SIwave":
             combined_name = f"{self.name} : {self.sweeps[0].name}"
             expressions = [i for i in self.p_app.post.available_report_quantities(solution=combined_name)]
             sol = self._app.post.reports_by_category.standard(expressions=expressions[0], setup=combined_name)
-        elif self.props.get("SolveSetupType", "HFSS") == "SIwaveDCIR":
+        elif props.get(key, "HFSS") == "SIwaveDCIR":
             expressions = self.p_app.post.available_report_quantities(solution=self.name, is_siwave_dc=True)
             sol = self._app.post.reports_by_category.standard(expressions=expressions[0], setup=self.name)
         else:
             expressions = [i for i in self.p_app.post.available_report_quantities(solution=self.name)]
 
             sol = self._app.post.reports_by_category.standard(expressions=expressions[0], setup=self.name)
-        if identify_setup(self.props):
+        if identify_setup(props):
             sol.domain = "Time"
         return True if sol.get_solution_data() else False
 
@@ -1823,9 +1888,13 @@ class Setup3DLayout(CommonSetup):
         type
             Setup type.
         """
-        if "SolveSetupType" in self.props:
+        try:
+            return self.properties["Solver"]
+        except Exception:
+            pass
+        try:
             return self.props["SolveSetupType"]
-        else:
+        except Exception:
             return None
 
     @pyaedt_function_handler()
@@ -1839,13 +1908,12 @@ class Setup3DLayout(CommonSetup):
 
         References
         ----------
-
         >>> oModule.Add
         """
         arg = ["NAME:" + self.name]
         _dict2arg(self.props, arg)
         self.omodule.Add(arg)
-        return True
+        return self._initialize_tree_node()
 
     @pyaedt_function_handler(update_dictionary="properties")
     def update(self, properties=None):
@@ -1863,7 +1931,6 @@ class Setup3DLayout(CommonSetup):
 
         References
         ----------
-
         >>> oModule.Edit
         """
         if properties:
@@ -1890,7 +1957,6 @@ class Setup3DLayout(CommonSetup):
 
         References
         ----------
-
         >>> oModule.Edit
         """
         self.props["Properties"]["Enable"] = "true"
@@ -1913,7 +1979,6 @@ class Setup3DLayout(CommonSetup):
 
         References
         ----------
-
         >>> oModule.Edit
         """
         self.props["Properties"]["Enable"] = "false"
@@ -2246,7 +2311,6 @@ class Setup3DLayout(CommonSetup):
 
         References
         ----------
-
         >>> oModule.AddSweep
         """
         if not name:
@@ -2458,7 +2522,6 @@ class SetupHFSS(Setup, object):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         if not isinstance(derivative_list, list):
@@ -2576,7 +2639,6 @@ class SetupHFSS(Setup, object):
 
         References
         ----------
-
         >>> oModule.InsertFrequencySweep
 
         Examples
@@ -2670,7 +2732,6 @@ class SetupHFSS(Setup, object):
 
         References
         ----------
-
         >>> oModule.InsertFrequencySweep
 
         Examples
@@ -2752,7 +2813,6 @@ class SetupHFSS(Setup, object):
 
         References
         ----------
-
         >>> oModule.InsertFrequencySweep
 
         Examples
@@ -2830,7 +2890,6 @@ class SetupHFSS(Setup, object):
 
         References
         ----------
-
         >>> oModule.InsertFrequencySweep
         """
         if not name:
@@ -2892,7 +2951,6 @@ class SetupHFSS(Setup, object):
 
         References
         ----------
-
         >>> oModules.GetSweeps
 
         Examples
@@ -2920,7 +2978,6 @@ class SetupHFSS(Setup, object):
 
         References
         ----------
-
         >>> oModule.DeleteSweep
 
         Examples
@@ -2936,7 +2993,7 @@ class SetupHFSS(Setup, object):
         >>> setup1.delete_sweep("Sweep1")
         """
         if name in self.get_sweep_names():
-            self.sweeps = [sweep for sweep in self.sweeps if sweep.name != name]
+            self._sweeps = [sweep for sweep in self._sweeps if sweep.name != name]
             self.omodule.DeleteSweep(self.name, name)
             return True
         return False
@@ -3199,7 +3256,6 @@ class SetupHFSSAuto(Setup, object):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         if not isinstance(derivative_list, list):
@@ -3610,6 +3666,7 @@ class SetupMaxwell(Setup, object):
     @pyaedt_function_handler()
     def enable_control_program(self, control_program_path, control_program_args=" ", call_after_last_step=False):
         """Enable control program option is solution setup.
+
         Provide externally created executable files, or Python (*.py) scripts that are called after each time step,
         and allow you to control the source input, circuit elements, mechanical quantities, time step,
         and stopping criteria, based on the updated solutions.
@@ -3821,7 +3878,6 @@ class SetupQ3D(Setup, object):
 
         References
         ----------
-
         >>> oModule.InsertFrequencySweep
 
         Examples
@@ -3979,7 +4035,6 @@ class SetupQ3D(Setup, object):
 
         References
         ----------
-
         >>> oModule.InsertFrequencySweep
         """
         if not name:
@@ -4119,7 +4174,6 @@ class SetupQ3D(Setup, object):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         legacy_update = self.auto_update

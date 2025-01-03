@@ -63,16 +63,20 @@ class RMXprtModule(object):
     @pyaedt_function_handler()
     def __setitem__(self, parameter_name, value):
         def _apply_val(dict_in, name, value):
-            if name in dict_in.props:
+            if name in dict_in.properties:
                 if (
-                    isinstance(dict_in.props[name], list)
-                    and ":=" in dict_in.props[name][0]
+                    isinstance(dict_in.properties[name], list)
+                    and isinstance(dict_in.properties[name][0], str)
+                    and ":=" in dict_in.properties[name][0]
                     and not isinstance(value, list)
                 ):
-                    prps = dict_in.props[name][::]
+                    prps = dict_in.properties[name][::]
                     prps[1] = value
                     value = prps
-                dict_in.props[name] = value
+                try:
+                    dict_in.properties[name] = value
+                except KeyError:
+                    self._app.logger.error(f"{name} is read only.")
                 return True
             else:
                 for _, child in dict_in.children.items():
@@ -88,8 +92,8 @@ class RMXprtModule(object):
     @pyaedt_function_handler()
     def __getitem__(self, parameter_name):
         def _get_val(dict_in, name):
-            if name in dict_in.props:
-                return dict_in.props[name]
+            if name in dict_in.properties:
+                return dict_in.properties[name]
             else:
                 for _, child in dict_in.children.items():
                     return _get_val(child, name)
@@ -303,7 +307,6 @@ class Rmxprt(FieldAnalysisRMxprt):
 
         References
         ----------
-
         >>> oModule.InsertSetup
 
         Examples
@@ -346,10 +349,10 @@ class Rmxprt(FieldAnalysisRMxprt):
         """
 
         def jsonalize(dict_in, dict_out):
-            dict_out[dict_in.node] = {}
-            for k, v in dict_in.props.items():
+            dict_out[dict_in._node] = {}
+            for k, v in dict_in.properties.items():
                 if not k.endswith("/Choices"):
-                    dict_out[dict_in.node][k] = v
+                    dict_out[dict_in._node][k] = v
             for _, c in dict_in.children.items():
                 jsonalize(c, dict_out)
 

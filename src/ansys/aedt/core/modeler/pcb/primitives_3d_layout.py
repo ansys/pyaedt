@@ -123,7 +123,6 @@ class Primitives3DLayout(object):
 
         References
         ----------
-
         >>> oPadstackManger = oDefinitionManager.GetManager("Padstack")
         """
         return self._app.opadstackmanager
@@ -845,7 +844,6 @@ class Primitives3DLayout(object):
 
         References
         ----------
-
         >>> oEditor.SetNetVisible
         """
         nets_dictionary = {}
@@ -934,7 +932,6 @@ class Primitives3DLayout(object):
 
         References
         ----------
-
         >>> oEditor.CreateVia
         """
         layers = self.modeler.layers.all_signal_layers
@@ -1013,7 +1010,6 @@ class Primitives3DLayout(object):
 
         References
         ----------
-
         >>> oEditor.CreateCircle
         """
         if not name:
@@ -1070,7 +1066,6 @@ class Primitives3DLayout(object):
 
         References
         ----------
-
         >>> oEditor.CreateRectangle
         """
         if not name:
@@ -1128,7 +1123,6 @@ class Primitives3DLayout(object):
 
         References
         ----------
-
         >>> oEditor.CreatePolygon
         """
         if not name:
@@ -1183,7 +1177,6 @@ class Primitives3DLayout(object):
 
         References
         ----------
-
         >>> oEditor.CreatePolygon
         """
         if not name:
@@ -1255,7 +1248,6 @@ class Primitives3DLayout(object):
 
         References
         ----------
-
         >>> oEditor.CreateLine
         """
         if "netname" in kwargs:

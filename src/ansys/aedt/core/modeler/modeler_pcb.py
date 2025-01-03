@@ -92,7 +92,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         References
         ----------
-
         >>> oEditor = oDesign.SetActiveEditor("Layout")"""
         return self._app.oeditor
 
@@ -153,7 +152,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         References
         ----------
-
         >>> oEditor.ZoomToFit()
         """
         try:
@@ -168,7 +166,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         References
         ----------
-
         >>> oEditor.GetActiveUnits
         >>> oEditor.SetActiveUnits
         """
@@ -212,7 +209,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         References
         ----------
-
         >>> oEditor.GetBBox
         """
         bb = self.oeditor.GetBBox(assignment)
@@ -274,7 +270,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
         """
         if isinstance(value, list) and len(value) == 3:
@@ -395,7 +390,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
         """
         return self.change_property(name, "Location", location)
@@ -419,7 +413,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         References
         ----------
-
         >>> oEditor.Heal
 
 
@@ -474,7 +467,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         References
         ----------
-
         >>> oEditor.Expand
 
 
@@ -529,7 +521,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         References
         ----------
-
         >>> oImportExport.ImportExtracta
         """
         if not output_dir:
@@ -583,7 +574,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         References
         ----------
-
         >>> oImportExport.ImportIPC
         """
         if not output_dir:
@@ -616,7 +606,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         References
         ----------
-
         >>> oEditor.Subtract
         """
         blank = self.convert_to_selections(blank)
@@ -680,7 +669,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         References
         ----------
-
         >>> oEditor.Unite
         """
 
@@ -713,7 +701,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         References
         ----------
-
         >>> oEditor.Intersect
         """
         vArg1 = ["NAME:primitives"]
@@ -749,7 +736,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         References
         ----------
-
         >>> oEditor.Duplicate
         """
         assignment = self.convert_to_selections(assignment, True)
@@ -776,7 +762,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         References
         ----------
-
         >>> oEditor.DuplicateAcrossLyrs
         """
         assignment = self.convert_to_selections(assignment, True)
@@ -819,7 +804,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         References
         ----------
-
         >>> oDesign.SetTemperatureSettings
         """
         self.logger.info("Set the temperature dependence for the design.")

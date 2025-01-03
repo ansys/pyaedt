@@ -43,8 +43,8 @@ from ansys.aedt.core.generic.general_methods import write_configuration_file
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
-from ansys.aedt.core.modules.boundary import BoundaryObject
-from ansys.aedt.core.modules.boundary import MaxwellParameters
+from ansys.aedt.core.modules.boundary.common import BoundaryObject
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 
 
@@ -58,7 +58,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.GetSymmetryMultiplier()
         """
         return int(self.omodelsetup.GetSymmetryMultiplier())
@@ -69,7 +68,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.GetExcitationsOfType("Winding Group")"""
         windings = self.oboundary.GetExcitationsOfType("Winding Group")
         return list(windings)
@@ -97,7 +95,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oDesign.SetDesignSettings
         """
         return self.change_design_settings({"Multiplier": value})
@@ -122,7 +119,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oDesign.SetDesignSettings
         """
         return self.change_design_settings(
@@ -237,7 +233,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.SetCoreLoss
 
         Examples
@@ -293,12 +288,11 @@ class Maxwell(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         References
         ----------
-
         >>> oModule.AssignMatrix
 
         Examples
@@ -552,7 +546,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.SetEddyEffect
         """
         solid_objects_names = self.get_all_conductors_names()
@@ -650,7 +643,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.SetupYConnection
 
         Examples
@@ -703,12 +695,11 @@ class Maxwell(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         References
         ----------
-
         >>> oModule.AssignCurrent
 
         Examples
@@ -829,12 +820,11 @@ class Maxwell(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject` or ``False``
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject` or ``False``
             Boundary object or bool if not successful.
 
         References
         ----------
-
         >>> oModule.AssignBand
         """
         assert self.solution_type == SOLUTIONS.Maxwell3d.Transient, "Motion applies only to the Transient setup."
@@ -927,12 +917,11 @@ class Maxwell(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         References
         ----------
-
         >>> oModule.AssignBand
         """
         assert self.solution_type == SOLUTIONS.Maxwell3d.Transient, "Motion applies only to the Transient setup."
@@ -979,13 +968,12 @@ class Maxwell(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
             ``False`` when failed.
 
         References
         ----------
-
         >>> oModule.AssignVoltage
         """
         if isinstance(amplitude, (int, float)):
@@ -1036,13 +1024,12 @@ class Maxwell(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
             ``False`` when failed.
 
         References
         ----------
-
         >>> oModule.AssignVoltageDrop
         """
         if isinstance(amplitude, (int, float)):
@@ -1181,13 +1168,12 @@ class Maxwell(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Bounding object for the winding, otherwise only the bounding object.
             ``False`` when failed.
 
         References
         ----------
-
         >>> oModule.AssignWindingGroup
         """
 
@@ -1242,7 +1228,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.AddWindingTerminals
         >>> oModule.AddWindingCoils
         """
@@ -1269,13 +1254,12 @@ class Maxwell(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Bounding object for the winding, otherwise only the bounding object.
             ``False`` when failed.
 
         References
         ----------
-
         >>> oModule.AssignCoil
         """
         if polarity.lower() == "positive":
@@ -1347,7 +1331,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.AssignForce
 
         Examples
@@ -1437,7 +1420,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.AssignTorque
         """
         if self.solution_type not in ["ACConduction", "DCConduction"]:
@@ -1496,7 +1478,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
         """
         self.modeler[name].solve_inside = activate
@@ -1515,7 +1496,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.ResetSetupToTimeZero
         """
         if self.solution_type != "Transient":
@@ -1543,7 +1523,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
         """
         self.odesign.ChangeProperty(
@@ -1584,7 +1563,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.AssignSymmetry
         """
         try:
@@ -1667,7 +1645,7 @@ class Maxwell(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if self.solution_type in ["EddyCurrent", "Magnetostatic"]:
+        if self.solution_type in ["EddyCurrent", "Magnetostatic", "Transient"]:
             if current_density_name is None:
                 current_density_name = generate_unique_name("CurrentDensity")
             if re.compile(r"(\d+)\s*(\w+)").match(phase).groups()[1] not in ["deg", "degmin", "degsec", "rad"]:
@@ -1722,7 +1700,6 @@ class Maxwell(object):
                         props[current_density_group_names[0]] = dict(
                             {
                                 "Objects": objects_list,
-                                "Phase": phase,
                                 "Value": current_density_2d,
                                 "CoordinateSystem": "",
                             }
@@ -1732,7 +1709,6 @@ class Maxwell(object):
                         props = dict(
                             {
                                 "Objects": objects_list,
-                                "Phase": phase,
                                 "Value": current_density_2d,
                                 "CoordinateSystem": "",
                             }
@@ -1767,12 +1743,11 @@ class Maxwell(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Radiation objects. If the method fails to execute it returns ``False``.
 
         References
         ----------
-
         >>> oModule.Radiation
 
         Examples
@@ -2304,9 +2279,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         aedt_process_id=None,
         remove_lock=False,
     ):
-        """
-        Initialize the ``Maxwell`` class.
-        """
+        """Initialize the ``Maxwell`` class."""
         self.is3d = True
         FieldAnalysis3D.__init__(
             self,
@@ -2346,12 +2319,11 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object if successful, ``False`` otherwise.
 
         References
         ----------
-
         >>> oModule.AssignInsulating
 
         Examples
@@ -2425,12 +2397,11 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object if successful, ``False`` otherwise.
 
         References
         ----------
-
         >>> oModule.AssignImpedance
 
         Examples
@@ -2542,7 +2513,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         """
@@ -2618,8 +2589,8 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`,
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`,
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Master and slave objects. If the method fails to execute it returns ``False``.
 
         References
@@ -2701,7 +2672,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
     @pyaedt_function_handler(objects_list="assignment")
     def assign_flux_tangential(self, assignment, flux_name=None):
-        # type : (list, str = None) -> from ansys.aedt.core.modules.boundary.BoundaryObject
+        # type : (list, str = None) -> from ansys.aedt.core.modules.boundary.common.BoundaryObject
         """Assign a flux tangential boundary for a transient A-Phi solver.
 
         Parameters
@@ -2714,7 +2685,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object if successful, ``False`` otherwise.
 
         References
@@ -2754,6 +2725,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     ):
         # type: (dict, str, str, str, bool) -> bool
         """Assign the layout force to a component in a Transient A-Phi solver.
+
         To access layout component features the Beta option has to be enabled first.
 
         Parameters
@@ -2870,7 +2842,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Newly created object when successful, ``False`` when failed.
 
         References
@@ -2928,7 +2900,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Newly created object. ``False`` if it fails.
 
         References
@@ -3023,7 +2995,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Newly created object. ``False`` if it fails.
 
         References
@@ -3053,9 +3025,14 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         if not name:
             boundary = generate_unique_name("ResistiveSheet")
 
-        props = {
-            "Faces": assignment,
-        }
+        listobj = self.modeler.convert_to_selections(assignment, True)
+
+        props = {"Objects": [], "Faces": []}
+        for sel in listobj:
+            if isinstance(sel, str):
+                props["Objects"].append(sel)
+            elif isinstance(sel, int):
+                props["Faces"].append(sel)
 
         if self.solution_type in ["EddyCurrent", "Transient"]:
             props["Resistance"] = resistance
@@ -3169,7 +3146,6 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oDesign.GetGeometryMode"""
         return self.odesign.GetGeometryMode()
 
@@ -3323,12 +3299,11 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object. If the method fails to execute it returns ``False``.
 
         References
         ----------
-
         >>> oModule.AssignBalloon
 
 
@@ -3373,12 +3348,11 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Vector Potential Object. ``False`` if it fails.
 
         References
         ----------
-
         >>> oModule.AssignVectorPotential
 
 
@@ -3431,8 +3405,8 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`,
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`,
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Master and slave objects. If the method fails to execute it returns ``False``.
 
         References
@@ -3489,12 +3463,11 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Newly created object. ``False`` if it fails.
 
         References
         ----------
-
         >>> oModule.AssignEndConnection
         """
         if self.solution_type not in ["EddyCurrent", "Transient"]:

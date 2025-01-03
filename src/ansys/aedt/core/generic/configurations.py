@@ -43,10 +43,10 @@ from ansys.aedt.core.generic.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
-from ansys.aedt.core.modules.boundary import BoundaryObject
-from ansys.aedt.core.modules.boundary import BoundaryProps
-from ansys.aedt.core.modules.boundary import NativeComponentObject
-from ansys.aedt.core.modules.boundary import NativeComponentPCB
+from ansys.aedt.core.modules.boundary.common import BoundaryObject
+from ansys.aedt.core.modules.boundary.common import BoundaryProps
+from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
+from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
 from ansys.aedt.core.modules.design_xploration import SetupOpti
 from ansys.aedt.core.modules.design_xploration import SetupParam
 from ansys.aedt.core.modules.material_lib import Material
@@ -1461,8 +1461,8 @@ class Configurations(object):
     @pyaedt_function_handler()
     def export_config(self, config_file=None, overwrite=False):
         """Export current design properties to a JSON or TOML file.
-        The sections to be exported are defined with ``configuration.options`` class.
 
+        The sections to be exported are defined with ``configuration.options`` class.
 
         Parameters
         ----------

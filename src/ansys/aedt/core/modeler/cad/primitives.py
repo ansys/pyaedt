@@ -22,9 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-This module contains these Primitives classes: `Polyline` and `Primitives`.
-"""
+"""This module contains these Primitives classes: `Polyline` and `Primitives`."""
 
 from __future__ import absolute_import  # noreorder
 
@@ -90,7 +88,7 @@ class Objects(dict):
             if self.__obj_type == "o":
                 self.__parent.logger.info("Parsing design objects. This operation can take time")
                 self.__parent.logger.reset_timer()
-                self.__parent._refresh_all_ids_from_aedt_file()
+                self.__parent._refresh_all_ids_wrapper()
                 self.__parent.add_new_solids()
                 self.__parent.cleanup_solids()
                 self.__parent.logger.info_timer("3D Modeler objects parsed.")
@@ -213,7 +211,7 @@ class GeometryModeler(Modeler):
     """
 
     @pyaedt_function_handler()
-    def __getitem__(self, partId):
+    def __getitem__(self, partId) -> Object3d:
         """Get the object ``Object3D`` for a given object ID or object name.
 
         Parameters
@@ -510,7 +508,9 @@ class GeometryModeler(Modeler):
         References
         ----------
         >>> oDesign.GetGeometryMode"""
-        return self._odesign.GetGeometryMode()
+        if "GetGeometryMode" in dir(self._odesign):
+            return self._odesign.GetGeometryMode()
+        return
 
     @property
     def solid_bodies(self):
@@ -544,7 +544,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+        list[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
             3D object.
         """
         # self._refresh_solids()
@@ -556,7 +556,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+        list[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
             3D object.
         """
         self._refresh_sheets()
@@ -568,7 +568,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+        list[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
             3D object.
         """
         self._refresh_lines()
@@ -580,7 +580,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+        list[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
             3D object.
         """
         self._refresh_points()
@@ -592,7 +592,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+        list[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
             3D object.
         """
         self._refresh_unclassified()
@@ -604,7 +604,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+        list[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
             3D object.
         """
         self._refresh_object_types()
@@ -682,7 +682,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Get3DComponentDefinitionNames
         >>> oEditor.Get3DComponentInstanceNames
         """
@@ -820,7 +819,7 @@ class GeometryModeler(Modeler):
         self.user_defined_components = Objects(self, "u")
         self._refresh_object_types()
         if not settings.objects_lazy_load:
-            self._refresh_all_ids_from_aedt_file()
+            self._refresh_all_ids_wrapper()
             self.refresh_all_ids()
 
     @pyaedt_function_handler()
@@ -852,7 +851,45 @@ class GeometryModeler(Modeler):
         return point
 
     @pyaedt_function_handler()
+    def _refresh_all_ids_wrapper(self):
+        if settings.aedt_version >= "2025.1":
+            return self._refresh_all_ids_from_data_model()
+        else:
+            return self._refresh_all_ids_from_aedt_file()
+
+    @pyaedt_function_handler()
+    def _refresh_all_ids_from_data_model(self):
+        self._app.logger.info("Refreshing objects from Data Model")
+        from ansys.aedt.core.application import _get_data_model
+
+        dm = _get_data_model(self.oeditor, 2)
+
+        for attribs in dm.get("children", []):
+            if attribs["type"] == "Part":
+                pid = 0
+                is_polyline = False
+                try:
+                    if attribs["children"][0]["Command"] == "CreatePolyline":
+                        is_polyline = True
+                except Exception:
+                    is_polyline = False
+
+                o = self._create_object(name=attribs["Name"], pid=pid, use_cached=True, is_polyline=is_polyline)
+                o._part_coordinate_system = attribs["Orientation"]
+                o._model = attribs["Model"]
+                o._wireframe = attribs["Display Wireframe"]
+                o._m_groupName = attribs["Model"]
+                o._color = (attribs["Color/Red"], attribs["Color/Green"], attribs["Color/Blue"])
+                o._material_name = attribs.get("Material", None)
+                o._surface_material = attribs.get("Surface Material", None)
+                o._solve_inside = attribs.get("Solve Inside", False)
+                o._is_updated = True
+                # pid+=1
+        return len(self.objects)
+
+    @pyaedt_function_handler()
     def _refresh_all_ids_from_aedt_file(self):
+        self._app.logger.info("Refreshing objects from AEDT file")
 
         dp = copy.deepcopy(self._app.design_properties)
         if not dp or "ModelSetup" not in dp:
@@ -964,7 +1001,7 @@ class GeometryModeler(Modeler):
         new_object_id_dict = {}
 
         all_objects = self.object_names
-        all_unclassified = self.unclassified_names
+        all_unclassified = self._unclassified
         all_objs = all_objects + all_unclassified
         if sorted(all_objs) != sorted(list(self._object_names_to_ids.keys())):
             for old_id, obj in self.objects.items():
@@ -1018,14 +1055,12 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler()
     def add_new_objects(self):
-        """Add objects that have been created in the modeler by
-        previous operations.
+        """Add objects that have been created in the modeler by previous operations.
 
         Returns
         -------
         list
             List of added objects.
-
         """
         added_objects = []
         objs_ids = {}
@@ -1035,14 +1070,12 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler()
     def add_new_solids(self):
-        """Add objects that have been created in the modeler by
-        previous operations.
+        """Add objects that have been created in the modeler by previous operations.
 
         Returns
         -------
         list
             List of added objects.
-
         """
         added_objects = []
 
@@ -1067,8 +1100,7 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler()
     def add_new_points(self):
-        """Add objects that have been created in the modeler by
-        previous operations.
+        """Add objects that have been created in the modeler by previous operations.
 
         Returns
         -------
@@ -1135,7 +1167,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetObjectsByMaterial
 
         """
@@ -1343,7 +1374,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.FitAll
 
         Examples
@@ -1401,7 +1431,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CoverLines
         """
         obj_to_cover = self.convert_to_selections(assignment, False)
@@ -1514,7 +1543,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateRelativeCS
         """
         if name:
@@ -1777,7 +1805,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.SetWCS
         """
         if isinstance(name, BaseCoordinateSystem):
@@ -1801,7 +1828,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetActiveCoordinateSystem
         """
 
@@ -1906,7 +1932,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateRelativeCS
         """
         cs_names = [i.name for i in self.coordinate_systems]
@@ -2068,7 +2093,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oDesign.SetObjectDeformation
         """
         self.logger.info("Enabling deformation feedback")
@@ -2104,7 +2128,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oDesign.SetObjectTemperature
         """
         self.logger.info("Set model temperature and enabling Thermal Feedback")
@@ -2265,7 +2288,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreatePolyline
         """
         if orientation > 2:
@@ -2428,7 +2450,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oModule.GetBoundaries
         """
         if self._app.design_type == "Icepak":
@@ -2455,7 +2476,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
         """
         selections = self.convert_to_selections(assignment, True)
@@ -2486,7 +2506,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetObjectsInGroup
         """
         if not isinstance(group, str):
@@ -2513,7 +2532,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetObjectsInGroup
         >>> oEditor.GetModelBoundingBox
         """
@@ -2636,7 +2654,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Split
         """
         if plane is None and not tool or plane and tool:
@@ -2784,7 +2801,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.DuplicateMirror
         """
         return self.mirror(
@@ -2821,7 +2837,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Mirror
         >>> oEditor.DuplicateMirror
         """
@@ -2880,7 +2895,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Move
         """
         Xvec, Yvec, Zvec = self._pos_with_arg(vector)
@@ -2933,7 +2947,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.DuplicateAroundAxis
         """
         selections = self.convert_to_selections(assignment)
@@ -2986,7 +2999,7 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        assignment : list, str, int, :class:`ansys.aedt.core.modeler.Object3d.Object3d`
+        assignment : list, str, int, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Name or ID of the object.
         vector : list
             List of ``[x1,y1,z1]`` coordinates or the Application.Position object for
@@ -3006,7 +3019,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.DuplicateAlongLine
         """
         selections = self.convert_to_selections(assignment)
@@ -3034,7 +3046,7 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        assignment : list, str, int, :class:`ansys.aedt.core.modeler.Object3d.Object3d`
+        assignment : list, str, int, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Name or ID of the object.
         thickness : float, str
             Amount to thicken the sheet by.
@@ -3047,7 +3059,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.ThickenSheet
         """
         selections = self.convert_to_selections(assignment)
@@ -3072,7 +3083,7 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        assignment : list, str, int, :class:`ansys.aedt.core.modeler.Object3d.Object3d`
+        assignment : list, str, int, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Name or ID of the object.
         faces : int or list
             Face or list of faces to sweep.
@@ -3085,7 +3096,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.SweepFacesAlongNormal
         """
         if not isinstance(faces, list):
@@ -3123,7 +3133,7 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        assignment : list, str, int, :class:`ansys.aedt.core.modeler.Object3d.Object3d`
+        assignment : list, str, int, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Name or ID of the object.
         sweep_vector : float
             List of ``[x1, y1, z1]`` coordinates or Application.Position object for
@@ -3142,7 +3152,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.SweepAlongVector
         """
         selections = self.convert_to_selections(assignment)
@@ -3179,7 +3188,7 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        assignment : list, str, int, :class:`ansys.aedt.core.modeler.Object3d.Object3d`
+        assignment : list, str, int, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Name or ID of the object.
         sweep_object : str, int
             Name or ID of the sweep.
@@ -3200,7 +3209,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.SweepAlongPath
         """
         selections = self.convert_to_selections(assignment) + "," + self.convert_to_selections(sweep_object)
@@ -3227,7 +3235,7 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        assignment : list, str, int, :class:`ansys.aedt.core.modeler.Object3d.Object3d`
+        assignment : list, str, int, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Name or ID of the object.
         axis :
             Coordinate system axis or the Application.AXIS object.
@@ -3245,7 +3253,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.SweepAroundAxis
         """
         selections = self.convert_to_selections(assignment)
@@ -3283,7 +3290,7 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        assignment : list, str, int, or  :class:`ansys.aedt.core.modeler.Object3d.Object3d`
+        assignment : list, str, int, or  :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             One or more objects to section.
         plane : str
             Coordinate plane or Application.PLANE object.
@@ -3300,7 +3307,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Section
         """
         section_plane = GeometryOperators.cs_plane_to_plane_str(plane)
@@ -3335,13 +3341,12 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        ansys.aedt.core.modeler.Object3d.Object3d, bool
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` or bool
             3D object.
             ``False`` when failed.
 
         References
         ----------
-
         >>> oEditor.SeparateBody
         """
         try:
@@ -3372,7 +3377,7 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        assignment :  list, str, int, or  :class:`ansys.aedt.core.modeler.Object3d.Object3d`
+        assignment :  list, str, int, or  :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
              ID of the object.
         axis : str
             Coordinate system axis or the Application.AXIS object.
@@ -3390,7 +3395,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Rotate
         """
         selections = self.convert_to_selections(assignment)
@@ -3412,7 +3416,7 @@ class GeometryModeler(Modeler):
         ----------
         blank_list : str, Object3d, int or List of str, int and Object3d.
             List of objects to subtract from. The list can be of
-            either :class:`ansys.aedt.core.modeler.Object3d.Object3d` objects or object IDs.
+            either :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` objects or object IDs.
         tool_list : list, str
             List of objects to subtract. The list can be of
             either Object3d objects or object IDs.
@@ -3426,7 +3430,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Subtract
         """
         if "keepOriginals" in kwargs:
@@ -3452,7 +3455,7 @@ class GeometryModeler(Modeler):
         ----------
         blank_list : list of Object3d or list of int
             List of objects to imprint from. The list can be of
-            either :class:`ansys.aedt.core.modeler.Object3d.Object3d` objects or object IDs.
+            either :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` objects or object IDs.
         tool_list : list of Object3d or list of int
             List of objects to imprint. The list can be of
             either Object3d objects or object IDs.
@@ -3466,7 +3469,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Imprint
         """
         szList = self.convert_to_selections(blank_list)
@@ -3530,7 +3532,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.ImprintProjection
         """
         return self._imprint_projection(assignment, keep_originals, True)
@@ -3564,7 +3565,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.ImprintProjection
         """
         return self._imprint_projection(assignment, keep_originals, False, vector_points, distance)
@@ -3585,7 +3585,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.PurgeHistory
         """
         szList = self.convert_to_selections(assignment)
@@ -3608,7 +3607,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetModelBoundingBox
         """
         bb = list(self.oeditor.GetModelBoundingBox())
@@ -3635,7 +3633,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Unite
         """
         slice = min(100, len(assignment))
@@ -3688,7 +3685,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Copy
         >>> oEditor.Paste
         """
@@ -3712,7 +3708,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Copy
         """
         # convert to string
@@ -3737,7 +3732,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Paste
         """
         self.add_new_objects()
@@ -3763,7 +3757,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Intersect
         """
         if "keeporiginal" in kwargs:
@@ -3798,12 +3791,11 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
+        list[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
             List of objects resulting from the operation (including the original one).
 
         References
         ----------
-
         >>> oEditor.DetachFaces
 
         """
@@ -3830,13 +3822,12 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        ansys.aedt.core.modeler.Object3d.Object3d, bool
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d.Object3d` or bool
             3D object.
             ``False`` when failed.
 
         References
         ----------
-
         >>> oEditor.Connect
         """
         try:
@@ -3876,7 +3867,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Subtract
         """
         self.logger.info("Subtract all objects from Chassis object - exclude vacuum objs")
@@ -4004,7 +3994,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetMatchedObjectName
         """
         return self.oeditor.GetMatchedObjectName(search_string)
@@ -4025,7 +4014,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.RenamePart
         """
         cad_suffix = main_part_name + "_"
@@ -4064,7 +4052,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateBox
         """
         self.logger.info("Adding Airbox to the Bounding ")
@@ -4125,7 +4112,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateRegion
         """
         return self.create_region(pad_percent=[x_pos, x_neg, y_pos, y_neg, z_pos, z_neg], is_percentage=is_percentage)
@@ -4147,7 +4133,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
         """
         arg = ["NAME:AllTabs"]
@@ -4184,7 +4169,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateEntityList
         """
         if name:
@@ -4224,7 +4208,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateEntityList
         """
         if name:
@@ -4262,7 +4245,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GenerateHistory
         """
         assignment = self.convert_to_selections(assignment)
@@ -4411,7 +4393,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetEntityListIDByName
         """
         id = self.oeditor.GetEntityListIDByName(name)
@@ -4457,7 +4438,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Subtract
         >>> oEditor.PurgeHistory
         """
@@ -4549,7 +4529,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetModelBoundingBox
         """
         oBoundingBox = list(self.oeditor.GetModelBoundingBox())
@@ -4575,7 +4554,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetEdgeIDsFromObject
         """
         for object in self.solid_names + self.sheet_names + self.line_names:
@@ -4598,7 +4576,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetModelBoundingBox
         """
         bound = self.get_model_bounding_box()
@@ -4647,7 +4624,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetVertexIDsFromObject
         """
         position_list = []
@@ -4713,7 +4689,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Export
         """
 
@@ -4836,7 +4811,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Import
         """
         if str(healing) in ["0", "1"]:
@@ -4889,7 +4863,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateUserDefinedModel
         """
         env_var = os.environ
@@ -5110,7 +5083,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateUserDefinedModel
         """
         if is_linux:  # pragma: no cover
@@ -5223,7 +5195,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.BreakUDMConnection
         """
         args = ["NAME:Selections", "Selections:=", "SpaceClaim1"]
@@ -5247,7 +5218,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateUserDefinedModel
         >>> oEditor.BreakUDMConnection
         """
@@ -5272,7 +5242,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetObjectsByMaterial
         >>> oEditor.GetFaceIDs
         """
@@ -5314,7 +5283,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Scale
         """
         selections = self.convert_to_selections(assignment, True)
@@ -5339,7 +5307,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetFaceIDs
         """
         self.logger.info("Selecting outer faces.")
@@ -5364,7 +5331,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.SetPropertyValue
         """
         oObjects = list(self.oeditor.GetObjectsInGroup("Solids"))
@@ -5401,7 +5367,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.ThickenSheet
         """
         aedt_bounding_box = self.get_model_bounding_box()
@@ -5489,7 +5454,7 @@ class GeometryModeler(Modeler):
         Parameters
         ----------
         assignment : list
-            List of Face ID or List of :class:`ansys.aedt.core.modeler.Object3d.FacePrimitive` object or mixed.
+            List[int] or list[:class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`] object or mixed.
         offset : float, optional
              Offset to apply in model units. The default is ``1.0``.
 
@@ -5500,7 +5465,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.MoveFaces
 
         """
@@ -5550,7 +5514,7 @@ class GeometryModeler(Modeler):
         Parameters
         ----------
         assignment : list
-            List of Edge ID or List of :class:`ansys.aedt.core.modeler.Object3d.EdgePrimitive` object or mixed.
+            List of Edge ID or list[:class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`] object or mixed.
         offset : float, optional
              Offset to apply in model units. The default is ``1.0``.
 
@@ -5561,7 +5525,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.MoveEdges
 
         """
@@ -5629,7 +5592,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateGroup
         """
         if components is None and groups is None and objects is None:
@@ -5693,7 +5655,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Ungroup
         """
         group_list = self.convert_to_selections(groups, return_list=True)
@@ -5712,7 +5673,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.FlattenGroup
         """
         self.oeditor.FlattenGroup(["Groups:=", ["Model"]])
@@ -5721,13 +5681,14 @@ class GeometryModeler(Modeler):
     @pyaedt_function_handler(sheet_name="sheet", object_name="object")
     def wrap_sheet(self, sheet, object, imprinted=False):
         """Execute the sheet wrapping around an object.
+
         If wrapping produces an unclassified operation it will be reverted.
 
         Parameters
         ----------
-        sheet : str, :class:`ansys.aedt.core.modeler.Object3d.Object3d`
+        sheet : str, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Sheet name or sheet object.
-        object : str, :class:`ansys.aedt.core.modeler.Object3d.Object3d`
+        object : str, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Object name or solid object.
         imprinted : bool, optional
             Either if imprint or not over the sheet. Default is ``False``.
@@ -6105,7 +6066,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateBox
 
         Examples
@@ -6177,7 +6137,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateBox
 
         Examples
@@ -6269,12 +6228,12 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler(obj="assignment")
     def update_object(self, assignment):
-        """Update any :class:`ansys.aedt.core.modeler.Object3d.Object3d` derivatives
+        """Update any :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` derivatives
         that have potentially been modified by a modeler operation.
 
         Parameters
         ----------
-        assignment : int, str, or :class:`ansys.aedt.core.modeler.Object3d.Object3d`
+        assignment : int, str, or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Object to be updated after a modeler operation.
 
         Returns
@@ -6468,7 +6427,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateRegion
         """
         if name is None:
@@ -6495,7 +6453,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateRegion
         """
         is_percentage = region.padding_types in ["Percentage Offset", "Transverse Percentage Offset"]
@@ -6617,7 +6574,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateRegion
         """
         # backward compatibility
@@ -6646,19 +6602,18 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        assignment : list, int or :class:`ansys.aedt.core.modeler.Object3d.FacePrimitive`
-            Face ID or :class:`ansys.aedt.core.modeler.Object3d.FacePrimitive` object or Face List.
+        assignment : list, int or :class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`
+            Face ID or :class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive` object or Face List.
         non_model : bool, optional
             Either if create the new object as model or non-model. The default is `False`.
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.Object3d.Object3d` or list of :class:`ansys.aedt.core.modeler.Object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` or list
             3D objects.
 
         References
         ----------
-
         >>> oEditor.CreateObjectFromFaces
         """
         edge_ids = self.convert_to_selections(assignment, True)
@@ -6696,19 +6651,18 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        assignment : list, int or :class:`ansys.aedt.core.modeler.Object3d.FacePrimitive`
-            Face ID or :class:`ansys.aedt.core.modeler.Object3d.FacePrimitive` object or Face List.
+        assignment : list, int or :class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`
+            Face ID or :class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive` object or Face List.
         non_model : bool, optional
             Either if create the new object as model or non-model. Default is `False`.
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.Object3d.Object3d` or list of :class:`ansys.aedt.core.modeler.Object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` or list
             3D objects.
 
         References
         ----------
-
         >>> oEditor.CreateObjectFromFaces
         """
         face_ids = self.convert_to_selections(assignment, True)
@@ -6874,7 +6828,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreatePolyline
 
         Examples
@@ -6987,7 +6940,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.Object3d.Polyline`
+        :class:`ansys.aedt.core.modeler.cad.elements_3d.Polyline`
         """
         # fmt: off
         if isinstance(assignment, FacePrimitive):
@@ -7079,13 +7032,12 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateUserDefinedPart
 
         Examples
         --------
         >>> my_udp = self.aedtapp.modeler.create_udp(dll="RMxprt/ClawPoleCore",parameters=my_udpPairs,library="syslib")
-        <class 'ansys.aedt.core.modeler.Object3d.Object3d'>
+        <class 'ansys.aedt.core.modeler.cad.object_3d.Object3d'>
 
         """
         if ".dll" not in dll and ".py" not in dll:
@@ -7137,7 +7089,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateUserDefinedPart
 
         Examples
@@ -7186,7 +7137,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Delete
 
         """
@@ -7243,7 +7193,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.Delete
 
         """
@@ -7600,7 +7549,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetFaceIDs
 
         """
@@ -7631,7 +7579,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetEdgeIDsFromObject
 
         """
@@ -7661,7 +7608,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetEdgeIDsFromFace
 
         """
@@ -7685,7 +7631,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetVertexIDsFromObject
 
         """
@@ -7717,7 +7662,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetVertexIDsFromFace
 
         """
@@ -7770,7 +7714,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetVertexIDsFromEdge
 
         """
@@ -7798,7 +7741,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetVertexPosition
 
         """
@@ -7826,7 +7768,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetFaceArea
 
         """
@@ -7851,7 +7792,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetFaceCenter
 
         """
@@ -7953,7 +7893,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetBodyNamesByPosition
 
         """
@@ -8030,7 +7969,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetEdgeIDsFromObject
         >>> oEditor.GetVertexIDsFromEdge
 
@@ -8066,7 +8004,6 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.GetFaceByPosition
 
         """
@@ -8967,12 +8904,10 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> aedtapp = Hfss()
         >>> edge_object = aedtapp.modeler.create_object_from_edge("my_edge")

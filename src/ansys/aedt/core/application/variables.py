@@ -340,6 +340,7 @@ def _generate_property_validation_errors(property_name, expected, actual):
 @pyaedt_function_handler()
 def generate_validation_errors(property_names, expected_settings, actual_settings):
     """From the given property names, expected settings and actual settings, return a list of validation errors.
+
     If no errors are found, an empty list is returned. The validation of values such as "10mm"
     ensures that they are close to within a relative tolerance.
     For example an expected setting of "10mm", and actual of "10.000000001mm" will not yield a validation error.
@@ -468,13 +469,14 @@ class VariableManager(object):
 
         Returns
         -------
-        dict
+
+        dict[str, :class:`ansys.aedt.core.application.variables.Variable`]
             Dictionary of the `Variable` objects for each project variable and each
             design property in the active design.
 
+
         References
         ----------
-
         >>> oProject.GetVariables
         >>> oDesign.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
@@ -526,7 +528,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oDesign.GetVariables
         >>> oDesign.GetChildObject("Variables").GetChildNames
         """
@@ -543,7 +544,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
         """
@@ -561,7 +561,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariables
         >>> oDesign.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
@@ -590,7 +589,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariables
         >>> oDesign.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
@@ -609,7 +607,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
         """
@@ -627,7 +624,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oDesign.GetVariables
         >>> oDesign.GetChildObject("Variables").GetChildNames
         """
@@ -645,7 +641,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariables
         >>> oDesign.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
@@ -664,7 +659,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
         """
@@ -682,7 +676,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oDesign.GetVariables
         >>> oDesign.GetChildObject("Variables").GetChildNames
         """
@@ -699,7 +692,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
         """
@@ -711,7 +703,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oDesign.GetVariables
         >>> oDesign.GetChildObject("Variables").GetChildNames"""
         return [var_name for var_name in self.design_variables]
@@ -722,7 +713,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
         """
@@ -734,7 +724,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oDesign.GetVariables
         >>> oDesign.GetChildObject("Variables").GetChildNames"""
         return [var_name for var_name in self.independent_design_variables]
@@ -745,7 +734,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariables
         >>> oDesign.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
@@ -758,7 +746,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
         """
@@ -770,7 +757,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oDesign.GetVariables
         >>> oDesign.GetChildObject("Variables").GetChildNames"""
         return [var_name for var_name in self.dependent_design_variables]
@@ -781,7 +767,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariables
         >>> oDesign.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
@@ -928,7 +913,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariableValue
         >>> oDesign.GetVariableValue
         """
@@ -1215,7 +1199,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.ChangeProperty
         >>> oDesign.ChangeProperty
         """
@@ -1256,7 +1239,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.ChangeProperty
         >>> oDesign.ChangeProperty
         """
@@ -1353,7 +1335,7 @@ class VariableManager(object):
 
         """
         used = False
-        for _, v in history.props.items():
+        for _, v in history.properties.items():
             if isinstance(v, str) and var_name in re.findall("[a-zA-Z0-9_]+", v):
                 return True
         for el in history.children.values():
@@ -2277,7 +2259,6 @@ class DataSet(object):
 
         References
         ----------
-
         >>> oProject.AddDataset
         >>> oDesign.AddDataset
         """
@@ -2309,7 +2290,6 @@ class DataSet(object):
 
         References
         ----------
-
         >>> oProject.EditDataset
         >>> oDesign.EditDataset
         """
@@ -2336,7 +2316,6 @@ class DataSet(object):
 
         References
         ----------
-
         >>> oProject.EditDataset
         >>> oDesign.EditDataset
         """
@@ -2362,7 +2341,6 @@ class DataSet(object):
 
         References
         ----------
-
         >>> oProject.EditDataset
         >>> oDesign.EditDataset
         """
@@ -2387,7 +2365,6 @@ class DataSet(object):
 
         References
         ----------
-
         >>> oProject.EditDataset
         >>> oDesign.EditDataset
         """
@@ -2411,7 +2388,6 @@ class DataSet(object):
 
         References
         ----------
-
         >>> oProject.DeleteDataset
         >>> oDesign.DeleteDataset
         """
@@ -2440,7 +2416,6 @@ class DataSet(object):
 
         References
         ----------
-
         >>> oProject.ExportDataset
         >>> oDesign.ExportDataset
         """

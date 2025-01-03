@@ -57,7 +57,6 @@ class CircuitPins(object):
 
         References
         ----------
-
         >>> oPadstackManager.GetComponentPinLocation
         """
         if "Port" in self._circuit_comp.composed_name:
@@ -164,7 +163,7 @@ class CircuitPins(object):
 
         Parameters
         ----------
-        assignment : :class:`ansys.aedt.core.modeler.circuits.primitives_nexxim.CircuitPins`
+        assignment : :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitPins`
            Component pin to attach.
         page_name : str, optional
             Page port name. The default value is ``None``, in which case
@@ -188,7 +187,6 @@ class CircuitPins(object):
 
         References
         ----------
-
         >>> oPadstackManager.CreatePagePort
         """
         tol = 1e-8
@@ -522,7 +520,6 @@ class CircuitComponent(object):
 
         References
         ----------
-
         >>> oEditor.GetProperties
         >>> oEditor.GetPropertyValue
         """
@@ -558,7 +555,6 @@ class CircuitComponent(object):
 
         References
         ----------
-
         >>> oEditor.GetProperties
         >>> oEditor.GetPropertyValue
         """
@@ -607,7 +603,7 @@ class CircuitComponent(object):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.Object3d.CircuitPins`
+        list[:class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitPins`]
 
         """
         if self._pins:
@@ -637,7 +633,6 @@ class CircuitComponent(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
         """
@@ -678,7 +673,6 @@ class CircuitComponent(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
         """
@@ -734,7 +728,6 @@ class CircuitComponent(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
         """
@@ -780,7 +773,6 @@ class CircuitComponent(object):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
         """
         if not color:
@@ -809,7 +801,6 @@ class CircuitComponent(object):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
         """
         vMaterial = ["NAME:Component Color", "R:=", red, "G:=", green, "B:=", blue]
@@ -834,7 +825,6 @@ class CircuitComponent(object):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
         """
         if isinstance(name, list):
@@ -894,7 +884,6 @@ class CircuitComponent(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
         """
@@ -931,7 +920,6 @@ class CircuitComponent(object):
 
         References
         ----------
-
         >>> oModelManager.EditWithComps
         """
         props = self.model_data.props

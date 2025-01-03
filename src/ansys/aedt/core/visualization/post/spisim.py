@@ -29,10 +29,10 @@ import re
 from struct import unpack
 import subprocess  # nosec
 
-from ansys.aedt.core import generate_unique_name
 from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.general_methods import env_value
 from ansys.aedt.core.generic.general_methods import generate_unique_folder_name
+from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import is_linux
@@ -468,8 +468,7 @@ class Trace(DataSet):
         self.axis = axis
 
     def __len__(self):
-        """
-        Returns the length of the axis.
+        """Return the length of the axis.
 
         Returns
         -------

@@ -28,6 +28,7 @@ from ansys.aedt.core.generic.settings import settings
 
 class AnalysisCircuitNetlist(Analysis, object):
     """Provides the Circuit Netlist (CircuitNetlist) interface.
+
     Circuit Netlist Editor has no setup, solution, analysis or postprocessor
     It is automatically initialized by Application call.
     Refer to Application function for inputs definition

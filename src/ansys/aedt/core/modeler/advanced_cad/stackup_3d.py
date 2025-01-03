@@ -23,26 +23,6 @@
 # SOFTWARE.
 
 import os
-import warnings
-
-try:
-    import joblib
-except ImportError:  # pragma: no cover
-    joblib = None
-    warnings.warn(
-        "The Joblib module is required to use functionalities provided by the module "
-        "ansys.aedt.core.modeler.advanced_cad.stackup_3d.\n"
-        "Install with \n\npip install joblib"
-    )
-try:
-    import numpy as np
-except ImportError:  # pragma: no cover
-    np = None
-    warnings.warn(
-        "The Numpy module is required to use functionalities provided by the module "
-        "ansys.aedt.core.modeler.advanced_cad.stackup_3d.\n"
-        "Install with \n\npip install numpy"
-    )
 
 from ansys.aedt.core import constants
 from ansys.aedt.core import pyaedt_path
@@ -207,6 +187,7 @@ class NamedVariable(object):
 
 class DuplicatedParametrizedMaterial(object):
     """Provides a class to duplicate a material and manage its duplication in PyAEDT and in AEDT.
+
     For each material property a NamedVariable is created as attribute.
 
     Parameters
@@ -1976,12 +1957,13 @@ class CommonObject(object):
 
 
 class Patch(CommonObject, object):
-    """Patch Class in Stackup3D. Create a parametrized patch. It is preferable to use the add_patch method
+    """Patch Class in Stackup3D. Create a parametrized patch.
+
+    It is preferable to use the add_patch method
     in the class Layer3D than directly the class constructor.
 
     Parameters
     ----------
-
     application : :class:`ansys.aedt.core.hfss.Hfss`
         HFSS design or project where the variable is to be created.
     frequency : float, None
@@ -2010,7 +1992,6 @@ class Patch(CommonObject, object):
 
     Examples
     --------
-
     >>> from ansys.aedt.core import Hfss
     >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
     >>> hfss = Hfss()
@@ -2627,7 +2608,6 @@ class Trace(CommonObject, object):
 
     Parameters
     ----------
-
     application : :class:`ansys.aedt.core.hfss.Hfss`
         HFSS design or project where the variable is to be created.
     frequency : float, None
@@ -3483,8 +3463,11 @@ class MachineLearningPatch(Patch, object):
         self.predict_length()
 
     def predict_length(self):
-        if joblib is None:  # pragma: no cover
-            raise ImportError("Package Joblib is required to run ML.")
+        try:
+            import joblib
+            import numpy as np
+        except ImportError:  # pragma: no cover
+            raise ImportError("Package Joblib and Numpy are required to run ML.")
         training_file = None
         if 1e9 >= self.frequency.numeric_value >= 1e8:
             training_file = os.path.join(pyaedt_path, "misc", "patch_svr_model_100MHz_1GHz.joblib")

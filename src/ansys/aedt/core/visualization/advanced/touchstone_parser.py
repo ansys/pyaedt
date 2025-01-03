@@ -409,6 +409,7 @@ class TouchstoneData(rf.Network):
     @pyaedt_function_handler()
     def get_worst_curve(self, freq_min=None, freq_max=None, worst_is_higher=True, curve_list=None, plot=True):
         """Analyze a solution data object with multiple curves and find the worst curve.
+
         Take the mean of the magnitude over the frequency range.
 
         Parameters

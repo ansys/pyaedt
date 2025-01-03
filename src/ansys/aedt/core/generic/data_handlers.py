@@ -127,7 +127,15 @@ def _dict2arg(d, arg_out):
                 arg = ["NAME:" + k, v[0], v[1]]
                 arg_out.append(arg)
         elif k == "Range":
-            if isinstance(v[0], (list, tuple)):
+            if isinstance(v[0], dict):
+                for rr in v:
+                    arg_out.append("Range:=")
+                    new_range = []
+                    for rk, ri in rr.items():
+                        new_range.append(rk + ":=")
+                        new_range.append(ri)
+                    arg_out.append(new_range)
+            elif isinstance(v[0], (list, tuple)):
                 for e in v:
                     arg_out.append(k + ":=")
                     arg_out.append([i for i in e])
@@ -165,6 +173,18 @@ def _arg2dict(arg, dict_out):
                 dict_out[arg[0][5:]].append(list(arg[1:]))
         else:
             dict_out[arg[0][5:]] = list(arg[1:])
+    elif "NAME:Ranges" in arg[0]:
+        dict_out["Ranges"] = {"Range": []}
+        for el, val in enumerate(arg[1:]):
+            if val == "Range:=":
+                rr = {}
+                vals = arg[el + 2]
+                k = 0
+                while k < len(vals):
+                    rr[vals[k][:-2]] = vals[k + 1]
+                    k += 2
+                dict_out["Ranges"]["Range"].append(rr)
+
     elif arg[0][:5] == "NAME:":
         top_key = arg[0][5:]
         dict_in = {}
@@ -203,61 +223,6 @@ def _arg2dict(arg, dict_out):
             dict_out[top_key] = dict_in
     else:
         raise ValueError("Incorrect data argument format")
-
-
-@pyaedt_function_handler()
-def create_list_for_csharp(input_list, return_strings=False):
-    """
-
-    Parameters
-    ----------
-    input_list :
-
-    return_strings :
-         (Default value = False)
-
-    Returns
-    -------
-
-    """
-    from ansys.aedt.core.generic.clr_module import Double
-    from ansys.aedt.core.generic.clr_module import List
-
-    if return_strings:
-        col = List[str]()
-    else:
-        col = List[Double]()
-
-    for el in input_list:
-        if return_strings:
-            col.Add(str(el))
-        else:
-            col.Add(el)
-    return col
-
-
-@pyaedt_function_handler()
-def create_table_for_csharp(input_list_of_list, return_strings=True):
-    """
-
-    Parameters
-    ----------
-    input_list_of_list :
-
-    return_strings :
-         (Default value = True)
-
-    Returns
-    -------
-
-    """
-    from ansys.aedt.core.generic.clr_module import List
-
-    new_table = List[List[str]]()
-    for col in input_list_of_list:
-        newcol = create_list_for_csharp(col, return_strings)
-        new_table.Add(newcol)
-    return new_table
 
 
 @pyaedt_function_handler()

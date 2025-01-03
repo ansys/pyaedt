@@ -299,7 +299,7 @@ class OptimizationGoalsTable:
     def save_goals(self, design, file_path) -> str:
         """Save the optimization goals from a design's optimization goals table to a CSV file.
 
-        Parameters:
+        Parameters
         ----------
         design: The design object containing the optimization goals table.
         file_path: The path to the CSV file where the goals will be saved.
@@ -316,9 +316,10 @@ class OptimizationGoalsTable:
     def load_goals(self, file_path) -> str:
         """Load optimization goals from a CSV file into this optimization goals table.
 
-        Parameters:
+        Parameters
         ----------
-        file_path: The path to the CSV file from which the goals will be loaded.
+        file_path: str
+            The path to the CSV file from which the goals will be loaded.
         """
         try:
             with open(file_path, mode="r", newline="") as file:

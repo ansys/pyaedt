@@ -47,13 +47,13 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import read_configuration_file
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
-from ansys.aedt.core.modules.boundary import CurrentSinSource
-from ansys.aedt.core.modules.boundary import PowerIQSource
-from ansys.aedt.core.modules.boundary import PowerSinSource
-from ansys.aedt.core.modules.boundary import Sources
-from ansys.aedt.core.modules.boundary import VoltageDCSource
-from ansys.aedt.core.modules.boundary import VoltageFrequencyDependentSource
-from ansys.aedt.core.modules.boundary import VoltageSinSource
+from ansys.aedt.core.modules.boundary.circuit_boundary import CurrentSinSource
+from ansys.aedt.core.modules.boundary.circuit_boundary import PowerIQSource
+from ansys.aedt.core.modules.boundary.circuit_boundary import PowerSinSource
+from ansys.aedt.core.modules.boundary.circuit_boundary import Sources
+from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageDCSource
+from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageFrequencyDependentSource
+from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageSinSource
 from ansys.aedt.core.modules.circuit_templates import SourceKeys
 
 
@@ -671,7 +671,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.GetExcitationsOfType
         """
         if source_project_name and self.project_name != source_project_name and not source_project_path:
@@ -723,7 +722,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         References
         ----------
-
         >>> oDesign.ImportData
         """
         if input_file[-2:] == "ts":
@@ -894,7 +892,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         References
         ----------
-
         >>> oDesign.ExportFullWaveSpice
         """
         if not design:
@@ -1040,7 +1037,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         References
         ----------
-
         >>> oEditor.PushExcitations
         """
         arg = ["NAME:options", "CalcThevenin:=", thevenin_calculation, "Sol:=", setup]
@@ -1092,7 +1088,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         References
         ----------
-
         >>> oEditor.PushExcitations
         """
         arg = [
@@ -1146,7 +1141,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         References
         ----------
-
         >>> oDesign.UpdateSources
         """
         if not name:
@@ -1194,7 +1188,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         References
         ----------
-
         >>> oDesign.UpdateSources
         """
 
@@ -1220,7 +1213,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         References
         ----------
-
         >>> oDesign.UpdateSources
         """
         source_i = self.create_source(source_type="CurrentSin")
@@ -1245,7 +1237,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         References
         ----------
-
         >>> oDesign.UpdateSources
         """
         source_p = self.create_source(source_type="PowerSin")
@@ -1272,7 +1263,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         References
         ----------
-
         >>> oDesign.UpdateSources
         """
         if not os.path.exists(input_file) or os.path.splitext(input_file)[1] != ".fds":
@@ -2154,7 +2144,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         Parameters
         ----------
-
         ibis_tx_file : str
             Full path to the IBIS file for transmitters.
         ibis_rx_file : str

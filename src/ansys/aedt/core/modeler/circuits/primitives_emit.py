@@ -56,11 +56,6 @@ class EmitComponents(object):
         return self._parent._aedt_version
 
     @property
-    def design_types(self):
-        """Design types."""
-        return self._parent._modeler
-
-    @property
     def model_units(self):
         """Model units."""
         return self.modeler.model_units
@@ -76,7 +71,6 @@ class EmitComponents(object):
 
         References
         ----------
-
         >>> oDefinitionManager = oProject.GetDefinitionManager()
         """
         return self._parent._oproject.GetDefinitionManager()
@@ -87,7 +81,6 @@ class EmitComponents(object):
 
         References
         ----------
-
         >>> oSymbolManager = oDefinitionManager.GetManager("Symbol")
         """
         return self._parent.o_symbol_manager
@@ -98,7 +91,6 @@ class EmitComponents(object):
 
         References
         ----------
-
         >>> oComponentManager = oDefinitionManager.GetManager("Component")
         """
         return self._parent.o_component_manager
@@ -163,7 +155,6 @@ class EmitComponents(object):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         # Pass an empty string to allow name to be automatically assigned.
@@ -207,7 +198,6 @@ class EmitComponents(object):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         # Pass an empty string to allow name to be automatically assigned.
@@ -428,7 +418,6 @@ class EmitComponent(object):
 
         References
         ----------
-
         >>> oEditor.GetWireAtPort
         >>> oEditor.GetWireConnections
         """
@@ -453,7 +442,6 @@ class EmitComponent(object):
 
         References
         ----------
-
         >>> oDesign.GetComponentNodeNames
         """
         node_names = sorted(self.odesign.GetComponentNodeNames(self.name))
@@ -488,7 +476,6 @@ class EmitComponent(object):
 
         References
         ----------
-
         >>> oDesign.GetComponentNodeNames
         >>> oDesign.GetComponentNodeProperties
         """
@@ -973,7 +960,7 @@ class EmitRadioComponent(EmitComponent):
         return len(nodes) > 0
 
     def get_connected_antennas(self):
-        """Returns a list of antennas connected to this radio instance.
+        """Return a list of antennas connected to this radio instance.
 
         Parameters
         ----------
@@ -1044,8 +1031,7 @@ class EmitComponentPropNode(object):
 
     @property
     def enabled(self):
-        """Returns ''True'' if the node is enabled and
-        ''False'' if the node is disabled.
+        """Returns ''True'' if the node is enabled and ''False'' if the node is disabled.
 
         Parameters
         ----------
@@ -1113,8 +1099,9 @@ class EmitComponentPropNode(object):
 
     @pyaedt_function_handler()
     def set_channel_sampling(self, sampling_type="Uniform", percentage=None, max_channels=None, seed=None):
-        """Set the channel sampling for the radio. If a percentage is
-        specified, then it will be used instead of max_channels.
+        """Set the channel sampling for the radio.
+
+        If a percentage is specified, then it will be used instead of max_channels.
 
         Parameters
         ----------
@@ -1158,7 +1145,7 @@ class EmitComponentPropNode(object):
 
     @pyaedt_function_handler()
     def _set_prop_value(self, props=None):
-        """Sets the property values for this node.
+        """Set the property values for this node.
 
         Parameters
         ----------
@@ -1188,7 +1175,7 @@ class EmitComponentPropNode(object):
 
     @enabled.setter
     def enabled(self, value):
-        """Sets the node enabled or disabled.
+        """Set the node enabled or disabled.
 
         Parameters
         ----------

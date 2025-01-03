@@ -84,7 +84,6 @@ class Object3DLayout(object):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
         """
         vChangedProps = ["NAME:ChangedProps", value]
@@ -118,7 +117,6 @@ class Object3DLayout(object):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
         """
         if "Pt" in name:
@@ -139,7 +137,6 @@ class Object3DLayout(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         if self.prim_type in ["component", "pin", "via"]:
@@ -196,7 +193,6 @@ class Object3DLayout(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         if self.prim_type not in ["component"]:
@@ -219,7 +215,6 @@ class Object3DLayout(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         if self.prim_type not in ["pin", "via"]:
@@ -305,6 +300,7 @@ class Object3DLayout(object):
     @property
     def location(self):
         """Retrieve/Set the absolute location in model units.
+
         Location is computed with combination of 3d Layout location and model center.
 
         Returns
@@ -314,7 +310,6 @@ class Object3DLayout(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         if self.prim_type == "component":
@@ -400,7 +395,6 @@ class Object3DLayout(object):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
         """
         return (
@@ -513,7 +507,6 @@ class Components3DLayout(Object3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Part")
@@ -529,7 +522,6 @@ class Components3DLayout(Object3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Part Type")
@@ -1007,7 +999,6 @@ class Pins3DLayout(Object3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Start Layer")
@@ -1023,7 +1014,6 @@ class Pins3DLayout(Object3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Stop Layer")
@@ -1039,7 +1029,6 @@ class Pins3DLayout(Object3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "HoleDiameter")
@@ -1064,7 +1053,6 @@ class Geometries3DLayout(Object3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetBBox
         """
         return self._primitives.obounding_box(self.name)
@@ -1241,7 +1229,6 @@ class Geometries3DLayout(Object3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, name)
@@ -1261,7 +1248,6 @@ class Geometries3DLayout(Object3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
         """
         if self.is_void:
@@ -1287,7 +1273,6 @@ class Geometries3DLayout(Object3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         if self.is_void:
@@ -1353,7 +1338,6 @@ class Circle3dLayout(Geometries3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         cent = self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Center")
@@ -1376,7 +1360,6 @@ class Circle3dLayout(Geometries3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Radius")
@@ -1404,7 +1387,6 @@ class Rect3dLayout(Geometries3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "CornerRadius")
@@ -1425,7 +1407,6 @@ class Rect3dLayout(Geometries3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         return (
@@ -1450,7 +1431,6 @@ class Rect3dLayout(Geometries3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         if not self.two_point_description:
@@ -1475,7 +1455,6 @@ class Rect3dLayout(Geometries3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         if not self.two_point_description:
@@ -1498,7 +1477,6 @@ class Rect3dLayout(Geometries3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         if not self.two_point_description:
@@ -1521,7 +1499,6 @@ class Rect3dLayout(Geometries3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         if self.two_point_description:
@@ -1546,7 +1523,6 @@ class Rect3dLayout(Geometries3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         if self.two_point_description:
@@ -1580,7 +1556,6 @@ class Line3dLayout(Geometries3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "BendType")
@@ -1601,7 +1576,6 @@ class Line3dLayout(Geometries3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "StartCapType")
@@ -1622,7 +1596,6 @@ class Line3dLayout(Geometries3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "EndCapType")
@@ -1643,7 +1616,6 @@ class Line3dLayout(Geometries3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "LineWidth")
@@ -1664,7 +1636,6 @@ class Line3dLayout(Geometries3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "TotalLength")
@@ -1879,7 +1850,6 @@ class ComponentsSubCircuit3DLayout(Object3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         if self.is_3d_placement:
@@ -1991,7 +1961,6 @@ class ComponentsSubCircuit3DLayout(Object3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         location = self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Location").split(",")
@@ -2351,7 +2320,6 @@ class Padstack(object):
 
         References
         ----------
-
         >>> oPadstackManager.Add
 
         """
@@ -2369,7 +2337,6 @@ class Padstack(object):
 
         References
         ----------
-
         >>> oPadstackManager.Edit
 
         """
@@ -2386,7 +2353,6 @@ class Padstack(object):
 
         References
         ----------
-
         >>> oPadstackManager.Remove
 
         """
