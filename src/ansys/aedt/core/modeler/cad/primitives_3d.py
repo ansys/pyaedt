@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -1576,6 +1576,8 @@ class Primitives3D(GeometryModeler):
         """
         if password is None:
             password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
+        if not input_file.endswith(".a3dcomp"):
+            input_file += ".a3dcomp"
         aedt_fh = open_file(input_file, "rb")
         if aedt_fh:
             temp = aedt_fh.read().splitlines()
