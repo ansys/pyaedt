@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -73,29 +73,21 @@ class SpiSim:
         self._working_directory = val
 
     @pyaedt_function_handler()
-    def _compute_spisim(self, parameter, out_file="", touchstone_file="", config_file=""):
+    def __compute_spisim(self, parameter, config_file, out_file=""):
         exec_name = "SPISimJNI_LX64.exe" if is_linux else "SPISimJNI_WIN64.exe"
         spisim_exe = os.path.join(self.desktop_install_dir, "spisim", "SPISim", "modules", "ext", exec_name)
         command = [spisim_exe, parameter]
 
-        if touchstone_file != "":
-            command += ["-i", f'"{touchstone_file}"']
         if config_file != "":
-            if is_linux:
-                command += ["-v", f"CFGFILE={config_file}"]
-            else:
-                command += ["-v", f'CFGFILE="{config_file}"']
-        if out_file != "":
-            command += [",", "-o", f'"{out_file}"']
-
+            command += ["-v", f"CFGFILE={config_file}"]
         if out_file:
+            command += [",", "-o", f"{out_file}"]
             out_processing = os.path.join(out_file, generate_unique_name("spsim_out") + ".txt")
         else:
             out_processing = os.path.join(generate_unique_folder_name(), generate_unique_name("spsim_out") + ".txt")
 
         my_env = os.environ.copy()
         my_env.update(settings.aedt_environment_variables)
-
         if is_linux:  # pragma: no cover
             if "ANSYSEM_ROOT_PATH" not in my_env:  # pragma: no cover
                 my_env["ANSYSEM_ROOT_PATH"] = self.desktop_install_dir
