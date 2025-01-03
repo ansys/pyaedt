@@ -77,7 +77,19 @@ class TestClass:
         assert os.path.exists(test_project)
 
     def test_01A_check_setup(self):
-        assert self.aedtapp.active_setup is None
+        #  Use the built-in Waveguide Tee example.
+        filter_fn = os.path.join("Examples", "HFSS", "Filters", "ceramic_monoblock_MMDS_Band.aedt")
+        filter_fn = os.path.join(self.aedtapp.desktop_install_dir, filter_fn)
+        self.aedtapp.copy_design_from(filter_fn, "3pole_monoblock")
+        self.aedtapp.design_name = "3pole_monoblock"
+        assert self.aedtapp.setups[0].props["Name"] == "Setup_5GNR_Band_N41"
+        setup_auto = self.aedtapp.create_setup(name="auto")
+        assert self.aedtapp.setups[1].name == "auto"
+        assert setup_auto.properties["Auto Solver Setting"] == "Balanced"
+        assert setup_auto.properties["Type"] == "Discrete"
+        setup_auto.props["Type"] = "Interpolating"
+        assert setup_auto.props["Type"] == "Interpolating"
+        assert setup_auto["sweeps"]["Sweep"]["RangeType"] == "LinearCount"
 
     def test_02_create_primitive(self):
         coax1_len = 200
