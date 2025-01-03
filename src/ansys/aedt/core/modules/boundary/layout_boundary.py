@@ -145,7 +145,13 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode):
                 self._app.modeler.user_defined_components[self._name] = self
                 del self._app.modeler.user_defined_components[legacy_name]
             except KeyError:
-                self._app.logger.error("Name %s already assigned in the design", value)
+                self._app.logger.add_message(
+                    message_type=2,
+                    message_text=f"Name {value} already assigned in the design",
+                    level="Design",
+                    proj_name=self._app.project_name,
+                    des_name=self._app.design_name,
+                )
 
     @property
     def definition_name(self):
@@ -299,7 +305,6 @@ class BoundaryObject3dLayout(BoundaryCommon, BinaryTreeNode):
 
     @property
     def _child_object(self):
-
         cc = self._app.odesign.GetChildObject("Excitations")
         child_object = None
         if self.name in cc.GetChildNames():
@@ -438,7 +443,13 @@ class NativeComponentPCB(NativeComponentObject, object):
             True if successful, else False.
         """
         if resolution < 1 or resolution > 5:
-            self._app.logger.error("Valid resolution values are between 1 and 5.")
+            self._app.logger.add_message(
+                message_type=2,
+                message_text="Valid resolution values are between 1 and 5.",
+                level="Design",
+                proj_name=self._app.project_name,
+                des_name=self._app.design_name,
+            )
             return False
         self.props["NativeComponentDefinitionProvider"]["Resolution"] = resolution
         self.props["NativeComponentDefinitionProvider"]["CustomResolution"] = False
@@ -543,7 +554,13 @@ class NativeComponentPCB(NativeComponentObject, object):
             Whether to force source solution.
         """
         if not isinstance(val, bool):
-            self._app.logger.error("Only Boolean value can be accepted.")
+            self._app.logger.add_message(
+                message_type=2,
+                message_text="Only Boolean value can be accepted.",
+                level="Design",
+                proj_name=self._app.project_name,
+                des_name=self._app.design_name,
+            )
             return
         return self.props["NativeComponentDefinitionProvider"]["DefnLink"].update({"ForceSourceToSolve": val})
 
@@ -563,7 +580,13 @@ class NativeComponentPCB(NativeComponentObject, object):
             Whether to preserve partner solution.
         """
         if not isinstance(val, bool):
-            self._app.logger.error("Only boolean can be accepted.")
+            self._app.logger.add_message(
+                message_type=2,
+                message_text="Only boolean can be accepted.",
+                level="Design",
+                proj_name=self._app.project_name,
+                des_name=self._app.design_name,
+            )
             return
         return self.props["NativeComponentDefinitionProvider"]["DefnLink"].update({"PreservePartnerSoln": val})
 
@@ -596,8 +619,13 @@ class NativeComponentPCB(NativeComponentObject, object):
         if value is not None:
             self.props["NativeComponentDefinitionProvider"]["PartsChoice"] = value
         else:
-            self._app.logger.error(
-                'Invalid part choice. Valid options are "None", "Device", and "Package" (or 0, 1, and 2 respectively).'
+            self._app.logger.add_message(
+                message_type=2,
+                message_text='Invalid part choice. Valid options are "None", "Device", and "Package" (or 0, 1, and 2 '
+                "respectively).",
+                level="Design",
+                proj_name=self._app.project_name,
+                des_name=self._app.design_name,
             )
 
     @pyaedt_function_handler()
@@ -667,7 +695,13 @@ class NativeComponentPCB(NativeComponentObject, object):
             Whether to force source solution.
         """
         if not isinstance(val, bool):
-            self._app.logger.error("Only Boolean value can be accepted.")
+            self._app.logger.add_message(
+                message_type=2,
+                message_text="Only Boolean value can be accepted.",
+                level="Design",
+                proj_name=self._app.project_name,
+                des_name=self._app.design_name,
+            )
             return
         return self.props["NativeComponentDefinitionProvider"]["DefnLink"].update({"ForceSourceToSolve": val})
 
@@ -682,7 +716,13 @@ class NativeComponentPCB(NativeComponentObject, object):
             Whether to preserve partner solution.
         """
         if not isinstance(val, bool):
-            self._app.logger.error("Only boolean can be accepted.")
+            self._app.logger.add_message(
+                message_type=2,
+                message_text="Only boolean can be accepted.",
+                level="Design",
+                proj_name=self._app.project_name,
+                des_name=self._app.design_name,
+            )
             return
         return self.props["NativeComponentDefinitionProvider"]["DefnLink"].update({"PreservePartnerSoln": val})
 
@@ -704,8 +744,13 @@ class NativeComponentPCB(NativeComponentObject, object):
         if value is not None:
             self.props["NativeComponentDefinitionProvider"]["PartsChoice"] = value
         else:
-            self._app.logger.error(
-                'Invalid part choice. Valid options are "None", "Device", and "Package" (or 0, 1, and 2 respectively).'
+            self._app.logger.add_message(
+                message_type=2,
+                message_text='Invalid part choice. Valid options are "None", "Device", and "Package" (or 0, 1, and 2'
+                " respectively).",
+                level="Design",
+                proj_name=self._app.project_name,
+                des_name=self._app.design_name,
             )
 
     @pyaedt_function_handler()
@@ -726,13 +771,23 @@ class NativeComponentPCB(NativeComponentObject, object):
         layer = [o for o in layout.modeler.stackup.drawing_layers if o.type == "outline"][0]
         outlines = [p for p in layout.modeler.polygons.values() if p.placement_layer == layer.name]
         if len(outlines) > 1:
-            self._app.logger.info(
-                f"{outlines[0].name} automatically selected as ``extent_polygon``, "
+            self._app.logger.add_message(
+                message_type=0,
+                message_text=f"{outlines[0].name} automatically selected as ``extent_polygon``, "
                 f"pass ``extent_polygon`` argument explixitly to select a different one. "
-                f"Available choices are: {', '.join([o.name for o in outlines])}"
+                f"Available choices are: {', '.join([o.name for o in outlines])}",
+                level="Design",
+                proj_name=self._app.project_name,
+                des_name=self._app.design_name,
             )
         elif len(outlines) == 0:
-            self._app.logger.error("No polygon found in the Outline layer.")
+            self._app.logger.add_message(
+                message_type=2,
+                message_text="No polygon found in the Outline layer.",
+                level="Design",
+                proj_name=self._app.project_name,
+                des_name=self._app.design_name,
+            )
             return False
         return outlines[0].name
 
@@ -794,9 +849,13 @@ class NativeComponentPCB(NativeComponentObject, object):
         else:
             allowed_extent_types = ["Bounding Box", "Polygon"]
             if extent_type not in allowed_extent_types:
-                self._app.logger.error(
-                    f"Accepted argument for ``extent_type`` are:"
-                    f" {', '.join(allowed_extent_types)}. {extent_type} provided"
+                self._app.logger.add_message(
+                    message_type=2,
+                    message_text=f"Accepted argument for ``extent_type`` are: {', '.join(allowed_extent_types)}. "
+                    f"{extent_type} provided",
+                    level="Design",
+                    proj_name=self._app.project_name,
+                    des_name=self._app.design_name,
                 )
                 return False
             self.props["NativeComponentDefinitionProvider"]["ExtentsType"] = extent_type
@@ -896,17 +955,32 @@ class PCBSettingsPackageParts(object):
         """
         valid_connectors = ["Solderbump", "Bondwire"]
         if modeling is not None and modeling not in valid_connectors:
-            self._app.logger.error(
-                f"{modeling} option is not supported. Use one of the following: {', '.join(valid_connectors)}"
+            self._app.logger.add_message(
+                message_type=2,
+                message_text=f"{modeling} option is not supported. Use one of the following: "
+                f"{', '.join(valid_connectors)}",
+                level="Design",
+                proj_name=self._app.project_name,
+                des_name=self._app.design_name,
             )
             return False
         if bondwire_material not in self._app.materials.mat_names_aedt:
-            self._app.logger.error(f"{bondwire_material} material is not present in the library.")
+            self._app.logger.add_message(
+                message_type=2,
+                message_text=f"{bondwire_material} material is not present in the library.",
+                level="Design",
+                proj_name=self._app.project_name,
+                des_name=self._app.design_name,
+            )
             return False
         if self._solderbumps_map.get(solderbumps_modeling, None) is None:
-            self._app.logger.error(
-                f"Solderbumps modeling option {solderbumps_modeling} is not valid. "
-                f"Available options are: {', '.join(list(self._solderbumps_map.keys()))}."
+            self._app.logger.add_message(
+                message_type=2,
+                message_text=f"Solderbumps modeling option {solderbumps_modeling} is not valid. "
+                f"Available options are: {', '.join(list(self._solderbumps_map.keys()))}.",
+                level="Design",
+                proj_name=self._app.project_name,
+                des_name=self._app.design_name,
             )
             return False
 
@@ -996,8 +1070,12 @@ class PCBSettingsDeviceParts(object):
     def footprint_filter(self):
         """Minimum component footprint for filtering."""
         if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
-            self._app.logger.error(
-                "Device parts modeling is not active.  No filtering or override option is available."
+            self._app.logger.add_message(
+                message_type=2,
+                message_text="Device parts modeling is not active.  No filtering or override option is available.",
+                level="Design",
+                proj_name=self._app.project_name,
+                des_name=self._app.design_name,
             )
             return None
         if self._app.settings.aedt_version < "2024.2":
@@ -1016,8 +1094,12 @@ class PCBSettingsDeviceParts(object):
             Value with unit of the minimum component footprint for filtering.
         """
         if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
-            self._app.logger.error(
-                "Device parts modeling is not active.  No filtering or override option is available."
+            self._app.logger.add_message(
+                message_type=2,
+                message_text="Device parts modeling is not active.  No filtering or override option is available.",
+                level="Design",
+                proj_name=self._app.project_name,
+                des_name=self._app.design_name,
             )
             return
         if self._app.settings.aedt_version < "2024.2":
@@ -1035,8 +1117,12 @@ class PCBSettingsDeviceParts(object):
     def power_filter(self):
         """Minimum component power for filtering."""
         if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
-            self._app.logger.error(
-                "Device parts modeling is not active.  No filtering or override option is available."
+            self._app.logger.add_message(
+                message_type=2,
+                message_text="Device parts modeling is not active.  No filtering or override option is available.",
+                level="Design",
+                proj_name=self._app.project_name,
+                des_name=self._app.design_name,
             )
             return None
         return self.filters.get("Power", {}).get("Value")
@@ -1053,8 +1139,12 @@ class PCBSettingsDeviceParts(object):
             Value with unit of the minimum component power for filtering.
         """
         if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
-            self._app.logger.error(
-                "Device parts modeling is not active.  No filtering or override option is available."
+            self._app.logger.add_message(
+                message_type=2,
+                message_text="Device parts modeling is not active.  No filtering or override option is available.",
+                level="Design",
+                proj_name=self._app.project_name,
+                des_name=self._app.design_name,
             )
             return
         new_filters = self.pcb.props["NativeComponentDefinitionProvider"].get("Filters", [])
@@ -1070,8 +1160,12 @@ class PCBSettingsDeviceParts(object):
     def type_filters(self):
         """Types of component that are filtered."""
         if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
-            self._app.logger.error(
-                "Device parts modeling is not active.  No filtering or override option is available."
+            self._app.logger.add_message(
+                message_type=2,
+                message_text="Device parts modeling is not active.  No filtering or override option is available.",
+                level="Design",
+                proj_name=self._app.project_name,
+                des_name=self._app.design_name,
             )
             return None
         return self.filters.get("Types")
@@ -1088,15 +1182,20 @@ class PCBSettingsDeviceParts(object):
             Types of object to filter. Options are ``"Capacitors"``, ``"Inductors"``, and ``"Resistors"``.
         """
         if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
-            self._app.logger.error(
-                "Device parts modeling is not active.  No filtering or override option is available."
+            self._app.logger.add_message(
+                message_type=2,
+                message_text="Device parts modeling is not active.  No filtering or override option is available.",
             )
             return
         if not isinstance(object_type, list):
             object_type = [object_type]
         if not all(o in self._filter_map2name.values() for o in object_type):
-            self._app.logger.error(
-                f"Accepted elements of the list are: {', '.join(list(self._filter_map2name.values()))}"
+            self._app.logger.add_message(
+                message_type=2,
+                message_text=f"Accepted elements of the list are: {', '.join(list(self._filter_map2name.values()))}",
+                level="Design",
+                proj_name=self._app.project_name,
+                des_name=self._app.design_name,
             )
         else:
             new_filters = self.pcb.props["NativeComponentDefinitionProvider"].get("Filters", [])
@@ -1112,8 +1211,12 @@ class PCBSettingsDeviceParts(object):
     def height_filter(self):
         """Minimum component height for filtering."""
         if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
-            self._app.logger.error(
-                "Device parts modeling is not active.  No filtering or override option is available."
+            self._app.logger.add_message(
+                message_type=2,
+                message_text="Device parts modeling is not active.  No filtering or override option is available.",
+                level="Design",
+                proj_name=self._app.project_name,
+                des_name=self._app.design_name,
             )
             return None
         return self.filters.get("Height", {}).get("Value", None)
@@ -1130,8 +1233,12 @@ class PCBSettingsDeviceParts(object):
             Value with unit of the minimum component power for filtering.
         """
         if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
-            self._app.logger.error(
-                "Device parts modeling is not active.  No filtering or override option is available."
+            self._app.logger.add_message(
+                message_type=2,
+                message_text="Device parts modeling is not active.  No filtering or override option is available.",
+                level="Design",
+                proj_name=self._app.project_name,
+                des_name=self._app.design_name,
             )
             return
         new_filters = self.pcb.props["NativeComponentDefinitionProvider"].get("Filters", [])
@@ -1147,8 +1254,12 @@ class PCBSettingsDeviceParts(object):
     def objects_2d_filter(self):
         """Whether 2d objects are filtered."""
         if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
-            self._app.logger.error(
-                "Device parts modeling is not active.  No filtering or override option is available."
+            self._app.logger.add_message(
+                message_type=2,
+                message_text="Device parts modeling is not active.  No filtering or override option is available.",
+                level="Design",
+                proj_name=self._app.project_name,
+                des_name=self._app.design_name,
             )
             return None
         return self.filters.get("Exclude2DObjects", False)
@@ -1165,8 +1276,12 @@ class PCBSettingsDeviceParts(object):
             Whether 2d objects are filtered.
         """
         if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
-            self._app.logger.error(
-                "Device parts modeling is not active.  No filtering or override option is available."
+            self._app.logger.add_message(
+                message_type=2,
+                message_text="Device parts modeling is not active.  No filtering or override option is available.",
+                level="Design",
+                proj_name=self._app.project_name,
+                des_name=self._app.design_name,
             )
             return
         new_filters = self.pcb.props["NativeComponentDefinitionProvider"].get("Filters", [])
@@ -1181,8 +1296,12 @@ class PCBSettingsDeviceParts(object):
     def filters(self):
         """All active filters."""
         if self.pcb.props["NativeComponentDefinitionProvider"].get("PartsChoice", None) != 1:
-            self._app.logger.error(
-                "Device parts modeling is not active.  No filtering or override option is available."
+            self._app.logger.add_message(
+                message_type=2,
+                message_text="Device parts modeling is not active.  No filtering or override option is available.",
+                level="Design",
+                proj_name=self._app.project_name,
+                des_name=self._app.design_name,
             )
             return None
         out_filters = {"Type": {"Capacitors": False, "Inductors": False, "Resistors": False}}
@@ -1296,8 +1415,13 @@ class PCBSettingsDeviceParts(object):
             ``True`` if successful, ``False`` otherwise.
         """
         if self._app.settings.aedt_version < "2024.2":
-            self._app.logger.error(
-                "This method is available only with AEDT 2024 R2 or later. Use 'override_instance()' method instead."
+            self._app.logger.add_message(
+                message_type=2,
+                message_text="This method is available only with AEDT 2024 R2 or later. "
+                "Use 'override_instance()' method instead.",
+                level="Design",
+                proj_name=self._app.project_name,
+                des_name=self._app.design_name,
             )
             return False
         return self._override_common(  # pragma : no cover
