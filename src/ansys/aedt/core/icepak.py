@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -2638,6 +2638,8 @@ class Icepak(FieldAnalysisIcepak):
         self.modeler.oeditor.Paste()
         self.modeler.refresh_all_ids()
         self.materials._load_from_project()
+        if not (source_project_name in pj_names or source_project_name is None):
+            active_project.close()
         return True
 
     @pyaedt_function_handler()
