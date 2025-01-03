@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -1312,9 +1312,6 @@ class FieldAnalysis3D(Analysis, object):
         import_method : int, bool
             Whether the import method is ``Script`` or ``Acis``.
             The default is ``1``, which means that the ``Acis`` is used.
-        sheet_bodies_2d : bool, optional
-            Whether importing as 2D sheet bodies causes imported objects to
-            be organized in terms of 2D sheets. The default is ``True``.
 
         Returns
         -------

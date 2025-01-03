@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -865,7 +865,7 @@ class Setup(CommonSetup):
             Name of the source design.
         solution : str, optional
             Name of the source design solution in the format ``"name : solution_name"``.
-            If ``None``, the default value is ``name : LastAdaptive``.
+            If ``None``, the default value is taken from the nominal adaptive solution.
         parameters : dict, optional
             Dictionary of the "mapping" variables from the source design.
             If ``None``, the default is `appname.available_variations.nominal_w_values_dict`.
@@ -918,9 +918,7 @@ class Setup(CommonSetup):
                 design_type = self.p_app.design_type
             meshlinks["Product"] = design_type
             # design name
-            if not design or design is None:
-                raise ValueError("Provide design name to add mesh link to.")
-            elif design not in self.p_app.design_list:
+            if design not in self.p_app.design_list:
                 raise ValueError("Design does not exist in current project.")
             else:
                 meshlinks["Design"] = design
@@ -938,15 +936,8 @@ class Setup(CommonSetup):
             meshlinks["ImportMesh"] = True
             # solution name
             if solution is None:
-                meshlinks["Soln"] = (
-                    f'{self.p_app.oproject.GetDesign(design).GetChildObject("Analysis").GetChildNames()[0]} : '
-                    f"LastAdaptive"
-                )
-            elif (
-                solution.split()[0] in self.p_app.oproject.GetDesign(design).GetChildObject("Analysis").GetChildNames()
-            ):
-                meshlinks["Soln"] = f"{solution.split()[0]} : LastAdaptive"
-            else:
+                meshlinks["Soln"] = self.p_app.nominal_adaptive
+            elif solution.split()[0] not in self.p_app.existing_analysis_setups:
                 raise ValueError("Setup does not exist in current design.")
             # parameters
             meshlinks["Params"] = {}
