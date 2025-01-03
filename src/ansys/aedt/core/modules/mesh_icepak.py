@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -1335,7 +1335,9 @@ class IcepakMesh(object):
 
     @pyaedt_function_handler(accuracy2="accuracy", stairStep="enable_stair_step")
     def automatic_mesh_3D(self, accuracy, enable_stair_step=True):
-        """Create a generic custom mesh for a custom 3D object.
+        """Create a generic custom mesh.
+
+        .. deprecated:: 0.13.0
 
         Parameters
         ----------
@@ -1357,14 +1359,14 @@ class IcepakMesh(object):
         xsize = self.boundingdimension[0] / (10 * accuracy * accuracy)
         ysize = self.boundingdimension[1] / (10 * accuracy * accuracy)
         zsize = self.boundingdimension[2] / (10 * accuracy)
-        self.global_mesh_region.MaxElementSizeX = xsize
-        self.global_mesh_region.MaxElementSizeY = ysize
-        self.global_mesh_region.MaxElementSizeZ = zsize
-        self.global_mesh_region.UserSpecifiedSettings = True
-        self.global_mesh_region.MinGapX = str(xsize / 100)
-        self.global_mesh_region.MinGapY = str(ysize / 100)
-        self.global_mesh_region.MinGapZ = str(zsize / 100)
-        self.global_mesh_region.StairStepMeshing = enable_stair_step
+        self.global_mesh_region.manual_settings = True
+        self.global_mesh_region.settings["MaxElementSizeX"] = xsize
+        self.global_mesh_region.settings["MaxElementSizeY"] = ysize
+        self.global_mesh_region.settings["MaxElementSizeZ"] = zsize
+        self.global_mesh_region.settings["MinGapX"] = str(xsize / 100)
+        self.global_mesh_region.settings["MinGapY"] = str(ysize / 100)
+        self.global_mesh_region.settings["MinGapZ"] = str(zsize / 100)
+        self.global_mesh_region.settings["StairStepMeshing"] = enable_stair_step
         self.global_mesh_region.update()
         return True
 
