@@ -1770,20 +1770,9 @@ class Q3d(QExtractor, object):
             return bound
         return False
 
-    @pyaedt_function_handler()
-    def create_frequency_sweep(self, setupname, units=None, freqstart=0, freqstop=1, freqstep=None, sweepname=None):
+    @pyaedt_function_handler(freqstart="start_frequency", freqstop="stop_frequency", freqstep="step_size")
+    def create_frequency_sweep(self, setupname, units=None, start_frequency=0, stop_frequency=1, step_size=None, sweepname=None):
         """Create a frequency sweep.
-
-        .. deprecated:: 0.7.12
-            This method is deprecated. To create a frequency sweep use ``create_frequency_sweep()``
-            from setup object.
-            Example
-            -------
-            >>> from ansys.aedt.core import Q3d
-            >>> q3d = Q3d()
-            >>> setup1 = q3d.create_setup(name="Setup1")
-            >>> sweep1 = setup1.create_frequency_sweep(unit="GHz", freqstart=0.5, freqstop=1.5, sweepname="Sweep1")
-            >>> q3d.release_desktop(True, True)
 
         Parameters
         ----------
@@ -1792,13 +1781,13 @@ class Q3d(QExtractor, object):
         units : str, optional
             Units of the frequency. For example, ``"MHz"`` or
             ``"GHz"``. The default is ``None`` which takes the Default Desktop units.
-        freqstart : float, str, optional
+        start_frequency : float, str, optional
             Starting frequency of the sweep. The default is ``0``.
              If a unit is passed with the number, such as ``"1MHz"``, the unit is ignored.
-        freqstop : float, str, optional
+        stop_frequency : float, str, optional
             Stopping frequency of the sweep. The default is ``1``.
             If a unit is passed with the number, such as``"1MHz"``, the unit is ignored.
-        freqstep : optional
+        step_size : optional
             Frequency step point.
         sweepname : str, optional
             Name of the sweep. The default is ``None``, in which case the
@@ -1812,6 +1801,14 @@ class Q3d(QExtractor, object):
         References
         ----------
         >>> oModule.InsertSweep
+
+        Example
+        -------
+        >>> from ansys.aedt.core import Q3d
+        >>> q3d = Q3d()
+        >>> setup1 = q3d.create_setup(name="Setup1")
+        >>> sweep1 = setup1.create_frequency_sweep(unit="GHz", start_frequency=0.5, stop_frequency=1.5, sweepname="Sweep1")
+        >>> q3d.release_desktop(True, True)
         """
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
@@ -1826,9 +1823,9 @@ class Q3d(QExtractor, object):
                         self.logger.warning("Sweep %s is already present. Rename and retry.", sweepname)
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
-                sweepdata.props["RangeStart"] = self.value_with_units(freqstart, units, "Frequency")
-                sweepdata.props["RangeEnd"] = self.value_with_units(freqstop, units, "Frequency")
-                sweepdata.props["RangeStep"] = self.value_with_units(freqstep, units, "Frequency")
+                sweepdata.props["RangeStart"] = self.value_with_units(start_frequency, units, "Frequency")
+                sweepdata.props["RangeEnd"] = self.value_with_units(stop_frequency, units, "Frequency")
+                sweepdata.props["RangeStep"] = self.value_with_units(step_size, units, "Frequency")
 
                 sweepdata.props["SaveFields"] = False
                 sweepdata.props["SaveRadFields"] = False
@@ -1847,17 +1844,6 @@ class Q3d(QExtractor, object):
         .. deprecated:: 0.7.12
             This method is deprecated. To create a discrete frequency sweep use ``create_frequency_sweep()``
             from setup object.
-            Example
-            -------
-            >>> from ansys.aedt.core import Q3d
-            >>> q3d = Q3d()
-            >>> setup1 = q3d.create_setup(name="Setup1")
-            >>> sweep1 = setup1.create_frequency_sweep(unit="GHz",
-            ...                                        freqstart=0.5,
-            ...                                        freqstop=1.5,
-            ...                                        sweepname="Sweep1",
-            ...                                        sweep_type="Discrete")
-            >>> q3d.release_desktop(True, True)
 
         Parameters
         ----------
