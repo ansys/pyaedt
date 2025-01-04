@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -1006,6 +1006,7 @@ class QExtractor(FieldAnalysis3D, object):
                 return False
 
         coupling_limits = ["NAME:CouplingLimits", "CouplingLimitType:="]
+        coupling_limit_value = "None"
         if coupling_limit_type:
             if coupling_limit_type not in [0, 1]:
                 self.logger.error('Possible values are 0 = "By Value" or 1 = "By Fraction Of Self Term".')
@@ -1076,7 +1077,6 @@ class QExtractor(FieldAnalysis3D, object):
             coupling_limits.append("ResLimit:=")
             coupling_limits.append(res_limit)
         else:
-            coupling_limit_value = "None"
             coupling_limits.append(coupling_limit_value)
 
         if model is None:

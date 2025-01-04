@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -1162,10 +1162,13 @@ class ParametricSetups(object):
             Variation Start Point if a variation is defined or Single Value.
         end_point : float or int, optional
             Variation End Point. This parameter is optional if a Single Value is defined.
-        step : float or int
-            Variation Step or Count depending on variation_type. The default is ``100``.
+        step : float, int, or str
+            Variation Step or Count depending on variation_type. The default is ``100``
+            for the "LinearCount" variation_type. If a string is passed as an argument, it
+            must be a valid expression in the given context. For example, "0.1mm" may be passed
+            for a step size when the variation_type is "LinearStep".
         variation_type : str, optional
-            Variation Type. Admitted values are `"LinearCount"`, `"LinearStep"`, `"LogScale"`, `"SingleValue"`.
+            Variation Type. Permitted values are `"LinearCount"`, `"LinearStep"`, `"LogScale"`, `"SingleValue"`.
         solution : str, optional
             Type of the solution. The default is ``None``, in which case the default
             solution is used.
