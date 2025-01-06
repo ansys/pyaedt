@@ -617,6 +617,7 @@ class Attributes:
     @property
     def filter_class(self) -> FilterClass:
         """Class (band definition) of the filter. The default is ``LOW_PASS``.
+
         The ``FilterClass`` enum provides a list of all classes.
 
         Returns
@@ -733,6 +734,7 @@ class Attributes:
     @property
     def minimum_order_stop_band_attenuation_db(self) -> str:
         """Filter stop band attenuation in dB for calculation of the filter minimum order.
+
         The default is ``50``.
 
         Returns
@@ -754,6 +756,7 @@ class Attributes:
     @property
     def minimum_order_stop_band_frequency(self) -> str:
         """Filter stop band frequency for calculation of the filter minimum order.
+
         The default is ``10 GHz``.
 
         Returns
@@ -775,6 +778,7 @@ class Attributes:
     @property
     def minimum_order_group_delay_error_percent(self) -> str:
         """Filter maximum group delay in % for calculation of the filter minimum order.
+
         The default is ``5``.
 
         Returns
@@ -831,6 +835,7 @@ class Attributes:
     @property
     def delay_time(self) -> str:
         """Filter delay time.
+
         The default is ``1 ns``.
 
         Returns
@@ -847,6 +852,7 @@ class Attributes:
     @property
     def pass_band_definition(self) -> PassbandDefinition:
         """Pass band frequency entry options.
+
         The default is ``CENTER_FREQUENCY``.
 
         Returns
@@ -901,6 +907,7 @@ class Attributes:
     @property
     def lower_frequency(self) -> str:
         """Filter lower corner frequency.
+
         The default is ``905 MHz``.
 
         Returns
@@ -917,6 +924,7 @@ class Attributes:
     @property
     def upper_frequency(self) -> str:
         """Filter upper corner frequency.
+
         The default is ``1.105 MHz``.
 
         Returns
@@ -950,6 +958,7 @@ class Attributes:
     @property
     def diplexer_outer_band_width(self) -> str:
         """Diplexer outer band width for ``BP1`` and ``Triplexer1`` diplexer types.
+
         The default is ``2 GHz``.
 
         Returns
@@ -966,6 +975,7 @@ class Attributes:
     @property
     def diplexer_lower_center_frequency(self) -> str:
         """Diplexer lower center frequency for ``BP2`` and ``Triplexer2`` diplexer types.
+
         The default is ``500 MHz``.
 
         Returns
@@ -1041,6 +1051,7 @@ class Attributes:
     @property
     def stop_band_definition(self) -> StopbandDefinition:
         """Stop band parameter entry option.
+
         The default is ``RATIO``.
 
         Returns
@@ -1062,6 +1073,7 @@ class Attributes:
     @property
     def stop_band_ratio(self) -> str:
         """Filter stop band ratio.
+
         The default is ``1.2``.
 
         Returns
@@ -1078,6 +1090,7 @@ class Attributes:
     @property
     def stop_band_frequency(self) -> str:
         """Filter stop band frequency.
+
         The default is ``1.2 GHz``.
 
         Returns
@@ -1165,6 +1178,7 @@ class Attributes:
     @property
     def raised_cosine_alpha_percentage(self) -> RaisedCosineAlphaPercentage:
         """Raised cosine alpha percentage.
+
         The default is ''FORTY''.
 
         Returns
@@ -1204,6 +1218,7 @@ class Attributes:
     @property
     def group_delay_ripple_period(self) -> str:
         """Filter approximate normalized group delay ripple period.
+
         The default is ''2''.
 
         Returns
@@ -1223,6 +1238,7 @@ class Attributes:
     @property
     def normalized_group_delay_percentage(self) -> int:
         """Normalized group delay percentage.
+
         The default is ''0''.
 
         Returns
@@ -1284,6 +1300,7 @@ class Attributes:
     @property
     def bessel_normalized_delay_period(self) -> str:
         """Bessel filter normalized delay period.
+
         The default is ''2''.
 
         Returns
@@ -1303,6 +1320,7 @@ class Attributes:
     @property
     def bessel_normalized_delay_percentage(self) -> int:
         """Bessel filter ripple percentage.
+
         The default is ''0''.
 
         Returns
@@ -1324,6 +1342,7 @@ class Attributes:
     @property
     def pass_band_ripple(self) -> str:
         """Filter pass band ripple in dB.
+
         The default is ''0.05 dB''.
 
         Returns
@@ -1436,6 +1455,7 @@ class Attributes:
     @property
     def asymmetric_high_stop_band_ratio(self) -> str:
         """Stop-band ratio for high side of an asymmetric filter.
+
         The default is ''1.2''.
 
         Returns
@@ -1457,6 +1477,7 @@ class Attributes:
     @property
     def asymmetric_low_stop_band_attenuation_db(self) -> str:
         """Stop-band attenuation for low side of an asymmetric filter.
+
         The default is ''60 dB''.
 
         Returns
@@ -1500,6 +1521,7 @@ class Attributes:
     @property
     def gaussian_transition(self) -> GaussianTransition:
         """Gaussian filter transition option.
+
         The default is ''TRANSITION_NONE''.
 
         Returns
@@ -1646,6 +1668,7 @@ class Attributes:
     @property
     def constrict_ripple_percent(self) -> str:
         """Filter ripple constriction percentage.
+
         The default is ''50%''.
 
         Returns
@@ -1680,6 +1703,7 @@ class Attributes:
     @property
     def single_point_ripple_inf_zeros(self) -> SinglePointRippleInfZeros:
         """Filter number of single point ripple infinite zeros.
+
         The default is ''RIPPLE_INF_ZEROS_1''.
 
         Returns

@@ -500,8 +500,8 @@ class ExportToAedt:
     @property
     def schematic_name(self) -> str:
         """Name of the exported schematic in ``AEDT``, displayed as the project and design names.
-        The default name is ``FilterSolutions`` if not specified.
 
+        The default name is ``FilterSolutions`` if not specified.
 
         Returns
         -------
@@ -552,8 +552,7 @@ class ExportToAedt:
 
     @property
     def include_gt_gain_enabled(self) -> bool:
-        """Flag indicating if the total voltage gain report will be created upon
-        export to ``AEDT``.
+        """Flag indicating if the total voltage gain report will be created upon export to ``AEDT``.
 
         Returns
         -------
@@ -644,8 +643,7 @@ class ExportToAedt:
 
     @property
     def include_reverse_transfer_s12_enabled(self) -> bool:
-        """Flag indicating if the reverse transfer gain report will be created upon
-        export to ``AEDT``.
+        """Flag indicating if the reverse transfer gain report will be created upon export to ``AEDT``.
 
         Returns
         -------
@@ -663,8 +661,7 @@ class ExportToAedt:
 
     @property
     def include_output_return_loss_s22_enabled(self) -> bool:
-        """Flag indicating if the output return loss report will be created upon
-        export to ``AEDT``.
+        """Flag indicating if the output return loss report will be created upon export to ``AEDT``.
 
         Returns
         -------
@@ -682,8 +679,7 @@ class ExportToAedt:
 
     @property
     def db_format_enabled(self) -> bool:
-        """Flag indicating if the report format in dB in the
-        exported filter to ``AEDT`` is enabled.
+        """Flag indicating if the report format in dB in the exported filter to ``AEDT`` is enabled.
 
         Returns
         -------
@@ -1046,6 +1042,7 @@ class ExportToAedt:
     @property
     def interconnect_minimum_length_value(self) -> str:
         """Minimum value of interconnect physical length.
+
         The minimum value of the interconnect physical length represents the smallest length that the interconnect
         line can have in the design. This value is used to determine the minimum dimensions of interconnect lines
         for optimization purposes.
@@ -1092,6 +1089,7 @@ class ExportToAedt:
     @property
     def interconnect_line_width_value(self) -> str:
         """Interconnect conductor width value.
+
         The interconnect conductor width value represents the actual width of the interconnect line in the design.
         This value is crucial for determining the electrical characteristics of the interconnect, such as impedance,
         signal integrity, and potential signal loss. Accurate width measurements are essential for ensuring that the
@@ -1116,6 +1114,7 @@ class ExportToAedt:
     @property
     def interconnect_minimum_width_value(self) -> str:
         """Minimum value of interconnect conductor width.
+
         The minimum value of the interconnect conductor width represents the smallest width that the interconnect
         line can have in the design. This value is used to determine the minimum dimensions of interconnect lines
         for optimization purposes.
@@ -1139,6 +1138,7 @@ class ExportToAedt:
     @property
     def interconnect_maximum_width_value(self) -> str:
         """Maximum value of interconnect conductor width.
+
         The maximum value of the interconnect conductor width represents the largest width that the interconnect
         line can have in the design. This value is used to determine the maximum dimensions of interconnect lines
         for optimization purposes.
@@ -1162,6 +1162,7 @@ class ExportToAedt:
     @property
     def interconnect_inductor_tolerance_value(self) -> str:
         """Tolerance value of interconnect inductor in ``%``.
+
         The default is ``1``.
 
         Returns
@@ -1182,6 +1183,7 @@ class ExportToAedt:
     @property
     def interconnect_capacitor_tolerance_value(self) -> str:
         """Tolerance value of interconnect capacitor in ``%``.
+
         The default is ``1``.
 
         Returns
@@ -1230,6 +1232,7 @@ class ExportToAedt:
     @property
     def substrate_type(self) -> SubstrateType:
         """Subctrate type of the filter.
+
         The ``SubstrateType`` enum provides a list of all substrate types.
 
         Returns
@@ -1248,6 +1251,7 @@ class ExportToAedt:
     @property
     def substrate_er(self) -> Union[SubstrateType, str]:
         """Substrate's relative permittivity ``Er``.
+
         The value can be either a string or an instance of the ``SubstrateEr`` enum.
         The default is ``9.8`` for ``SubstrateEr.ALUMINA``.
 
@@ -1283,6 +1287,7 @@ class ExportToAedt:
     @property
     def substrate_resistivity(self) -> Union[SubstrateResistivity, str]:
         """Substrate's resistivity.
+
         The value can be either a string or an instance of the ``SubstrateResistivity`` enum.
         The default is ``1.43`` for ``SubstrateResistivity.GOLD``.
 
@@ -1316,6 +1321,7 @@ class ExportToAedt:
     @property
     def substrate_loss_tangent(self) -> Union[SubstrateEr, str]:
         """Substrate's loss tangent.
+
         The value can be either a string or an instance of the ``SubstrateEr`` enum.
         The default is ``0.0005`` for ``SubstrateEr.ALUMINA``.
 
@@ -1349,6 +1355,7 @@ class ExportToAedt:
     @property
     def substrate_conductor_thickness(self) -> str:
         """Substrate's conductor thickness.
+
         The default is ``2.54 um``.
 
         Returns
@@ -1365,6 +1372,7 @@ class ExportToAedt:
     @property
     def substrate_dielectric_height(self) -> str:
         """Substrate's dielectric height.
+
         The default is ``1.27 mm``.
 
         Returns
@@ -1381,6 +1389,7 @@ class ExportToAedt:
     @property
     def substrate_unbalanced_lower_dielectric_height(self) -> str:
         """Substrate's lower dielectric height for unbalanced stripline substrate type.
+
         The default is ``6.35 mm``.
 
         Returns
@@ -1401,6 +1410,7 @@ class ExportToAedt:
     @property
     def substrate_suspend_dielectric_height(self) -> str:
         """Substrate's suspend dielectric height above ground plane for suspend and inverted substrate types.
+
         The default is ``1.27 mm``.
 
         Returns
@@ -1517,6 +1527,7 @@ class ExportToAedt:
     @property
     def modelithics_inductor_selection(self) -> str:
         """Selected ``Modelithics`` inductor family from the loaded list.
+
         The Modelithics inductor family selection allows you to choose a specific inductor model from the
         Modelithics library.
 
@@ -1608,6 +1619,7 @@ class ExportToAedt:
     @property
     def modelithics_capacitor_selection(self) -> str:
         """Selected ``Modelithics`` capacitor family from the loaded list.
+
         The Modelithics capacitor family selection allows you to choose a specific capacitor model from the
         Modelithics library.
 

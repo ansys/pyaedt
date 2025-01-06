@@ -762,6 +762,7 @@ class AMI:
 
 class IbisReader(object):
     """Reads *.ibis file content.
+
     Setup an Ibis object exposing all the extracted data.
 
     Parameters

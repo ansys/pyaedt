@@ -211,6 +211,7 @@ class LumpedTopology:
     @property
     def first_shunt(self) -> bool:
         """Flag indicating if shunt elements are first in the synthesized circuit.
+
         If ``False``, series elements are first.
 
         Returns
