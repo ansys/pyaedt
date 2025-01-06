@@ -69,7 +69,7 @@ def FilterSolutions(
     --------
     Define a band-pass Butterworth filter with a center frequency of 1 GHz and a pass band width of 500 MHz.
 
-    design = ansys.aedt.core.LumpDesign(version="2025.1")
+    design = ansys.aedt.core.LumpedDesign(version="2025.1")
     design.attributes.filter_class = FilterClass.BAND_PASS
     design.attributes.filter_type = FilterType.BUTTERWORTH
     design.attributes.pass_band_center_frequency = "1G"

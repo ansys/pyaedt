@@ -852,8 +852,8 @@ class ExportToAedt:
         size = c_int()
         status = self._dll.importTunedVariablesSize(byref(size))
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
-        circuit_response_string = self._dll_interface.get_string(self._dll.importTunedVariables, max_size=size.value)
-        return circuit_response_string
+        netlist_string = self._dll_interface.get_string(self._dll.importTunedVariables, max_size=size.value)
+        return netlist_string
 
     @property
     def part_libraries(self) -> PartLibraries:

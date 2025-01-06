@@ -49,9 +49,7 @@ class TestClass:
     def test_enum_to_string(self):
         assert ansys.aedt.core.filtersolutions_core._dll_interface().enum_to_string(FilterType.GAUSSIAN) == "gaussian"
 
-    def test_raise_error(self):
-        design = ansys.aedt.core.filtersolutions.LumpDesign(config["desktopVersion"])
-
+    def test_raise_error(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
-            design.transmission_zeros_ratio.row(0)
+            lumped_design.transmission_zeros_ratio.row(0)
         assert info.value.args[0] == test_transmission_zeros.TestClass.no_transmission_zero_msg

@@ -36,7 +36,6 @@ class DllInterface:
     """Interfaces with the FilterSolutions C++ API DLL."""
 
     def __init__(self, show_gui=False, version=None):
-        self._version = version
         self._init_dll_path(version)
         self._init_dll(show_gui)
 
@@ -189,15 +188,3 @@ class DllInterface:
         if error_status != 0:
             error_message = self.get_string(self._dll.getErrorMessage, 4096)
             raise RuntimeError(error_message)
-
-    @property
-    def desktop_version(self) -> str:
-        """Return the version of the AEDT.
-
-        Returns
-        -------
-        str
-            Desktop version.
-        """
-
-        return self._version

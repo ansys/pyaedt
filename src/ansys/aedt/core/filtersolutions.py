@@ -39,51 +39,54 @@ from ansys.aedt.core.filtersolutions_core.transmission_zeros import TableFormat
 from ansys.aedt.core.filtersolutions_core.transmission_zeros import TransmissionZeros
 
 
-class FilterSolutions:
-    """Provides the `FilterSolutions` application interface.
+class FilterDesignBase:
+    """Provides the `FilterSolutions` main parameters applicable for all design types.
     This class has access to ideal filter attributes and calculated output parameters.
+    """
+
+    # See Also
+    # --------
+    # :doc:`filtersolutions`
+
+    def __init__(self, version=None):
+        self.version = version
+        ansys.aedt.core.filtersolutions_core._dll_interface(version)
+        self.attributes = Attributes()
+        self.ideal_response = IdealResponse()
+        self.graph_setup = GraphSetup()
+        self.transmission_zeros_ratio = TransmissionZeros(TableFormat.RATIO)
+        self.transmission_zeros_bandwidth = TransmissionZeros(TableFormat.BANDWIDTH)
+
+
+class LumpedDesign(FilterDesignBase):
+    """Provides the `FilterSolutions` application interface for lumped filter designs.
+    This class provides access to lumped filter design parameters.
 
     Parameters
     ----------
     version : str, optional
         Version of AEDT in ``xxxx.x`` format. The default is ``None``.
 
-    Examples
+    Example
     --------
-    Create a ``FilterSolutions`` instance with a band-pass elliptic ideal filter.
+    Create a ``FilterSolutions.LumpedDesign`` instance with a band-pass elliptic filter.
 
     >>> import ansys.aedt.core
     >>> import ansys.aedt.core.filtersolutions
-    >>> from ansys.aedt.core.filtersolutions_core.dll_interface import DllInterface
-    >>> desktop_version = DllInterface.desktop_version
-
-    >>> design = ansys.aedt.core.FilterSolutions.LumpDesign(version= desktop_version)
-
-    See Also
-    --------
-    :doc:`filtersolutions`
+    >>> LumpedDesign = ansys.aedt.core.FilterSolutions.LumpedDesign(version= "2025.1")
+    >>> LumpedDesign.attributes.filter_class = FilterClass.BAND_PASS
+    >>> LumpedDesign.attributes.filter_type = FilterType.ELLIPTIC
     """
 
-    def __init__(self, version=None):
-        self.version = version
-        ansys.aedt.core.filtersolutions_core._dll_interface(version)
-
-
-class LumpDesign(FilterSolutions):
     def __init__(self, version=None):
         super().__init__(version)
         self._init_lumped_design()
 
     def _init_lumped_design(self):
         """Initialize the ``FilterSolutions`` object to support a lumped filter design."""
-        self.attributes = Attributes()
-        self.ideal_response = IdealResponse()
-        self.graph_setup = GraphSetup()
         self.source_impedance_table = LumpedTerminationImpedance(TerminationType.SOURCE)
         self.load_impedance_table = LumpedTerminationImpedance(TerminationType.LOAD)
         self.multiple_bands_table = MultipleBandsTable()
-        self.transmission_zeros_ratio = TransmissionZeros(TableFormat.RATIO)
-        self.transmission_zeros_bandwidth = TransmissionZeros(TableFormat.BANDWIDTH)
         self.export_to_aedt = ExportToAedt()
         self.optimization_goals_table = OptimizationGoalsTable()
         self.topology = LumpedTopology()
@@ -91,21 +94,30 @@ class LumpDesign(FilterSolutions):
         self.leads_and_nodes = LumpedNodesandLeads()
 
 
-class DistributedDesign(FilterSolutions):
+class DistributedDesign(FilterDesignBase):
+    """Provides the `FilterSolutions` application interface for distributed filter designs.
+    This class provides access to distributed filter design parameters.
+
+    Parameters
+    ----------
+    version : str, optional
+        Version of AEDT in ``xxxx.x`` format. The default is ``None``.
+
+    Example
+    --------
+    Create a ``FilterSolutions.DistributedDesign`` instance with a band-pass interdigital filter.
+
+    >>> import ansys.aedt.core
+    >>> import ansys.aedt.core.filtersolutions
+    >>> DistributedDesign = ansys.aedt.core.FilterSolutions.DistributedDesign(version= "2025.2")
+    >>> DistributedDesign.attributes.filter_class = FilterClass.BAND_PASS
+    >>> DistributedDesign.topology.topology_type = TopologyType.INTERDIGITAL
+    """
+
     def __init__(self, version=None):
         super().__init__(version)
         self._init_distributed_design()
 
     def _init_distributed_design(self):
         """Initialize the ``FilterSolutions`` object to support a distributed filter design."""
-        self.attributes = Attributes()
-        self.ideal_response = IdealResponse()
-        self.graph_setup = GraphSetup()
-        self.source_impedance_table = LumpedTerminationImpedance(TerminationType.SOURCE)
-        self.load_impedance_table = LumpedTerminationImpedance(TerminationType.LOAD)
-        self.multiple_bands_table = MultipleBandsTable()
-        self.transmission_zeros_ratio = TransmissionZeros(TableFormat.RATIO)
-        self.transmission_zeros_bandwidth = TransmissionZeros(TableFormat.BANDWIDTH)
-        self.export_to_aedt = ExportToAedt()
-        self.optimization_goals_table = OptimizationGoalsTable()
         self.topology = DistributedTopology()
