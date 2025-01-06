@@ -227,7 +227,7 @@ def _arg2dict(arg, dict_out):
 
 @pyaedt_function_handler()
 def format_decimals(el):
-    """provide a formatted string for a decimal number.
+    """Provide a formatted string for a decimal number.
 
     Parameters
     ----------
