@@ -537,7 +537,7 @@ class LumpedTopology:
     def netlist(self):
         """Execute real filter synthesis"""
         size = c_int()
-        status = self._dll.getLumpedCircuitResponseSize(byref(size))
+        status = self._dll.getLumpedNetlistSize(byref(size))
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
-        netlist_string = self._dll_interface.get_string(self._dll.getLumpedCircuitResponse, max_size=size.value)
+        netlist_string = self._dll_interface.get_string(self._dll.getLumpedNetlist, max_size=size.value)
         return netlist_string
