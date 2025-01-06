@@ -3095,9 +3095,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
     ):
         """Assign a boundary condition to a sheet or surface.
 
-        This method is generally
-        used by other methods in the ``Hfss`` class such as the :meth:``Hfss.assign_febi``
-        or :meth:``Hfss.assign_radiation_boundary_to_faces`` method.
+        This method is generally used by other methods in the ``Hfss`` class such as the
+        :meth:``Hfss.assign_febi`` or :meth:``Hfss.assign_radiation_boundary_to_faces`` method.
 
         Parameters
         ----------
