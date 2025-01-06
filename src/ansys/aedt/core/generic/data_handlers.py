@@ -345,7 +345,8 @@ def ensure_list(element_list):
     element_list : object
         Object to be checked.
 
-    Returns:
+    Returns
+    -------
     None
     """
     if not isinstance(element_list, list):
