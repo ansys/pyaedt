@@ -318,6 +318,11 @@ class TestClass:
         assert self.aedtapp.mesh.meshregions_dict
         assert pcb_mesh_region.delete()
 
+    def test_07_ExportStepForWB(self):
+        file_path = self.local_scratch.path
+        file_name = "WBStepModel"
+        assert self.aedtapp.export_3d_model(file_name, file_path, ".x_t", [], ["Region", "Component_Region"])
+
     def test_04_ImportGroup(self):
         assert self.aedtapp.copyGroupFrom("Group1", "uUSB", src_project_name, self.project_path)
 
@@ -375,11 +380,6 @@ class TestClass:
 
     def test_06_clear_linked_data(self):
         assert self.aedtapp.clear_linked_data()
-
-    def test_07_ExportStepForWB(self):
-        file_path = self.local_scratch.path
-        file_name = "WBStepModel"
-        assert self.aedtapp.export_3d_model(file_name, file_path, ".x_t", [], ["Region", "Component_Region"])
 
     def test_08_Setup(self):
         setup_name = "DomSetup"
@@ -2013,8 +2013,17 @@ class TestClass:
         fs.scale_settings.unit = "kel"
         assert fs.scale_settings.unit == "kel"
         app.close_project()
+    def test_83_MultipleMeshRegions(self):
+        # test issue 5485
+        self.aedtapp.insert_design("test83")
+        c1 = self.aedtapp.modeler.create_cylinder(orientation=0, origin=[0, 0, 0], radius=5, height=10)
+        c2 = self.aedtapp.modeler.create_cylinder(orientation=1, origin=[100, 100, 100], radius=2, height=15)
+        mesh_class = self.aedtapp.mesh
+        m1 = mesh_class.assign_mesh_region([c1.name])
+        m2 = mesh_class.assign_mesh_region([c2.name])
+        assert m1.assignment.name != m2.assignment.name
 
-    def test_83_get_object_material_properties(self):
+    def test_84_get_object_material_properties(self):
         self.aedtapp.modeler.create_box(
             origin=[0, 0, 0],
             sizes=[10, 10, 10],
@@ -2025,3 +2034,5 @@ class TestClass:
             assignment=["myBox"], prop_names="thermal_conductivity"
         )
         assert obj_mat_prop["myBox"]["thermal_conductivity"] == "205"
+
+    

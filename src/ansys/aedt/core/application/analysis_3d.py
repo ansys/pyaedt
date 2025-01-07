@@ -1472,12 +1472,14 @@ class FieldAnalysis3D(Analysis, object):
     def _find_indices(self, list_to_check, item_to_find):
         # type: (list, str|int) -> list
         """Given a list, returns the list of indices for all occurrences of a given element.
+
         Parameters
         ----------
         list_to_check: list
             List to check.
         item_to_find: str, int
             Element to search for in the list.
+
         Returns
         -------
         list
