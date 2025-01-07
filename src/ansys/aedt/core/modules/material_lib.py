@@ -610,9 +610,7 @@ class Materials(object):
             return False
         if not name:
             name = material + "_clone"
-        newmat = SurfaceMaterial(
-            self, name, self.surface_material_keys[material.lower()]._props, material_update=True
-        )
+        newmat = SurfaceMaterial(self, name, self.surface_material_keys[material.lower()]._props, material_update=True)
         self.surface_material_keys[name.lower()] = newmat
         return newmat
 
