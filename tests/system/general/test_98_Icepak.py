@@ -2025,4 +2025,3 @@ class TestClass:
             assignment=["myBox"], prop_names="thermal_conductivity"
         )
         assert obj_mat_prop["myBox"]["thermal_conductivity"] == "205"
-        
