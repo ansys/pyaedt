@@ -39,6 +39,16 @@ is_windows = not is_linux
 
 
 VENV_DIR_PREFIX = ".pyaedt_env"
+
+VENV_DIR = None  # "e:/pyaedt_env"
+if VENV_DIR:
+    pass
+elif is_windows:
+    VENV_DIR = os.path.join(os.environ["APPDATA"], VENV_DIR_PREFIX)
+else:
+    VENV_DIR = os.path.join(os.environ["HOME"], VENV_DIR_PREFIX)
+
+
 DISCLAIMER = (
     "This script will download and install certain third-party software and/or "
     "open-source software (collectively, 'Third-Party Software'). Such Third-Party "
@@ -99,10 +109,10 @@ def run_pyinstaller_from_c_python(oDesktop):
     # Add PyAEDT tabs in AEDT
     # Virtual environment path and Python executable
     if is_windows:
-        venv_dir = os.path.join(os.environ["APPDATA"], VENV_DIR_PREFIX, python_version_new)
+        venv_dir = os.path.join(VENV_DIR, python_version_new)
         python_exe = os.path.join(venv_dir, "Scripts", "python.exe")
     else:
-        venv_dir = os.path.join(os.environ["HOME"], VENV_DIR_PREFIX, python_version_new)
+        venv_dir = os.path.join(VENV_DIR, python_version_new)
         python_exe = os.path.join(venv_dir, "bin", "python")
     pyaedt_path = os.path.join(venv_dir, "Lib", "site-packages", "ansys", "aedt", "core")
     if is_linux:
@@ -207,11 +217,11 @@ def install_pyaedt():
         python_version = "3_7"
 
     if is_windows:
-        venv_dir = Path(os.environ["APPDATA"], VENV_DIR_PREFIX, python_version)
+        venv_dir = Path(VENV_DIR, python_version)
         python_exe = venv_dir / "Scripts" / "python.exe"
         pip_exe = venv_dir / "Scripts" / "pip.exe"
     else:
-        venv_dir = Path(os.environ["HOME"], VENV_DIR_PREFIX, python_version)
+        venv_dir = Path(VENV_DIR, python_version)
         python_exe = venv_dir / "bin" / "python"
         pip_exe = venv_dir / "bin" / "pip"
         os.environ["ANSYSEM_ROOT{}".format(args.version)] = args.edt_root
