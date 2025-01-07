@@ -27,10 +27,13 @@
 
 import logging
 import os
+import time
 from unittest.mock import MagicMock
 from unittest.mock import PropertyMock
 from unittest.mock import patch
 
+from ansys.aedt.core.generic.checks import AEDTRuntimeError
+from ansys.aedt.core.generic.checks import min_aedt_version
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import ALLOWED_AEDT_ENV_VAR_SETTINGS
 from ansys.aedt.core.generic.settings import ALLOWED_GENERAL_SETTINGS
@@ -266,3 +269,58 @@ def test_write_toml(tmp_path):
     _create_toml_file(TOML_DATA, file_path)
 
     assert file_path.exists()
+
+
+CURRENT_YEAR = current_year = time.localtime().tm_year
+CURRENT_YEAR_VERSION = f"{CURRENT_YEAR}.2"
+NEXT_YEAR_VERSION = f"{CURRENT_YEAR + 1}.2"
+PREVIOUS_YEAR_VERSION = f"{CURRENT_YEAR - 1}.2"
+
+
+def test_min_aedt_version_success():
+    class Dummy:
+        """Dummy class to test min version."""
+
+        odesktop = MagicMock()
+        odesktop.GetVersion.return_value = CURRENT_YEAR_VERSION
+
+        @min_aedt_version(PREVIOUS_YEAR_VERSION)
+        def old_method(self):
+            pass
+
+    dummy = Dummy()
+
+    dummy.old_method()
+
+
+def test_min_aedt_version_raise_error_on_future_version():
+    class Dummy:
+        """Dummy class to test min version."""
+
+        odesktop = MagicMock()
+        odesktop.GetVersion.return_value = CURRENT_YEAR_VERSION
+
+        @min_aedt_version(NEXT_YEAR_VERSION)
+        def future_method(self):
+            pass
+
+    dummy = Dummy()
+    pattern = (
+        f"The method 'future_method' requires a minimum Ansys release version of {NEXT_YEAR_VERSION}, "
+        "but the current version used is .+"
+    )
+
+    with pytest.raises(AEDTRuntimeError, match=pattern):
+        dummy.future_method()
+
+
+def test_min_aedt_version_raise_error_on_non_decorable_object():
+    class Dummy:
+        @min_aedt_version(PREVIOUS_YEAR_VERSION)
+        def dummy_method(self):
+            pass
+
+    dummy = Dummy()
+
+    with pytest.raises(AEDTRuntimeError, match="The desktop is not available."):
+        dummy.dummy_method()
