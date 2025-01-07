@@ -733,7 +733,7 @@ class TestClass:
 
     @pytest.mark.parametrize("ipk", [power_budget], indirect=True)
     def test039__power_budget(self, ipk):
-        power_boundaries, total_power = ipk.post.power_budget(temperature=20, output_type="boundary")
+        _, total_power = ipk.post.power_budget(temperature=20, output_type="boundary")
         assert abs(total_power - 787.5221374239883) < 1
 
     def test040__exporting_monitor_data(self, ipk, local_scratch):
@@ -853,7 +853,7 @@ class TestClass:
         fan2_prop["TargetCS"] = "CS1"
         fan2 = NativeComponentObject(ipk, "Fan", "Fan2", fan2_prop)
         fan2.create()
-        pcb = ipk.create_ipk_3dcomponent_pcb(
+        ipk.create_ipk_3dcomponent_pcb(
             "Board", link_data, solution_freq, resolution, custom_x_resolution=400, custom_y_resolution=500
         )
         ipk.monitor.assign_face_monitor(box1.faces[0].id, "Temperature", "FaceMonitor")
@@ -1020,9 +1020,9 @@ class TestClass:
         box = ipk.modeler.create_box([0, 0, 0], [10, 20, 10], name="box1")
         ipk.modeler.create_rectangle(ipk.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
         ipk.modeler.create_rectangle(ipk.PLANE.YZ, [0, 0, 0], [10, 20], name="surf2")
-        box_fc_ids = ipk.modeler.get_object_faces("box1")
+        box_fc_ids = ipk.modeler.get_object_faces(box.name)
         assert ipk.create_conduting_plate(
-            ipk.modeler.get_object_from_name("box1").faces[0].id,
+            ipk.modeler.get_object_from_name(box.name).faces[0].id,
             thermal_specification="Thickness",
             input_power="1W",
             thickness="1mm",
@@ -1349,7 +1349,7 @@ class TestClass:
     @pytest.mark.parametrize("ipk", [fan_op_point], indirect=True)
     def test059__get_fans_operating_point(self, ipk):
         ipk.set_active_design("get_fan_op_point")
-        filename, vol_flow_name, p_rise_name, op_dict = ipk.get_fans_operating_point()
+        _, vol_flow_name, p_rise_name, op_dict = ipk.get_fans_operating_point()
         assert len(list(op_dict.keys())) == 2
         ipk.set_active_design("get_fan_op_point1")
         ipk.get_fans_operating_point()
