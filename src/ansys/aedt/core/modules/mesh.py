@@ -31,7 +31,7 @@ import shutil
 
 from ansys.aedt.core.application.design_solutions import model_names
 from ansys.aedt.core.generic.data_handlers import _dict2arg
-from ansys.aedt.core.generic.general_methods import MethodNotSupportedError
+from ansys.aedt.core.generic.errors import MethodNotSupportedError
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
