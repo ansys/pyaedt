@@ -102,12 +102,12 @@ class TestClass:
         assert mysetup.dc_resistance_only
         mysetup.dc_enabled = False
         mysetup.dc_enabled = True
-        sweep = self.aedtapp.create_frequency_sweep(mysetup.name, sweepname="mysweep", start_frequency=1, units="GHz")
+        sweep = self.aedtapp.create_discrete_sweep(mysetup.name, sweepname="mysweep", freqstart=1, units="GHz")
         assert sweep
         assert sweep.props["RangeStart"] == "1GHz"
 
         # Create a discrete sweep with the same name of an existing sweep is not possible.
-        assert not self.aedtapp.create_frequency_sweep(mysetup.name, sweepname="mysweep", stop_frequency=1, units="GHz")
+        assert not self.aedtapp.create_discrete_sweep(mysetup.name, sweepname="mysweep", freqstart=1, units="GHz")
         assert mysetup.create_linear_step_sweep(
             name="StepFast",
             unit="GHz",
