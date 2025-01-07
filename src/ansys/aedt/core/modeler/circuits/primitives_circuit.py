@@ -191,6 +191,7 @@ class CircuitComponents(object):
     @pyaedt_function_handler()
     def _convert_point_to_meter(self, point):
         """Convert numbers automatically to mils.
+
         It is rounded to the nearest 100 mil which is minimum schematic snap unit.
         """
         xpos = point[0]
