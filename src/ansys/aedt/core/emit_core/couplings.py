@@ -22,8 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-This module contains these classes: `CouplingsEmit`.
+"""This module contains these classes: `CouplingsEmit`.
+
 This module provides for interacting with EMIT Analysis and Results windows.
 """
 
