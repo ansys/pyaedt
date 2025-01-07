@@ -565,14 +565,15 @@ class EmitComponent(object):
 
     @pyaedt_function_handler()
     def get_type(self):
-        """
+        """Get the property ``Type`` of a component.
+
         Parameters
         ----------
         None
 
         Returns
         -------
-        Str
+        str
             Type property of self.
         """
         properties = self.get_node_properties()

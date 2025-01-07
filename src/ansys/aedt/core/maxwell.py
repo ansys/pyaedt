@@ -81,6 +81,7 @@ class Maxwell(object):
     @pyaedt_function_handler()
     def change_symmetry_multiplier(self, value=1):
         """Set the design symmetry multiplier to a specified value.
+
         The symmetry multiplier is automatically applied to all input quantities.
 
         Parameters
@@ -443,6 +444,7 @@ class Maxwell(object):
         self, setupname, file_str=None, keep_modifications=False, python_interpreter=None, aedt_lib_dir=None
     ):
         """Configure the transient design setup to run a specific control program.
+
         The control program is executed from a temporary directory that Maxwell creates for every setup run.
 
         .. deprecated:: 0.6.71

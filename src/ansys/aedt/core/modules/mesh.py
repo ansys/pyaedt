@@ -154,6 +154,7 @@ class MeshOperation(BinaryTreeNode):
 
     @property
     def props(self):
+        """Properties of the mesh operation."""
         if not self._legacy_props:
             props = {}
             for k, v in self.properties.items():
