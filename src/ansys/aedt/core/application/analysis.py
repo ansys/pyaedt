@@ -1355,7 +1355,7 @@ class Analysis(Design, object):
 
         if setup_type is None:
             setup_type = self.design_solutions.default_setup
-        if not name:
+        if not name or name in self.setup_names:
             name = self.generate_unique_setup_name(name)
         if setup_type == 0:
             setup = SetupHFSSAuto(self, setup_type, name)
