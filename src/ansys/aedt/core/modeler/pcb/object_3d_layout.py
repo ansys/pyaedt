@@ -22,10 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-This module provides methods and data structures for managing all properties of
+"""This module provides methods and data structures for managing all properties of
 objects (points, lines, sheeets, and solids) within the AEDT 3D Layout Modeler.
-
 """
 from __future__ import absolute_import  # noreorder
 

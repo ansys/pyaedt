@@ -66,6 +66,7 @@ class GeometryOperators(object):
     @pyaedt_function_handler()
     def parse_dim_arg(string, scale_to_unit=None, variable_manager=None):
         """Convert a number and unit to a float.
+
         Angles are converted in radians.
 
         Parameters
@@ -1235,6 +1236,7 @@ class GeometryOperators(object):
     @pyaedt_function_handler()
     def q_rotation(v, q):
         """Evaluate the rotation of a vector, defined by a quaternion.
+
         Evaluated as:
         ``"q = q0 + q' = q0 + iq1 + jq2 + kq3"``,
         ``"w = qvq* = (q0^2 - |q'|^2)v + 2(q' • v)q' + 2q0(q' x v)"``.
@@ -1334,12 +1336,11 @@ class GeometryOperators(object):
     @staticmethod
     @pyaedt_function_handler()
     def cs_xy_pointing_expression(yaw, pitch, roll):
-        """Return x_pointing and y_pointing vectors as expressions from
-        the yaw, ptich, and roll input (as strings).
+        """Return x_pointing and y_pointing vectors as expressions from the yaw, pitch, and roll input (as strings).
 
         Parameters
         ----------
-        yaw : str, required
+        yaw : str
             String expression for the yaw angle (rotation about Z-axis)
         pitch : str
             String expression for the pitch angle (rotation about Y-axis)
@@ -1397,7 +1398,6 @@ class GeometryOperators(object):
         Returns
         -------
             bool
-
         """
         n = GeometryOperators.get_numeric(s)
         return True if math.fabs(n) < 2.0 * abs(sys.float_info.epsilon) else False
@@ -1426,8 +1426,9 @@ class GeometryOperators(object):
     @staticmethod
     @pyaedt_function_handler()
     def orient_polygon(x, y, clockwise=True):
-        """
-        Orient a polygon clockwise or counterclockwise. The vertices should be already ordered either way.
+        """Orient a polygon clockwise or counterclockwise.
+
+        The vertices should be already ordered either way.
         Use this function to change the orientation.
         The polygon is represented by its vertices coordinates.
 
@@ -1503,6 +1504,7 @@ class GeometryOperators(object):
     @pyaedt_function_handler()
     def v_angle_sign(va, vb, vn, right_handed=True):
         """Evaluate the signed angle between two geometry vectors.
+
         The sign is evaluated respect to the normal to the plane containing the two vectors as per the following rule.
         In case of opposite vectors, it returns an angle equal to 180deg (always positive).
         Assuming that the plane normal is normalized (vb == 1), the signed angle is simplified.
@@ -1547,6 +1549,7 @@ class GeometryOperators(object):
     @pyaedt_function_handler()
     def v_angle_sign_2D(va, vb, right_handed=True):
         """Evaluate the signed angle between two 2D geometry vectors.
+
         Iit the 2D version of the ``GeometryOperators.v_angle_sign`` considering vn = [0,0,1].
         In case of opposite vectors, it returns an angle equal to 180deg (always positive).
 

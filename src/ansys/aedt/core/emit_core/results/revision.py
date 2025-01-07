@@ -429,8 +429,7 @@ class Revision:
 
     @pyaedt_function_handler()
     def interference_type_classification(self, domain, use_filter=False, filter_list=None):  # pragma: no cover
-        """
-        Classify interference type as according to inband/inband,
+        """Classify interference type as according to inband/inband,
         out of band/in band, inband/out of band, and out of band/out of band.
 
         Parameters

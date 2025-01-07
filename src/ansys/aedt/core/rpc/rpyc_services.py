@@ -216,6 +216,17 @@ class PyaedtServiceWindows(rpyc.Service):
     """Server Pyaedt rpyc Service."""
 
     def on_connect(self, connection):
+        """Run when a connection is created.
+
+        Parameters
+        ----------
+        connection : :class:`rpyc.core.protocol.Connection`
+            The Connection object representing the connection that was created.
+
+        Returns
+        -------
+        None
+        """
         # code that runs when a connection is created
         # (to init the service, if needed)
         self.connection = connection
@@ -224,6 +235,12 @@ class PyaedtServiceWindows(rpyc.Service):
         pass
 
     def on_disconnect(self, connection):
+        """Run after the connection was closed.
+
+        Returns
+        -------
+        None
+        """
         # code that runs after the connection has already closed
         # (to finalize the service, if needed)
         if self.app:
@@ -976,7 +993,7 @@ class GlobalService(rpyc.Service):
 
     @property
     def server_name(self):
-        """Machine name,
+        """Machine name.
 
         Returns
         -------
@@ -1168,6 +1185,7 @@ class ServiceManager(rpyc.Service):
 
     @staticmethod
     def exposed_check_port():
+        """Check if a random port is available."""
         import secrets
         secure_random = secrets.SystemRandom()
         port = check_port(secure_random.randint(18500, 20000))

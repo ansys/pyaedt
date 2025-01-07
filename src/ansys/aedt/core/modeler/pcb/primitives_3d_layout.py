@@ -245,7 +245,6 @@ class Primitives3DLayout(object):
         list
             Objects found.
         """
-
         objs = []
         if object_filter:
             if isinstance(object_filter, str):
@@ -331,7 +330,7 @@ class Primitives3DLayout(object):
 
     @property
     def circle_names(self):
-        """Get the list of all rectangles in layout.
+        """Get the list of all circles in layout.
 
         Returns
         -------
@@ -361,14 +360,15 @@ class Primitives3DLayout(object):
 
     @pyaedt_function_handler()
     def cleanup_objects(self):
-        """Clean up all 3D Layout geometries (circle, rectangles, polygons, lines and voids)
+        """Clean up all 3D Layout geometries.
+
+        Clean up all 3D Layout geometries (circle, rectangles, polygons, lines and voids)
         that have been added or no longer exist in the modeler because they were removed by previous operations.
 
         Returns
         -------
         tuple
             List of added objects, List of removed names.
-
         """
         families = [
             [["poly", "plg"], self._polygons, Polygons3DLayout],

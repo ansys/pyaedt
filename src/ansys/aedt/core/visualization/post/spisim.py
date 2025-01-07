@@ -479,7 +479,7 @@ class Trace(DataSet):
 
 
 class SpiSimRawException(Exception):
-    """Custom class for exception handling"""
+    """Custom class for exception handling."""
 
     ...
 
