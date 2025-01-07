@@ -579,7 +579,7 @@ class Materials(object):
         return new_material
 
     @pyaedt_function_handler(new_name="name")
-    def duplicate_surface_material(self, material, name):
+    def duplicate_surface_material(self, material, name=None):
         """Duplicate a surface material.
 
         Parameters
@@ -605,11 +605,13 @@ class Materials(object):
         >>> hfss.materials.add_surface_material("MyMaterial")
         >>> hfss.materials.duplicate_surface_material("MyMaterial","MyMaterial2")
         """
-        if not material.lower() in list(self.surface_material_keys.keys()):
+        if material.lower() not in list(self.surface_material_keys.keys()):
             self.logger.error(f"Material {material} is not present")
             return False
+        if not name:
+            name = material + "_clone"
         newmat = SurfaceMaterial(
-            self, name.lower(), self.surface_material_keys[material.lower()]._props, material_update=True
+            self, name, self.surface_material_keys[material.lower()]._props, material_update=True
         )
         self.surface_material_keys[name.lower()] = newmat
         return newmat
@@ -758,7 +760,9 @@ class Materials(object):
         # Data to be written
         output_dict = {}
         for el, val in self.material_keys.items():
-            output_dict[el] = copy.deepcopy(val._props)
+            matobj = self.material_keys[el]
+            matname = matobj.name
+            output_dict[matname] = copy.deepcopy(val._props)
         out_list = []
         find_datasets(output_dict, out_list)
         datasets = {}
@@ -860,7 +864,7 @@ class Materials(object):
                 if numcol > 2:
                     zunit = val["Coordinates"]["DimUnits"][2]
                     zval = [sublist[2] for sublist in new_list]
-                self._app.create_dataset(el[1:], x=xval, y=yval, z=zval, x_unit=xunit, y_unit=yunit)
+                self._app.create_dataset(el[1:], x=xval, y=yval, z=zval, x_unit=xunit, y_unit=yunit, z_unit=zunit)
         if json_flag:
             for el, val in data["materials"].items():
                 if el.lower() in list(self.material_keys.keys()):
