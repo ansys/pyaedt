@@ -1349,11 +1349,18 @@ class TestClass:
     @pytest.mark.parametrize("ipk", [fan_op_point], indirect=True)
     def test059__get_fans_operating_point(self, ipk):
         ipk.set_active_design("get_fan_op_point")
-        _, vol_flow_name, p_rise_name, op_dict = ipk.get_fans_operating_point()
+        csv_file, vol_flow_name, p_rise_name, op_dict = ipk.get_fans_operating_point()
+        assert os.path.exists(csv_file)
+        assert vol_flow_name == "Volume Flow (m3_per_s)"
+        assert p_rise_name == "Pressure Rise (n_per_meter_sq)"
         assert len(list(op_dict.keys())) == 2
         ipk.set_active_design("get_fan_op_point1")
         ipk.get_fans_operating_point()
-        ipk.get_fans_operating_point(time_step="0")
+        csv_file, vol_flow_name, p_rise_name, op_dict = ipk.get_fans_operating_point(time_step="0")
+        assert os.path.exists(csv_file)
+        assert vol_flow_name == "Volume Flow (m3_per_s)"
+        assert p_rise_name == "Pressure Rise (n_per_meter_sq)"
+        assert len(list(op_dict.keys())) == 2
 
     def test060__generate_mesh(self, ipk):
         ipk.mesh.generate_mesh()
