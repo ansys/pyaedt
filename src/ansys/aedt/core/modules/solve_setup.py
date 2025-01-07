@@ -955,7 +955,7 @@ class Setup(CommonSetup):
             meshlinks["ForceSourceToSolve"] = force_source_to_solve
             meshlinks["PreservePartnerSoln"] = preserve_partner_solution
             meshlinks["ApplyMeshOp"] = apply_mesh_operations
-            if self.p_app.design_type != "Maxwell 2D" or self.p_app.design_type != "Maxwell 3D":
+            if self.p_app.design_type not in ["Maxwell 2D", "Maxwell 3D"]:
                 meshlinks["AdaptPort"] = adapt_port
             self.update()
             self.auto_update = auto_update

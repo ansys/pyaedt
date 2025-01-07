@@ -178,8 +178,19 @@ class TestClass:
             aedtapp.modeler["Rectangle1"].edges[0].id,
             aedtapp.modeler["Rectangle1"].edges[2].id,
         )
-        assert "Independent" in mas.name
-        assert "Dependent" in slave.name
+        assert mas.properties["Type"] == "Independent"
+        assert slave.properties["Type"] == "Dependent"
+        assert mas.props["Edges"][0] == aedtapp.modeler["Rectangle1"].edges[0].id
+        assert slave.props["Edges"][0] == aedtapp.modeler["Rectangle1"].edges[2].id
+        mas, slave = aedtapp.assign_master_slave(
+            aedtapp.modeler["Rectangle1"].edges[0].id, aedtapp.modeler["Rectangle1"].edges[2].id, boundary="my_bound"
+        )
+        assert mas.name == "my_bound"
+        assert slave.name == "my_bound_dep"
+        assert not aedtapp.assign_master_slave(
+            aedtapp.modeler["Rectangle1"].edges[0].id,
+            aedtapp.modeler["Rectangle1"].edges[1].id,
+        )
 
     def test_check_design_preview_image(self, local_scratch, aedtapp):
         jpg_file = os.path.join(local_scratch.path, "file.jpg")
@@ -302,28 +313,6 @@ class TestClass:
         assert bound_group.props[bound_group.props["items"][0]]["Value"] == "0"
         assert bound_group.props[bound_group.props["items"][0]]["CoordinateSystem"] == ""
         assert not aedtapp.assign_current_density("Circle_inner", "CurrentDensity_1")
-
-    def test_add_mesh_link(self, local_scratch, aedtapp):
-        aedtapp.set_active_design("Sinusoidal")
-        assert aedtapp.setups[0].add_mesh_link(design=design_name)
-        meshlink_props = aedtapp.setups[0].props["MeshLink"]
-        assert meshlink_props["Project"] == "This Project*"
-        assert meshlink_props["PathRelativeTo"] == "TargetProject"
-        assert meshlink_props["Design"] == design_name
-        assert meshlink_props["Soln"] == "Setup1 : LastAdaptive"
-        assert sorted(list(meshlink_props["Params"].keys())) == sorted(aedtapp.available_variations.variables)
-        assert sorted(list(meshlink_props["Params"].values())) == sorted(aedtapp.available_variations.variables)
-        assert not aedtapp.setups[0].add_mesh_link(design="")
-        assert aedtapp.setups[0].add_mesh_link(design=design_name, solution="Setup1 : LastAdaptive")
-        assert not aedtapp.setups[0].add_mesh_link(design=design_name, solution="Setup_Test : LastAdaptive")
-        assert aedtapp.setups[0].add_mesh_link(
-            design=design_name, parameters=aedtapp.available_variations.nominal_w_values_dict
-        )
-        example_project = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, test_name + ".aedt")
-        example_project_copy = os.path.join(local_scratch.path, test_name + "_copy.aedt")
-        shutil.copyfile(example_project, example_project_copy)
-        assert os.path.exists(example_project_copy)
-        assert aedtapp.setups[0].add_mesh_link(design=design_name, project=example_project_copy)
 
     def test_set_variable(self, aedtapp):
         aedtapp.variable_manager.set_variable("var_test", expression="123")

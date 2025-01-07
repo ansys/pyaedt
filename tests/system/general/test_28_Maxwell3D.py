@@ -36,11 +36,6 @@ from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 from tests.system.solvers.conftest import desktop_version
 
-# import shutil
-
-
-# from tests.system.general.conftest import desktop_version
-
 try:
     from IPython.display import Image
 
@@ -288,37 +283,23 @@ class TestClass:
 
     @pytest.mark.skipif(is_linux, reason="Crashing on Linux")
     def test_create_udp(self, m3d_app):
-        my_udp = []
-        udp_data = ["DiaGap", "102mm"]
-        my_udp.append(udp_data)
-        udp_data = ["Length", "100mm"]
-        my_udp.append(udp_data)
-        udp_data = ["Poles", "8"]
-        my_udp.append(udp_data)
-        udp_data = ["EmbraceTip", "0.29999999999999999"]
-        my_udp.append(udp_data)
-        udp_data = ["EmbraceRoot", "1.2"]
-        my_udp.append(udp_data)
-        udp_data = ["ThickTip", "5mm"]
-        my_udp.append(udp_data)
-        udp_data = ["ThickRoot", "10mm"]
-        my_udp.append(udp_data)
-        udp_data = ["ThickShoe", "8mm"]
-        my_udp.append(udp_data)
-        udp_data = ["DepthSlot", "12mm"]
-        my_udp.append(udp_data)
-        udp_data = ["ThickYoke", "10mm"]
-        my_udp.append(udp_data)
-        udp_data = ["LengthPole", "90mm"]
-        my_udp.append(udp_data)
-        udp_data = ["LengthMag", "0mm"]
-        my_udp.append(udp_data)
-        udp_data = ["SegAngle", "5deg"]
-        my_udp.append(udp_data)
-        udp_data = ["LenRegion", "200mm"]
-        my_udp.append(udp_data)
-        udp_data = ["InfoCore", "0"]
-        my_udp.append(udp_data)
+        my_udp = [
+            ["DiaGap", "102mm"],
+            ["Length", "100mm"],
+            ["Poles", "8"],
+            ["EmbraceTip", "0.29999999999999999"],
+            ["EmbraceRoot", "1.2"],
+            ["ThickTip", "5mm"],
+            ["ThickRoot", "10mm"],
+            ["ThickShoe", "8mm"],
+            ["DepthSlot", "12mm"],
+            ["ThickYoke", "10mm"],
+            ["LengthPole", "90mm"],
+            ["LengthMag", "0mm"],
+            ["SegAngle", "5deg"],
+            ["LenRegion", "200mm"],
+            ["InfoCore", "0"],
+        ]
 
         # Test udp with a custom name.
         my_udpName = "MyClawPoleCore"
@@ -386,30 +367,21 @@ class TestClass:
 
     @pytest.mark.skipif(is_linux, reason="Feature not supported in Linux")
     def test_create_udm(self, m3d_app):
-        my_udm = []
-        udm_data = ["ILD Thickness (ILD)", "0.006mm"]
-        my_udm.append(udm_data)
-        udm_data = ["Line Spacing (LS)", "0.004mm"]
-        my_udm.append(udm_data)
-        udm_data = ["Line Thickness (LT)", "0.005mm"]
-        my_udm.append(udm_data)
-        udm_data = ["Line Width (LW)", "0.004mm"]
-        my_udm.append(udm_data)
-        udm_data = ["No. of Turns (N)", 2]
-        my_udm.append(udm_data)
-        udm_data = ["Outer Diameter (OD)", "0.15mm"]
-        my_udm.append(udm_data)
-        udm_data = ["Substrate Thickness", "0.2mm"]
-        my_udm.append(udm_data)
-        udm_data = [
-            "Inductor Type",
-            '"Square,Square,Octagonal,Circular,Square-Differential,Octagonal-Differential,Circular-Differential"',
+        my_udm = [
+            ["ILD Thickness (ILD)", "0.006mm"],
+            ["Line Spacing (LS)", "0.004mm"],
+            ["Line Thickness (LT)", "0.005mm"],
+            ["Line Width (LW)", "0.004mm"],
+            ["No. of Turns (N)", 2],
+            ["Outer Diameter (OD)", "0.15mm"],
+            ["Substrate Thickness", "0.2mm"],
+            [
+                "Inductor Type",
+                '"Square,Square,Octagonal,Circular,Square-Differential,Octagonal-Differential,Circular-Differential"',
+            ],
+            ["Underpass Thickness (UT)", "0.001mm"],
+            ["Via Thickness (VT)", "0.001mm"],
         ]
-        my_udm.append(udm_data)
-        udm_data = ["Underpass Thickness (UT)", "0.001mm"]
-        my_udm.append(udm_data)
-        udm_data = ["Via Thickness (VT)", "0.001mm"]
-        my_udm.append(udm_data)
 
         assert m3d_app.modeler.create_udm(
             udm_full_name="Maxwell3D/OnDieSpiralInductor.py", parameters=my_udm, library="syslib"
@@ -652,7 +624,7 @@ class TestClass:
 
         circle = m3d_app.modeler.create_circle(position=[10, 10, 0], radius=5, cs_plane="XY")
         v_drop = m3d_app.assign_voltage_drop([circle.faces[0]])
-        assert v_drop.props["Faces"] == circle.faces[0].id
+        assert v_drop.props["Faces"][0] == circle.faces[0].id
         assert v_drop.props["Voltage Drop"] == "1mV"
 
     def test_assign_symmetry(self, m3d_app):
@@ -797,7 +769,7 @@ class TestClass:
         )
         assert independent
         assert dependent
-        independent, dependent = m3d_app.assign_master_slave(
+        assert not m3d_app.assign_master_slave(
             master_entity=box.faces[1],
             slave_entity=box.faces[5],
             u_vector_origin_coordinates_master=[0, "0mm", "0mm"],
@@ -805,9 +777,7 @@ class TestClass:
             u_vector_origin_coordinates_slave=["10mm", "0mm", "0mm"],
             u_vector_pos_coordinates_slave=["10mm", "10mm", "0mm"],
         )
-        assert not independent
-        assert not dependent
-        independent, dependent = m3d_app.assign_master_slave(
+        assert not m3d_app.assign_master_slave(
             master_entity=box.faces[1],
             slave_entity=box.faces[5],
             u_vector_origin_coordinates_master=["0mm", "0mm", "0mm"],
@@ -815,9 +785,7 @@ class TestClass:
             u_vector_origin_coordinates_slave=["10mm", "0mm", "0mm"],
             u_vector_pos_coordinates_slave=["10mm", "10mm", "0mm"],
         )
-        assert not independent
-        assert not dependent
-        independent, dependent = m3d_app.assign_master_slave(
+        assert not m3d_app.assign_master_slave(
             master_entity=box.faces[1],
             slave_entity=box.faces[5],
             u_vector_origin_coordinates_master=["0mm", "0mm", "0mm"],
@@ -825,9 +793,7 @@ class TestClass:
             u_vector_origin_coordinates_slave=[10, "0mm", "0mm"],
             u_vector_pos_coordinates_slave=["10mm", "10mm", "0mm"],
         )
-        assert not independent
-        assert not dependent
-        independent, dependent = m3d_app.assign_master_slave(
+        assert not m3d_app.assign_master_slave(
             master_entity=box.faces[1],
             slave_entity=box.faces[5],
             u_vector_origin_coordinates_master=["0mm", "0mm", "0mm"],
@@ -835,9 +801,7 @@ class TestClass:
             u_vector_origin_coordinates_slave=["10mm", "0mm", "0mm"],
             u_vector_pos_coordinates_slave=[10, "10mm", "0mm"],
         )
-        assert not independent
-        assert not dependent
-        independent, dependent = m3d_app.assign_master_slave(
+        assert not m3d_app.assign_master_slave(
             master_entity=box.faces[1],
             slave_entity=box.faces[5],
             u_vector_origin_coordinates_master="0mm",
@@ -845,8 +809,6 @@ class TestClass:
             u_vector_origin_coordinates_slave=["10mm", "0mm", "0mm"],
             u_vector_pos_coordinates_slave=["10mm", "10mm", "0mm"],
         )
-        assert not independent
-        assert not dependent
 
     def test_add_mesh_link(self, m3d_app, local_scratch):
         m3d_app.solution_type = SOLUTIONS.Maxwell3d.Transient
