@@ -976,99 +976,92 @@ class TestClass:
         m3d_app.solution_type = SOLUTIONS.Maxwell3d.Transient
         assert not m3d_app.assign_tangential_h_field(box.bottom_face_x, 1, 0, 2, 0)
 
-    #
-    # def test_56_zero_tangential_h_field(self, add_app):
-    #     m3d = add_app(application=Maxwell3d, solution_type="EddyCurrent")
-    #     box = m3d.modeler.create_box([0, 0, 0], [10, 10, 10])
-    #     assert m3d.assign_zero_tangential_h_field(box.top_face_z)
-    #
-    # def test_57_radiation(self):
-    #     m3d_app.insert_design("Radiation")
-    #     m3d_app.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
-    #     rect = m3d_app.modeler.create_rectangle(0, [0, 0, 0], [5, 5], material="aluminum")
-    #     rect2 = m3d_app.modeler.create_rectangle(0, [15, 20, 0], [5, 5], material="aluminum")
-    #     box = m3d_app.modeler.create_box([15, 20, 0], [5, 5, 5], material="aluminum")
-    #     box2 = m3d_app.modeler.create_box([150, 20, 0], [50, 5, 10], material="aluminum")
-    #     bound = m3d_app.assign_radiation([rect, rect2, box, box2.faces[0]])
-    #     assert bound
-    #     bound2 = m3d_app.assign_radiation([rect, rect2, box, box2.faces[0]], "my_rad")
-    #     assert bound2
-    #     bound3 = m3d_app.assign_radiation([rect, rect2, box, box2.faces[0]], "my_rad")
-    #     assert bound2.name != bound3.name
-    #     m3d_app.solution_type = SOLUTIONS.Maxwell3d.Transient
-    #     assert not m3d_app.assign_radiation([rect, rect2, box, box2.faces[0]])
-    #
-    # def test_58_solution_types_setup(self, add_app):
-    #     m3d = add_app(application=Maxwell3d, design_name="test_setups")
-    #     setup = m3d.create_setup(setup_type=m3d.solution_type)
-    #     assert setup
-    #     setup.delete()
-    #     m3d.solution_type = SOLUTIONS.Maxwell3d.Transient
-    #     setup = m3d.create_setup(setup_type=m3d.solution_type)
-    #     assert setup
-    #     setup.delete()
-    #     m3d.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
-    #     setup = m3d.create_setup(setup_type=m3d.solution_type)
-    #     assert setup
-    #     setup.delete()
-    #     m3d.solution_type = SOLUTIONS.Maxwell3d.ElectroStatic
-    #     setup = m3d.create_setup(setup_type=m3d.solution_type)
-    #     assert setup
-    #     setup.delete()
-    #     m3d.solution_type = SOLUTIONS.Maxwell3d.DCConduction
-    #     setup = m3d.create_setup(setup_type=m3d.solution_type)
-    #     assert setup
-    #     setup.delete()
-    #     m3d.solution_type = SOLUTIONS.Maxwell3d.ACConduction
-    #     setup = m3d.create_setup(setup_type=m3d.solution_type)
-    #     assert setup
-    #     setup.delete()
-    #     m3d.solution_type = SOLUTIONS.Maxwell3d.ElectroDCConduction
-    #     setup = m3d.create_setup(setup_type=m3d.solution_type)
-    #     assert setup
-    #     setup.delete()
-    #     m3d.solution_type = SOLUTIONS.Maxwell3d.ElectricTransient
-    #     setup = m3d.create_setup(setup_type=m3d.solution_type)
-    #     assert setup
-    #     setup.delete()
-    #     m3d.solution_type = SOLUTIONS.Maxwell3d.TransientAPhiFormulation
-    #     setup = m3d.create_setup(setup_type=m3d.solution_type)
-    #     assert setup
-    #     setup.delete()
-    #
-    # def test_59_assign_floating(self):
-    #     m3d_app.insert_design("Floating")
-    #     m3d_app.solution_type = SOLUTIONS.Maxwell3d.ElectroStatic
-    #     box = m3d_app.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box1")
-    #     floating = m3d_app.assign_floating(assignment=box, charge_value=3)
-    #     assert floating
-    #     assert floating.props["Objects"][0] == box.name
-    #     assert floating.props["Value"] == "3"
-    #     floating1 = m3d_app.assign_floating(assignment=[box.faces[0], box.faces[1]], charge_value=3)
-    #     assert floating1
-    #     m3d_app.solution_type = SOLUTIONS.Maxwell3d.Magnetostatic
-    #     floating = m3d_app.assign_floating(assignment=box, charge_value=3)
-    #     assert not floating
-    #
-    # def test_60_resistive_sheet(self):
-    #     m3d_app.insert_design("ResistiveSheet")
-    #     m3d_app.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
-    #     m3d_app.modeler.create_box(origin=[0, 0, 0], sizes=[0.4, -1, 0.8], name="my_box", material="copper")
-    #     my_rectangle = m3d_app.modeler.create_rectangle(
-    #         orientation=1, origin=[0, 0, 0.8], sizes=[-1, 0.4], name="my_rect"
-    #     )
-    #
-    #     # From 2025.1, this boundary can only be assigned to Sheets that touch conductor Solids.
-    #     bound = m3d_app.assign_resistive_sheet(assignment=my_rectangle.faces[0], resistance="3ohm")
-    #     assert bound
-    #     assert bound.props["Faces"][0] == my_rectangle.faces[0].id
-    #     assert bound.props["Resistance"] == "3ohm"
-    #     m3d_app.solution_type = SOLUTIONS.Maxwell3d.Magnetostatic
-    #     bound = m3d_app.assign_resistive_sheet(assignment=my_rectangle.name, non_linear=True)
-    #     assert bound.props["Nonlinear"]
-    #     assert bound.props["Objects"][0] == my_rectangle.name
-    #     m3d_app.solution_type = SOLUTIONS.Maxwell3d.ACConduction
-    #     assert not m3d_app.assign_resistive_sheet(assignment=my_rectangle, resistance="3ohm")
+    def test_assign_zero_tangential_h_field(self, m3d_app):
+        box = m3d_app.modeler.create_box([0, 0, 0], [10, 10, 10])
+        assert not m3d_app.assign_zero_tangential_h_field(box.top_face_z)
+        m3d_app.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
+        assert m3d_app.assign_zero_tangential_h_field(box.top_face_z)
+
+    def test_assign_radiation(self, m3d_app):
+        rect = m3d_app.modeler.create_rectangle(0, [0, 0, 0], [5, 5], material="aluminum")
+        rect2 = m3d_app.modeler.create_rectangle(0, [15, 20, 0], [5, 5], material="aluminum")
+        box = m3d_app.modeler.create_box([15, 20, 0], [5, 5, 5], material="aluminum")
+        box2 = m3d_app.modeler.create_box([150, 20, 0], [50, 5, 10], material="aluminum")
+        assert not m3d_app.assign_radiation([rect, rect2, box, box2.faces[0]])
+        m3d_app.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
+        bound = m3d_app.assign_radiation([rect, rect2, box, box2.faces[0]])
+        assert bound
+        bound2 = m3d_app.assign_radiation([rect, rect2, box, box2.faces[0]], "my_rad")
+        assert bound2
+        bound3 = m3d_app.assign_radiation([rect, rect2, box, box2.faces[0]], "my_rad")
+        assert bound2.name != bound3.name
+
+    def test_solution_types_setup(self, m3d_app):
+        setup = m3d_app.create_setup(setup_type=m3d_app.solution_type)
+        assert setup
+        setup.delete()
+        m3d_app.solution_type = SOLUTIONS.Maxwell3d.Transient
+        setup = m3d_app.create_setup(setup_type=m3d_app.solution_type)
+        assert setup
+        setup.delete()
+        m3d_app.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
+        setup = m3d_app.create_setup(setup_type=m3d_app.solution_type)
+        assert setup
+        setup.delete()
+        m3d_app.solution_type = SOLUTIONS.Maxwell3d.ElectroStatic
+        setup = m3d_app.create_setup(setup_type=m3d_app.solution_type)
+        assert setup
+        setup.delete()
+        m3d_app.solution_type = SOLUTIONS.Maxwell3d.DCConduction
+        setup = m3d_app.create_setup(setup_type=m3d_app.solution_type)
+        assert setup
+        setup.delete()
+        m3d_app.solution_type = SOLUTIONS.Maxwell3d.ACConduction
+        setup = m3d_app.create_setup(setup_type=m3d_app.solution_type)
+        assert setup
+        setup.delete()
+        m3d_app.solution_type = SOLUTIONS.Maxwell3d.ElectroDCConduction
+        setup = m3d_app.create_setup(setup_type=m3d_app.solution_type)
+        assert setup
+        setup.delete()
+        m3d_app.solution_type = SOLUTIONS.Maxwell3d.ElectricTransient
+        setup = m3d_app.create_setup(setup_type=m3d_app.solution_type)
+        assert setup
+        setup.delete()
+        m3d_app.solution_type = SOLUTIONS.Maxwell3d.TransientAPhiFormulation
+        setup = m3d_app.create_setup(setup_type=m3d_app.solution_type)
+        assert setup
+        setup.delete()
+
+    def test_assign_floating(self, m3d_app):
+        box = m3d_app.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box1")
+        floating = m3d_app.assign_floating(assignment=box, charge_value=3)
+        assert not floating
+        m3d_app.solution_type = SOLUTIONS.Maxwell3d.ElectroStatic
+        floating = m3d_app.assign_floating(assignment=box, charge_value=3)
+        assert floating
+        assert floating.props["Objects"][0] == box.name
+        assert floating.props["Value"] == "3"
+        floating1 = m3d_app.assign_floating(assignment=[box.faces[0], box.faces[1]], charge_value=3)
+        assert floating1
+
+    def test_assign_resistive_sheet(self, m3d_app):
+        m3d_app.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
+        m3d_app.modeler.create_box(origin=[0, 0, 0], sizes=[0.4, -1, 0.8], name="my_box", material="copper")
+        my_rectangle = m3d_app.modeler.create_rectangle(
+            orientation=1, origin=[0, 0, 0.8], sizes=[-1, 0.4], name="my_rect"
+        )
+        # From 2025.1, this boundary can only be assigned to Sheets that touch conductor Solids.
+        bound = m3d_app.assign_resistive_sheet(assignment=my_rectangle.faces[0], resistance="3ohm")
+        assert bound
+        assert bound.props["Faces"][0] == my_rectangle.faces[0].id
+        assert bound.props["Resistance"] == "3ohm"
+        m3d_app.solution_type = SOLUTIONS.Maxwell3d.Magnetostatic
+        bound = m3d_app.assign_resistive_sheet(assignment=my_rectangle.name, non_linear=True)
+        assert bound.props["Nonlinear"]
+        assert bound.props["Objects"][0] == my_rectangle.name
+        m3d_app.solution_type = SOLUTIONS.Maxwell3d.ACConduction
+        assert not m3d_app.assign_resistive_sheet(assignment=my_rectangle, resistance="3ohm")
 
     def test_assign_layout_force(self, layout_comp):
         nets_layers = {
