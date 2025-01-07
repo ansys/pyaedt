@@ -28,16 +28,10 @@
 class GrpcApiError(RuntimeError):
     """Exception raised for errors encountered while interacting with the gRPC API."""
 
-    pass
-
 
 class MethodNotSupportedError(RuntimeError):
     """Exception raised when attempting to call a method that is not supported."""
 
-    pass
-
 
 class AEDTRuntimeError(RuntimeError):
     """Exception raised for errors occurring during the runtime execution of AEDT scripts."""
-
-    pass
