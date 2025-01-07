@@ -14,7 +14,7 @@ requires Ansys Electronics Desktop (AEDT) 2022 R1 or later. The AEDT Student Ver
 
 Install from PyAEDT installer
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The following python script automatically installs PyAEDT from AEDT,
+The following Python script automatically installs PyAEDT from AEDT,
 using the CPython interpreter included in the AEDT installation.
 
 In order to do that you can:
@@ -23,7 +23,7 @@ In order to do that you can:
 
 - Open an Electronics Desktop Session and click on Tools->Run Script and execute the file.
 
-- Offline install is also possible using wheelhouses.
+- Offline installation is also possible using wheelhouses.
 
 .. note::
     A wheelhouse is a zip containing all needed packages that can be installed offline.
@@ -103,7 +103,7 @@ If you want to install the PyAEDT panels in the AEDT Automation tab, use the fol
 
     pip install pyaedt[installer]
 
-Finally, in the python console, run the following commands:
+Finally, in the Python console, run the following commands:
 
 .. code::
 
@@ -114,10 +114,10 @@ You can also install the PyAEDT panels using the following steps, this is also u
 
 - Download the following file: :download:`PyAEDT panel Installer Python file <../Resources/toolkit_installer_from_aedt.py>`
 
-- Define an environment variable called `PYAEDT_INTERPRETER` with the path of the python interpreter in which PyAEDT is installed.
+- Define an environment variable called `PYAEDT_INTERPRETER` with the path of the Python interpreter in which PyAEDT is installed.
 
 - Open an Electronics Desktop Session and click on Tools->Run Script and execute the file. You do not need the previous step if
-you pass as an argument the path of the python interpreter.
+you pass as an argument the path of the Python interpreter.
 
 
 Linux support
@@ -141,7 +141,7 @@ From the `Releases <https://github.com/ansys/pyaedt/releases>`_
 page in the PyAEDT repository, you can find the wheelhouses for a particular release in its
 assets and download the wheelhouse specific to your setup.
 
-There are two kind of wheelhouses: `all` and `installer`.
+There are two kinds of wheelhouses: `all` and `installer`.
 
 The `all` wheelhouse contains all PyAEDT dependencies. And the `installer` one includes `ipython` and `jupyter lab`.
 
@@ -160,7 +160,7 @@ If you want to add the PyAEDT panels in the AEDT Automation tab, you need first 
 
     pip install --no-cache-dir --no-index --find-links=file:///<path_to_wheelhouse>/PyAEDT-v<release_version>-wheelhouse-Windows-3.10 pyaedt[installer]
 
-Finally, in the python console, run the following commands:
+Finally, in the Python console, run the following commands:
 
 .. code::
 
