@@ -113,9 +113,39 @@ class Standard(CommonReport):
         """
         return self._legacy_props["context"].get("pulse_rise_time", 0) if self.domain == "Time" else 0
 
+    @property
+    def maximum_time(self):
+        """Value of maximum time for TDR plot.
+
+        Returns
+        -------
+        float
+            Maximum time.
+        """
+        return self._legacy_props["context"].get("maximum_time", 0) if self.domain == "Time" else 0
+
+    @property
+    def step_time(self):
+        """Value of step time for TDR plot.
+
+        Returns
+        -------
+        float
+            step time.
+        """
+        return self._legacy_props["context"].get("step_time", 0) if self.domain == "Time" else 0
+
     @pulse_rise_time.setter
     def pulse_rise_time(self, val):
         self._legacy_props["context"]["pulse_rise_time"] = val
+
+    @maximum_time.setter
+    def maximum_time(self, val):
+        self._legacy_props["context"]["maximum_time"] = val
+
+    @step_time.setter
+    def step_time(self, val):
+        self._legacy_props["context"]["step_time"] = val
 
     @property
     def time_windowing(self):
@@ -227,8 +257,8 @@ class Standard(CommonReport):
                         1,
                         1,
                         "",
-                        self.pulse_rise_time / 5,
-                        self.pulse_rise_time * 100,
+                        (self.pulse_rise_time / 5) if not self.step_time else self.step_time,
+                        (self.pulse_rise_time * 100) if not self.maximum_time else self.maximum_time,
                         "EnsDiffPairKey",
                         False,
                         "1",
@@ -254,8 +284,8 @@ class Standard(CommonReport):
                         1,
                         1,
                         "",
-                        self.pulse_rise_time / 5,
-                        self.pulse_rise_time * 100,
+                        (self.pulse_rise_time / 5) if not self.step_time else self.step_time,
+                        (self.pulse_rise_time * 100) if not self.maximum_time else self.maximum_time,
                         "EnsDiffPairKey",
                         False,
                         "0",
@@ -281,8 +311,8 @@ class Standard(CommonReport):
                     1,
                     1,
                     "",
-                    self.pulse_rise_time / 5,
-                    self.pulse_rise_time * 100,
+                    (self.pulse_rise_time / 5) if not self.step_time else self.step_time,
+                    (self.pulse_rise_time * 100) if not self.maximum_time else self.maximum_time,
                 ],
             ]
             if self.sub_design_id:
