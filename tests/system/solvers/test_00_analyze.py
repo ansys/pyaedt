@@ -137,9 +137,10 @@ class TestClass:
         profile = sbr_platform.setups[0].get_profile()
         assert isinstance(profile, dict)
         assert not sbr_platform.get_profile("Invented_setup")
+        solution_data = sbr_platform.setups[0].get_solution_data()
 
-        ffdata = sbr_platform.get_antenna_data(frequencies=12e9, sphere="3D")
-        ffdata2 = sbr_platform.get_antenna_data(frequencies=12e9, sphere="3D", overwrite=False)
+        ffdata = sbr_platform.get_antenna_data(frequencies=solution_data.intrinsics["Freq"], sphere="3D")
+        ffdata2 = sbr_platform.get_antenna_data(frequencies=solution_data.intrinsics["Freq"], sphere="3D", overwrite=False)
 
         ffdata.farfield_data.plot_cut(
             quantity="RealizedGain",

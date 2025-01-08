@@ -839,6 +839,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             setup_type = self.design_solutions.default_setup
         elif setup_type in SetupKeys.SetupNames:
             setup_type = SetupKeys.SetupNames.index(setup_type)
+        if name in self.setup_names:
+            name = self.create_uni
         setup = self._create_setup(name=name, setup_type=setup_type)
         setup.auto_update = False
         for arg_name, arg_value in kwargs.items():
@@ -5855,6 +5857,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 frequencies = farfield_data.primary_sweep_values
 
         if frequencies:
+            if type(frequencies) in [float, int, str]:
+                frequencies = [frequencies]
             frequencies = [str(freq) + frequency_units for freq in frequencies if is_number(freq)]
         else:  # pragma: no cover
             self.logger.info("Frequencies could not be obtained.")
