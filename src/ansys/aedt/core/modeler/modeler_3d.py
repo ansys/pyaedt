@@ -264,13 +264,16 @@ class Modeler3D(Primitives3D):
         for el in objs:
             if "CreateRegion:1" in self.oeditor.GetChildObject(el).GetChildNames():
                 objs.remove(el)
-        arg += ["IncludedParts:=", objs]
-        hidden_parts = hide_contents if hide_contents_flag else []
-        arg += ["HiddenParts:=", hidden_parts]
-        included_cs = coordinate_systems if coordinate_systems else self.oeditor.GetCoordinateSystems()
-        arg += ["IncludedCS:=", included_cs]
-        arg += ["ReferenceCS:=", reference_coordinate_system]
-        par_description = []
+        arg += [
+            "IncludedParts:=",
+            objs,
+            "HiddenParts:=",
+            hide_contents if hide_contents_flag else [],
+            "IncludedCS:=",
+            coordinate_systems if coordinate_systems else list(self.oeditor.GetCoordinateSystems()),
+            "ReferenceCS:=",
+            reference_coordinate_system,
+        ]
         variables = []
         dependent_variables = []
         if variables_to_include is not None and not variables_to_include == []:
@@ -285,19 +288,23 @@ class Modeler3D(Primitives3D):
         elif variables_to_include is None:
             variables = self._app._variable_manager.independent_variable_names
             dependent_variables = self._app._variable_manager.dependent_variable_names
+        arg += [
+            "IncludedParameters:=",
+            variables,
+            "IncludedDependentParameters:=",
+            dependent_variables,
+            "ParameterDescription:=",
+            [item for el in variables for item in (el + ":=", "")],
+            "IsLicensed:=",
+            False,
+            "LicensingDllName:=",
+            "",
+            "VendorComponentIdentifier:=",
+            "",
+            "PublicKeyFile:=",
+            "",
+        ]
 
-        for el in variables:
-            par_description += [el + ":=", ""]
-        arg += ["IncludedParameters:=", variables]
-
-        arg += ["IncludedDependentParameters:=", dependent_variables]
-        for el in variables:
-            par_description += [el + ":=", ""]
-        arg += ["ParameterDescription:=", par_description]
-        arg += ["IsLicensed:=", False]
-        arg += ["LicensingDllName:=", ""]
-        arg += ["VendorComponentIdentifier:=", ""]
-        arg += ["PublicKeyFile:=", ""]
         arg2 = ["NAME:DesignData"]
         if not boundaries:
             boundaries = self.get_boundaries_name()
@@ -501,13 +508,16 @@ class Modeler3D(Primitives3D):
         for el in objs:
             if "CreateRegion:1" in self.oeditor.GetChildObject(el).GetChildNames():
                 objs.remove(el)
-        arg += ["IncludedParts:=", objs]
-        arg += ["HiddenParts:=", []]
-        if not coordinate_systems:
-            coordinate_systems = list(self.oeditor.GetCoordinateSystems())
-        arg += ["IncludedCS:=", coordinate_systems]
-        arg += ["ReferenceCS:=", reference_coordinate_system]
-        par_description = []
+        arg += [
+            "IncludedParts:=",
+            objs,
+            "HiddenParts:=",
+            [],
+            "IncludedCS:=",
+            coordinate_systems if coordinate_systems else list(self.oeditor.GetCoordinateSystems()),
+            "ReferenceCS:=",
+            reference_coordinate_system,
+        ]
         variables = []
         if variables_to_include:
             dependent_variables = []
@@ -522,15 +532,14 @@ class Modeler3D(Primitives3D):
         else:
             variables = self._app._variable_manager.independent_variable_names
             dependent_variables = self._app._variable_manager.dependent_variable_names
-
-        for el in variables:
-            par_description += [el + ":=", ""]
-        arg += ["IncludedParameters:=", variables]
-        arg += ["IncludedDependentParameters:=", dependent_variables]
-
-        for el in variables:
-            par_description += [el + ":=", ""]
-        arg += ["ParameterDescription:=", par_description]
+        arg += [
+            "IncludedParameters:=",
+            variables,
+            "IncludedDependentParameters:=",
+            dependent_variables,
+            "ParameterDescription:=",
+            [item for el in variables for item in (el + ":=", "")],
+        ]
 
         arg2 = ["NAME:DesignData"]
         if not boundaries:
