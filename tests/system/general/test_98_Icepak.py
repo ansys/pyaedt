@@ -2034,4 +2034,4 @@ class TestClass:
         obj_mat_prop = self.aedtapp.get_object_material_properties(
             assignment=["myBox"], prop_names="thermal_conductivity"
         )
-        assert obj_mat_prop["myBox"]["thermal_conductivity"] == "205"   
+        assert obj_mat_prop["myBox"]["thermal_conductivity"] == "205"
