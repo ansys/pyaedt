@@ -113,6 +113,10 @@ class Standard(CommonReport):
         """
         return self._legacy_props["context"].get("pulse_rise_time", 0) if self.domain == "Time" else 0
 
+    @pulse_rise_time.setter
+    def pulse_rise_time(self, val):
+        self._legacy_props["context"]["pulse_rise_time"] = val
+
     @property
     def maximum_time(self):
         """Value of maximum time for TDR plot.
@@ -124,6 +128,10 @@ class Standard(CommonReport):
         """
         return self._legacy_props["context"].get("maximum_time", 0) if self.domain == "Time" else 0
 
+    @maximum_time.setter
+    def maximum_time(self, val):
+        self._legacy_props["context"]["maximum_time"] = val
+
     @property
     def step_time(self):
         """Value of step time for TDR plot.
@@ -134,14 +142,6 @@ class Standard(CommonReport):
             step time.
         """
         return self._legacy_props["context"].get("step_time", 0) if self.domain == "Time" else 0
-
-    @pulse_rise_time.setter
-    def pulse_rise_time(self, val):
-        self._legacy_props["context"]["pulse_rise_time"] = val
-
-    @maximum_time.setter
-    def maximum_time(self, val):
-        self._legacy_props["context"]["maximum_time"] = val
 
     @step_time.setter
     def step_time(self, val):
