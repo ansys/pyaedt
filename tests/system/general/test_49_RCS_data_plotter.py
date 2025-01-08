@@ -50,6 +50,7 @@ def setup_test_data(request, local_scratch):
     data_dir = os.path.join(local_scratch.path, "rcs_files")
     shutil.copytree(dir_original, data_dir)
     request.cls.metadata_file = os.path.join(data_dir, "rcs_metadata.json")
+    request.cls.metadata_file_no_data = os.path.join(data_dir, "rcs_metadata_no_data.json")
     request.cls.metadata_file_fake = os.path.join(data_dir, "rcs_metadata_fake.json")
     yield
 
@@ -271,6 +272,16 @@ class TestClass:
         assert rcs_plotter.clear_scene()
 
         rcs_plotter.add_isar_2d("Relief")
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+    def test_14_rcs_plotter_no_data(self):
+        rcs_data = MonostaticRCSData(input_file=self.metadata_file_no_data)
+        rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_data)
+        rcs_plotter.show_geometry = False
+
+        rcs_plotter.add_range_profile_settings()
         plot = rcs_plotter.plot_scene(show=False)
         assert isinstance(plot, Plotter)
         assert rcs_plotter.clear_scene()

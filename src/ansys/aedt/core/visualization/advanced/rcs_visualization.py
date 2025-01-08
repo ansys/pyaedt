@@ -132,7 +132,9 @@ class MonostaticRCSData(object):
 
         self.__frequency_units = self.__metadata["frequency_units"]
 
-        self.__monostatic_file = self.output_dir / self.__metadata["monostatic_file"]
+        self.__monostatic_file = None
+        if self.__metadata["monostatic_file"]:
+            self.__monostatic_file = self.output_dir / self.__metadata["monostatic_file"]
 
         self.__data_conversion_function = "dB20"
         self.__window = "Flat"
@@ -141,19 +143,23 @@ class MonostaticRCSData(object):
         self.__upsample_range = 512
         self.__upsample_azimuth = 64
 
-        if not self.__monostatic_file.is_file():
+        if self.__monostatic_file and not self.__monostatic_file.is_file():
             raise Exception("Monostatic file invalid.")
 
         self.rcs_column_names = ["data"]
 
         # Load farfield data
-        is_rcs_loaded = self.__init_rcs()
+        if self.__monostatic_file:
+            is_rcs_loaded = self.__init_rcs()
+        else:
+            is_rcs_loaded = True
 
         if not is_rcs_loaded:  # pragma: no cover
             raise RuntimeError("RCS information can not be loaded.")
 
-        # Update active frequency if passed in the initialization
-        self.frequency = self.frequencies[0]
+        if self.__monostatic_file:
+            # Update active frequency if passed in the initialization
+            self.frequency = self.frequencies[0]
 
     @property
     def raw_data(self):
