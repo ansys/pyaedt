@@ -47,6 +47,10 @@ SETTINGS_RELEASE_ON_EXCEPTION = settings.release_on_exception
 SETTINGS_ENABLE_ERROR_HANDLER = settings.enable_error_handler
 ERROR_MESSAGE = "Dummy message."
 TOML_DATA = {"key_0": "dummy", "key_1": 12, "key_2": [1, 2], "key_3": {"key_4": 42}}
+CURRENT_YEAR = current_year = time.localtime().tm_year
+CURRENT_YEAR_VERSION = f"{CURRENT_YEAR}.2"
+NEXT_YEAR_VERSION = f"{CURRENT_YEAR + 1}.2"
+PREVIOUS_YEAR_VERSION = f"{CURRENT_YEAR - 1}.2"
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -269,12 +273,6 @@ def test_write_toml(tmp_path):
     _create_toml_file(TOML_DATA, file_path)
 
     assert file_path.exists()
-
-
-CURRENT_YEAR = current_year = time.localtime().tm_year
-CURRENT_YEAR_VERSION = f"{CURRENT_YEAR}.2"
-NEXT_YEAR_VERSION = f"{CURRENT_YEAR + 1}.2"
-PREVIOUS_YEAR_VERSION = f"{CURRENT_YEAR - 1}.2"
 
 
 def test_min_aedt_version_success():
