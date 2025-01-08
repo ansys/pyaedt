@@ -46,11 +46,11 @@ For example,
 VENV_DIR = "e:/pyaedt_env"
 """
 VENV_DIR = None
-
-if not VENV_DIR and is_windows:
-    VENV_DIR = os.path.join(os.environ["APPDATA"], VENV_DIR_PREFIX)
-else:
-    VENV_DIR = os.path.join(os.environ["HOME"], VENV_DIR_PREFIX)
+if not VENV_DIR:
+    if is_windows:
+        VENV_DIR = os.path.join(os.environ["APPDATA"], VENV_DIR_PREFIX)
+    else:
+        VENV_DIR = os.path.join(os.environ["HOME"], VENV_DIR_PREFIX)
 
 
 DISCLAIMER = (
