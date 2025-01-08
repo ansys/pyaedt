@@ -289,7 +289,6 @@ def test_min_aedt_version_success():
             pass
 
     dummy = Dummy()
-
     dummy.old_method()
 
 
