@@ -26,8 +26,6 @@ import json
 from pathlib import Path
 import sys
 
-# from pyvistaqt import BackgroundPlotter
-
 current_python_version = sys.version_info[:2]
 if current_python_version < (3, 10):  # pragma: no cover
     raise Exception("Python 3.10 or higher is required for Monostatic RCS post-processing.")
