@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -1488,7 +1488,7 @@ class TestClass:
         )
 
         term = [term for term in self.aedtapp.boundaries if term.type == "Terminal"][0]
-        assert self.aedtapp.boundaries[0].type == "Terminal"
+        assert term.type == "Terminal"
         term.name = "test"
         assert term.name == "test"
         term.props["TerminalResistance"] = "1ohm"

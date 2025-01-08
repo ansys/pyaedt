@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -75,13 +75,6 @@ class Object3d(object):
     """
 
     def __init__(self, primitives, name=None):
-        """
-        Parameters
-        ----------
-        primitives : :class:`ansys.aedt.core.modeler.cad.primitives_3d.Primitives3D`
-            Inherited parent object.
-        name : str
-        """
         self._id = None
         if name:
             self._m_name = name
@@ -282,7 +275,6 @@ class Object3d(object):
     def export_image(self, output_file=None):
         """Export the current object to a specified file path.
 
-
         .. note::
            Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
 
@@ -315,6 +307,7 @@ class Object3d(object):
     @pyaedt_function_handler()
     def touching_conductors(self):
         """Get the conductors of given object.
+
         See :func:`ansys.aedt.core.application.analysis_3d.FieldAnalysis3D.identify_touching_conductors`.
 
         Returns

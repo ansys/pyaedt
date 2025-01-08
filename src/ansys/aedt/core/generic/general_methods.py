@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -802,22 +802,22 @@ def generate_unique_project_name(root_name=None, folder_name=None, project_name=
 
 
 def _retry_ntimes(n, function, *args, **kwargs):
-    """
+    """Retry a function several times.
 
     Parameters
     ----------
     n : int
-
-    function :
-
-    *args :
-
-    **kwargs :
-
+        The number of retries.
+    function : function
+        Function to retry.
+    *args : tuple
+        Arguments for the function.
+    **kwargs : dict
+        Keyword arguments for the function.
 
     Returns
     -------
-
+    None
     """
     func_name = None
     try:
@@ -2188,6 +2188,7 @@ def _check_installed_version(install_path, long_version):
 @pyaedt_function_handler()
 def install_with_pip(package_name, package_path=None, upgrade=False, uninstall=False):  # pragma: no cover
     """Install a new package using pip.
+
     This method is useful for installing a package from the AEDT Console without launching the Python environment.
 
     Parameters

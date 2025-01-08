@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -358,15 +358,16 @@ class Polyline(Object3d):
 
     @property
     def start_point(self):
-        """List of the ``[x, y, z]`` coordinates for the starting point in the polyline
-        object in the object's coordinate system.
+        """Get the starting point in the polyline object.
+
+        This is a list of the ``[x, y, z]`` coordinates for the starting point in the polyline
+        object in the object's coordinate system
 
         Returns
         -------
         list
             List of the ``[x, y, z]`` coordinates for the starting point in the polyline
             object.
-
         """
         return self.points[0]
 
@@ -567,7 +568,6 @@ class Polyline(Object3d):
         Returns
         -------
         list
-
         """
         position_list = self.points
         segment_types = self.segment_types
@@ -644,6 +644,7 @@ class Polyline(Object3d):
     @pyaedt_function_handler()
     def _evaluate_arc_angle_extra_points(self, segment, start_point):
         """Evaluate the extra points for the ArcAngle segment type.
+
         It also auto evaluates the arc_plane if it was not specified by the user.
         segment.extra_points[0] contains the arc mid point (on the arc).
         segment.extra_points[1] contains the arc end point.
@@ -1034,12 +1035,13 @@ class Polyline(Object3d):
     @pyaedt_function_handler()
     def _get_point_slice_from_segment_id(self, segment_id, at_start=True):
         """Get the points belonging to the segment from the segment id.
+
         The points are returned as list slice by returning the indexes.
 
         Parameters
         ----------
         segment_id : int
-            segment id
+            Segment id.
 
         at_start : bool
             if ``True`` the slice includes the start point of the segment and not the end point.

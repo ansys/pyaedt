@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -85,6 +85,7 @@ from ansys.aedt.core.generic.general_methods import write_csv
 from ansys.aedt.core.generic.load_aedt_file import load_entire_aedt_file
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
+from ansys.aedt.core.modules.boundary.layout_boundary import BoundaryObject3dLayout
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
 
 if sys.version_info.major > 2:
@@ -385,7 +386,6 @@ class Design(AedtObjects):
     def boundaries(self) -> List[BoundaryObject]:
         """Design boundaries and excitations.
 
-
         Returns
         -------
         list[:class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`]
@@ -478,7 +478,7 @@ class Design(AedtObjects):
                     del self._boundaries[k]
         for boundary, boundarytype in zip(current_boundaries, current_types):
             if boundary in self._boundaries:
-                self._boundaries[boundary]._initialize_bynary_tree()
+                self._boundaries[boundary]._initialize_tree_node()
                 continue
             if boundarytype == "MaxwellParameters":
                 maxwell_parameter_type = self.get_oo_property_value(self.odesign, f"Parameters\\{boundary}", "Type")
@@ -492,10 +492,14 @@ class Design(AedtObjects):
                 self._boundaries[boundary] = NetworkObject(self, boundary)
             else:
                 self._boundaries[boundary] = BoundaryObject(self, boundary, boundarytype=boundarytype)
+
         try:
             for k, v in zip(current_excitations, current_excitation_types):
                 if k not in self._boundaries:
-                    self._boundaries[k] = BoundaryObject(self, k, boundarytype=v)
+                    if self.design_type == "HFSS 3D Layout Design" and v == "Port":
+                        self._boundaries[k] = BoundaryObject3dLayout(self, k, props=None, boundarytype=v)
+                    else:
+                        self._boundaries[k] = BoundaryObject(self, k, boundarytype=v)
         except Exception:
             self.logger.info("Failed to design boundary object.")
         return list(self._boundaries.values())
@@ -1020,7 +1024,6 @@ class Design(AedtObjects):
     @property
     def toolkit_directory(self) -> str:
         """Path to the toolkit directory.
-
 
         Returns
         -------

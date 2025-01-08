@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -93,9 +93,11 @@ class BoundaryCommon(PropsManager):
         return arg
 
     @pyaedt_function_handler()
-    def _initialize_bynary_tree(self):
+    def _initialize_tree_node(self):
         if self._child_object:
             BinaryTreeNode.__init__(self, self._name, self._child_object, False)
+            return True
+        return False
 
     @pyaedt_function_handler()
     def delete(self):
@@ -219,9 +221,8 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
         self.__props = None
         self.__props = BoundaryProps(self, props) if props else {}
         self._type = boundarytype
-        self._boundary_name = self.name
         self.auto_update = auto_update
-        self._initialize_bynary_tree()
+        self._initialize_tree_node()
 
     @property
     def _child_object(self):
@@ -232,36 +233,50 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
         class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTreeNode`
 
         """
-        child_object = None
         design_childs = self._app.get_oo_name(self._app.odesign)
+
+        if "Nets" in design_childs:
+            cc = self._app.get_oo_object(self._app.odesign, "Nets")
+            cc_names = self._app.get_oo_name(cc)
+            if self._name in cc_names:
+                return cc.GetChildObject(self._name)
+            for name in cc_names:
+                cc = self._app.get_oo_object(self._app.odesign, f"Nets\\{name}")
+                cc_names = self._app.get_oo_name(cc)
+                if self._name in cc_names:
+                    return cc.GetChildObject(self._name)
 
         if "Thermal" in design_childs:
             cc = self._app.get_oo_object(self._app.odesign, "Thermal")
             cc_names = self._app.get_oo_name(cc)
-            if self.name in cc_names:
-                child_object = cc.GetChildObject(self.name)
-        elif "Boundaries" in design_childs:
+            if self._name in cc_names:
+                return cc.GetChildObject(self._name)
+
+        if "Boundaries" in design_childs:
             cc = self._app.get_oo_object(self._app.odesign, "Boundaries")
-            if self.name in cc.GetChildNames():
-                child_object = cc.GetChildObject(self.name)
-            elif "Excitations" in design_childs and self.name in self._app.get_oo_name(
-                self._app.odesign, "Excitations"
-            ):
-                child_object = self._app.get_oo_object(self._app.odesign, "Excitations").GetChildObject(self.name)
-            elif self._app.design_type in ["Maxwell 3D", "Maxwell 2D"] and "Model" in design_childs:
-                model = self._app.get_oo_object(self._app.odesign, "Model")
-                if self.name in model.GetChildNames():
-                    child_object = model.GetChildObject(self.name)
-            elif "Excitations" in design_childs and self._app.get_oo_name(self._app.odesign, "Excitations"):
+            if self._name in cc.GetChildNames():
+                return cc.GetChildObject(self._name)
+
+        if "Excitations" in design_childs:
+            if self._name in self._app.get_oo_name(self._app.odesign, "Excitations"):
+                return self._app.get_oo_object(self._app.odesign, "Excitations").GetChildObject(self._name)
+            elif self._app.get_oo_name(self._app.odesign, "Excitations"):
                 for port in self._app.get_oo_name(self._app.odesign, "Excitations"):
                     terminals = self._app.get_oo_name(self._app.odesign, f"Excitations\\{port}")
-                    if self.name in terminals:
-                        child_object = self._app.get_oo_object(self._app.odesign, f"Excitations\\{port}\\{self.name}")
-            elif "Conductors" in design_childs and self._app.get_oo_name(self._app.odesign, "Conductors"):
-                for port in self._app.get_oo_name(self._app.odesign, "Conductors"):
-                    if self.name == port:
-                        child_object = self._app.get_oo_object(self._app.odesign, f"Conductors\\{port}")
-        return child_object
+                    if self._name in terminals:
+                        return self._app.get_oo_object(self._app.odesign, f"Excitations\\{port}\\{self._name}")
+
+        if self._app.design_type in ["Maxwell 3D", "Maxwell 2D"] and "Model" in design_childs:
+            model = self._app.get_oo_object(self._app.odesign, "Model")
+            if self._name in model.GetChildNames():
+                return model.GetChildObject(self._name)
+
+        if "Conductors" in design_childs and self._app.get_oo_name(self._app.odesign, "Conductors"):
+            for port in self._app.get_oo_name(self._app.odesign, "Conductors"):
+                if self._name == port:
+                    return self._app.get_oo_object(self._app.odesign, f"Conductors\\{port}")
+
+        return None
 
     @property
     def props(self):
@@ -310,12 +325,18 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
     @property
     def name(self):
         """Boundary Name."""
+        if getattr(self, "child_object", None):
+            self._name = str(self.properties["Name"])
         return self._name
 
     @name.setter
     def name(self, value):
-        self._name = value
-        self.update()
+        if getattr(self, "child_object", None):
+            try:
+                self.properties["Name"] = value
+                self._app._boundaries[value] = self
+            except KeyError:
+                self._app.logger.error("Name %s already assigned in the design", value)
 
     @pyaedt_function_handler()
     def _get_args(self, props=None):
@@ -359,6 +380,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
             self._app.oboundary.AssignRadiation(self._get_args())
         elif bound_type == "FE-BI":
             self._app.oboundary.AssignFEBI(self._get_args())
+            return True
         elif bound_type == "Finite Conductivity":
             self._app.oboundary.AssignFiniteCond(self._get_args())
         elif bound_type == "Lumped RLC":
@@ -397,6 +419,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
             self._app.oboundary.AssignDependent(self._get_args())
         elif bound_type == "Band":
             self._app.omodelsetup.AssignBand(self._get_args())
+            return True
         elif bound_type == "InfiniteGround":
             self._app.oboundary.AssignInfiniteGround(self._get_args())
         elif bound_type == "ThinConductor":
@@ -504,10 +527,12 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
             )
         elif bound_type == "SBRTxRxSettings":
             self._app.oboundary.SetSBRTxRxSettings(self._get_args())
+            return True
         elif bound_type == "EndConnection":
             self._app.oboundary.AssignEndConnection(self._get_args())
         elif bound_type == "Hybrid":
             self._app.oboundary.AssignHybridRegion(self._get_args())
+            return True
         elif bound_type == "FluxTangential":
             self._app.oboundary.AssignFluxTangential(self._get_args())
         elif bound_type == "Plane Incident Wave":
@@ -516,9 +541,8 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
             self._app.oboundary.AssignResistiveSheet(self._get_args())
         else:
             return False
-        self._initialize_bynary_tree()
 
-        return True
+        return self._initialize_tree_node()
 
     @pyaedt_function_handler()
     def update(self):
@@ -532,95 +556,91 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
         """
         bound_type = self.type
         if bound_type == "Perfect E":
-            self._app.oboundary.EditPerfectE(self._boundary_name, self._get_args())
+            self._app.oboundary.EditPerfectE(self.name, self._get_args())
         elif bound_type == "Perfect H":
-            self._app.oboundary.EditPerfectH(self._boundary_name, self._get_args())
+            self._app.oboundary.EditPerfectH(self.name, self._get_args())
         elif bound_type == "Aperture":
-            self._app.oboundary.EditAperture(self._boundary_name, self._get_args())
+            self._app.oboundary.EditAperture(self.name, self._get_args())
         elif bound_type == "Radiation":
-            self._app.oboundary.EditRadiation(self._boundary_name, self._get_args())
+            self._app.oboundary.EditRadiation(self.name, self._get_args())
         elif bound_type == "Finite Conductivity":
-            self._app.oboundary.EditFiniteCond(self._boundary_name, self._get_args())
+            self._app.oboundary.EditFiniteCond(self.name, self._get_args())
         elif bound_type == "Lumped RLC":
-            self._app.oboundary.EditLumpedRLC(self._boundary_name, self._get_args())
+            self._app.oboundary.EditLumpedRLC(self.name, self._get_args())
         elif bound_type == "Impedance":
-            self._app.oboundary.EditImpedance(self._boundary_name, self._get_args())
+            self._app.oboundary.EditImpedance(self.name, self._get_args())
         elif bound_type == "Layered Impedance":
-            self._app.oboundary.EditLayeredImpedance(self._boundary_name, self._get_args())
+            self._app.oboundary.EditLayeredImpedance(self.name, self._get_args())
         elif bound_type == "Anisotropic Impedance":
-            self._app.oboundary.EditAssignAnisotropicImpedance(
-                self._boundary_name, self._get_args()
-            )  # pragma: no cover
+            self._app.oboundary.EditAssignAnisotropicImpedance(self.name, self._get_args())  # pragma: no cover
         elif bound_type == "Primary":
-            self._app.oboundary.EditPrimary(self._boundary_name, self._get_args())
+            self._app.oboundary.EditPrimary(self.name, self._get_args())
         elif bound_type == "Secondary":
-            self._app.oboundary.EditSecondary(self._boundary_name, self._get_args())
+            self._app.oboundary.EditSecondary(self.name, self._get_args())
         elif bound_type == "Lattice Pair":
-            self._app.oboundary.EditLatticePair(self._boundary_name, self._get_args())
+            self._app.oboundary.EditLatticePair(self.name, self._get_args())
         elif bound_type == "HalfSpace":
-            self._app.oboundary.EditHalfSpace(self._boundary_name, self._get_args())
+            self._app.oboundary.EditHalfSpace(self.name, self._get_args())
         elif bound_type == "Multipaction SEE":
-            self._app.oboundary.EditMultipactionSEE(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.oboundary.EditMultipactionSEE(self.name, self._get_args())  # pragma: no cover
         elif bound_type == "Fresnel":
-            self._app.oboundary.EditFresnel(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.oboundary.EditFresnel(self.name, self._get_args())  # pragma: no cover
         elif bound_type == "Symmetry":
-            self._app.oboundary.EditSymmetry(self._boundary_name, self._get_args())
+            self._app.oboundary.EditSymmetry(self.name, self._get_args())
         elif bound_type == "Zero Tangential H Field":
-            self._app.oboundary.EditZeroTangentialHField(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.oboundary.EditZeroTangentialHField(self.name, self._get_args())  # pragma: no cover
         elif bound_type == "Zero Integrated Tangential H Field":
-            self._app.oboundary.EditIntegratedZeroTangentialHField(
-                self._boundary_name, self._get_args()
-            )  # pragma: no cover
+            self._app.oboundary.EditIntegratedZeroTangentialHField(self.name, self._get_args())  # pragma: no cover
         elif bound_type == "Tangential H Field":
-            self._app.oboundary.EditTangentialHField(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.oboundary.EditTangentialHField(self.name, self._get_args())  # pragma: no cover
         elif bound_type == "Insulating":
-            self._app.oboundary.EditInsulating(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.oboundary.EditInsulating(self.name, self._get_args())  # pragma: no cover
         elif bound_type == "Independent":
-            self._app.oboundary.EditIndependent(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.oboundary.EditIndependent(self.name, self._get_args())  # pragma: no cover
         elif bound_type == "Dependent":
-            self._app.oboundary.EditDependent(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.oboundary.EditDependent(self.name, self._get_args())  # pragma: no cover
         elif bound_type == "Band":
-            self._app.omodelsetup.EditMotionSetup(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.omodelsetup.EditMotionSetup(self.name, self._get_args())  # pragma: no cover
         elif bound_type == "InfiniteGround":
-            self._app.oboundary.EditInfiniteGround(self._boundary_name, self._get_args())
+            self._app.oboundary.EditInfiniteGround(self.name, self._get_args())
         elif bound_type == "ThinConductor":
-            self._app.oboundary.EditThinConductor(self._boundary_name, self._get_args())
+            self._app.oboundary.EditThinConductor(self.name, self._get_args())
         elif bound_type == "Stationary Wall":
-            self._app.oboundary.EditStationaryWallBoundary(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.oboundary.EditStationaryWallBoundary(self.name, self._get_args())  # pragma: no cover
         elif bound_type == "Symmetry Wall":
-            self._app.oboundary.EditSymmetryWallBoundary(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.oboundary.EditSymmetryWallBoundary(self.name, self._get_args())  # pragma: no cover
         elif bound_type == "Recirculating":
-            self._app.oboundary.EditRecircBoundary(self._boundary_name, self._get_args())
+            self._app.oboundary.EditRecircBoundary(self.name, self._get_args())
         elif bound_type == "Resistance":
-            self._app.oboundary.EditResistanceBoundary(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.oboundary.EditResistanceBoundary(self.name, self._get_args())  # pragma: no cover
         elif bound_type == "Conducting Plate":
-            self._app.oboundary.EditConductingPlateBoundary(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.oboundary.EditConductingPlateBoundary(self.name, self._get_args())  # pragma: no cover
         elif bound_type == "Adiabatic Plate":
-            self._app.oboundary.EditAdiabaticPlateBoundary(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.oboundary.EditAdiabaticPlateBoundary(self.name, self._get_args())  # pragma: no cover
         elif bound_type == "Network":
-            self._app.oboundary.EditNetworkBoundary(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.oboundary.EditNetworkBoundary(self.name, self._get_args())  # pragma: no cover
         elif bound_type == "Grille":
-            self._app.oboundary.EditGrilleBoundary(self._boundary_name, self._get_args())
+            self._app.oboundary.EditGrilleBoundary(self.name, self._get_args())
         elif bound_type == "Opening":
-            self._app.oboundary.EditOpeningBoundary(self._boundary_name, self._get_args())
+            self._app.oboundary.EditOpeningBoundary(self.name, self._get_args())
         elif bound_type == "EMLoss":
-            self._app.oboundary.EditEMLoss(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.oboundary.EditEMLoss(self.name, self._get_args())  # pragma: no cover
         elif bound_type == "Block":
-            self._app.oboundary.EditBlockBoundary(self._boundary_name, self._get_args())
+            self._app.oboundary.EditBlockBoundary(self.name, self._get_args())
         elif bound_type == "Blower":
-            self._app.oboundary.EditBlowerBoundary(self._boundary_name, self._get_args())
+            self._app.oboundary.EditBlowerBoundary(self.name, self._get_args())
         elif bound_type == "SourceIcepak":
-            self._app.oboundary.EditSourceBoundary(self._boundary_name, self._get_args())
+            self._app.oboundary.EditSourceBoundary(self.name, self._get_args())
         elif bound_type == "HeatFlux":
-            self._app.oboundary.EditHeatFlux(self._boundary_name, self._get_args())
+            self._app.oboundary.EditHeatFlux(self.name, self._get_args())
         elif bound_type == "HeatGeneration":
-            self._app.oboundary.EditHeatGeneration(self._boundary_name, self._get_args())
+            self._app.oboundary.EditHeatGeneration(self.name, self._get_args())
         elif bound_type == "Voltage":
-            self._app.oboundary.EditVoltage(self._boundary_name, self._get_args())
+            self._app.oboundary.EditVoltage(self.name, self._get_args())
         elif bound_type == "VoltageDrop":
-            self._app.oboundary.EditVoltageDrop(self._boundary_name, self._get_args())
+            self._app.oboundary.EditVoltageDrop(self.name, self._get_args())
         elif bound_type == "Current":
-            self._app.oboundary.EditCurrent(self._boundary_name, self._get_args())
+            self._app.oboundary.EditCurrent(self.name, self._get_args())
         elif bound_type == "CurrentDensity":
             self._app.oboundary.AssignCurrentDensity(self._get_args())
         elif bound_type == "CurrentDensityGroup":
@@ -630,44 +650,41 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
         elif bound_type == "CurrentDensityTerminalGroup":
             self._app.oboundary.AssignCurrentDensityTerminalGroup(self._get_args()[2], self._get_args()[3])
         elif bound_type == "Winding" or bound_type == "Winding Group":
-            self._app.oboundary.EditWindingGroup(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.oboundary.EditWindingGroup(self.name, self._get_args())  # pragma: no cover
         elif bound_type == "Vector Potential":
-            self._app.oboundary.EditVectorPotential(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.oboundary.EditVectorPotential(self.name, self._get_args())  # pragma: no cover
         elif bound_type == "CoilTerminal" or bound_type == "Coil Terminal":
-            self._app.oboundary.EditCoilTerminal(self._boundary_name, self._get_args())
+            self._app.oboundary.EditCoilTerminal(self.name, self._get_args())
         elif bound_type == "Coil":
-            self._app.oboundary.EditCoil(self._boundary_name, self._get_args())
+            self._app.oboundary.EditCoil(self.name, self._get_args())
         elif bound_type == "Source":
-            self._app.oboundary.EditTerminal(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.oboundary.EditTerminal(self.name, self._get_args())  # pragma: no cover
         elif bound_type == "Sink":
-            self._app.oboundary.EditTerminal(self._boundary_name, self._get_args())
+            self._app.oboundary.EditTerminal(self.name, self._get_args())
         elif bound_type == "SignalNet" or bound_type == "GroundNet" or bound_type == "FloatingNet":
-            self._app.oboundary.EditTerminal(self._boundary_name, self._get_args())
+            self._app.oboundary.EditTerminal(self.name, self._get_args())
         elif bound_type in "Circuit Port":
-            self._app.oboundary.EditCircuitPort(self._boundary_name, self._get_args())
+            self._app.oboundary.EditCircuitPort(self.name, self._get_args())
         elif bound_type in "Lumped Port":
-            self._app.oboundary.EditLumpedPort(self._boundary_name, self._get_args())
+            self._app.oboundary.EditLumpedPort(self.name, self._get_args())
         elif bound_type in "Wave Port":
-            self._app.oboundary.EditWavePort(self._boundary_name, self._get_args())
+            self._app.oboundary.EditWavePort(self.name, self._get_args())
         elif bound_type == "SetSBRTxRxSettings":
             self._app.oboundary.SetSBRTxRxSettings(self._get_args())  # pragma: no cover
         elif bound_type == "Floquet Port":
-            self._app.oboundary.EditFloquetPort(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.oboundary.EditFloquetPort(self.name, self._get_args())  # pragma: no cover
         elif bound_type == "End Connection":
-            self._app.oboundary.EditEndConnection(self._boundary_name, self._get_args())
+            self._app.oboundary.EditEndConnection(self.name, self._get_args())
         elif bound_type == "Hybrid":
-            self._app.oboundary.EditHybridRegion(self._boundary_name, self._get_args())
+            self._app.oboundary.EditHybridRegion(self.name, self._get_args())
         elif bound_type == "Terminal":
-            self._app.oboundary.EditTerminal(self._boundary_name, self._get_args())
+            self._app.oboundary.EditTerminal(self.name, self._get_args())
         elif bound_type == "Plane Incident Wave":
-            self._app.oboundary.EditIncidentWave(self._boundary_name, self._get_args())
+            self._app.oboundary.EditIncidentWave(self.name, self._get_args())
         elif bound_type == "ResistiveSheet":
-            self._app.oboundary.EditResistiveSheet(self._boundary_name, self._get_args())
+            self._app.oboundary.EditResistiveSheet(self.name, self._get_args())
         else:
             return False  # pragma: no cover
-
-        self._app._boundaries[self.name] = self._app._boundaries.pop(self._boundary_name)
-        self._boundary_name = self.name
 
         return True
 

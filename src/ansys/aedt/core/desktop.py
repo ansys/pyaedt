@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,8 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-This module contains the ``Desktop`` class.
+"""This module contains the ``Desktop`` class.
+
 This module is used to initialize AEDT and the message manager for managing AEDT.
 You can initialize this module before launching an app or
 have the app automatically initialize it to the latest installed AEDT version.
@@ -378,8 +378,10 @@ def is_student_version(oDesktop):
 
 
 def _init_desktop_from_design(*args, **kwargs):
-    """Distinguishes if the ``Desktop`` class is initialized internally from the ``Design``
-    class or directly from the user. For example, ``desktop=Desktop()``)."""
+    """Distinguishes if the ``Desktop`` class is initialized internally.
+
+    It can be initialized from the ``Design`` class or directly from the user.
+    For example, ``desktop=Desktop()``)."""
     Desktop._invoked_from_design = True
     return Desktop(*args, **kwargs)
 
@@ -514,8 +516,8 @@ class Desktop(object):
         if getattr(self, "_initialized", None) is not None and self._initialized:
             try:
                 self.grpc_plugin.recreate_application(True)
-            except Exception:  # nosec
-                pass
+            except Exception:
+                pyaedt_logger.debug("Failed to recreate application.")
             return
         else:
             self._initialized = True

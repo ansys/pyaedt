@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -1883,7 +1883,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         # type: () -> list
         """Get the list defined differential pairs.
 
-
         Returns
         -------
         list
@@ -2157,6 +2156,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         window="hamming",
     ):
         """Edit a source from file data.
+
         File data is a csv containing either frequency data or time domain data that will be converted through FFT.
 
         Parameters
@@ -2291,6 +2291,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
     @pyaedt_function_handler(setup_name="setup")
     def get_dcir_solution_data(self, setup, show="RL", category="Loop_Resistance"):
         """Retrieve dcir solution data. Available element_names are dependent on element_type as below.
+
         Sources ["Voltage", "Current", "Power"]
         "RL" ['Loop Resistance', 'Path Resistance', 'Resistance', 'Inductance']
         "Vias" ['X', 'Y', 'Current', 'Limit', 'Resistance', 'IR Drop', 'Power']

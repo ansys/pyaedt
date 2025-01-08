@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -251,6 +251,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         List of :class:`ansys.aedt.core.modules.boundary.hfss_boundary.FarFieldSetup` and
         :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
         """
+        self._field_setups = []
         for field in self.field_setup_names:
             obj_field = self.odesign.GetChildObject("Radiation").GetChildObject(field)
             type_field = obj_field.GetPropValue("Type")
@@ -794,6 +795,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
     @pyaedt_function_handler(setupname="name", setuptype="setup_type")
     def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
         """Create an analysis setup for HFSS.
+
         Optional arguments are passed along with ``setup_type`` and ``name``. Keyword
         names correspond to the ``setup_type`` corresponding to the native AEDT API.
         The list of keywords here is not exhaustive.
@@ -3091,9 +3093,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
     def create_boundary(
         self, boundary_type=BoundaryType.PerfectE, assignment=None, name=None, is_inifinite_ground=False
     ):
-        """Assign a boundary condition to a sheet or surface. This method is generally
-           used by other methods in the ``Hfss`` class such as the :meth:``Hfss.assign_febi``
-           or :meth:``Hfss.assign_radiation_boundary_to_faces`` method.
+        """Assign a boundary condition to a sheet or surface.
+
+        This method is generally used by other methods in the ``Hfss`` class such as the
+        :meth:``Hfss.assign_febi`` or :meth:``Hfss.assign_radiation_boundary_to_faces`` method.
 
         Parameters
         ----------
@@ -3124,7 +3127,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Boundary object.
 
         """
-
         props = {}
         assignment = self.modeler.convert_to_selections(assignment, True)
         if type(assignment) is list:
@@ -3221,7 +3223,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Examples
         --------
-
         Create a sheet and assign to it some voltage.
 
         >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY,[0, 0, -70],[10, 2],
@@ -3231,7 +3232,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         ...                                     sheet.bottom_edge_y.midpoint],50)
 
         """
-
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
             if isinstance(start_direction, list):
                 if len(start_direction) != 2 or len(start_direction[0]) != len(start_direction[1]):
@@ -3609,6 +3609,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         deembed=False,
     ):
         """Create a circuit port from two edges.
+
         The integration line is from edge 2 to edge 1.
 
         .. deprecated:: 0.6.70
@@ -4194,7 +4195,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
     def validate_full_design(self, design=None, output_dir=None, ports=None):
         """Validate a design based on an expected value and save information to the log file.
 
-
         Parameters
         ----------
         design : str,  optional
@@ -4219,16 +4219,13 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Examples
         --------
-
         Validate the current design and save the log file in the current project directory.
 
         >>> validation = hfss.validate_full_design()
         PyAEDT INFO: Design Validation Checks
         >>> validation[1]
         False
-
         """
-
         self.logger.info("Design validation checks.")
         validation_ok = True
         val_list = []
@@ -5529,6 +5526,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
     @pyaedt_function_handler(array_name="name", json_file="input_data")
     def add_3d_component_array_from_json(self, input_data, name=None):
         """Add or edit a 3D component array from a JSON file, TOML file, or dictionary.
+
         The 3D component is placed in the layout if it is not present.
 
         Parameters
@@ -5894,6 +5892,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         variation_name=None,
     ):
         """Export the radar cross-section data.
+
         This method returns an instance of the ``RcsSolutionDataExporter`` object.
 
         Parameters

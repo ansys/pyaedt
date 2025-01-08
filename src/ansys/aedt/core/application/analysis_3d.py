@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -1377,7 +1377,7 @@ class FieldAnalysis3D(Analysis, object):
         input_file : str
             Path to the GDS file.
         mapping_layers : dict
-            Dictionary keys are GDS layer numbers, and the value is a tuple with the thickness and elevation.
+            Dictionary keys are GDS layer numbers, and the value is a tuple with the elevation and thickness.
         units : str, optional
             Length unit values. The default is ``"um"``.
         import_method : integer, optional
@@ -1472,12 +1472,14 @@ class FieldAnalysis3D(Analysis, object):
     def _find_indices(self, list_to_check, item_to_find):
         # type: (list, str|int) -> list
         """Given a list, returns the list of indices for all occurrences of a given element.
+
         Parameters
         ----------
         list_to_check: list
             List to check.
         item_to_find: str, int
             Element to search for in the list.
+
         Returns
         -------
         list

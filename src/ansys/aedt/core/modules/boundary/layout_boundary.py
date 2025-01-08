@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -105,9 +105,25 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode):
             self._update_props(self.__props, props)
         self.native_properties = self.__props["NativeComponentDefinitionProvider"]
         self.auto_update = True
-        child_object = self._app.get_oo_object(self._app.oeditor, self._name)
-        if child_object:
-            BinaryTreeNode.__init__(self, self._name, child_object, False)
+
+        self._initialize_tree_node()
+
+    @property
+    def _child_object(self):
+        """Object-oriented properties.
+
+        Returns
+        -------
+        class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTreeNode`
+
+        """
+        child_object = None
+        for el in self._app.oeditor.GetChildNames("ComponentDefinition"):
+            design_childs = self._app.get_oo_object(self._app.oeditor, el).GetChildNames()
+            if self._name in design_childs:
+                child_object = self._app.get_oo_object(self._app.oeditor, f"{el}\\{self._name}")
+                break
+        return child_object
 
     @property
     def props(self):
@@ -115,27 +131,21 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode):
 
     @property
     def name(self):
-        """Name of the object.
-
-        Returns
-        -------
-        str
-           Name of the object.
-
-        """
+        """Boundary Name."""
+        if self._child_object:
+            self._name = str(self.properties["Name"])
         return self._name
 
     @name.setter
-    def name(self, component_name):
-        if component_name != self._name:
-            if component_name not in self._app.native_component_names:
-                self.properties["Name"] = component_name
-                self._app.native_components.update({component_name: self})
-                del self._app.native_components[self._name]
-                del self._app.modeler.user_defined_components[self._name]
-                self._name = component_name
-        else:  # pragma: no cover
-            self._app._logger.warning("Name %s already assigned in the design", component_name)
+    def name(self, value):
+        if self._child_object:
+            try:
+                legacy_name = self._name
+                self.properties["Name"] = value
+                self._app.modeler.user_defined_components[self._name] = self
+                del self._app.modeler.user_defined_components[legacy_name]
+            except KeyError:
+                self._app.logger.error("Name %s already assigned in the design", value)
 
     @property
     def definition_name(self):
@@ -207,11 +217,8 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode):
             a = [i for i in self._app.excitations if i not in names]
             self.excitation_name = a[0].split(":")[0]
         except (GrpcApiError, IndexError):
-            self.excitation_name = self.name
-        child_object = self._app.get_oo_object(self._app.oeditor, self._name)
-        if child_object:
-            BinaryTreeNode.__init__(self, self._name, child_object, False)
-        return True
+            self.excitation_name = self._name
+        return self._initialize_tree_node()
 
     @pyaedt_function_handler()
     def update(self):
@@ -273,13 +280,13 @@ class BoundaryObject3dLayout(BoundaryCommon, BinaryTreeNode):
         An AEDT application from ``ansys.aedt.core.application``.
     name : str
         Name of the boundary.
-    props : dict
+    props : dict, optional
         Properties of the boundary.
     boundarytype : str
         Type of the boundary.
     """
 
-    def __init__(self, app, name, props, boundarytype):
+    def __init__(self, app, name, props=None, boundarytype="Port"):
         self.auto_update = False
         self._app = app
         self._name = name
@@ -287,10 +294,8 @@ class BoundaryObject3dLayout(BoundaryCommon, BinaryTreeNode):
         if props:
             self.__props = BoundaryProps(self, props)
         self.type = boundarytype
-        self._boundary_name = self.name
         self.auto_update = True
-        if self._child_object:
-            BinaryTreeNode.__init__(self, self.name, self._child_object, False)
+        self._initialize_tree_node()
 
     @property
     def _child_object(self):

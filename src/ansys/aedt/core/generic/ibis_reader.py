@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -762,6 +762,7 @@ class AMI:
 
 class IbisReader(object):
     """Reads *.ibis file content.
+
     Setup an Ibis object exposing all the extracted data.
 
     Parameters

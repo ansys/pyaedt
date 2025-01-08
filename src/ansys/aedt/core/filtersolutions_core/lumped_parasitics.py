@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -85,6 +85,7 @@ class LumpedParasitics:
     @property
     def capacitor_q(self) -> str:
         """Q factor value of non-ideal capacitors in the synthesized circuit.
+
         The default is ``infinite``.
 
         Returns
@@ -101,6 +102,7 @@ class LumpedParasitics:
     @property
     def capacitor_rs(self) -> str:
         """Series resistor value of non-ideal capacitors in the synthesized circuit.
+
         The default is ``0``.
 
         Returns
@@ -133,6 +135,7 @@ class LumpedParasitics:
     @property
     def capacitor_ls(self) -> str:
         """Series inductance value of non-ideal capacitors in the synthesized circuit.
+
         The default is ``0``.
 
         Returns
@@ -165,6 +168,7 @@ class LumpedParasitics:
     @property
     def inductor_rs(self) -> str:
         """Series resistor value of non-ideal inductors in the synthesized circuit.
+
         The default is` ``0``.
 
         Returns
@@ -181,6 +185,7 @@ class LumpedParasitics:
     @property
     def inductor_rp(self) -> str:
         """Shunt resistor value of non-ideal inductors in the synthesized circuit.
+
         The default is ``infinite``.
 
         Returns
@@ -197,6 +202,7 @@ class LumpedParasitics:
     @property
     def inductor_cp(self) -> str:
         """Shunt capacitor value of non-ideal inductors in the synthesized circuit.
+
         The default is ``0``.
 
         Returns
