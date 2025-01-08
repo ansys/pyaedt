@@ -966,8 +966,7 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler()
     def cleanup_objects(self):
-        """Clean up objects that no longer exist in the modeler because
-        they were removed by previous operations.
+        """Clean up objects that no longer exist in the modeler because they were removed by previous operations.
 
         This method also updates object IDs that may have changed via
         a modeler operation such as :func:`ansys.aedt.core.modeler.Model3D.Modeler3D.unite`
@@ -1015,8 +1014,7 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler()
     def cleanup_points(self):
-        """Clean up points that no longer exist in the modeler because
-        they were removed by previous operations.
+        """Clean up points that no longer exist in the modeler because they were removed by previous operations.
 
         This method also updates object IDs that may have changed via
         a modeler operation such as :func:`ansys.aedt.core.modeler.Model3D.Modeler3D.unite`
@@ -1038,14 +1036,12 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler()
     def find_new_objects(self):
-        """Find any new objects in the modeler that were created
-        by previous operations.
+        """Find any new objects in the modeler that were created by previous operations.
 
         Returns
         -------
         dict
             Dictionary of new objects.
-
         """
         new_objects = []
         for obj_name in self.object_names:
@@ -3597,7 +3593,6 @@ class GeometryModeler(Modeler):
     @pyaedt_function_handler()
     def get_model_bounding_box(self):
         """Retrieve the model bounding box.
-
 
         Returns
         -------
