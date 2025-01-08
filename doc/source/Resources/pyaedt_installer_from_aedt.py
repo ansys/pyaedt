@@ -40,10 +40,14 @@ is_windows = not is_linux
 
 VENV_DIR_PREFIX = ".pyaedt_env"
 
-VENV_DIR = None  # "e:/pyaedt_env"
-if VENV_DIR:
-    pass
-elif is_windows:
+"""
+It is possible create Python virtual environment in a specific directory by setting variable VENV_DIR. 
+For example,
+VENV_DIR = "e:/pyaedt_env"
+"""
+VENV_DIR = None
+
+if not VENV_DIR and is_windows:
     VENV_DIR = os.path.join(os.environ["APPDATA"], VENV_DIR_PREFIX)
 else:
     VENV_DIR = os.path.join(os.environ["HOME"], VENV_DIR_PREFIX)
