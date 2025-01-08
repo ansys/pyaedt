@@ -1273,7 +1273,7 @@ class Maxwell(object):
                 self.logger.warning("Face Selection is not allowed in Maxwell 2D. Provide a 2D object.")
                 return False
 
-        self._create_boundary_object(name, props, bound_type)
+        return self._create_boundary_object(name, props, bound_type)
 
     @pyaedt_function_handler(input_object="assignment", reference_cs="coordinate_system")
     def assign_force(self, assignment, coordinate_system="Global", is_virtual=True, force_name=None):
