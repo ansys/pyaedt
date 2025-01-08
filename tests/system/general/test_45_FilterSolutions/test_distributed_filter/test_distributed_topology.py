@@ -34,7 +34,25 @@ from tests.system.general.conftest import config
 from ..resources import read_resource_file
 
 
-@pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
+def convert_string(input_string) -> str:
+    """
+    Convert a string to have all words capitalized.
+
+    Parameters
+    ----------
+    input_string: str
+        String to modify.
+
+    Returns
+    -------
+    str
+        String with all words capitalized.
+    """
+    fixed_string = input_string.replace("_", " ").lower()
+    return " ".join(word.capitalize() for word in fixed_string.split())
+
+
+@pytest.mark.skipif(is_linux, reason="FilterSolutions API is not applicable on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
 class TestClass:
 
@@ -56,6 +74,16 @@ class TestClass:
 
     def test_distributed_first_shunt(self, distributed_design):
         assert distributed_design.topology.first_shunt
+        with pytest.raises(RuntimeError) as info:
+            distributed_design.topology.topology_type = TopologyType.SPACED_STUBS
+            distributed_design.topology.first_shunt = False
+        assert (
+            info.value.args[0]
+            == "The First Element Shunt or Series property is not applicable for the "
+            + convert_string(distributed_design.topology.topology_type.name)
+            + " topology"
+        )
+        distributed_design.topology.topology_type = TopologyType.LUMPED_TRANSLATION
         assert distributed_design.topology.netlist().splitlines() == read_resource_file(
             "first_shunt.ckt", "Distributed"
         )
@@ -68,7 +96,12 @@ class TestClass:
     def test_distributed_first_fat(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
             distributed_design.topology.first_fat = True
-        assert info.value.args[0] == "The First Segment Fat or Thin property is not supported for the selected topology"
+        assert (
+            info.value.args[0]
+            == "The First Element Fat or Thin property is not applicable for the "
+            + convert_string(distributed_design.topology.topology_type.name)
+            + " topology"
+        )
         distributed_design.topology.topology_type = TopologyType.STEPPED_IMPEDANCE
         assert distributed_design.topology.first_fat
         assert distributed_design.topology.netlist().splitlines() == read_resource_file("first_fat.ckt", "Distributed")
@@ -79,7 +112,12 @@ class TestClass:
     def test_distributed_use_series_caps(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
             distributed_design.topology.use_series_caps = True
-        assert info.value.args[0] == "The Series Caps property is not supported for the selected topology"
+        assert (
+            info.value.args[0]
+            == "The Series Caps property is not applicable for the "
+            + convert_string(distributed_design.topology.topology_type.name)
+            + " topology"
+        )
         distributed_design.attributes.filter_class = FilterClass.BAND_PASS
         assert distributed_design.topology.use_series_caps is False
         assert distributed_design.topology.netlist().splitlines() == read_resource_file(
@@ -94,7 +132,12 @@ class TestClass:
     def test_distributed_combine_stubs(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
             distributed_design.topology.combine_stubs = True
-        assert info.value.args[0] == "The Combine Stubs property is not supported for the selected topology"
+        assert (
+            info.value.args[0]
+            == "The Combine Stubs property is not applicable for the "
+            + convert_string(distributed_design.topology.topology_type.name)
+            + " topology"
+        )
         distributed_design.attributes.filter_class = FilterClass.BAND_PASS
         assert distributed_design.topology.combine_stubs is False
         assert distributed_design.topology.netlist().splitlines() == read_resource_file(
@@ -109,7 +152,12 @@ class TestClass:
     def test_use_coupled_lines(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
             distributed_design.topology.use_coupled_lines = True
-        assert info.value.args[0] == "The Coupled Lines property is not supported for the selected topology"
+        assert (
+            info.value.args[0]
+            == "The Coupled Lines property is not applicable for the "
+            + convert_string(distributed_design.topology.topology_type.name)
+            + " topology"
+        )
         distributed_design.attributes.filter_class = FilterClass.BAND_PASS
         distributed_design.attributes.filter_type = FilterType.ELLIPTIC
         assert distributed_design.topology.use_coupled_lines is False
@@ -125,7 +173,12 @@ class TestClass:
     def test_equal_width_approx(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
             distributed_design.topology.equal_width_approx = True
-        assert info.value.args[0] == "The Equal Width property is not supported for the selected topology"
+        assert (
+            info.value.args[0]
+            == "The Equal Width property is not applicable for the "
+            + convert_string(distributed_design.topology.topology_type.name)
+            + " topology"
+        )
         distributed_design.attributes.filter_class = FilterClass.BAND_PASS
         distributed_design.topology.topology_type = TopologyType.INTERDIGITAL
         assert distributed_design.topology.equal_width_approx
@@ -141,23 +194,33 @@ class TestClass:
     def test_open_stub_ground(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
             distributed_design.topology.open_stub_ground = True
-        assert info.value.args[0] == "The Open Stub Ground property is not supported for the selected topology"
+        assert (
+            info.value.args[0]
+            == "The Open Stub Ground property is not applicable for the "
+            + convert_string(distributed_design.topology.topology_type.name)
+            + " topology"
+        )
         distributed_design.attributes.filter_class = FilterClass.BAND_STOP
         distributed_design.topology.topology_type = TopologyType.NOTCH_RESONATORS
         assert distributed_design.topology.open_stub_ground is False
         assert distributed_design.topology.netlist().splitlines() == read_resource_file(
             "open_stub_ground_false.ckt", "Distributed"
         )
-        # distributed_design.topology.open_stub_ground = True
-        # assert distributed_design.topology.open_stub_ground
-        # assert distributed_design.topology.netlist().splitlines() == read_resource_file(
-        #     "open_stub_ground_true.ckt", "Distributed"
-        # )
+        distributed_design.topology.open_stub_ground = True
+        assert distributed_design.topology.open_stub_ground
+        assert distributed_design.topology.netlist().splitlines() == read_resource_file(
+            "open_stub_ground_true.ckt", "Distributed"
+        )
 
     def test_left_ground_side(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
             distributed_design.topology.left_ground_side = True
-        assert info.value.args[0] == "The Left Ground Side property is not supported for the selected topology"
+        assert (
+            info.value.args[0]
+            == "The Left Ground Side property is not applicable for the "
+            + convert_string(distributed_design.topology.topology_type.name)
+            + " topology"
+        )
         distributed_design.attributes.filter_class = FilterClass.BAND_STOP
         distributed_design.topology.topology_type = TopologyType.NOTCH_RESONATORS
         assert distributed_design.topology.left_ground_side
@@ -173,7 +236,12 @@ class TestClass:
     def test_equal_stub_widths(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
             distributed_design.topology.equal_stub_widths = True
-        assert info.value.args[0] == "The Equal Stub Widths property is not supported for the selected topology"
+        assert (
+            info.value.args[0]
+            == "The Equal Stub Widths property is not applicable for the "
+            + convert_string(distributed_design.topology.topology_type.name)
+            + " topology"
+        )
         distributed_design.attributes.filter_class = FilterClass.BAND_PASS
         distributed_design.topology.topology_type = TopologyType.SHUNT_STUB_RESONATORS
         assert distributed_design.topology.equal_stub_widths is False
@@ -189,7 +257,12 @@ class TestClass:
     def test_center_z0_impedance_55(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
             distributed_design.topology.center_z0_impedance = "55"
-        assert info.value.args[0] == "The Center Z0 property is not supported for the selected topology"
+        assert (
+            info.value.args[0]
+            == "The Center Z0 property is not applicable for the "
+            + convert_string(distributed_design.topology.topology_type.name)
+            + " topology"
+        )
         distributed_design.attributes.filter_class = FilterClass.BAND_PASS
         distributed_design.topology.topology_type = TopologyType.SHUNT_STUB_RESONATORS
         distributed_design.topology.equal_stub_widths = False
@@ -203,7 +276,12 @@ class TestClass:
     def test_equal_width_conductors(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
             distributed_design.topology.equal_width_conductors = True
-        assert info.value.args[0] == "The Equal Width property is not supported for the selected topology"
+        assert (
+            info.value.args[0]
+            == "The Equal Width property is not applicable for the "
+            + convert_string(distributed_design.topology.topology_type.name)
+            + " topology"
+        )
         distributed_design.attributes.filter_class = FilterClass.BAND_PASS
         distributed_design.topology.topology_type = TopologyType.PARALLEL_EDGE_COUPLED
         assert distributed_design.topology.equal_width_conductors
@@ -219,7 +297,12 @@ class TestClass:
     def test_tapped(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
             distributed_design.topology.tapped = True
-        assert info.value.args[0] == "The Tapped property is not supported for the selected topology"
+        assert (
+            info.value.args[0]
+            == "The Tapped property is not applicable for the "
+            + convert_string(distributed_design.topology.topology_type.name)
+            + " topology"
+        )
         distributed_design.attributes.filter_class = FilterClass.BAND_PASS
         distributed_design.topology.topology_type = TopologyType.PARALLEL_EDGE_COUPLED
         assert distributed_design.topology.tapped
@@ -235,7 +318,12 @@ class TestClass:
     def test_pinned(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
             distributed_design.topology.pinned = True
-        assert info.value.args[0] == "The Pinned property is not supported for the selected topology"
+        assert (
+            info.value.args[0]
+            == "The Pinned property is not applicable for the "
+            + convert_string(distributed_design.topology.topology_type.name)
+            + " topology"
+        )
         distributed_design.attributes.filter_class = FilterClass.BAND_PASS
         distributed_design.topology.topology_type = TopologyType.PARALLEL_EDGE_COUPLED
         assert distributed_design.topology.pinned is False
@@ -253,7 +341,12 @@ class TestClass:
     def test_stub_taps(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
             distributed_design.topology.stub_taps = True
-        assert info.value.args[0] == "The Stub Taps property is not supported for the selected topology"
+        assert (
+            info.value.args[0]
+            == "The Stub Taps property is not applicable for the "
+            + convert_string(distributed_design.topology.topology_type.name)
+            + " topology"
+        )
         distributed_design.attributes.filter_class = FilterClass.BAND_PASS
         distributed_design.topology.topology_type = TopologyType.PARALLEL_EDGE_COUPLED
         assert distributed_design.topology.stub_taps is False
@@ -269,7 +362,12 @@ class TestClass:
     def test_via_ends(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
             distributed_design.topology.via_ends = True
-        assert info.value.args[0] == "The Via Ends property is not supported for the selected topology"
+        assert (
+            info.value.args[0]
+            == "The Via Ends property is not applicable for the "
+            + convert_string(distributed_design.topology.topology_type.name)
+            + " topology"
+        )
         distributed_design.attributes.filter_class = FilterClass.BAND_PASS
         distributed_design.topology.topology_type = TopologyType.PARALLEL_EDGE_COUPLED
         assert distributed_design.topology.via_ends is False
@@ -287,7 +385,12 @@ class TestClass:
     def test_resonator_line_width_5mm(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
             distributed_design.topology.resonator_line_width = "1.27 mm"
-        assert info.value.args[0] == "The Line Width property is not supported for the selected topology"
+        assert (
+            info.value.args[0]
+            == "The Line Width property is not applicable for the "
+            + convert_string(distributed_design.topology.topology_type.name)
+            + " topology"
+        )
         distributed_design.attributes.filter_class = FilterClass.BAND_PASS
         distributed_design.topology.topology_type = TopologyType.HAIRPIN
         assert distributed_design.topology.resonator_line_width == "1.27 mm"
@@ -300,7 +403,12 @@ class TestClass:
     def test_resonator_rotation_angle_5deg(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
             distributed_design.topology.resonator_rotation_angle = "0"
-        assert info.value.args[0] == "The Rotation Angle property is not supported for the selected topology"
+        assert (
+            info.value.args[0]
+            == "The Rotation Angle property is not applicable for the "
+            + convert_string(distributed_design.topology.topology_type.name)
+            + " topology"
+        )
         distributed_design.attributes.filter_class = FilterClass.BAND_PASS
         distributed_design.topology.topology_type = TopologyType.PARALLEL_EDGE_COUPLED
         assert distributed_design.topology.resonator_rotation_angle == "0"
@@ -313,7 +421,12 @@ class TestClass:
     def test_mitered_corners(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
             distributed_design.topology.mitered_corners = True
-        assert info.value.args[0] == "The Mitered Corners property is not supported for the selected topology"
+        assert (
+            info.value.args[0]
+            == "The Mitered Corners property is not applicable for the "
+            + convert_string(distributed_design.topology.topology_type.name)
+            + " topology"
+        )
         distributed_design.attributes.filter_class = FilterClass.BAND_PASS
         distributed_design.topology.topology_type = TopologyType.HAIRPIN
         assert distributed_design.topology.mitered_corners is False
@@ -329,7 +442,12 @@ class TestClass:
     def test_hairpin_gap_width_4mm(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
             distributed_design.topology.hairpin_gap_width = "0.127 mm"
-        assert info.value.args[0] == "The Gap Width property is not supported for the selected topology"
+        assert (
+            info.value.args[0]
+            == "The Gap Width property is not applicable for the "
+            + convert_string(distributed_design.topology.topology_type.name)
+            + " topology"
+        )
         distributed_design.attributes.filter_class = FilterClass.BAND_PASS
         distributed_design.topology.topology_type = TopologyType.HAIRPIN
         assert distributed_design.topology.hairpin_gap_width == "2.54 mm"
@@ -342,7 +460,12 @@ class TestClass:
     def test_miniature_hairpin_gap_width_450um(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
             distributed_design.topology.miniature_hairpin_gap_width = "635 um"
-        assert info.value.args[0] == "The Gap Width property is not supported for the selected topology"
+        assert (
+            info.value.args[0]
+            == "The Gap Width property is not applicable for the "
+            + convert_string(distributed_design.topology.topology_type.name)
+            + " topology"
+        )
         distributed_design.attributes.filter_class = FilterClass.BAND_PASS
         distributed_design.topology.topology_type = TopologyType.MINIATURE_HAIRPIN
         assert distributed_design.topology.miniature_hairpin_gap_width == "635 um"
@@ -355,7 +478,12 @@ class TestClass:
     def test_ring_resonator_gap_width_450um(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
             distributed_design.topology.ring_resonator_gap_width = "635 um"
-        assert info.value.args[0] == "The Gap Width property is not supported for the selected topology"
+        assert (
+            info.value.args[0]
+            == "The Gap Width property is not applicable for the "
+            + convert_string(distributed_design.topology.topology_type.name)
+            + " topology"
+        )
         distributed_design.attributes.filter_class = FilterClass.BAND_PASS
         distributed_design.topology.topology_type = TopologyType.RING_RESONATOR
         assert distributed_design.topology.ring_resonator_gap_width == "635 um"
@@ -368,7 +496,12 @@ class TestClass:
     def test_hairpin_extension_length_2mm(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
             distributed_design.topology.hairpin_extension_length = "0 mm"
-        assert info.value.args[0] == "The Tuning Extension property is not supported for the selected topology"
+        assert (
+            info.value.args[0]
+            == "The Tuning Extension property is not applicable for the "
+            + convert_string(distributed_design.topology.topology_type.name)
+            + " topology"
+        )
         distributed_design.attributes.filter_class = FilterClass.BAND_PASS
         distributed_design.topology.topology_type = TopologyType.HAIRPIN
         assert distributed_design.topology.hairpin_extension_length == "0 um"
@@ -381,7 +514,12 @@ class TestClass:
     def test_miniature_hairpin_end_curl_extension_2mm(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
             distributed_design.topology.miniature_hairpin_end_curl_extension = "0 mm"
-        assert info.value.args[0] == "The Tuning Extension property is not supported for the selected topology"
+        assert (
+            info.value.args[0]
+            == "The Tuning Extension property is not applicable for the "
+            + convert_string(distributed_design.topology.topology_type.name)
+            + " topology"
+        )
         distributed_design.attributes.filter_class = FilterClass.BAND_PASS
         distributed_design.topology.topology_type = TopologyType.MINIATURE_HAIRPIN
         assert distributed_design.topology.miniature_hairpin_end_curl_extension == "0 um"
@@ -394,7 +532,12 @@ class TestClass:
     def test_ring_resonator_end_gap_extension_2mm(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
             distributed_design.topology.ring_resonator_end_gap_extension = "0 mm"
-        assert info.value.args[0] == "The Tuning Extension property is not supported for the selected topology"
+        assert (
+            info.value.args[0]
+            == "The Tuning Extension property is not applicable for the "
+            + convert_string(distributed_design.topology.topology_type.name)
+            + " topology"
+        )
         distributed_design.attributes.filter_class = FilterClass.BAND_PASS
         distributed_design.topology.topology_type = TopologyType.RING_RESONATOR
         assert distributed_design.topology.ring_resonator_end_gap_extension == "0 um"
@@ -407,7 +550,12 @@ class TestClass:
     def test_tuning_type_1(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
             distributed_design.topology.tuning_type_1 = True
-        assert info.value.args[0] == "The Tuning Type property is not supported for the selected topology"
+        assert (
+            info.value.args[0]
+            == "The Tuning Type property is not applicable for the "
+            + convert_string(distributed_design.topology.topology_type.name)
+            + " topology"
+        )
         distributed_design.attributes.filter_class = FilterClass.BAND_PASS
         distributed_design.topology.topology_type = TopologyType.HAIRPIN
         assert distributed_design.topology.tuning_type_1
@@ -423,7 +571,12 @@ class TestClass:
     def test_tap_position(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
             distributed_design.topology.tap_position = TapPosition.AUTO
-        assert info.value.args[0] == "The Tap Position property is not supported for the selected topology"
+        assert (
+            info.value.args[0]
+            == "The Tap Position property is not applicable for the "
+            + convert_string(distributed_design.topology.topology_type.name)
+            + " topology"
+        )
         distributed_design.attributes.filter_class = FilterClass.BAND_PASS
         distributed_design.topology.topology_type = TopologyType.MINIATURE_HAIRPIN
         assert distributed_design.topology.tap_position == TapPosition.AUTO
@@ -439,7 +592,12 @@ class TestClass:
     def test_wide_band(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
             distributed_design.topology.wide_band = True
-        assert info.value.args[0] == "The Wide Band property is not supported for the selected topology"
+        assert (
+            info.value.args[0]
+            == "The Wide Band property is not applicable for the "
+            + convert_string(distributed_design.topology.topology_type.name)
+            + " topology"
+        )
         distributed_design.attributes.filter_class = FilterClass.BAND_PASS
         distributed_design.topology.topology_type = TopologyType.INTERDIGITAL
         assert distributed_design.topology.wide_band is False
@@ -457,7 +615,12 @@ class TestClass:
     def test_open_ends(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
             distributed_design.topology.open_ends = True
-        assert info.value.args[0] == "The Open Ends property is not supported for the selected topology"
+        assert (
+            info.value.args[0]
+            == "The Open Ends property is not applicable for the "
+            + convert_string(distributed_design.topology.topology_type.name)
+            + " topology"
+        )
         distributed_design.attributes.filter_class = FilterClass.BAND_PASS
         distributed_design.topology.topology_type = TopologyType.INTERDIGITAL
         assert distributed_design.topology.open_ends is False
@@ -473,7 +636,12 @@ class TestClass:
     def test_combline_half_length_frequency_2ghz(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
             distributed_design.topology.combline_half_length_frequency = "4G"
-        assert info.value.args[0] == "The 1/2 Length Frequency property is not supported for the selected topology"
+        assert (
+            info.value.args[0]
+            == "The 1/2 Length Frequency property is not applicable for the "
+            + convert_string(distributed_design.topology.topology_type.name)
+            + " topology"
+        )
         distributed_design.attributes.filter_class = FilterClass.BAND_PASS
         distributed_design.topology.topology_type = TopologyType.COMBLINE
         assert distributed_design.topology.combline_half_length_frequency == "4G"
@@ -486,7 +654,12 @@ class TestClass:
     def test_coupled_segments_quarter_length_frequency_2ghz(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
             distributed_design.topology.coupled_segments_quarter_length_frequency = "4G"
-        assert info.value.args[0] == "The 1/4 Length Frequency property is not supported for the selected topology"
+        assert (
+            info.value.args[0]
+            == "The 1/4 Length Frequency property is not applicable for the "
+            + convert_string(distributed_design.topology.topology_type.name)
+            + " topology"
+        )
         distributed_design.attributes.filter_class = FilterClass.HIGH_PASS
         distributed_design.topology.topology_type = TopologyType.COUPLED_SEGMENTS
         assert distributed_design.topology.coupled_segments_quarter_length_frequency == "4G"
@@ -513,7 +686,12 @@ class TestClass:
     def test_resonator_length_extension(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
             distributed_design.topology.resonator_length_extension = True
-        assert info.value.args[0] == "The Enable Extension property is not supported for the selected topology"
+        assert (
+            info.value.args[0]
+            == "The Enable Extension property is not applicable for the "
+            + convert_string(distributed_design.topology.topology_type.name)
+            + " topology"
+        )
         distributed_design.attributes.filter_class = FilterClass.BAND_PASS
         distributed_design.topology.topology_type = TopologyType.INTERDIGITAL
         assert distributed_design.topology.resonator_length_extension is False
