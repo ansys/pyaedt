@@ -450,7 +450,7 @@ class TestClass:
         assert matrix.props["MatrixEntry"]["MatrixEntry"][1]["Source"] == "Voltage3"
         assert matrix.props["MatrixEntry"]["MatrixEntry"][1]["NumberOfTurns"] == "1"
         m3d_app.solution_type = SOLUTIONS.Maxwell3d.Transient
-        winding1 = m3d_app.assign_winding("Sheet1", name="Current1")
+        m3d_app.assign_winding("Sheet1", name="Current1")
         matrix = m3d_app.assign_matrix(assignment="Current1")
         assert not matrix
 
