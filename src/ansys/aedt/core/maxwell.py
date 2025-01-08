@@ -1720,8 +1720,7 @@ class Maxwell(object):
         >>> m3d.assign_radiation([box1, box2.faces[0]])
         >>> m3d.release_desktop(True, True)
         """
-
-        if self.solution_type in ["EddyCurrent"]:
+        if self.solution_type == "EddyCurrent":
             if not radiation:
                 radiation = generate_unique_name("Radiation")
             elif radiation in self.modeler.get_boundaries_name():
@@ -1734,7 +1733,7 @@ class Maxwell(object):
                     props["Objects"].append(sel)
                 elif isinstance(sel, int):
                     props["Faces"].append(sel)
-            self._create_boundary_object(radiation, props, "Radiation")
+            return self._create_boundary_object(radiation, props, "Radiation")
         self.logger.error("Excitation applicable only to Eddy Current.")
         return False
 
@@ -2127,7 +2126,7 @@ class Maxwell(object):
         return setup
 
     def _create_boundary_object(self, name, props, boundary_type):
-        if boundary_type in ["Force", "Torque", "Matrix"]:
+        if boundary_type in ["Force", "Torque", "Matrix", "LayoutForce"]:
             bound = MaxwellParameters(self, name, props, boundary_type)
         else:
             bound = BoundaryObject(self, name, props, boundary_type)
