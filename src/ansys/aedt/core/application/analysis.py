@@ -1643,7 +1643,7 @@ class Analysis(Design, object):
 
         dict = {}
         for entry in assignment:
-            mat_name = self.modeler[entry].material_name.lower()
+            mat_name = self.modeler[entry].material_name.casefold()
             mat_props = self.materials.material_keys[mat_name]
             if prop_names is None:
                 dict[entry] = mat_props._props

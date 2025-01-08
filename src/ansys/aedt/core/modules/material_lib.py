@@ -149,7 +149,7 @@ class Materials(object):
     @property
     def _mat_names_aedt_lower(self):
         if len(self._mats_lower) < len(self._mat_names_aedt):
-            self._mats_lower = [i.lower() for i in self._mat_names_aedt]
+            self._mats_lower = [i.casefold() for i in self._mat_names_aedt]
         return self._mats_lower
 
     @property
@@ -216,10 +216,10 @@ class Materials(object):
 
     @pyaedt_function_handler()
     def _get_aedt_case_name(self, material_name):
-        if material_name.lower() in self.material_keys:
-            return self.material_keys[material_name.lower()].name
-        if material_name.lower() in self.mat_names_aedt_lower:
-            return self._mat_names_aedt[self.mat_names_aedt_lower.index(material_name.lower())]
+        if material_name.casefold() in self.material_keys:
+            return self.material_keys[material_name.casefold()].name
+        if material_name.casefold() in self.mat_names_aedt_lower:
+            return self._mat_names_aedt[self.mat_names_aedt_lower.index(material_name.casefold())]
         return False
 
     @pyaedt_function_handler()
@@ -227,7 +227,7 @@ class Materials(object):
         mats = {}
         try:
             for ds in self._app.project_properties["AnsoftProject"]["Definitions"]["SurfaceMaterials"]:
-                mats[ds.lower()] = SurfaceMaterial(
+                mats[ds.casefold()] = SurfaceMaterial(
                     self,
                     ds,
                     self._app.project_properties["AnsoftProject"]["Definitions"]["SurfaceMaterials"][ds],
@@ -286,17 +286,17 @@ class Materials(object):
         >>> oMaterialManager.GetData
         """
         if isinstance(material, Material):
-            if material.name.lower() in self.material_keys:
+            if material.name.casefold() in self.material_keys:
                 return material
             else:
                 return False
-        if material.lower() in self.material_keys:
-            if material.lower() in self.mat_names_aedt_lower:
-                return self.material_keys[material.lower()]
-            if material.lower() not in list(self.odefinition_manager.GetProjectMaterialNames()):
-                self.material_keys[material.lower()].update()
-            return self.material_keys[material.lower()]
-        elif material.lower() in self.mat_names_aedt_lower:
+        if material.casefold() in self.material_keys:
+            if material.casefold() in self.mat_names_aedt_lower:
+                return self.material_keys[material.casefold()]
+            if material.casefold() not in list(self.odefinition_manager.GetProjectMaterialNames()):
+                self.material_keys[material.casefold()].update()
+            return self.material_keys[material.casefold()]
+        elif material.casefold() in self.mat_names_aedt_lower:
             return self._aedmattolibrary(material)
         elif settings.remote_api or settings.remote_rpc_session:
             return self._aedmattolibrary(material)
@@ -360,9 +360,9 @@ class Materials(object):
 
         """
         self.logger.info("Adding new material to the Project Library: " + name)
-        if name.lower() in self.material_keys:
+        if name.casefold() in self.material_keys:
             self.logger.warning("Warning. The material is already in the database. Change or edit the name.")
-            return self.material_keys[name.lower()]
+            return self.material_keys[name.casefold()]
         elif self._get_aedt_case_name(name):
             return self._aedmattolibrary(self._get_aedt_case_name(name))
         else:
@@ -371,9 +371,9 @@ class Materials(object):
             material._material_update = True
             if material:
                 self.logger.info("Material has been added in Desktop.")
-                self.material_keys[name.lower()] = material
+                self.material_keys[name.casefold()] = material
                 self._mats.append(name)
-                return self.material_keys[name.lower()]
+                return self.material_keys[name.casefold()]
         return False
 
     @pyaedt_function_handler(material_name="name")
@@ -408,9 +408,9 @@ class Materials(object):
 
         """
         self.logger.info("Adding a surface material to the project library: " + name)
-        if name.lower() in self.surface_material_keys:
+        if name.casefold() in self.surface_material_keys:
             self.logger.warning("Warning. The material is already in the database. Change the name or edit it.")
-            return self.surface_material_keys[name.lower()]
+            return self.surface_material_keys[name.casefold()]
         else:
             material = SurfaceMaterial(self._app, name, material_update=False)
             if emissivity:
@@ -418,8 +418,8 @@ class Materials(object):
             material.update()
             material._material_update = True
             self.logger.info("Material has been added.")
-            self.surface_material_keys[name.lower()] = material
-            return self.surface_material_keys[name.lower()]
+            self.surface_material_keys[name.casefold()] = material
+            return self.surface_material_keys[name.casefold()]
 
     @pyaedt_function_handler()
     def _create_mat_project_vars(self, matlist):
@@ -490,7 +490,7 @@ class Materials(object):
                 newmat._update_props(el, array_var_name + "[" + index + "]", False)
 
         newmat.update()
-        self.material_keys[name.lower()] = newmat
+        self.material_keys[name.casefold()] = newmat
         return index
 
     @pyaedt_function_handler(material_name="material", new_name="name", props="properties")
@@ -544,15 +544,15 @@ class Materials(object):
         )
 
         # Get the material definition.
-        material_in_aedt = material.lower() in list(self.mat_names_aedt_lower)
-        material_in_project = material.lower() in list(self.material_keys.keys())
+        material_in_aedt = material.casefold() in list(self.mat_names_aedt_lower)
+        material_in_project = material.casefold() in list(self.material_keys.keys())
         if not (material_in_aedt or material_in_project):  # Check for material definition
             self.logger.error(f"Material {material} is not present")
             return False
         if not material_in_project:
             material = self._aedmattolibrary(material)
         else:
-            material = self.material_keys[material.lower()]
+            material = self.material_keys[material.casefold()]
 
         if not name:
             name = material + "_clone"
@@ -575,7 +575,7 @@ class Materials(object):
         new_material.update()
         new_material._material_update = True
         self._mats.append(name)
-        self.material_keys[name.lower()] = new_material
+        self.material_keys[name.casefold()] = new_material
         return new_material
 
     @pyaedt_function_handler(new_name="name")
@@ -605,15 +605,15 @@ class Materials(object):
         >>> hfss.materials.add_surface_material("MyMaterial")
         >>> hfss.materials.duplicate_surface_material("MyMaterial","MyMaterial2")
         """
-        if material.lower() not in list(self.surface_material_keys.keys()):
+        if material.casefold() not in list(self.surface_material_keys.keys()):
             self.logger.error(f"Material {material} is not present")
             return False
         if not name:
             name = material + "_clone"
         newmat = SurfaceMaterial(
-            self, name, self.surface_material_keys[material.lower()]._props, material_update=True
+            self, name, self.surface_material_keys[material.casefold()]._props, material_update=True
         )
-        self.surface_material_keys[name.lower()] = newmat
+        self.surface_material_keys[name.casefold()] = newmat
         return newmat
 
     @pyaedt_function_handler()
@@ -645,7 +645,7 @@ class Materials(object):
         >>> hfss.materials.remove_material("MyMaterial")
 
         """
-        mat = material.lower()
+        mat = material.casefold()
         if mat not in list(self.material_keys.keys()):
             self.logger.error(f"Material {mat} is not present")
             return False
@@ -720,8 +720,8 @@ class Materials(object):
         first_value = next(value_iterator)
         newmat = Material(self, matname, first_value, material_update=False)
         newmat._material_update = True
-        self.material_keys[matname.lower()] = newmat
-        return self.material_keys[matname.lower()]
+        self.material_keys[matname.casefold()] = newmat
+        return self.material_keys[matname.casefold()]
 
     @pyaedt_function_handler(full_json_path="output_file")
     def export_materials_to_file(self, output_file):
@@ -816,11 +816,11 @@ class Materials(object):
         _, file_extension = os.path.splitext(input_file)
         json_flag = True
         datasets = {}
-        if file_extension.lower() == ".json":
+        if file_extension.casefold() == ".json":
             data = read_json(input_file)
             if "datasets" in list(data.keys()):
                 datasets = data["datasets"]
-        elif file_extension.lower() == ".amat":
+        elif file_extension.casefold() == ".amat":
             data = load_entire_aedt_file(input_file)
             json_flag = False
             new_data = {}
@@ -867,7 +867,7 @@ class Materials(object):
                 self._app.create_dataset(el[1:], x=xval, y=yval, z=zval, x_unit=xunit, y_unit=yunit, z_unit=zunit)
         if json_flag:
             for el, val in data["materials"].items():
-                if el.lower() in list(self.material_keys.keys()):
+                if el.casefold() in list(self.material_keys.keys()):
                     newname = generate_unique_name(el)
                     self.logger.warning("Material %s already exists. Renaming to %s", el, newname)
                 else:
@@ -886,7 +886,7 @@ class Materials(object):
                 invalid_names = ["$base_index$", "$index$"]
                 if mat_name in invalid_names:
                     continue
-                if mat_name.lower() in list(self.material_keys.keys()):
+                if mat_name.casefold() in list(self.material_keys.keys()):
                     newname = generate_unique_name(mat_name)
                     self.logger.warning("Material %s already exists. Renaming to %s", mat_name, newname)
                 else:
@@ -924,11 +924,11 @@ class Materials(object):
         else:
             self.logger.error("Only csv and xlsx are supported.")
             return False
-        keys = [i.lower() for i in list(df.keys())]
+        keys = [i.casefold() for i in list(df.keys())]
         for el, val in df[::-1].iterrows():
             if isinstance(el, float):
                 break
-            if el.lower() in list(self.material_keys.keys()):
+            if el.casefold() in list(self.material_keys.keys()):
                 newname = generate_unique_name(el)
                 self.logger.warning("Material %s already exists. Renaming to %s", el, newname)
             else:

@@ -2013,7 +2013,7 @@ class TestClass:
         fs.scale_settings.unit = "kel"
         assert fs.scale_settings.unit == "kel"
         app.close_project()
-        
+
     def test_83_MultipleMeshRegions(self):
         # test issue 5485
         self.aedtapp.insert_design("test83")
@@ -2035,5 +2035,5 @@ class TestClass:
             assignment=["myBox"], prop_names="thermal_conductivity"
         )
         assert obj_mat_prop["myBox"]["thermal_conductivity"] == "205"
-
+        
     
