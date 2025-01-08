@@ -140,7 +140,9 @@ class TestClass:
         solution_data = sbr_platform.setups[0].get_solution_data()
 
         ffdata = sbr_platform.get_antenna_data(frequencies=solution_data.intrinsics["Freq"], sphere="3D")
-        ffdata2 = sbr_platform.get_antenna_data(frequencies=solution_data.intrinsics["Freq"], sphere="3D", overwrite=False)
+        ffdata2 = sbr_platform.get_antenna_data(
+            frequencies=solution_data.intrinsics["Freq"], sphere="3D", overwrite=False
+        )
 
         ffdata.farfield_data.plot_cut(
             quantity="RealizedGain",
