@@ -719,7 +719,7 @@ class MonostaticRCSPlotter(object):
         """
         curves = []
         all_secondary_sweep_value = secondary_sweep_value
-        if primary_sweep.lower() == "freq" or primary_sweep.lower() == "frequency":
+        if primary_sweep.casefold() == "freq" or primary_sweep.casefold() == "frequency":
             x_key = "Freq"
             x = self.rcs_data.frequencies
             if secondary_sweep == "IWaveTheta":
@@ -735,7 +735,7 @@ class MonostaticRCSPlotter(object):
                 y_key = "IWavePhi"
         else:
             data = self.rcs_data.rcs_active_frequency
-            if primary_sweep.lower() == "iwavephi":
+            if primary_sweep.casefold() == "iwavephi":
                 x_key = "IWavePhi"
                 y_key = "IWaveTheta"
                 x = self.rcs_data.available_incident_wave_phi
@@ -1647,12 +1647,12 @@ class MonostaticRCSPlotter(object):
         x, y = np.meshgrid(down_range, cross_range)
         z = np.zeros_like(x)
 
-        if plot_type.lower() == "relief":
+        if plot_type.casefold() == "relief":
             m = 2.0
             b = -1.0
             z = (values_2d - values_2d.min()) / (values_2d.max() - values_2d.min()) * m + b
 
-        if plot_type.lower() in ["relief", "plane"]:
+        if plot_type.casefold() in ["relief", "plane"]:
             actor = pv.StructuredGrid()
             actor.points = np.c_[x.ravel(), y.ravel(), z.ravel()]
 
@@ -1740,7 +1740,7 @@ class MonostaticRCSPlotter(object):
         if extents is None:
             extents = [0, 10, 0, 10, 0, 10]
 
-        plot_type_lower = plot_type.lower()
+        plot_type_lower = plot_type.casefold()
         actor = None
 
         if (
