@@ -992,7 +992,8 @@ class MonostaticRCSPlotter(object):
             Image size in pixel (width, height).
         figure : :class:`matplotlib.pyplot.Figure`, optional
             An existing Matplotlib `Figure` to which the plot is added.
-            If not provided, a new `Figure` and `Axes` object are created.
+            If not provided, a new `Figure` and `Axes` objects are created.
+            Default is ``None``.
 
         Returns
         -------
