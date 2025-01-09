@@ -1673,7 +1673,7 @@ class MonostaticRCSPlotter(object):
                 all_indices = self.__find_nearest_neighbors(xpos_ypos, xypoints)
 
                 mag_for_color = np.ndarray.flatten(cpos[all_indices])
-                if not mesh.__class__.__name__ == "PolyData":
+                if mesh.__class__.__name__ != "PolyData":
                     mesh_triangulated = mesh.triangulate()
                     model_actor.custom_object.mesh = pv.PolyData(mesh_triangulated.points, mesh_triangulated.cells)
                 else:
