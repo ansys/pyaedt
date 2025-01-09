@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -51,12 +51,12 @@ extension_arguments = {
     "start_layer": "",
     "stop_layer": "",
     "contour_list": [],
-    "project_name": "",
 }
 extension_description = "Via clustering utility"
 
 
 def frontend():  # pragma: no cover
+    frontend_dict = {}
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
         version=version,
@@ -67,8 +67,9 @@ def frontend():  # pragma: no cover
     active_project = app.active_project()
     active_project_path = active_project.GetPath()
     active_project_name = active_project.GetName()
+    frontend_dict["design_name"] = active_project_name
     aedb_path = Path(active_project_path) / (active_project_name + ".aedb")
-    extension_arguments["aedb_path"] = os.path.join(active_project_path, active_project_name + ".aedb")
+    frontend_dict["aedb_path"] = os.path.join(active_project_path, active_project_name + ".aedb")
     active_design_name = app.active_design().GetName().split(";")[1]
     app.release_desktop(False, False)
     edb = Edb(aedb_path, active_design_name, edbversion=version)
@@ -107,6 +108,12 @@ def frontend():  # pragma: no cover
     # Set background color of the window (optional)
     master.configure(bg=theme.light["widget_bg"])
 
+    def callback_start_layer(event):
+        frontend_dict["start_layer"] = start_layer_var.get()
+
+    def callback_stop_layer(event):
+        frontend_dict["stop_layer"] = stop_layer_var.get()
+
     project_name = tkinter.Entry(master, width=40)
     project_name.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
     project_name.insert(tkinter.END, generate_unique_name(active_project_name, n=2))
@@ -117,22 +124,22 @@ def frontend():  # pragma: no cover
 
     start_layer_var = tkinter.StringVar()
     start_layer_var.set(layers[0])
-    extension_arguments["start_layer"] = layers[0]
+    frontend_dict["start_layer"] = layers[0]
     start_layer_cbox = ttk.Combobox(master, height=20, width=30, textvariable=start_layer_var)
     start_layer_cbox["values"] = layers
     start_layer_cbox.grid(row=1, column=2, pady=5)
-    start_layer_cbox.bind("<<ComboboxSelected>>", extension_arguments.__setitem__("start_layer", start_layer_var.get()))
+    start_layer_cbox.bind("<<ComboboxSelected>>", callback_start_layer)
 
     label_stop_layer = ttk.Label(master, text="Stop layer", style="PyAEDT.TLabel")
     label_stop_layer.grid(row=0, column=3, pady=10)
 
     stop_layer_var = tkinter.StringVar()
     stop_layer_var.set(layers[-1])
-    extension_arguments["stop_layer"] = layers[-1]
+    frontend_dict["stop_layer"] = layers[-1]
     stop_layer_cbox = ttk.Combobox(master, height=20, width=30, textvariable=stop_layer_var)
     stop_layer_cbox["values"] = layers
     stop_layer_cbox.grid(row=1, column=3, pady=5)
-    stop_layer_cbox.bind("<<ComboboxSelected>>", extension_arguments.__setitem__("stop_layer", stop_layer_var.get()))
+    stop_layer_cbox.bind("<<ComboboxSelected>>", callback_stop_layer)
 
     def add_drawing_layer():
         hfss = Hfss3dLayout(
@@ -182,16 +189,17 @@ def frontend():  # pragma: no cover
             messagebox.showwarning(message="No primitives found on layer defined for merging padstack instances.")
             hfss.release_desktop(close_desktop=False, close_projects=False)
         else:
+            frontend_dict["contour_list"] = []
             for primitive in primitives:
                 prim = hfss.modeler.geometries[primitive]
                 if prim.prim_type == "poly" or prim.prim_type == "rect":
                     pts = [pt for pt in [_pt.position for _pt in prim.points]]
-                    extension_arguments["contour_list"].append(pts)
+                    frontend_dict["contour_list"].append(pts)
                 else:
                     hfss.logger.warning(
                         f"Unsupported primitive {prim.name}, only polygon and rectangles are supported."
                     )
-        extension_arguments["new_aedb_path"] = os.path.join(active_project_path, project_name.get() + ".aedb")
+        frontend_dict["new_aedb_path"] = os.path.join(active_project_path, project_name.get() + ".aedb")
         master.destroy()
 
     button_add_layer = ttk.Button(master, text="Add layer", width=40, command=add_drawing_layer, style="PyAEDT.TButton")
@@ -213,22 +221,20 @@ def frontend():  # pragma: no cover
     change_theme_button.grid(row=0, column=0, padx=0)
 
     tkinter.mainloop()
-    return extension_arguments
+    return frontend_dict
 
 
 def main(extension_arguments):
-    start_layer = extension_arguments.get("start_layer", True)
-    stop_layer = extension_arguments.get("stop_layer", True)
-    design_name = extension_arguments.get("design_name", True)
-    nets_filter = extension_arguments.get("nets_filter", True)
+    start_layer = extension_arguments.get("start_layer", False)
+    stop_layer = extension_arguments.get("stop_layer", False)
+    design_name = extension_arguments.get("design_name", "")
+    # nets_filter = extension_arguments.get("nets_filter", "")
     contour_list = extension_arguments.get("contour_list", [])
     aedb_path = extension_arguments.get("aedb_path", "")
     new_aedb_path = extension_arguments.get("new_aedb_path", "")
     shutil.copytree(aedb_path, new_aedb_path)
     edb = Edb(new_aedb_path, design_name, edbversion=version)
-    edb.padstacks.merge_via(
-        contour_boxes=contour_list, net_filter=nets_filter, start_layer=start_layer, stop_layer=stop_layer
-    )
+    edb.padstacks.merge_via(contour_boxes=contour_list, net_filter=None, start_layer=start_layer, stop_layer=stop_layer)
     [prim.delete() for prim in edb.modeler.primitives_by_layer["via_merging"]]
     edb.save()
     edb.close_edb()
