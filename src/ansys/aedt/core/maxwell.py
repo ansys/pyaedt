@@ -2131,8 +2131,10 @@ class Maxwell(object):
         else:
             bound = BoundaryObject(self, name, props, boundary_type)
         if bound.create():
+            self.logger.info(f"Boundary {name} has been correctly created.")
             self._boundaries[bound.name] = bound
             return bound
+        self.logger.error(f"Boundary {name} was not created.")
         return False
 
 
