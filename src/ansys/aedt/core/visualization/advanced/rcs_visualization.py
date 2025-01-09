@@ -1631,8 +1631,8 @@ class MonostaticRCSPlotter(object):
         Parameters
         ----------
         plot_type : str, optional
-            The type of plot to create for the range profile. It can be ``"Plane"``, ``"Relief"``, and `"Projection"``.
-            The default is ``"Plane"``.
+            The type of plot to create for the range profile. It can be ``"plane"``, ``"relief"``, and `"projection"``.
+            The default is ``"plane"``.
         color_bar : str, optional
             Color mapping to be applied to the RCS data. It can be a color (``"blue"``,
             ``"green"``, ...) or a colormap (``"jet"``, ``"viridis"``, ...). The default is ``"jet"``.
