@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -417,6 +417,8 @@ class TestClass:
         new_report2 = diff_test.post.reports_by_category.standard("TDRZ(1)")
         new_report2.differential_pairs = True
         new_report2.pulse_rise_time = 3e-12
+        new_report2.maximum_time = 30e-12
+        new_report2.step_time = 6e-13
         new_report2.time_windowing = 3
         new_report2.domain = "Time"
 

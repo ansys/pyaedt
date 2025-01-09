@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -1044,8 +1044,9 @@ class Configurations(object):
 
     @pyaedt_function_handler()
     def validate(self, config):
-        """Validate a configuration file against the schema. The default schema
-            can be found in ``pyaedt/misc/config.schema.json``.
+        """Validate a configuration file against the schema.
+
+        The default schema can be found in ``pyaedt/misc/config.schema.json``.
 
         Parameters
         ----------
@@ -1082,6 +1083,7 @@ class Configurations(object):
     @pyaedt_function_handler()
     def import_config(self, config_file, *args):
         """Import configuration settings from a JSON or TOML file and apply it to the current design.
+
         The sections to be applied are defined with the ``configuration.options`` class.
         The import operation result is saved in the ``configuration.results`` class.
 
@@ -1461,8 +1463,8 @@ class Configurations(object):
     @pyaedt_function_handler()
     def export_config(self, config_file=None, overwrite=False):
         """Export current design properties to a JSON or TOML file.
-        The sections to be exported are defined with ``configuration.options`` class.
 
+        The sections to be exported are defined with ``configuration.options`` class.
 
         Parameters
         ----------
@@ -1567,9 +1569,7 @@ class ConfigurationOptions3DLayout(ConfigurationsOptions):
 
 
 class Configurations3DLayout(Configurations):
-    """Enables export and import configuration options to be applied to a
-    new or existing 3DLayout design.
-    """
+    """Enables export and import configuration options to be applied to a new or existing 3DLayout design."""
 
     def __init__(self, app):
         Configurations.__init__(self, app)
@@ -1802,6 +1802,7 @@ class ConfigurationsIcepak(Configurations):
     @pyaedt_function_handler()
     def import_config(self, config_file, *args):
         """Import configuration settings from a JSON or TOML file and apply it to the current design.
+
         The sections to be applied are defined with ``configuration.options`` class.
         The import operation result is saved in the ``configuration.results`` class.
 

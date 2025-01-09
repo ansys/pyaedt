@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -127,7 +127,15 @@ def _dict2arg(d, arg_out):
                 arg = ["NAME:" + k, v[0], v[1]]
                 arg_out.append(arg)
         elif k == "Range":
-            if isinstance(v[0], (list, tuple)):
+            if isinstance(v[0], dict):
+                for rr in v:
+                    arg_out.append("Range:=")
+                    new_range = []
+                    for rk, ri in rr.items():
+                        new_range.append(rk + ":=")
+                        new_range.append(ri)
+                    arg_out.append(new_range)
+            elif isinstance(v[0], (list, tuple)):
                 for e in v:
                     arg_out.append(k + ":=")
                     arg_out.append([i for i in e])
@@ -165,6 +173,18 @@ def _arg2dict(arg, dict_out):
                 dict_out[arg[0][5:]].append(list(arg[1:]))
         else:
             dict_out[arg[0][5:]] = list(arg[1:])
+    elif "NAME:Ranges" in arg[0]:
+        dict_out["Ranges"] = {"Range": []}
+        for el, val in enumerate(arg[1:]):
+            if val == "Range:=":
+                rr = {}
+                vals = arg[el + 2]
+                k = 0
+                while k < len(vals):
+                    rr[vals[k][:-2]] = vals[k + 1]
+                    k += 2
+                dict_out["Ranges"]["Range"].append(rr)
+
     elif arg[0][:5] == "NAME:":
         top_key = arg[0][5:]
         dict_in = {}
@@ -207,16 +227,16 @@ def _arg2dict(arg, dict_out):
 
 @pyaedt_function_handler()
 def format_decimals(el):
-    """
+    """Provide a formatted string for a decimal number.
 
     Parameters
     ----------
-    el :
-
+    el : float, int, str
+        Decimal number to be formatted.
 
     Returns
     -------
-
+    str
     """
     if float(el) > 1000:
         num = f"{Decimal(el):,.0f}"
@@ -229,7 +249,7 @@ def format_decimals(el):
 
 @pyaedt_function_handler()
 def random_string(length=6, only_digits=False, char_set=None):
-    """Generate a random string
+    """Generate a random string.
 
     Parameters
     ----------
@@ -293,15 +313,18 @@ def unique_string_list(element_list, only_string=True):
 
 @pyaedt_function_handler()
 def string_list(element_list):
-    """
+    """Convert a string to a list if it is not already a list.
+
+    Input must be a list or a string.
 
     Parameters
     ----------
-    element_list :
-
+    element_list : list, str
+        List or strings to be converted to a list.
 
     Returns
     -------
+    list
 
     """
     if isinstance(element_list, str):
@@ -313,16 +336,18 @@ def string_list(element_list):
 
 @pyaedt_function_handler()
 def ensure_list(element_list):
-    """
+    """Ensure that an object is a list.
+
+    If it is not, it will be converted to a list.
 
     Parameters
     ----------
-    element_list :
-
+    element_list : object
+        Object to be checked.
 
     Returns
     -------
-
+    None
     """
     if not isinstance(element_list, list):
         element_list = [element_list]

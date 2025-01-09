@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -182,7 +182,6 @@ class FieldAnalysis3DLayout(Analysis):
 
         References
         ----------
-
         >>> oModule.GetExcitations
         """
         return list(self.oboundary.GetAllPortsList())
@@ -227,7 +226,6 @@ class FieldAnalysis3DLayout(Analysis):
 
         References
         ----------
-
         >>> oModule.ExportMeshStats
         """
         if not mesh_path:
@@ -258,7 +256,6 @@ class FieldAnalysis3DLayout(Analysis):
 
         References
         ----------
-
         >>> oModule.GetAllPorts"""
         return self.oexcitation.GetAllPortsList()
 
@@ -273,7 +270,6 @@ class FieldAnalysis3DLayout(Analysis):
 
         References
         ----------
-
         >>> oModule.GetSetups
         """
         setups = self.oanalysis.GetSetups()
@@ -303,7 +299,6 @@ class FieldAnalysis3DLayout(Analysis):
 
         References
         ----------
-
         >>> oModule.Add
 
         Examples
@@ -379,7 +374,6 @@ class FieldAnalysis3DLayout(Analysis):
 
         References
         ----------
-
         >>> oModule.Delete
 
         Examples

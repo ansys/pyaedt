@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,8 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-This module contains these classes: `CouplingsEmit`.
+"""This module contains these classes: `CouplingsEmit`.
+
 This module provides for interacting with EMIT Analysis and Results windows.
 """
 
@@ -134,9 +134,9 @@ class CouplingsEmit(object):
         self._odesign.DeleteLink(coupling_link_name)
 
     def update_link(self, coupling_name):
-        """Update the link if it's a valid link. Check if anything
-        in the linked design has changed and retrieve updated
-        data if it has.
+        """Update the link if it's a valid link.
+
+        Check if anything in the linked design has changed and retrieve updated data if it has.
 
         Parameters
         ----------

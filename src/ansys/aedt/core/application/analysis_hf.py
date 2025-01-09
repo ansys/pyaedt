@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -87,7 +87,6 @@ class ScatteringMethods(object):
 
         References
         ----------
-
         >>> oEditor.GetAllPorts
         """
         if excitations is None:
@@ -143,7 +142,6 @@ class ScatteringMethods(object):
 
         References
         ----------
-
         >>> oEditor.GetAllPorts
         """
         if drivers is None:
@@ -203,7 +201,6 @@ class ScatteringMethods(object):
 
         References
         ----------
-
         >>> oEditor.GetAllPorts
         """
         next_xtalks = []
@@ -270,7 +267,6 @@ class ScatteringMethods(object):
 
         References
         ----------
-
         >>> oEditor.GetAllPorts
         """
 
@@ -310,7 +306,6 @@ class ScatteringMethods(object):
 
         References
         ----------
-
         >>> oModule.GetSolutionDataPerVariation
         """
         from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
@@ -380,7 +375,6 @@ class ScatteringMethods(object):
 
         References
         ----------
-
         >>> oDesign.ExportNetworkData
         """
         return self._app._export_touchstone(

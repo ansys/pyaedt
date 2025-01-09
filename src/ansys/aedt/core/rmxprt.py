@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -73,7 +73,10 @@ class RMXprtModule(object):
                     prps = dict_in.properties[name][::]
                     prps[1] = value
                     value = prps
-                dict_in.properties[name] = value
+                try:
+                    dict_in.properties[name] = value
+                except KeyError:
+                    self._app.logger.error(f"{name} is read only.")
                 return True
             else:
                 for _, child in dict_in.children.items():
@@ -304,7 +307,6 @@ class Rmxprt(FieldAnalysisRMxprt):
 
         References
         ----------
-
         >>> oModule.InsertSetup
 
         Examples
@@ -347,10 +349,10 @@ class Rmxprt(FieldAnalysisRMxprt):
         """
 
         def jsonalize(dict_in, dict_out):
-            dict_out[dict_in.node] = {}
+            dict_out[dict_in._node] = {}
             for k, v in dict_in.properties.items():
                 if not k.endswith("/Choices"):
-                    dict_out[dict_in.node][k] = v
+                    dict_out[dict_in._node][k] = v
             for _, c in dict_in.children.items():
                 jsonalize(c, dict_out)
 

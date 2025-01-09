@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -35,6 +35,7 @@ LAYERS = {"s": "signal", "g": "ground", "d": "dielectric"}
 
 def _replace_by_underscore(character, string):
     """Replace each character of a string by underscores.
+
     This method is used to create Hfss variable relative to a material,
     and so reformat the material name into the variable name format.
 
@@ -53,7 +54,6 @@ def _replace_by_underscore(character, string):
     >>> name = _replace_by_underscore(" ", name)
     >>> name = _replace_by_underscore("(", name)
     >>> name = _replace_by_underscore(")", name)
-
     """
     if not isinstance(character, str):
         raise TypeError("character must be str")
@@ -187,6 +187,7 @@ class NamedVariable(object):
 
 class DuplicatedParametrizedMaterial(object):
     """Provides a class to duplicate a material and manage its duplication in PyAEDT and in AEDT.
+
     For each material property a NamedVariable is created as attribute.
 
     Parameters
@@ -291,8 +292,10 @@ class DuplicatedParametrizedMaterial(object):
 
 
 class Layer3D(object):
-    """Provides a class for a management of a parametric layer in 3D Modeler. The Layer3D class is not intended
-    to be used with its constructor, but by using the method "add_layer" available in the Stackup3D class.
+    """Provides a class for a management of a parametric layer in 3D Modeler.
+
+    The Layer3D class is not intended to be used with its constructor,
+    but by using the method "add_layer" available in the Stackup3D class.
 
     Parameters
     ----------
@@ -1521,6 +1524,7 @@ class Stackup3D(object):
         self, name, layer_type="S", material_name="copper", thickness=0.035, fill_material="FR4_epoxy", frequency=None
     ):
         """Add a new layer to the stackup.
+
         The new layer can be a signal (S), ground (G), or dielectric (D).
         The layer is entirely filled with the specified fill material. Anything will be drawn
         material.
@@ -1601,6 +1605,7 @@ class Stackup3D(object):
     @pyaedt_function_handler()
     def add_signal_layer(self, name, material="copper", thickness=0.035, fill_material="FR4_epoxy", frequency=None):
         """Add a new ground layer to the stackup.
+
         A signal layer is positive. The layer is entirely filled with the fill material.
         Anything will be drawn material.
 
@@ -1690,7 +1695,9 @@ class Stackup3D(object):
 
     @pyaedt_function_handler()
     def add_ground_layer(self, name, material="copper", thickness=0.035, fill_material="air", frequency=None):
-        """Add a new ground layer to the stackup. A ground layer is negative.
+        """Add a new ground layer to the stackup.
+
+        A ground layer is negative.
         The layer is entirely filled with  metal. Any polygon will draw a void in it.
 
         Parameters
@@ -1733,7 +1740,7 @@ class Stackup3D(object):
 
     @pyaedt_function_handler()
     def _layer_position_manager(self, layer):
-        """
+        """Set the last layer of the stackup.
 
         Parameters
         ----------
@@ -1956,12 +1963,13 @@ class CommonObject(object):
 
 
 class Patch(CommonObject, object):
-    """Patch Class in Stackup3D. Create a parametrized patch. It is preferable to use the add_patch method
+    """Patch Class in Stackup3D. Create a parametrized patch.
+
+    It is preferable to use the add_patch method
     in the class Layer3D than directly the class constructor.
 
     Parameters
     ----------
-
     application : :class:`ansys.aedt.core.hfss.Hfss`
         HFSS design or project where the variable is to be created.
     frequency : float, None
@@ -1990,7 +1998,6 @@ class Patch(CommonObject, object):
 
     Examples
     --------
-
     >>> from ansys.aedt.core import Hfss
     >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
     >>> hfss = Hfss()
@@ -2528,7 +2535,9 @@ class Patch(CommonObject, object):
         return port
 
     def quarter_wave_feeding_line(self, impedance_to_adapt=50):
-        """Create a Trace to feed the patch. The trace length is the quarter wavelength, and this width is calculated
+        """Create a Trace to feed the patch.
+
+        The trace length is the quarter wavelength, and this width is calculated
         to return the desired impedance.
 
         Parameters
@@ -2602,12 +2611,13 @@ class Patch(CommonObject, object):
 
 
 class Trace(CommonObject, object):
-    """Trace Class in Stackup3D. Create a parametrized trace. It is preferable to use the add_trace method
-    in the class Layer3D than directly the class constructor.
+    """Trace Class in Stackup3D. Create a parametrized trace.
+
+    It is preferable to use the add_trace method in the class Layer3D
+    than directly the class constructor.
 
     Parameters
     ----------
-
     application : :class:`ansys.aedt.core.hfss.Hfss`
         HFSS design or project where the variable is to be created.
     frequency : float, None

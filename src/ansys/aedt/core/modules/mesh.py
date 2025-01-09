@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -125,11 +125,26 @@ class MeshOperation(BinaryTreeNode):
         self._type = meshoptype
         self._name = name
         self.auto_update = True
+        self._initialize_tree_node()
 
-        child_object = self._app.get_oo_object(self._app.odesign, f"Mesh/{self._name}")
+    @property
+    def _child_object(self):
+        """Object-oriented properties.
 
-        if child_object:
-            BinaryTreeNode.__init__(self, self._name, child_object, False)
+        Returns
+        -------
+        class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTreeNode`
+
+        """
+        child_object = None
+        design_childs = self._app.get_oo_name(self._app.odesign)
+
+        if "Mesh" in design_childs:
+            cc = self._app.get_oo_object(self._app.odesign, "Mesh")
+            cc_names = self._app.get_oo_name(cc)
+            if self._name in cc_names:
+                child_object = cc.GetChildObject(self._name)
+        return child_object
 
     @property
     def type(self):
@@ -139,6 +154,7 @@ class MeshOperation(BinaryTreeNode):
 
     @property
     def props(self):
+        """Properties of the mesh operation."""
         if not self._legacy_props:
             props = {}
             for k, v in self.properties.items():
@@ -182,7 +198,7 @@ class MeshOperation(BinaryTreeNode):
     def _get_args(self):
         """Retrieve arguments."""
         props = self.props
-        arg = ["NAME:" + self._name]
+        arg = ["NAME:" + self.name]
         _dict2arg(props, arg)
         return arg
 
@@ -196,18 +212,17 @@ class MeshOperation(BinaryTreeNode):
            Name of the mesh operation.
 
         """
-        try:
-            self._name = self.properties["Name"]
-        except KeyError:
-            pass
+        if self._child_object:
+            self._name = str(self.properties["Name"])
         return self._name
 
     @name.setter
     def name(self, meshop_name):
-        try:
-            self.properties["Name"] = meshop_name
-        except KeyError:
-            self._mesh.logger.warning("Name %s already assigned in the design", meshop_name)
+        if self._child_object:
+            try:
+                self.properties["Name"] = meshop_name
+            except KeyError:
+                self._mesh.logger.error("Name %s already assigned in the design", meshop_name)
 
     @pyaedt_function_handler()
     def create(self):
@@ -245,11 +260,7 @@ class MeshOperation(BinaryTreeNode):
             self._mesh.omeshmodule.AssignCylindricalGapOp(self._get_args())
         else:
             return False
-        child_object = self._app.get_oo_object(self._app.odesign, f"Mesh/{self._name}")
-
-        if child_object:
-            BinaryTreeNode.__init__(self, self._name, child_object, False)
-        return True
+        return self._initialize_tree_node()
 
     @pyaedt_function_handler()
     def update(self, key_name=None, value=None):
@@ -386,7 +397,6 @@ class MeshOperation(BinaryTreeNode):
 
         References
         ----------
-
         >>> oModule.DeleteOp
         """
         self._mesh.omeshmodule.DeleteOp([self.name])
@@ -394,6 +404,13 @@ class MeshOperation(BinaryTreeNode):
             if el.name == self.name:
                 self._mesh.meshoperations.remove(el)
         return True
+
+    @pyaedt_function_handler()
+    def _initialize_tree_node(self):
+        if self._child_object:
+            BinaryTreeNode.__init__(self, self._name, self._child_object, False)
+            return True
+        return False
 
 
 class Mesh(object):
@@ -522,7 +539,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.InitialMeshSettings
         """
         if not self._globalmesh:
@@ -535,7 +551,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oDesign.GetModule("MeshSetup")
         """
         return self._app.omeshmodule
@@ -604,7 +619,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignTrueSurfOp
 
         Examples
@@ -669,7 +683,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignTrueSurfOp
 
         Examples
@@ -746,7 +759,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignModelResolutionOp
 
         Examples
@@ -841,7 +853,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.InitialMeshSettings
         """
         if self._app.design_type in ["2D Extractor", "Maxwell 2D"]:
@@ -937,7 +948,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.InitialMeshSettings
         """
         if self._app.design_type in ["2D Extractor", "Maxwell 2D"]:
@@ -1017,7 +1027,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignSurfPriorityForTauOp
         """
         meshop_name = generate_unique_name("SurfaceRepPriority")
@@ -1043,7 +1052,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oDesign.GenerateMesh
 
         Examples
@@ -1125,13 +1133,12 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignLengthOp
         """
         assignment = self._modeler.convert_to_selections(assignment, True)
         if name:
             for m in self.meshoperations:
-                if name == m.name:
+                if name == m.name:  # If the mesh operation name exists, find a new, unique name.
                     name = generate_unique_name(name)
         else:
             name = generate_unique_name("length")
@@ -1176,10 +1183,12 @@ class Mesh(object):
         )
 
         mop = MeshOperation(self, name, props, "LengthBased")
+
         for meshop in self.meshoperations[:]:
             if meshop.name == mop.name:
                 meshop.delete()
                 break
+
         mop.create()
         self.meshoperations.append(mop)
         return mop
@@ -1226,7 +1235,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignSkinDepthOp
         """
         assignment = self._modeler.convert_to_selections(assignment, True)
@@ -1298,7 +1306,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignApplyCurvlinearElementsOp
         """
         assignment = self._modeler.convert_to_selections(assignment, True)
@@ -1351,7 +1358,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignCurvatureExtractionOp
         """
         assignment = self._modeler.convert_to_selections(assignment, True)
@@ -1405,7 +1411,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignRotationalLayerOp
         """
         assignment = self._modeler.convert_to_selections(assignment, True)
@@ -1454,7 +1459,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignRotationalLayerOp
         """
         assignment = self._modeler.convert_to_selections(assignment, True)
@@ -1506,7 +1510,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignDensityControlOp
         """
         assignment = self._modeler.convert_to_selections(assignment, True)
@@ -1599,7 +1602,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignCylindricalGapOp
         """
         try:

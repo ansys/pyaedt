@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -53,7 +53,7 @@ def deprecation_warning():
 
     # Define and use custom showwarning
     def custom_show_warning(message, category, filename, lineno, file=None, line=None):
-        """Custom warning used to remove <stdin>:loc: pattern."""
+        """Define and use custom warning to remove <stdin>:loc: pattern."""
         print(f"{category.__name__}: {message}")
 
     warnings.showwarning = custom_show_warning
@@ -71,7 +71,7 @@ deprecation_warning()
 #
 
 pyaedt_path = os.path.dirname(__file__)
-__version__ = "0.13.dev0"
+__version__ = "0.14.dev0"
 version = __version__
 
 # isort: off

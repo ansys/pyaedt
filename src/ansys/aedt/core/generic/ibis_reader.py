@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -762,6 +762,7 @@ class AMI:
 
 class IbisReader(object):
     """Reads *.ibis file content.
+
     Setup an Ibis object exposing all the extracted data.
 
     Parameters
@@ -783,7 +784,7 @@ class IbisReader(object):
         return self._ibis_model
 
     def parse_ibis_file(self):
-        """Reads \\*.ibis file content.
+        """Read \\*.ibis file content.
 
         Parameters
         ----------
@@ -885,7 +886,7 @@ class IbisReader(object):
 
     # Model
     def read_model(self, ibis, model_list):
-        """Extracts model's info.
+        """Extract model's info.
 
         Parameters
         ----------
@@ -929,7 +930,7 @@ class IbisReader(object):
 
     # Model Selector
     def read_model_selector(self, ibis, model_selector_list):
-        """Extracts model selector's info.
+        """Extract model selector's info.
 
         Parameters
         ----------
@@ -957,7 +958,7 @@ class IbisReader(object):
 
     @classmethod
     def make_model(cls, current_line):
-        """Creates model object.
+        """Create model object.
 
         Parameters
         ----------
@@ -1015,7 +1016,7 @@ class IbisReader(object):
 
     @classmethod
     def fill_package_info(cls, component, pkg_info):
-        """Extracts model's info.
+        """Extract model's info.
 
         Parameters
         ----------
@@ -1038,7 +1039,7 @@ class IbisReader(object):
 
     @classmethod
     def get_component_name(cls, line):
-        """Gets the name of the component.
+        """Get the name of the component.
 
         Parameters
         ----------
@@ -1109,7 +1110,7 @@ class IbisReader(object):
         return
 
     def make_pin_object(self, line, component_name, ibis):
-        """Extracts model's info.
+        """Extract model's info.
 
         Parameters
         ----------
@@ -1164,7 +1165,7 @@ class IbisReader(object):
 
     @classmethod
     def get_first_parameter(cls, line):
-        """Gets first parameter string value.
+        """Get first parameter string value.
 
         Parameters
         ----------
@@ -1175,9 +1176,7 @@ class IbisReader(object):
         -------
         str
             First info extracted from the current line.
-
         """
-
         if line == "":
             return ""
 
@@ -1307,7 +1306,7 @@ class AMIReader(IbisReader):
 
 
 def is_started_with(src, find, ignore_case=True):
-    """Verifies if a string content starts with a specific string or not.
+    """Verify if a string content starts with a specific string or not.
 
     This is identical to ``str.startswith``, except that it includes
     the ``ignore_case`` parameter.
@@ -1325,9 +1324,7 @@ def is_started_with(src, find, ignore_case=True):
     -------
     bool
         ``True`` if the src string starts with the pattern.
-
     """
-
     if ignore_case:
         return src.lower().startswith(find.lower())
     return src.startswith(find)

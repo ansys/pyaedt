@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -49,7 +49,6 @@ class FieldAnalysisCircuit(Analysis):
 
     Parameters
     ----------
-
     """
 
     def __init__(
@@ -111,7 +110,6 @@ class FieldAnalysisCircuit(Analysis):
 
         References
         ----------
-
         >>> oModule.RemoveSimSetup
         """
         if name in self.existing_analysis_setups:
@@ -192,7 +190,6 @@ class FieldAnalysisCircuit(Analysis):
 
         References
         ----------
-
         >>> oModule.GetAllSolutionSetups"""
         return self.existing_analysis_setups
 
@@ -202,7 +199,6 @@ class FieldAnalysisCircuit(Analysis):
 
         References
         ----------
-
         >>> oModule.GetAllSolutionSetups"""
         setups = self.oanalysis.GetAllSolutionSetups()
         return setups
@@ -238,7 +234,6 @@ class FieldAnalysisCircuit(Analysis):
 
         References
         ----------
-
         >>> oModule.GetAllSolutionSetups"""
         return self.oanalysis.GetAllSolutionSetups()
 
@@ -253,7 +248,6 @@ class FieldAnalysisCircuit(Analysis):
 
         References
         ----------
-
         >>> oDesign.GetChildObject("Excitations").GetChildNames()
         """
         return list(self.odesign.GetChildObject("Excitations").GetChildNames())
@@ -325,7 +319,6 @@ class FieldAnalysisCircuit(Analysis):
 
         References
         ----------
-
         >>> oModule.GetAllPorts
         """
         ports = [p.replace("IPort@", "").split(";")[0] for p in self.modeler.oeditor.GetAllPorts() if "IPort@" in p]
@@ -412,7 +405,6 @@ class FieldAnalysisCircuit(Analysis):
 
         References
         ----------
-
         >>> oModule.AddLinearNetworkAnalysis
         >>> oModule.AddDCAnalysis
         >>> oModule.AddTransient

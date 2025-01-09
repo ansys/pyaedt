@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -192,7 +192,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             remove_lock=remove_lock,
         )
         ScatteringMethods.__init__(self, self)
-        self.onetwork_data_explorer = self._desktop.GetTool("NdExplorer")
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
@@ -671,7 +670,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.GetExcitationsOfType
         """
         if source_project_name and self.project_name != source_project_name and not source_project_path:
@@ -723,7 +721,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         References
         ----------
-
         >>> oDesign.ImportData
         """
         if input_file[-2:] == "ts":
@@ -894,7 +891,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         References
         ----------
-
         >>> oDesign.ExportFullWaveSpice
         """
         if not design:
@@ -1040,7 +1036,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         References
         ----------
-
         >>> oEditor.PushExcitations
         """
         arg = ["NAME:options", "CalcThevenin:=", thevenin_calculation, "Sol:=", setup]
@@ -1092,7 +1087,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         References
         ----------
-
         >>> oEditor.PushExcitations
         """
         arg = [
@@ -1146,7 +1140,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         References
         ----------
-
         >>> oDesign.UpdateSources
         """
         if not name:
@@ -1194,7 +1187,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         References
         ----------
-
         >>> oDesign.UpdateSources
         """
 
@@ -1220,7 +1212,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         References
         ----------
-
         >>> oDesign.UpdateSources
         """
         source_i = self.create_source(source_type="CurrentSin")
@@ -1245,7 +1236,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         References
         ----------
-
         >>> oDesign.UpdateSources
         """
         source_p = self.create_source(source_type="PowerSin")
@@ -1272,7 +1262,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         References
         ----------
-
         >>> oDesign.UpdateSources
         """
         if not os.path.exists(input_file) or os.path.splitext(input_file)[1] != ".fds":
@@ -1717,11 +1706,15 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         center_y = sub.location[1]
         left = 0
         delta_y = -1 * sub.location[1] - 2000 - 50 * len(tx_schematic_pins)
+
         if differential:
             tdr_probe = self.modeler.components.components_catalog["TDR_Differential_Ended"]
         else:
             tdr_probe = self.modeler.components.components_catalog["TDR_Single_Ended"]
+
         tdr_probe_names = []
+        n_pin = None
+
         for i, probe_pin in enumerate(tx_schematic_pins):
             pos_y = unit_converter(delta_y - left * 1000, input_units="mil", output_units=self.modeler.schematic_units)
             left += 1
@@ -2154,7 +2147,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         Parameters
         ----------
-
         ibis_tx_file : str
             Full path to the IBIS file for transmitters.
         ibis_rx_file : str

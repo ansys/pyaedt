@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -31,15 +31,12 @@ from ansys.aedt.core.modules.solve_setup import SetupCircuit
 
 class AnalysisTwinBuilder(Analysis):
     """Provides the Twin Builder Analysis Setup (TwinBuilder).
+
     It is automatically initialized by Application call (Twin Builder).
     Refer to Application function for inputs definition
 
     Parameters
     ----------
-
-    Returns
-    -------
-
     """
 
     @property
@@ -48,7 +45,6 @@ class AnalysisTwinBuilder(Analysis):
 
         References
         ----------
-
         >>> oModule.GetAllSolutionSetups"""
         setups = list(self.oanalysis.GetAllSolutionSetups())
         return setups
@@ -59,7 +55,6 @@ class AnalysisTwinBuilder(Analysis):
 
         References
         ----------
-
         >>> oModule.GetAllSolutionSetups"""
         return list(self.oanalysis.GetAllSolutionSetups())
 

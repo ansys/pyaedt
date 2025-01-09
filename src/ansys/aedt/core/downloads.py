@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -226,6 +226,7 @@ def download_edb_merge_utility(force_download=False, destination=None):
 
 def download_netlist(destination=None):
     """Download an example of netlist File and return the def path.
+
     Examples files are downloaded to a persistent cache to avoid
     re-downloading the same file twice.
 

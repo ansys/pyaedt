@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -273,7 +273,7 @@ class GeneticAlgorithm(object):
         self.evaluate_val = 1e10
 
     def run(self):
-        """Implements the genetic algorithm"""
+        """Implement the genetic algorithm"""
         # Init Population
         pop = np.array([np.zeros(self.dim + 1)] * self.population_size)
         solo = np.zeros(self.dim + 1)

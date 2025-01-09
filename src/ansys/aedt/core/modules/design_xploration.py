@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -24,6 +24,9 @@
 
 import copy
 import csv
+from typing import Any
+from typing import Dict
+from typing import Optional
 
 from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.data_handlers import _dict2arg
@@ -45,15 +48,15 @@ class CommonOptimetrics(PropsManager, object):
 
     Parameters
     ----------
-    p_app :
-
-    name :
-
-    dictinputs
-
+    p_app : :class:`ansys.aedt.core.application.analysis.Analysis`
+        PyAEDT analysis instance.
+    name : str
+        Optimetrics setup name.
+    dictinputs : dict
+        Input setup parameters.
     optimtype : str
-        Type of the optimization.
-
+        Type of the optimization. Available options are: ``"OptiParametric"``, ``"OptiDesignExplorer"`,
+        ``"OptiOptimization"``, ``"OptiSensitivity"``, ``"OptiStatistical"``, ``"OptiDXDOE"``, and ``"optiSLang"``.
     """
 
     def __init__(self, p_app, name, dictinputs, optimtype):
@@ -114,11 +117,20 @@ class CommonOptimetrics(PropsManager, object):
                 if self._app._is_object_oriented_enabled():
                     oparams = self.omodule.GetChildObject(self.name).GetCalculationInfo()
                     oparam = [i for i in oparams[0]]
-                    calculation = ["NAME:Goal"]
-                    calculation.extend(oparam)
-                    arg1 = {}
-                    _arg2dict(calculation, arg1)
-                    self.props["Goals"] = arg1
+                    idx = None
+                    if oparam[0] in oparam[1:]:
+                        idx = oparam[1:].index(oparam[0]) + 1
+                    if idx:
+                        oparam = [["NAME:Goal"] + oparam[k : idx + k] for k in range(0, len(oparam), idx)]
+                    else:
+                        oparam = [["NAME:Goal"] + oparam]
+
+                    self.props["Goals"]["Goal"] = []
+                    for param in oparam:
+                        arg1 = {}
+                        _arg2dict(param, arg1)
+                        self._get_setup_props(arg1)
+                        self.props["Goals"]["Goal"].append(SetupProps(self, arg1["Goal"]))
 
             if inputd.get("Variables"):  # pragma: no cover
                 for var in inputd.get("Variables"):
@@ -135,6 +147,16 @@ class CommonOptimetrics(PropsManager, object):
                     self.props["Variables"][var] = output_list
 
         self.auto_update = True
+
+    def _get_setup_props(self, arg1: Dict[str, Any]) -> None:
+        for k, v in arg1.items():
+            if isinstance(v, dict):
+                arg1[k] = SetupProps(self, v)
+                self._get_setup_props(v)
+            elif isinstance(v, list):
+                for idx, item in enumerate(v):
+                    if isinstance(item, dict):
+                        v[idx] = SetupProps(self, item)
 
     @pyaedt_function_handler()
     def _get_context(
@@ -155,17 +177,16 @@ class CommonOptimetrics(PropsManager, object):
         did = 3
         if domain != "Sweep":
             did = 1
-        sweepdefinition = {}
-        sweepdefinition["ReportType"] = report_category
+        sweep_definition = {"ReportType": report_category}
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_sweep
-        sweepdefinition["Solution"] = setup_sweep_name
+        sweep_definition["Solution"] = setup_sweep_name
         ctxt = {}
 
         if self._app.solution_type in ["TR", "AC", "DC"]:
             ctxt["SimValueContext"] = [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]
             setup_sweep_name = self._app.solution_type
-            sweepdefinition["Solution"] = setup_sweep_name
+            sweep_definition["Solution"] = setup_sweep_name
 
         elif self._app.solution_type in ["HFSS3DLayout"]:
             if context == "Differential Pairs":
@@ -215,12 +236,12 @@ class CommonOptimetrics(PropsManager, object):
                 ctxt["PointCount"] = polyline_points
         else:
             ctxt = {"Domain": domain}
-        sweepdefinition["SimValueContext"] = ctxt
-        sweepdefinition["Calculation"] = expressions
-        sweepdefinition["Name"] = expressions
-        sweepdefinition["Ranges"] = {}
+        sweep_definition["SimValueContext"] = ctxt
+        sweep_definition["Calculation"] = expressions
+        sweep_definition["Name"] = expressions
+        sweep_definition["Ranges"] = {}
         if context and context in self._app.modeler.line_names and intrinsics and "Distance" not in intrinsics:
-            sweepdefinition["Ranges"]["Range"] = ("Var:=", "Distance", "Type:=", "a")
+            sweep_definition["Ranges"]["Range"] = ("Var:=", "Distance", "Type:=", "a")
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_sweep
             if not setup_sweep_name:
@@ -231,43 +252,35 @@ class CommonOptimetrics(PropsManager, object):
             return False
         if intrinsics:
             for v, k in intrinsics.items():
+                r = {}
                 if not k:
-                    r = ["Var:=", v, "Type:=", "a"]
+                    r = {"Var": v, "Type": "a"}
                 elif isinstance(k, tuple):
-                    r = ["Var:=", v, "Type:=", "rd"]
-                    r.append("Start:=")
-                    r.append(k[0])
-                    r.append("Stop:=")
-                    r.append(k[1])
-                    r.append("DiscreteValues:=")
-                    r.append("")
+                    r = {"Var": v, "Type": "rd", "Start": k[0], "Stop": k[1], "DiscreteValues": ""}
                 elif isinstance(k, (list, str)):
-                    r = ["Var:=", v, "Type:=", "d"]
-                    r.append("DiscreteValues:=")
-                    if isinstance(k, list):
-                        r.append(",".join(k))
-                    else:
-                        r.append(k)
-
-                if not sweepdefinition["Ranges"]:
-                    sweepdefinition["Ranges"]["Range"] = tuple(r)
-                elif isinstance(sweepdefinition["Ranges"]["Range"], list):
-                    sweepdefinition["Ranges"]["Range"].append(tuple(r))
+                    r = {"Var": v, "Type": "d", "DiscreteValues": ",".join(k) if isinstance(k, list) else k}
+                r = SetupProps(self, r)
+                if not sweep_definition["Ranges"]:
+                    sweep_definition["Ranges"]["Range"] = [r]
+                elif isinstance(sweep_definition["Ranges"]["Range"], list):
+                    sweep_definition["Ranges"]["Range"].append(r)
                 else:
-                    sweepdefinition["Ranges"]["Range"] = [sweepdefinition["Ranges"]["Range"]]
-                    sweepdefinition["Ranges"]["Range"].append(tuple(r))
+                    sweep_definition["Ranges"]["Range"] = [sweep_definition["Ranges"]["Range"]]
+                    sweep_definition["Ranges"]["Range"].append(r)
         if is_goal:
-            sweepdefinition["Condition"] = condition
-            sweepdefinition["GoalValue"] = {
+            sweep_definition["Condition"] = condition
+            goal_value = {
                 "GoalValueType": "Independent",
                 "Format": "Real/Imag",
                 "bG": ["v:=", f"[{goal_value};]"],
             }
-            sweepdefinition["Weight"] = f"[{goal_weight};]"
-        return sweepdefinition
+            goal_value = SetupProps(self, goal_value)
+            sweep_definition["GoalValue"] = goal_value
+            sweep_definition["Weight"] = f"[{goal_weight};]"
+        return sweep_definition
 
     @pyaedt_function_handler()
-    def update(self, update_dictionary=None):
+    def update(self, update_dictionary: Optional[Dict[str, Any]] = None) -> bool:
         """Update the setup based on stored properties.
 
         Parameters
@@ -282,7 +295,6 @@ class CommonOptimetrics(PropsManager, object):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         if update_dictionary:
@@ -302,7 +314,7 @@ class CommonOptimetrics(PropsManager, object):
         return True
 
     @pyaedt_function_handler()
-    def create(self):
+    def create(self) -> bool:
         """Create a setup.
 
         Returns
@@ -312,7 +324,6 @@ class CommonOptimetrics(PropsManager, object):
 
         References
         ----------
-
         >>> oModule.InsertSetup
         """
         arg = ["NAME:" + self.name]
@@ -395,7 +406,7 @@ class CommonOptimetrics(PropsManager, object):
             optigoalname = "Goals"
         if "Goal" in self.props[optigoalname]:
             if type(self.props[optigoalname]["Goal"]) is not list:
-                self.props[optigoalname]["Goal"] = [self.props[optigoalname]["Goal"], sweepdefinition]
+                self.props[optigoalname]["Goal"] = [self.props[optigoalname]["Goal"], SetupProps(self, sweepdefinition)]
             else:
                 self.props[optigoalname]["Goal"].append(sweepdefinition)
         else:
@@ -534,16 +545,16 @@ class CommonOptimetrics(PropsManager, object):
     @pyaedt_function_handler(num_cores="cores", num_tasks="tasks", num_gpu="gpus")
     def analyze(
         self,
-        cores=1,
-        tasks=1,
-        gpus=0,
-        acf_file=None,
-        use_auto_settings=True,
-        solve_in_batch=False,
-        machine="localhost",
-        run_in_thread=False,
-        revert_to_initial_mesh=False,
-    ):
+        cores: int = 1,
+        tasks: int = 1,
+        gpus: int = 0,
+        acf_file: str = None,
+        use_auto_settings: bool = True,
+        solve_in_batch: bool = False,
+        machine: str = "localhost",
+        run_in_thread: bool = False,
+        revert_to_initial_mesh: bool = False,
+    ) -> bool:
         """Solve the active design.
 
         Parameters
@@ -577,7 +588,6 @@ class CommonOptimetrics(PropsManager, object):
 
         References
         ----------
-
         >>> oDesign.Analyze
         """
         return self._app.analyze(
@@ -661,7 +671,6 @@ class SetupOpti(CommonOptimetrics, object):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         return self._add_calculation(
@@ -728,7 +737,6 @@ class SetupOpti(CommonOptimetrics, object):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
 
@@ -927,7 +935,6 @@ class SetupParam(CommonOptimetrics, object):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         if sweep_variable not in self._app.variable_manager.variables:
@@ -997,7 +1004,6 @@ class SetupParam(CommonOptimetrics, object):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         if type(self.props["Sweeps"]["SweepDefinition"]) is not list:
@@ -1070,7 +1076,6 @@ class SetupParam(CommonOptimetrics, object):
 
         References
         ----------
-
         >>> oModule.EditSetup
         """
         return self._add_calculation(
@@ -1157,10 +1162,13 @@ class ParametricSetups(object):
             Variation Start Point if a variation is defined or Single Value.
         end_point : float or int, optional
             Variation End Point. This parameter is optional if a Single Value is defined.
-        step : float or int
-            Variation Step or Count depending on variation_type. The default is ``100``.
+        step : float, int, or str
+            Variation Step or Count depending on variation_type. The default is ``100``
+            for the "LinearCount" variation_type. If a string is passed as an argument, it
+            must be a valid expression in the given context. For example, "0.1mm" may be passed
+            for a step size when the variation_type is "LinearStep".
         variation_type : str, optional
-            Variation Type. Admitted values are `"LinearCount"`, `"LinearStep"`, `"LogScale"`, `"SingleValue"`.
+            Variation Type. Permitted values are `"LinearCount"`, `"LinearStep"`, `"LogScale"`, `"SingleValue"`.
         solution : str, optional
             Type of the solution. The default is ``None``, in which case the default
             solution is used.
@@ -1175,7 +1183,6 @@ class ParametricSetups(object):
 
         References
         ----------
-
         >>> oModule.InsertSetup
         """
         if variable not in self._app.variable_manager.variables:
@@ -1425,7 +1432,6 @@ class OptimizationSetups(object):
 
         References
         ----------
-
         >>> oModule.InsertSetup
         """
         if not solution and not self._app.nominal_sweep:
