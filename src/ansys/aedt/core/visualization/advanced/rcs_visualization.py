@@ -617,9 +617,6 @@ class MonostaticRCSPlotter(object):
 
     def __init__(self, rcs_data):
 
-        # Public
-        self.modeler_window = None
-
         # Private
         self.__rcs_data = rcs_data
         self.__logger = logger
@@ -1638,9 +1635,6 @@ class MonostaticRCSPlotter(object):
             Color mapping to be applied to the RCS data. It can be a color (``"blue"``,
             ``"green"``, ...) or a colormap (``"jet"``, ``"viridis"``, ...). The default is ``"jet"``.
         """
-        # if not self.modeler_window:
-        #     self.modeler_window = BackgroundPlotter(show=False)
-
         data_isar_2d = self.rcs_data.isar_2d
 
         down_range = data_isar_2d["Down-range"].unique()
@@ -1652,8 +1646,6 @@ class MonostaticRCSPlotter(object):
         z = np.zeros_like(x)
 
         if plot_type.lower() == "relief":
-            # m = self.modeler_window.bounds[-1]-self.modeler_window.bounds[-2]
-            # b = self.modeler_window.bounds[-2]
             m = 2.0
             b = -1.0
             z = (values_2d - values_2d.min()) / (values_2d.max() - values_2d.min()) * m + b
