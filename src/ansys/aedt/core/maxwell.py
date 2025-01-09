@@ -2537,37 +2537,21 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         else:
             bound_name_m = bound_name
             bound_name_s = bound_name + "_dep"
-        if (
-            not isinstance(u_vector_origin_coordinates_master, list)
-            or not isinstance(u_vector_origin_coordinates_slave, list)
-            or not isinstance(u_vector_pos_coordinates_master, list)
-            or not isinstance(u_vector_pos_coordinates_slave, list)
-        ):
+        list_coordinates = [
+            u_vector_origin_coordinates_master,
+            u_vector_origin_coordinates_slave,
+            u_vector_pos_coordinates_master,
+            u_vector_pos_coordinates_slave,
+        ]
+        if any(not isinstance(coordinates, list) for coordinates in list_coordinates):
             self.logger.error("Please provide a list of coordinates for U vectors.")
             return False
-        elif [x for x in u_vector_origin_coordinates_master if not isinstance(x, str)]:
-            self.logger.error("Elements of coordinates system must be strings in the form of ``value+unit``.")
-            return False
-        elif [x for x in u_vector_origin_coordinates_slave if not isinstance(x, str)]:
-            self.logger.error("Elements of coordinates system must be strings in the form of ``value+unit``.")
-            return False
-        elif [x for x in u_vector_pos_coordinates_master if not isinstance(x, str)]:
-            self.logger.error("Elements of coordinates system must be strings in the form of ``value+unit``.")
-            return False
-        elif [x for x in u_vector_pos_coordinates_slave if not isinstance(x, str)]:
-            self.logger.error("Elements of coordinates system must be strings in the form of ``value+unit``.")
-            return False
-        elif len(u_vector_origin_coordinates_master) != 3:
-            self.logger.error("Vector must contain 3 elements for x, y and z coordinates.")
-            return False
-        elif len(u_vector_origin_coordinates_slave) != 3:
-            self.logger.error("Vector must contain 3 elements for x, y and z coordinates.")
-            return False
-        elif len(u_vector_pos_coordinates_master) != 3:
-            self.logger.error("Vector must contain 3 elements for x, y and z coordinates.")
-            return False
-        elif len(u_vector_pos_coordinates_slave) != 3:
-            self.logger.error("Vector must contain 3 elements for x, y and z coordinates.")
+        for coordinates in list_coordinates:
+            if any(not isinstance(x, str) for x in coordinates):
+                self.logger.error("Elements of coordinates system must be strings in the form of ``value+unit``.")
+                return False
+        if any(len(coordinates) != 3 for coordinates in list_coordinates):
+            self.logger.error("Vector must contain 3 elements for x, y, and z coordinates.")
             return False
         u_master_vector_coordinates = dict(
             {
