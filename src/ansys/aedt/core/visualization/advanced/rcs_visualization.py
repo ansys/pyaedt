@@ -1623,7 +1623,7 @@ class MonostaticRCSPlotter(object):
     @pyaedt_function_handler()
     def add_isar_2d(
         self,
-        plot_type="Plane",
+        plot_type="plane",
         color_bar="jet",
     ):
         """Add the ISAR 2D.
