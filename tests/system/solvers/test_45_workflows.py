@@ -594,5 +594,6 @@ class TestClass:
             "design_name": "test",
             "aedb_path": file_path,
             "new_aedb_path": new_file,
+            "test_mode": True,
         }
         assert main(input)

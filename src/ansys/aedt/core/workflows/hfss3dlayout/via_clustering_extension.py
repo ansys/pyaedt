@@ -51,6 +51,7 @@ extension_arguments = {
     "start_layer": "",
     "stop_layer": "",
     "contour_list": [],
+    "test_mode": False,
 }
 extension_description = "Via clustering utility"
 
@@ -225,6 +226,7 @@ def frontend():  # pragma: no cover
 
 
 def main(extension_arguments):
+    test_mode = extension_arguments.get("test_mode", False)
     start_layer = extension_arguments.get("start_layer", False)
     stop_layer = extension_arguments.get("stop_layer", False)
     design_name = extension_arguments.get("design_name", "")
@@ -240,7 +242,8 @@ def main(extension_arguments):
     edb.close_edb()
     h3d = Hfss3dLayout(new_aedb_path)
     h3d.logger.info("Project generated correctly.")
-    h3d.release_desktop(False, False)
+    if not test_mode:
+        h3d.release_desktop(False, False)
     return True
 
 
