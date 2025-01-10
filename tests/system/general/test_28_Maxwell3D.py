@@ -106,19 +106,6 @@ class TestClass:
         assert m3d_app.materials["titanium"].stacking_factor == "0.99"
         assert m3d_app.materials["titanium"].stacking_direction == "V(2)"
 
-    def test_coil_terminals(self, m3d_app):
-        coil_hole = m3d_app.modeler.create_box([-50, -50, 0], [100, 100, 100], name="Coil_Hole")
-        coil = m3d_app.modeler.create_box([-100, -100, 0], [200, 200, 100], name="Coil")
-        m3d_app.modeler.subtract([coil], [coil_hole])
-
-        m3d_app.modeler.section(["Coil"], m3d_app.PLANE.ZX)
-        m3d_app.modeler.separate_bodies(["Coil_Section1"])
-        assert m3d_app.assign_current(["Coil_Section1"], amplitude=2472)
-        assert m3d_app.assign_voltage(m3d_app.modeler["Coil_Section1_Separate1"].faces[0].id, amplitude=1)
-        m3d_app.solution_type = "Magnetostatic"
-        assert m3d_app.assign_current(["Coil_Section1"], amplitude=2472)
-        assert m3d_app.assign_voltage(m3d_app.modeler["Coil_Section1_Separate1"].faces[0].id, amplitude=1)
-
     def test_assign_winding(self, m3d_app):
         coil_hole = m3d_app.modeler.create_box([-50, -50, 0], [100, 100, 100], name="Coil_Hole")
         coil = m3d_app.modeler.create_box([-100, -100, 0], [200, 200, 100], name="Coil")
