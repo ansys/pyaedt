@@ -1883,11 +1883,12 @@ class Setup3DLayout(CommonSetup):
         try:
             return self.properties["Solver"]
         except Exception:
-            pass
+            self.p_app.logger.debug("Cannot retrieve solver type with key 'Solver'")
         try:
             return self.props["SolveSetupType"]
         except Exception:
-            return None
+            self.p_app.logger.debug("Cannot retrieve solver type with key 'SolveSetupType'")
+        return None
 
     @pyaedt_function_handler()
     def create(self):
