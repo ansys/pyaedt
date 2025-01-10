@@ -1951,7 +1951,7 @@ class NexximComponents(CircuitComponents):
 
     @pyaedt_function_handler()
     def _edit_link_definition_hfss_subcircuit(self, component, edited_prop):
-        """Generic function to set the link definition for an hfss subcircuit."""
+        """Generic function to set the link definition for a HFSS subcircuit."""
         if isinstance(component, str):
             complist = component.split(";")
         elif isinstance(component, CircuitComponent):
@@ -1963,11 +1963,17 @@ class NexximComponents(CircuitComponents):
 
         arg = [
             "NAME:AllTabs",
-            "NAME:Model",
-            "NAME:PropServers",
-            "Component@" + str(complist[0].split("@")[1]),
-            "NAME:ChangedProps",
-            edited_prop,
+            [
+                "NAME:Model",
+                [
+                    "NAME:PropServers",
+                    "Component@" + str(complist[0].split("@")[1]),
+                ],
+                [
+                    "NAME:ChangedProps",
+                    edited_prop,
+                ],
+            ],
         ]
         self._app._oproject.ChangeProperty(arg)
         return True
