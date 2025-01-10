@@ -2103,7 +2103,7 @@ class NexximComponents(CircuitComponents):
         if not input_file.exists():
             raise FileNotFoundError(f"Project file '{input_file}' doesn't exist")
         comp_name = Path(input_file).stem
-        results_path = input_file / "averesults"
+        results_path = input_file.parent / f"{comp_name}.siwaveresults"
         solution_path = results_path / f"{comp_name}.asol"
         out = load_keyword_in_aedt_file(solution_path, "Solutions")
         if not solution:
