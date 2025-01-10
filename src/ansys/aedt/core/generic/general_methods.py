@@ -404,7 +404,7 @@ def open_file(file_path, file_options="r", encoding=None, override_existing=True
 
     Parameters
     ----------
-    file_path : str
+    file_path : str or Path
         Full absolute path to the file (either local or remote).
     file_options : str, optional
         Options for opening the file.

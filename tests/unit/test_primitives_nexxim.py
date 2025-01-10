@@ -22,19 +22,30 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from pathlib import Path
 from unittest.mock import MagicMock
 from unittest.mock import patch
+import warnings
 
-from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.maxwell import Maxwell3d
+from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
 import pytest
 
-settings.enable_error_handler = False
+
+def test_add_siwave_dynamic_link_failure_with_file_not_found():
+    file = Path("dummy")
+    modeler = MagicMock()
+    nexxim = NexximComponents(modeler)
+
+    with pytest.raises(FileNotFoundError):
+        nexxim.add_siwave_dynamic_link(file)
 
 
-@pytest.fixture
-def maxwell_3d_setup():
-    """Fixture used to mock the creation of a Maxwell instance."""
-    with patch("ansys.aedt.core.maxwell.Maxwell3d.__init__", lambda x: None):
-        mock_instance = MagicMock(spec=Maxwell3d)
-        yield mock_instance
+@patch.object(warnings, "warn")
+def test_add_subcircuit_link_warning_call(mock_warn):
+    file = Path("dummy")
+    modeler = MagicMock()
+    nexxim = NexximComponents(modeler)
+
+    nexxim._add_subcircuit_link("dummy_comp", ["dummy_pin"], file, "dummy_source_design", image_subcircuit_path=file)
+
+    mock_warn.assert_any_call("Image extension is not valid. Use default image instead.")
