@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -120,6 +120,7 @@ class LumpedNodesandLeads:
     @property
     def l_node_capacitor(self) -> str:
         """Shunt capacitance assigned to each inductor node.
+
         The default is` ``0``.
 
         Returns
@@ -136,6 +137,7 @@ class LumpedNodesandLeads:
     @property
     def l_lead_inductor(self) -> str:
         """Series inductance assigned to each inductor lead.
+
         The default is ``0``.
 
         Returns
@@ -168,6 +170,7 @@ class LumpedNodesandLeads:
     @property
     def r_lead_inductor(self) -> str:
         """Series inductance assigned to each resistor lead.
+
         The default is ``0``.
 
         Returns

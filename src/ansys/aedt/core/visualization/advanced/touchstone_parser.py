@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -26,7 +26,7 @@ from copy import copy
 import itertools
 import os
 import re
-import subprocess
+import subprocess  # nosec
 import warnings
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
@@ -409,6 +409,7 @@ class TouchstoneData(rf.Network):
     @pyaedt_function_handler()
     def get_worst_curve(self, freq_min=None, freq_max=None, worst_is_higher=True, curve_list=None, plot=True):
         """Analyze a solution data object with multiple curves and find the worst curve.
+
         Take the mean of the magnitude over the frequency range.
 
         Parameters
@@ -501,12 +502,12 @@ def check_touchstone_files(input_dir="", passivity=True, causality=True):
 
     """
     out = {}
-    sNpFiles = find_touchstone_files(input_dir)
-    if not sNpFiles:
+    snp_files = find_touchstone_files(input_dir)
+    if not snp_files:
         return out
     aedt_install_folder = list(aedt_versions.installed_versions.values())[0]
-    for snpf in sNpFiles:
-        out[snpf] = []
+    for file_name, path in snp_files.items():
+        out[file_name] = []
         if os.name == "nt":
             genequiv_path = os.path.join(aedt_install_folder, "genequiv.exe")
         else:
@@ -517,22 +518,20 @@ def check_touchstone_files(input_dir="", passivity=True, causality=True):
         if causality:
             cmd.append("-checkcausality")
 
-        cmd.append(sNpFiles[snpf])
+        cmd.append(path)
         my_env = os.environ.copy()
-        p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env)  # nosec
-        output = p.communicate()
-        output_str = str(output[0])
-        output_lst = output_str.split("\\r\\n")
+        result = subprocess.run(
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env, text=True, check=True
+        )  # nosec
+        output_lst = result.stdout.splitlines()
 
-        if len(output_lst) == 1:
-            output_lst = output_str.splitlines()
         for line in output_lst:
             if "Input data" in line and passivity:
                 msg_log = line[17:]
                 is_passive = True
                 if "non-passive" in msg_log:
                     is_passive = False
-                out[snpf].append(["passivity", is_passive, msg_log])
+                out[file_name].append(["passivity", is_passive, msg_log])
             if "Maximum causality" in line and causality:
                 msg_log = line[17:]
                 is_causal = True
@@ -543,10 +542,10 @@ def check_touchstone_files(input_dir="", passivity=True, causality=True):
                 except Exception:
                     is_causal = False
                     raise Exception("Failed evaluating causality value.")
-                out[snpf].append(["causality", is_causal, msg_log])
+                out[file_name].append(["causality", is_causal, msg_log])
             if "Causality check is inconclusive" in line and causality:
                 is_causal = False
-                out[snpf].append(["causality", is_causal, line[17:]])
+                out[file_name].append(["causality", is_causal, line[17:]])
     return out
 
 

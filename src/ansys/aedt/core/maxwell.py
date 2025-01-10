@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -58,7 +58,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.GetSymmetryMultiplier()
         """
         return int(self.omodelsetup.GetSymmetryMultiplier())
@@ -69,7 +68,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.GetExcitationsOfType("Winding Group")"""
         windings = self.oboundary.GetExcitationsOfType("Winding Group")
         return list(windings)
@@ -83,6 +81,7 @@ class Maxwell(object):
     @pyaedt_function_handler()
     def change_symmetry_multiplier(self, value=1):
         """Set the design symmetry multiplier to a specified value.
+
         The symmetry multiplier is automatically applied to all input quantities.
 
         Parameters
@@ -97,7 +96,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oDesign.SetDesignSettings
         """
         return self.change_design_settings({"Multiplier": value})
@@ -122,7 +120,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oDesign.SetDesignSettings
         """
         return self.change_design_settings(
@@ -237,7 +234,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.SetCoreLoss
 
         Examples
@@ -298,7 +294,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.AssignMatrix
 
         Examples
@@ -449,6 +444,7 @@ class Maxwell(object):
         self, setupname, file_str=None, keep_modifications=False, python_interpreter=None, aedt_lib_dir=None
     ):
         """Configure the transient design setup to run a specific control program.
+
         The control program is executed from a temporary directory that Maxwell creates for every setup run.
 
         .. deprecated:: 0.6.71
@@ -552,7 +548,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.SetEddyEffect
         """
         solid_objects_names = self.get_all_conductors_names()
@@ -650,7 +645,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.SetupYConnection
 
         Examples
@@ -708,7 +702,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.AssignCurrent
 
         Examples
@@ -834,7 +827,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.AssignBand
         """
         assert self.solution_type == SOLUTIONS.Maxwell3d.Transient, "Motion applies only to the Transient setup."
@@ -932,7 +924,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.AssignBand
         """
         assert self.solution_type == SOLUTIONS.Maxwell3d.Transient, "Motion applies only to the Transient setup."
@@ -985,7 +976,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.AssignVoltage
         """
         if isinstance(amplitude, (int, float)):
@@ -1042,7 +1032,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.AssignVoltageDrop
         """
         if isinstance(amplitude, (int, float)):
@@ -1187,7 +1176,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.AssignWindingGroup
         """
 
@@ -1242,7 +1230,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.AddWindingTerminals
         >>> oModule.AddWindingCoils
         """
@@ -1275,7 +1262,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.AssignCoil
         """
         if polarity.lower() == "positive":
@@ -1347,7 +1333,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.AssignForce
 
         Examples
@@ -1437,7 +1422,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.AssignTorque
         """
         if self.solution_type not in ["ACConduction", "DCConduction"]:
@@ -1496,7 +1480,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
         """
         self.modeler[name].solve_inside = activate
@@ -1515,7 +1498,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.ResetSetupToTimeZero
         """
         if self.solution_type != "Transient":
@@ -1543,7 +1525,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
         """
         self.odesign.ChangeProperty(
@@ -1584,7 +1565,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.AssignSymmetry
         """
         try:
@@ -1667,7 +1647,7 @@ class Maxwell(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if self.solution_type in ["EddyCurrent", "Magnetostatic"]:
+        if self.solution_type in ["EddyCurrent", "Magnetostatic", "Transient"]:
             if current_density_name is None:
                 current_density_name = generate_unique_name("CurrentDensity")
             if re.compile(r"(\d+)\s*(\w+)").match(phase).groups()[1] not in ["deg", "degmin", "degsec", "rad"]:
@@ -1722,7 +1702,6 @@ class Maxwell(object):
                         props[current_density_group_names[0]] = dict(
                             {
                                 "Objects": objects_list,
-                                "Phase": phase,
                                 "Value": current_density_2d,
                                 "CoordinateSystem": "",
                             }
@@ -1732,7 +1711,6 @@ class Maxwell(object):
                         props = dict(
                             {
                                 "Objects": objects_list,
-                                "Phase": phase,
                                 "Value": current_density_2d,
                                 "CoordinateSystem": "",
                             }
@@ -1772,7 +1750,6 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.Radiation
 
         Examples
@@ -2304,9 +2281,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         aedt_process_id=None,
         remove_lock=False,
     ):
-        """
-        Initialize the ``Maxwell`` class.
-        """
+        """Initialize the ``Maxwell`` class."""
         self.is3d = True
         FieldAnalysis3D.__init__(
             self,
@@ -2351,7 +2326,6 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.AssignInsulating
 
         Examples
@@ -2430,7 +2404,6 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.AssignImpedance
 
         Examples
@@ -2754,6 +2727,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     ):
         # type: (dict, str, str, str, bool) -> bool
         """Assign the layout force to a component in a Transient A-Phi solver.
+
         To access layout component features the Beta option has to be enabled first.
 
         Parameters
@@ -3174,7 +3148,6 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oDesign.GetGeometryMode"""
         return self.odesign.GetGeometryMode()
 
@@ -3333,7 +3306,6 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.AssignBalloon
 
 
@@ -3383,7 +3355,6 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.AssignVectorPotential
 
 
@@ -3499,7 +3470,6 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
         References
         ----------
-
         >>> oModule.AssignEndConnection
         """
         if self.solution_type not in ["EddyCurrent", "Transient"]:

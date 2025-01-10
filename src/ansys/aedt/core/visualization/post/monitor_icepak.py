@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -370,7 +370,6 @@ class Monitor:
 
         References
         ----------
-
         >>> oModule.AssignPointMonitor
 
         """
@@ -417,7 +416,6 @@ class Monitor:
 
         References
         ----------
-
         >>> oModule.AssignFaceMonitor
 
         Examples
@@ -472,7 +470,6 @@ class Monitor:
 
         References
         ----------
-
         >>> oModule.AssignFaceMonitor
         """
         if isinstance(face_id, int):
@@ -579,7 +576,6 @@ class Monitor:
 
         References
         ----------
-
         >>> oModule.DeleteMonitors
 
         """

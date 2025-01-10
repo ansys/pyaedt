@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -205,6 +205,7 @@ class LumpedTopology:
     @property
     def first_shunt(self) -> bool:
         """Flag indicating if shunt elements are first in the synthesized circuit.
+
         If ``False``, series elements are first.
 
         Returns

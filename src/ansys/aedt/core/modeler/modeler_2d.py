@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -49,7 +49,6 @@ class ModelerRMxprt(Modeler):
 
         References
         ----------
-
         >>> oEditor = oDesign.SetActiveEditor("Machine")"""
         return self._app.oeditor
 

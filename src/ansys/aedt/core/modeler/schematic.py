@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -107,7 +107,6 @@ class ModelerCircuit(Modeler):
 
         References
         ----------
-
         >>> oEditor = oDesign.SetActiveEditor("SchematicEditor")"""
         return self._app.oeditor
 
@@ -117,7 +116,6 @@ class ModelerCircuit(Modeler):
 
         References
         ----------
-
         >>> oEditor.ZoomToFit
         """
         self.oeditor.ZoomToFit()
@@ -157,7 +155,6 @@ class ModelerCircuit(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateWire
         """
         if self._app.design_type == "Maxwell Circuit":
@@ -256,7 +253,6 @@ class ModelerCircuit(Modeler):
 
         References
         ----------
-
         >>> oEditor.CreateText
 
         """
@@ -372,7 +368,6 @@ class ModelerCircuit(Modeler):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
         """
         graphics_id = [id.split("@")[1] for id in self.oeditor.GetAllGraphics()]
@@ -502,7 +497,6 @@ class ModelerNexxim(ModelerCircuit):
 
         References
         ----------
-
         >>> oDesign.SetActiveEditor("Layout")
         """
         return self._app.layouteditor
@@ -549,7 +543,6 @@ class ModelerNexxim(ModelerCircuit):
 
         References
         ----------
-
         >>> oEditor.GetActiveUnits
         >>> oEditor.SetActiveUnits
         """
@@ -613,7 +606,6 @@ class ModelerNexxim(ModelerCircuit):
 
         References
         ----------
-
         >>> oEditor.Move
         """
         sels = self._get_components_selections(assignment)
@@ -660,7 +652,6 @@ class ModelerNexxim(ModelerCircuit):
 
         References
         ----------
-
         >>> oEditor.Rotate
         """
         sels = self._get_components_selections(assignment)

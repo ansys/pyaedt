@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -104,7 +104,7 @@ class Modeler3D(Primitives3D):
         is_encrypted=False,
         allow_edit=False,
         security_message="",
-        password=None,
+        password=None,  # nosec
         edit_password=None,
         password_type="UserSuppliedPassword",
         hide_contents=False,
@@ -195,8 +195,10 @@ class Modeler3D(Primitives3D):
             name = self._app.design_name
         dt_string = datetime.datetime.now().strftime("%H:%M:%S %p %b %d, %Y")
         if password_type not in ["UserSuppliedPassword", "InternalPassword"]:
+            self.logger.error("Password type must be 'UserSuppliedPassword' or 'InternalPassword'")
             return False
         if component_outline not in ["BoundingBox", "None"]:
+            self.logger.error("Component outline must be 'BoundingBox' or 'None'")
             return False
         if password is None:
             password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
@@ -262,19 +264,16 @@ class Modeler3D(Primitives3D):
         for el in objs:
             if "CreateRegion:1" in self.oeditor.GetChildObject(el).GetChildNames():
                 objs.remove(el)
-        arg.append("IncludedParts:="), arg.append(objs)
-        arg.append("HiddenParts:=")
-        if not hide_contents_flag:
-            arg.append([])
-        else:
-            arg.append(hide_contents)
-        if coordinate_systems:
-            allcs = coordinate_systems
-        else:
-            allcs = self.oeditor.GetCoordinateSystems()
-        arg.append("IncludedCS:="), arg.append(allcs)
-        arg.append("ReferenceCS:="), arg.append(reference_coordinate_system)
-        par_description = []
+        arg += [
+            "IncludedParts:=",
+            objs,
+            "HiddenParts:=",
+            hide_contents if hide_contents_flag else [],
+            "IncludedCS:=",
+            coordinate_systems if coordinate_systems else list(self.oeditor.GetCoordinateSystems()),
+            "ReferenceCS:=",
+            reference_coordinate_system,
+        ]
         variables = []
         dependent_variables = []
         if variables_to_include is not None and not variables_to_include == []:
@@ -289,39 +288,34 @@ class Modeler3D(Primitives3D):
         elif variables_to_include is None:
             variables = self._app._variable_manager.independent_variable_names
             dependent_variables = self._app._variable_manager.dependent_variable_names
+        arg += [
+            "IncludedParameters:=",
+            variables,
+            "IncludedDependentParameters:=",
+            dependent_variables,
+            "ParameterDescription:=",
+            [item for el in variables for item in (el + ":=", "")],
+            "IsLicensed:=",
+            False,
+            "LicensingDllName:=",
+            "",
+            "VendorComponentIdentifier:=",
+            "",
+            "PublicKeyFile:=",
+            "",
+        ]
 
-        for el in variables:
-            par_description.append(el + ":=")
-            par_description.append("")
-        arg.append("IncludedParameters:="), arg.append(variables)
-
-        arg.append("IncludedDependentParameters:="), arg.append(dependent_variables)
-        for el in variables:
-            par_description.append(el + ":=")
-            par_description.append("")
-        arg.append("ParameterDescription:="), arg.append(par_description)
-        arg.append("IsLicensed:="), arg.append(False)
-        arg.append("LicensingDllName:="), arg.append("")
-        arg.append("VendorComponentIdentifier:="), arg.append("")
-        arg.append("PublicKeyFile:="), arg.append("")
         arg2 = ["NAME:DesignData"]
-        if boundaries is not None:
-            boundaries = boundaries
-        else:
+        if not boundaries:
             boundaries = self.get_boundaries_name()
-        arg2.append("Boundaries:="), arg2.append(boundaries)
+        if boundaries:
+            arg2 += ["Boundaries:=", boundaries]
         if self._app.design_type == "Icepak":
-            meshregions = [mr.name for mr in self._app.mesh.meshregions]
-            try:
-                meshregions.remove("Global")
-            except Exception:
-                pass
-            if meshregions:
-                arg2.append("MeshRegions:="), arg2.append(meshregions)
+            mesh_regions = [mr.name for mr in self._app.mesh.meshregions if mr.name != "Global"]
+            if mesh_regions:
+                arg2 += ["MeshRegions:=", mesh_regions]
         else:
-            if excitations is not None:
-                excitations = excitations
-            else:
+            if excitations is None:
                 excitations = self._app.excitations
                 if self._app.design_type == "HFSS":
                     exc = self._app.get_oo_name(self._app.odesign, "Excitations")
@@ -329,7 +323,7 @@ class Modeler3D(Primitives3D):
                         excitations.extend(exc)
             excitations = list(set([i.split(":")[0] for i in excitations]))
             if excitations:
-                arg2.append("Excitations:="), arg2.append(excitations)
+                arg2 += ["Excitations:=", excitations]
         meshops = [el.name for el in self._app.mesh.meshoperations]
         if meshops:
             used_mesh_ops = []
@@ -342,9 +336,9 @@ class Modeler3D(Primitives3D):
                         mesh_comp.append(self.objects[item].name)
                 if all(included_obj in objs for included_obj in mesh_comp):
                     used_mesh_ops.append(self._app.mesh.meshoperations[mesh].name)
-            arg2.append("MeshOperations:="), arg2.append(used_mesh_ops)
+            arg2 += ["MeshOperations:=", used_mesh_ops]
         else:
-            arg2.append("MeshOperations:="), arg2.append(meshops)
+            arg2 += ["MeshOperations:=", meshops]
         arg3 = ["NAME:ImageFile", "ImageFile:=", ""]
         if export_auxiliary:
             if isinstance(export_auxiliary, bool):
@@ -467,7 +461,6 @@ class Modeler3D(Primitives3D):
 
         References
         ----------
-
         >>> oEditor.ReplaceWith3DComponent
         """
         if not variables_to_include:
@@ -515,13 +508,16 @@ class Modeler3D(Primitives3D):
         for el in objs:
             if "CreateRegion:1" in self.oeditor.GetChildObject(el).GetChildNames():
                 objs.remove(el)
-        arg.append("IncludedParts:="), arg.append(objs)
-        arg.append("HiddenParts:="), arg.append([])
-        if not coordinate_systems:
-            coordinate_systems = list(self.oeditor.GetCoordinateSystems())
-        arg.append("IncludedCS:="), arg.append(coordinate_systems)
-        arg.append("ReferenceCS:="), arg.append(reference_coordinate_system)
-        par_description = []
+        arg += [
+            "IncludedParts:=",
+            objs,
+            "HiddenParts:=",
+            [],
+            "IncludedCS:=",
+            coordinate_systems if coordinate_systems else list(self.oeditor.GetCoordinateSystems()),
+            "ReferenceCS:=",
+            reference_coordinate_system,
+        ]
         variables = []
         if variables_to_include:
             dependent_variables = []
@@ -536,34 +532,24 @@ class Modeler3D(Primitives3D):
         else:
             variables = self._app._variable_manager.independent_variable_names
             dependent_variables = self._app._variable_manager.dependent_variable_names
-
-        for el in variables:
-            par_description.append(el + ":=")
-            par_description.append("")
-        arg.append("IncludedParameters:="), arg.append(variables)
-
-        arg.append("IncludedDependentParameters:="), arg.append(dependent_variables)
-
-        for el in variables:
-            par_description.append(el + ":=")
-            par_description.append("")
-        arg.append("ParameterDescription:="), arg.append(par_description)
+        arg += [
+            "IncludedParameters:=",
+            variables,
+            "IncludedDependentParameters:=",
+            dependent_variables,
+            "ParameterDescription:=",
+            [item for el in variables for item in (el + ":=", "")],
+        ]
 
         arg2 = ["NAME:DesignData"]
-        if boundaries:
-            boundaries = boundaries
-        else:
+        if not boundaries:
             boundaries = self.get_boundaries_name()
         if boundaries:
-            arg2.append("Boundaries:="), arg2.append(boundaries)
+            arg2 += ["Boundaries:=", boundaries]
         if self._app.design_type == "Icepak":
-            meshregions = [mr.name for mr in self._app.mesh.meshregions]
-            try:
-                meshregions.remove("Global")
-            except Exception:
-                pass
-            if meshregions:
-                arg2.append("MeshRegions:="), arg2.append(meshregions)
+            mesh_regions = [mr.name for mr in self._app.mesh.meshregions if mr.name != "Global"]
+            if mesh_regions:
+                arg2 += ["MeshRegions:=", mesh_regions]
         else:
             if excitations:
                 excitations = excitations
@@ -575,7 +561,7 @@ class Modeler3D(Primitives3D):
                         excitations.extend(exc)
             excitations = list(set([i.split(":")[0] for i in excitations]))
             if excitations:
-                arg2.append("Excitations:="), arg2.append(excitations)
+                arg2 += ["Excitations:=", excitations]
         meshops = [el.name for el in self._app.mesh.meshoperations]
         if meshops:
             used_mesh_ops = []
@@ -588,9 +574,9 @@ class Modeler3D(Primitives3D):
                         mesh_comp.append(self.objects[item].name)
                 if all(included_obj in objs for included_obj in mesh_comp):
                     used_mesh_ops.append(self._app.mesh.meshoperations[mesh].name)
-            arg2.append("MeshOperations:="), arg2.append(used_mesh_ops)
+            arg2 += ["MeshOperations:=", used_mesh_ops]
         else:
-            arg2.append("MeshOperations:="), arg2.append(meshops)
+            arg2 += ["MeshOperations:=", meshops]
         arg3 = ["NAME:ImageFile", "ImageFile:=", ""]
         old_components = self.user_defined_component_names
         self.oeditor.ReplaceWith3DComponent(arg, arg2, arg3)
@@ -651,7 +637,6 @@ class Modeler3D(Primitives3D):
 
         References
         ----------
-
         >>> oEditor.CreateCylinder
         >>> oEditor.AssignMaterial
 
@@ -732,7 +717,6 @@ class Modeler3D(Primitives3D):
 
         References
         ----------
-
         >>> oEditor.CreateBox
         >>> oEditor.AssignMaterial
 
@@ -903,7 +887,6 @@ class Modeler3D(Primitives3D):
 
         References
         ----------
-
         >>> oEditor.CreatePolyline
         >>> oEditor.SweepAroundAxis
         >>> oEditor.ThickenSheet
@@ -1043,8 +1026,9 @@ class Modeler3D(Primitives3D):
         preview=False,
         merge_angle=1e-3,
     ):
-        """Import Nastran file into 3D Modeler by converting the faces to stl and reading it. The solids are
-        translated directly to AEDT format.
+        """Import Nastran file into 3D Modeler by converting the faces to stl and reading it.
+
+        The solids are translated directly to AEDT format.
 
         Parameters
         ----------

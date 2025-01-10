@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -41,6 +41,7 @@ from ansys.aedt.core.modules.layer_stackup import Layers
 
 class Modeler3DLayout(Modeler, Primitives3DLayout):
     """Manages Modeler 3D layouts.
+
     This class is inherited in the caller application and is accessible through the modeler variable
     object (for example, ``hfss3dlayout.modeler``).
 
@@ -92,7 +93,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         References
         ----------
-
         >>> oEditor = oDesign.SetActiveEditor("Layout")"""
         return self._app.oeditor
 
@@ -153,7 +153,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         References
         ----------
-
         >>> oEditor.ZoomToFit()
         """
         try:
@@ -168,7 +167,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         References
         ----------
-
         >>> oEditor.GetActiveUnits
         >>> oEditor.SetActiveUnits
         """
@@ -178,7 +176,8 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
     @model_units.setter
     def model_units(self, units):
-        assert units in AEDT_UNITS["Length"], f"Invalid units string {units}."
+        if not units in AEDT_UNITS["Length"]:
+            raise ValueError(f"Invalid units '{units}'")
         self.oeditor.SetActiveUnits(units)
         self._model_units = units
 
@@ -211,7 +210,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         References
         ----------
-
         >>> oEditor.GetBBox
         """
         bb = self.oeditor.GetBBox(assignment)
@@ -273,7 +271,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
         """
         if isinstance(value, list) and len(value) == 3:
@@ -361,7 +358,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                     comp_name = str(i)
                     break
             except Exception:
-                continue
+                self.logger.debug(f"Couldn't get component name from component {i}")
         if not comp_name:
             return False
         comp = ComponentsSubCircuit3DLayout(self, comp_name)
@@ -394,7 +391,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
         """
         return self.change_property(name, "Location", location)
@@ -418,7 +414,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         References
         ----------
-
         >>> oEditor.Heal
 
 
@@ -473,7 +468,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         References
         ----------
-
         >>> oEditor.Expand
 
 
@@ -528,7 +522,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         References
         ----------
-
         >>> oImportExport.ImportExtracta
         """
         if not output_dir:
@@ -582,7 +575,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         References
         ----------
-
         >>> oImportExport.ImportIPC
         """
         if not output_dir:
@@ -615,7 +607,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         References
         ----------
-
         >>> oEditor.Subtract
         """
         blank = self.convert_to_selections(blank)
@@ -658,8 +649,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                 objnames.append(el)
             elif "name" in dir(el):
                 objnames.append(el.name)
-            else:
-                pass
         if return_list:
             return objnames
         else:
@@ -681,7 +670,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         References
         ----------
-
         >>> oEditor.Unite
         """
 
@@ -714,7 +702,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         References
         ----------
-
         >>> oEditor.Intersect
         """
         vArg1 = ["NAME:primitives"]
@@ -750,7 +737,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         References
         ----------
-
         >>> oEditor.Duplicate
         """
         assignment = self.convert_to_selections(assignment, True)
@@ -777,7 +763,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         References
         ----------
-
         >>> oEditor.DuplicateAcrossLyrs
         """
         assignment = self.convert_to_selections(assignment, True)
@@ -820,7 +805,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         References
         ----------
-
         >>> oDesign.SetTemperatureSettings
         """
         self.logger.info("Set the temperature dependence for the design.")

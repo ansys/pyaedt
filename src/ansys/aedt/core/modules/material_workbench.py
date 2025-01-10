@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -31,12 +31,12 @@ It includes a method to import materials from a Workbench Engineering Data XML f
 from collections import defaultdict
 import copy
 import re
-from xml.etree.ElementTree import ParseError
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.data_handlers import normalize_string_format
 from ansys.aedt.core.modules.material import MatProperties
 import defusedxml
+from defusedxml.ElementTree import ParseError
 
 defusedxml.defuse_stdlib()
 
@@ -44,13 +44,10 @@ defusedxml.defuse_stdlib()
 class MaterialWorkbench:
     """Manages the import of materials from a Workbench Engineering Data XML file.
 
-
     Parameters
     ----------
     app : :class:`ansys.aedt.core`
         Inherited parent object.
-
-
     """
 
     def __init__(self, app):

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -135,8 +135,7 @@ class Results:
 
     @pyaedt_function_handler
     def _unload_revisions(self):
-        """Convenience function to set all revisions
-        as ``unloaded``
+        """Convenience function to set all revisions as ``unloaded``
 
         Parameters
         ----------
@@ -217,9 +216,7 @@ class Results:
 
     @pyaedt_function_handler()
     def analyze(self):
-        """
-        Analyze the current revision or create a new revision if
-        the design has changed.
+        """Analyze the current revision or create a new revision if the design has changed.
 
         Returns
         -------

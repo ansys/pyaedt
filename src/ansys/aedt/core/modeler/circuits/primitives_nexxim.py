@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
+from pathlib import Path
 import re
 import secrets
 import time
@@ -314,8 +314,9 @@ class NexximComponents(CircuitComponents):
                     if component in [cmp.id, cmp.name, cmp.composed_name]:
                         comps.append(cmp)
                         break
+        if len(comps) < 2:
+            raise RuntimeError("At least two components have to be passed.")
         i = 0
-        assert len(comps) > 1, "At least two components have to be passed."
         while i < (len(comps) - 1):
             comps[i].pins[-1].connect_to_component(comps[i + 1].pins[0], use_wire=use_wire)
             i += 1
@@ -352,7 +353,8 @@ class NexximComponents(CircuitComponents):
                     if component in [cmp.id, cmp.name, cmp.composed_name]:
                         comps.append(cmp)
                         break
-        assert len(comps) > 1, "At least two components have to be passed."
+        if len(comps) < 2:
+            raise RuntimeError("At least two components have to be passed.")
         comps[0].pins[0].connect_to_component([i.pins[0] for i in comps[1:]])
         terminal_to_connect = [cmp for cmp in comps if len(cmp.pins) >= 2]
         if len(terminal_to_connect) > 1:
@@ -375,7 +377,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oProject.CopyDesign
         >>> oEditor.PasteDesign
         """
@@ -412,7 +413,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oModelManager.Add
         >>> oComponentManager.Add
         """
@@ -667,7 +667,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location is None:
@@ -704,7 +703,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location is None:
@@ -747,7 +745,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location == None:
@@ -790,7 +787,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location == None:
@@ -939,7 +935,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if value_lists is None:
@@ -997,7 +992,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if value_lists is None:
@@ -1110,7 +1104,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location is None:
@@ -1157,7 +1150,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location == None:
@@ -1202,7 +1194,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location is None:
@@ -1244,7 +1235,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location is None:
@@ -1286,7 +1276,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location is None:
@@ -1348,7 +1337,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oModelManager.Add
         >>> oComponentManager.Add
         """
@@ -1572,7 +1560,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oModelManager.Add
         >>> oComponentManager.Add
         >>> oDesign.AddCompInstance
@@ -1631,14 +1618,14 @@ class NexximComponents(CircuitComponents):
             Name of the subcircuit HFSS link.
         pin_names : list
             List of the pin names.
-        source_project_path : str
+        source_project_path : str or Path
             Path to the source project.
         source_design_name : str
             Name of the design.
         solution_name : str, optional
             Name of the solution and sweep. The
             default is ``"Setup1 : Sweep"``.
-        image_subcircuit_path : str, optional
+        image_subcircuit_path : str or Path or None
             Path of the Picture used in Circuit.
             Default is an HFSS Picture exported automatically.
         model_type : str, optional
@@ -1658,11 +1645,12 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oModelManager.Add
         >>> oComponentManager.Add
         >>> oDesign.AddCompInstance
         """
+        if isinstance(source_project_path, str):
+            source_project_path = Path(source_project_path)
         model = "hfss"
         owner = "HFSS"
         icon_file = "hfss.bmp"
@@ -1684,19 +1672,20 @@ class NexximComponents(CircuitComponents):
         hspice_customization = self._get_comp_custom_settings(3, 1, 2, 3, 0, 0, "False", "", 3)
 
         if image_subcircuit_path:
-            _, file_extension = os.path.splitext(image_subcircuit_path)
-            if file_extension != ".gif" or file_extension != ".bmp" or file_extension != ".jpg":
+            if isinstance(image_subcircuit_path, str):
+                image_subcircuit_path = Path(image_subcircuit_path)
+            if image_subcircuit_path.suffix not in [".gif", ".bmp", ".jpg"]:
                 image_subcircuit_path = None
                 warnings.warn("Image extension is not valid. Use default image instead.")
         if not image_subcircuit_path:
-            image_subcircuit_path = os.path.normpath(
-                os.path.join(self._modeler._app.desktop_install_dir, "syslib", "Bitmaps", icon_file)
-            )
+            image_subcircuit_path = (
+                Path(self._modeler._app.desktop_install_dir) / "syslib" / "Bitmaps" / icon_file
+            ).resolve()
         filename = ""
         comp_name_aux = generate_unique_name(source_design_name)
         WB_SystemID = source_design_name
-        if not self._app.project_file == source_project_path:
-            filename = source_project_path
+        if Path(self._app.project_file) != source_project_path:
+            filename = str(source_project_path)
             comp_name_aux = comp_name
             WB_SystemID = ""
 
@@ -1715,7 +1704,7 @@ class NexximComponents(CircuitComponents):
             "Description:=",
             "",
             "ImageFile:=",
-            image_subcircuit_path,
+            str(image_subcircuit_path),
             "SymbolPinConfiguration:=",
             0,
             ["NAME:PortInfoBlk"],
@@ -1926,7 +1915,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oProject.ChangeProperty
         """
         if option == "simulate":
@@ -1956,7 +1944,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oProject.ChangeProperty
         """
         arg = ["NAME:Solution", "Value:=", solution_name]
@@ -1964,7 +1951,7 @@ class NexximComponents(CircuitComponents):
 
     @pyaedt_function_handler()
     def _edit_link_definition_hfss_subcircuit(self, component, edited_prop):
-        """Generic function to set the link definition for an hfss subcircuit."""
+        """Generic function to set the link definition for a HFSS subcircuit."""
         if isinstance(component, str):
             complist = component.split(";")
         elif isinstance(component, CircuitComponent):
@@ -1973,16 +1960,21 @@ class NexximComponents(CircuitComponents):
             complist = self.components[component].composed_name.split(";")
         else:
             raise AttributeError("Wrong Component Input")
-        complist2 = complist[0].split("@")
-        arg = ["NAME:AllTabs"]
-        arg1 = ["NAME:Model"]
-        arg2 = ["NAME:PropServers", "Component@" + str(complist2[1])]
-        arg3 = ["NAME:ChangedProps", edited_prop]
 
-        arg1.append(arg2)
-        arg1.append(arg3)
-        arg.append(arg1)
-
+        arg = [
+            "NAME:AllTabs",
+            [
+                "NAME:Model",
+                [
+                    "NAME:PropServers",
+                    "Component@" + str(complist[0].split("@")[1]),
+                ],
+                [
+                    "NAME:ChangedProps",
+                    edited_prop,
+                ],
+            ],
+        ]
         self._app._oproject.ChangeProperty(arg)
         return True
 
@@ -2002,7 +1994,6 @@ class NexximComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oComponentManager.UpdateDynamicLink
         """
         if "@" in name:
@@ -2035,7 +2026,7 @@ class NexximComponents(CircuitComponents):
 
         Parameters
         ----------
-        input_file : str
+        input_file : str or Path
             Path to .lib file.
         model : str, optional
             Model name to import. If `None` the first subckt in the lib file will be placed.
@@ -2057,12 +2048,15 @@ class NexximComponents(CircuitComponents):
 
         Examples
         --------
+        >>> from pathlib import Path
         >>> from ansys.aedt.core import Circuit
         >>> cir = Circuit(version="2023.2")
-        >>> model = os.path.join("Your path", "test.lib")
+        >>> model = Path("Your path") / "test.lib"
         >>> cir.modeler.schematic.create_component_from_spicemodel(input_file=model,model="GRM1234",symbol="nexx_cap")
         >>> cir.release_desktop(False, False)
         """
+        if isinstance(input_file, str):
+            input_file = Path(input_file)
         models = self._parse_spice_model(input_file)
         if not model and models:
             model = models[0]
@@ -2080,12 +2074,11 @@ class NexximComponents(CircuitComponents):
             else:
                 arg2.append([False, "", "", False])
         arg.append(arg2)
-        self.o_component_manager.ImportModelsFromFile(input_file.replace("\\", "/"), arg)
+        self.o_component_manager.ImportModelsFromFile(input_file.as_posix(), arg)
 
         if create_component:
             return self.create_component(None, component_library=None, component_name=model, location=location)
-        else:
-            return True
+        return True
 
     @pyaedt_function_handler(model_path="input_file", solution_name="solution")
     def add_siwave_dynamic_link(self, input_file, solution=None, simulate_solutions=False):
@@ -2093,7 +2086,7 @@ class NexximComponents(CircuitComponents):
 
         Parameters
         ----------
-        input_file : str
+        input_file : str or Path
             Full path to the .siw file.
         solution : str, optional
             Solution name.
@@ -2105,18 +2098,20 @@ class NexximComponents(CircuitComponents):
         :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Circuit Component Object.
         """
-        assert os.path.exists(input_file), "Project file doesn't exist"
-        comp_name = os.path.splitext(os.path.basename(input_file))[0]
-        results_path = input_file + "averesults"
-        solution_path = os.path.join(results_path, comp_name + ".asol")
-        # out = load_entire_aedt_file(solution)
+        if isinstance(input_file, str):
+            input_file = Path(input_file)
+        if not input_file.exists():
+            raise FileNotFoundError(f"Project file '{input_file}' doesn't exist")
+        comp_name = Path(input_file).stem
+        results_path = input_file.parent / f"{comp_name}.siwaveresults"
+        solution_path = results_path / f"{comp_name}.asol"
         out = load_keyword_in_aedt_file(solution_path, "Solutions")
         if not solution:
             solution = list(out["Solutions"]["SYZSolutions"].keys())[0]
-        results_folder = os.path.join(
-            results_path,
-            out["Solutions"]["SYZSolutions"][solution]["DiskName"],
-            out["Solutions"]["SYZSolutions"][solution]["DiskName"] + ".syzinfo",
+        results_folder = (
+            results_path
+            / out["Solutions"]["SYZSolutions"][solution]["DiskName"]
+            / f"{out['Solutions']['SYZSolutions'][solution]['DiskName']}.syzinfo"
         )
 
         pin_names = []

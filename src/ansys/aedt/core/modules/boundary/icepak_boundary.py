@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -1070,9 +1070,7 @@ class NetworkObject(BoundaryObject):
 
         @pyaedt_function_handler()
         def delete_link(self):
-            """
-            Delete link from network.
-            """
+            """Delete link from network."""
             self._network.props["Links"].pop(self.name)
             self._network._links.remove(self)
 

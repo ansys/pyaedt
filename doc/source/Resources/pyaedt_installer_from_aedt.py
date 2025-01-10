@@ -39,6 +39,20 @@ is_windows = not is_linux
 
 
 VENV_DIR_PREFIX = ".pyaedt_env"
+
+"""
+It is possible create Python virtual environment in a specific directory by setting variable VENV_DIR. 
+For example,
+VENV_DIR = "e:/pyaedt_env"
+"""
+VENV_DIR = None
+if not VENV_DIR:
+    if is_windows:
+        VENV_DIR = os.path.join(os.environ["APPDATA"], VENV_DIR_PREFIX)
+    else:
+        VENV_DIR = os.path.join(os.environ["HOME"], VENV_DIR_PREFIX)
+
+
 DISCLAIMER = (
     "This script will download and install certain third-party software and/or "
     "open-source software (collectively, 'Third-Party Software'). Such Third-Party "
@@ -79,10 +93,10 @@ def run_pyinstaller_from_c_python(oDesktop):
     if is_student_version(oDesktop):
         command.append("--student")
     if is_linux:
-        command.extend(['--edt_root="{}"'.format(edt_root), '--python_version="{}"'.format(python_version)])
+        command.extend([r'--edt_root={}'.format(edt_root), '--python_version="{}"'.format(python_version)])
 
     if wheelpyaedt:
-        command.extend(['--wheel="{}"'.format(wheelpyaedt)])
+        command.extend([r'--wheel={}'.format(wheelpyaedt)])
 
     oDesktop.AddMessage("", "", 0, "Installing PyAEDT.")
     return_code = subprocess.call(command)
@@ -99,10 +113,10 @@ def run_pyinstaller_from_c_python(oDesktop):
     # Add PyAEDT tabs in AEDT
     # Virtual environment path and Python executable
     if is_windows:
-        venv_dir = os.path.join(os.environ["APPDATA"], VENV_DIR_PREFIX, python_version_new)
+        venv_dir = os.path.join(VENV_DIR, python_version_new)
         python_exe = os.path.join(venv_dir, "Scripts", "python.exe")
     else:
-        venv_dir = os.path.join(os.environ["HOME"], VENV_DIR_PREFIX, python_version_new)
+        venv_dir = os.path.join(VENV_DIR, python_version_new)
         python_exe = os.path.join(venv_dir, "bin", "python")
     pyaedt_path = os.path.join(venv_dir, "Lib", "site-packages", "ansys", "aedt", "core")
     if is_linux:
@@ -179,8 +193,26 @@ def parse_arguments_for_pyaedt_installer(args=None):
         parser.error("No arguments given!")
     return args
 
+def unzip_if_zip(path):
+    """Unzip path if it is a ZIP file."""
+    import zipfile
+
+    # Extracted folder
+    unzipped_path = path
+    if path.suffix == '.zip':
+        unzipped_path = path.parent / path.stem
+        if unzipped_path.exists():
+            shutil.rmtree(unzipped_path, ignore_errors=True)
+        with zipfile.ZipFile(path, "r") as zip_ref:
+            # Extract all contents to a directory. (You can specify a different extraction path if needed.)
+            zip_ref.extractall(unzipped_path)
+    return unzipped_path
+
 
 def install_pyaedt():
+    """Install PyAEDT in CPython."""
+    from pathlib import Path
+
     # This is called when run from CPython
     args = parse_arguments_for_pyaedt_installer()
 
@@ -189,136 +221,117 @@ def install_pyaedt():
         python_version = "3_7"
 
     if is_windows:
-        venv_dir = os.path.join(os.environ["APPDATA"], VENV_DIR_PREFIX, python_version)
-        python_exe = os.path.join(venv_dir, "Scripts", "python.exe")
-        pip_exe = os.path.join(venv_dir, "Scripts", "pip.exe")
+        venv_dir = Path(VENV_DIR, python_version)
+        python_exe = venv_dir / "Scripts" / "python.exe"
+        pip_exe = venv_dir / "Scripts" / "pip.exe"
     else:
-        venv_dir = os.path.join(os.environ["HOME"], VENV_DIR_PREFIX, python_version)
-        python_exe = os.path.join(venv_dir, "bin", "python")
-        pip_exe = os.path.join(venv_dir, "bin", "pip")
+        venv_dir = Path(VENV_DIR, python_version)
+        python_exe = venv_dir / "bin" / "python"
+        pip_exe = venv_dir / "bin" / "pip"
         os.environ["ANSYSEM_ROOT{}".format(args.version)] = args.edt_root
         ld_library_path_dirs_to_add = [
-            "{}/commonfiles/CPython/{}/linx64/Release/python/lib".format(
+            r"{}/commonfiles/CPython/{}/linx64/Release/python/lib".format(
                 args.edt_root, args.python_version.replace(".", "_")
             ),
-            "{}/common/mono/Linux64/lib64".format(args.edt_root),
-            "{}".format(args.edt_root),
+            r"{}/common/mono/Linux64/lib64".format(args.edt_root),
+            r"{}".format(args.edt_root),
         ]
         if args.version < "232":
-            ld_library_path_dirs_to_add.append("{}/Delcross".format(args.edt_root))
+            ld_library_path_dirs_to_add.append(r"{}/Delcross".format(args.edt_root))
         os.environ["LD_LIBRARY_PATH"] = ":".join(ld_library_path_dirs_to_add) + ":" + os.getenv("LD_LIBRARY_PATH", "")
-        os.environ["TK_LIBRARY"] = "{}/commonfiles/CPython/{}/linx64/Release/python/lib/tk8.5".format(
+        os.environ["TK_LIBRARY"] = r"{}/commonfiles/CPython/{}/linx64/Release/python/lib/tk8.5".format(
             args.edt_root, args.python_version.replace(".", "_")
         )
-        os.environ["TCL_LIBRARY"] = "{}/commonfiles/CPython/{}/linx64/Release/python/lib/tcl8.5".format(
+        os.environ["TCL_LIBRARY"] = r"{}/commonfiles/CPython/{}/linx64/Release/python/lib/tcl8.5".format(
             args.edt_root, args.python_version.replace(".", "_")
         )
 
-    if not os.path.exists(venv_dir):
-
-        if args.version == "231":
-            subprocess.call([sys.executable, "-m", "venv", venv_dir, "--system-site-packages"])
+    if not venv_dir.exists():
+        print("Creating the virtual environment in {}".format(venv_dir))
+        if args.version <= "231":
+            subprocess.call([sys.executable, "-m", "venv", str(venv_dir), "--system-site-packages"])
         else:
-            subprocess.call([sys.executable, "-m", "venv", venv_dir])
+            subprocess.call([sys.executable, "-m", "venv", str(venv_dir)])
 
-        if args.wheel and os.path.exists(args.wheel):
-            wheel_pyaedt = args.wheel
-            if wheel_pyaedt.endswith(".zip"):
-                import zipfile
-
-                unzipped_path = os.path.join(
-                    os.path.dirname(wheel_pyaedt), os.path.splitext(os.path.basename(wheel_pyaedt))[0]
-                )
-                if os.path.exists(unzipped_path):
-                    shutil.rmtree(unzipped_path, ignore_errors=True)
-                with zipfile.ZipFile(wheel_pyaedt, "r") as zip_ref:
-                    # Extract all contents to a directory. (You can specify a different extraction path if needed.)
-                    zip_ref.extractall(unzipped_path)
-            else:
-                # Extracted folder.
-                unzipped_path = wheel_pyaedt
+        if args.wheel and Path(args.wheel).exists():
+            print("Installing PyAEDT using provided wheels argument")
+            unzipped_path = unzip_if_zip(Path(args.wheel))
             if args.version <= "231":
                 subprocess.call(
                     [
-                        pip_exe,
+                        str(pip_exe),
                         "install",
                         "--no-cache-dir",
                         "--no-index",
-                        "--find-links={}".format(unzipped_path),
-                        "pyaedt[all,dotnet]",
+                        r"--find-links={}".format(str(unzipped_path)),
+                        "pyaedt[all,dotnet]=='0.9.0'",
                     ]
                 )
             else:
                 subprocess.call(
                     [
-                        pip_exe,
+                        str(pip_exe),
                         "install",
                         "--no-cache-dir",
                         "--no-index",
-                        "--find-links={}".format(unzipped_path),
+                        r"--find-links={}".format(str(unzipped_path)),
                         "pyaedt[installer]",
                     ]
                 )
 
         else:
-            subprocess.call([python_exe, "-m", "pip", "install", "--upgrade", "pip"])
-            subprocess.call([pip_exe, "--default-timeout=1000", "install", "wheel"])
+            print("Installing PyAEDT using online sources")
+            subprocess.call([str(python_exe), "-m", "pip", "install", "--upgrade", "pip"])
+            subprocess.call([str(pip_exe), "--default-timeout=1000", "install", "wheel"])
             if args.version <= "231":
-                subprocess.call([pip_exe, "--default-timeout=1000", "install", "pyaedt[all]=='0.9.0'"])
-                subprocess.call([pip_exe, "--default-timeout=1000", "install", "jupyterlab"])
-                subprocess.call([pip_exe, "--default-timeout=1000", "install", "ipython", "-U"])
-                subprocess.call([pip_exe, "--default-timeout=1000", "install", "ipyvtklink"])
+                subprocess.call([str(pip_exe), "--default-timeout=1000", "install", "pyaedt[all]=='0.9.0'"])
+                subprocess.call([str(pip_exe), "--default-timeout=1000", "install", "jupyterlab"])
+                subprocess.call([str(pip_exe), "--default-timeout=1000", "install", "ipython", "-U"])
+                subprocess.call([str(pip_exe), "--default-timeout=1000", "install", "ipyvtklink"])
             else:
-                subprocess.call([pip_exe, "--default-timeout=1000", "install", "pyaedt[installer]"])
+                subprocess.call([str(pip_exe), "--default-timeout=1000", "install", "pyaedt[installer]"])
 
-        if args.version == "231":
-            subprocess.call([pip_exe, "uninstall", "-y", "pywin32"])
+        if args.version <= "231":
+            subprocess.call([str(pip_exe), "uninstall", "-y", "pywin32"])
 
     else:
-        subprocess.call([pip_exe, "uninstall", "-y", "pyaedt"])
+        print("Using existing virtual environment in {}".format(venv_dir))
+        subprocess.call([str(pip_exe), "uninstall", "-y", "pyaedt"])
 
-        if args.wheel and os.path.exists(args.wheel):
-            wheel_pyaedt = args.wheel
-            import zipfile
-
-            unzipped_path = os.path.join(
-                os.path.dirname(wheel_pyaedt), os.path.splitext(os.path.basename(wheel_pyaedt))[0]
-            )
-            if os.path.exists(unzipped_path):
-                shutil.rmtree(unzipped_path, ignore_errors=True)
-            with zipfile.ZipFile(wheel_pyaedt, "r") as zip_ref:
-                # Extract all contents to a directory. (You can specify a different extraction path if needed.)
-                zip_ref.extractall(unzipped_path)
+        if args.wheel and Path(args.wheel).exists():
+            print("Installing PyAEDT using provided wheels argument")
+            unzipped_path = unzip_if_zip(Path(args.wheel))
             if args.version <= "231":
                 subprocess.call(
                     [
-                        pip_exe,
+                        str(pip_exe),
                         "install",
                         "--no-cache-dir",
                         "--no-index",
-                        "--find-links={}".format(unzipped_path),
-                        "pyaedt[all]=='0.9.0'",
+                        r"--find-links={}".format(str(unzipped_path)),
+                        "pyaedt[all,dotnet]=='0.9.0'",
                     ]
                 )
             else:
                 subprocess.call(
                     [
-                        pip_exe,
+                        str(pip_exe),
                         "install",
                         "--no-cache-dir",
                         "--no-index",
-                        "--find-links={}".format(unzipped_path),
+                        r"--find-links={}".format(str(unzipped_path)),
                         "pyaedt[installer]",
                     ]
                 )
         else:
+            print("Installing PyAEDT using online sources")
             if args.version <= "231":
-                subprocess.call([pip_exe, "--default-timeout=1000", "install", "pyaedt[all]=='0.9.0'"])
-                subprocess.call([pip_exe, "--default-timeout=1000", "install", "jupyterlab"])
-                subprocess.call([pip_exe, "--default-timeout=1000", "install", "ipython", "-U"])
-                subprocess.call([pip_exe, "--default-timeout=1000", "install", "ipyvtklink"])
+                subprocess.call([str(pip_exe), "pip=1000", "install", "pyaedt[all]=='0.9.0'"])
+                subprocess.call([str(pip_exe), "--default-timeout=1000", "install", "jupyterlab"])
+                subprocess.call([str(pip_exe), "--default-timeout=1000", "install", "ipython", "-U"])
+                subprocess.call([str(pip_exe), "--default-timeout=1000", "install", "ipyvtklink"])
             else:
-                subprocess.call([pip_exe, "--default-timeout=1000", "install", "pyaedt[installer]"])
+                subprocess.call([str(pip_exe), "--default-timeout=1000", "install", "pyaedt[installer]"])
     sys.exit(0)
 
 

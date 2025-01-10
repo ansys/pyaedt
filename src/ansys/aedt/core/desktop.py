@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,8 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-This module contains the ``Desktop`` class.
+"""This module contains the ``Desktop`` class.
+
 This module is used to initialize AEDT and the message manager for managing AEDT.
 You can initialize this module before launching an app or
 have the app automatically initialize it to the latest installed AEDT version.
@@ -241,7 +241,7 @@ def _find_free_port():
 
 
 def exception_to_desktop(ex_value, tb_data):  # pragma: no cover
-    """Writes the trace stack to AEDT when a Python error occurs.
+    """Write the trace stack to AEDT when a Python error occurs.
 
     The message is added to the AEDT global logger and to the log file (if present).
 
@@ -378,8 +378,10 @@ def is_student_version(oDesktop):
 
 
 def _init_desktop_from_design(*args, **kwargs):
-    """Distinguishes if the ``Desktop`` class is initialized internally from the ``Design``
-    class or directly from the user. For example, ``desktop=Desktop()``)."""
+    """Distinguishes if the ``Desktop`` class is initialized internally.
+
+    It can be initialized from the ``Design`` class or directly from the user.
+    For example, ``desktop=Desktop()``)."""
     Desktop._invoked_from_design = True
     return Desktop(*args, **kwargs)
 
@@ -440,7 +442,6 @@ class Desktop(object):
     PyAEDT INFO: Python version ...
     >>> hfss = ansys.aedt.core.Hfss(design="HFSSDesign1")
     PyAEDT INFO: No project is defined. Project...
-
     """
 
     # _sessions = {}
@@ -515,8 +516,8 @@ class Desktop(object):
         if getattr(self, "_initialized", None) is not None and self._initialized:
             try:
                 self.grpc_plugin.recreate_application(True)
-            except Exception:  # nosec
-                pass
+            except Exception:
+                pyaedt_logger.debug("Failed to recreate application.")
             return
         else:
             self._initialized = True
@@ -748,7 +749,6 @@ class Desktop(object):
 
         References
         ----------
-
         >>> oProject.GetActiveDesign
         >>> oProject.SetActiveDesign
         """
@@ -775,7 +775,6 @@ class Desktop(object):
 
         References
         ----------
-
         >>> oDesktop.GetActiveProject
         >>> oDesktop.SetActiveProject
         """
@@ -808,7 +807,6 @@ class Desktop(object):
 
         References
         ----------
-
         >>> oDesktop.CloseAllWindows
         """
         self.odesktop.CloseAllWindows()
@@ -1853,7 +1851,6 @@ class Desktop(object):
 
         References
         ----------
-
         >>> oDesktop.SubmitJob
         """
 
@@ -1960,7 +1957,6 @@ class Desktop(object):
 
         References
         ----------
-
         >>> oDesktop.SubmitJob
 
         Examples

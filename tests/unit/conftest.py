@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -25,16 +25,16 @@
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
+from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.maxwell import Maxwell3d
 import pytest
+
+settings.enable_error_handler = False
 
 
 @pytest.fixture
 def maxwell_3d_setup():
-    """Fixture used to setup a Maxwell3d instance."""
-
-    with patch("ansys.aedt.core.maxwell.FieldAnalysis3D") as mock_fiel_analysis_3d, patch(
-        "ansys.aedt.core.maxwell.Maxwell"
-    ) as mock_maxwell:
-        mock_fiel_analysis_3d.return_value = MagicMock()
-        mock_maxwell.return_value = MagicMock()
-        yield {"FieldAnalysis3D": mock_fiel_analysis_3d, "Maxwell": mock_maxwell}
+    """Fixture used to mock the creation of a Maxwell instance."""
+    with patch("ansys.aedt.core.maxwell.Maxwell3d.__init__", lambda x: None):
+        mock_instance = MagicMock(spec=Maxwell3d)
+        yield mock_instance

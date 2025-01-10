@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -75,13 +75,6 @@ class Object3d(object):
     """
 
     def __init__(self, primitives, name=None):
-        """
-        Parameters
-        ----------
-        primitives : :class:`ansys.aedt.core.modeler.cad.primitives_3d.Primitives3D`
-            Inherited parent object.
-        name : str
-        """
         self._id = None
         if name:
             self._m_name = name
@@ -159,7 +152,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.GetModelBoundingBox
 
         """
@@ -211,7 +203,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.GetModelBoundingBox
 
         """
@@ -240,7 +231,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.GetModelBoundingBox
         """
         oBoundingBox = self.bounding_box
@@ -285,7 +275,6 @@ class Object3d(object):
     def export_image(self, output_file=None):
         """Export the current object to a specified file path.
 
-
         .. note::
            Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
 
@@ -318,6 +307,7 @@ class Object3d(object):
     @pyaedt_function_handler()
     def touching_conductors(self):
         """Get the conductors of given object.
+
         See :func:`ansys.aedt.core.application.analysis_3d.FieldAnalysis3D.identify_touching_conductors`.
 
         Returns
@@ -383,7 +373,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.GetFaceIDs
 
         """
@@ -514,7 +503,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.FaceCenter
 
         """
@@ -535,7 +523,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.FaceCenter
 
         """
@@ -556,7 +543,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.FaceCenter
 
         """
@@ -577,7 +563,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.FaceCenter
 
         """
@@ -598,7 +583,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.FaceCenter
 
         """
@@ -619,7 +603,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.FaceCenter
 
         """
@@ -640,7 +623,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.FaceCenter
 
         """
@@ -741,7 +723,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.GetEdgeIDsFromObject
 
         """
@@ -763,7 +744,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.GetVertexIDsFromObject
 
         """
@@ -785,8 +765,9 @@ class Object3d(object):
 
     @property
     def _oeditor(self):
-        """Pointer to the oEditor object in the AEDT API. This property is
-        intended primarily for use by FacePrimitive, EdgePrimitive, and
+        """Pointer to the oEditor object in the AEDT API.
+
+        This property is intended primarily for use by FacePrimitive, EdgePrimitive, and
         VertexPrimitive child objects.
 
         Returns
@@ -812,7 +793,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
@@ -836,7 +816,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
@@ -864,7 +843,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
@@ -918,7 +896,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
@@ -974,7 +951,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.GetObjectIDByName
 
         """
@@ -1039,7 +1015,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.GetObjectVolume
 
         """
@@ -1067,7 +1042,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.GetObjectVolume
 
         """
@@ -1088,7 +1062,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
@@ -1116,7 +1089,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.GetProperties
         """
         if not self._all_props:
@@ -1131,7 +1103,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
@@ -1159,7 +1130,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
         """
@@ -1203,7 +1173,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
@@ -1251,7 +1220,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
@@ -1281,7 +1249,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
@@ -1321,7 +1288,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
@@ -1355,7 +1321,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
@@ -1411,7 +1376,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
 
@@ -1449,7 +1413,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.Unite
 
         """
@@ -1475,7 +1438,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.Intersect
         """
         assignment = [self.name] + self._primitives.convert_to_selections(assignment, return_list=True)
@@ -1503,7 +1465,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.Split
         """
         return self._primitives.split(self.name, plane, sides)
@@ -1532,7 +1493,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.Mirror
         """
         if self._primitives.mirror(self.id, origin=origin, vector=vector, duplicate=duplicate):
@@ -1561,7 +1521,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.Rotate
         """
         if self._primitives.rotate(self.id, axis=axis, angle=angle, units=units):
@@ -1614,7 +1573,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.DuplicateAroundAxis
 
         """
@@ -1643,7 +1601,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.DuplicateAlongLine
 
         """
@@ -1671,7 +1628,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.SweepAlongVector
 
         """
@@ -1705,7 +1661,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.SweepAlongPath
 
         """
@@ -1734,7 +1689,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.SweepAroundAxis
 
         """
@@ -1761,7 +1715,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.Section
 
         """
@@ -1784,7 +1737,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.DetachFaces
 
         """
@@ -1801,7 +1753,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.Clone
 
         """
@@ -1830,7 +1781,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.Subtract
 
         """
@@ -1871,7 +1821,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.Delete
         """
         arg = ["NAME:Selections", "Selections:=", self._m_name]
@@ -1995,7 +1944,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.Fillet
 
         """
@@ -2054,7 +2002,6 @@ class Object3d(object):
 
         References
         ----------
-
         >>> oEditor.Chamfer
 
         """

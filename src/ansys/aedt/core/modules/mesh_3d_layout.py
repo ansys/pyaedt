@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -94,7 +94,6 @@ class Mesh3DOperation(PropsManager, object):
 
         References
         ----------
-
         >>> oModule.AddMeshOperation
         """
         self._mesh3dlayout.omeshmodule.AddMeshOperation(self.hfss_setup_name, self._get_args())
@@ -111,7 +110,6 @@ class Mesh3DOperation(PropsManager, object):
 
         References
         ----------
-
         >>> oModule.EditMeshOperation
         """
         self._mesh3dlayout.omeshmodule.EditMeshOperation(self.hfss_setup_name, self.name, self._get_args())
@@ -128,7 +126,6 @@ class Mesh3DOperation(PropsManager, object):
 
         References
         ----------
-
         >>> oModule.DeleteMeshOperation
         """
         self._mesh3dlayout.omeshmodule.DeleteMeshOperation(
@@ -180,7 +177,6 @@ class Mesh3d(object):
 
         References
         ----------
-
         >>> oDesign.GenerateMesh
         """
         self._app.oanalysis.GenerateMesh([name])
@@ -192,7 +188,6 @@ class Mesh3d(object):
 
         References
         ----------
-
         >>> oDesign.GetModule("SolveSetups")
         """
         return self._app.omeshmodule
@@ -215,7 +210,6 @@ class Mesh3d(object):
 
         References
         ----------
-
         >>> oModule.DeleteMeshOperation
         """
         for el in self.meshoperations:
@@ -284,7 +278,6 @@ class Mesh3d(object):
 
         References
         ----------
-
         >>> oModule.AddMeshOperation
         """
         if name:
@@ -388,7 +381,6 @@ class Mesh3d(object):
 
         References
         ----------
-
         >>> oModule.AddMeshOperation
         """
         if name:

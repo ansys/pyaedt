@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -98,7 +98,7 @@ _recognized_keywords = [
     "Rotation",
     "PostProcessingCells",
 ]
-_recognized_subkeys = ["simple(", "IDMap(", "WireSeg(", "PC("]
+_recognized_subkeys = ["simple(", "IDMap(", "WireSeg(", "PC(", "Range("]
 
 # global variables
 _all_lines = []
@@ -151,7 +151,7 @@ def _separate_list_elements(v):
 
 
 def _decode_recognized_subkeys(sk, d):
-    """Special decodings for sub-keys belonging to _recognized_subkeys
+    """Special decodings for sub-keys belonging to _recognized_subkeys.
 
     Parameters
     ----------
@@ -165,7 +165,6 @@ def _decode_recognized_subkeys(sk, d):
     -------
     bool
         Returns ``True`` if it finds and decodes a recognized value, ``False`` otherwise.
-
     """
     if sk.startswith(_recognized_subkeys[0]):  # 'simple(' is at the beginning of the value
         m = _round_bracket_list.search(sk)
@@ -200,6 +199,14 @@ def _decode_recognized_subkeys(sk, d):
         else:
             d["PC"] = []
             d["PC"].append(pclist)
+        return True
+    if sk.startswith(_recognized_subkeys[4]):
+        pclist = [i for i in sk.lstrip("Range(").rstrip(")").split(", ")]
+        if "Range" in d.keys():
+            d["Range"].append(pclist)
+        else:
+            d["Range"] = []
+            d["Range"].append(pclist)
         return True
     return False
 
@@ -448,7 +455,7 @@ def _walk_through_structure(keyword, save_dict, design_name=None):
 
 
 def _read_aedt_file(filename):
-    """Read the entire AEDT file discard binary and put ascii line in a list
+    """Read the entire AEDT file discard binary and put ascii line in a list.
 
     Parameters
     ----------
@@ -480,7 +487,7 @@ def _read_aedt_file(filename):
 
 
 def _load_entire_aedt_file(filename):
-    """Load the entire AEDT file and return the dictionary
+    """Load the entire AEDT file and return the dictionary.
 
     Parameters
     ----------
@@ -511,7 +518,7 @@ def _load_entire_aedt_file(filename):
 
 
 def _load_keyword_in_aedt_file(filename, keyword, design_name=None):
-    """Load a specific keyword in the AEDT file and return the dictionary
+    """Load a specific keyword in the AEDT file and return the dictionary.
 
     Parameters
     ----------
@@ -519,12 +526,13 @@ def _load_keyword_in_aedt_file(filename, keyword, design_name=None):
         AEDT filename with path
     keyword :
         keyword to search and load
+    design_name : str, optional
+        Name of the design. Default value is ``None``.
 
     Returns
     -------
     type
         dictionary containing the decoded AEDT file
-
     """
     _read_aedt_file(filename)
     # load the aedt file

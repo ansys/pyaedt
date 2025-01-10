@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -169,9 +169,7 @@ def frontend():  # pragma: no cover
 
     def create_parameter_inputs(parent, config, category):
         def update_config(cat, field, entry_widget):
-            """
-            Update config_dict when the user changes an input.
-            """
+            """Update config_dict when the user changes an input."""
             try:
                 # Save numeric values as floats, others as strings
                 new_value = (

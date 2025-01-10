@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -103,7 +103,6 @@ class PostProcessorCommon(object):
 
         References
         ----------
-
         >>> oModule.GetAvailableReportTypes
         """
         return list(self.oreportsetup.GetAvailableReportTypes())
@@ -527,7 +526,6 @@ class PostProcessorCommon(object):
 
         References
         ----------
-
         >>> oDesign.GetModule("ReportSetup")
         """
         return self._app.oreportsetup
@@ -580,7 +578,6 @@ class PostProcessorCommon(object):
 
         References
         ----------
-
         >>> oModule.GetAllReportNames()
         """
         return list(self.oreportsetup.GetAllReportNames())
@@ -603,7 +600,6 @@ class PostProcessorCommon(object):
 
         References
         ----------
-
         >>> oModule.CopyReportsData
         >>> oModule.PasteReports
         """
@@ -677,7 +673,6 @@ class PostProcessorCommon(object):
 
         References
         ----------
-
         >>> oModule.RenameReport
         """
         try:
@@ -719,7 +714,6 @@ class PostProcessorCommon(object):
 
         References
         ----------
-
         >>> oModule.GetSolutionDataPerVariation
         """
         if sweeps is None:
@@ -754,7 +748,6 @@ class PostProcessorCommon(object):
 
         References
         ----------
-
         >>> oDesktop.RestoreWindow
         """
         self._desktop.RestoreWindow()
@@ -821,7 +814,6 @@ class PostProcessorCommon(object):
 
         References
         ----------
-
         >>> oModule.ExportReportDataToFile
         >>> oModule.ExportUniformPointsToFile
         >>> oModule.ExportToFile
@@ -894,7 +886,6 @@ class PostProcessorCommon(object):
 
         References
         ----------
-
         >>> oModule.ExportReportDataToFile
         >>> oModule.ExportToFile
         >>> oModule.ExportUniformPointsToFile
@@ -934,7 +925,6 @@ class PostProcessorCommon(object):
 
         References
         ----------
-
         >>> oModule.ExportImageToFile
         """
         file_name = os.path.join(project_path, plot_name + "." + image_format)  # name of the image file
@@ -1170,7 +1160,6 @@ class PostProcessorCommon(object):
 
         References
         ----------
-
         >>> oModule.CreateReport
 
         Examples
@@ -1408,7 +1397,6 @@ class PostProcessorCommon(object):
 
         References
         ----------
-
         >>> oModule.GetSolutionDataPerVariation
 
         Examples

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -67,6 +67,7 @@ class BuildingsPrep(object):
     @pyaedt_function_handler()
     def create_building_roof(all_pos):
         """Generate a filled in polygon from outline.
+
         Includes concave and convex shapes.
 
         Parameters

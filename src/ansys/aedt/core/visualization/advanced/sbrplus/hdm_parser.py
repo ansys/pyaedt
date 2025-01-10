@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -43,10 +43,9 @@ from ansys.aedt.core.aedt_logger import pyaedt_logger
 
 
 class Parser:
-    """
-    Parser class that loads an HDM-format export file from HFSS SBR+, interprets
-    its header and its binary content. Except for the header, the binary content is
-    not parsed until an explicit call to parse_message.
+    """Parser class that loads an HDM-format export file from HFSS SBR+, interprets its header and its binary content.
+
+    Except for the header, the binary content is not parsed until an explicit call to parse_message.
     """
 
     def __init__(self, filename):
@@ -85,8 +84,8 @@ class Parser:
             return self._parse_list(**self.parser_types[type_name])
 
     def _parse_simple_base_type(self, format="i", size=4, how_many=1, final_type=None):
-        """
-        Parser for int, float, complex, enum or flag.
+        """Parser for int, float, complex, enum or flag.
+
         Can also parse a list of base types and convert them to another type if possible.
         """
         end = self.idx + how_many * size
@@ -115,9 +114,10 @@ class Parser:
         return res
 
     def _parse_list(self, type=None, base=None, size=1):
-        """
-        Parser for vector or list. A vector is interpreted in the linear algebra sense
-        and converted to a NumPy array. A list is converted to a Python list. Only simple base types can be
+        """Parser for vector or list.
+
+        A vector is interpreted in the linear algebra sense and converted to a NumPy array.
+        A list is converted to a Python list. Only simple base types can be
         interpreted as a NumPy array.
         """
         if base is None:  # pragma: no cover

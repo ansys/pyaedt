@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -110,6 +110,7 @@ class OptimizationGoalsTable:
     @property
     def row_count(self) -> int:
         """Number of golas in the optimization goals table.
+
         The default is `0`.
 
         Returns
@@ -123,6 +124,7 @@ class OptimizationGoalsTable:
 
     def row(self, row_index) -> list:
         """Get the values for one row of the optimization goals table.
+
         The values are returned as a list: [value1, value2, ..., value7].
 
         Parameters

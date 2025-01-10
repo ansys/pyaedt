@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -103,7 +103,6 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location == None:
@@ -146,7 +145,6 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location == None:
@@ -189,7 +187,6 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location is None:
@@ -229,7 +226,6 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location is None:
@@ -269,7 +265,6 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location is None:
