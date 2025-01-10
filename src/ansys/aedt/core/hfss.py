@@ -232,7 +232,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             remove_lock=remove_lock,
         )
         ScatteringMethods.__init__(self, self)
-        self.onetwork_data_explorer = self.odesktop.GetTool("NdExplorer")
         self._field_setups = []
         self.component_array = {}
         self.component_array_names = list(self.get_oo_name(self.odesign, "Model"))
