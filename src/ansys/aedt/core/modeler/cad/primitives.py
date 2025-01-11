@@ -2868,9 +2868,9 @@ class GeometryModeler(Modeler):
             vArg2.append("MirrorBaseX:="), vArg2.append(x_pos)
             vArg2.append("MirrorBaseY:="), vArg2.append(y_pos)
             vArg2.append("MirrorBaseZ:="), vArg2.append(z_pos)
-            vArg2.append("MirrorNormalX:="), vArg2.append(Xnorm)
-            vArg2.append("MirrorNormalY:="), vArg2.append(Ynorm)
-            vArg2.append("MirrorNormalZ:="), vArg2.append(Znorm)
+            vArg2.append("MirrorNormalX:="), vArg2.append(x_norm)
+            vArg2.append("MirrorNormalY:="), vArg2.append(y_norm)
+            vArg2.append("MirrorNormalZ:="), vArg2.append(z_norm)
 
             self.oeditor.Mirror(vArg1, vArg2)
             return True
