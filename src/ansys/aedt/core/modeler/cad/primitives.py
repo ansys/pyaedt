@@ -8770,17 +8770,17 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler()
     def _pos_with_arg(self, pos, units=None):
-        xpos = self._arg_with_dim(pos[0], units)
+        x_pos = self._arg_with_dim(pos[0], units)
         if len(pos) < 2:
-            ypos = self._arg_with_dim(0, units)
+            y_pos = self._arg_with_dim(0, units)
         else:
-            ypos = self._arg_with_dim(pos[1], units)
+            y_pos = self._arg_with_dim(pos[1], units)
         if len(pos) < 3:
             z_pos = self._arg_with_dim(0, units)
         else:
             z_pos = self._arg_with_dim(pos[2], units)
 
-        return x_pos, y_pos, zpos
+        return x_pos, y_pos, z_pos
 
     @pyaedt_function_handler()
     def _str_list(self, theList):
