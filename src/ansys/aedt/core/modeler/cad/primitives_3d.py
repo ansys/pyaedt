@@ -1294,7 +1294,7 @@ class Primitives3D(GeometryModeler):
                 arg_param_vector += [
                     ["NAME:UDMParam", "Name:=", name_param, "Value:=", str(val), "PropType2:=", 3, "PropFlag2:=", 2]
                 ]
-            elif str(val)[0].isdigit in "0123456789":
+            elif str(val)[0] in "0123456789":
                 arg_param_vector += [
                     ["NAME:UDMParam", "Name:=", name_param, "Value:=", str(val), "PropType2:=", 3, "PropFlag2:=", 4]
                 ]
