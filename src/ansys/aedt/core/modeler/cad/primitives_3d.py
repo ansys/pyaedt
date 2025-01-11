@@ -769,14 +769,16 @@ class Primitives3D(GeometryModeler):
         width = self._arg_with_dim(sizes[0])
         height = self._arg_with_dim(sizes[1])
 
-        arg_1 = ["NAME:RectangleParameters"
-                 "IsCovered:=", is_covered,
-                 "XStart:=", x_start,
-                 "YStart:=", y_start,
-                 "ZStart:=", z_start,
-                 "Width:=", width,
-                 "Height:=", height,
-                 "WhichAxis:=", axis]
+        arg_1 = [
+            "NAME:RectangleParameters",
+            "IsCovered:=", is_covered,
+            "XStart:=", x_start,
+            "YStart:=", y_start,
+            "ZStart:=", z_start,
+            "Width:=", width,
+            "Height:=", height,
+            "WhichAxis:=", axis
+        ]
         arg_2 = self._default_object_attributes(name=name, material=material)
         new_object_name = self.oeditor.CreateRectangle(arg_1, arg_2)
         return self._create_object(new_object_name, **kwargs)
