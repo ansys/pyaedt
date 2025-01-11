@@ -428,7 +428,7 @@ class Primitives3D(GeometryModeler):
         bottom_radius = self._arg_with_dim(bottom_radius)
         top_radius = self._arg_with_dim(top_radius)
 
-        arg_1 = ["NAME:ConeParameters"
+        arg_1 = ["NAME:ConeParameters",
                  "XCenter:=", x_center,
                  "YCenter:=", y_center,
                  "ZCenter:=", z_center,
