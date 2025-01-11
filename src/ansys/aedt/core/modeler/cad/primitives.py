@@ -8557,19 +8557,63 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler()
     def _refresh_solids(self):
-        self.__refresh_object_type("Solids")
+        # self.__refresh_object_type("Solids")
+        try:
+            test = self.oeditor.GetObjectsInGroup("Solids")
+        except (TypeError, AttributeError):
+            test = []
+        if test is False:
+            assert False, "Get Solids is failing"
+        elif test is True or test is None:
+            self._solids = []  # In IronPython True is returned when no sheets are present
+        else:
+            self._solids = list(test)
+        self._all_object_names = self._solids + self._sheets + self._lines + self._points
 
     @pyaedt_function_handler()
     def _refresh_sheets(self):
-        self.__refresh_object_type("Sheets")
+        # self.__refresh_object_type("Sheets")
+        try:
+            test = self.oeditor.GetObjectsInGroup("Sheets")
+        except (TypeError, AttributeError):
+            test = []
+        if test is False:
+            assert False, "Get Sheets is failing"
+        elif test is True or test is None:
+            self._sheets = []  # In IronPython True is returned when no sheets are present
+        else:
+            self._sheets = list(test)
+        self._all_object_names = self._solids + self._sheets + self._lines + self._points
 
     @pyaedt_function_handler()
     def _refresh_lines(self):
-        self.__refresh_object_type("Lines")
+        # self.__refresh_object_type("Lines")
+        try:
+            test = self.oeditor.GetObjectsInGroup("Lines")
+        except (TypeError, AttributeError):
+            test = []
+        if test is False:
+            assert False, "Get Lines is failing"
+        elif test is True or test is None:
+            self._lines = []  # In IronPython True is returned when no lines are present
+        else:
+            self._lines = list(test)
+        self._all_object_names = self._solids + self._sheets + self._lines + self._points
 
     @pyaedt_function_handler()
     def _refresh_unclassified(self):
-        self.__refresh_object_type("Unclassified")
+        # self.__refresh_object_type("Unclassified")
+        try:
+            test = self.oeditor.GetObjectsInGroup("Unclassified")
+        except (TypeError, AttributeError):
+            test = []
+        if test is None or test is False:
+            self._unclassified = []
+            self.logger.debug("Unclassified is failing")
+        elif test is True:
+            self._unclassified = []  # In IronPython True is returned when no unclassified are present
+        else:
+            self._unclassified = list(test)
 
     # TODO: Checks should be performed to check if all objects values are really reachable
     @pyaedt_function_handler()
