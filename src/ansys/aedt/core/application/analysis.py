@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -1541,7 +1541,6 @@ class Analysis(Design, object):
     @pyaedt_function_handler()
     def create_output_variable(self, variable, expression, solution=None, context=None):
         """Create or modify an output variable.
-
 
         Parameters
         ----------

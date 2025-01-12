@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -207,8 +207,9 @@ class Icepak(FieldAnalysisIcepak):
 
     @property
     def problem_type(self):
-        """Problem type of the Icepak design. Options are ``"TemperatureAndFlow"``, ``"TemperatureOnly"``,
-        and ``"FlowOnly"``.
+        """Problem type of the Icepak design.
+
+        Options are ``"TemperatureAndFlow"``, ``"TemperatureOnly"``, and ``"FlowOnly"``.
         """
         return self.design_solutions.problem_type
 

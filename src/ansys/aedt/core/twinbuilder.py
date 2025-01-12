@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -656,9 +656,9 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         export_uniform_points_step=1e-5,
         excitations=None,
     ):  # pragma: no cover
-        """
-        Use the excitation component to assign output quantities in a Twin Builder design to a windings
-        in a Maxwell design.
+        """Use the excitation component to assign output quantities
+
+        This works in a Twin Builder design to a windings in a Maxwell design.
         This method works only with AEDT 2025 R1 and later.
 
         Parameters

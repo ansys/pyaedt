@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -385,7 +385,6 @@ class Design(AedtObjects):
     @property
     def boundaries(self) -> List[BoundaryObject]:
         """Design boundaries and excitations.
-
 
         Returns
         -------
@@ -1025,7 +1024,6 @@ class Design(AedtObjects):
     @property
     def toolkit_directory(self) -> str:
         """Path to the toolkit directory.
-
 
         Returns
         -------

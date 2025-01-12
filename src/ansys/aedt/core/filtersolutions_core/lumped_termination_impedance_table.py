@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -172,6 +172,7 @@ class LumpedTerminationImpedance:
     @property
     def row_count(self) -> int:
         """Count of the accumulated complex impedances in the complex impedances's table.
+
         The default is ``3``.
 
         Returns
@@ -332,13 +333,13 @@ class LumpedTerminationImpedance:
     @property
     def reactance_type(self) -> ComplexReactanceType:
         """Reactance type of complex impedance in the complex impedance table.
+
         The default is ``reactance``.
 
         Returns
         -------
         :enum:`ComplexReactanceType`
         """
-
         type_string_buffer = create_string_buffer(100)
         status = self._dll.getLumpedComplexReactanceType(
             type_string_buffer,
@@ -377,6 +378,7 @@ class LumpedTerminationImpedance:
     @property
     def compensation_order(self) -> int:
         """Order of impedance compensation.
+
         The default is` ``2``.
 
         Returns

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -154,6 +154,7 @@ class MeshOperation(BinaryTreeNode):
 
     @property
     def props(self):
+        """Properties of the mesh operation."""
         if not self._legacy_props:
             props = {}
             for k, v in self.properties.items():

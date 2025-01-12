@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -231,6 +231,7 @@ class CommonSetup(PropsManager, BinaryTreeNode):
 
     @property
     def props(self):
+        """Properties of the setup."""
         if self._legacy_props:
             return self._legacy_props
         if self._is_new_setup:
@@ -1891,11 +1892,12 @@ class Setup3DLayout(CommonSetup):
         try:
             return self.properties["Solver"]
         except Exception:
-            pass
+            self.p_app.logger.debug("Cannot retrieve solver type with key 'Solver'")
         try:
             return self.props["SolveSetupType"]
         except Exception:
-            return None
+            self.p_app.logger.debug("Cannot retrieve solver type with key 'SolveSetupType'")
+        return None
 
     @pyaedt_function_handler()
     def create(self):

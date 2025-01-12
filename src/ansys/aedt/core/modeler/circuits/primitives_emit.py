@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -565,14 +565,15 @@ class EmitComponent(object):
 
     @pyaedt_function_handler()
     def get_type(self):
-        """
+        """Get the property ``Type`` of a component.
+
         Parameters
         ----------
         None
 
         Returns
         -------
-        Str
+        str
             Type property of self.
         """
         properties = self.get_node_properties()

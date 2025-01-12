@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -245,7 +245,6 @@ class Primitives3DLayout(object):
         list
             Objects found.
         """
-
         objs = []
         if object_filter:
             if isinstance(object_filter, str):
@@ -331,7 +330,7 @@ class Primitives3DLayout(object):
 
     @property
     def circle_names(self):
-        """Get the list of all rectangles in layout.
+        """Get the list of all circles in layout.
 
         Returns
         -------
@@ -361,14 +360,15 @@ class Primitives3DLayout(object):
 
     @pyaedt_function_handler()
     def cleanup_objects(self):
-        """Clean up all 3D Layout geometries (circle, rectangles, polygons, lines and voids)
+        """Clean up all 3D Layout geometries.
+
+        Clean up all 3D Layout geometries (circle, rectangles, polygons, lines and voids)
         that have been added or no longer exist in the modeler because they were removed by previous operations.
 
         Returns
         -------
         tuple
             List of added objects, List of removed names.
-
         """
         families = [
             [["poly", "plg"], self._polygons, Polygons3DLayout],
@@ -769,7 +769,7 @@ class Primitives3DLayout(object):
                     if p[0] == "NAME:psd":
                         props = p
                 except Exception:
-                    pass
+                    self.logger.debug("Couldn't access first property.")
             self._padstacks[name] = Padstack(name, self.opadstackmanager, self.model_units)
 
             for prop in props:
@@ -819,9 +819,8 @@ class Primitives3DLayout(object):
                             self._padstacks[name].layers[lay_name].connectiony = lay[14]
                             self._padstacks[name].layers[lay_name].connectiondir = lay[16]
                             i += 1
-                        pass
                 except Exception:
-                    pass
+                    self.logger.debug(f"Exception caught when updating padstack '{name}' properties.")
 
         return self._padstacks
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -132,7 +132,9 @@ class MonostaticRCSData(object):
 
         self.__frequency_units = self.__metadata["frequency_units"]
 
-        self.__monostatic_file = self.output_dir / self.__metadata["monostatic_file"]
+        self.__monostatic_file = None
+        if self.__metadata["monostatic_file"]:
+            self.__monostatic_file = self.output_dir / self.__metadata["monostatic_file"]
 
         self.__data_conversion_function = "dB20"
         self.__window = "Flat"
@@ -141,19 +143,23 @@ class MonostaticRCSData(object):
         self.__upsample_range = 512
         self.__upsample_azimuth = 64
 
-        if not self.__monostatic_file.is_file():
+        if self.__monostatic_file and not self.__monostatic_file.is_file():
             raise Exception("Monostatic file invalid.")
 
         self.rcs_column_names = ["data"]
 
         # Load farfield data
-        is_rcs_loaded = self.__init_rcs()
+        if self.__monostatic_file:
+            is_rcs_loaded = self.__init_rcs()
+        else:
+            is_rcs_loaded = True
 
         if not is_rcs_loaded:  # pragma: no cover
             raise RuntimeError("RCS information can not be loaded.")
 
-        # Update active frequency if passed in the initialization
-        self.frequency = self.frequencies[0]
+        if self.__monostatic_file:
+            # Update active frequency if passed in the initialization
+            self.frequency = self.frequencies[0]
 
     @property
     def raw_data(self):
@@ -611,9 +617,6 @@ class MonostaticRCSPlotter(object):
 
     def __init__(self, rcs_data):
 
-        # Public
-        self.modeler_window = None
-
         # Private
         self.__rcs_data = rcs_data
         self.__logger = logger
@@ -716,7 +719,7 @@ class MonostaticRCSPlotter(object):
         """
         curves = []
         all_secondary_sweep_value = secondary_sweep_value
-        if primary_sweep.lower() == "freq" or primary_sweep.lower() == "frequency":
+        if primary_sweep.casefold() == "freq" or primary_sweep.casefold() == "frequency":
             x_key = "Freq"
             x = self.rcs_data.frequencies
             if secondary_sweep == "IWaveTheta":
@@ -732,7 +735,7 @@ class MonostaticRCSPlotter(object):
                 y_key = "IWavePhi"
         else:
             data = self.rcs_data.rcs_active_frequency
-            if primary_sweep.lower() == "iwavephi":
+            if primary_sweep.casefold() == "iwavephi":
                 x_key = "IWavePhi"
                 y_key = "IWaveTheta"
                 x = self.rcs_data.available_incident_wave_phi
@@ -902,7 +905,9 @@ class MonostaticRCSPlotter(object):
         return new
 
     @pyaedt_function_handler()
-    def plot_waterfall(self, title="Waterfall", output_file=None, show=True, is_polar=False, size=(1920, 1440)):
+    def plot_waterfall(
+        self, title="Waterfall", output_file=None, show=True, is_polar=False, size=(1920, 1440), figure=None
+    ):
         """Create a 2D contour plot of the waterfall.
 
         Parameters
@@ -918,6 +923,10 @@ class MonostaticRCSPlotter(object):
             Whether to display in polar coordinates. The default is ``True``.
         size : tuple, optional
             Image size in pixel (width, height).
+        figure : :class:`matplotlib.pyplot.Figure`, optional
+            An existing Matplotlib `Figure` to which the plot is added.
+            If not provided, a new `Figure` and `Axes` objects are created.
+            Default is ``None``.
 
         Returns
         -------
@@ -961,16 +970,11 @@ class MonostaticRCSPlotter(object):
         }
 
         new.add_trace(plot_data, 2, props)
-        _ = new.plot_contour(
-            trace=0,
-            polar=is_polar,
-            snapshot_path=output_file,
-            show=show,
-        )
+        _ = new.plot_contour(trace=0, polar=is_polar, snapshot_path=output_file, show=show, figure=figure)
         return new
 
     @pyaedt_function_handler()
-    def plot_isar_2d(self, title="ISAR", output_file=None, show=True, size=(1920, 1440)):
+    def plot_isar_2d(self, title="ISAR", output_file=None, show=True, size=(1920, 1440), figure=None):
         """Create a 2D contour plot of the ISAR.
 
         Parameters
@@ -984,6 +988,10 @@ class MonostaticRCSPlotter(object):
             If ``False``, the Matplotlib instance of the plot is shown.
         size : tuple, optional
             Image size in pixel (width, height).
+        figure : :class:`matplotlib.pyplot.Figure`, optional
+            An existing Matplotlib `Figure` to which the plot is added.
+            If not provided, a new `Figure` and `Axes` objects are created.
+            Default is ``None``.
 
         Returns
         -------
@@ -1019,12 +1027,7 @@ class MonostaticRCSPlotter(object):
         }
 
         new.add_trace(plot_data, 2, props)
-        _ = new.plot_contour(
-            trace=0,
-            polar=False,
-            snapshot_path=output_file,
-            show=show,
-        )
+        _ = new.plot_contour(trace=0, polar=False, snapshot_path=output_file, show=show, figure=figure)
         return new
 
     @pyaedt_function_handler()
@@ -1618,6 +1621,92 @@ class MonostaticRCSPlotter(object):
         self.all_scene_actors["results"]["waterfall"][waterfall_name] = rcs_mesh
 
     @pyaedt_function_handler()
+    def add_isar_2d(
+        self,
+        plot_type="plane",
+        color_bar="jet",
+    ):
+        """Add the ISAR 2D.
+
+        Parameters
+        ----------
+        plot_type : str, optional
+            The type of plot to create for the range profile. It can be ``"plane"``, ``"relief"``, and `"projection"``.
+            The default is ``"plane"``.
+        color_bar : str, optional
+            Color mapping to be applied to the RCS data. It can be a color (``"blue"``,
+            ``"green"``, ...) or a colormap (``"jet"``, ``"viridis"``, ...). The default is ``"jet"``.
+        """
+        data_isar_2d = self.rcs_data.isar_2d
+
+        down_range = data_isar_2d["Down-range"].unique()
+        cross_range = data_isar_2d["Cross-range"].unique()
+
+        values_2d = data_isar_2d.pivot(index="Cross-range", columns="Down-range", values="Data").to_numpy()
+
+        x, y = np.meshgrid(down_range, cross_range)
+        z = np.zeros_like(x)
+
+        if plot_type.casefold() == "relief":
+            m = 2.0
+            b = -1.0
+            z = (values_2d - values_2d.min()) / (values_2d.max() - values_2d.min()) * m + b
+
+        if plot_type.casefold() in ["relief", "plane"]:
+            actor = pv.StructuredGrid()
+            actor.points = np.c_[x.ravel(), y.ravel(), z.ravel()]
+
+            actor.dimensions = (len(down_range), len(cross_range), 1)
+
+            actor["values"] = values_2d.ravel()
+
+        else:
+            scene_actors = self.all_scene_actors["model"]
+            if scene_actors is None:
+                return None
+            actor = pv.PolyData()
+            for model_actor in scene_actors.values():
+                mesh = model_actor.custom_object.get_mesh()
+                xypoints = mesh.points
+                cpos = values_2d.flatten()
+                xpos_ypos = np.column_stack((x.flatten(), y.flatten(), cpos))
+                all_indices = self.__find_nearest_neighbors(xpos_ypos, xypoints)
+
+                mag_for_color = np.ndarray.flatten(cpos[all_indices])
+                if mesh.__class__.__name__ != "PolyData":
+                    mesh_triangulated = mesh.triangulate()
+                    model_actor.custom_object.mesh = pv.PolyData(mesh_triangulated.points, mesh_triangulated.cells)
+                else:
+                    model_actor.custom_object.mesh.clear_data()
+                model_actor.custom_object.mesh[self.rcs_data.data_conversion_function] = mag_for_color
+                actor += model_actor.custom_object.mesh
+
+        all_results_actors = list(self.all_scene_actors["results"].keys())
+
+        if "isar_2d" not in all_results_actors:
+            self.all_scene_actors["results"]["isar_2d"] = {}
+
+        index = 0
+        while f"isar_2d_{index}" in self.all_scene_actors["results"]["isar_2d"]:
+            index += 1
+
+        isar_name = f"isar_2d_{index}"
+
+        isar_object = SceneMeshObject()
+        isar_object.name = isar_name
+
+        scalar_dict = dict(color="#000000", title="ISAR 2D")
+        isar_object.scalar_dict = scalar_dict
+
+        isar_object.cmap = color_bar
+
+        isar_object.mesh = actor
+
+        rcs_mesh = MeshObjectPlot(isar_object, isar_object.get_mesh())
+
+        self.all_scene_actors["results"]["isar_2d"][isar_name] = rcs_mesh
+
+    @pyaedt_function_handler()
     def clear_scene(self, first_level=None, second_level=None, name=None):
         if not first_level:
             self.all_scene_actors["annotations"] = {}
@@ -1651,7 +1740,7 @@ class MonostaticRCSPlotter(object):
         if extents is None:
             extents = [0, 10, 0, 10, 0, 10]
 
-        plot_type_lower = plot_type.lower()
+        plot_type_lower = plot_type.casefold()
         actor = None
 
         if (
