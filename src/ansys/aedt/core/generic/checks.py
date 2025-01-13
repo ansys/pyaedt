@@ -46,25 +46,43 @@ def min_aedt_version(min_version: str):
         If the method version is higher than the AEDT version.
     """
 
+    def fetch_odesktop_from_common_attributes_names(item):
+        attributes_to_check = ["odesktop", "_odesktop", "_desktop"]
+        for attribute in attributes_to_check:
+            odesktop = getattr(item, attribute, None)
+            if odesktop is not None:
+                return odesktop
+
+    def fetch_odesktop_from_private_app_attribute(item):
+        app = getattr(item, f"_{item.__class__.__name__}__app", None)
+        if app is not None:
+            return app.odesktop
+
+    def fetch_odesktop_from_desktop_class(item):
+        attributes_to_check = ["desktop_class", "_desktop_class"]
+        for attribute in attributes_to_check:
+            desktop_class = getattr(item, attribute, None)
+            if desktop_class is not None:
+                return desktop_class.odesktop
+
     def aedt_version_decorator(method):
         def wrapper(self, *args, **kwargs):
-            attributes_to_check = ["odesktop", "_odesktop", "_desktop"]
-            # Browse attributes and retrieve the first non-null value
-            available_attributes = [attr for attr in attributes_to_check if hasattr(self, attr)]
-            if not available_attributes:
-                raise AEDTRuntimeError("The desktop is not available.")
-            odesktop = next(
-                (getattr(self, attr) for attr in available_attributes if getattr(self, attr) is not None), None
-            )
-            if odesktop is not None:
-                desktop_version = odesktop.GetVersion()
-                if desktop_version < min_version:
-                    raise AEDTRuntimeError(
-                        f"The method '{method.__name__}' requires a minimum Ansys release version of "
-                        + f"{min_version}, but the current version used is {desktop_version}."
-                    )
-                else:
-                    return method(self, *args, **kwargs)
+            odesktop = fetch_odesktop_from_common_attributes_names(self)
+            if odesktop is None:
+                odesktop = fetch_odesktop_from_private_app_attribute(self)
+            if odesktop is None:
+                odesktop = fetch_odesktop_from_desktop_class(self)
+            if odesktop is None:
+                raise AEDTRuntimeError("The AEDT desktop object is not available.")
+
+            desktop_version = odesktop.GetVersion()
+            if desktop_version < min_version:
+                raise AEDTRuntimeError(
+                    f"The method '{method.__name__}' requires a minimum Ansys release version of "
+                    + f"{min_version}, but the current version used is {desktop_version}."
+                )
+            else:
+                return method(self, *args, **kwargs)
 
         return wrapper
 
