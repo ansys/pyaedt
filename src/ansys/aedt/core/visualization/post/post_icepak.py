@@ -34,10 +34,10 @@ import csv
 import os
 import re
 
+from ansys.aedt.core.generic.checks import min_aedt_version
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.visualization.post.field_summary import FieldSummary
 from ansys.aedt.core.visualization.post.field_summary import TOTAL_QUANTITIES
 from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
@@ -283,6 +283,7 @@ class PostProcessorIcepak(PostProcessor3D):
         return self._parse_field_summary_content(fs, setup_name, variations, quantity)
 
     @pyaedt_function_handler(monitor_name="monitor", quantity_name="quantity", design_variation="variations")
+    @min_aedt_version("2024.1")
     def evaluate_monitor_quantity(
         self, monitor, quantity, side="Default", setup_name=None, variations=None, ref_temperature="", time="0s"
     ):
@@ -322,8 +323,6 @@ class PostProcessorIcepak(PostProcessor3D):
         """
         if variations is None:
             variations = {}
-        if settings.aedt_version < "2024.1":
-            raise NotImplementedError("Monitors are not supported in field summary in versions earlier than 2024 R1.")
         else:  # pragma: no cover
             if self._app.monitor.face_monitors.get(monitor, None):
                 field_type = "Surface"
