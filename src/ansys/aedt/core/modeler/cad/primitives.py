@@ -2843,18 +2843,26 @@ class GeometryModeler(Modeler):
         x_pos, y_pos, z_pos = self._pos_with_arg(origin)
         x_norm, y_norm, z_norm = self._pos_with_arg(vector)
         if duplicate:
-            vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
-            vArg2 = ["NAME:DuplicateToMirrorParameters"]
-            vArg2.append("DuplicateMirrorBaseX:="), vArg2.append(x_pos)
-            vArg2.append("DuplicateMirrorBaseY:="), vArg2.append(y_pos)
-            vArg2.append("DuplicateMirrorBaseZ:="), vArg2.append(z_pos)
-            vArg2.append("DuplicateMirrorNormalX:="), vArg2.append(x_norm)
-            vArg2.append("DuplicateMirrorNormalY:="), vArg2.append(y_norm)
-            vArg2.append("DuplicateMirrorNormalZ:="), vArg2.append(z_norm)
-            vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
+            arg_1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
+            arg_2 = [
+                "NAME:DuplicateToMirrorParameters",
+                "DuplicateMirrorBaseX:=",
+                x_pos,
+                "DuplicateMirrorBaseY:=",
+                y_pos,
+                "DuplicateMirrorBaseZ:=",
+                z_pos,
+                "DuplicateMirrorNormalX:=",
+                x_norm,
+                "DuplicateMirrorNormalY:=",
+                y_norm,
+                "DuplicateMirrorNormalZ:=",
+                z_norm,
+            ]
+            arg_3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
             if is_3d_comp:
                 orig_3d = [i for i in self.user_defined_component_names]
-            added_objs = self.oeditor.DuplicateMirror(vArg1, vArg2, vArg3)
+            added_objs = self.oeditor.DuplicateMirror(arg_1, arg_2, arg_3)
             self.add_new_objects()
             if is_3d_comp:
                 added_3d_comps = [i for i in self.user_defined_component_names if i not in orig_3d]
@@ -2863,16 +2871,23 @@ class GeometryModeler(Modeler):
                     return added_3d_comps
             return added_objs
         else:
-            vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
-            vArg2 = ["NAME:MirrorParameters"]
-            vArg2.append("MirrorBaseX:="), vArg2.append(x_pos)
-            vArg2.append("MirrorBaseY:="), vArg2.append(y_pos)
-            vArg2.append("MirrorBaseZ:="), vArg2.append(z_pos)
-            vArg2.append("MirrorNormalX:="), vArg2.append(x_norm)
-            vArg2.append("MirrorNormalY:="), vArg2.append(y_norm)
-            vArg2.append("MirrorNormalZ:="), vArg2.append(z_norm)
-
-            self.oeditor.Mirror(vArg1, vArg2)
+            arg_1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
+            arg_2 = [
+                "NAME:MirrorParameters",
+                "MirrorBaseX:=",
+                x_pos,
+                "MirrorBaseY:=",
+                y_pos,
+                "MirrorBaseZ:=",
+                z_pos,
+                "MirrorNormalX:=",
+                x_norm,
+                "MirrorNormalY:=",
+                y_norm,
+                "MirrorNormalZ:=",
+                z_norm,
+            ]
+            self.oeditor.Mirror(arg_1, arg_2)
             return True
 
     @pyaedt_function_handler(objid="assignment")
@@ -2899,14 +2914,19 @@ class GeometryModeler(Modeler):
         x_vec, y_vec, z_vec = self._pos_with_arg(vector)
         selections = self.convert_to_selections(assignment)
 
-        vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
-        vArg2 = ["NAME:TranslateParameters"]
-        vArg2.append("TranslateVectorX:="), vArg2.append(x_vec)
-        vArg2.append("TranslateVectorY:="), vArg2.append(y_vec)
-        vArg2.append("TranslateVectorZ:="), vArg2.append(z_vec)
+        arg_1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
+        arg_2 = [
+            "NAME:TranslateParameters",
+            "TranslateVectorX:=",
+            x_vec,
+            "TranslateVectorY:=",
+            y_vec,
+            "TranslateVectorZ:=",
+            z_vec,
+        ]
 
         if self.oeditor is not None:
-            self.oeditor.Move(vArg1, vArg2)
+            self.oeditor.Move(arg_1, arg_2)
         return True
 
     @pyaedt_function_handler(objid="assignment", cs_axis="axis", nclones="clones")
@@ -3023,16 +3043,23 @@ class GeometryModeler(Modeler):
         selections = self.convert_to_selections(assignment)
         x_pos, y_pos, z_pos = self._pos_with_arg(vector)
 
-        vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
-        vArg2 = ["NAME:DuplicateToAlongLineParameters"]
-        vArg2.append("CreateNewObjects:="), vArg2.append(not attach)
-        vArg2.append("XComponent:="), vArg2.append(x_pos)
-        vArg2.append("YComponent:="), vArg2.append(y_pos)
-        vArg2.append("ZComponent:="), vArg2.append(z_pos)
-        vArg2.append("Numclones:="), vArg2.append(str(clones))
-        vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
+        arg_1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
+        arg_2 = [
+            "NAME:DuplicateToAlongLineParameters",
+            "CreateNewObjects:=",
+            not attach,
+            "XComponent:=",
+            x_pos,
+            "YComponent:=",
+            y_pos,
+            "ZComponent:=",
+            z_pos,
+            "Numclones:=",
+            str(clones),
+        ]
+        arg_3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
         self.add_new_objects()
-        self.oeditor.DuplicateAlongLine(vArg1, vArg2, vArg3)
+        self.oeditor.DuplicateAlongLine(arg_1, arg_2, arg_3)
         if is_3d_comp:
             return self._duplicate_added_components_tuple()
         if attach:
@@ -3640,12 +3667,11 @@ class GeometryModeler(Modeler):
         while remaining > 1:
             objs = assignment[:slice]
             selections = self.convert_to_selections(objs)
-            vArg1 = ["NAME:Selections", "Selections:=", selections]
-            vArg2 = ["NAME:UniteParameters", "KeepOriginals:=", keep_originals]
+            arg_1 = ["NAME:Selections", "Selections:=", selections]
+            arg_2 = ["NAME:UniteParameters", "KeepOriginals:=", keep_originals]
             if settings.aedt_version > "2022.2":
-                vArg2.append("TurnOnNBodyBoolean:=")
-                vArg2.append(True)
-            self.oeditor.Unite(vArg1, vArg2)
+                arg_2 += ["TurnOnNBodyBoolean:=", True]
+            self.oeditor.Unite(arg_1, arg_2)
             if selections.split(",")[0] in self.unclassified_names:  # pragma: no cover
                 self.logger.error("Error in uniting objects.")
                 self._odesign.Undo()
@@ -3954,13 +3980,19 @@ class GeometryModeler(Modeler):
         i = 0
         while not found:
             off1, off2, off3 = self._offset_on_plane(i, offset)
-            vArg1 = ["NAME:FaceParameters"]
-            vArg1.append("BodyName:="), vArg1.append(assignment)
-            vArg1.append("XPosition:="), vArg1.append(x_vec + "+" + self._arg_with_dim(off1))
-            vArg1.append("YPosition:="), vArg1.append(y_vec + "+" + self._arg_with_dim(off2))
-            vArg1.append("ZPosition:="), vArg1.append(z_vec + "+" + self._arg_with_dim(off3))
+            arg_1 = [
+                "NAME:FaceParameters",
+                "BodyName:=",
+                assignment,
+                "XPosition:=",
+                x_vec + "+" + self._arg_with_dim(off1),
+                "YPosition:=",
+                y_vec + "+" + self._arg_with_dim(off2),
+                "ZPosition:=",
+                z_vec + "+" + self._arg_with_dim(off3),
+            ]
             try:
-                face_id = self.oeditor.GetFaceByPosition(vArg1)
+                _ = self.oeditor.GetFaceByPosition(arg_1)
                 if i < 4:
                     plane = "XY"
                 elif i < 8:
@@ -7898,11 +7930,16 @@ class GeometryModeler(Modeler):
             # self.logger.error("A list of point has to be provided")
             return []
         x_center, y_center, z_center = self._pos_with_arg(position, units)
-        vArg1 = ["NAME:Parameters"]
-        vArg1.append("XPosition:="), vArg1.append(x_center)
-        vArg1.append("YPosition:="), vArg1.append(y_center)
-        vArg1.append("ZPosition:="), vArg1.append(z_center)
-        list_of_bodies = list(self.oeditor.GetBodyNamesByPosition(vArg1))
+        arg_1 = [
+            "NAME:Parameters",
+            "XPosition:=",
+            x_center,
+            "YPosition:=",
+            y_center,
+            "ZPosition:=",
+            z_center,
+        ]
+        list_of_bodies = list(self.oeditor.GetBodyNamesByPosition(arg_1))
         if not include_non_model:
             non_models = [i for i in self.non_model_objects]
             list_of_bodies = [i for i in list_of_bodies if i not in non_models]
@@ -7936,15 +7973,21 @@ class GeometryModeler(Modeler):
         edge_id = -1
         x_center, y_center, z_center = self._pos_with_arg(position, units)
 
-        vArg1 = ["NAME:EdgeParameters"]
-        vArg1.append("BodyName:="), vArg1.append("")
-        vArg1.append("XPosition:="), vArg1.append(x_center)
-        vArg1.append("YPosition:="), vArg1.append(y_center)
-        vArg1.append("ZPosition:="), vArg1.append(z_center)
+        arg_1 = [
+            "NAME:EdgeParameters",
+            "BodyName:=",
+            "",
+            "XPosition:=",
+            x_center,
+            "YPosition:=",
+            y_center,
+            "ZPosition:=",
+            z_center,
+        ]
         for obj in object_list:
-            vArg1[2] = obj
+            arg_1[2] = obj
             try:
-                edge_id = int(self.oeditor.GetEdgeByPosition(vArg1))
+                edge_id = int(self.oeditor.GetEdgeByPosition(arg_1))
                 return edge_id
             except Exception:
                 self.logger.debug(f"Cannot retrieve edge id from {obj}")

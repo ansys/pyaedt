@@ -263,7 +263,7 @@ class Primitives3D(GeometryModeler):
             "WhichAxis:=",
             axis,
             "NumSides:=",
-            num_sides,
+            f"{num_sides}",
         ]
         arg_2 = self._default_object_attributes(name=name, material=material)
         new_object_name = self.oeditor.CreateCylinder(arg_1, arg_2)
@@ -339,16 +339,18 @@ class Primitives3D(GeometryModeler):
 
         height = self._arg_with_dim(height)
 
-        arg_1 = ["NAME:PolyhedronParameters",
-                 "XCenter:=", x_center,
-                 "YCenter:=", y_center,
-                 "ZCenter:=", z_center,
-                 "XStart:=", x_start,
-                 "YStart:=", y_start,
-                 "ZStart:=", z_start,
-                 "Height:=", height,
-                 "NumSides:=", int(num_sides),
-                 "WhichAxis:=", orientation]
+        arg_1 = [
+            "NAME:PolyhedronParameters",
+            "XCenter:=", x_center,
+            "YCenter:=", y_center,
+            "ZCenter:=", z_center,
+            "XStart:=", x_start,
+            "YStart:=", y_start,
+            "ZStart:=", z_start,
+            "Height:=", height,
+            "NumSides:=", int(num_sides),
+            "WhichAxis:=", orientation
+        ]
         arg_2 = self._default_object_attributes(name=name, material=material)
         new_object_name = self.oeditor.CreateRegularPolyhedron(arg_1, arg_2)
         return self._create_object(new_object_name, **kwargs)
@@ -492,11 +494,13 @@ class Primitives3D(GeometryModeler):
         x_center, y_center, z_center = self._pos_with_arg(origin)
         radius = self._arg_with_dim(radius)
 
-        arg_1 = ["NAME:SphereParameters",
-                 "XCenter:=", x_center,
-                 "YCenter:=", y_center,
-                 "ZCenter:=", z_center,
-                 "Radius:=", radius]
+        arg_1 = [
+            "NAME:SphereParameters",
+            "XCenter:=", x_center,
+            "YCenter:=", y_center,
+            "ZCenter:=", z_center,
+            "Radius:=", radius,
+        ]
         arg_2 = self._default_object_attributes(name=name, material=material)
         new_object_name = self.oeditor.CreateSphere(arg_1, arg_2)
         return self._create_object(new_object_name, **kwargs)
@@ -849,14 +853,16 @@ class Primitives3D(GeometryModeler):
         axis = GeometryOperators.cs_plane_to_axis_str(orientation)
         x_center, y_center, z_center = self._pos_with_arg(origin)
         radius = self._arg_with_dim(radius)
-        arg_1 = ["NAME:CircleParameters",
-                 "IsCovered:=", is_covered,
-                 "XCenter:=", x_center,
-                 "YCenter:=", y_center,
-                 "ZCenter:=", z_center,
-                 "Radius:=", radius,
-                 "WhichAxis:=", axis,
-                 "NumSegments:=", f"{num_sides}"]
+        arg_1 = [
+            "NAME:CircleParameters",
+            "IsCovered:=", is_covered,
+            "XCenter:=", x_center,
+            "YCenter:=", y_center,
+            "ZCenter:=", z_center,
+            "Radius:=", radius,
+            "WhichAxis:=", axis,
+            "NumSegments:=", f"{num_sides}"
+        ]
         arg_2 = self._default_object_attributes(name=name, material=material, flags=non_model_flag)
         new_object_name = self.oeditor.CreateCircle(arg_1, arg_2)
         return self._create_object(new_object_name, **kwargs)
@@ -939,18 +945,19 @@ class Primitives3D(GeometryModeler):
         """
         axis = GeometryOperators.cs_plane_to_axis_str(orientation)
         x_start, y_start, z_start = self._pos_with_arg(origin)
-
         major_radius = self._arg_with_dim(major_radius)
 
-        arg_1 = ["NAME:EllipseParameters",
-                 "IsCovered:=", is_covered,
-                 "XCenter:=", x_start,
-                 "YCenter:=", y_start,
-                 "ZCenter:=", z_start,
-                 "MajRadius:=", major_radius,
-                 "Ratio:=", ratio,
-                 "WhichAxis:=", axis,
-                 "NumSegments:=", segments]
+        arg_1 = [
+            "NAME:EllipseParameters",
+            "IsCovered:=", is_covered,
+            "XCenter:=", x_start,
+            "YCenter:=", y_start,
+            "ZCenter:=", z_start,
+            "MajRadius:=", major_radius,
+            "Ratio:=", ratio,
+            "WhichAxis:=", axis,
+            "NumSegments:=", segments
+        ]
         arg_2 = self._default_object_attributes(name=name, material=material)
         new_object_name = self.oeditor.CreateEllipse(arg_1, arg_2)
         return self._create_object(new_object_name, **kwargs)
@@ -1058,20 +1065,13 @@ class Primitives3D(GeometryModeler):
 
         arg_1 = [
             "NAME:EquationBasedCurveParameters",
-            "XtFunction:=",
-            str(x_t),
-            "YtFunction:=",
-            str(y_t),
-            "ZtFunction:=",
-            str(z_t),
-            "tStart:=",
-            str(t_start),
-            "tEnd:=",
-            str(t_end),
-            "NumOfPointsOnCurve:=",
-            num_points,
-            "Version:=",
-            1,
+            "XtFunction:=", str(x_t),
+            "YtFunction:=", str(y_t),
+            "ZtFunction:=", str(z_t),
+            "tStart:=", str(t_start),
+            "tEnd:=", str(t_end),
+            "NumOfPointsOnCurve:=", num_points,
+            "Version:=", 1,
             x_section,
         ]
 
@@ -1142,22 +1142,14 @@ class Primitives3D(GeometryModeler):
 
         arg_1 = [
             "NAME:EquationBasedSurfaceParameters",
-            "XuvFunction:=",
-            str(x_uv),
-            "YuvFunction:=",
-            str(y_uv),
-            "ZuvFunction:=",
-            str(z_uv),
-            "uStart:=",
-            str(u_start),
-            "uEnd:=",
-            str(u_end),
-            "vStart:=",
-            str(v_start),
-            "vEnd:=",
-            str(v_end),
-            "Version:=",
-            1,
+            "XuvFunction:=", str(x_uv),
+            "YuvFunction:=", str(y_uv),
+            "ZuvFunction:=", str(z_uv),
+            "uStart:=", str(u_start),
+            "uEnd:=", str(u_end),
+            "vStart:=", str(v_start),
+            "vEnd:=", str(v_end),
+            "Version:=", 1,
         ]
 
         arg_2 = self._default_object_attributes(name)
@@ -1230,20 +1222,24 @@ class Primitives3D(GeometryModeler):
             return False
         x_center, y_center, z_center = self._pos_with_arg(origin)
 
-        arg_1 = ["NAME:Selections",
-                 "Selections:=", assignment,
-                 "NewPartsModelFlag:=", "Model"]
-        arg_2 = ["NAME:HelixParameters",
-                 "XCenter:=", x_center,
-                 "YCenter:=", y_center,
-                 "ZCenter:=", z_center,
-                 "XStartDir:=", self._arg_with_dim(x_start_dir),
-                 "YStartDir:=", self._arg_with_dim(y_start_dir),
-                 "ZStartDir:=", self._arg_with_dim(z_start_dir),
-                 "NumThread:=", turns,
-                 "RightHand:=", right_hand,
-                 "RadiusIncrement:=", self._arg_with_dim(radius_increment),
-                 "Thread:=", self._arg_with_dim(thread)]
+        arg_1 = [
+            "NAME:Selections",
+            "Selections:=", assignment,
+            "NewPartsModelFlag:=", "Model"
+        ]
+        arg_2 = [
+            "NAME:HelixParameters",
+            "XCenter:=", x_center,
+            "YCenter:=", y_center,
+            "ZCenter:=", z_center,
+            "XStartDir:=", self._arg_with_dim(x_start_dir),
+            "YStartDir:=", self._arg_with_dim(y_start_dir),
+            "ZStartDir:=", self._arg_with_dim(z_start_dir),
+            "NumThread:=", turns,
+            "RightHand:=", right_hand,
+            "RadiusIncrement:=", self._arg_with_dim(radius_increment),
+            "Thread:=", self._arg_with_dim(thread)
+        ]
         self.oeditor.CreateHelix(arg_1, arg_2)
         if assignment in self.objects_by_name:
             del self.objects[self.objects_by_name[assignment].id]
@@ -1306,28 +1302,19 @@ class Primitives3D(GeometryModeler):
                 arg_param_vector += [
                     [
                         "NAME:UDMParam",
-                        "Name:=",
-                        name_param,
-                        "Value:=",
-                        str(val),
-                        "DataType:=",
-                        "String",
-                        "PropType2:=",
-                        1,
-                        "PropFlag2:=",
-                        0,
+                        "Name:=", name_param,
+                        "Value:=", str(val),
+                        "DataType:=", "String",
+                        "PropType2:=", 1,
+                        "PropFlag2:=", 0,
                     ]
                 ]
         arg_1 += [
             arg_param_vector,
-            "DllName:=",
-            udm_full_name,
-            "Library:=",
-            library,
-            "Version:=",
-            "2.0",
-            "ConnectionID:=",
-            "",
+            "DllName:=", udm_full_name,
+            "Library:=", library,
+            "Version:=", "2.0",
+            "ConnectionID:=", "",
         ]
         oname = self.oeditor.CreateUserDefinedModel(arg_1)
         if oname:
@@ -1606,19 +1593,18 @@ class Primitives3D(GeometryModeler):
 
         if geometry_parameters:
             sz_geo_params = "".join([f"{par}='{val}' " for par, val in geometry_parameters.items()])
-        arg_1 = ["NAME:InsertComponentData",
-                 "TargetCS:=", coordinate_system,
-                 "ComponentFile:=", input_file,
-                 "IsLocal:=", False,
-                 "UniqueIdentifier:=", ""]
+        arg_1 = [
+            "NAME:InsertComponentData",
+            "TargetCS:=", coordinate_system,
+            "ComponentFile:=", input_file,
+            "IsLocal:=", False,
+            "UniqueIdentifier:=", ""
+        ]
         arg_2 = [
             "NAME:InstanceParameters",
-            "GeometryParameters:=",
-            sz_geo_params,
-            "MaterialParameters:=",
-            material_parameters,
-            "DesignParameters:=",
-            design_parameters,
+            "GeometryParameters:=", sz_geo_params,
+            "MaterialParameters:=", material_parameters,
+            "DesignParameters:=", design_parameters,
         ]
         arg_1 += [arg_2, "Password:=", password]
         try:
@@ -1882,12 +1868,9 @@ class Primitives3D(GeometryModeler):
                 "Company URL:=", "",
                 "Model Number:=", "",
                 "Help URL:=", "",
-                "Version:=",
-                "1.0",
-                "Notes:=",
-                "",
-                "IconType:=",
-                "Layout Component",
+                "Version:=", "1.0",
+                "Notes:=", "",
+                "IconType:=", "Layout Component",
             ],
         ]
         sub_arg_0 = [
@@ -1901,22 +1884,14 @@ class Primitives3D(GeometryModeler):
         arg_1.append(["NAME:DesignDefinitionParameters", ["NAME:VariableOrders"]])
         arg_1.append(["NAME:MaterialDefinitionParameters", ["NAME:VariableOrders"]])
         arg_1 += [
-            "DefReferenceCSID:=",
-            1,
-            "MapInstanceParameters:=",
-            "DesignVariable",
-            "UniqueDefinitionIdentifier:=",
-            "",
-            "OriginFilePath:=",
-            "",
-            "IsLocal:=",
-            False,
-            "ChecksumString:=",
-            "",
-            "ChecksumHistory:=",
-            [],
-            "VersionHistory:=",
-            [],
+            "DefReferenceCSID:=", 1,
+            "MapInstanceParameters:=", "DesignVariable",
+            "UniqueDefinitionIdentifier:=", "",
+            "OriginFilePath:=", "",
+            "IsLocal:=", False,
+            "ChecksumString:=", "",
+            "ChecksumHistory:=", [],
+            "VersionHistory:=", [],
         ]
         sub_arg_1 = ["NAME:VariableMap"]
         for param in parameters:
@@ -1927,17 +1902,12 @@ class Primitives3D(GeometryModeler):
                 sub_arg_1.append(parameters[param][1])
         sub_arg_2 = [
             "NAME:NativeComponentDefinitionProvider",
-            "Type:=",
-            "Layout Component",
-            "Unit:=",
-            "mm",
-            "Version:=",
-            1.1,
-            "EDBDefinition:=",
-            aedt_component_name,
+            "Type:=", "Layout Component",
+            "Unit:=", "mm",
+            "Version:=", 1.1,
+            "EDBDefinition:=", aedt_component_name,
             sub_arg_1,
-            "ReferenceCS:=",
-            reference_coordinate_system,
+            "ReferenceCS:=", reference_coordinate_system,
             "CSToImport:=",
         ]
         if component_cs and not layout_coordinate_systems:  # pragma: no cover
@@ -1954,19 +1924,18 @@ class Primitives3D(GeometryModeler):
         sub_arg_2.append(sub_arg_3)
         arg_1.append(sub_arg_2)
 
-        sub_arg_4 = ["NAME:InstanceParameters",
-                     "GeometryParameters:="]
+        sub_arg_4 = ["NAME:InstanceParameters", "GeometryParameters:="]
         if parameters and parameter_mapping:
             sub_arg_5 = ""
             for param in parameters:
                 sub_arg_5 += f" {parameters[param][0]}='{parameters[param][0]}'"
         else:
             sub_arg_5 = ""
-        sub_arg_4 += [sub_arg_5[1:],
-                      "MaterialParameters:=",
-                      "",
-                      "DesignParameters:=",
-                      ""]
+        sub_arg_4 += [
+            sub_arg_5[1:],
+            "MaterialParameters:=", "",
+            "DesignParameters:=", ""
+        ]
         arg_1.append(sub_arg_4)
 
         try:

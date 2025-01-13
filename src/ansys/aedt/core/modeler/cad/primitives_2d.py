@@ -120,7 +120,7 @@ class Primitives2D(GeometryModeler, object):
             "WhichAxis:=",
             axis,
             "NumSegments:=",
-            num_sides,
+            f"{num_sides}",
         ]
         arg_2 = self._default_object_attributes(name=name, material=material, flags="NonModel#" if non_model else "")
         new_object_name = self.oeditor.CreateCircle(arg_1, arg_2)
