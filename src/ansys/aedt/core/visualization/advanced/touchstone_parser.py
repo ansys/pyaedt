@@ -112,6 +112,86 @@ class TouchstoneData(rf.Network):
         self.log_x = True
 
     @pyaedt_function_handler()
+    def get_coupling_in_range(self, log_file_name, start_at_frequency, low_loss, high_loss, frequency_sample=5):
+        """Plot a list of curves, excluding return loss, that has at least one frequency point between a range of losses.
+
+        Parameters
+        ----------
+        log_file_name : path
+            Specify log file full path where identified coupling will be listed.
+        start_at_frequency : float
+            Specify frequency value below which not check will be done
+        low_loss: float
+            Specify range lower loss
+        high_loss: float
+            Specify range higher loss
+        frequency_sample : integer, optional
+            Specify frequency sample at which coupling check will be done, default is "5"
+
+        Returns
+        -------
+        bool
+        """
+
+        nb_freq = self.frequency.npoints
+        k = 0
+        k_start = 0
+
+        # identify frequency index at which to start the check
+        while k < nb_freq:
+            if self.frequency.f[k] >= start_at_frequency:
+                k_start = k
+                break
+            else:
+                k = k + 1
+
+        port_names = self.port_names
+        nb_port = len(port_names)
+        s_db = self.s_db[:, :, :]
+        temp_list = []
+        temp_file = []
+
+
+        i = 0
+        j = 0
+
+
+        while i < nb_port:
+            while j < nb_port:
+                if i != j:
+                    k = k_start
+                    while k < nb_freq:
+                        loss = s_db[k, i, j]
+                        if high_loss < loss < low_loss:
+                            temp_list.append((i, j))
+                            sxy = "S(" + self.port_names[i] + " , " + self.port_names[j] + ")"
+                            str_loss = " Loss = {:.2f} dB "
+                            str_loss_f = str_loss.format(loss)
+                            freq = " Freq = {:.3f} GHz"
+                            freq_f = freq.format((self.f[k]) * 1e-9)
+                            temp_file.append(sxy + str_loss_f + freq_f + "\n")
+                            k = k + frequency_sample
+                            break
+                        else:
+                            k = k + frequency_sample
+                            continue
+                j = j + 1
+            i = i + 1
+            j = i
+
+        with open(log_file_name, "w") as f:
+            for str in temp_file:
+                f.write(str)
+            print( "File " + log_file_name + " created.")
+
+        i = 0
+        while i < len(temp_list):
+            self.plot_s_db(temp_list[i][0], temp_list[i][1])
+            i = i + 1
+        plt.show()
+        return True
+
+    @pyaedt_function_handler()
     def get_insertion_loss_index(self, threshold=-3):
         """Get all insertion losses.
 
