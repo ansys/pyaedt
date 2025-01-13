@@ -352,5 +352,5 @@ def test_min_aedt_version_raise_error_on_non_decorable_object():
 
     dummy = Dummy()
 
-    with pytest.raises(AEDTRuntimeError, match="The desktop is not available."):
+    with pytest.raises(AEDTRuntimeError, match="The AEDT desktop object is not available."):
         dummy.dummy_method()
