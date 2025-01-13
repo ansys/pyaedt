@@ -1158,7 +1158,6 @@ class Mesh(object):
         if maximum_length is None and maximum_elements is None:
             self.logger.error("mesh not assigned due to incorrect settings")
             return
-        assignment = self._app.modeler.convert_to_selections(assignment, True)
 
         if isinstance(assignment[0], int) and not inside_selection:
             seltype = "Faces"
@@ -1318,7 +1317,6 @@ class Mesh(object):
                     name = generate_unique_name(name)
         else:
             name = generate_unique_name("CurvilinearElements")
-        assignment = self._app.modeler.convert_to_selections(assignment, True)
 
         if isinstance(assignment[0], int):
             seltype = "Faces"
