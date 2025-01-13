@@ -731,7 +731,7 @@ class ReportPlotter:
                 self.ax.grid(which="minor", color=self.__grid_color)
             if self._has_minor_axis:
                 if self.__grid_enable_minor_x:
-                    self.ax.yaxis.set_minor_locator(ticker.AutoMinorLocator())
+                    self.ax.xaxis.set_minor_locator(ticker.AutoMinorLocator())
                 if self.__grid_enable_minor_y:
                     self.ax.yaxis.set_minor_locator(ticker.AutoMinorLocator())
             self.ax.tick_params(which="minor", grid_linestyle="--")
