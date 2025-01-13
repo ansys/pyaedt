@@ -4556,7 +4556,7 @@ class GeometryModeler(Modeler):
         """
         for obj in self.solid_names + self.sheet_names + self.line_names:
             try:
-                oEdgeIDs = self.oeditor.GetEdgeIDsFromObject(object)
+                oEdgeIDs = self.oeditor.GetEdgeIDsFromObject(obj)
                 if str(assignment) in oEdgeIDs:
                     return obj
             except Exception:
