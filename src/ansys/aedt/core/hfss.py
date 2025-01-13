@@ -809,7 +809,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         setup_type : str, optional
             Type of the setup, which is based on the solution type. Options are
             ``"HFSSDrivenAuto"``, ``"HFSSDriven"``, ``"HFSSEigen"``, ``"HFSSTransient"``,
-            and ``"HFSSSBR"``. The default is ``"HFSSDrivenAuto"``.
+            and ``"HFSSSBR"``. The default is ``"HFSSDriven"``.
         **kwargs : dict, optional
             Keyword arguments from the native AEDT API.
             For more information, see
