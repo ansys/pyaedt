@@ -77,10 +77,11 @@ class TestClass:
         assert os.path.exists(test_project)
 
     def test_01A_check_setup(self):
-        setup_auto = self.aedtapp.create_setup(name="auto")
+        setup_auto = self.aedtapp.create_setup(name="auto", setup_type="HFSSDrivenAuto")
         assert self.aedtapp.setups[0].name == "auto"
         assert setup_auto.properties["Auto Solver Setting"] == "Balanced"
         assert setup_auto.properties["Type"] == "Discrete"
+        assert setup_auto.delete()
 
     def test_02_create_primitive(self):
         coax1_len = 200
