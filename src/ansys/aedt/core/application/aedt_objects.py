@@ -81,6 +81,7 @@ class AedtObjects(object):
         self._o_symbol_manager = None
         self._opadstackmanager = None
         self._oradfield = None
+        self._onetwork_data_explorer = None
 
     @property
     def oradfield(self):
@@ -429,3 +430,15 @@ class AedtObjects(object):
         if not self._o_model_manager and self.odefinition_manager:
             self._o_model_manager = self.odefinition_manager.GetManager("Model")
         return self._o_model_manager
+
+    @property
+    def onetwork_data_explorer(self):
+        """Network data explorer module.
+
+        References
+        ----------
+        >>> oDesktop.GetTool("NdExplorer")
+        """
+        if not self._onetwork_data_explorer:
+            self._onetwork_data_explorer = self._odesktop.GetTool("NdExplorer")
+        return self._onetwork_data_explorer

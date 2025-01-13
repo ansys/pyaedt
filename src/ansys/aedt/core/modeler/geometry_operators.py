@@ -1535,9 +1535,8 @@ class GeometryOperators(object):
         cross = GeometryOperators.v_cross(va, vb)
         if GeometryOperators.v_norm(cross) < tol:
             return math.pi
-        assert GeometryOperators.is_collinear(cross, vn), (
-            "vn must be the normal to the " "plane containing va and vb."
-        )  # pragma: no cover
+        if not GeometryOperators.is_collinear(cross, vn):
+            raise ValueError("vn must be the normal to the plane containing va and vb")  # pragma: no cover
 
         vnn = GeometryOperators.normalize_vector(vn)
         if right_handed:
@@ -1762,10 +1761,11 @@ class GeometryOperators(object):
         float
             ``True`` if the segment intersect the polygon. ``False`` otherwise.
         """
-        assert len(a) == 2, "point must be a list in the form [x, y]"
-        assert len(b) == 2, "point must be a list in the form [x, y]"
+        if len(a) != 2 or len(b) != 2:
+            raise ValueError("Point must be a list in the form [x, y]")
         pl = len(polygon[0])
-        assert len(polygon[1]) == pl, "Polygon x and y lists must be the same length"
+        if len(polygon[1]) != pl:
+            raise ValueError("The two sublists in polygon must have the same length")
 
         a_in = GeometryOperators.is_point_in_polygon(a, polygon)
         b_in = GeometryOperators.is_point_in_polygon(b, polygon)
