@@ -154,6 +154,8 @@ class CommonSetup(PropsManager, BinaryTreeNode):
         for i in self._app.design_solutions.intrinsics:
             if i == "Freq" and "Frequency" in self.props:
                 intr[i] = self.props["Frequency"]
+            elif i == "Freq" and "Solution Freq" in self.properties:
+                intr[i] = self.properties["Solution Freq"]
             elif i == "Phase":
                 intr[i] = "0deg"
             elif i == "Time":
