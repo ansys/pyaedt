@@ -93,7 +93,7 @@ class TapPosition(Enum):
 class DistributedTopology:
     """Defines topology parameters of distributed filters.
 
-    This class lets you construct all paramaeters for the ``DistributedDesign`` class.
+    This class lets you construct all parameters for the topology page of the ``DistributedDesign`` class.
     """
 
     def __init__(self):
@@ -291,7 +291,7 @@ class DistributedTopology:
 
     @property
     def source_resistance(self) -> str:
-        """Generator resistor. The default is ``50``.
+        """Source resistance. The default is ``50``.
 
         Returns
         -------
@@ -306,7 +306,7 @@ class DistributedTopology:
 
     @property
     def load_resistance(self) -> str:
-        """Load resistor. The default is ``50``.
+        """Load resistance. The default is ``50``.
 
         Returns
         -------
