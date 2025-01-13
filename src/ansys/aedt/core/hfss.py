@@ -5848,13 +5848,13 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             self.logger.info("Far field sphere %s is created.", setup)
 
         frequency_units = self.odesktop.GetDefaultUnit("Frequency")
-        if setup in self.existing_analysis_sweeps and not frequencies:
+        if setup in self.existing_analysis_sweeps and frequencies is None:
             trace_name = "mag(rETheta)"
             farfield_data = self.post.get_far_field_data(expressions=trace_name, setup_sweep_name=setup, domain=sphere)
             if farfield_data and getattr(farfield_data, "primary_sweep_values", None) is not None:
                 frequencies = farfield_data.primary_sweep_values
 
-        if frequencies:
+        if frequencies is not None:
             if type(frequencies) in [float, int, str]:
                 frequencies = [frequencies]
             frequencies = [str(freq) + frequency_units for freq in frequencies if is_number(freq)]
