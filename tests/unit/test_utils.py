@@ -275,12 +275,45 @@ def test_write_toml(tmp_path):
     assert file_path.exists()
 
 
-def test_min_aedt_version_success():
+def test_min_aedt_version_success_with_common_attributes_names():
     class Dummy:
-        """Dummy class to test min version."""
+        """Dummy class to test min version with common attribute."""
 
         odesktop = MagicMock()
         odesktop.GetVersion.return_value = CURRENT_YEAR_VERSION
+
+        @min_aedt_version(PREVIOUS_YEAR_VERSION)
+        def old_method(self):
+            pass
+
+    dummy = Dummy()
+    dummy.old_method()
+
+
+def test_min_aedt_version_success_with_app_private_attribute():
+    class Dummy:
+        """Dummy class to test min version with __app attribute."""
+
+        odesktop = MagicMock()
+        odesktop.GetVersion.return_value = CURRENT_YEAR_VERSION
+        __app = odesktop
+
+        @min_aedt_version(PREVIOUS_YEAR_VERSION)
+        def old_method(self):
+            pass
+
+    dummy = Dummy()
+    dummy.old_method()
+
+
+def test_min_aedt_version_success_with_desktop_class():
+    class Dummy:
+        """Dummy class to test min version with __app attribute."""
+
+        odesktop = MagicMock()
+        odesktop.GetVersion.return_value = CURRENT_YEAR_VERSION
+        desktop_class = MagicMock()
+        desktop_class.odesktop = odesktop
 
         @min_aedt_version(PREVIOUS_YEAR_VERSION)
         def old_method(self):
