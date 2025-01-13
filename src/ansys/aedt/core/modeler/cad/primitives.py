@@ -8573,7 +8573,7 @@ class GeometryModeler(Modeler):
     def __refresh_object_type(self, object_type: str):
         ALLOWED_TYPES = ["Solids", "Sheets", "Lines", "Unclassified"]
         OBJECT_TYPE_TO_ATTRIBUTE = {
-            "Solids": "_soldis",
+            "Solids": "_solids",
             "Sheets": "_sheets",
             "Lines": "_lines",
             "Unclassified": "_unclassified",
