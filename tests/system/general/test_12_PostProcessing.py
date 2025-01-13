@@ -417,6 +417,8 @@ class TestClass:
         new_report2 = diff_test.post.reports_by_category.standard("TDRZ(1)")
         new_report2.differential_pairs = True
         new_report2.pulse_rise_time = 3e-12
+        new_report2.maximum_time = 30e-12
+        new_report2.step_time = 6e-13
         new_report2.time_windowing = 3
         new_report2.domain = "Time"
 

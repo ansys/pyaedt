@@ -192,7 +192,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             remove_lock=remove_lock,
         )
         ScatteringMethods.__init__(self, self)
-        self.onetwork_data_explorer = self._desktop.GetTool("NdExplorer")
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
