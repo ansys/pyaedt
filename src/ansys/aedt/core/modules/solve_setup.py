@@ -139,28 +139,32 @@ class CommonSetup(PropsManager, BinaryTreeNode):
         dict
             Dictionary which keys are typically Freq, Phase or Time.
         """
-        intr = {}
+        intrinsics = {}
         if "HFSS 3D Layout" in self._app.design_type:  # pragma no cover
             try:
-                intr["Freq"] = (
+                intrinsics["Freq"] = (
                     self._app.modeler.edb.setups[self.name]
                     .adaptive_settings.adaptive_frequency_data_list[0]
                     .adaptive_frequency
                 )
-                intr["Phase"] = "0deg"
-                return intr
+                intrinsics["Phase"] = "0deg"
+                return intrinsics
             except Exception:
                 settings.logger.debug("Failed to retrieve adaptive frequency.")
-        for i in self._app.design_solutions.intrinsics:
-            if i == "Freq" and "Frequency" in self.props:
-                intr[i] = self.props["Frequency"]
-            elif i == "Freq" and "Solution Freq" in self.properties:
-                intr[i] = self.properties["Solution Freq"]
-            elif i == "Phase":
-                intr[i] = "0deg"
-            elif i == "Time":
-                intr[i] = "0s"
-        return intr
+        intrinsic_map = {"Freq": ["Frequency", "Solution Freq"], "Phase": "0deg", "Time": "0s"}
+
+        for intrinsic, props in intrinsic_map.items():
+            if isinstance(props, list):
+                for prop in props:
+                    if prop in self.props:
+                        intrinsics[intrinsic] = self.props[prop]
+                        break
+                    elif prop in self.properties:
+                        intrinsics[intrinsic] = self.properties[prop]
+                        break
+            else:
+                intrinsics[intrinsic] = props
+        return intrinsics
 
     def __repr__(self):
         return "SetupName " + self.name + " with " + str(len(self.sweeps)) + " Sweeps"
