@@ -27,6 +27,7 @@ import ntpath
 import os
 
 from ansys.aedt.core.application.analysis import Analysis
+from ansys.aedt.core.generic.checks import min_aedt_version
 from ansys.aedt.core.generic.configurations import Configurations
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.general_methods import generate_unique_name
@@ -224,6 +225,7 @@ class FieldAnalysis3D(Analysis, object):
         return components_dict
 
     @pyaedt_function_handler(objects="assignment", export_path="output_file")
+    @min_aedt_version("2021.2")
     def plot(
         self,
         assignment=None,
@@ -280,23 +282,20 @@ class FieldAnalysis3D(Analysis, object):
         :class:`ansys.aedt.core.generic.plot.ModelPlotter`
             Model Object.
         """
-        if self._aedt_version < "2021.2":
-            self.logger.warning("Plot is supported from AEDT 2021 R2.")
-        else:
-            return self.post.plot_model_obj(
-                objects=assignment,
-                show=show,
-                export_path=output_file,
-                plot_as_separate_objects=plot_as_separate_objects,
-                plot_air_objects=plot_air_objects,
-                force_opacity_value=force_opacity_value,
-                clean_files=clean_files,
-                view=view,
-                show_legend=show_legend,
-                dark_mode=dark_mode,
-                show_bounding=show_bounding,
-                show_grid=show_grid,
-            )
+        return self.post.plot_model_obj(
+            objects=assignment,
+            show=show,
+            export_path=output_file,
+            plot_as_separate_objects=plot_as_separate_objects,
+            plot_air_objects=plot_air_objects,
+            force_opacity_value=force_opacity_value,
+            clean_files=clean_files,
+            view=view,
+            show_legend=show_legend,
+            dark_mode=dark_mode,
+            show_bounding=show_bounding,
+            show_grid=show_grid,
+        )
 
     @pyaedt_function_handler(setup_name="setup", variation_string="variations")
     def export_mesh_stats(self, setup, variations="", mesh_path=None):
@@ -1161,9 +1160,6 @@ class FieldAnalysis3D(Analysis, object):
         dict
 
         """
-        if settings.aedt_version < "2023.2":  # pragma: no cover
-            self.logger.error("This method requires CPython and PyVista.")
-            return {}
         if settings.aedt_version >= "2023.2" and self.design_type == "HFSS":  # pragma: no cover
             nets_aedt = self.oboundary.IdentifyNets(True)
             nets = {}
