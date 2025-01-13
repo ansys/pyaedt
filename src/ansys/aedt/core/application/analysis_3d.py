@@ -1144,6 +1144,7 @@ class FieldAnalysis3D(Analysis, object):
         return True
 
     @pyaedt_function_handler(object_name="assignment")
+    @min_aedt_version("2023.2")
     def identify_touching_conductors(self, assignment=None):
         # type: (str) -> dict
         """Identify all touching components and group in a dictionary.
@@ -1160,7 +1161,7 @@ class FieldAnalysis3D(Analysis, object):
         dict
 
         """
-        if settings.aedt_version >= "2023.2" and self.design_type == "HFSS":  # pragma: no cover
+        if self.design_type == "HFSS":  # pragma: no cover
             nets_aedt = self.oboundary.IdentifyNets(True)
             nets = {}
             for net in nets_aedt[1:]:
