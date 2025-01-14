@@ -866,7 +866,7 @@ class Setup(CommonSetup):
             Name of the source design.
         solution : str, optional
             Name of the source design solution in the format ``"name : solution_name"``.
-            If ``None``, the default value is ``name : LastAdaptive``.
+            If ``None``, the default value is taken from the nominal adaptive solution.
         parameters : dict, optional
             Dictionary of the "mapping" variables from the source design.
             If ``None``, the default is `appname.available_variations.nominal_w_values_dict`.
@@ -919,9 +919,7 @@ class Setup(CommonSetup):
                 design_type = self.p_app.design_type
             meshlinks["Product"] = design_type
             # design name
-            if not design or design is None:
-                raise ValueError("Provide design name to add mesh link to.")
-            elif design not in self.p_app.design_list:
+            if design not in self.p_app.design_list:
                 raise ValueError("Design does not exist in current project.")
             else:
                 meshlinks["Design"] = design
@@ -939,15 +937,8 @@ class Setup(CommonSetup):
             meshlinks["ImportMesh"] = True
             # solution name
             if solution is None:
-                meshlinks["Soln"] = (
-                    f'{self.p_app.oproject.GetDesign(design).GetChildObject("Analysis").GetChildNames()[0]} : '
-                    f"LastAdaptive"
-                )
-            elif (
-                solution.split()[0] in self.p_app.oproject.GetDesign(design).GetChildObject("Analysis").GetChildNames()
-            ):
-                meshlinks["Soln"] = f"{solution.split()[0]} : LastAdaptive"
-            else:
+                meshlinks["Soln"] = self.p_app.nominal_adaptive
+            elif solution.split()[0] not in self.p_app.existing_analysis_setups:
                 raise ValueError("Setup does not exist in current design.")
             # parameters
             meshlinks["Params"] = {}
@@ -964,7 +955,7 @@ class Setup(CommonSetup):
             meshlinks["ForceSourceToSolve"] = force_source_to_solve
             meshlinks["PreservePartnerSoln"] = preserve_partner_solution
             meshlinks["ApplyMeshOp"] = apply_mesh_operations
-            if self.p_app.design_type != "Maxwell 2D" or self.p_app.design_type != "Maxwell 3D":
+            if self.p_app.design_type not in ["Maxwell 2D", "Maxwell 3D"]:
                 meshlinks["AdaptPort"] = adapt_port
             self.update()
             self.auto_update = auto_update

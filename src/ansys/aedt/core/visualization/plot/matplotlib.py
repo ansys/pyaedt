@@ -43,6 +43,7 @@ try:
     from matplotlib.patches import PathPatch
     from matplotlib.path import Path
     import matplotlib.pyplot as plt
+    import matplotlib.ticker as ticker
 except ImportError:
     warnings.warn(
         "The Matplotlib module is required to run some functionalities of PostProcess.\n"
@@ -730,9 +731,9 @@ class ReportPlotter:
                 self.ax.grid(which="minor", color=self.__grid_color)
             if self._has_minor_axis:
                 if self.__grid_enable_minor_x:
-                    self.ax.xaxis.minorticks_on()
+                    self.ax.xaxis.set_minor_locator(ticker.AutoMinorLocator())
                 if self.__grid_enable_minor_y:
-                    self.ax.yaxis.minorticks_on()
+                    self.ax.yaxis.set_minor_locator(ticker.AutoMinorLocator())
             self.ax.tick_params(which="minor", grid_linestyle="--")
 
     @property
