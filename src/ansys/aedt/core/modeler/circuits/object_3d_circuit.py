@@ -1092,9 +1092,12 @@ class CircuitComponent(object):
         if not component_data:
             self._circuit_components._app.logger.warning("Component " + self.refdes + " has no path")
             return False
-        for data in component_data:
-            if isinstance(data, list) and isinstance(data[0], str) and data[0] == "NAME:CosimDefinitions":
-                return (data[1][12][1].split(" ")[1])[1:-1]
+        if len(component_data[2][5]) == 0:
+            for data in component_data:
+                if isinstance(data, list) and isinstance(data[0], str) and data[0] == "NAME:CosimDefinitions":
+                    return (data[1][12][1].split(" ")[1])[1:-1]
+        else:
+            return component_data[2][5]
 
 
 class Wire(object):
