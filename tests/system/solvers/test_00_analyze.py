@@ -203,11 +203,12 @@ class TestClass:
         hfss_app.add_3d_component_array_from_json(dict_in)
         exported_files = hfss_app.export_results()
         assert len(exported_files) == 0
-        setup = hfss_app.create_setup(name="test")
-        setup.props["Frequency"] = "1GHz"
+        setup_driven = hfss_app.create_setup(name="test", setup_type="HFSSDriven", MaximumPasses=1)
         exported_files = hfss_app.export_results()
+        solve_freq = setup_driven.props["Frequency"]
         assert len(exported_files) == 0
         hfss_app.analyze_setup(name="test", cores=4)
+        assert setup_driven.is_solved
         exported_files = hfss_app.export_results()
         assert len(exported_files) == 39
         exported_files = hfss_app.export_results(
@@ -216,12 +217,12 @@ class TestClass:
         assert len(exported_files) > 0
         fld_file1 = os.path.join(self.local_scratch.path, "test_fld_hfss1.fld")
         assert hfss_app.post.export_field_file(
-            quantity="Mag_E", output_file=fld_file1, assignment="Box1", intrinsics="1GHz", phase="5deg"
+            quantity="Mag_E", output_file=fld_file1, assignment="Box1", intrinsics=solve_freq, phase="5deg"
         )
         assert os.path.exists(fld_file1)
         fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss2.fld")
         assert hfss_app.post.export_field_file(
-            quantity="Mag_E", output_file=fld_file2, assignment="Box1", intrinsics={"frequency": "1GHz"}
+            quantity="Mag_E", output_file=fld_file2, assignment="Box1", intrinsics={"frequency": solve_freq}
         )
         assert os.path.exists(fld_file2)
         fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss3.fld")
@@ -229,12 +230,16 @@ class TestClass:
             quantity="Mag_E",
             output_file=fld_file2,
             assignment="Box1",
-            intrinsics={"frequency": "1GHz", "phase": "30deg"},
+            intrinsics={"frequency": solve_freq, "phase": "30deg"},
         )
         assert os.path.exists(fld_file2)
         fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss4.fld")
         assert hfss_app.post.export_field_file(
-            quantity="Mag_E", output_file=fld_file2, assignment="Box1", intrinsics={"frequency": "1GHz"}, phase="30deg"
+            quantity="Mag_E",
+            output_file=fld_file2,
+            assignment="Box1",
+            intrinsics={"frequency": solve_freq},
+            phase="30deg",
         )
         assert os.path.exists(fld_file2)
         fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss5.fld")

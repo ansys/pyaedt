@@ -808,11 +808,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Name of the setup. The default is ``"Setup1"``.
         setup_type : str, optional
             Type of the setup, which is based on the solution type. Options are
-            ``"HFSSDrivenAuto"``, ``"HFSSDrivenDefault"``, ``"HFSSEigen"``, ``"HFSSTransient"``,
-            and ``"HFSSSBR"``. The default is ``"HFSSDrivenAuto"``.
+            ``"HFSSDrivenAuto"``, ``"HFSSDriven"``, ``"HFSSEigen"``, ``"HFSSTransient"``,
+            and ``"HFSSSBR"``. The default is ``"HFSSDriven"``.
         **kwargs : dict, optional
-            Extra arguments to set up the circuit.
-            Available keys depend on the setup chosen.
+            Keyword arguments from the native AEDT API.
             For more information, see
             :doc:`../SetupTemplatesHFSS`.
 
