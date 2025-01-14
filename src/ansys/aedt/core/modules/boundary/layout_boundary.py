@@ -118,7 +118,9 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode):
 
         """
         child_object = None
-        for el in self._app.oeditor.GetChildNames("ComponentDefinition"):
+        component_definition = self._app.oeditor.Get3DComponentDefinitionNames()
+
+        for el in component_definition:
             design_childs = self._app.get_oo_object(self._app.oeditor, el).GetChildNames()
             if self._name in design_childs:
                 child_object = self._app.get_oo_object(self._app.oeditor, f"{el}\\{self._name}")
