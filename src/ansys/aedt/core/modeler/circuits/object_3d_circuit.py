@@ -1090,7 +1090,7 @@ class CircuitComponent(object):
         component_definition = self.component_info["Info"]
         component_data = self._circuit_components.o_component_manager.GetData(component_definition)
         if not component_data:
-            self._circuit_components._app.logger.warning("Component has no path")
+            self._circuit_components._app.logger.warning("Component " + self.component_info["RefDes"] + " has no path")
             return False
         for data in component_data:
             if isinstance(data, list) and isinstance(data[0], str) and data[0] == "NAME:CosimDefinitions":
