@@ -112,19 +112,20 @@ class TouchstoneData(rf.Network):
         self.log_x = True
 
     @pyaedt_function_handler()
-    def get_coupling_in_range(self, log_file_name, start_at_frequency, low_loss, high_loss, frequency_sample=5):
+    def get_coupling_in_range(self, log_file_name, start_at_frequency=1e9, low_loss=-40, high_loss=-60,
+                              frequency_sample=5):
         """Plot a list of curves, excluding return loss, that has at least one frequency point between a range of losses.
 
         Parameters
         ----------
         log_file_name : path
             Specify log file full path where identified coupling will be listed.
-        start_at_frequency : float
-            Specify frequency value below which not check will be done
-        low_loss: float
-            Specify range lower loss
-        high_loss: float
-            Specify range higher loss
+        start_at_frequency : float, optional
+            Specify frequency value below which not check will be done, default is "1e9"
+        low_loss: float, optional
+            Specify range lower loss, default is "-40"
+        high_loss: float, optional
+            Specify range higher loss, default is "-60"
         frequency_sample : integer, optional
             Specify frequency sample at which coupling check will be done, default is "5"
 
@@ -151,10 +152,8 @@ class TouchstoneData(rf.Network):
         temp_list = []
         temp_file = []
 
-
         i = 0
         j = 0
-
 
         while i < nb_port:
             while j < nb_port:
@@ -182,7 +181,7 @@ class TouchstoneData(rf.Network):
         with open(log_file_name, "w") as f:
             for str in temp_file:
                 f.write(str)
-            print( "File " + log_file_name + " created.")
+            print("File " + log_file_name + " created.")
 
         i = 0
         while i < len(temp_list):
