@@ -1880,7 +1880,7 @@ class Primitives3D(GeometryModeler):
             for param in parameters:
                 sub_arg_0 += ["VariableProp:=", [parameters[param][0], "D", "", parameters[param][1]]]
         sub_arg_0.append(["NAME:VariableOrders"])
-        arg_1 += sub_arg_0
+        arg_1.append(sub_arg_0)
         arg_1.append(["NAME:DesignDefinitionParameters", ["NAME:VariableOrders"]])
         arg_1.append(["NAME:MaterialDefinitionParameters", ["NAME:VariableOrders"]])
         arg_1 += [
