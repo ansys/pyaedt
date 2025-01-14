@@ -37,16 +37,15 @@ from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateType
 
 
 class DistributedSubstrate:
-    """Defines topology parameters of distributed filters.
+    """Defines substrate parameters of distributed filters.
 
-    This class lets you construct all paramaeters for the ``DistributedDesign`` class.
+    This class lets you construct all parameters for the substrate page of the ``DistributedDesign`` class.
     """
 
     def __init__(self):
         self._dll = ansys.aedt.core.filtersolutions_core._dll_interface()._dll
         self._dll_interface = ansys.aedt.core.filtersolutions_core._dll_interface()
         self._define_substrate_dll_functions()
-        self._set_distributed_implementation()
 
     def _define_substrate_dll_functions(self):
         """Define C++ API DLL functions."""
@@ -105,13 +104,6 @@ class DistributedSubstrate:
         self._dll.getDistributedGroundedCoverAboveLine.argtype = POINTER(c_bool)
         self._dll.getDistributedGroundedCoverAboveLine.restype = c_int
 
-    def _set_distributed_implementation(self):
-        """Set ``FilterSolutions`` attributes to distributed design."""
-        filter_implementation_status = self._dll.setFilterImplementation(1)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(filter_implementation_status)
-        first_shunt_status = self._dll.setDistributedFirstElementShunt(True)
-        self._dll_interface.raise_error(first_shunt_status)
-
     @property
     def substrate_type(self) -> SubstrateType:
         """Subctrate type of the filter.
@@ -146,7 +138,7 @@ class DistributedSubstrate:
         substrate_er_index = c_int()
         substrate_er_value_str = create_string_buffer(100)
         status = self._dll.getDistributedEr(substrate_er_value_str, byref(substrate_er_index), 100)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         if substrate_er_index.value in [e.value for e in SubstrateEr]:
             return SubstrateEr(substrate_er_index.value)
         else:
@@ -165,7 +157,7 @@ class DistributedSubstrate:
 
         substrate_er_value_bytes = bytes(substrate_er_value, "ascii")
         status = self._dll.setDistributedEr(substrate_er_value_bytes, substrate_er_index)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def substrate_resistivity(self) -> Union[SubstrateResistivity, str]:
@@ -183,7 +175,7 @@ class DistributedSubstrate:
         status = self._dll.getDistributedResistivity(
             substrate_resistivity_value_str, byref(substrate_resistivity_index), 100
         )
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         if substrate_resistivity_index.value in [e.value for e in SubstrateResistivity]:
             return SubstrateResistivity(substrate_resistivity_index.value)
         else:
@@ -201,7 +193,7 @@ class DistributedSubstrate:
             raise ValueError("Invalid substrate input. Must be a SubstrateResistivity enum member or a string.")
         substrate_resistivity_value_bytes = bytes(substrate_resistivity_value, "ascii")
         status = self._dll.setDistributedResistivity(substrate_resistivity_value_bytes, substrate_resistivity_index)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def substrate_loss_tangent(self) -> Union[SubstrateEr, str]:
@@ -219,7 +211,7 @@ class DistributedSubstrate:
         status = self._dll.getDistributedLossTangent(
             substrate_loss_tangent_value_str, byref(substrate_loss_tangent_index), 100
         )
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         if substrate_loss_tangent_index.value in [e.value for e in SubstrateEr]:
             return SubstrateEr(substrate_loss_tangent_index.value)
         else:
@@ -237,7 +229,7 @@ class DistributedSubstrate:
             raise ValueError("Invalid substrate input. Must be a SubstrateEr enum member or a string.")
         substrate_loss_tangent_value_bytes = bytes(substrate_loss_tangent_value, "ascii")
         status = self._dll.setDistributedLossTangent(substrate_loss_tangent_value_bytes, substrate_loss_tangent_index)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def substrate_conductor_thickness(self) -> str:
@@ -343,13 +335,13 @@ class DistributedSubstrate:
         """
         substrate_unbalanced_stripline_enabled = c_bool()
         status = self._dll.getDistributedUnbalancedStripLine(byref(substrate_unbalanced_stripline_enabled))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(substrate_unbalanced_stripline_enabled.value)
 
     @substrate_unbalanced_stripline_enabled.setter
     def substrate_unbalanced_stripline_enabled(self, substrate_unbalanced_stripline_enabled: bool):
         status = self._dll.setDistributedUnbalancedStripLine(substrate_unbalanced_stripline_enabled)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def substrate_cover_height_enabled(self) -> bool:
@@ -361,10 +353,10 @@ class DistributedSubstrate:
         """
         substrate_cover_height_enabled = c_bool()
         status = self._dll.getDistributedGroundedCoverAboveLine(byref(substrate_cover_height_enabled))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(substrate_cover_height_enabled.value)
 
     @substrate_cover_height_enabled.setter
     def substrate_cover_height_enabled(self, substrate_cover_height_enabled: bool):
         status = self._dll.setDistributedGroundedCoverAboveLine(substrate_cover_height_enabled)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
