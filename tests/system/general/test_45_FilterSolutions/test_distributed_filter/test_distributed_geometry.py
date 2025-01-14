@@ -28,24 +28,6 @@ import pytest
 from tests.system.general.conftest import config
 
 
-def convert_string(input_string) -> str:
-    """
-    Convert a string to have all words capitalized.
-
-    Parameters
-    ----------
-    input_string: str
-        String to modify.
-
-    Returns
-    -------
-    str
-        String with all words capitalized.
-    """
-    fixed_string = input_string.replace("_", " ").lower()
-    return " ".join(word.capitalize() for word in fixed_string.split())
-
-
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not applicable on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
 class TestClass:
