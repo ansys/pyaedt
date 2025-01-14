@@ -323,18 +323,17 @@ class PostProcessorIcepak(PostProcessor3D):
         """
         if variations is None:
             variations = {}
-        else:  # pragma: no cover
-            if self._app.monitor.face_monitors.get(monitor, None):
-                field_type = "Surface"
-            elif self._app.monitor.point_monitors.get(monitor, None):
-                field_type = "Volume"
-            else:
-                raise AttributeError(f"Monitor {monitor} is not found in the design.")
-            fs = self.create_field_summary()
-            fs.add_calculation(
-                "Monitor", field_type, monitor, quantity, side=side, ref_temperature=ref_temperature, time=time
-            )
-            return self._parse_field_summary_content(fs, setup_name, variations, quantity)
+        if self._app.monitor.face_monitors.get(monitor, None):
+            field_type = "Surface"
+        elif self._app.monitor.point_monitors.get(monitor, None):
+            field_type = "Volume"
+        else:
+            raise AttributeError(f"Monitor {monitor} is not found in the design.")
+        fs = self.create_field_summary()
+        fs.add_calculation(
+            "Monitor", field_type, monitor, quantity, side=side, ref_temperature=ref_temperature, time=time
+        )
+        return self._parse_field_summary_content(fs, setup_name, variations, quantity)
 
     @pyaedt_function_handler(design_variation="variations")
     def evaluate_object_quantity(
