@@ -151,19 +151,17 @@ class CommonSetup(PropsManager, BinaryTreeNode):
                 return intrinsics
             except Exception:
                 settings.logger.debug("Failed to retrieve adaptive frequency.")
-        intrinsic_map = {"Freq": ["Frequency", "Solution Freq"], "Phase": "0deg", "Time": "0s"}
 
-        for intrinsic, props in intrinsic_map.items():
-            if isinstance(props, list):
-                for prop in props:
-                    if prop in self.props:
-                        intrinsics[intrinsic] = self.props[prop]
-                        break
-                    elif prop in self.properties:
-                        intrinsics[intrinsic] = self.properties[prop]
-                        break
-            else:
-                intrinsics[intrinsic] = props
+        for i in self._app.design_solutions.intrinsics:
+            if i == "Freq":
+                if "Frequency" in self.props:
+                    intrinsics[i] = self.props["Frequency"]
+                elif "Solution Freq" in self.properties:
+                    intrinsics[i] = self.properties["Solution Freq"]
+            elif i == "Phase":
+                intrinsics[i] = "0deg"
+            elif i == "Time":
+                intrinsics[i] = "0s"
         return intrinsics
 
     def __repr__(self):
