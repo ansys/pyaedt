@@ -67,11 +67,11 @@ def min_aedt_version(min_version: str):
 
     def aedt_version_decorator(method):
         def wrapper(self, *args, **kwargs):
-            odesktop = fetch_odesktop_from_common_attributes_names(self)
-            if odesktop is None:
-                odesktop = fetch_odesktop_from_private_app_attribute(self)
-            if odesktop is None:
-                odesktop = fetch_odesktop_from_desktop_class(self)
+            odesktop = (
+                fetch_odesktop_from_common_attributes_names(self)
+                or fetch_odesktop_from_private_app_attribute(self)
+                or fetch_odesktop_from_desktop_class(self)
+            )
             if odesktop is None:
                 raise AEDTRuntimeError("The AEDT desktop object is not available.")
 
