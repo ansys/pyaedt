@@ -933,12 +933,12 @@ class MeshRegion(MeshRegionCommon):
                     for sr in sub_regions:
                         p1 = []
                         p2 = []
-                        if "Part Names" in self._app.modeler[sr].history().props:
-                            p1 = self._app.modeler[sr].history().props.get("Part Names", None)
+                        if "Part Names" in self._app.modeler[sr].history().properties:
+                            p1 = self._app.modeler[sr].history().properties.get("Part Names", None)
                             if not isinstance(p1, list):
                                 p1 = [p1]
-                        elif "Submodel Names" in self._app.modeler[sr].history().props:
-                            p2 = self._app.modeler[sr].history().props.get("Submodel Names", None)
+                        elif "Submodel Names" in self._app.modeler[sr].history().properties:
+                            p2 = self._app.modeler[sr].history().properties.get("Submodel Names", None)
                             if not isinstance(p2, list):
                                 p2 = [p2]
                         p1 += p2
