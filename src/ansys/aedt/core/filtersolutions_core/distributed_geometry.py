@@ -41,7 +41,6 @@ class DistributedGeometry:
         self._dll = ansys.aedt.core.filtersolutions_core._dll_interface()._dll
         self._dll_interface = ansys.aedt.core.filtersolutions_core._dll_interface()
         self._define_geomtry_dll_functions()
-        self._set_distributed_implementation()
 
     def _define_geomtry_dll_functions(self):
         """Define C++ API DLL functions."""
@@ -94,13 +93,6 @@ class DistributedGeometry:
         self._dll.setDistributedAdjustLengthOnLimit.restype = c_int
         self._dll.getDistributedAdjustLengthOnLimit.argtype = POINTER(c_bool)
         self._dll.getDistributedAdjustLengthOnLimit.restype = c_int
-
-    def _set_distributed_implementation(self):
-        """Set ``FilterSolutions`` attributes to distributed design."""
-        filter_implementation_status = self._dll.setFilterImplementation(1)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(filter_implementation_status)
-        first_shunt_status = self._dll.setDistributedFirstElementShunt(True)
-        self._dll_interface.raise_error(first_shunt_status)
 
     @property
     def fixed_width_capacitor_sections(self) -> str:
@@ -157,7 +149,6 @@ class DistributedGeometry:
     def alternate_stub_orientation(self) -> bool:
         """Flag indicating if the alternate vertical orientation of stubs is enabled.
         The orintation alternates between up and down to minimize interference between adjacent stubs.
-        The default is ``False``.
 
         Returns
         -------
@@ -165,13 +156,13 @@ class DistributedGeometry:
         """
         alternate_stub_orientation = c_bool()
         status = self._dll.getDistributedAlternateStubOrientation(byref(alternate_stub_orientation))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(alternate_stub_orientation.value)
 
     @alternate_stub_orientation.setter
     def alternate_stub_orientation(self, alternate_stub_orientation: bool):
         status = self._dll.setDistributedAlternateStubOrientation(alternate_stub_orientation)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def max_width(self) -> str:
@@ -236,7 +227,6 @@ class DistributedGeometry:
     @property
     def apply_limits(self) -> bool:
         """Flag indicating if the given geometry minimum and maximum widths and gaps limits are applied.
-        The default is ``True``.
 
         Returns
         -------
@@ -244,19 +234,19 @@ class DistributedGeometry:
         """
         apply_limits = c_bool()
         status = self._dll.getDistributedApplyLimits(byref(apply_limits))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(apply_limits.value)
 
     @apply_limits.setter
     def apply_limits(self, apply_limits: bool):
         status = self._dll.setDistributedApplyLimits(apply_limits)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def adjust_length_on_limit(self) -> bool:
         """Flag indicating if the length of all limited stubs and segments are adjusted to mainatian
         the desired lumped element impedance. This adjustment is effective for sections simulating
-        translated lumped elements. The default is ``True``.
+        translated lumped elements.
 
         Returns
         -------
@@ -264,10 +254,10 @@ class DistributedGeometry:
         """
         adjust_length_on_limit = c_bool()
         status = self._dll.getDistributedAdjustLengthOnLimit(byref(adjust_length_on_limit))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(adjust_length_on_limit.value)
 
     @adjust_length_on_limit.setter
     def adjust_length_on_limit(self, adjust_length_on_limit: bool):
         status = self._dll.setDistributedAdjustLengthOnLimit(adjust_length_on_limit)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)

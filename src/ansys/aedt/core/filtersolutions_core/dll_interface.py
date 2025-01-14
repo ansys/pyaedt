@@ -38,6 +38,7 @@ class DllInterface:
     def __init__(self, show_gui=False, version=None):
         self._init_dll_path(version)
         self._init_dll(show_gui)
+        self._version = version
 
     def restore_defaults(self):
         """Restore the state of the API, including all options and values, to the initial startup state."""
@@ -63,7 +64,7 @@ class DllInterface:
         print("DLL Path:", self.dll_path)
         if not os.path.isfile(self.dll_path):
             raise RuntimeError(f"The 'FilterSolutions' API DLL was not found at {self.dll_path}.")  # pragma: no cover
-        self.version = version
+        self._version = version
 
     def _init_dll(self, show_gui):
         """Load DLL and initialize application parameters to default values."""

@@ -100,7 +100,6 @@ class DistributedTopology:
         self._dll = ansys.aedt.core.filtersolutions_core._dll_interface()._dll
         self._dll_interface = ansys.aedt.core.filtersolutions_core._dll_interface()
         self._define_topology_dll_functions()
-        self._set_distributed_implementation()
 
     def _define_topology_dll_functions(self):
         """Define C++ API DLL functions."""
@@ -264,13 +263,6 @@ class DistributedTopology:
         self._dll.getDistributedNetlist.argtypes = [c_char_p, c_int]
         self._dll.getDistributedNetlist.restype = c_int
 
-    def _set_distributed_implementation(self):
-        """Set ``FilterSolutions`` attributes to distributed design."""
-        filter_implementation_status = self._dll.setFilterImplementation(1)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(filter_implementation_status)
-        first_shunt_status = self._dll.setDistributedFirstElementShunt(True)
-        self._dll_interface.raise_error(first_shunt_status)
-
     @property
     def topology_type(self) -> TopologyType:
         """Topology type of the distributed filter. The default is ``LUMPED_TRANSLATION``.
@@ -331,13 +323,13 @@ class DistributedTopology:
         """
         first_shunt = c_bool()
         status = self._dll.getDistributedFirstElementShunt(byref(first_shunt))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(first_shunt.value)
 
     @first_shunt.setter
     def first_shunt(self, first_shunt: bool):
         status = self._dll.setDistributedFirstElementShunt(first_shunt)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def first_fat(self) -> bool:
@@ -351,13 +343,13 @@ class DistributedTopology:
         """
         first_fat = c_bool()
         status = self._dll.getDistributedFirstElementFat(byref(first_fat))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(first_fat.value)
 
     @first_fat.setter
     def first_fat(self, first_fat: bool):
         status = self._dll.setDistributedFirstElementFat(first_fat)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def use_series_caps(self) -> bool:
@@ -373,13 +365,13 @@ class DistributedTopology:
         """
         use_series_caps = c_bool()
         status = self._dll.getDistributedSeriesCaps(byref(use_series_caps))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(use_series_caps.value)
 
     @use_series_caps.setter
     def use_series_caps(self, use_series_caps: bool):
         status = self._dll.setDistributedSeriesCaps(use_series_caps)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def combine_stubs(self) -> bool:
@@ -394,13 +386,13 @@ class DistributedTopology:
         """
         combine_stubs = c_bool()
         status = self._dll.getDistributedCombineStubs(byref(combine_stubs))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(combine_stubs.value)
 
     @combine_stubs.setter
     def combine_stubs(self, combine_stubs: bool):
         status = self._dll.setDistributedCombineStubs(combine_stubs)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def use_coupled_lines(self) -> bool:
@@ -415,13 +407,13 @@ class DistributedTopology:
         """
         use_coupled_lines = c_bool()
         status = self._dll.getDistributedCoupledLines(byref(use_coupled_lines))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(use_coupled_lines.value)
 
     @use_coupled_lines.setter
     def use_coupled_lines(self, use_coupled_lines: bool):
         status = self._dll.setDistributedCoupledLines(use_coupled_lines)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def equal_width_approx(self) -> bool:
@@ -435,13 +427,13 @@ class DistributedTopology:
         """
         equal_width_approx = c_bool()
         status = self._dll.getDistributedEqualWidthApprox(byref(equal_width_approx))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(equal_width_approx.value)
 
     @equal_width_approx.setter
     def equal_width_approx(self, equal_width_approx: bool):
         status = self._dll.setDistributedEqualWidthApprox(equal_width_approx)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def open_stub_ground(self) -> bool:
@@ -454,13 +446,13 @@ class DistributedTopology:
         """
         open_stub_ground = c_bool()
         status = self._dll.getDistributedOpenStubGround(byref(open_stub_ground))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(open_stub_ground.value)
 
     @open_stub_ground.setter
     def open_stub_ground(self, open_stub_ground: bool):
         status = self._dll.setDistributedOpenStubGround(open_stub_ground)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def left_ground_side(self) -> bool:
@@ -474,13 +466,13 @@ class DistributedTopology:
         """
         left_ground_side = c_bool()
         status = self._dll.getDistributedGroundSideLeft(byref(left_ground_side))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(left_ground_side.value)
 
     @left_ground_side.setter
     def left_ground_side(self, left_ground_side: bool):
         status = self._dll.setDistributedGroundSideLeft(left_ground_side)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def equal_stub_widths(self) -> bool:
@@ -493,13 +485,13 @@ class DistributedTopology:
         """
         equal_stub_widths = c_bool()
         status = self._dll.getDistributedEqualStubWidths(byref(equal_stub_widths))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(equal_stub_widths.value)
 
     @equal_stub_widths.setter
     def equal_stub_widths(self, equal_stub_widths: bool):
         status = self._dll.setDistributedEqualStubWidths(equal_stub_widths)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def center_z0_impedance(self) -> str:
@@ -528,13 +520,13 @@ class DistributedTopology:
         """
         equal_width_conductors = c_bool()
         status = self._dll.getDistributedEqualWidthApprox(byref(equal_width_conductors))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(equal_width_conductors.value)
 
     @equal_width_conductors.setter
     def equal_width_conductors(self, equal_width_conductors: bool):
         status = self._dll.setDistributedEqualWidthApprox(equal_width_conductors)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def tapped(self) -> bool:
@@ -548,13 +540,13 @@ class DistributedTopology:
         """
         tapped = c_bool()
         status = self._dll.getDistributedTapped(byref(tapped))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(tapped.value)
 
     @tapped.setter
     def tapped(self, tapped: bool):
         status = self._dll.setDistributedTapped(tapped)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def pinned(self) -> bool:
@@ -568,13 +560,13 @@ class DistributedTopology:
         """
         pinned = c_bool()
         status = self._dll.getDistributedPinned(byref(pinned))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(pinned.value)
 
     @pinned.setter
     def pinned(self, pinned: bool):
         status = self._dll.setDistributedPinned(pinned)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def stub_taps(self) -> bool:
@@ -588,13 +580,13 @@ class DistributedTopology:
         """
         stub_taps = c_bool()
         status = self._dll.getDistributedStubTaps(byref(stub_taps))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(stub_taps.value)
 
     @stub_taps.setter
     def stub_taps(self, stub_taps: bool):
         status = self._dll.setDistributedStubTaps(stub_taps)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def via_ends(self) -> bool:
@@ -607,13 +599,13 @@ class DistributedTopology:
         """
         via_ends = c_bool()
         status = self._dll.getDistributedViaEnds(byref(via_ends))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(via_ends.value)
 
     @via_ends.setter
     def via_ends(self, via_ends: bool):
         status = self._dll.setDistributedViaEnds(via_ends)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def resonator_line_width(self) -> str:
@@ -659,13 +651,13 @@ class DistributedTopology:
         """
         mitered_corners = c_bool()
         status = self._dll.getDistributedMiteredCorners(byref(mitered_corners))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(mitered_corners.value)
 
     @mitered_corners.setter
     def mitered_corners(self, mitered_corners: bool):
         status = self._dll.setDistributedMiteredCorners(mitered_corners)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def hairpin_gap_width(self) -> str:
@@ -779,13 +771,13 @@ class DistributedTopology:
         """
         tuning_type_1 = c_bool()
         status = self._dll.getDistributedTuningType1(byref(tuning_type_1))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(tuning_type_1.value)
 
     @tuning_type_1.setter
     def tuning_type_1(self, tuning_type_1: bool):
         status = self._dll.setDistributedTuningType1(tuning_type_1)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def tap_position(self) -> TapPosition:
@@ -816,13 +808,13 @@ class DistributedTopology:
         """
         wide_band = c_bool()
         status = self._dll.getDistributedWideBand(byref(wide_band))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(wide_band.value)
 
     @wide_band.setter
     def wide_band(self, wide_band: bool):
         status = self._dll.setDistributedWideBand(wide_band)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def open_ends(self) -> bool:
@@ -835,13 +827,13 @@ class DistributedTopology:
         """
         open_ends = c_bool()
         status = self._dll.getDistributedOpenEnds(byref(open_ends))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(open_ends.value)
 
     @open_ends.setter
     def open_ends(self, open_ends: bool):
         status = self._dll.setDistributedOpenEnds(open_ends)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def combline_half_length_frequency(self) -> str:
@@ -887,7 +879,7 @@ class DistributedTopology:
         """Calculate and generate spice nelist of the synthesized circuit"""
         size = c_int()
         status = self._dll.getDistributedNetlistSize(byref(size))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         netlist_string = self._dll_interface.get_string(self._dll.getDistributedNetlist, max_size=size.value)
         return netlist_string
 
@@ -902,13 +894,13 @@ class DistributedTopology:
         """
         quick_optimize = c_bool()
         status = self._dll.getDistributedQuickOptimize(byref(quick_optimize))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(quick_optimize.value)
 
     @quick_optimize.setter
     def quick_optimize(self, quick_optimize: bool):
         status = self._dll.setDistributedQuickOptimize(quick_optimize)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def resonator_length_extension(self) -> bool:
@@ -921,10 +913,10 @@ class DistributedTopology:
         """
         resonator_length_extension = c_bool()
         status = self._dll.getDistributedEnableExtensions(byref(resonator_length_extension))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(resonator_length_extension.value)
 
     @resonator_length_extension.setter
     def resonator_length_extension(self, resonator_length_extension: bool):
         status = self._dll.setDistributedEnableExtensions(resonator_length_extension)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)

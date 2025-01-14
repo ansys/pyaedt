@@ -118,10 +118,25 @@ class DistributedDesign(FilterDesignBase):
 
     def __init__(self, version=None):
         super().__init__(version)
+        self._dll = ansys.aedt.core.filtersolutions_core._dll_interface()._dll
+        self._dll_interface = ansys.aedt.core.filtersolutions_core._dll_interface()
+        self._check_version()
         self._init_distributed_design()
+        self._set_distributed_implementation()
 
     def _init_distributed_design(self):
         """Initialize the ``FilterSolutions`` object to support a distributed filter design."""
         self.topology = DistributedTopology()
         self.substrate = DistributedSubstrate()
         self.geometry = DistributedGeometry()
+
+    def _set_distributed_implementation(self):
+        """Set ``FilterSolutions`` implementation to ``Distributed Design``."""
+        filter_implementation_status = self._dll.setFilterImplementation(1)
+        self._dll_interface.raise_error(filter_implementation_status)
+        first_shunt_status = self._dll.setDistributedFirstElementShunt(True)
+        self._dll_interface.raise_error(first_shunt_status)
+
+    def _check_version(self):
+        if self._dll_interface._version < "2025.2":
+            raise ValueError("FilterSolutions API supports distributed designs in version 2025 R2 and later.")
