@@ -31,8 +31,8 @@ import warnings
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.aedt_versions import aedt_versions
-from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 try:
     import numpy as np
@@ -113,8 +113,9 @@ class TouchstoneData(rf.Network):
         self.log_x = True
 
     @pyaedt_function_handler()
-    def get_coupling_in_range(self, log_file_name=None, start_at_frequency=1e9, low_loss=-40, high_loss=-60,
-                              frequency_sample=5, plot=False):
+    def get_coupling_in_range(
+        self, log_file_name=None, start_at_frequency=1e9, low_loss=-40, high_loss=-60, frequency_sample=5, plot=False
+    ):
         """Plot a list of curves, excluding return loss, that has at least one frequency point between a range of losses.
 
         Parameters
