@@ -762,6 +762,8 @@ class TestClass:
         emi_receiver_test.analyze()
         new_report = emi_receiver_test.post.reports_by_category.emi_receiver()
         new_report.band = "2"
+        new_report.rbw = "2"
+        new_report.rbw_factor = "0"
         new_report.emission = "RE"
         new_report.time_start = "1ns"
         new_report.time_stop = "2us"
