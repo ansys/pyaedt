@@ -94,10 +94,6 @@ def create_toolkit_page(frame, window_name, internal_toolkits):
     toolkits_combo.grid(row=2, column=1, padx=5, pady=5)
 
     # Create entry box for directory path
-    """input_file_label = tk.Label(frame, text="Enter script path:")
-    input_file_label.grid(row=3, column=0, padx=5, pady=5)
-    input_file = tk.Entry(frame)
-    input_file.grid(row=3, column=1, padx=5, pady=5)"""
 
     input_file_label = tk.Button(frame, text="Enter script path:", command=action_get_script_path)
     input_file_label.grid(row=3, column=0, padx=5, pady=5)
