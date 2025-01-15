@@ -33,6 +33,7 @@ from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core import Rmxprt
+from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.visualization.post.spisim import SpiSim
 import pytest
@@ -322,7 +323,7 @@ class TestClass:
         out = self.icepak_app.post.evaluate_boundary_quantity(opening.name, "Ux")
         assert out["Mean"]
         if self.icepak_app.settings.aedt_version < "2024.1":
-            with pytest.raises(NotImplementedError):
+            with pytest.raises(AEDTRuntimeError):
                 self.icepak_app.post.evaluate_monitor_quantity("test_monitor2", "Temperature")
         else:
             out = self.icepak_app.post.evaluate_monitor_quantity("test_monitor2", "Temperature")
@@ -415,7 +416,8 @@ class TestClass:
         if desktop_version > "2024.2":
             assert self.hfss3dl_solve.set_export_touchstone()
         else:
-            assert not self.hfss3dl_solve.set_export_touchstone()
+            with pytest.raises(AEDTRuntimeError):
+                self.hfss3dl_solve.set_export_touchstone()
         assert self.hfss3dl_solve.analyze_setup("Setup1", cores=4, blocking=False)
         assert self.hfss3dl_solve.are_there_simulations_running
         assert self.hfss3dl_solve.stop_simulations()
