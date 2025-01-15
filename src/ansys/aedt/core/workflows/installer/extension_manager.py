@@ -67,7 +67,7 @@ def create_toolkit_page(frame, window_name, internal_toolkits):
     # Available toolkits
 
     def action_get_script_path():
-        file_selected = filedialog.askopenfilename(title="Select Wheelhouse")
+        file_selected = filedialog.askopenfilename(title="Select the script file")
         input_file.insert(0, file_selected)
 
     toolkits = ["Custom"] + internal_toolkits
