@@ -34,7 +34,7 @@ import ansys.aedt.core
 class DistributedGeometry:
     """Defines geometry parameters of distributed filters.
 
-    This class lets you construct all paramaeters for the geometry page of the ``DistributedDesign`` class.
+    This class lets you construct all parameters for the geometry page of the ``DistributedDesign`` class.
     """
 
     def __init__(self):

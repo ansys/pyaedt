@@ -34,7 +34,7 @@ import ansys.aedt.core
 class DistributedRadial:
     """Defines radial parameters of distributed filters.
 
-    This class lets you construct all paramaeters for the radial page of the ``DistributedDesign`` class.
+    This class lets you construct all parameters for the radial page of the ``DistributedDesign`` class.
     """
 
     def __init__(self):
