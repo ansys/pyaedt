@@ -32,6 +32,7 @@ import warnings
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.general_methods import open_file
 
 try:
     import numpy as np
@@ -112,8 +113,8 @@ class TouchstoneData(rf.Network):
         self.log_x = True
 
     @pyaedt_function_handler()
-    def get_coupling_in_range(self, log_file_name, start_at_frequency=1e9, low_loss=-40, high_loss=-60,
-                              frequency_sample=5):
+    def get_coupling_in_range(self, log_file_name=None, start_at_frequency=1e9, low_loss=-40, high_loss=-60,
+                              frequency_sample=5, plot=False):
         """Plot a list of curves, excluding return loss, that has at least one frequency point between a range of losses.
 
         Parameters
@@ -128,10 +129,14 @@ class TouchstoneData(rf.Network):
             Specify range higher loss, default is "-60"
         frequency_sample : integer, optional
             Specify frequency sample at which coupling check will be done, default is "5"
+        plot : boolean, optional
+            True to plot S parameter curves, False to not plot S parameter curves, default is "False"
 
         Returns
         -------
-        bool
+         list
+            List of S parameters in the range [high_loss, low_loss].
+
         """
 
         nb_freq = self.frequency.npoints
@@ -177,18 +182,23 @@ class TouchstoneData(rf.Network):
                 j = j + 1
             i = i + 1
             j = i
+        if log_file_name is not None:
+            logger.info("if file " + log_file_name + " exist, the file will be overwritten.")
+            with open_file(log_file_name, "w") as f:
+                for str in temp_file:
+                    f.write(str)
+            logger.info("File " + log_file_name + " created.")
 
-        with open(log_file_name, "w") as f:
-            for str in temp_file:
-                f.write(str)
-            print("File " + log_file_name + " created.")
+        if plot:
+            i = 0
+            while i < len(temp_list):
+                self.plot_s_db(temp_list[i][0], temp_list[i][1])
+                i = i + 1
+            logger.info("Plotting S parameters curves.")
+            plt.show()
+            logger.info("S parameters curves plot created.")
 
-        i = 0
-        while i < len(temp_list):
-            self.plot_s_db(temp_list[i][0], temp_list[i][1])
-            i = i + 1
-        plt.show()
-        return True
+        return temp_file
 
     @pyaedt_function_handler()
     def get_insertion_loss_index(self, threshold=-3):
