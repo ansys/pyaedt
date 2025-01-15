@@ -119,6 +119,13 @@ def test_get_next_xtalk_index_with_dummy_prefix(touchstone_file):
     assert not res
 
 
+def test_get_coupling_in_range(touchstone_file):
+    ts = TouchstoneData(touchstone_file=touchstone_file)
+    res = ts.get_coupling_in_range(start_at_frequency=1e9, high_loss=-60, low_loss=-40, frequency_sample=5, plot=True)
+
+    assert not res
+
+
 @patch("os.path.exists", return_value=False)
 def test_find_touchstone_files_with_non_existing_directory(mock_exists):
     res = find_touchstone_files("dummy_path")
