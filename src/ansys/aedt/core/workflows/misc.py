@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -147,9 +147,11 @@ class ExtensionTheme:  # pragma: no cover
         self.default_font = ("Arial", 12)
 
     def apply_light_theme(self, style):
+        """Apply light theme."""
         self._apply_theme(style, self.light)
 
     def apply_dark_theme(self, style):
+        """Apply dark theme."""
         self._apply_theme(style, self.dark)
 
     def _apply_theme(self, style, colors):

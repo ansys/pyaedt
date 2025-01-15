@@ -22,20 +22,30 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
+from pathlib import Path
+from unittest.mock import MagicMock
+from unittest.mock import patch
+import warnings
+
+from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
+import pytest
 
 
-def resources_directory():
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    test_dir = os.path.dirname(dir_path)
-    resources_path = os.path.join(test_dir, "resources")
-    return resources_path
+def test_add_siwave_dynamic_link_failure_with_file_not_found():
+    file = Path("dummy")
+    modeler = MagicMock()
+    nexxim = NexximComponents(modeler)
+
+    with pytest.raises(FileNotFoundError):
+        nexxim.add_siwave_dynamic_link(file)
 
 
-def resource_path(resource_file_name):
-    return os.path.join(resources_directory(), resource_file_name)
+@patch.object(warnings, "warn")
+def test_add_subcircuit_link_warning_call(mock_warn):
+    file = Path("dummy")
+    modeler = MagicMock()
+    nexxim = NexximComponents(modeler)
 
+    nexxim._add_subcircuit_link("dummy_comp", ["dummy_pin"], file, "dummy_source_design", image_subcircuit_path=file)
 
-def read_resource_file(filename):
-    with open(resource_path(filename)) as f:
-        return f.read().splitlines()
+    mock_warn.assert_any_call("Image extension is not valid. Use default image instead.")

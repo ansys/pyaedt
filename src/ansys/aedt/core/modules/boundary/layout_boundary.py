@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -24,7 +24,7 @@
 
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.data_handlers import random_string
-from ansys.aedt.core.generic.general_methods import GrpcApiError
+from ansys.aedt.core.generic.errors import GrpcApiError
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modules.boundary.common import BoundaryCommon
@@ -118,7 +118,9 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode):
 
         """
         child_object = None
-        for el in self._app.oeditor.GetChildNames("ComponentDefinition"):
+        component_definition = self._app.oeditor.Get3DComponentDefinitionNames()
+
+        for el in component_definition:
             design_childs = self._app.get_oo_object(self._app.oeditor, el).GetChildNames()
             if self._name in design_childs:
                 child_object = self._app.get_oo_object(self._app.oeditor, f"{el}\\{self._name}")

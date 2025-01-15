@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -26,7 +26,7 @@ import os.path
 import warnings
 
 from ansys.aedt.core.generic.data_handlers import _dict2arg
-from ansys.aedt.core.generic.general_methods import GrpcApiError
+from ansys.aedt.core.generic.errors import GrpcApiError
 from ansys.aedt.core.generic.general_methods import _dim_arg
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -49,9 +49,9 @@ class CommonRegion(object):
 
     @property
     def padding_types(self):
-        """
-        Get a list of strings containing thepadding types used,
-        one for each direction, in the following order:
+        """Get a list of strings containing the padding types used.
+
+        One for each direction in the following order:
         +X, -X, +Y, -Y, +Z, -Z.
 
         Returns
@@ -913,38 +913,41 @@ class MeshRegion(MeshRegionCommon):
         list
         """
         if isinstance(self._assignment, SubRegion):
-            # try to update name
             if self.name in self._app.odesign.GetChildObject("Mesh").GetChildNames():
-                parts = []
-                subparts = []
-                if "Parts" in self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropNames():
-                    parts = self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropValue("Parts")
-                if "Submodels" in self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropNames():
-                    subparts = (
-                        self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropValue("Submodels")
+                # try to update name, APIs lacking an easy method before 242
+                if self._app.settings.aedt_version < "2024.2":  # pragma: no cover
+                    parts = []
+                    subparts = []
+                    if "Parts" in self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropNames():
+                        parts = self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropValue("Parts")
+                    if "Submodels" in self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropNames():
+                        subparts = (
+                            self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropValue("Submodels")
+                        )
+                    if not isinstance(parts, list):
+                        parts = [parts]
+                    if not isinstance(subparts, list):
+                        subparts = [subparts]
+                    parts += subparts
+                    sub_regions = self._app.modeler.non_model_objects
+                    for sr in sub_regions:
+                        p1 = []
+                        p2 = []
+                        if "Part Names" in self._app.modeler[sr].history().properties:
+                            p1 = self._app.modeler[sr].history().properties.get("Part Names", None)
+                            if not isinstance(p1, list):
+                                p1 = [p1]
+                        elif "Submodel Names" in self._app.modeler[sr].history().properties:
+                            p2 = self._app.modeler[sr].history().properties.get("Submodel Names", None)
+                            if not isinstance(p2, list):
+                                p2 = [p2]
+                        p1 += p2
+                        if "CreateSubRegion" == self._app.modeler[sr].history().command and all(p in p1 for p in parts):
+                            self._assignment.name = sr
+                else:
+                    self._assignment.name = (
+                        self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropValue("Assignment")
                     )
-                if not isinstance(parts, list):
-                    parts = [parts]
-                if not isinstance(subparts, list):
-                    subparts = [subparts]
-                parts += subparts
-                sub_regions = self._app.modeler.non_model_objects
-                for sr in sub_regions:
-                    p1 = []
-                    p2 = []
-                    history = self._app.modeler[sr].history()
-                    history_props = history.properties
-                    if "Part Names" in history_props:
-                        p1 = history_props.get("Part Names", None)
-                        if not isinstance(p1, list):
-                            p1 = [p1]
-                    elif "Submodel Names" in history_props:
-                        p2 = history_props.get("Submodel Names", None)
-                        if not isinstance(p2, list):
-                            p2 = [p2]
-                    p1 += p2
-                    if "CreateSubRegion" == history.command and all(p in p1 for p in parts):
-                        self._assignment.name = sr
             return self._assignment
         elif isinstance(self._assignment, list):
             return self._assignment

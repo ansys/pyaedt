@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -1542,7 +1542,6 @@ class Analysis(Design, object):
     def create_output_variable(self, variable, expression, solution=None, context=None):
         """Create or modify an output variable.
 
-
         Parameters
         ----------
         variable : str, optional
@@ -1644,7 +1643,7 @@ class Analysis(Design, object):
 
         dict = {}
         for entry in assignment:
-            mat_name = self.modeler[entry].material_name
+            mat_name = self.modeler[entry].material_name.casefold()
             mat_props = self.materials.material_keys[mat_name]
             if prop_names is None:
                 dict[entry] = mat_props._props

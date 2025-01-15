@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -229,6 +229,7 @@ class TestClass:
         assert mat2.surface_roughness.value == SurfMatProperties.get_defaultvalue(aedtname="surface_roughness")
         assert ipk.materials.duplicate_surface_material("Steel", "Steel2")
         assert not ipk.materials.duplicate_surface_material("Steel4", "Steel2")
+        assert ipk.materials.duplicate_surface_material("Steel")
 
     def test_07_export_materials(self):
         assert self.aedtapp.materials.export_materials_to_file(os.path.join(self.local_scratch.path, "materials.json"))

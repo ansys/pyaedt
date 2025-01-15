@@ -22,20 +22,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
+"""Provide PyAEDT errors."""
 
 
-def resources_directory():
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    test_dir = os.path.dirname(dir_path)
-    resources_path = os.path.join(test_dir, "resources")
-    return resources_path
+class GrpcApiError(RuntimeError):
+    """Exception raised for errors encountered while interacting with the gRPC API."""
 
 
-def resource_path(resource_file_name):
-    return os.path.join(resources_directory(), resource_file_name)
+class MethodNotSupportedError(RuntimeError):
+    """Exception raised when attempting to call a method that is not supported."""
 
 
-def read_resource_file(filename):
-    with open(resource_path(filename)) as f:
-        return f.read().splitlines()
+class AEDTRuntimeError(RuntimeError):
+    """Exception raised for errors occurring during the runtime execution of AEDT scripts."""

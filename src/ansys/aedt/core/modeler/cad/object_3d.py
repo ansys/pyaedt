@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -37,6 +37,7 @@ from __future__ import absolute_import  # noreorder
 import os
 import re
 
+from ansys.aedt.core.generic.checks import min_aedt_version
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.general_methods import _to_boolean
 from ansys.aedt.core.generic.general_methods import _uname
@@ -75,13 +76,6 @@ class Object3d(object):
     """
 
     def __init__(self, primitives, name=None):
-        """
-        Parameters
-        ----------
-        primitives : :class:`ansys.aedt.core.modeler.cad.primitives_3d.Primitives3D`
-            Inherited parent object.
-        name : str
-        """
         self._id = None
         if name:
             self._m_name = name
@@ -253,6 +247,7 @@ class Object3d(object):
         return self._primitives._modeler._app._odesign
 
     @pyaedt_function_handler()
+    @min_aedt_version("2021.2")
     def plot(self, show=True):
         """Plot model with PyVista.
 
@@ -270,18 +265,17 @@ class Object3d(object):
         -----
         Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
         """
-        if self._primitives._app._aedt_version >= "2021.2":
-            return self._primitives._app.post.plot_model_obj(
-                objects=[self.name],
-                plot_as_separate_objects=True,
-                plot_air_objects=True,
-                show=show,
-            )
+        return self._primitives._app.post.plot_model_obj(
+            objects=[self.name],
+            plot_as_separate_objects=True,
+            plot_air_objects=True,
+            show=show,
+        )
 
     @pyaedt_function_handler(file_path="output_file")
+    @min_aedt_version("2021.2")
     def export_image(self, output_file=None):
         """Export the current object to a specified file path.
-
 
         .. note::
            Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
@@ -298,23 +292,22 @@ class Object3d(object):
         str
             File path.
         """
-        if self._primitives._app._aedt_version >= "2021.2":
-            if not output_file:
-                output_file = os.path.join(self._primitives._app.working_directory, self.name + ".png")
-            model_obj = self._primitives._app.post.plot_model_obj(
-                objects=[self.name],
-                show=False,
-                export_path=output_file,
-                plot_as_separate_objects=True,
-                clean_files=True,
-            )
-            if model_obj:
-                return model_obj.image_file
-        return False
+        if not output_file:
+            output_file = os.path.join(self._primitives._app.working_directory, self.name + ".png")
+        model_obj = self._primitives._app.post.plot_model_obj(
+            objects=[self.name],
+            show=False,
+            export_path=output_file,
+            plot_as_separate_objects=True,
+            clean_files=True,
+        )
+        if model_obj:
+            return model_obj.image_file
 
     @pyaedt_function_handler()
     def touching_conductors(self):
         """Get the conductors of given object.
+
         See :func:`ansys.aedt.core.application.analysis_3d.FieldAnalysis3D.identify_touching_conductors`.
 
         Returns

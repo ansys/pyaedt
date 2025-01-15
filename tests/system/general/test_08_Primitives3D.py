@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -1346,6 +1346,14 @@ class TestClass:
         box2 = self.aedtapp.modeler.create_box([50, 50, 50], [2, 3, 4])
         cyl1 = self.aedtapp.modeler.create_cylinder(orientation="X", origin=[50, 0, 0], radius=1, height=20)
         cyl2 = self.aedtapp.modeler.create_cylinder(orientation="Z", origin=[0, 0, 50], radius=1, height=10)
+
+        assert box1.solve_inside
+        assert box2.solve_inside
+        assert cyl1.solve_inside
+        assert cyl2.solve_inside
+
+        box3 = self.aedtapp.modeler.create_box([40, 40, 40], [6, 8, 9], material="pec")
+        assert not box3.solve_inside
 
         objects_list = [box1, box2, cyl1, cyl2]
         self.aedtapp.assign_material(objects_list, "copper")

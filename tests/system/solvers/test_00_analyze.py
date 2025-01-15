@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -33,6 +33,7 @@ from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core import Rmxprt
+from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.visualization.post.spisim import SpiSim
 import pytest
@@ -137,9 +138,10 @@ class TestClass:
         profile = sbr_platform.setups[0].get_profile()
         assert isinstance(profile, dict)
         assert not sbr_platform.get_profile("Invented_setup")
+        solution_data = sbr_platform.setups[0].get_solution_data()
 
-        ffdata = sbr_platform.get_antenna_data(frequencies=12e9, sphere="3D")
-        ffdata2 = sbr_platform.get_antenna_data(frequencies=12e9, sphere="3D", overwrite=False)
+        ffdata = sbr_platform.get_antenna_data(frequencies=solution_data.intrinsics["Freq"], sphere="3D")
+        sbr_platform.get_antenna_data(frequencies=solution_data.intrinsics["Freq"], sphere="3D", overwrite=False)
 
         ffdata.farfield_data.plot_cut(
             quantity="RealizedGain",
@@ -202,11 +204,12 @@ class TestClass:
         hfss_app.add_3d_component_array_from_json(dict_in)
         exported_files = hfss_app.export_results()
         assert len(exported_files) == 0
-        setup = hfss_app.create_setup(name="test")
-        setup.props["Frequency"] = "1GHz"
+        setup_driven = hfss_app.create_setup(name="test", setup_type="HFSSDriven", MaximumPasses=1)
         exported_files = hfss_app.export_results()
+        solve_freq = setup_driven.props["Frequency"]
         assert len(exported_files) == 0
         hfss_app.analyze_setup(name="test", cores=4)
+        assert setup_driven.is_solved
         exported_files = hfss_app.export_results()
         assert len(exported_files) == 39
         exported_files = hfss_app.export_results(
@@ -215,12 +218,12 @@ class TestClass:
         assert len(exported_files) > 0
         fld_file1 = os.path.join(self.local_scratch.path, "test_fld_hfss1.fld")
         assert hfss_app.post.export_field_file(
-            quantity="Mag_E", output_file=fld_file1, assignment="Box1", intrinsics="1GHz", phase="5deg"
+            quantity="Mag_E", output_file=fld_file1, assignment="Box1", intrinsics=solve_freq, phase="5deg"
         )
         assert os.path.exists(fld_file1)
         fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss2.fld")
         assert hfss_app.post.export_field_file(
-            quantity="Mag_E", output_file=fld_file2, assignment="Box1", intrinsics={"frequency": "1GHz"}
+            quantity="Mag_E", output_file=fld_file2, assignment="Box1", intrinsics={"frequency": solve_freq}
         )
         assert os.path.exists(fld_file2)
         fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss3.fld")
@@ -228,12 +231,16 @@ class TestClass:
             quantity="Mag_E",
             output_file=fld_file2,
             assignment="Box1",
-            intrinsics={"frequency": "1GHz", "phase": "30deg"},
+            intrinsics={"frequency": solve_freq, "phase": "30deg"},
         )
         assert os.path.exists(fld_file2)
         fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss4.fld")
         assert hfss_app.post.export_field_file(
-            quantity="Mag_E", output_file=fld_file2, assignment="Box1", intrinsics={"frequency": "1GHz"}, phase="30deg"
+            quantity="Mag_E",
+            output_file=fld_file2,
+            assignment="Box1",
+            intrinsics={"frequency": solve_freq},
+            phase="30deg",
         )
         assert os.path.exists(fld_file2)
         fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss5.fld")
@@ -316,7 +323,7 @@ class TestClass:
         out = self.icepak_app.post.evaluate_boundary_quantity(opening.name, "Ux")
         assert out["Mean"]
         if self.icepak_app.settings.aedt_version < "2024.1":
-            with pytest.raises(NotImplementedError):
+            with pytest.raises(AEDTRuntimeError):
                 self.icepak_app.post.evaluate_monitor_quantity("test_monitor2", "Temperature")
         else:
             out = self.icepak_app.post.evaluate_monitor_quantity("test_monitor2", "Temperature")
@@ -409,7 +416,8 @@ class TestClass:
         if desktop_version > "2024.2":
             assert self.hfss3dl_solve.set_export_touchstone()
         else:
-            assert not self.hfss3dl_solve.set_export_touchstone()
+            with pytest.raises(AEDTRuntimeError):
+                self.hfss3dl_solve.set_export_touchstone()
         assert self.hfss3dl_solve.analyze_setup("Setup1", cores=4, blocking=False)
         assert self.hfss3dl_solve.are_there_simulations_running
         assert self.hfss3dl_solve.stop_simulations()

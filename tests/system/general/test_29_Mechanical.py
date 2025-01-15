@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -143,7 +143,7 @@ class TestClass:
         assert meshlink_props["Project"] == "This Project*"
         assert meshlink_props["PathRelativeTo"] == "TargetProject"
         assert meshlink_props["Design"] == "MechanicalDesign2"
-        assert meshlink_props["Soln"] == "MySetupAuto : LastAdaptive"
+        assert meshlink_props["Soln"] == self.aedtapp.nominal_adaptive
         assert meshlink_props["Params"] == self.aedtapp.available_variations.nominal_w_values_dict
         assert not self.aedtapp.setups[0].add_mesh_link(design="")
         assert not self.aedtapp.setups[0].add_mesh_link(
