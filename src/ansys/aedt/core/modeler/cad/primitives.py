@@ -864,106 +864,110 @@ class GeometryModeler(Modeler):
         from ansys.aedt.core.application import _get_data_model
 
         dm = _get_data_model(self.oeditor, 2)
-
+        lines = self.line_names[::]
         for attribs in dm.get("children", []):
             if attribs["type"] == "Part":
                 pid = 0
-                is_polyline = False
-                try:
-                    if attribs["children"][0]["Command"] == "CreatePolyline":
-                        is_polyline = True
-                except Exception:
+                if attribs["Name"] in lines:
+                    is_polyline = True
+                else:
                     is_polyline = False
+                    try:
+                        if attribs["children"][0]["Command"] == "CreatePolyline":
+                            is_polyline = True
+                    except Exception:
+                        is_polyline = False
 
                 o = self._create_object(name=attribs["Name"], pid=pid, use_cached=True, is_polyline=is_polyline)
                 o._part_coordinate_system = attribs["Orientation"]
                 o._model = attribs["Model"]
                 o._wireframe = attribs["Display Wireframe"]
-                o._m_groupName = attribs["Model"]
+                o._m_groupName = attribs["Group"]
                 o._color = (attribs["Color/Red"], attribs["Color/Green"], attribs["Color/Blue"])
                 o._material_name = attribs.get("Material", None)
                 o._surface_material = attribs.get("Surface Material", None)
                 o._solve_inside = attribs.get("Solve Inside", False)
+                o._transparent = attribs.get("Transparent", 0.0)
                 o._is_updated = True
                 # pid+=1
         return len(self.objects)
 
-    @pyaedt_function_handler()
-    def _refresh_all_ids_from_aedt_file(self):
-        self._app.logger.info("Refreshing objects from AEDT file")
-
-        dp = copy.deepcopy(self._app.design_properties)
-        if not dp or "ModelSetup" not in dp:
-            return False
-
-        try:
-            groups = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["Groups"]["Group"]
-        except KeyError:
-            groups = []
-        if not isinstance(groups, list):
-            groups = [groups]
-        try:
-            dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"]["GeometryPart"]
-        except KeyError:
-            return 0
-
-        for el in dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"]["GeometryPart"]:
-            if isinstance(el, dict):
-                attribs = el["Attributes"]
-                operations = el.get("Operations", None)
-            else:
-                attribs = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"]["GeometryPart"][
-                    "Attributes"
-                ]
-                operations = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"]["GeometryPart"][
-                    "Operations"
-                ]
-            if attribs["Name"] in self._all_object_names:
-                pid = 0
-
-                if operations and isinstance(operations.get("Operation", None), dict):
-                    try:
-                        pid = operations["Operation"]["ParentPartID"]
-                    except Exception as e:  # pragma: no cover
-                        self.logger.debug(e)
-                elif operations and isinstance(operations.get("Operation", None), list):
-                    try:
-                        pid = operations["Operation"][0]["ParentPartID"]
-                    except Exception as e:
-                        self.logger.debug(e)
-
-                is_polyline = False
-                if operations and "PolylineParameters" in operations.get("Operation", {}):
-                    is_polyline = True
-
-                o = self._create_object(name=attribs["Name"], pid=pid, use_cached=True, is_polyline=is_polyline)
-                o._part_coordinate_system = attribs["PartCoordinateSystem"]
-                if "NonModel" in attribs["Flags"]:
-                    o._model = False
-                else:
-                    o._model = True
-                if "Wireframe" in attribs["Flags"]:
-                    o._wireframe = True
-                else:
-                    o._wireframe = False
-                groupname = ""
-                for group in groups:
-                    if attribs["GroupId"] == group["GroupID"]:
-                        groupname = group["Attributes"]["Name"]
-
-                o._m_groupName = groupname
-                try:
-                    o._color = tuple(int(x) for x in attribs["Color"][1:-1].split(" "))
-                except Exception:
-                    o._color = None
-                o._surface_material = attribs.get("SurfaceMaterialValue", None)
-                if o._surface_material:
-                    o._surface_material = o._surface_material[1:-1].lower()
-                if "MaterialValue" in attribs:
-                    o._material_name = attribs["MaterialValue"][1:-1].lower()
-
-                o._is_updated = True
-        return len(self.objects)
+    # @pyaedt_function_handler()
+    # def _refresh_all_ids_from_aedt_file(self):
+    #     self._app.logger.info("Refreshing objects from AEDT file")
+    #
+    #     dp = copy.deepcopy(self._app.design_properties)
+    #     if not dp or "ModelSetup" not in dp:
+    #         return False
+    #
+    #     try:
+    #         groups = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["Groups"]["Group"]
+    #     except KeyError:
+    #         groups = []
+    #     if not isinstance(groups, list):
+    #         groups = [groups]
+    #     try:
+    #         dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"]["GeometryPart"]
+    #     except KeyError:
+    #         return 0
+    #
+    #     for el in dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"]["GeometryPart"]:
+    #         if isinstance(el, dict):
+    #             attribs = el["Attributes"]
+    #             operations = el.get("Operations", None)
+    #         else:
+    #             attribs = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"]["GeometryPart"][
+    #                 "Attributes"
+    #             ]
+    #             operations = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"]["GeometryPart"][
+    #                 "Operations"
+    #             ]
+    #         if attribs["Name"] in self._all_object_names:
+    #             pid = 0
+    #
+    #             if operations and isinstance(operations.get("Operation", None), dict):
+    #                 try:
+    #                     pid = operations["Operation"]["ParentPartID"]
+    #                 except Exception as e:  # pragma: no cover
+    #                     self.logger.debug(e)
+    #             elif operations and isinstance(operations.get("Operation", None), list):
+    #                 try:
+    #                     pid = operations["Operation"][0]["ParentPartID"]
+    #                 except Exception as e:
+    #                     self.logger.debug(e)
+    #
+    #             is_polyline = False
+    #             if operations and "PolylineParameters" in operations.get("Operation", {}):
+    #                 is_polyline = True
+    #
+    #             o = self._create_object(name=attribs["Name"], pid=pid, use_cached=True, is_polyline=is_polyline)
+    #             o._part_coordinate_system = attribs["PartCoordinateSystem"]
+    #             if "NonModel" in attribs["Flags"]:
+    #                 o._model = False
+    #             else:
+    #                 o._model = True
+    #             if "Wireframe" in attribs["Flags"]:
+    #                 o._wireframe = True
+    #             else:
+    #                 o._wireframe = False
+    #             groupname = ""
+    #             for group in groups:
+    #                 if attribs["GroupId"] == group["GroupID"]:
+    #                     groupname = group["Attributes"]["Name"]
+    #
+    #             o._m_groupName = groupname
+    #             try:
+    #                 o._color = tuple(int(x) for x in attribs["Color"][1:-1].split(" "))
+    #             except Exception:
+    #                 o._color = None
+    #             o._surface_material = attribs.get("SurfaceMaterialValue", None)
+    #             if o._surface_material:
+    #                 o._surface_material = o._surface_material[1:-1].lower()
+    #             if "MaterialValue" in attribs:
+    #                 o._material_name = attribs["MaterialValue"][1:-1].lower()
+    #
+    #             o._is_updated = True
+    #     return len(self.objects)
 
     @pyaedt_function_handler()
     def cleanup_objects(self):
