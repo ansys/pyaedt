@@ -4394,7 +4394,7 @@ class GeometryModeler(Modeler):
         P = self.get_existing_polyline(assignment=new_edges[0])
 
         if edge_to_delete:
-            P.remove_edges(edge_to_delete)
+            P.remove_segments(edge_to_delete)
 
         angle = math.pi * (180 - 360 / number_of_segments) / 360
 
