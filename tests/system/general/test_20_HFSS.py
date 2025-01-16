@@ -26,6 +26,7 @@ import math
 import os
 import shutil
 
+from ansys.aedt.core.generic.settings import is_linux
 import pytest
 
 from tests import TESTS_GENERAL_PATH
@@ -1228,6 +1229,7 @@ class TestClass:
         assert self.aedtapp.mesh.initial_mesh_settings
         assert self.aedtapp.mesh.initial_mesh_settings.props
 
+    @pytest.mark.skipif(is_linux, reason="Crashes on Linux due to VM configuration.")
     def test_47_convert_near_field(self):
         example_project = os.path.join(TESTS_GENERAL_PATH, "example_models", "nf_test")
         assert os.path.exists(convert_nearfield_data(example_project, output_folder=self.local_scratch.path))
