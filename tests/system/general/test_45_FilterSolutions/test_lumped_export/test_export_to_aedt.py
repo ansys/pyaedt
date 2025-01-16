@@ -558,3 +558,48 @@ class TestClass:
         assert lumped_design.export_to_aedt.substrate_cover_height_enabled == False
         lumped_design.export_to_aedt.substrate_cover_height_enabled = True
         assert lumped_design.export_to_aedt.substrate_cover_height_enabled == True
+
+    def test_insert_circuit_design(self, distributed_design):
+        assert distributed_design.export_to_aedt.insert_circuit_design is False
+        distributed_design.export_to_aedt.insert_circuit_design = True
+        assert distributed_design.export_to_aedt.insert_circuit_design
+
+    def test_insert_hfss_design(self, distributed_design):
+        assert distributed_design.export_to_aedt.insert_hfss_design is False
+        distributed_design.export_to_aedt.insert_hfss_design = True
+        assert distributed_design.export_to_aedt.insert_hfss_design
+
+    def test_insert_hfss_3dl_design(self, distributed_design):
+        assert distributed_design.export_to_aedt.insert_hfss_3dl_design
+        distributed_design.export_to_aedt.insert_hfss_3dl_design = False
+        assert distributed_design.export_to_aedt.insert_hfss_3dl_design is False
+
+    def test_full_parametrization_enabled(self, distributed_design):
+        assert distributed_design.export_to_aedt.full_parametrization_enabled
+        distributed_design.export_to_aedt.full_parametrization_enabled = False
+        assert distributed_design.export_to_aedt.full_parametrization_enabled is False
+
+    def test_ports_always_on_sides_enabled(self, distributed_design):
+        assert distributed_design.export_to_aedt.ports_always_on_sides_enabled is False
+        distributed_design.export_to_aedt.ports_always_on_sides_enabled = True
+        assert distributed_design.export_to_aedt.ports_always_on_sides_enabled
+
+    def test_reverse_x_axis_enabled(self, distributed_design):
+        assert distributed_design.export_to_aedt.reverse_x_axis_enabled is False
+        distributed_design.export_to_aedt.reverse_x_axis_enabled = True
+        assert distributed_design.export_to_aedt.reverse_x_axis_enabled
+
+    def test_reverse_y_axis_enabled(self, distributed_design):
+        assert distributed_design.export_to_aedt.reverse_y_axis_enabled is False
+        distributed_design.export_to_aedt.reverse_y_axis_enabled = True
+        assert distributed_design.export_to_aedt.reverse_y_axis_enabled
+
+    def test_export_with_tuning_port_format_enabled(self, distributed_design):
+        assert distributed_design.export_to_aedt.export_with_tuning_port_format_enabled is False
+        distributed_design.export_to_aedt.export_with_tuning_port_format_enabled = True
+        assert distributed_design.export_to_aedt.export_with_tuning_port_format_enabled
+
+    def test_use_series_horizontal_ports_enabled(self, distributed_design):
+        assert distributed_design.export_to_aedt.use_series_horizontal_ports_enabled
+        distributed_design.export_to_aedt.use_series_horizontal_ports_enabled = False
+        assert distributed_design.export_to_aedt.use_series_horizontal_ports_enabled is False

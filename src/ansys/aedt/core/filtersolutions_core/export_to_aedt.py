@@ -492,10 +492,50 @@ class ExportToAedt:
         self._dll.removeModelithicsResistorsFamily.argtype = c_char_p
         self._dll.removeModelithicsResistorsFamily.restype = c_int
 
-    def _open_aedt_export(self):
-        """Open export page to accept manipulate export parameters"""
-        status = self._dll.openLumpedExportPage()
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll.setCircuitDesign.argtype = c_bool
+        self._dll.setCircuitDesign.restype = c_int
+        self._dll.getCircuitDesign.argtype = POINTER(c_bool)
+        self._dll.getCircuitDesign.restype = c_int
+
+        self._dll.setHFSSDesign.argtype = c_bool
+        self._dll.setHFSSDesign.restype = c_int
+        self._dll.getHFSSDesign.argtype = POINTER(c_bool)
+        self._dll.getHFSSDesign.restype = c_int
+
+        self._dll.setHFSS3DLDesign.argtype = c_bool
+        self._dll.setHFSS3DLDesign.restype = c_int
+        self._dll.getHFSS3DLDesign.argtype = POINTER(c_bool)
+        self._dll.getHFSS3DLDesign.restype = c_int
+
+        self._dll.setFullParametrization.argtype = c_bool
+        self._dll.setFullParametrization.restype = c_int
+        self._dll.getFullParametrization.argtype = POINTER(c_bool)
+        self._dll.getFullParametrization.restype = c_int
+
+        self._dll.setPortsOnSides.argtype = c_bool
+        self._dll.setPortsOnSides.restype = c_int
+        self._dll.getPortsOnSides.argtype = POINTER(c_bool)
+        self._dll.getPortsOnSides.restype = c_int
+
+        self._dll.setFlipXAxis.argtype = c_bool
+        self._dll.setFlipXAxis.restype = c_int
+        self._dll.getFlipXAxis.argtype = POINTER(c_bool)
+        self._dll.getFlipXAxis.restype = c_int
+
+        self._dll.setFlipYAxis.argtype = c_bool
+        self._dll.setFlipYAxis.restype = c_int
+        self._dll.getFlipYAxis.argtype = POINTER(c_bool)
+        self._dll.getFlipYAxis.restype = c_int
+
+        self._dll.setIncludeTuningPorts.argtype = c_bool
+        self._dll.setIncludeTuningPorts.restype = c_int
+        self._dll.getIncludeTuningPorts.argtype = POINTER(c_bool)
+        self._dll.getIncludeTuningPorts.restype = c_int
+
+        self._dll.setSeriesHorizontalPorts.argtype = c_bool
+        self._dll.setSeriesHorizontalPorts.restype = c_int
+        self._dll.getSeriesHorizontalPorts.argtype = POINTER(c_bool)
+        self._dll.getSeriesHorizontalPorts.restype = c_int
 
     @property
     def schematic_name(self) -> str:
@@ -1777,3 +1817,165 @@ class ExportToAedt:
             Name of the resistor family.
         """
         self._dll_interface.set_string(self._dll.removeModelithicsResistorsFamily, modelithics_resistor)
+
+    @property
+    def insert_circuit_design(self) -> bool:
+        """Flag indicating if the inclusion of interconnects is enabled for``Modelithics`` export.
+
+        Returns
+        -------
+        bool
+        """
+        insert_circuit_design = c_bool()
+        status = self._dll.getCircuitDesign(byref(insert_circuit_design))
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        return bool(insert_circuit_design.value)
+
+    @insert_circuit_design.setter
+    def insert_circuit_design(self, insert_circuit_design: bool):
+        status = self._dll.setCircuitDesign(insert_circuit_design)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+
+    @property
+    def insert_hfss_design(self) -> bool:
+        """Flag indicating if the inclusion of interconnects is enabled for``Modelithics`` export.
+
+        Returns
+        -------
+        bool
+        """
+        insert_hfss_design = c_bool()
+        status = self._dll.getHFSSDesign(byref(insert_hfss_design))
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        return bool(insert_hfss_design.value)
+
+    @insert_hfss_design.setter
+    def insert_hfss_design(self, insert_hfss_design: bool):
+        status = self._dll.setHFSSDesign(insert_hfss_design)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+
+    @property
+    def insert_hfss_3dl_design(self) -> bool:
+        """Flag indicating if the inclusion of interconnects is enabled for``Modelithics`` export.
+
+        Returns
+        -------
+        bool
+        """
+        insert_hfss_3dl_design = c_bool()
+        status = self._dll.getHFSS3DLDesign(byref(insert_hfss_3dl_design))
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        return bool(insert_hfss_3dl_design.value)
+
+    @insert_hfss_3dl_design.setter
+    def insert_hfss_3dl_design(self, insert_hfss_3dl_design: bool):
+        status = self._dll.setHFSS3DLDesign(insert_hfss_3dl_design)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+
+    @property
+    def full_parametrization_enabled(self) -> bool:
+        """Flag indicating if the full parametrization is enabled.
+
+        Returns
+        -------
+        bool
+        """
+        full_parametrization_enabled = c_bool()
+        status = self._dll.getFullParametrization(byref(full_parametrization_enabled))
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        return bool(full_parametrization_enabled.value)
+
+    @full_parametrization_enabled.setter
+    def full_parametrization_enabled(self, full_parametrization_enabled: bool):
+        status = self._dll.setFullParametrization(full_parametrization_enabled)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+
+    @property
+    def ports_always_on_sides_enabled(self) -> bool:
+        """Flag indicating if the ports are always on the sides.
+
+        Returns
+        -------
+        bool
+        """
+        ports_always_on_sides_enabled = c_bool()
+        status = self._dll.getPortsOnSides(byref(ports_always_on_sides_enabled))
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        return bool(ports_always_on_sides_enabled.value)
+
+    @ports_always_on_sides_enabled.setter
+    def ports_always_on_sides_enabled(self, ports_always_on_sides_enabled: bool):
+        status = self._dll.setPortsOnSides(ports_always_on_sides_enabled)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+
+    @property
+    def reverse_x_axis_enabled(self) -> bool:
+        """Flag indicating if the x-axis is reversed.
+
+        Returns
+        -------
+        bool
+        """
+        reverse_x_axis_enabled = c_bool()
+        status = self._dll.getFlipXAxis(byref(reverse_x_axis_enabled))
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        return bool(reverse_x_axis_enabled.value)
+
+    @reverse_x_axis_enabled.setter
+    def reverse_x_axis_enabled(self, reverse_x_axis_enabled: bool):
+        status = self._dll.setFlipXAxis(reverse_x_axis_enabled)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+
+    @property
+    def reverse_y_axis_enabled(self) -> bool:
+        """Flag indicating if the y-axis is reversed.
+
+        Returns
+        -------
+        bool
+        """
+        reverse_y_axis_enabled = c_bool()
+        status = self._dll.getFlipYAxis(byref(reverse_y_axis_enabled))
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        return bool(reverse_y_axis_enabled.value)
+
+    @reverse_y_axis_enabled.setter
+    def reverse_y_axis_enabled(self, reverse_y_axis_enabled: bool):
+        status = self._dll.setFlipYAxis(reverse_y_axis_enabled)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+
+    @property
+    def export_with_tuning_port_format_enabled(self) -> bool:
+        """Flag indicating if the export with tuning port format is enabled.
+
+        Returns
+        -------
+        bool
+        """
+        export_with_tuning_port_format_enabled = c_bool()
+        status = self._dll.getIncludeTuningPorts(byref(export_with_tuning_port_format_enabled))
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        return bool(export_with_tuning_port_format_enabled.value)
+
+    @export_with_tuning_port_format_enabled.setter
+    def export_with_tuning_port_format_enabled(self, export_with_tuning_port_format_enabled: bool):
+        status = self._dll.setIncludeTuningPorts(export_with_tuning_port_format_enabled)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+
+    @property
+    def use_series_horizontal_ports_enabled(self) -> bool:
+        """Flag indicating if the series horizontal ports are used.
+
+        Returns
+        -------
+        bool
+        """
+        use_series_horizontal_ports_enabled = c_bool()
+        status = self._dll.getSeriesHorizontalPorts(byref(use_series_horizontal_ports_enabled))
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        return bool(use_series_horizontal_ports_enabled.value)
+
+    @use_series_horizontal_ports_enabled.setter
+    def use_series_horizontal_ports_enabled(self, use_series_horizontal_ports_enabled: bool):
+        status = self._dll.setSeriesHorizontalPorts(use_series_horizontal_ports_enabled)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
