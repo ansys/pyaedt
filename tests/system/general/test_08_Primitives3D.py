@@ -442,7 +442,7 @@ class TestClass:
         assert P.is3d == False
         assert isinstance(P.color, tuple)
         get_P = self.aedtapp.modeler["Poly1"]
-        assert isinstance(get_P, Polyline)
+        assert isinstance(get_P, Object3d)
         P2 = self.aedtapp.modeler.create_polyline(
             arrofpos, cover_surface=False, name="Poly_nonmodel", material="Copper", non_model=True
         )
@@ -950,7 +950,7 @@ class TestClass:
     def test_51_remove_edges_from_polyline(self):
         modeler = self.aedtapp.modeler
         P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
-        P.remove_edges(assignment=0)
+        P.remove_segments(assignment=0)
         assert P.points == [[0, 2, 3], [2, 1, 4]]
         assert len(P.segment_types) == 1
         assert P.name in self.aedtapp.modeler.line_names
@@ -982,7 +982,7 @@ class TestClass:
 
     def test_52_remove_edges_from_polyline_invalid(self):
         P = self.aedtapp.modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
-        P.remove_edges(assignment=[0, 1])
+        P.remove_segments(assignment=[0, 1])
         assert not P.name in self.aedtapp.modeler.line_names
 
     def test_53_duplicate_polyline_and_manipulate(self):
