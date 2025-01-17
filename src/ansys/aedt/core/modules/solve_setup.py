@@ -2881,8 +2881,7 @@ class SetupHFSS(Setup, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS` or
-        :class:`ansys.aedt.core.modules.solve_sweeps.SweepMatrix`
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS`
             Sweep object.
 
         References
@@ -2891,16 +2890,8 @@ class SetupHFSS(Setup, object):
         """
         if not name:
             name = generate_unique_name("Sweep")
-        if self.setuptype == 7:
-            self._app.logger.warning("This method only applies to HFSS and Q3D. Use add_eddy_current_sweep method.")
-            return False
         if self.setuptype <= 4:
             sweep_n = SweepHFSS(self, name=name, sweep_type=sweep_type)
-        elif self.setuptype in [14, 30, 31]:
-            sweep_n = SweepMatrix(self, name=name, sweep_type=sweep_type)
-        else:
-            self._app.logger.warning("This method only applies to HFSS, Q2D, and Q3D.")
-            return False
         sweep_n.create()
         self.sweeps.append(sweep_n)
         return sweep_n
@@ -3717,6 +3708,58 @@ class SetupMaxwell(Setup, object):
 
         return True
 
+    @pyaedt_function_handler()
+    def set_save_fields(
+        self, enable=True, range_type="Custom", subrange_type=None, start=None, stop=None, count=None, units=None
+    ):
+        """Enable the save fields option in the setup.
+
+        Parameters
+        ----------
+        Returns
+        -------
+        """
+        if self.setuptype != 5:
+            if enable:
+                self.props["SolveFieldOnly"] = True
+            else:
+                self.props["SolveFieldOnly"] = False
+            self.update()
+            return True
+        else:
+            if enable:
+                if range_type == "Custom":
+                    self.props["SaveFieldsType"] = range_type
+                    range_props = {
+                        "RangeType": subrange_type,
+                        "RangeStart": f"{start}{units}",
+                        "RangeEnd": f"{stop}{units}",
+                    }
+                    if subrange_type == "LinearStep":
+                        range_props["RangeStep"] = f"{count}{units}"
+                    elif subrange_type == "LinearCount":
+                        range_props["RangeCount"] = count
+                    elif subrange_type == "SinglePoints":
+                        range_props["RangeEnd"] = f"{start}{units}"
+                    if "SweepRanges" in self.props.keys():
+                        self.props["SweepRanges"]["Subrange"].append(range_props)
+                    else:
+                        self.props["SweepRanges"] = {"Subrange": range_props}
+                    self.update()
+                else:
+                    self.props["SaveFieldsType"] = "Every N Steps"
+                    self.props["N Steps"] = f"{count}"
+                    self.props["Steps From"] = f"{start}{units}"
+                    self.props["Steps To"] = f"{stop}{units}"
+                    self.update()
+                return True
+            else:
+                self.props["SaveFieldsType"] = "None"
+                self.props.pop("SweepRanges", None)
+                self.update()
+                return True
+        return False
+
 
 class SetupQ3D(Setup, object):
     """Initializes, creates, and updates an Q3D setup.
@@ -4026,7 +4069,6 @@ class SetupQ3D(Setup, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS` or
         :class:`ansys.aedt.core.modules.solve_sweeps.SweepMatrix`
             Sweep object.
 
@@ -4036,16 +4078,8 @@ class SetupQ3D(Setup, object):
         """
         if not name:
             name = generate_unique_name("Sweep")
-        if self.setuptype == 7:
-            self._app.logger.warning("This method only applies to HFSS and Q3D. Use add_eddy_current_sweep method.")
-            return False
-        if self.setuptype <= 4:
-            sweep_n = SweepHFSS(self, name=name, sweep_type=sweep_type)
-        elif self.setuptype in [14, 30, 31]:
+        if self.setuptype in [14, 30, 31]:
             sweep_n = SweepMatrix(self, name=name, sweep_type=sweep_type)
-        else:
-            self._app.logger.warning("This method only applies to HFSS, Q2D, and Q3D.")
-            return False
         sweep_n.create()
         self.sweeps.append(sweep_n)
         for setup in self.p_app.setups:
@@ -4066,8 +4100,7 @@ class SetupQ3D(Setup, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solve_sweeps.SweepQ3D` or
-        :class:`ansys.aedt.core.modules.solve_sweeps.SweepMatrix`
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepQ3D`
 
         Examples
         --------
