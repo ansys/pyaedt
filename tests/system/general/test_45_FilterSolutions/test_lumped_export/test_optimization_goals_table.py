@@ -34,12 +34,10 @@ from tests.system.general.conftest import config
 class TestClass:
 
     def test_row_count(self, lumped_design):
-        lumped_design.export_to_aedt._open_aedt_export()
         lumped_design.optimization_goals_table.restore_design_goals()
         assert lumped_design.optimization_goals_table.row_count == 2
 
     def test_row(self, lumped_design):
-        lumped_design.export_to_aedt._open_aedt_export()
         lumped_design.optimization_goals_table.restore_design_goals()
         assert lumped_design.optimization_goals_table.row(0) == [
             "200 MHz",
@@ -66,7 +64,6 @@ class TestClass:
         assert lumped_design.optimization_goals_table.row(1)[OptimizationGoalParameter.WEIGHT.value] == "0.5"
 
     def test_update_row(self, lumped_design):
-        lumped_design.export_to_aedt._open_aedt_export()
         lumped_design.optimization_goals_table.restore_design_goals()
         lumped_design.optimization_goals_table.update_row(
             0, lower_frequency="100 MHz", upper_frequency="2 GHz", condition=">", weight="0.7"
@@ -82,7 +79,6 @@ class TestClass:
         ]
 
     def test_append_row(self, lumped_design):
-        lumped_design.export_to_aedt._open_aedt_export()
         lumped_design.optimization_goals_table.restore_design_goals()
         lumped_design.optimization_goals_table.append_row(
             "100 MHz", "2 GHz", "-3", ">", "dB(S(Port2,Port2))", "0.3", "Y"
@@ -98,7 +94,6 @@ class TestClass:
         ]
 
     def test_insert_row(self, lumped_design):
-        lumped_design.export_to_aedt._open_aedt_export()
         lumped_design.optimization_goals_table.restore_design_goals()
         lumped_design.optimization_goals_table.insert_row(
             1, "100 MHz", "2 GHz", "-3", ">", "dB(S(Port2,Port2))", "0.3", "Y"
@@ -114,7 +109,6 @@ class TestClass:
         ]
 
     def test_remove_row(self, lumped_design):
-        lumped_design.export_to_aedt._open_aedt_export()
         lumped_design.optimization_goals_table.restore_design_goals()
         lumped_design.optimization_goals_table.remove_row(1)
         assert lumped_design.optimization_goals_table.row_count == 1
@@ -129,7 +123,6 @@ class TestClass:
         ]
 
     def test_adjust_goal_frequency(self, lumped_design):
-        lumped_design.export_to_aedt._open_aedt_export()
         lumped_design.optimization_goals_table.restore_design_goals()
         lumped_design.optimization_goals_table.adjust_goal_frequency("150 MHz")
         assert (

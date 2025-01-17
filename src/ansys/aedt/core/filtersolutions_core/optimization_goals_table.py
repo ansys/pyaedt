@@ -119,7 +119,7 @@ class OptimizationGoalsTable:
         """
         table_row_count = c_int()
         status = self._dll.getOptimizationGoalDefinitionRowCount(byref(table_row_count))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return int(table_row_count.value)
 
     def row(self, row_index) -> list:
@@ -140,7 +140,7 @@ class OptimizationGoalsTable:
         row_parameter_buffer = create_string_buffer(1024)
         # Call the DLL function. Assuming it fills the buffer with comma-separated values.
         status = self._dll.getOptimizationGoalDefinitionRow(row_index, byref(row_parameter_buffer), 1024)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         # Decode the buffer to a Python string and split by comma to get a list.
         row_parameters = row_parameter_buffer.value.decode("utf-8").split("|")
         return row_parameters
@@ -194,7 +194,7 @@ class OptimizationGoalsTable:
             self._bytes_or_none(weight),
             self._bytes_or_none(enabled),
         )
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     def append_row(
         self,
@@ -235,7 +235,7 @@ class OptimizationGoalsTable:
             self._bytes_or_none(weight),
             self._bytes_or_none(enabled),
         )
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     def insert_row(
         self,
@@ -280,7 +280,7 @@ class OptimizationGoalsTable:
             self._bytes_or_none(weight),
             self._bytes_or_none(enabled),
         )
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     def remove_row(self, row_index):
         """Remove a row from the optimization goals table.
@@ -291,12 +291,12 @@ class OptimizationGoalsTable:
             Index of the row. Valid values range from ``0`` to ``49``, inclusive.
         """
         status = self._dll.removeOptimizationGoalDefinitionRow(row_index)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     def restore_design_goals(self):
         """Configure the optimization goal table according to the recommended goals for the current design."""
         status = self._dll.setDesignGoals()
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     def save_goals(self, design, file_path) -> str:
         """Save the optimization goals from a design's optimization goals table to a CSV file.
@@ -342,4 +342,4 @@ class OptimizationGoalsTable:
     def clear_goal_entries(self):
         """Clear the goal entries from optimization goals table."""
         status = self._dll.clearGoalEntries()
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
