@@ -443,8 +443,9 @@ def main(extension_args):
     input_file_1meter = Path(original.toolkit_directory) / "Shielding_Sphere1meter.csv"
 
     list_data = [[frequency_units, "V_per_meter"]]
-    for cont in range(len(frequencies)):
-        list_data.append([frequencies[cont], shielding_1meter_db[cont]])
+
+    for idx, frequency in enumerate(frequencies):
+        list_data.append([frequency, shielding_1meter_db[idx]])
 
     write_csv(str(input_file_1meter), list_data, delimiter=",")
 
@@ -452,8 +453,8 @@ def main(extension_args):
     input_file_3meters = Path(original.toolkit_directory) / "Shielding_Sphere3meters.csv"
 
     list_data = [[frequency_units, "V_per_meter"]]
-    for cont in range(len(frequencies)):
-        list_data.append([frequencies[cont], shielding_3meters_db[cont]])
+    for idx, frequency in enumerate(frequencies):
+        list_data.append([frequency, shielding_3meters_db[idx]])
 
     write_csv(str(input_file_3meters), list_data, delimiter=",")
 
