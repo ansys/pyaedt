@@ -34,6 +34,7 @@ import re
 
 from ansys.aedt.core.application.analysis_3d_layout import FieldAnalysis3DLayout
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
+from ansys.aedt.core.generic.checks import min_aedt_version
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import parse_excitation_file
@@ -915,6 +916,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         return True
 
     @pyaedt_function_handler()
+    @min_aedt_version("2025.1")
     def set_export_touchstone(
         self,
         file_format="TouchStone1.0",
@@ -995,9 +997,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
 
         """
-        if settings.aedt_version < "2025.1":
-            self.logger.warning("Touchstone export setup aborted. This method is available from AEDT 2025.1.")
-            return False
         preferences = "Planar EM\\"
         design_name = self.design_name
 

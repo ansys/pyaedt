@@ -342,17 +342,17 @@ class Polyline(Object3d):
             self._is_closed = close_surface
             self._is_covered = cover_surface
 
-            varg1 = self._point_segment_string_array()
+            arg_1 = self._point_segment_string_array()
             if non_model:
                 flag = "NonModel#"
             else:
                 flag = ""
-            varg2 = self._primitives._default_object_attributes(name=name, material=matname, flags=flag)
+            arg_2 = self._primitives._default_object_attributes(name=name, material=matname, flags=flag)
             if self._primitives.design_type in ["Maxwell 2D", "2D Extractor"]:
-                solve_inside_idx = varg2.index("SolveInside:=")
+                solve_inside_idx = arg_2.index("SolveInside:=")
                 self._solve_inside = False
-                varg2[solve_inside_idx + 1] = self._solve_inside
-            new_object_name = self._oeditor.CreatePolyline(varg1, varg2)
+                arg_2[solve_inside_idx + 1] = self._solve_inside
+            new_object_name = self._oeditor.CreatePolyline(arg_1, arg_2)
             Object3d.__init__(self, primitives, name=new_object_name)
             self._primitives._create_object(self.name, is_polyline=True)
 
@@ -573,11 +573,13 @@ class Polyline(Object3d):
         segment_types = self.segment_types
 
         # Add a closing point if needed
-        varg1 = ["NAME:PolylineParameters"]
-        varg1.append("IsPolylineCovered:=")
-        varg1.append(self._is_covered)
-        varg1.append("IsPolylineClosed:=")
-        varg1.append(self._is_closed)
+        arg_1 = [
+            "NAME:PolylineParameters",
+            "IsPolylineCovered:=",
+            self._is_covered,
+            "IsPolylineClosed:=",
+            self._is_closed,
+        ]
 
         # PointsArray
         points_str = ["NAME:PolylinePoints"]
@@ -633,13 +635,13 @@ class Polyline(Object3d):
             else:
                 break
 
-        varg1.append(points_str)
-        varg1.append(segment_str)
+        arg_1.append(points_str)
+        arg_1.append(segment_str)
 
         # Poly Line Cross Section
-        varg1.append(self._xsection)
+        arg_1.append(self._xsection)
 
-        return varg1
+        return arg_1
 
     @pyaedt_function_handler()
     def _evaluate_arc_angle_extra_points(self, segment, start_point):
@@ -778,15 +780,16 @@ class Polyline(Object3d):
         >>> P2 = P1.clone()
 
         """
-        vArg1 = ["NAME:Selections", "Selections:=", self.name]
-        self._primitives.oeditor.Copy(vArg1)
+        arg_1 = ["NAME:Selections", "Selections:=", self.name]
+        self._primitives.oeditor.Copy(arg_1)
         self._primitives.oeditor.Paste()
         return self._add_new_polyline()
 
     @pyaedt_function_handler()
     def _add_new_polyline(self):
         new_objects = self._primitives.find_new_objects()
-        assert len(new_objects) == 1
+        if len(new_objects) != 1:
+            raise RuntimeError("Cannot create a new polyline object when multiple new objects exist.")
         new_name = new_objects[0]
         new_polyline = Polyline(self._primitives, src_object=self, name=new_name)
         new_polyline._id = None
@@ -1008,8 +1011,8 @@ class Polyline(Object3d):
             section_bend = "Corner"
 
         # Ensure number-of segments is valid
-        if num_seg:
-            assert num_seg > 2, "Number of segments for a cross-section must be 0 or greater than 2."
+        if num_seg and num_seg < 3:
+            raise ValueError("Number of segments for a cross-section must be 0 or greater than 2.")
 
         model_units = self._primitives.model_units
 
@@ -1220,46 +1223,47 @@ class Polyline(Object3d):
                     points = [end_point, self.points[1]]
                 break
 
-        assert p_insert_position is not None, "Point for the insert is not found."
-        assert insert_points is not None, "Point for the insert is not found."
+        if p_insert_position is None or insert_points is None:
+            raise RuntimeError("Point for the insert is not found.")
 
         if i is None:
             raise ValueError("The polyline contains no points. It is impossible to insert a segment.")
         segment_index = self._get_segment_id_from_point_n(i, at_start=at_start)
 
-        assert isinstance(segment_index, int), "Segment for the insert is not found."
+        if not isinstance(segment_index, int):
+            raise ValueError("Segment for the insert is not found.")
         if at_start:
             s_insert_position = segment_index
         else:
             s_insert_position = segment_index + 1
+        segment_type = segment.type
 
-        type = segment.type
-
-        varg1 = ["NAME:Insert Polyline Segment"]
-        varg1.append("Selections:=")
-        varg1.append(self._m_name + ":CreatePolyline:1")
-        varg1.append("Segment Indices:=")
-        varg1.append([segment_index])
-        varg1.append("At Start:=")
-        varg1.append(at_start)
-        varg1.append("SegmentType:=")
-        varg1.append(type)
+        arg_1 = [
+            "NAME:Insert Polyline Segment",
+            "Selections:=",
+            self._m_name + ":CreatePolyline:1",
+            "Segment Indices:=",
+            [segment_index],
+            "At Start:=",
+            at_start,
+            "SegmentType:=",
+            segment_type,
+        ]
 
         # Points and segment data
-        varg2 = ["NAME:PolylinePoints"]
-
-        if segment.type == "Line" or segment.type == "Spline" or segment.type == "Arc":
+        arg_2 = ["NAME:PolylinePoints"]
+        if segment.type in ("Line", "Spline", "Arc"):
             for pt in points[0:num_points]:
-                varg2.append(self._pl_point(pt))
-            varg1.append(varg2)
+                arg_2.append(self._pl_point(pt))
+            arg_1.append(arg_2)
         elif segment.type == "AngularArc":
             seg_str = self._segment_array(segment, start_point=start_point)
-            varg2.append(self._pl_point(start_point))
-            varg2.append(self._pl_point(segment.extra_points[0]))
-            varg2.append(self._pl_point(segment.extra_points[1]))
-            varg1.append(varg2)
-            varg1 += seg_str[9:]
-        self._primitives.oeditor.InsertPolylineSegment(varg1)
+            arg_2.append(self._pl_point(start_point))
+            arg_2.append(self._pl_point(segment.extra_points[0]))
+            arg_2.append(self._pl_point(segment.extra_points[1]))
+            arg_1.append(arg_2)
+            arg_1 += seg_str[9:]
+        self._primitives.oeditor.InsertPolylineSegment(arg_1)
 
         # check if the polyline has been modified correctly
         if self._check_polyline_health() is False:
@@ -1279,6 +1283,7 @@ class Polyline(Object3d):
             # Undo operation
             self._primitives._app.odesign.Undo()
             self._object_type = None
-            assert self.object_type != "Unclassified", "Undo operation failed."
+            if self.object_type == "Unclassified":
+                raise RuntimeError("Undo operation failed.")
             return False
         return True
