@@ -32,6 +32,7 @@ from ansys.aedt.core.workflows.misc import get_arguments
 from ansys.aedt.core.workflows.misc import get_port
 from ansys.aedt.core.workflows.misc import get_process_id
 from ansys.aedt.core.workflows.misc import is_student
+import numpy as np
 
 port = get_port()
 version = get_aedt_version()
@@ -94,7 +95,7 @@ def frontend():  # pragma: no cover
 
     sphere_size = tkinter.Text(master, width=20, height=1)
     sphere_size.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-    sphere_size.insert(tkinter.END, "10.0")
+    sphere_size.insert(tkinter.END, "0.01")
     sphere_size.grid(row=0, column=1, pady=10, padx=5)
 
     label = ttk.Label(master, text="X Polarization:", style="PyAEDT.TLabel")
@@ -150,7 +151,7 @@ def frontend():  # pragma: no cover
 
     points = tkinter.Text(master, width=20, height=1)
     points.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-    points.insert(tkinter.END, "1.0")
+    points.insert(tkinter.END, "10")
     points.grid(row=7, column=1, pady=10, padx=5)
 
     label = ttk.Label(master, text="Electric dipole:", style="PyAEDT.TLabel")
@@ -223,8 +224,8 @@ def frontend():  # pragma: no cover
         master.units_ui = units.get("1.0", tkinter.END).strip()
         master.start_freq_ui = float(start_freq.get("1.0", tkinter.END).strip())
         master.stop_freq_ui = float(stop_freq.get("1.0", tkinter.END).strip())
-        master.points_ui = float(points.get("1.0", tkinter.END).strip())
-        master.cores_ui = float(cores.get("1.0", tkinter.END).strip())
+        master.points_ui = int(points.get("1.0", tkinter.END).strip())
+        master.cores_ui = int(cores.get("1.0", tkinter.END).strip())
         master.dipole = "Electric" if dipole.get() == 1 else "Magnetic"
         master.destroy()
 
@@ -284,12 +285,34 @@ def main(extension_args):
     )
 
     active_project = app.active_project()
+
+    if not active_project:  # pragma: no cover
+        app.logger.error("Not active project.")
+        if not extension_args["is_test"]:
+            app.release_desktop(False, False)
+        return False
+
     active_design = app.active_design()
 
     project_name = active_project.GetName()
+
+    if not active_design:  # pragma: no cover
+        app.logger.error("Not active design.")
+        if not extension_args["is_test"]:
+            app.release_desktop(False, False)
+        return False
+
     design_name = active_design.GetName()
 
     aedtapp = get_pyaedt_app(project_name, design_name)
+
+    if aedtapp.design_type != "HFSS":  # pragma: no cover
+        app.logger.error("Active design is not HFSS.")
+        if not extension_args["is_test"]:
+            app.release_desktop(False, False)
+        return False
+
+    aedtapp.solution_type = "Terminal"
 
     aedtapp.modeler.model_units = "meter"
     aedtapp.modeler.set_working_coordinate_system("Global")
@@ -298,7 +321,11 @@ def main(extension_args):
 
     if len(object_names) != 1:
         aedtapp.logger.error("There should be only one object in the design.")
+        if not extension_args["is_test"]:  # pragma: no cover
+            app.release_desktop(False, False)
         return False
+
+    aedtapp.logger.info("Add Hertzian dipole excitation.")
 
     shielding = aedtapp.modeler[object_names[0]]
     shielding_name = shielding.name
@@ -313,7 +340,7 @@ def main(extension_args):
     # Assign incident wave
     is_electric = False
     if dipole_type == "Electric":
-        is_electric = False
+        is_electric = True
 
     aedtapp.hertzian_dipole_wave(
         assignment=sphere,
@@ -322,6 +349,8 @@ def main(extension_args):
         is_electric=is_electric,
         radius=f"{sphere_size}meter",
     )
+
+    aedtapp.logger.info("Create setup.")
 
     # Compute frequency mesh
 
@@ -339,9 +368,10 @@ def main(extension_args):
 
     setup = aedtapp.create_setup()
     setup.properties["Solution Freq"] = freq_mesh
+    setup_name = setup.name
 
     aedtapp.create_linear_count_sweep(
-        setup.name,
+        setup_name,
         units=frequency_units,
         start_frequency=start_frequency,
         stop_frequency=stop_frequency,
@@ -356,6 +386,7 @@ def main(extension_args):
 
     # Duplicate design
 
+    aedtapp.logger.info("Duplicate design without enclosure.")
     original_design = aedtapp.design_name
     aedtapp.duplicate_design(f"{original_design}_free_space")
     free_space_design = aedtapp.design_name
@@ -370,13 +401,14 @@ def main(extension_args):
     # Analyze free space
 
     free_space = ansys.aedt.core.Hfss(design=free_space_design, new_desktop=False)
-    free_space.analyze(cores=cores)
+    free_space.analyze(cores=cores, setup=setup_name)
 
     # Analyze original
     original = ansys.aedt.core.Hfss(design=original_design, new_desktop=False)
-    original.analyze(cores=cores)
+    original.analyze(cores=cores, setup=setup_name)
 
     # Get data
+    aedtapp.logger.info("Get data from both designs.")
 
     free_space_1meter = free_space.post.get_solution_data("Sphere1meter", report_category="Emission Test")
     free_space_3meters = free_space.post.get_solution_data("Sphere3meters", report_category="Emission Test")
@@ -462,8 +494,6 @@ def main(extension_args):
         setup_sweep_name="Shielding_Sphere3meters : Table",
         plot_name="Shielding Sphere3meters",
     )
-
-    original.release_desktop(False, False)
 
     if not extension_args["is_test"]:  # pragma: no cover
         app.release_desktop(False, False)

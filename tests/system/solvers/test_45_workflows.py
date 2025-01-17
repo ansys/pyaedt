@@ -573,3 +573,45 @@ class TestClass:
         }
         extension_args = {"is_test": True, "choke_config": choke_config}
         assert main(extension_args)
+
+    def test_18_shielding_effectiveness(self, add_app, local_scratch):
+        aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="se")
+
+        from ansys.aedt.core.workflows.hfss.shielding_effectiveness import main
+
+        assert not main(
+            {
+                "is_test": True,
+                "sphere_size": 0.01,
+                "x_pol": 0.0,
+                "y_pol": 0.1,
+                "z_pol": 1.0,
+                "dipole_type": "Electric",
+                "frequency_units": "GHz",
+                "start_frequency": 0.1,
+                "stop_frequency": 1,
+                "points": 5,
+                "cores": 4,
+            }
+        )
+
+        aedtapp.modeler.create_waveguide(origin=[0, 0, 0], wg_direction_axis=0)
+
+        assert main(
+            {
+                "is_test": True,
+                "sphere_size": 0.01,
+                "x_pol": 0.0,
+                "y_pol": 0.1,
+                "z_pol": 1.0,
+                "dipole_type": "Electric",
+                "frequency_units": "GHz",
+                "start_frequency": 0.1,
+                "stop_frequency": 0.2,
+                "points": 2,
+                "cores": 4,
+            }
+        )
+
+        assert len(aedtapp.post.all_report_names) == 2
+        aedtapp.close_project(aedtapp.project_name)
