@@ -2730,7 +2730,7 @@ class Object3d(object):
         arg2.append(arg3)
         arg1.append(arg2)
         self._primitives.oeditor.ChangeProperty(arg1)
-        return self._primitives.update_object(self.name)
+        return True
 
     @pyaedt_function_handler()
     def _get_point_slice_from_segment_id(self, segment_id, at_start=True):
