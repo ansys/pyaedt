@@ -49,6 +49,7 @@ from ansys.aedt.core.modules.solve_sweeps import SetupProps
 from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
 from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
 from ansys.aedt.core.modules.solve_sweeps import SweepMatrix
+from ansys.aedt.core.modules.solve_sweeps import SweepMaxwellEC
 from ansys.aedt.core.modules.solve_sweeps import identify_setup
 
 
@@ -2908,8 +2909,7 @@ class SetupHFSS(Setup, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS` or
-        :class:`ansys.aedt.core.modules.solve_sweeps.SweepMatrix`
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS`
 
         Examples
         --------
@@ -3585,6 +3585,7 @@ class SetupMaxwell(Setup, object):
     @pyaedt_function_handler(range_type="sweep_type", start="start_frequency", end="stop_frequency", count="step_size")
     def add_eddy_current_sweep(
         self,
+        name=None,
         sweep_type="LinearStep",
         start_frequency=0.1,
         stop_frequency=100,
@@ -3597,6 +3598,8 @@ class SetupMaxwell(Setup, object):
 
         Parameters
         ----------
+        name : str, optional
+            Sweep name. The default is ``None``, in which case a name is automatically assigned.
         sweep_type : str
             Type of the subrange. Options are ``"LinearCount"``,
             ``"LinearStep"``, ``"LogScale"`` and ``"SinglePoints"``.
@@ -3617,39 +3620,46 @@ class SetupMaxwell(Setup, object):
 
         Returns
         -------
-        bool
-            ``True`` if successful, ``False`` if it fails.
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepMaxwellEC`
+            Sweep object.
         """
 
         if self.setuptype != 7:
             self._app.logger.warning("This method only applies to Maxwell Eddy Current Solution.")
             return False
+        if name is None:
+            name = generate_unique_name("Sweep")
+        if name in [sweep.name for sweep in self.sweeps]:
+            old_name = name
+            name = generate_unique_name(old_name)
+            self._app.logger.warning("Sweep %s is already present. Sweep has been renamed in %s.", old_name, name)
+        sweep = SweepMaxwellEC(self, name=name, sweep_type=sweep_type)
+        sweep.create()
         legacy_update = self.auto_update
         self.auto_update = False
-        sweep_props = {
-            "RangeType": sweep_type,
-            "RangeStart": f"{start_frequency}{units}",
-            "RangeEnd": f"{stop_frequency}{units}",
-        }
-        self.props["HasSweepSetup"] = True
+        self.props["SweepRanges"] = {"Subrange": []}
+        sweep.props["RangeType"] = sweep_type
+        sweep.props["RangeStart"] = f"{start_frequency}{units}"
+        sweep.props["RangeEnd"] = f"{stop_frequency}{units}"
+        sweep.props["HasSweepSetup"] = True
         if sweep_type == "LinearStep":
-            sweep_props["RangeStep"] = f"{step_size}{units}"
+            sweep.props["RangeStep"] = f"{step_size}{units}"
         elif sweep_type == "LinearCount":
-            sweep_props["RangeCount"] = step_size
+            sweep.props["RangeCount"] = step_size
         elif sweep_type == "LogScale":
-            sweep_props["RangeSamples"] = step_size
+            sweep.props["RangeSamples"] = step_size
         elif sweep_type == "SinglePoints":
-            sweep_props["RangeEnd"] = f"{start_frequency}{units}"
+            sweep.props["RangeEnd"] = f"{start_frequency}{units}"
         if clear:
-            self.props["SweepRanges"]["Subrange"] = sweep_props
+            self.props["SweepRanges"]["Subrange"] = sweep.props
         elif isinstance(self.props["SweepRanges"]["Subrange"], list):
-            self.props["SweepRanges"]["Subrange"].append(sweep_props)
+            self.props["SweepRanges"]["Subrange"].append(sweep.props)
         else:
-            self.props["SweepRanges"]["Subrange"] = [self.props["SweepRanges"]["Subrange"], sweep_props]
+            self.props["SweepRanges"]["Subrange"] = [self.props["SweepRanges"]["Subrange"], sweep.props]
         self.props["SaveAllFields"] = save_all_fields
         self.update()
         self.auto_update = legacy_update
-        return True
+        return sweep
 
     @pyaedt_function_handler()
     def enable_control_program(self, control_program_path, control_program_args=" ", call_after_last_step=False):

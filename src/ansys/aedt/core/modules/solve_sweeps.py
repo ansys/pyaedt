@@ -35,6 +35,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.load_aedt_file import load_entire_aedt_file
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.setup_templates import Sweep3DLayout
+from ansys.aedt.core.modules.setup_templates import SweepEddyCurrent
 from ansys.aedt.core.modules.setup_templates import SweepHfss3D
 from ansys.aedt.core.modules.setup_templates import SweepSiwave
 
@@ -608,7 +609,6 @@ class SweepMatrix(object):
     props : dict
         Dictionary of the properties.  The default is ``None``, in which case
         the default properties are retrieved.
-
     """
 
     def __init__(self, setup, name, sweep_type="Interpolating", props=None):
@@ -825,6 +825,44 @@ class SweepMatrix(object):
         arg = ["NAME:" + self.name]
         _dict2arg(props, arg)
         return arg
+
+
+class SweepMaxwellEC(object):
+    """Initializes, creates, and updates sweeps in Q3D.
+
+    Parameters
+    ----------
+    setup : :class 'from ansys.aedt.core.modules.solve_setup.Setup'
+        Setup used for the analysis.
+    name : str
+        Name of the sweep.
+    sweep_type : str, optional
+        Type of the sweep. Options are ``"Fast"``, ``"Interpolating"``,
+        and ``"Discrete"``. The default is ``"Interpolating"``.
+    props : dict
+        Dictionary of the properties.  The default is ``None``, in which case
+        the default properties are retrieved.
+    """
+
+    def __init__(self, setup, name, sweep_type="LinearStep", props=None):
+        self._app = setup
+        self.oanalysis = setup.omodule
+        self.setup_name = setup.name
+        self.name = name
+        self.props = {}
+        if props:
+            self.props = props
+        else:
+            self.props = copy.deepcopy(SweepEddyCurrent)
+            self.props["RangeType"] = sweep_type
+            if sweep_type == "LinearStep":
+                self.props["RangeStep"] = "10Hz"
+            elif sweep_type == "LinearCount":
+                self.props["RangeCount"] = "10"
+            elif sweep_type == "LogScale":
+                self.props["RangeSamples"] = "2"
+            elif sweep_type == "SinglePoints":
+                self.props["RangeEnd"] = self.props["RangeStart"]
 
 
 class SetupProps(dict):
