@@ -115,7 +115,7 @@ class EMIReceiver(CommonReport):
         str
             RBW Factor setting.
         """
-        return self._legacy_props["context"].get("RBW_factpr", None)
+        return self._legacy_props["context"].get("RBW_factor", None)
 
     @rbw_factor.setter
     def rbw_factor(self, value):
