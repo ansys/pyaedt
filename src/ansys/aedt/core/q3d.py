@@ -42,15 +42,6 @@ from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.q3d_boundary import Matrix
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 
-try:
-    import numpy as np
-except ImportError:  # pragma: no cover
-    warnings.warn(
-        "The NumPy module is required to use functionalities provided by the module ansys.edt.core.q3d.\n"
-        "Install with \n\npip install numpy"
-    )
-    np = None
-
 
 class QExtractor(FieldAnalysis3D, object):
     """Extracts a 2D or 3D field analysis.
@@ -1944,6 +1935,8 @@ class Q3d(QExtractor, object):
             ``True`` when successful, ``False`` when failed.
         """
         try:
+            import numpy as np
+
             if not insulator_threshold:
                 insulator_threshold = 10000
             if not perfect_conductor_threshold:
@@ -1962,6 +1955,11 @@ class Q3d(QExtractor, object):
 
             self.oboundary.SetMaterialThresholds(insulator_threshold, perfect_conductor_threshold, magnetic_threshold)
             return True
+        except ImportError:  # pragma: no cover
+            warnings.warn(
+                "The NumPy module is required to use functionalities provided by the module ansys.edt.core.q3d.\n"
+                "Install with \n\npip install numpy"
+            )
         except Exception:
             return False
 
