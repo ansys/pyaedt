@@ -1599,7 +1599,7 @@ SweepHfss3D = dict(
         "RangeStep": "1MHz",
         "RangeSamples": 11,
         "SaveFields": True,
-        "SaveRadFields": True,
+        "SaveRadFields": False,
         "GenerateFieldsForAllFreqs": False,
         "InterpTolerance": 0.5,
         "InterpMaxSolns": 250,

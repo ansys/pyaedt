@@ -108,25 +108,35 @@ class SweepHFSS(object):
     def __init__(self, setup, name, sweep_type="Interpolating", props=None):
         self._app = setup
         self.oanalysis = setup.omodule
-        self.props = {}
         self.setup_name = setup.name
         self.name = name
+        self.props = copy.deepcopy(SweepHfss3D)
         if props:
-            self.props = props
+            if "RangeStep" in props.keys():  # LinearCount is the default swep type. Change it if RangeStep is passed.
+                if "RangeCount" in props.keys():
+                    logger.message("Inconsistent arguments 'RangeCount' and 'RangeStep' passed to 'SweepHFSS',")
+                    logger.message("Default remains 'LinearCount' sweep type.")
+                    logger.message("")  # Add a space to the log file.
+                else:
+                    self.props["RangeType"] = "LinearStep"
+                for key, value in props.items():
+                    try:
+                        self.props[key] = value
+                    except Exception:
+                        self.logger.warning(f"Parameter '{key}' is invalid and will be ignored.")
+
+        # for t in SweepHfss3D:
+        #    _tuple2dict(t, self.props)
+        if SequenceMatcher(None, sweep_type.lower(), "interpolating").ratio() > 0.8:
+            sweep_type = "Interpolating"
+        elif SequenceMatcher(None, sweep_type.lower(), "discrete").ratio() > 0.8:
+            sweep_type = "Discrete"
+        elif SequenceMatcher(None, sweep_type.lower(), "fast").ratio() > 0.8:
+            sweep_type = "Fast"
         else:
-            self.props = copy.deepcopy(SweepHfss3D)
-            # for t in SweepHfss3D:
-            #    _tuple2dict(t, self.props)
-            if SequenceMatcher(None, sweep_type.lower(), "interpolating").ratio() > 0.8:
-                sweep_type = "Interpolating"
-            elif SequenceMatcher(None, sweep_type.lower(), "discrete").ratio() > 0.8:
-                sweep_type = "Discrete"
-            elif SequenceMatcher(None, sweep_type.lower(), "fast").ratio() > 0.8:
-                sweep_type = "Fast"
-            else:
-                warnings.warn("Invalid sweep type. `Interpolating` will be set as the default.")
-                sweep_type = "Interpolating"
-            self.props["Type"] = sweep_type
+            warnings.warn("Invalid sweep type. `Interpolating` will be set as the default.")
+            sweep_type = "Interpolating"
+        self.props["Type"] = sweep_type
 
     @property
     def is_solved(self):
@@ -616,7 +626,6 @@ class SweepMatrix(object):
         self.oanalysis = setup.omodule
         self.setup_name = setup.name
         self.name = name
-        self.props = {}
         if props:
             self.props = props
         else:

@@ -494,7 +494,30 @@ class PostProcessorCommon(object):
             report_category = self.available_report_types[0]
         if report_category:
             return list(self.oreportsetup.GetAvailableSolutions(report_category))
-        return None  # pragma: no cover
+        return None
+
+    @pyaedt_function_handler()    # pragma: no cover
+    def _get_setup_from_sweep_name(self, sweep_name):
+        if ":" not in sweep_name:
+            sweep_names = []      # Look for sweep name in setups if the setup is not
+            for s in self._app.setups:  # passed explicitly in setup_sweep_name.
+                for sweep in s.sweeps:
+                    this_name = s.name + " : " + sweep.name if sweep.name == sweep_name else None
+                    if this_name:
+                        sweep_names.append(this_name)
+            if len(sweep_names) > 1:
+                warning_str = "More than one sweep with name '{setup_sweep_name}' found. "
+                warning_str += f"Returning '{sweep_names[0]}'."
+                self.logger.warning(warning_str)
+                return sweep_names[0]
+            elif len(sweep_names) == 1:
+                return sweep_names[0]
+            else:
+                error_str = f"Unable to find sweep name: '{sweep_name}' for domain '{domain}'."
+                self.logger.error(error_str)
+                raise ValueError(error_str)
+        else:
+            return sweep_name
 
     @pyaedt_function_handler()
     def _get_plot_inputs(self):
@@ -1212,6 +1235,8 @@ class PostProcessorCommon(object):
         """
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_sweep
+        elif domain == "Sweep":
+            setup_sweep_name = self._get_setup_from_sweep_name(setup_sweep_name)
         if not domain:
             domain = "Sweep"
             setup_name = setup_sweep_name.split(":")[0]
@@ -2111,7 +2136,7 @@ class Reports(object):
         return rep
 
     @pyaedt_function_handler(setup_name="setup")
-    def far_field(self, expressions=None, setup=None, sphere_name=None, source_context=None):
+    def far_field(self, expressions=None, setup=None, sphere_name=None, source_context=None, **variations):
         """Create a Far Field Report object.
 
         Parameters
@@ -2146,7 +2171,9 @@ class Reports(object):
             setup = self._post_app._app.nominal_sweep
         rep = None
         if "Far Fields" in self._templates:
-            rep = ansys.aedt.core.visualization.report.field.FarField(self._post_app, "Far Fields", setup)
+            rep = ansys.aedt.core.visualization.report.field.FarField(self._post_app,
+                                                                      "Far Fields",
+                                                                      setup, **variations)
             rep.far_field_sphere = sphere_name
             rep.source_context = source_context
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
