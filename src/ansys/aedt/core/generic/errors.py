@@ -22,19 +22,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from unittest.mock import MagicMock
-from unittest.mock import patch
-
-from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.maxwell import Maxwell3d
-import pytest
-
-settings.enable_error_handler = False
+"""Provide PyAEDT errors."""
 
 
-@pytest.fixture
-def maxwell_3d_setup():
-    """Fixture used to mock the creation of a Maxwell instance."""
-    with patch("ansys.aedt.core.maxwell.Maxwell3d.__init__", lambda x: None):
-        mock_instance = MagicMock(spec=Maxwell3d)
-        yield mock_instance
+class GrpcApiError(RuntimeError):
+    """Exception raised for errors encountered while interacting with the gRPC API."""
+
+
+class MethodNotSupportedError(RuntimeError):
+    """Exception raised when attempting to call a method that is not supported."""
+
+
+class AEDTRuntimeError(RuntimeError):
+    """Exception raised for errors occurring during the runtime execution of AEDT scripts."""

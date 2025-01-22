@@ -47,6 +47,8 @@ import traceback
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.constants import CSS4_COLORS
+from ansys.aedt.core.generic.errors import GrpcApiError
+from ansys.aedt.core.generic.errors import MethodNotSupportedError
 from ansys.aedt.core.generic.settings import inner_project_settings  # noqa: F401
 from ansys.aedt.core.generic.settings import settings
 import psutil
@@ -65,18 +67,6 @@ inclusion_list = [
     "ImportGerber",
     "EditSources",
 ]
-
-
-class GrpcApiError(Exception):
-    """ """
-
-    pass
-
-
-class MethodNotSupportedError(Exception):
-    """ """
-
-    pass
 
 
 def _write_mes(mes_text):
@@ -404,7 +394,7 @@ def open_file(file_path, file_options="r", encoding=None, override_existing=True
 
     Parameters
     ----------
-    file_path : str
+    file_path : str or Path
         Full absolute path to the file (either local or remote).
     file_options : str, optional
         Options for opening the file.
