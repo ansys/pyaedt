@@ -22,20 +22,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from unittest.mock import MagicMock
-from unittest.mock import patch
-
-from ansys.aedt.core.maxwell import Maxwell3d
+"""Provide PyAEDT errors."""
 
 
-@patch.object(Maxwell3d, "solution_type", "Transient")
-@patch("ansys.aedt.core.maxwell.BoundaryObject", autospec=True)
-def test_maxwell_3d_assign_resistive_sheet_failure(mock_boundary_object, maxwell_3d_setup):
-    boundary_object = MagicMock()
-    boundary_object.create.return_value = False
-    mock_boundary_object.return_value = boundary_object
-    maxwell = Maxwell3d()
-    maxwell._modeler = MagicMock()
-    maxwell._logger = MagicMock()
+class GrpcApiError(RuntimeError):
+    """Exception raised for errors encountered while interacting with the gRPC API."""
 
-    assert not maxwell.assign_resistive_sheet(None, None)
+
+class MethodNotSupportedError(RuntimeError):
+    """Exception raised when attempting to call a method that is not supported."""
+
+
+class AEDTRuntimeError(RuntimeError):
+    """Exception raised for errors occurring during the runtime execution of AEDT scripts."""
