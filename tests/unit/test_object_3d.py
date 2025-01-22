@@ -25,16 +25,26 @@
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
-from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.maxwell import Maxwell3d
+from ansys.aedt.core.generic.errors import AEDTRuntimeError
+from ansys.aedt.core.modeler.cad.object_3d import Object3d
 import pytest
-
-settings.enable_error_handler = False
 
 
 @pytest.fixture
-def maxwell_3d_setup():
-    """Fixture used to mock the creation of a Maxwell instance."""
-    with patch("ansys.aedt.core.maxwell.Maxwell3d.__init__", lambda x: None):
-        mock_instance = MagicMock(spec=Maxwell3d)
+def object_3d_setup():
+    """Fixture used to mock the creation of a Object3d instance."""
+    with patch("ansys.aedt.core.modeler.cad.object_3d.Object3d.__init__", lambda x: None):
+        mock_instance = MagicMock(spec=Object3d)
         yield mock_instance
+
+
+def test_clone_failure(object_3d_setup):
+    mock_primitives = MagicMock()
+    mock_primitives.clone.return_value = [False]
+    object_3d = Object3d()
+    object_3d._primitives = mock_primitives
+    object_3d._m_name = "dummy"
+    object_3d._id = 12
+
+    with pytest.raises(AEDTRuntimeError, match="Could not clone the object dummy"):
+        object_3d.clone()

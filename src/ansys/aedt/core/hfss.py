@@ -232,7 +232,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             remove_lock=remove_lock,
         )
         ScatteringMethods.__init__(self, self)
-        self.onetwork_data_explorer = self.odesktop.GetTool("NdExplorer")
         self._field_setups = []
         self.component_array = {}
         self.component_array_names = list(self.get_oo_name(self.odesign, "Model"))
@@ -809,11 +808,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Name of the setup. The default is ``"Setup1"``.
         setup_type : str, optional
             Type of the setup, which is based on the solution type. Options are
-            ``"HFSSDrivenAuto"``, ``"HFSSDrivenDefault"``, ``"HFSSEigen"``, ``"HFSSTransient"``,
-            and ``"HFSSSBR"``. The default is ``"HFSSDrivenAuto"``.
+            ``"HFSSDrivenAuto"``, ``"HFSSDriven"``, ``"HFSSEigen"``, ``"HFSSTransient"``,
+            and ``"HFSSSBR"``. The default is ``"HFSSDriven"``.
         **kwargs : dict, optional
-            Extra arguments to set up the circuit.
-            Available keys depend on the setup chosen.
+            Keyword arguments from the native AEDT API.
             For more information, see
             :doc:`../SetupTemplatesHFSS`.
 
@@ -839,6 +837,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             setup_type = self.design_solutions.default_setup
         elif setup_type in SetupKeys.SetupNames:
             setup_type = SetupKeys.SetupNames.index(setup_type)
+        name = self.generate_unique_setup_name(name)
         setup = self._create_setup(name=name, setup_type=setup_type)
         setup.auto_update = False
         for arg_name, arg_value in kwargs.items():
@@ -5847,15 +5846,18 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             )
             self.logger.info("Far field sphere %s is created.", setup)
 
-        if setup in self.existing_analysis_sweeps and not frequencies:
+        frequency_units = self.odesktop.GetDefaultUnit("Frequency")
+        if setup in self.existing_analysis_sweeps and frequencies is None:
             trace_name = "mag(rETheta)"
             farfield_data = self.post.get_far_field_data(expressions=trace_name, setup_sweep_name=setup, domain=sphere)
             if farfield_data and getattr(farfield_data, "primary_sweep_values", None) is not None:
                 frequencies = farfield_data.primary_sweep_values
-                frequency_units = self.odesktop.GetDefaultUnit("Frequency")
-                frequencies = [str(freq) + frequency_units for freq in frequencies]
 
-        if not frequencies:  # pragma: no cover
+        if frequencies is not None:
+            if type(frequencies) in [float, int, str]:
+                frequencies = [frequencies]
+            frequencies = [str(freq) + frequency_units for freq in frequencies if is_number(freq)]
+        else:  # pragma: no cover
             self.logger.info("Frequencies could not be obtained.")
             return False
 
