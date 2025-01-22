@@ -576,13 +576,10 @@ class TestClass:
 
     @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
     def test_18_via_merging(self, local_scratch):
-        import tempfile
-
         from ansys.aedt.core.workflows.hfss3dlayout.via_clustering_extension import main
 
         file_path = os.path.join(local_scratch.path, "test_via_merging.aedb")
         new_file = os.path.join(local_scratch.path, "__test_via_merging.aedb")
-        temp_dir = tempfile.TemporaryDirectory(suffix=".via_merging_test")
         local_scratch.copyfolder(
             os.path.join(solver_local_path, "example_models", "T45", "test_via_merging.aedb"), file_path
         )
