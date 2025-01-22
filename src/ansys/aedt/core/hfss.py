@@ -843,8 +843,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         for arg_name, arg_value in kwargs.items():
             if setup[arg_name] is not None:
                 if arg_name == "MultipleAdaptiveFreqsSetup":  # A list of frequency values is passed if
-                    setup[arg_name].delete_all()              # the default convergence criteria are to be
-                    if isinstance(arg_value, list):           # used.
+                    setup[arg_name].delete_all()  # the default convergence criteria are to be
+                    if isinstance(arg_value, list):  # used.
                         for i in arg_value:
                             setup[arg_name][i] = [0.02]
                     else:

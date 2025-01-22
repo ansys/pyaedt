@@ -496,10 +496,10 @@ class PostProcessorCommon(object):
             return list(self.oreportsetup.GetAvailableSolutions(report_category))
         return None
 
-    @pyaedt_function_handler()    # pragma: no cover
+    @pyaedt_function_handler()  # pragma: no cover
     def _get_setup_from_sweep_name(self, sweep_name):
         if ":" not in sweep_name:
-            sweep_names = []      # Look for sweep name in setups if the setup is not
+            sweep_names = []  # Look for sweep name in setups if the setup is not
             for s in self._app.setups:  # passed explicitly in setup_sweep_name.
                 for sweep in s.sweeps:
                     this_name = s.name + " : " + sweep.name if sweep.name == sweep_name else None
@@ -2171,9 +2171,7 @@ class Reports(object):
             setup = self._post_app._app.nominal_sweep
         rep = None
         if "Far Fields" in self._templates:
-            rep = ansys.aedt.core.visualization.report.field.FarField(self._post_app,
-                                                                      "Far Fields",
-                                                                      setup, **variations)
+            rep = ansys.aedt.core.visualization.report.field.FarField(self._post_app, "Far Fields", setup, **variations)
             rep.far_field_sphere = sphere_name
             rep.source_context = source_context
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
