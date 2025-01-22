@@ -609,7 +609,7 @@ class DistributedTopology:
 
     @property
     def resonator_line_width(self) -> str:
-        """Line width to set in ``Haripin``, ``Miniature Hairpin``, and ``Ring Resonator`` topologies
+        """Line width to set in ``Hairpin``, ``Miniature Hairpin``, and ``Ring Resonator`` topologies
         of band pass filters. The default is ``1.27 mm``.
 
         Returns
@@ -642,7 +642,7 @@ class DistributedTopology:
     @property
     def mitered_corners(self) -> bool:
         """Flag indicating if mitered corners are implemented.
-        This parameter is applicable for the ``Haripin``, ``Miniature Hairpin``, and ``Ring Resonator`` topologies
+        This parameter is applicable for the ``Hairpin``, ``Miniature Hairpin``, and ``Ring Resonator`` topologies
         of band pass filters.
 
         Returns
@@ -661,7 +661,7 @@ class DistributedTopology:
 
     @property
     def hairpin_gap_width(self) -> str:
-        """Gap width to set in ``Haripin`` topology of band pass filters. The default is ``2.54 mm``.
+        """Gap width to set in ``Hairpin`` topology of band pass filters. The default is ``2.54 mm``.
 
         Returns
         -------
@@ -676,7 +676,7 @@ class DistributedTopology:
 
     @property
     def miniature_hairpin_gap_width(self) -> str:
-        """Gap width to set in ``Miniature Haripin`` topology of band pass filters. The default is ``635 um``.
+        """Gap width to set in ``Miniature Hairpin`` topology of band pass filters. The default is ``635 um``.
 
         Returns
         -------
@@ -706,7 +706,7 @@ class DistributedTopology:
 
     @property
     def hairpin_extension_length(self) -> str:
-        """Extension length to set in ``Haripin`` topology of band pass filters for tuning purpose.
+        """Extension length to set in ``Hairpin`` topology of band pass filters for tuning purpose.
         The default is ``0 mm``.
 
         Returns
@@ -722,7 +722,7 @@ class DistributedTopology:
 
     @property
     def miniature_hairpin_end_curl_extension(self) -> str:
-        """End curl extension length to set in ``Miniature Haripin`` topology of band pass filters for tuning purpose.
+        """End curl extension length to set in ``Miniature Hairpin`` topology of band pass filters for tuning purpose.
         The default is ``0 mm``.
 
         Returns
@@ -762,7 +762,7 @@ class DistributedTopology:
 
     @property
     def tuning_type_1(self) -> bool:
-        """Flag indicating if both legs of the outer hairpins are set for tuning in ``Haripin``
+        """Flag indicating if both legs of the outer hairpins are set for tuning in ``Hairpin``
         topology of band pass filters. If ``False``, only the outer legs of the outer hairpins are set.
 
         Returns

@@ -44,10 +44,6 @@ class FilterDesignBase:
     This class has access to ideal filter attributes and calculated output parameters.
     """
 
-    # See Also
-    # --------
-    # :doc:`filtersolutions`
-
     def __init__(self, version=None):
         self.version = version
         ansys.aedt.core.filtersolutions_core._dll_interface(version)
