@@ -98,6 +98,19 @@ def emit_unit_type_string_to_enum(unit_string):
     return EMIT_UNIT_TYPE_STRING_TO_ENUM[unit_string]
 
 
+def emi_cat_enum_to_string(emi_cat_enum):
+    EMI_CAT_ENUM_TO_STR = {
+        EmiCategoryFilter.IN_CHANNEL_TX_FUNDAMENTAL: "In-Channel Tx Fundamental",
+        EmiCategoryFilter.IN_CHANNEL_TX_HARMONIC_SPURIOUS: "In-Channel Tx Harmonic/Spurious",
+        EmiCategoryFilter.IN_CHANNEL_TX_INTERMOD: "In-Channel Intermod",
+        EmiCategoryFilter.IN_CHANNEL_TX_BROADBAND: "In-Channel Broadband",
+        EmiCategoryFilter.OUT_OF_CHANNEL_TX_FUNDAMENTAL: "Out-of-Channel Tx Fundamental",
+        EmiCategoryFilter.OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS: "Out-of-Channel Tx Harmonic/Spurious",
+        EmiCategoryFilter.OUT_OF_CHANNEL_TX_INTERMOD: "Out-of-Channel Intermod",
+    }
+    return EMI_CAT_ENUM_TO_STR[emi_cat_enum]
+
+
 class EmiCategoryFilter(MutableEnum):
     IN_CHANNEL_TX_FUNDAMENTAL = None
     IN_CHANNEL_TX_HARMONIC_SPURIOUS = None

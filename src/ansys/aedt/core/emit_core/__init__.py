@@ -55,37 +55,88 @@ def emit_api_python():
 
 
 def _init_enums(aedt_version):
-    ResultType.EMI = emit_api_python().result_type().emi
-    ResultType.DESENSE = emit_api_python().result_type().desense
-    ResultType.SENSITIVITY = emit_api_python().result_type().sensitivity
-    ResultType.POWER_AT_RX = emit_api_python().result_type().powerAtRx
-
-    TxRxMode.TX = emit_api_python().tx_rx_mode().tx
-    TxRxMode.RX = emit_api_python().tx_rx_mode().rx
-    TxRxMode.BOTH = emit_api_python().tx_rx_mode().both
-
-    InterfererType.TRANSMITTERS = emit_api_python().interferer_type().transmitters
-    InterfererType.EMITTERS = emit_api_python().interferer_type().emitters
-    InterfererType.TRANSMITTERS_AND_EMITTERS = emit_api_python().interferer_type().transmitters_and_emitters
-
-    UnitType.POWER = emit_api_python().unit_type().power
-    UnitType.FREQUENCY = emit_api_python().unit_type().frequency
-    UnitType.LENGTH = emit_api_python().unit_type().length
-    UnitType.TIME = emit_api_python().unit_type().time
-    UnitType.VOLTAGE = emit_api_python().unit_type().voltage
-    UnitType.DATA_RATE = emit_api_python().unit_type().dataRate
-    UnitType.RESISTANCE = emit_api_python().unit_type().resistance
-
     numeric_version = int(aedt_version[-3:])
-    if numeric_version >= 241:
-        emi_cat_filter = emit_api_python().emi_category_filter()
-        EmiCategoryFilter.IN_CHANNEL_TX_FUNDAMENTAL = emi_cat_filter.in_channel_tx_fundamental
-        EmiCategoryFilter.IN_CHANNEL_TX_HARMONIC_SPURIOUS = emi_cat_filter.in_channel_tx_harmonic_spurious
-        EmiCategoryFilter.IN_CHANNEL_TX_INTERMOD = emi_cat_filter.in_channel_tx_intermod
-        EmiCategoryFilter.IN_CHANNEL_TX_BROADBAND = emi_cat_filter.in_channel_tx_broadband
-        EmiCategoryFilter.OUT_OF_CHANNEL_TX_FUNDAMENTAL = emi_cat_filter.out_of_channel_tx_fundamental
-        EmiCategoryFilter.OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS = emi_cat_filter.out_of_channel_tx_harmonic_spurious
-        EmiCategoryFilter.OUT_OF_CHANNEL_TX_INTERMOD = emi_cat_filter.out_of_channel_tx_intermod
+
+    if numeric_version >= 251:
+        ResultType.EMI = emit_api_python().result_type().emi
+        ResultType.DESENSE = emit_api_python().result_type().desense
+        ResultType.SENSITIVITY = emit_api_python().result_type().sensitivity
+        ResultType.POWER_AT_RX = emit_api_python().result_type().powerAtRx
+
+        TxRxMode.TX = emit_api_python().tx_rx_mode().tx
+        TxRxMode.RX = emit_api_python().tx_rx_mode().rx
+        TxRxMode.BOTH = emit_api_python().tx_rx_mode().both
+
+        InterfererType.TRANSMITTERS = emit_api_python().interferer_type().transmitters
+        InterfererType.EMITTERS = emit_api_python().interferer_type().emitters
+        InterfererType.TRANSMITTERS_AND_EMITTERS = emit_api_python().interferer_type().transmitters_and_emitters
+
+        UnitType.POWER = emit_api_python().unit_type().power
+        UnitType.FREQUENCY = emit_api_python().unit_type().frequency
+        UnitType.LENGTH = emit_api_python().unit_type().length
+        UnitType.TIME = emit_api_python().unit_type().time
+        UnitType.VOLTAGE = emit_api_python().unit_type().voltage
+        UnitType.DATA_RATE = emit_api_python().unit_type().dataRate
+        UnitType.RESISTANCE = emit_api_python().unit_type().resistance
+        """ResultType.EMI = 0
+        ResultType.DESENSE = 1
+        ResultType.SENSITIVITY = 2
+        ResultType.POWER_AT_RX = 3
+
+        TxRxMode.TX = 0
+        TxRxMode.RX = 1
+        TxRxMode.BOTH = 2
+
+        InterfererType.TRANSMITTERS = 0
+        InterfererType.EMITTERS = 1
+        InterfererType.TRANSMITTERS_AND_EMITTERS = 2
+
+        UnitType.POWER = 0
+        UnitType.FREQUENCY = 1
+        UnitType.LENGTH = 2
+        UnitType.TIME = 3
+        UnitType.VOLTAGE = 4
+        UnitType.DATA_RATE = 5
+        UnitType.RESISTANCE = 6"""
+
+        EmiCategoryFilter.IN_CHANNEL_TX_FUNDAMENTAL = 0
+        EmiCategoryFilter.IN_CHANNEL_TX_HARMONIC_SPURIOUS = 1
+        EmiCategoryFilter.IN_CHANNEL_TX_INTERMOD = 2
+        EmiCategoryFilter.IN_CHANNEL_TX_BROADBAND = 3
+        EmiCategoryFilter.OUT_OF_CHANNEL_TX_FUNDAMENTAL = 4
+        EmiCategoryFilter.OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS = 5
+        EmiCategoryFilter.OUT_OF_CHANNEL_TX_INTERMOD = 6
+    else:
+        ResultType.EMI = emit_api_python().result_type().emi
+        ResultType.DESENSE = emit_api_python().result_type().desense
+        ResultType.SENSITIVITY = emit_api_python().result_type().sensitivity
+        ResultType.POWER_AT_RX = emit_api_python().result_type().powerAtRx
+
+        TxRxMode.TX = emit_api_python().tx_rx_mode().tx
+        TxRxMode.RX = emit_api_python().tx_rx_mode().rx
+        TxRxMode.BOTH = emit_api_python().tx_rx_mode().both
+
+        InterfererType.TRANSMITTERS = emit_api_python().interferer_type().transmitters
+        InterfererType.EMITTERS = emit_api_python().interferer_type().emitters
+        InterfererType.TRANSMITTERS_AND_EMITTERS = emit_api_python().interferer_type().transmitters_and_emitters
+
+        UnitType.POWER = emit_api_python().unit_type().power
+        UnitType.FREQUENCY = emit_api_python().unit_type().frequency
+        UnitType.LENGTH = emit_api_python().unit_type().length
+        UnitType.TIME = emit_api_python().unit_type().time
+        UnitType.VOLTAGE = emit_api_python().unit_type().voltage
+        UnitType.DATA_RATE = emit_api_python().unit_type().dataRate
+        UnitType.RESISTANCE = emit_api_python().unit_type().resistance
+
+        if numeric_version >= 241:
+            emi_cat_filter = emit_api_python().emi_category_filter()
+            EmiCategoryFilter.IN_CHANNEL_TX_FUNDAMENTAL = emi_cat_filter.in_channel_tx_fundamental
+            EmiCategoryFilter.IN_CHANNEL_TX_HARMONIC_SPURIOUS = emi_cat_filter.in_channel_tx_harmonic_spurious
+            EmiCategoryFilter.IN_CHANNEL_TX_INTERMOD = emi_cat_filter.in_channel_tx_intermod
+            EmiCategoryFilter.IN_CHANNEL_TX_BROADBAND = emi_cat_filter.in_channel_tx_broadband
+            EmiCategoryFilter.OUT_OF_CHANNEL_TX_FUNDAMENTAL = emi_cat_filter.out_of_channel_tx_fundamental
+            EmiCategoryFilter.OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS = emi_cat_filter.out_of_channel_tx_harmonic_spurious
+            EmiCategoryFilter.OUT_OF_CHANNEL_TX_INTERMOD = emi_cat_filter.out_of_channel_tx_intermod
 
 
 # need this as a function so that it can be set
