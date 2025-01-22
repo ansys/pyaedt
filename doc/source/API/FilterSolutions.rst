@@ -84,7 +84,7 @@ Distributed design
 ~~~~~~~~~~~~~~~~~~~
 The ``DistributedDesign`` module includes all the necessary classes for creating and modifying parameters used in distributed filter designs.
 
-* ``DistributedTopology`` to define attributes and parameters of filters implemented using a distributeded topology.
+* ``DistributedTopology`` to define attributes and parameters of filters implemented using a distributed topology.
 
 They are accessible through:
 
