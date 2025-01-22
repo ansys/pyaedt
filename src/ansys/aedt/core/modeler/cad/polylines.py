@@ -30,6 +30,7 @@ import warnings
 from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import PLANE
 from ansys.aedt.core.generic.constants import unit_converter
+from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.generic.general_methods import _dim_arg
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.cad.object_3d import Object3d
@@ -504,8 +505,10 @@ class Polyline(Object3d):
         else:
             nn_segments = None
             nn_points = None
-        assert len(segments) == nn_segments, "Error getting the polyline segments from AEDT."
-        assert len(points) == nn_points, "Error getting the polyline points from AEDT."
+        if len(segments) != nn_segments:
+            raise AEDTRuntimeError("Failed to get the polyline segments from AEDT.")
+        if len(points) != nn_points:
+            raise AEDTRuntimeError("Failed to get the polyline points from AEDT.")
         # if succeeded save the result
         self._segment_types = segments
         self._positions = points
@@ -740,7 +743,8 @@ class Polyline(Object3d):
 
         if segment_data.type == "AngularArc":
             # from start-point and angle, calculate the mid- and end-points
-            assert start_point, "Start-point must be defined for an AngularArc Segment"
+            if not start_point:
+                raise ValueError("Start point must be defined for segment of type Angular Arc")
             self._evaluate_arc_angle_extra_points(segment_data, start_point)
 
             mod_units = self._primitives.model_units
