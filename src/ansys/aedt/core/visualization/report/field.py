@@ -139,7 +139,7 @@ class FarField(CommonReport):
         self.secondary_sweep = "Theta"
         self.source_context = None
         self.source_group = None
-        for key, value in variation_defaults.items():
+        for key in variation_defaults.keys():
             if key in variations:
                 self.variations[key] = variations[key]
 
