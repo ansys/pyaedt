@@ -238,7 +238,7 @@ def main(extension_arguments):
     edb = Edb(new_aedb_path, design_name, edbversion=version)
     edb.padstacks.merge_via(contour_boxes=contour_list, net_filter=None, start_layer=start_layer, stop_layer=stop_layer)
     for prim in edb.modeler.primitives_by_layer["via_merging"]:
-    prim.delete()
+        prim.delete()
     edb.save()
     edb.close_edb()
     h3d = Hfss3dLayout(new_aedb_path)
