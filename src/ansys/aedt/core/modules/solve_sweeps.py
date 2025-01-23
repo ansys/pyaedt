@@ -114,7 +114,9 @@ class SweepHFSS(object):
         if props:
             if "RangeStep" in props.keys():  # LinearCount is the default swep type. Change it if RangeStep is passed.
                 if "RangeCount" in props.keys():
-                    self._app.logger.message("Inconsistent arguments 'RangeCount' and 'RangeStep' passed to 'SweepHFSS',")
+                    self._app.logger.message(
+                        "Inconsistent arguments 'RangeCount' and 'RangeStep' passed to 'SweepHFSS',"
+                    )
                     self._app.logger.message("Default remains 'LinearCount' sweep type.")
                     self._app.logger.message("")  # Add a space to the log file.
                 else:
