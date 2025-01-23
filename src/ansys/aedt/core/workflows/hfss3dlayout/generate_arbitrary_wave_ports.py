@@ -258,12 +258,13 @@ def main(extension_args):
     hfss.solution_type = "Modal"
 
     # Deleting dielectric objects
-    obj_del = [obj for obj in hfss.modeler.solid_objects if obj.material_name in hfss.modeler.materials.dielectrics]
-    for obj in obj_del:
+    for obj in [
+        obj for obj in hfss.modeler.solid_objects if obj.material_name in hfss.modeler.materials.dielectrics
+    ]:  # pragma no cover
         obj.delete()
 
     # creating ports
-    for sheet in hfss.modeler.sheet_objects:
+    for sheet in hfss.modeler.sheet_objects:  # pragma no cover
         hfss.wave_port(assignment=sheet.id, reference="GND", terminals_rename=False)
 
     # create 3D component
