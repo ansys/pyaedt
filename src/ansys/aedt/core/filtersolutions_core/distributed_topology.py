@@ -477,7 +477,8 @@ class DistributedTopology:
     @property
     def equal_stub_widths(self) -> bool:
         """Flag indicating if all stubs widths are set with equal.
-        This parameter is applicable for the ``Shunt Stub Resonators`` topology of band pass filters.
+        This parameter is applicable for the ``Shunt Stub Resonators`` and
+        ``Open Stub Resonators`` topologies of band pass filters.
 
         Returns
         -------
@@ -496,8 +497,16 @@ class DistributedTopology:
     @property
     def center_z0_impedance(self) -> str:
         """Resonator internal impedance. The default is ``75``.
+
         This parameter is applicable for the ``Interdigital``, ``Combline``, ``Parallel Edge Coupled``,
-        and  ``Shunt Stub Resonators`` topologies of band pass filters.
+        ``Shunt Stub Resonators``, and  ``Open Stub Resonators`` topologies of band pass filters.
+
+        This property is not applicable for ``Shunt Stub Resonators``, and  ``Open Stub Resonators`` topologies
+        when the ``equal_stub_widths`` option is enabled.
+
+        This property is not applicable for ``Parallel Edge Coupled`` topology
+        when the ``equal_width_conductors`` option is enabled.
+
 
         Returns
         -------
@@ -514,6 +523,7 @@ class DistributedTopology:
     def equal_width_conductors(self) -> bool:
         """Flag indicating if all stubs are set to equal width.
         This parameter is applicable for the ``Parallel Edge Coupled`` topologiy of band pass filters.
+
         Returns
         -------
         bool
@@ -534,6 +544,10 @@ class DistributedTopology:
         This parameter is applicable for the ``Interdigital``, ``Combline``, and ``Parallel Edge Coupled``
         topologies of band pass filters.
 
+        This property is disabled when the ``pinned`` option is enabled for the ``Parallel Edge Coupled`` topology.
+
+        This property is disabled when the ``wide_band`` option is enabled for the ``Interdigital`` topology.
+
         Returns
         -------
         bool
@@ -551,8 +565,12 @@ class DistributedTopology:
     @property
     def pinned(self) -> bool:
         """Flag indicating if the outer couplers are replaced with hairpin resonators.
-        This parameter is applicable for the wide band ``Interdigital``, and ``Parallel Edge Coupled``
+        This parameter is applicable for the ``Interdigital``, and ``Parallel Edge Coupled``
         topologies of band pass filters.
+
+        This property is disabled when the ``tapped`` option is enabled for the ``Parallel Edge Coupled`` topology.
+
+        This property is only available  when the ``wide_band`` option is enabled for the ``Interdigital`` topology.
 
         Returns
         -------
@@ -571,8 +589,10 @@ class DistributedTopology:
     @property
     def stub_taps(self) -> bool:
         """Flag indicating if vertical stubs are implemented at the tap points.
-        This parameter is applicable for the ``Parallel Edge Coupled`` topology with all resonators
-        set to equal width of band pass filters.
+        This parameter is applicable for the ``Parallel Edge Coupled`` topology.
+
+        This property is when only available ``equal_width_conductors`` option is
+        enabled and ``pinned`` option is disabled.
 
         Returns
         -------
@@ -592,6 +612,8 @@ class DistributedTopology:
     def via_ends(self) -> bool:
         """Flag indicating if resonators are terminated with vias instead of open ends.
         This parameter is applicable for the ``Parallel Edge Coupled`` topology of band pass filters.
+
+        This property is disabled when the ``equal_width_conductors`` option is enabled.
 
         Returns
         -------
@@ -820,6 +842,8 @@ class DistributedTopology:
     def open_ends(self) -> bool:
         """Flag indicating if resonators are terminated with open ends instead of vias.
         This parameter is applicable for the ``Interdigital`` topology of band pass filters.
+
+        This property is disabled when the ``wide_band`` option is enabled.
 
         Returns
         -------

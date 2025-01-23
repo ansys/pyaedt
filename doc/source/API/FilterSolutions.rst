@@ -1,46 +1,17 @@
 Filter design
 ====================
-This section lists classes for creating and modifying ``FilterSolutions`` parameters.
+This section describes the classes used for creating and modifying parameters in the ``filtersolutions`` module.
+The module provides tools for designing and customizing filter configurations. 
 
+The module includes two classes, ``LumpedDesign`` and ``DistributedDesign``, both inherited from the ``FilterDesignBase`` class, as described in the :ref:`BaseFilterDesign` section.
 
-Base filter design
-~~~~~~~~~~~~~~~~~~~
-The ``FilterDesignBase`` module provides all the essential classes for creating and modifying the primary parameters applicable to all design types.
-
-* ``Attributes`` to defines attributes and parameters of filters.
-* ``DllInterface`` to establish an interface with the FilterSolutions DLL.
-* ``GraphSetup`` to define the frequency and time graph parameters of the exported responses.
-* ``IdealResponse`` to return the data for the available ideal filter responses.
-* ``MultipleBandsTable`` to manage access to the entries of multiple bands table.
-* ``TransmissionZeros`` to manage access to ratio and bandwidth entries in the transmission zeros table.
-* ``ExportToAedt`` to define attributes and parameters for the export page when exporting to AEDT.
-* ``OptimizationGoalsTable`` to manage access to the entries in the optimization goals table.
-
-They are accessible through:
-
-
-.. currentmodule:: ansys.aedt.core.filtersolutions_core
-
-.. autosummary::
-   :toctree: _autosummary
-   :nosignatures:
-
-
-   attributes.Attributes
-   dll_interface.DllInterface
-   graph_setup.GraphSetup
-   ideal_response.IdealResponse
-   multiple_bands_table.MultipleBandsTable
-   transmission_zeros.TransmissionZeros
-   export_to_aedt.ExportToAedt
-   optimization_goals_table.OptimizationGoalsTable
-
+Each class implements methods specific to its design approach while leveraging common functionality from the base class.
 
 
 Lumped design
 ~~~~~~~~~~~~~~~~~~~
-
 The ``LumpedDesign`` module includes all the necessary classes for creating and modifying parameters used in lumped filter designs.
+Lumped filters use discrete components such as capacitors, inductors, and resistors.
 
 * ``LumpedTopology`` to define attributes and parameters of filters implemented using a lumped topology.
 * ``LumpedParasitics`` to define attributes  of parasitic values associated with lumped elements.
@@ -83,6 +54,7 @@ They are accessible through:
 Distributed design
 ~~~~~~~~~~~~~~~~~~~
 The ``DistributedDesign`` module includes all the necessary classes for creating and modifying parameters used in distributed filter designs.
+Distributed filters rely on transmission lines and resonators.
 
 * ``DistributedTopology`` to define attributes and parameters of filters implemented using a distributed topology.
 
@@ -113,3 +85,38 @@ They are accessible through:
     # This property in the DistributedTopology class sets the load resistance to 50 ohms.
     design.topology.load_resistance = "50"
     ...
+
+.. _BaseFilterDesign:
+
+Base filter design
+~~~~~~~~~~~~~~~~~~~
+The ``FilterDesignBase`` module provides all the essential classes for creating and modifying the primary parameters applicable to all design types.
+
+* ``Attributes`` to defines attributes and parameters of filters.
+* ``DllInterface`` to establish an interface with the FilterSolutions DLL.
+* ``GraphSetup`` to define the frequency and time graph parameters of the exported responses.
+* ``IdealResponse`` to return the data for the available ideal filter responses.
+* ``MultipleBandsTable`` to manage access to the entries of multiple bands table.
+* ``TransmissionZeros`` to manage access to ratio and bandwidth entries in the transmission zeros table.
+* ``ExportToAedt`` to define attributes and parameters for the export page when exporting to AEDT.
+* ``OptimizationGoalsTable`` to manage access to the entries in the optimization goals table.
+
+They are accessible through:
+
+
+.. currentmodule:: ansys.aedt.core.filtersolutions_core
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+
+   attributes.Attributes
+   dll_interface.DllInterface
+   graph_setup.GraphSetup
+   ideal_response.IdealResponse
+   multiple_bands_table.MultipleBandsTable
+   transmission_zeros.TransmissionZeros
+   export_to_aedt.ExportToAedt
+   optimization_goals_table.OptimizationGoalsTable
+
