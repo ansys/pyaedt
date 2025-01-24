@@ -260,7 +260,7 @@ def main(extension_args):
     # Deleting dielectric objects
     for solid_obj in [
         obj for obj in hfss.modeler.solid_objects if obj.material_name in hfss.modeler.materials.dielectrics
-    ]: 
+    ]:
         solid_obj.delete()
 
     # creating ports
