@@ -264,7 +264,7 @@ def main(extension_args):
         solid_obj.delete()
 
     # creating ports
-    for sheet in hfss.modeler.sheet_objects:  # pragma no cover
+    for sheet in hfss.modeler.sheet_objects:
         hfss.wave_port(assignment=sheet.id, reference="GND", terminals_rename=False)
 
     # create 3D component
