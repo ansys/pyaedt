@@ -583,7 +583,7 @@ class TestClass:
         local_scratch.copyfolder(
             os.path.join(solver_local_path, "example_models", "T45", "test_via_merging.aedb"), file_path
         )
-        input = {
+        _input_ = {
             "contour_list": [[[0.143, 0.04], [0.1476, 0.04], [0.1476, 0.03618], [0.143, 0.036]]],
             "is_batch": True,
             "start_layer": "TOP",
@@ -593,4 +593,4 @@ class TestClass:
             "new_aedb_path": new_file,
             "test_mode": True,
         }
-        assert main(input)
+        assert main(_input_)

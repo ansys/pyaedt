@@ -257,10 +257,10 @@ if __name__ == "__main__":  # pragma: no cover
     # Open UI
     if not args["is_batch"]:  # pragma: no cover
         output = frontend()
-        if output:
+        if output:  # pragma no cover
             for output_name, output_value in output.items():
                 if output_name in extension_arguments:
                     args[output_name] = output_value
             main(args)
-    else:
+    else:  # pragma no cover
         main(args)
