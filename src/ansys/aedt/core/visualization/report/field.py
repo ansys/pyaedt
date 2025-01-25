@@ -139,9 +139,11 @@ class FarField(CommonReport):
         self.secondary_sweep = "Theta"
         self.source_context = None
         self.source_group = None
-        for key in variation_defaults.keys():
+        for key, default_value in variation_defaults.items():
             if key in variations:
                 self.variations[key] = variations[key]
+            else:
+                self.variations[key] = default_value
 
     @property
     def far_field_sphere(self):

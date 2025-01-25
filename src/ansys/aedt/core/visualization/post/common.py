@@ -2174,7 +2174,14 @@ class Reports(object):
             rep = ansys.aedt.core.visualization.report.field.FarField(self._post_app, "Far Fields", setup, **variations)
             rep.far_field_sphere = sphere_name
             rep.source_context = source_context
-            rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
+            rep.report_type = "Radiation Pattern"
+            if expressions:
+                if type(expressions) == list:
+                    rep.expressions = expressions
+                else:
+                    rep.expressions = [expressions]
+            else:
+                rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
     @pyaedt_function_handler(setup_name="setup", sphere_name="infinite_sphere")
