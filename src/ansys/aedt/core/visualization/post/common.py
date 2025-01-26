@@ -1679,6 +1679,8 @@ class PostProcessorCommon(object):
                 solution_name = self._app.nominal_sweep
             else:
                 solution_name = self._app.nominal_adaptive
+        else:
+            solution_name = self._get_setup_from_sweep_name(solution_name)  # If only the sweep name is passed.
         if props.get("report_category", None) and props["report_category"] in TEMPLATES_BY_NAME:
             if props.get("context", {"context": {}}).get("domain", "") == "Spectral":
                 report_temp = TEMPLATES_BY_NAME["Spectrum"]
