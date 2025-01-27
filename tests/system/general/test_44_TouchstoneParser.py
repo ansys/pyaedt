@@ -121,7 +121,7 @@ def test_get_next_xtalk_index_with_dummy_prefix(touchstone_file):
 
 def test_get_coupling_in_range(touchstone_file):
     ts = TouchstoneData(touchstone_file=touchstone_file)
-    res = ts.get_coupling_in_range(start_at_frequency=1e9, high_loss=-60, low_loss=-40, frequency_sample=5, plot=True)
+    res = ts.get_coupling_in_range(start_at_frequency=0.1e9, high_loss=-60, low_loss=-40, frequency_sample=5, plot=True)
 
     assert not res
 
