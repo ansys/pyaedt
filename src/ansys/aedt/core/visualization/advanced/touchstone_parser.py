@@ -116,7 +116,8 @@ class TouchstoneData(rf.Network):
     def get_coupling_in_range(
         self, log_file_name=None, start_at_frequency=1e9, low_loss=-40, high_loss=-60, frequency_sample=5, plot=False
     ):
-        """Plot a list of curves, excluding return loss, that has at least one frequency point between a range of losses.
+        """Plot a list of curves, excluding return loss, that has at least one frequency point between a range of
+        losses.
 
         Parameters
         ----------
