@@ -187,8 +187,8 @@ class TouchstoneData(rf.Network):
         if log_file_name is not None:
             logger.info("if file " + log_file_name + " exist, the file will be overwritten.")
             with open_file(log_file_name, "w") as f:
-                for str in temp_file:
-                    f.write(str)
+                for s in temp_file:
+                    f.write(s)
             logger.info("File " + log_file_name + " created.")
 
         if plot:

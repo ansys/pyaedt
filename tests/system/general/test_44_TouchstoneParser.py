@@ -81,6 +81,14 @@ class TestClass:
             elif v and v[0] == "causality":
                 assert not v[1]
 
+    def test_get_coupling_in_range(self, local_scratch):
+        touchstone_file = os.path.join(test_T44_dir, "port_order_1234.s8p")
+        ts = TouchstoneData(touchstone_file=touchstone_file)
+        res = ts.get_coupling_in_range(log_file_name=None, start_at_frequency=1e9, high_loss=-60, low_loss=-40,
+                                       frequency_sample=5, plot=False)
+
+        assert res
+
 
 def test_get_mixed_mode_touchstone_data_failure(touchstone_file, caplog: pytest.LogCaptureFixture):
     ts = TouchstoneData(touchstone_file=touchstone_file)
@@ -117,14 +125,6 @@ def test_get_next_xtalk_index_with_dummy_prefix(touchstone_file):
     res = ts.get_next_xtalk_index("Dummy")
 
     assert not res
-
-
-def test_get_coupling_in_range(touchstone_file):
-    ts = TouchstoneData(touchstone_file=touchstone_file)
-    res = ts.get_coupling_in_range(start_at_frequency=0.1e9, high_loss=-60, low_loss=-40, frequency_sample=5, plot=True)
-
-    assert not res
-
 
 @patch("os.path.exists", return_value=False)
 def test_find_touchstone_files_with_non_existing_directory(mock_exists):
