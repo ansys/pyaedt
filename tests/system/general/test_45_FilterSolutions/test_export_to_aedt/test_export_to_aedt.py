@@ -22,6 +22,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import os
+
+from ansys.aedt.core.filtersolutions_core.export_to_aedt import ExportCreationMode
+from ansys.aedt.core.filtersolutions_core.export_to_aedt import ExportFormat
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import PartLibraries
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateEr
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateResistivity
@@ -46,6 +50,12 @@ second_modelithics_resistor = "Vishay -> RES_VIS_0603_001 D11"
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
 class TestClass:
+
+    def test_modelithics_include_interconnect_enabled(self, lumped_design):
+        assert lumped_design.export_to_aedt.modelithics_include_interconnect_enabled
+        lumped_design.export_to_aedt.modelithics_include_interconnect_enabled = False
+        assert lumped_design.export_to_aedt.modelithics_include_interconnect_enabled is False
+
     def test_modelithics_inductor_list_count(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.modelithics_capacitor_list_count
@@ -369,6 +379,16 @@ class TestClass:
         lumped_design.export_to_aedt.optimize_after_export_enabled = True
         assert lumped_design.export_to_aedt.optimize_after_export_enabled == True
 
+    def test_export_design(self, lumped_design):
+        export_path = resource_path("test_exported_design.py")
+        lumped_design.export_to_aedt.export_design(
+            export_format=ExportFormat.PYTHON_SCRIPT,
+            export_creation_mode=ExportCreationMode.OVERWRITE,
+            export_path=export_path,
+        )
+        assert os.path.exists(export_path)
+        os.remove(export_path)
+
     def test_load_library_parts_config(self, lumped_design):
         lumped_design.export_to_aedt.load_library_parts_config(resource_path("library_parts.cfg"))
         lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
@@ -495,6 +515,9 @@ class TestClass:
     def test_substrate_er(self, lumped_design):
         assert lumped_design.export_to_aedt.substrate_er == SubstrateEr.ALUMINA
         assert len(SubstrateEr) == 17
+        with pytest.raises(ValueError) as info:
+            lumped_design.export_to_aedt.substrate_er = 3.2
+        assert str(info.value) == "Invalid substrate input. Must be a SubstrateEr enum member or a string."
         for er in SubstrateEr:
             lumped_design.export_to_aedt.substrate_er = er
             assert lumped_design.export_to_aedt.substrate_er == er
@@ -504,6 +527,9 @@ class TestClass:
     def test_substrate_resistivity(self, lumped_design):
         assert lumped_design.export_to_aedt.substrate_resistivity == SubstrateResistivity.GOLD
         assert len(SubstrateResistivity) == 11
+        with pytest.raises(ValueError) as info:
+            lumped_design.export_to_aedt.substrate_resistivity = 0.02
+        assert str(info.value) == "Invalid substrate input. Must be a SubstrateResistivity enum member or a string."
         for resistivity in SubstrateResistivity:
             lumped_design.export_to_aedt.substrate_resistivity = resistivity
             assert lumped_design.export_to_aedt.substrate_resistivity == resistivity
@@ -513,6 +539,10 @@ class TestClass:
     def test_substrate_loss_tangent(self, lumped_design):
         assert lumped_design.export_to_aedt.substrate_loss_tangent == SubstrateEr.ALUMINA
         assert len(SubstrateEr) == 17
+        with pytest.raises(ValueError) as info:
+            lumped_design.export_to_aedt.substrate_er = 0.0002
+        assert str(info.value) == "Invalid substrate input. Must be a SubstrateEr enum member or a string."
+
         for loss in SubstrateEr:
             lumped_design.export_to_aedt.substrate_loss_tangent = loss
             assert lumped_design.export_to_aedt.substrate_loss_tangent == loss

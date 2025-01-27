@@ -29,6 +29,7 @@ from ansys.aedt.core.filtersolutions_core.attributes import FilterType
 from ansys.aedt.core.filtersolutions_core.attributes import GaussianBesselReflection
 from ansys.aedt.core.filtersolutions_core.attributes import GaussianTransition
 from ansys.aedt.core.filtersolutions_core.attributes import PassbandDefinition
+from ansys.aedt.core.filtersolutions_core.attributes import RaisedCosineAlphaPercentage
 from ansys.aedt.core.filtersolutions_core.attributes import RippleConstrictionBandSelect
 from ansys.aedt.core.filtersolutions_core.attributes import SinglePointRippleInfZeros
 from ansys.aedt.core.filtersolutions_core.attributes import StopbandDefinition
@@ -131,6 +132,12 @@ class TestClass:
         lumped_design.attributes.ideal_minimum_order
         assert lumped_design.attributes.filter_order == 3
 
+    def test_delay_time(self, lumped_design):
+        lumped_design.attributes.filter_type = FilterType.DELAY
+        assert lumped_design.attributes.delay_time == "1 n"
+        lumped_design.attributes.delay_time = "500 ps"
+        assert lumped_design.attributes.delay_time == "500 ps"
+
     def test_pass_band_definition(self, lumped_design):
         lumped_design.attributes.filter_class = FilterClass.BAND_PASS
         assert len(PassbandDefinition) == 2
@@ -163,6 +170,48 @@ class TestClass:
         assert lumped_design.attributes.upper_frequency == "1.105 G"
         lumped_design.attributes.upper_frequency = "1.2 G"
         assert lumped_design.attributes.upper_frequency == "1.2 G"
+
+    def test_diplexer_inner_band_width(self, lumped_design):
+        lumped_design.attributes.filter_class = FilterClass.DIPLEXER_1
+        lumped_design.attributes.diplexer_type = DiplexerType.BP_1
+        assert lumped_design.attributes.diplexer_inner_band_width == "200M"
+        lumped_design.attributes.diplexer_inner_band_width = "500M"
+        assert lumped_design.attributes.diplexer_inner_band_width == "500M"
+
+    def test_diplexer_outer_band_width(self, lumped_design):
+        lumped_design.attributes.filter_class = FilterClass.DIPLEXER_1
+        lumped_design.attributes.diplexer_type = DiplexerType.BP_1
+        assert lumped_design.attributes.diplexer_outer_band_width == "2G"
+        lumped_design.attributes.diplexer_outer_band_width = "3G"
+        assert lumped_design.attributes.diplexer_outer_band_width == "3G"
+
+    def test_diplexer_lower_center_frequency(self, lumped_design):
+        lumped_design.attributes.filter_class = FilterClass.DIPLEXER_1
+        lumped_design.attributes.diplexer_type = DiplexerType.BP_2
+        assert lumped_design.attributes.diplexer_lower_center_frequency == ".5G"
+        lumped_design.attributes.diplexer_lower_center_frequency = ".4G"
+        assert lumped_design.attributes.diplexer_lower_center_frequency == ".4G"
+
+    def test_diplexer_upper_center_frequency(self, lumped_design):
+        lumped_design.attributes.filter_class = FilterClass.DIPLEXER_1
+        lumped_design.attributes.diplexer_type = DiplexerType.BP_2
+        assert lumped_design.attributes.diplexer_upper_center_frequency == "2G"
+        lumped_design.attributes.diplexer_upper_center_frequency = "1.6G"
+        assert lumped_design.attributes.diplexer_upper_center_frequency == "1.6G"
+
+    def test_diplexer_lower_band_width(self, lumped_design):
+        lumped_design.attributes.filter_class = FilterClass.DIPLEXER_1
+        lumped_design.attributes.diplexer_type = DiplexerType.BP_2
+        assert lumped_design.attributes.diplexer_lower_band_width == ".5G"
+        lumped_design.attributes.diplexer_lower_band_width = ".4G"
+        assert lumped_design.attributes.diplexer_lower_band_width == ".4G"
+
+    def test_diplexer_upper_band_width(self, lumped_design):
+        lumped_design.attributes.filter_class = FilterClass.DIPLEXER_1
+        lumped_design.attributes.diplexer_type = DiplexerType.BP_2
+        assert lumped_design.attributes.diplexer_upper_band_width == "2G"
+        lumped_design.attributes.diplexer_upper_band_width = "1.6G"
+        assert lumped_design.attributes.diplexer_upper_band_width == "1.6G"
 
     def test_stop_band_definition(self, lumped_design):
         lumped_design.attributes.filter_type = FilterType.ELLIPTIC
@@ -202,6 +251,24 @@ class TestClass:
         assert lumped_design.attributes.standard_pass_band_attenuation_value_db == "3.01"
         lumped_design.attributes.standard_pass_band_attenuation_value_db = "4"
         assert lumped_design.attributes.standard_pass_band_attenuation_value_db == "4"
+
+    def test_root_raised_cosine(self, lumped_design):
+        lumped_design.attributes.filter_type = FilterType.RAISED_COS
+        assert lumped_design.attributes.root_raised_cosine is False
+        lumped_design.attributes.root_raised_cosine = True
+        assert lumped_design.attributes.root_raised_cosine
+
+    def test_data_transmission_filter(self, lumped_design):
+        lumped_design.attributes.filter_type = FilterType.RAISED_COS
+        assert lumped_design.attributes.data_transmission_filter is False
+        lumped_design.attributes.data_transmission_filter = True
+        assert lumped_design.attributes.data_transmission_filter
+
+    def test_raised_cosine_alpha_percentage(self, lumped_design):
+        lumped_design.attributes.filter_type = FilterType.RAISED_COS
+        assert lumped_design.attributes.raised_cosine_alpha_percentage == RaisedCosineAlphaPercentage.FORTY
+        lumped_design.attributes.raised_cosine_alpha_percentage = RaisedCosineAlphaPercentage.THIRTY
+        assert lumped_design.attributes.raised_cosine_alpha_percentage == RaisedCosineAlphaPercentage.THIRTY
 
     def test_equiripple_delay(self, lumped_design):
         lumped_design.attributes.filter_type = FilterType.DELAY
