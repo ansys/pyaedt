@@ -2235,8 +2235,10 @@ class Object3d(object):
         else:
             nn_segments = None
             nn_points = None
-        assert len(segments) == nn_segments, "Error getting the polyline segments from AEDT."
-        assert len(points) == nn_points, "Error getting the polyline points from AEDT."
+        if not len(segments) == nn_segments:
+            raise AEDTRuntimeError("Failed to get the polyline segments from AEDT.")
+        if not len(points) == nn_points:
+            raise AEDTRuntimeError("Failed to get the polyline points from AEDT.")
         # if succeeded save the result
         self._segment_types = segments
         self._positions = points
@@ -2477,7 +2479,8 @@ class Object3d(object):
 
         if segment_data.type == "AngularArc":
             # from start-point and angle, calculate the mid- and end-points
-            assert start_point, "Start-point must be defined for an AngularArc Segment"
+            if not start_point:
+                raise ValueError("Start point must be defined for segment of type Angular Arc")
             self._evaluate_arc_angle_extra_points(segment_data, start_point)
 
             mod_units = self._primitives.model_units
