@@ -237,7 +237,6 @@ def main(extension_args):
             "selected the correct mounting side. The selected side must "
             "must contain explicit voids with pad-stack instances inside.",
         )
-    signal_nets = list(edb.nets.signal.keys())
     edb.close()
     time.sleep(1)
 
@@ -259,24 +258,13 @@ def main(extension_args):
     hfss.solution_type = "Modal"
 
     # Deleting dielectric objects
-    [obj.delete() for obj in hfss.modeler.solid_objects if obj.material_name in hfss.modeler.materials.dielectrics]
+    for solid_obj in [
+        obj for obj in hfss.modeler.solid_objects if obj.material_name in hfss.modeler.materials.dielectrics
+    ]:
+        solid_obj.delete()
 
     # creating ports
-    sheets_for_ports = hfss.modeler.sheet_objects
-    terminal_faces = []
-    terminal_objects = [obj for obj in hfss.modeler.object_list if obj.name in signal_nets]
-    for obj in terminal_objects:
-        if mounting_side_variable == "bottom":
-            face = obj.bottom_face_z
-        else:
-            face = obj.top_face_z
-        terminal_face = hfss.modeler.create_object_from_face(face.id, non_model=False)
-        hfss.assign_perfecte_to_sheets(terminal_face.name)
-        name = obj.name
-        terminal_faces.append(terminal_face)
-        obj.delete()
-        terminal_face.name = name
-    for sheet in sheets_for_ports:
+    for sheet in hfss.modeler.sheet_objects:
         hfss.wave_port(assignment=sheet.id, reference="GND", terminals_rename=False)
 
     # create 3D component
