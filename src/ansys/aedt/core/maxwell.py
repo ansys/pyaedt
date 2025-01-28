@@ -243,7 +243,7 @@ class Maxwell(object):
         >>> m3d.release_desktop(True, True)
         """
         if self.solution_type not in (SOLUTIONS.Maxwell3d.EddyCurrent, SOLUTIONS.Maxwell3d.Transient):
-            raise AEDTRuntimeError("Solution type does not have matrix parameters")(
+            raise AEDTRuntimeError(
                 "Core losses is only available with `EddyCurrent` and `Transient` solutions."
             )
 
