@@ -24,6 +24,7 @@
 
 import ansys.aedt.core
 import ansys.aedt.core.filtersolutions
+import ansys.aedt.core.filtersolutions_core
 from ansys.aedt.core.filtersolutions_core.attributes import FilterType
 from ansys.aedt.core.generic.general_methods import is_linux
 import pytest
@@ -53,3 +54,16 @@ class TestClass:
         with pytest.raises(RuntimeError) as info:
             lumped_design.transmission_zeros_ratio.row(0)
         assert info.value.args[0] == test_transmission_zeros.TestClass.no_transmission_zero_msg
+
+    def test_version_exception(self):
+        ansys.aedt.core.filtersolutions_core._dll_interface()
+        with pytest.raises(Exception) as info:
+            ansys.aedt.core.filtersolutions_core._dll_interface("2024.2")
+        assert (
+            info.value.args[0] == f"The requested version 2024.2 does not match with the previously defined version "
+            f"{ansys.aedt.core.filtersolutions_core._internal_dll_interface._version}."
+        )
+
+    def test_version_not_installed(self):
+        with pytest.raises(ValueError, match="Specified version 2024.2 is not installed on your system"):
+            ansys.aedt.core.filtersolutions_core._dll_interface("2024.2")
