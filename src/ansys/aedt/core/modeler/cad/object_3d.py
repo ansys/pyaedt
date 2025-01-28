@@ -39,6 +39,7 @@ import re
 
 from ansys.aedt.core.generic.checks import min_aedt_version
 from ansys.aedt.core.generic.constants import AEDT_UNITS
+from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.generic.general_methods import _to_boolean
 from ansys.aedt.core.generic.general_methods import _uname
 from ansys.aedt.core.generic.general_methods import clamp
@@ -1758,7 +1759,8 @@ class Object3d(object):
         """
         new_obj_tuple = self._primitives.clone(self.id)
         success = new_obj_tuple[0]
-        assert success, f"Could not clone the object {self.name}."
+        if not success:
+            raise AEDTRuntimeError(f"Could not clone the object {self.name}")
         new_name = new_obj_tuple[1][0]
         return self._primitives[new_name]
 
