@@ -39,3 +39,10 @@ script = "generate_arbitrary_wave_ports.py"
 icon = "images/large/arbitrary_wave_port.png"
 template = "run_pyaedt_toolkit_script"
 pip = ""
+
+[ViaClustering]
+name = "Via merging"
+script = "via_clustering_extension.py"
+icon = "images/large/via_merging.png"
+template = "run_pyaedt_toolkit_script"
+pip = ""
