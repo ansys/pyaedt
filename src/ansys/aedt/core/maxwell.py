@@ -243,9 +243,7 @@ class Maxwell(object):
         >>> m3d.release_desktop(True, True)
         """
         if self.solution_type not in (SOLUTIONS.Maxwell3d.EddyCurrent, SOLUTIONS.Maxwell3d.Transient):
-            raise AEDTRuntimeError(
-                "Core losses is only available with `EddyCurrent` and `Transient` solutions."
-            )
+            raise AEDTRuntimeError("Core losses is only available with `EddyCurrent` and `Transient` solutions.")
 
         assignment = self.modeler.convert_to_selections(assignment, True)
         self.oboundary.SetCoreLoss(assignment, core_loss_on_field)
