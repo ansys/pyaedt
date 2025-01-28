@@ -3,7 +3,7 @@ Filter design
 This section describes the classes used for creating and modifying parameters in the ``filtersolutions`` module.
 The module provides tools for designing and customizing filter configurations. 
 
-The module includes two classes, ``LumpedDesign`` and ``DistributedDesign``, both inherited from the ``FilterDesignBase`` class, as described in the :ref:`BaseFilterDesign` section.
+The module includes two classes, ``LumpedDesign`` and ``DistributedDesign``, both inherited from the ``FilterDesignBase`` class as described in the :ref:`BaseFilterDesign` section.
 
 Each class implements methods specific to its design approach while leveraging common functionality from the base class.
 
@@ -14,9 +14,9 @@ The ``LumpedDesign`` module includes all the necessary classes for creating and 
 Lumped filters use discrete components such as capacitors, inductors, and resistors.
 
 * ``LumpedTopology`` to define attributes and parameters of filters implemented using a lumped topology.
-* ``LumpedParasitics`` to define attributes  of parasitic values associated with lumped elements.
+* ``LumpedParasitics`` to define attributes of parasitic values associated with lumped elements.
 * ``LumpedNodesandLeads`` to define attributes of the lumped node capacitors and lead inductors.
-* ``LumpedTerminationImpedance`` to manage access to the entries of source and load complex impedance table.
+* ``LumpedTerminationImpedance`` to manage access to the entries in the source and load complex impedance table.
 
 They are accessible through:
 
@@ -39,7 +39,7 @@ They are accessible through:
 
     import ansys.aedt.core
     import ansys.aedt.core.filtersolutions
-    # This call returns an instance of the LempedDesign class
+    # This call returns an instance of the LumpedDesign class
     design = ansys.aedt.core.FilterSolutions.LumpedDesign(version= "2025.1")
     # This property in the Attributes class specifies the filter class as band pass
     design.attributes.filter_class = FilterClass.BAND_PASS
@@ -92,11 +92,11 @@ Base filter design
 ~~~~~~~~~~~~~~~~~~~
 The ``FilterDesignBase`` module provides all the essential classes for creating and modifying the primary parameters applicable to all design types.
 
-* ``Attributes`` to defines attributes and parameters of filters.
+* ``Attributes`` to define attributes and parameters of filters.
 * ``DllInterface`` to establish an interface with the FilterSolutions DLL.
 * ``GraphSetup`` to define the frequency and time graph parameters of the exported responses.
 * ``IdealResponse`` to return the data for the available ideal filter responses.
-* ``MultipleBandsTable`` to manage access to the entries of multiple bands table.
+* ``MultipleBandsTable`` to manage access to the entries in the multiple bands table.
 * ``TransmissionZeros`` to manage access to ratio and bandwidth entries in the transmission zeros table.
 * ``ExportToAedt`` to define attributes and parameters for the export page when exporting to AEDT.
 * ``OptimizationGoalsTable`` to manage access to the entries in the optimization goals table.
