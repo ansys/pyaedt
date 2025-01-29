@@ -199,3 +199,13 @@ gRPC calls on the client where the Python script is to be run.
 Now run the PyAEDT script, (making sure it connects to the same port as the gRPC server - 50051).
 Capture the output in a file. For example *client.txt*. Then send all the logs
 to `Ansys Support <https://www.ansys.com/it-solutions/contacting-technical-support>`_.
+
+
+Numpy compatibility
+-------------------
+If you use Numpy 2.x, you may encounter compatibility issues with PyAEDT and PyEDB.
+
+If you encounter compatibility issues with Numpy, you need to import PyAEDT or PyEDB first and then Numpy.
+Since version 2.0, Numpy conflicts with the dotnetcore library required to initialize PyAEDT in COM mode.
+
+If you use gRPC or previous numpy releases, you do not need to worry about this issue.
