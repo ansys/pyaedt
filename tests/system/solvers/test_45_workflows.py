@@ -595,7 +595,7 @@ class TestClass:
         }
         assert main(_input_)
 
-    def test_18_shielding_effectiveness(self, add_app, local_scratch):
+    def test_19_shielding_effectiveness(self, add_app, local_scratch):
         aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="se")
 
         from ansys.aedt.core.workflows.hfss.shielding_effectiveness import main
