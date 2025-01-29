@@ -4399,7 +4399,7 @@ class GeometryModeler(Modeler):
         angle = math.pi * (180 - 360 / number_of_segments) / 360
 
         status = P.set_crosssection_properties(
-            type="Circle", num_seg=number_of_segments, width=(rad * (2 - math.sin(angle))) * 2
+            section="Circle", width=(rad * (2 - math.sin(angle))) * 2, num_seg=number_of_segments
         )
         if status:
             self.move(new_edges[0], move_vector)

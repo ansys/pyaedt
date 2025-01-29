@@ -913,12 +913,12 @@ class TestClass:
         P3 = P.clone()
         P4 = P.clone()
 
-        P1.set_crosssection_properties(type="Line", width="1mm")
+        P1.set_crosssection_properties(section="Line", width="1mm")
         a = P1.object_type
 
-        P2.set_crosssection_properties(type="Circle", width="1mm", num_seg=5)
-        P3.set_crosssection_properties(type="Rectangle", width="1mm", height="1mm")
-        P4.set_crosssection_properties(type="Isosceles Trapezoid", width="1mm", height="1mm", topwidth="4mm")
+        P2.set_crosssection_properties(section="Circle", width="1mm", num_seg=5)
+        P3.set_crosssection_properties(section="Rectangle", width="1mm", height="1mm")
+        P4.set_crosssection_properties(section="Isosceles Trapezoid", width="1mm", topwidth="4mm", height="1mm")
 
         assert P.object_type == "Line"
         assert P1.object_type == "Sheet"
@@ -1008,7 +1008,7 @@ class TestClass:
             name="Inductor1",
         )
 
-        ind.set_crosssection_properties(type="Circle", width=wireThickness_um)
+        ind.set_crosssection_properties(section="Circle", width=wireThickness_um)
 
         polyline_points = ind.points
 

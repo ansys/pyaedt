@@ -2646,15 +2646,15 @@ class Object3d(object):
                 del self._segment_types[sid]
         return True
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(type="section")
     def set_crosssection_properties(
-        self, type=None, orient=None, width=0, topwidth=0, height=0, num_seg=0, bend_type=None
+        self, section=None, orient=None, width=0, topwidth=0, height=0, num_seg=0, bend_type=None
     ):
         """Set the properties of an existing polyline object.
 
         Parameters
         ----------
-        type : str, optional
+        section : str, optional
             Types of the cross-sections. Options are ``"Line"``, ``"Circle"``, ``"Rectangle"``,
             and ``"Isosceles Trapezoid"``. The default is ``None``.
         orient : str, optional
@@ -2691,14 +2691,14 @@ class Object3d(object):
         Examples
         --------
         >>> P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
-        >>> P.set_crosssection_properties(type="Circle", width="1mm")
+        >>> P.set_crosssection_properties(section="Circle",width="1mm")
 
         """
         if not self.is_polyline:
             self.logger.error("Method remove_point applies only to Polyline objects.")
             return False
         # Set the default section type to "None"
-        section_type = type
+        section_type = section
         if not section_type:
             section_type = "None"
 
