@@ -595,6 +595,7 @@ class TestClass:
         }
         assert main(_input_)
 
+    @pytest.mark.skipif(is_linux, reason="Simulation takes too long in Linux machine.")
     def test_19_shielding_effectiveness(self, add_app, local_scratch):
         aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="se")
 
