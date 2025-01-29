@@ -796,7 +796,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         """Create an analysis setup for HFSS.
 
         Optional arguments are passed along with ``setup_type`` and ``name``. Keyword
-        names correspond to keyword for the ``setup_type`` as definedin
+        names correspond to keyword for the ``setup_type`` as defined in
         the native AEDT API.
 
         .. note::
