@@ -630,7 +630,7 @@ class TestClass:
                 "start_frequency": 0.1,
                 "stop_frequency": 0.2,
                 "points": 2,
-                "cores": 4,
+                "cores": 2,
             }
         )
 
