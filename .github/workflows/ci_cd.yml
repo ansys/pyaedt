@@ -400,8 +400,7 @@ jobs:
         uses: ansys/actions/release-pypi-public@v8
         with:
           library-name: ${{ env.PACKAGE_NAME }}
-          twine-username: "__token__"
-          twine-token: ${{ secrets.PYPI_TOKEN }}
+          use-trusted-publisher: true
 
       - name: Release to GitHub
         uses: ansys/actions/release-github@v8
