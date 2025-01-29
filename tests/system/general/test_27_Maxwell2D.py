@@ -171,7 +171,7 @@ class TestClass:
             position=[0, 0, 0], radius=5, num_sides="8", is_covered=True, name="Coil", material="Copper"
         )
         assert aedtapp.assign_current([coil])
-        with pytest.raises(ValueError, "Input must be a 2D object."):
+        with pytest.raises(ValueError, match="Input must be a 2D object."):
             aedtapp.assign_current([coil.faces[0].id])
 
     def test_assign_master_slave(self, aedtapp):
@@ -203,11 +203,11 @@ class TestClass:
 
     def test_apply_skew(self, aedtapp):
         assert aedtapp.apply_skew()
-        with pytest.raises(ValueError, "Invalid coordinate system."):
+        with pytest.raises(ValueError, match="Invalid coordinate system."):
             assert not aedtapp.apply_skew(skew_type="Invalid")
-        with pytest.raises(ValueError, "Invalid skew angle unit."):
+        with pytest.raises(ValueError, match="Invalid skew angle unit."):
             aedtapp.apply_skew(skew_type="Continuous", skew_part="Stator", skew_angle="0.5", skew_angle_unit="Invalid")
-        with pytest.raises(ValueError, "Please provide skew angles for each slice."):
+        with pytest.raises(ValueError, match="Please provide skew angles for each slice."):
             aedtapp.apply_skew(
                 skew_type="User Defined", number_of_slices="4", custom_slices_skew_angles=["1", "2", "3"]
             )
@@ -241,10 +241,10 @@ class TestClass:
         assert bound.props["ResistanceValue"] == "0ohm"
         bound.props["InductanceValue"] = "5H"
         assert bound.props["InductanceValue"] == "5H"
-        with pytest.raises(AEDTRuntimeError, "At least 2 objects are needed."):
+        with pytest.raises(AEDTRuntimeError, match="At least 2 objects are needed."):
             aedtapp.assign_end_connection([rect])
         aedtapp.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
-        with pytest.raises(AEDTRuntimeError, "Excitation applicable only to Eddy Current or Transient Solver."):
+        with pytest.raises(AEDTRuntimeError, match="Excitation applicable only to Eddy Current or Transient Solver."):
             aedtapp.assign_end_connection([rect, rect2])
 
     def test_setup_y_connection(self, aedtapp):
@@ -316,7 +316,7 @@ class TestClass:
         assert bound_group.props[bound_group.props["items"][0]]["Objects"] == ["Coil", "Coil_1"]
         assert bound_group.props[bound_group.props["items"][0]]["Value"] == "0"
         assert bound_group.props[bound_group.props["items"][0]]["CoordinateSystem"] == ""
-        with pytest.raises(AEDTRuntimeError, "Couldn't assign current density to desired list of objects."):
+        with pytest.raises(AEDTRuntimeError, match="Couldn't assign current density to desired list of objects."):
             aedtapp.assign_current_density("Circle_inner", "CurrentDensity_1")
 
     def test_set_variable(self, aedtapp):
@@ -449,8 +449,11 @@ class TestClass:
         assert floating.props["Objects"][0] == rect.name
         assert floating.props["Value"] == "3"
         m2d_app.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
-        floating = m2d_app.assign_floating(assignment=rect, charge_value=3, name="floating_test1")
-        assert not floating
+        with pytest.raises(
+            AEDTRuntimeError,
+            match="Assign floating excitation is only valid for electrostatic or electric transient solvers.",
+        ):
+            m2d_app.assign_floating(assignment=rect, charge_value=3, name="floating_test1")
 
     def test_matrix(self, m2d_app):
         m2d_app.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
@@ -473,10 +476,13 @@ class TestClass:
             assignment=["Current1", "Current2"], matrix_name="Test2", turns=[2, 1], return_path=["Current3", "Current4"]
         )
         assert matrix.props["MatrixEntry"]["MatrixEntry"][1]["ReturnPath"] == "Current4"
-        matrix = m2d_app.assign_matrix(
-            assignment=["Current1", "Current2"], matrix_name="Test3", turns=[2, 1], return_path=["Current1", "Current1"]
-        )
-        assert not matrix
+        with pytest.raises(AEDTRuntimeError, match="Return path specified must not be included in sources"):
+            m2d_app.assign_matrix(
+                assignment=["Current1", "Current2"],
+                matrix_name="Test3",
+                turns=[2, 1],
+                return_path=["Current1", "Current1"],
+            )
         group_sources = {"Group1_Test": ["Current3", "Current2"]}
         matrix = m2d_app.assign_matrix(
             assignment=["Current3", "Current2"],
@@ -602,7 +608,7 @@ class TestClass:
         m2d_app.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
         with pytest.raises(
             AEDTRuntimeError,
-            "External circuit excitation for windings is available only for Eddy Current or Transient solutions.",
+            match="External circuit excitation for windings is available only for Eddy Current or Transient solutions.",
         ):
             m2d_app.create_external_circuit()
         m2d_app.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY
