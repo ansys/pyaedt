@@ -29,6 +29,7 @@ import shutil
 
 import ansys.aedt.core
 from ansys.aedt.core.generic.constants import SOLUTIONS
+from ansys.aedt.core.generic.errors import AEDTRuntimeError
 import pytest
 
 from tests import TESTS_GENERAL_PATH
@@ -170,7 +171,8 @@ class TestClass:
             position=[0, 0, 0], radius=5, num_sides="8", is_covered=True, name="Coil", material="Copper"
         )
         assert aedtapp.assign_current([coil])
-        assert not aedtapp.assign_current([coil.faces[0].id])
+        with pytest.raises(ValueError, "Input must be a 2D object."):
+            aedtapp.assign_current([coil.faces[0].id])
 
     def test_assign_master_slave(self, aedtapp):
         aedtapp.modeler.create_rectangle([1, 1, 1], [3, 1], name="Rectangle1", material="copper")
@@ -201,14 +203,14 @@ class TestClass:
 
     def test_apply_skew(self, aedtapp):
         assert aedtapp.apply_skew()
-        assert not aedtapp.apply_skew(skew_type="Invalid")
-        assert not aedtapp.apply_skew(skew_part="Invalid")
-        assert not aedtapp.apply_skew(
-            skew_type="Continuous", skew_part="Stator", skew_angle="0.5", skew_angle_unit="Invalid"
-        )
-        assert not aedtapp.apply_skew(
-            skew_type="User Defined", number_of_slices="4", custom_slices_skew_angles=["1", "2", "3"]
-        )
+        with pytest.raises(ValueError, "Invalid coordinate system."):
+            assert not aedtapp.apply_skew(skew_type="Invalid")
+        with pytest.raises(ValueError, "Invalid skew angle unit."):
+            aedtapp.apply_skew(skew_type="Continuous", skew_part="Stator", skew_angle="0.5", skew_angle_unit="Invalid")
+        with pytest.raises(ValueError, "Please provide skew angles for each slice."):
+            aedtapp.apply_skew(
+                skew_type="User Defined", number_of_slices="4", custom_slices_skew_angles=["1", "2", "3"]
+            )
         assert aedtapp.apply_skew(
             skew_type="User Defined", number_of_slices="4", custom_slices_skew_angles=["1", "2", "3", "4"]
         )
@@ -239,9 +241,11 @@ class TestClass:
         assert bound.props["ResistanceValue"] == "0ohm"
         bound.props["InductanceValue"] = "5H"
         assert bound.props["InductanceValue"] == "5H"
-        assert not aedtapp.assign_end_connection([rect])
+        with pytest.raises(AEDTRuntimeError, "At least 2 objects are needed."):
+            aedtapp.assign_end_connection([rect])
         aedtapp.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
-        assert not aedtapp.assign_end_connection([rect, rect2])
+        with pytest.raises(AEDTRuntimeError, "Excitation applicable only to Eddy Current or Transient Solver."):
+            aedtapp.assign_end_connection([rect, rect2])
 
     def test_setup_y_connection(self, aedtapp):
         aedtapp.set_active_design("Y_Connections")
@@ -312,7 +316,8 @@ class TestClass:
         assert bound_group.props[bound_group.props["items"][0]]["Objects"] == ["Coil", "Coil_1"]
         assert bound_group.props[bound_group.props["items"][0]]["Value"] == "0"
         assert bound_group.props[bound_group.props["items"][0]]["CoordinateSystem"] == ""
-        assert not aedtapp.assign_current_density("Circle_inner", "CurrentDensity_1")
+        with pytest.raises(AEDTRuntimeError, "Couldn't assign current density to desired list of objects."):
+            aedtapp.assign_current_density("Circle_inner", "CurrentDensity_1")
 
     def test_set_variable(self, aedtapp):
         aedtapp.variable_manager.set_variable("var_test", expression="123")
@@ -595,9 +600,17 @@ class TestClass:
         assert m2d_app.create_external_circuit()
         assert m2d_app.create_external_circuit(circuit_design="test_cir")
         m2d_app.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
-        assert not m2d_app.create_external_circuit()
+        with pytest.raises(
+            AEDTRuntimeError,
+            "External circuit excitation for windings is available only for Eddy Current or Transient solutions.",
+        ):
+            m2d_app.create_external_circuit()
         m2d_app.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY
         for w in m2d_app.excitations_by_type["Winding"]:
             w.delete()
         m2d_app.save_project()
-        assert not m2d_app.create_external_circuit()
+        with pytest.raises(
+            AEDTRuntimeError,
+            "External circuit excitation for windings is available only for Eddy Current or Transient solutions.",
+        ):
+            m2d_app.create_external_circuit()

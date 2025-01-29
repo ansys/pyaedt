@@ -321,7 +321,7 @@ class Maxwell(object):
 
         assignment = self.modeler.convert_to_selections(assignment, True)
         if self.solution_type in (
-            SOLUTIONS.Maxwell3d.Electrostatic,
+            SOLUTIONS.Maxwell3d.ElectroStatic,
             SOLUTIONS.Maxwell3d.ACConduction,
             SOLUTIONS.Maxwell3d.DCConduction,
         ):
@@ -416,7 +416,7 @@ class Maxwell(object):
 
             if group_sources:
                 if self.solution_type in (
-                    SOLUTIONS.Maxwell3d.Electrostatic,
+                    SOLUTIONS.Maxwell3d.ElectroStatic,
                     SOLUTIONS.Maxwell3d.ACConduction,
                     SOLUTIONS.Maxwell3d.DCConduction,
                 ):
@@ -1079,7 +1079,7 @@ class Maxwell(object):
         >>> floating1 = m3d.assign_floating(assignment=[box.faces[0], box.faces[1]], charge_value=3)
         >>> m3d.release_desktop(True, True)
         """
-        if self.solution_type not in (SOLUTIONS.Maxwell3d.Electrostatic, SOLUTIONS.Maxwell3d.ElectricTransient):
+        if self.solution_type not in (SOLUTIONS.Maxwell3d.ElectroStatic, SOLUTIONS.Maxwell3d.ElectricTransient):
             raise AEDTRuntimeError(
                 "Assign floating excitation is only valid for electrostatic or electric transient solvers."
             )
