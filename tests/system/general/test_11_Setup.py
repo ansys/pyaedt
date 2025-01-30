@@ -102,6 +102,11 @@ class TestClass:
             max_delta_phase=8,
             custom_entries=[["1", "2", 0.03, 4]],
         )
+        setup2 = self.aedtapp.create_setup("MulitFreqSetup",
+                                           MultipleAdaptiveFreqsSetup=["1GHz", "2GHz"],
+                                           MaximumPasses=3)
+        assert setup2.props["SolveType"] == "MultiFrequency"
+        assert setup2.props["MaximumPasses"] == 3
 
     def test_01b_create_hfss_sweep(self):
         self.aedtapp.save_project()
@@ -121,6 +126,15 @@ class TestClass:
         assert sweep3.props["Type"] == "Discrete"
         sweep4 = setup1.create_frequency_sweep("GHz", 23, 25, 401, sweep_type="Fast")
         assert sweep4.props["Type"] == "Fast"
+        range_start = "1GHz"
+        range_end = "2GHz"
+        range_step = "0.5GHz"
+        sweep5 = setup1.add_sweep("DiscSweep5", sweep_type="Discrete", RangeStart=range_start,
+                                  RangeEnd=range_end, RangeStep=range_step, SaveFields=True)
+        assert sweep5.props["Type"] == "Discrete"
+        assert sweep5.props["RangeStart"] == range_start
+        assert sweep5.props["RangeEnd"] == range_end
+        assert sweep5.props["RangeStep"] == range_step
 
     def test_01c_create_hfss_setup_auto_open(self):
         self.aedtapp.duplicate_design("auto_open")
