@@ -380,14 +380,17 @@ class TestClass:
         assert lumped_design.export_to_aedt.optimize_after_export_enabled == True
 
     def test_export_design(self, lumped_design):
-        export_path = resource_path("test_exported_design.py")
+        export_path = resource_path("Test_Export/test_exported_design.py")
         lumped_design.export_to_aedt.export_design(
             export_format=ExportFormat.PYTHON_SCRIPT,
             export_creation_mode=ExportCreationMode.OVERWRITE,
             export_path=export_path,
         )
         assert os.path.exists(export_path)
+        directory_path = os.path.dirname(export_path)
+        assert os.path.exists(directory_path)
         os.remove(export_path)
+        os.rmdir(directory_path)
 
     def test_load_library_parts_config(self, lumped_design):
         lumped_design.export_to_aedt.load_library_parts_config(resource_path("library_parts.cfg"))
@@ -547,15 +550,16 @@ class TestClass:
     def test_substrate_loss_tangent(self, lumped_design):
         assert lumped_design.export_to_aedt.substrate_loss_tangent == SubstrateEr.ALUMINA
         assert len(SubstrateEr) == 17
-        with pytest.raises(ValueError) as info:
-            lumped_design.export_to_aedt.substrate_er = 0.0002
-        assert str(info.value) == "Invalid substrate input. Must be a SubstrateEr enum member or a string."
-
         for loss in SubstrateEr:
             lumped_design.export_to_aedt.substrate_loss_tangent = loss
             assert lumped_design.export_to_aedt.substrate_loss_tangent == loss
         lumped_design.export_to_aedt.substrate_loss_tangent = "0.0002"
         assert lumped_design.export_to_aedt.substrate_loss_tangent == "0.0002"
+
+    def test_substrate_loss_tangent_invalid_input(self, lumped_design):
+        with pytest.raises(ValueError) as info:
+            lumped_design.export_to_aedt.substrate_loss_tangent = 0.0002
+        assert str(info.value) == "Invalid substrate input. Must be a SubstrateEr enum member or a string."
 
     def test_substrate_conductor_thickness(self, lumped_design):
         assert lumped_design.export_to_aedt.substrate_conductor_thickness == "2.54 um"

@@ -47,18 +47,18 @@ class DllInterface:
     def _init_dll_path(self, version):
         """Set DLL path and print the status of the DLL access to the screen."""
         latest_version = aedt_versions.latest_version
-        if latest_version == "":
-            raise Exception("AEDT is not installed on your system. Install AEDT 2025 R1 or later.")  # pragma: no cover
+        if latest_version == "":  # pragma: no cover
+            raise Exception("AEDT is not installed on your system. Install AEDT 2025 R1 or later.")
         if version is None:
             version = latest_version
         if not (version in aedt_versions.installed_versions) and not (
             version + "CL" in aedt_versions.installed_versions
         ):
             raise ValueError(f"Specified version {version[0:6]} is not installed on your system")
-        if float(version[0:6]) < 2025:
+        if float(version[0:6]) < 2025:  # pragma: no cover
             raise ValueError(
                 "FilterSolutions supports AEDT version 2025 R1 and later. Recommended version is 2025 R1 or later."
-            )  # pragma: no cover
+            )
         self.dll_path = os.path.join(aedt_versions.installed_versions[version], "nuhertz", "FilterSolutionsAPI.dll")
         print("DLL Path:", self.dll_path)
         if not os.path.isfile(self.dll_path):
