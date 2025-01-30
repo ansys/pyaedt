@@ -206,7 +206,13 @@ Numpy compatibility
 If you use Numpy 2.Y.Z, you may encounter compatibility issues with PyAEDT or PyEDB.
 
 This kind of problem can occur when a user is in a Linux environment and wants to use .NET.
-If you encounter such issue, you can try patching it by importing PyAEDT or PyEDB before any import of Numpy.
+If you encounter such issue, you can try patching it by importing PyAEDT or PyEDB before any import of Numpy as below
+
+.. code-block:: python
+
+    import ansys.aedt.core
+    import numpy
 
 .. note::
+
     If you use gRPC or previous Numpy releases, you shouldn't be impacted with this issue.
