@@ -1239,6 +1239,13 @@ class Modeler3D(Primitives3D):
         dict
             Dictionary of generated infos.
 
+        Notes
+        -----
+        Please note that elevation is not computed anymore in this method.
+        Please check the example
+        ``https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/antenna/large_scenarios/city.html``
+        to compute also elevation.
+
         """
         from ansys.aedt.core.modeler.advanced_cad.oms import BuildingsPrep
         from ansys.aedt.core.modeler.advanced_cad.oms import RoadPrep

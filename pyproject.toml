@@ -80,7 +80,6 @@ tests = [
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.7",
     "scikit-rf>=0.30.0,<1.6",
-    "SRTM.py",
     "utm",
 ]
 dotnet = [
@@ -117,7 +116,6 @@ all = [
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.7",
     "scikit-rf>=0.30.0,<1.6",
-    "SRTM.py",
     "utm",
 ]
 installer = [
@@ -132,7 +130,6 @@ installer = [
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.7",
     "scikit-rf>=0.30.0,<1.6",
-    "SRTM.py",
     "utm",
     "jupyterlab>=3.6.0,<4.4",
     "ipython>=7.30.0,<8.32",

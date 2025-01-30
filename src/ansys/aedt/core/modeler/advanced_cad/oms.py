@@ -47,14 +47,10 @@ except ImportError:  # pragma: no cover
 
 try:
     import osmnx as ox
-    import srtm
     import utm
 
 except ImportError:  # pragma: no cover
-    warnings.warn(
-        "OpenStreetMap Reader requires utm, osmnx and srtm extra packages.\n"
-        "Install with \n\npip install utm osmnx srtm"
-    )
+    warnings.warn("OpenStreetMap Reader requires utm, osmnx extra packages.\n" "Install with \n\npip install utm osmnx")
 
 
 class BuildingsPrep(object):
@@ -422,18 +418,14 @@ class TerrainPrep(object):
                 latlat_utm_centered = all_utm[lat_idx][lon_idx][0] - utm_center[0]
                 lonlon_utm_centered = all_utm[lat_idx][lon_idx][1] - utm_center[1]
 
-                if (
-                    all_data[lat_idx][lon_idx] != -32768
-                ):  # this is missing data from srtm, don't add if it doesn't exist
+                if all_data[lat_idx][lon_idx] != -32768:  # this is missing data, don't add if it doesn't exist
                     xyz.append([latlat_utm_centered, lonlon_utm_centered, all_data[lat_idx][lon_idx]])
         xyz = np.array(xyz)
 
         file_out = self.cad_path + "/terrain.stl"
         logger.info("saving STL as " + file_out)
         terrain_mesh = pv.PolyData(xyz)
-        terrain_mesh = terrain_mesh.delaunay_2d(
-            tol=10 / (2 * max_radius) / 2
-        )  # tolerance, srtm is 30meter, so as a fraction of total size this would be 30/2/radius
+        terrain_mesh = terrain_mesh.delaunay_2d(tol=10 / (2 * max_radius) / 2)
         terrain_mesh = terrain_mesh.smooth(n_iter=100, relaxation_factor=0.04)
 
         el = terrain_mesh.points[:, 2]
@@ -483,7 +475,6 @@ class TerrainPrep(object):
         num_samples = int(np.ceil(max_radius * 2 / sample_grid_size))
         x_samples = np.linspace(utm_x_min, utm_x_max, int(num_samples))
         y_samples = np.linspace(utm_y_min, utm_y_max, int(num_samples))
-        elevation_data = srtm.get_data()
 
         all_data = np.zeros((num_samples, num_samples))
         all_utm = np.zeros((num_samples, num_samples, 2))
@@ -506,7 +497,6 @@ class TerrainPrep(object):
                 zone_letter = utm.latitude_to_zone_letter(center_lat_lon[0])
                 zone_number = utm.latlon_to_zone_number(center_lat_lon[0], center_lat_lon[1])
                 current_lat_lon = utm.to_latlon(x, y, zone_number, zone_letter)
-                all_data[n, m] = elevation_data.get_elevation(current_lat_lon[0], current_lat_lon[1])
                 all_lat_lon[n, m] = current_lat_lon
                 all_utm[n, m] = [x, y]
         logger.info(str(100) + "% - Done")
