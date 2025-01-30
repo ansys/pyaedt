@@ -1543,8 +1543,7 @@ class Maxwell(object):
                 assignment = self.modeler.convert_to_selections(assignment, True)
                 prop = dict({"Name": symmetry_name, "Faces": assignment, "IsOdd": is_odd})
         else:
-            msg = "At least one edge must be provided."
-            ValueError(msg)
+            raise ValueError("At least one edge must be provided.")
         return self._create_boundary_object(symmetry_name, prop, "Symmetry")
 
     @pyaedt_function_handler(
@@ -2420,7 +2419,12 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if self.solution_type in (SOLUTIONS.Maxwell3d.EddyCurrent, SOLUTIONS.Maxwell3d.Magnetostatic):
+        if self.solution_type not in (SOLUTIONS.Maxwell3d.EddyCurrent, SOLUTIONS.Maxwell3d.Magnetostatic):
+            raise AEDTRuntimeError(
+                "Current density can only be applied to Eddy Current or Magnetostatic solution types."
+            )
+
+        try:
             if current_density_name is None:
                 current_density_name = generate_unique_name("CurrentDensity")
 
@@ -2442,11 +2446,12 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                 bound_name = current_density_name
                 bound_type = "CurrentDensityTerminal"
 
-            return self._create_boundary_object(bound_name, props, bound_type)
-        else:
-            raise AEDTRuntimeError(
-                "Current density can only be applied to Eddy Current or Magnetostatic solution types."
-            )
+            boundary = self._create_boundary_object(bound_name, props, bound_type)
+            if boundary:
+                return True
+        except GrpcApiError as e:
+            raise AEDTRuntimeError("Current density terminal could not be assigned.") from e
+        return False
 
     @pyaedt_function_handler()
     def get_conduction_paths(self):

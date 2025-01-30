@@ -700,10 +700,15 @@ class TestClass:
     def test_assign_current_density_terminal(self, m3d_app):
         box = m3d_app.modeler.create_box([50, 0, 50], [294, 294, 19], name="box")
         assert m3d_app.assign_current_density_terminal(box.faces[0], "current_density_t_1")
-        assert not m3d_app.assign_current_density_terminal(box.faces[0], "current_density_t_1")
+        with pytest.raises(AEDTRuntimeError, match="Current density terminal could not be assigned."):
+            m3d_app.assign_current_density_terminal(box.faces[0], "current_density_t_1")
         assert m3d_app.assign_current_density_terminal([box.faces[0], box.faces[1]], "current_density_t_2")
         m3d_app.solution_type = SOLUTIONS.Maxwell3d.Transient
-        assert not m3d_app.assign_current_density_terminal(box.faces[0], "current_density_t_3")
+        with pytest.raises(
+            AEDTRuntimeError,
+            match="Current density can only be applied to Eddy Current or Magnetostatic solution types.",
+        ):
+            m3d_app.assign_current_density_terminal(box.faces[0], "current_density_t_3")
 
     def test_assign_impedance(self, m3d_app):
         m3d_app.solution_type = SOLUTIONS.Maxwell3d.Transient
@@ -774,7 +779,7 @@ class TestClass:
                 u_vector_pos_coordinates_slave=["10mm", "10mm", "0mm"],
             )
         with pytest.raises(
-            ValueError, match="Elements of coordinates system must be strings in the form of ``value+unit``."
+            ValueError, match=re.escape("Elements of coordinates system must be strings in the form of ``value+unit``.")
         ):
             m3d_app.assign_master_slave(
                 master_entity=box.faces[1],
@@ -785,7 +790,7 @@ class TestClass:
                 u_vector_pos_coordinates_slave=["10mm", "10mm", "0mm"],
             )
         with pytest.raises(
-            ValueError, match="Elements of coordinates system must be strings in the form of ``value+unit``."
+            ValueError, match=re.escape("Elements of coordinates system must be strings in the form of ``value+unit``.")
         ):
             m3d_app.assign_master_slave(
                 master_entity=box.faces[1],
@@ -796,7 +801,7 @@ class TestClass:
                 u_vector_pos_coordinates_slave=["10mm", "10mm", "0mm"],
             )
         with pytest.raises(
-            ValueError, match="Elements of coordinates system must be strings in the form of ``value+unit``."
+            ValueError, match=re.escape("Elements of coordinates system must be strings in the form of ``value+unit``.")
         ):
             m3d_app.assign_master_slave(
                 master_entity=box.faces[1],
@@ -1039,7 +1044,8 @@ class TestClass:
         assert bound.props["Objects"][0] == my_rectangle.name
         m3d_app.solution_type = SOLUTIONS.Maxwell3d.ACConduction
         with pytest.raises(
-            TypeError, match="Resistive sheet is applicable only to Eddy Current, transient and magnetostatic solvers."
+            AEDTRuntimeError,
+            match="Resistive sheet is applicable only to Eddy Current, transient and magnetostatic solvers.",
         ):
             m3d_app.assign_resistive_sheet(assignment=my_rectangle, resistance="3ohm")
 

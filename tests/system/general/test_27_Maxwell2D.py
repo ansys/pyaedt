@@ -270,7 +270,8 @@ class TestClass:
         assert aedtapp.assign_symmetry([region[0].edges[0], band[0].edges[0]])
         assert aedtapp.assign_symmetry([region[0].edges[0], band[0].edges[0]], "Symmetry_Test_IsEven", False)
         assert aedtapp.assign_symmetry([9556, 88656])
-        assert not aedtapp.assign_symmetry([])
+        with pytest.raises(ValueError, match="At least one edge must be provided."):
+            aedtapp.assign_symmetry([])
         for bound in aedtapp.boundaries:
             if bound.name == "Symmetry_Test_IsOdd":
                 assert bound.type == "Symmetry"
@@ -607,10 +608,7 @@ class TestClass:
         assert m2d_app.create_external_circuit()
         assert m2d_app.create_external_circuit(circuit_design="test_cir")
         m2d_app.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
-        with pytest.raises(
-            AEDTRuntimeError,
-            match="External circuit excitation for windings is available only for Eddy Current or Transient solutions.",
-        ):
+        with pytest.raises(AEDTRuntimeError, match="No windings in the Maxwell design."):
             m2d_app.create_external_circuit()
         m2d_app.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY
         for w in m2d_app.excitations_by_type["Winding"]:
