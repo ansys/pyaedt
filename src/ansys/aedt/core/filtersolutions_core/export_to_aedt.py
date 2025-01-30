@@ -492,11 +492,6 @@ class ExportToAedt:
         self._dll.removeModelithicsResistorsFamily.argtype = c_char_p
         self._dll.removeModelithicsResistorsFamily.restype = c_int
 
-    def _open_aedt_export(self):
-        """Open export page to accept manipulate export parameters"""
-        status = self._dll.openLumpedExportPage()
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
-
     @property
     def schematic_name(self) -> str:
         """Name of the exported schematic in ``AEDT``, displayed as the project and design names.
@@ -1222,12 +1217,12 @@ class ExportToAedt:
     def update_interconncet_parameters(self):
         """Update interconnect geometry equations with entered and selected parameters"""
         status = self._dll.updateInterConnectParmeters()  # pragma: no cover
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)  # pragma: no cover
 
     def update_inductor_capacitor_tolerances(self):
         """Update interconnect inductor and capacitor tolerances with entered values"""
         status = self._dll.updatePartsTolerances()  # pragma: no cover
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)  # pragma: no cover
 
     @property
     def substrate_type(self) -> SubstrateType:
@@ -1480,7 +1475,7 @@ class ExportToAedt:
 
     def load_modelithics_models(self):
         """Load ``Modelithics`` models from ``AEDT``."""
-        status = self._dll.loadModelithicsModels()  # pragma: no cover
+        status = self._dll.loadModelithicsModels()
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
     @property

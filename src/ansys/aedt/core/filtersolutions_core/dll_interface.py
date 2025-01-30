@@ -122,8 +122,7 @@ class DllInterface:
         return text
 
     def set_string(self, dll_function: Callable, string: str):
-        """
-        Call a DLL function that sets a string.
+        """Call a DLL function that sets a string.
 
         Parameters
         ----------
@@ -137,8 +136,7 @@ class DllInterface:
         self.raise_error(status)
 
     def string_to_enum(self, enum_type: Enum, string: str) -> Enum:
-        """
-        Convert a string to a string defined by an enum.
+        """Convert a string to a string defined by an enum.
 
         Parameters
         ----------
@@ -156,8 +154,7 @@ class DllInterface:
         return enum_type[fixed_string]
 
     def enum_to_string(self, enum_value: Enum) -> str:
-        """
-        Convert an enum value to a string.
+        """Convert an enum value to a string.
 
         Parameters
         ----------
@@ -173,8 +170,7 @@ class DllInterface:
         return fixed_string
 
     def api_version(self) -> str:
-        """
-        Get the version of the API.
+        """Get the version of the API.
 
         Returns
         -------
@@ -185,6 +181,18 @@ class DllInterface:
         return version
 
     def raise_error(self, error_status):
+        """Raise an exception if the error status is not 0.
+
+        Parameters
+        ----------
+        error_status: int
+            Error status to check.
+
+        Raises
+        ------
+        RuntimeError
+            If the error status is not 0, an exception is raised.
+        """
         if error_status != 0:
             error_message = self.get_string(self._dll.getErrorMessage, 4096)
             raise RuntimeError(error_message)

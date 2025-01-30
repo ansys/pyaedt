@@ -425,8 +425,16 @@ class TestClass:
     def test_part_libraries(self, lumped_design):
         assert lumped_design.export_to_aedt.part_libraries == PartLibraries.LUMPED
         assert len(PartLibraries) == 3
-        lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
-        assert lumped_design.export_to_aedt.part_libraries == PartLibraries.MODELITHICS
+        try:
+            lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
+        except RuntimeError as info:
+            assert (
+                "NOTICE!  Modelithics Must Be Installed to Use This Feature\r\n"
+                "Insure Modelithics is installed and try again." in str(info)
+            )
+        else:
+            lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
+            assert lumped_design.export_to_aedt.part_libraries == PartLibraries.MODELITHICS
 
     def test_interconnect_length_to_width_ratio(self, lumped_design):
         assert lumped_design.export_to_aedt.interconnect_length_to_width_ratio == "2"
@@ -577,6 +585,11 @@ class TestClass:
         assert lumped_design.export_to_aedt.substrate_cover_height == "6.35 mm"
         lumped_design.export_to_aedt.substrate_cover_height = "2.5 mm"
         assert lumped_design.export_to_aedt.substrate_cover_height == "2.5 mm"
+
+    def test_load_modelithics_models(self, lumped_design):
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.export_to_aedt.load_modelithics_models()
+        assert info.value.args[0] == "The part library is not set to Modelithics"
 
     def test_substrate_unbalanced_stripline_enabled(self, lumped_design):
         lumped_design.export_to_aedt.substrate_type = SubstrateType.STRIPLINE
