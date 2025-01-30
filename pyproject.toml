@@ -80,7 +80,6 @@ tests = [
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.7",
     "scikit-rf>=0.30.0,<1.6",
-    "utm",
 ]
 dotnet = [
     "ansys-pythonnet>=3.1.0rc3",
@@ -116,7 +115,6 @@ all = [
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.7",
     "scikit-rf>=0.30.0,<1.6",
-    "utm",
 ]
 installer = [
     "matplotlib>=3.5.0,<3.11",
@@ -130,7 +128,6 @@ installer = [
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.7",
     "scikit-rf>=0.30.0,<1.6",
-    "utm",
     "jupyterlab>=3.6.0,<4.4",
     "ipython>=7.30.0,<8.32",
     "ipyvtklink>=0.2.0,<0.2.4",
