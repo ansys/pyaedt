@@ -2547,9 +2547,8 @@ class Primitives3D(GeometryModeler):
         list_duplicated_object = []
         if isinstance(list_object[0], list):
             for i in range(len(list_object)):
-                success = list_object[i][0].set_crosssection_properties(
-                    type=section, width=w_dia, num_seg=segment_number
-                )
+                success = list_object[i][0].set_crosssection_properties(section=section, width=w_dia,
+                                                                        num_seg=segment_number)
             returned_list = returned_list + list_object
         else:
             success = list_object[0].set_crosssection_properties(type=section, width=w_dia, num_seg=segment_number)
@@ -2566,16 +2565,16 @@ class Primitives3D(GeometryModeler):
                                                            material=material_wind)
                         duplication.mirror([0, 0, 0], [-1, 0, 0])
                         duplication_points = self.get_vertices_of_line(duplication.name)
-                        success = duplication.set_crosssection_properties(
-                            type=section, width=w_dia, num_seg=segment_number
-                        )
+                        success = duplication.set_crosssection_properties(section=section, width=w_dia,
+                                                                          num_seg=segment_number)
                         list_duplicated_object.append([duplication, duplication_points])
 
                 else:
                     duplication = self.create_polyline(points=list_object[1], name=name_wind, material=material_wind)
                     duplication.mirror([0, 0, 0], [-1, 0, 0])
                     duplication_points = self.get_vertices_of_line(duplication.name)
-                    success = duplication.set_crosssection_properties(type=section, width=w_dia, num_seg=segment_number)
+                    success = duplication.set_crosssection_properties(section=section, width=w_dia,
+                                                                      num_seg=segment_number)
                     list_duplicated_object.append([duplication, duplication_points])
             else:
                 if isinstance(list_object[0], list):
@@ -2585,9 +2584,8 @@ class Primitives3D(GeometryModeler):
                                                                material=material_wind)
                             duplication.rotate("Z", (j + 1) * 360 / number_duplication)
                             duplication_points = self.get_vertices_of_line(duplication.name)
-                            success = duplication.set_crosssection_properties(
-                                type=section, width=w_dia, num_seg=segment_number
-                            )
+                            success = duplication.set_crosssection_properties(section=section, width=w_dia,
+                                                                              num_seg=segment_number)
                             list_duplicated_object.append([duplication, duplication_points])
                 else:
                     for j in range(number_duplication - 1):
@@ -2595,9 +2593,8 @@ class Primitives3D(GeometryModeler):
                                                            material=material_wind)
                         duplication.rotate("Z", (j + 1) * 360 / number_duplication)
                         duplication_points = self.get_vertices_of_line(duplication.name)
-                        success = duplication.set_crosssection_properties(
-                            type=section, width=w_dia, num_seg=segment_number
-                        )
+                        success = duplication.set_crosssection_properties(section=section, width=w_dia,
+                                                                          num_seg=segment_number)
                         list_duplicated_object.append([duplication, duplication_points])
             returned_list = returned_list + list_duplicated_object
         if success:

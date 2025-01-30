@@ -1413,6 +1413,7 @@ class BinaryTreeNode:
                     )
         if name and self.__first_level:
             self.child_object = self._children[name].child_object
+            self._children[name].properties["Command"] = self.properties.get("Command", "")
             self._props = self._children[name].properties
             if name == "CreatePolyline:1":
                 self.segments = self._children[name].children

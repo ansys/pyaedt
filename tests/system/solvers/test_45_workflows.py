@@ -587,7 +587,7 @@ class TestClass:
             "contour_list": [[[0.143, 0.04], [0.1476, 0.04], [0.1476, 0.03618], [0.143, 0.036]]],
             "is_batch": True,
             "start_layer": "TOP",
-            "stop_layer": "BOTTOM",
+            "stop_layer": "INT5",
             "design_name": "test",
             "aedb_path": file_path,
             "new_aedb_path": new_file,
