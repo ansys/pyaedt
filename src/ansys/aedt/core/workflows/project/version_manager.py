@@ -40,11 +40,10 @@ import zipfile
 import ansys.aedt.core as pyaedt
 from ansys.aedt.core.workflows.customize_automation_tab import add_script_to_menu
 from ansys.aedt.core.workflows.customize_automation_tab import available_toolkits
+from ansys.aedt.core.workflows.misc import ExtensionTheme
 from ansys.aedt.core.workflows.misc import get_aedt_version
 from ansys.aedt.core.workflows.misc import get_port
 from ansys.aedt.core.workflows.misc import get_process_id
-from ansys.aedt.core.workflows.misc import ExtensionTheme
-
 import pyedb
 import requests
 
@@ -119,12 +118,14 @@ class VersionManager:
         self.style = ttk.Style()
 
         # Define the custom style for TLabel (ttk.Label)
-        self.style.configure("PyAEDT",
-                        font=("Helvetica", 14, "bold"),  # Font style: Helvetica, size 14, bold
-                        foreground="darkblue",  # Text color
-                        background="lightyellow",  # Background color
-                        padding=(10, 5),  # Padding inside the label
-                        anchor="w")
+        self.style.configure(
+            "PyAEDT",
+            font=("Helvetica", 14, "bold"),  # Font style: Helvetica, size 14, bold
+            foreground="darkblue",  # Text color
+            background="lightyellow",  # Background color
+            padding=(10, 5),  # Padding inside the label
+            anchor="w",
+        )
         self.theme = ExtensionTheme()
 
         self.theme.apply_light_theme(self.style)
@@ -150,7 +151,7 @@ class VersionManager:
         main_frame.pack(fill=tk.BOTH, expand=True)
         notebook = ttk.Notebook(self.root, style="TNotebook")
         main_frame.add(notebook, weight=3)
-        #notebook.pack(fill="both", expand=True, padx=10, pady=10)
+        # notebook.pack(fill="both", expand=True, padx=10, pady=10)
 
         tab_basic = ttk.Frame(notebook)
         tab_advanced = ttk.Frame(notebook)
@@ -166,7 +167,6 @@ class VersionManager:
         self.create_ui_advanced(tab_advanced)
         self.create_ui_extensions(tab_extensions)
 
-
         self.clicked_refresh()
 
     def create_file_menu(self):
@@ -180,7 +180,7 @@ class VersionManager:
         def create_ui_wheelhouse(frame):
             buttons = [
                 ["Update from wheelhouse", self.update_from_wheelhouse],
-                ["Update extensions", self.update_extensions]
+                ["Update extensions", self.update_extensions],
             ]
             for text, cmd in buttons:
                 button = tk.Button(frame, text=text, width=40, height=2, command=cmd)
@@ -255,9 +255,7 @@ class VersionManager:
             entry.pack(side="left")
 
         def create_ui_pyaedt_buttons(frame):
-            buttons = [
-                ["Reset PyAEDT Buttons", self.reset_pyaedt_buttons_in_aedt]
-            ]
+            buttons = [["Reset PyAEDT Buttons", self.reset_pyaedt_buttons_in_aedt]]
             for text, cmd in buttons:
                 button = tk.Button(frame, text=text, width=40, height=2, command=cmd)
                 button.pack(side="left", padx=10, pady=10)
@@ -311,7 +309,7 @@ class VersionManager:
 
     def update_extensions(self):
         response = messagebox.askquestion("Confirm Action", "Are you sure you want to proceed?")
-        if response == 'yes':
+        if response == "yes":
             toolkits_path = Path(self.personal_lib, "Toolkits")
             temp = []
             for product in toolkits_path.iterdir():
@@ -358,7 +356,7 @@ class VersionManager:
     def update_pyaedt(self):
         response = messagebox.askquestion("Disclaimer", DISCLAIMER)
 
-        if response == 'yes':
+        if response == "yes":
             url = f"https://pypi.org/pypi/pyaedt/json"
             response = requests.get(url)
 
@@ -369,8 +367,7 @@ class VersionManager:
                 released_version = 0
 
             if self.pyaedt_version > released_version:
-                subprocess.run(
-                    [self.python_exe, "-m", "pip", "install", f"pyaedt=={released_version}"], check=True)
+                subprocess.run([self.python_exe, "-m", "pip", "install", f"pyaedt=={released_version}"], check=True)
             else:
                 subprocess.run([self.python_exe, "-m", "pip", "install", "-U", "pyaedt"], check=True)
 
@@ -383,13 +380,19 @@ class VersionManager:
 
         response = messagebox.askquestion("Disclaimer", DISCLAIMER)
 
-        if response == 'yes':
+        if response == "yes":
             branch_name = self.pyaedt_branch_name.get()
             subprocess.run(
-                [self.python_exe, "-m", "pip", "install",
-                 #"--force-reinstall",
-                 f"git+https://github.com/ansys/pyaedt.git@{branch_name}"],
-                check=True)
+                [
+                    self.python_exe,
+                    "-m",
+                    "pip",
+                    "install",
+                    # "--force-reinstall",
+                    f"git+https://github.com/ansys/pyaedt.git@{branch_name}",
+                ],
+                check=True,
+            )
             self.clicked_refresh(need_restart=True)
 
     def get_pyedb_branch(self):
@@ -399,16 +402,17 @@ class VersionManager:
 
         response = messagebox.askquestion("Disclaimer", DISCLAIMER)
 
-        if response == 'yes':
+        if response == "yes":
             branch_name = self.pyedb_branch_name.get()
             subprocess.run(
                 [self.python_exe, "-m", "pip", "install", f"git+https://github.com/ansys/pyedb.git@{branch_name}"],
-                check=True)
+                check=True,
+            )
             self.clicked_refresh(need_restart=True)
 
     def update_pyedb(self):
         response = messagebox.askquestion("Disclaimer", DISCLAIMER)
-        if response == 'yes':
+        if response == "yes":
             url = f"https://pypi.org/pypi/pyedb/json"
             response = requests.get(url)
 
@@ -419,8 +423,7 @@ class VersionManager:
                 released_version = 0
 
             if self.pyedb_version > released_version:
-                subprocess.run(
-                    [self.python_exe, "-m", "pip", "install", f"pyedb=={released_version}"], check=True)
+                subprocess.run([self.python_exe, "-m", "pip", "install", f"pyedb=={released_version}"], check=True)
             else:
                 subprocess.run([self.python_exe, "-m", "pip", "install", "-U", "pyedb"], check=True)
 
@@ -438,23 +441,21 @@ class VersionManager:
             correct_wheelhouse = file_name
             # Check Python version
             if not wh_python_version == self.python_version:
-                msg.extend([
-                    f"Wrong Python version",
-                    f"Wheelhouse: {wh_python_version}",
-                    f"Expected version: {self.python_version}",
-                ])
+                msg.extend(
+                    [
+                        f"Wrong Python version",
+                        f"Wheelhouse: {wh_python_version}",
+                        f"Expected version: {self.python_version}",
+                    ]
+                )
                 correct_wheelhouse = correct_wheelhouse.replace(wh_python_version, self.python_version)
 
             if wh_pkg_type != "installer":
-                correct_wheelhouse = correct_wheelhouse.replace(f'-{wh_pkg_type}-', '-installer-')
-                msg.extend([
-                    "",
-                    f"This wheelhouse doesn't contain required packages to add PyAEDT buttons."
-                ])
+                correct_wheelhouse = correct_wheelhouse.replace(f"-{wh_pkg_type}-", "-installer-")
+                msg.extend(["", f"This wheelhouse doesn't contain required packages to add PyAEDT buttons."])
 
             if msg is not []:
-                msg.extend(["",
-                            f"Please download {correct_wheelhouse}."])
+                msg.extend(["", f"Please download {correct_wheelhouse}."])
                 msg = "\n".join(msg)
                 messagebox.showerror("Confirm Action", msg)
                 return
@@ -469,36 +470,44 @@ class VersionManager:
                 zip_ref.extractall(unzipped_path)
 
             subprocess.run(
-                [self.python_exe, "-m", "pip", "install", "--no-cache-dir", "--no-index",
-                 f"--find-links=file:///{str(unzipped_path)}",
-                 "pyaedt[installer]"], check=True)
+                [
+                    self.python_exe,
+                    "-m",
+                    "pip",
+                    "install",
+                    "--no-cache-dir",
+                    "--no-index",
+                    f"--find-links=file:///{str(unzipped_path)}",
+                    "pyaedt[installer]",
+                ],
+                check=True,
+            )
             self.clicked_refresh(need_restart=True)
 
     def reset_pyaedt_buttons_in_aedt(self):
         def handle_remove_error(func, path, exc_info):
             # Attempt to fix permission issues
             import stat
+
             os.chmod(path, stat.S_IWRITE)  # Add write permission
             func(path)  # Retry the operation
 
         response = messagebox.askquestion("Confirm Action", "Are you sure you want to proceed?")
 
-        if response == 'yes':
+        if response == "yes":
             toolkit_path = os.path.join(self.personal_lib, "Toolkits")
 
             if os.path.isdir(toolkit_path) and os.path.exists(toolkit_path):
-                msg = [
-                    f"Toolkits path {toolkit_path} already exists.",
-                    "Are you sure you want to reset toolkits?"
-                ]
+                msg = [f"Toolkits path {toolkit_path} already exists.", "Are you sure you want to reset toolkits?"]
                 msg = "\n".join(msg)
                 response = messagebox.askquestion("Confirm Action", msg)
-                if response == 'yes':
+                if response == "yes":
                     shutil.rmtree(toolkit_path, onerror=handle_remove_error)
                 else:
                     return
 
             from ansys.aedt.core.workflows.installer.pyaedt_installer import add_pyaedt_to_aedt
+
             try:
                 add_pyaedt_to_aedt(self.aedt_version, self.personal_lib)
                 messagebox.showinfo("Success", "PyAEDT buttons added in AEDT.")
@@ -506,10 +515,7 @@ class VersionManager:
                 messagebox.showerror("Error", f"Error adding buttons to AEDT: {e}")
 
     def clicked_refresh(self, need_restart=False):
-        msg = [
-            f"Venv path: {self.venv_path}",
-            f"Python version: {self.python_version}"
-        ]
+        msg = [f"Venv path: {self.venv_path}", f"Python version: {self.python_version}"]
         msg = "\n".join(msg)
         self.venv_information.set(msg)
 
@@ -543,9 +549,7 @@ def get_desktop_info(release_desktop=True):
     personal_lib = app.personallib
     if release_desktop:
         app.release_desktop(close_project, close_on_exit)
-    return {"desktop": app,
-            "aedt_version": aedt_version,
-            "personal_lib": personal_lib}
+    return {"desktop": app, "aedt_version": aedt_version, "personal_lib": personal_lib}
 
 
 if __name__ == "__main__":
