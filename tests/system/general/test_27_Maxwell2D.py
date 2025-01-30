@@ -189,10 +189,11 @@ class TestClass:
         )
         assert mas.name == "my_bound"
         assert slave.name == "my_bound_dep"
-        assert not aedtapp.assign_master_slave(
-            aedtapp.modeler["Rectangle1"].edges[0].id,
-            aedtapp.modeler["Rectangle1"].edges[1].id,
-        )
+        with pytest.raises(AEDTRuntimeError, match="Slave boundary could not be created."):
+            aedtapp.assign_master_slave(
+                aedtapp.modeler["Rectangle1"].edges[0].id,
+                aedtapp.modeler["Rectangle1"].edges[1].id,
+            )
 
     def test_check_design_preview_image(self, local_scratch, aedtapp):
         jpg_file = os.path.join(local_scratch.path, "file.jpg")
@@ -203,7 +204,7 @@ class TestClass:
 
     def test_apply_skew(self, aedtapp):
         assert aedtapp.apply_skew()
-        with pytest.raises(ValueError, match="Invalid coordinate system."):
+        with pytest.raises(ValueError, match="Invalid skew type."):
             assert not aedtapp.apply_skew(skew_type="Invalid")
         with pytest.raises(ValueError, match="Invalid skew angle unit."):
             aedtapp.apply_skew(skew_type="Continuous", skew_part="Stator", skew_angle="0.5", skew_angle_unit="Invalid")
@@ -617,6 +618,6 @@ class TestClass:
         m2d_app.save_project()
         with pytest.raises(
             AEDTRuntimeError,
-            "External circuit excitation for windings is available only for Eddy Current or Transient solutions.",
+            match="External circuit excitation for windings is available only for Eddy Current or Transient solutions.",
         ):
             m2d_app.create_external_circuit()

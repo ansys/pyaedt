@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+import re
 import shutil
 
 from ansys.aedt.core import Maxwell3d
@@ -691,9 +692,9 @@ class TestClass:
         assert bound.props[bound.name]["CurrentDensityZ"] == "0"
         assert bound.props[bound.name]["CoordinateSystem Name"] == "Global"
 
-        with pytest.raises(AEDTRuntimeError, match="Invalid coordinate system."):
+        with pytest.raises(ValueError, match="Invalid coordinate system."):
             m3d_app.assign_current_density(box.name, "current_density_3", coordinate_system_type="test")
-        with pytest.raises(AEDTRuntimeError, match="Invalid phase unit."):
+        with pytest.raises(ValueError, match="Invalid phase unit."):
             m3d_app.assign_current_density(box.name, "current_density_4", phase="5ang")
 
     def test_assign_current_density_terminal(self, m3d_app):
@@ -762,7 +763,7 @@ class TestClass:
         assert independent
         assert dependent
         with pytest.raises(
-            ValueError, match="Elements of coordinates system must be strings in the form of ``value+unit``."
+            ValueError, match=re.escape("Elements of coordinates system must be strings in the form of ``value+unit``.")
         ):
             m3d_app.assign_master_slave(
                 master_entity=box.faces[1],
@@ -1037,7 +1038,10 @@ class TestClass:
         assert bound.props["Nonlinear"]
         assert bound.props["Objects"][0] == my_rectangle.name
         m3d_app.solution_type = SOLUTIONS.Maxwell3d.ACConduction
-        assert not m3d_app.assign_resistive_sheet(assignment=my_rectangle, resistance="3ohm")
+        with pytest.raises(
+            TypeError, match="Resistive sheet is applicable only to Eddy Current, transient and magnetostatic solvers."
+        ):
+            m3d_app.assign_resistive_sheet(assignment=my_rectangle, resistance="3ohm")
 
     def test_assign_layout_force(self, layout_comp):
         nets_layers = {
@@ -1046,7 +1050,8 @@ class TestClass:
             "V3P3_S5": ["LYR_1", "LYR_2", "UNNAMED_006", "UNNAMED_008"],
         }
         assert layout_comp.assign_layout_force(nets_layers, "LC1_1")
-        assert not layout_comp.assign_layout_force(nets_layers, "LC1_3")
+        with pytest.raises(AEDTRuntimeError, match="Provided component name doesn't exist in current design."):
+            layout_comp.assign_layout_force(nets_layers, "LC1_3")
         nets_layers = {"1V0": "Bottom Solder"}
         assert layout_comp.assign_layout_force(nets_layers, "LC1_1")
 

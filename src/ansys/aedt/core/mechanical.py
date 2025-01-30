@@ -217,7 +217,7 @@ class Mechanical(FieldAnalysis3D, object):
         ----------
         >>> oModule.AssignEMLoss
         """
-        if self.solution_type != SOLUTIONS.Mechanical.Thermal:
+        if self.solution_type not in (SOLUTIONS.Mechanical.Thermal, SOLUTIONS.Mechanical.SteadyStateThermal):
             raise AEDTRuntimeError("This method works only in a Mechanical Thermal analysis.")
 
         if surface_objects is None:
@@ -406,7 +406,7 @@ class Mechanical(FieldAnalysis3D, object):
         ----------
         >>> oModule.AssignConvection
         """
-        if self.solution_type != SOLUTIONS.Mechanical.Thermal:
+        if self.solution_type not in (SOLUTIONS.Mechanical.Thermal, SOLUTIONS.Mechanical.SteadyStateThermal):
             raise AEDTRuntimeError("This method works only in a Mechanical Thermal analysis.")
 
         props = {}
@@ -455,7 +455,7 @@ class Mechanical(FieldAnalysis3D, object):
         ----------
         >>> oModule.AssignTemperature
         """
-        if self.solution_type != SOLUTIONS.Mechanical.Thermal:
+        if self.solution_type not in (SOLUTIONS.Mechanical.Thermal, SOLUTIONS.Mechanical.SteadyStateThermal):
             raise AEDTRuntimeError("This method works only in a Mechanical Thermal analysis.")
 
         props = {}
@@ -605,7 +605,7 @@ class Mechanical(FieldAnalysis3D, object):
         ----------
         >>> oModule.AssignHeatFlux
         """
-        if self.solution_type != SOLUTIONS.Mechanical.Thermal:
+        if self.solution_type not in (SOLUTIONS.Mechanical.Thermal, SOLUTIONS.Mechanical.SteadyStateThermal):
             raise AEDTRuntimeError("This method works only in a Mechanical Thermal analysis.")
 
         props = {}
@@ -653,7 +653,7 @@ class Mechanical(FieldAnalysis3D, object):
         ----------
         >>> oModule.AssignHeatGeneration
         """
-        if self.solution_type != SOLUTIONS.Mechanical.Thermal:
+        if self.solution_type not in (SOLUTIONS.Mechanical.Thermal, SOLUTIONS.Mechanical.SteadyStateThermal):
             raise AEDTRuntimeError("This method works only in a Mechanical Thermal analysis.")
 
         props = {}

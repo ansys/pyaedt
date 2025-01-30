@@ -35,6 +35,7 @@ from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import SOLUTIONS
 from ansys.aedt.core.generic.errors import AEDTRuntimeError
+from ansys.aedt.core.generic.errors import GrpcApiError
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import open_file
@@ -2518,60 +2519,62 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         >>> oModule.AssignIndependent
         >>> oModule.AssignDependent
         """
-        independent = self.modeler.convert_to_selections(independent, True)
-        dependent = self.modeler.convert_to_selections(dependent, True)
-        if not bound_name:
-            bound_name_m = generate_unique_name("Independent")
-            bound_name_s = generate_unique_name("Dependent")
-        else:
-            bound_name_m = bound_name
-            bound_name_s = bound_name + "_dep"
-        list_coordinates = [
-            u_vector_origin_coordinates_master,
-            u_vector_origin_coordinates_slave,
-            u_vector_pos_coordinates_master,
-            u_vector_pos_coordinates_slave,
-        ]
-        if any(not isinstance(coordinates, list) for coordinates in list_coordinates):
-            raise ValueError("Please provide a list of coordinates for U vectors.")
-        for coordinates in list_coordinates:
-            if any(not isinstance(x, str) for x in coordinates):
-                raise ValueError("Elements of coordinates system must be strings in the form of ``value+unit``.")
-        if any(len(coordinates) != 3 for coordinates in list_coordinates):
-            raise ValueError("Vector must contain 3 elements for x, y, and z coordinates.")
-        u_master_vector_coordinates = dict(
-            {
-                "Coordinate System": "Global",
-                "Origin": u_vector_origin_coordinates_master,
-                "UPos": u_vector_pos_coordinates_master,
-            }
-        )
-        master_props = dict(
-            {"Faces": independent, "CoordSysVector": u_master_vector_coordinates, "ReverseV": reverse_master}
-        )
-        master = self._create_boundary_object(bound_name_m, master_props, "Independent")
-        if master:
-            u_slave_vector_coordinates = dict(
+        try:
+            independent = self.modeler.convert_to_selections(independent, True)
+            dependent = self.modeler.convert_to_selections(dependent, True)
+            if not bound_name:
+                bound_name_m = generate_unique_name("Independent")
+                bound_name_s = generate_unique_name("Dependent")
+            else:
+                bound_name_m = bound_name
+                bound_name_s = bound_name + "_dep"
+            list_coordinates = [
+                u_vector_origin_coordinates_master,
+                u_vector_origin_coordinates_slave,
+                u_vector_pos_coordinates_master,
+                u_vector_pos_coordinates_slave,
+            ]
+            if any(not isinstance(coordinates, list) for coordinates in list_coordinates):
+                raise ValueError("Please provide a list of coordinates for U vectors.")
+            for coordinates in list_coordinates:
+                if any(not isinstance(x, str) for x in coordinates):
+                    raise ValueError("Elements of coordinates system must be strings in the form of ``value+unit``.")
+            if any(len(coordinates) != 3 for coordinates in list_coordinates):
+                raise ValueError("Vector must contain 3 elements for x, y, and z coordinates.")
+            u_master_vector_coordinates = dict(
                 {
                     "Coordinate System": "Global",
-                    "Origin": u_vector_origin_coordinates_slave,
-                    "UPos": u_vector_pos_coordinates_slave,
+                    "Origin": u_vector_origin_coordinates_master,
+                    "UPos": u_vector_pos_coordinates_master,
                 }
             )
+            master_props = dict(
+                {"Faces": independent, "CoordSysVector": u_master_vector_coordinates, "ReverseV": reverse_master}
+            )
+            master = self._create_boundary_object(bound_name_m, master_props, "Independent")
+            if master:
+                u_slave_vector_coordinates = dict(
+                    {
+                        "Coordinate System": "Global",
+                        "Origin": u_vector_origin_coordinates_slave,
+                        "UPos": u_vector_pos_coordinates_slave,
+                    }
+                )
 
-            slave_props = dict(
-                {
-                    "Faces": dependent,
-                    "CoordSysVector": u_slave_vector_coordinates,
-                    "ReverseU": reverse_slave,
-                    "Independent": bound_name_m,
-                    "RelationIsSame": same_as_master,
-                }
-            )
-            slave = self._create_boundary_object(bound_name_s, slave_props, "Dependent")
-            if slave:
-                return master, slave
-            raise AEDTRuntimeError("Slave boundary could not be created.")
+                slave_props = dict(
+                    {
+                        "Faces": dependent,
+                        "CoordSysVector": u_slave_vector_coordinates,
+                        "ReverseU": reverse_slave,
+                        "Independent": bound_name_m,
+                        "RelationIsSame": same_as_master,
+                    }
+                )
+                slave = self._create_boundary_object(bound_name_s, slave_props, "Dependent")
+                if slave:
+                    return master, slave
+        except GrpcApiError as e:
+            raise AEDTRuntimeError("Slave boundary could not be created.") from e
         return False
 
     @pyaedt_function_handler(objects_list="assignment")
@@ -3294,29 +3297,32 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         >>> oModule.AssignIndependent
         >>> oModule.AssignDependent
         """
-        independent = self.modeler.convert_to_selections(independent, True)
-        dependent = self.modeler.convert_to_selections(dependent, True)
-        if not boundary:
-            bound_name_m = generate_unique_name("Independent")
-            bound_name_s = generate_unique_name("Dependent")
-        else:
-            bound_name_m = boundary
-            bound_name_s = boundary + "_dep"
-        master_props = dict({"Edges": independent, "ReverseV": reverse_master})
-        master = self._create_boundary_object(bound_name_m, master_props, "Independent")
-        if master:
-            slave_props = dict(
-                {
-                    "Edges": dependent,
-                    "ReverseU": reverse_slave,
-                    "Independent": bound_name_m,
-                    "SameAsMaster": same_as_master,
-                }
-            )
-            slave = self._create_boundary_object(bound_name_s, slave_props, "Dependent")
-            if slave:
-                return master, slave
-            raise AEDTRuntimeError("Slave boundary could not be created.")
+        try:
+            independent = self.modeler.convert_to_selections(independent, True)
+            dependent = self.modeler.convert_to_selections(dependent, True)
+            if not boundary:
+                bound_name_m = generate_unique_name("Independent")
+                bound_name_s = generate_unique_name("Dependent")
+            else:
+                bound_name_m = boundary
+                bound_name_s = boundary + "_dep"
+            master_props = dict({"Edges": independent, "ReverseV": reverse_master})
+            master = self._create_boundary_object(bound_name_m, master_props, "Independent")
+            if master:
+                slave_props = dict(
+                    {
+                        "Edges": dependent,
+                        "ReverseU": reverse_slave,
+                        "Independent": bound_name_m,
+                        "SameAsMaster": same_as_master,
+                    }
+                )
+                slave = self._create_boundary_object(bound_name_s, slave_props, "Dependent")
+                if slave:
+                    return master, slave
+        except GrpcApiError as e:
+            raise AEDTRuntimeError("Slave boundary could not be created.") from e
+        return False
 
     @pyaedt_function_handler(objects="assignment", bound_name="boundary")
     def assign_end_connection(self, assignment, resistance=0, inductance=0, boundary=None):
