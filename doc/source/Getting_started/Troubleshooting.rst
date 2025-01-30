@@ -203,9 +203,10 @@ to `Ansys Support <https://www.ansys.com/it-solutions/contacting-technical-suppo
 
 Numpy compatibility
 -------------------
-If you use Numpy 2.x, you may encounter compatibility issues with PyAEDT and PyEDB.
+If you use Numpy 2.Y.Z, you may encounter compatibility issues with PyAEDT or PyEDB.
 
-If you encounter compatibility issues with Numpy, you need to import PyAEDT or PyEDB first and then Numpy.
-Since version 2.0, Numpy conflicts with the dotnetcore library required to initialize PyAEDT in COM mode.
+This kind of problem can occur when a user is in a Linux environment and wants to use .NET.
+If you encounter such issue, you can try patching it by importing PyAEDT or PyEDB before any import of Numpy.
 
-If you use gRPC or previous numpy releases, you do not need to worry about this issue.
+.. note::
+    If you use gRPC or previous Numpy releases, you shouldn't be impacted with this issue.
