@@ -984,34 +984,27 @@ class Maxwell(object):
 
         """
         if isinstance(amplitude, (int, float)):
-            amplitude = str(amplitude) + "mV"
+            amplitude = f"{amplitude}mV"
 
-        if not name:
-            name = generate_unique_name("Voltage")
+        name = name or generate_unique_name("Voltage")
         assignment = self.modeler.convert_to_selections(assignment, True)
+        is_maxwell_2d = self.design_type == "Maxwell 2D"
+        object_names_set = set(self.modeler.object_names)
 
-        if len(assignment) == 1:
-            if isinstance(assignment[0], str) and assignment[0] in self.modeler.object_names:
-                props = dict({"Objects": assignment, "Voltage": amplitude})
-                if self.design_type == "Maxwell 2D":
-                    props = dict({"Objects": assignment, "Value": amplitude})
+        props = {
+            "Voltage" if not is_maxwell_2d else "Value": amplitude,
+            "Objects": [],
+            "Faces": [] if not is_maxwell_2d else None,
+            "Edges": [] if is_maxwell_2d else None,
+        }
+
+        for element in assignment:
+            if isinstance(element, str) and element in object_names_set:
+                props["Objects"].append(element)
             else:
-                props = dict({"Faces": assignment, "Value": amplitude})
-                if self.design_type == "Maxwell 2D":
-                    props = dict({"Edges": assignment, "Value": amplitude})
-        else:
-            object_names_set = set(self.modeler.object_names)
-            props = dict({"Faces": [], "Objects": [], "Voltage": amplitude})
-            if self.design_type == "Maxwell 2D":
-                props = dict({"Edges": [], "Objects": [], "Value": amplitude})
-            for element in assignment:
-                if isinstance(element, str) and element in object_names_set:
-                    props["Objects"].append(element)
-                else:
-                    if self.design_type == "Maxwell 2D":
-                        props["Edges"].append(element)
-                    else:
-                        props["Faces"].append(element)
+                key = "Edges" if is_maxwell_2d else "Faces"
+                props[key].append(element)
+
         return self._create_boundary_object(name, props, "Voltage")
 
     @pyaedt_function_handler(face_list="assignment")
