@@ -50,7 +50,7 @@ from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import SI_UNITS
 from ansys.aedt.core.generic.constants import _resolve_unit_system
 from ansys.aedt.core.generic.constants import unit_system
-from ansys.aedt.core.generic.general_methods import GrpcApiError
+from ansys.aedt.core.generic.errors import GrpcApiError
 from ansys.aedt.core.generic.general_methods import check_numeric_equivalence
 from ansys.aedt.core.generic.general_methods import is_array
 from ansys.aedt.core.generic.general_methods import is_number

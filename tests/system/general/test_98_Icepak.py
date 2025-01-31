@@ -1883,3 +1883,15 @@ class TestClass:
         m1 = mesh_class.assign_mesh_region([c1.name])
         m2 = mesh_class.assign_mesh_region([c2.name])
         assert m1.assignment.name != m2.assignment.name
+
+    def test_84_get_object_material_properties(self):
+        self.aedtapp.modeler.create_box(
+            origin=[0, 0, 0],
+            sizes=[10, 10, 10],
+            name="myBox",
+            material="Al-Extruded",
+        )
+        obj_mat_prop = self.aedtapp.get_object_material_properties(
+            assignment=["myBox"], prop_names="thermal_conductivity"
+        )
+        assert obj_mat_prop["myBox"]["thermal_conductivity"] == "205"

@@ -47,7 +47,7 @@ def HFSS3DLayout_AdaptiveFrequencyData(freq):
 
 
 meshlink = dict({"ImportMesh": False})
-autosweep = dict({"RangeType": "LinearStep", "RangeStart": "1GHz", "RangeEnd": "10GHz", "RangeStep": "1GHz"})
+autosweep = dict({"RangeType": "LinearCount", "RangeStart": "1GHz", "RangeEnd": "10GHz", "RangeCount": "501"})
 autosweeps = dict({"Sweep": autosweep})
 multifreq = dict({"1GHz": [0.02], "2GHz": [0.02], "5GHz": [0.02]})
 sweepsbr = dict({"RangeType": "LinearStep", "RangeStart": "1GHz", "RangeEnd": "10GHz", "RangeStep": "1GHz"})

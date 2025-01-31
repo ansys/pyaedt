@@ -573,3 +573,24 @@ class TestClass:
         }
         extension_args = {"is_test": True, "choke_config": choke_config}
         assert main(extension_args)
+
+    @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
+    def test_18_via_merging(self, local_scratch):
+        from ansys.aedt.core.workflows.hfss3dlayout.via_clustering_extension import main
+
+        file_path = os.path.join(local_scratch.path, "test_via_merging.aedb")
+        new_file = os.path.join(local_scratch.path, "__test_via_merging.aedb")
+        local_scratch.copyfolder(
+            os.path.join(solver_local_path, "example_models", "T45", "test_via_merging.aedb"), file_path
+        )
+        _input_ = {
+            "contour_list": [[[0.143, 0.04], [0.1476, 0.04], [0.1476, 0.03618], [0.143, 0.036]]],
+            "is_batch": True,
+            "start_layer": "TOP",
+            "stop_layer": "INT5",
+            "design_name": "test",
+            "aedb_path": file_path,
+            "new_aedb_path": new_file,
+            "test_mode": True,
+        }
+        assert main(_input_)
