@@ -37,6 +37,7 @@ from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.setup_templates import Sweep3DLayout
 from ansys.aedt.core.modules.setup_templates import SweepHfss3D
 from ansys.aedt.core.modules.setup_templates import SweepSiwave
+from ansys.aedt.core.modules.setup_templates import SweepQ3D
 
 open3 = open
 if sys.version_info < (3, 0):
@@ -112,7 +113,7 @@ class SweepHFSS(object):
         self.name = name
         self.props = copy.deepcopy(SweepHfss3D)
         if props:
-            if "RangeStep" in props.keys():  # LinearCount is the default swep type. Change it if RangeStep is passed.
+            if "RangeStep" in props.keys():  # LinearCount is the default sweep type. Change it if RangeStep is passed.
                 if "RangeCount" in props.keys():
                     self._app.logger.message(
                         "Inconsistent arguments 'RangeCount' and 'RangeStep' passed to 'SweepHFSS',"
@@ -625,16 +626,19 @@ class SweepMatrix(object):
     """
 
     def __init__(self, setup, name, sweep_type="Interpolating", props=None):
-        self._app = setup
+        self._app = setup  # TODO: Remove sweep_type as an argument as it can be passed in props
         self.oanalysis = setup.omodule
         self.setup_name = setup.name
         self.name = name
+        self.props = copy.deepcopy(SweepQ3D)
         if props:
-            self.props = props
+            for key, value in props.items():
+                if key in self.props:
+                    self.props[key] = value
         else:
             self.props["Type"] = sweep_type
             if sweep_type == "Discrete":
-                self.props["isenabled"] = True
+                self.props["IsEnabled"] = True
                 self.props["RangeType"] = "LinearCount"
                 self.props["RangeStart"] = "2.5GHz"
                 self.props["RangeStep"] = "1GHz"

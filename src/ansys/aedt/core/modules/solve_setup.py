@@ -2905,6 +2905,10 @@ class SetupHFSS(Setup, object):
             return False
         sweep_n.create()
         self.sweeps.append(sweep_n)
+        for setup in self.p_app.setups:
+            if self.name == setup.name:
+                setup.sweeps.append(sweep_n)
+                break
         return sweep_n
 
     @pyaedt_function_handler(sweepname="name")
@@ -4015,7 +4019,7 @@ class SetupQ3D(Setup, object):
         return sweepdata
 
     @pyaedt_function_handler(sweepname="name", sweeptype="sweep_type")
-    def add_sweep(self, name=None, sweep_type="Interpolating"):
+    def add_sweep(self, name=None, sweep_type="Interpolating", **props):
         """Add a sweep to the project.
 
         Parameters
@@ -4042,9 +4046,9 @@ class SetupQ3D(Setup, object):
             self._app.logger.warning("This method only applies to HFSS and Q3D. Use add_eddy_current_sweep method.")
             return False
         if self.setuptype <= 4:
-            sweep_n = SweepHFSS(self, name=name, sweep_type=sweep_type)
+            sweep_n = SweepHFSS(self, name=name, sweep_type=sweep_type, props=props)
         elif self.setuptype in [14, 30, 31]:
-            sweep_n = SweepMatrix(self, name=name, sweep_type=sweep_type)
+            sweep_n = SweepMatrix(self, name=name, sweep_type=sweep_type, props=props)
         else:
             self._app.logger.warning("This method only applies to HFSS, Q2D, and Q3D.")
             return False
