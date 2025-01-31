@@ -594,3 +594,46 @@ class TestClass:
             "test_mode": True,
         }
         assert main(_input_)
+
+    @pytest.mark.skipif(is_linux, reason="Simulation takes too long in Linux machine.")
+    def test_19_shielding_effectiveness(self, add_app, local_scratch):
+        aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="se")
+
+        from ansys.aedt.core.workflows.hfss.shielding_effectiveness import main
+
+        assert not main(
+            {
+                "is_test": True,
+                "sphere_size": 0.01,
+                "x_pol": 0.0,
+                "y_pol": 0.1,
+                "z_pol": 1.0,
+                "dipole_type": "Electric",
+                "frequency_units": "GHz",
+                "start_frequency": 0.1,
+                "stop_frequency": 1,
+                "points": 5,
+                "cores": 4,
+            }
+        )
+
+        aedtapp.modeler.create_waveguide(origin=[0, 0, 0], wg_direction_axis=0)
+
+        assert main(
+            {
+                "is_test": True,
+                "sphere_size": 0.01,
+                "x_pol": 0.0,
+                "y_pol": 0.1,
+                "z_pol": 1.0,
+                "dipole_type": "Electric",
+                "frequency_units": "GHz",
+                "start_frequency": 0.1,
+                "stop_frequency": 0.2,
+                "points": 2,
+                "cores": 2,
+            }
+        )
+
+        assert len(aedtapp.post.all_report_names) == 2
+        aedtapp.close_project(aedtapp.project_name)
