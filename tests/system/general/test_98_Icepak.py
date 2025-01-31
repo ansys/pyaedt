@@ -209,7 +209,7 @@ class TestClass:
         cmp.included_parts = "Device"
         print(cmp.included_parts)
         cmp.included_parts = "Packafe"
-        assert 1 == len(ipk._desktop.GetMessages(ipk.project_name, ipk.design_name, 2))
+        assert 1 == len(ipk.logger.error_messages)
         assert cmp.included_parts == "Device"
         f = cmp.included_parts.filters
         assert len(f.keys()) == 1
@@ -223,7 +223,7 @@ class TestClass:
         cmp.included_parts.power_filter = "4mW"
         cmp.included_parts.type_filters = "Resistors"
         cmp.included_parts.type_filters = "Register"  # should not be set
-        assert 2 == len(ipk._desktop.GetMessages(ipk.project_name, ipk.design_name, 2))
+        assert 2 == len(ipk.logger.error_messages)
         cmp.included_parts.type_filters = "Inductors"
         if ipk.settings.aedt_version >= "2024.2":
             cmp.included_parts.footprint_filter = "0.5mm2"
@@ -235,7 +235,7 @@ class TestClass:
         assert cmp.set_board_extents()
         assert not cmp.set_board_extents("Polygon")
         assert not cmp.set_board_extents("Bounding Domain")
-        assert 4 == len(ipk._desktop.GetMessages(ipk.project_name, ipk.design_name, 2))
+        assert 2 == len(ipk.logger.error_messages)
         cmp.set_board_extents("Bounding Box")
         cmp.included_parts.power_filter = None
         cmp.included_parts.height_filter = None
