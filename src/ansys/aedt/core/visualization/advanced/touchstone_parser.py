@@ -113,9 +113,8 @@ class TouchstoneData(rf.Network):
         self.log_x = True
 
     @pyaedt_function_handler()
-    def get_coupling_in_range(
-        self, start_frequency=1e9, low_loss=-40, high_loss=-60, frequency_sample=5, output_file=None
-    ):
+    def get_coupling_in_range(self, start_frequency=1e9, low_loss=-40, high_loss=-60, frequency_sample=5,
+                              output_file=None):
         """Identify S parameter, excluding return loss, that has at least one frequency point between a range of
         losses.
 
