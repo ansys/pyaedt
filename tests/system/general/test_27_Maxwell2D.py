@@ -608,7 +608,10 @@ class TestClass:
         assert m2d_app.create_external_circuit()
         assert m2d_app.create_external_circuit(circuit_design="test_cir")
         m2d_app.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
-        with pytest.raises(AEDTRuntimeError, match="External circuit excitation for windings is available only for Eddy Current or Transient solutions."):
+        with pytest.raises(
+            AEDTRuntimeError,
+            match="External circuit excitation for windings is available only for Eddy Current or Transient solutions.",
+        ):
             m2d_app.create_external_circuit()
         m2d_app.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY
         for w in m2d_app.excitations_by_type["Winding"]:
