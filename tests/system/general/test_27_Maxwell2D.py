@@ -619,6 +619,6 @@ class TestClass:
         m2d_app.save_project()
         with pytest.raises(
             AEDTRuntimeError,
-            match="External circuit excitation for windings is available only for Eddy Current or Transient solutions.",
+            match="No windings in the Maxwell design.",
         ):
             m2d_app.create_external_circuit()
