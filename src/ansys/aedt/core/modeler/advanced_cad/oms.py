@@ -465,6 +465,8 @@ class TerrainPrep(object):
         latitude = center_lat_lon[0]
         longitude = center_lat_lon[1]
 
+        import utm
+
         utm_center = convert_latlon_to_utm(center_lat_lon[0], center_lat_lon[1])
 
         utm_x_min = utm_center[0] - max_radius
@@ -485,8 +487,8 @@ class TerrainPrep(object):
         last_displayed = -1
         for n, x in enumerate(x_samples):
             for m, y in enumerate(y_samples):
-                num_percent_bins = 40
 
+                num_percent_bins = 40
                 percent_complete = int((n * num_samples + m) / (num_samples * num_samples) * 100)
                 if percent_complete % 10 == 0 and percent_complete != last_displayed:
                     last_displayed = percent_complete
@@ -497,12 +499,16 @@ class TerrainPrep(object):
                     i = percent_symbol2 + percent_symbol1 + " " + str(percent_complete) + "% "
                     logger.info(f"\rPercent Complete:{i}")
 
-                zone_number = int((longitude + 180) / 6) + 1
-                if -80 <= latitude <= 84:
-                    zone_number = ZONE_LETTERS[int(latitude + 80) >> 3]
-                else:
-                    zone_number = None
+                zone_letter1 = utm.latitude_to_zone_letter(center_lat_lon[0])
+                zone_number1 = utm.latlon_to_zone_number(center_lat_lon[0], center_lat_lon[1])
+                current_lat_lon1 = utm.to_latlon(x, y, zone_number, zone_letter)
 
+                if -80 <= latitude <= 84:
+                    zone_letter = ZONE_LETTERS[int(latitude + 80) >> 3]
+                else:
+                    zone_letter = None
+
+                zone_number = int((longitude + 180) / 6) + 1
                 if 56 <= latitude < 64 and 3 <= longitude < 12:
                     zone_number = 32
 
@@ -516,7 +522,7 @@ class TerrainPrep(object):
                     elif longitude < 42:
                         zone_number = 37
 
-                current_lat_lon = convert_latlon_to_utm(x, y, zone_letter, zone_number)
+                current_lat_lon = convert_latlon_to_utm(float(x), float(y), zone_letter, zone_number)
                 all_lat_lon[n, m] = current_lat_lon
                 all_utm[n, m] = [x, y]
         logger.info(str(100) + "% - Done")
@@ -524,7 +530,7 @@ class TerrainPrep(object):
 
 
 @pyaedt_function_handler()
-def convert_latlon_to_utm(latitude: float, longitude: float, zone_letter: str = None, zone_number: str = None) -> tuple:
+def convert_latlon_to_utm(latitude: float, longitude: float, zone_letter: str = None, zone_number: int = None) -> tuple:
     """Convert latitude and longitude to UTM (Universal Transverse Mercator) coordinates.
 
     Parameters
@@ -590,6 +596,7 @@ def convert_latlon_to_utm(latitude: float, longitude: float, zone_letter: str = 
     lat_tan = lat_sin / lat_cos
     lat_tan2 = lat_tan**2
     lat_tan4 = lat_tan2**2
+
     if zone_number is None:
         zone_number = int((longitude + 180) / 6) + 1
         if 56 <= latitude < 64 and 3 <= longitude < 12:
@@ -613,7 +620,7 @@ def convert_latlon_to_utm(latitude: float, longitude: float, zone_letter: str = 
     n = R / mathlib.sqrt(1 - E * lat_sin**2)
     c = E_P2 * lat_cos**2
 
-    a = lat_cos * (lon_rad - central_lon_rad + mathlib.pi) % (2 * mathlib.pi) - mathlib.pi
+    a = lat_cos * ((lon_rad - central_lon_rad + mathlib.pi) % (2 * mathlib.pi) - mathlib.pi)
     a2, a3, a4, a5, a6 = a**2, a**3, a**4, a**5, a**6
 
     m = R * (
