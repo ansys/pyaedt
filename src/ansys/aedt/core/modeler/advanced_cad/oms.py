@@ -566,8 +566,6 @@ def convert_latlon_to_utm(latitude: float, longitude: float, zone_letter: str = 
     _E = (1 - SQRT_E) / (1 + SQRT_E)
     _E2 = _E * _E
     _E3 = _E2 * _E
-    _E4 = _E3 * _E
-    _E5 = _E4 * _E
 
     # Meridional arc constants for UTM projection
     M1 = 1 - E / 4 - 3 * E2 / 64 - 5 * E3 / 256
