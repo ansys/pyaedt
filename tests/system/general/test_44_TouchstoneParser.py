@@ -83,10 +83,10 @@ class TestClass:
 
     def test_get_coupling_in_range(self, local_scratch):
         touchstone_file = os.path.join(test_T44_dir, "port_order_1234.s8p")
+        output_file = os.path.join(self.local_scratch.path, "test_44_gcir.log")
         ts = TouchstoneData(touchstone_file=touchstone_file)
-        res = ts.get_coupling_in_range(
-            log_file_name=None, start_at_frequency=1e9, high_loss=-60, low_loss=-40, frequency_sample=5, plot=False
-        )
+        res = ts.get_coupling_in_range(start_frequency=1e9, high_loss=-60, low_loss=-40, frequency_sample=5,
+                                       output_file=output_file)
 
         assert res
 
