@@ -6777,7 +6777,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         name=None,
     ) -> BoundaryObject:
         """Create a hertzian dipole wave excitation.
-        
+
         The excitation is assigned in the assigned sphere. Inside this sphere, the field magnitude
         is equal to the field magnitude calculated on the surface of the sphere.
 
