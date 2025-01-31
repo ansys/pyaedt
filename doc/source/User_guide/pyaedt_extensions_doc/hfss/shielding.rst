@@ -31,8 +31,9 @@ Using the extension
    - **Source sphere radius**: Source sphere radius in meters. It must fit inside the shielding.
    - **Polarization**: X, Y, Z polarization component.
    - **Frequency**: Start and stop frequency and the number of steps to analyze.
-   - **Electric dipole**: Dipole type selection. Electric or magnetic dipole are available.
+   - **Electric dipole**: Activate electric dipole. Electric or magnetic dipole are available.
    - **Cores**: Number of cores for the simulation.
+   - Toggle between light and dark themes.
 4. Click on **Launch** to start the automated workflow.
 
 
