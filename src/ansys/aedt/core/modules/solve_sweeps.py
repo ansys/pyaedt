@@ -36,8 +36,8 @@ from ansys.aedt.core.generic.load_aedt_file import load_entire_aedt_file
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.setup_templates import Sweep3DLayout
 from ansys.aedt.core.modules.setup_templates import SweepHfss3D
-from ansys.aedt.core.modules.setup_templates import SweepSiwave
 from ansys.aedt.core.modules.setup_templates import SweepQ3D
+from ansys.aedt.core.modules.setup_templates import SweepSiwave
 
 open3 = open
 if sys.version_info < (3, 0):
