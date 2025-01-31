@@ -19,3 +19,10 @@ script = "choke_designer.py"
 icon = "images/large/choke.png"
 template = "run_pyaedt_toolkit_script"
 pip = ""
+
+[ShieldingEffectiveness]
+name = "Shielding Effectiveness"
+script = "shielding_effectiveness.py"
+icon = "images/large/shielding.png"
+template = "run_pyaedt_toolkit_script"
+pip = ""

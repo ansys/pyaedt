@@ -537,6 +537,8 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
             self._app.oboundary.AssignFluxTangential(self._get_args())
         elif bound_type == "Plane Incident Wave":
             self._app.oboundary.AssignPlaneWave(self._get_args())
+        elif bound_type == "Hertzian Dipole Wave":
+            self._app.oboundary.AssignHertzianDipoleWave(self._get_args())
         elif bound_type == "ResistiveSheet":
             self._app.oboundary.AssignResistiveSheet(self._get_args())
         else:
@@ -680,6 +682,8 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
         elif bound_type == "Terminal":
             self._app.oboundary.EditTerminal(self.name, self._get_args())
         elif bound_type == "Plane Incident Wave":
+            self._app.oboundary.EditIncidentWave(self.name, self._get_args())
+        elif bound_type == "Hertzian Dipole Wave":
             self._app.oboundary.EditIncidentWave(self.name, self._get_args())
         elif bound_type == "ResistiveSheet":
             self._app.oboundary.EditResistiveSheet(self.name, self._get_args())
