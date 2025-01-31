@@ -944,12 +944,12 @@ class Maxwell(object):
 
     @pyaedt_function_handler(face_list="assignment")
     def assign_voltage(self, assignment, amplitude=1, name=None):
-        """Assign a voltage source to a list of faces in Maxwell 3D or a list of objects in Maxwell 2D.
+        """Assign a voltage source to a list of faces in Maxwell 3D or a list of objects or edges in Maxwell 2D.
 
         Parameters
         ----------
         assignment : list
-            List of faces or objects to assign a voltage source to.
+            List of faces, objects or edges to assign a voltage source to.
         amplitude : float, optional
             Voltage amplitude in mV. The default is ``1``.
         name : str, optional
@@ -964,6 +964,24 @@ class Maxwell(object):
         References
         ----------
         >>> oModule.AssignVoltage
+
+        Examples
+        --------
+
+        Create a region in Maxwell 2D and assign voltage to its edges.
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(version="2024.2", solution_type="ElectrostaticZ")
+        >>> region_id = m2d.modeler.create_region(pad_value=[500,50,50])
+        >>> voltage = m2d.assign_voltage(assignment=region_id.edges, amplitude=0, name = "GRD")
+        >>> m2d.release_desktop()
+
+        Create a region in Maxwell 3D and assign voltage to its edges.
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(version="2024.2", solution_type="Electrostatic")
+        >>> region_id = m3d.modeler.create_box([0, 0, 0], [10, 10, 10])
+        >>> voltage = m3d.assign_voltage(assignment=region_id.faces, amplitude=0, name = "GRD")
+        >>> m3d.release_desktop()
+
         """
         if isinstance(amplitude, (int, float)):
             amplitude = str(amplitude) + "mV"
@@ -972,20 +990,26 @@ class Maxwell(object):
             name = generate_unique_name("Voltage")
         assignment = self.modeler.convert_to_selections(assignment, True)
 
-        if self.design_type == "Maxwell 2D":
-            props = dict({"Objects": assignment, "Value": amplitude})
-        else:
-            if len(assignment) == 1:
-                if isinstance(assignment[0], str) and assignment[0] in self.modeler.object_names:
-                    props = dict({"Objects": assignment, "Voltage": amplitude})
-                else:
-                    props = dict({"Faces": assignment, "Value": amplitude})
+        if len(assignment) == 1:
+            if isinstance(assignment[0], str) and assignment[0] in self.modeler.object_names:
+                props = dict({"Objects": assignment, "Voltage": amplitude})
+                if self.design_type == "Maxwell 2D":
+                    props = dict({"Objects": assignment, "Value": amplitude})
             else:
-                object_names_set = set(self.modeler.object_names)
-                props = dict({"Faces": [], "Objects": [], "Voltage": amplitude})
-                for element in assignment:
-                    if isinstance(element, str) and element in object_names_set:
-                        props["Objects"].append(element)
+                props = dict({"Faces": assignment, "Value": amplitude})
+                if self.design_type == "Maxwell 2D":
+                    props = dict({"Edges": assignment, "Value": amplitude})
+        else:
+            object_names_set = set(self.modeler.object_names)
+            props = dict({"Faces": [], "Objects": [], "Voltage": amplitude})
+            if self.design_type == "Maxwell 2D":
+                props = dict({"Edges": [], "Objects": [], "Value": amplitude})
+            for element in assignment:
+                if isinstance(element, str) and element in object_names_set:
+                    props["Objects"].append(element)
+                else:
+                    if self.design_type == "Maxwell 2D":
+                        props["Edges"].append(element)
                     else:
                         props["Faces"].append(element)
         return self._create_boundary_object(name, props, "Voltage")
