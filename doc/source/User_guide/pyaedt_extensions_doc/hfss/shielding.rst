@@ -26,7 +26,7 @@ Using the extension
 -------------------
 
 1. Open the **Automation** tab in the HFSS interface.
-2. Locate and click the **Choke designer** icon under the Extension Manager.
+2. Locate and click the **Shielding Effectiveness** icon under the Extension Manager.
 3. In the GUI, users can interact with the following elements:
    - **Source sphere radius**: Source sphere radius in meters. It must fit inside the shielding.
    - **Polarization**: X, Y, Z polarization component.
