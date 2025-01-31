@@ -6767,6 +6767,110 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         return self._create_boundary(name, inc_wave_args, "Plane Incident Wave")
 
     @pyaedt_function_handler()
+    def hertzian_dipole_wave(
+        self,
+        assignment=None,
+        origin=None,
+        polarization=None,
+        is_electric=True,
+        radius="10mm",
+        name=None,
+    ) -> BoundaryObject:
+        """Create a hertzian dipole wave excitation.
+
+        The excitation is assigned in the assigned sphere. Inside this sphere, the field magnitude
+        is equal to the field magnitude calculated on the surface of the sphere.
+
+        Parameters
+        ----------
+        assignment : str or list, optional
+            One or more objects or faces to assign finite conductivity to. The default is ``None``, in which
+            case the excitation is assigned to anything.
+        origin : list, optional
+            Excitation location. The default is ``["0mm", "0mm", "0mm"]``.
+        polarization : list, optional
+            Electric field polarization vector.
+            The default is ``[0, 0, 1]``.
+        is_electric : bool, optional
+            Type of dipole. Electric dipole if ``True``, magnetic dipole if ``False``. The default is ``True``.
+        radius : str or float, optional
+            Radius of surrounding sphere. The default is "10mm".
+        name : str, optional
+            Name of the boundary.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Port object.
+
+        References
+        ----------
+        >>> oModule.AssignHertzianDipoleWave
+
+        Examples
+        --------
+
+        Create a hertzian dipole wave excitation.
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> sphere = hfss.modeler.primitives.create_sphere([0, 0, 0], 10)
+        >>> port1 = hfss.hertzian_dipole_wave(assignment=sphere, radius=10)
+        """
+        userlst = self.modeler.convert_to_selections(assignment, True)
+        lstobj = []
+        lstface = []
+        for selection in userlst:
+            if selection in self.modeler.model_objects:
+                lstobj.append(selection)
+            elif isinstance(selection, int) and self.modeler._find_object_from_face_id(selection):
+                lstface.append(selection)
+
+        props = {"Objects": [], "Faces": []}
+
+        if lstobj:
+            props["Objects"] = lstobj
+        if lstface:
+            props["Faces"] = lstface
+
+        if not origin:
+            origin = ["0mm", "0mm", "0mm"]
+        elif not isinstance(origin, list) or len(origin) != 3:
+            self.logger.error("Invalid value for `origin`.")
+            return False
+
+        x_origin, y_origin, z_origin = self.modeler._pos_with_arg(origin)
+
+        name = self._get_unique_source_name(name, "IncPWave")
+
+        hetzian_wave_args = {"OriginX": x_origin, "OriginY": y_origin, "OriginZ": z_origin}
+
+        if not polarization:
+            polarization = [0, 0, 1]
+        elif not isinstance(polarization, list) or len(polarization) != 3:
+            self.logger.error("Invalid value for `polarization`.")
+            return False
+
+        new_hertzian_args = {
+            "IsCartesian": True,
+            "EoX": polarization[0],
+            "EoY": polarization[1],
+            "EoZ": polarization[2],
+            "kX": polarization[0],
+            "kY": polarization[1],
+            "kZ": polarization[2],
+        }
+
+        hetzian_wave_args["IsElectricDipole"] = False
+        if is_electric:
+            hetzian_wave_args["IsElectricDipole"] = True
+
+        hetzian_wave_args["SphereRadius"] = radius
+        hetzian_wave_args.update(new_hertzian_args)
+        hetzian_wave_args.update(props)
+
+        return self._create_boundary(name, hetzian_wave_args, "Hertzian Dipole Wave")
+
+    @pyaedt_function_handler()
     def set_radiated_power_calc_method(self, method="Auto"):
         """Set the radiated power calculation method in Hfss.
 

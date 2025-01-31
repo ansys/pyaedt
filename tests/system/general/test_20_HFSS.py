@@ -1804,3 +1804,24 @@ class TestClass:
 
         assert aedtapp.import_table(input_file=file_no_header, name="Table2")
         assert "Table2" in aedtapp.table_names
+
+    def test_73_plane_wave(self, add_app):
+        aedtapp = add_app(project_name="test_73")
+        assert not aedtapp.hertzian_dipole_wave(origin=[0, 0])
+        assert not aedtapp.hertzian_dipole_wave(polarization=[1])
+
+        sphere = aedtapp.modeler.create_sphere([0, 0, 0], 10)
+        sphere2 = aedtapp.modeler.create_sphere([10, 100, 0], 10)
+
+        assignment = [sphere, sphere2.faces[0].id]
+
+        exc = aedtapp.hertzian_dipole_wave(assignment=assignment, is_electric=True)
+        assert len(aedtapp.excitations) == 1
+        assert exc.properties["Electric Dipole"]
+        exc.props["IsElectricDipole"] = False
+        assert not exc.properties["Electric Dipole"]
+
+        exc2 = aedtapp.hertzian_dipole_wave(polarization=[1, 0, 0], name="dipole", radius=20)
+        assert len(aedtapp.excitations) == 2
+        assert exc2.name == "dipole"
+        aedtapp.close_project(save=False)
