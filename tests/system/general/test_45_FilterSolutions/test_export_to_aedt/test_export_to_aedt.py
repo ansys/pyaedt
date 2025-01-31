@@ -58,7 +58,7 @@ class TestClass:
 
     def test_modelithics_inductor_list_count(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
-            lumped_design.export_to_aedt.modelithics_capacitor_list_count
+            assert lumped_design.export_to_aedt.modelithics_capacitor_list_count == 2
         assert info.value.args[0] == "The part library is not set to Modelithics"
         lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         assert lumped_design.export_to_aedt.modelithics_inductor_list_count == 116
@@ -76,7 +76,7 @@ class TestClass:
 
     def test_modelithics_inductor_selection(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
-            lumped_design.export_to_aedt.modelithics_inductor_selection
+            lumped_design.export_to_aedt.modelithics_inductor_selection = first_modelithics_inductor
         assert info.value.args[0] == "The part library is not set to Modelithics"
         lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         with pytest.raises(RuntimeError) as info:
@@ -87,7 +87,7 @@ class TestClass:
 
     def test_modelithics_inductor_family_list_count(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
-            lumped_design.export_to_aedt.modelithics_inductor_family_list_count
+            lumped_design.export_to_aedt.modelithics_inductor_family_list_count == 2
         assert info.value.args[0] == "The part library is not set to Modelithics"
         lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         assert lumped_design.export_to_aedt.modelithics_inductor_family_list_count == 0
@@ -155,7 +155,7 @@ class TestClass:
 
     def test_modelithics_capacitor_selection(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
-            lumped_design.export_to_aedt.modelithics_capacitor_selection
+            lumped_design.export_to_aedt.modelithics_capacitor_selection = first_modelithics_capacitor
         assert info.value.args[0] == "The part library is not set to Modelithics"
         lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         with pytest.raises(RuntimeError) as info:
@@ -166,7 +166,7 @@ class TestClass:
 
     def test_modelithics_capacitor_family_list_count(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
-            lumped_design.export_to_aedt.modelithics_capacitor_family_list_count
+            assert lumped_design.export_to_aedt.modelithics_capacitor_family_list_count == 2
         assert info.value.args[0] == "The part library is not set to Modelithics"
         lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         assert lumped_design.export_to_aedt.modelithics_capacitor_family_list_count == 0
@@ -217,7 +217,7 @@ class TestClass:
 
     def test_modelithics_resistor_list_count(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
-            lumped_design.export_to_aedt.modelithics_resistor_list_count
+            assert lumped_design.export_to_aedt.modelithics_resistor_list_count == 2
         assert info.value.args[0] == "The part library is not set to Modelithics"
         lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         assert lumped_design.export_to_aedt.modelithics_resistor_list_count == 39
@@ -235,7 +235,7 @@ class TestClass:
 
     def test_modelithics_resistor_selection(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
-            lumped_design.export_to_aedt.modelithics_resistor_selection
+            lumped_design.export_to_aedt.modelithics_resistor_selection = first_modelithics_resistor
         assert info.value.args[0] == "The part library is not set to Modelithics"
         lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         with pytest.raises(RuntimeError) as info:
@@ -246,7 +246,7 @@ class TestClass:
 
     def test_modelithics_resistor_family_list_count(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
-            lumped_design.export_to_aedt.modelithics_resistor_family_list_count
+            assert lumped_design.export_to_aedt.modelithics_resistor_family_list_count == 2
         assert info.value.args[0] == "The part library is not set to Modelithics"
         lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         assert lumped_design.export_to_aedt.modelithics_resistor_family_list_count == 0

@@ -129,7 +129,7 @@ class TestClass:
 
     def test_minimum_order(self, lumped_design):
         assert lumped_design.attributes.filter_order == 5
-        lumped_design.attributes.ideal_minimum_order
+        assert lumped_design.attributes.ideal_minimum_order == 3
         assert lumped_design.attributes.filter_order == 3
 
     def test_delay_time(self, lumped_design):
