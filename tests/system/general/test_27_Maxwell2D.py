@@ -610,5 +610,7 @@ class TestClass:
         assert v1.properties["Value"] == "0mV"
         assert len(m2d_app.boundaries) == 1
         assert m2d_app.assign_voltage(assignment=region_id.edges[0], amplitude=1, name="GRD2")
-        assert m2d_app.assign_voltage(assignment=[region_id.name, region_id.edges], amplitude=2, name="GRD3")
-        assert len(m2d_app.boundaries) == 3
+        assert m2d_app.assign_voltage(assignment=region_id.edges, amplitude=2, name="GRD3")
+        rect = m2d_app.modeler.create_rectangle([32, 1.5, 0], [8, 3], is_covered=True)
+        assert m2d_app.assign_voltage(assignment=[region_id.name, rect.name], amplitude=3, name="GRD4")
+        assert len(m2d_app.boundaries) == 4
