@@ -22,23 +22,40 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from unittest.mock import MagicMock
-from unittest.mock import patch
+"""Test UTM converter functions.
+"""
 
-from ansys.aedt.core.generic.errors import AEDTRuntimeError
-from ansys.aedt.core.maxwell import Maxwell3d
+from ansys.aedt.core.modeler.advanced_cad.oms import convert_latlon_to_utm
+from ansys.aedt.core.modeler.advanced_cad.oms import convert_utm_to_latlon
 import pytest
 
 
-@patch.object(Maxwell3d, "solution_type", "Transient")
-@patch("ansys.aedt.core.maxwell.BoundaryObject", autospec=True)
-def test_maxwell_3d_assign_resistive_sheet_failure(mock_boundary_object, maxwell_3d_setup):
-    boundary_object = MagicMock()
-    boundary_object.create.return_value = False
-    mock_boundary_object.return_value = boundary_object
-    maxwell = Maxwell3d()
-    maxwell._modeler = MagicMock()
-    maxwell._logger = MagicMock()
+def test_convert_latlon_to_utm():
+    latitude, longitude = 40.7128, -74.0060
+    result = convert_latlon_to_utm(latitude, longitude)
 
-    with pytest.raises(AEDTRuntimeError, match=r"Boundary ResistiveSheet_\w+ was not created\."):
-        maxwell.assign_resistive_sheet(None, None)
+    assert isinstance(result, tuple)
+    assert len(result) == 4
+
+
+def test_convert_utm_to_latlon():
+    east, north, zone_number = 500000, 4649776, 33
+    result = convert_utm_to_latlon(east, north, zone_number, northern=True)
+
+    assert isinstance(result, tuple)
+    assert len(result) == 2
+
+
+def test_invalid_latitude():
+    with pytest.raises(ValueError, match="Latitude out of range"):
+        convert_latlon_to_utm(100.0, 50.0)
+
+
+def test_invalid_longitude():
+    with pytest.raises(ValueError, match="Longitude out of range"):
+        convert_latlon_to_utm(40.0, 200.0)
+
+
+def test_invalid_zone_letter():
+    with pytest.raises(ValueError, match="Zone letter out of range"):
+        convert_latlon_to_utm(40.0, -74.0, zone_letter="Z")

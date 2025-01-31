@@ -29,6 +29,7 @@ import shutil
 
 import ansys.aedt.core
 from ansys.aedt.core.generic.constants import SOLUTIONS
+from ansys.aedt.core.generic.errors import AEDTRuntimeError
 import pytest
 
 from tests import TESTS_GENERAL_PATH
@@ -170,7 +171,8 @@ class TestClass:
             position=[0, 0, 0], radius=5, num_sides="8", is_covered=True, name="Coil", material="Copper"
         )
         assert aedtapp.assign_current([coil])
-        assert not aedtapp.assign_current([coil.faces[0].id])
+        with pytest.raises(ValueError, match="Input must be a 2D object."):
+            aedtapp.assign_current([coil.faces[0].id])
 
     def test_assign_master_slave(self, aedtapp):
         aedtapp.modeler.create_rectangle([1, 1, 1], [3, 1], name="Rectangle1", material="copper")
@@ -187,10 +189,11 @@ class TestClass:
         )
         assert mas.name == "my_bound"
         assert slave.name == "my_bound_dep"
-        assert not aedtapp.assign_master_slave(
-            aedtapp.modeler["Rectangle1"].edges[0].id,
-            aedtapp.modeler["Rectangle1"].edges[1].id,
-        )
+        with pytest.raises(AEDTRuntimeError, match="Slave boundary could not be created."):
+            aedtapp.assign_master_slave(
+                aedtapp.modeler["Rectangle1"].edges[0].id,
+                aedtapp.modeler["Rectangle1"].edges[1].id,
+            )
 
     def test_check_design_preview_image(self, local_scratch, aedtapp):
         jpg_file = os.path.join(local_scratch.path, "file.jpg")
@@ -201,14 +204,14 @@ class TestClass:
 
     def test_apply_skew(self, aedtapp):
         assert aedtapp.apply_skew()
-        assert not aedtapp.apply_skew(skew_type="Invalid")
-        assert not aedtapp.apply_skew(skew_part="Invalid")
-        assert not aedtapp.apply_skew(
-            skew_type="Continuous", skew_part="Stator", skew_angle="0.5", skew_angle_unit="Invalid"
-        )
-        assert not aedtapp.apply_skew(
-            skew_type="User Defined", number_of_slices="4", custom_slices_skew_angles=["1", "2", "3"]
-        )
+        with pytest.raises(ValueError, match="Invalid skew type."):
+            assert not aedtapp.apply_skew(skew_type="Invalid")
+        with pytest.raises(ValueError, match="Invalid skew angle unit."):
+            aedtapp.apply_skew(skew_type="Continuous", skew_part="Stator", skew_angle="0.5", skew_angle_unit="Invalid")
+        with pytest.raises(ValueError, match="Please provide skew angles for each slice."):
+            aedtapp.apply_skew(
+                skew_type="User Defined", number_of_slices="4", custom_slices_skew_angles=["1", "2", "3"]
+            )
         assert aedtapp.apply_skew(
             skew_type="User Defined", number_of_slices="4", custom_slices_skew_angles=["1", "2", "3", "4"]
         )
@@ -239,9 +242,11 @@ class TestClass:
         assert bound.props["ResistanceValue"] == "0ohm"
         bound.props["InductanceValue"] = "5H"
         assert bound.props["InductanceValue"] == "5H"
-        assert not aedtapp.assign_end_connection([rect])
+        with pytest.raises(AEDTRuntimeError, match="At least 2 objects are needed."):
+            aedtapp.assign_end_connection([rect])
         aedtapp.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
-        assert not aedtapp.assign_end_connection([rect, rect2])
+        with pytest.raises(AEDTRuntimeError, match="Excitation applicable only to Eddy Current or Transient Solver."):
+            aedtapp.assign_end_connection([rect, rect2])
 
     def test_setup_y_connection(self, aedtapp):
         aedtapp.set_active_design("Y_Connections")
@@ -265,7 +270,8 @@ class TestClass:
         assert aedtapp.assign_symmetry([region[0].edges[0], band[0].edges[0]])
         assert aedtapp.assign_symmetry([region[0].edges[0], band[0].edges[0]], "Symmetry_Test_IsEven", False)
         assert aedtapp.assign_symmetry([9556, 88656])
-        assert not aedtapp.assign_symmetry([])
+        with pytest.raises(ValueError, match="At least one edge must be provided."):
+            aedtapp.assign_symmetry([])
         for bound in aedtapp.boundaries:
             if bound.name == "Symmetry_Test_IsOdd":
                 assert bound.type == "Symmetry"
@@ -312,7 +318,8 @@ class TestClass:
         assert bound_group.props[bound_group.props["items"][0]]["Objects"] == ["Coil", "Coil_1"]
         assert bound_group.props[bound_group.props["items"][0]]["Value"] == "0"
         assert bound_group.props[bound_group.props["items"][0]]["CoordinateSystem"] == ""
-        assert not aedtapp.assign_current_density("Circle_inner", "CurrentDensity_1")
+        with pytest.raises(AEDTRuntimeError, match="Couldn't assign current density to desired list of objects."):
+            aedtapp.assign_current_density("Circle_inner", "CurrentDensity_1")
 
     def test_set_variable(self, aedtapp):
         aedtapp.variable_manager.set_variable("var_test", expression="123")
@@ -444,8 +451,11 @@ class TestClass:
         assert floating.props["Objects"][0] == rect.name
         assert floating.props["Value"] == "3"
         m2d_app.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
-        floating = m2d_app.assign_floating(assignment=rect, charge_value=3, name="floating_test1")
-        assert not floating
+        with pytest.raises(
+            AEDTRuntimeError,
+            match="Assign floating excitation is only valid for electrostatic or electric transient solvers.",
+        ):
+            m2d_app.assign_floating(assignment=rect, charge_value=3, name="floating_test1")
 
     def test_matrix(self, m2d_app):
         m2d_app.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
@@ -468,10 +478,13 @@ class TestClass:
             assignment=["Current1", "Current2"], matrix_name="Test2", turns=[2, 1], return_path=["Current3", "Current4"]
         )
         assert matrix.props["MatrixEntry"]["MatrixEntry"][1]["ReturnPath"] == "Current4"
-        matrix = m2d_app.assign_matrix(
-            assignment=["Current1", "Current2"], matrix_name="Test3", turns=[2, 1], return_path=["Current1", "Current1"]
-        )
-        assert not matrix
+        with pytest.raises(AEDTRuntimeError, match="Return path specified must not be included in sources"):
+            m2d_app.assign_matrix(
+                assignment=["Current1", "Current2"],
+                matrix_name="Test3",
+                turns=[2, 1],
+                return_path=["Current1", "Current1"],
+            )
         group_sources = {"Group1_Test": ["Current3", "Current2"]}
         matrix = m2d_app.assign_matrix(
             assignment=["Current3", "Current2"],
@@ -595,9 +608,17 @@ class TestClass:
         assert m2d_app.create_external_circuit()
         assert m2d_app.create_external_circuit(circuit_design="test_cir")
         m2d_app.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
-        assert not m2d_app.create_external_circuit()
+        with pytest.raises(
+            AEDTRuntimeError,
+            match="External circuit excitation for windings is available only for Eddy Current or Transient solutions.",
+        ):
+            m2d_app.create_external_circuit()
         m2d_app.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY
         for w in m2d_app.excitations_by_type["Winding"]:
             w.delete()
         m2d_app.save_project()
-        assert not m2d_app.create_external_circuit()
+        with pytest.raises(
+            AEDTRuntimeError,
+            match="No windings in the Maxwell design.",
+        ):
+            m2d_app.create_external_circuit()
