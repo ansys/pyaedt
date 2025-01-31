@@ -102,9 +102,9 @@ class TestClass:
             max_delta_phase=8,
             custom_entries=[["1", "2", 0.03, 4]],
         )
-        setup2 = self.aedtapp.create_setup("MulitFreqSetup",
-                                           MultipleAdaptiveFreqsSetup=["1GHz", "2GHz"],
-                                           MaximumPasses=3)
+        setup2 = self.aedtapp.create_setup(
+            "MulitFreqSetup", MultipleAdaptiveFreqsSetup=["1GHz", "2GHz"], MaximumPasses=3
+        )
         assert setup2.props["SolveType"] == "MultiFrequency"
         assert setup2.props["MaximumPasses"] == 3
 
@@ -129,8 +129,14 @@ class TestClass:
         range_start = "1GHz"
         range_end = "2GHz"
         range_step = "0.5GHz"
-        sweep5 = setup1.add_sweep("DiscSweep5", sweep_type="Discrete", RangeStart=range_start,
-                                  RangeEnd=range_end, RangeStep=range_step, SaveFields=True)
+        sweep5 = setup1.add_sweep(
+            "DiscSweep5",
+            sweep_type="Discrete",
+            RangeStart=range_start,
+            RangeEnd=range_end,
+            RangeStep=range_step,
+            SaveFields=True,
+        )
         assert sweep5.props["Type"] == "Discrete"
         assert sweep5.props["RangeStart"] == range_start
         assert sweep5.props["RangeEnd"] == range_end
