@@ -502,7 +502,7 @@ class Mechanical(FieldAnalysis3D, object):
         >>> oModule.AssignFrictionlessSupport
         """
         if self.solution_type not in (SOLUTIONS.Mechanical.Structural, SOLUTIONS.Mechanical.Modal):
-            raise AEDTRuntimeError("This method works only in Mechanical Structural analysis.")
+            raise AEDTRuntimeError("This method works only in a Mechanical Structural analysis.")
 
         props = {}
         assignment = self.modeler.convert_to_selections(assignment, True)
