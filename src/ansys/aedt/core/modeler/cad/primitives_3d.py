@@ -1569,6 +1569,8 @@ class Primitives3D(GeometryModeler):
         """
         if password is None:
             password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
+        if not input_file.endswith(".a3dcomp"):
+            input_file += ".a3dcomp"
         aedt_fh = open_file(input_file, "rb")
         if aedt_fh:
             temp = aedt_fh.read().splitlines()
