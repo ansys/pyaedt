@@ -201,6 +201,7 @@ class TestClass:
 
     @pytest.mark.parametrize("ipk", [board_ipk], indirect=True)
     def test007__pcb_comp_import(self, ipk):
+        initial_errors = len(ipk.logger.error_messages)
         component_name = "RadioBoard2"
         cmp = ipk.create_ipk_3dcomponent_pcb(
             component_name, link_data, solution_freq, resolution, custom_x_resolution=400, custom_y_resolution=500
@@ -209,7 +210,7 @@ class TestClass:
         cmp.included_parts = "Device"
         print(cmp.included_parts)
         cmp.included_parts = "Packafe"
-        assert 1 == len(ipk.logger.error_messages)
+        assert 1 + initial_errors == len(ipk.logger.error_messages)
         assert cmp.included_parts == "Device"
         f = cmp.included_parts.filters
         assert len(f.keys()) == 1
@@ -223,7 +224,7 @@ class TestClass:
         cmp.included_parts.power_filter = "4mW"
         cmp.included_parts.type_filters = "Resistors"
         cmp.included_parts.type_filters = "Register"  # should not be set
-        assert 2 == len(ipk.logger.error_messages)
+        assert 2 + initial_errors == len(ipk.logger.error_messages)
         cmp.included_parts.type_filters = "Inductors"
         if ipk.settings.aedt_version >= "2024.2":
             cmp.included_parts.footprint_filter = "0.5mm2"
@@ -927,7 +928,7 @@ class TestClass:
             coordinate_system="CS2",
             auxiliary_parameters=True,
         )
-        assert all(i in ipk.native_components.keys() for i in ["Fan1", "Fan2", "Board1"])
+        assert all(i in ipk.native_components.keys() for i in ["Fan1", "Fan2"])
         assert all(
             i in ipk.monitor.all_monitors
             for i in ["board_assembly1_FaceMonitor", "board_assembly1_BoxMonitor", "board_assembly1_SurfaceMonitor"]
@@ -1884,14 +1885,12 @@ class TestClass:
         m2 = mesh_class.assign_mesh_region([c2.name])
         assert m1.assignment.name != m2.assignment.name
 
-    def test_84_get_object_material_properties(self):
-        self.aedtapp.modeler.create_box(
+    def test080__get_object_material_properties(self, ipk):
+        ipk.modeler.create_box(
             origin=[0, 0, 0],
             sizes=[10, 10, 10],
             name="myBox",
             material="Al-Extruded",
         )
-        obj_mat_prop = self.aedtapp.get_object_material_properties(
-            assignment=["myBox"], prop_names="thermal_conductivity"
-        )
+        obj_mat_prop = ipk.get_object_material_properties(assignment=["myBox"], prop_names="thermal_conductivity")
         assert obj_mat_prop["myBox"]["thermal_conductivity"] == "205"
