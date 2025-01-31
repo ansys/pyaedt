@@ -113,17 +113,14 @@ class TouchstoneData(rf.Network):
         self.log_x = True
 
     @pyaedt_function_handler()
-    def get_coupling_in_range(
-        self, log_file_name=None, start_at_frequency=1e9, low_loss=-40, high_loss=-60, frequency_sample=5, plot=False
-    ):
-        """Plot a list of curves, excluding return loss, that has at least one frequency point between a range of
+    def get_coupling_in_range(self, start_frequency=1e9, low_loss=-40, high_loss=-60, frequency_sample=5,
+                              output_file=None):
+        """Identify S parameter, excluding return loss, that has at least one frequency point between a range of
         losses.
 
         Parameters
         ----------
-        log_file_name : path
-            Specify log file full path where identified coupling will be listed.
-        start_at_frequency : float, optional
+        start_frequency : float, optional
             Specify frequency value below which not check will be done, default is "1e9"
         low_loss: float, optional
             Specify range lower loss, default is "-40"
@@ -131,13 +128,13 @@ class TouchstoneData(rf.Network):
             Specify range higher loss, default is "-60"
         frequency_sample : integer, optional
             Specify frequency sample at which coupling check will be done, default is "5"
-        plot : boolean, optional
-            True to plot S parameter curves, False to not plot S parameter curves, default is "False"
+        output_file : path, optional
+            Output file path to save where identified coupling will be listed. If None no file is saved.
 
         Returns
         -------
          list
-            List of S parameters in the range [high_loss, low_loss].
+            List of S parameters in the range [high_loss, low_loss] to plot.
 
         """
 
@@ -147,7 +144,7 @@ class TouchstoneData(rf.Network):
 
         # identify frequency index at which to start the check
         while k < nb_freq:
-            if self.frequency.f[k] >= start_at_frequency:
+            if self.frequency.f[k] >= start_frequency:
                 k_start = k
                 break
             else:
@@ -184,23 +181,14 @@ class TouchstoneData(rf.Network):
                 j = j + 1
             i = i + 1
             j = i
-        if log_file_name is not None:
-            logger.info("if file " + log_file_name + " exist, the file will be overwritten.")
-            with open_file(log_file_name, "w") as f:
+        if output_file is not None:
+            logger.info("if file " + output_file + " exist, the file will be overwritten.")
+            with open_file(output_file, "w") as f:
                 for s in temp_file:
                     f.write(s)
-            logger.info("File " + log_file_name + " created.")
+            logger.info("File " + output_file + " created.")
 
-        if plot:
-            i = 0
-            while i < len(temp_list):
-                self.plot_s_db(temp_list[i][0], temp_list[i][1])
-                i = i + 1
-            logger.info("Plotting S parameters curves.")
-            plt.show()
-            logger.info("S parameters curves plot created.")
-
-        return temp_file
+        return temp_list
 
     @pyaedt_function_handler()
     def get_insertion_loss_index(self, threshold=-3):
