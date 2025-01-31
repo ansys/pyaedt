@@ -758,7 +758,7 @@ class CircuitComponents(object):
         angle=0,
         use_instance_id_netlist=False,
         global_netlist_list=None,
-        page = 1,
+        page=1,
     ):
         """Create a component from a library.
 
