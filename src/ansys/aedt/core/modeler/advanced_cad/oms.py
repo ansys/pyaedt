@@ -49,10 +49,8 @@ except ImportError:  # pragma: no cover
 try:
     import osmnx as ox
 
-    # import utm
-
 except ImportError:  # pragma: no cover
-    warnings.warn("OpenStreetMap Reader requires utm, osmnx extra packages.\n" "Install with \n\npip install utm osmnx")
+    warnings.warn("OpenStreetMap Reader requires osmnx extra packages.\n" "Install with \n\npip install osmnx")
 
 ZONE_LETTERS = "CDEFGHJKLMNPQRSTUVWXX"
 
@@ -465,8 +463,6 @@ class TerrainPrep(object):
         latitude = center_lat_lon[0]
         longitude = center_lat_lon[1]
 
-        import utm
-
         utm_center = convert_latlon_to_utm(center_lat_lon[0], center_lat_lon[1])
 
         utm_x_min = utm_center[0] - max_radius
@@ -499,10 +495,6 @@ class TerrainPrep(object):
                     i = percent_symbol2 + percent_symbol1 + " " + str(percent_complete) + "% "
                     logger.info(f"\rPercent Complete:{i}")
 
-                zone_letter1 = utm.latitude_to_zone_letter(center_lat_lon[0])
-                zone_number1 = utm.latlon_to_zone_number(center_lat_lon[0], center_lat_lon[1])
-                current_lat_lon1 = utm.to_latlon(x, y, zone_number, zone_letter)
-
                 if -80 <= latitude <= 84:
                     zone_letter = ZONE_LETTERS[int(latitude + 80) >> 3]
                 else:
@@ -521,8 +513,7 @@ class TerrainPrep(object):
                         zone_number = 35
                     elif longitude < 42:
                         zone_number = 37
-
-                current_lat_lon = convert_latlon_to_utm(float(x), float(y), zone_letter, zone_number)
+                current_lat_lon = convert_utm_to_latlon(int(x), int(y), zone_number, zone_letter)
                 all_lat_lon[n, m] = current_lat_lon
                 all_utm[n, m] = [x, y]
         logger.info(str(100) + "% - Done")
@@ -648,3 +639,124 @@ def convert_latlon_to_utm(latitude: float, longitude: float, zone_letter: str = 
         northing += 10000000
 
     return easting, northing, zone_letter, zone_number
+
+
+@pyaedt_function_handler()
+def convert_utm_to_latlon(
+    east: int, north: float, zone_number: int, zone_letter: str = None, northern: bool = None
+) -> tuple:
+    """Convert UTM (Universal Transverse Mercator) coordinates to latitude and longitude.
+
+    Parameters
+    ----------
+    east : int
+        East value of UTM coordinates.
+    north : int
+        North value of UTM coordinates.
+    zone_number: int, optional
+        Global map numbers of a UTM zone numbers map.
+    zone_letter: str, optional
+        UTM zone designators. The default is ``None``. The valid zone letters are ``"CDEFGHJKLMNPQRSTUVWXX"``
+    northern: bool, optional
+        Indicates whether the UTM coordinates are in the Northern Hemisphere. If ``True``, the coordinates
+        are treated as being north of the equator, if ``False``, they are treated as being south of the equator.
+        The default is ``None`` in which case the method determines the hemisphere using ``zone_letter``.
+
+    Notes
+    -----
+    .. [1] https://mapref.org/UTM-ProjectionSystem.html
+
+    Returns
+    -------
+    tuple
+        Tuple containing latitude and longitude.
+    """
+    if not zone_letter and northern is None:
+        raise ValueError("Set either zone_letter or northern.")
+
+    if zone_letter and northern is not None:
+        raise ValueError("Set either zone_letter or north, but not both.")
+
+    if zone_letter:
+        zone_letter = zone_letter.upper()
+        northern = zone_letter >= "N"
+
+    x = east - 500000
+    y = north
+
+    if not northern:
+        y -= 10000000
+
+    # Constant values
+    # Scale factor for UTM (Universal Transverse Mercator) projection
+    K0 = 0.9996
+    # Radius of the Earth in meters
+    R = 6378137
+
+    # Eccentricity of the Earth's ellipsoid
+    E = 0.00669438
+    E2 = E * E
+    E3 = E2 * E
+    E_P2 = E / (1.0 - E)
+
+    SQRT_E = mathlib.sqrt(1 - E)
+    _E = (1 - SQRT_E) / (1 + SQRT_E)
+    _E2 = _E * _E
+    _E3 = _E2 * _E
+    _E4 = _E3 * _E
+    _E5 = _E4 * _E
+
+    # Meridional arc constants for UTM projection
+    M1 = 1 - E / 4 - 3 * E2 / 64 - 5 * E3 / 256
+
+    P2 = 3.0 / 2 * _E - 27.0 / 32 * _E3 + 269.0 / 512 * _E5
+    P3 = 21.0 / 16 * _E2 - 55.0 / 32 * _E4
+    P4 = 151.0 / 96 * _E3 - 417.0 / 128 * _E5
+    P5 = 1097.0 / 512 * _E4
+
+    m = y / K0
+    mu = m / (R * M1)
+
+    p_rad = (
+        mu + P2 * mathlib.sin(2 * mu) + P3 * mathlib.sin(4 * mu) + P4 * mathlib.sin(6 * mu) + P5 * mathlib.sin(8 * mu)
+    )
+
+    p_sin = mathlib.sin(p_rad)
+    p_sin2 = p_sin * p_sin
+
+    p_cos = mathlib.cos(p_rad)
+
+    p_tan = p_sin / p_cos
+    p_tan2 = p_tan * p_tan
+    p_tan4 = p_tan2 * p_tan2
+
+    ep_sin = 1 - E * p_sin2
+    ep_sin_sqrt = mathlib.sqrt(1 - E * p_sin2)
+
+    n = R / ep_sin_sqrt
+    r = (1 - E) / ep_sin
+
+    c = E_P2 * p_cos**2
+    c2 = c * c
+
+    d = x / (n * K0)
+    d2 = d * d
+    d3 = d2 * d
+    d4 = d3 * d
+    d5 = d4 * d
+    d6 = d5 * d
+
+    latitude = (
+        p_rad
+        - (p_tan / r) * (d2 / 2 - d4 / 24 * (5 + 3 * p_tan2 + 10 * c - 4 * c2 - 9 * E_P2))
+        + d6 / 720 * (61 + 90 * p_tan2 + 298 * c + 45 * p_tan4 - 252 * E_P2 - 3 * c2)
+    )
+
+    longitude = (
+        d - d3 / 6 * (1 + 2 * p_tan2 + c) + d5 / 120 * (5 - 2 * c + 28 * p_tan2 - 3 * c2 + 8 * E_P2 + 24 * p_tan4)
+    ) / p_cos
+
+    longitude_temp = longitude + mathlib.radians((zone_number - 1) * 6 - 180 + 3)
+    longitude = (longitude_temp + mathlib.pi) % (2 * mathlib.pi) - mathlib.pi
+
+    return mathlib.degrees(latitude), mathlib.degrees(longitude)
