@@ -24,6 +24,8 @@
 
 import warnings
 
+from enum import Enum
+
 from . import generated
 
 def props_to_dict(props):
@@ -61,7 +63,6 @@ class GenericEmitNode:
         parent_props = props_to_dict(parent_props)
 
         parent_type = parent_props['Type']
-        parent_type = f'Node_{parent_type}'
 
         parent_type_module = getattr(generated, parent_type)
         parent_type_class = getattr(parent_type_module, parent_type)

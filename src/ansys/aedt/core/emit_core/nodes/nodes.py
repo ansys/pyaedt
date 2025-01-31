@@ -3,83 +3,121 @@ from .GenericEmitNode import GenericEmitNode, props_to_dict
 
 from . import generated
 
-from .generated.Node_Amplifier import Node_Amplifier 
-from .generated.Node_AntennaGroup import Node_AntennaGroup 
-from .generated.Node_AntennaNode import Node_AntennaNode 
-# from .generated.Node_AntennaPassband import Node_AntennaPassband 
-# from .generated.Node_Band import Node_Band 
-# from .generated.Node_BandFolder import Node_BandFolder 
-# from .generated.Node_BandTraceNode import Node_BandTraceNode 
-# from .generated.Node_Cable import Node_Cable 
-# from .generated.Node_CADNode import Node_CADNode 
-# from .generated.Node_Circulator import Node_Circulator 
-# from .generated.Node_ComponentGroup import Node_ComponentGroup 
-# from .generated.Node_ConfigurationGroup import Node_ConfigurationGroup 
-# from .generated.Node_ConfigurationNode import Node_ConfigurationNode 
-# from .generated.Node_CouplingLinkNode import Node_CouplingLinkNode 
-from .generated.Node_CouplingsNode import Node_CouplingsNode 
-# from .generated.Node_CouplingTraceNode import Node_CouplingTraceNode 
-# from .generated.Node_CustomCouplingNode import Node_CustomCouplingNode 
-# from .generated.Node_EmiPlotMarkerNode import Node_EmiPlotMarkerNode 
-from .generated.Node_EmitSceneNode import Node_EmitSceneNode 
-# from .generated.Node_ErcegCouplingNode import Node_ErcegCouplingNode 
-# from .generated.Node_Filter import Node_Filter 
-# from .generated.Node_FiveGChannelModel import Node_FiveGChannelModel 
-# from .generated.Node_HataCouplingNode import Node_HataCouplingNode 
-# from .generated.Node_IndoorPropagationCouplingNode import Node_IndoorPropagationCouplingNode 
-# from .generated.Node_InteractionDiagramNode import Node_InteractionDiagramNode 
-# from .generated.Node_Isolator import Node_Isolator 
-# from .generated.Node_LogDistanceCouplingNode import Node_LogDistanceCouplingNode 
-# from .generated.Node_MPlexBandTraceNode import Node_MPlexBandTraceNode 
-# from .generated.Node_Multiplexer import Node_Multiplexer 
-# from .generated.Node_MultiplexerBand import Node_MultiplexerBand 
-# from .generated.Node_Node import Node_Node 
-# from .generated.Node_OutboardTraceNode import Node_OutboardTraceNode 
-# from .generated.Node_ParametricCouplingTraceNode import Node_ParametricCouplingTraceNode 
-# from .generated.Node_PlotMarkerNode import Node_PlotMarkerNode 
-# from .generated.Node_PlotNode import Node_PlotNode 
-# from .generated.Node_PowerDivider import Node_PowerDivider 
-# from .generated.Node_PowerTraceNode import Node_PowerTraceNode 
-# from .generated.Node_ProfileTraceNode import Node_ProfileTraceNode 
-# from .generated.Node_PropagationLossCouplingNode import Node_PropagationLossCouplingNode 
-# from .generated.Node_RadioGroup import Node_RadioGroup 
-# from .generated.Node_RadioNode import Node_RadioNode 
-# from .generated.Node_ResultPlotNode import Node_ResultPlotNode 
-# from .generated.Node_RfSystemGroup import Node_RfSystemGroup 
-# from .generated.Node_RFSystemNode import Node_RFSystemNode 
-# from .generated.Node_RxMeasNode import Node_RxMeasNode 
-# from .generated.Node_RxMixerProductNode import Node_RxMixerProductNode 
-# from .generated.Node_RxSaturationNode import Node_RxSaturationNode 
-# from .generated.Node_RxSelectivityNode import Node_RxSelectivityNode 
-# from .generated.Node_RxSpurNode import Node_RxSpurNode 
-# from .generated.Node_RxSusceptibilityProfNode import Node_RxSusceptibilityProfNode 
-# from .generated.Node_SamplingNode import Node_SamplingNode 
-# from .generated.Node_SceneGroupNode import Node_SceneGroupNode 
-# from .generated.Node_SelectivityTraceNode import Node_SelectivityTraceNode 
-# from .generated.Node_SolutionCouplingNode import Node_SolutionCouplingNode 
-# from .generated.Node_SolutionsNode import Node_SolutionsNode 
-# from .generated.Node_Sparameter import Node_Sparameter 
-# from .generated.Node_SparameterTraceNode import Node_SparameterTraceNode 
-# from .generated.Node_SpurTraceNode import Node_SpurTraceNode 
-# from .generated.Node_Terminator import Node_Terminator 
-# from .generated.Node_TestNoiseTraceNode import Node_TestNoiseTraceNode 
-# from .generated.Node_TopLevelSimulation import Node_TopLevelSimulation 
-# from .generated.Node_TouchstoneCouplingNode import Node_TouchstoneCouplingNode 
-# from .generated.Node_TR_Switch import Node_TR_Switch 
-# from .generated.Node_TRSwitchTraceNode import Node_TRSwitchTraceNode 
-# from .generated.Node_TunableTraceNode import Node_TunableTraceNode 
-# from .generated.Node_TwoRayPathLossCouplingNode import Node_TwoRayPathLossCouplingNode 
-# from .generated.Node_TwoToneTraceNode import Node_TwoToneTraceNode 
-# from .generated.Node_TxBbEmissionNode import Node_TxBbEmissionNode 
-# from .generated.Node_TxHarmonicNode import Node_TxHarmonicNode 
-# from .generated.Node_TxMeasNode import Node_TxMeasNode 
-# from .generated.Node_TxNbEmissionNode import Node_TxNbEmissionNode 
-# from .generated.Node_TxSpectralProfNode import Node_TxSpectralProfNode 
-# from .generated.Node_TxSpurNode import Node_TxSpurNode 
-# from .generated.Node_WalfischCouplingNode import Node_WalfischCouplingNode 
+from .generated.Amplifier import Amplifier
+from .generated.ReadOnlyAmplifier import ReadOnlyAmplifier
+from .generated.Circulator import Circulator
+from .generated.CouplingLinkNode import CouplingLinkNode
+from .generated.CouplingsNode import CouplingsNode
+from .generated.CouplingTraceNode import CouplingTraceNode
+from .generated.CustomCouplingNode import CustomCouplingNode
+from .generated.EmiPlotMarkerNode import EmiPlotMarkerNode
+from .generated.EmitSceneNode import EmitSceneNode
+from .generated.ErcegCouplingNode import ErcegCouplingNode
+from .generated.Filter import Filter
+from .generated.FiveGChannelModel import FiveGChannelModel
+from .generated.HataCouplingNode import HataCouplingNode
+from .generated.IndoorPropagationCouplingNode import IndoorPropagationCouplingNode
+from .generated.Isolator import Isolator
+from .generated.LogDistanceCouplingNode import LogDistanceCouplingNode
+from .generated.MPlexBandTraceNode import MPlexBandTraceNode
+from .generated.Multiplexer import Multiplexer
+from .generated.MultiplexerBand import MultiplexerBand
+from .generated.OutboardTraceNode import OutboardTraceNode
+from .generated.ParametricCouplingTraceNode import ParametricCouplingTraceNode
+from .generated.PlotMarkerNode import PlotMarkerNode
+from .generated.PlotNode import PlotNode
+from .generated.PowerDivider import PowerDivider
+from .generated.PowerTraceNode import PowerTraceNode
+from .generated.ProfileTraceNode import ProfileTraceNode
+from .generated.PropagationLossCouplingNode import PropagationLossCouplingNode
+from .generated.RadioNode import RadioNode
+from .generated.ReadOnlyAntennaNode import ReadOnlyAntennaNode
+from .generated.ReadOnlyAntennaPassband import ReadOnlyAntennaPassband
+from .generated.ReadOnlyBand import ReadOnlyBand
+from .generated.ReadOnlyBandFolder import ReadOnlyBandFolder
+from .generated.ReadOnlyCable import ReadOnlyCable
+from .generated.ReadOnlyCADNode import ReadOnlyCADNode
+from .generated.ReadOnlyCirculator import ReadOnlyCirculator
+from .generated.ReadOnlyCouplingLinkNode import ReadOnlyCouplingLinkNode
+from .generated.ReadOnlyCouplingsNode import ReadOnlyCouplingsNode
+from .generated.ReadOnlyCustomCouplingNode import ReadOnlyCustomCouplingNode
+from .generated.ReadOnlyEmitSceneNode import ReadOnlyEmitSceneNode
+from .generated.ReadOnlyErcegCouplingNode import ReadOnlyErcegCouplingNode
+from .generated.ReadOnlyFilter import ReadOnlyFilter
+from .generated.ReadOnlyFiveGChannelModel import ReadOnlyFiveGChannelModel
+from .generated.ReadOnlyHataCouplingNode import ReadOnlyHataCouplingNode
+from .generated.ReadOnlyIndoorPropagationCouplingNode import ReadOnlyIndoorPropagationCouplingNode
+from .generated.ReadOnlyIsolator import ReadOnlyIsolator
+from .generated.ReadOnlyLogDistanceCouplingNode import ReadOnlyLogDistanceCouplingNode
+from .generated.ReadOnlyMultiplexer import ReadOnlyMultiplexer
+from .generated.ReadOnlyMultiplexerBand import ReadOnlyMultiplexerBand
+from .generated.ReadOnlyPowerDivider import ReadOnlyPowerDivider
+from .generated.ReadOnlyPropagationLossCouplingNode import ReadOnlyPropagationLossCouplingNode
+from .generated.ReadOnlyRadioNode import ReadOnlyRadioNode
+from .generated.ReadOnlyRfSystemGroup import ReadOnlyRfSystemGroup
+from .generated.ReadOnlyRxMeasNode import ReadOnlyRxMeasNode
+from .generated.ReadOnlyRxMixerProductNode import ReadOnlyRxMixerProductNode
+from .generated.ReadOnlyRxSaturationNode import ReadOnlyRxSaturationNode
+from .generated.ReadOnlyRxSelectivityNode import ReadOnlyRxSelectivityNode
+from .generated.ReadOnlyRxSpurNode import ReadOnlyRxSpurNode
+from .generated.ReadOnlyRxSusceptibilityProfNode import ReadOnlyRxSusceptibilityProfNode
+from .generated.ReadOnlySamplingNode import ReadOnlySamplingNode
+from .generated.ReadOnlySceneGroupNode import ReadOnlySceneGroupNode
+from .generated.ReadOnlySolutionCouplingNode import ReadOnlySolutionCouplingNode
+from .generated.ReadOnlySolutionsNode import ReadOnlySolutionsNode
+from .generated.ReadOnlySparameter import ReadOnlySparameter
+from .generated.ReadOnlyTerminator import ReadOnlyTerminator
+from .generated.ReadOnlyTouchstoneCouplingNode import ReadOnlyTouchstoneCouplingNode
+from .generated.ReadOnlyTR_Switch import ReadOnlyTR_Switch
+from .generated.ReadOnlyTwoRayPathLossCouplingNode import ReadOnlyTwoRayPathLossCouplingNode
+from .generated.ReadOnlyTxBbEmissionNode import ReadOnlyTxBbEmissionNode
+from .generated.ReadOnlyTxHarmonicNode import ReadOnlyTxHarmonicNode
+from .generated.ReadOnlyTxMeasNode import ReadOnlyTxMeasNode
+from .generated.ReadOnlyTxNbEmissionNode import ReadOnlyTxNbEmissionNode
+from .generated.ReadOnlyTxSpectralProfNode import ReadOnlyTxSpectralProfNode
+from .generated.ReadOnlyTxSpurNode import ReadOnlyTxSpurNode
+from .generated.ReadOnlyWalfischCouplingNode import ReadOnlyWalfischCouplingNode
+from .generated.ResultPlotNode import ResultPlotNode
+from .generated.RfSystemGroup import RfSystemGroup
+from .generated.RxMeasNode import RxMeasNode
+from .generated.RxMixerProductNode import RxMixerProductNode
+from .generated.RxSaturationNode import RxSaturationNode
+from .generated.RxSelectivityNode import RxSelectivityNode
+from .generated.RxSpurNode import RxSpurNode
+from .generated.RxSusceptibilityProfNode import RxSusceptibilityProfNode
+from .generated.SamplingNode import SamplingNode
+from .generated.SceneGroupNode import SceneGroupNode
+from .generated.SelectivityTraceNode import SelectivityTraceNode
+from .generated.SolutionCouplingNode import SolutionCouplingNode
+from .generated.SolutionsNode import SolutionsNode
+from .generated.Sparameter import Sparameter
+from .generated.SpurTraceNode import SpurTraceNode
+from .generated.Terminator import Terminator
+from .generated.TestNoiseTraceNode import TestNoiseTraceNode
+from .generated.TopLevelSimulation import TopLevelSimulation
+from .generated.TouchstoneCouplingNode import TouchstoneCouplingNode
+from .generated.TR_Switch import TR_Switch
+from .generated.TRSwitchTraceNode import TRSwitchTraceNode
+from .generated.TunableTraceNode import TunableTraceNode
+from .generated.TwoRayPathLossCouplingNode import TwoRayPathLossCouplingNode
+from .generated.TwoToneTraceNode import TwoToneTraceNode
+from .generated.TxBbEmissionNode import TxBbEmissionNode
+from .generated.TxHarmonicNode import TxHarmonicNode
+from .generated.TxMeasNode import TxMeasNode
+from .generated.TxNbEmissionNode import TxNbEmissionNode
+from .generated.TxSpectralProfNode import TxSpectralProfNode
+from .generated.TxSpurNode import TxSpurNode
+from .generated.WalfischCouplingNode import WalfischCouplingNode
+from .generated.AntennaNode import AntennaNode
+from .generated.AntennaPassband import AntennaPassband
+from .generated.Band import Band
+from .generated.BandFolder import BandFolder
+from .generated.BandTraceNode import BandTraceNode
+from .generated.Cable import Cable
+from .generated.CADNode import CADNode
+from .generated.CategoriesViewNode import CategoriesViewNode
 
 class NodeInterface:
-
     def __init__(self, oDesign):
         self.oDesign = oDesign
         self.oEmitCom = oDesign.GetModule("EmitCom")
@@ -109,7 +147,6 @@ class NodeInterface:
         parent_props = props_to_dict(parent_props)
 
         type = parent_props['Type']
-        type = f'Node_{type}'
 
         node = None
         try:
@@ -126,12 +163,12 @@ class NodeInterface:
         nodes = [self.get_node(id) for id in ids]
         return nodes
 
-    def get_scene_node(self) -> Node_EmitSceneNode:
+    def get_scene_node(self) -> EmitSceneNode:
         scene_node_id = self.oEmitCom.GetTopLevelNodeID(0, "Scene")
         scene_node = self.get_node(scene_node_id)
         return scene_node
 
-    def get_couplings_node(self) -> Node_CouplingsNode:
+    def get_couplings_node(self) -> CouplingsNode:
         couplings_node_id = self.oEmitCom.GetTopLevelNodeID(0, "Couplings")
         couplings_node = self.get_node(couplings_node_id)
         return couplings_node
