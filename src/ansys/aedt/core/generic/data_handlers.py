@@ -24,8 +24,8 @@
 
 from decimal import Decimal
 import math
-import random
 import re
+import secrets
 import string
 import unicodedata
 
@@ -272,7 +272,7 @@ def random_string(length=6, only_digits=False, char_set=None):
             char_set = string.digits
         else:
             char_set = string.ascii_uppercase + string.digits
-    random_str = "".join(random.choice(char_set) for _ in range(int(length)))
+    random_str = "".join(secrets.choice(char_set) for _ in range(int(length)))
     return random_str
 
 
