@@ -50,7 +50,7 @@ try:
     import osmnx as ox
 
 except ImportError:  # pragma: no cover
-    warnings.warn("OpenStreetMap Reader requires osmnx extra packages.\n" "Install with \n\npip install osmnx")
+    warnings.warn("OpenStreetMap Reader requires osmnx extra package.\n" "Install with \n\npip install osmnx")
 
 ZONE_LETTERS = "CDEFGHJKLMNPQRSTUVWXX"
 
@@ -495,10 +495,9 @@ class TerrainPrep(object):
                     i = percent_symbol2 + percent_symbol1 + " " + str(percent_complete) + "% "
                     logger.info(f"\rPercent Complete:{i}")
 
+                zone_letter = None
                 if -80 <= latitude <= 84:
                     zone_letter = ZONE_LETTERS[int(latitude + 80) >> 3]
-                else:
-                    zone_letter = None
 
                 zone_number = int((longitude + 180) / 6) + 1
                 if 56 <= latitude < 64 and 3 <= longitude < 12:
@@ -548,7 +547,6 @@ def convert_latlon_to_utm(latitude: float, longitude: float, zone_letter: str = 
         raise ValueError("Latitude out of range: must be between -80 degrees and 84 degrees.")
     if longitude < -180.0 or longitude > 180.0:
         raise ValueError("Longitude out of range: must be between -180 degrees and 180 degrees.")
-
     if zone_letter is not None and zone_letter.upper() not in ZONE_LETTERS:
         raise ValueError("Zone letter out of range.")
 
