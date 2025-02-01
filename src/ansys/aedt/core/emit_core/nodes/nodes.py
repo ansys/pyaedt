@@ -1,5 +1,5 @@
 
-from .GenericEmitNode import GenericEmitNode, props_to_dict
+from .EmitNode import EmitNode
 
 from . import generated
 
@@ -140,11 +140,11 @@ class NodeInterface:
         
         return node_ids
 
-    def get_node(self, id: int) -> GenericEmitNode:
+    def get_node(self, id: int) -> EmitNode:
         props = self.oEmitCom.GetEmitNodeProperties(0, id)
-        props = props_to_dict(props)
+        props = EmitNode.props_to_dict(props)
         parent_props = self.oEmitCom.GetEmitNodeProperties(0, id, True)
-        parent_props = props_to_dict(parent_props)
+        parent_props = EmitNode.props_to_dict(parent_props)
 
         type = parent_props['Type']
 
@@ -154,11 +154,11 @@ class NodeInterface:
             type_class = getattr(type_module, type)
             node = type_class(self.oDesign, 0, id)
         except AttributeError:
-            node = GenericEmitNode(self.oDesign, 0, id)
+            node = EmitNode(self.oDesign, 0, id)
 
         return node
 
-    def get_all_nodes(self) -> list[GenericEmitNode]:
+    def get_all_nodes(self) -> list[EmitNode]:
         ids = self.get_all_node_ids()
         nodes = [self.get_node(id) for id in ids]
         return nodes

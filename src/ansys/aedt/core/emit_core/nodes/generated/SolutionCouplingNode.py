@@ -1,8 +1,12 @@
-from ..GenericEmitNode import *
-class SolutionCouplingNode(GenericEmitNode):
+from ..EmitNode import *
+
+class SolutionCouplingNode(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
         self._is_component = False
-        GenericEmitNode.__init__(self, oDesign, result_id, node_id)
+        EmitNode.__init__(self, oDesign, result_id, node_id)
+
+    def __eq__(self, other):
+      return ((self._result_id == other._result_id) and (self._node_id == other._node_id))
 
     @property
     def parent(self):
@@ -15,15 +19,11 @@ class SolutionCouplingNode(GenericEmitNode):
         "Enable/Disable coupling (A sweep disabled in HFSS/Layout cannot be enabled in EMIT)."
         "Value should be 'true' or 'false'."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Enabled')
-        key_val_pair = [i for i in props if 'Enabled=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Enabled')
         return val
     @enabled.setter
-    def enabled(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Enabled=' + value])
+    def enabled(self, value: bool):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Enabled=' + value])
 
     @property
     def enable_refinement(self) -> bool:
@@ -31,15 +31,11 @@ class SolutionCouplingNode(GenericEmitNode):
         "Enables/disables refined sampling of the frequency domain.."
         "Value should be 'true' or 'false'."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Enable Refinement')
-        key_val_pair = [i for i in props if 'Enable Refinement=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Enable Refinement')
         return val
     @enable_refinement.setter
-    def enable_refinement(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Enable Refinement=' + value])
+    def enable_refinement(self, value: bool):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Enable Refinement=' + value])
 
     @property
     def adaptive_sampling(self) -> bool:
@@ -47,28 +43,20 @@ class SolutionCouplingNode(GenericEmitNode):
         "Enables/disables adaptive refinement the frequency domain sampling.."
         "Value should be 'true' or 'false'."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Adaptive Sampling')
-        key_val_pair = [i for i in props if 'Adaptive Sampling=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Adaptive Sampling')
         return val
     @adaptive_sampling.setter
-    def adaptive_sampling(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Adaptive Sampling=' + value])
+    def adaptive_sampling(self, value: bool):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Adaptive Sampling=' + value])
 
     @property
     def refinement_domain(self):
         """Refinement Domain
         "Points to use when refining the frequency domain.."
         "        """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Refinement Domain')
-        key_val_pair = [i for i in props if 'Refinement Domain=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Refinement Domain')
         return val
     @refinement_domain.setter
     def refinement_domain(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Refinement Domain=' + value])
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Refinement Domain=' + value])
 

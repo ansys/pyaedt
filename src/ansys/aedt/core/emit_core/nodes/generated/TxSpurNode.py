@@ -1,8 +1,12 @@
-from ..GenericEmitNode import *
-class TxSpurNode(GenericEmitNode):
+from ..EmitNode import *
+
+class TxSpurNode(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
         self._is_component = False
-        GenericEmitNode.__init__(self, oDesign, result_id, node_id)
+        EmitNode.__init__(self, oDesign, result_id, node_id)
+
+    def __eq__(self, other):
+      return ((self._result_id == other._result_id) and (self._node_id == other._node_id))
 
     @property
     def parent(self):
@@ -18,28 +22,41 @@ class TxSpurNode(GenericEmitNode):
         self._delete()
 
     @property
-    def enabled(self):
-        """Enabled state for this node."""
-        return oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'enabled')
-    @enabled.setter
-    def enabled(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['enabled=' + value])
+    def table_data(self):
+        """ Table"
+        "Table consists of 3 columns."
+        "Frequency (MHz): 
+        "    Value should be a mathematical expression."
+        "Bandwidth: 
+        "    Value should be greater than 1."
+        "Power: 
+        "    Value should be between -200 and 150."
+        """
+        return self._get_table_data()
+    @table_data.setter
+    def table_data(self, value):
+        self._set_table_data(value)
 
     @property
-    def spur_table_units(self):
-        """Spur Table Units
-        "Specifies the units for the Spurs."
-        "        """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Spur Table Units')
-        key_val_pair = [i for i in props if 'Spur Table Units=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
-        return val
-    @spur_table_units.setter
-    def spur_table_units(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Spur Table Units=' + value])
+    def enabled(self) -> bool:
+        """Enabled state for this node."""
+        return self._oDesign.GetModule('EmitCom').GetEmitNodeProperties(self._result_id,self._node_id,'enabled')
+    @enabled.setter
+    def enabled(self, value: bool):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['enabled=' + value])
+
     class SpurTableUnitsOption(Enum):
             ABSOLUTE = "Absolute"
             RELATIVE = "Relative"
+    @property
+    def spur_table_units(self) -> SpurTableUnitsOption:
+        """Spur Table Units
+        "Specifies the units for the Spurs."
+        "        """
+        val = self._get_property('Spur Table Units')
+        val = self.SpurTableUnitsOption[val]
+        return val
+    @spur_table_units.setter
+    def spur_table_units(self, value: SpurTableUnitsOption):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Spur Table Units=' + value.value])
 

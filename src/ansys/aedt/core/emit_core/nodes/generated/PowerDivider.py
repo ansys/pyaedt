@@ -1,8 +1,12 @@
-from ..GenericEmitNode import *
-class PowerDivider(GenericEmitNode):
+from ..EmitNode import *
+
+class PowerDivider(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
         self._is_component = True
-        GenericEmitNode.__init__(self, oDesign, result_id, node_id)
+        EmitNode.__init__(self, oDesign, result_id, node_id)
+
+    def __eq__(self, other):
+      return ((self._result_id == other._result_id) and (self._node_id == other._node_id))
 
     def rename(self, new_name):
         """Rename this node"""
@@ -22,15 +26,11 @@ class PowerDivider(GenericEmitNode):
         "Name of file defining the Power Divider."
         "Value should be a full file path."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Filename')
-        key_val_pair = [i for i in props if 'Filename=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Filename')
         return val
     @filename.setter
-    def filename(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Filename=' + value])
+    def filename(self, value: str):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Filename=' + value])
 
     @property
     def noise_temperature(self) -> float:
@@ -38,67 +38,53 @@ class PowerDivider(GenericEmitNode):
         "System Noise temperature (K) of the component."
         "Value should be between 0 and 1000."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Noise Temperature')
-        key_val_pair = [i for i in props if 'Noise Temperature=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Noise Temperature')
         return val
     @noise_temperature.setter
-    def noise_temperature(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Noise Temperature=' + value])
+    def noise_temperature(self, value: float):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Noise Temperature=' + value])
 
     @property
     def notes(self) -> str:
         """Notes
         "Expand to view/edit notes stored with the project."
         "        """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Notes')
-        key_val_pair = [i for i in props if 'Notes=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Notes')
         return val
     @notes.setter
-    def notes(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Notes=' + value])
+    def notes(self, value: str):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
 
-    @property
-    def type(self):
-        """Type
-        "Type of Power Divider model to use. Options include: By File (measured or simulated), 3 dB (parametric), and Resistive (parametric)."
-        "        """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Type')
-        key_val_pair = [i for i in props if 'Type=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
-        return val
-    @type.setter
-    def type(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Type=' + value])
     class TypeOption(Enum):
             BYFILE = "By File"
             _3DB = "3 dB"
             RESISTIVE = "Resistive"
-
     @property
-    def orientation(self):
-        """Orientation
-        "Defines the orientation of the Power Divider.."
+    def type(self) -> TypeOption:
+        """Type
+        "Type of Power Divider model to use. Options include: By File (measured or simulated), 3 dB (parametric), and Resistive (parametric)."
         "        """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Orientation')
-        key_val_pair = [i for i in props if 'Orientation=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Type')
+        val = self.TypeOption[val]
         return val
-    @orientation.setter
-    def orientation(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Orientation=' + value])
+    @type.setter
+    def type(self, value: TypeOption):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Type=' + value.value])
+
     class OrientationOption(Enum):
             RADIOSIDE = "Divider"
             ANTENNASIDE = "Combiner"
+    @property
+    def orientation(self) -> OrientationOption:
+        """Orientation
+        "Defines the orientation of the Power Divider.."
+        "        """
+        val = self._get_property('Orientation')
+        val = self.OrientationOption[val]
+        return val
+    @orientation.setter
+    def orientation(self, value: OrientationOption):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Orientation=' + value.value])
 
     @property
     def insertion_loss_above_ideal(self) -> float:
@@ -106,15 +92,11 @@ class PowerDivider(GenericEmitNode):
         "Additional loss beyond the ideal insertion loss. The ideal insertion loss is 3 dB for the 3 dB Divider and 6 dB for the Resistive Divider.."
         "Value should be between 0 and 100."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Insertion Loss Above Ideal')
-        key_val_pair = [i for i in props if 'Insertion Loss Above Ideal=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Insertion Loss Above Ideal')
         return val
     @insertion_loss_above_ideal.setter
-    def insertion_loss_above_ideal(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Insertion Loss Above Ideal=' + value])
+    def insertion_loss_above_ideal(self, value: float):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Insertion Loss Above Ideal=' + value])
 
     @property
     def finite_isolation(self) -> bool:
@@ -122,15 +104,11 @@ class PowerDivider(GenericEmitNode):
         "Use a finite isolation between output ports. If disabled, the Power Divider isolation is ideal (infinite isolation between output ports).."
         "Value should be 'true' or 'false'."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Finite Isolation')
-        key_val_pair = [i for i in props if 'Finite Isolation=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Finite Isolation')
         return val
     @finite_isolation.setter
-    def finite_isolation(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Finite Isolation=' + value])
+    def finite_isolation(self, value: bool):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Finite Isolation=' + value])
 
     @property
     def isolation(self) -> float:
@@ -138,15 +116,11 @@ class PowerDivider(GenericEmitNode):
         "Power Divider isolation between output ports.."
         "Value should be between 0 and 100."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Isolation')
-        key_val_pair = [i for i in props if 'Isolation=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Isolation')
         return val
     @isolation.setter
-    def isolation(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Isolation=' + value])
+    def isolation(self, value: float):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Isolation=' + value])
 
     @property
     def finite_bandwidth(self) -> bool:
@@ -154,15 +128,11 @@ class PowerDivider(GenericEmitNode):
         "Use a finite bandwidth. If disabled, the  Power Divider model is ideal (infinite bandwidth).."
         "Value should be 'true' or 'false'."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Finite Bandwidth')
-        key_val_pair = [i for i in props if 'Finite Bandwidth=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Finite Bandwidth')
         return val
     @finite_bandwidth.setter
-    def finite_bandwidth(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Finite Bandwidth=' + value])
+    def finite_bandwidth(self, value: bool):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Finite Bandwidth=' + value])
 
     @property
     def out_of_band_attenuation(self) -> float:
@@ -170,15 +140,11 @@ class PowerDivider(GenericEmitNode):
         "Out-of-band loss (attenuation)."
         "Value should be between 0 and 200."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Out-of-band Attenuation')
-        key_val_pair = [i for i in props if 'Out-of-band Attenuation=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Out-of-band Attenuation')
         return val
     @out_of_band_attenuation.setter
-    def out_of_band_attenuation(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Out-of-band Attenuation=' + value])
+    def out_of_band_attenuation(self, value: float):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Out-of-band Attenuation=' + value])
 
     @property
     def lower_stop_band(self) -> float:
@@ -186,15 +152,11 @@ class PowerDivider(GenericEmitNode):
         "Lower stop band frequency."
         "Value should be between 1 and 1e+11."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Lower Stop Band')
-        key_val_pair = [i for i in props if 'Lower Stop Band=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Lower Stop Band')
         return val
     @lower_stop_band.setter
-    def lower_stop_band(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Lower Stop Band=' + value])
+    def lower_stop_band(self, value: float):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Lower Stop Band=' + value])
 
     @property
     def lower_cutoff(self) -> float:
@@ -202,15 +164,11 @@ class PowerDivider(GenericEmitNode):
         "Lower cutoff frequency."
         "Value should be between 1 and 1e+11."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Lower Cutoff')
-        key_val_pair = [i for i in props if 'Lower Cutoff=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Lower Cutoff')
         return val
     @lower_cutoff.setter
-    def lower_cutoff(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Lower Cutoff=' + value])
+    def lower_cutoff(self, value: float):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Lower Cutoff=' + value])
 
     @property
     def higher_cutoff(self) -> float:
@@ -218,15 +176,11 @@ class PowerDivider(GenericEmitNode):
         "Higher cutoff frequency."
         "Value should be between 1 and 1e+11."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Higher Cutoff')
-        key_val_pair = [i for i in props if 'Higher Cutoff=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Higher Cutoff')
         return val
     @higher_cutoff.setter
-    def higher_cutoff(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Higher Cutoff=' + value])
+    def higher_cutoff(self, value: float):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Higher Cutoff=' + value])
 
     @property
     def higher_stop_band(self) -> float:
@@ -234,25 +188,16 @@ class PowerDivider(GenericEmitNode):
         "Higher stop band frequency."
         "Value should be between 1 and 1e+11."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Higher Stop Band')
-        key_val_pair = [i for i in props if 'Higher Stop Band=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Higher Stop Band')
         return val
     @higher_stop_band.setter
-    def higher_stop_band(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Higher Stop Band=' + value])
+    def higher_stop_band(self, value: float):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Higher Stop Band=' + value])
 
     @property
     def warnings(self) -> str:
         """Warnings
         "Warning(s) for this node."
         "        """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Warnings')
-        key_val_pair = [i for i in props if 'Warnings=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Warnings')
         return val
-

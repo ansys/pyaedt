@@ -1,8 +1,12 @@
-from ..GenericEmitNode import *
-class TxBbEmissionNode(GenericEmitNode):
+from ..EmitNode import *
+
+class TxBbEmissionNode(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
         self._is_component = False
-        GenericEmitNode.__init__(self, oDesign, result_id, node_id)
+        EmitNode.__init__(self, oDesign, result_id, node_id)
+
+    def __eq__(self, other):
+      return ((self._result_id == other._result_id) and (self._node_id == other._node_id))
 
     @property
     def parent(self):
@@ -32,32 +36,29 @@ class TxBbEmissionNode(GenericEmitNode):
         self._set_table_data(value)
 
     @property
-    def enabled(self):
+    def enabled(self) -> bool:
         """Enabled state for this node."""
-        return oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'enabled')
+        return self._oDesign.GetModule('EmitCom').GetEmitNodeProperties(self._result_id,self._node_id,'enabled')
     @enabled.setter
-    def enabled(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['enabled=' + value])
+    def enabled(self, value: bool):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['enabled=' + value])
 
-    @property
-    def noise_behavior(self):
-        """Noise Behavior
-        "Specifies the behavior of the parametric noise profile."
-        "        """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Noise Behavior')
-        key_val_pair = [i for i in props if 'Noise Behavior=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
-        return val
-    @noise_behavior.setter
-    def noise_behavior(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Noise Behavior=' + value])
     class NoiseBehaviorOption(Enum):
             ABSOLUTE = "Absolute"
             RELATIVEBANDWIDTH = "Relative (Bandwidth)"
             RELATIVEOFFSET = "Relative (Offset)"
             BROADBANDEQUATION = "Equation"
+    @property
+    def noise_behavior(self) -> NoiseBehaviorOption:
+        """Noise Behavior
+        "Specifies the behavior of the parametric noise profile."
+        "        """
+        val = self._get_property('Noise Behavior')
+        val = self.NoiseBehaviorOption[val]
+        return val
+    @noise_behavior.setter
+    def noise_behavior(self, value: NoiseBehaviorOption):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Noise Behavior=' + value.value])
 
     @property
     def use_log_linear_interpolation(self) -> bool:
@@ -65,13 +66,9 @@ class TxBbEmissionNode(GenericEmitNode):
         "If true, linear interpolation in the log domain is used. If false, linear interpolation in the linear domain is used.."
         "Value should be 'true' or 'false'."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Use Log-Linear Interpolation')
-        key_val_pair = [i for i in props if 'Use Log-Linear Interpolation=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Use Log-Linear Interpolation')
         return val
     @use_log_linear_interpolation.setter
-    def use_log_linear_interpolation(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Use Log-Linear Interpolation=' + value])
+    def use_log_linear_interpolation(self, value: bool):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Use Log-Linear Interpolation=' + value])
 

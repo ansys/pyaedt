@@ -1,8 +1,12 @@
-from ..GenericEmitNode import *
-class RxMeasNode(GenericEmitNode):
+from ..EmitNode import *
+
+class RxMeasNode(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
         self._is_component = False
-        GenericEmitNode.__init__(self, oDesign, result_id, node_id)
+        EmitNode.__init__(self, oDesign, result_id, node_id)
+
+    def __eq__(self, other):
+      return ((self._result_id == other._result_id) and (self._node_id == other._node_id))
 
     @property
     def parent(self):
@@ -23,56 +27,38 @@ class RxMeasNode(GenericEmitNode):
         "Name of the measurement source."
         "Value should be a full file path."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'File')
-        key_val_pair = [i for i in props if 'File=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('File')
         return val
-
     @property
     def source_file(self) -> str:
         """Source File
         "Name of the measurement source."
         "Value should be a full file path."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Source File')
-        key_val_pair = [i for i in props if 'Source File=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Source File')
         return val
-
     @property
     def receive_frequency(self) -> float:
         """Receive Frequency
         "Channel associated with the measurement file."
         "        """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Receive Frequency')
-        key_val_pair = [i for i in props if 'Receive Frequency=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Receive Frequency')
         return val
-
-    @property
-    def measurement_mode(self):
-        """Measurement Mode
-        "Defines the mode for the receiver measurement."
-        "        """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Measurement Mode')
-        key_val_pair = [i for i in props if 'Measurement Mode=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
-        return val
-    @measurement_mode.setter
-    def measurement_mode(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Measurement Mode=' + value])
     class MeasurementModeOption(Enum):
             AUDIO_SINAD = "Audio SINAD"
             DIGITAL_BER = "Digital BER"
             GPS_CNR = "GPS CNR"
+    @property
+    def measurement_mode(self) -> MeasurementModeOption:
+        """Measurement Mode
+        "Defines the mode for the receiver measurement."
+        "        """
+        val = self._get_property('Measurement Mode')
+        val = self.MeasurementModeOption[val]
+        return val
+    @measurement_mode.setter
+    def measurement_mode(self, value: MeasurementModeOption):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Measurement Mode=' + value.value])
 
     @property
     def sinad_threshold(self) -> float:
@@ -80,15 +66,11 @@ class RxMeasNode(GenericEmitNode):
         "SINAD Threshold used for the receiver measurements."
         "Value should be between 5 and 20."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'SINAD Threshold')
-        key_val_pair = [i for i in props if 'SINAD Threshold=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('SINAD Threshold')
         return val
     @sinad_threshold.setter
-    def sinad_threshold(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['SINAD Threshold=' + value])
+    def sinad_threshold(self, value: float):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['SINAD Threshold=' + value])
 
     @property
     def gps_cnr_threshold(self) -> float:
@@ -96,15 +78,11 @@ class RxMeasNode(GenericEmitNode):
         "GPS CNR Threshold used for the receiver measurements."
         "Value should be between 15 and 30."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'GPS CNR Threshold')
-        key_val_pair = [i for i in props if 'GPS CNR Threshold=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('GPS CNR Threshold')
         return val
     @gps_cnr_threshold.setter
-    def gps_cnr_threshold(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['GPS CNR Threshold=' + value])
+    def gps_cnr_threshold(self, value: float):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['GPS CNR Threshold=' + value])
 
     @property
     def ber_threshold(self) -> float:
@@ -112,15 +90,11 @@ class RxMeasNode(GenericEmitNode):
         "BER Threshold used for the receiver measurements."
         "Value should be between -12 and -1."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'BER Threshold')
-        key_val_pair = [i for i in props if 'BER Threshold=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('BER Threshold')
         return val
     @ber_threshold.setter
-    def ber_threshold(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['BER Threshold=' + value])
+    def ber_threshold(self, value: float):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['BER Threshold=' + value])
 
     @property
     def default_intended_power(self) -> bool:
@@ -128,15 +102,11 @@ class RxMeasNode(GenericEmitNode):
         "Specify the intended signal."
         "Value should be 'true' or 'false'."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Default Intended Power')
-        key_val_pair = [i for i in props if 'Default Intended Power=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Default Intended Power')
         return val
     @default_intended_power.setter
-    def default_intended_power(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Default Intended Power=' + value])
+    def default_intended_power(self, value: bool):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Default Intended Power=' + value])
 
     @property
     def intended_signal_power(self) -> float:
@@ -144,15 +114,11 @@ class RxMeasNode(GenericEmitNode):
         "Specify the power level of the intended signal."
         "Value should be between -140 and -50."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Intended Signal Power')
-        key_val_pair = [i for i in props if 'Intended Signal Power=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Intended Signal Power')
         return val
     @intended_signal_power.setter
-    def intended_signal_power(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Intended Signal Power=' + value])
+    def intended_signal_power(self, value: float):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Intended Signal Power=' + value])
 
     @property
     def freq_deviation(self) -> float:
@@ -160,15 +126,11 @@ class RxMeasNode(GenericEmitNode):
         "Specify the frequency deviation of the intended signal."
         "Value should be between 1000 and 200000."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Freq. Deviation')
-        key_val_pair = [i for i in props if 'Freq. Deviation=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Freq. Deviation')
         return val
     @freq_deviation.setter
-    def freq_deviation(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Freq. Deviation=' + value])
+    def freq_deviation(self, value: float):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Freq. Deviation=' + value])
 
     @property
     def modulation_depth(self) -> float:
@@ -176,15 +138,11 @@ class RxMeasNode(GenericEmitNode):
         "Specify the modulation depth of the intended signal."
         "Value should be between 10 and 100."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Modulation Depth')
-        key_val_pair = [i for i in props if 'Modulation Depth=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Modulation Depth')
         return val
     @modulation_depth.setter
-    def modulation_depth(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Modulation Depth=' + value])
+    def modulation_depth(self, value: float):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Modulation Depth=' + value])
 
     @property
     def measure_selectivity(self) -> bool:
@@ -192,15 +150,11 @@ class RxMeasNode(GenericEmitNode):
         "Enable/disable the measurement of the receiver's selectivity."
         "Value should be 'true' or 'false'."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Measure Selectivity')
-        key_val_pair = [i for i in props if 'Measure Selectivity=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Measure Selectivity')
         return val
     @measure_selectivity.setter
-    def measure_selectivity(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Measure Selectivity=' + value])
+    def measure_selectivity(self, value: bool):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Measure Selectivity=' + value])
 
     @property
     def measure_mixer_products(self) -> bool:
@@ -208,15 +162,11 @@ class RxMeasNode(GenericEmitNode):
         "Enable/disable the measurement of the receiver's mixer products."
         "Value should be 'true' or 'false'."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Measure Mixer Products')
-        key_val_pair = [i for i in props if 'Measure Mixer Products=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Measure Mixer Products')
         return val
     @measure_mixer_products.setter
-    def measure_mixer_products(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Measure Mixer Products=' + value])
+    def measure_mixer_products(self, value: bool):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Measure Mixer Products=' + value])
 
     @property
     def max_rf_order(self) -> int:
@@ -224,15 +174,11 @@ class RxMeasNode(GenericEmitNode):
         "Max RF Order of the mixer products to measure."
         "Value should be greater than 1."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Max RF Order')
-        key_val_pair = [i for i in props if 'Max RF Order=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Max RF Order')
         return val
     @max_rf_order.setter
-    def max_rf_order(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Max RF Order=' + value])
+    def max_rf_order(self, value: int):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Max RF Order=' + value])
 
     @property
     def max_lo_order(self) -> int:
@@ -240,15 +186,11 @@ class RxMeasNode(GenericEmitNode):
         "Max LO Order of the mixer products to measure."
         "Value should be greater than 1."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Max LO Order')
-        key_val_pair = [i for i in props if 'Max LO Order=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Max LO Order')
         return val
     @max_lo_order.setter
-    def max_lo_order(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Max LO Order=' + value])
+    def max_lo_order(self, value: int):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Max LO Order=' + value])
 
     @property
     def include_if(self) -> bool:
@@ -256,15 +198,11 @@ class RxMeasNode(GenericEmitNode):
         "Enable/disable the measurement of the IF channel."
         "Value should be 'true' or 'false'."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Include IF')
-        key_val_pair = [i for i in props if 'Include IF=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Include IF')
         return val
     @include_if.setter
-    def include_if(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Include IF=' + value])
+    def include_if(self, value: bool):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Include IF=' + value])
 
     @property
     def measure_saturation(self) -> bool:
@@ -272,15 +210,11 @@ class RxMeasNode(GenericEmitNode):
         "Enable/disable measurement of the receiver's saturation level."
         "Value should be 'true' or 'false'."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Measure Saturation')
-        key_val_pair = [i for i in props if 'Measure Saturation=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Measure Saturation')
         return val
     @measure_saturation.setter
-    def measure_saturation(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Measure Saturation=' + value])
+    def measure_saturation(self, value: bool):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Measure Saturation=' + value])
 
     @property
     def use_ams_limits(self) -> bool:
@@ -288,15 +222,11 @@ class RxMeasNode(GenericEmitNode):
         "Allow AMS to determine the limits for measuring saturation."
         "Value should be 'true' or 'false'."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Use AMS Limits')
-        key_val_pair = [i for i in props if 'Use AMS Limits=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Use AMS Limits')
         return val
     @use_ams_limits.setter
-    def use_ams_limits(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Use AMS Limits=' + value])
+    def use_ams_limits(self, value: bool):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Use AMS Limits=' + value])
 
     @property
     def start_frequency(self) -> float:
@@ -304,15 +234,11 @@ class RxMeasNode(GenericEmitNode):
         "Starting frequency for the measurement sweep."
         "Value should be greater than 1e+06."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Start Frequency')
-        key_val_pair = [i for i in props if 'Start Frequency=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Start Frequency')
         return val
     @start_frequency.setter
-    def start_frequency(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Start Frequency=' + value])
+    def start_frequency(self, value: float):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Start Frequency=' + value])
 
     @property
     def stop_frequency(self) -> float:
@@ -320,15 +246,11 @@ class RxMeasNode(GenericEmitNode):
         "Stopping frequency for the measurement sweep."
         "Value should be less than 6e+09."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Stop Frequency')
-        key_val_pair = [i for i in props if 'Stop Frequency=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Stop Frequency')
         return val
     @stop_frequency.setter
-    def stop_frequency(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Stop Frequency=' + value])
+    def stop_frequency(self, value: float):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Stop Frequency=' + value])
 
     @property
     def samples(self) -> int:
@@ -336,15 +258,11 @@ class RxMeasNode(GenericEmitNode):
         "Number of measurement samples for each frequency."
         "Value should be between 2 and 100."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Samples')
-        key_val_pair = [i for i in props if 'Samples=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Samples')
         return val
     @samples.setter
-    def samples(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Samples=' + value])
+    def samples(self, value: int):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Samples=' + value])
 
     @property
     def exclude_mixer_products_below_noise(self) -> bool:
@@ -352,21 +270,17 @@ class RxMeasNode(GenericEmitNode):
         "Include/Exclude Mixer Products below the noise."
         "Value should be 'true' or 'false'."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Exclude Mixer Products Below Noise')
-        key_val_pair = [i for i in props if 'Exclude Mixer Products Below Noise=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Exclude Mixer Products Below Noise')
         return val
     @exclude_mixer_products_below_noise.setter
-    def exclude_mixer_products_below_noise(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Exclude Mixer Products Below Noise=' + value])
+    def exclude_mixer_products_below_noise(self, value: bool):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Exclude Mixer Products Below Noise=' + value])
 
     @property
-    def enabled(self):
+    def enabled(self) -> bool:
         """Enabled state for this node."""
-        return oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'enabled')
+        return self._oDesign.GetModule('EmitCom').GetEmitNodeProperties(self._result_id,self._node_id,'enabled')
     @enabled.setter
-    def enabled(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['enabled=' + value])
+    def enabled(self, value: bool):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['enabled=' + value])
 

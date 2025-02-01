@@ -1,8 +1,12 @@
-from ..GenericEmitNode import *
-class SceneGroupNode(GenericEmitNode):
+from ..EmitNode import *
+
+class SceneGroupNode(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
         self._is_component = False
-        GenericEmitNode.__init__(self, oDesign, result_id, node_id)
+        EmitNode.__init__(self, oDesign, result_id, node_id)
+
+    def __eq__(self, other):
+      return ((self._result_id == other._result_id) and (self._node_id == other._node_id))
 
     @property
     def parent(self):
@@ -31,15 +35,11 @@ class SceneGroupNode(GenericEmitNode):
         "Show Scene Group position and orientation in parent-node coords (False) or relative to placement coords (True)."
         "Value should be 'true' or 'false'."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Show Relative Coordinates')
-        key_val_pair = [i for i in props if 'Show Relative Coordinates=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Show Relative Coordinates')
         return val
     @show_relative_coordinates.setter
-    def show_relative_coordinates(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Show Relative Coordinates=' + value])
+    def show_relative_coordinates(self, value: bool):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Show Relative Coordinates=' + value])
 
     @property
     def position(self):
@@ -47,15 +47,11 @@ class SceneGroupNode(GenericEmitNode):
         "Set position of the Scene Group in parent-node coordinates."
         "Value should be x/y/z, delimited by spaces."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Position')
-        key_val_pair = [i for i in props if 'Position=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Position')
         return val
     @position.setter
     def position(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Position=' + value])
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Position=' + value])
 
     @property
     def relative_position(self):
@@ -63,33 +59,26 @@ class SceneGroupNode(GenericEmitNode):
         "Set position of the Scene Group relative to placement coordinates."
         "Value should be x/y/z, delimited by spaces."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Relative Position')
-        key_val_pair = [i for i in props if 'Relative Position=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Relative Position')
         return val
     @relative_position.setter
     def relative_position(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Relative Position=' + value])
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Relative Position=' + value])
 
-    @property
-    def orientation_mode(self):
-        """Orientation Mode
-        "Select the convention (order of rotations) for configuring orientation."
-        "        """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Orientation Mode')
-        key_val_pair = [i for i in props if 'Orientation Mode=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
-        return val
-    @orientation_mode.setter
-    def orientation_mode(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Orientation Mode=' + value])
     class OrientationModeOption(Enum):
             RPYDEG = "Roll-Pitch-Yaw"
             AETDEG = "Az-El-Twist"
+    @property
+    def orientation_mode(self) -> OrientationModeOption:
+        """Orientation Mode
+        "Select the convention (order of rotations) for configuring orientation."
+        "        """
+        val = self._get_property('Orientation Mode')
+        val = self.OrientationModeOption[val]
+        return val
+    @orientation_mode.setter
+    def orientation_mode(self, value: OrientationModeOption):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Orientation Mode=' + value.value])
 
     @property
     def orientation(self):
@@ -97,15 +86,11 @@ class SceneGroupNode(GenericEmitNode):
         "Set orientation of the Scene Group relative to parent-node coordinates."
         "Value format is determined by 'Orientation Mode', in degrees and delimited by spaces."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Orientation')
-        key_val_pair = [i for i in props if 'Orientation=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Orientation')
         return val
     @orientation.setter
     def orientation(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Orientation=' + value])
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Orientation=' + value])
 
     @property
     def relative_orientation(self):
@@ -113,15 +98,11 @@ class SceneGroupNode(GenericEmitNode):
         "Set orientation of the Scene Group relative to placement coordinates."
         "Value format is determined by 'Orientation Mode', in degrees and delimited by spaces."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Relative Orientation')
-        key_val_pair = [i for i in props if 'Relative Orientation=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Relative Orientation')
         return val
     @relative_orientation.setter
     def relative_orientation(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Relative Orientation=' + value])
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Relative Orientation=' + value])
 
     @property
     def show_axes(self) -> bool:
@@ -129,15 +110,11 @@ class SceneGroupNode(GenericEmitNode):
         "Toggle (on/off) display of Scene Group coordinate axes in 3-D window."
         "Value should be 'true' or 'false'."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Show Axes')
-        key_val_pair = [i for i in props if 'Show Axes=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Show Axes')
         return val
     @show_axes.setter
-    def show_axes(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Show Axes=' + value])
+    def show_axes(self, value: bool):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Show Axes=' + value])
 
     @property
     def box_color(self):
@@ -145,28 +122,20 @@ class SceneGroupNode(GenericEmitNode):
         "Set color of the bounding box of the Scene Group."
         "Color should be in RGB form: #RRGGBB."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Box Color')
-        key_val_pair = [i for i in props if 'Box Color=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Box Color')
         return val
     @box_color.setter
     def box_color(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Box Color=' + value])
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Box Color=' + value])
 
     @property
     def notes(self) -> str:
         """Notes
         "Expand to view/edit notes stored with the project."
         "        """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Notes')
-        key_val_pair = [i for i in props if 'Notes=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Notes')
         return val
     @notes.setter
-    def notes(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Notes=' + value])
+    def notes(self, value: str):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
 

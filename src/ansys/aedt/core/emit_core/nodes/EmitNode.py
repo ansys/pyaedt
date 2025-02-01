@@ -28,39 +28,39 @@ from enum import Enum
 
 from . import generated
 
-def props_to_dict(props):
-    result = {}
-    for prop in props:
-        split_prop = prop.split("=")
-        result[split_prop[0]] = split_prop[1]
-    
-    return result
-
-class GenericEmitNode:
+class EmitNode:
     # meant to only be used as a parent class
     def __init__(self, oDesign, result_id, node_id):
         self._oDesign = oDesign
         self._result_id = result_id
         self._node_id = node_id
-        self.valid = True
+        self._valid = True
+
+    @staticmethod
+    def props_to_dict(props):
+        result = {}
+        for prop in props:
+            split_prop = prop.split("=")
+            result[split_prop[0]] = split_prop[1]
+
+        return result
 
     @property
-    def get_valid(self):
+    def valid(self):
         """Is false if this object has been detached from its EMIT node."""
-        return self.valid
-
-    def get_name(self):
-        props = self._oDesign.GetModule('EmitCom').GetEmitNodeProperties(self._result_id, self._node_id, True)
-        props = props_to_dict(props)
-        return props["Name"]
+        return self._valid
 
     @property
-    def parent(self):
+    def name(self):
+        return self._get_property("Name")
+
+    @property
+    def _parent(self):
         # parent_id = self._oDesign.GetModule('EmitCom').GetParentNodeID(self._result_id, self._node_id)
         parent_id = 1
 
         parent_props = self._oDesign.GetModule('EmitCom').GetEmitNodeProperties(self._result_id, parent_id, True)
-        parent_props = props_to_dict(parent_props)
+        parent_props = self.props_to_dict(parent_props)
 
         parent_type = parent_props['Type']
 
@@ -69,25 +69,32 @@ class GenericEmitNode:
         parent_node = parent_type_class(self._oDesign, self._result_id, parent_id)
 
         return parent_node
-    
-    def get_parent(self):
-        #TODO how to create a parent of the appropriate pyaedt node type?
-        return self._oDesign.GetModule('EmitCom').GetEmitNodeParent(self._result_id, self._node_id)
-        props = self.get_properties()
-        parent_path = props['Parent']
 
-    def get_properties(self):
+    @property
+    def properties(self):
         props = self._oDesign.GetModule('EmitCom').GetEmitNodeProperties(self._result_id, self._node_id, True)
-        props = props_to_dict(props)
+        props = self.props_to_dict(props)
         return props
 
-    def get_warnings(self):
-        props = self._oDesign.GetModule('EmitCom').GetEmitNodeProperties(self._result_id, self._node_id, True)
-        props = props_to_dict(props)
-        return props["Warnings"]
+    @property
+    def warnings(self):
+        return self._get_property("Warnings")
 
-    def get_allowed_child_types(self):
+    @property
+    def allowed_child_types(self):
         return self._oDesign.GetModule('EmitCom').GetAllowedChildTypes(self._result_id, self._node_id)
+    
+    def _get_property(self, prop):
+        props = self._oDesign.GetModule('EmitCom').GetEmitNodeProperties(self._result_id, self._node_id, True)
+        key_val_pair = [i for i in props if f'{prop}=' in i]
+        if len(key_val_pair) != 1:
+            return ''
+
+        val = key_val_pair[0].split('=')[1]
+        if val.find('|') != -1:
+            return val.split('|')
+        else:
+            return val
 
     def _delete(self):
         if self._is_component(): self._oDesign.GetModule('EmitCom').DeleteEmitComponent(self._result_id, self._node_id)

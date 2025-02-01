@@ -1,8 +1,12 @@
-from ..GenericEmitNode import *
-class ReadOnlyRfSystemGroup(GenericEmitNode):
+from ..EmitNode import *
+
+class ReadOnlyRfSystemGroup(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
         self._is_component = False
-        GenericEmitNode.__init__(self, oDesign, result_id, node_id)
+        EmitNode.__init__(self, oDesign, result_id, node_id)
+
+    def __eq__(self, other):
+      return ((self._result_id == other._result_id) and (self._node_id == other._node_id))
 
     @property
     def parent(self):
@@ -15,23 +19,13 @@ class ReadOnlyRfSystemGroup(GenericEmitNode):
         "If true, the noise contributions of antennas and passive components are included in cosite simulation. Note: Antenna and passive component noise is always included in link analysis simulation.."
         "Value should be 'true' or 'false'."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Enable Passive Noise')
-        key_val_pair = [i for i in props if 'Enable Passive Noise=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Enable Passive Noise')
         return val
-
     @property
     def enforce_thermal_noise_floor(self) -> bool:
         """Enforce Thermal Noise Floor
         "If true, all broadband noise is limited by the thermal noise floor (-174 dBm/Hz)."
         "Value should be 'true' or 'false'."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Enforce Thermal Noise Floor')
-        key_val_pair = [i for i in props if 'Enforce Thermal Noise Floor=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Enforce Thermal Noise Floor')
         return val
-

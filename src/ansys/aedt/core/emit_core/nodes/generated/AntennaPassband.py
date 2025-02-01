@@ -1,8 +1,12 @@
-from ..GenericEmitNode import *
-class AntennaPassband(GenericEmitNode):
+from ..EmitNode import *
+
+class AntennaPassband(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
         self._is_component = False
-        GenericEmitNode.__init__(self, oDesign, result_id, node_id)
+        EmitNode.__init__(self, oDesign, result_id, node_id)
+
+    def __eq__(self, other):
+      return ((self._result_id == other._result_id) and (self._node_id == other._node_id))
 
     @property
     def parent(self):
@@ -22,12 +26,12 @@ class AntennaPassband(GenericEmitNode):
         self._delete()
 
     @property
-    def enabled(self):
+    def enabled(self) -> bool:
         """Enabled state for this node."""
-        return oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'enabled')
+        return self._oDesign.GetModule('EmitCom').GetEmitNodeProperties(self._result_id,self._node_id,'enabled')
     @enabled.setter
-    def enabled(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['enabled=' + value])
+    def enabled(self, value: bool):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['enabled=' + value])
 
     @property
     def passband_loss(self) -> float:
@@ -35,15 +39,11 @@ class AntennaPassband(GenericEmitNode):
         "Passband loss."
         "Value should be between 0 and 100."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Passband Loss')
-        key_val_pair = [i for i in props if 'Passband Loss=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Passband Loss')
         return val
     @passband_loss.setter
-    def passband_loss(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Passband Loss=' + value])
+    def passband_loss(self, value: float):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Passband Loss=' + value])
 
     @property
     def out_of_band_attenuation(self) -> float:
@@ -51,15 +51,11 @@ class AntennaPassband(GenericEmitNode):
         "Out of band antenna loss."
         "Value should be between 0 and 200."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Out of Band Attenuation')
-        key_val_pair = [i for i in props if 'Out of Band Attenuation=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Out of Band Attenuation')
         return val
     @out_of_band_attenuation.setter
-    def out_of_band_attenuation(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Out of Band Attenuation=' + value])
+    def out_of_band_attenuation(self, value: float):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Out of Band Attenuation=' + value])
 
     @property
     def lower_stop_band(self) -> float:
@@ -67,15 +63,11 @@ class AntennaPassband(GenericEmitNode):
         "Lower stop band frequency."
         "Value should be between 1 and 1e+11."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Lower Stop Band')
-        key_val_pair = [i for i in props if 'Lower Stop Band=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Lower Stop Band')
         return val
     @lower_stop_band.setter
-    def lower_stop_band(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Lower Stop Band=' + value])
+    def lower_stop_band(self, value: float):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Lower Stop Band=' + value])
 
     @property
     def lower_cutoff(self) -> float:
@@ -83,15 +75,11 @@ class AntennaPassband(GenericEmitNode):
         "Lower cutoff frequency."
         "Value should be between 1 and 1e+11."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Lower Cutoff')
-        key_val_pair = [i for i in props if 'Lower Cutoff=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Lower Cutoff')
         return val
     @lower_cutoff.setter
-    def lower_cutoff(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Lower Cutoff=' + value])
+    def lower_cutoff(self, value: float):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Lower Cutoff=' + value])
 
     @property
     def higher_cutoff(self) -> float:
@@ -99,15 +87,11 @@ class AntennaPassband(GenericEmitNode):
         "Higher cutoff frequency."
         "Value should be between 1 and 1e+11."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Higher Cutoff')
-        key_val_pair = [i for i in props if 'Higher Cutoff=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Higher Cutoff')
         return val
     @higher_cutoff.setter
-    def higher_cutoff(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Higher Cutoff=' + value])
+    def higher_cutoff(self, value: float):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Higher Cutoff=' + value])
 
     @property
     def higher_stop_band(self) -> float:
@@ -115,28 +99,20 @@ class AntennaPassband(GenericEmitNode):
         "Higher stop band frequency."
         "Value should be between 1 and 1e+11."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Higher Stop Band')
-        key_val_pair = [i for i in props if 'Higher Stop Band=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Higher Stop Band')
         return val
     @higher_stop_band.setter
-    def higher_stop_band(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Higher Stop Band=' + value])
+    def higher_stop_band(self, value: float):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Higher Stop Band=' + value])
 
     @property
     def notes(self) -> str:
         """Notes
         "Expand to view/edit notes stored with the project."
         "        """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Notes')
-        key_val_pair = [i for i in props if 'Notes=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Notes')
         return val
     @notes.setter
-    def notes(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Notes=' + value])
+    def notes(self, value: str):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
 

@@ -1,8 +1,12 @@
-from ..GenericEmitNode import *
-class Circulator(GenericEmitNode):
+from ..EmitNode import *
+
+class Circulator(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
         self._is_component = True
-        GenericEmitNode.__init__(self, oDesign, result_id, node_id)
+        EmitNode.__init__(self, oDesign, result_id, node_id)
+
+    def __eq__(self, other):
+      return ((self._result_id == other._result_id) and (self._node_id == other._node_id))
 
     def rename(self, new_name):
         """Rename this node"""
@@ -22,15 +26,11 @@ class Circulator(GenericEmitNode):
         "Name of file defining the Isolator/Circulator."
         "Value should be a full file path."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Filename')
-        key_val_pair = [i for i in props if 'Filename=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Filename')
         return val
     @filename.setter
-    def filename(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Filename=' + value])
+    def filename(self, value: str):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Filename=' + value])
 
     @property
     def noise_temperature(self) -> float:
@@ -38,66 +38,52 @@ class Circulator(GenericEmitNode):
         "System Noise temperature (K) of the component."
         "Value should be between 0 and 1000."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Noise Temperature')
-        key_val_pair = [i for i in props if 'Noise Temperature=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Noise Temperature')
         return val
     @noise_temperature.setter
-    def noise_temperature(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Noise Temperature=' + value])
+    def noise_temperature(self, value: float):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Noise Temperature=' + value])
 
     @property
     def notes(self) -> str:
         """Notes
         "Expand to view/edit notes stored with the project."
         "        """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Notes')
-        key_val_pair = [i for i in props if 'Notes=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Notes')
         return val
     @notes.setter
-    def notes(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Notes=' + value])
+    def notes(self, value: str):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
 
-    @property
-    def type(self):
-        """Type
-        "Type of circulator model to use. Options include: By File (measured or simulated) or Parametric."
-        "        """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Type')
-        key_val_pair = [i for i in props if 'Type=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
-        return val
-    @type.setter
-    def type(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Type=' + value])
     class TypeOption(Enum):
             BYFILE = "By File"
             PARAMETRIC = "Parametric"
-
     @property
-    def port_1_location(self):
-        """Port 1 Location
-        "Defines the orientation of the circulator.."
+    def type(self) -> TypeOption:
+        """Type
+        "Type of circulator model to use. Options include: By File (measured or simulated) or Parametric."
         "        """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Port 1 Location')
-        key_val_pair = [i for i in props if 'Port 1 Location=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Type')
+        val = self.TypeOption[val]
         return val
-    @port_1_location.setter
-    def port_1_location(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Port 1 Location=' + value])
+    @type.setter
+    def type(self, value: TypeOption):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Type=' + value.value])
+
     class Port1LocationOption(Enum):
             RADIOSIDE = "Radio Side"
             ANTENNASIDE = "Antenna Side"
+    @property
+    def port_1_location(self) -> Port1LocationOption:
+        """Port 1 Location
+        "Defines the orientation of the circulator.."
+        "        """
+        val = self._get_property('Port 1 Location')
+        val = self.Port1LocationOption[val]
+        return val
+    @port_1_location.setter
+    def port_1_location(self, value: Port1LocationOption):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Port 1 Location=' + value.value])
 
     @property
     def insertion_loss(self) -> float:
@@ -105,15 +91,11 @@ class Circulator(GenericEmitNode):
         "Circulator in-band loss in forward direction.."
         "Value should be between 0 and 100."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Insertion Loss')
-        key_val_pair = [i for i in props if 'Insertion Loss=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Insertion Loss')
         return val
     @insertion_loss.setter
-    def insertion_loss(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Insertion Loss=' + value])
+    def insertion_loss(self, value: float):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Insertion Loss=' + value])
 
     @property
     def finite_reverse_isolation(self) -> bool:
@@ -121,15 +103,11 @@ class Circulator(GenericEmitNode):
         "Use a finite reverse isolation. If disabled, the  circulator model is ideal (infinite reverse isolation).."
         "Value should be 'true' or 'false'."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Finite Reverse Isolation')
-        key_val_pair = [i for i in props if 'Finite Reverse Isolation=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Finite Reverse Isolation')
         return val
     @finite_reverse_isolation.setter
-    def finite_reverse_isolation(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Finite Reverse Isolation=' + value])
+    def finite_reverse_isolation(self, value: bool):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Finite Reverse Isolation=' + value])
 
     @property
     def reverse_isolation(self) -> float:
@@ -137,15 +115,11 @@ class Circulator(GenericEmitNode):
         "Circulator reverse isolation (i.e., loss in the reverse direction).."
         "Value should be between 0 and 100."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Reverse Isolation')
-        key_val_pair = [i for i in props if 'Reverse Isolation=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Reverse Isolation')
         return val
     @reverse_isolation.setter
-    def reverse_isolation(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Reverse Isolation=' + value])
+    def reverse_isolation(self, value: float):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Reverse Isolation=' + value])
 
     @property
     def finite_bandwidth(self) -> bool:
@@ -153,15 +127,11 @@ class Circulator(GenericEmitNode):
         "Use a finite bandwidth. If disabled, the  circulator model is ideal (infinite bandwidth).."
         "Value should be 'true' or 'false'."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Finite Bandwidth')
-        key_val_pair = [i for i in props if 'Finite Bandwidth=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Finite Bandwidth')
         return val
     @finite_bandwidth.setter
-    def finite_bandwidth(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Finite Bandwidth=' + value])
+    def finite_bandwidth(self, value: bool):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Finite Bandwidth=' + value])
 
     @property
     def out_of_band_attenuation(self) -> float:
@@ -169,15 +139,11 @@ class Circulator(GenericEmitNode):
         "Out-of-band loss (attenuation)."
         "Value should be between 0 and 200."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Out-of-band Attenuation')
-        key_val_pair = [i for i in props if 'Out-of-band Attenuation=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Out-of-band Attenuation')
         return val
     @out_of_band_attenuation.setter
-    def out_of_band_attenuation(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Out-of-band Attenuation=' + value])
+    def out_of_band_attenuation(self, value: float):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Out-of-band Attenuation=' + value])
 
     @property
     def lower_stop_band(self) -> float:
@@ -185,15 +151,11 @@ class Circulator(GenericEmitNode):
         "Lower stop band frequency."
         "Value should be between 1 and 1e+11."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Lower Stop Band')
-        key_val_pair = [i for i in props if 'Lower Stop Band=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Lower Stop Band')
         return val
     @lower_stop_band.setter
-    def lower_stop_band(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Lower Stop Band=' + value])
+    def lower_stop_band(self, value: float):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Lower Stop Band=' + value])
 
     @property
     def lower_cutoff(self) -> float:
@@ -201,15 +163,11 @@ class Circulator(GenericEmitNode):
         "Lower cutoff frequency."
         "Value should be between 1 and 1e+11."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Lower Cutoff')
-        key_val_pair = [i for i in props if 'Lower Cutoff=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Lower Cutoff')
         return val
     @lower_cutoff.setter
-    def lower_cutoff(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Lower Cutoff=' + value])
+    def lower_cutoff(self, value: float):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Lower Cutoff=' + value])
 
     @property
     def higher_cutoff(self) -> float:
@@ -217,15 +175,11 @@ class Circulator(GenericEmitNode):
         "Higher cutoff frequency."
         "Value should be between 1 and 1e+11."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Higher Cutoff')
-        key_val_pair = [i for i in props if 'Higher Cutoff=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Higher Cutoff')
         return val
     @higher_cutoff.setter
-    def higher_cutoff(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Higher Cutoff=' + value])
+    def higher_cutoff(self, value: float):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Higher Cutoff=' + value])
 
     @property
     def higher_stop_band(self) -> float:
@@ -233,25 +187,16 @@ class Circulator(GenericEmitNode):
         "Higher stop band frequency."
         "Value should be between 1 and 1e+11."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Higher Stop Band')
-        key_val_pair = [i for i in props if 'Higher Stop Band=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Higher Stop Band')
         return val
     @higher_stop_band.setter
-    def higher_stop_band(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Higher Stop Band=' + value])
+    def higher_stop_band(self, value: float):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Higher Stop Band=' + value])
 
     @property
     def warnings(self) -> str:
         """Warnings
         "Warning(s) for this node."
         "        """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Warnings')
-        key_val_pair = [i for i in props if 'Warnings=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Warnings')
         return val
-

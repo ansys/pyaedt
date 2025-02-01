@@ -1,8 +1,12 @@
-from ..GenericEmitNode import *
-class Multiplexer(GenericEmitNode):
+from ..EmitNode import *
+
+class Multiplexer(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
         self._is_component = True
-        GenericEmitNode.__init__(self, oDesign, result_id, node_id)
+        EmitNode.__init__(self, oDesign, result_id, node_id)
+
+    def __eq__(self, other):
+      return ((self._result_id == other._result_id) and (self._node_id == other._node_id))
 
     def add_multiplexer_pass_band(self):
         """Add a New Multiplexer Band to this Multiplexer"""
@@ -26,15 +30,11 @@ class Multiplexer(GenericEmitNode):
         "Name of file defining the multiplexer."
         "Value should be a full file path."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Filename')
-        key_val_pair = [i for i in props if 'Filename=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Filename')
         return val
     @filename.setter
-    def filename(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Filename=' + value])
+    def filename(self, value: str):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Filename=' + value])
 
     @property
     def noise_temperature(self) -> float:
@@ -42,66 +42,52 @@ class Multiplexer(GenericEmitNode):
         "System Noise temperature (K) of the component."
         "Value should be between 0 and 1000."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Noise Temperature')
-        key_val_pair = [i for i in props if 'Noise Temperature=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Noise Temperature')
         return val
     @noise_temperature.setter
-    def noise_temperature(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Noise Temperature=' + value])
+    def noise_temperature(self, value: float):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Noise Temperature=' + value])
 
     @property
     def notes(self) -> str:
         """Notes
         "Expand to view/edit notes stored with the project."
         "        """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Notes')
-        key_val_pair = [i for i in props if 'Notes=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Notes')
         return val
     @notes.setter
-    def notes(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Notes=' + value])
+    def notes(self, value: str):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
 
-    @property
-    def type(self):
-        """Type
-        "Type of multiplexer model. Options include: By File (one measured or simulated file for the device) or By Pass Band (parametric or file-based definition for each pass band)."
-        "        """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Type')
-        key_val_pair = [i for i in props if 'Type=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
-        return val
-    @type.setter
-    def type(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Type=' + value])
     class TypeOption(Enum):
             PARAMETRIC = "By Pass Band"
             BYFILE = "By File"
-
     @property
-    def port_1_location(self):
-        """Port 1 Location
-        "Defines the orientation of the multiplexer.."
+    def type(self) -> TypeOption:
+        """Type
+        "Type of multiplexer model. Options include: By File (one measured or simulated file for the device) or By Pass Band (parametric or file-based definition for each pass band)."
         "        """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Port 1 Location')
-        key_val_pair = [i for i in props if 'Port 1 Location=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Type')
+        val = self.TypeOption[val]
         return val
-    @port_1_location.setter
-    def port_1_location(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Port 1 Location=' + value])
+    @type.setter
+    def type(self, value: TypeOption):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Type=' + value.value])
+
     class Port1LocationOption(Enum):
             RADIOSIDE = "Radio Side"
             ANTENNASIDE = "Antenna Side"
+    @property
+    def port_1_location(self) -> Port1LocationOption:
+        """Port 1 Location
+        "Defines the orientation of the multiplexer.."
+        "        """
+        val = self._get_property('Port 1 Location')
+        val = self.Port1LocationOption[val]
+        return val
+    @port_1_location.setter
+    def port_1_location(self, value: Port1LocationOption):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Port 1 Location=' + value.value])
 
     @property
     def flip_ports_vertically(self) -> bool:
@@ -109,25 +95,28 @@ class Multiplexer(GenericEmitNode):
         "Reverses the port order on the multi-port side of the multiplexer.."
         "Value should be 'true' or 'false'."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Flip Ports Vertically')
-        key_val_pair = [i for i in props if 'Flip Ports Vertically=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Flip Ports Vertically')
         return val
     @flip_ports_vertically.setter
-    def flip_ports_vertically(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Flip Ports Vertically=' + value])
+    def flip_ports_vertically(self, value: bool):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Flip Ports Vertically=' + value])
+
+    @property
+    def ports(self):
+        """Ports
+        "Assigns the child port nodes to the multiplexers ports."
+        "A list of values."
+        "        """
+        val = self._get_property('Ports')
+        return val
+    @ports.setter
+    def ports(self, value):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Ports=' + value])
 
     @property
     def warnings(self) -> str:
         """Warnings
         "Warning(s) for this node."
         "        """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Warnings')
-        key_val_pair = [i for i in props if 'Warnings=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Warnings')
         return val
-

@@ -1,8 +1,12 @@
-from ..GenericEmitNode import *
-class RadioNode(GenericEmitNode):
+from ..EmitNode import *
+
+class RadioNode(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
         self._is_component = False
-        GenericEmitNode.__init__(self, oDesign, result_id, node_id)
+        EmitNode.__init__(self, oDesign, result_id, node_id)
+
+    def __eq__(self, other):
+      return ((self._result_id == other._result_id) and (self._node_id == other._node_id))
 
     @property
     def parent(self):
@@ -26,17 +30,25 @@ class RadioNode(GenericEmitNode):
         self._delete()
 
     @property
+    def table_data(self):
+        """ Table"
+        "Table consists of 2 columns."
+        "Name: 
+        "            "Type: 
+        "            """
+        return self._get_table_data()
+    @table_data.setter
+    def table_data(self, value):
+        self._set_table_data(value)
+
+    @property
     def notes(self) -> str:
         """Notes
         "Expand to view/edit notes stored with the project."
         "        """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Notes')
-        key_val_pair = [i for i in props if 'Notes=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Notes')
         return val
     @notes.setter
-    def notes(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Notes=' + value])
+    def notes(self, value: str):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
 

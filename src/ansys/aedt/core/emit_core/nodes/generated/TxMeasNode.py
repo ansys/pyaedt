@@ -1,8 +1,12 @@
-from ..GenericEmitNode import *
-class TxMeasNode(GenericEmitNode):
+from ..EmitNode import *
+
+class TxMeasNode(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
         self._is_component = False
-        GenericEmitNode.__init__(self, oDesign, result_id, node_id)
+        EmitNode.__init__(self, oDesign, result_id, node_id)
+
+    def __eq__(self, other):
+      return ((self._result_id == other._result_id) and (self._node_id == other._node_id))
 
     @property
     def parent(self):
@@ -23,53 +27,34 @@ class TxMeasNode(GenericEmitNode):
         "Name of the measurement source."
         "Value should be a full file path."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'File')
-        key_val_pair = [i for i in props if 'File=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('File')
         return val
-
     @property
     def source_file(self) -> str:
         """Source File
         "Name of the measurement source."
         "Value should be a full file path."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Source File')
-        key_val_pair = [i for i in props if 'Source File=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Source File')
         return val
-
     @property
     def transmit_frequency(self) -> float:
         """Transmit Frequency
         "Channel associated with the measurement file."
         "        """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Transmit Frequency')
-        key_val_pair = [i for i in props if 'Transmit Frequency=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Transmit Frequency')
         return val
-
     @property
     def use_ams_limits(self) -> bool:
         """Use AMS Limits
         "Allow AMS to define the frequency limits for the measurements."
         "Value should be 'true' or 'false'."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Use AMS Limits')
-        key_val_pair = [i for i in props if 'Use AMS Limits=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Use AMS Limits')
         return val
     @use_ams_limits.setter
-    def use_ams_limits(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Use AMS Limits=' + value])
+    def use_ams_limits(self, value: bool):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Use AMS Limits=' + value])
 
     @property
     def start_frequency(self) -> float:
@@ -77,15 +62,11 @@ class TxMeasNode(GenericEmitNode):
         "Starting frequency for the measurement sweep."
         "Value should be greater than 1e+06."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Start Frequency')
-        key_val_pair = [i for i in props if 'Start Frequency=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Start Frequency')
         return val
     @start_frequency.setter
-    def start_frequency(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Start Frequency=' + value])
+    def start_frequency(self, value: float):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Start Frequency=' + value])
 
     @property
     def stop_frequency(self) -> float:
@@ -93,15 +74,11 @@ class TxMeasNode(GenericEmitNode):
         "Stopping frequency for the measurement sweep."
         "Value should be less than 6e+09."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Stop Frequency')
-        key_val_pair = [i for i in props if 'Stop Frequency=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Stop Frequency')
         return val
     @stop_frequency.setter
-    def stop_frequency(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Stop Frequency=' + value])
+    def stop_frequency(self, value: float):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Stop Frequency=' + value])
 
     @property
     def exclude_harmonics_below_noise(self) -> bool:
@@ -109,21 +86,17 @@ class TxMeasNode(GenericEmitNode):
         "Include/Exclude Harmonics below the noise."
         "Value should be 'true' or 'false'."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Exclude Harmonics Below Noise')
-        key_val_pair = [i for i in props if 'Exclude Harmonics Below Noise=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Exclude Harmonics Below Noise')
         return val
     @exclude_harmonics_below_noise.setter
-    def exclude_harmonics_below_noise(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Exclude Harmonics Below Noise=' + value])
+    def exclude_harmonics_below_noise(self, value: bool):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Exclude Harmonics Below Noise=' + value])
 
     @property
-    def enabled(self):
+    def enabled(self) -> bool:
         """Enabled state for this node."""
-        return oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'enabled')
+        return self._oDesign.GetModule('EmitCom').GetEmitNodeProperties(self._result_id,self._node_id,'enabled')
     @enabled.setter
-    def enabled(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['enabled=' + value])
+    def enabled(self, value: bool):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['enabled=' + value])
 

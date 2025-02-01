@@ -1,8 +1,12 @@
-from ..GenericEmitNode import *
-class ReadOnlyCouplingLinkNode(GenericEmitNode):
+from ..EmitNode import *
+
+class ReadOnlyCouplingLinkNode(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
         self._is_component = False
-        GenericEmitNode.__init__(self, oDesign, result_id, node_id)
+        EmitNode.__init__(self, oDesign, result_id, node_id)
+
+    def __eq__(self, other):
+      return ((self._result_id == other._result_id) and (self._node_id == other._node_id))
 
     @property
     def parent(self):
@@ -15,10 +19,13 @@ class ReadOnlyCouplingLinkNode(GenericEmitNode):
         "Enable/Disable coupling link."
         "Value should be 'true' or 'false'."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Enabled')
-        key_val_pair = [i for i in props if 'Enabled=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Enabled')
         return val
-
+    @property
+    def ports(self):
+        """Ports
+        "Maps each port in the link to an antenna in the project."
+        "A list of values."
+        "        """
+        val = self._get_property('Ports')
+        return val

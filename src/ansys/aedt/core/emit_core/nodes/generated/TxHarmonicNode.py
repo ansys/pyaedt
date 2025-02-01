@@ -1,8 +1,12 @@
-from ..GenericEmitNode import *
-class TxHarmonicNode(GenericEmitNode):
+from ..EmitNode import *
+
+class TxHarmonicNode(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
         self._is_component = False
-        GenericEmitNode.__init__(self, oDesign, result_id, node_id)
+        EmitNode.__init__(self, oDesign, result_id, node_id)
+
+    def __eq__(self, other):
+      return ((self._result_id == other._result_id) and (self._node_id == other._node_id))
 
     @property
     def parent(self):
@@ -18,28 +22,25 @@ class TxHarmonicNode(GenericEmitNode):
         self._delete()
 
     @property
-    def enabled(self):
+    def enabled(self) -> bool:
         """Enabled state for this node."""
-        return oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'enabled')
+        return self._oDesign.GetModule('EmitCom').GetEmitNodeProperties(self._result_id,self._node_id,'enabled')
     @enabled.setter
-    def enabled(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['enabled=' + value])
+    def enabled(self, value: bool):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['enabled=' + value])
 
-    @property
-    def harmonic_table_units(self):
-        """Harmonic Table Units
-        "Specifies the units for the Harmonics."
-        "        """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Harmonic Table Units')
-        key_val_pair = [i for i in props if 'Harmonic Table Units=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
-        return val
-    @harmonic_table_units.setter
-    def harmonic_table_units(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Harmonic Table Units=' + value])
     class HarmonicTableUnitsOption(Enum):
             ABSOLUTE = "Absolute"
             RELATIVE = "Relative"
+    @property
+    def harmonic_table_units(self) -> HarmonicTableUnitsOption:
+        """Harmonic Table Units
+        "Specifies the units for the Harmonics."
+        "        """
+        val = self._get_property('Harmonic Table Units')
+        val = self.HarmonicTableUnitsOption[val]
+        return val
+    @harmonic_table_units.setter
+    def harmonic_table_units(self, value: HarmonicTableUnitsOption):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Harmonic Table Units=' + value.value])
 

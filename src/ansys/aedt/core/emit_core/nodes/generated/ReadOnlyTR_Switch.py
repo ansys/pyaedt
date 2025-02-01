@@ -1,8 +1,12 @@
-from ..GenericEmitNode import *
-class ReadOnlyTR_Switch(GenericEmitNode):
+from ..EmitNode import *
+
+class ReadOnlyTR_Switch(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
         self._is_component = True
-        GenericEmitNode.__init__(self, oDesign, result_id, node_id)
+        EmitNode.__init__(self, oDesign, result_id, node_id)
+
+    def __eq__(self, other):
+      return ((self._result_id == other._result_id) and (self._node_id == other._node_id))
 
     @property
     def filename(self) -> str:
@@ -10,182 +14,114 @@ class ReadOnlyTR_Switch(GenericEmitNode):
         "Name of file defining the outboard component."
         "Value should be a full file path."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Filename')
-        key_val_pair = [i for i in props if 'Filename=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Filename')
         return val
-
     @property
     def noise_temperature(self) -> float:
         """Noise Temperature
         "System Noise temperature (K) of the component."
         "Value should be between 0 and 1000."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Noise Temperature')
-        key_val_pair = [i for i in props if 'Noise Temperature=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Noise Temperature')
         return val
-
     @property
     def notes(self) -> str:
         """Notes
         "Expand to view/edit notes stored with the project."
         "        """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Notes')
-        key_val_pair = [i for i in props if 'Notes=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
-        return val
-
-    @property
-    def tx_port(self):
-        """Tx Port
-        "Specifies which port on the TR Switch is part of the Tx path.."
-        "        """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Tx Port')
-        key_val_pair = [i for i in props if 'Tx Port=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Notes')
         return val
     class TxPortOption(Enum):
             _0 = "Port 1"
             _1 = "Port 2"
-
     @property
-    def common_port_location(self):
-        """Common Port Location
-        "Defines the orientation of the tr switch.."
+    def tx_port(self) -> TxPortOption:
+        """Tx Port
+        "Specifies which port on the TR Switch is part of the Tx path.."
         "        """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Common Port Location')
-        key_val_pair = [i for i in props if 'Common Port Location=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Tx Port')
+        val = self.TxPortOption[val]
         return val
     class CommonPortLocationOption(Enum):
             RADIOSIDE = "Radio Side"
             ANTENNASIDE = "Antenna Side"
-
+    @property
+    def common_port_location(self) -> CommonPortLocationOption:
+        """Common Port Location
+        "Defines the orientation of the tr switch.."
+        "        """
+        val = self._get_property('Common Port Location')
+        val = self.CommonPortLocationOption[val]
+        return val
     @property
     def insertion_loss(self) -> float:
         """Insertion Loss
         "TR Switch in-band loss in forward direction.."
         "Value should be between 0 and 100."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Insertion Loss')
-        key_val_pair = [i for i in props if 'Insertion Loss=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Insertion Loss')
         return val
-
     @property
     def finite_isolation(self) -> bool:
         """Finite Isolation
         "Use a finite isolation. If disabled, the  tr switch model is ideal (infinite isolation).."
         "Value should be 'true' or 'false'."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Finite Isolation')
-        key_val_pair = [i for i in props if 'Finite Isolation=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Finite Isolation')
         return val
-
     @property
     def isolation(self) -> float:
         """Isolation
         "TR Switch reverse isolation (i.e., loss between the Tx/Rx ports).."
         "Value should be between 0 and 100."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Isolation')
-        key_val_pair = [i for i in props if 'Isolation=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Isolation')
         return val
-
     @property
     def finite_bandwidth(self) -> bool:
         """Finite Bandwidth
         "Use a finite bandwidth. If disabled, the  tr switch model is ideal (infinite bandwidth).."
         "Value should be 'true' or 'false'."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Finite Bandwidth')
-        key_val_pair = [i for i in props if 'Finite Bandwidth=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Finite Bandwidth')
         return val
-
     @property
     def out_of_band_attenuation(self) -> float:
         """Out-of-band Attenuation
         "Out-of-band loss (attenuation)."
         "Value should be between 0 and 200."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Out-of-band Attenuation')
-        key_val_pair = [i for i in props if 'Out-of-band Attenuation=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Out-of-band Attenuation')
         return val
-
     @property
     def lower_stop_band(self) -> float:
         """Lower Stop Band
         "Lower stop band frequency."
         "Value should be between 1 and 1e+11."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Lower Stop Band')
-        key_val_pair = [i for i in props if 'Lower Stop Band=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Lower Stop Band')
         return val
-
     @property
     def lower_cutoff(self) -> float:
         """Lower Cutoff
         "Lower cutoff frequency."
         "Value should be between 1 and 1e+11."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Lower Cutoff')
-        key_val_pair = [i for i in props if 'Lower Cutoff=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Lower Cutoff')
         return val
-
     @property
     def higher_cutoff(self) -> float:
         """Higher Cutoff
         "Higher cutoff frequency."
         "Value should be between 1 and 1e+11."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Higher Cutoff')
-        key_val_pair = [i for i in props if 'Higher Cutoff=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Higher Cutoff')
         return val
-
     @property
     def higher_stop_band(self) -> float:
         """Higher Stop Band
         "Higher stop band frequency."
         "Value should be between 1 and 1e+11."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Higher Stop Band')
-        key_val_pair = [i for i in props if 'Higher Stop Band=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Higher Stop Band')
         return val
-

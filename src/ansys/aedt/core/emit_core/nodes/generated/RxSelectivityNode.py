@@ -1,8 +1,12 @@
-from ..GenericEmitNode import *
-class RxSelectivityNode(GenericEmitNode):
+from ..EmitNode import *
+
+class RxSelectivityNode(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
         self._is_component = False
-        GenericEmitNode.__init__(self, oDesign, result_id, node_id)
+        EmitNode.__init__(self, oDesign, result_id, node_id)
+
+    def __eq__(self, other):
+      return ((self._result_id == other._result_id) and (self._node_id == other._node_id))
 
     @property
     def parent(self):
@@ -18,12 +22,12 @@ class RxSelectivityNode(GenericEmitNode):
         self._delete()
 
     @property
-    def enabled(self):
+    def enabled(self) -> bool:
         """Enabled state for this node."""
-        return oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'enabled')
+        return self._oDesign.GetModule('EmitCom').GetEmitNodeProperties(self._result_id,self._node_id,'enabled')
     @enabled.setter
-    def enabled(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['enabled=' + value])
+    def enabled(self, value: bool):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['enabled=' + value])
 
     @property
     def use_arithmetic_mean(self) -> bool:
@@ -31,13 +35,9 @@ class RxSelectivityNode(GenericEmitNode):
         "Uses arithmetic mean to center bandwidths about the tuned channel frequency."
         "Value should be 'true' or 'false'."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Use Arithmetic Mean')
-        key_val_pair = [i for i in props if 'Use Arithmetic Mean=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Use Arithmetic Mean')
         return val
     @use_arithmetic_mean.setter
-    def use_arithmetic_mean(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Use Arithmetic Mean=' + value])
+    def use_arithmetic_mean(self, value: bool):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Use Arithmetic Mean=' + value])
 

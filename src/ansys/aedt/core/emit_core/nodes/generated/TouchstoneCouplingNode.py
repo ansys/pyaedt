@@ -1,8 +1,12 @@
-from ..GenericEmitNode import *
-class TouchstoneCouplingNode(GenericEmitNode):
+from ..EmitNode import *
+
+class TouchstoneCouplingNode(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
         self._is_component = False
-        GenericEmitNode.__init__(self, oDesign, result_id, node_id)
+        EmitNode.__init__(self, oDesign, result_id, node_id)
+
+    def __eq__(self, other):
+      return ((self._result_id == other._result_id) and (self._node_id == other._node_id))
 
     @property
     def parent(self):
@@ -27,15 +31,11 @@ class TouchstoneCouplingNode(GenericEmitNode):
         "Enable/Disable coupling."
         "Value should be 'true' or 'false'."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Enabled')
-        key_val_pair = [i for i in props if 'Enabled=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Enabled')
         return val
     @enabled.setter
-    def enabled(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Enabled=' + value])
+    def enabled(self, value: bool):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Enabled=' + value])
 
     @property
     def enable_refinement(self) -> bool:
@@ -43,15 +43,11 @@ class TouchstoneCouplingNode(GenericEmitNode):
         "Enables/disables refined sampling of the frequency domain.."
         "Value should be 'true' or 'false'."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Enable Refinement')
-        key_val_pair = [i for i in props if 'Enable Refinement=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Enable Refinement')
         return val
     @enable_refinement.setter
-    def enable_refinement(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Enable Refinement=' + value])
+    def enable_refinement(self, value: bool):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Enable Refinement=' + value])
 
     @property
     def adaptive_sampling(self) -> bool:
@@ -59,30 +55,22 @@ class TouchstoneCouplingNode(GenericEmitNode):
         "Enables/disables adaptive refinement the frequency domain sampling.."
         "Value should be 'true' or 'false'."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Adaptive Sampling')
-        key_val_pair = [i for i in props if 'Adaptive Sampling=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Adaptive Sampling')
         return val
     @adaptive_sampling.setter
-    def adaptive_sampling(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Adaptive Sampling=' + value])
+    def adaptive_sampling(self, value: bool):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Adaptive Sampling=' + value])
 
     @property
     def refinement_domain(self):
         """Refinement Domain
         "Points to use when refining the frequency domain.."
         "        """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Refinement Domain')
-        key_val_pair = [i for i in props if 'Refinement Domain=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Refinement Domain')
         return val
     @refinement_domain.setter
     def refinement_domain(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Refinement Domain=' + value])
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Refinement Domain=' + value])
 
     @property
     def filename(self) -> str:
@@ -90,56 +78,51 @@ class TouchstoneCouplingNode(GenericEmitNode):
         "Name of file with coupling data.."
         "Value should be a full file path."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Filename')
-        key_val_pair = [i for i in props if 'Filename=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Filename')
         return val
     @filename.setter
-    def filename(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Filename=' + value])
+    def filename(self, value: str):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Filename=' + value])
 
     @property
     def savant_matched_coupling_file(self) -> str:
         """Savant Matched Coupling File
         "Coupling data generated by Savant and exported as a matched file."
         "        """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Savant Matched Coupling File')
-        key_val_pair = [i for i in props if 'Savant Matched Coupling File=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Savant Matched Coupling File')
         return val
-
     @property
     def enable_em_isolation(self) -> bool:
         """Enable EM Isolation
         "Enables/disables EM isolation."
         "Value should be 'true' or 'false'."
         """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Enable EM Isolation')
-        key_val_pair = [i for i in props if 'Enable EM Isolation=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Enable EM Isolation')
         return val
     @enable_em_isolation.setter
-    def enable_em_isolation(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Enable EM Isolation=' + value])
+    def enable_em_isolation(self, value: bool):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Enable EM Isolation=' + value])
+
+    @property
+    def port_antenna_assignment(self):
+        """Port-Antenna Assignment
+        "Maps each port in the coupling file to an antenna in the project."
+        "A list of values."
+        "        """
+        val = self._get_property('Port-Antenna Assignment')
+        return val
+    @port_antenna_assignment.setter
+    def port_antenna_assignment(self, value):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Port-Antenna Assignment=' + value])
 
     @property
     def notes(self) -> str:
         """Notes
         "Expand to view/edit notes stored with the project."
         "        """
-        props = oDesign.GetModule('EmitCom').GetProperties(self._result_id,self._node_id,'Notes')
-        key_val_pair = [i for i in props if 'Notes=' in i]
-        if len(key_val_pair) != 1:
-            return ''
-        val = key_val_pair[1].split('=')[1]
+        val = self._get_property('Notes')
         return val
     @notes.setter
-    def notes(self, value):
-        oDesign.GetModule('EmitCom').SetProperties(self._result_id,self._node_id,['Notes=' + value])
+    def notes(self, value: str):
+        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
 
