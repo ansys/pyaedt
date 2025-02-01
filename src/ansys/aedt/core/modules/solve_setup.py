@@ -427,6 +427,8 @@ class CommonSetup(PropsManager, BinaryTreeNode):
             ]
         else:
             setup_sweep_name = [i for i in self._app.existing_analysis_sweeps if self.name == i.split(" : ")[0]]
+            if report_category == "Fields":
+                sweep = self._app.nominal_adaptive  # Use last adaptive if no sweep is named explicitly.
         if setup_sweep_name:
             return self._app.post.get_solution_data(
                 expressions=expressions,
@@ -437,7 +439,7 @@ class CommonSetup(PropsManager, BinaryTreeNode):
                 context=context,
                 polyline_points=polyline_points,
                 math_formula=math_formula,
-                setup_sweep_name=sweep,
+                setup_sweep_name=sweep,  # Should this be setup_sweep_name?
             )
         return None
 

@@ -1232,7 +1232,10 @@ class PostProcessorCommon(object):
         >>> m3d.release_desktop(False, False)
         """
         if not setup_sweep_name:
-            setup_sweep_name = self._app.nominal_sweep
+            if report_category == "Fields":
+                setup_sweep_name = self._app.nominal_adaptive  # Field report and no sweep name passed.
+            else:
+                setup_sweep_name = self._app.nominal_sweep
         elif domain == "Sweep":
             setup_sweep_name = self._get_setup_from_sweep_name(setup_sweep_name)
         if not domain:
@@ -2004,7 +2007,8 @@ class Reports(object):
         >>> solutions = report.get_solution_data()
         """
         if not setup:
-            setup = self._post_app._app.nominal_sweep
+            # setup = self._post_app._app.nominal_sweep
+            setup = self._post_app._app.nominal_adaptive
         rep = None
         if "Fields" in self._templates:
             rep = ansys.aedt.core.visualization.report.field.Fields(self._post_app, "Fields", setup)
