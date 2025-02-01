@@ -635,3 +635,38 @@ class TestClass:
         rect = m2d_app.modeler.create_rectangle([32, 1.5, 0], [8, 3], is_covered=True)
         assert m2d_app.assign_voltage(assignment=[region_id.name, rect.name], amplitude=3, name="GRD4")
         assert len(m2d_app.boundaries) == 4
+
+    def test_set_save_fields(self, m2d_app):
+        m2d_app.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
+
+        setup = m2d_app.create_setup()
+        assert setup.set_save_fields(enable=True)
+        assert setup.set_save_fields(enable=False)
+
+        m2d_app.solution_type = SOLUTIONS.Maxwell2d.TransientXY
+        setup = m2d_app.create_setup()
+        assert setup.set_save_fields(
+            enable=True, range_type="Custom", subrange_type="LinearStep", start=0, stop=8, count=2, units="ms"
+        )
+        assert len(setup.props["SweepRanges"]) == 1
+        assert setup.props["SweepRanges"][0]["Subrange"]["RangeType"] == "LinearStep"
+        assert setup.props["SweepRanges"][0]["Subrange"]["RangeStart"] == "0ms"
+        assert setup.props["SweepRanges"][0]["Subrange"]["RangeEnd"] == "8ms"
+        assert setup.props["SweepRanges"][0]["Subrange"]["RangeStep"] == "2ms"
+        assert setup.set_save_fields(
+            enable=True, range_type="Custom", subrange_type="LinearCount", start=0, stop=8, count=2, units="ms"
+        )
+        assert len(setup.props["SweepRanges"]) == 2
+        assert setup.props["SweepRanges"][0]["Subrange"]["RangeType"] == "LinearStep"
+        assert setup.props["SweepRanges"][0]["Subrange"]["RangeStart"] == "0ms"
+        assert setup.props["SweepRanges"][0]["Subrange"]["RangeEnd"] == "8ms"
+        assert setup.props["SweepRanges"][0]["Subrange"]["RangeCount"] == "2ms"
+        assert setup.set_save_fields(
+            enable=True, range_type="Custom", subrange_type="SinglePoints", start=3, units="ms"
+        )
+        assert len(setup.props["SweepRanges"]) == 3
+        assert setup.props["SweepRanges"][0]["Subrange"]["RangeType"] == "SinglePoints"
+        assert setup.props["SweepRanges"][0]["Subrange"]["RangeStart"] == "3ms"
+        assert setup.props["SweepRanges"][0]["Subrange"]["RangeEnd"] == "3ms"
+
+        pass

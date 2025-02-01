@@ -828,7 +828,7 @@ class SweepMatrix(object):
 
 
 class SweepMaxwellEC(object):
-    """Initializes, creates, and updates sweeps in Q3D.
+    """Initializes, creates, and updates sweeps in Maxwell Eddy Current.
 
     Parameters
     ----------
@@ -837,8 +837,8 @@ class SweepMaxwellEC(object):
     name : str
         Name of the sweep.
     sweep_type : str, optional
-        Type of the sweep. Options are ``"Fast"``, ``"Interpolating"``,
-        and ``"Discrete"``. The default is ``"Interpolating"``.
+        Type of the sweep. Options are ``"LinearStep"``, ``"LinearCount"``,
+         ``"LogScale"`` and ``"SinglePoints"``. The default is ``"LinearStep"``.
     props : dict
         Dictionary of the properties.  The default is ``None``, in which case
         the default properties are retrieved.

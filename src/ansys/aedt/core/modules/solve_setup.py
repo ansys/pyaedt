@@ -3563,7 +3563,7 @@ class SetupSBR(Setup, object):
 
 
 class SetupMaxwell(Setup, object):
-    """Initializes, creates, and updates an HFSS setup.
+    """Initializes, creates, and updates a Maxwell setup.
 
     Parameters
     ----------
@@ -3720,12 +3720,35 @@ class SetupMaxwell(Setup, object):
 
     @pyaedt_function_handler()
     def set_save_fields(
-        self, enable=True, range_type="Custom", subrange_type=None, start=None, stop=None, count=None, units=None
+        self, enable=True, range_type="Custom", subrange_type="LinearStep", start=0, stop=100000, count=1, units="ns"
     ):
         """Enable the save fields option in the setup.
 
         Parameters
         ----------
+        enable : bool, optional
+            Whether to enable the save fields option.
+            The default value is ``True``.
+        range_type : str, optional
+            Range type. The available options are ``"Custom"`` to set a custom range type
+            or ``"Every N Steps"`` to set the steps within the range.
+            The default value is ``Custom``.
+        subrange_type : str, optional
+            In case of a custom range type the ``subrange_type`` defines the subrange type.
+            The available options are ``"LinearStep"``, ``"LinearCount"`` and ``"SinglePoints"``.
+            The default option is ``"LinearStep"``.
+        start : float, optional
+            Range or steps starting point.
+            The default value is 0.
+        stop : float, optional
+            Range or steps starting point.
+            The default value is 100000.
+        count : float, optional
+            Range count or step.
+            The default value is 1.
+        units : str, optional
+            Time units.
+            The default is "ns".
         Returns
         -------
         """
@@ -3752,11 +3775,18 @@ class SetupMaxwell(Setup, object):
                     elif subrange_type == "SinglePoints":
                         range_props["RangeEnd"] = f"{start}{units}"
                     if "SweepRanges" in self.props.keys():
+                        if isinstance(self.props["SweepRanges"]["Subrange"], dict):
+                            temp = self.props["SweepRanges"]["Subrange"]
+                            self.props["SweepRanges"]["Subrange"] = [temp]
                         self.props["SweepRanges"]["Subrange"].append(range_props)
                     else:
-                        self.props["SweepRanges"] = {"Subrange": range_props}
+                        self.props["SweepRanges"] = {"Subrange": [range_props]}
                     self.update()
                 else:
+                    if self.props["SaveFieldsType"] == "Custom":
+                        self.props.pop("SweepRanges", None)
+                        # self.props["SaveFieldsType"] = "None"
+                        # self.update()
                     self.props["SaveFieldsType"] = "Every N Steps"
                     self.props["N Steps"] = f"{count}"
                     self.props["Steps From"] = f"{start}{units}"
@@ -3768,7 +3798,6 @@ class SetupMaxwell(Setup, object):
                 self.props.pop("SweepRanges", None)
                 self.update()
                 return True
-        return False
 
 
 class SetupQ3D(Setup, object):
