@@ -513,9 +513,7 @@ class PostProcessorCommon(object):
             elif len(sweep_names) == 1:
                 return sweep_names[0]
             else:
-                error_str = f"Unable to find sweep name: '{sweep_name}' for domain '{domain}'."
-                self.logger.error(error_str)
-                raise ValueError(error_str)
+                return sweep_name  # Nothing found, pass the sweep name through.
         else:
             return sweep_name
 
