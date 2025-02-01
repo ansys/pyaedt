@@ -28,6 +28,7 @@ import shutil
 from ansys.aedt.core import Hfss
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Mechanical
+from ansys.aedt.core.generic.errors import AEDTRuntimeError
 import pytest
 
 from tests.system.general.conftest import config
@@ -113,8 +114,10 @@ class TestClass:
         self.aedtapp.oproject.InsertDesign("Mechanical", "MechanicalDesign3", "Thermal", "")
         self.aedtapp.set_active_design("MechanicalDesign3")
         self.aedtapp.modeler.create_cylinder(self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
-        assert not self.aedtapp.assign_fixed_support(self.aedtapp.modeler["MyCylinder"].faces[0].id)
-        assert not self.aedtapp.assign_frictionless_support(self.aedtapp.modeler["MyCylinder"].faces[0].id)
+        with pytest.raises(AEDTRuntimeError, match="This method works only in a Mechanical Structural analysis."):
+            self.aedtapp.assign_fixed_support(self.aedtapp.modeler["MyCylinder"].faces[0].id)
+        with pytest.raises(AEDTRuntimeError, match="This method works only in a Mechanical Structural analysis."):
+            self.aedtapp.assign_frictionless_support(self.aedtapp.modeler["MyCylinder"].faces[0].id)
 
     def test_08_mesh_settings(self):
         assert self.aedtapp.mesh.initial_mesh_settings
