@@ -38,6 +38,14 @@ import pytest
 
 from tests.system.general.conftest import config
 
+default_center_freq = "1G"
+changed_freq = "500M"
+default_band_width_freq = "200M"
+default_attenuation = "3.01"
+changed_attenuation = "4"
+default_ripple = ".05"
+changed_ripple = ".03"
+
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
@@ -68,20 +76,18 @@ class TestClass:
         assert lumped_design.attributes.filter_multiple_bands_enabled
 
     def test_filter_multiple_bands_low_pass_frequency(self, lumped_design):
-        default_freq = "1G"
-        changed_freq = "500M"
         lumped_design.attributes.filter_multiple_bands_enabled = True
         lumped_design.attributes.filter_class = FilterClass.LOW_BAND
-        assert lumped_design.attributes.filter_multiple_bands_low_pass_frequency == default_freq
+        assert lumped_design.attributes.filter_multiple_bands_low_pass_frequency == default_center_freq
         lumped_design.attributes.filter_multiple_bands_low_pass_frequency = changed_freq
         assert lumped_design.attributes.filter_multiple_bands_low_pass_frequency == changed_freq
 
     def test_filter_multiple_bands_high_pass_frequency(self, lumped_design):
         lumped_design.attributes.filter_multiple_bands_enabled = True
         lumped_design.attributes.filter_class = FilterClass.BAND_HIGH
-        assert lumped_design.attributes.filter_multiple_bands_high_pass_frequency == "1G"
-        lumped_design.attributes.filter_multiple_bands_high_pass_frequency = "500M"
-        assert lumped_design.attributes.filter_multiple_bands_high_pass_frequency == "500M"
+        assert lumped_design.attributes.filter_multiple_bands_high_pass_frequency == default_center_freq
+        lumped_design.attributes.filter_multiple_bands_high_pass_frequency = changed_freq
+        assert lumped_design.attributes.filter_multiple_bands_high_pass_frequency == changed_freq
 
     def test_diplexer_type(self, lumped_design):
         assert len(DiplexerType) == 6
@@ -149,15 +155,15 @@ class TestClass:
             assert lumped_design.attributes.pass_band_definition == pbd
 
     def test_pass_band_center_frequency(self, lumped_design):
-        assert lumped_design.attributes.pass_band_center_frequency == "1G"
-        lumped_design.attributes.pass_band_center_frequency = "500M"
-        assert lumped_design.attributes.pass_band_center_frequency == "500M"
+        assert lumped_design.attributes.pass_band_center_frequency == default_center_freq
+        lumped_design.attributes.pass_band_center_frequency = changed_freq
+        assert lumped_design.attributes.pass_band_center_frequency == changed_freq
 
     def test_pass_band_frequency(self, lumped_design):
         lumped_design.attributes.filter_class = FilterClass.BAND_PASS
-        assert lumped_design.attributes.pass_band_width_frequency == "200M"
-        lumped_design.attributes.pass_band_width_frequency = "500M"
-        assert lumped_design.attributes.pass_band_width_frequency == "500M"
+        assert lumped_design.attributes.pass_band_width_frequency == default_band_width_freq
+        lumped_design.attributes.pass_band_width_frequency = changed_freq
+        assert lumped_design.attributes.pass_band_width_frequency == changed_freq
 
     def test_lower_frequency(self, lumped_design):
         lumped_design.attributes.filter_class = FilterClass.BAND_PASS
@@ -250,9 +256,9 @@ class TestClass:
 
     def test_standard_pass_band_attenuation_value_db(self, lumped_design):
         lumped_design.attributes.standard_pass_band_attenuation = False
-        assert lumped_design.attributes.standard_pass_band_attenuation_value_db == "3.01"
-        lumped_design.attributes.standard_pass_band_attenuation_value_db = "4"
-        assert lumped_design.attributes.standard_pass_band_attenuation_value_db == "4"
+        assert lumped_design.attributes.standard_pass_band_attenuation_value_db == default_attenuation
+        lumped_design.attributes.standard_pass_band_attenuation_value_db = changed_attenuation
+        assert lumped_design.attributes.standard_pass_band_attenuation_value_db == changed_attenuation
 
     def test_root_raised_cosine(self, lumped_design):
         lumped_design.attributes.filter_type = FilterType.RAISED_COS
@@ -314,9 +320,9 @@ class TestClass:
 
     def test_pass_band_ripple(self, lumped_design):
         lumped_design.attributes.filter_type = FilterType.ELLIPTIC
-        assert lumped_design.attributes.pass_band_ripple == ".05"
-        lumped_design.attributes.pass_band_ripple = ".03"
-        assert lumped_design.attributes.pass_band_ripple == ".03"
+        assert lumped_design.attributes.pass_band_ripple == default_ripple
+        lumped_design.attributes.pass_band_ripple = changed_ripple
+        assert lumped_design.attributes.pass_band_ripple == changed_ripple
 
     def test_arith_symmetry(self, lumped_design):
         lumped_design.attributes.filter_type = FilterType.ELLIPTIC
@@ -499,6 +505,6 @@ class TestClass:
     def test_standard_delay_equ_pass_band_attenuation_value_db(self, lumped_design):
         lumped_design.attributes.delay_equalizer = True
         lumped_design.attributes.standard_delay_equ_pass_band_attenuation = False
-        assert lumped_design.attributes.standard_delay_equ_pass_band_attenuation_value_db == "3.01"
-        lumped_design.attributes.standard_delay_equ_pass_band_attenuation_value_db = "4"
-        assert lumped_design.attributes.standard_delay_equ_pass_band_attenuation_value_db == "4"
+        assert lumped_design.attributes.standard_delay_equ_pass_band_attenuation_value_db == default_attenuation
+        lumped_design.attributes.standard_delay_equ_pass_band_attenuation_value_db = changed_attenuation
+        assert lumped_design.attributes.standard_delay_equ_pass_band_attenuation_value_db == changed_attenuation
