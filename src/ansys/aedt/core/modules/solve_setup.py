@@ -109,10 +109,7 @@ class CommonSetup(PropsManager, BinaryTreeNode):
             setups_data = self.p_app.design_properties["AnalysisSetup"]["SolveSetups"]
             if self.name in setups_data:
                 setup_data = setups_data[self.name]
-                if "Sweeps" in setup_data and self.setuptype not in [
-                    0,
-                    7,
-                ]:  # 0 and 7 represent setup HFSSDrivenAuto
+                if "Sweeps" in setup_data and self.setuptype != 0:  # 0 represents setup HFSSDrivenAuto
                     if self.setuptype <= 4:
                         app = setup_data["Sweeps"]
                         app.pop("NextUniqueID", None)
@@ -127,6 +124,13 @@ class CommonSetup(PropsManager, BinaryTreeNode):
                             if isinstance(app[el], dict):
                                 self._sweeps.append(SweepMatrix(self, el, props=app[el]))
                     setup_data.pop("Sweeps", None)
+                elif "SweepRanges" in setup_data:
+                    app = setup_data["SweepRanges"]
+                    if isinstance(app["Subrange"], list):
+                        for el in app:
+                            self._sweeps.append(SweepMaxwellEC(self, el, props=app[el]))
+                    else:
+                        self._sweeps.append(SweepMaxwellEC(self, "el", props=app["Subrange"]))
         except (TypeError, KeyError):
             pass
         return self._sweeps
@@ -3623,7 +3627,6 @@ class SetupMaxwell(Setup, object):
         :class:`ansys.aedt.core.modules.solve_sweeps.SweepMaxwellEC`
             Sweep object.
         """
-
         if self.setuptype != 7:
             self._app.logger.warning("This method only applies to Maxwell Eddy Current Solution.")
             return False
@@ -3634,14 +3637,11 @@ class SetupMaxwell(Setup, object):
             name = generate_unique_name(old_name)
             self._app.logger.warning("Sweep %s is already present. Sweep has been renamed in %s.", old_name, name)
         sweep = SweepMaxwellEC(self, name=name, sweep_type=sweep_type)
-        sweep.create()
         legacy_update = self.auto_update
         self.auto_update = False
-        self.props["SweepRanges"] = {"Subrange": []}
         sweep.props["RangeType"] = sweep_type
         sweep.props["RangeStart"] = f"{start_frequency}{units}"
         sweep.props["RangeEnd"] = f"{stop_frequency}{units}"
-        sweep.props["HasSweepSetup"] = True
         if sweep_type == "LinearStep":
             sweep.props["RangeStep"] = f"{step_size}{units}"
         elif sweep_type == "LinearCount":
@@ -3650,14 +3650,21 @@ class SetupMaxwell(Setup, object):
             sweep.props["RangeSamples"] = step_size
         elif sweep_type == "SinglePoints":
             sweep.props["RangeEnd"] = f"{start_frequency}{units}"
-        if clear:
-            self.props["SweepRanges"]["Subrange"] = sweep.props
-        elif isinstance(self.props["SweepRanges"]["Subrange"], list):
-            self.props["SweepRanges"]["Subrange"].append(sweep.props)
-        else:
-            self.props["SweepRanges"]["Subrange"] = [self.props["SweepRanges"]["Subrange"], sweep.props]
         self.props["SaveAllFields"] = save_all_fields
-        self.update()
+        if self.sweeps:
+            if clear:
+                self.props["SweepRanges"] = [sweep.props]
+            else:
+                if isinstance(self.props["SweepRanges"]["Subrange"], dict):
+                    temp = self.props["SweepRanges"]["Subrange"]
+                    self.props["SweepRanges"].pop("Subrange", None)
+                    self.props["SweepRanges"]["Subrange"] = [temp]
+                self.props["SweepRanges"]["Subrange"].append(sweep.props)
+            self.update()
+        else:
+            self.props["HasSweepSetup"] = True
+            self.props["SweepRanges"] = {"Subrange": [sweep.props]}
+            sweep.create()
         self.auto_update = legacy_update
         return sweep
 
@@ -3749,8 +3756,21 @@ class SetupMaxwell(Setup, object):
         units : str, optional
             Time units.
             The default is "ns".
+
         Returns
         -------
+        bool
+            ``True`` if successful, ``False`` if it fails.
+
+        Example
+        -------
+        >>> import ansys.aedt.core
+        >>> m2d = ansys.aedt.core.Maxwell2d(version="2025.1")
+        >>> m2d.solution_type = SOLUTIONS.Maxwell2d.TransientXY
+        >>> setup = m2d.create_setup()
+        >>> setup.set_save_fields(enable=True, range_type="Custom", subrange_type="LinearStep", start=0, stop=8,
+        ...                       count=2, units="ms")
+        >>> m2d.release_desktop()
         """
         if self.setuptype != 5:
             if enable:

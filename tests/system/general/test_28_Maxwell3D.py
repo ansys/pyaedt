@@ -179,12 +179,16 @@ class TestClass:
         dc_freq = 0.1
         stop_freq = 10
         count = 1
-        assert setup.add_eddy_current_sweep("LinearStep", dc_freq, stop_freq, count, clear=True)
+        assert setup.add_eddy_current_sweep(
+            sweep_type="LinearStep", start_frequency=dc_freq, stop_frequency=stop_freq, step_size=count, clear=True
+        )
         assert isinstance(setup.props["SweepRanges"]["Subrange"], dict)
         assert setup.props["SaveAllFields"]
-        assert setup.add_eddy_current_sweep("LinearCount", dc_freq, stop_freq, count, clear=False)
+        assert setup.add_eddy_current_sweep(
+            sweep_type="LinearCount", start_frequency=dc_freq, stop_frequency=stop_freq, step_size=count, clear=False
+        )
         assert isinstance(setup.props["SweepRanges"]["Subrange"], list)
-        assert setup.add_eddy_current_sweep("SinglePoints", start_frequency=0.01, clear=False)
+        assert setup.add_eddy_current_sweep(sweep_type="SinglePoints", start_frequency=0.01, clear=False)
         assert setup.update()
         assert setup.enable_expression_cache(["CoreLoss"], "Fields", "Phase='0deg' ", True)
         assert setup.props["UseCacheFor"] == ["Pass", "Freq"]

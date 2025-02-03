@@ -845,7 +845,7 @@ class SweepMaxwellEC(object):
     """
 
     def __init__(self, setup, name, sweep_type="LinearStep", props=None):
-        self._app = setup
+        self._setup = setup
         self.oanalysis = setup.omodule
         self.setup_name = setup.name
         self.name = name
@@ -863,6 +863,53 @@ class SweepMaxwellEC(object):
                 self.props["RangeSamples"] = "2"
             elif sweep_type == "SinglePoints":
                 self.props["RangeEnd"] = self.props["RangeStart"]
+
+    @pyaedt_function_handler()
+    def create(self):
+        """Create a Maxwell Eddy Current sweep.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        self.oanalysis.EditSetup(self.setup_name, self._get_args(self._setup.props))
+        return True
+
+    @pyaedt_function_handler()
+    def update(self):
+        """Update a Maxwell Eddy Current sweep.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        self.oanalysis.EditSetup(self.setup_name, self.name, self._get_args())
+        return True
+
+    @pyaedt_function_handler()
+    def _get_args(self, props=None):
+        """Get arguments.
+
+        Parameters
+        ----------
+        props : dict, optional
+             Dictionary of the properties. The default is ``None``, in which
+             case the default properties are retrieved.
+
+        Returns
+        -------
+        dict
+            Dictionary of the properties.
+
+        """
+        if props is None:
+            props = self.props
+        arg = ["NAME:" + self.setup_name]
+        _dict2arg(props, arg)
+        return arg
 
 
 class SetupProps(dict):

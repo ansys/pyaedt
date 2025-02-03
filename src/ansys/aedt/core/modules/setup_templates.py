@@ -297,7 +297,8 @@ subrange = dict(
         "RangeEnd": "1e-06GHz",
     }
 )
-SweepEddyCurrent = dict({"Subrange": subrange})
+# SweepEddyCurrent = dict({"Subrange": subrange})
+SweepEddyCurrent = subrange
 
 EddyCurrent = dict(
     {

@@ -648,25 +648,23 @@ class TestClass:
         assert setup.set_save_fields(
             enable=True, range_type="Custom", subrange_type="LinearStep", start=0, stop=8, count=2, units="ms"
         )
-        assert len(setup.props["SweepRanges"]) == 1
-        assert setup.props["SweepRanges"][0]["Subrange"]["RangeType"] == "LinearStep"
-        assert setup.props["SweepRanges"][0]["Subrange"]["RangeStart"] == "0ms"
-        assert setup.props["SweepRanges"][0]["Subrange"]["RangeEnd"] == "8ms"
-        assert setup.props["SweepRanges"][0]["Subrange"]["RangeStep"] == "2ms"
+        assert len(setup.props["SweepRanges"]["Subrange"]) == 1
+        assert setup.props["SweepRanges"]["Subrange"][0]["RangeType"] == "LinearStep"
+        assert setup.props["SweepRanges"]["Subrange"][0]["RangeStart"] == "0ms"
+        assert setup.props["SweepRanges"]["Subrange"][0]["RangeEnd"] == "8ms"
+        assert setup.props["SweepRanges"]["Subrange"][0]["RangeStep"] == "2ms"
         assert setup.set_save_fields(
             enable=True, range_type="Custom", subrange_type="LinearCount", start=0, stop=8, count=2, units="ms"
         )
-        assert len(setup.props["SweepRanges"]) == 2
-        assert setup.props["SweepRanges"][0]["Subrange"]["RangeType"] == "LinearStep"
-        assert setup.props["SweepRanges"][0]["Subrange"]["RangeStart"] == "0ms"
-        assert setup.props["SweepRanges"][0]["Subrange"]["RangeEnd"] == "8ms"
-        assert setup.props["SweepRanges"][0]["Subrange"]["RangeCount"] == "2ms"
+        assert len(setup.props["SweepRanges"]["Subrange"]) == 2
+        assert setup.props["SweepRanges"]["Subrange"][1]["RangeType"] == "LinearCount"
+        assert setup.props["SweepRanges"]["Subrange"][1]["RangeStart"] == "0ms"
+        assert setup.props["SweepRanges"]["Subrange"][1]["RangeEnd"] == "8ms"
+        assert setup.props["SweepRanges"]["Subrange"][1]["RangeCount"] == 2
         assert setup.set_save_fields(
             enable=True, range_type="Custom", subrange_type="SinglePoints", start=3, units="ms"
         )
-        assert len(setup.props["SweepRanges"]) == 3
-        assert setup.props["SweepRanges"][0]["Subrange"]["RangeType"] == "SinglePoints"
-        assert setup.props["SweepRanges"][0]["Subrange"]["RangeStart"] == "3ms"
-        assert setup.props["SweepRanges"][0]["Subrange"]["RangeEnd"] == "3ms"
-
-        pass
+        assert len(setup.props["SweepRanges"]["Subrange"]) == 3
+        assert setup.props["SweepRanges"]["Subrange"][2]["RangeType"] == "SinglePoints"
+        assert setup.props["SweepRanges"]["Subrange"][2]["RangeStart"] == "3ms"
+        assert setup.props["SweepRanges"]["Subrange"][2]["RangeEnd"] == "3ms"
