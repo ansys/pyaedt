@@ -867,7 +867,7 @@ class SetupOpti(CommonOptimetrics, object):
                 use_manufacturable,
             ]
             if self._app.aedt_version_id > "2023.2":
-                arg.extend(["DiscreteLevel:=", levels])
+                arg.extend(["Level:=", levels])
             if not self.props.get("Variables", None):
                 self.props["Variables"] = {}
             self.props["Variables"][variable_name] = arg
