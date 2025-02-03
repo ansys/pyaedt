@@ -68,11 +68,13 @@ class TestClass:
         assert lumped_design.attributes.filter_multiple_bands_enabled
 
     def test_filter_multiple_bands_low_pass_frequency(self, lumped_design):
+        default_freq = "1G"
+        changed_freq = "500M"
         lumped_design.attributes.filter_multiple_bands_enabled = True
         lumped_design.attributes.filter_class = FilterClass.LOW_BAND
-        assert lumped_design.attributes.filter_multiple_bands_low_pass_frequency == "1G"
-        lumped_design.attributes.filter_multiple_bands_low_pass_frequency = "500M"
-        assert lumped_design.attributes.filter_multiple_bands_low_pass_frequency == "500M"
+        assert lumped_design.attributes.filter_multiple_bands_low_pass_frequency == default_freq
+        lumped_design.attributes.filter_multiple_bands_low_pass_frequency = changed_freq
+        assert lumped_design.attributes.filter_multiple_bands_low_pass_frequency == changed_freq
 
     def test_filter_multiple_bands_high_pass_frequency(self, lumped_design):
         lumped_design.attributes.filter_multiple_bands_enabled = True
