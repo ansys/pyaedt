@@ -40,7 +40,6 @@ import zipfile
 import ansys.aedt.core as pyaedt
 from ansys.aedt.core.workflows.customize_automation_tab import add_script_to_menu
 from ansys.aedt.core.workflows.customize_automation_tab import available_toolkits
-from ansys.aedt.core.workflows.misc import ExtensionTheme
 from ansys.aedt.core.workflows.misc import get_aedt_version
 from ansys.aedt.core.workflows.misc import get_port
 from ansys.aedt.core.workflows.misc import get_process_id
@@ -85,9 +84,9 @@ def get_latest_version(package_name):
 
 class VersionManager:
     TITLE = "Version Manager {}".format(VERSION)
-    USER_GUIDE = "https://github.com/"
+    USER_GUIDE = "https://github.com/ansys-internal/pyaedt_version_manager"
     UI_WIDTH = 800
-    UI_HEIGHT = 500
+    UI_HEIGHT = 400
 
     @property
     def venv_path(self):
@@ -115,21 +114,17 @@ class VersionManager:
         self.aedt_version = aedt_version
         self.personal_lib = personal_lib
 
-        self.style = ttk.Style()
+        style = ttk.Style()
 
         # Define the custom style for TLabel (ttk.Label)
-        self.style.configure(
-            "PyAEDT",
+        style.configure(
+            "TLabel",
             font=("Helvetica", 14, "bold"),  # Font style: Helvetica, size 14, bold
             foreground="darkblue",  # Text color
             background="lightyellow",  # Background color
             padding=(10, 5),  # Padding inside the label
             anchor="w",
         )
-        self.theme = ExtensionTheme()
-
-        self.theme.apply_light_theme(self.style)
-        ui.theme = "light"
 
         self.venv_information = tk.StringVar()
         self.pyaedt_info = tk.StringVar()
@@ -147,11 +142,8 @@ class VersionManager:
         self.root.title(self.TITLE)
         self.root.geometry(f"{self.UI_WIDTH}x{self.UI_HEIGHT}")
 
-        main_frame = ttk.PanedWindow(self.root, orient=tk.HORIZONTAL, style="TPanedwindow")
-        main_frame.pack(fill=tk.BOTH, expand=True)
-        notebook = ttk.Notebook(self.root, style="TNotebook")
-        main_frame.add(notebook, weight=3)
-        # notebook.pack(fill="both", expand=True, padx=10, pady=10)
+        notebook = ttk.Notebook(self.root)
+        notebook.pack(fill="both", expand=True, padx=10, pady=10)
 
         tab_basic = ttk.Frame(notebook)
         tab_advanced = ttk.Frame(notebook)
@@ -162,7 +154,6 @@ class VersionManager:
         # notebook.add(tab_extensions, text="Extensions")
 
         self.create_file_menu()
-        self.create_button_frame(self.root)
         self.create_ui_basic(tab_basic)
         self.create_ui_advanced(tab_advanced)
         self.create_ui_extensions(tab_extensions)
@@ -172,9 +163,9 @@ class VersionManager:
     def create_file_menu(self):
         menu_bar = tk.Menu(root)
         help_menu = tk.Menu(menu_bar, tearoff=0)
-        #help_menu.add_command(label="User Guide", command=lambda: webbrowser.open(self.USER_GUIDE))
+        help_menu.add_command(label="User Guide", command=lambda: webbrowser.open(self.USER_GUIDE))
         menu_bar.add_cascade(label="Help", menu=help_menu)
-        self.root.config(menu=menu_bar)
+        #self.root.config(menu=menu_bar)
 
     def create_ui_basic(self, parent):
         def create_ui_wheelhouse(frame):
@@ -282,30 +273,6 @@ class VersionManager:
         for text, cmd in buttons:
             button = tk.Button(frame, text=text, width=20, height=2, command=cmd)
             button.pack(side="left", padx=10, pady=10)
-
-    def create_button_frame(self, parent):
-        def set_light_theme():
-            self.root.configure(bg=self.theme.light["widget_bg"])
-            self.theme.apply_light_theme(self.style)
-            change_theme_button.config(text="\u263D")
-
-        def set_dark_theme():
-            self.root.configure(bg=self.theme.dark["widget_bg"])
-            self.theme.apply_dark_theme(self.style)
-            change_theme_button.config(text="\u2600")
-
-        def toggle_theme():
-            if self.root.theme == "light":
-                set_dark_theme()
-                self.root.theme = "dark"
-            else:
-                set_light_theme()
-                self.root.theme = "light"
-
-        button_frame = ttk.Frame(parent, style="PyAEDT.TFrame", relief=tk.SUNKEN, borderwidth=2)
-        button_frame.pack(fill=tk.X, pady=0)
-        change_theme_button = ttk.Button(button_frame, text="\u263D", command=toggle_theme, style="PyAEDT.TButton")
-        change_theme_button.pack(side=tk.RIGHT, padx=5, pady=40)
 
     def update_extensions(self):
         response = messagebox.askquestion("Confirm Action", "Are you sure you want to proceed?")
