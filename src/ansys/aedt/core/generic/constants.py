@@ -812,16 +812,20 @@ class SOLUTIONS(object):
         """Provides Icepak solution types."""
 
         (
+            SteadyState,
             SteadyTemperatureAndFlow,
             SteadyTemperatureOnly,
             SteadyFlowOnly,
+            Transient,
             TransientTemperatureAndFlow,
             TransientTemperatureOnly,
             TransientFlowOnly,
         ) = (
+            "SteadyState",
             "SteadyStateTemperatureAndFlow",
             "SteadyStateTemperatureOnly",
             "SteadyStateFlowOnly",
+            "Transient",
             "TransientTemperatureAndFlow",
             "TransientTemperatureOnly",
             "TransientFlowOnly",
