@@ -32,10 +32,12 @@ def resources_directory():
     return resources_path
 
 
-def resource_path(resource_file_name):
+def resource_path(resource_file_name, implementation=None):
+    if implementation:
+        return os.path.join(resources_directory(), implementation, resource_file_name)
     return os.path.join(resources_directory(), resource_file_name)
 
 
-def read_resource_file(filename):
-    with open(resource_path(filename)) as f:
+def read_resource_file(filename, implementation=None):
+    with open(resource_path(filename, implementation)) as f:
         return f.read().splitlines()
