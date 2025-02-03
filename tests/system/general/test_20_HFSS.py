@@ -232,9 +232,11 @@ class TestClass:
         assert port3.name in [i.name for i in self.aedtapp.boundaries]
 
     def test_06a_create_linear_count_sweep(self):
-        setup = self.aedtapp.create_setup("MySetup")
-        setup.props["Frequency"] = "1GHz"
-        setup.props["BasisOrder"] = 2
+        # Newer, simplified notation to pass native API keywords
+        setup = self.aedtapp.create_setup("MySetup", Frequency="1GHz", BasisOrder=2)
+        assert setup.props["Frequency"] == "1GHz"
+        assert setup.props["BasisOrder"] == 2
+        # Legacy notation using setup.props followed by setup.update()
         setup.props["MaximumPasses"] = 1
         assert setup.update()
         assert self.aedtapp.create_linear_count_sweep("MySetup", "GHz", 0.8, 1.2, 401)
