@@ -3805,8 +3805,6 @@ class SetupMaxwell(Setup, object):
                 else:
                     if self.props["SaveFieldsType"] == "Custom":
                         self.props.pop("SweepRanges", None)
-                        # self.props["SaveFieldsType"] = "None"
-                        # self.update()
                     self.props["SaveFieldsType"] = "Every N Steps"
                     self.props["N Steps"] = f"{count}"
                     self.props["Steps From"] = f"{start}{units}"
