@@ -116,21 +116,21 @@ class TouchstoneData(rf.Network):
     def get_coupling_in_range(
         self, start_frequency=1e9, low_loss=-40, high_loss=-60, frequency_sample=5, output_file=None
     ):
-        """Identify S parameter, excluding return loss, that has at least one frequency point between a range of
+        """Get coupling losses, excluding return loss, that has at least one frequency point between a range of
         losses.
 
         Parameters
         ----------
         start_frequency : float, optional
-            Specify frequency value below which not check will be done, default is "1e9"
+            Specify frequency value below which not check will be done. The default is ``1e9``.
         low_loss: float, optional
-            Specify range lower loss, default is "-40"
+            Specify range lower loss. The default is ``-40``.
         high_loss: float, optional
-            Specify range higher loss, default is "-60"
+            Specify range higher loss. The default is ``-60``.
         frequency_sample : integer, optional
-            Specify frequency sample at which coupling check will be done, default is "5"
+            Specify frequency sample at which coupling check will be done. The default is ``5``.
         output_file : path, optional
-            Output file path to save where identified coupling will be listed. If None no file is saved.
+            Output file path to save where identified coupling will be listed. The default is ``None``.
 
         Returns
         -------
@@ -200,12 +200,12 @@ class TouchstoneData(rf.Network):
         Parameters
         ----------
         threshold : float, int, optional
-            Threshold to determine shorted ports in dB. Default value is ``3``.
+            Threshold to determine shorted ports in dB. The default is ``-3``.
 
         Returns
         -------
          list
-            List of index couples representing Insertion Losses of excitations.
+            List of index couples representing insertion losses of excitations.
 
         """
         temp_list = []
@@ -229,7 +229,7 @@ class TouchstoneData(rf.Network):
         Parameters
         ----------
         threshold : float, int, optional
-            Threshold to determine shorted ports in dB. Default value is ``3``.
+            Threshold to determine shorted ports in dB. The default value is ``-3``.
         plot : bool, optional
             Whether to plot. The default is ``True``.
 
@@ -251,9 +251,9 @@ class TouchstoneData(rf.Network):
         Parameters
         ----------
         index_couples : list, optional
-            List of indexes couple to plot. Default is ``None`` to plot all ``port_tuples``.
+            List of indexes couple to plot. The default is ``None`` to plot all ``port_tuples``.
         show : bool
-            Whether to plot. Default is ``True``.
+            Whether to plot. The default is ``True``.
 
         Returns
         -------
@@ -330,7 +330,7 @@ class TouchstoneData(rf.Network):
 
     @pyaedt_function_handler()
     def get_return_loss_index(self, excitation_name_prefix=""):
-        """Get the list of all the Returnloss from a list of excitations.
+        """Get the list of all the return loss from a list of excitations.
 
         If no excitation is provided it will provide a full list of return losses.
 
@@ -340,7 +340,7 @@ class TouchstoneData(rf.Network):
         Parameters
         ----------
         excitation_name_prefix :str, optional
-            Prefix of the excitation. Default value is ``""``.
+            Prefix of the excitation. The default is ``""``.
 
         Returns
         -------
@@ -359,7 +359,7 @@ class TouchstoneData(rf.Network):
 
     @pyaedt_function_handler()
     def get_insertion_loss_index_from_prefix(self, tx_prefix, rx_prefix):
-        """Get the list of all the Insertion Losses from prefix.
+        """Get the list of all the insertion losses from prefix.
 
         Parameters
         ----------
@@ -394,7 +394,7 @@ class TouchstoneData(rf.Network):
         Parameters
         ----------
         tx_prefix :str, optional
-            Prefix for TX (eg. "DIE"). Default value is ``""``.
+            Prefix for TX (eg. "DIE"). The default is ``""``.
 
         Returns
         -------
@@ -427,7 +427,7 @@ class TouchstoneData(rf.Network):
         rx_prefix : str
             prefix for RX (eg. "BGA")
         skip_same_index_couples : bool
-            Boolean ignore TX and RX couple with same index. The default value is ``True``.
+            Boolean ignore TX and RX couple with same index. The default is ``True``.
 
         Returns
         -------
@@ -449,7 +449,7 @@ class TouchstoneData(rf.Network):
         Parameters
         ----------
         tx_prefix: str, optional
-            Prefix for TX. Default value is ``""``.
+            Prefix for TX. The default is ``""``.
 
         Returns
         -------
@@ -495,15 +495,16 @@ class TouchstoneData(rf.Network):
         Parameters
         ----------
         freq_min : float, optional
-            Minimum frequency to analyze in GHz (None to 0). Default value is ``None``.
+            Minimum frequency to analyze in GHz (None to 0). The default is ``None``.
         freq_max : float, optional
-            Maximum frequency to analyze in GHz (None to max freq). Default value is ``None``.
+            Maximum frequency to analyze in GHz (None to max freq). The default value is ``None``.
         worst_is_higher : bool
-            Worst curve is the one with higher mean value. Default value is ``True``.
+            Worst curve is the one with higher mean value. The default value is ``True``.
         curve_list : list
-            List of [m,n] index of curves on which to search. None to search on all curves. Default value is ``None``.
+            List of [m,n] index of curves on which to search. None to search on all curves.
+            The default value is ``None``.
         plot : bool, optional
-            Whether to plot or not the chart.
+            Whether to plot or not the chart. The default is ``True``.
 
         Returns
         -------
