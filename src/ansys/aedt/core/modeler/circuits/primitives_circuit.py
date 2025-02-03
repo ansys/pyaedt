@@ -781,7 +781,7 @@ class CircuitComponents(object):
         global_netlist_list : list, optional
             The default is ``None``, in which case an empty list is passed.
         page: int, optional
-            Schematics page number. The default value is ``1``.
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
