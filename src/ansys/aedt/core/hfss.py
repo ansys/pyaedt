@@ -404,11 +404,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         result = bound.create()
         if result:
             self._boundaries[bound.name] = bound
-            self.logger.info("Boundary %s %s has been correctly created.", boundary_type, name)
+            self.logger.info(f"Boundary {boundary_type} {name} has been correctly created.")
             return bound
-        self.logger.error("Error in boundary creation for %s %s.", boundary_type, name)
-
-        return result
+        raise AEDTRuntimeError(f"Failed to create boundary {boundary_type} {name}")
 
     @pyaedt_function_handler(objectname="assignment", portname="port_name")
     def _create_lumped_driven(self, assignment, int_line_start, int_line_stop, impedance, port_name, renorm, deemb):
@@ -1200,9 +1198,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             self._native_components.append(native)
             self.logger.info("Native component %s %s has been correctly created.", antenna_type, antenna_name)
             return native
-        self.logger.error("Error in native component creation for %s %s.", antenna_type, antenna_name)
 
-        return None
+        raise AEDTRuntimeError(f"Failed to create native component {antenna_type} {antenna_name}")
 
     class SbrAntennas:
         (
@@ -5125,7 +5122,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         :class:`ansys.aedt.core.modules.hfss_boundary.FarFieldSetup`
         """
         if not self.oradfield:
-            self.logger.error("Radiation Field not available in this solution.")
+            raise AEDTRuntimeError("Radiation Field not available in this solution.")
         if not name:
             name = generate_unique_name("Infinite")
 
@@ -5217,7 +5214,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
         """
         if not self.oradfield:
-            self.logger.error("Radiation Field not available in this solution.")
+            raise AEDTRuntimeError("Radiation Field not available in this solution.")
         if not name:
             name = generate_unique_name("Sphere")
 
@@ -5294,7 +5291,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
         """
         if not self.oradfield:
-            self.logger.error("Radiation Field not available in this solution.")
+            raise AEDTRuntimeError("Radiation Field not available in this solution.")
         if not name:
             name = generate_unique_name("Box")
 
@@ -5363,7 +5360,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
         """
         if not self.oradfield:
-            self.logger.error("Radiation Field not available in this solution.")
+            raise AEDTRuntimeError("Radiation Field not available in this solution.")
         if not name:
             name = generate_unique_name("Rectangle")
 
@@ -5418,7 +5415,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
         """
         if not self.oradfield:
-            self.logger.error("Radiation Field not available in this solution.")
+            raise AEDTRuntimeError("Radiation Field not available in this solution.")
         if not name:
             name = generate_unique_name("Line")
 
