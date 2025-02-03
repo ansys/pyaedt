@@ -26,7 +26,6 @@
 from pathlib import Path
 
 import ansys.aedt.core
-from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.workflows.misc import get_aedt_version
 from ansys.aedt.core.workflows.misc import get_arguments
 from ansys.aedt.core.workflows.misc import get_port
@@ -53,7 +52,8 @@ VERSION = "0.1.0"
 
 default_config = {
     "selections": [],
-    "diameter": "1mm"
+    "radius": "1.5mm",
+    "race_track": True
 }
 
 
@@ -124,14 +124,20 @@ class Frontend:
                                        style="PyAEDT.TButton")
         selections_button.grid(row=row, column=2, pady=15, padx=10)
 
-        # Diameter
-        diameter_label = ttk.Label(master, text="Anti pad Diameter", width=20, style="PyAEDT.TLabel")
-        diameter_label.grid(row=1, column=0, padx=15, pady=10)
-        self.diameter_entry = tk.Text(master, width=40, height=1)
-        self.diameter_entry.insert("1.0", default_config["diameter"])
-        self.diameter_entry.grid(row=1, column=1, pady=15, padx=10)
-        self.diameter_entry.configure(bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"],
+        # radius
+        radius_label = ttk.Label(master, text="Anti pad radius", width=20, style="PyAEDT.TLabel")
+        radius_label.grid(row=1, column=0, padx=15, pady=10)
+        self.radius_entry = tk.Text(master, width=40, height=1)
+        self.radius_entry.insert("1.0", default_config["radius"])
+        self.radius_entry.grid(row=1, column=1, pady=15, padx=10)
+        self.radius_entry.configure(bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"],
                                       font=self.theme.default_font)
+        self.race_track_var = tk.BooleanVar()
+        self.race_track_var.set(self.config_dict["race_track"])
+        self.race_track_ch = tk.Checkbutton(master, text="RaceTrack", variable=self.race_track_var)
+        self.race_track_ch.configure(bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"],
+                                     font=self.theme.default_font)
+        self.race_track_ch.grid(row=1, column=2, pady=15, padx=10)
 
         # Create buttons to create sphere and change theme color
         create_button = ttk.Button(master, text="Create", command=self.callback, style="PyAEDT.TButton")
@@ -173,8 +179,11 @@ class Frontend:
         self.selections_entry.configure(
             background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
         )
-        self.diameter_entry.configure(
+        self.radius_entry.configure(
             background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
+        )
+        self.race_track_ch.configure(
+            background=theme.light["pane_bg"], font=theme.default_font
         )
         theme.apply_light_theme(style)
         self.change_theme_button.config(text="\u263D")
@@ -187,16 +196,18 @@ class Frontend:
         master.configure(bg=theme.dark["widget_bg"])
         self.selections_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"],
                                         font=theme.default_font)
-        self.diameter_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
+        self.radius_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
+        self.race_track_ch.configure(bg=theme.dark["pane_bg"],                                      font=theme.default_font)
         theme.apply_dark_theme(style)
         self.change_theme_button.config(text="\u2600")
 
     def callback(self):
+        self.config_dict["race_track"] = self.race_track_var.get()
         h3d = self.get_h3d
         backend = Backend(h3d, self.config_dict)
         backend.create()
         h3d.modeler.primitives.edb.close()
-        h3d.release_desktop(False,False)
+        h3d.release_desktop(False, False)
         print(self.config_dict)
         pass
 
@@ -210,6 +221,7 @@ class Backend:
 
         self.via_p = self.pedb.padstacks.instances_by_name[config["selections"][0]]
         self.via_n = self.pedb.padstacks.instances_by_name[config["selections"][1]]
+        self.race_track = self.config["race_track"]
 
     def get_planes(self):
         via_range = self.via_p.layer_range_names
@@ -228,20 +240,31 @@ class Backend:
                         break
         return prims
 
-    def create(self, race_track=True):
-        variable_name = f"{self.via_p.name}_antipad_diameter"
+    def create(self):
+        variable_name = f"{self.via_p.net_name}_{self.via_p.name}_{self.via_n.name}_antipad_radius"
         if variable_name not in self.h3d.variable_manager.variable_names:
-            self.h3d[variable_name] = self.config["diameter"]
-        path = [self.via_p.position, self.via_n.position]
+            self.h3d[variable_name] = self.config["radius"]
         planes = self.get_planes()
-        if race_track:
-            for _, obj_list in planes.items():
-                for obj in obj_list:
-                    print(obj.aedt_name, obj.layer_name)
+
+        for _, obj_list in planes.items():
+            for obj in obj_list:
+                if self.race_track:
                     self.create_line_void(obj.aedt_name,
                                           obj.layer_name,
-                                          path,
+                                          [self.via_p.position, self.via_n.position],
                                           variable_name)
+                else:
+                    self.create_circle_void(obj.aedt_name,
+                                            obj.layer_name,
+                                            self.via_p.position,
+                                            variable_name
+                                            )
+                    self.create_circle_void(obj.aedt_name,
+                                            obj.layer_name,
+                                            self.via_n.position,
+                                            variable_name
+                                            )
+        print("***** Done *****")
 
     def create_line_void(self, owner, layer_name, path, width):
         void_name = generate_unique_name("line_void_")
@@ -253,15 +276,15 @@ class Backend:
             temp.append(i[1])
 
         line_void_geometry = [
-                "Name:=", void_name,
-                "LayerName:=", layer_name,
-                "lw:=", width,
-                "endstyle:=", 0,
-                "StartCap:=", 2,
-                "EndCap:=", 2,
+            "Name:=", void_name,
+            "LayerName:=", layer_name,
+            "lw:=", width,
+            "endstyle:=", 0,
+            "StartCap:=", 2,
+            "EndCap:=", 2,
             "n:=", 2,
-                "U:=", "meter",
-                ]
+            "U:=", "meter",
+        ]
         line_void_geometry.extend(temp)
         line_void_geometry.extend(["MR:=", "600mm"])
         args = [
@@ -271,6 +294,21 @@ class Backend:
             line_void_geometry
         ]
         self.h3d.oeditor.CreateLineVoid(args)
+
+    def create_circle_void(self, owner, layer_name, center_point, radius):
+        args = [
+            "NAME:Contents",
+            "owner:=", owner,
+            "circle voidGeometry:=",
+            [
+                "Name:=", generate_unique_name("circle_void_"),
+                "LayerName:=", layer_name,
+                "lw:=", "0",
+                "x:=", center_point[0],
+                "y:=", center_point[1],
+                "r:=", radius]
+        ]
+        self.h3d.oeditor.CreateCircleVoid(args)
 
 
 def main(h3d, config):
