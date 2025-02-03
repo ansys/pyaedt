@@ -1384,7 +1384,8 @@ class TestClass:
         ids = [i.id for i in aedtapp.modeler["SymmetryForFaces"].faces]
         assert aedtapp.assign_symmetry(ids)
         assert aedtapp.assign_symmetry([ids[0], ids[1], ids[2]])
-        assert not aedtapp.assign_symmetry(aedtapp.modeler.object_list[0].faces[0])
+        with pytest.raises(TypeError, match="Entities have to be provided as a list."):
+            aedtapp.assign_symmetry(aedtapp.modeler.object_list[0].faces[0])
         assert aedtapp.assign_symmetry([aedtapp.modeler.object_list[0].faces[0]])
         assert aedtapp.assign_symmetry(
             [
@@ -1394,9 +1395,9 @@ class TestClass:
             ]
         )
         with pytest.raises(TypeError, match="Entities have to be provided as a list."):
-            assert not aedtapp.assign_symmetry(ids[0])
+            aedtapp.assign_symmetry(ids[0])
         with pytest.raises(TypeError, match="Entities have to be provided as a list."):
-            assert not aedtapp.assign_symmetry("test")
+            aedtapp.assign_symmetry("test")
         assert aedtapp.set_impedance_multiplier(2)
         aedtapp.close_project(save=False)
 
