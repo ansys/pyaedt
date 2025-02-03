@@ -85,7 +85,7 @@ def get_latest_version(package_name):
 
 class VersionManager:
     TITLE = "Version Manager {}".format(VERSION)
-    USER_GUIDE = "https://github.com/ansys-internal/pyaedt_version_manager"
+    USER_GUIDE = "https://github.com/"
     UI_WIDTH = 800
     UI_HEIGHT = 500
 
@@ -172,7 +172,7 @@ class VersionManager:
     def create_file_menu(self):
         menu_bar = tk.Menu(root)
         help_menu = tk.Menu(menu_bar, tearoff=0)
-        help_menu.add_command(label="User Guide", command=lambda: webbrowser.open(self.USER_GUIDE))
+        #help_menu.add_command(label="User Guide", command=lambda: webbrowser.open(self.USER_GUIDE))
         menu_bar.add_cascade(label="Help", menu=help_menu)
         self.root.config(menu=menu_bar)
 
