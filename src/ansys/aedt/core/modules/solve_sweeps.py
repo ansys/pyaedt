@@ -864,6 +864,116 @@ class SweepMaxwellEC(object):
             elif sweep_type == "SinglePoints":
                 self.props["RangeEnd"] = self.props["RangeStart"]
 
+    @property
+    def is_solved(self):
+        """Verify if solutions are available for the sweep.
+
+        Returns
+        -------
+        bool
+            `True` if solutions are available.
+        """
+        sol = self._app.p_app.post.reports_by_category.standard(setup=f"{self.setup_name} : {self.name}")
+        if identify_setup(self.props):
+            sol.domain = "Time"
+        return True if sol.get_solution_data() else False
+
+    @property
+    def frequencies(self):
+        """List of all frequencies of the active sweep.
+
+        To see values, the project must be saved and solved.
+
+        Returns
+        -------
+        list of float
+            Frequency points.
+        """
+        sol = self._app.p_app.post.reports_by_category.standard(setup=f"{self.setup_name} : {self.name}")
+        soldata = sol.get_solution_data()
+        if soldata and "Freq" in soldata.intrinsics:
+            return soldata.intrinsics["Freq"]
+        return []
+
+    @pyaedt_function_handler()
+    def add_subrange(
+        self,
+        range_type,
+        start_frequency=0.1,
+        stop_frequency=100,
+        step_size=0.1,
+        units="Hz",
+        save_all_fields=False,
+        clear=False,
+    ):
+        """Add a range to the sweep.
+
+        Parameters
+        ----------
+        range_type : str
+            Type of the range. Options are ``"LinearCount"``,
+            ``"LinearStep"``, ``"LogScale"``, and ``"SinglePoints"``.
+        start_frequency : float
+            Starting frequency. The default value is ``0.1``.
+        stop_frequency : float, optional
+            Stopping frequency. The default value is ``100``.
+        step_size : int or float, optional
+            Frequency count or frequency step. The default is ``0.1``.
+        units : str, optional
+            Units of the frequency. For example, ``"Hz`` or ``"MHz"``. The default is ``"Hz"``.
+        save_all_fields : bool, optional
+            Save fields at all frequency points to save fields for the entire set of sweep ranges.
+            Default is ``True``.
+        clear : bool, optional
+            Whether to suppress all other subranges except the current one under creation.
+            The default value is ``False``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        Create a setup in a Maxwell design and add multiple sweep ranges.
+        >>> import ansys.aedt.core
+        >>> m2d = ansys.aedt.core.Maxwell2d()
+        >>> m2d.solution_type = SOLUTIONS.Maxwell2d.TransientXY
+        >>> setup = m2d.create_setup()
+        >>> sweep = setup.add_eddy_current_sweep(sweep_type="LogScale", start_frequency=1, stop_frequency=20,
+        ...                                      step_size=2, units="Hz", clear=False)
+        >>> sweep.add_subrange("LinearCount",1,1.5,5,"MHz")
+        >>> m2d.release_desktop()
+        """
+        subrange = {
+            "RangeType": range_type,
+            "RangeStart": f"{start_frequency}{units}",
+            "RangeEnd": f"{stop_frequency}{units}",
+        }
+        if range_type == "LinearStep":
+            subrange["RangeStep"] = f"{step_size}{units}"
+        elif range_type == "LinearCount":
+            subrange["RangeCount"] = step_size
+        elif range_type == "LogScale":
+            subrange["RangeSamples"] = step_size
+        elif range_type == "SinglePoints":
+            subrange["RangeEnd"] = f"{start_frequency}{units}"
+        self.props["SaveAllFields"] = save_all_fields
+        if self._setup.sweeps:
+            if clear:
+                self._setup.props["SweepRanges"] = [subrange]
+            else:
+                if isinstance(self._setup.props["SweepRanges"]["Subrange"], dict):
+                    temp = self._setup.props["SweepRanges"]["Subrange"]
+                    self._setup.props["SweepRanges"].pop("Subrange", None)
+                    self._setup.props["SweepRanges"]["Subrange"] = [temp]
+                self._setup.props["SweepRanges"]["Subrange"].append(subrange)
+            self.update()
+        else:
+            self._setup.props["HasSweepSetup"] = True
+            self._setup.props["SweepRanges"] = {"Subrange": [subrange]}
+            self._setup.create()
+
     @pyaedt_function_handler()
     def create(self):
         """Create a Maxwell Eddy Current sweep.
@@ -886,7 +996,7 @@ class SweepMaxwellEC(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self.oanalysis.EditSetup(self.setup_name, self.name, self._get_args())
+        self.oanalysis.EditSetup(self.setup_name, self._get_args(self._setup.props))
         return True
 
     @pyaedt_function_handler()

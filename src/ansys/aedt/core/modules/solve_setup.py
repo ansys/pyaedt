@@ -3614,7 +3614,7 @@ class SetupMaxwell(Setup, object):
         step_size : int or float, optional
             Frequency count or frequency step. Required for ``range_type="LinearCount"|"LinearStep"|"LogScale"``.
         units : str, optional
-            Unit of the frequency. For example, ``"MHz`` or ``"GHz"``. The default is ``"Hz"``.
+            Unit of the frequency. For example, ``"Hz`` or ``"MHz"``. The default is ``"Hz"``.
         clear : bool, optional
             If set to ``True``, all other subranges will be suppressed except the current one under creation.
             Default value is ``False``.
