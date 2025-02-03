@@ -47,8 +47,9 @@ import PIL.ImageTk
 from ansys.aedt.core.workflows.misc import ExtensionTheme
 
 # Extension batch arguments
-extension_description = "Layout Design Toolkit"
 VERSION = "0.1.0"
+extension_description = f"Layout Design Toolkit ({VERSION})"
+
 
 default_config = {
     "selections": [],
