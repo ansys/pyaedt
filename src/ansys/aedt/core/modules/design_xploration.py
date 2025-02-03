@@ -784,7 +784,7 @@ class SetupOpti(CommonOptimetrics, object):
         max_step : float
             Maximum Step Size for optimization. If None, 1/10 of the range will be used.
         use_manufacturable : bool
-            Either if to use or not the Manufacturable values. Default is False.
+            Either if to use or not the manufacturable values. Default is False.
         levels : list, optional
             List of available manufacturer levels.
 
@@ -845,6 +845,7 @@ class SetupOpti(CommonOptimetrics, object):
         elif self.soltype == "OptiStatistical":
             self._app.activate_variable_statistical(variable_name)
         else:
+            use_manufacturable = "true" if use_manufacturable else "false"
             arg = [
                 "i:=",
                 True,

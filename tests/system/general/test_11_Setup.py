@@ -291,6 +291,15 @@ class TestClass:
 
         assert not self.aedtapp.get_oo_object(self.aedtapp.odesign, f"Optimetrics\\{setup2.name}")
 
+        setup3 = self.aedtapp.optimizations.add(
+            calculation, ranges={"Freq": "2.5GHz"}, solution=f"{new_setup.name} : {sweep.name}"
+        )
+
+        setup3.props["Optimizer"] = "Screening"
+        setup3.add_variation("w1", 0.1, 10, 5, min_step=0.5, max_step=1, use_manufacturable=True, levels=[1, 20])
+        assert setup3.props["Variables"]["w1"][19] == "[1, 20] mm"
+        assert self.aedtapp.optimizations.delete(setup3.name)
+
     def test_27_create_doe(self):
         calculation = "db(S(1,1))"
         new_setup = self.aedtapp.create_setup("MyDOESetup")
