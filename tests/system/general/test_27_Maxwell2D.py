@@ -622,3 +622,16 @@ class TestClass:
             match="No windings in the Maxwell design.",
         ):
             m2d_app.create_external_circuit()
+
+    def test_assign_voltage(self, local_scratch, m2d_app):
+        m2d_app.solution_type = SOLUTIONS.Maxwell2d.ElectroStaticZ
+
+        region_id = m2d_app.modeler.create_region(pad_value=[500, 50, 50])
+        v1 = m2d_app.assign_voltage(assignment=region_id, amplitude=0, name="GRD1")
+        assert v1.properties["Value"] == "0mV"
+        assert len(m2d_app.boundaries) == 1
+        assert m2d_app.assign_voltage(assignment=region_id.edges[0], amplitude=1, name="GRD2")
+        assert m2d_app.assign_voltage(assignment=region_id.edges, amplitude=2, name="GRD3")
+        rect = m2d_app.modeler.create_rectangle([32, 1.5, 0], [8, 3], is_covered=True)
+        assert m2d_app.assign_voltage(assignment=[region_id.name, rect.name], amplitude=3, name="GRD4")
+        assert len(m2d_app.boundaries) == 4
