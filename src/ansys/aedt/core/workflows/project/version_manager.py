@@ -37,7 +37,10 @@ import webbrowser
 import xml.etree.ElementTree as ET
 import zipfile
 
-import ansys.aedt.core as pyaedt
+import PIL.Image
+import PIL.ImageTk
+
+import ansys.aedt.core
 from ansys.aedt.core.workflows.customize_automation_tab import add_script_to_menu
 from ansys.aedt.core.workflows.customize_automation_tab import available_toolkits
 from ansys.aedt.core.workflows.misc import get_aedt_version
@@ -103,7 +106,7 @@ class VersionManager:
 
     @property
     def pyaedt_version(self):
-        return pyaedt.version
+        return ansys.aedt.core.version
 
     @property
     def pyedb_version(self):
@@ -118,8 +121,8 @@ class VersionManager:
 
         # Define the custom style for TLabel (ttk.Label)
         style.configure(
-            "TLabel",
-            font=("Helvetica", 14, "bold"),  # Font style: Helvetica, size 14, bold
+            "PyAEDT",
+            font=("Helvetica", 20, "bold"),  # Font style: Helvetica, size 14, bold
             foreground="darkblue",  # Text color
             background="lightyellow",  # Background color
             padding=(10, 5),  # Padding inside the label
@@ -138,7 +141,13 @@ class VersionManager:
 
         self.ini_file_path = os.path.join(os.path.dirname(__file__), "settings.ini")
 
+        # Load the logo for the main window
+        icon_path = Path(ansys.aedt.core.workflows.__path__[0]) / "images" / "large" / "logo.png"
+        im = PIL.Image.open(icon_path)
+        photo = PIL.ImageTk.PhotoImage(im)
+
         self.root = ui
+        self.root.iconphoto(True, photo)
         self.root.title(self.TITLE)
         self.root.geometry(f"{self.UI_WIDTH}x{self.UI_HEIGHT}")
 
@@ -304,7 +313,7 @@ class VersionManager:
                     if j["name"] == name:
                         shutil.rmtree(extension_dir, ignore_errors=True)
 
-                        workflow_dir = Path(pyaedt.workflows.__file__).parent
+                        workflow_dir = Path(ansys.aedt.core.workflows.__file__).parent
 
                         add_script_to_menu(
                             name=name,
@@ -512,7 +521,7 @@ def get_desktop_info(release_desktop=True):
         close_project = True
         close_on_exit = True
 
-    app = pyaedt.Desktop(new_desktop=new_desktop, version=aedt_version, port=port, non_graphical=ng)
+    app = ansys.aedt.core.Desktop(new_desktop=new_desktop, version=aedt_version, port=port, non_graphical=ng)
     personal_lib = app.personallib
     if release_desktop:
         app.release_desktop(close_project, close_on_exit)
