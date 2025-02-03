@@ -60,7 +60,7 @@ They are small automated workflows with a simple GUI.
             :link-type: doc
             :margin: 2 2 0 0
 
-            Manager pyaedt and pyedb versions.
+            Manage pyaedt and pyedb versions.
 
 
 HFSS 3D Layout extensions
