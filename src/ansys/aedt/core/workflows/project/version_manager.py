@@ -39,7 +39,6 @@ import zipfile
 
 import PIL.Image
 import PIL.ImageTk
-
 import ansys.aedt.core
 from ansys.aedt.core.workflows.customize_automation_tab import add_script_to_menu
 from ansys.aedt.core.workflows.customize_automation_tab import available_toolkits
@@ -174,7 +173,7 @@ class VersionManager:
         help_menu = tk.Menu(menu_bar, tearoff=0)
         help_menu.add_command(label="User Guide", command=lambda: webbrowser.open(self.USER_GUIDE))
         menu_bar.add_cascade(label="Help", menu=help_menu)
-        #self.root.config(menu=menu_bar)
+        # self.root.config(menu=menu_bar)
 
     def create_ui_basic(self, parent):
         def create_ui_wheelhouse(frame):
