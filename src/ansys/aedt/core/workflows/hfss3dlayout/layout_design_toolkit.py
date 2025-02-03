@@ -32,6 +32,7 @@ from ansys.aedt.core.workflows.misc import get_arguments
 from ansys.aedt.core.workflows.misc import get_port
 from ansys.aedt.core.workflows.misc import get_process_id
 from ansys.aedt.core.workflows.misc import is_student
+from pyedb.generic.general_methods import generate_unique_name
 
 port = get_port()
 version = get_aedt_version()
@@ -47,7 +48,6 @@ import PIL.ImageTk
 from ansys.aedt.core.workflows.misc import ExtensionTheme
 
 # Extension batch arguments
-extension_arguments = {"Selections": 0, "anti pad diameter": "1mm"}
 extension_description = "Layout Design Toolkit"
 VERSION = "0.1.0"
 
@@ -57,7 +57,7 @@ default_config = {
 }
 
 
-class frontend():
+class Frontend:
 
     @property
     def active_design(self):
@@ -68,11 +68,18 @@ class frontend():
             aedt_process_id=aedt_process_id,
             student_version=is_student,
         )
-        project = desktop.active_project()
-        design = project.GetActiveDesign()
+        oproject = desktop.active_project()
+        odesign = oproject.GetActiveDesign()
 
-        if design.GetDesignType() in ["HFSS 3D Layout Design"]:
-            return desktop, design
+        if odesign.GetDesignType() in ["HFSS 3D Layout Design"]:
+            return desktop, oproject, odesign
+
+    @property
+    def get_h3d(self):
+        _, oproject, odesign = self.active_design
+        project_name = oproject.GetName()
+        design_name = odesign.GetName().split(";")[1]
+        return ansys.aedt.core.Hfss3dLayout(project=project_name, design=design_name)
 
     def __init__(self):
         # Load initial configuration
@@ -81,9 +88,7 @@ class frontend():
         # Create UI
         self.master = tk.Tk()
         master = self.master
-
         master.geometry()
-
         master.title(extension_description)
 
         # Detect if user close the UI
@@ -114,7 +119,7 @@ class frontend():
         self.selections_entry = tk.Text(master, width=40, height=1)
         self.selections_entry.grid(row=row, column=1, pady=15, padx=10)
         self.selections_entry.configure(bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"],
-                                   font=self.theme.default_font)
+                                        font=self.theme.default_font)
         selections_button = ttk.Button(master, text="Get Selections", command=self.get_selections, width=20,
                                        style="PyAEDT.TButton")
         selections_button.grid(row=row, column=2, pady=15, padx=10)
@@ -126,12 +131,12 @@ class frontend():
         self.diameter_entry.insert("1.0", default_config["diameter"])
         self.diameter_entry.grid(row=1, column=1, pady=15, padx=10)
         self.diameter_entry.configure(bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"],
-                                 font=self.theme.default_font)
+                                      font=self.theme.default_font)
 
         # Create buttons to create sphere and change theme color
         create_button = ttk.Button(master, text="Create", command=self.callback, style="PyAEDT.TButton")
         self.change_theme_button = ttk.Button(master, text="\u263D", width=2, command=self.toggle_theme,
-                                         style="PyAEDT.TButton")
+                                              style="PyAEDT.TButton")
 
         create_button.grid(row=6, column=0, padx=15, pady=10)
         self.change_theme_button.grid(row=6, column=2, pady=10)
@@ -139,8 +144,8 @@ class frontend():
         tk.mainloop()
 
     def get_selections(self):
-        desktop, h3d = self.active_design
-        selected = h3d.GetEditor("Layout").GetSelections()
+        desktop, oproject, odesign = self.active_design
+        selected = odesign.GetEditor("Layout").GetSelections()
         if len(selected) == 2:
             self.config_dict["selections"] = selected
             text = ", ".join(selected)
@@ -180,85 +185,102 @@ class frontend():
         style = self.style
 
         master.configure(bg=theme.dark["widget_bg"])
-        self.selections_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
+        self.selections_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"],
+                                        font=theme.default_font)
         self.diameter_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
         theme.apply_dark_theme(style)
         self.change_theme_button.config(text="\u2600")
 
     def callback(self):
+        h3d = self.get_h3d
+        backend = Backend(h3d, self.config_dict)
+        backend.create()
+        h3d.modeler.primitives.edb.close()
+        h3d.release_desktop(False,False)
         print(self.config_dict)
         pass
 
 
-class AddAntipad():
-    IS_OK = False
+class Backend:
+    def __init__(self, h3d, config):
 
-    def __init__(self, config):
-        self.via_1_name, self.via_2_name = config["selections"]
+        self.h3d = h3d
+        self.pedb = h3d.modeler.primitives.edb
+        self.config = config
 
-    def create_differential_antipad(self, diameter, racetrack=True):
-        via_p = self.instances_by_name[self.via_1_name]
-        via_n = self.instances_by_name[self.via_2_name]
-        path = [via_p.position, via_n.position]
+        self.via_p = self.pedb.padstacks.instances_by_name[config["selections"][0]]
+        self.via_n = self.pedb.padstacks.instances_by_name[config["selections"][1]]
+
+    def get_planes(self):
+        via_range = self.via_p.layer_range_names
 
         prims = {}
-        for i in self._pedb.layout.primitives:
+        for i in self.pedb.layout.primitives:
             if i.primitive_type in ["rectangle", "polygon"]:
-                for pos in path:
+                for pos in [self.via_p.position, self.via_n.position]:
                     if i.polygon_data.point_in_polygon(pos[0], pos[1]):
+                        if i.layer_name not in via_range:
+                            continue
                         if i.layer_name not in prims:
                             prims[i.layer_name] = [i]
                         else:
                             prims[i.layer_name].append(i)
                         break
+        return prims
 
-        if racetrack:
-            for l in via_p.layer_range_names:
-                for obj in prims.get(l, []):
-                    prim = self._pedb.modeler.create_trace(path, layer_name=l, width=diameter, net_name=via_p.net_name)
-                    obj.add_void(prim)
+    def create(self, race_track=True):
+        variable_name = f"{self.via_p.name}_antipad_diameter"
+        if variable_name not in self.h3d.variable_manager.variable_names:
+            self.h3d[variable_name] = self.config["diameter"]
+        path = [self.via_p.position, self.via_n.position]
+        planes = self.get_planes()
+        if race_track:
+            for _, obj_list in planes.items():
+                for obj in obj_list:
+                    print(obj.aedt_name, obj.layer_name)
+                    self.create_line_void(obj.aedt_name,
+                                          obj.layer_name,
+                                          path,
+                                          variable_name)
+
+    def create_line_void(self, owner, layer_name, path, width):
+        void_name = generate_unique_name("line_void_")
+        temp = []
+        for i in path:
+            temp.append("x:=")
+            temp.append(i[0])
+            temp.append("y:=")
+            temp.append(i[1])
+
+        line_void_geometry = [
+                "Name:=", void_name,
+                "LayerName:=", layer_name,
+                "lw:=", width,
+                "endstyle:=", 0,
+                "StartCap:=", 2,
+                "EndCap:=", 2,
+            "n:=", 2,
+                "U:=", "meter",
+                ]
+        line_void_geometry.extend(temp)
+        line_void_geometry.extend(["MR:=", "600mm"])
+        args = [
+            "NAME:Contents",
+            "owner:=", owner,
+            "line voidGeometry:=",
+            line_void_geometry
+        ]
+        self.h3d.oeditor.CreateLineVoid(args)
 
 
-def main(extension_args):
-    app = ansys.aedt.core.Desktop(
-        new_desktop=False,
-        version=version,
-        port=port,
-        aedt_process_id=aedt_process_id,
-        student_version=is_student,
-    )
-
-    active_project = app.active_project()
-    active_design = app.active_design()
-
-    project_name = active_project.GetName()
-    if active_design.GetDesignType() == "HFSS 3D Layout Design":
-        design_name = active_design.GetDesignName()
-    else:
-        design_name = active_design.GetName()
-
-    aedtapp = get_pyaedt_app(project_name, design_name)
-
-    origin_x = extension_args.get("origin_x", extension_arguments["origin_x"])
-    origin_y = extension_args.get("origin_y", extension_arguments["origin_y"])
-    origin_z = extension_args.get("origin_z", extension_arguments["origin_z"])
-    radius = extension_args.get("radius", extension_arguments["radius"])
-    file_path = extension_args.get("file_path", extension_arguments["file_path"])
-
-    # Your script
-    if file_path:
-        aedtapp.load_project(file_path, set_active=True)
-    else:
-        aedtapp.modeler.create_sphere([origin_x, origin_y, origin_z], radius)
-
-    if not extension_args["is_test"]:  # pragma: no cover
-        app.release_desktop(False, False)
-    return True
+def main(h3d, config):
+    app = Backend(h3d, config)
+    app.create()
+    h3d.release_desktop()
 
 
 if __name__ == "__main__":
-    args = get_arguments(extension_arguments, extension_description)
-
+    args = get_arguments({}, extension_description)
     # Open UI
     if not args["is_batch"]:  # pragma: no cover
-        app = frontend()
+        Frontend()

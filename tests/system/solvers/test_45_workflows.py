@@ -637,3 +637,14 @@ class TestClass:
 
         assert len(aedtapp.post.all_report_names) == 2
         aedtapp.close_project(aedtapp.project_name)
+
+    def test_20_layout_design_toolkit(self, add_app, local_scratch):
+        from ansys.aedt.core.workflows.hfss3dlayout.layout_design_toolkit import main
+
+        app = add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder=test_subfolder)
+        app.save_project()
+        config = {
+            "selections": ["Via79", "Via78"],
+            "diameter": "1mm",
+        }
+        main(app, config)
