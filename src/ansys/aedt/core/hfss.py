@@ -4755,10 +4755,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                     time_variable = var_name
                     break
             if not time_variable:
-                self.logger.error(
+                raise ValueError(
                     "No time variable is found. Set up or explicitly assign a time variable to the method."
                 )
-                raise ValueError("No time variable is found.")
         setup = self._create_sbr_doppler_setup(
             "ChirpI",
             time_var=time_variable,
@@ -6083,7 +6082,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
 
         """
-        if self.solution_type not in (SOLUTIONS.Hfss.DrivenModal, SOLUTIONS.Hfss.Eigenmode):
+        if self.solution_type not in (SOLUTIONS.Hfss.DrivenModal, SOLUTIONS.Hfss.EigenMode):
             raise AEDTRuntimeError("Symmetry is only available with 'Modal' and 'Eigenmode' solution types.")
         if not isinstance(assignment, list):
             raise TypeError("Entities have to be provided as a list.")
@@ -6849,6 +6848,15 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> sphere = hfss.modeler.primitives.create_sphere([0, 0, 0], 10)
         >>> port1 = hfss.hertzian_dipole_wave(assignment=sphere, radius=10)
         """
+        if not origin:
+            origin = ["0mm", "0mm", "0mm"]
+        elif not isinstance(origin, list) or len(origin) != 3:
+            raise ValueError("Invalid value for `origin`.")
+        if not polarization:
+            polarization = [0, 0, 1]
+        elif not isinstance(polarization, list) or len(polarization) != 3:
+            raise ValueError("Invalid value for `polarization`.")
+
         userlst = self.modeler.convert_to_selections(assignment, True)
         lstobj = []
         lstface = []
@@ -6865,21 +6873,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         if lstface:
             props["Faces"] = lstface
 
-        if not origin:
-            origin = ["0mm", "0mm", "0mm"]
-        elif not isinstance(origin, list) or len(origin) != 3:
-            raise ValueError("Invalid value for `origin`.")
-
         x_origin, y_origin, z_origin = self.modeler._pos_with_arg(origin)
 
         name = self._get_unique_source_name(name, "IncPWave")
 
         hetzian_wave_args = {"OriginX": x_origin, "OriginY": y_origin, "OriginZ": z_origin}
-
-        if not polarization:
-            polarization = [0, 0, 1]
-        elif not isinstance(polarization, list) or len(polarization) != 3:
-            raise ValueError("Invalid value for `polarization`.")
 
         new_hertzian_args = {
             "IsCartesian": True,
