@@ -325,6 +325,10 @@ class TestClass:
             + " topology"
         )
         distributed_design.attributes.filter_class = FilterClass.BAND_PASS
+        distributed_design.topology.topology_type = TopologyType.INTERDIGITAL
+        with pytest.raises(RuntimeError) as info:
+            distributed_design.topology.pinned = True
+        assert info.value.args[0] == "The Pinned property is only available for Interdigital wideband filters"
         distributed_design.topology.topology_type = TopologyType.PARALLEL_EDGE_COUPLED
         assert distributed_design.topology.pinned is False
         assert distributed_design.topology.netlist().splitlines() == read_resource_file(

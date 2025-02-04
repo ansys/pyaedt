@@ -417,6 +417,8 @@ class TestClass:
         new_report2 = diff_test.post.reports_by_category.standard("TDRZ(1)")
         new_report2.differential_pairs = True
         new_report2.pulse_rise_time = 3e-12
+        new_report2.maximum_time = 30e-12
+        new_report2.step_time = 6e-13
         new_report2.time_windowing = 3
         new_report2.domain = "Time"
 
@@ -760,6 +762,8 @@ class TestClass:
         emi_receiver_test.analyze()
         new_report = emi_receiver_test.post.reports_by_category.emi_receiver()
         new_report.band = "2"
+        new_report.rbw = "2"
+        new_report.rbw_factor = "0"
         new_report.emission = "RE"
         new_report.time_start = "1ns"
         new_report.time_stop = "2us"

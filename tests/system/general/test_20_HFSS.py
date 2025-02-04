@@ -77,7 +77,11 @@ class TestClass:
         assert os.path.exists(test_project)
 
     def test_01A_check_setup(self):
-        assert self.aedtapp.active_setup is None
+        setup_auto = self.aedtapp.create_setup(name="auto", setup_type="HFSSDrivenAuto")
+        assert self.aedtapp.setups[0].name == "auto"
+        assert setup_auto.properties["Auto Solver Setting"] == "Balanced"
+        assert setup_auto.properties["Type"] == "Discrete"
+        assert setup_auto.delete()
 
     def test_02_create_primitive(self):
         coax1_len = 200
@@ -1800,3 +1804,24 @@ class TestClass:
 
         assert aedtapp.import_table(input_file=file_no_header, name="Table2")
         assert "Table2" in aedtapp.table_names
+
+    def test_73_plane_wave(self, add_app):
+        aedtapp = add_app(project_name="test_73")
+        assert not aedtapp.hertzian_dipole_wave(origin=[0, 0])
+        assert not aedtapp.hertzian_dipole_wave(polarization=[1])
+
+        sphere = aedtapp.modeler.create_sphere([0, 0, 0], 10)
+        sphere2 = aedtapp.modeler.create_sphere([10, 100, 0], 10)
+
+        assignment = [sphere, sphere2.faces[0].id]
+
+        exc = aedtapp.hertzian_dipole_wave(assignment=assignment, is_electric=True)
+        assert len(aedtapp.excitations) == 1
+        assert exc.properties["Electric Dipole"]
+        exc.props["IsElectricDipole"] = False
+        assert not exc.properties["Electric Dipole"]
+
+        exc2 = aedtapp.hertzian_dipole_wave(polarization=[1, 0, 0], name="dipole", radius=20)
+        assert len(aedtapp.excitations) == 2
+        assert exc2.name == "dipole"
+        aedtapp.close_project(save=False)

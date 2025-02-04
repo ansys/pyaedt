@@ -25,7 +25,9 @@
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
+from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.maxwell import Maxwell3d
+import pytest
 
 
 @patch.object(Maxwell3d, "solution_type", "Transient")
@@ -36,5 +38,7 @@ def test_maxwell_3d_assign_resistive_sheet_failure(mock_boundary_object, maxwell
     mock_boundary_object.return_value = boundary_object
     maxwell = Maxwell3d()
     maxwell._modeler = MagicMock()
+    maxwell._logger = MagicMock()
 
-    assert not maxwell.assign_resistive_sheet(None, None)
+    with pytest.raises(AEDTRuntimeError, match=r"Boundary ResistiveSheet_\w+ was not created\."):
+        maxwell.assign_resistive_sheet(None, None)

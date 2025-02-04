@@ -36,7 +36,7 @@ from ansys.aedt.core.application.analysis_icepak import FieldAnalysisIcepak
 from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.data_handlers import random_string
-from ansys.aedt.core.generic.general_methods import GrpcApiError
+from ansys.aedt.core.generic.errors import GrpcApiError
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -1129,13 +1129,13 @@ class Icepak(FieldAnalysisIcepak):
                 i += 1
         return True
 
-    @pyaedt_function_handler()
-    def find_top(self, gravityDir):
+    @pyaedt_function_handler(gravityDir="gravity_dir")
+    def find_top(self, gravity_dir):
         """Find the top location of the layout given a gravity.
 
         Parameters
         ----------
-        gravityDir :
+        gravity_dir :
             Gravity direction from -X to +Z. Options are ``0`` to ``5``.
 
         Returns
@@ -1160,10 +1160,10 @@ class Icepak(FieldAnalysisIcepak):
             ]
             self.modeler.oeditor.ChangeProperty(args)
         oBoundingBox = self.modeler.get_model_bounding_box()
-        if gravityDir < 3:
-            return oBoundingBox[gravityDir + 3]
+        if gravity_dir < 3:
+            return oBoundingBox[gravity_dir + 3]
         else:
-            return oBoundingBox[gravityDir - 3]
+            return oBoundingBox[gravity_dir - 3]
 
     @pyaedt_function_handler(matname="material")
     def create_parametric_fin_heat_sink(
@@ -2596,6 +2596,7 @@ class Icepak(FieldAnalysisIcepak):
         >>> oEditor.Copy
         >>> oeditor.Paste
         """
+        pj_names = self.project_list
         if "groupName" in kwargs:
             warnings.warn(
                 "The ``groupName`` parameter was deprecated in 0.6.43. Use the ``group_name`` parameter instead.",
@@ -2639,6 +2640,8 @@ class Icepak(FieldAnalysisIcepak):
         self.modeler.oeditor.Paste()
         self.modeler.refresh_all_ids()
         self.materials._load_from_project()
+        if not (source_project_name in pj_names or source_project_name is None):
+            active_project.close()
         return True
 
     @pyaedt_function_handler()
@@ -2902,9 +2905,9 @@ class Icepak(FieldAnalysisIcepak):
         meshtype : str, optional
             Mesh type. Options are ``"tethraedral"`` or ``"hexcore"``.
         min_size : float, optional
-            Minimum mesh size. Default is smallest edge of objects/20.
+            Minimum mesh size. Default is the smallest edge of objects/20.
         max_size : float, optional
-            Maximum mesh size. Default is smallest edge of objects/5.
+            Maximum mesh size. Default is the smallest edge of objects/5.
         inflation_layer_number : int, optional
             Inflation layer number. Default is ``3``.
         inflation_growth_rate : float, optional

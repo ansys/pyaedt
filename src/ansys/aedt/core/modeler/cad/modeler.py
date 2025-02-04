@@ -302,7 +302,7 @@ class BaseCoordinateSystem(PropsManager, object):
                                                     self._props = CsProps(self, props)
                                                     break
                 except Exception:
-                    pass
+                    self._modeler._app.logger.debug(f"Failed to get coordinate data using {ds}")
 
     @pyaedt_function_handler()
     def _dim_arg(self, value, units=None):
@@ -431,11 +431,8 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
         self._props = None
         if props:
             self._props = CsProps(self, props)
-            try:  # pragma: no cover
-                if "KernelVersion" in self.props:
-                    del self.props["KernelVersion"]
-            except Exception:
-                pass
+            if "KernelVersion" in self.props:
+                del self.props["KernelVersion"]
 
     @property
     def props(self):
@@ -703,11 +700,8 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         self._props = None
         if props:
             self._props = CsProps(self, props)
-            try:  # pragma: no cover
-                if "KernelVersion" in self.props:
-                    del self.props["KernelVersion"]
-            except Exception:
-                pass
+            if "KernelVersion" in self.props:
+                del self.props["KernelVersion"]
         self._ref_cs = None
         self._quaternion = None
         self._mode = None
@@ -717,15 +711,13 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         """Coordinate System mode."""
         if self._mode:
             return self._mode
-        try:
-            if "Axis" in self.props["Mode"]:
-                self._mode = "axis"
-            elif "ZXZ" in self.props["Mode"]:
-                self._mode = "zxz"
-            elif "ZYZ" in self.props["Mode"]:
-                self._mode = "zyz"
-        except Exception:
-            pass
+        mode_parameter = self.props.get("Mode", "")
+        if "Axis" in mode_parameter:
+            self._mode = "axis"
+        if "ZXZ" in mode_parameter:
+            self._mode = "zxz"
+        elif "ZYZ" in mode_parameter:
+            self._mode = "zyz"
         return self._mode
 
     @mode.setter
@@ -1235,11 +1227,8 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
         self._props = None
         if props:
             self._props = CsProps(self, props)
-            try:  # pragma: no cover
-                if "KernelVersion" in self.props:
-                    del self.props["KernelVersion"]
-            except Exception:
-                pass
+            if "KernelVersion" in self.props:
+                del self.props["KernelVersion"]
         self._ref_cs = None
 
     @property
