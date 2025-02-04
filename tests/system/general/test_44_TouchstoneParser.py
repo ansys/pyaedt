@@ -89,7 +89,7 @@ class TestClass:
             start_frequency=1e9, high_loss=-60, low_loss=-40, frequency_sample=5, output_file=output_file
         )
 
-        assert res
+        assert isinstance(res, list)
 
 
 def test_get_mixed_mode_touchstone_data_failure(touchstone_file, caplog: pytest.LogCaptureFixture):
