@@ -183,11 +183,12 @@ class TouchstoneData(rf.Network):
             i = i + 1
             j = i
         if output_file is not None:
-            logger.info("if file " + output_file + " exist, the file will be overwritten.")
-            with open_file(output_file, "w") as f:
-                for s in temp_file:
-                    f.write(s)
-            logger.info("File " + output_file + " created.")
+            if os.path.exists(output_file):
+                logger.info("File " + output_file + " exist and we be replace by new one.")
+                with open_file(output_file, "w") as f:
+                    for s in temp_file:
+                        f.write(s)
+                logger.info("File " + output_file + " created.")
 
         return temp_list
 
