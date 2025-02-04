@@ -4677,7 +4677,7 @@ class Icepak(FieldAnalysisIcepak):
             ]
         for quantity, assignment in possible_transient_properties:
             if isinstance(assignment, (dict, BoundaryDictionary)):
-                if not self.solution_type == SOLUTIONS.Icepak.Transient:
+                if self.solution_type != SOLUTIONS.Icepak.Transient:
                     raise AEDTRuntimeError("Transient assignment is supported only in transient designs.")
 
                 assignment = self._parse_variation_data(
@@ -5192,7 +5192,7 @@ class Icepak(FieldAnalysisIcepak):
                 }
 
         if isinstance(total_power, (dict, BoundaryDictionary)):
-            if not self.solution_type == SOLUTIONS.Icepak.Transient:
+            if self.solution_type != SOLUTIONS.Icepak.Transient:
                 raise AEDTRuntimeError("Transient assignment is supported only in transient designs.")
 
             assignment = self._parse_variation_data(
@@ -5548,7 +5548,7 @@ class Icepak(FieldAnalysisIcepak):
                 "``conductance_external_temperature`` must be specified when ``thermal_specification`` "
                 'is ``"Conductance"``. Setting ``conductance_external_temperature`` to ``"AmbientTemp"``.'
             )
-        if (start_time is not None or end_time is not None) and not self.solution_type == SOLUTIONS.Icepak.Transient:
+        if (start_time is not None or end_time is not None) and self.solution_type != SOLUTIONS.Icepak.Transient:
             self.logger.warning("``start_time`` and ``end_time`` only effect steady-state simulations.")
         elif self.solution_type == SOLUTIONS.Icepak.Transient and not (start_time is not None and end_time is not None):
             self.logger.warning(
@@ -5568,7 +5568,7 @@ class Icepak(FieldAnalysisIcepak):
         props["ExtractFace"] = extract_face
         props["Thermal Condition"] = thermal_specification
         if isinstance(assignment_value, (dict, BoundaryDictionary)):
-            if not self.solution_type == SOLUTIONS.Icepak.Transient:
+            if self.solution_type != SOLUTIONS.Icepak.Transient:
                 raise AEDTRuntimeError("Transient assignment is supported only in transient designs.")
             assignment = self._parse_variation_data(
                 assignment_dict[thermal_specification],
@@ -5582,7 +5582,7 @@ class Icepak(FieldAnalysisIcepak):
         if thermal_specification == "Conductance":
             props["External Temp"] = conductance_external_temperature
         if isinstance(flow_assignment, (dict, BoundaryDictionary)):
-            if not self.solution_type == SOLUTIONS.Icepak.Transient:
+            if self.solution_type != SOLUTIONS.Icepak.Transient:
                 raise AEDTRuntimeError("Transient assignment is supported only in transient designs.")
 
             assignment = self._parse_variation_data(
