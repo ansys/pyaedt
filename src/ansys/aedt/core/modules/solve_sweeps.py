@@ -844,11 +844,10 @@ class SweepMaxwellEC(object):
         the default properties are retrieved.
     """
 
-    def __init__(self, setup, name, sweep_type="LinearStep", props=None):
+    def __init__(self, setup, sweep_type="LinearStep", props=None):
         self._setup = setup
         self.oanalysis = setup.omodule
         self.setup_name = setup.name
-        self.name = name
         self.props = {}
         if props:
             self.props = props
@@ -873,7 +872,12 @@ class SweepMaxwellEC(object):
         bool
             `True` if solutions are available.
         """
-        sol = self._app.p_app.post.reports_by_category.standard(setup=f"{self.setup_name} : {self.name}")
+        expressions = [
+            i for i in self._setup.p_app.post.available_report_quantities(solution=self._setup.p_app.nominal_sweep)
+        ]
+        sol = self._setup.p_app.post.reports_by_category.standard(
+            expressions=expressions[0], setup=self._setup.p_app.nominal_sweep
+        )
         if identify_setup(self.props):
             sol.domain = "Time"
         return True if sol.get_solution_data() else False
@@ -889,7 +893,12 @@ class SweepMaxwellEC(object):
         list of float
             Frequency points.
         """
-        sol = self._app.p_app.post.reports_by_category.standard(setup=f"{self.setup_name} : {self.name}")
+        expressions = [
+            i for i in self._setup.p_app.post.available_report_quantities(solution=self._setup.p_app.nominal_sweep)
+        ]
+        sol = self._setup.p_app.post.reports_by_category.standard(
+            expressions=expressions[0], setup=self._setup.p_app.nominal_sweep
+        )
         soldata = sol.get_solution_data()
         if soldata and "Freq" in soldata.intrinsics:
             return soldata.intrinsics["Freq"]
@@ -935,7 +944,7 @@ class SweepMaxwellEC(object):
 
         Examples
         --------
-        Create a setup in a Maxwell design and add multiple sweep ranges.
+        Create a setup in a Maxwell design and add a sweep range.
         >>> import ansys.aedt.core
         >>> m2d = ansys.aedt.core.Maxwell2d()
         >>> m2d.solution_type = SOLUTIONS.Maxwell2d.TransientXY
@@ -996,6 +1005,26 @@ class SweepMaxwellEC(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
+        self.oanalysis.EditSetup(self.setup_name, self._get_args(self._setup.props))
+        return True
+
+    @pyaedt_function_handler()
+    def delete(self):
+        """Delete a Maxwell Eddy Current sweep.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        setup_sweeps = self._setup.props["SweepRanges"]["Subrange"]
+        if isinstance(setup_sweeps, list):
+            for sweep in setup_sweeps:
+                if self.props == sweep:
+                    self._setup.props["SweepRanges"]["Subrange"].remove(self.props)
+        else:
+            pass
+
         self.oanalysis.EditSetup(self.setup_name, self._get_args(self._setup.props))
         return True
 

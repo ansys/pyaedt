@@ -127,10 +127,10 @@ class CommonSetup(PropsManager, BinaryTreeNode):
                 elif "SweepRanges" in setup_data:
                     app = setup_data["SweepRanges"]
                     if isinstance(app["Subrange"], list):
-                        for el in app:
-                            self._sweeps.append(SweepMaxwellEC(self, el, props=app[el]))
+                        for subrange in app["Subrange"]:
+                            self._sweeps.append(SweepMaxwellEC(self, props=subrange))
                     else:
-                        self._sweeps.append(SweepMaxwellEC(self, "el", props=app["Subrange"]))
+                        self._sweeps.append(SweepMaxwellEC(self, props=app["Subrange"]))
         except (TypeError, KeyError):
             pass
         return self._sweeps
@@ -3589,7 +3589,6 @@ class SetupMaxwell(Setup, object):
     @pyaedt_function_handler(range_type="sweep_type", start="start_frequency", end="stop_frequency", count="step_size")
     def add_eddy_current_sweep(
         self,
-        name=None,
         sweep_type="LinearStep",
         start_frequency=0.1,
         stop_frequency=100,
@@ -3602,8 +3601,6 @@ class SetupMaxwell(Setup, object):
 
         Parameters
         ----------
-        name : str, optional
-            Sweep name. The default is ``None``, in which case a name is automatically assigned.
         sweep_type : str
             Type of the subrange. Options are ``"LinearCount"``,
             ``"LinearStep"``, ``"LogScale"`` and ``"SinglePoints"``.
@@ -3630,13 +3627,7 @@ class SetupMaxwell(Setup, object):
         if self.setuptype != 7:
             self._app.logger.warning("This method only applies to Maxwell Eddy Current Solution.")
             return False
-        if name is None:
-            name = generate_unique_name("Sweep")
-        if name in [sweep.name for sweep in self.sweeps]:
-            old_name = name
-            name = generate_unique_name(old_name)
-            self._app.logger.warning("Sweep %s is already present. Sweep has been renamed in %s.", old_name, name)
-        sweep = SweepMaxwellEC(self, name=name, sweep_type=sweep_type)
+        sweep = SweepMaxwellEC(self, sweep_type=sweep_type)
         legacy_update = self.auto_update
         self.auto_update = False
         sweep.props["RangeType"] = sweep_type
@@ -3660,11 +3651,11 @@ class SetupMaxwell(Setup, object):
                     self.props["SweepRanges"].pop("Subrange", None)
                     self.props["SweepRanges"]["Subrange"] = [temp]
                 self.props["SweepRanges"]["Subrange"].append(sweep.props)
-            self.update()
         else:
             self.props["HasSweepSetup"] = True
             self.props["SweepRanges"] = {"Subrange": [sweep.props]}
             sweep.create()
+        self.update()
         self.auto_update = legacy_update
         return sweep
 
