@@ -5599,7 +5599,7 @@ class Icepak(FieldAnalysisIcepak):
         else:
             props["Supply Flow Direction"] = "Specified"
             if not (isinstance(flow_direction, list)):
-                raise TypeError("``flow_direction`` can be only ``None`` or a list of strings or floats.")
+                raise TypeError("``flow_direction`` can only be ``None`` or a list of strings or floats.")
             elif len(flow_direction) != 3:
                 raise ValueError("``flow_direction`` must have only three components.")
             for direction, val in zip(["X", "Y", "Z"], flow_direction):
