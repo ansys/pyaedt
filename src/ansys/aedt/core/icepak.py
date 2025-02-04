@@ -4128,7 +4128,7 @@ class Icepak(FieldAnalysisIcepak):
             if voltage_current_choice == quantity:
                 if isinstance(voltage_current_value, (dict, BoundaryDictionary)):
                     if voltage_current_value["Type"] == "Temp Dep":
-                        raise AEDTRuntimeError("Voltage or Current assignment does not support temperature dependence.")
+                        raise AEDTRuntimeError("Voltage and Current assignment do not support temperature dependence.")
                     voltage_current_value = self._parse_variation_data(
                         quantity,
                         voltage_current_value["Type"],
