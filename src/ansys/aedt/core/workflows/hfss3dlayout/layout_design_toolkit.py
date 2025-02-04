@@ -53,7 +53,7 @@ extension_description = f"Layout Design Toolkit ({VERSION})"
 
 default_config = {
     "selections": [],
-    "radius": "1.5mm",
+    "radius": "0.5mm",
     "race_track": True
 }
 
