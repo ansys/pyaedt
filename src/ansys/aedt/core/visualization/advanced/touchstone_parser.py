@@ -157,31 +157,18 @@ class TouchstoneData(rf.Network):
         temp_list = []
         temp_file = []
 
-        i = 0
-        j = 0
-
-        while i < nb_port:
-            while j < nb_port:
-                if i != j:
-                    k = k_start
-                    while k < nb_freq:
-                        loss = s_db[k, i, j]
-                        if high_loss < loss < low_loss:
-                            temp_list.append((i, j))
-                            sxy = "S(" + self.port_names[i] + " , " + self.port_names[j] + ")"
-                            str_loss = " Loss = {:.2f} dB "
-                            str_loss_f = str_loss.format(loss)
-                            freq = " Freq = {:.3f} GHz"
-                            freq_f = freq.format((self.f[k]) * 1e-9)
-                            temp_file.append(sxy + str_loss_f + freq_f + "\n")
-                            k = k + frequency_sample
-                            break
-                        else:
-                            k = k + frequency_sample
-                            continue
-                j = j + 1
-            i = i + 1
-            j = i
+        for i in range(nb_port):
+            for j in range(i, nb_port):
+                if i == j:
+                    continue
+                for k in range(k_start, nb_freq, frequency_sample):
+                    loss = s_db[k, i, j]
+                    if high_loss < loss < low_loss:
+                        temp_list.append((i, j))
+                        sxy = f"S({self.port_names[i]} , {self.port_names[j]})"
+                        line = f"{sxy} Loss = {loss:.2f} dB Freq = {(self.f[k] * 1e-9):.3f} GHz\n"
+                        temp_file.append(line)
+                        break
         if output_file is not None:
             if os.path.exists(output_file):
                 logger.info("File " + output_file + " exist and we be replace by new one.")
