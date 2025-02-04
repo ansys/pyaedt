@@ -102,18 +102,27 @@ class TestClass:
         assert distributed_design.substrate.substrate_unbalanced_lower_dielectric_height == "5.2 mm"
 
     def test_substrate_suspend_dielectric_height(self, distributed_design):
+        with pytest.raises(RuntimeError) as info:
+            distributed_design.substrate.substrate_suspend_dielectric_height = "2.5 mm"
+        assert info.value.args[0] == "The Suspend Dielectric Height is not available for Microstrip substrate"
         distributed_design.substrate.substrate_type = SubstrateType.SUSPEND
         assert distributed_design.substrate.substrate_suspend_dielectric_height == "1.27 mm"
         distributed_design.substrate.substrate_suspend_dielectric_height = "3.2 mm"
         assert distributed_design.substrate.substrate_suspend_dielectric_height == "3.2 mm"
 
     def test_substrate_cover_height(self, distributed_design):
+        with pytest.raises(RuntimeError) as info:
+            distributed_design.substrate.substrate_cover_height = "2.5 mm"
+        assert info.value.args[0] == "The Cover option for Microstrip Substrate is not enabled"
         distributed_design.substrate.substrate_cover_height_enabled = True
         assert distributed_design.substrate.substrate_cover_height == "6.35 mm"
         distributed_design.substrate.substrate_cover_height = "2.5 mm"
         assert distributed_design.substrate.substrate_cover_height == "2.5 mm"
 
     def test_substrate_unbalanced_stripline_enabled(self, distributed_design):
+        with pytest.raises(RuntimeError) as info:
+            distributed_design.substrate.substrate_unbalanced_stripline_enabled = True
+        assert info.value.args[0] == "The Unbalanced Topolgy is not available for Microstrip substrate"
         distributed_design.substrate.substrate_type = SubstrateType.STRIPLINE
         assert distributed_design.substrate.substrate_unbalanced_stripline_enabled == False
         distributed_design.substrate.substrate_unbalanced_stripline_enabled = True
