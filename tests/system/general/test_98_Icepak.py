@@ -23,8 +23,10 @@
 # SOFTWARE.
 
 import os
+import re
 
 from ansys.aedt.core import Icepak
+from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
@@ -609,20 +611,26 @@ class TestClass:
             voltage_current_value="1A",
         )
         ipk.solution_type = "SteadyState"
-        assert not ipk.assign_source(
-            ipk.modeler["boxSource"].top_face_x.id,
-            "Total Power",
-            assignment_value={"Type": "Temp Dep", "Function": "Piecewise Linear", "Values": ["1W", "Test_DataSet"]},
-            voltage_current_choice="Current",
-            voltage_current_value={"Type": "Transient", "Function": "Sinusoidal", "Values": ["0A", 1, 1, "1s"]},
-        )
-        assert not ipk.assign_source(
-            ipk.modeler["boxSource"].top_face_x.id,
-            "Total Power",
-            assignment_value={"Type": "Temp Dep", "Function": "Sinusoidal", "Values": ["0W", 1, 1, "1K"]},
-            voltage_current_choice="Current",
-            voltage_current_value={"Type": "Transient", "Function": "Sinusoidal", "Values": ["0A", 1, 1, "1s"]},
-        )
+        with pytest.raises(
+            AEDTRuntimeError, match="A transient boundary condition cannot be assigned for a non-transient simulation."
+        ):
+            ipk.assign_source(
+                ipk.modeler["boxSource"].top_face_x.id,
+                "Total Power",
+                assignment_value={"Type": "Temp Dep", "Function": "Piecewise Linear", "Values": ["1W", "Test_DataSet"]},
+                voltage_current_choice="Current",
+                voltage_current_value={"Type": "Transient", "Function": "Sinusoidal", "Values": ["0A", 1, 1, "1s"]},
+            )
+        with pytest.raises(
+            AEDTRuntimeError, match="A transient boundary condition cannot be assigned for a non-transient simulation."
+        ):
+            ipk.assign_source(
+                ipk.modeler["boxSource"].top_face_x.id,
+                "Total Power",
+                assignment_value={"Type": "Temp Dep", "Function": "Sinusoidal", "Values": ["0W", 1, 1, "1K"]},
+                voltage_current_choice="Current",
+                voltage_current_value={"Type": "Transient", "Function": "Sinusoidal", "Values": ["0A", 1, 1, "1s"]},
+            )
         ipk.solution_type = "Transient"
         assert ipk.assign_source(
             ipk.modeler["boxSource"].top_face_x.id,
@@ -1406,14 +1414,15 @@ class TestClass:
             velocity=[velocity_transient, 0, "0m_per_sec"],
         )
         ipk.solution_type = "SteadyState"
-        assert not ipk.assign_velocity_free_opening(
-            ipk.modeler["Region"].faces[1].id,
-            boundary_name="Test",
-            temperature="AmbientTemp",
-            radiation_temperature="AmbientRadTemp",
-            pressure="AmbientPressure",
-            velocity=[velocity_transient, 0, "0m_per_sec"],
-        )
+        with pytest.raises(AEDTRuntimeError, match="Transient assignment is supported only in transient designs."):
+            ipk.assign_velocity_free_opening(
+                ipk.modeler["Region"].faces[1].id,
+                boundary_name="Test",
+                temperature="AmbientTemp",
+                radiation_temperature="AmbientRadTemp",
+                pressure="AmbientPressure",
+                velocity=[velocity_transient, 0, "0m_per_sec"],
+            )
 
     def test062__assign_symmetry_wall(self, ipk):
         ipk.modeler.create_rectangle(ipk.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
@@ -1466,9 +1475,10 @@ class TestClass:
     def test066__recirculation_boundary(self, ipk):
         box = ipk.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBoxEmpty", "copper")
         box.solve_inside = False
-        assert not ipk.assign_recirculation_opening(
-            [box.top_face_x, box.bottom_face_x, box.bottom_face_y], box.top_face_x, flow_assignment="10kg_per_s_m2"
-        )
+        with pytest.raises(AEDTRuntimeError, patch="Recirculation boundary condition must be assigned to two faces."):
+            ipk.assign_recirculation_opening(
+                [box.top_face_x, box.bottom_face_x, box.bottom_face_y], box.top_face_x, flow_assignment="10kg_per_s_m2"
+            )
         assert ipk.assign_recirculation_opening(
             [box.top_face_x, box.bottom_face_x], box.top_face_x, conductance_external_temperature="25cel"
         )
@@ -1524,7 +1534,10 @@ class TestClass:
         cylinder = ipk.modeler.create_cylinder(orientation="X", origin=[0, 0, 0], radius=10, height=1)
         curved_face = [f for f in cylinder.faces if not f.is_planar]
         planar_faces = [f for f in cylinder.faces if f.is_planar]
-        assert not ipk.assign_blower_type1(curved_face + planar_faces, planar_faces, [10, 5, 0], [0, 1, 2, 4])
+        with pytest.raises(
+            ValueError, match=re.escape("``fan_curve_flow`` and ``fan_curve_pressure`` must have the same length.")
+        ):
+            ipk.assign_blower_type1(curved_face + planar_faces, planar_faces, [10, 5, 0], [0, 1, 2, 4])
         blower = ipk.assign_blower_type1(
             [f.id for f in curved_face + planar_faces], [f.id for f in planar_faces], [10, 5, 0], [0, 2, 4]
         )
@@ -1568,13 +1581,14 @@ class TestClass:
             loss_curve_flow_unit="m_per_sec",
             loss_curve_pressure_unit="n_per_meter_sq",
         )
-        assert not ipk.assign_power_law_resistance(
-            box.name,
-            boundary_name="TestNameResistance",
-            total_power={"Function": "Linear", "Values": ["0.01W", "1W"]},
-            power_law_constant=1.5,
-            power_law_exponent="3",
-        )
+        with pytest.raises(AEDTRuntimeError, match="Transient assignment is supported only in transient designs."):
+            ipk.assign_power_law_resistance(
+                box.name,
+                boundary_name="TestNameResistance",
+                total_power={"Function": "Linear", "Values": ["0.01W", "1W"]},
+                power_law_constant=1.5,
+                power_law_exponent="3",
+            )
         ipk.solution_type = "Transient"
         assert ipk.assign_power_law_resistance(
             box.name,
@@ -1665,8 +1679,10 @@ class TestClass:
         ds1_temp = ipk.create_dataset(
             "ds_temp3", [1, 2, 3], [3, 2, 1], is_project_dataset=True, x_unit="cel", y_unit="W"
         )
-        assert not ipk.create_temp_dep_assignment(ds1_temp.name)
-        assert not ipk.create_temp_dep_assignment("nods")
+        with pytest.raises(ValueError, match="Only design datasets are supported."):
+            ipk.create_temp_dep_assignment(ds1_temp.name)
+        with pytest.raises(AEDTRuntimeError, match="Dataset nods not found."):
+            ipk.create_temp_dep_assignment("nods")
 
     @pytest.mark.parametrize("ipk", [native_import], indirect=True)
     def test072__native_component_load(self, ipk):
