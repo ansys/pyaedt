@@ -27,14 +27,14 @@ import os
 from pathlib import Path
 import platform
 import shutil
-import subprocess
+import subprocess  # nosec
 import sys
 import tkinter
 from tkinter import filedialog
 from tkinter import messagebox
 from tkinter import ttk
 import webbrowser
-import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ET  # nosec
 import zipfile
 
 import PIL.Image
@@ -333,7 +333,7 @@ class VersionManager:
                 product_name = product.stem
                 if product_name not in atk:
                     continue
-                for i, j in atk[product_name].items():
+                for _, j in atk[product_name].items():
                     extension_dir = product / name
                     if j["name"] == name:
                         shutil.rmtree(extension_dir, ignore_errors=True)
@@ -358,7 +358,7 @@ class VersionManager:
         response = messagebox.askquestion("Disclaimer", DISCLAIMER)
 
         if response == "yes":
-            url = f"https://pypi.org/pypi/pyaedt/json"
+            url = "https://pypi.org/pypi/pyaedt/json"
             response = requests.get(url)
 
             if response.status_code == 200:
@@ -436,7 +436,7 @@ class VersionManager:
         if file_selected:
             fpath = Path(file_selected)
             file_name = fpath.stem
-            _, wh_pyaedt_version, wh_pkg_type, _, _, _, wh_python_version = file_name.split("-")
+            _, _, wh_pkg_type, _, _, _, wh_python_version = file_name.split("-")
 
             msg = []
             correct_wheelhouse = file_name
@@ -444,7 +444,7 @@ class VersionManager:
             if not wh_python_version == self.python_version:
                 msg.extend(
                     [
-                        f"Wrong Python version",
+                        "Wrong Python version",
                         f"Wheelhouse: {wh_python_version}",
                         f"Expected version: {self.python_version}",
                     ]
@@ -453,7 +453,7 @@ class VersionManager:
 
             if wh_pkg_type != "installer":
                 correct_wheelhouse = correct_wheelhouse.replace(f"-{wh_pkg_type}-", "-installer-")
-                msg.extend(["", f"This wheelhouse doesn't contain required packages to add PyAEDT buttons."])
+                msg.extend(["", "This wheelhouse doesn't contain required packages to add PyAEDT buttons."])
 
             if msg is not []:
                 msg.extend(["", f"Please download {correct_wheelhouse}."])
