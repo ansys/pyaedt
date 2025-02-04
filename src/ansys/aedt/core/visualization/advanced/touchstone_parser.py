@@ -394,7 +394,7 @@ class TouchstoneData(rf.Network):
         Parameters
         ----------
         tx_prefix :str, optional
-            Prefix for TX (eg. "DIE"). The default is ``""``.
+            Prefix for TX (eg. "DIE"). The default value is ``""``.
 
         Returns
         -------
