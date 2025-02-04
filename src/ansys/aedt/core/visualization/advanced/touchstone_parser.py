@@ -253,7 +253,7 @@ class TouchstoneData(rf.Network):
         index_couples : list, optional
             List of indexes couple to plot. The default is ``None`` to plot all ``port_tuples``.
         show : bool
-            Whether to plot. The default is ``True``.
+            Whether to plot. The default value is ``True``.
 
         Returns
         -------
