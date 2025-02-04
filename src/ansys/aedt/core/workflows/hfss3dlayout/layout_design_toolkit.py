@@ -50,7 +50,6 @@ from ansys.aedt.core.workflows.misc import ExtensionTheme
 VERSION = "0.1.0"
 extension_description = f"Layout Design Toolkit ({VERSION})"
 
-
 default_config = {
     "selections": [],
     "radius": "0.5mm",
@@ -59,6 +58,8 @@ default_config = {
 
 
 class Frontend:
+    tk_text = []
+    tk_checkbox = []
 
     @property
     def active_design(self):
@@ -113,54 +114,9 @@ class Frontend:
         # Set background color of the window (optional)
         master.configure(bg=self.theme.light["widget_bg"])
 
-        # Selection entry
-        row = 0
-        selections_label = ttk.Label(master, text="Vias", width=20, style="PyAEDT.TLabel")
-        selections_label.grid(row=row, column=0, padx=15, pady=10)
-        self.selections_entry = tk.Text(master, width=40, height=1)
-        self.selections_entry.grid(row=row, column=1, pady=15, padx=10)
-        self.selections_entry.configure(bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"],
-                                        font=self.theme.default_font)
-        selections_button = ttk.Button(master, text="Get Selections", command=self.get_selections, width=20,
-                                       style="PyAEDT.TButton")
-        selections_button.grid(row=row, column=2, pady=15, padx=10)
-
-        # radius
-        radius_label = ttk.Label(master, text="Anti pad radius", width=20, style="PyAEDT.TLabel")
-        radius_label.grid(row=1, column=0, padx=15, pady=10)
-        self.radius_entry = tk.Text(master, width=40, height=1)
-        self.radius_entry.insert("1.0", default_config["radius"])
-        self.radius_entry.grid(row=1, column=1, pady=15, padx=10)
-        self.radius_entry.configure(bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"],
-                                      font=self.theme.default_font)
-        self.race_track_var = tk.BooleanVar()
-        self.race_track_var.set(self.config_dict["race_track"])
-        self.race_track_ch = tk.Checkbutton(master, text="RaceTrack", variable=self.race_track_var)
-        self.race_track_ch.configure(bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"],
-                                     font=self.theme.default_font)
-        self.race_track_ch.grid(row=1, column=2, pady=15, padx=10)
-
-        # Create buttons to create sphere and change theme color
-        create_button = ttk.Button(master, text="Create", command=self.callback, style="PyAEDT.TButton")
-        self.change_theme_button = ttk.Button(master, text="\u263D", width=2, command=self.toggle_theme,
-                                              style="PyAEDT.TButton")
-
-        create_button.grid(row=6, column=0, padx=15, pady=10)
-        self.change_theme_button.grid(row=6, column=2, pady=10)
-
+        self.create_ui_diff_antipad(master)
+        self.set_light_theme()
         tk.mainloop()
-
-    def get_selections(self):
-        desktop, oproject, odesign = self.active_design
-        selected = odesign.GetEditor("Layout").GetSelections()
-        if len(selected) == 2:
-            self.config_dict["selections"] = selected
-            text = ", ".join(selected)
-        else:
-            self.config_dict["selections"] = []
-            text = "Please select two vias"
-        self.selections_entry.replace("1.0", tk.END, text)
-        desktop.release_desktop(False, False)
 
     def toggle_theme(self):
         master = self.master
@@ -177,30 +133,72 @@ class Frontend:
         style = self.style
 
         master.configure(bg=theme.light["widget_bg"])
-        self.selections_entry.configure(
-            background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
-        )
-        self.radius_entry.configure(
-            background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
-        )
-        self.race_track_ch.configure(
-            background=theme.light["pane_bg"], font=theme.default_font
-        )
+        for i in self.tk_text:
+            i.configure(
+                background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
+            )
+        for i in self.tk_checkbox:
+            i.configure(background=theme.light["pane_bg"], font=theme.default_font)
         theme.apply_light_theme(style)
-        self.change_theme_button.config(text="\u263D")
+        # self.change_theme_button.config(text="\u263D")
 
     def set_dark_theme(self):
         theme = self.theme
         master = self.master
         style = self.style
-
         master.configure(bg=theme.dark["widget_bg"])
-        self.selections_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"],
-                                        font=theme.default_font)
-        self.radius_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        self.race_track_ch.configure(bg=theme.dark["pane_bg"],                                      font=theme.default_font)
+        for i in self.tk_text:
+            i.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
+        for i in self.tk_checkbox:
+            i.configure(bg=theme.dark["pane_bg"], font=theme.default_font)
+
         theme.apply_dark_theme(style)
-        self.change_theme_button.config(text="\u2600")
+        # self.change_theme_button.config(text="\u2600")
+
+    def get_selections(self):
+        desktop, oproject, odesign = self.active_design
+        selected = odesign.GetEditor("Layout").GetSelections()
+        if len(selected) == 2:
+            self.config_dict["selections"] = selected
+            text = ", ".join(selected)
+        else:
+            self.config_dict["selections"] = []
+            text = "Please select two vias"
+        self.selections_entry.replace("1.0", tk.END, text)
+        desktop.release_desktop(False, False)
+
+    def create_ui_diff_antipad(self, master):
+        self.race_track_var = tk.BooleanVar()
+        self.race_track_var.set(self.config_dict["race_track"])
+
+        # Selection entry
+        row = 0
+        selections_label = ttk.Label(master, text="Vias", width=20, style="PyAEDT.TLabel")
+        selections_label.grid(row=row, column=0, padx=15, pady=10)
+        self.selections_entry = tk.Text(master, width=40, height=1)
+        self.selections_entry.grid(row=row, column=1, pady=15, padx=10)
+        selections_button = ttk.Button(master, text="Get Selections", command=self.get_selections, width=20,
+                                       style="PyAEDT.TButton")
+        selections_button.grid(row=row, column=2, pady=15, padx=10)
+        self.tk_text.append(self.selections_entry)
+
+        # radius
+        radius_label = ttk.Label(master, text="Anti pad radius", width=20, style="PyAEDT.TLabel")
+        radius_label.grid(row=1, column=0, padx=15, pady=10)
+        self.radius_entry = tk.Text(master, width=40, height=1)
+        self.radius_entry.insert("1.0", default_config["radius"])
+        self.radius_entry.grid(row=1, column=1, pady=15, padx=10)
+        self.tk_text.append(self.radius_entry)
+
+        cb = tk.Checkbutton(master, text="RaceTrack", variable=self.race_track_var)
+        cb.grid(row=1, column=2, pady=15, padx=10)
+        self.tk_checkbox.append(cb)
+
+        # Create buttons to create sphere and change theme color
+        b = ttk.Button(master, text="Create", command=self.callback, style="PyAEDT.TButton")
+        b.grid(row=6, column=0, padx=15, pady=10)
+        b = ttk.Button(master, text="\u263D", width=2, command=self.toggle_theme, style="PyAEDT.TButton")
+        b.grid(row=6, column=2, pady=10)
 
     def callback(self):
         self.config_dict["race_track"] = self.race_track_var.get()
