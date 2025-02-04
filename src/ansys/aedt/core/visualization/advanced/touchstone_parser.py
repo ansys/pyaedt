@@ -188,7 +188,7 @@ class TouchstoneData(rf.Network):
         Parameters
         ----------
         threshold : float, int, optional
-            Threshold to determine shorted ports in dB. The default is ``-3``.
+            Threshold to determine shorted ports in dB. The default value is ``-3``.
 
         Returns
         -------
@@ -239,7 +239,7 @@ class TouchstoneData(rf.Network):
         Parameters
         ----------
         index_couples : list, optional
-            List of indexes couple to plot. The default is ``None`` to plot all ``port_tuples``.
+            List of indexes couple to plot. The default value is ``None`` to plot all ``port_tuples``.
         show : bool
             Whether to plot. The default value is ``True``.
 
@@ -415,7 +415,7 @@ class TouchstoneData(rf.Network):
         rx_prefix : str
             prefix for RX (eg. "BGA")
         skip_same_index_couples : bool
-            Boolean ignore TX and RX couple with same index. The default is ``True``.
+            Boolean ignore TX and RX couple with same index. The default value is ``True``.
 
         Returns
         -------
@@ -437,7 +437,7 @@ class TouchstoneData(rf.Network):
         Parameters
         ----------
         tx_prefix: str, optional
-            Prefix for TX. The default is ``""``.
+            Prefix for TX. The default value is ``""``.
 
         Returns
         -------
@@ -483,7 +483,7 @@ class TouchstoneData(rf.Network):
         Parameters
         ----------
         freq_min : float, optional
-            Minimum frequency to analyze in GHz (None to 0). The default is ``None``.
+            Minimum frequency to analyze in GHz (None to 0). The default value is ``None``.
         freq_max : float, optional
             Maximum frequency to analyze in GHz (None to max freq). The default value is ``None``.
         worst_is_higher : bool
@@ -492,7 +492,7 @@ class TouchstoneData(rf.Network):
             List of [m,n] index of curves on which to search. None to search on all curves.
             The default value is ``None``.
         plot : bool, optional
-            Whether to plot or not the chart. The default is ``True``.
+            Whether to plot or not the chart. The default value is ``True``.
 
         Returns
         -------
