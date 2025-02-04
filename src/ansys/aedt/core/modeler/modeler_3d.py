@@ -776,6 +776,9 @@ class Modeler3D(Primitives3D):
         }
 
         if wgmodel in WG:
+            original_model_units = self.model_units
+            self.model_units = "mm"
+
             wgwidth = WG[wgmodel][0]
             wgheight = WG[wgmodel][1]
             if not wg_thickness:
@@ -840,7 +843,7 @@ class Modeler3D(Primitives3D):
                 wgbox = self.create_box(origin, [wg_length, wb, hb], name=name)
             self.subtract(wgbox, airbox, False)
             wgbox.material_name = wg_material
-
+            self.model_units = original_model_units
             return wgbox, p1, p2
         else:
             return None
@@ -1238,6 +1241,13 @@ class Modeler3D(Primitives3D):
         -------
         dict
             Dictionary of generated infos.
+
+        Notes
+        -----
+        Please note that elevation is not computed anymore in this method.
+        Please check the example
+        ``https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/antenna/large_scenarios/city.html``
+        to compute also elevation.
 
         """
         from ansys.aedt.core.modeler.advanced_cad.oms import BuildingsPrep

@@ -23,10 +23,12 @@
 # SOFTWARE.
 
 import os
+import re
 import shutil
 
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.generic.constants import SOLUTIONS
+from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
@@ -156,7 +158,8 @@ class TestClass:
     def test_eddy_effects_on(self, m3d_app):
         m3d_app.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
         plate_vacuum = m3d_app.modeler.create_box([-3, -3, 0], [1.5, 1.5, 0.4], name="Plate_vaccum")
-        assert not m3d_app.eddy_effects_on(plate_vacuum, enable_eddy_effects=True)
+        with pytest.raises(AEDTRuntimeError, match="No conductors defined in active design."):
+            m3d_app.eddy_effects_on(plate_vacuum, enable_eddy_effects=True)
         plate = m3d_app.modeler.create_box([-1, -1, 0], [1.5, 1.5, 0.4], name="Plate", material="copper")
         assert m3d_app.eddy_effects_on(plate, enable_eddy_effects=True)
         assert m3d_app.oboundary.GetEddyEffect("Plate")
@@ -438,8 +441,8 @@ class TestClass:
         assert matrix.props["MatrixEntry"]["MatrixEntry"][1]["NumberOfTurns"] == "1"
         m3d_app.solution_type = SOLUTIONS.Maxwell3d.Transient
         m3d_app.assign_winding("Sheet1", name="Current1")
-        matrix = m3d_app.assign_matrix(assignment="Current1")
-        assert not matrix
+        with pytest.raises(AEDTRuntimeError, match="Solution type does not have matrix parameters"):
+            m3d_app.assign_matrix(assignment="Current1")
 
     def test_available_quantities_categories(self, m3d_app):
         m3d_app.solution_type = SOLUTIONS.Maxwell3d.ElectroStatic
@@ -689,16 +692,23 @@ class TestClass:
         assert bound.props[bound.name]["CurrentDensityZ"] == "0"
         assert bound.props[bound.name]["CoordinateSystem Name"] == "Global"
 
-        assert not m3d_app.assign_current_density(box.name, "current_density_3", coordinate_system_type="test")
-        assert not m3d_app.assign_current_density(box.name, "current_density_4", phase="5ang")
+        with pytest.raises(ValueError, match="Invalid coordinate system."):
+            m3d_app.assign_current_density(box.name, "current_density_3", coordinate_system_type="test")
+        with pytest.raises(ValueError, match="Invalid phase unit."):
+            m3d_app.assign_current_density(box.name, "current_density_4", phase="5ang")
 
     def test_assign_current_density_terminal(self, m3d_app):
         box = m3d_app.modeler.create_box([50, 0, 50], [294, 294, 19], name="box")
         assert m3d_app.assign_current_density_terminal(box.faces[0], "current_density_t_1")
-        assert not m3d_app.assign_current_density_terminal(box.faces[0], "current_density_t_1")
+        with pytest.raises(AEDTRuntimeError, match="Current density terminal could not be assigned."):
+            m3d_app.assign_current_density_terminal(box.faces[0], "current_density_t_1")
         assert m3d_app.assign_current_density_terminal([box.faces[0], box.faces[1]], "current_density_t_2")
         m3d_app.solution_type = SOLUTIONS.Maxwell3d.Transient
-        assert not m3d_app.assign_current_density_terminal(box.faces[0], "current_density_t_3")
+        with pytest.raises(
+            AEDTRuntimeError,
+            match="Current density can only be applied to Eddy Current or Magnetostatic solution types.",
+        ):
+            m3d_app.assign_current_density_terminal(box.faces[0], "current_density_t_3")
 
     def test_assign_impedance(self, m3d_app):
         m3d_app.solution_type = SOLUTIONS.Maxwell3d.Transient
@@ -757,46 +767,59 @@ class TestClass:
         )
         assert independent
         assert dependent
-        assert not m3d_app.assign_master_slave(
-            master_entity=box.faces[1],
-            slave_entity=box.faces[5],
-            u_vector_origin_coordinates_master=[0, "0mm", "0mm"],
-            u_vector_pos_coordinates_master=["10mm", "0mm", "0mm"],
-            u_vector_origin_coordinates_slave=["10mm", "0mm", "0mm"],
-            u_vector_pos_coordinates_slave=["10mm", "10mm", "0mm"],
-        )
-        assert not m3d_app.assign_master_slave(
-            master_entity=box.faces[1],
-            slave_entity=box.faces[5],
-            u_vector_origin_coordinates_master=["0mm", "0mm", "0mm"],
-            u_vector_pos_coordinates_master=[10, "0mm", "0mm"],
-            u_vector_origin_coordinates_slave=["10mm", "0mm", "0mm"],
-            u_vector_pos_coordinates_slave=["10mm", "10mm", "0mm"],
-        )
-        assert not m3d_app.assign_master_slave(
-            master_entity=box.faces[1],
-            slave_entity=box.faces[5],
-            u_vector_origin_coordinates_master=["0mm", "0mm", "0mm"],
-            u_vector_pos_coordinates_master=["10mm", "0mm", "0mm"],
-            u_vector_origin_coordinates_slave=[10, "0mm", "0mm"],
-            u_vector_pos_coordinates_slave=["10mm", "10mm", "0mm"],
-        )
-        assert not m3d_app.assign_master_slave(
-            master_entity=box.faces[1],
-            slave_entity=box.faces[5],
-            u_vector_origin_coordinates_master=["0mm", "0mm", "0mm"],
-            u_vector_pos_coordinates_master=["10mm", "0mm", "0mm"],
-            u_vector_origin_coordinates_slave=["10mm", "0mm", "0mm"],
-            u_vector_pos_coordinates_slave=[10, "10mm", "0mm"],
-        )
-        assert not m3d_app.assign_master_slave(
-            master_entity=box.faces[1],
-            slave_entity=box.faces[5],
-            u_vector_origin_coordinates_master="0mm",
-            u_vector_pos_coordinates_master=["10mm", "0mm", "0mm"],
-            u_vector_origin_coordinates_slave=["10mm", "0mm", "0mm"],
-            u_vector_pos_coordinates_slave=["10mm", "10mm", "0mm"],
-        )
+        with pytest.raises(
+            ValueError, match=re.escape("Elements of coordinates system must be strings in the form of ``value+unit``.")
+        ):
+            m3d_app.assign_master_slave(
+                master_entity=box.faces[1],
+                slave_entity=box.faces[5],
+                u_vector_origin_coordinates_master=[0, "0mm", "0mm"],
+                u_vector_pos_coordinates_master=["10mm", "0mm", "0mm"],
+                u_vector_origin_coordinates_slave=["10mm", "0mm", "0mm"],
+                u_vector_pos_coordinates_slave=["10mm", "10mm", "0mm"],
+            )
+        with pytest.raises(
+            ValueError, match=re.escape("Elements of coordinates system must be strings in the form of ``value+unit``.")
+        ):
+            m3d_app.assign_master_slave(
+                master_entity=box.faces[1],
+                slave_entity=box.faces[5],
+                u_vector_origin_coordinates_master=["0mm", "0mm", "0mm"],
+                u_vector_pos_coordinates_master=[10, "0mm", "0mm"],
+                u_vector_origin_coordinates_slave=["10mm", "0mm", "0mm"],
+                u_vector_pos_coordinates_slave=["10mm", "10mm", "0mm"],
+            )
+        with pytest.raises(
+            ValueError, match=re.escape("Elements of coordinates system must be strings in the form of ``value+unit``.")
+        ):
+            m3d_app.assign_master_slave(
+                master_entity=box.faces[1],
+                slave_entity=box.faces[5],
+                u_vector_origin_coordinates_master=["0mm", "0mm", "0mm"],
+                u_vector_pos_coordinates_master=["10mm", "0mm", "0mm"],
+                u_vector_origin_coordinates_slave=[10, "0mm", "0mm"],
+                u_vector_pos_coordinates_slave=["10mm", "10mm", "0mm"],
+            )
+        with pytest.raises(
+            ValueError, match=re.escape("Elements of coordinates system must be strings in the form of ``value+unit``.")
+        ):
+            m3d_app.assign_master_slave(
+                master_entity=box.faces[1],
+                slave_entity=box.faces[5],
+                u_vector_origin_coordinates_master=["0mm", "0mm", "0mm"],
+                u_vector_pos_coordinates_master=["10mm", "0mm", "0mm"],
+                u_vector_origin_coordinates_slave=["10mm", "0mm", "0mm"],
+                u_vector_pos_coordinates_slave=[10, "10mm", "0mm"],
+            )
+        with pytest.raises(ValueError, match="Please provide a list of coordinates for U vectors."):
+            m3d_app.assign_master_slave(
+                master_entity=box.faces[1],
+                slave_entity=box.faces[5],
+                u_vector_origin_coordinates_master="0mm",
+                u_vector_pos_coordinates_master=["10mm", "0mm", "0mm"],
+                u_vector_origin_coordinates_slave=["10mm", "0mm", "0mm"],
+                u_vector_pos_coordinates_slave=["10mm", "10mm", "0mm"],
+            )
 
     def test_add_mesh_link(self, m3d_app, local_scratch):
         m3d_app.solution_type = SOLUTIONS.Maxwell3d.Transient
@@ -911,7 +934,10 @@ class TestClass:
 
     def test_assign_flux_tangential(self, m3d_app):
         box = m3d_app.modeler.create_box([50, 0, 50], [294, 294, 19], name="Box")
-        assert not m3d_app.assign_flux_tangential(box.faces[0])
+        with pytest.raises(
+            AEDTRuntimeError, match="Flux tangential boundary can only be assigned to a transient APhi solution type."
+        ):
+            m3d_app.assign_flux_tangential(box.faces[0])
         m3d_app.solution_type = "TransientAPhiFormulation"
         assert m3d_app.assign_flux_tangential(box.faces[0], "FluxExample")
         assert m3d_app.assign_flux_tangential(box.faces[0].id, "FluxExample")
@@ -924,11 +950,13 @@ class TestClass:
         m3d_app.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
         assert m3d_app.assign_tangential_h_field(box.bottom_face_x, 1, 0, 2, 0)
         m3d_app.solution_type = SOLUTIONS.Maxwell3d.Transient
-        assert not m3d_app.assign_tangential_h_field(box.bottom_face_x, 1, 0, 2, 0)
+        with pytest.raises(AEDTRuntimeError, match="Tangential H Field is applicable only to Eddy Current."):
+            m3d_app.assign_tangential_h_field(box.bottom_face_x, 1, 0, 2, 0)
 
     def test_assign_zero_tangential_h_field(self, m3d_app):
         box = m3d_app.modeler.create_box([0, 0, 0], [10, 10, 10])
-        assert not m3d_app.assign_zero_tangential_h_field(box.top_face_z)
+        with pytest.raises(AEDTRuntimeError, match="Tangential H Field is applicable only to Eddy Current."):
+            m3d_app.assign_zero_tangential_h_field(box.top_face_z)
         m3d_app.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
         assert m3d_app.assign_zero_tangential_h_field(box.top_face_z)
 
@@ -937,7 +965,8 @@ class TestClass:
         rect2 = m3d_app.modeler.create_rectangle(0, [15, 20, 0], [5, 5], material="aluminum")
         box = m3d_app.modeler.create_box([15, 20, 0], [5, 5, 5], material="aluminum")
         box2 = m3d_app.modeler.create_box([150, 20, 0], [50, 5, 10], material="aluminum")
-        assert not m3d_app.assign_radiation([rect, rect2, box, box2.faces[0]])
+        with pytest.raises(AEDTRuntimeError, match="Excitation applicable only to Eddy Current."):
+            m3d_app.assign_radiation([rect, rect2, box, box2.faces[0]])
         m3d_app.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
         bound = m3d_app.assign_radiation([rect, rect2, box, box2.faces[0]])
         assert bound
@@ -985,8 +1014,11 @@ class TestClass:
 
     def test_assign_floating(self, m3d_app):
         box = m3d_app.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box1")
-        floating = m3d_app.assign_floating(assignment=box, charge_value=3)
-        assert not floating
+        with pytest.raises(
+            AEDTRuntimeError,
+            match="Assign floating excitation is only valid for electrostatic or electric transient solvers.",
+        ):
+            m3d_app.assign_floating(assignment=box, charge_value=3)
         m3d_app.solution_type = SOLUTIONS.Maxwell3d.ElectroStatic
         floating = m3d_app.assign_floating(assignment=box, charge_value=3)
         assert floating
@@ -1011,7 +1043,11 @@ class TestClass:
         assert bound.props["Nonlinear"]
         assert bound.props["Objects"][0] == my_rectangle.name
         m3d_app.solution_type = SOLUTIONS.Maxwell3d.ACConduction
-        assert not m3d_app.assign_resistive_sheet(assignment=my_rectangle, resistance="3ohm")
+        with pytest.raises(
+            AEDTRuntimeError,
+            match="Resistive sheet is applicable only to Eddy Current, transient and magnetostatic solvers.",
+        ):
+            m3d_app.assign_resistive_sheet(assignment=my_rectangle, resistance="3ohm")
 
     def test_assign_layout_force(self, layout_comp):
         nets_layers = {
@@ -1020,7 +1056,8 @@ class TestClass:
             "V3P3_S5": ["LYR_1", "LYR_2", "UNNAMED_006", "UNNAMED_008"],
         }
         assert layout_comp.assign_layout_force(nets_layers, "LC1_1")
-        assert not layout_comp.assign_layout_force(nets_layers, "LC1_3")
+        with pytest.raises(AEDTRuntimeError, match="Provided component name doesn't exist in current design."):
+            layout_comp.assign_layout_force(nets_layers, "LC1_3")
         nets_layers = {"1V0": "Bottom Solder"}
         assert layout_comp.assign_layout_force(nets_layers, "LC1_1")
 
@@ -1043,6 +1080,9 @@ class TestClass:
             number_of_cycles_for_stop_time=1,
         )
         layout_comp.solution_type = "Magnetostatic"
-        assert not layout_comp.enable_harmonic_force_on_layout_component(
-            comp.name, {nets[0]: layers[1::2], nets[1]: layers[1::2]}
-        )
+        with pytest.raises(
+            AEDTRuntimeError, match="This methods work only with Maxwell TransientAPhiFormulation Analysis."
+        ):
+            layout_comp.enable_harmonic_force_on_layout_component(
+                comp.name, {nets[0]: layers[1::2], nets[1]: layers[1::2]}
+            )
