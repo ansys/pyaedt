@@ -63,6 +63,7 @@ from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.desktop_sessions import _desktop_sessions
 from ansys.aedt.core.generic.desktop_sessions import _edb_sessions
 from ansys.aedt.core.generic.general_methods import active_sessions
+from ansys.aedt.core.generic.general_methods import available_license_feature
 from ansys.aedt.core.generic.general_methods import com_active_sessions
 from ansys.aedt.core.generic.general_methods import get_string_version
 from ansys.aedt.core.generic.general_methods import grpc_active_sessions
@@ -110,6 +111,14 @@ def launch_aedt(full_path, non_graphical, port, student_version, first_run=True)
     _aedt_process_thread = threading.Thread(target=launch_desktop_on_port)
     _aedt_process_thread.daemon = True
     _aedt_process_thread.start()
+
+    if not student_version:
+        available_licenses = available_license_feature()
+        if available_licenses > 0:
+            settings.logger.info("Electronics Desktop license available.")
+        elif available_licenses == 0:  # pragma: no cover
+            settings.logger.warning("Electronics Desktop license not found on the default license server.")
+
     timeout = settings.desktop_launch_timeout
     k = 0
     while not _is_port_occupied(port):
