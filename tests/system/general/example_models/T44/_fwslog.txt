@@ -1,0 +1,17 @@
+genequiv:progress 0:
+genequiv:message Reading input data:
+genequiv:message Checking passivity.
+genequiv:message Input data is passive for all frequencies.
+genequiv:message Checking causality.  Reconstruction error tolerance: 0.01
+genequiv:progress 5:
+genequiv:message Fastfit does not support fit by entry!:
+genequiv:progress 5:
+genequiv:message Switching to rational fit! :
+genequiv:progress 5:
+genequiv:message starting:
+genequiv:progress 95:
+genequiv:message ending:
+genequiv:message Causality check is inconclusive: Please add more frequency samples.
+
+genequiv:progress 100:
+genequiv:message Exiting with return code 0:
