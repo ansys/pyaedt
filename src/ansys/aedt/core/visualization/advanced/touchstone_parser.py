@@ -340,7 +340,7 @@ class TouchstoneData(rf.Network):
         Parameters
         ----------
         excitation_name_prefix :str, optional
-            Prefix of the excitation. The default is ``""``.
+            Prefix of the excitation. The default value is ``""``.
 
         Returns
         -------
