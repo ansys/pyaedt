@@ -780,6 +780,8 @@ class CircuitComponents(object):
             The default is ``False``.
         global_netlist_list : list, optional
             The default is ``None``, in which case an empty list is passed.
+        page: int, optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
