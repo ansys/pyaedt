@@ -26,8 +26,6 @@ import warnings
 
 from enum import Enum
 
-from . import generated
-
 class EmitNode:
     # meant to only be used as a parent class
     def __init__(self, oDesign, result_id, node_id):
@@ -56,6 +54,9 @@ class EmitNode:
 
     @property
     def _parent(self):
+        from . import generated
+        # from .generated import *
+
         # parent_id = self._oDesign.GetModule('EmitCom').GetParentNodeID(self._result_id, self._node_id)
         parent_id = 1
 
@@ -64,8 +65,7 @@ class EmitNode:
 
         parent_type = parent_props['Type']
 
-        parent_type_module = getattr(generated, parent_type)
-        parent_type_class = getattr(parent_type_module, parent_type)
+        parent_type_class = getattr(generated, parent_type)
         parent_node = parent_type_class(self._oDesign, self._result_id, parent_id)
 
         return parent_node
@@ -86,11 +86,14 @@ class EmitNode:
     
     def _get_property(self, prop):
         props = self._oDesign.GetModule('EmitCom').GetEmitNodeProperties(self._result_id, self._node_id, True)
-        key_val_pair = [i for i in props if f'{prop}=' in i]
-        if len(key_val_pair) != 1:
+        kv_pairs = [prop.split('=') for prop in props]
+        selected_kv_pairs = [kv for kv in kv_pairs if kv[0] == prop]
+        if len(selected_kv_pairs) != 1:
             return ''
 
-        val = key_val_pair[0].split('=')[1]
+        selected_kv_pair = selected_kv_pairs[0]
+        val = selected_kv_pair[1]
+
         if val.find('|') != -1:
             return val.split('|')
         else:
