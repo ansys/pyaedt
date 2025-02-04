@@ -50,7 +50,7 @@ from ansys.aedt.core.workflows.misc import ExtensionTheme
 VERSION = "0.1.0"
 extension_description = f"Layout Design Toolkit ({VERSION})"
 
-default_config = {
+default_config_add_antipad = {
     "selections": [],
     "radius": "0.5mm",
     "race_track": True
@@ -85,7 +85,7 @@ class Frontend:
 
     def __init__(self):
         # Load initial configuration
-        self.config_dict = default_config.copy()
+        self.config_add_antipad = default_config_add_antipad.copy()
 
         # Create UI
         self.master = tk.Tk()
@@ -159,17 +159,17 @@ class Frontend:
         desktop, oproject, odesign = self.active_design
         selected = odesign.GetEditor("Layout").GetSelections()
         if len(selected) == 2:
-            self.config_dict["selections"] = selected
+            self.config_add_antipad["selections"] = selected
             text = ", ".join(selected)
         else:
-            self.config_dict["selections"] = []
+            self.config_add_antipad["selections"] = []
             text = "Please select two vias"
         self.selections_entry.replace("1.0", tk.END, text)
         desktop.release_desktop(False, False)
 
     def create_ui_diff_antipad(self, master):
         self.race_track_var = tk.BooleanVar()
-        self.race_track_var.set(self.config_dict["race_track"])
+        self.race_track_var.set(self.config_add_antipad["race_track"])
 
         # Selection entry
         row = 0
@@ -186,7 +186,7 @@ class Frontend:
         radius_label = ttk.Label(master, text="Anti pad radius", width=20, style="PyAEDT.TLabel")
         radius_label.grid(row=1, column=0, padx=15, pady=10)
         self.radius_entry = tk.Text(master, width=40, height=1)
-        self.radius_entry.insert("1.0", default_config["radius"])
+        self.radius_entry.insert("1.0", default_config_add_antipad["radius"])
         self.radius_entry.grid(row=1, column=1, pady=15, padx=10)
         self.tk_text.append(self.radius_entry)
 
@@ -201,69 +201,21 @@ class Frontend:
         b.grid(row=6, column=2, pady=10)
 
     def callback(self):
-        self.config_dict["race_track"] = self.race_track_var.get()
+        self.config_add_antipad["race_track"] = self.race_track_var.get()
         h3d = self.get_h3d
-        backend = Backend(h3d, self.config_dict)
-        backend.create()
+        backend = Backend(h3d)
+        backend.create_antipad(self.config_add_antipad)
         h3d.modeler.primitives.edb.close()
         h3d.release_desktop(False, False)
-        print(self.config_dict)
+        print(self.config_add_antipad)
         pass
 
 
 class Backend:
-    def __init__(self, h3d, config):
+    def __init__(self, h3d):
 
         self.h3d = h3d
         self.pedb = h3d.modeler.primitives.edb
-        self.config = config
-
-        self.via_p = self.pedb.padstacks.instances_by_name[config["selections"][0]]
-        self.via_n = self.pedb.padstacks.instances_by_name[config["selections"][1]]
-        self.race_track = self.config["race_track"]
-
-    def get_planes(self):
-        via_range = self.via_p.layer_range_names
-
-        prims = {}
-        for i in self.pedb.layout.primitives:
-            if i.primitive_type in ["rectangle", "polygon"]:
-                for pos in [self.via_p.position, self.via_n.position]:
-                    if i.polygon_data.point_in_polygon(pos[0], pos[1]):
-                        if i.layer_name not in via_range:
-                            continue
-                        if i.layer_name not in prims:
-                            prims[i.layer_name] = [i]
-                        else:
-                            prims[i.layer_name].append(i)
-                        break
-        return prims
-
-    def create(self):
-        variable_name = f"{self.via_p.net_name}_{self.via_p.name}_{self.via_n.name}_antipad_radius"
-        if variable_name not in self.h3d.variable_manager.variable_names:
-            self.h3d[variable_name] = self.config["radius"]
-        planes = self.get_planes()
-
-        for _, obj_list in planes.items():
-            for obj in obj_list:
-                if self.race_track:
-                    self.create_line_void(obj.aedt_name,
-                                          obj.layer_name,
-                                          [self.via_p.position, self.via_n.position],
-                                          variable_name)
-                else:
-                    self.create_circle_void(obj.aedt_name,
-                                            obj.layer_name,
-                                            self.via_p.position,
-                                            variable_name
-                                            )
-                    self.create_circle_void(obj.aedt_name,
-                                            obj.layer_name,
-                                            self.via_n.position,
-                                            variable_name
-                                            )
-        print("***** Done *****")
 
     def create_line_void(self, owner, layer_name, path, width):
         void_name = generate_unique_name("line_void_")
@@ -309,10 +261,57 @@ class Backend:
         ]
         self.h3d.oeditor.CreateCircleVoid(args)
 
+    def get_primitives(self, via_p, via_n):
+        via_range = via_p.layer_range_names
+
+        prims = {}
+        for i in self.pedb.layout.primitives:
+            if i.primitive_type in ["rectangle", "polygon"]:
+                for pos in [via_p.position, via_n.position]:
+                    if i.polygon_data.point_in_polygon(pos[0], pos[1]):
+                        if i.layer_name not in via_range:
+                            continue
+                        if i.layer_name not in prims:
+                            prims[i.layer_name] = [i]
+                        else:
+                            prims[i.layer_name].append(i)
+                        break
+        return prims
+
+    def create_antipad(self, config):
+        race_track = config["race_track"]
+        via_p = self.pedb.padstacks.instances_by_name[config["selections"][0]]
+        via_n = self.pedb.padstacks.instances_by_name[config["selections"][1]]
+
+        variable_name = f"{via_p.net_name}_{via_p.name}_{via_n.name}_antipad_radius"
+        if variable_name not in self.h3d.variable_manager.variable_names:
+            self.h3d[variable_name] = config["radius"]
+        planes = self.get_primitives(via_p, via_n)
+
+        for _, obj_list in planes.items():
+            for obj in obj_list:
+                if race_track:
+                    self.create_line_void(obj.aedt_name,
+                                          obj.layer_name,
+                                          [via_p.position, via_n.position],
+                                          f"{variable_name}*2")
+                else:
+                    self.create_circle_void(obj.aedt_name,
+                                            obj.layer_name,
+                                            via_p.position,
+                                            variable_name
+                                            )
+                    self.create_circle_void(obj.aedt_name,
+                                            obj.layer_name,
+                                            via_n.position,
+                                            variable_name
+                                            )
+        print("***** Done *****")
+
 
 def main(h3d, config):
     app = Backend(h3d, config)
-    app.create()
+    app.create_antipad()
     h3d.release_desktop()
 
 
