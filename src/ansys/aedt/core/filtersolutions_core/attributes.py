@@ -97,25 +97,6 @@ class FilterClass(Enum):
     STOP_STOP = 9
 
 
-class FilterImplementation(Enum):
-    """Provides an enum of filter implementation types.
-
-    **Attributes:**
-
-    - LUMPED: Represents a lumped implementation.
-    - DISTRIB: Represents a distributed implementation.
-    - ACTIVE: Represents an active implementation.
-    - SWCAP: Represents a switched capacitor implementation.
-    - DIGITAL: Represents a digital implementation.
-    """
-
-    LUMPED = 0
-    DISTRIB = 1
-    ACTIVE = 2
-    SWCAP = 3
-    DIGITAL = 4
-
-
 class DiplexerType(Enum):
     """Provides an enum of diplexer and triplexer types.
 
@@ -155,14 +136,14 @@ class RaisedCosineAlphaPercentage(Enum):
     """
 
     FIFTEEN = 0
-    TWENTY = 1
-    TWENTY_FIVE = 2
-    THIRTY = 3
-    THIRTY_FIVE = 4
-    FORTY = 5
-    FORTY_FIVE = 6
-    FIFTY = 7
-    SEVENTY_FIVE = 8
+    FORTY = 1
+    TWENTY = 2
+    FORTY_FIVE = 3
+    TWENTY_FIVE = 4
+    FIFTY = 5
+    THIRTY = 6
+    SEVENTY_FIVE = 7
+    THIRTY_FIVE = 8
     HUNDRED = 9
 
 
@@ -303,9 +284,9 @@ class Attributes:
         self._dll.getFilterClass.argtypes = [c_char_p, c_int]
         self._dll.getFilterClass.restype = int
 
-        self._dll.setFilterImplementation.argtype = c_char_p
+        self._dll.setFilterImplementation.argtype = c_int
         self._dll.setFilterImplementation.restype = c_int
-        self._dll.getFilterImplementation.argtypes = [c_char_p, c_int]
+        self._dll.getFilterImplementation.argtype = POINTER(c_int)
         self._dll.getFilterImplementation.restype = c_int
 
         self._dll.setMultipleBandsEnabled.argtype = c_bool
@@ -651,25 +632,6 @@ class Attributes:
         if filter_class:
             string_value = self._dll_interface.enum_to_string(filter_class)
             self._dll_interface.set_string(self._dll.setFilterClass, string_value)
-
-    @property
-    def filter_implementation(self) -> FilterImplementation:
-        """Technology for implementing the filter. The default is ``LUMPED``.
-
-        The ``FilterImplementation`` enum provides a list of all implementations.
-
-        Returns
-        -------
-        :enum:`FilterImplementation`
-        """
-        type_string = self._dll_interface.get_string(self._dll.getFilterImplementation)
-        return self._dll_interface.string_to_enum(FilterImplementation, type_string)
-
-    @filter_implementation.setter
-    def filter_implementation(self, filter_implementation: FilterImplementation):
-        if filter_implementation:
-            string_value = self._dll_interface.enum_to_string(filter_implementation)
-            self._dll_interface.set_string(self._dll.setFilterImplementation, string_value)
 
     @property
     def diplexer_type(self) -> DiplexerType:
