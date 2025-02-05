@@ -492,11 +492,6 @@ class ExportToAedt:
         self._dll.removeModelithicsResistorsFamily.argtype = c_char_p
         self._dll.removeModelithicsResistorsFamily.restype = c_int
 
-    def _open_aedt_export(self):
-        """Open export page to accept manipulate export parameters"""
-        status = self._dll.openLumpedExportPage()
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
-
     @property
     def schematic_name(self) -> str:
         """Name of the exported schematic in ``AEDT``, displayed as the project and design names.
@@ -831,6 +826,7 @@ class ExportToAedt:
             export_path = ""
         else:
             directory_path = os.path.dirname(export_path)
+            # Check if the directory path exists, if not, create it to ensure the export path is valid
             if not os.path.exists(directory_path):
                 os.makedirs(directory_path)
         export_path_bytes = bytes(export_path, "ascii")
@@ -1219,12 +1215,12 @@ class ExportToAedt:
         status = self._dll.setInterconnectGeometryOptimization(interconnect_geometry_optimization_enabled)
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
-    def update_interconncet_parameters(self):
+    def update_interconncet_parameters(self):  # pragma: no cover
         """Update interconnect geometry equations with entered and selected parameters"""
         status = self._dll.updateInterConnectParmeters()
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
-    def update_inductor_capacitor_tolerances(self):
+    def update_inductor_capacitor_tolerances(self):  # pragma: no cover
         """Update interconnect inductor and capacitor tolerances with entered values"""
         status = self._dll.updatePartsTolerances()
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
@@ -1279,7 +1275,6 @@ class ExportToAedt:
             substrate_er_index = -1
         else:
             raise ValueError("Invalid substrate input. Must be a SubstrateEr enum member or a string.")
-
         substrate_er_value_bytes = bytes(substrate_er_value, "ascii")
         status = self._dll.setEr(substrate_er_value_bytes, substrate_er_index)
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)

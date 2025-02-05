@@ -51,6 +51,11 @@ class TestClass:
         distributed_design.substrate.substrate_er = "3.2"
         assert distributed_design.substrate.substrate_er == "3.2"
 
+    def test_substrate_er_invalid_input(self, distributed_design):
+        with pytest.raises(ValueError) as info:
+            distributed_design.substrate.substrate_er = 3.7
+        assert str(info.value) == "Invalid substrate input. Must be a SubstrateEr enum member or a string."
+
     def test_substrate_resistivity(self, distributed_design):
         assert distributed_design.substrate.substrate_resistivity == SubstrateResistivity.GOLD
         assert len(SubstrateResistivity) == 11
@@ -60,6 +65,11 @@ class TestClass:
         distributed_design.substrate.substrate_resistivity = "0.02"
         assert distributed_design.substrate.substrate_resistivity == "0.02"
 
+    def test_substrate_resistivity_invalid_input(self, distributed_design):
+        with pytest.raises(ValueError) as info:
+            distributed_design.substrate.substrate_resistivity = 0.02
+        assert str(info.value) == "Invalid substrate input. Must be a SubstrateResistivity enum member or a string."
+
     def test_substrate_loss_tangent(self, distributed_design):
         assert distributed_design.substrate.substrate_loss_tangent == SubstrateEr.ALUMINA
         assert len(SubstrateEr) == 17
@@ -68,6 +78,11 @@ class TestClass:
             assert distributed_design.substrate.substrate_loss_tangent == loss
         distributed_design.substrate.substrate_loss_tangent = "0.0002"
         assert distributed_design.substrate.substrate_loss_tangent == "0.0002"
+
+    def test_substrate_loss_tangent_invalid_input(self, distributed_design):
+        with pytest.raises(ValueError) as info:
+            distributed_design.substrate.substrate_loss_tangent = 0.0002
+        assert str(info.value) == "Invalid substrate input. Must be a SubstrateEr enum member or a string."
 
     def test_substrate_conductor_thickness(self, distributed_design):
         assert distributed_design.substrate.substrate_conductor_thickness == "2.54 um"
@@ -87,18 +102,27 @@ class TestClass:
         assert distributed_design.substrate.substrate_unbalanced_lower_dielectric_height == "5.2 mm"
 
     def test_substrate_suspend_dielectric_height(self, distributed_design):
+        with pytest.raises(RuntimeError) as info:
+            distributed_design.substrate.substrate_suspend_dielectric_height = "2.5 mm"
+        assert info.value.args[0] == "The Suspend Dielectric Height is not available for Microstrip substrate"
         distributed_design.substrate.substrate_type = SubstrateType.SUSPEND
         assert distributed_design.substrate.substrate_suspend_dielectric_height == "1.27 mm"
         distributed_design.substrate.substrate_suspend_dielectric_height = "3.2 mm"
         assert distributed_design.substrate.substrate_suspend_dielectric_height == "3.2 mm"
 
     def test_substrate_cover_height(self, distributed_design):
+        with pytest.raises(RuntimeError) as info:
+            distributed_design.substrate.substrate_cover_height = "2.5 mm"
+        assert info.value.args[0] == "The Cover option for Microstrip Substrate is not enabled"
         distributed_design.substrate.substrate_cover_height_enabled = True
         assert distributed_design.substrate.substrate_cover_height == "6.35 mm"
         distributed_design.substrate.substrate_cover_height = "2.5 mm"
         assert distributed_design.substrate.substrate_cover_height == "2.5 mm"
 
     def test_substrate_unbalanced_stripline_enabled(self, distributed_design):
+        with pytest.raises(RuntimeError) as info:
+            distributed_design.substrate.substrate_unbalanced_stripline_enabled = True
+        assert info.value.args[0] == "The Unbalanced Topolgy is not available for Microstrip substrate"
         distributed_design.substrate.substrate_type = SubstrateType.STRIPLINE
         assert distributed_design.substrate.substrate_unbalanced_stripline_enabled == False
         distributed_design.substrate.substrate_unbalanced_stripline_enabled = True

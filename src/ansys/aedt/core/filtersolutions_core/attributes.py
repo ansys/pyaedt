@@ -136,14 +136,14 @@ class RaisedCosineAlphaPercentage(Enum):
     """
 
     FIFTEEN = 0
-    TWENTY = 1
-    TWENTY_FIVE = 2
-    THIRTY = 3
-    THIRTY_FIVE = 4
-    FORTY = 5
-    FORTY_FIVE = 6
-    FIFTY = 7
-    SEVENTY_FIVE = 8
+    FORTY = 1
+    TWENTY = 2
+    FORTY_FIVE = 3
+    TWENTY_FIVE = 4
+    FIFTY = 5
+    THIRTY = 6
+    SEVENTY_FIVE = 7
+    THIRTY_FIVE = 8
     HUNDRED = 9
 
 

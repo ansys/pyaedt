@@ -43,6 +43,7 @@ try:
     from matplotlib.patches import PathPatch
     from matplotlib.path import Path
     import matplotlib.pyplot as plt
+    import matplotlib.ticker as ticker
 except ImportError:
     warnings.warn(
         "The Matplotlib module is required to run some functionalities of PostProcess.\n"
@@ -730,9 +731,9 @@ class ReportPlotter:
                 self.ax.grid(which="minor", color=self.__grid_color)
             if self._has_minor_axis:
                 if self.__grid_enable_minor_x:
-                    self.ax.xaxis.minorticks_on()
+                    self.ax.xaxis.set_minor_locator(ticker.AutoMinorLocator())
                 if self.__grid_enable_minor_y:
-                    self.ax.yaxis.minorticks_on()
+                    self.ax.yaxis.set_minor_locator(ticker.AutoMinorLocator())
             self.ax.tick_params(which="minor", grid_linestyle="--")
 
     @property
@@ -1311,14 +1312,7 @@ class ReportPlotter:
 
     @pyaedt_function_handler()
     def plot_contour(
-        self,
-        trace=0,
-        polar=False,
-        levels=64,
-        max_theta=180,
-        color_bar=None,
-        snapshot_path=None,
-        show=True,
+        self, trace=0, polar=False, levels=64, max_theta=180, color_bar=None, snapshot_path=None, show=True, figure=None
     ):
         """Create a Matplotlib figure contour based on a list of data.
 
@@ -1343,6 +1337,9 @@ class ReportPlotter:
             The default value is ``None``.
         show : bool, optional
             Whether to show the plot or return the matplotlib object. Default is ``True``.
+        figure : :class:`matplotlib.pyplot.Figure`, optional
+            An existing Matplotlib `Figure` to which the plot is added.
+            If not provided, a new `Figure` and `Axes` object are created.
 
         Returns
         -------
@@ -1355,7 +1352,14 @@ class ReportPlotter:
         else:
             tr = tr[0]
         projection = "polar" if polar else "rectilinear"
-        self.fig, self.ax = plt.subplots(subplot_kw={"projection": projection})
+
+        if not figure:
+            self.fig, self.ax = plt.subplots(subplot_kw={"projection": projection})
+            self.ax = plt.gca()
+        else:
+            self.fig = figure
+            self.ax = figure.add_subplot(111, polar=polar)
+
         self.ax.set_xlabel(tr.x_label)
         if polar:
             self.ax.set_rticks(np.linspace(0, max_theta, 3))
@@ -1366,7 +1370,7 @@ class ReportPlotter:
         ph = tr._spherical_data[2]
         th = tr._spherical_data[1]
         data_to_plot = tr._spherical_data[0]
-        plt.contourf(
+        contour = self.ax.contourf(
             ph,
             th,
             data_to_plot,
@@ -1374,10 +1378,9 @@ class ReportPlotter:
             cmap="jet",
         )
         if color_bar:
-            cbar = plt.colorbar()
+            cbar = self.fig.colorbar(contour, ax=self.ax)
             cbar.set_label(color_bar, rotation=270, labelpad=20)
 
-        self.ax = plt.gca()
         self.ax.yaxis.set_label_coords(-0.1, 0.5)
         self._plot(snapshot_path, show)
         return self.fig

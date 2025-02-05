@@ -795,7 +795,7 @@ class Analysis(Design, object):
         for report_name in self.post.all_report_names:
             name_no_space = report_name.replace(" ", "_")
             self.post.oreportsetup.UpdateReports([str(report_name)])
-            export_path = os.path.join(export_folder, "{self.project_name}_{self.design_name}_{name_no_space}.csv")
+            export_path = os.path.join(export_folder, f"{self.project_name}_{self.design_name}_{name_no_space}.csv")
             try:
                 self.post.oreportsetup.ExportToFile(str(report_name), export_path)
                 self.logger.info(f"Export Data: {export_path}")
@@ -1643,7 +1643,7 @@ class Analysis(Design, object):
 
         dict = {}
         for entry in assignment:
-            mat_name = self.modeler[entry].material_name
+            mat_name = self.modeler[entry].material_name.casefold()
             mat_props = self.materials.material_keys[mat_name]
             if prop_names is None:
                 dict[entry] = mat_props._props

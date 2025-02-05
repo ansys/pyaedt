@@ -103,7 +103,8 @@ class FfdSolutionDataExporter:
         else:
             # Set variation to Nominal
             for var_name, var_value in variations.items():
-                app[var_name] = var_value
+                if app[var_name] != var_value:
+                    app[var_name] = var_value
 
         self.variations = variations
         self.overwrite = overwrite
