@@ -55,6 +55,13 @@ They are small automated workflows with a simple GUI.
 
             Lear how to convert projects from 2022R2 to newer versions.
 
+   .. grid-item-card:: Version manager
+            :link: pyaedt_extensions_doc/project/version_manager
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Manage pyaedt and pyedb versions.
+
 
 HFSS 3D Layout extensions
 ~~~~~~~~~~~~~~~~~~~~~~~~~
