@@ -316,7 +316,6 @@ EddyCurrent = dict(
         "SmoothBHCurve": False,
         "Frequency": "60Hz",
         "HasSweepSetup": False,
-        # "SweepRanges": subranges,
         "UseHighOrderShapeFunc": False,
         "UseMuLink": False,
     }
