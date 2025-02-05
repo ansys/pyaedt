@@ -200,23 +200,32 @@ class TestClass:
         assert isinstance(setup.props["SweepRanges"]["Subrange"], list)
         m3d_app.save_project()
         assert len(setup.props["SweepRanges"]["Subrange"]) == 2
+        sweep = setup.add_eddy_current_sweep(
+            sweep_type="LogScale", start_frequency=dc_freq, stop_frequency=stop_freq, step_size=count, clear=True
+        )
+        assert sweep.props["RangeType"] == "LogScale"
+        assert sweep.props["RangeStart"] == "0.1Hz"
+        assert sweep.props["RangeEnd"] == "10Hz"
+        assert sweep.props["RangeSamples"] == 1
+        assert isinstance(setup.props["SweepRanges"]["Subrange"], list)
+        m3d_app.save_project()
+        assert len(setup.props["SweepRanges"]["Subrange"]) == 1
         sweep = setup.add_eddy_current_sweep(sweep_type="SinglePoints", start_frequency=0.01, clear=False)
         assert sweep.props["RangeType"] == "SinglePoints"
         assert sweep.props["RangeStart"] == "0.01Hz"
         assert sweep.props["RangeEnd"] == "0.01Hz"
         m3d_app.save_project()
-        assert len(setup.props["SweepRanges"]["Subrange"]) == 3
+        assert len(setup.props["SweepRanges"]["Subrange"]) == 2
         assert sweep.delete()
         m3d_app.save_project()
-        assert len(setup.props["SweepRanges"]["Subrange"]) == 2
+        assert len(setup.props["SweepRanges"]["Subrange"]) == 1
         assert setup.update()
-        sweep.add_subrange(range_type="LinearCount", start_frequency=1, stop_frequency=1.5, step_size=5, units="Hz")
-        m3d_app.save_project()
-        assert len(setup.props["SweepRanges"]["Subrange"]) == 3
         assert setup.enable_expression_cache(["CoreLoss"], "Fields", "Phase='0deg' ", True)
         assert setup.props["UseCacheFor"] == ["Pass", "Freq"]
         assert setup.disable()
         assert setup.enable()
+        assert not sweep.is_solved
+        assert isinstance(sweep.frequencies, list)
 
     def test_create_parametrics(self, m3d_app):
         m3d_app.create_setup()

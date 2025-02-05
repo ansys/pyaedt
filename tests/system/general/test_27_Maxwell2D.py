@@ -668,3 +668,16 @@ class TestClass:
         assert setup.props["SweepRanges"]["Subrange"][2]["RangeType"] == "SinglePoints"
         assert setup.props["SweepRanges"]["Subrange"][2]["RangeStart"] == "3ms"
         assert setup.props["SweepRanges"]["Subrange"][2]["RangeEnd"] == "3ms"
+        assert setup.set_save_fields(enable=True, range_type="Every N Steps", start=0, stop=10, count=1, units="ms")
+        assert setup.props["SaveFieldsType"] == "Every N Steps"
+        assert setup.props["Steps From"] == "0ms"
+        assert setup.props["Steps To"] == "10ms"
+        assert setup.props["N Steps"] == "1"
+        assert setup.set_save_fields(
+            enable=True, range_type="Custom", subrange_type="SinglePoints", start=3, units="ms"
+        )
+        assert len(setup.props["SweepRanges"]["Subrange"]) == 1
+        assert setup.props["SweepRanges"]["Subrange"][0]["RangeType"] == "SinglePoints"
+        assert setup.props["SweepRanges"]["Subrange"][0]["RangeStart"] == "3ms"
+        assert setup.props["SweepRanges"]["Subrange"][0]["RangeEnd"] == "3ms"
+        assert setup.set_save_fields(enable=False)

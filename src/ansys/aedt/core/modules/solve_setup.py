@@ -3644,7 +3644,7 @@ class SetupMaxwell(Setup, object):
         self.props["SaveAllFields"] = save_all_fields
         if self.sweeps:
             if clear:
-                self.props["SweepRanges"] = [sweep.props]
+                self.props["SweepRanges"] = {"Subrange": [sweep.props]}
             else:
                 if isinstance(self.props["SweepRanges"]["Subrange"], dict):
                     temp = self.props["SweepRanges"]["Subrange"]
@@ -3773,6 +3773,10 @@ class SetupMaxwell(Setup, object):
         else:
             if enable:
                 if range_type == "Custom":
+                    if self.props["SaveFieldsType"] == "Every N Steps":
+                        self.props.pop("Steps From", None)
+                        self.props.pop("Steps To", None)
+                        self.props.pop("N Steps", None)
                     self.props["SaveFieldsType"] = range_type
                     range_props = {
                         "RangeType": subrange_type,
@@ -3788,6 +3792,7 @@ class SetupMaxwell(Setup, object):
                     if "SweepRanges" in self.props.keys():
                         if isinstance(self.props["SweepRanges"]["Subrange"], dict):
                             temp = self.props["SweepRanges"]["Subrange"]
+                            self.props["SweepRanges"].pop("Subrange", None)
                             self.props["SweepRanges"]["Subrange"] = [temp]
                         self.props["SweepRanges"]["Subrange"].append(range_props)
                     else:
@@ -3796,6 +3801,7 @@ class SetupMaxwell(Setup, object):
                 else:
                     if self.props["SaveFieldsType"] == "Custom":
                         self.props.pop("SweepRanges", None)
+                    self.auto_update = False
                     self.props["SaveFieldsType"] = "Every N Steps"
                     self.props["N Steps"] = f"{count}"
                     self.props["Steps From"] = f"{start}{units}"
