@@ -522,7 +522,7 @@ class DistributedTopology:
     @property
     def equal_width_conductors(self) -> bool:
         """Flag indicating if all stubs are set to equal width.
-        This parameter is applicable for the ``Parallel Edge Coupled`` topologiy of band pass filters.
+        This parameter is applicable for the ``Parallel Edge Coupled`` topology of band pass filters.
 
         Returns
         -------
