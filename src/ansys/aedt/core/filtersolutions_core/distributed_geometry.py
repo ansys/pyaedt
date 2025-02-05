@@ -34,7 +34,7 @@ import ansys.aedt.core
 class DistributedGeometry:
     """Defines geometry parameters of distributed filters.
 
-    This class lets you construct all paramaeters for the geometry page of the ``DistributedDesign`` class.
+    This class allows you to define and modify the layout geometry parameters of distributed filters.
     """
 
     def __init__(self):
@@ -95,38 +95,46 @@ class DistributedGeometry:
         self._dll.getDistributedAdjustLengthOnLimit.restype = c_int
 
     @property
-    def fixed_width_capacitor_sections(self) -> str:
-        """Susbtrate width to height ratio of segments and stubs of the translated lumped capacitor sections.
+    def fixed_width_to_height_ratio_capacitor_sections(self) -> str:
+        """Fixed width-to-substrate height ratios for all segments and stubs in the
+        translated lumped capacitor sections.
         All sections are set to the same width. The default is ``4``.
 
         Returns
         -------
         str
         """
-        fixed_width_capacitor_sections_string = self._dll_interface.get_string(
+        fixed_width_to_height_ratio_capacitor_sections_string = self._dll_interface.get_string(
             self._dll.getDistributedCapacitorSections
         )
-        return fixed_width_capacitor_sections_string
+        return fixed_width_to_height_ratio_capacitor_sections_string
 
-    @fixed_width_capacitor_sections.setter
-    def fixed_width_capacitor_sections(self, fixed_width_capacitor_sections_string):
-        self._dll_interface.set_string(self._dll.setDistributedCapacitorSections, fixed_width_capacitor_sections_string)
+    @fixed_width_to_height_ratio_capacitor_sections.setter
+    def fixed_width_to_height_ratio_capacitor_sections(self, fixed_width_to_height_ratio_capacitor_sections_string):
+        self._dll_interface.set_string(
+            self._dll.setDistributedCapacitorSections, fixed_width_to_height_ratio_capacitor_sections_string
+        )
 
     @property
-    def fixed_width_inductor_sections(self) -> str:
-        """Susbtrate width to height ratio of segments and stubs of the translated lumped inductor sections.
+    def fixed_width_to_height_ratio_inductor_sections(self) -> str:
+        """Fixed width-to-substrate height ratios for all segments and stubs in the
+        translated lumped inductor sections.
         All sections are set to the same width. The default is ``0.25``.
 
         Returns
         -------
         str
         """
-        fixed_width_inductor_sections_string = self._dll_interface.get_string(self._dll.getDistributedInductorSections)
-        return fixed_width_inductor_sections_string
+        fixed_width_to_height_ratio_inductor_sections_string = self._dll_interface.get_string(
+            self._dll.getDistributedInductorSections
+        )
+        return fixed_width_to_height_ratio_inductor_sections_string
 
-    @fixed_width_inductor_sections.setter
-    def fixed_width_inductor_sections(self, fixed_width_inductor_sections_string):
-        self._dll_interface.set_string(self._dll.setDistributedInductorSections, fixed_width_inductor_sections_string)
+    @fixed_width_to_height_ratio_inductor_sections.setter
+    def fixed_width_to_height_ratio_inductor_sections(self, fixed_width_to_height_ratio_inductor_sections_string):
+        self._dll_interface.set_string(
+            self._dll.setDistributedInductorSections, fixed_width_to_height_ratio_inductor_sections_string
+        )
 
     @property
     def split_wide_stubs(self) -> str:
@@ -148,7 +156,7 @@ class DistributedGeometry:
     @property
     def alternate_stub_orientation(self) -> bool:
         """Flag indicating if the alternate vertical orientation of stubs is enabled.
-        The orintation alternates between up and down to minimize interference between adjacent stubs.
+        The orientation alternates between up and down to minimize interference between adjacent stubs.
 
         Returns
         -------
@@ -244,7 +252,7 @@ class DistributedGeometry:
 
     @property
     def adjust_length_on_limit(self) -> bool:
-        """Flag indicating if the length of all limited stubs and segments are adjusted to mainatian
+        """Flag indicating if the length of all limited stubs and segments are adjusted to maintain
         the desired lumped element impedance. This adjustment is effective for sections simulating
         translated lumped elements.
 

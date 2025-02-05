@@ -98,50 +98,6 @@ Base filter design
 The ``FilterDesignBase`` module provides all the essential classes for creating and modifying the primary parameters applicable to all design types.
 
 * ``Attributes`` to define attributes and parameters of filters.
-* ``DllInterface`` to establish an interface with the FilterSolutions DLL.
-* ``GraphSetup`` to define the frequency and time graph parameters of the exported responses.
-* ``IdealResponse`` to return the data for the available ideal filter responses.
-* ``MultipleBandsTable`` to manage access to the entries in the multiple bands table.
-* ``TransmissionZeros`` to manage access to ratio and bandwidth entries in the transmission zeros table.
-* ``ExportToAedt`` to define attributes and parameters for the export page when exporting to AEDT.
-* ``OptimizationGoalsTable`` to manage access to the entries in the optimization goals table.
-
-They are accessible through:
-
-
-.. currentmodule:: ansys.aedt.core.filtersolutions_core
-
-.. autosummary::
-   :toctree: _autosummary
-   :nosignatures:
-
-
-   distributed_topology.DistributedTopology
-
-``Distributed Filter`` example:
-
-.. code:: python
-
-    import ansys.aedt.core
-    import ansys.aedt.core.filtersolutions
-    # This call returns an instance of the DistributedDesign class
-    design = ansys.aedt.core.FilterSolutions.DistributedDesign(version= "2025.2")
-    # This property in the Attributes class specifies the filter class as band pass
-    design.attributes.filter_class = FilterClass.BAND_PASS
-    # This property in the Attributes class specifies the filter type as Elliptic
-    design.attributes.filter_type = FilterType.ELLIPTIC   
-    # This property in the DistributedTopology class sets the load resistance to 50 ohms.
-    design.topology.load_resistance = "50"
-    ...
-
-.. _BaseFilterDesign:
-
-Base filter design
-~~~~~~~~~~~~~~~~~~~
-The ``FilterDesignBase`` module provides all the essential classes for creating and modifying the primary parameters applicable to all design types.
-
-* ``Attributes`` to define attributes and parameters of filters.
-* ``DllInterface`` to establish an interface with the FilterSolutions DLL.
 * ``GraphSetup`` to define the frequency and time graph parameters of the exported responses.
 * ``IdealResponse`` to return the data for the available ideal filter responses.
 * ``MultipleBandsTable`` to manage access to the entries in the multiple bands table.
@@ -160,7 +116,6 @@ They are accessible through:
 
 
    attributes.Attributes
-   dll_interface.DllInterface
    graph_setup.GraphSetup
    ideal_response.IdealResponse
    multiple_bands_table.MultipleBandsTable

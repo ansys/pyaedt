@@ -32,15 +32,15 @@ from tests.system.general.conftest import config
 @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
 class TestClass:
 
-    def test_fixed_width_capacitor_sections(self, distributed_design):
-        assert distributed_design.geometry.fixed_width_capacitor_sections == "4"
-        distributed_design.geometry.fixed_width_capacitor_sections = "2"
-        assert distributed_design.geometry.fixed_width_capacitor_sections == "2"
+    def test_fixed_width_to_height_ratio_capacitor_sections(self, distributed_design):
+        assert distributed_design.geometry.fixed_width_to_height_ratio_capacitor_sections == "4"
+        distributed_design.geometry.fixed_width_to_height_ratio_capacitor_sections = "2"
+        assert distributed_design.geometry.fixed_width_to_height_ratio_capacitor_sections == "2"
 
-    def test_fixed_width_inductor_sections(self, distributed_design):
-        assert distributed_design.geometry.fixed_width_inductor_sections == "0.25"
-        distributed_design.geometry.fixed_width_inductor_sections = "2"
-        assert distributed_design.geometry.fixed_width_inductor_sections == "2"
+    def test_fixed_width_to_height_ratio_inductor_sections(self, distributed_design):
+        assert distributed_design.geometry.fixed_width_to_height_ratio_inductor_sections == "0.25"
+        distributed_design.geometry.fixed_width_to_height_ratio_inductor_sections = "2"
+        assert distributed_design.geometry.fixed_width_to_height_ratio_inductor_sections == "2"
 
     def test_split_wide_stubs(self, distributed_design):
         assert distributed_design.geometry.split_wide_stubs == "0"
