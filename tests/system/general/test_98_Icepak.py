@@ -622,7 +622,7 @@ class TestClass:
                 voltage_current_value={"Type": "Transient", "Function": "Sinusoidal", "Values": ["0A", 1, 1, "1s"]},
             )
         with pytest.raises(
-            AEDTRuntimeError, match="A transient boundary condition cannot be assigned for a non-transient simulation."
+            AEDTRuntimeError, match="Temperature dependent assignment support only piecewise linear function."
         ):
             ipk.assign_source(
                 ipk.modeler["boxSource"].top_face_x.id,
@@ -1475,7 +1475,7 @@ class TestClass:
     def test066__recirculation_boundary(self, ipk):
         box = ipk.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBoxEmpty", "copper")
         box.solve_inside = False
-        with pytest.raises(AEDTRuntimeError, patch="Recirculation boundary condition must be assigned to two faces."):
+        with pytest.raises(ValueError, match="Recirculation boundary condition must be assigned to two faces."):
             ipk.assign_recirculation_opening(
                 [box.top_face_x, box.bottom_face_x, box.bottom_face_y], box.top_face_x, flow_assignment="10kg_per_s_m2"
             )
@@ -1486,12 +1486,13 @@ class TestClass:
         ipk.solution_type = "Transient"
         assert ipk.assign_recirculation_opening([box.top_face_x, box.bottom_face_x], box.top_face_x)
         assert ipk.assign_recirculation_opening([box.top_face_x.id, box.bottom_face_x.id], box.top_face_x.id)
-        assert not ipk.assign_recirculation_opening(
-            [box.top_face_x.id, box.bottom_face_x.id],
-            box.top_face_x.id,
-            thermal_specification="Conductance",
-            flow_direction=[1],
-        )
+        with pytest.raises(ValueError, match=re.escape("``flow_direction`` must have only three components.")):
+            ipk.assign_recirculation_opening(
+                [box.top_face_x.id, box.bottom_face_x.id],
+                box.top_face_x.id,
+                thermal_specification="Conductance",
+                flow_direction=[1],
+            )
         temp_dict = {"Function": "Square Wave", "Values": ["1cel", "0s", "1s", "0.5s", "0cel"]}
         flow_dict = {"Function": "Sinusoidal", "Values": ["0kg_per_s_m2", 1, 1, "1s"]}
         recirc = ipk.assign_recirculation_opening(
@@ -1504,31 +1505,36 @@ class TestClass:
         assert recirc
         assert recirc.update()
         ipk.solution_type = "SteadyState"
-        assert not ipk.assign_recirculation_opening(
-            [box.top_face_x.id, box.bottom_face_x.id],
-            box.top_face_x.id,
-            thermal_specification="Temperature",
-            assignment_value=temp_dict,
-            flow_assignment=flow_dict,
-        )
-        assert not ipk.assign_recirculation_opening(
-            [box.top_face_x.id, box.bottom_face_x.id],
-            box.top_face_x.id,
-            thermal_specification="Temperature",
-            flow_direction="Side",
-        )
+        with pytest.raises(AEDTRuntimeError, match="Transient assignment is supported only in transient designs."):
+            ipk.assign_recirculation_opening(
+                [box.top_face_x.id, box.bottom_face_x.id],
+                box.top_face_x.id,
+                thermal_specification="Temperature",
+                assignment_value=temp_dict,
+                flow_assignment=flow_dict,
+            )
+        with pytest.raises(
+            TypeError, match=re.escape("``flow_direction`` can only be ``None`` or a list of strings or floats.")
+        ):
+            ipk.assign_recirculation_opening(
+                [box.top_face_x.id, box.bottom_face_x.id],
+                box.top_face_x.id,
+                thermal_specification="Temperature",
+                flow_direction="Side",
+            )
         assert ipk.assign_recirculation_opening(
             [box.top_face_x.id, box.bottom_face_x.id],
             box.top_face_x.id,
             thermal_specification="Temperature",
             flow_direction=[0, 1, 0],
         )
-        assert not ipk.assign_recirculation_opening(
-            [box.top_face_x.id, box.bottom_face_x.id],
-            box.top_face_x.id,
-            thermal_specification="Temperature",
-            flow_assignment=flow_dict,
-        )
+        with pytest.raises(AEDTRuntimeError, match="Transient assignment is supported only in transient designs."):
+            ipk.assign_recirculation_opening(
+                [box.top_face_x.id, box.bottom_face_x.id],
+                box.top_face_x.id,
+                thermal_specification="Temperature",
+                flow_assignment=flow_dict,
+            )
 
     def test067__blower_boundary(self, ipk):
         cylinder = ipk.modeler.create_cylinder(orientation="X", origin=[0, 0, 0], radius=10, height=1)
