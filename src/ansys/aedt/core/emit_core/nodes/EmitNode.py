@@ -39,6 +39,8 @@ class EmitNode:
         result = {}
         for prop in props:
             split_prop = prop.split("=")
+            if split_prop[1].find('|') != -1:
+                result[split_prop[0]] = split_prop[1].split('|')
             result[split_prop[0]] = split_prop[1]
 
         return result

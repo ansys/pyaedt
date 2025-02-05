@@ -12,6 +12,18 @@ class NodeInterface:
     def get_all_component_names(self) -> list[str]:
         component_names = self.oEmitCom.GetComponentNames(0, "")
         return component_names
+    
+    def get_all_top_level_nodes(self) -> list[EmitNode]:
+        top_level_node_names = ["Scene", "Couplings"]
+        top_level_node_ids = [self.oEmitCom.GetTopLevelNodeID(0, name) for name in top_level_node_names]
+        top_level_nodes = [self.get_node(node_id) for node_id in top_level_node_ids]
+        return top_level_nodes
+    
+    def get_all_component_nodes(self) -> list[EmitNode]:
+        component_names = self.get_all_component_names()
+        component_node_ids = [self.oEmitCom.GetComponentNodeID(0, name) for name in component_names]
+        component_nodes = [self.get_node(node_id) for node_id in component_node_ids]
+        return component_nodes
 
     def get_all_node_ids(self) -> list[int]:
         node_ids = []
@@ -53,6 +65,12 @@ class NodeInterface:
             node = EmitNode(self.oDesign, 0, id)
 
         return node
+    
+    def get_child_nodes(self, node: EmitNode) -> list[EmitNode]:
+        child_names = self.oEmitCom.GetChildNodeNames(0, node._node_id)
+        child_ids = [self.oEmitCom.GetChildNodeID(0, node._node_id, name) for name in child_names]
+        child_nodes = [self.get_node(child_id) for child_id in child_ids]
+        return child_nodes 
 
     def get_all_nodes(self) -> list[EmitNode]:
         ids = self.get_all_node_ids()
