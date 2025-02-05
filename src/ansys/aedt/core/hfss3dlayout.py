@@ -688,7 +688,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         else:
             return False
 
-    @pyaedt_function_handler(portname="name", remove_geometry=True)
+    @pyaedt_function_handler(portname="name")
     def delete_port(self, name, remove_geometry=True):
         """Delete a port.
 
