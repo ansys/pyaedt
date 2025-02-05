@@ -38,10 +38,8 @@ from ansys.aedt.core.visualization.advanced.misc import convert_nearfield_data
 
 test_subfolder = "T20"
 
-if config["desktopVersion"] > "2022.2":
-    component = "Circ_Patch_5GHz_232.a3dcomp"
-else:
-    component = "Circ_Patch_5GHz.a3dcomp"
+component = "Circ_Patch_5GHz_232.a3dcomp"
+
 
 if config["desktopVersion"] > "2023.1":
     diff_proj_name = "differential_pairs_231"

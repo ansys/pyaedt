@@ -50,10 +50,8 @@ test_3dl_solve = "h3dl_test_solved"
 original_project_name = "ANSYS-HSD_V1"
 transient = "Transient_StrandedWindings"
 
-if desktop_version > "2022.2":
-    component = "Circ_Patch_5GHz_232.a3dcomp"
-else:
-    component = "Circ_Patch_5GHz.a3dcomp"
+component = "Circ_Patch_5GHz_232.a3dcomp"
+
 
 test_subfolder = "T00"
 erl_project_name = "erl_unit_test"
