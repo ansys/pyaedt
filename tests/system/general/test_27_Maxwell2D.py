@@ -681,3 +681,4 @@ class TestClass:
         assert setup.props["SweepRanges"]["Subrange"][0]["RangeStart"] == "3ms"
         assert setup.props["SweepRanges"]["Subrange"][0]["RangeEnd"] == "3ms"
         assert setup.set_save_fields(enable=False)
+        assert not setup.set_save_fields(enable=True, range_type="invalid")

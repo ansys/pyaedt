@@ -3798,7 +3798,8 @@ class SetupMaxwell(Setup, object):
                     else:
                         self.props["SweepRanges"] = {"Subrange": [range_props]}
                     self.update()
-                else:
+                    return True
+                elif range_type == "Every N Steps":
                     if self.props["SaveFieldsType"] == "Custom":
                         self.props.pop("SweepRanges", None)
                     self.auto_update = False
@@ -3807,7 +3808,10 @@ class SetupMaxwell(Setup, object):
                     self.props["Steps From"] = f"{start}{units}"
                     self.props["Steps To"] = f"{stop}{units}"
                     self.update()
-                return True
+                    return True
+                else:
+                    self._app.logger.error("Invalid range type. It has to be either 'Custom' or 'Every N Steps'.")
+                    return False
             else:
                 self.props["SaveFieldsType"] = "None"
                 self.props.pop("SweepRanges", None)

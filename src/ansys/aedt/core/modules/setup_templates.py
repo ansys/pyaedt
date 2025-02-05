@@ -290,14 +290,13 @@ Electrostatic = dict(
 )
 """Maxwell electrostatic setup properties and default values."""
 
-subrange = dict(
+SweepEddyCurrent = dict(
     {
         "RangeType": "LinearStep",
         "RangeStart": "1e-08GHz",
         "RangeEnd": "1e-06GHz",
     }
 )
-SweepEddyCurrent = subrange
 
 EddyCurrent = dict(
     {
