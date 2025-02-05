@@ -968,6 +968,13 @@ def available_license_feature(
     """
     import subprocess  # nosec B404
 
+    if os.getenv("ANSYSLMD_LICENSE_FILE", None):
+        name_env = os.getenv("ANSYSLMD_LICENSE_FILE")
+        name_env = name_env.split(",")[0].split("@")
+        if len(name_env) == 2:
+            port = name_env[0]
+            name = name_env[1]
+
     if not input_dir:
         input_dir = list(aedt_versions.installed_versions.values())[0]
 
