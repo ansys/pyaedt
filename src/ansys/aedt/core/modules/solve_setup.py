@@ -3623,6 +3623,18 @@ class SetupMaxwell(Setup, object):
         -------
         :class:`ansys.aedt.core.modules.solve_sweeps.SweepMaxwellEC`
             Sweep object.
+
+        Example
+        -------
+        >>> import ansys.aedt.core
+        >>> m2d = ansys.aedt.core.Maxwell2d(version="2025.1")
+        >>> m2d.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY
+        >>> setup = m2d.create_setup()
+        >>> sweep = setup.add_eddy_current_sweep(sweep_type="LinearStep", start_frequency=1, stop_frequency=20,
+        ...                                      step_size=2, units="Hz", clear=False)
+        >>> sweep.props["RangeStart"] = "0.1Hz"
+        >>> sweep.update()
+        >>> m2d.release_desktop()
         """
         if self.setuptype != 7:
             self._app.logger.warning("This method only applies to Maxwell Eddy Current Solution.")
