@@ -58,8 +58,6 @@ default_config_add_antipad = {
 
 
 class Frontend:
-    tk_text = []
-    tk_checkbox = []
 
     @property
     def active_design(self):
@@ -128,32 +126,14 @@ class Frontend:
             master.theme = "light"
 
     def set_light_theme(self):
-        theme = self.theme
-        master = self.master
-        style = self.style
-
-        master.configure(bg=theme.light["widget_bg"])
-        for i in self.tk_text:
-            i.configure(
-                background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
-            )
-        for i in self.tk_checkbox:
-            i.configure(background=theme.light["pane_bg"], font=theme.default_font)
-        theme.apply_light_theme(style)
-        # self.change_theme_button.config(text="\u263D")
+        self.master.configure(bg=self.theme.light["widget_bg"])
+        self.theme.apply_light_theme(self.style)
+        self.change_theme_button.config(text="\u263D")
 
     def set_dark_theme(self):
-        theme = self.theme
-        master = self.master
-        style = self.style
-        master.configure(bg=theme.dark["widget_bg"])
-        for i in self.tk_text:
-            i.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        for i in self.tk_checkbox:
-            i.configure(bg=theme.dark["pane_bg"], font=theme.default_font)
-
-        theme.apply_dark_theme(style)
-        # self.change_theme_button.config(text="\u2600")
+        self.master.configure(bg=self.theme.dark["widget_bg"])
+        self.theme.apply_dark_theme(self.style)
+        self.change_theme_button.config(text="\u2600")
 
     def get_selections(self):
         desktop, oproject, odesign = self.active_design
@@ -180,7 +160,6 @@ class Frontend:
         selections_button = ttk.Button(master, text="Get Selections", command=self.get_selections, width=20,
                                        style="PyAEDT.TButton")
         selections_button.grid(row=row, column=2, pady=15, padx=10)
-        self.tk_text.append(self.selections_entry)
 
         # radius
         radius_label = ttk.Label(master, text="Anti pad radius", width=20, style="PyAEDT.TLabel")
@@ -188,17 +167,15 @@ class Frontend:
         self.radius_entry = tk.Text(master, width=40, height=1)
         self.radius_entry.insert("1.0", default_config_add_antipad["radius"])
         self.radius_entry.grid(row=1, column=1, pady=15, padx=10)
-        self.tk_text.append(self.radius_entry)
 
-        cb = tk.Checkbutton(master, text="RaceTrack", variable=self.race_track_var)
+        cb = ttk.Checkbutton(master, text="RaceTrack", variable=self.race_track_var, style="PyAEDT.TCheckbutton")
         cb.grid(row=1, column=2, pady=15, padx=10)
-        self.tk_checkbox.append(cb)
 
         # Create buttons to create sphere and change theme color
         b = ttk.Button(master, text="Create", command=self.callback, style="PyAEDT.TButton")
         b.grid(row=6, column=0, padx=15, pady=10)
-        b = ttk.Button(master, text="\u263D", width=2, command=self.toggle_theme, style="PyAEDT.TButton")
-        b.grid(row=6, column=2, pady=10)
+        self.change_theme_button = ttk.Button(master, text="\u263D", width=2, command=self.toggle_theme, style="PyAEDT.TButton")
+        self.change_theme_button.grid(row=6, column=2, pady=10)
 
     def callback(self):
         self.config_add_antipad["race_track"] = self.race_track_var.get()
