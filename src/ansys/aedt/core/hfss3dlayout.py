@@ -697,7 +697,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         name : str
             Name of the port.
         remove_geometry : bool, optional
-            Whether to remove_geometry. The default is ``True``.
+            Whether to remove geometry. The default is ``True``.
 
         Returns
         -------
