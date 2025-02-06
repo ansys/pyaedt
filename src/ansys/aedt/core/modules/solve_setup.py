@@ -3636,7 +3636,7 @@ class SetupMaxwell(Setup, object):
         >>> sweep.update()
         >>> m2d.release_desktop()
         """
-        if self.setuptype != 7:
+        if self.setuptype not in [7, 60]:
             self._app.logger.warning("This method only applies to Maxwell Eddy Current Solution.")
             return False
         sweep = SweepMaxwellEC(self, sweep_type=sweep_type)
