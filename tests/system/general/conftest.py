@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -71,6 +71,8 @@ from ansys.aedt.core import Hfss
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.desktop import Desktop
 from ansys.aedt.core.desktop import _delete_objects
+from ansys.aedt.core.filtersolutions import DistributedDesign
+from ansys.aedt.core.filtersolutions import LumpedDesign
 from ansys.aedt.core.generic.desktop_sessions import _desktop_sessions
 from ansys.aedt.core.generic.filesystem import Scratch
 from ansys.aedt.core.generic.general_methods import generate_unique_name
@@ -81,7 +83,6 @@ sys.path.append(local_path)
 
 # Initialize default desktop configuration
 default_version = "2024.2"
-
 
 if inside_desktop and "oDesktop" in dir(sys.modules["__main__"]):
     default_version = sys.modules["__main__"].oDesktop.GetVersion()[0:6]
@@ -249,3 +250,15 @@ def add_edb(local_scratch):
         )
 
     return _method
+
+
+@pytest.fixture(scope="function")
+def lumped_design():
+    """Fixture for creating a LumpedDesign object."""
+    return LumpedDesign(config["desktopVersion"])
+
+
+@pytest.fixture(scope="function")
+def distributed_design():
+    """Fixture for creating a DistributedDesign object."""
+    return DistributedDesign(config["desktopVersion"])

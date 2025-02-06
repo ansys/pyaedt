@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -34,6 +34,7 @@ import re
 
 from ansys.aedt.core.application.analysis_3d_layout import FieldAnalysis3DLayout
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
+from ansys.aedt.core.generic.checks import min_aedt_version
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import parse_excitation_file
@@ -187,7 +188,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             remove_lock=remove_lock,
         )
         ScatteringMethods.__init__(self, self)
-        self.onetwork_data_explorer = self.odesktop.GetTool("NdExplorer")
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
@@ -916,6 +916,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         return True
 
     @pyaedt_function_handler()
+    @min_aedt_version("2025.1")
     def set_export_touchstone(
         self,
         file_format="TouchStone1.0",
@@ -996,9 +997,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
 
         """
-        if settings.aedt_version < "2025.1":
-            self.logger.warning("Touchstone export setup aborted. This method is available from AEDT 2025.1.")
-            return False
         preferences = "Planar EM\\"
         design_name = self.design_name
 
@@ -1883,7 +1881,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         # type: () -> list
         """Get the list defined differential pairs.
 
-
         Returns
         -------
         list
@@ -2157,6 +2154,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         window="hamming",
     ):
         """Edit a source from file data.
+
         File data is a csv containing either frequency data or time domain data that will be converted through FFT.
 
         Parameters
@@ -2291,6 +2289,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
     @pyaedt_function_handler(setup_name="setup")
     def get_dcir_solution_data(self, setup, show="RL", category="Loop_Resistance"):
         """Retrieve dcir solution data. Available element_names are dependent on element_type as below.
+
         Sources ["Voltage", "Current", "Power"]
         "RL" ['Loop Resistance', 'Path Resistance', 'Resistance', 'Inductance']
         "Vias" ['X', 'Y', 'Current', 'Limit', 'Resistance', 'IR Drop', 'Power']

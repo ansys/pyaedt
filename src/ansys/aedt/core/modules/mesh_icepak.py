@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -26,7 +26,7 @@ import os.path
 import warnings
 
 from ansys.aedt.core.generic.data_handlers import _dict2arg
-from ansys.aedt.core.generic.general_methods import GrpcApiError
+from ansys.aedt.core.generic.errors import GrpcApiError
 from ansys.aedt.core.generic.general_methods import _dim_arg
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -49,9 +49,9 @@ class CommonRegion(object):
 
     @property
     def padding_types(self):
-        """
-        Get a list of strings containing thepadding types used,
-        one for each direction, in the following order:
+        """Get a list of strings containing the padding types used.
+
+        One for each direction in the following order:
         +X, -X, +Y, -Y, +Z, -Z.
 
         Returns
@@ -913,38 +913,41 @@ class MeshRegion(MeshRegionCommon):
         list
         """
         if isinstance(self._assignment, SubRegion):
-            # try to update name
             if self.name in self._app.odesign.GetChildObject("Mesh").GetChildNames():
-                parts = []
-                subparts = []
-                if "Parts" in self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropNames():
-                    parts = self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropValue("Parts")
-                if "Submodels" in self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropNames():
-                    subparts = (
-                        self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropValue("Submodels")
+                # try to update name, APIs lacking an easy method before 242
+                if self._app.settings.aedt_version < "2024.2":  # pragma: no cover
+                    parts = []
+                    subparts = []
+                    if "Parts" in self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropNames():
+                        parts = self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropValue("Parts")
+                    if "Submodels" in self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropNames():
+                        subparts = (
+                            self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropValue("Submodels")
+                        )
+                    if not isinstance(parts, list):
+                        parts = [parts]
+                    if not isinstance(subparts, list):
+                        subparts = [subparts]
+                    parts += subparts
+                    sub_regions = self._app.modeler.non_model_objects
+                    for sr in sub_regions:
+                        p1 = []
+                        p2 = []
+                        if "Part Names" in self._app.modeler[sr].history().properties:
+                            p1 = self._app.modeler[sr].history().properties.get("Part Names", None)
+                            if not isinstance(p1, list):
+                                p1 = [p1]
+                        elif "Submodel Names" in self._app.modeler[sr].history().properties:
+                            p2 = self._app.modeler[sr].history().properties.get("Submodel Names", None)
+                            if not isinstance(p2, list):
+                                p2 = [p2]
+                        p1 += p2
+                        if "CreateSubRegion" == self._app.modeler[sr].history().command and all(p in p1 for p in parts):
+                            self._assignment.name = sr
+                else:
+                    self._assignment.name = (
+                        self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropValue("Assignment")
                     )
-                if not isinstance(parts, list):
-                    parts = [parts]
-                if not isinstance(subparts, list):
-                    subparts = [subparts]
-                parts += subparts
-                sub_regions = self._app.modeler.non_model_objects
-                for sr in sub_regions:
-                    p1 = []
-                    p2 = []
-                    history = self._app.modeler[sr].history()
-                    history_props = history.properties
-                    if "Part Names" in history_props:
-                        p1 = history_props.get("Part Names", None)
-                        if not isinstance(p1, list):
-                            p1 = [p1]
-                    elif "Submodel Names" in history_props:
-                        p2 = history_props.get("Submodel Names", None)
-                        if not isinstance(p2, list):
-                            p2 = [p2]
-                    p1 += p2
-                    if "CreateSubRegion" == history.command and all(p in p1 for p in parts):
-                        self._assignment.name = sr
             return self._assignment
         elif isinstance(self._assignment, list):
             return self._assignment
@@ -1335,7 +1338,9 @@ class IcepakMesh(object):
 
     @pyaedt_function_handler(accuracy2="accuracy", stairStep="enable_stair_step")
     def automatic_mesh_3D(self, accuracy, enable_stair_step=True):
-        """Create a generic custom mesh for a custom 3D object.
+        """Create a generic custom mesh.
+
+        .. deprecated:: 0.13.0
 
         Parameters
         ----------
@@ -1357,14 +1362,14 @@ class IcepakMesh(object):
         xsize = self.boundingdimension[0] / (10 * accuracy * accuracy)
         ysize = self.boundingdimension[1] / (10 * accuracy * accuracy)
         zsize = self.boundingdimension[2] / (10 * accuracy)
-        self.global_mesh_region.MaxElementSizeX = xsize
-        self.global_mesh_region.MaxElementSizeY = ysize
-        self.global_mesh_region.MaxElementSizeZ = zsize
-        self.global_mesh_region.UserSpecifiedSettings = True
-        self.global_mesh_region.MinGapX = str(xsize / 100)
-        self.global_mesh_region.MinGapY = str(ysize / 100)
-        self.global_mesh_region.MinGapZ = str(zsize / 100)
-        self.global_mesh_region.StairStepMeshing = enable_stair_step
+        self.global_mesh_region.manual_settings = True
+        self.global_mesh_region.settings["MaxElementSizeX"] = xsize
+        self.global_mesh_region.settings["MaxElementSizeY"] = ysize
+        self.global_mesh_region.settings["MaxElementSizeZ"] = zsize
+        self.global_mesh_region.settings["MinGapX"] = str(xsize / 100)
+        self.global_mesh_region.settings["MinGapY"] = str(ysize / 100)
+        self.global_mesh_region.settings["MinGapZ"] = str(zsize / 100)
+        self.global_mesh_region.settings["StairStepMeshing"] = enable_stair_step
         self.global_mesh_region.update()
         return True
 

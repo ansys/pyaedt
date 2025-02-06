@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -23,61 +23,70 @@
 # SOFTWARE.
 
 import os
-import time
 
+import ansys.aedt.core
 from ansys.aedt.core import Q2d
 import pytest
 
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
-from tests.system.general.conftest import desktop_version
 
 test_project_name = "coax_Q2D"
 test_subfolder = "T30"
-if desktop_version > "2022.2":
-    q2d_q3d = "q2d_q3d_231"
-
-else:
-    q2d_q3d = "q2d_q3d"
+q2d_q3d = "q2d_q3d_231"
+q2d_solved_name = "q2d_solved"
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture()
 def aedtapp(add_app):
     app = add_app(application=Q2d)
-    return app
+    yield app
+    app.close_project(app.project_name)
 
 
-@pytest.fixture(scope="class", autouse=True)
-def examples(local_scratch):
-    test_matrix = local_scratch.copyfile(
-        os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, q2d_q3d + ".aedt")
+@pytest.fixture()
+def q2d_solved(add_app):
+    app = add_app(
+        project_name=q2d_solved_name,
+        application=ansys.aedt.core.Q2d,
+        subfolder=test_subfolder,
     )
-    return test_matrix, None
+    yield app
+    app.close_project(app.project_name)
+
+
+@pytest.fixture()
+def q2d_matrix(add_app):
+    app = add_app(
+        project_name=q2d_q3d,
+        application=ansys.aedt.core.Q2d,
+        subfolder=test_subfolder,
+    )
+    yield app
+    app.close_project(app.project_name)
 
 
 class TestClass:
     @pytest.fixture(autouse=True)
-    def init(self, aedtapp, examples, local_scratch):
-        self.aedtapp = aedtapp
+    def init(self, local_scratch):
         self.local_scratch = local_scratch
-        self.test_matrix = examples[0]
 
-    def test_01_save(self):
+    def test_01_save(self, aedtapp):
         test_project = os.path.join(self.local_scratch.path, test_project_name + ".aedt")
-        self.aedtapp.save_project(test_project)
+        aedtapp.save_project(test_project)
         assert os.path.exists(test_project)
 
-    def test_02_create_primitive(self):
-        udp = self.aedtapp.modeler.Position(0, 0, 0)
-        o = self.aedtapp.modeler.create_rectangle(udp, [5, 3], name="Rectangle1")
+    def test_02_create_primitive(self, aedtapp):
+        udp = aedtapp.modeler.Position(0, 0, 0)
+        o = aedtapp.modeler.create_rectangle(udp, [5, 3], name="Rectangle1")
         assert isinstance(o.id, int)
 
-    def test_02a_create_rectangle(self):
-        o = self.aedtapp.create_rectangle((0, 0), [5, 3], name="Rectangle1")
+    def test_02a_create_rectangle(self, aedtapp):
+        o = aedtapp.create_rectangle((0, 0), [5, 3], name="Rectangle1")
         assert isinstance(o.id, int)
 
-    def test_06a_create_setup(self):
-        mysetup = self.aedtapp.create_setup()
+    def test_06a_create_setup(self, aedtapp):
+        mysetup = aedtapp.create_setup()
         mysetup.props["SaveFields"] = True
         assert mysetup.update()
         sweepName = "Q2D_Sweep1"
@@ -88,51 +97,48 @@ class TestClass:
         assert qSweep.add_subrange("LinearStep", 100, 100e6, 1e4, clear=True)
         assert qSweep.add_subrange("LinearCount", 100, 100e6, 10, clear=True)
 
-    def test_07_single_signal_line(self):
-        udp = self.aedtapp.modeler.Position(0, 0, 0)
-        o = self.aedtapp.modeler.create_rectangle(udp, [5, 3], name="Rectangle1")
-        assert self.aedtapp.assign_single_conductor(assignment=o, solve_option="SolveOnBoundary")
+    def test_07_single_signal_line(self, aedtapp):
+        udp = aedtapp.modeler.Position(0, 0, 0)
+        o = aedtapp.modeler.create_rectangle(udp, [5, 3], name="Rectangle1")
+        assert aedtapp.assign_single_conductor(assignment=o, solve_option="SolveOnBoundary")
 
-    def test_08_assign_huray_finitecond_to_edges(self):
-        o = self.aedtapp.create_rectangle([6, 6], [5, 3], name="Rectangle1", material="Copper")
-        self.aedtapp.assign_single_conductor(assignment=o, solve_option="SolveOnBoundary")
-        assert self.aedtapp.assign_huray_finitecond_to_edges(o.edges, radius=0.5, ratio=2.9)
+    def test_08_assign_huray_finitecond_to_edges(self, aedtapp):
+        o = aedtapp.create_rectangle([6, 6], [5, 3], name="Rectangle1", material="Copper")
+        aedtapp.assign_single_conductor(assignment=o, solve_option="SolveOnBoundary")
+        assert aedtapp.assign_huray_finitecond_to_edges(o.edges, radius=0.5, ratio=2.9)
 
-    def test_09_auto_assign(self):
-        self.aedtapp.insert_design("test_auto")
-        o = self.aedtapp.create_rectangle([6, 6], [5, 3], name="Rectangle1", material="Copper")
-        o = self.aedtapp.create_rectangle([0, 0], [5, 3], name="Rectangle2", material="Copper")
-        assert self.aedtapp.auto_assign_conductors()
-        assert self.aedtapp.boundaries[0].properties
-        assert len(self.aedtapp.boundaries) == 2
+    def test_09_auto_assign(self, aedtapp):
+        aedtapp.insert_design("test_auto")
+        o = aedtapp.create_rectangle([6, 6], [5, 3], name="Rectangle1", material="Copper")
+        o = aedtapp.create_rectangle([0, 0], [5, 3], name="Rectangle2", material="Copper")
+        assert aedtapp.auto_assign_conductors()
+        assert aedtapp.boundaries[0].properties
+        assert len(aedtapp.boundaries) == 2
+        assert aedtapp.toggle_conductor_type("Rectangle1", "ReferenceGround")
+        assert not aedtapp.toggle_conductor_type("Rectangle3", "ReferenceGround")
+        assert not aedtapp.toggle_conductor_type("Rectangle2", "ReferenceggGround")
 
-    def test_10_toggle_conductor(self):
-        assert self.aedtapp.toggle_conductor_type("Rectangle1", "ReferenceGround")
-        assert not self.aedtapp.toggle_conductor_type("Rectangle3", "ReferenceGround")
-        assert not self.aedtapp.toggle_conductor_type("Rectangle2", "ReferenceggGround")
-
-    def test_11_matrix_reduction(self, add_app):
-        q2d = add_app(application=Q2d, project_name=self.test_matrix, just_open=True)
+    def test_11_matrix_reduction(self, q2d_solved):
+        q2d = q2d_solved
         assert q2d.matrices[0].name == "Original"
         assert len(q2d.matrices[0].sources()) > 0
         assert len(q2d.matrices[0].sources(False)) > 0
-        assert q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.Float, "Circle2", "Test1")
-        assert q2d.matrices[1].name == "Test1"
-        assert q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.AddGround, "Circle2", "Test2")
-        assert q2d.matrices[2].name == "Test2"
-        assert q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.SetReferenceGround, "Circle2", "Test3")
-        assert q2d.matrices[3].name == "Test3"
-        assert q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.Parallel, ["Circle2", "Circle3"], "Test4")
-        assert q2d.matrices[4].name == "Test4"
-        q2d.matrices[4].delete()
-        assert q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.Parallel, ["Circle2", "Circle3"], "Test4", "New_net")
-        assert q2d.matrices[4].name == "Test4"
-        assert q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.DiffPair, ["Circle2", "Circle3"], "Test5", "New_net")
-        assert q2d.matrices[5].name == "Test5"
-        self.aedtapp.close_project(q2d.project_name, save=False)
+        mm = q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.Float, "Circle2", "Test1_m")
+        assert mm.name == "Test1_m"
+        mm = q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.AddGround, "Circle2", "Test2_m")
+        assert mm.name == "Test2_m"
+        mm = q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.SetReferenceGround, "Circle2", "Test3_m")
+        assert mm.name == "Test3_m"
+        mm = q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.Parallel, ["Circle2", "Circle3"], "Test4_m")
+        assert mm.name == "Test4_m"
+        mm.delete()
+        mm = q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.Parallel, ["Circle2", "Circle3"], "Test4_m", "New_net")
+        assert mm.name == "Test4_m"
+        mm = q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.DiffPair, ["Circle2", "Circle3"], "Test5_m", "New_net")
+        assert mm.name == "Test5_m"
 
-    def test_12_edit_sources(self, add_app):
-        q2d = add_app(application=Q2d, project_name=self.test_matrix, just_open=True)
+    def test_12_edit_sources(self, q2d_matrix):
+        q2d = q2d_matrix
         sources_cg = {"Circle2": ("10V", "45deg"), "Circle3": "4A"}
         assert q2d.edit_sources(sources_cg)
 
@@ -146,28 +152,18 @@ class TestClass:
 
         sources_ac = {"Circle5": "40A"}
         assert not q2d.edit_sources(sources_cg, sources_ac)
-        self.aedtapp.close_project(q2d.project_name, save=False)
 
-    def test_13_get_all_conductors(self):
-        self.aedtapp.insert_design("condcutors")
-        o = self.aedtapp.create_rectangle([6, 6], [5, 3], name="Rectangle1", material="Copper")
-        o1 = self.aedtapp.create_rectangle([7, 5], [5, 3], name="Rectangle2", material="aluminum")
-        o3 = self.aedtapp.create_rectangle([27, 5], [5, 3], name="Rectangle3", material="air")
-        conductors = self.aedtapp.get_all_conductors_names()
+    def test_13_get_all_conductors(self, aedtapp):
+        aedtapp.insert_design("condcutors")
+        o = aedtapp.create_rectangle([6, 6], [5, 3], name="Rectangle1", material="Copper")
+        o1 = aedtapp.create_rectangle([7, 5], [5, 3], name="Rectangle2", material="aluminum")
+        o3 = aedtapp.create_rectangle([27, 5], [5, 3], name="Rectangle3", material="air")
+        conductors = aedtapp.get_all_conductors_names()
         assert sorted(conductors) == ["Rectangle1", "Rectangle2"]
-        assert self.aedtapp.get_all_dielectrics_names() == ["Rectangle3"]
+        assert aedtapp.get_all_dielectrics_names() == ["Rectangle3"]
 
-    def test_14_export_matrix_data(self, add_app):
-        q2d = add_app(application=Q2d, project_name=self.test_matrix, just_open=True)
-        q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.Float, "Circle2", "Test1")
-        q2d.matrices[1].name == "Test1"
-        q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.AddGround, "Circle2", "Test2")
-        q2d.matrices[2].name == "Test2"
-        q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.SetReferenceGround, "Circle2", "Test3")
-        q2d.matrices[3].name == "Test3"
-        q2d.analyze_setup(q2d.active_setup, blocking=False)
-        while q2d.desktop_class.are_there_simulations_running:
-            time.sleep(1)
+    def test_14_export_matrix_data(self, q2d_solved):
+        q2d = q2d_solved
         q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"))
         assert q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), problem_type="CG")
         assert q2d.export_matrix_data(
@@ -216,10 +212,9 @@ class TestClass:
         assert not q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), c_unit="H")
         assert q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), g_unit="fSie")
         assert not q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), g_unit="A")
-        self.aedtapp.close_project(q2d.project_name, save=True)
 
-    def test_15_export_equivalent_circuit(self, add_app):
-        q2d = add_app(application=Q2d, project_name=self.test_matrix, just_open=True)
+    def test_15_export_equivalent_circuit(self, q2d_solved):
+        q2d = q2d_solved
         q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.Float, "Circle2", "Test4")
         assert q2d.matrices[-1].name == "Test4"
         assert len(q2d.setups[0].sweeps[0].frequencies) > 0
@@ -301,24 +296,21 @@ class TestClass:
         assert q2d.export_equivalent_circuit(
             output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model="test"
         )
-        self.aedtapp.close_project(q2d.project_name, save=False)
 
-    def test_16_export_results_q2d(self, add_app):
-        q2d = add_app(application=Q2d, project_name=self.test_matrix, just_open=True)
-        exported_files = q2d.export_results(analyze=True)
+    def test_16_export_results_q2d(self, q2d_solved):
+        exported_files = q2d_solved.export_results(analyze=False)
         assert len(exported_files) > 0
-        self.aedtapp.close_project(q2d.project_name, save=False)
 
-    def test_17_set_variable(self):
-        self.aedtapp.variable_manager.set_variable("var_test", expression="123")
-        self.aedtapp["var_test"] = "234"
-        assert "var_test" in self.aedtapp.variable_manager.design_variable_names
-        assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"
+    def test_17_set_variable(self, aedtapp):
+        aedtapp.variable_manager.set_variable("var_test", expression="123")
+        aedtapp["var_test"] = "234"
+        assert "var_test" in aedtapp.variable_manager.design_variable_names
+        assert aedtapp.variable_manager.design_variables["var_test"].expression == "234"
 
     @pytest.mark.skipif(config["NonGraphical"], reason="Test fails on build machine")
-    def test_18_import_dxf(self):
-        self.aedtapp.insert_design("dxf")
+    def test_18_import_dxf(self, aedtapp):
+        aedtapp.insert_design("dxf")
         dxf_file = os.path.join(TESTS_GENERAL_PATH, "example_models", "cad", "DXF", "dxf2.dxf")
-        dxf_layers = self.aedtapp.get_dxf_layers(dxf_file)
+        dxf_layers = aedtapp.get_dxf_layers(dxf_file)
         assert isinstance(dxf_layers, list)
-        assert self.aedtapp.import_dxf(dxf_file, dxf_layers)
+        assert aedtapp.import_dxf(dxf_file, dxf_layers)

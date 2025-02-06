@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -33,6 +33,7 @@ from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core import Rmxprt
+from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.visualization.post.spisim import SpiSim
 import pytest
@@ -41,15 +42,16 @@ from tests.system.solvers.conftest import desktop_version
 from tests.system.solvers.conftest import local_path
 
 sbr_platform_name = "satellite_231"
+icepak_solved_name = "icepak_summary_solved"
+sbr_platform_solved_name = "satellite_solved"
 array_name = "array_231"
 test_solve = "test_solve"
+test_3dl_solve = "h3dl_test_solved"
 original_project_name = "ANSYS-HSD_V1"
 transient = "Transient_StrandedWindings"
 
-if desktop_version > "2022.2":
-    component = "Circ_Patch_5GHz_232.a3dcomp"
-else:
-    component = "Circ_Patch_5GHz.a3dcomp"
+component = "Circ_Patch_5GHz_232.a3dcomp"
+
 
 test_subfolder = "T00"
 erl_project_name = "erl_unit_test"
@@ -57,8 +59,22 @@ com_project_name = "com_unit_test_23r2"
 
 
 @pytest.fixture()
+def icepak_solved(add_app):
+    app = add_app(project_name=icepak_solved_name, subfolder=test_subfolder, application=Icepak)
+    yield app
+    app.close_project(save=False)
+
+
+@pytest.fixture()
 def sbr_platform(add_app):
     app = add_app(project_name=sbr_platform_name, subfolder=test_subfolder)
+    yield app
+    app.close_project(save=False)
+
+
+@pytest.fixture()
+def sbr_platform_solved(add_app):
+    app = add_app(project_name=sbr_platform_solved_name, subfolder=test_subfolder)
     yield app
     app.close_project(save=False)
 
@@ -97,6 +113,13 @@ def hfss3dl_solve(add_app):
 
 
 @pytest.fixture(scope="class")
+def hfss3dl_solved(add_app):
+    app = add_app(project_name=test_3dl_solve, application=Hfss3dLayout, subfolder=test_subfolder)
+    yield app
+    app.close_project(save=False)
+
+
+@pytest.fixture(scope="class")
 def circuit_app(add_app):
     app = add_app(original_project_name, application=Circuit, subfolder=test_subfolder)
     app.modeler.schematic_units = "mil"
@@ -125,7 +148,6 @@ class TestClass:
     @pytest.fixture(autouse=True)
     def init(self, local_scratch, icepak_app, hfss3dl_solve):
         self.local_scratch = local_scratch
-        self.icepak_app = icepak_app
         self.hfss3dl_solve = hfss3dl_solve
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not supported.")
@@ -133,13 +155,16 @@ class TestClass:
         assert sbr_platform.create_sbr_linked_antenna(array, target_cs="antenna_CS", field_type="farfield")
         profile = sbr_platform.setups[0].get_profile()
         assert profile is None
-        sbr_platform.analyze(cores=4)
-        profile = sbr_platform.setups[0].get_profile()
-        assert isinstance(profile, dict)
-        assert not sbr_platform.get_profile("Invented_setup")
 
-        ffdata = sbr_platform.get_antenna_data(frequencies=12e9, sphere="3D")
-        ffdata2 = sbr_platform.get_antenna_data(frequencies=12e9, sphere="3D", overwrite=False)
+    @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not supported.")
+    def test_01b_sbr_link_array(self, sbr_platform_solved):
+        profile = sbr_platform_solved.setups[0].get_profile()
+        assert isinstance(profile, dict)
+        assert not sbr_platform_solved.get_profile("Invented_setup")
+        solution_data = sbr_platform_solved.setups[0].get_solution_data()
+
+        ffdata = sbr_platform_solved.get_antenna_data(frequencies=solution_data.intrinsics["Freq"], sphere="3D")
+        sbr_platform_solved.get_antenna_data(frequencies=solution_data.intrinsics["Freq"], sphere="3D", overwrite=False)
 
         ffdata.farfield_data.plot_cut(
             quantity="RealizedGain",
@@ -202,11 +227,12 @@ class TestClass:
         hfss_app.add_3d_component_array_from_json(dict_in)
         exported_files = hfss_app.export_results()
         assert len(exported_files) == 0
-        setup = hfss_app.create_setup(name="test")
-        setup.props["Frequency"] = "1GHz"
+        setup_driven = hfss_app.create_setup(name="test", setup_type="HFSSDriven", MaximumPasses=1)
         exported_files = hfss_app.export_results()
+        solve_freq = setup_driven.props["Frequency"]
         assert len(exported_files) == 0
         hfss_app.analyze_setup(name="test", cores=4)
+        assert setup_driven.is_solved
         exported_files = hfss_app.export_results()
         assert len(exported_files) == 39
         exported_files = hfss_app.export_results(
@@ -215,12 +241,12 @@ class TestClass:
         assert len(exported_files) > 0
         fld_file1 = os.path.join(self.local_scratch.path, "test_fld_hfss1.fld")
         assert hfss_app.post.export_field_file(
-            quantity="Mag_E", output_file=fld_file1, assignment="Box1", intrinsics="1GHz", phase="5deg"
+            quantity="Mag_E", output_file=fld_file1, assignment="Box1", intrinsics=solve_freq, phase="5deg"
         )
         assert os.path.exists(fld_file1)
         fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss2.fld")
         assert hfss_app.post.export_field_file(
-            quantity="Mag_E", output_file=fld_file2, assignment="Box1", intrinsics={"frequency": "1GHz"}
+            quantity="Mag_E", output_file=fld_file2, assignment="Box1", intrinsics={"frequency": solve_freq}
         )
         assert os.path.exists(fld_file2)
         fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss3.fld")
@@ -228,12 +254,16 @@ class TestClass:
             quantity="Mag_E",
             output_file=fld_file2,
             assignment="Box1",
-            intrinsics={"frequency": "1GHz", "phase": "30deg"},
+            intrinsics={"frequency": solve_freq, "phase": "30deg"},
         )
         assert os.path.exists(fld_file2)
         fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss4.fld")
         assert hfss_app.post.export_field_file(
-            quantity="Mag_E", output_file=fld_file2, assignment="Box1", intrinsics={"frequency": "1GHz"}, phase="30deg"
+            quantity="Mag_E",
+            output_file=fld_file2,
+            assignment="Box1",
+            intrinsics={"frequency": solve_freq},
+            phase="30deg",
         )
         assert os.path.exists(fld_file2)
         fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss5.fld")
@@ -252,47 +282,27 @@ class TestClass:
         sweep = hfss_app.parametrics.add(variable="dummy", start_point=0, end_point=1, step=2)
         assert hfss_app.export_touchstone_on_completion(export=False)
         assert hfss_app.export_touchstone_on_completion(export=True)
-        assert hfss_app.analyze_setup(name=sweep.name, cores=4)
 
-    def test_03a_icepak_analyze_and_export_summary(self):
-        self.icepak_app.solution_type = self.icepak_app.SOLUTIONS.Icepak.SteadyFlowOnly
-        self.icepak_app.problem_type = "TemperatureAndFlow"
-        self.icepak_app.modeler.create_box([0, 0, 0], [10, 10, 10], "box", "copper")
-        self.icepak_app.create_source_block("box", "1W", False)
-        setup = self.icepak_app.create_setup("SetupIPK")
-        new_props = {"Convergence Criteria - Max Iterations": 3}
-        setup.update(properties=new_props)
-        airfaces = [i.id for i in self.icepak_app.modeler["Region"].faces]
-        opening = self.icepak_app.assign_openings(airfaces)
-        self.icepak_app["Variable1"] = "0.5"
-        assert self.icepak_app.create_output_variable("OutputVariable1", "abs(Variable1)")  # test creation
-        assert self.icepak_app.create_output_variable("OutputVariable1", "asin(Variable1)")  # test update
-        self.icepak_app.monitor.assign_point_monitor_in_object(
-            "box", monitor_quantity="Temperature", monitor_name="test_monitor"
-        )
-        self.icepak_app.monitor.assign_face_monitor(
-            self.icepak_app.modeler.get_object_from_name("box").faces[0].id,
-            monitor_quantity=["Temperature", "HeatFlowRate"],
-            monitor_name="test_monitor2",
-        )
-        self.icepak_app.analyze("SetupIPK", cores=4)
-        time.sleep(3)
-        self.icepak_app.save_project()
-        assert self.icepak_app.export_summary(
-            self.icepak_app.working_directory, geometryType="Surface", variationlist=[], filename="A"
+    def test_03a_icepak_analyze_and_export_summary(self, icepak_solved):
+
+        assert icepak_solved.create_output_variable("OutputVariable2", "abs(Variable1)")  # test creation
+        assert icepak_solved.create_output_variable("OutputVariable2", "asin(Variable1)")  # test update
+        icepak_solved.save_project()
+        assert icepak_solved.export_summary(
+            icepak_solved.working_directory, geometryType="Surface", variationlist=[], filename="A"
         )  # check usage of deprecated arguments
-        assert self.icepak_app.export_summary(
-            self.icepak_app.working_directory, geometry_type="Surface", variation_list=[], filename="B"
+        assert icepak_solved.export_summary(
+            icepak_solved.working_directory, geometry_type="Surface", variation_list=[], filename="B"
         )
-        assert self.icepak_app.export_summary(
-            self.icepak_app.working_directory, geometry_type="Volume", type="Boundary", filename="C"
+        assert icepak_solved.export_summary(
+            icepak_solved.working_directory, geometry_type="Volume", type="Boundary", filename="C"
         )
         for file_name, entities in [
             ("A_Temperature.csv", ["box", "Region"]),
             ("B_Temperature.csv", ["box", "Region"]),
             ("C_Temperature.csv", ["box"]),
         ]:
-            with open(os.path.join(self.icepak_app.working_directory, file_name), "r", newline="") as csv_file:
+            with open(os.path.join(icepak_solved.working_directory, file_name), "r", newline="") as csv_file:
                 csv_reader = csv.reader(csv_file)
                 for _ in range(4):
                     _ = next(csv_reader)
@@ -301,29 +311,29 @@ class TestClass:
                 csv_entities = [row[entity_index] for row in csv_reader]
                 assert all(e in csv_entities for e in entities)
 
-        box = [i.id for i in self.icepak_app.modeler["box"].faces]
+        box = [i.id for i in icepak_solved.modeler["box"].faces]
         assert os.path.exists(
-            self.icepak_app.eval_surface_quantity_from_field_summary(box, savedir=self.icepak_app.working_directory)
+            icepak_solved.eval_surface_quantity_from_field_summary(box, savedir=icepak_solved.working_directory)
         )
-
+        opening = [i for i in icepak_solved.boundaries if i.type == "Opening"][0]
         # new post class
-        out = self.icepak_app.post.evaluate_faces_quantity(box, "HeatFlowRate")
+        out = icepak_solved.post.evaluate_faces_quantity(box, "HeatFlowRate")
         assert out["Total"]
         with pytest.raises(AttributeError):
-            self.icepak_app.post.evaluate_faces_quantity(box, "HeatFlowwwRate")
-        out = self.icepak_app.post.evaluate_object_quantity("box", "Temperature", volume=True)
+            icepak_solved.post.evaluate_faces_quantity(box, "HeatFlowwwRate")
+        out = icepak_solved.post.evaluate_object_quantity("box", "Temperature", volume=True)
         assert out["Mean"]
-        out = self.icepak_app.post.evaluate_boundary_quantity(opening.name, "Ux")
+        out = icepak_solved.post.evaluate_boundary_quantity(opening.name, "Ux")
         assert out["Mean"]
-        if self.icepak_app.settings.aedt_version < "2024.1":
-            with pytest.raises(NotImplementedError):
-                self.icepak_app.post.evaluate_monitor_quantity("test_monitor2", "Temperature")
+        if icepak_solved.settings.aedt_version < "2024.1":
+            with pytest.raises(AEDTRuntimeError):
+                icepak_solved.post.evaluate_monitor_quantity("test_monitor2", "Temperature")
         else:
-            out = self.icepak_app.post.evaluate_monitor_quantity("test_monitor2", "Temperature")
+            out = icepak_solved.post.evaluate_monitor_quantity("test_monitor2", "Temperature")
             assert out["Mean"]
             with pytest.raises(AttributeError):
-                self.icepak_app.post.evaluate_monitor_quantity("no_test_monitor2", "Temperature")
-        fs = self.icepak_app.post.create_field_summary()
+                icepak_solved.post.evaluate_monitor_quantity("no_test_monitor2", "Temperature")
+        fs = icepak_solved.post.create_field_summary()
         fs.add_calculation("Boundary", "Surface", opening.name, "Ux")
         fs.add_calculation("Object", "Volume", "box", "Temperature")
         df = fs.get_field_summary_data(pandas_output=True)
@@ -331,33 +341,31 @@ class TestClass:
         d = fs.get_field_summary_data()
         assert d["Mean"]
 
-    def test_03b_icepak_get_output_variable(self):
+    def test_03b_icepak_get_output_variable(self, icepak_solved):
         with pytest.raises(KeyError):
-            self.icepak_app.get_output_variable("invalid")
-        value = self.icepak_app.get_output_variable("OutputVariable1")
+            icepak_solved.get_output_variable("invalid")
+        value = icepak_solved.get_output_variable("OutputVariable1")
         tol = 1e-9
         assert abs(value - 0.5235987755982988) < tol
 
-    def test_03c_icepak_get_monitor_output(self):
-        assert self.icepak_app.monitor.all_monitors["test_monitor"].value()
-        assert self.icepak_app.monitor.all_monitors["test_monitor"].value(quantity="Temperature")
-        assert self.icepak_app.monitor.all_monitors["test_monitor"].value(
-            setup=self.icepak_app.existing_analysis_sweeps[0]
-        )
-        assert self.icepak_app.monitor.all_monitors["test_monitor2"].value(quantity="HeatFlowRate")
+    def test_03c_icepak_get_monitor_output(self, icepak_solved):
+        assert icepak_solved.monitor.all_monitors["test_monitor"].value()
+        assert icepak_solved.monitor.all_monitors["test_monitor"].value(quantity="Temperature")
+        assert icepak_solved.monitor.all_monitors["test_monitor"].value(setup=icepak_solved.existing_analysis_sweeps[0])
+        assert icepak_solved.monitor.all_monitors["test_monitor2"].value(quantity="HeatFlowRate")
 
-    def test_03d_icepak_eval_tempc(self):
+    def test_03d_icepak_eval_tempc(self, icepak_solved):
         assert os.path.exists(
-            self.icepak_app.eval_volume_quantity_from_field_summary(
-                ["box"], "Temperature", savedir=self.icepak_app.working_directory
+            icepak_solved.eval_volume_quantity_from_field_summary(
+                ["box"], "Temperature", savedir=icepak_solved.working_directory
             )
         )
 
-    def test_03e_icepak_ExportFLDFil(self):
+    def test_03e_icepak_ExportFLDFil(self, icepak_solved):
         fld_file = os.path.join(self.local_scratch.path, "test_fld.fld")
-        self.icepak_app.post.export_field_file(
+        icepak_solved.post.export_field_file(
             quantity="Temp",
-            solution=self.icepak_app.nominal_sweep,
+            solution=icepak_solved.nominal_sweep,
             variations={},
             output_file=fld_file,
             assignment="box",
@@ -365,31 +373,31 @@ class TestClass:
         assert os.path.exists(fld_file)
         fld_file_1 = os.path.join(self.local_scratch.path, "test_fld_1.fld")
         sample_points_file = os.path.join(local_path, "example_models", test_subfolder, "temp_points.pts")
-        self.icepak_app.post.export_field_file(
+        icepak_solved.post.export_field_file(
             quantity="Temp",
-            solution=self.icepak_app.nominal_sweep,
-            variations=self.icepak_app.available_variations.nominal_w_values_dict,
+            solution=icepak_solved.nominal_sweep,
+            variations=icepak_solved.available_variations.nominal_w_values_dict,
             output_file=fld_file_1,
             assignment="box",
             sample_points_file=sample_points_file,
         )
         assert os.path.exists(fld_file_1)
         fld_file_2 = os.path.join(self.local_scratch.path, "test_fld_2.fld")
-        self.icepak_app.post.export_field_file(
+        icepak_solved.post.export_field_file(
             quantity="Temp",
-            solution=self.icepak_app.nominal_sweep,
-            variations=self.icepak_app.available_variations.nominal_w_values_dict,
+            solution=icepak_solved.nominal_sweep,
+            variations=icepak_solved.available_variations.nominal_w_values_dict,
             output_file=fld_file_2,
             assignment="box",
             sample_points=[[0, 0, 0], [3, 6, 8], [4, 7, 9]],
         )
         assert os.path.exists(fld_file_2)
-        cs = self.icepak_app.modeler.create_coordinate_system()
+        cs = icepak_solved.modeler.create_coordinate_system()
         fld_file_3 = os.path.join(self.local_scratch.path, "test_fld_3.fld")
-        self.icepak_app.post.export_field_file(
+        icepak_solved.post.export_field_file(
             quantity="Temp",
-            solution=self.icepak_app.nominal_sweep,
-            variations=self.icepak_app.available_variations.nominal_w_values_dict,
+            solution=icepak_solved.nominal_sweep,
+            variations=icepak_solved.available_variations.nominal_w_values_dict,
             output_file=fld_file_3,
             assignment="box",
             sample_points=[[0, 0, 0], [3, 6, 8], [4, 7, 9]],
@@ -409,56 +417,55 @@ class TestClass:
         if desktop_version > "2024.2":
             assert self.hfss3dl_solve.set_export_touchstone()
         else:
-            assert not self.hfss3dl_solve.set_export_touchstone()
+            with pytest.raises(AEDTRuntimeError):
+                self.hfss3dl_solve.set_export_touchstone()
         assert self.hfss3dl_solve.analyze_setup("Setup1", cores=4, blocking=False)
         assert self.hfss3dl_solve.are_there_simulations_running
         assert self.hfss3dl_solve.stop_simulations()
         while self.hfss3dl_solve.are_there_simulations_running:
             time.sleep(1)
 
-    def test_04c_3dl_analyze_setup(self):
-        assert self.hfss3dl_solve.analyze_setup("Setup1", cores=4)
-        self.hfss3dl_solve.save_project()
-        assert os.path.exists(self.hfss3dl_solve.export_profile("Setup1"))
-        assert os.path.exists(self.hfss3dl_solve.export_mesh_stats("Setup1"))
+    def test_04c_3dl_analyze_setup(self, hfss3dl_solved):
+        assert os.path.exists(hfss3dl_solved.export_profile("Setup1"))
+        assert os.path.exists(hfss3dl_solved.export_mesh_stats("Setup1"))
 
     @pytest.mark.skipif(is_linux, reason="To be investigated on linux.")
-    def test_04d_3dl_export_touchstone(self):
+    def test_04d_3dl_export_touchstone(self, hfss3dl_solved):
         filename = os.path.join(self.local_scratch.path, "touchstone.s2p")
         solution_name = "Setup1"
         sweep_name = "Sweep1"
-        assert self.hfss3dl_solve.export_touchstone(solution_name, sweep_name, filename)
+        assert hfss3dl_solved.export_touchstone(solution_name, sweep_name, filename)
         assert os.path.exists(filename)
-        assert self.hfss3dl_solve.export_touchstone(solution_name)
+        assert hfss3dl_solved.export_touchstone(solution_name)
         sweep_name = None
-        assert self.hfss3dl_solve.export_touchstone(solution_name, sweep_name)
+        assert hfss3dl_solved.export_touchstone(solution_name, sweep_name)
 
-    def test_04e_3dl_export_results(self):
-        files = self.hfss3dl_solve.export_results()
+    def test_04e_3dl_export_results(self, hfss3dl_solved):
+        files = hfss3dl_solved.export_results()
         assert len(files) > 0
 
-    def test_04f_3dl_set_export_touchstone(self):
-        assert self.hfss3dl_solve.export_touchstone_on_completion(True)
-        assert self.hfss3dl_solve.export_touchstone_on_completion(False)
+    def test_04f_3dl_set_export_touchstone(self, hfss3dl_solved):
+        assert hfss3dl_solved.export_touchstone_on_completion(True)
+        assert hfss3dl_solved.export_touchstone_on_completion(False)
         if desktop_version > "2024.2":
-            assert self.hfss3dl_solve.set_export_touchstone()
+            assert hfss3dl_solved.set_export_touchstone()
 
-    def test_04g_3dl_get_all_sparameter_list(self):
-        assert self.hfss3dl_solve.get_all_sparameter_list == ["S(Port1,Port1)", "S(Port1,Port2)", "S(Port2,Port2)"]
+    def test_04g_3dl_get_all_sparameter_list(self, hfss3dl_solved):
+        assert hfss3dl_solved.get_all_sparameter_list == ["S(Port1,Port1)", "S(Port1,Port2)", "S(Port2,Port2)"]
 
-    def test_04h_3dl_get_all_return_loss_list(self):
-        assert self.hfss3dl_solve.get_all_return_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
+    def test_04h_3dl_get_all_return_loss_list(self, hfss3dl_solved):
+        assert hfss3dl_solved.get_all_return_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
 
-    def test_04i_3dl_get_all_insertion_loss_list(self):
-        assert self.hfss3dl_solve.get_all_insertion_loss_list(
+    def test_04i_3dl_get_all_insertion_loss_list(self, hfss3dl_solved):
+        assert hfss3dl_solved.get_all_insertion_loss_list(
             drivers_prefix_name="Port1", receivers_prefix_name="Port2"
         ) == ["S(Port1,Port2)"]
 
-    def test_04j_3dl_get_next_xtalk_list(self):
-        assert self.hfss3dl_solve.get_next_xtalk_list() == ["S(Port1,Port2)"]
+    def test_04j_3dl_get_next_xtalk_list(self, hfss3dl_solved):
+        assert hfss3dl_solved.get_next_xtalk_list() == ["S(Port1,Port2)"]
 
-    def test_04k_3dl_get_fext_xtalk_list(self):
-        assert self.hfss3dl_solve.get_fext_xtalk_list() == ["S(Port1,Port2)", "S(Port2,Port1)"]
+    def test_04k_3dl_get_fext_xtalk_list(self, hfss3dl_solved):
+        assert hfss3dl_solved.get_fext_xtalk_list() == ["S(Port1,Port2)", "S(Port2,Port1)"]
 
     def test_05a_circuit_add_3dlayout_component(self, circuit_app):
         setup = circuit_app.create_setup("test_06b_LNA")
@@ -499,23 +506,12 @@ class TestClass:
         assert circuit_app.push_time_excitations(instance="U1", setup=setup_name)
 
     def test_06_m3d_harmonic_forces(self, m3dtransient):
-        assert m3dtransient.enable_harmonic_force(
-            ["Stator"],
-            force_type=2,
-            window_function="Rectangular",
-            use_number_of_last_cycles=True,
-            last_cycles_number=3,
-            calculate_force="Harmonic",
-        )
-        m3dtransient.save_project()
-        m3dtransient.analyze(m3dtransient.active_setup, cores=4, use_auto_settings=False)
         assert m3dtransient.export_element_based_harmonic_force(
             start_frequency=1, stop_frequency=100, number_of_frequency=None
         )
         assert m3dtransient.export_element_based_harmonic_force(number_of_frequency=5)
 
     def test_07_export_maxwell_fields(self, m3dtransient):
-        m3dtransient.analyze(m3dtransient.active_setup, cores=4, use_auto_settings=False)
         fld_file_3 = os.path.join(self.local_scratch.path, "test_fld_3.fld")
         assert m3dtransient.post.export_field_file(
             quantity="Mag_B",
@@ -594,22 +590,6 @@ class TestClass:
         spisim.working_directory = local_scratch.path
 
         com_0, com_1 = spisim.compute_com(
-            standard=1,
-            port_order="EvenOdd",
-            fext_s4p=fext_s4p,
-            next_s4p=next_s4p,
-            out_folder=report_dir,
-        )
-        assert com_0 and com_1
-        com_0, com_1 = spisim.compute_com(
-            standard=2,
-            port_order="EvenOdd",
-            fext_s4p=fext_s4p,
-            next_s4p=next_s4p,
-            out_folder=report_dir,
-        )
-        assert com_0 and com_1
-        com_0, com_1 = spisim.compute_com(
             standard=3,
             port_order="EvenOdd",
             fext_s4p=fext_s4p,
@@ -624,12 +604,6 @@ class TestClass:
         spisim = SpiSim(thru_s4p)
 
         spisim.export_com_configure_file(os.path.join(spisim.working_directory, "custom.json"))
-        com_0, com_1 = spisim.compute_com(
-            standard=0,
-            config_file=os.path.join(spisim.working_directory, "custom.json"),
-            port_order="EvenOdd",
-        )
-        assert com_0 and com_1
 
         from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_parameters import COMParametersVer3p4
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,8 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import ansys.aedt.core
-from ansys.aedt.core.filtersolutions_core.attributes import FilterImplementation
 from ansys.aedt.core.generic.general_methods import is_linux
 import pytest
 
@@ -36,58 +34,50 @@ from ..resources import read_resource_file
 @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
 class TestClass:
 
-    def test_lumped_capacitor_q(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        assert lumpdesign.parasitics.capacitor_q == "Inf"
-        lumpdesign.parasitics.capacitor_q = "100"
-        assert lumpdesign.parasitics.capacitor_q == "100"
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("capacitor_q.ckt")
+    def test_lumped_capacitor_q(self, lumped_design):
+        assert lumped_design.parasitics.capacitor_q == "Inf"
+        lumped_design.parasitics.capacitor_q = "100"
+        assert lumped_design.parasitics.capacitor_q == "100"
+        assert lumped_design.topology.netlist().splitlines() == read_resource_file("capacitor_q.ckt", "Lumped")
 
-    def test_lumped_capacitor_rs(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        assert lumpdesign.parasitics.capacitor_rs == "0"
-        lumpdesign.parasitics.capacitor_rs = "1"
-        assert lumpdesign.parasitics.capacitor_rs == "1"
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("capacitor_rs.ckt")
+    def test_lumped_capacitor_rs(self, lumped_design):
+        assert lumped_design.parasitics.capacitor_rs == "0"
+        lumped_design.parasitics.capacitor_rs = "1"
+        assert lumped_design.parasitics.capacitor_rs == "1"
+        assert lumped_design.topology.netlist().splitlines() == read_resource_file("capacitor_rs.ckt", "Lumped")
 
-    def test_lumped_capacitor_rp(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        assert lumpdesign.parasitics.capacitor_rp == "Inf"
-        lumpdesign.parasitics.capacitor_rp = "1000"
-        assert lumpdesign.parasitics.capacitor_rp == "1000"
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("capacitor_rp.ckt")
+    def test_lumped_capacitor_rp(self, lumped_design):
+        assert lumped_design.parasitics.capacitor_rp == "Inf"
+        lumped_design.parasitics.capacitor_rp = "1000"
+        assert lumped_design.parasitics.capacitor_rp == "1000"
+        assert lumped_design.topology.netlist().splitlines() == read_resource_file("capacitor_rp.ckt", "Lumped")
 
-    def test_lumped_capacitor_ls(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        assert lumpdesign.parasitics.capacitor_ls == "0"
-        lumpdesign.parasitics.capacitor_ls = "1n"
-        assert lumpdesign.parasitics.capacitor_ls == "1n"
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("capacitor_ls.ckt")
+    def test_lumped_capacitor_ls(self, lumped_design):
+        assert lumped_design.parasitics.capacitor_ls == "0"
+        lumped_design.parasitics.capacitor_ls = "1n"
+        assert lumped_design.parasitics.capacitor_ls == "1n"
+        assert lumped_design.topology.netlist().splitlines() == read_resource_file("capacitor_ls.ckt", "Lumped")
 
-    def test_lumped_inductor_q(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        assert lumpdesign.parasitics.inductor_q == "Inf"
-        lumpdesign.parasitics.inductor_q = "100"
-        assert lumpdesign.parasitics.inductor_q == "100"
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("inductor_q.ckt")
+    def test_lumped_inductor_q(self, lumped_design):
+        assert lumped_design.parasitics.inductor_q == "Inf"
+        lumped_design.parasitics.inductor_q = "100"
+        assert lumped_design.parasitics.inductor_q == "100"
+        assert lumped_design.topology.netlist().splitlines() == read_resource_file("inductor_q.ckt", "Lumped")
 
-    def test_lumped_inductor_rs(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        assert lumpdesign.parasitics.inductor_rs == "0"
-        lumpdesign.parasitics.inductor_rs = "1"
-        assert lumpdesign.parasitics.inductor_rs == "1"
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("inductor_rs.ckt")
+    def test_lumped_inductor_rs(self, lumped_design):
+        assert lumped_design.parasitics.inductor_rs == "0"
+        lumped_design.parasitics.inductor_rs = "1"
+        assert lumped_design.parasitics.inductor_rs == "1"
+        assert lumped_design.topology.netlist().splitlines() == read_resource_file("inductor_rs.ckt", "Lumped")
 
-    def test_lumped_inductor_rp(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        assert lumpdesign.parasitics.inductor_rp == "Inf"
-        lumpdesign.parasitics.inductor_rp = "1000"
-        assert lumpdesign.parasitics.inductor_rp == "1000"
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("inductor_rp.ckt")
+    def test_lumped_inductor_rp(self, lumped_design):
+        assert lumped_design.parasitics.inductor_rp == "Inf"
+        lumped_design.parasitics.inductor_rp = "1000"
+        assert lumped_design.parasitics.inductor_rp == "1000"
+        assert lumped_design.topology.netlist().splitlines() == read_resource_file("inductor_rp.ckt", "Lumped")
 
-    def test_lumped_inductor_cp(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        assert lumpdesign.parasitics.inductor_cp == "0"
-        lumpdesign.parasitics.inductor_cp = "1n"
-        assert lumpdesign.parasitics.inductor_cp == "1n"
-        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("inductor_cp.ckt")
+    def test_lumped_inductor_cp(self, lumped_design):
+        assert lumped_design.parasitics.inductor_cp == "0"
+        lumped_design.parasitics.inductor_cp = "1n"
+        assert lumped_design.parasitics.inductor_cp == "1n"
+        assert lumped_design.topology.netlist().splitlines() == read_resource_file("inductor_cp.ckt", "Lumped")

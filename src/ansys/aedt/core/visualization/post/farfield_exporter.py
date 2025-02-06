@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -103,7 +103,8 @@ class FfdSolutionDataExporter:
         else:
             # Set variation to Nominal
             for var_name, var_value in variations.items():
-                app[var_name] = var_value
+                if app[var_name] != var_value:
+                    app[var_name] = var_value
 
         self.variations = variations
         self.overwrite = overwrite

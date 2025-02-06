@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -191,6 +191,7 @@ class CircuitComponents(object):
     @pyaedt_function_handler()
     def _convert_point_to_meter(self, point):
         """Convert numbers automatically to mils.
+
         It is rounded to the nearest 100 mil which is minimum schematic snap unit.
         """
         xpos = point[0]
@@ -370,7 +371,7 @@ class CircuitComponents(object):
         return self.components[id]
 
     @pyaedt_function_handler()
-    def create_gnd(self, location=None, angle=0):
+    def create_gnd(self, location=None, angle=0, page=1):
         """Create a ground.
 
         Parameters
@@ -379,6 +380,8 @@ class CircuitComponents(object):
             Position on the X and Y axis. The default is ``None``.
         angle : optional
             Angle rotation in degrees. The default is ``0``.
+        page: int, optional
+            Schematics page number. The default value is ``1``.
 
         Returns
         -------
@@ -397,7 +400,7 @@ class CircuitComponents(object):
         angle = math.pi * angle / 180
         name = self.oeditor.CreateGround(
             ["NAME:GroundProps", "Id:=", id],
-            ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False],
+            ["NAME:Attributes", "Page:=", page, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False],
         )
         id = int(name.split(";")[1])
         self.add_id_to_component(id)
@@ -755,6 +758,7 @@ class CircuitComponents(object):
         angle=0,
         use_instance_id_netlist=False,
         global_netlist_list=None,
+        page=1,
     ):
         """Create a component from a library.
 
@@ -776,6 +780,8 @@ class CircuitComponents(object):
             The default is ``False``.
         global_netlist_list : list, optional
             The default is ``None``, in which case an empty list is passed.
+        page: int, optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -803,7 +809,7 @@ class CircuitComponents(object):
         arg1 = ["NAME:ComponentProps", "Name:=", inst_name, "Id:=", str(id)]
         xpos, ypos = self._get_location(location)
         angle = math.pi * angle / 180
-        arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
+        arg2 = ["NAME:Attributes", "Page:=", page, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         id = self.oeditor.CreateComponent(arg1, arg2)
         id = int(id.split(";")[1])
         # self.refresh_all_ids()
@@ -1200,7 +1206,7 @@ class CircuitComponents(object):
         )
 
     @pyaedt_function_handler(points_array="points", wire_name="name")
-    def create_wire(self, points, name=""):
+    def create_wire(self, points, name="", page=1):
         """Create a wire.
 
         Parameters
@@ -1210,6 +1216,8 @@ class CircuitComponents(object):
             ``[[x1, y1], [x2, y2], ...]``.
         name : str, optional
             Name of the wire. Default value is ``""``.
+        page: int, optional
+            Schematics page number. The default value is ``1``.
 
         Returns
         -------
@@ -1223,7 +1231,7 @@ class CircuitComponents(object):
         points = [str(tuple(self._convert_point_to_meter(i))) for i in points]
         wire_id = self.create_unique_id()
         arg1 = ["NAME:WireData", "Name:=", name, "Id:=", wire_id, "Points:=", points]
-        arg2 = ["NAME:Attributes", "Page:=", 1]
+        arg2 = ["NAME:Attributes", "Page:=", page]
         try:
             wire_id = self.oeditor.CreateWire(arg1, arg2)
             w = Wire(self._modeler, composed_name=wire_id)

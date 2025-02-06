@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -31,7 +31,7 @@ import shutil
 
 from ansys.aedt.core.application.design_solutions import model_names
 from ansys.aedt.core.generic.data_handlers import _dict2arg
-from ansys.aedt.core.generic.general_methods import MethodNotSupportedError
+from ansys.aedt.core.generic.errors import MethodNotSupportedError
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
@@ -154,6 +154,7 @@ class MeshOperation(BinaryTreeNode):
 
     @property
     def props(self):
+        """Properties of the mesh operation."""
         if not self._legacy_props:
             props = {}
             for k, v in self.properties.items():
@@ -1157,7 +1158,6 @@ class Mesh(object):
         if maximum_length is None and maximum_elements is None:
             self.logger.error("mesh not assigned due to incorrect settings")
             return
-        assignment = self._app.modeler.convert_to_selections(assignment, True)
 
         if isinstance(assignment[0], int) and not inside_selection:
             seltype = "Faces"
@@ -1317,7 +1317,6 @@ class Mesh(object):
                     name = generate_unique_name(name)
         else:
             name = generate_unique_name("CurvilinearElements")
-        assignment = self._app.modeler.convert_to_selections(assignment, True)
 
         if isinstance(assignment[0], int):
             seltype = "Faces"

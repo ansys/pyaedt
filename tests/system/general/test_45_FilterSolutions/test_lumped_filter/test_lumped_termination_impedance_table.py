@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,8 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import ansys.aedt.core
-from ansys.aedt.core.filtersolutions_core.attributes import FilterImplementation
 from ansys.aedt.core.filtersolutions_core.lumped_termination_impedance_table import ComplexReactanceType
 from ansys.aedt.core.filtersolutions_core.lumped_termination_impedance_table import ComplexTerminationDefinition
 from ansys.aedt.core.generic.general_methods import is_linux
@@ -35,131 +33,121 @@ from tests.system.general.conftest import config
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
 class TestClass:
-    def test_row_count(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.topology.complex_termination = True
-        assert lumpdesign.source_impedance_table.row_count == 3
-        assert lumpdesign.load_impedance_table.row_count == 3
+    def test_row_count(self, lumped_design):
+        lumped_design.topology.complex_termination = True
+        assert lumped_design.source_impedance_table.row_count == 3
+        assert lumped_design.load_impedance_table.row_count == 3
 
-    def test_row(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.topology.complex_termination = True
-        assert lumpdesign.source_impedance_table.row(0) == ("0.100G", "1.000", "0.000")
-        assert lumpdesign.load_impedance_table.row(0) == ("0.100G", "1.000", "0.000")
+    def test_row(self, lumped_design):
+        lumped_design.topology.complex_termination = True
+        assert lumped_design.source_impedance_table.row(0) == ("0.100G", "1.000", "0.000")
+        assert lumped_design.load_impedance_table.row(0) == ("0.100G", "1.000", "0.000")
 
-    def test_update_row(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.topology.complex_termination = True
+    def test_update_row(self, lumped_design):
+        lumped_design.topology.complex_termination = True
         with pytest.raises(RuntimeError) as info:
-            lumpdesign.source_impedance_table.update_row(0)
+            lumped_design.source_impedance_table.update_row(0)
         assert info.value.args[0] == "There is no input value to update"
         with pytest.raises(RuntimeError) as info:
-            lumpdesign.load_impedance_table.update_row(0)
+            lumped_design.load_impedance_table.update_row(0)
         assert info.value.args[0] == "There is no input value to update"
-        lumpdesign.source_impedance_table.update_row(0, "2G", "22", "11")
-        assert lumpdesign.source_impedance_table.row(0) == ("2G", "22", "11")
-        lumpdesign.load_impedance_table.update_row(0, "2G", "22", "11")
-        assert lumpdesign.load_impedance_table.row(0) == ("2G", "22", "11")
-        lumpdesign.source_impedance_table.update_row(0, frequency="4G")
-        assert lumpdesign.source_impedance_table.row(0) == ("4G", "22", "11")
-        lumpdesign.load_impedance_table.update_row(0, frequency="4G")
-        assert lumpdesign.load_impedance_table.row(0) == ("4G", "22", "11")
-        lumpdesign.source_impedance_table.update_row(0, "2G", "50", "0")
-        assert lumpdesign.source_impedance_table.row(0) == ("2G", "50", "0")
-        lumpdesign.load_impedance_table.update_row(0, "2G", "50", "0")
-        assert lumpdesign.load_impedance_table.row(0) == ("2G", "50", "0")
+        lumped_design.source_impedance_table.update_row(0, "2G", "22", "11")
+        assert lumped_design.source_impedance_table.row(0) == ("2G", "22", "11")
+        lumped_design.load_impedance_table.update_row(0, "2G", "22", "11")
+        assert lumped_design.load_impedance_table.row(0) == ("2G", "22", "11")
+        lumped_design.source_impedance_table.update_row(0, frequency="4G")
+        assert lumped_design.source_impedance_table.row(0) == ("4G", "22", "11")
+        lumped_design.load_impedance_table.update_row(0, frequency="4G")
+        assert lumped_design.load_impedance_table.row(0) == ("4G", "22", "11")
+        lumped_design.source_impedance_table.update_row(0, "2G", "50", "0")
+        assert lumped_design.source_impedance_table.row(0) == ("2G", "50", "0")
+        lumped_design.load_impedance_table.update_row(0, "2G", "50", "0")
+        assert lumped_design.load_impedance_table.row(0) == ("2G", "50", "0")
 
-    def test_append_row(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.topology.complex_termination = True
-        lumpdesign.source_impedance_table.append_row("100M", "10", "20")
-        assert lumpdesign.source_impedance_table.row_count == 4
-        assert lumpdesign.source_impedance_table.row(3) == ("100M", "10", "20")
-        lumpdesign.topology.complex_termination = True
-        lumpdesign.load_impedance_table.append_row("100M", "10", "20")
-        assert lumpdesign.load_impedance_table.row_count == 4
-        assert lumpdesign.load_impedance_table.row(3) == ("100M", "10", "20")
+    def test_append_row(self, lumped_design):
+        lumped_design.topology.complex_termination = True
+        lumped_design.source_impedance_table.append_row("100M", "10", "20")
+        assert lumped_design.source_impedance_table.row_count == 4
+        assert lumped_design.source_impedance_table.row(3) == ("100M", "10", "20")
+        lumped_design.topology.complex_termination = True
+        lumped_design.load_impedance_table.append_row("100M", "10", "20")
+        assert lumped_design.load_impedance_table.row_count == 4
+        assert lumped_design.load_impedance_table.row(3) == ("100M", "10", "20")
 
-    def test_insert_row(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.topology.complex_termination = True
-        lumpdesign.source_impedance_table.insert_row(0, "2G", "50", "0")
-        assert lumpdesign.source_impedance_table.row(0) == ("2G", "50", "0")
-        lumpdesign.load_impedance_table.insert_row(0, "2G", "50", "0")
-        assert lumpdesign.load_impedance_table.row(0) == ("2G", "50", "0")
+    def test_insert_row(self, lumped_design):
+        lumped_design.topology.complex_termination = True
+        lumped_design.source_impedance_table.insert_row(0, "2G", "50", "0")
+        assert lumped_design.source_impedance_table.row(0) == ("2G", "50", "0")
+        lumped_design.load_impedance_table.insert_row(0, "2G", "50", "0")
+        assert lumped_design.load_impedance_table.row(0) == ("2G", "50", "0")
 
-    def test_remove_row(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.topology.complex_termination = True
-        lumpdesign.source_impedance_table.remove_row(0)
-        assert lumpdesign.source_impedance_table.row(0) == ("1.000G", "1.000", "0.000")
+    def test_remove_row(self, lumped_design):
+        lumped_design.topology.complex_termination = True
+        lumped_design.source_impedance_table.remove_row(0)
+        assert lumped_design.source_impedance_table.row(0) == ("1.000G", "1.000", "0.000")
         with pytest.raises(RuntimeError) as info:
-            lumpdesign.source_impedance_table.row(2)
+            lumped_design.source_impedance_table.row(2)
         assert info.value.args[0] == "No value is set for this band"
-        lumpdesign.load_impedance_table.remove_row(0)
-        assert lumpdesign.load_impedance_table.row(0) == ("1.000G", "1.000", "0.000")
+        lumped_design.load_impedance_table.remove_row(0)
+        assert lumped_design.load_impedance_table.row(0) == ("1.000G", "1.000", "0.000")
         with pytest.raises(RuntimeError) as info:
-            lumpdesign.load_impedance_table.row(2)
+            lumped_design.load_impedance_table.row(2)
         assert info.value.args[0] == "No value is set for this band"
 
-    def test_complex_definition(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.topology.complex_termination = True
+    def test_complex_definition(self, lumped_design):
+        lumped_design.topology.complex_termination = True
         assert len(ComplexTerminationDefinition) == 4
-        assert lumpdesign.source_impedance_table.complex_definition == ComplexTerminationDefinition.CARTESIAN
+        assert lumped_design.source_impedance_table.complex_definition == ComplexTerminationDefinition.CARTESIAN
         for cdef in ComplexTerminationDefinition:
-            lumpdesign.source_impedance_table.complex_definition = cdef
-            assert lumpdesign.source_impedance_table.complex_definition == cdef
-        assert lumpdesign.load_impedance_table.complex_definition == ComplexTerminationDefinition.CARTESIAN
+            lumped_design.source_impedance_table.complex_definition = cdef
+            assert lumped_design.source_impedance_table.complex_definition == cdef
+        assert lumped_design.load_impedance_table.complex_definition == ComplexTerminationDefinition.CARTESIAN
         for cdef in ComplexTerminationDefinition:
-            lumpdesign.load_impedance_table.complex_definition = cdef
-            assert lumpdesign.load_impedance_table.complex_definition == cdef
+            lumped_design.load_impedance_table.complex_definition = cdef
+            assert lumped_design.load_impedance_table.complex_definition == cdef
 
-    def test_reactance_type(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.topology.complex_termination = True
+    def test_reactance_type(self, lumped_design):
+        lumped_design.topology.complex_termination = True
         assert len(ComplexReactanceType) == 3
-        assert lumpdesign.source_impedance_table.reactance_type == ComplexReactanceType.REAC
+        assert lumped_design.source_impedance_table.reactance_type == ComplexReactanceType.REAC
         for creac in ComplexReactanceType:
-            lumpdesign.source_impedance_table.reactance_type = creac
-            assert lumpdesign.source_impedance_table.reactance_type == creac
-        assert lumpdesign.load_impedance_table.reactance_type == ComplexReactanceType.REAC
+            lumped_design.source_impedance_table.reactance_type = creac
+            assert lumped_design.source_impedance_table.reactance_type == creac
+        assert lumped_design.load_impedance_table.reactance_type == ComplexReactanceType.REAC
         for creac in ComplexReactanceType:
-            lumpdesign.load_impedance_table.reactance_type = creac
-            assert lumpdesign.load_impedance_table.reactance_type == creac
+            lumped_design.load_impedance_table.reactance_type = creac
+            assert lumped_design.load_impedance_table.reactance_type == creac
 
-    def test_compensation_enabled(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.topology.complex_termination = True
-        assert lumpdesign.source_impedance_table.compensation_enabled is False
-        lumpdesign.source_impedance_table.compensation_enabled = True
-        assert lumpdesign.source_impedance_table.compensation_enabled
-        assert lumpdesign.load_impedance_table.compensation_enabled is False
-        lumpdesign.load_impedance_table.compensation_enabled = True
-        assert lumpdesign.load_impedance_table.compensation_enabled
+    def test_compensation_enabled(self, lumped_design):
+        lumped_design.topology.complex_termination = True
+        assert lumped_design.source_impedance_table.compensation_enabled is False
+        lumped_design.source_impedance_table.compensation_enabled = True
+        assert lumped_design.source_impedance_table.compensation_enabled
+        assert lumped_design.load_impedance_table.compensation_enabled is False
+        lumped_design.load_impedance_table.compensation_enabled = True
+        assert lumped_design.load_impedance_table.compensation_enabled
 
-    def test_compensation_order(self):
-        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.topology.complex_termination = True
-        lumpdesign.source_impedance_table.compensation_enabled = True
-        assert lumpdesign.source_impedance_table.compensation_order == 2
+    def test_compensation_order(self, lumped_design):
+        lumped_design.topology.complex_termination = True
+        lumped_design.source_impedance_table.compensation_enabled = True
+        assert lumped_design.source_impedance_table.compensation_order == 2
         with pytest.raises(RuntimeError) as info:
-            lumpdesign.source_impedance_table.compensation_order = 0
+            lumped_design.source_impedance_table.compensation_order = 0
         assert info.value.args[0] == "The minimum impedance compensation order is 1"
         for i in range(1, 22):
-            lumpdesign.source_impedance_table.compensation_order = i
-            assert lumpdesign.source_impedance_table.compensation_order == i
+            lumped_design.source_impedance_table.compensation_order = i
+            assert lumped_design.source_impedance_table.compensation_order == i
         with pytest.raises(RuntimeError) as info:
-            lumpdesign.source_impedance_table.compensation_order = 22
+            lumped_design.source_impedance_table.compensation_order = 22
         assert info.value.args[0] == "The maximum impedance compensation order is 21"
-        lumpdesign.load_impedance_table.compensation_enabled = True
-        assert lumpdesign.load_impedance_table.compensation_order == 2
+        lumped_design.load_impedance_table.compensation_enabled = True
+        assert lumped_design.load_impedance_table.compensation_order == 2
         with pytest.raises(RuntimeError) as info:
-            lumpdesign.load_impedance_table.compensation_order = 0
+            lumped_design.load_impedance_table.compensation_order = 0
         assert info.value.args[0] == "The minimum impedance compensation order is 1"
         for i in range(1, 22):
-            lumpdesign.load_impedance_table.compensation_order = i
-            assert lumpdesign.load_impedance_table.compensation_order == i
+            lumped_design.load_impedance_table.compensation_order = i
+            assert lumped_design.load_impedance_table.compensation_order == i
         with pytest.raises(RuntimeError) as info:
-            lumpdesign.load_impedance_table.compensation_order = 22
+            lumped_design.load_impedance_table.compensation_order = 22
         assert info.value.args[0] == "The maximum impedance compensation order is 21"

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -573,3 +573,67 @@ class TestClass:
         }
         extension_args = {"is_test": True, "choke_config": choke_config}
         assert main(extension_args)
+
+    @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
+    def test_18_via_merging(self, local_scratch):
+        from ansys.aedt.core.workflows.hfss3dlayout.via_clustering_extension import main
+
+        file_path = os.path.join(local_scratch.path, "test_via_merging.aedb")
+        new_file = os.path.join(local_scratch.path, "__test_via_merging.aedb")
+        local_scratch.copyfolder(
+            os.path.join(solver_local_path, "example_models", "T45", "test_via_merging.aedb"), file_path
+        )
+        _input_ = {
+            "contour_list": [[[0.143, 0.04], [0.1476, 0.04], [0.1476, 0.03618], [0.143, 0.036]]],
+            "is_batch": True,
+            "start_layer": "TOP",
+            "stop_layer": "INT5",
+            "design_name": "test",
+            "aedb_path": file_path,
+            "new_aedb_path": new_file,
+            "test_mode": True,
+        }
+        assert main(_input_)
+
+    @pytest.mark.skipif(is_linux, reason="Simulation takes too long in Linux machine.")
+    def test_19_shielding_effectiveness(self, add_app, local_scratch):
+        aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="se")
+
+        from ansys.aedt.core.workflows.hfss.shielding_effectiveness import main
+
+        assert not main(
+            {
+                "is_test": True,
+                "sphere_size": 0.01,
+                "x_pol": 0.0,
+                "y_pol": 0.1,
+                "z_pol": 1.0,
+                "dipole_type": "Electric",
+                "frequency_units": "GHz",
+                "start_frequency": 0.1,
+                "stop_frequency": 1,
+                "points": 5,
+                "cores": 4,
+            }
+        )
+
+        aedtapp.modeler.create_waveguide(origin=[0, 0, 0], wg_direction_axis=0)
+
+        assert main(
+            {
+                "is_test": True,
+                "sphere_size": 0.01,
+                "x_pol": 0.0,
+                "y_pol": 0.1,
+                "z_pol": 1.0,
+                "dipole_type": "Electric",
+                "frequency_units": "GHz",
+                "start_frequency": 0.1,
+                "stop_frequency": 0.2,
+                "points": 2,
+                "cores": 2,
+            }
+        )
+
+        assert len(aedtapp.post.all_report_names) == 2
+        aedtapp.close_project(aedtapp.project_name)

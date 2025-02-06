@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -37,10 +37,9 @@ _this._internal_dll_interface = None
 def _dll_interface(version=None) -> DllInterface:
     if _this._internal_dll_interface is None:
         _this._internal_dll_interface = DllInterface(show_gui=False, version=version)
-    elif version is not None and version != _this._internal_dll_interface.version:
+    elif version is not None and version != _this._internal_dll_interface._version:
         raise Exception(
-            f"The requested version {version} does not match with the previously defined version {_this._internal_dll_interface.version}."
-            f"{_this._internal_dll_interface.version}."
+            f"The requested version {version} does not match with the previously defined version {_this._internal_dll_interface._version}."
         )
 
     return _this._internal_dll_interface

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -718,7 +718,6 @@ class SweepType(object):
 class BasisOrder(object):
     """Enumeration-class for HFSS basis order settings.
 
-
     Warning: the value ``single`` has been renamed to ``Single`` for consistency. Please update references to
     ``single``.
     """
@@ -868,7 +867,7 @@ class SOLUTIONS(object):
     class Mechanical(object):
         """Provides Mechanical solution types."""
 
-        (Thermal, Structural, Modal) = ("Thermal", "Structural", "Modal")
+        (Thermal, Structural, Modal, SteadyStateThermal) = ("Thermal", "Structural", "Modal", "Steady-State Thermal")
 
 
 class SETUPS(object):

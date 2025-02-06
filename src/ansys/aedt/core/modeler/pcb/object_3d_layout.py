@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,10 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-This module provides methods and data structures for managing all properties of
+"""This module provides methods and data structures for managing all properties of
 objects (points, lines, sheeets, and solids) within the AEDT 3D Layout Modeler.
-
 """
 from __future__ import absolute_import  # noreorder
 
@@ -1066,12 +1064,12 @@ class Geometries3DLayout(Object3DLayout, object):
     def name(self, value):
         try:
             del self._primitives._lines[self.name]
-            vMaterial = ["NAME:Name", "Value:=", value]
-            self.change_property(vMaterial)
+            args = ["NAME:Name", "Value:=", value]
+            self.change_property(args)
             self._name = value
             self._primitives._lines[self._name] = self
         except Exception:
-            pass
+            self.logger.debug(f"Couldn't update geometry name into '{value}'.")
 
     @property
     def is_closed(self):

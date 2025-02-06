@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -25,8 +25,8 @@
 from __future__ import absolute_import
 
 import os
-import random
 import re
+import secrets
 import warnings
 
 from ansys.aedt.core.edb import Edb
@@ -172,7 +172,7 @@ class UserDefinedComponent(object):
                     "MaterialDefinitionParameters": {"VariableOrders": {}},
                     "MapInstanceParameters": "DesignVariable",
                     "UniqueDefinitionIdentifier": "89d26167-fb77-480e-a7ab-"
-                    + "".join(random.choice("abcdef0123456789") for _ in range(int(12))),
+                    + "".join(secrets.choice("abcdef0123456789") for _ in range(int(12))),
                     "OriginFilePath": "",
                     "IsLocal": False,
                     "ChecksumString": "",

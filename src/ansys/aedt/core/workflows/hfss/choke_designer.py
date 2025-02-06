@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -459,7 +459,7 @@ def main(extension_args):
     hfss.modeler.create_region(pad_percent=1000)
 
     # Create setup
-    setup = hfss.create_setup("Setup1")
+    setup = hfss.create_setup("Setup1", setup_type="HFSSDriven")
     setup.props["Frequency"] = "50MHz"
     setup.props["MaximumPasses"] = 10
 

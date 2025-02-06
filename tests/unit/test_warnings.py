@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -62,7 +62,7 @@ def test_deprecation_warning_with_valid_python_version(mock_warn, monkeypatch):
 
 
 def test_alias_deprecation_warning():
-    """Test that pyaedt alias  warning is triggered."""
+    """Test that pyaedt alias warning is triggered."""
     import importlib
 
     import pyaedt

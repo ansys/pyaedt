@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,6 +29,7 @@ This module provides all functionalities for creating and editing reports.
 
 """
 
+
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.visualization.report.common import CommonReport
@@ -53,6 +54,8 @@ class EMIReceiver(CommonReport):
         self._emission = "CE"
         self.overlap_rate = 95
         self.band = "0"
+        self.rbw = "0"
+        self.rbw_factor = "0"
         self.primary_sweep = "Freq"
 
     @property
@@ -87,6 +90,36 @@ class EMIReceiver(CommonReport):
     @band.setter
     def band(self, value):
         self._legacy_props["context"]["band"] = value
+
+    @property
+    def rbw(self):
+        """RBW attached to the EMI receiver.
+
+        Returns
+        -------
+        str
+            RBW setting.
+        """
+        return self._legacy_props["context"].get("RBW", None)
+
+    @rbw.setter
+    def rbw(self, value):
+        self._legacy_props["context"]["RBW"] = value
+
+    @property
+    def rbw_factor(self):
+        """RBW Factor attached to the EMI receiver.
+
+        Returns
+        -------
+        str
+            RBW Factor setting.
+        """
+        return self._legacy_props["context"].get("RBW_factor", None)
+
+    @rbw_factor.setter
+    def rbw_factor(self, value):
+        self._legacy_props["context"]["RBW_factor"] = value
 
     @property
     def emission(self):
@@ -188,7 +221,10 @@ class EMIReceiver(CommonReport):
                 str(self.overlap_rate),
                 "RBW",
                 False,
-                "9000Hz",
+                str(self.rbw),
+                "RBWFactor",
+                False,
+                str(self.rbw_factor),
                 "SIG",
                 False,
                 "0",

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -41,15 +41,6 @@ from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.q3d_boundary import Matrix
 from ansys.aedt.core.modules.setup_templates import SetupKeys
-
-try:
-    import numpy as np
-except ImportError:  # pragma: no cover
-    warnings.warn(
-        "The NumPy module is required to use functionalities provided by the module ansys.edt.core.q3d.\n"
-        "Install with \n\npip install numpy"
-    )
-    np = None
 
 
 class QExtractor(FieldAnalysis3D, object):
@@ -1006,6 +997,7 @@ class QExtractor(FieldAnalysis3D, object):
                 return False
 
         coupling_limits = ["NAME:CouplingLimits", "CouplingLimitType:="]
+        coupling_limit_value = "None"
         if coupling_limit_type:
             if coupling_limit_type not in [0, 1]:
                 self.logger.error('Possible values are 0 = "By Value" or 1 = "By Fraction Of Self Term".')
@@ -1076,7 +1068,6 @@ class QExtractor(FieldAnalysis3D, object):
             coupling_limits.append("ResLimit:=")
             coupling_limits.append(res_limit)
         else:
-            coupling_limit_value = "None"
             coupling_limits.append(coupling_limit_value)
 
         if model is None:
@@ -1944,6 +1935,8 @@ class Q3d(QExtractor, object):
             ``True`` when successful, ``False`` when failed.
         """
         try:
+            import numpy as np
+
             if not insulator_threshold:
                 insulator_threshold = 10000
             if not perfect_conductor_threshold:
@@ -1962,6 +1955,11 @@ class Q3d(QExtractor, object):
 
             self.oboundary.SetMaterialThresholds(insulator_threshold, perfect_conductor_threshold, magnetic_threshold)
             return True
+        except ImportError:  # pragma: no cover
+            warnings.warn(
+                "The NumPy module is required to use functionalities provided by the module ansys.edt.core.q3d.\n"
+                "Install with \n\npip install numpy"
+            )
         except Exception:
             return False
 
@@ -2064,6 +2062,7 @@ class Q3d(QExtractor, object):
         self, source1, sink1, source2, sink2, calculation="ACL", setup_sweep_name=None, variations=None
     ):
         """Get mutual coupling between two terminals.
+
         User has to provide the pair, source and sink of each terminal. If the provided sinks are not part of the
         original matrix, a new matrix will be created.
 
