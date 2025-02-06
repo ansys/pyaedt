@@ -255,7 +255,7 @@ def main(extension_args):
     hfss3d.close_project()
 
     hfss = Hfss(projectname=str(out_3d_project), specified_version=version, new_desktop_session=False)
-    hfss.solution_type = "Modal"
+    hfss.solution_type = "Terminal"
 
     # Deleting dielectric objects
     for solid_obj in [
