@@ -1864,3 +1864,26 @@ class TestClass:
         assert len(aedtapp.excitations) == 2
         assert exc2.name == "dipole"
         aedtapp.close_project(save=False)
+
+    def test_74_wave_port(self, add_app):
+        aedtapp = add_app(project_name="test_73")
+        with pytest.raises(ValueError, match=re.escape("Invalid value for `origin`.")):
+            aedtapp.hertzian_dipole_wave(origin=[0, 0])
+        with pytest.raises(ValueError, match=re.escape("Invalid value for `polarization`.")):
+            aedtapp.hertzian_dipole_wave(polarization=[1])
+
+        sphere = aedtapp.modeler.create_sphere([0, 0, 0], 10)
+        sphere2 = aedtapp.modeler.create_sphere([10, 100, 0], 10)
+
+        assignment = [sphere, sphere2.faces[0].id]
+
+        exc = aedtapp.hertzian_dipole_wave(assignment=assignment, is_electric=True)
+        assert len(aedtapp.excitations) == 1
+        assert exc.properties["Electric Dipole"]
+        exc.props["IsElectricDipole"] = False
+        assert not exc.properties["Electric Dipole"]
+
+        exc2 = aedtapp.hertzian_dipole_wave(polarization=[1, 0, 0], name="dipole", radius=20)
+        assert len(aedtapp.excitations) == 2
+        assert exc2.name == "dipole"
+        aedtapp.close_project(save=False)
