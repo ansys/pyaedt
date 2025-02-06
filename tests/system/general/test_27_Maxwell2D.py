@@ -44,6 +44,7 @@ ctrl_prg = "TimeStepCtrl"
 ctrl_prg_file = "timestep_only.py"
 
 m2d_export_fields = "maxwell_e_line_export_field"
+sinusoidal_name = "Sinusoidal"
 
 
 @pytest.fixture()
@@ -61,6 +62,13 @@ def aedtapp(add_app):
 @pytest.fixture()
 def m2d_fields(add_app):
     app = add_app(application=ansys.aedt.core.Maxwell2d, project_name=m2d_export_fields, subfolder=test_subfolder)
+    yield app
+    app.close_project(app.project_name)
+
+
+@pytest.fixture()
+def sinusoidal(add_app):
+    app = add_app(application=ansys.aedt.core.Maxwell2d, project_name=sinusoidal_name, subfolder=test_subfolder)
     yield app
     app.close_project(app.project_name)
 
@@ -280,46 +288,38 @@ class TestClass:
                 assert bound.type == "Symmetry"
                 assert not bound.props["IsOdd"]
 
-    def test_export_rl_matrix(self, local_scratch, aedtapp):
-        aedtapp.set_active_design("Sinusoidal")
-        assert not aedtapp.export_rl_matrix("Test1", " ")
-        aedtapp.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY
-        aedtapp.assign_matrix(assignment=["PM_I1_1_I0", "PM_I1_I0"], matrix_name="Test1")
-        aedtapp.assign_matrix(assignment=["Phase_A", "Phase_B", "Phase_C"], matrix_name="Test2")
-        setup_name = "setupTestMatrixRL"
-        setup = aedtapp.create_setup(name=setup_name)
-        setup.props["MaximumPasses"] = 2
+    def test_export_rl_matrix(self, local_scratch, sinusoidal):
         export_path_1 = os.path.join(local_scratch.path, "export_rl_matrix_Test1.txt")
-        assert not aedtapp.export_rl_matrix("Test1", export_path_1)
-        assert not aedtapp.export_rl_matrix("Test2", export_path_1, False, 10, 3, True)
-        aedtapp.validate_simple()
-        aedtapp.analyze_setup(setup_name)
-        assert aedtapp.export_rl_matrix("Test1", export_path_1)
-        assert not aedtapp.export_rl_matrix("abcabc", export_path_1)
+        assert sinusoidal.export_rl_matrix("Test1", export_path_1)
+        assert not sinusoidal.export_rl_matrix("abcabc", export_path_1)
         assert os.path.exists(export_path_1)
         export_path_2 = os.path.join(local_scratch.path, "export_rl_matrix_Test2.txt")
-        assert aedtapp.export_rl_matrix("Test2", export_path_2, False, 10, 3, True)
+        assert sinusoidal.export_rl_matrix("Test2", export_path_2, False, 10, 3, True)
         assert os.path.exists(export_path_2)
+        sinusoidal.setups[0].delete()
+        setup_name = "new_setup"
+        sinusoidal.create_setup(name=setup_name)
+        assert not sinusoidal.export_rl_matrix("Test1", export_path_1)
 
-    def test_assign_current_density(self, aedtapp):
-        aedtapp.set_active_design("Sinusoidal")
-        bound = aedtapp.assign_current_density("Coil", "CurrentDensity_1")
+    def test_assign_current_density(self, sinusoidal):
+        sinusoidal.set_active_design("Sinusoidal")
+        bound = sinusoidal.assign_current_density("Coil", "CurrentDensity_1")
         assert bound
         assert bound.props["Objects"] == ["Coil"]
         assert bound.props["Value"] == "0"
         assert bound.props["CoordinateSystem"] == ""
-        bound2 = aedtapp.assign_current_density("Coil", "CurrentDensity_2", "40deg", current_density_2d="2")
+        bound2 = sinusoidal.assign_current_density("Coil", "CurrentDensity_2", "40deg", current_density_2d="2")
         assert bound2
         assert bound2.props["Objects"] == ["Coil"]
         assert bound2.props["Value"] == "2"
         assert bound2.props["CoordinateSystem"] == ""
-        bound_group = aedtapp.assign_current_density(["Coil", "Coil_1"], "CurrentDensityGroup_1")
+        bound_group = sinusoidal.assign_current_density(["Coil", "Coil_1"], "CurrentDensityGroup_1")
         assert bound_group
         assert bound_group.props[bound_group.props["items"][0]]["Objects"] == ["Coil", "Coil_1"]
         assert bound_group.props[bound_group.props["items"][0]]["Value"] == "0"
         assert bound_group.props[bound_group.props["items"][0]]["CoordinateSystem"] == ""
         with pytest.raises(AEDTRuntimeError, match="Couldn't assign current density to desired list of objects."):
-            aedtapp.assign_current_density("Circle_inner", "CurrentDensity_1")
+            sinusoidal.assign_current_density("Circle_inner", "CurrentDensity_1")
 
     def test_set_variable(self, aedtapp):
         aedtapp.variable_manager.set_variable("var_test", expression="123")
@@ -635,3 +635,50 @@ class TestClass:
         rect = m2d_app.modeler.create_rectangle([32, 1.5, 0], [8, 3], is_covered=True)
         assert m2d_app.assign_voltage(assignment=[region_id.name, rect.name], amplitude=3, name="GRD4")
         assert len(m2d_app.boundaries) == 4
+
+    def test_set_save_fields(self, m2d_app):
+        m2d_app.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
+
+        setup = m2d_app.create_setup()
+        assert setup.set_save_fields(enable=True)
+        assert setup.set_save_fields(enable=False)
+
+        m2d_app.solution_type = SOLUTIONS.Maxwell2d.TransientXY
+        setup = m2d_app.create_setup()
+        assert setup.set_save_fields(
+            enable=True, range_type="Custom", subrange_type="LinearStep", start=0, stop=8, count=2, units="ms"
+        )
+        assert len(setup.props["SweepRanges"]["Subrange"]) == 1
+        assert setup.props["SweepRanges"]["Subrange"][0]["RangeType"] == "LinearStep"
+        assert setup.props["SweepRanges"]["Subrange"][0]["RangeStart"] == "0ms"
+        assert setup.props["SweepRanges"]["Subrange"][0]["RangeEnd"] == "8ms"
+        assert setup.props["SweepRanges"]["Subrange"][0]["RangeStep"] == "2ms"
+        assert setup.set_save_fields(
+            enable=True, range_type="Custom", subrange_type="LinearCount", start=0, stop=8, count=2, units="ms"
+        )
+        assert len(setup.props["SweepRanges"]["Subrange"]) == 2
+        assert setup.props["SweepRanges"]["Subrange"][1]["RangeType"] == "LinearCount"
+        assert setup.props["SweepRanges"]["Subrange"][1]["RangeStart"] == "0ms"
+        assert setup.props["SweepRanges"]["Subrange"][1]["RangeEnd"] == "8ms"
+        assert setup.props["SweepRanges"]["Subrange"][1]["RangeCount"] == 2
+        assert setup.set_save_fields(
+            enable=True, range_type="Custom", subrange_type="SinglePoints", start=3, units="ms"
+        )
+        assert len(setup.props["SweepRanges"]["Subrange"]) == 3
+        assert setup.props["SweepRanges"]["Subrange"][2]["RangeType"] == "SinglePoints"
+        assert setup.props["SweepRanges"]["Subrange"][2]["RangeStart"] == "3ms"
+        assert setup.props["SweepRanges"]["Subrange"][2]["RangeEnd"] == "3ms"
+        assert setup.set_save_fields(enable=True, range_type="Every N Steps", start=0, stop=10, count=1, units="ms")
+        assert setup.props["SaveFieldsType"] == "Every N Steps"
+        assert setup.props["Steps From"] == "0ms"
+        assert setup.props["Steps To"] == "10ms"
+        assert setup.props["N Steps"] == "1"
+        assert setup.set_save_fields(
+            enable=True, range_type="Custom", subrange_type="SinglePoints", start=3, units="ms"
+        )
+        assert len(setup.props["SweepRanges"]["Subrange"]) == 1
+        assert setup.props["SweepRanges"]["Subrange"][0]["RangeType"] == "SinglePoints"
+        assert setup.props["SweepRanges"]["Subrange"][0]["RangeStart"] == "3ms"
+        assert setup.props["SweepRanges"]["Subrange"][0]["RangeEnd"] == "3ms"
+        assert setup.set_save_fields(enable=False)
+        assert not setup.set_save_fields(enable=True, range_type="invalid")

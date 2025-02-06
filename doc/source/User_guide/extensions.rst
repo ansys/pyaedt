@@ -137,6 +137,13 @@ They are small automated workflows with a simple GUI.
 
             Edit a source from file data in HFSS.
 
+   .. grid-item-card:: Shielding effectiveness
+            :link: pyaedt_extensions_doc/hfss/shielding
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Shielding effectiveness automated workflow HFSS.
+
 
 Icepak extensions
 ~~~~~~~~~~~~~~~~~
