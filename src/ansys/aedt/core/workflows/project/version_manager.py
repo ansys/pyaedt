@@ -34,7 +34,6 @@ from tkinter import filedialog
 from tkinter import messagebox
 from tkinter import ttk
 import webbrowser
-from defusedxml.ElementTree import parse as defused_parse
 import zipfile
 
 import PIL.Image
@@ -45,6 +44,7 @@ from ansys.aedt.core.workflows.customize_automation_tab import available_toolkit
 from ansys.aedt.core.workflows.misc import get_aedt_version
 from ansys.aedt.core.workflows.misc import get_port
 from ansys.aedt.core.workflows.misc import get_process_id
+from defusedxml.ElementTree import parse as defused_parse
 import pyedb
 import requests
 
@@ -61,8 +61,9 @@ DISCLAIMER = (
 def is_git_installed():
     try:
         # Run the command `git --version`
-        result = subprocess.run(["git", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
-                                check=True)
+        result = subprocess.run(
+            ["git", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True
+        )
 
         # Check if the command ran successfully
         if result.returncode == 0:
