@@ -227,7 +227,7 @@ class TestClass:
         assert not sweep.is_solved
         assert isinstance(sweep.frequencies, list)
 
-    @pytest.mark.skipif(desktop_version > "2024.2", reason="Method implemented in AEDT 2025R1")
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
     def test_eddy_current_sweep_dc_biased_ec(self, m3d_app):
         m3d_app.solution_type = SOLUTIONS.Maxwell3d.DCBiasedEddyCurrent
         setup = m3d_app.create_setup()
