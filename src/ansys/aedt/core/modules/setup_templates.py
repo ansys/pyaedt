@@ -1960,20 +1960,14 @@ class SetupKeys:
 
         template = SetupKeys.SetupTemplates
         if settings.aedt_version is not None:
+            if settings.aedt_version >= "2023.1":
+                template = SetupKeys._add_to_template(SetupKeys.SetupTemplates, SetupKeys.SetupTemplates_231)
+            if settings.aedt_version >= "2023.2":
+                template = SetupKeys._add_to_template(template, SetupKeys.SetupTemplates_232)
+            if settings.aedt_version >= "2024.1":
+                template = SetupKeys._add_to_template(template, SetupKeys.SetupTemplates_241)
             if settings.aedt_version >= "2025.1":
-                template = SetupKeys._add_to_template(SetupKeys.SetupTemplates, SetupKeys.SetupTemplates_231)
-                template = SetupKeys._add_to_template(template, SetupKeys.SetupTemplates_232)
-                template = SetupKeys._add_to_template(template, SetupKeys.SetupTemplates_241)
                 template = SetupKeys._add_to_template(template, SetupKeys.SetupTemplates_251)
-            elif settings.aedt_version >= "2024.1":
-                template = SetupKeys._add_to_template(SetupKeys.SetupTemplates, SetupKeys.SetupTemplates_231)
-                template = SetupKeys._add_to_template(template, SetupKeys.SetupTemplates_232)
-                template = SetupKeys._add_to_template(template, SetupKeys.SetupTemplates_241)
-            elif settings.aedt_version >= "2023.2":
-                template = SetupKeys._add_to_template(SetupKeys.SetupTemplates, SetupKeys.SetupTemplates_231)
-                template = SetupKeys._add_to_template(template, SetupKeys.SetupTemplates_232)
-            elif settings.aedt_version >= "2023.1":
-                template = SetupKeys._add_to_template(SetupKeys.SetupTemplates, SetupKeys.SetupTemplates_231)
         return template
 
     def get_default_icepak_template(self, default_type):
