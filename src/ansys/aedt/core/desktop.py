@@ -121,7 +121,7 @@ def launch_aedt(full_path, non_graphical, port, student_version, first_run=True)
 
     timeout = settings.desktop_launch_timeout
     k = 0
-    while not _is_port_occupied(port):
+    while not port in grpc_active_sessions(non_graphical=non_graphical):
         if k > timeout:  # pragma: no cover
             active_s = active_sessions(student_version=student_version)
             for pid in active_s:
