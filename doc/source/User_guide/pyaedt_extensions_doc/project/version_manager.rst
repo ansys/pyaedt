@@ -11,12 +11,12 @@ Features
 
 - Show Python virtual environment path
 - Show Python version
-- Show the current PyAEDT&PyEDB versions
-- Show the latest PyAEDT&PyEDB release
-- Update PyAEDT&PyEDB to the latest version
-- Replace PyAEDT&PyEDB with specific version
+- Show the current PyAEDT and PyEDB versions
+- Show the latest PyAEDT and PyEDB release available (if connected)
+- Update PyAEDT and PyEDB to the latest version
+- Install PyAEDT and PyEDB with a specific version
     - Default is main, which is the developer version
-    - Accepted inputs are branch name and version (0.34.0 for example)
-- Update PyAEDT&PyEDB from wheelhouse
+    - Accepted inputs is branch name
+- Update PyAEDT and PyEDB from wheelhouse
   - Check compatibility
 - Reset and update PyAEDT buttons in AEDT

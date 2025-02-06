@@ -34,7 +34,7 @@ from tkinter import filedialog
 from tkinter import messagebox
 from tkinter import ttk
 import webbrowser
-import xml.etree.ElementTree as ET  # nosec
+from defusedxml.ElementTree import parse as defused_parse
 import zipfile
 
 import PIL.Image
@@ -61,7 +61,8 @@ DISCLAIMER = (
 def is_git_installed():
     try:
         # Run the command `git --version`
-        result = subprocess.run(["git", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        result = subprocess.run(["git", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+                                check=True)
 
         # Check if the command ran successfully
         if result.returncode == 0:
@@ -318,10 +319,10 @@ class VersionManager:
                     continue
                 xml_file = product / "TabConfig.xml"
                 if xml_file.exists():
-                    tree = ET.parse(xml_file)
-                    root = tree.getroot()
+                    tree = defused_parse(xml_file)
+                    root2 = tree.getroot()
                     panel_label = "Panel_PyAEDT_Extensions"
-                    for panel in root.findall("panel"):
+                    for panel in root2.findall("panel"):
                         if panel.get("label") == panel_label:
                             for button in panel.findall("button"):
                                 name = button.get("label")
@@ -365,7 +366,7 @@ class VersionManager:
                 data = response.json()
                 released_version = data["info"]["version"]
             else:
-                released_version = 0
+                return
 
             if self.pyaedt_version > released_version:
                 subprocess.run([self.python_exe, "-m", "pip", "install", f"pyaedt=={released_version}"], check=True)
@@ -421,7 +422,7 @@ class VersionManager:
                 data = response.json()
                 released_version = data["info"]["version"]
             else:
-                released_version = 0
+                return
 
             if self.pyedb_version > released_version:
                 subprocess.run([self.python_exe, "-m", "pip", "install", f"pyedb=={released_version}"], check=True)
