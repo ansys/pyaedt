@@ -168,7 +168,7 @@ class TestClass:
         assert not m3d_app.oboundary.GetEddyEffect("Plate")
         assert not m3d_app.oboundary.GetDisplacementCurrent("Plate")
 
-    def test_create_setup(self, m3d_app):
+    def test_eddy_current_sweep(self, m3d_app):
         m3d_app.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
         setup = m3d_app.create_setup()
         setup.props["MaximumPasses"] = 12
@@ -179,17 +179,53 @@ class TestClass:
         dc_freq = 0.1
         stop_freq = 10
         count = 1
-        assert setup.add_eddy_current_sweep("LinearStep", dc_freq, stop_freq, count, clear=True)
-        assert isinstance(setup.props["SweepRanges"]["Subrange"], dict)
-        assert setup.props["SaveAllFields"]
-        assert setup.add_eddy_current_sweep("LinearCount", dc_freq, stop_freq, count, clear=False)
+        sweep = setup.add_eddy_current_sweep(
+            sweep_type="LinearStep", start_frequency=dc_freq, stop_frequency=stop_freq, step_size=count, clear=True
+        )
+        assert sweep.props["RangeType"] == "LinearStep"
+        assert sweep.props["RangeStart"] == "0.1Hz"
+        assert sweep.props["RangeEnd"] == "10Hz"
+        assert sweep.props["RangeStep"] == "1Hz"
         assert isinstance(setup.props["SweepRanges"]["Subrange"], list)
-        assert setup.add_eddy_current_sweep("SinglePoints", start_frequency=0.01, clear=False)
+        m3d_app.save_project()
+        assert len(setup.props["SweepRanges"]["Subrange"]) == 1
+        assert setup.props["SaveAllFields"]
+        sweep = setup.add_eddy_current_sweep(
+            sweep_type="LinearCount", start_frequency=dc_freq, stop_frequency=stop_freq, step_size=count, clear=False
+        )
+        assert sweep.props["RangeType"] == "LinearCount"
+        assert sweep.props["RangeStart"] == "0.1Hz"
+        assert sweep.props["RangeEnd"] == "10Hz"
+        assert sweep.props["RangeCount"] == 1
+        assert isinstance(setup.props["SweepRanges"]["Subrange"], list)
+        m3d_app.save_project()
+        assert len(setup.props["SweepRanges"]["Subrange"]) == 2
+        sweep = setup.add_eddy_current_sweep(
+            sweep_type="LogScale", start_frequency=dc_freq, stop_frequency=stop_freq, step_size=count, clear=True
+        )
+        assert sweep.props["RangeType"] == "LogScale"
+        assert sweep.props["RangeStart"] == "0.1Hz"
+        assert sweep.props["RangeEnd"] == "10Hz"
+        assert sweep.props["RangeSamples"] == 1
+        assert isinstance(setup.props["SweepRanges"]["Subrange"], list)
+        m3d_app.save_project()
+        assert len(setup.props["SweepRanges"]["Subrange"]) == 1
+        sweep = setup.add_eddy_current_sweep(sweep_type="SinglePoints", start_frequency=0.01, clear=False)
+        assert sweep.props["RangeType"] == "SinglePoints"
+        assert sweep.props["RangeStart"] == "0.01Hz"
+        assert sweep.props["RangeEnd"] == "0.01Hz"
+        m3d_app.save_project()
+        assert len(setup.props["SweepRanges"]["Subrange"]) == 2
+        assert sweep.delete()
+        m3d_app.save_project()
+        assert len(setup.props["SweepRanges"]["Subrange"]) == 1
         assert setup.update()
         assert setup.enable_expression_cache(["CoreLoss"], "Fields", "Phase='0deg' ", True)
         assert setup.props["UseCacheFor"] == ["Pass", "Freq"]
         assert setup.disable()
         assert setup.enable()
+        assert not sweep.is_solved
+        assert isinstance(sweep.frequencies, list)
 
     def test_create_parametrics(self, m3d_app):
         m3d_app.create_setup()
