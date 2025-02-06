@@ -589,15 +589,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         renorm=True,
         nummodes=1,
         deemb_distance=0,
+        characteristic_impedance="Zpi",
     ):
-        start = None
-        stop = None
-        if int_line_start and int_line_stop:  # Allow non-numeric arguments
-            start = [str(i) + self.modeler.model_units if type(i) in (int, float) else i for i in int_line_start]
-            stop = [str(i) + self.modeler.model_units if type(i) in (int, float) else i for i in int_line_stop]
-            useintline = True
-        else:
-            useintline = False
+        if not int_line_start or not int_line_stop:
+            int_line_start = []
+            int_line_stop = []
+        elif not isinstance(int_line_start[0], list):
+            int_line_start = [int_line_start]
+            int_line_stop = [int_line_stop]
 
         props = {}  # Used to create the argument to pass to native api: oModule.AssignWavePort()
         if isinstance(assignment, int):  # Assumes a Face ID is passed in objectname
@@ -619,24 +618,43 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         i = 1
         report_filter = []
         while i <= nummodes:
-            if i == 1:
-                mode = {}
-                mode["ModeNum"] = i
-                mode["UseIntLine"] = useintline
+            start = None
+            stop = None
+            line_index = i - 1
+            if (
+                len(int_line_start) > line_index
+                and len(int_line_stop) > line_index
+                and int_line_start[line_index]
+                and int_line_stop[line_index]
+            ):
+                useintline = True
+                start = [
+                    str(i) + self.modeler.model_units if type(i) in (int, float) else i
+                    for i in int_line_start[line_index]
+                ]
+                stop = [
+                    str(i) + self.modeler.model_units if type(i) in (int, float) else i
+                    for i in int_line_stop[line_index]
+                ]
+            else:
+                useintline = False
+            if useintline:
+                mode = {"ModeNum": i, "UseIntLine": useintline}
                 if useintline:
                     mode["IntLine"] = dict({"Start": start, "End": stop})
                 mode["AlignmentGroup"] = 0
-                mode["CharImp"] = "Zpi"
+                mode["CharImp"] = characteristic_impedance[line_index]
                 if renorm:
                     mode["RenormImp"] = str(impedance) + "ohm"
-                modes["Mode1"] = mode
+                modes["Mode" + str(i)] = mode
             else:
-                mode = {}
+                mode = {
+                    "ModeNum": i,
+                    "UseIntLine": False,
+                    "AlignmentGroup": 0,
+                    "CharImp": characteristic_impedance[line_index],
+                }
 
-                mode["ModeNum"] = i
-                mode["UseIntLine"] = False
-                mode["AlignmentGroup"] = 0
-                mode["CharImp"] = "Zpi"
                 if renorm:
                     mode["RenormImp"] = str(impedance) + "ohm"
                 modes["Mode" + str(i)] = mode
@@ -6456,6 +6474,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         vfactor=3,
         hfactor=5,
         terminals_rename=True,
+        characteristic_impedance="Zpi",
     ):
         """Create a waveport from a sheet (``start_object``) or taking the closest edges of two objects.
 
@@ -6499,6 +6518,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Port horizontal factor. Only valid if ``is_microstrip`` is enabled. The default is ``5``.
         terminals_rename : bool, optional
             Modify terminals name with the port name plus the terminal number. The default is ``True``.
+        characteristic_impedance : str or list, optional
+            Characteristic impedance for each mode. Available options are `"Zpi"``,`"Zpv"``, `"Zvi"``, and `"Zwave"``.
+            The default is ``"Zpi"``.
 
         Returns
         -------
@@ -6514,11 +6536,21 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Create a wave port supported by a microstrip line.
 
-        >>> ms = hfss.modeler.create_box([4, 5, 0],[1, 100, 0.2],name="MS1",material="copper")
-        >>> sub = hfss.modeler.create_box([0, 5, -2],[20, 100, 2],name="SUB1",material="FR4_epoxy")
-        >>> gnd = hfss.modeler.create_box([0, 5, -2.2],[20, 100, 0.2],name="GND1",material="FR4_epoxy")
-        >>> port = hfss.wave_port("GND1","MS1",integration_line=1,name="MS1")
-        PyAEDT INFO: Connection correctly created.
+        >>> import ansys.aedt.core
+        >>> hfss = ansys.aedt.core.Hfss()
+        >>> ms = hfss.modeler.create_box([4, 5, 0], [1, 100, 0.2], name="MS1", material="copper")
+        >>> sub = hfss.modeler.create_box([0, 5, -2], [20, 100, 2],name="SUB1", material="FR4_epoxy")
+        >>> gnd = hfss.modeler.create_box([0, 5, -2.2], [20, 100, 0.2],name="GND1", material="FR4_epoxy")
+        >>> port = hfss.wave_port("GND1", "MS1", integration_line=1, name="MS1")
+
+        Create a wave port in a circle.
+
+        >>> import ansys.aedt.core
+        >>> hfss = ansys.aedt.core.Hfss()
+        >>> c = hfss.modeler.create_circle("Z", [-1.4 ,-1.6 ,0], 1, name="wave_port")
+        >>> start = [["-1.4mm", "-1.6mm", "0mm"], ["-1.4mm", "-1.6mm", "0mm"]]
+        >>> end = [["-1.4mm", "-0.6mm", "0mm"], ["-1.4mm", "-2.6mm", "0mm"]]
+        >>> port = hfss.wave_port(c.name, integration_line=[start, end], characteristic_impedance=["Zwave", "Zpv"])
 
         """
         oname = ""
@@ -6564,10 +6596,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             if integration_line:
                 if isinstance(integration_line, list):
                     if len(integration_line) != 2 or len(integration_line[0]) != len(integration_line[1]):
-                        raise ValueError("List of coordinates is not set correctly")
+                        raise ValueError("List of coordinates is not set correctly.")
 
                     int_start = integration_line[0]
                     int_stop = integration_line[1]
+
                 else:
                     # Get two points on the port surface: if only the direction is given.
                     # int_start and int_stop.
@@ -6603,8 +6636,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         name = self._get_unique_source_name(name, "Port")
 
         if self.solution_type == SOLUTIONS.Hfss.DrivenModal:
+            if isinstance(characteristic_impedance, str):
+                characteristic_impedance = [characteristic_impedance] * modes
+            elif modes != len(characteristic_impedance):
+                raise ValueError("List of characteristic impedance is not set correctly.")
             return self._create_waveport_driven(
-                sheet_name, int_start, int_stop, impedance, name, renormalize, modes, deembed
+                sheet_name, int_start, int_stop, impedance, name, renormalize, modes, deembed, characteristic_impedance
             )
         elif reference:
             if isinstance(sheet_name, int):
