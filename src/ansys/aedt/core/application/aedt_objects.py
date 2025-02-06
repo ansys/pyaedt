@@ -414,7 +414,7 @@ class AedtObjects(object):
         >>> oDesign.SetActiveEditor("Layout")
         """
         if not self._layouteditor and self.design_type in ["Circuit Design"]:
-            self._layouteditor = self._odesign.SetActiveEditor("Layout")
+            self._layouteditor = self._odesign.GetEditor("Layout")
         return self._layouteditor
 
     @property
