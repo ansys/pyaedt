@@ -321,6 +321,37 @@ EddyCurrent = dict(
 )
 """Maxwell eddy current setup properties and default values."""
 
+DCBiasedEddyCurrent = dict(
+    {
+        "Enabled": True,
+        "MeshLink": meshlink,
+        "MaximumPasses": 6,
+        "MinimumPasses": 1,
+        "MinimumConvergedPasses": 1,
+        "PercentRefinement": 30,
+        "SolveFieldOnly": False,
+        "PercentError": 1,
+        "SolveMatrixAtLast": True,
+        "UseIterativeSolver": False,
+        "RelativeResidual": 1e-5,
+        "NonLinearResidual": 0.0001,
+        "SmoothBHCurve": False,
+        "Frequency": "60Hz",
+        "HasSweepSetup": False,
+        "SweepRanges": subranges,
+        "UseHighOrderShapeFunc": False,
+        "UseMuLink": False,
+        "DCPercentRefinement": 30,
+        "DCMinimumPasses": 2,
+        "DCMinConvergedPasses": 1,
+        "DCNonLinearResidual": 0.001,
+        "DCSmoothBHCurve": True,
+        "DCMaxmumPasses": 10,
+        "DCPercentError": 1,
+    }
+)
+
+
 ElectricTransient = dict(
     {
         "Enabled": True,
@@ -1830,6 +1861,7 @@ class SetupKeys:
         "MechTransientThermal",
         "DCConduction",
         "ACConduction",
+        "DCBiasedEddyCurrent",
     ]
 
     SetupTemplates = {
@@ -1908,6 +1940,9 @@ class SetupKeys:
         37: TransientTemperatureOnly_241,
         38: TransientFlowOnly_241,
     }
+    SetupTemplates_251 = {
+        60: DCBiasedEddyCurrent,
+    }
 
     @staticmethod
     def _add_to_template(template_in, template_to_append):
@@ -1921,16 +1956,15 @@ class SetupKeys:
         from ansys.aedt.core.generic.general_methods import settings
 
         template = SetupKeys.SetupTemplates
-        if settings.aedt_version is not None and settings.aedt_version >= "2024.1":
-            template = SetupKeys._add_to_template(SetupKeys.SetupTemplates, SetupKeys.SetupTemplates_231)
-            template = SetupKeys._add_to_template(template, SetupKeys.SetupTemplates_232)
-            template = SetupKeys._add_to_template(template, SetupKeys.SetupTemplates_241)
-        elif settings.aedt_version is not None and settings.aedt_version >= "2023.2":
-            template = SetupKeys._add_to_template(SetupKeys.SetupTemplates, SetupKeys.SetupTemplates_231)
-            template = SetupKeys._add_to_template(template, SetupKeys.SetupTemplates_232)
-        elif settings.aedt_version is not None and settings.aedt_version >= "2023.1":
-            template = SetupKeys._add_to_template(SetupKeys.SetupTemplates, SetupKeys.SetupTemplates_231)
-
+        if settings.aedt_version is not None:
+            if settings.aedt_version >= "2023.1":
+                template = SetupKeys._add_to_template(SetupKeys.SetupTemplates, SetupKeys.SetupTemplates_231)
+            if settings.aedt_version >= "2023.2":
+                template = SetupKeys._add_to_template(template, SetupKeys.SetupTemplates_232)
+            if settings.aedt_version >= "2024.1":
+                template = SetupKeys._add_to_template(template, SetupKeys.SetupTemplates_241)
+            if settings.aedt_version >= "2025.1":
+                template = SetupKeys._add_to_template(template, SetupKeys.SetupTemplates_251)
         return template
 
     def get_default_icepak_template(self, default_type):
