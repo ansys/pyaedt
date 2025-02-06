@@ -2952,8 +2952,8 @@ class Icepak(FieldAnalysisIcepak):
         if os.path.exists(mesh_file_pointer + ".trn"):
             os.remove(mesh_file_pointer + ".trn")
 
-        export_sucess = self.export_3d_model(file_name, self.working_directory, ".sab", object_lists)
-        if not export_sucess:
+        export_success = self.export_3d_model(file_name, self.working_directory, ".sab", object_lists)
+        if not export_success:
             raise AEDTRuntimeError("Failed to export SAB file")
 
         # Building Fluent journal script file *.jou
