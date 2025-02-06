@@ -169,7 +169,7 @@ class TestClass:
         assert not m3d_app.oboundary.GetDisplacementCurrent("Plate")
 
     def test_eddy_current_sweep(self, m3d_app):
-        m3d_app.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
+        m3d_app.solution_type = SOLUTIONS.Maxwell3d.DCBiasedEddyCurrent
         setup = m3d_app.create_setup()
         setup.props["MaximumPasses"] = 12
         setup.props["MinimumPasses"] = 2
