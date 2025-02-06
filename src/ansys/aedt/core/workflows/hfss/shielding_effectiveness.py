@@ -482,19 +482,21 @@ def main(extension_args):
         column_names=[frequency_units, "V_per_meter"],
     )
 
-    original.post.create_report(
+    report_1meter = original.post.create_report(
         expressions="Tb(V_per_meter)",
         primary_sweep_variable="Tb(GHz)",
         setup_sweep_name="Shielding_Sphere1meter : Table",
         plot_name="Shielding Sphere1meter",
     )
+    report_1meter.traces[0].name = "SE (dB)"
 
-    original.post.create_report(
+    report_3meter = original.post.create_report(
         expressions="Tb(V_per_meter)",
         primary_sweep_variable="Tb(GHz)",
         setup_sweep_name="Shielding_Sphere3meters : Table",
         plot_name="Shielding Sphere3meters",
     )
+    report_3meter.traces[0].name = "SE (dB)"
 
     if not extension_args["is_test"]:  # pragma: no cover
         app.release_desktop(False, False)
