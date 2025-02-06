@@ -591,7 +591,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         deemb_distance=0,
         characteristic_impedance="Zpi",
     ):
-        if not isinstance(int_line_start[0], list):
+        if not int_line_start or not int_line_stop:
+            int_line_start = []
+            int_line_stop = []
+        elif not isinstance(int_line_start[0], list):
             int_line_start = [int_line_start]
             int_line_stop = [int_line_stop]
 
@@ -6633,10 +6636,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         name = self._get_unique_source_name(name, "Port")
 
         if self.solution_type == SOLUTIONS.Hfss.DrivenModal:
-            if isinstance(characteristic_impedance, str) and modes != 1:
+            if isinstance(characteristic_impedance, str):
                 characteristic_impedance = [characteristic_impedance] * modes
             elif modes != len(characteristic_impedance):
-                raise ValueError("List of characteristic impedances is not set correctly.")
+                raise ValueError("List of characteristic impedance is not set correctly.")
             return self._create_waveport_driven(
                 sheet_name, int_start, int_stop, impedance, name, renormalize, modes, deembed, characteristic_impedance
             )

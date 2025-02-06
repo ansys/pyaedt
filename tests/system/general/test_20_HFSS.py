@@ -1865,25 +1865,24 @@ class TestClass:
         assert exc2.name == "dipole"
         aedtapp.close_project(save=False)
 
-    def test_74_wave_port(self, add_app):
-        aedtapp = add_app(project_name="test_73")
-        with pytest.raises(ValueError, match=re.escape("Invalid value for `origin`.")):
-            aedtapp.hertzian_dipole_wave(origin=[0, 0])
-        with pytest.raises(ValueError, match=re.escape("Invalid value for `polarization`.")):
-            aedtapp.hertzian_dipole_wave(polarization=[1])
+    def test_74_wave_port_integration_line(self, add_app):
+        aedtapp = add_app(project_name="test_74", solution_type="Modal")
+        c = aedtapp.modeler.create_circle("XY", [-1.4, -1.6, 0], 1, name="wave_port")
+        start = [["-1.4mm", "-1.6mm", "0mm"], ["-1.4mm", "-1.6mm", "0mm"]]
+        end = [["-1.4mm", "-0.6mm", "0mm"], ["-1.4mm", "-2.6mm", "0mm"]]
 
-        sphere = aedtapp.modeler.create_sphere([0, 0, 0], 10)
-        sphere2 = aedtapp.modeler.create_sphere([10, 100, 0], 10)
+        with pytest.raises(ValueError, match=re.escape("List of characteristic impedance is not set correctly.")):
+            aedtapp.wave_port(c.name, integration_line=[start, end], characteristic_impedance=["Zwave"], modes=2)
 
-        assignment = [sphere, sphere2.faces[0].id]
+        assert aedtapp.wave_port(
+            c.name, integration_line=[start, end], characteristic_impedance=["Zwave", "Zpv"], modes=2
+        )
 
-        exc = aedtapp.hertzian_dipole_wave(assignment=assignment, is_electric=True)
-        assert len(aedtapp.excitations) == 1
-        assert exc.properties["Electric Dipole"]
-        exc.props["IsElectricDipole"] = False
-        assert not exc.properties["Electric Dipole"]
+        assert aedtapp.wave_port(c.name, integration_line=[start, end], modes=2)
 
-        exc2 = aedtapp.hertzian_dipole_wave(polarization=[1, 0, 0], name="dipole", radius=20)
-        assert len(aedtapp.excitations) == 2
-        assert exc2.name == "dipole"
+        start = [["-1.4mm", "-1.6mm", "0mm"], None, ["-1.4mm", "-1.6mm", "0mm"]]
+        end = [["-1.4mm", "-0.6mm", "0mm"], None, ["-1.4mm", "-2.6mm", "0mm"]]
+
+        assert aedtapp.wave_port(c.name, integration_line=[start, end], modes=3)
+
         aedtapp.close_project(save=False)
