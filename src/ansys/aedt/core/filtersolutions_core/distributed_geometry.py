@@ -137,7 +137,7 @@ class DistributedGeometry:
         )
 
     @property
-    def split_wide_stubs(self) -> str:
+    def wide_stubs_width_to_substrate_height_ratio(self) -> str:
         """Stub width to substrate height ratio of stubs to be split into thinner stubs.
         All stubs wider than this ratio will be split.
         This property is not effective for radial and delta stubs. The default is ``0``.
@@ -146,12 +146,16 @@ class DistributedGeometry:
         -------
         str
         """
-        split_wide_stubs_string = self._dll_interface.get_string(self._dll.getDistributedSplitHeightRatio)
-        return split_wide_stubs_string
+        wide_stubs_width_to_substrate_height_ratio_string = self._dll_interface.get_string(
+            self._dll.getDistributedSplitHeightRatio
+        )
+        return wide_stubs_width_to_substrate_height_ratio_string
 
-    @split_wide_stubs.setter
-    def split_wide_stubs(self, split_wide_stubs_string):
-        self._dll_interface.set_string(self._dll.setDistributedSplitHeightRatio, split_wide_stubs_string)
+    @wide_stubs_width_to_substrate_height_ratio.setter
+    def wide_stubs_width_to_substrate_height_ratio(self, wide_stubs_width_to_substrate_height_ratio_string):
+        self._dll_interface.set_string(
+            self._dll.setDistributedSplitHeightRatio, wide_stubs_width_to_substrate_height_ratio_string
+        )
 
     @property
     def alternate_stub_orientation(self) -> bool:

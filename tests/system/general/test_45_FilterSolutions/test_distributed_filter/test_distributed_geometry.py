@@ -42,10 +42,10 @@ class TestClass:
         distributed_design.geometry.fixed_width_to_height_ratio_inductor_sections = "2"
         assert distributed_design.geometry.fixed_width_to_height_ratio_inductor_sections == "2"
 
-    def test_split_wide_stubs(self, distributed_design):
-        assert distributed_design.geometry.split_wide_stubs == "0"
-        distributed_design.geometry.split_wide_stubs = "1"
-        assert distributed_design.geometry.split_wide_stubs == "1"
+    def test_wide_stubs_width_to_substrate_height_ratio(self, distributed_design):
+        assert distributed_design.geometry.wide_stubs_width_to_substrate_height_ratio == "0"
+        distributed_design.geometry.wide_stubs_width_to_substrate_height_ratio = "1"
+        assert distributed_design.geometry.wide_stubs_width_to_substrate_height_ratio == "1"
 
     def test_alternate_stub_orientation(self, distributed_design):
         assert distributed_design.geometry.alternate_stub_orientation is False
