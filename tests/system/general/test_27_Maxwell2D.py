@@ -635,3 +635,50 @@ class TestClass:
         rect = m2d_app.modeler.create_rectangle([32, 1.5, 0], [8, 3], is_covered=True)
         assert m2d_app.assign_voltage(assignment=[region_id.name, rect.name], amplitude=3, name="GRD4")
         assert len(m2d_app.boundaries) == 4
+
+    def test_set_save_fields(self, m2d_app):
+        m2d_app.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
+
+        setup = m2d_app.create_setup()
+        assert setup.set_save_fields(enable=True)
+        assert setup.set_save_fields(enable=False)
+
+        m2d_app.solution_type = SOLUTIONS.Maxwell2d.TransientXY
+        setup = m2d_app.create_setup()
+        assert setup.set_save_fields(
+            enable=True, range_type="Custom", subrange_type="LinearStep", start=0, stop=8, count=2, units="ms"
+        )
+        assert len(setup.props["SweepRanges"]["Subrange"]) == 1
+        assert setup.props["SweepRanges"]["Subrange"][0]["RangeType"] == "LinearStep"
+        assert setup.props["SweepRanges"]["Subrange"][0]["RangeStart"] == "0ms"
+        assert setup.props["SweepRanges"]["Subrange"][0]["RangeEnd"] == "8ms"
+        assert setup.props["SweepRanges"]["Subrange"][0]["RangeStep"] == "2ms"
+        assert setup.set_save_fields(
+            enable=True, range_type="Custom", subrange_type="LinearCount", start=0, stop=8, count=2, units="ms"
+        )
+        assert len(setup.props["SweepRanges"]["Subrange"]) == 2
+        assert setup.props["SweepRanges"]["Subrange"][1]["RangeType"] == "LinearCount"
+        assert setup.props["SweepRanges"]["Subrange"][1]["RangeStart"] == "0ms"
+        assert setup.props["SweepRanges"]["Subrange"][1]["RangeEnd"] == "8ms"
+        assert setup.props["SweepRanges"]["Subrange"][1]["RangeCount"] == 2
+        assert setup.set_save_fields(
+            enable=True, range_type="Custom", subrange_type="SinglePoints", start=3, units="ms"
+        )
+        assert len(setup.props["SweepRanges"]["Subrange"]) == 3
+        assert setup.props["SweepRanges"]["Subrange"][2]["RangeType"] == "SinglePoints"
+        assert setup.props["SweepRanges"]["Subrange"][2]["RangeStart"] == "3ms"
+        assert setup.props["SweepRanges"]["Subrange"][2]["RangeEnd"] == "3ms"
+        assert setup.set_save_fields(enable=True, range_type="Every N Steps", start=0, stop=10, count=1, units="ms")
+        assert setup.props["SaveFieldsType"] == "Every N Steps"
+        assert setup.props["Steps From"] == "0ms"
+        assert setup.props["Steps To"] == "10ms"
+        assert setup.props["N Steps"] == "1"
+        assert setup.set_save_fields(
+            enable=True, range_type="Custom", subrange_type="SinglePoints", start=3, units="ms"
+        )
+        assert len(setup.props["SweepRanges"]["Subrange"]) == 1
+        assert setup.props["SweepRanges"]["Subrange"][0]["RangeType"] == "SinglePoints"
+        assert setup.props["SweepRanges"]["Subrange"][0]["RangeStart"] == "3ms"
+        assert setup.props["SweepRanges"]["Subrange"][0]["RangeEnd"] == "3ms"
+        assert setup.set_save_fields(enable=False)
+        assert not setup.set_save_fields(enable=True, range_type="invalid")
