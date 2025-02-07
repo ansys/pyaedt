@@ -222,7 +222,11 @@ class TestClass:
         ports = aedtapp.create_ports_on_component_by_nets("U1", "DDR4_DQS0_P")
         assert aedtapp.modeler.change_property(f"Excitations:{ports[0].name}", "Impedance", "49ohm", "EM Design")
 
-    def test_06_assign_spice_model(self, aedtapp):
+    def test_06_assign_touchstone_model(self, aedtapp):
+        model_path = os.path.join(TESTS_GENERAL_PATH, "example_models", "TEDB", "GRM32_DC0V_25degC_series.s2p")
+        assert aedtapp.modeler.set_touchstone_model(assignment="C217", input_file=model_path, model_name="Test1")
+
+    def test_07_assign_spice_model(self, aedtapp):
         model_path = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "GRM32ER72A225KA35_25C_0V.sp")
         assert aedtapp.modeler.set_spice_model(
             assignment="C1", input_file=model_path, subcircuit_name="GRM32ER72A225KA35_25C_0V"
