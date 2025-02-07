@@ -765,6 +765,7 @@ class SOLUTIONS(object):
             ACConduction,
             ElectricTransient,
             TransientAPhiFormulation,
+            DCBiasedEddyCurrent,
         ) = (
             "Transient",
             "Magnetostatic",
@@ -775,6 +776,7 @@ class SOLUTIONS(object):
             "ACConduction",
             "ElectricTransient",
             "TransientAPhiFormulation",
+            "DCBiasedEddyCurrent",
         )
 
     class Maxwell2d(object):
