@@ -42,7 +42,7 @@ import pytest
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 
-test_field_name = "Potter_Horn_231"
+test_field_name = "Potter_Horn_242"
 test_project_name = "coax_setup_solved_231"
 sbr_file = "poc_scat_small_solved"
 q3d_file = "via_gsg_solved"
@@ -155,7 +155,7 @@ class TestClass:
         variations["Freq"] = ["30GHz"]
         field_test.set_source_context(["1"])
         context = {"Context": "3D", "SourceContext": "1:1"}
-        assert field_test.post.create_report(
+        nominal_report = field_test.post.create_report(
             "db(GainTotal)",
             field_test.nominal_adaptive,
             variations=variations,
@@ -165,9 +165,12 @@ class TestClass:
             plot_type="3D Polar Plot",
             context=context,
         )
-        plot = field_test.post.create_report(
+        assert nominal_report
+        sweep = field_test.setups[0].sweeps[0]
+        variations["Freq"] = "30.1GHz"
+        sweep_report = field_test.post.create_report(
             "db(GainTotal)",
-            field_test.nominal_adaptive,
+            sweep.name,
             variations=variations,
             primary_sweep_variable="Phi",
             secondary_sweep_variable="Theta",
@@ -175,10 +178,10 @@ class TestClass:
             plot_type="3D Polar Plot",
             context="3D",
         )
-        assert plot
-        assert plot.export_config(os.path.join(self.local_scratch.path, f"{plot.plot_name}.json"))
+        assert sweep_report
+        assert sweep_report.export_config(os.path.join(self.local_scratch.path, f"{sweep_report.plot_name}.json"))
         assert field_test.post.create_report_from_configuration(
-            os.path.join(self.local_scratch.path, f"{plot.plot_name}.json"), solution_name=field_test.nominal_adaptive
+            os.path.join(self.local_scratch.path, f"{sweep_report.plot_name}.json"), solution_name=sweep.name
         )
         report = AnsysReport()
         report.create()
