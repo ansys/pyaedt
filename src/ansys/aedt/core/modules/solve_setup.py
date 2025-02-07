@@ -3650,19 +3650,21 @@ class SetupMaxwell(Setup, object):
         self.props["SaveAllFields"] = save_all_fields
         if self.sweeps:
             if clear:
-                self.props["SweepRanges"] = {"Subrange": [sweep.props]}
+                self.props["SweepRanges"] = {"Subrange": [SetupProps(self, sweep.props)]}
             else:
                 if isinstance(self.props["SweepRanges"]["Subrange"], dict):
                     temp = self.props["SweepRanges"]["Subrange"]
                     self.props["SweepRanges"].pop("Subrange", None)
-                    self.props["SweepRanges"]["Subrange"] = [temp]
-                self.props["SweepRanges"]["Subrange"].append(sweep.props)
+                    self.props["SweepRanges"]["Subrange"] = [SetupProps(self, temp)]
+                self.props["SweepRanges"]["Subrange"].append(SetupProps(self, sweep.props))
         else:
             self.props["HasSweepSetup"] = True
-            self.props["SweepRanges"] = {"Subrange": [sweep.props]}
+            self.props["SweepRanges"] = {"Subrange": [SetupProps(self, sweep.props)]}
             sweep.create()
+
         self.update()
         self.auto_update = legacy_update
+        self.sweeps.append(sweep)
         return sweep
 
     @pyaedt_function_handler()

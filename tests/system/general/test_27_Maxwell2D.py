@@ -697,7 +697,9 @@ class TestClass:
     def test_eddy_current_sweep(self, m2d_setup):
         m2d_setup.set_active_design("setup_ec")
         setup = m2d_setup.setups[0]
+        setup.sweeps[0]
         setup.props["MaximumPasses"] = 12
+
         setup.props["MinimumPasses"] = 2
         setup.props["MinimumConvergedPasses"] = 1
         setup.props["PercentRefinement"] = 30

@@ -938,12 +938,15 @@ class SweepMaxwellEC(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        setup_sweeps = copy.deepcopy(self._setup.props["SweepRanges"]["Subrange"])
+        setup_sweeps = self._setup.props["SweepRanges"]["Subrange"].copy()
         if isinstance(self._setup.props["SweepRanges"]["Subrange"], list):
+            count = 0
             for sweep in setup_sweeps:
                 if self.props == sweep:
                     self._setup.props["SweepRanges"]["Subrange"].remove(self.props)
-                    # self._setup.update()
+                    del self._setup._sweeps[count]
+                count += 1
+                # self._setup.update()
         else:
             pass
         self._setup.update()
