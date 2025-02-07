@@ -3661,11 +3661,34 @@ class SetupMaxwell(Setup, object):
             self.props["HasSweepSetup"] = True
             self.props["SweepRanges"] = {"Subrange": [SetupProps(self, sweep.props)]}
             sweep.create()
-
         self.update()
         self.auto_update = legacy_update
         self.sweeps.append(sweep)
         return sweep
+
+    @pyaedt_function_handler()
+    def delete_all_eddy_current_sweeps(self):
+        """Delete all Maxwell Eddy Current sweeps.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if self.setuptype not in [7, 60]:
+            self._app.logger.warning("This method only applies to Maxwell Eddy Current Solution.")
+            return False
+        setup_sweeps = self.props["SweepRanges"]["Subrange"].copy()
+        if isinstance(self.props["SweepRanges"]["Subrange"], list):
+            count = 0
+            for idx, range in enumerate(setup_sweeps):
+                self.props["SweepRanges"]["Subrange"].remove(range)
+                self._sweeps.pop(idx - count)
+                count += 1
+        else:
+            pass
+        self.update()
+        return True
 
     @pyaedt_function_handler()
     def enable_control_program(self, control_program_path, control_program_args=" ", call_after_last_step=False):

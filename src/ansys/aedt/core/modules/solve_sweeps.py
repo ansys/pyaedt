@@ -940,13 +940,10 @@ class SweepMaxwellEC(object):
         """
         setup_sweeps = self._setup.props["SweepRanges"]["Subrange"].copy()
         if isinstance(self._setup.props["SweepRanges"]["Subrange"], list):
-            count = 0
             for sweep in setup_sweeps:
                 if self.props == sweep:
                     self._setup.props["SweepRanges"]["Subrange"].remove(self.props)
-                    del self._setup._sweeps[count]
-                count += 1
-                # self._setup.update()
+                    [self._setup._sweeps.remove(s) for s in self._setup._sweeps if s.props == sweep]
         else:
             pass
         self._setup.update()

@@ -697,7 +697,6 @@ class TestClass:
     def test_eddy_current_sweep(self, m2d_setup):
         m2d_setup.set_active_design("setup_ec")
         setup = m2d_setup.setups[0]
-        setup.sweeps[0]
         setup.props["MaximumPasses"] = 12
 
         setup.props["MinimumPasses"] = 2
@@ -717,8 +716,11 @@ class TestClass:
         assert isinstance(setup.props["SweepRanges"]["Subrange"], list)
         m2d_setup.save_project()
         assert len(setup.props["SweepRanges"]["Subrange"]) == 2
+        assert len(setup.sweeps) == 2
         assert setup.props["SaveAllFields"]
-        [sweep.delete() for sweep in setup.sweeps]
+        assert setup.delete_all_eddy_current_sweeps()
+        assert len(setup.props["SweepRanges"]["Subrange"]) == 0
+        # assert len(setup.sweeps) == 0
         sweep = setup.add_eddy_current_sweep(
             sweep_type="LinearCount", start_frequency=dc_freq, stop_frequency=stop_freq, step_size=count, clear=False
         )
