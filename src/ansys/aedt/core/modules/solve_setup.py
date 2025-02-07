@@ -1798,7 +1798,6 @@ class Setup3DLayout(CommonSetup):
 
     def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup=True):
         CommonSetup.__init__(self, app, solution_type, name, is_new_setup)
-        # self._sweep = None
 
     @property
     def sweeps(self):
