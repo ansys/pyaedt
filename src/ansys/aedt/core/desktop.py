@@ -773,6 +773,8 @@ class Desktop(object):
         if is_linux and settings.aedt_version == "2024.1" and design_type == "Circuit Design":  # pragma: no cover
             time.sleep(1)
             self.close_windows()
+        warning_msg = f"Active Design set to {active_design.GetName()}"
+        settings.logger.info(warning_msg)
         return active_design
 
     @pyaedt_function_handler()
