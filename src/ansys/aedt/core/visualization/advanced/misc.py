@@ -21,7 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
+import copy
 import csv
 import logging
 import os
@@ -291,12 +291,18 @@ def parse_rdat_file(file_path):
 def _parse_nastran(file_path):
     """Nastran file parser."""
     logger = logging.getLogger("Global")
-    nas_to_dict = {"Points": [], "PointsId": {}, "Assemblies": {}}
+    nas_to_dict = {"Points": [], "PointsId": {}, "Assemblies": {}, "Sets": {}}
     includes = []
 
-    def parse_lines(input_lines, input_pid=0, in_assembly="Main"):
+    def parse_lines(input_lines, input_pts_id=0, in_assembly="Main"):
         if in_assembly not in nas_to_dict["Assemblies"]:
-            nas_to_dict["Assemblies"][in_assembly] = {"Triangles": {}, "Solids": {}, "Lines": {}, "Shells": {}}
+            nas_to_dict["Assemblies"][in_assembly] = {
+                "Triangles": {},
+                "Triangles_id": {},
+                "Solids": {},
+                "Lines": {},
+                "Shells": {},
+            }
 
         def get_point(ll, start, length):
             n = ll[start : start + length].strip()
@@ -304,32 +310,60 @@ def _parse_nastran(file_path):
                 n = n[0] + n[1:].replace("-", "e-")
             return n
 
+        def get_sets(lines, input_index, set_dict):
+            pattern = r"^SET (\d+)=(.*)"
+            il = input_index - 1
+            while il < len(lines) - 1:
+                il += 1
+                line = lines[il]
+                if "END OF SET DEFINITION SECTION" in line:
+                    break
+                elif line.startswith("$"):
+                    continue
+                elif line.startswith("SET"):
+                    match = re.match(pattern, line)
+                    if match:
+                        set_id = int(match.group(1))
+                        rest_of_line = match.group(2).strip()
+                        set_name = lines[il - 1][1:]
+                        set_dict[set_id] = {"Elements": [], "set_name": set_name}
+                        # Save the elements
+                        set_dict[set_id]["Elements"].extend([int(i) for i in rest_of_line.split(",") if i != ""])
+                        set_line = rest_of_line
+                        while set_line.endswith(","):
+                            il += 1
+                            set_line = lines[il].strip()
+                            # Save the elements
+                            set_dict[set_id]["Elements"].extend([int(i) for i in set_line.split(",") if i != ""])
+                    else:
+                        continue
+            return il
+
         line_header = ""
-        for lk in range(len(input_lines)):
+        lk = -1
+        while lk < len(input_lines) - 1:
+            lk += 1
+
             line = input_lines[lk]
             line_type = line[:8].strip()
             obj_type = "Triangles"
             if line.startswith("$"):
                 line_header = line[1:]
+                if "SET DEFINITION SECTION" in line:
+                    lk = get_sets(input_lines, lk, nas_to_dict["Sets"])
                 continue
             elif line.startswith("*"):
                 continue
             elif line_type in ["GRID", "GRID*"]:
                 num_points = 3
                 obj_type = "Grid"
-            elif line_type in [
-                "CTRIA3",
-                "CTRIA3*",
-            ]:
+            elif line_type in ["CTRIA3", "CTRIA3*"]:
                 num_points = 3
                 obj_type = "Triangles"
             elif line_type in ["CROD", "CBEAM", "CBAR", "CROD*", "CBEAM*", "CBAR*"]:
                 num_points = 2
                 obj_type = "Lines"
-            elif line_type in [
-                "CQUAD4",
-                "CQUAD4*",
-            ]:
+            elif line_type in ["CQUAD4", "CQUAD4*"]:
                 num_points = 4
                 obj_type = "Triangles"
             elif line_type in ["CTETRA", "CTETRA*"]:
@@ -364,6 +398,8 @@ def _parse_nastran(file_path):
                 object_id = int(object_id)
                 if object_id not in nas_to_dict["Assemblies"][in_assembly][obj_type]:
                     nas_to_dict["Assemblies"][in_assembly][obj_type][object_id] = []
+                    if line_type in ["CTRIA3", "CTRIA3*"]:
+                        nas_to_dict["Assemblies"][in_assembly]["Triangles_id"][object_id] = []
             while pp < num_points:
                 start_pointer = start_pointer + word_length
                 if start_pointer >= 72:
@@ -374,13 +410,11 @@ def _parse_nastran(file_path):
                 pp += 1
 
             if line_type in ["GRID", "GRID*"]:
-                nas_to_dict["PointsId"][grid_id] = input_pid
+                nas_to_dict["PointsId"][grid_id] = input_pts_id
                 nas_to_dict["Points"].append([float(i) for i in points])
-                input_pid += 1
-            elif line_type in [
-                "CTRIA3",
-                "CTRIA3*",
-            ]:
+                input_pts_id += 1
+            elif line_type in ["CTRIA3", "CTRIA3*"]:
+                nas_to_dict["Assemblies"][in_assembly]["Triangles_id"][object_id].append(grid_id)
                 tri = [nas_to_dict["PointsId"][int(i)] for i in points]
                 nas_to_dict["Assemblies"][in_assembly]["Triangles"][object_id].append(tri)
             elif line_type in ["CROD", "CBEAM", "CBAR", "CROD*", "CBEAM*", "CBAR*"]:
@@ -463,7 +497,7 @@ def _parse_nastran(file_path):
                     tri = tuple(tri)
                     nas_to_dict["Assemblies"][in_assembly]["Solids"][object_id].append(tri)
 
-        return input_pid
+        return input_pts_id
 
     logger.info("Loading file")
     with open_file(file_path, "r") as f:
@@ -471,12 +505,12 @@ def _parse_nastran(file_path):
         for line in lines:
             if line.startswith("INCLUDE"):
                 includes.append(line.split(" ")[1].replace("'", "").strip())
-        pid = parse_lines(lines)
+        pts_id = parse_lines(lines)
     for include in includes:
         with open_file(os.path.join(os.path.dirname(file_path), include), "r") as f:
             lines = f.read().splitlines()
             name = include.split(".")[0]
-            pid = parse_lines(lines, pid, name)
+            pts_id = parse_lines(lines, pts_id, name)
     logger.info("File loaded")
     for assembly in list(nas_to_dict["Assemblies"].keys())[::]:
         if (
@@ -553,7 +587,7 @@ def _parse_nastran(file_path):
 
 
 @pyaedt_function_handler()
-def _write_stl(nas_to_dict, decimation, working_directory, enable_planar_merge=True):
+def _write_stl(nas_to_dict, decimation, working_directory, enable_planar_merge="True"):
     """Write stl file."""
     logger = logging.getLogger("Global")
 
@@ -629,10 +663,82 @@ def _write_stl(nas_to_dict, decimation, working_directory, enable_planar_merge=T
 
 
 @pyaedt_function_handler()
+def _preview_pyvista(dict_in, decimation=0, output_stls=None):
+
+    if decimation > 0:
+        pl = pv.Plotter(shape=(1, 2))
+    else:  # pragma: no cover
+        pl = pv.Plotter()
+    dargs = dict(show_edges=True)
+    colors = []
+    color_by_assembly = True
+    if len(dict_in["Assemblies"]) == 1:
+        color_by_assembly = False
+
+    css4_colors = list(CSS4_COLORS.values())
+    k = 0
+    p_out = dict_in["Points"][::]
+    for assembly in dict_in["Assemblies"].values():
+        if color_by_assembly:
+            h = css4_colors[k].lstrip("#")
+            colors.append(tuple(int(h[i : i + 2], 16) for i in (0, 2, 4)))
+            k += 1
+
+        for triangles in assembly["Triangles"].values():
+            if not triangles:
+                continue
+            tri_out = triangles
+            fin = [[3] + list(i) for i in tri_out]
+            if not color_by_assembly:
+                h = css4_colors[k].lstrip("#")
+                colors.append(tuple(int(h[i : i + 2], 16) for i in (0, 2, 4)))
+                k = k + 1 if k < len(css4_colors) - 1 else 0
+            pl.add_mesh(pv.PolyData(p_out, faces=fin), color=colors[-1], **dargs)
+
+        for triangles in assembly["Solids"].values():
+            if not triangles:
+                continue
+            import pandas as pd
+
+            df = pd.Series(triangles)
+            tri_out = df.drop_duplicates(keep=False).to_list()
+            p_out = dict_in["Points"][::]
+            fin = [[3] + list(i) for i in tri_out]
+            if not color_by_assembly:
+                h = css4_colors[k].lstrip("#")
+                colors.append(tuple(int(h[i : i + 2], 16) for i in (0, 2, 4)))
+                k = k + 1 if k < len(css4_colors) - 1 else 0
+
+            pl.add_mesh(pv.PolyData(p_out, faces=fin), color=colors[-1], **dargs)
+
+    pl.add_text("Input mesh", font_size=24)
+    pl.reset_camera()
+
+    if decimation > 0 and output_stls:
+        k = 0
+        pl.reset_camera()
+        pl.subplot(0, 1)
+        css4_colors = list(CSS4_COLORS.values())
+        for output_stl in output_stls:
+            mesh = pv.read(output_stl)
+            h = css4_colors[k].lstrip("#")
+            colors.append(tuple(int(h[i : i + 2], 16) for i in (0, 2, 4)))
+            pl.add_mesh(mesh, color=colors[-1], **dargs)
+            k = k + 1 if k < len(css4_colors) - 1 else 0
+        pl.add_text("Decimated mesh", font_size=24)
+        pl.reset_camera()
+        pl.link_views()
+    if "PYTEST_CURRENT_TEST" not in os.environ:
+        pl.show()  # pragma: no cover
+
+
+@pyaedt_function_handler()
 def nastran_to_stl(input_file, output_folder=None, decimation=0, enable_planar_merge="True", preview=False):
-    """Convert Nastran file into stl."""
+    """Convert the Nastran file into stl."""
     logger = logging.getLogger("Global")
     nas_to_dict = _parse_nastran(input_file)
+
+    _remove_triple_constraints(nas_to_dict)
 
     empty = True
     for assembly in nas_to_dict["Assemblies"].values():
@@ -645,76 +751,23 @@ def nastran_to_stl(input_file, output_folder=None, decimation=0, enable_planar_m
     if output_folder is None:
         output_folder = os.path.dirname(input_file)
     output_stls, enable_stl_merge = _write_stl(nas_to_dict, decimation, output_folder, enable_planar_merge)
+
     if preview:
         logger.info("Generating preview...")
-        if decimation > 0:
-            pl = pv.Plotter(shape=(1, 2))
-        else:  # pragma: no cover
-            pl = pv.Plotter()
-        dargs = dict(show_edges=True)
-        colors = []
-        color_by_assembly = True
-        if len(nas_to_dict["Assemblies"]) == 1:
-            color_by_assembly = False
+        _preview_pyvista(nas_to_dict, decimation, output_stls)
 
-        def preview_pyvista(dict_in):
-            css4_colors = list(CSS4_COLORS.values())
-            k = 0
-            p_out = nas_to_dict["Points"][::]
-            for assembly in dict_in["Assemblies"].values():
-                if color_by_assembly:
-                    h = css4_colors[k].lstrip("#")
-                    colors.append(tuple(int(h[i : i + 2], 16) for i in (0, 2, 4)))
-                    k += 1
-
-                for triangles in assembly["Triangles"].values():
-                    if not triangles:
-                        continue
-                    tri_out = triangles
-                    fin = [[3] + list(i) for i in tri_out]
-                    if not color_by_assembly:
-                        h = css4_colors[k].lstrip("#")
-                        colors.append(tuple(int(h[i : i + 2], 16) for i in (0, 2, 4)))
-                        k = k + 1 if k < len(css4_colors) - 1 else 0
-                    pl.add_mesh(pv.PolyData(p_out, faces=fin), color=colors[-1], **dargs)
-
-                for triangles in assembly["Solids"].values():
-                    if not triangles:
-                        continue
-                    import pandas as pd
-
-                    df = pd.Series(triangles)
-                    tri_out = df.drop_duplicates(keep=False).to_list()
-                    p_out = nas_to_dict["Points"][::]
-                    fin = [[3] + list(i) for i in tri_out]
-                    if not color_by_assembly:
-                        h = css4_colors[k].lstrip("#")
-                        colors.append(tuple(int(h[i : i + 2], 16) for i in (0, 2, 4)))
-                        k = k + 1 if k < len(css4_colors) - 1 else 0
-
-                    pl.add_mesh(pv.PolyData(p_out, faces=fin), color=colors[-1], **dargs)
-
-        preview_pyvista(nas_to_dict)
-        pl.add_text("Input mesh", font_size=24)
-        pl.reset_camera()
-        if decimation > 0 and output_stls:
-            k = 0
-            pl.reset_camera()
-            pl.subplot(0, 1)
-            css4_colors = list(CSS4_COLORS.values())
-            for output_stl in output_stls:
-                mesh = pv.read(output_stl)
-                h = css4_colors[k].lstrip("#")
-                colors.append(tuple(int(h[i : i + 2], 16) for i in (0, 2, 4)))
-                pl.add_mesh(mesh, color=colors[-1], **dargs)
-                k = k + 1 if k < len(css4_colors) - 1 else 0
-            pl.add_text("Decimated mesh", font_size=24)
-            pl.reset_camera()
-            pl.link_views()
-        if "PYTEST_CURRENT_TEST" not in os.environ:
-            pl.show()  # pragma: no cover
     logger.info("STL files created")
     return output_stls, nas_to_dict, enable_stl_merge
+
+
+@pyaedt_function_handler()
+def _remove_triple_constraints(dict_in):
+    """Remove the triple constraints by creating separated bodies."""
+    points = copy.deepcopy(dict_in["Points"])
+    assemblies_trg = {}
+    for a in dict_in["Assemblies"]:
+        if a["Triangles"]:
+            assemblies_trg = copy.deepcopy(a["Triangles"])
 
 
 @pyaedt_function_handler()
