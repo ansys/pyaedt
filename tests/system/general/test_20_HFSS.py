@@ -1570,7 +1570,9 @@ class TestClass:
         ),
     )
     def test_64_import_dxf(self, dxf_file: str, object_count: int, self_stitch_tolerance: float):
-        design_name = self.aedtapp.insert_design("test_64_import_dxf")
+        from pyedb.generic.general_methods import generate_unique_name
+
+        design_name = self.aedtapp.insert_design(generate_unique_name("test_64_import_dxf"))
         self.aedtapp.set_active_design(design_name)
         dxf_layers = self.aedtapp.get_dxf_layers(dxf_file)
         assert isinstance(dxf_layers, list)
