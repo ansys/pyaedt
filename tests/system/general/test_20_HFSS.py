@@ -1866,3 +1866,25 @@ class TestClass:
         assert len(aedtapp.excitations) == 2
         assert exc2.name == "dipole"
         aedtapp.close_project(save=False)
+
+    def test_74_wave_port_integration_line(self, add_app):
+        aedtapp = add_app(project_name="test_74", solution_type="Modal")
+        c = aedtapp.modeler.create_circle("XY", [-1.4, -1.6, 0], 1, name="wave_port")
+        start = [["-1.4mm", "-1.6mm", "0mm"], ["-1.4mm", "-1.6mm", "0mm"]]
+        end = [["-1.4mm", "-0.6mm", "0mm"], ["-1.4mm", "-2.6mm", "0mm"]]
+
+        with pytest.raises(ValueError, match=re.escape("List of characteristic impedance is not set correctly.")):
+            aedtapp.wave_port(c.name, integration_line=[start, end], characteristic_impedance=["Zwave"], modes=2)
+
+        assert aedtapp.wave_port(
+            c.name, integration_line=[start, end], characteristic_impedance=["Zwave", "Zpv"], modes=2
+        )
+
+        assert aedtapp.wave_port(c.name, integration_line=[start, end], modes=2)
+
+        start = [["-1.4mm", "-1.6mm", "0mm"], None, ["-1.4mm", "-1.6mm", "0mm"]]
+        end = [["-1.4mm", "-0.6mm", "0mm"], None, ["-1.4mm", "-2.6mm", "0mm"]]
+
+        assert aedtapp.wave_port(c.name, integration_line=[start, end], modes=3)
+
+        aedtapp.close_project(save=False)
