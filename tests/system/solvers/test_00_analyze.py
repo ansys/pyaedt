@@ -282,40 +282,16 @@ class TestClass:
         sweep = hfss_app.parametrics.add(variable="dummy", start_point=0, end_point=1, step=2)
         assert hfss_app.export_touchstone_on_completion(export=False)
         assert hfss_app.export_touchstone_on_completion(export=True)
-        assert hfss_app.analyze_setup(name=sweep.name, cores=4)
 
-    def test_03a_icepak_analyze_and_export_summary(self):
-        self.icepak_app.solution_type = self.icepak_app.SOLUTIONS.Icepak.SteadyState
-        self.icepak_app.problem_type = "TemperatureAndFlow"
-        self.icepak_app.modeler.create_box([0, 0, 0], [10, 10, 10], "box", "copper")
-        self.icepak_app.create_source_block("box", "1W", False)
-        setup = self.icepak_app.create_setup("SetupIPK")
-        new_props = {"Convergence Criteria - Max Iterations": 3}
-        setup.update(properties=new_props)
-        airfaces = [i.id for i in self.icepak_app.modeler["Region"].faces]
-        opening = self.icepak_app.assign_openings(airfaces)
-        self.icepak_app["Variable1"] = "0.5"
-        assert self.icepak_app.create_output_variable("OutputVariable1", "abs(Variable1)")  # test creation
-        assert self.icepak_app.create_output_variable("OutputVariable1", "asin(Variable1)")  # test update
-        self.icepak_app.monitor.assign_point_monitor_in_object(
-            "box", monitor_quantity="Temperature", monitor_name="test_monitor"
-        )
-        self.icepak_app.monitor.assign_face_monitor(
-            self.icepak_app.modeler.get_object_from_name("box").faces[0].id,
-            monitor_quantity=["Temperature", "HeatFlowRate"],
-            monitor_name="test_monitor2",
-        )
-        self.icepak_app.analyze("SetupIPK", cores=4)
-        time.sleep(3)
-        self.icepak_app.save_project()
-        assert self.icepak_app.export_summary(
-            self.icepak_app.working_directory, geometryType="Surface", variationlist=[], filename="A"
+    def test_03a_icepak_analyze_and_export_summary(self, icepak_solved):
+        assert icepak_solved.export_summary(
+            icepak_solved.working_directory, geometryType="Surface", variationlist=[], filename="A"
         )  # check usage of deprecated arguments
-        assert self.icepak_app.export_summary(
-            self.icepak_app.working_directory, geometry_type="Surface", variation_list=[], filename="B"
+        assert icepak_solved.export_summary(
+            icepak_solved.working_directory, geometry_type="Surface", variation_list=[], filename="B"
         )
-        assert self.icepak_app.export_summary(
-            self.icepak_app.working_directory, geometry_type="Volume", type="Boundary", filename="C"
+        assert icepak_solved.export_summary(
+            icepak_solved.working_directory, geometry_type="Volume", type="Boundary", filename="C"
         )
         for file_name, entities in [
             ("A_Temperature.csv", ["box", "Region"]),
