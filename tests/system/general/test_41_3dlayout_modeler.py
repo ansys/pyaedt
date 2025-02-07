@@ -361,7 +361,6 @@ class TestClass:
         assert len(self.aedtapp.port_list) == 0
         self.aedtapp.odesign.Undo()
 
-
     def test_14_create_setup(self):
         setup_name = "RFBoardSetup"
         setup = self.aedtapp.create_setup(name=setup_name)
