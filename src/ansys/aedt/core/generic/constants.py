@@ -813,22 +813,10 @@ class SOLUTIONS(object):
 
         (
             SteadyState,
-            SteadyTemperatureAndFlow,
-            SteadyTemperatureOnly,
-            SteadyFlowOnly,
             Transient,
-            TransientTemperatureAndFlow,
-            TransientTemperatureOnly,
-            TransientFlowOnly,
         ) = (
             "SteadyState",
-            "SteadyStateTemperatureAndFlow",
-            "SteadyStateTemperatureOnly",
-            "SteadyStateFlowOnly",
             "Transient",
-            "TransientTemperatureAndFlow",
-            "TransientTemperatureOnly",
-            "TransientFlowOnly",
         )
 
     class Circuit(object):
@@ -889,9 +877,9 @@ class SETUPS(object):
         Electrostatic,
         ElectrostaticDC,
         ElectricTransient,
-        SteadyTemperatureAndFlow,
-        SteadyTemperatureOnly,
-        SteadyFlowOnly,
+        SteadyState,
+        SteadyState,
+        SteadyState,
         Matrix,
         NexximLNA,
         NexximDC,
@@ -914,9 +902,9 @@ class SETUPS(object):
         MechModal,
         GRM,
         TR,
-        TransientTemperatureAndFlow,
-        TransientTemperatureOnly,
-        TransientFlowOnly,
+        Transient,
+        Transient,
+        Transient,
         DFIG,
         TPIM,
         SPIM,

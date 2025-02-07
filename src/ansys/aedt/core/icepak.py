@@ -3990,7 +3990,7 @@ class Icepak(FieldAnalysisIcepak):
 
         >>> from ansys.aedt.core import Icepak
         >>> app = Icepak()
-        >>> app.create_setup(setup_type="TransientTemperatureOnly",name="Setup1",MaxIterations=20)
+        >>> app.create_setup(setup_type="Transient",name="Setup1",MaxIterations=20)
 
         """
         if setup_type is None:

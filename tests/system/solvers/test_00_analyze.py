@@ -262,7 +262,7 @@ class TestClass:
         assert hfss_app.analyze_setup(name=sweep.name, cores=4)
 
     def test_03a_icepak_analyze_and_export_summary(self):
-        self.icepak_app.solution_type = self.icepak_app.SOLUTIONS.Icepak.SteadyFlowOnly
+        self.icepak_app.solution_type = self.icepak_app.SOLUTIONS.Icepak.SteadyState
         self.icepak_app.problem_type = "TemperatureAndFlow"
         self.icepak_app.modeler.create_box([0, 0, 0], [10, 10, 10], "box", "copper")
         self.icepak_app.create_source_block("box", "1W", False)
