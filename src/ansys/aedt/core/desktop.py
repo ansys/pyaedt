@@ -113,7 +113,7 @@ def launch_aedt(full_path, non_graphical, port, student_version, first_run=True)
     _aedt_process_thread.start()
 
     on_ci = os.getenv("ON_CI", "False")
-    if not student_version and on_ci == "False":
+    if not student_version and on_ci != "True":
         available_licenses = available_license_feature()
         if available_licenses > 0:
             settings.logger.info("Electronics Desktop license available.")
