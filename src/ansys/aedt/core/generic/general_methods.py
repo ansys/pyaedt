@@ -1011,6 +1011,10 @@ def available_license_feature(
             if match_error:
                 pyaedt_logger.error(line)
                 return False
+
+    # Clean up temp file after processing
+    os.remove(tempfile_checkout)
+
     return available_licenses
 
 
