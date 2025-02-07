@@ -350,7 +350,6 @@ class VersionManager:
         response = messagebox.askyesno("Disclaimer", DISCLAIMER)
 
         if response:
-            self.desktop
             latest_version = get_latest_version("pyaedt")
             if latest_version == UNKNOWN_VERSION:
                 messagebox.showerror(
@@ -359,9 +358,11 @@ class VersionManager:
                 return
 
             if self.pyaedt_version > latest_version:
-                subprocess.run([self.python_exe, "-m", "pip", "install", f"pyaedt=={latest_version}"], check=True)
+                subprocess.run(
+                    [self.python_exe, "-m", "pip", "install", f"pyaedt=={latest_version}"], check=True
+                )  # nosec
             else:
-                subprocess.run([self.python_exe, "-m", "pip", "install", "-U", "pyaedt"], check=True)
+                subprocess.run([self.python_exe, "-m", "pip", "install", "-U", "pyaedt"], check=True)  # nosec
 
             self.clicked_refresh(need_restart=True)
 
@@ -378,9 +379,11 @@ class VersionManager:
                 return
 
             if self.pyedb_version > latest_version:
-                subprocess.run([self.python_exe, "-m", "pip", "install", f"pyedb=={latest_version}"], check=True)
+                subprocess.run(
+                    [self.python_exe, "-m", "pip", "install", f"pyedb=={latest_version}"], check=True
+                )  # nosec
             else:
-                subprocess.run([self.python_exe, "-m", "pip", "install", "-U", "pyedb"], check=True)
+                subprocess.run([self.python_exe, "-m", "pip", "install", "-U", "pyedb"], check=True)  # nosec
 
             print("Pyedb has been updated")
             self.clicked_refresh(need_restart=True)
@@ -396,7 +399,7 @@ class VersionManager:
             subprocess.run(
                 [self.python_exe, "-m", "pip", "install", f"git+https://github.com/ansys/pyaedt.git@{branch_name}"],
                 check=True,
-            )
+            )  # nosec
             self.clicked_refresh(need_restart=True)
 
     def get_pyedb_branch(self):
@@ -410,7 +413,7 @@ class VersionManager:
             subprocess.run(
                 [self.python_exe, "-m", "pip", "install", f"git+https://github.com/ansys/pyedb.git@{branch_name}"],
                 check=True,
-            )
+            )  # nosec
             self.clicked_refresh(need_restart=True)
 
     def update_from_wheelhouse(self):
@@ -465,7 +468,7 @@ class VersionManager:
                     "pyaedt[installer]",
                 ],
                 check=True,
-            )
+            )  # nosec
             self.clicked_refresh(need_restart=True)
 
     def reset_pyaedt_buttons_in_aedt(self):
@@ -495,7 +498,7 @@ class VersionManager:
             try:
                 add_pyaedt_to_aedt(self.aedt_version, self.personal_lib)
                 messagebox.showinfo("Success", "PyAEDT buttons added in AEDT.")
-            except subprocess.CalledProcessError as e:
+            except subprocess.CalledProcessError as e:  # nosec
                 messagebox.showerror("Error", f"Error adding buttons to AEDT: {e}")
 
     def clicked_refresh(self, need_restart=False):
