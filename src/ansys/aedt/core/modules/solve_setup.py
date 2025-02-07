@@ -806,7 +806,7 @@ class Setup(CommonSetup):
         return True
 
     @pyaedt_function_handler(setup_name="name")
-    def enable(self, name=None):
+    def enable(self):
         """Enable a setup.
 
         Parameters
@@ -823,14 +823,11 @@ class Setup(CommonSetup):
         ----------
         >>> oModule.EditSetup
         """
-        if not name:
-            name = self.name
-
-        self.omodule.EditSetup(name, ["NAME:" + name, "IsEnabled:=", True])
+        self.props["Enabled"] = True
         return True
 
-    @pyaedt_function_handler(setup_name="name")
-    def disable(self, name=None):
+    @pyaedt_function_handler()
+    def disable(self):
         """Disable a setup.
 
         Parameters
@@ -847,10 +844,7 @@ class Setup(CommonSetup):
         ----------
         >>> oModule.EditSetup
         """
-        if not name:
-            name = self.name
-
-        self.omodule.EditSetup(name, ["NAME:" + name, "IsEnabled:", False])
+        self.props["Enabled"] = False
         return True
 
     @pyaedt_function_handler(
@@ -3819,6 +3813,16 @@ class SetupMaxwell(Setup, object):
                     self.props["N Steps"] = f"{count}"
                     self.props["Steps From"] = f"{start}{units}"
                     self.props["Steps To"] = f"{stop}{units}"
+                    self.update()
+                    return True
+                elif range_type == "None":
+                    if self.props["SaveFieldsType"] == "Custom":
+                        self.props.pop("SweepRanges", None)
+                    elif self.props["SaveFieldsType"] == "Every N Steps":
+                        self.props.pop("N Steps", None)
+                        self.props.pop("Steps From", None)
+                        self.props.pop("Steps To", None)
+                    self.props["SaveFieldsType"] = "None"
                     self.update()
                     return True
                 else:

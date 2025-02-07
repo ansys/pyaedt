@@ -46,6 +46,8 @@ ctrl_prg_file = "timestep_only.py"
 m2d_export_fields = "maxwell_e_line_export_field"
 sinusoidal_name = "Sinusoidal"
 
+m2d_transient_ec = "Setup_Transient_EC"
+
 
 @pytest.fixture()
 def aedtapp(add_app):
@@ -83,6 +85,13 @@ def m2d_ctrl_prg(add_app):
 @pytest.fixture()
 def m2d_app(add_app):
     app = add_app(application=ansys.aedt.core.Maxwell2d)
+    yield app
+    app.close_project(app.project_name)
+
+
+@pytest.fixture()
+def m2d_setup(add_app):
+    app = add_app(application=ansys.aedt.core.Maxwell2d, project_name=m2d_transient_ec, subfolder=test_subfolder)
     yield app
     app.close_project(app.project_name)
 
@@ -636,38 +645,33 @@ class TestClass:
         assert m2d_app.assign_voltage(assignment=[region_id.name, rect.name], amplitude=3, name="GRD4")
         assert len(m2d_app.boundaries) == 4
 
-    def test_set_save_fields(self, m2d_app):
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
+    def test_set_save_fields(self, m2d_setup):
+        m2d_setup.set_active_design("setup_transient")
 
-        setup = m2d_app.create_setup()
-        assert setup.set_save_fields(enable=True)
-        assert setup.set_save_fields(enable=False)
-
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.TransientXY
-        setup = m2d_app.create_setup()
+        setup = m2d_setup.setups[0]
         assert setup.set_save_fields(
             enable=True, range_type="Custom", subrange_type="LinearStep", start=0, stop=8, count=2, units="ms"
         )
-        assert len(setup.props["SweepRanges"]["Subrange"]) == 1
-        assert setup.props["SweepRanges"]["Subrange"][0]["RangeType"] == "LinearStep"
-        assert setup.props["SweepRanges"]["Subrange"][0]["RangeStart"] == "0ms"
-        assert setup.props["SweepRanges"]["Subrange"][0]["RangeEnd"] == "8ms"
-        assert setup.props["SweepRanges"]["Subrange"][0]["RangeStep"] == "2ms"
+        assert len(setup.props["SweepRanges"]["Subrange"]) == 2
+        assert setup.props["SweepRanges"]["Subrange"][1]["RangeType"] == "LinearStep"
+        assert setup.props["SweepRanges"]["Subrange"][1]["RangeStart"] == "0ms"
+        assert setup.props["SweepRanges"]["Subrange"][1]["RangeEnd"] == "8ms"
+        assert setup.props["SweepRanges"]["Subrange"][1]["RangeStep"] == "2ms"
         assert setup.set_save_fields(
             enable=True, range_type="Custom", subrange_type="LinearCount", start=0, stop=8, count=2, units="ms"
         )
-        assert len(setup.props["SweepRanges"]["Subrange"]) == 2
-        assert setup.props["SweepRanges"]["Subrange"][1]["RangeType"] == "LinearCount"
-        assert setup.props["SweepRanges"]["Subrange"][1]["RangeStart"] == "0ms"
-        assert setup.props["SweepRanges"]["Subrange"][1]["RangeEnd"] == "8ms"
-        assert setup.props["SweepRanges"]["Subrange"][1]["RangeCount"] == 2
+        assert len(setup.props["SweepRanges"]["Subrange"]) == 3
+        assert setup.props["SweepRanges"]["Subrange"][2]["RangeType"] == "LinearCount"
+        assert setup.props["SweepRanges"]["Subrange"][2]["RangeStart"] == "0ms"
+        assert setup.props["SweepRanges"]["Subrange"][2]["RangeEnd"] == "8ms"
+        assert setup.props["SweepRanges"]["Subrange"][2]["RangeCount"] == 2
         assert setup.set_save_fields(
             enable=True, range_type="Custom", subrange_type="SinglePoints", start=3, units="ms"
         )
-        assert len(setup.props["SweepRanges"]["Subrange"]) == 3
-        assert setup.props["SweepRanges"]["Subrange"][2]["RangeType"] == "SinglePoints"
-        assert setup.props["SweepRanges"]["Subrange"][2]["RangeStart"] == "3ms"
-        assert setup.props["SweepRanges"]["Subrange"][2]["RangeEnd"] == "3ms"
+        assert len(setup.props["SweepRanges"]["Subrange"]) == 4
+        assert setup.props["SweepRanges"]["Subrange"][3]["RangeType"] == "SinglePoints"
+        assert setup.props["SweepRanges"]["Subrange"][3]["RangeStart"] == "3ms"
+        assert setup.props["SweepRanges"]["Subrange"][3]["RangeEnd"] == "3ms"
         assert setup.set_save_fields(enable=True, range_type="Every N Steps", start=0, stop=10, count=1, units="ms")
         assert setup.props["SaveFieldsType"] == "Every N Steps"
         assert setup.props["Steps From"] == "0ms"
@@ -680,5 +684,73 @@ class TestClass:
         assert setup.props["SweepRanges"]["Subrange"][0]["RangeType"] == "SinglePoints"
         assert setup.props["SweepRanges"]["Subrange"][0]["RangeStart"] == "3ms"
         assert setup.props["SweepRanges"]["Subrange"][0]["RangeEnd"] == "3ms"
+        assert setup.set_save_fields(range_type="None")
         assert setup.set_save_fields(enable=False)
         assert not setup.set_save_fields(enable=True, range_type="invalid")
+
+        m2d_setup.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
+
+        setup = m2d_setup.create_setup()
+        assert setup.set_save_fields(enable=True)
+        assert setup.set_save_fields(enable=False)
+
+    def test_eddy_current_sweep(self, m2d_setup):
+        m2d_setup.set_active_design("setup_ec")
+        setup = m2d_setup.setups[0]
+        setup.props["MaximumPasses"] = 12
+        setup.props["MinimumPasses"] = 2
+        setup.props["MinimumConvergedPasses"] = 1
+        setup.props["PercentRefinement"] = 30
+        setup.props["Frequency"] = "200Hz"
+        dc_freq = 0.1
+        stop_freq = 10
+        count = 1
+        sweep = setup.add_eddy_current_sweep(
+            sweep_type="LinearStep", start_frequency=dc_freq, stop_frequency=stop_freq, step_size=count, clear=False
+        )
+        assert sweep.props["RangeType"] == "LinearStep"
+        assert sweep.props["RangeStart"] == "0.1Hz"
+        assert sweep.props["RangeEnd"] == "10Hz"
+        assert sweep.props["RangeStep"] == "1Hz"
+        assert isinstance(setup.props["SweepRanges"]["Subrange"], list)
+        m2d_setup.save_project()
+        assert len(setup.props["SweepRanges"]["Subrange"]) == 2
+        assert setup.props["SaveAllFields"]
+        [sweep.delete() for sweep in setup.sweeps]
+        sweep = setup.add_eddy_current_sweep(
+            sweep_type="LinearCount", start_frequency=dc_freq, stop_frequency=stop_freq, step_size=count, clear=False
+        )
+        assert sweep.props["RangeType"] == "LinearCount"
+        assert sweep.props["RangeStart"] == "0.1Hz"
+        assert sweep.props["RangeEnd"] == "10Hz"
+        assert sweep.props["RangeCount"] == 1
+        assert isinstance(setup.props["SweepRanges"]["Subrange"], list)
+        m2d_setup.save_project()
+        assert len(setup.props["SweepRanges"]["Subrange"]) == 3
+        sweep = setup.add_eddy_current_sweep(
+            sweep_type="LogScale", start_frequency=dc_freq, stop_frequency=stop_freq, step_size=count, clear=True
+        )
+        assert sweep.props["RangeType"] == "LogScale"
+        assert sweep.props["RangeStart"] == "0.1Hz"
+        assert sweep.props["RangeEnd"] == "10Hz"
+        assert sweep.props["RangeSamples"] == 1
+        assert isinstance(setup.props["SweepRanges"]["Subrange"], list)
+        m2d_setup.save_project()
+        assert len(setup.props["SweepRanges"]["Subrange"]) == 1
+        sweep = setup.add_eddy_current_sweep(sweep_type="SinglePoints", start_frequency=0.01, clear=False)
+        assert sweep.props["RangeType"] == "SinglePoints"
+        assert sweep.props["RangeStart"] == "0.01Hz"
+        assert sweep.props["RangeEnd"] == "0.01Hz"
+        m2d_setup.save_project()
+        assert len(setup.props["SweepRanges"]["Subrange"]) == 2
+        assert sweep.delete()
+        m2d_setup.save_project()
+        assert len(setup.props["SweepRanges"]["Subrange"]) == 1
+        assert setup.update()
+        assert setup.enable_expression_cache(["CoreLoss"], "Fields", "Phase='0deg' ", True)
+        assert setup.props["UseCacheFor"] == ["Pass", "Freq"]
+        assert setup.disable()
+        assert setup.enable()
+        sweep = setup.add_eddy_current_sweep(sweep_type="SinglePoints", start_frequency=0.01, clear=False)
+        assert not sweep.is_solved
+        assert isinstance(sweep.frequencies, list)
