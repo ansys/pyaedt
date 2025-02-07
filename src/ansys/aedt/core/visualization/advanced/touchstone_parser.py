@@ -31,6 +31,7 @@ import warnings
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.aedt_versions import aedt_versions
+from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 try:
@@ -112,6 +113,73 @@ class TouchstoneData(rf.Network):
         self.log_x = True
 
     @pyaedt_function_handler()
+    def get_coupling_in_range(
+        self, start_frequency=1e9, low_loss=-40, high_loss=-60, frequency_sample=5, output_file=None
+    ):
+        """Get coupling losses, excluding return loss, that has at least one frequency point between a range of
+        losses.
+
+        Parameters
+        ----------
+        start_frequency : float, optional
+            Specify frequency value below which not check will be done. The default is ``1e9``.
+        low_loss: float, optional
+            Specify range lower loss. The default is ``-40``.
+        high_loss: float, optional
+            Specify range higher loss. The default is ``-60``.
+        frequency_sample : integer, optional
+            Specify frequency sample at which coupling check will be done. The default is ``5``.
+        output_file : path, optional
+            Output file path to save where identified coupling will be listed. The default is ``None``.
+
+        Returns
+        -------
+         list
+            List of S parameters in the range [high_loss, low_loss] to plot.
+
+        """
+
+        nb_freq = self.frequency.npoints
+        k = 0
+        k_start = 0
+
+        # identify frequency index at which to start the check
+        while k < nb_freq:
+            if self.frequency.f[k] >= start_frequency:
+                k_start = k
+                break
+            else:
+                k = k + 1
+
+        port_names = self.port_names
+        nb_port = len(port_names)
+        s_db = self.s_db[:, :, :]
+        temp_list = []
+        temp_file = []
+
+        for i in range(nb_port):
+            for j in range(i, nb_port):
+                if i == j:
+                    continue
+                for k in range(k_start, nb_freq, frequency_sample):
+                    loss = s_db[k, i, j]
+                    if high_loss < loss < low_loss:
+                        temp_list.append((i, j))
+                        sxy = f"S({self.port_names[i]} , {self.port_names[j]})"
+                        line = f"{sxy} Loss = {loss:.2f} dB Freq = {(self.f[k] * 1e-9):.3f} GHz\n"
+                        temp_file.append(line)
+                        break
+        if output_file is not None:
+            if os.path.exists(output_file):
+                logger.info("File " + output_file + " exist and we be replace by new one.")
+                with open_file(output_file, "w") as f:
+                    for s in temp_file:
+                        f.write(s)
+                logger.info("File " + output_file + " created.")
+
+        return temp_list
+
+    @pyaedt_function_handler()
     def get_insertion_loss_index(self, threshold=-3):
         """Get all insertion losses.
 
@@ -120,12 +188,12 @@ class TouchstoneData(rf.Network):
         Parameters
         ----------
         threshold : float, int, optional
-            Threshold to determine shorted ports in dB. Default value is ``3``.
+            Threshold to determine shorted ports in dB. The default value is ``-3``.
 
         Returns
         -------
          list
-            List of index couples representing Insertion Losses of excitations.
+            List of index couples representing insertion losses of excitations.
 
         """
         temp_list = []
@@ -149,7 +217,7 @@ class TouchstoneData(rf.Network):
         Parameters
         ----------
         threshold : float, int, optional
-            Threshold to determine shorted ports in dB. Default value is ``3``.
+            Threshold to determine shorted ports in dB. The default value is ``-3``.
         plot : bool, optional
             Whether to plot. The default is ``True``.
 
@@ -171,9 +239,9 @@ class TouchstoneData(rf.Network):
         Parameters
         ----------
         index_couples : list, optional
-            List of indexes couple to plot. Default is ``None`` to plot all ``port_tuples``.
+            List of indexes couple to plot. The default value is ``None`` to plot all ``port_tuples``.
         show : bool
-            Whether to plot. Default is ``True``.
+            Whether to plot. The default value is ``True``.
 
         Returns
         -------
@@ -250,7 +318,7 @@ class TouchstoneData(rf.Network):
 
     @pyaedt_function_handler()
     def get_return_loss_index(self, excitation_name_prefix=""):
-        """Get the list of all the Returnloss from a list of excitations.
+        """Get the list of all the return loss from a list of excitations.
 
         If no excitation is provided it will provide a full list of return losses.
 
@@ -260,7 +328,7 @@ class TouchstoneData(rf.Network):
         Parameters
         ----------
         excitation_name_prefix :str, optional
-            Prefix of the excitation. Default value is ``""``.
+            Prefix of the excitation. The default value is ``""``.
 
         Returns
         -------
@@ -279,7 +347,7 @@ class TouchstoneData(rf.Network):
 
     @pyaedt_function_handler()
     def get_insertion_loss_index_from_prefix(self, tx_prefix, rx_prefix):
-        """Get the list of all the Insertion Losses from prefix.
+        """Get the list of all the insertion losses from prefix.
 
         Parameters
         ----------
@@ -314,7 +382,7 @@ class TouchstoneData(rf.Network):
         Parameters
         ----------
         tx_prefix :str, optional
-            Prefix for TX (eg. "DIE"). Default value is ``""``.
+            Prefix for TX (eg. "DIE"). The default value is ``""``.
 
         Returns
         -------
@@ -369,7 +437,7 @@ class TouchstoneData(rf.Network):
         Parameters
         ----------
         tx_prefix: str, optional
-            Prefix for TX. Default value is ``""``.
+            Prefix for TX. The default value is ``""``.
 
         Returns
         -------
@@ -415,15 +483,16 @@ class TouchstoneData(rf.Network):
         Parameters
         ----------
         freq_min : float, optional
-            Minimum frequency to analyze in GHz (None to 0). Default value is ``None``.
+            Minimum frequency to analyze in GHz (None to 0). The default value is ``None``.
         freq_max : float, optional
-            Maximum frequency to analyze in GHz (None to max freq). Default value is ``None``.
+            Maximum frequency to analyze in GHz (None to max freq). The default value is ``None``.
         worst_is_higher : bool
-            Worst curve is the one with higher mean value. Default value is ``True``.
+            Worst curve is the one with higher mean value. The default value is ``True``.
         curve_list : list
-            List of [m,n] index of curves on which to search. None to search on all curves. Default value is ``None``.
+            List of [m,n] index of curves on which to search. None to search on all curves.
+            The default value is ``None``.
         plot : bool, optional
-            Whether to plot or not the chart.
+            Whether to plot or not the chart. The default value is ``True``.
 
         Returns
         -------

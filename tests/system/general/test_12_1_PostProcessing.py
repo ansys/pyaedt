@@ -36,21 +36,13 @@ import pytest
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 
-if config["desktopVersion"] > "2022.2":
-    test_field_name = "Potter_Horn_231"
-    test_project_name = "coax_setup_solved_231"
-    array = "array_simple_231"
-    sbr_file = "poc_scat_small_231"
-    q3d_file = "via_gsg_231"
-    m2d_file = "m2d_field_lines_test_231"
+test_field_name = "Potter_Horn_231"
+test_project_name = "coax_setup_solved_231"
+array = "array_simple_231"
+sbr_file = "poc_scat_small_solved"
+q3d_file = "via_gsg_231"
+m2d_file = "m2d_field_lines_test_231"
 
-else:
-    test_field_name = "Potter_Horn"
-    test_project_name = "coax_setup_solved"
-    array = "array_simple"
-    sbr_file = "poc_scat_small"
-    q3d_file = "via_gsg"
-    m2d_file = "m2d_field_lines_test"
 
 test_circuit_name = "Switching_Speed_FET_And_Diode"
 eye_diagram = "SimpleChannel"

@@ -106,7 +106,7 @@ class Materials(object):
         -------
         dict of :class:`ansys.aedt.core.modules.material.Material`
         """
-        if not self._surface_material_keys:
+        if not self._surface_material_keys and self._app.design_type == "Icepak":
             self._surface_material_keys = self._get_surface_materials()
         return self._surface_material_keys
 

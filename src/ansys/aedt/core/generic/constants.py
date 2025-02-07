@@ -765,6 +765,7 @@ class SOLUTIONS(object):
             ACConduction,
             ElectricTransient,
             TransientAPhiFormulation,
+            DCBiasedEddyCurrent,
         ) = (
             "Transient",
             "Magnetostatic",
@@ -775,6 +776,7 @@ class SOLUTIONS(object):
             "ACConduction",
             "ElectricTransient",
             "TransientAPhiFormulation",
+            "DCBiasedEddyCurrent",
         )
 
     class Maxwell2d(object):
@@ -867,7 +869,7 @@ class SOLUTIONS(object):
     class Mechanical(object):
         """Provides Mechanical solution types."""
 
-        (Thermal, Structural, Modal) = ("Thermal", "Structural", "Modal")
+        (Thermal, Structural, Modal, SteadyStateThermal) = ("Thermal", "Structural", "Modal", "Steady-State Thermal")
 
 
 class SETUPS(object):
