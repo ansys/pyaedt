@@ -2917,7 +2917,7 @@ class Icepak(FieldAnalysisIcepak):
 
         if not ansys_install_dir:
             raise AEDTRuntimeError(
-                "Fluent {version} has to be installed to generate mesh. Please set ANSYS{version}_DIR"
+                f"Fluent {version} has to be installed to generate mesh. Please set ANSYS{version}_DIR"
             )
         if not os.getenv(f"ANSYS{version}_DIR"):
             os.environ[f"ANSYS{version}_DIR"] = ansys_install_dir
