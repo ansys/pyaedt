@@ -1360,9 +1360,9 @@ class Analysis(Design, object):
             setup = SetupHFSSAuto(self, setup_type, name)
         elif setup_type == 4:
             setup = SetupSBR(self, setup_type, name)
-        elif setup_type in [5, 6, 7, 8, 9, 10, 56, 58, 59]:
+        elif setup_type in [5, 6, 7, 8, 9, 10, 56, 58, 59, 60]:
             setup = SetupMaxwell(self, setup_type, name)
-        elif setup_type == 14:
+        elif setup_type in [14, 30]:
             setup = SetupQ3D(self, setup_type, name)
         elif setup_type in [11, 36]:
             setup = SetupIcepak(self, setup_type, name)
@@ -1524,13 +1524,15 @@ class Analysis(Design, object):
         if self.solution_type == "SBR+":
             setuptype = 4
             setup = SetupSBR(self, setuptype, name, is_new_setup=False)
-        elif self.design_type in ["Q3D Extractor", "2D Extractor", "HFSS"]:
+        elif self.design_type == "HFSS":
             setup = SetupHFSS(self, setuptype, name, is_new_setup=False)
             if setup.properties:
                 if "Auto Solver Setting" in setup.properties:
                     setup = SetupHFSSAuto(self, 0, name, is_new_setup=False)
             elif setup.props and setup.props.get("SetupType", "") == "HfssDrivenAuto":
                 setup = SetupHFSSAuto(self, 0, name, is_new_setup=False)
+        elif self.design_type in ["Q3D Extractor", "2D Extractor"]:
+            setup = SetupQ3D(self, setuptype, name, is_new_setup=False)
         elif self.design_type in ["Maxwell 2D", "Maxwell 3D"]:
             setup = SetupMaxwell(self, setuptype, name, is_new_setup=False)
         else:
