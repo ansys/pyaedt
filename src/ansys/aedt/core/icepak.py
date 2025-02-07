@@ -3129,7 +3129,7 @@ class Icepak(FieldAnalysisIcepak):
                 ]
             )
         except Exception as e:
-            raise AEDTRuntimeError("Failed to assign material {mat} to the provided object(s).") from e
+            raise AEDTRuntimeError(f"Failed to assign material {mat} to the provided object(s).") from e
         if mat.lower() not in self.materials.surface_material_keys:
             oo = self.get_oo_object(self.oproject, f"Surface Materials/{mat}")
             if oo:
