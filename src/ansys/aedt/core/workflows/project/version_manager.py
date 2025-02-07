@@ -21,8 +21,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-VERSION = "0.3.0"
-
 import os
 from pathlib import Path
 import platform
@@ -44,7 +42,11 @@ from ansys.aedt.core.workflows.customize_automation_tab import available_toolkit
 from ansys.aedt.core.workflows.misc import get_aedt_version
 from ansys.aedt.core.workflows.misc import get_port
 from ansys.aedt.core.workflows.misc import get_process_id
+import defusedxml
 from defusedxml.ElementTree import parse as defused_parse
+
+defusedxml.defuse_stdlib()
+
 import pyedb
 import requests
 
@@ -56,25 +58,7 @@ DISCLAIMER = (
     "Third-Party Software.\n"
     "Do you want to proceed ?"
 )
-
-
-def is_git_installed():
-    try:
-        # Run the command `git --version`
-        result = subprocess.run(
-            ["git", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True
-        )
-
-        # Check if the command ran successfully
-        if result.returncode == 0:
-            print(f"Git is installed: {result.stdout.strip()}")
-            return True
-        else:
-            print("Git is not installed.")
-            return False
-    except FileNotFoundError:
-        print("Git is not installed.")
-        return False
+UNKNOWN_VERSION = "Unknown"
 
 
 def get_latest_version(package_name):
@@ -83,13 +67,13 @@ def get_latest_version(package_name):
         data = response.json()
         return data["info"]["version"]
     else:
-        return "Unknown"
+        return UNKNOWN_VERSION
 
 
 class VersionManager:
-    TITLE = "Version Manager {}".format(VERSION)
+    TITLE = "Version Manager"
     USER_GUIDE = (
-        "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/project" "/version_manager.html"
+        "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/project/version_manager.html"
     )
     UI_WIDTH = 800
     UI_HEIGHT = 400
@@ -116,11 +100,11 @@ class VersionManager:
         return pyedb.version
 
     def __init__(self, ui, desktop, aedt_version, personal_lib):
+        from ansys.aedt.core.workflows.misc import ExtensionTheme
+
         self.desktop = desktop
         self.aedt_version = aedt_version
         self.personal_lib = personal_lib
-
-        from ansys.aedt.core.workflows.misc import ExtensionTheme
 
         # Configure style for ttk buttons
         self.style = ttk.Style()
@@ -310,9 +294,15 @@ class VersionManager:
             button = ttk.Button(frame, text=text, width=20, command=cmd, style="PyAEDT.TButton")
             button.pack(side="left", padx=10, pady=10)
 
+    def is_git_available(self):
+        res = shutil.which("git") is not None
+        if not res:
+            messagebox.showerror("Error: Git Not Found", "Git does not seem to be installed or is not accessible.")
+        return res
+
     def update_extensions(self):
-        response = messagebox.askquestion("Confirm Action", "Are you sure you want to proceed?")
-        if response == "yes":
+        response = messagebox.askyesno("Confirm Action", "Are you sure you want to proceed?")
+        if response:
             toolkits_path = Path(self.personal_lib, "Toolkits")
             temp = []
             for product in toolkits_path.iterdir():
@@ -357,79 +347,70 @@ class VersionManager:
             messagebox.showinfo("Message", "\n".join(msg))
 
     def update_pyaedt(self):
-        response = messagebox.askquestion("Disclaimer", DISCLAIMER)
+        response = messagebox.askyesno("Disclaimer", DISCLAIMER)
 
-        if response == "yes":
-            url = "https://pypi.org/pypi/pyaedt/json"
-            response = requests.get(url)
-
-            if response.status_code == 200:
-                data = response.json()
-                released_version = data["info"]["version"]
-            else:
+        if response:
+            self.desktop
+            latest_version = get_latest_version("pyaedt")
+            if latest_version == UNKNOWN_VERSION:
+                messagebox.showerror(
+                    "Error: Installation Failed", "PyAEDT version was not correctly retrieved from PyPI."
+                )
                 return
 
-            if self.pyaedt_version > released_version:
-                subprocess.run([self.python_exe, "-m", "pip", "install", f"pyaedt=={released_version}"], check=True)
+            if self.pyaedt_version > latest_version:
+                subprocess.run([self.python_exe, "-m", "pip", "install", f"pyaedt=={latest_version}"], check=True)
             else:
                 subprocess.run([self.python_exe, "-m", "pip", "install", "-U", "pyaedt"], check=True)
 
             self.clicked_refresh(need_restart=True)
 
+    def update_pyedb(self):
+        response = messagebox.askyesno("Disclaimer", DISCLAIMER)
+
+        if response:
+            print("Updating pyedb version")
+            latest_version = get_latest_version("pyedb")
+            if latest_version == UNKNOWN_VERSION:
+                messagebox.showerror(
+                    "Error: Installation Failed", "PyEDB version was not correctly retrieved from PyPI."
+                )
+                return
+
+            if self.pyedb_version > latest_version:
+                subprocess.run([self.python_exe, "-m", "pip", "install", f"pyedb=={latest_version}"], check=True)
+            else:
+                subprocess.run([self.python_exe, "-m", "pip", "install", "-U", "pyedb"], check=True)
+
+            print("Pyedb has been updated")
+            self.clicked_refresh(need_restart=True)
+
     def get_pyaedt_branch(self):
-        if not is_git_installed():
-            messagebox.showinfo("Git is not installed")
+        if not self.is_git_available():
             return
 
-        response = messagebox.askquestion("Disclaimer", DISCLAIMER)
+        response = messagebox.askyesno("Disclaimer", DISCLAIMER)
 
-        if response == "yes":
+        if response:
             branch_name = self.pyaedt_branch_name.get()
             subprocess.run(
-                [
-                    self.python_exe,
-                    "-m",
-                    "pip",
-                    "install",
-                    # "--force-reinstall",
-                    f"git+https://github.com/ansys/pyaedt.git@{branch_name}",
-                ],
+                [self.python_exe, "-m", "pip", "install", f"git+https://github.com/ansys/pyaedt.git@{branch_name}"],
                 check=True,
             )
             self.clicked_refresh(need_restart=True)
 
     def get_pyedb_branch(self):
-        if not is_git_installed():
-            messagebox.showinfo("Git is not installed")
+        if not self.is_git_available():
             return
 
-        response = messagebox.askquestion("Disclaimer", DISCLAIMER)
+        response = messagebox.askyesno("Disclaimer", DISCLAIMER)
 
-        if response == "yes":
+        if response:
             branch_name = self.pyedb_branch_name.get()
             subprocess.run(
                 [self.python_exe, "-m", "pip", "install", f"git+https://github.com/ansys/pyedb.git@{branch_name}"],
                 check=True,
             )
-            self.clicked_refresh(need_restart=True)
-
-    def update_pyedb(self):
-        response = messagebox.askquestion("Disclaimer", DISCLAIMER)
-        if response == "yes":
-            url = f"https://pypi.org/pypi/pyedb/json"
-            response = requests.get(url)
-
-            if response.status_code == 200:
-                data = response.json()
-                released_version = data["info"]["version"]
-            else:
-                return
-
-            if self.pyedb_version > released_version:
-                subprocess.run([self.python_exe, "-m", "pip", "install", f"pyedb=={released_version}"], check=True)
-            else:
-                subprocess.run([self.python_exe, "-m", "pip", "install", "-U", "pyedb"], check=True)
-
             self.clicked_refresh(need_restart=True)
 
     def update_from_wheelhouse(self):
@@ -495,16 +476,16 @@ class VersionManager:
             os.chmod(path, stat.S_IWRITE)  # Add write permission
             func(path)  # Retry the operation
 
-        response = messagebox.askquestion("Confirm Action", "Are you sure you want to proceed?")
+        response = messagebox.askyesno("Confirm Action", "Are you sure you want to proceed?")
 
-        if response == "yes":
+        if response:
             toolkit_path = os.path.join(self.personal_lib, "Toolkits")
 
             if os.path.isdir(toolkit_path) and os.path.exists(toolkit_path):
                 msg = [f"Toolkits path {toolkit_path} already exists.", "Are you sure you want to reset toolkits?"]
                 msg = "\n".join(msg)
-                response = messagebox.askquestion("Confirm Action", msg)
-                if response == "yes":
+                response = messagebox.askyesno("Confirm Action", msg)
+                if response:
                     shutil.rmtree(toolkit_path, onerror=handle_remove_error)
                 else:
                     return
@@ -525,7 +506,6 @@ class VersionManager:
         if need_restart is False:
             self.pyaedt_info.set(f"PyAEDT: {self.pyaedt_version} (Latest {get_latest_version('pyaedt')})")
             self.pyedb_info.set(f"PyEDB: {self.pyedb_version} (Latest {get_latest_version('pyedb')})")
-            # messagebox.showinfo("Success", msg)
         else:
             self.pyaedt_info.set(f"PyAEDT: {'Please restart'}")
             self.pyedb_info.set(f"PyEDB: {'Please restart'}")
