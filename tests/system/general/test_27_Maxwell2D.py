@@ -719,8 +719,8 @@ class TestClass:
         assert len(setup.sweeps) == 2
         assert setup.props["SaveAllFields"]
         assert setup.delete_all_eddy_current_sweeps()
-        assert len(setup.props["SweepRanges"]["Subrange"]) == 0
-        # assert len(setup.sweeps) == 0
+        assert "SweepRanges" not in setup.props
+        assert len(setup.sweeps) == 0
         sweep = setup.add_eddy_current_sweep(
             sweep_type="LinearCount", start_frequency=dc_freq, stop_frequency=stop_freq, step_size=count, clear=False
         )
@@ -730,7 +730,8 @@ class TestClass:
         assert sweep.props["RangeCount"] == 1
         assert isinstance(setup.props["SweepRanges"]["Subrange"], list)
         m2d_setup.save_project()
-        assert len(setup.props["SweepRanges"]["Subrange"]) == 3
+        assert len(setup.props["SweepRanges"]["Subrange"]) == 1
+        assert len(setup.sweeps) == 1
         sweep = setup.add_eddy_current_sweep(
             sweep_type="LogScale", start_frequency=dc_freq, stop_frequency=stop_freq, step_size=count, clear=True
         )
@@ -741,20 +742,22 @@ class TestClass:
         assert isinstance(setup.props["SweepRanges"]["Subrange"], list)
         m2d_setup.save_project()
         assert len(setup.props["SweepRanges"]["Subrange"]) == 1
+        assert len(setup.sweeps) == 1
         sweep = setup.add_eddy_current_sweep(sweep_type="SinglePoints", start_frequency=0.01, clear=False)
         assert sweep.props["RangeType"] == "SinglePoints"
         assert sweep.props["RangeStart"] == "0.01Hz"
         assert sweep.props["RangeEnd"] == "0.01Hz"
         m2d_setup.save_project()
         assert len(setup.props["SweepRanges"]["Subrange"]) == 2
+        assert len(setup.sweeps) == 2
         assert sweep.delete()
         m2d_setup.save_project()
         assert len(setup.props["SweepRanges"]["Subrange"]) == 1
+        assert len(setup.sweeps) == 1
         assert setup.update()
         assert setup.enable_expression_cache(["CoreLoss"], "Fields", "Phase='0deg' ", True)
         assert setup.props["UseCacheFor"] == ["Pass", "Freq"]
         assert setup.disable()
         assert setup.enable()
-        sweep = setup.add_eddy_current_sweep(sweep_type="SinglePoints", start_frequency=0.01, clear=False)
         assert not sweep.is_solved
         assert isinstance(sweep.frequencies, list)

@@ -69,7 +69,7 @@ class CommonSetup(PropsManager, BinaryTreeNode):
             self.setuptype = self.p_app.design_solutions._solution_options[solution_type]["default_setup"]
         self._name = name
         self._legacy_props = {}
-        self._sweeps = []
+        self._sweeps = None
         self._is_new_setup = is_new_setup
         # self._init_props(is_new_setup)
         self.auto_update = True
@@ -103,9 +103,10 @@ class CommonSetup(PropsManager, BinaryTreeNode):
 
     @property
     def sweeps(self):
-        if self._sweeps:
+        if self._sweeps is not None:
             return self._sweeps
         try:
+            self._sweeps = []
             setups_data = self.p_app.design_properties["AnalysisSetup"]["SolveSetups"]
             if self.name in setups_data:
                 setup_data = setups_data[self.name]
@@ -3651,6 +3652,7 @@ class SetupMaxwell(Setup, object):
         if self.sweeps:
             if clear:
                 self.props["SweepRanges"] = {"Subrange": [SetupProps(self, sweep.props)]}
+                self.sweeps.clear()
             else:
                 if isinstance(self.props["SweepRanges"]["Subrange"], dict):
                     temp = self.props["SweepRanges"]["Subrange"]
@@ -3678,15 +3680,8 @@ class SetupMaxwell(Setup, object):
         if self.setuptype not in [7, 60]:
             self._app.logger.warning("This method only applies to Maxwell Eddy Current Solution.")
             return False
-        setup_sweeps = self.props["SweepRanges"]["Subrange"].copy()
-        if isinstance(self.props["SweepRanges"]["Subrange"], list):
-            count = 0
-            for idx, range in enumerate(setup_sweeps):
-                self.props["SweepRanges"]["Subrange"].remove(range)
-                self._sweeps.pop(idx - count)
-                count += 1
-        else:
-            pass
+        self.props.pop("SweepRanges")
+        self._sweeps.clear()
         self.update()
         return True
 
