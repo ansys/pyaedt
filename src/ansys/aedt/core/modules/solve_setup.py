@@ -1798,12 +1798,14 @@ class Setup3DLayout(CommonSetup):
 
     def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup=True):
         CommonSetup.__init__(self, app, solution_type, name, is_new_setup)
+        # self._sweep = None
 
     @property
     def sweeps(self):
-        if self._sweeps:
+        if self._sweeps is not None:
             return self._sweeps
         try:
+            self._sweeps = []
             setups_data = self._app.design_properties["Setup"]["Data"]
             if self.name in setups_data:
                 setup_data = setups_data[self.name]
