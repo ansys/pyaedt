@@ -125,11 +125,10 @@ class SweepHFSS(object):
                     self.props["RangeType"] = "LinearStep"
             for key, value in props.items():
                 if key in self.props.keys():
-                        self.props[key] = value
+                    self.props[key] = value
                 else:
                     error_message = f"Parameter '{key}' is invalid and will be ignored."
                     self._app.logger.warning(error_message)
-
 
         # for t in SweepHfss3D:
         #    _tuple2dict(t, self.props)
