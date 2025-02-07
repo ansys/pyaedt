@@ -37,6 +37,7 @@ from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.setup_templates import Sweep3DLayout
 from ansys.aedt.core.modules.setup_templates import SweepEddyCurrent
 from ansys.aedt.core.modules.setup_templates import SweepHfss3D
+from ansys.aedt.core.modules.setup_templates import SweepQ3D
 from ansys.aedt.core.modules.setup_templates import SweepSiwave
 
 open3 = open
@@ -109,25 +110,35 @@ class SweepHFSS(object):
     def __init__(self, setup, name, sweep_type="Interpolating", props=None):
         self._app = setup
         self.oanalysis = setup.omodule
-        self.props = {}
         self.setup_name = setup.name
         self.name = name
+        self.props = copy.deepcopy(SweepHfss3D)
         if props:
-            self.props = props
+            if "RangeStep" in props.keys():  # LinearCount is the default sweep type. Change it if RangeStep is passed.
+                if "RangeCount" in props.keys():
+                    self._app.p_app.logger.info(
+                        "Inconsistent arguments 'RangeCount' and 'RangeStep' passed to 'SweepHFSS',"
+                    )
+                    self._app.p_app.logger.info("Default remains 'LinearCount' sweep type.")
+                else:
+                    self.props["RangeType"] = "LinearStep"
+            for key, value in props.items():
+                if key in self.props.keys():
+                    self.props[key] = value
+                else:
+                    error_message = f"Parameter '{key}' is invalid and will be ignored."
+                    self._app.p_app.logger.warning(error_message)
+
+        if SequenceMatcher(None, sweep_type.lower(), "interpolating").ratio() > 0.8:
+            sweep_type = "Interpolating"
+        elif SequenceMatcher(None, sweep_type.lower(), "discrete").ratio() > 0.8:
+            sweep_type = "Discrete"
+        elif SequenceMatcher(None, sweep_type.lower(), "fast").ratio() > 0.8:
+            sweep_type = "Fast"
         else:
-            self.props = copy.deepcopy(SweepHfss3D)
-            # for t in SweepHfss3D:
-            #    _tuple2dict(t, self.props)
-            if SequenceMatcher(None, sweep_type.lower(), "interpolating").ratio() > 0.8:
-                sweep_type = "Interpolating"
-            elif SequenceMatcher(None, sweep_type.lower(), "discrete").ratio() > 0.8:
-                sweep_type = "Discrete"
-            elif SequenceMatcher(None, sweep_type.lower(), "fast").ratio() > 0.8:
-                sweep_type = "Fast"
-            else:
-                warnings.warn("Invalid sweep type. `Interpolating` will be set as the default.")
-                sweep_type = "Interpolating"
-            self.props["Type"] = sweep_type
+            warnings.warn("Invalid sweep type. `Interpolating` will be set as the default.")
+            sweep_type = "Interpolating"
+        self.props["Type"] = sweep_type
 
     @property
     def is_solved(self):
@@ -612,17 +623,19 @@ class SweepMatrix(object):
     """
 
     def __init__(self, setup, name, sweep_type="Interpolating", props=None):
-        self._app = setup
+        self._app = setup  # TODO: Remove sweep_type as an argument as it can be passed in props
         self.oanalysis = setup.omodule
         self.setup_name = setup.name
         self.name = name
-        self.props = {}
+        self.props = copy.deepcopy(SweepQ3D)
         if props:
-            self.props = props
+            for key, value in props.items():
+                if key in self.props:
+                    self.props[key] = value
         else:
             self.props["Type"] = sweep_type
             if sweep_type == "Discrete":
-                self.props["isenabled"] = True
+                self.props["IsEnabled"] = True
                 self.props["RangeType"] = "LinearCount"
                 self.props["RangeStart"] = "2.5GHz"
                 self.props["RangeStep"] = "1GHz"

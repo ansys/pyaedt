@@ -432,6 +432,8 @@ class CommonSetup(PropsManager, BinaryTreeNode):
             ]
         else:
             setup_sweep_name = [i for i in self._app.existing_analysis_sweeps if self.name == i.split(" : ")[0]]
+            if report_category == "Fields":
+                sweep = self._app.nominal_adaptive  # Use last adaptive if no sweep is named explicitly.
         if setup_sweep_name:
             return self._app.post.get_solution_data(
                 expressions=expressions,
@@ -442,7 +444,7 @@ class CommonSetup(PropsManager, BinaryTreeNode):
                 context=context,
                 polyline_points=polyline_points,
                 math_formula=math_formula,
-                setup_sweep_name=sweep,
+                setup_sweep_name=sweep,  # Should this be setup_sweep_name?
             )
         return None
 
@@ -2873,7 +2875,7 @@ class SetupHFSS(Setup, object):
         return sweepdata
 
     @pyaedt_function_handler(sweepname="name", sweeptype="sweep_type")
-    def add_sweep(self, name=None, sweep_type="Interpolating"):
+    def add_sweep(self, name=None, sweep_type="Interpolating", **props):
         """Add a sweep to the project.
 
         Parameters
@@ -2883,6 +2885,8 @@ class SetupHFSS(Setup, object):
             case a name is automatically assigned.
         sweep_type : str, optional
             Type of the sweep. The default is ``"Interpolating"``.
+        **props : Optional context-dependent keyword arguments can be passed
+            to the sweep setup
 
         Returns
         -------
@@ -2896,9 +2900,18 @@ class SetupHFSS(Setup, object):
         if not name:
             name = generate_unique_name("Sweep")
         if self.setuptype <= 4:
-            sweep_n = SweepHFSS(self, name=name, sweep_type=sweep_type)
+            sweep_n = SweepHFSS(self, name=name, sweep_type=sweep_type, props=props)
+        elif self.setuptype in [14, 30, 31]:
+            sweep_n = SweepMatrix(self, name=name, sweep_type=sweep_type)  # TODO: add , props=props)
+        else:
+            self._app.logger.warning("This method only applies to HFSS, Q2D, and Q3D.")
+            return False
         sweep_n.create()
         self.sweeps.append(sweep_n)
+        for setup in self.p_app.setups:
+            if self.name == setup.name:
+                setup.sweeps.append(sweep_n)
+                break
         return sweep_n
 
     @pyaedt_function_handler(sweepname="name")
@@ -4126,7 +4139,7 @@ class SetupQ3D(Setup, object):
         return sweepdata
 
     @pyaedt_function_handler(sweepname="name", sweeptype="sweep_type")
-    def add_sweep(self, name=None, sweep_type="Interpolating"):
+    def add_sweep(self, name=None, sweep_type="Interpolating", **props):
         """Add a sweep to the project.
 
         Parameters
@@ -4150,6 +4163,16 @@ class SetupQ3D(Setup, object):
             name = generate_unique_name("Sweep")
         if self.setuptype in [14, 30, 31]:
             sweep_n = SweepMatrix(self, name=name, sweep_type=sweep_type)
+        if self.setuptype == 7:
+            self._app.logger.warning("This method only applies to HFSS and Q3D. Use add_eddy_current_sweep method.")
+            return False
+        if self.setuptype <= 4:
+            sweep_n = SweepHFSS(self, name=name, sweep_type=sweep_type, props=props)
+        elif self.setuptype in [14, 30, 31]:
+            sweep_n = SweepMatrix(self, name=name, sweep_type=sweep_type, props=props)
+        else:
+            self._app.logger.warning("This method only applies to HFSS, Q2D, and Q3D.")
+            return False
         sweep_n.create()
         self.sweeps.append(sweep_n)
         for setup in self.p_app.setups:

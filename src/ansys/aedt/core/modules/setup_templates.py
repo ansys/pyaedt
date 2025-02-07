@@ -1614,6 +1614,19 @@ CPSM = dict(
 
 TR = {}
 
+# Default sweep settings for Q3D
+SweepQ3D = dict(
+    {
+        "IsEnabled": True,
+        "RangeType": "LinearStep",
+        "RangeStart": "1GHz",
+        "RangeEnd": "10GHz",
+        "Type": "Discrete",
+        "SaveFields": False,
+        "SaveRadFields": False,
+    }
+)
+
 SweepHfss3D = dict(
     {
         "Type": "Interpolating",
