@@ -116,11 +116,10 @@ class SweepHFSS(object):
         if props:
             if "RangeStep" in props.keys():  # LinearCount is the default sweep type. Change it if RangeStep is passed.
                 if "RangeCount" in props.keys():
-                    self._app.logger.message(
+                    self._app.p_app.logger.info(
                         "Inconsistent arguments 'RangeCount' and 'RangeStep' passed to 'SweepHFSS',"
                     )
-                    self._app.logger.message("Default remains 'LinearCount' sweep type.")
-                    self._app.logger.message("")  # Add a space to the log file.
+                    self._app.p_app.logger.info("Default remains 'LinearCount' sweep type.")
                 else:
                     self.props["RangeType"] = "LinearStep"
             for key, value in props.items():
@@ -129,9 +128,6 @@ class SweepHFSS(object):
                 else:
                     error_message = f"Parameter '{key}' is invalid and will be ignored."
                     self._app.p_app.logger.warning(error_message)
-
-        # for t in SweepHfss3D:
-        #    _tuple2dict(t, self.props)
 
         if SequenceMatcher(None, sweep_type.lower(), "interpolating").ratio() > 0.8:
             sweep_type = "Interpolating"
