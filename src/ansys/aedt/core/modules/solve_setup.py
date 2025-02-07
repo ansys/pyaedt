@@ -2900,7 +2900,6 @@ class SetupHFSS(Setup, object):
         if not name:
             name = generate_unique_name("Sweep")
         if self.setuptype <= 4:
-            sweep_n = SweepHFSS(self, name=name, sweep_type=sweep_type)
             sweep_n = SweepHFSS(self, name=name, sweep_type=sweep_type, props=props)
         elif self.setuptype in [14, 30, 31]:
             sweep_n = SweepMatrix(self, name=name, sweep_type=sweep_type)  # TODO: add , props=props)

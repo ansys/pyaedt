@@ -123,15 +123,17 @@ class SweepHFSS(object):
                     self._app.logger.message("")  # Add a space to the log file.
                 else:
                     self.props["RangeType"] = "LinearStep"
-                for key, value in props.items():
-                    try:
+            for key, value in props.items():
+                if key in self.props.keys():
                         self.props[key] = value
-                    except ValueError:
-                        error_message = f"Parameter '{key}' is invalid and will be ignored."
-                        self._app.logger.warning(error_message)
+                else:
+                    error_message = f"Parameter '{key}' is invalid and will be ignored."
+                    self._app.logger.warning(error_message)
+
 
         # for t in SweepHfss3D:
         #    _tuple2dict(t, self.props)
+
         if SequenceMatcher(None, sweep_type.lower(), "interpolating").ratio() > 0.8:
             sweep_type = "Interpolating"
         elif SequenceMatcher(None, sweep_type.lower(), "discrete").ratio() > 0.8:
