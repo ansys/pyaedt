@@ -951,15 +951,15 @@ class SweepMaxwellEC(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        setup_sweeps = self._setup.props["SweepRanges"]["Subrange"]
-        if isinstance(setup_sweeps, list):
+        setup_sweeps = self._setup.props["SweepRanges"]["Subrange"].copy()
+        if isinstance(self._setup.props["SweepRanges"]["Subrange"], list):
             for sweep in setup_sweeps:
                 if self.props == sweep:
                     self._setup.props["SweepRanges"]["Subrange"].remove(self.props)
+                    [self._setup._sweeps.remove(s) for s in self._setup._sweeps if s.props == sweep]
         else:
             pass
-
-        self.oanalysis.EditSetup(self.setup_name, self._get_args(self._setup.props))
+        self._setup.update()
         return True
 
     @pyaedt_function_handler()
