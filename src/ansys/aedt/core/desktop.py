@@ -407,7 +407,7 @@ class Desktop(object):
     version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case the
         active setup or latest installed version is used.
-        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
+        Examples of input values are ``251``, ``25.1``,``2025.1``,``"2025.1"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -438,19 +438,19 @@ class Desktop(object):
 
     Examples
     --------
-    Launch AEDT 2023 R1 in non-graphical mode and initialize HFSS.
+    Launch AEDT 2025 R1 in non-graphical mode and initialize HFSS.
 
     >>> import ansys.aedt.core
-    >>> desktop = ansys.aedt.core.Desktop(version="2023.2", non_graphical=False)
+    >>> desktop = ansys.aedt.core.Desktop(version="2025.1", non_graphical=False)
     PyAEDT INFO: pyaedt v...
     PyAEDT INFO: Python version ...
     >>> hfss = ansys.aedt.core.Hfss(design="HFSSDesign1")
     PyAEDT INFO: Project...
     PyAEDT INFO: Added design 'HFSSDesign1' of type HFSS.
 
-    Launch AEDT 2023 R2 in graphical mode and initialize HFSS.
+    Launch AEDT 2025 R1 in graphical mode and initialize HFSS.
 
-    >>> desktop = Desktop(232)
+    >>> desktop = Desktop(251)
     PyAEDT INFO: pyaedt v...
     PyAEDT INFO: Python version ...
     >>> hfss = ansys.aedt.core.Hfss(design="HFSSDesign1")
@@ -1978,7 +1978,7 @@ class Desktop(object):
         --------
         >>> from ansys.aedt.core import Desktop
 
-        >>> d = Desktop(version="2024.2", new_desktop=False)
+        >>> d = Desktop(version="2025.1", new_desktop=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
         >>> job_id, job_name = d.submit_ansys_cloud_job('via_gsg.aedt',
@@ -2067,7 +2067,7 @@ class Desktop(object):
         --------
         >>> from ansys.aedt.core import Desktop
 
-        >>> d = Desktop(version="2024.2", new_desktop=False)
+        >>> d = Desktop(version="2025.1", new_desktop=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
         >>> job_id, job_name = d.submit_ansys_cloud_job('via_gsg.aedt',
@@ -2134,7 +2134,7 @@ class Desktop(object):
         --------
         >>> from ansys.aedt.core import Desktop
 
-        >>> d = Desktop(version="2024.2", new_desktop=False)
+        >>> d = Desktop(version="2025.1", new_desktop=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
         >>> job_id, job_name = d.submit_ansys_cloud_job('via_gsg.aedt',
@@ -2176,7 +2176,7 @@ class Desktop(object):
         --------
         >>> from ansys.aedt.core import Desktop
 
-        >>> d = Desktop(version="2024.2", new_desktop=False)
+        >>> d = Desktop(version="2025.1", new_desktop=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
         >>> job_id, job_name = d.submit_ansys_cloud_job('via_gsg.aedt',
