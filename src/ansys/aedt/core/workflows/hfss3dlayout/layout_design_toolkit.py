@@ -185,7 +185,7 @@ class Frontend:
 
         self.change_theme_button = ttk.Button(lower_frame, text="\u263D", width=2, command=self.toggle_theme,
                                               style="PyAEDT.TButton")
-        self.change_theme_button.grid(row=6, column=2, pady=10)
+        self.change_theme_button.pack(side=tk.RIGHT, pady=10, padx=20)
 
         self.set_dark_theme()
         tk.mainloop()
