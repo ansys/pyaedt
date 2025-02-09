@@ -58,6 +58,60 @@ default_config_add_antipad = {
 
 
 class Frontend:
+    class ui_antipad:
+
+        def __init__(self, master_ui):
+            self.master_ui = master_ui
+
+            self.selection_var = tk.StringVar()
+            self.radius_var = tk.StringVar()
+            self.race_track_var = tk.BooleanVar()
+
+            self.selection_var.set("")
+            self.radius_var.set("0.5mm")
+            self.race_track_var.set(True)
+
+        def create_ui_diff_antipad(self, master):
+
+            # Selection entry
+            row = 0
+            selections_label = ttk.Label(master, text="Vias", width=20, style="PyAEDT.TLabel")
+            selections_label.grid(row=row, column=0, padx=15, pady=10)
+            selections_entry = tk.Entry(master, width=40, textvariable=self.selection_var)
+            selections_entry.grid(row=row, column=1, pady=15, padx=10)
+            selections_button = ttk.Button(master, text="Get Selections",
+                                           command=lambda: self.master_ui.get_selections(self.selection_var), width=20,
+                                           style="PyAEDT.TButton")
+            selections_button.grid(row=row, column=2, pady=15, padx=10)
+
+            # radius
+            radius_label = ttk.Label(master, text="Anti pad radius", width=20, style="PyAEDT.TLabel")
+            radius_label.grid(row=1, column=0, padx=15, pady=10)
+            radius_entry = tk.Entry(master, width=40, textvariable=self.radius_var)
+            radius_entry.grid(row=1, column=1, pady=15, padx=10)
+
+            cb = ttk.Checkbutton(master, text="RaceTrack", variable=self.race_track_var, style="PyAEDT.TCheckbutton")
+            cb.grid(row=1, column=2, pady=15, padx=10)
+
+            b = ttk.Button(master, text="Create", command=self.callback, style="PyAEDT.TButton")
+            b.grid(row=6, column=0, padx=15, pady=10)
+
+        def callback(self):
+            selected = self.selection_var.get().split(",")
+            if not len(selected) == 2:
+                self.selection_var.set("Please select two vias")
+                return
+
+            h3d = self.master_ui.get_h3d
+            backend = Backend(h3d)
+            backend.create_antipad(
+                selected,
+                self.radius_var.get(),
+                self.race_track_var.get(),
+            )
+            h3d.modeler.primitives.edb.close()
+            h3d.release_desktop(False, False)
+            pass
 
     @property
     def active_design(self):
@@ -83,7 +137,6 @@ class Frontend:
 
     def __init__(self):
         # Load initial configuration
-        self.config_add_antipad = default_config_add_antipad.copy()
 
         # Create UI
         self.master = tk.Tk()
@@ -111,9 +164,30 @@ class Frontend:
 
         # Set background color of the window (optional)
         master.configure(bg=self.theme.light["widget_bg"])
+        # Create buttons to create sphere and change theme color
 
-        self.create_ui_diff_antipad(master)
-        self.set_light_theme()
+        # Main panel
+        main_frame = ttk.PanedWindow(master, orient=tk.VERTICAL, style="TPanedwindow")
+        main_frame.pack(fill=tk.BOTH, expand=True)
+
+        # Upper panel
+        nb = ttk.Notebook(master, style="PyAEDT.TNotebook")
+
+        tab = ttk.Frame(nb, style="PyAEDT.TFrame")
+        nb.add(tab, text="Antipad")
+        main_frame.add(nb, weight=1)
+        self.ui_antipad = self.ui_antipad(self)
+        self.ui_antipad.create_ui_diff_antipad(tab)
+
+        # Lower panel
+        lower_frame = ttk.Frame(master, style="PyAEDT.TFrame")
+        main_frame.add(lower_frame, weight=3)
+
+        self.change_theme_button = ttk.Button(lower_frame, text="\u263D", width=2, command=self.toggle_theme,
+                                              style="PyAEDT.TButton")
+        self.change_theme_button.grid(row=6, column=2, pady=10)
+
+        self.set_dark_theme()
         tk.mainloop()
 
     def toggle_theme(self):
@@ -135,57 +209,12 @@ class Frontend:
         self.theme.apply_dark_theme(self.style)
         self.change_theme_button.config(text="\u2600")
 
-    def get_selections(self):
+    def get_selections(self, text_var):
         desktop, oproject, odesign = self.active_design
         selected = odesign.GetEditor("Layout").GetSelections()
-        if len(selected) == 2:
-            self.config_add_antipad["selections"] = selected
-            text = ", ".join(selected)
-        else:
-            self.config_add_antipad["selections"] = []
-            text = "Please select two vias"
-        self.selections_entry.replace("1.0", tk.END, text)
         desktop.release_desktop(False, False)
-
-    def create_ui_diff_antipad(self, master):
-        self.race_track_var = tk.BooleanVar()
-        self.race_track_var.set(self.config_add_antipad["race_track"])
-
-        # Selection entry
-        row = 0
-        selections_label = ttk.Label(master, text="Vias", width=20, style="PyAEDT.TLabel")
-        selections_label.grid(row=row, column=0, padx=15, pady=10)
-        self.selections_entry = tk.Text(master, width=40, height=1)
-        self.selections_entry.grid(row=row, column=1, pady=15, padx=10)
-        selections_button = ttk.Button(master, text="Get Selections", command=self.get_selections, width=20,
-                                       style="PyAEDT.TButton")
-        selections_button.grid(row=row, column=2, pady=15, padx=10)
-
-        # radius
-        radius_label = ttk.Label(master, text="Anti pad radius", width=20, style="PyAEDT.TLabel")
-        radius_label.grid(row=1, column=0, padx=15, pady=10)
-        self.radius_entry = tk.Text(master, width=40, height=1)
-        self.radius_entry.insert("1.0", default_config_add_antipad["radius"])
-        self.radius_entry.grid(row=1, column=1, pady=15, padx=10)
-
-        cb = ttk.Checkbutton(master, text="RaceTrack", variable=self.race_track_var, style="PyAEDT.TCheckbutton")
-        cb.grid(row=1, column=2, pady=15, padx=10)
-
-        # Create buttons to create sphere and change theme color
-        b = ttk.Button(master, text="Create", command=self.callback, style="PyAEDT.TButton")
-        b.grid(row=6, column=0, padx=15, pady=10)
-        self.change_theme_button = ttk.Button(master, text="\u263D", width=2, command=self.toggle_theme, style="PyAEDT.TButton")
-        self.change_theme_button.grid(row=6, column=2, pady=10)
-
-    def callback(self):
-        self.config_add_antipad["race_track"] = self.race_track_var.get()
-        h3d = self.get_h3d
-        backend = Backend(h3d)
-        backend.create_antipad(self.config_add_antipad)
-        h3d.modeler.primitives.edb.close()
-        h3d.release_desktop(False, False)
-        print(self.config_add_antipad)
-        pass
+        text_var.set(",".join(selected))
+        return selected
 
 
 class Backend:
@@ -255,14 +284,13 @@ class Backend:
                         break
         return prims
 
-    def create_antipad(self, config):
-        race_track = config["race_track"]
-        via_p = self.pedb.padstacks.instances_by_name[config["selections"][0]]
-        via_n = self.pedb.padstacks.instances_by_name[config["selections"][1]]
+    def create_antipad(self, selections, radius, race_track):
+        via_p = self.pedb.padstacks.instances_by_name[selections[0]]
+        via_n = self.pedb.padstacks.instances_by_name[selections[1]]
 
         variable_name = f"{via_p.net_name}_{via_p.name}_{via_n.name}_antipad_radius"
         if variable_name not in self.h3d.variable_manager.variable_names:
-            self.h3d[variable_name] = config["radius"]
+            self.h3d[variable_name] = radius
         planes = self.get_primitives(via_p, via_n)
 
         for _, obj_list in planes.items():
@@ -284,12 +312,6 @@ class Backend:
                                             variable_name
                                             )
         print("***** Done *****")
-
-
-def main(h3d, config):
-    app = Backend(h3d, config)
-    app.create_antipad()
-    h3d.release_desktop()
 
 
 if __name__ == "__main__":

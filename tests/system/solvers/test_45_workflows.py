@@ -639,12 +639,13 @@ class TestClass:
         aedtapp.close_project(aedtapp.project_name)
 
     def test_20_layout_design_toolkit(self, add_app, local_scratch):
-        from ansys.aedt.core.workflows.hfss3dlayout.layout_design_toolkit import main
+        from ansys.aedt.core.workflows.hfss3dlayout.layout_design_toolkit import Backend
 
-        app = add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder=test_subfolder)
-        app.save_project()
-        config = {
-            "selections": ["Via79", "Via78"],
-            "diameter": "1mm",
-        }
-        main(app, config)
+        h3d = add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder=test_subfolder)
+        h3d.save_project()
+        app = Backend(h3d)
+        app.create_antipad(
+            selections=["Via79", "Via78"],
+            radius="1mm",
+            race_track=True
+        )
