@@ -644,13 +644,5 @@ class TestClass:
         h3d = add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder=test_subfolder)
         h3d.save_project()
         app = Backend(h3d)
-        app.create_antipad(
-            selections=["Via79", "Via78"],
-            radius="1mm",
-            race_track=True
-        )
-        app.create_antipad(
-            selections=["Via1", "Via2"],
-            radius="1mm",
-            race_track=False
-        )
+        app.create_antipad(selections=["Via79", "Via78"], radius="1mm", race_track=True)
+        app.create_antipad(selections=["Via1", "Via2"], radius="1mm", race_track=False)

@@ -50,11 +50,7 @@ from ansys.aedt.core.workflows.misc import ExtensionTheme
 VERSION = "0.1.0"
 extension_description = f"Layout Design Toolkit ({VERSION})"
 
-default_config_add_antipad = {
-    "selections": [],
-    "radius": "0.5mm",
-    "race_track": True
-}
+default_config_add_antipad = {"selections": [], "radius": "0.5mm", "race_track": True}
 
 
 class Frontend:  # pragma: no cover
@@ -79,9 +75,13 @@ class Frontend:  # pragma: no cover
             selections_label.grid(row=row, column=0, padx=15, pady=10)
             selections_entry = tk.Entry(master, width=40, textvariable=self.selection_var)
             selections_entry.grid(row=row, column=1, pady=15, padx=10)
-            selections_button = ttk.Button(master, text="Get Selections",
-                                           command=lambda: self.master_ui.get_selections(self.selection_var), width=20,
-                                           style="PyAEDT.TButton")
+            selections_button = ttk.Button(
+                master,
+                text="Get Selections",
+                command=lambda: self.master_ui.get_selections(self.selection_var),
+                width=20,
+                style="PyAEDT.TButton",
+            )
             selections_button.grid(row=row, column=2, pady=15, padx=10)
 
             # radius
@@ -183,8 +183,9 @@ class Frontend:  # pragma: no cover
         lower_frame = ttk.Frame(master, style="PyAEDT.TFrame")
         main_frame.add(lower_frame, weight=3)
 
-        self.change_theme_button = ttk.Button(lower_frame, text="\u263D", width=2, command=self.toggle_theme,
-                                              style="PyAEDT.TButton")
+        self.change_theme_button = ttk.Button(
+            lower_frame, text="\u263D", width=2, command=self.toggle_theme, style="PyAEDT.TButton"
+        )
         self.change_theme_button.pack(side=tk.RIGHT, pady=10, padx=20)
 
         self.set_dark_theme()
@@ -233,37 +234,48 @@ class Backend:
             temp.append(i[1])
 
         line_void_geometry = [
-            "Name:=", void_name,
-            "LayerName:=", layer_name,
-            "lw:=", width,
-            "endstyle:=", 0,
-            "StartCap:=", 2,
-            "EndCap:=", 2,
-            "n:=", 2,
-            "U:=", "meter",
+            "Name:=",
+            void_name,
+            "LayerName:=",
+            layer_name,
+            "lw:=",
+            width,
+            "endstyle:=",
+            0,
+            "StartCap:=",
+            2,
+            "EndCap:=",
+            2,
+            "n:=",
+            2,
+            "U:=",
+            "meter",
         ]
         line_void_geometry.extend(temp)
         line_void_geometry.extend(["MR:=", "600mm"])
-        args = [
-            "NAME:Contents",
-            "owner:=", owner,
-            "line voidGeometry:=",
-            line_void_geometry
-        ]
+        args = ["NAME:Contents", "owner:=", owner, "line voidGeometry:=", line_void_geometry]
         self.h3d.oeditor.CreateLineVoid(args)
 
     def create_circle_void(self, owner, layer_name, center_point, radius):
         args = [
             "NAME:Contents",
-            "owner:=", owner,
+            "owner:=",
+            owner,
             "circle voidGeometry:=",
             [
-                "Name:=", generate_unique_name("circle_void_"),
-                "LayerName:=", layer_name,
-                "lw:=", "0",
-                "x:=", center_point[0],
-                "y:=", center_point[1],
-                "r:=", radius]
+                "Name:=",
+                generate_unique_name("circle_void_"),
+                "LayerName:=",
+                layer_name,
+                "lw:=",
+                "0",
+                "x:=",
+                center_point[0],
+                "y:=",
+                center_point[1],
+                "r:=",
+                radius,
+            ],
         ]
         self.h3d.oeditor.CreateCircleVoid(args)
 
@@ -296,21 +308,12 @@ class Backend:
         for _, obj_list in planes.items():
             for obj in obj_list:
                 if race_track:
-                    self.create_line_void(obj.aedt_name,
-                                          obj.layer_name,
-                                          [via_p.position, via_n.position],
-                                          f"{variable_name}*2")
+                    self.create_line_void(
+                        obj.aedt_name, obj.layer_name, [via_p.position, via_n.position], f"{variable_name}*2"
+                    )
                 else:
-                    self.create_circle_void(obj.aedt_name,
-                                            obj.layer_name,
-                                            via_p.position,
-                                            variable_name
-                                            )
-                    self.create_circle_void(obj.aedt_name,
-                                            obj.layer_name,
-                                            via_n.position,
-                                            variable_name
-                                            )
+                    self.create_circle_void(obj.aedt_name, obj.layer_name, via_p.position, variable_name)
+                    self.create_circle_void(obj.aedt_name, obj.layer_name, via_n.position, variable_name)
         print("***** Done *****")
 
 
