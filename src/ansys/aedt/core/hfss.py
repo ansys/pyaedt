@@ -814,8 +814,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         """Create an analysis setup for HFSS.
 
         Optional arguments are passed along with ``setup_type`` and ``name``. Keyword
-        names correspond to the ``setup_type`` corresponding to the native AEDT API.
-        The list of keywords here is not exhaustive.
+        names correspond to keyword for the ``setup_type`` as defined in
+        the native AEDT API.
 
         .. note::
            This method overrides the ``Analysis.setup()`` method for the HFSS app.
@@ -860,9 +860,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         setup.auto_update = False
         for arg_name, arg_value in kwargs.items():
             if setup[arg_name] is not None:
-                if arg_name == "MultipleAdaptiveFreqsSetup":
-                    setup[arg_name].delete_all()
-                    if isinstance(arg_value, list):
+                if arg_name == "MultipleAdaptiveFreqsSetup":  # A list of frequency values is passed if
+                    setup[arg_name].delete_all()  # the default convergence criteria are to be
+                    if isinstance(arg_value, list):  # used.
                         for i in arg_value:
                             setup[arg_name][i] = [0.02]
                     else:
