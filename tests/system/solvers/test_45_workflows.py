@@ -649,3 +649,8 @@ class TestClass:
             radius="1mm",
             race_track=True
         )
+        app.create_antipad(
+            selections=["Via1", "Via2"],
+            radius="1mm",
+            race_track=False
+        )

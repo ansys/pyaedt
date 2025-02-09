@@ -57,7 +57,7 @@ default_config_add_antipad = {
 }
 
 
-class Frontend:
+class Frontend:  # pragma: no cover
     class ui_antipad:
 
         def __init__(self, master_ui):
@@ -279,7 +279,7 @@ class Backend:
                             continue
                         if i.layer_name not in prims:
                             prims[i.layer_name] = [i]
-                        else:
+                        else:  # pragma: no cover
                             prims[i.layer_name].append(i)
                         break
         return prims
@@ -314,7 +314,7 @@ class Backend:
         print("***** Done *****")
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     args = get_arguments({}, extension_description)
     # Open UI
     if not args["is_batch"]:  # pragma: no cover
