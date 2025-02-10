@@ -33,9 +33,11 @@ import warnings
 
 import ansys.aedt.core
 from ansys.aedt.core.application.analysis_icepak import FieldAnalysisIcepak
+from ansys.aedt.core.generic.constants import SOLUTIONS
 from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.data_handlers import random_string
+from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.generic.errors import GrpcApiError
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import open_file
@@ -386,11 +388,10 @@ class Icepak(FieldAnalysisIcepak):
 
         """
         if not setup:
-            if self.setups:
-                setup = self.setups[0].name
-            else:
-                self.logger.error("No setup is defined.")
-                return False
+            if not self.setups:
+                raise AEDTRuntimeError("No setup is defined.")
+            setup = self.setups[0].name
+
         self.oanalysis.AddTwoWayCoupling(
             setup,
             [
@@ -1053,35 +1054,25 @@ class Icepak(FieldAnalysisIcepak):
             for el in component_header:
                 component_data[el] = [i[k] for i in data]
                 k += 1
+
         total_power = 0
-        i = 0
         all_objects = self.modeler.object_names
-        for power in component_data["Applied Power (W)"]:
+        for i, power in enumerate(component_data["Applied Power (W)"]):
             try:
-                float(power)
                 if "COMP_" + component_data["Ref Des"][i] in all_objects:
-                    status = self.create_source_block(
-                        "COMP_" + component_data["Ref Des"][i], str(power) + "W", assign_material=False
+                    object_name = "COMP_" + component_data["Ref Des"][i]
+                else:
+                    object_name = component_data["Ref Des"][i]
+                status = self.create_source_block(object_name, str(power) + "W", assign_material=False)
+
+                if not status:
+                    self.logger.warning(
+                        "Warning. Block %s skipped with %sW power.", component_data["Ref Des"][i], power
                     )
-                    if not status:
-                        self.logger.warning(
-                            "Warning. Block %s skipped with %sW power.", component_data["Ref Des"][i], power
-                        )
-                    else:
-                        total_power += float(power)
-                elif component_data["Ref Des"][i] in all_objects:
-                    status = self.create_source_block(
-                        component_data["Ref Des"][i], str(power) + "W", assign_material=False
-                    )
-                    if not status:
-                        self.logger.warning(
-                            "Warning. Block %s skipped with %sW power.", component_data["Ref Des"][i], power
-                        )
-                    else:
-                        total_power += float(power)
+                else:
+                    total_power += float(power)
             except Exception:
-                pass
-            i += 1
+                self.logger.debug(f"Failed to handle component data from Ref Des {i}")
         self.logger.info("Blocks inserted with total power %sW.", total_power)
         return total_power
 
@@ -2045,6 +2036,8 @@ class Icepak(FieldAnalysisIcepak):
         >>> oModule.EditFieldsSummarySetting
         >>> oModule.ExportFieldsSummary
         """
+        if type not in ("Object", "Boundary"):
+            raise ValueError(("Entity type " + type + " not supported."))
 
         if variation_list is None:
             variation_list = []
@@ -2057,9 +2050,7 @@ class Icepak(FieldAnalysisIcepak):
         elif type == "Boundary":
             all_elements = [b.name for b in self.boundaries]
             self.logger.info("Boundary lists " + str(all_elements))
-        else:
-            self.logger.error("Entity type " + type + " not supported.")
-            return False
+
         arg = []
         for el in all_elements:
             try:
@@ -2923,19 +2914,19 @@ class Icepak(FieldAnalysisIcepak):
         ansys_install_dir = os.environ.get(f"ANSYS{version}_DIR", "")
         if not ansys_install_dir:
             ansys_install_dir = os.environ.get(f"AWP_ROOT{version}", "")
-        assert (
-            ansys_install_dir
-        ), f"Fluent {version} has to be installed to generate mesh. Please set ANSYS{version}_DIR"
+
+        if not ansys_install_dir:
+            raise AEDTRuntimeError(
+                f"Fluent {version} has to be installed to generate mesh. Please set ANSYS{version}_DIR"
+            )
         if not os.getenv(f"ANSYS{version}_DIR"):
             os.environ[f"ANSYS{version}_DIR"] = ansys_install_dir
         if not object_lists:
             object_lists = self.get_liquid_objects()
-            assert object_lists, "No Fluids objects found."
+        if not object_lists:
+            raise AEDTRuntimeError("No Fluids objects found.")
         if not min_size or not max_size:
             dims = []
-            # try:
-            #     dim = self.modeler["Region"].shortest_edge()[0].length
-            # except (AttributeError, KeyError, IndexError):
             for obj in object_lists:
                 bb = self.modeler[obj].bounding_box
                 dd = [abs(bb[3] - bb[0]), abs(bb[4] - bb[1]), abs(bb[5] - bb[2])]
@@ -2960,7 +2951,10 @@ class Icepak(FieldAnalysisIcepak):
             os.remove(fl_uscript_file_pointer)
         if os.path.exists(mesh_file_pointer + ".trn"):
             os.remove(mesh_file_pointer + ".trn")
-        assert self.export_3d_model(file_name, self.working_directory, ".sab", object_lists), "Failed to export .sab"
+
+        export_success = self.export_3d_model(file_name, self.working_directory, ".sab", object_lists)
+        if not export_success:
+            raise AEDTRuntimeError("Failed to export SAB file")
 
         # Building Fluent journal script file *.jou
         fluent_script = open(fl_uscript_file_pointer, "w")
@@ -3046,9 +3040,8 @@ class Icepak(FieldAnalysisIcepak):
         if os.path.exists(mesh_file_pointer):
             self.logger.info("'" + mesh_file_pointer + "' has been created.")
             return self.mesh.assign_mesh_from_file(object_lists, mesh_file_pointer)
-        self.logger.error("Failed to create msh file")
 
-        return False
+        raise AEDTRuntimeError("Failed to create mesh file")
 
     @pyaedt_function_handler()
     def apply_icepak_settings(
@@ -3135,9 +3128,8 @@ class Icepak(FieldAnalysisIcepak):
                     ],
                 ]
             )
-        except Exception:
-            self.logger.warning("Warning. The material is not the database. Use add_surface_material.")
-            return False
+        except Exception as e:
+            raise AEDTRuntimeError(f"Failed to assign material {mat} to the provided object(s).") from e
         if mat.lower() not in self.materials.surface_material_keys:
             oo = self.get_oo_object(self.oproject, f"Surface Materials/{mat}")
             if oo:
@@ -3998,7 +3990,7 @@ class Icepak(FieldAnalysisIcepak):
 
         >>> from ansys.aedt.core import Icepak
         >>> app = Icepak()
-        >>> app.create_setup(setup_type="TransientTemperatureOnly",name="Setup1",MaxIterations=20)
+        >>> app.create_setup(setup_type="Transient",name="Setup1",MaxIterations=20)
 
         """
         if setup_type is None:
@@ -4019,12 +4011,11 @@ class Icepak(FieldAnalysisIcepak):
 
     @pyaedt_function_handler()
     def _parse_variation_data(self, quantity, variation_type, variation_value, function):
-        if variation_type == "Transient" and self.solution_type == "SteadyState":
-            self.logger.error("A transient boundary condition cannot be assigned for a non-transient simulation.")
-            return None
+        if variation_type == "Transient" and self.solution_type == SOLUTIONS.Icepak.SteadyState:
+            raise AEDTRuntimeError("A transient boundary condition cannot be assigned for a non-transient simulation.")
         if variation_type == "Temp Dep" and function != "Piecewise Linear":
-            self.logger.error("Temperature dependent assignment support only piecewise linear function.")
-            return None
+            raise AEDTRuntimeError("Temperature dependent assignment support only piecewise linear function.")
+
         out_dict = {"Variation Type": variation_type, "Variation Function": function}
         if function == "Piecewise Linear":
             if not isinstance(variation_value, list):
@@ -4137,8 +4128,7 @@ class Icepak(FieldAnalysisIcepak):
             if voltage_current_choice == quantity:
                 if isinstance(voltage_current_value, (dict, BoundaryDictionary)):
                     if voltage_current_value["Type"] == "Temp Dep":
-                        self.logger.error("Voltage or Current assignment does not support temperature dependence.")
-                        return None
+                        raise AEDTRuntimeError("Voltage and Current assignment do not support temperature dependence.")
                     voltage_current_value = self._parse_variation_data(
                         quantity,
                         voltage_current_value["Type"],
@@ -4562,8 +4552,7 @@ class Icepak(FieldAnalysisIcepak):
         inflow=True,
         direction_vector=None,
     ):
-        """
-        Assign free opening boundary condition.
+        """Assign free opening boundary condition.
 
         Parameters
         ----------
@@ -4688,9 +4677,9 @@ class Icepak(FieldAnalysisIcepak):
             ]
         for quantity, assignment in possible_transient_properties:
             if isinstance(assignment, (dict, BoundaryDictionary)):
-                if not self.solution_type == "Transient":
-                    self.logger.error("Transient assignment is supported only in transient designs.")
-                    return None
+                if self.solution_type != SOLUTIONS.Icepak.Transient:
+                    raise AEDTRuntimeError("Transient assignment is supported only in transient designs.")
+
                 assignment = self._parse_variation_data(
                     quantity,
                     "Transient",
@@ -5203,9 +5192,9 @@ class Icepak(FieldAnalysisIcepak):
                 }
 
         if isinstance(total_power, (dict, BoundaryDictionary)):
-            if not self.solution_type == "Transient":
-                self.logger.error("Transient assignment is supported only in transient designs.")
-                return None
+            if self.solution_type != SOLUTIONS.Icepak.Transient:
+                raise AEDTRuntimeError("Transient assignment is supported only in transient designs.")
+
             assignment = self._parse_variation_data(
                 "Thermal Power",
                 "Transient",
@@ -5546,9 +5535,9 @@ class Icepak(FieldAnalysisIcepak):
         >>>                                          flow_assignment="10kg_per_s_m2")
 
         """
-        if not len(face_list) == 2:
-            self.logger.error("Recirculation boundary condition must be assigned to two faces.")
-            return False
+        if len(face_list) != 2:
+            raise ValueError("Recirculation boundary condition must be assigned to two faces.")
+
         if conductance_external_temperature is not None and thermal_specification != "Conductance":
             self.logger.warning(
                 "``conductance_external_temperature`` does not have any effect unless the ``thermal_specification`` "
@@ -5559,9 +5548,9 @@ class Icepak(FieldAnalysisIcepak):
                 "``conductance_external_temperature`` must be specified when ``thermal_specification`` "
                 'is ``"Conductance"``. Setting ``conductance_external_temperature`` to ``"AmbientTemp"``.'
             )
-        if (start_time is not None or end_time is not None) and not self.solution_type == "Transient":
+        if (start_time is not None or end_time is not None) and self.solution_type != SOLUTIONS.Icepak.Transient:
             self.logger.warning("``start_time`` and ``end_time`` only effect steady-state simulations.")
-        elif self.solution_type == "Transient" and not (start_time is not None and end_time is not None):
+        elif self.solution_type == SOLUTIONS.Icepak.Transient and not (start_time is not None and end_time is not None):
             self.logger.warning(
                 '``start_time`` and ``end_time`` should be declared for transient simulations. Setting them to "0s".'
             )
@@ -5579,9 +5568,8 @@ class Icepak(FieldAnalysisIcepak):
         props["ExtractFace"] = extract_face
         props["Thermal Condition"] = thermal_specification
         if isinstance(assignment_value, (dict, BoundaryDictionary)):
-            if not self.solution_type == "Transient":
-                self.logger.error("Transient assignment is supported only in transient designs.")
-                return None
+            if self.solution_type != SOLUTIONS.Icepak.Transient:
+                raise AEDTRuntimeError("Transient assignment is supported only in transient designs.")
             assignment = self._parse_variation_data(
                 assignment_dict[thermal_specification],
                 "Transient",
@@ -5594,9 +5582,9 @@ class Icepak(FieldAnalysisIcepak):
         if thermal_specification == "Conductance":
             props["External Temp"] = conductance_external_temperature
         if isinstance(flow_assignment, (dict, BoundaryDictionary)):
-            if not self.solution_type == "Transient":
-                self.logger.error("Transient assignment is supported only in transient designs.")
-                return None
+            if self.solution_type != SOLUTIONS.Icepak.Transient:
+                raise AEDTRuntimeError("Transient assignment is supported only in transient designs.")
+
             assignment = self._parse_variation_data(
                 flow_specification + " Rate",
                 "Transient",
@@ -5611,14 +5599,12 @@ class Icepak(FieldAnalysisIcepak):
         else:
             props["Supply Flow Direction"] = "Specified"
             if not (isinstance(flow_direction, list)):
-                self.logger.error("``flow_direction`` can be only ``None`` or a list of strings or floats.")
-                return False
+                raise TypeError("``flow_direction`` can only be ``None`` or a list of strings or floats.")
             elif len(flow_direction) != 3:
-                self.logger.error("``flow_direction`` must have only three components.")
-                return False
+                raise ValueError("``flow_direction`` must have only three components.")
             for direction, val in zip(["X", "Y", "Z"], flow_direction):
                 props[direction] = str(val)
-        if self.solution_type == "Transient":
+        if self.solution_type == SOLUTIONS.Icepak.Transient:
             props["Start"] = start_time
             props["End"] = end_time
         if not boundary_name:
@@ -5815,8 +5801,8 @@ class Icepak(FieldAnalysisIcepak):
         props["Blower Power"] = blower_power
         props["DimUnits"] = [fan_curve_flow_unit, fan_curve_pressure_unit]
         if len(fan_curve_flow) != len(fan_curve_pressure):
-            self.logger.error("``fan_curve_flow`` and ``fan_curve_pressure`` must have the same length.")
-            return False
+            raise ValueError("``fan_curve_flow`` and ``fan_curve_pressure`` must have the same length.")
+
         props["X"] = [str(pt) for pt in fan_curve_flow]
         props["Y"] = [str(pt) for pt in fan_curve_pressure]
         if not boundary_name:
@@ -6195,13 +6181,11 @@ class Icepak(FieldAnalysisIcepak):
         ds = None
         try:
             if ds_name.startswith("$"):
-                self.logger.error("Only design datasets are supported.")
-                return False
+                raise ValueError("Only design datasets are supported.")
             else:
                 ds = self.design_datasets[ds_name]
         except KeyError:
-            self.logger.error(f"Dataset {ds_name} not found.")
-            return False
+            raise AEDTRuntimeError(f"Dataset {ds_name} not found.")
         if not isinstance(scale, str):
             scale = str(scale)
         return PieceWiseLinearDictionary(type_assignment, ds, scale)
@@ -6383,8 +6367,7 @@ class Icepak(FieldAnalysisIcepak):
 
     @pyaedt_function_handler()
     def clear_linked_data(self):
-        """
-        Clear the linked data of all the solution setups.
+        """Clear the linked data of all the solution setups.
 
         Returns
         -------
@@ -6397,7 +6380,6 @@ class Icepak(FieldAnalysisIcepak):
         """
         try:
             self.odesign.ClearLinkedData()
-        except:
-            return False
-        else:
-            return True
+        except Exception as e:
+            raise AEDTRuntimeError("Failed to clear linked data of all solution setups") from e
+        return True
