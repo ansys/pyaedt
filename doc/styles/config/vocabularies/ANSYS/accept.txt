@@ -33,6 +33,7 @@ FEBI
 FE-BI
 file_path
 getters
+Github
 globals
 [Gg]RPC
 HDM
