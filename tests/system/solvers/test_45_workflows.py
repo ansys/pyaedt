@@ -638,9 +638,8 @@ class TestClass:
         assert len(aedtapp.post.all_report_names) == 2
         aedtapp.close_project(aedtapp.project_name)
 
-    def test_20_layout_design_toolkit(self, add_app, local_scratch):
+    def test_20_layout_design_toolkit_antipad_1(self, add_app, local_scratch):
         from ansys.aedt.core.workflows.hfss3dlayout.layout_design_toolkit import BackendAntipad
-        from ansys.aedt.core.workflows.hfss3dlayout.layout_design_toolkit import BackendMircoVia
 
         h3d = add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder=test_subfolder)
         h3d.save_project()
@@ -650,11 +649,27 @@ class TestClass:
             radius="1mm",
             race_track=True
         )
+        h3d.close_project()
+
+    def test_20_layout_design_toolkit_antipad_2(self, add_app, local_scratch):
+        from ansys.aedt.core.workflows.hfss3dlayout.layout_design_toolkit import BackendAntipad
+
+        h3d = add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder=test_subfolder)
+        h3d.save_project()
+
+        app_antipad = BackendAntipad(h3d)
         app_antipad.create(
             selections=["Via1", "Via2"],
             radius="1mm",
             race_track=False
         )
+        h3d.close_project()
+
+    def test_20_layout_design_toolkit_micro_via(self, add_app, local_scratch):
+        from ansys.aedt.core.workflows.hfss3dlayout.layout_design_toolkit import BackendMircoVia
+
+        h3d = add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder=test_subfolder)
+        h3d.save_project()
 
         app_microvia = BackendMircoVia(h3d)
         new_edb_path = app_microvia.create(
