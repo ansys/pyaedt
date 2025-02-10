@@ -77,9 +77,9 @@ class DllInterface:
             # TODO: Need some way to confirm that the GUI has completed initialization.
             # Otherwise some subsequent API calls will fail. For now, sleep a few seconds.
             time.sleep(5)
-        else:
-            status = self._dll.startApplication(False)
-            self.raise_error(status)
+        # else:
+        #     status = self._dll.startApplication(False)
+        #     self.raise_error(status)
 
         print("DLL Loaded:", self.api_version())
         print("API Ready")
