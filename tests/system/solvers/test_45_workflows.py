@@ -672,7 +672,7 @@ class TestClass:
         h3d.save_project()
 
         app_microvia = BackendMircoVia(h3d)
-        new_edb_path = app_microvia.create(
+        app_microvia.create(
             selection=["v40h20-1"],
             signal_only=True,
             angle=15

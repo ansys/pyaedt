@@ -39,7 +39,6 @@ aedt_process_id = get_process_id()
 is_student = is_student()
 
 import tkinter as tk
-from tkinter import filedialog
 import tkinter.ttk as ttk
 
 import PIL.Image
@@ -275,7 +274,7 @@ class Frontend:  # pragma: no cover
         self.change_theme_button.config(text="\u2600")
 
     def get_selections(self, text_var):
-        desktop, oproject, odesign = self.active_design
+        desktop, _, odesign = self.active_design
         selected = odesign.GetEditor("Layout").GetSelections()
         desktop.release_desktop(False, False)
         text_var.set(",".join(selected))
