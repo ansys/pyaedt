@@ -45,15 +45,15 @@ class LumpedTopology:
 
     def _define_topology_dll_functions(self):
         """Define C++ API DLL functions."""
-        self._dll.setLumpedSourceResistance.argtype = c_char_p
-        self._dll.setLumpedSourceResistance.restype = c_int
-        self._dll.getLumpedSourceResistance.argtypes = [c_char_p, c_int]
-        self._dll.getLumpedSourceResistance.restype = c_int
+        self._dll.setLumpedGeneratorResistor.argtype = c_char_p
+        self._dll.setLumpedGeneratorResistor.restype = c_int
+        self._dll.getLumpedGeneratorResistor.argtypes = [c_char_p, c_int]
+        self._dll.getLumpedGeneratorResistor.restype = c_int
 
-        self._dll.setLumpedLoadResistance.argtype = c_char_p
-        self._dll.setLumpedLoadResistance.restype = c_int
-        self._dll.getLumpedLoadResistance.argtypes = [c_char_p, c_int]
-        self._dll.getLumpedLoadResistance.restype = c_int
+        self._dll.setLumpedLoadResistor.argtype = c_char_p
+        self._dll.setLumpedLoadResistor.restype = c_int
+        self._dll.getLumpedLoadResistor.argtypes = [c_char_p, c_int]
+        self._dll.getLumpedLoadResistor.restype = c_int
 
         self._dll.setLumpedCurrentSource.argtype = c_bool
         self._dll.setLumpedCurrentSource.restype = c_int
@@ -168,12 +168,12 @@ class LumpedTopology:
         -------
         str
         """
-        source_resistance_string = self._dll_interface.get_string(self._dll.getLumpedSourceResistance)
+        source_resistance_string = self._dll_interface.get_string(self._dll.getLumpedGeneratorResistor)
         return source_resistance_string
 
     @source_resistance.setter
     def source_resistance(self, source_resistance_string):
-        self._dll_interface.set_string(self._dll.setLumpedSourceResistance, source_resistance_string)
+        self._dll_interface.set_string(self._dll.setLumpedGeneratorResistor, source_resistance_string)
 
     @property
     def load_resistance(self) -> str:
@@ -183,12 +183,12 @@ class LumpedTopology:
         -------
         str
         """
-        load_resistance_string = self._dll_interface.get_string(self._dll.getLumpedLoadResistance)
+        load_resistance_string = self._dll_interface.get_string(self._dll.getLumpedLoadResistor)
         return load_resistance_string
 
     @load_resistance.setter
     def load_resistance(self, load_resistance_string):
-        self._dll_interface.set_string(self._dll.setLumpedLoadResistance, load_resistance_string)
+        self._dll_interface.set_string(self._dll.setLumpedLoadResistor, load_resistance_string)
 
     @property
     def current_source(self) -> bool:
