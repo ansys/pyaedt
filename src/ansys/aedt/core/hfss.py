@@ -31,6 +31,7 @@ import math
 import os
 from pathlib import Path
 import tempfile
+from typing import TYPE_CHECKING
 import warnings
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
@@ -47,18 +48,21 @@ from ansys.aedt.core.generic.general_methods import parse_excitation_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import read_configuration_file
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modeler import cad
 from ansys.aedt.core.modeler.cad.component_array import ComponentArray
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
-from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
 from ansys.aedt.core.modules.boundary.hfss_boundary import NearFieldSetup
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 
+if TYPE_CHECKING:  # pragma: no cover
+    from ansys.aedt.core.modules.boundary.common import BoundaryObject
 
-class Hfss(FieldAnalysis3D, ScatteringMethods):
+
+class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
     """Provides the HFSS application interface.
 
     This class allows you to create an interactive instance of HFSS and
@@ -185,14 +189,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
     """
 
-    # def __repr__(self):
-    #     try:
-    #         return "HFSS {} {}. ProjectName:{} DesignName:{} ".format(
-    #             self._aedt_version, self.solution_type, self.project_name, self.design_name
-    #         )
-    #     except Exception:
-    #         return "HFSS Module"
-
     @pyaedt_function_handler(
         designname="design",
         projectname="project",
@@ -274,7 +270,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         """
         return self.odesign.GetChildObject("Radiation").GetChildNames()
 
-    class BoundaryType(object):
+    class BoundaryType(CreateBoundaryMixin):
         """Creates and manages boundaries."""
 
         (
@@ -379,34 +375,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         elif source_name in self.excitations or source_name + ":1" in self.excitations:
             source_name = generate_unique_name(source_name)
         return source_name
-
-    @pyaedt_function_handler()
-    def _create_boundary(self, name, props, boundary_type):
-        """Create a boundary.
-
-        Parameters
-        ----------
-        name : str
-            Name of the boundary.
-        props : list or dict
-            List of properties for the boundary.
-        boundary_type :
-            Type of the boundary.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
-            Boundary object.
-
-        """
-
-        bound = BoundaryObject(self, name, props, boundary_type)
-        result = bound.create()
-        if result:
-            self._boundaries[bound.name] = bound
-            self.logger.info(f"Boundary {boundary_type} {name} has been correctly created.")
-            return bound
-        raise AEDTRuntimeError(f"Failed to create boundary {boundary_type} {name}")
 
     @pyaedt_function_handler(objectname="assignment", portname="port_name")
     def _create_lumped_driven(self, assignment, int_line_start, int_line_stop, impedance, port_name, renorm, deemb):
@@ -524,8 +492,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                         self.odesign.ChangeProperty(properties)
                     except Exception:  # pragma: no cover
                         self.logger.warning(f"Failed to rename terminal {terminal}.")
-                bound = BoundaryObject(self, terminal_name, props_terminal, "Terminal")
-                self._boundaries[terminal_name] = bound
+                self._create_boundary(terminal_name, props_terminal, "Terminal")
 
             if iswaveport:
                 boundary.type = "Wave Port"
@@ -6841,7 +6808,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         is_electric=True,
         radius="10mm",
         name=None,
-    ) -> BoundaryObject:
+    ) -> "BoundaryObject":
         """Create a hertzian dipole wave excitation.
 
         The excitation is assigned in the assigned sphere. Inside this sphere, the field magnitude
