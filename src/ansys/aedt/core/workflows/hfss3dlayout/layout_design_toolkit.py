@@ -54,7 +54,7 @@ default_config_add_antipad = {"selections": [], "radius": "0.5mm", "race_track":
 
 
 class Frontend:  # pragma: no cover
-    class ui_antipad:
+    class UIAntipad:
 
         def __init__(self, master_ui):
             self.master_ui = master_ui
@@ -67,21 +67,16 @@ class Frontend:  # pragma: no cover
             self.radius_var.set("0.5mm")
             self.race_track_var.set(True)
 
-        def create_ui_diff_antipad(self, master):
-
+        def create_ui(self, master):
             # Selection entry
             row = 0
             selections_label = ttk.Label(master, text="Vias", width=20, style="PyAEDT.TLabel")
             selections_label.grid(row=row, column=0, padx=15, pady=10)
             selections_entry = tk.Entry(master, width=40, textvariable=self.selection_var)
             selections_entry.grid(row=row, column=1, pady=15, padx=10)
-            selections_button = ttk.Button(
-                master,
-                text="Get Selections",
-                command=lambda: self.master_ui.get_selections(self.selection_var),
-                width=20,
-                style="PyAEDT.TButton",
-            )
+            selections_button = ttk.Button(master, text="Get Selections",
+                                           command=lambda: self.master_ui.get_selections(self.selection_var), width=20,
+                                           style="PyAEDT.TButton")
             selections_button.grid(row=row, column=2, pady=15, padx=10)
 
             # radius
@@ -103,15 +98,78 @@ class Frontend:  # pragma: no cover
                 return
 
             h3d = self.master_ui.get_h3d
-            backend = Backend(h3d)
-            backend.create_antipad(
+            backend = BackendAntipad(h3d)
+            backend.create(
                 selected,
                 self.radius_var.get(),
                 self.race_track_var.get(),
             )
-            h3d.modeler.primitives.edb.close()
             h3d.release_desktop(False, False)
-            pass
+
+    class UIMicroVia:
+        def __init__(self, master_ui):
+            self.master_ui = master_ui
+
+            self.selection_var = tk.StringVar()
+            self.only_signal_var = tk.BooleanVar()
+            self.angle = tk.DoubleVar()
+
+            self.only_signal_var.set(True)
+            self.angle.set(15)
+
+        def create_ui(self, master):
+            grid_params = {"padx": 15, "pady": 15}
+
+            row = 0
+            label = ttk.Label(master, text="Padstack Def", width=20, style="PyAEDT.TLabel")
+            label.grid(row=row, column=0, **grid_params)
+            entry = tk.Entry(master, width=20, textvariable=self.selection_var)
+            entry.grid(row=row, column=1, **grid_params)
+            button = ttk.Button(master, text="Get Selection",
+                                command=self.get_padstack_def, width=20,
+                                style="PyAEDT.TButton")
+            button.grid(row=row, column=2, pady=15, padx=10)
+
+            row = row + 1
+            label = ttk.Label(master, text="Etching Angle (deg)", width=20, style="PyAEDT.TLabel")
+            label.grid(row=row, column=0, **grid_params)
+            entry = tk.Entry(master, width=20, textvariable=self.angle)
+            entry.grid(row=row, column=1, **grid_params)
+
+            row = row + 1
+            checkbox = ttk.Checkbutton(master, text="Signal Only", variable=self.only_signal_var, width=20,
+                                       style="PyAEDT.TCheckbutton")
+            checkbox.grid(row=row, column=0, **grid_params)
+
+            row = row + 1
+            button = ttk.Button(master, text="Create New Project", command=self.callback, style="PyAEDT.TButton")
+            button.grid(row=row, column=0, **grid_params)
+
+        def get_padstack_def(self):
+            self.master_ui.get_selections(self.selection_var)
+            pedb = self.master_ui.get_h3d.modeler.primitives.edb
+            temp = []
+            selected = self.selection_var.get().split(",")
+            for i in selected:
+                inst = pedb.padstacks.instances_by_name[i]
+                pdef_name = inst.definition.name
+                if pdef_name not in temp:
+                    temp.append(pdef_name)
+            pedb.close()
+            self.selection_var.set(",".join(temp))
+
+        def callback(self):
+            selected = self.selection_var.get().split(",")
+
+            h3d = self.master_ui.get_h3d
+            backend = BackendMircoVia(h3d)
+            new_edb_path = backend.create(
+                selected,
+                self.only_signal_var.get(),
+                self.angle.get(),
+            )
+            h3d = ansys.aedt.core.Hfss3dLayout(project=new_edb_path)
+            h3d.release_desktop(False, False)
 
     @property
     def active_design(self):
@@ -175,9 +233,15 @@ class Frontend:  # pragma: no cover
 
         tab = ttk.Frame(nb, style="PyAEDT.TFrame")
         nb.add(tab, text="Antipad")
+        sub_ui = self.UIAntipad(self)
+        sub_ui.create_ui(tab)
+
+        tab = ttk.Frame(nb, style="PyAEDT.TFrame")
+        nb.add(tab, text="Micro Via")
+        sub_ui = self.UIMicroVia(self)
+        sub_ui.create_ui(tab)
+
         main_frame.add(nb, weight=1)
-        self.ui_antipad = self.ui_antipad(self)
-        self.ui_antipad.create_ui_diff_antipad(tab)
 
         # Lower panel
         lower_frame = ttk.Frame(master, style="PyAEDT.TFrame")
@@ -218,7 +282,7 @@ class Frontend:  # pragma: no cover
         return selected
 
 
-class Backend:
+class BackendBase:
     def __init__(self, h3d):
 
         self.h3d = h3d
@@ -279,6 +343,11 @@ class Backend:
         ]
         self.h3d.oeditor.CreateCircleVoid(args)
 
+
+class BackendAntipad(BackendBase):
+    def __init__(self, h3d):
+        BackendBase.__init__(self, h3d)
+
     def get_primitives(self, via_p, via_n):
         via_range = via_p.layer_range_names
 
@@ -296,7 +365,7 @@ class Backend:
                         break
         return prims
 
-    def create_antipad(self, selections, radius, race_track):
+    def create(self, selections, radius, race_track):
         via_p = self.pedb.padstacks.instances_by_name[selections[0]]
         via_n = self.pedb.padstacks.instances_by_name[selections[1]]
 
@@ -312,9 +381,36 @@ class Backend:
                         obj.aedt_name, obj.layer_name, [via_p.position, via_n.position], f"{variable_name}*2"
                     )
                 else:
-                    self.create_circle_void(obj.aedt_name, obj.layer_name, via_p.position, variable_name)
-                    self.create_circle_void(obj.aedt_name, obj.layer_name, via_n.position, variable_name)
+                    self.create_circle_void(obj.aedt_name,
+                                            obj.layer_name,
+                                            via_p.position,
+                                            variable_name
+                                            )
+                    self.create_circle_void(obj.aedt_name,
+                                            obj.layer_name,
+                                            via_n.position,
+                                            variable_name
+                                            )
+        self.pedb.close()
         print("***** Done *****")
+
+
+class BackendMircoVia(BackendBase):
+    def __init__(self, h3d):
+        BackendBase.__init__(self, h3d)
+
+    def create(self, selection, signal_only, angle):
+        for i in selection:
+            self.pedb.padstacks[i].convert_to_3d_microvias(convert_only_signal_vias=signal_only,
+                                                    hole_wall_angle=angle,
+                                                    delete_padstack_def=True)
+
+        edb_path = Path(self.pedb.edbpath)
+
+        new_path = str(edb_path.with_stem(generate_unique_name(edb_path.stem)))
+        self.pedb.save_as(new_path)
+        self.pedb.close()
+        return new_path
 
 
 if __name__ == "__main__":  # pragma: no cover
