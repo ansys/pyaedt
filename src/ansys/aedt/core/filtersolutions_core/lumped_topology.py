@@ -41,7 +41,7 @@ class LumpedTopology:
         self._dll = ansys.aedt.core.filtersolutions_core._dll_interface()._dll
         self._dll_interface = ansys.aedt.core.filtersolutions_core._dll_interface()
         self._define_topology_dll_functions()
-        self._set_lump_implementation()
+        # self._set_lump_implementation()
 
     def _define_topology_dll_functions(self):
         """Define C++ API DLL functions."""
@@ -150,15 +150,15 @@ class LumpedTopology:
         self._dll.getLumpedComplexElementTuneEnabled.argtype = POINTER(c_bool)
         self._dll.getLumpedComplexElementTuneEnabled.restype = c_int
 
-        self._dll.getLumpedNetlistSize.argtype = POINTER(c_int)
-        self._dll.getLumpedNetlistSize.restype = c_int
-        self._dll.getLumpedNetlist.argtypes = [c_char_p, c_int]
-        self._dll.getLumpedNetlist.restype = c_int
+        self._dll.getLumpedCircuitResponseSize.argtype = POINTER(c_int)
+        self._dll.getLumpedCircuitResponseSize.restype = c_int
+        self._dll.getLumpedCircuitResponse.argtypes = [c_char_p, c_int]
+        self._dll.getLumpedCircuitResponse.restype = c_int
 
-    def _set_lump_implementation(self):
-        """Set ``FilterSolutions`` attributes to lump design."""
-        filter_implementation_status = self._dll.setFilterImplementation(0)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(filter_implementation_status)
+    # def _set_lump_implementation(self):
+    #     """Set ``FilterSolutions`` attributes to lump design."""
+    #     filter_implementation_status = self._dll.setFilterImplementation(0)
+    #     ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(filter_implementation_status)
 
     @property
     def source_resistance(self) -> str:
@@ -538,7 +538,7 @@ class LumpedTopology:
     def netlist(self):
         """Execute real filter synthesis"""
         size = c_int()
-        status = self._dll.getLumpedNetlistSize(byref(size))
+        status = self._dll.getLumpedCircuitResponseSize(byref(size))
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
-        netlist_string = self._dll_interface.get_string(self._dll.getLumpedNetlist, max_size=size.value)
+        netlist_string = self._dll_interface.get_string(self._dll.getLumpedCircuitResponse, max_size=size.value)
         return netlist_string
