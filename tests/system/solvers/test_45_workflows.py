@@ -644,11 +644,7 @@ class TestClass:
         h3d = add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder=test_subfolder)
         h3d.save_project()
         app_antipad = BackendAntipad(h3d)
-        app_antipad.create(
-            selections=["Via79", "Via78"],
-            radius="1mm",
-            race_track=True
-        )
+        app_antipad.create(selections=["Via79", "Via78"], radius="1mm", race_track=True)
         h3d.close_project()
 
     def test_20_layout_design_toolkit_antipad_2(self, add_app, local_scratch):
@@ -658,11 +654,7 @@ class TestClass:
         h3d.save_project()
 
         app_antipad = BackendAntipad(h3d)
-        app_antipad.create(
-            selections=["Via1", "Via2"],
-            radius="1mm",
-            race_track=False
-        )
+        app_antipad.create(selections=["Via1", "Via2"], radius="1mm", race_track=False)
         h3d.close_project()
 
     def test_20_layout_design_toolkit_micro_via(self, add_app, local_scratch):
@@ -672,9 +664,5 @@ class TestClass:
         h3d.save_project()
 
         app_microvia = BackendMircoVia(h3d)
-        app_microvia.create(
-            selection=["v40h20-1"],
-            signal_only=True,
-            angle=15
-        )
+        app_microvia.create(selection=["v40h20-1"], signal_only=True, angle=15)
         h3d.close_project()
