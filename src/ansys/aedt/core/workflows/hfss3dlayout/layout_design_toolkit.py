@@ -74,9 +74,13 @@ class Frontend:  # pragma: no cover
             selections_label.grid(row=row, column=0, padx=15, pady=10)
             selections_entry = tk.Entry(master, width=40, textvariable=self.selection_var)
             selections_entry.grid(row=row, column=1, pady=15, padx=10)
-            selections_button = ttk.Button(master, text="Get Selections",
-                                           command=lambda: self.master_ui.get_selections(self.selection_var), width=20,
-                                           style="PyAEDT.TButton")
+            selections_button = ttk.Button(
+                master,
+                text="Get Selections",
+                command=lambda: self.master_ui.get_selections(self.selection_var),
+                width=20,
+                style="PyAEDT.TButton",
+            )
             selections_button.grid(row=row, column=2, pady=15, padx=10)
 
             # radius
@@ -125,9 +129,9 @@ class Frontend:  # pragma: no cover
             label.grid(row=row, column=0, **grid_params)
             entry = tk.Entry(master, width=20, textvariable=self.selection_var)
             entry.grid(row=row, column=1, **grid_params)
-            button = ttk.Button(master, text="Get Selection",
-                                command=self.get_padstack_def, width=20,
-                                style="PyAEDT.TButton")
+            button = ttk.Button(
+                master, text="Get Selection", command=self.get_padstack_def, width=20, style="PyAEDT.TButton"
+            )
             button.grid(row=row, column=2, pady=15, padx=10)
 
             row = row + 1
@@ -137,8 +141,9 @@ class Frontend:  # pragma: no cover
             entry.grid(row=row, column=1, **grid_params)
 
             row = row + 1
-            checkbox = ttk.Checkbutton(master, text="Signal Only", variable=self.only_signal_var, width=20,
-                                       style="PyAEDT.TCheckbutton")
+            checkbox = ttk.Checkbutton(
+                master, text="Signal Only", variable=self.only_signal_var, width=20, style="PyAEDT.TCheckbutton"
+            )
             checkbox.grid(row=row, column=0, **grid_params)
 
             row = row + 1
@@ -381,16 +386,8 @@ class BackendAntipad(BackendBase):
                         obj.aedt_name, obj.layer_name, [via_p.position, via_n.position], f"{variable_name}*2"
                     )
                 else:
-                    self.create_circle_void(obj.aedt_name,
-                                            obj.layer_name,
-                                            via_p.position,
-                                            variable_name
-                                            )
-                    self.create_circle_void(obj.aedt_name,
-                                            obj.layer_name,
-                                            via_n.position,
-                                            variable_name
-                                            )
+                    self.create_circle_void(obj.aedt_name, obj.layer_name, via_p.position, variable_name)
+                    self.create_circle_void(obj.aedt_name, obj.layer_name, via_n.position, variable_name)
         self.pedb.close()
         print("***** Done *****")
 
@@ -401,9 +398,9 @@ class BackendMircoVia(BackendBase):
 
     def create(self, selection, signal_only, angle):
         for i in selection:
-            self.pedb.padstacks[i].convert_to_3d_microvias(convert_only_signal_vias=signal_only,
-                                                    hole_wall_angle=angle,
-                                                    delete_padstack_def=True)
+            self.pedb.padstacks[i].convert_to_3d_microvias(
+                convert_only_signal_vias=signal_only, hole_wall_angle=angle, delete_padstack_def=True
+            )
 
         edb_path = Path(self.pedb.edbpath)
 
