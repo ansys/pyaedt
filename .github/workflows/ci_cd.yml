@@ -28,6 +28,9 @@ jobs:
   package:
     name: Package library
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      attestations: write
     steps:
       - name: Build library source and wheel artifacts
         uses: ansys/actions/build-library@feat/add-provenance-attestation
