@@ -30,10 +30,10 @@ from ansys.aedt.core.generic.settings import is_linux
 import pytest
 
 from tests.system.solvers.conftest import config
+from tests.system.solvers.test_45_FilterSolutions.resources import read_resource_file
 
-from ..resources import read_resource_file
 
-
+@pytest.mark.skip(reason="Temporary deactivated due to a conflict between FilterSolutions dll and pytest")
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
 class TestClass:
@@ -153,7 +153,6 @@ class TestClass:
         assert freqs[300] == pytest.approx(8669097136.772985)
         assert freqs[-1] == pytest.approx(31214328219.225075)
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Test failing in VM")
     def test_pole_zeros_response_getter(self, lumped_design):
         pole_zero_den_x = lumped_design.ideal_response._pole_zeros_response_getter(
             PoleZerosResponseColumn.TX_ZERO_DEN_X
