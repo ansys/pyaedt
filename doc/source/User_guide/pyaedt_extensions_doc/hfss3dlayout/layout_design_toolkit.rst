@@ -9,5 +9,5 @@ This extension is a collection of layout design tools
 Features
 ----------
 
-- Add antipad to a differential pair
-- Convert standard vias to 3d micro vias
+- Add anti pad to a differential pair
+- Convert standard vias to 3D micro vias

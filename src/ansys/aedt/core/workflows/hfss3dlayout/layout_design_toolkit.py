@@ -23,27 +23,25 @@
 
 # Extension template to help get started
 
-from pathlib import Path
-
 import ansys.aedt.core
+import PIL.Image
+import PIL.ImageTk
+import tkinter as tk
+import tkinter.ttk as ttk
+
+from pathlib import Path
 from ansys.aedt.core.workflows.misc import get_aedt_version
 from ansys.aedt.core.workflows.misc import get_arguments
 from ansys.aedt.core.workflows.misc import get_port
 from ansys.aedt.core.workflows.misc import get_process_id
 from ansys.aedt.core.workflows.misc import is_student
 from pyedb.generic.general_methods import generate_unique_name
+from ansys.aedt.core.workflows.misc import ExtensionTheme
 
 port = get_port()
 version = get_aedt_version()
 aedt_process_id = get_process_id()
 is_student = is_student()
-
-import tkinter as tk
-import tkinter.ttk as ttk
-
-import PIL.Image
-import PIL.ImageTk
-from ansys.aedt.core.workflows.misc import ExtensionTheme
 
 # Extension batch arguments
 VERSION = "0.1.0"
