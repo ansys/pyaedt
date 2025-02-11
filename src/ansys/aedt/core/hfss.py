@@ -492,7 +492,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                         self.odesign.ChangeProperty(properties)
                     except Exception:  # pragma: no cover
                         self.logger.warning(f"Failed to rename terminal {terminal}.")
-                self._create_boundary(terminal_name, props_terminal, "Terminal")
+                bound = BoundaryObject(self, terminal_name, props_terminal, "Terminal")
+                self._boundaries[terminal_name] = bound
 
             if iswaveport:
                 boundary.type = "Wave Port"
