@@ -357,7 +357,7 @@ class AEDT:
         try:
             self.aedt = self.AedtAPI.CreateAedtApplication(machine, port, NGmode, alwaysNew)
         except Exception:
-            settings.logger.warning(f"Failed to create AedtApplication. Retry: {i + 1}")
+            settings.logger.warning(f"Failed to create AedtApplication.")
         if not self.aedt:
             raise GrpcApiError("Failed to connect to Desktop Session")
         self.machine = machine
