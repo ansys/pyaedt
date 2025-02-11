@@ -29,6 +29,7 @@ class TxMeasNode(EmitNode):
         """
         val = self._get_property('File')
         return val
+
     @property
     def source_file(self) -> str:
         """Source File
@@ -37,6 +38,7 @@ class TxMeasNode(EmitNode):
         """
         val = self._get_property('Source File')
         return val
+
     @property
     def transmit_frequency(self) -> float:
         """Transmit Frequency
@@ -44,6 +46,7 @@ class TxMeasNode(EmitNode):
         "        """
         val = self._get_property('Transmit Frequency')
         return val
+
     @property
     def use_ams_limits(self) -> bool:
         """Use AMS Limits
@@ -52,6 +55,7 @@ class TxMeasNode(EmitNode):
         """
         val = self._get_property('Use AMS Limits')
         return val
+
     @use_ams_limits.setter
     def use_ams_limits(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Use AMS Limits=' + value])
@@ -64,6 +68,7 @@ class TxMeasNode(EmitNode):
         """
         val = self._get_property('Start Frequency')
         return val
+
     @start_frequency.setter
     def start_frequency(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Start Frequency=' + value])
@@ -76,6 +81,7 @@ class TxMeasNode(EmitNode):
         """
         val = self._get_property('Stop Frequency')
         return val
+
     @stop_frequency.setter
     def stop_frequency(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Stop Frequency=' + value])
@@ -88,6 +94,7 @@ class TxMeasNode(EmitNode):
         """
         val = self._get_property('Exclude Harmonics Below Noise')
         return val
+
     @exclude_harmonics_below_noise.setter
     def exclude_harmonics_below_noise(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Exclude Harmonics Below Noise=' + value])
@@ -96,6 +103,7 @@ class TxMeasNode(EmitNode):
     def enabled(self) -> bool:
         """Enabled state for this node."""
         return self._oDesign.GetModule('EmitCom').GetEmitNodeProperties(self._result_id,self._node_id,'enabled')
+
     @enabled.setter
     def enabled(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['enabled=' + value])

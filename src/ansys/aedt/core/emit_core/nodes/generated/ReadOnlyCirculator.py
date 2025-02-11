@@ -16,6 +16,7 @@ class ReadOnlyCirculator(EmitNode):
         """
         val = self._get_property('Filename')
         return val
+
     @property
     def noise_temperature(self) -> float:
         """Noise Temperature
@@ -24,6 +25,7 @@ class ReadOnlyCirculator(EmitNode):
         """
         val = self._get_property('Noise Temperature')
         return val
+
     @property
     def notes(self) -> str:
         """Notes
@@ -31,9 +33,11 @@ class ReadOnlyCirculator(EmitNode):
         "        """
         val = self._get_property('Notes')
         return val
+
     class TypeOption(Enum):
             BYFILE = "By File"
             PARAMETRIC = "Parametric"
+
     @property
     def type(self) -> TypeOption:
         """Type
@@ -42,9 +46,11 @@ class ReadOnlyCirculator(EmitNode):
         val = self._get_property('Type')
         val = self.TypeOption[val]
         return val
+
     class Port1LocationOption(Enum):
             RADIOSIDE = "Radio Side"
             ANTENNASIDE = "Antenna Side"
+
     @property
     def port_1_location(self) -> Port1LocationOption:
         """Port 1 Location
@@ -53,6 +59,7 @@ class ReadOnlyCirculator(EmitNode):
         val = self._get_property('Port 1 Location')
         val = self.Port1LocationOption[val]
         return val
+
     @property
     def insertion_loss(self) -> float:
         """Insertion Loss
@@ -61,6 +68,7 @@ class ReadOnlyCirculator(EmitNode):
         """
         val = self._get_property('Insertion Loss')
         return val
+
     @property
     def finite_reverse_isolation(self) -> bool:
         """Finite Reverse Isolation
@@ -69,6 +77,7 @@ class ReadOnlyCirculator(EmitNode):
         """
         val = self._get_property('Finite Reverse Isolation')
         return val
+
     @property
     def reverse_isolation(self) -> float:
         """Reverse Isolation
@@ -77,6 +86,7 @@ class ReadOnlyCirculator(EmitNode):
         """
         val = self._get_property('Reverse Isolation')
         return val
+
     @property
     def finite_bandwidth(self) -> bool:
         """Finite Bandwidth
@@ -85,6 +95,7 @@ class ReadOnlyCirculator(EmitNode):
         """
         val = self._get_property('Finite Bandwidth')
         return val
+
     @property
     def out_of_band_attenuation(self) -> float:
         """Out-of-band Attenuation
@@ -93,6 +104,7 @@ class ReadOnlyCirculator(EmitNode):
         """
         val = self._get_property('Out-of-band Attenuation')
         return val
+
     @property
     def lower_stop_band(self) -> float:
         """Lower Stop Band
@@ -101,6 +113,7 @@ class ReadOnlyCirculator(EmitNode):
         """
         val = self._get_property('Lower Stop Band')
         return val
+
     @property
     def lower_cutoff(self) -> float:
         """Lower Cutoff
@@ -109,6 +122,7 @@ class ReadOnlyCirculator(EmitNode):
         """
         val = self._get_property('Lower Cutoff')
         return val
+
     @property
     def higher_cutoff(self) -> float:
         """Higher Cutoff
@@ -117,6 +131,7 @@ class ReadOnlyCirculator(EmitNode):
         """
         val = self._get_property('Higher Cutoff')
         return val
+
     @property
     def higher_stop_band(self) -> float:
         """Higher Stop Band
@@ -125,6 +140,7 @@ class ReadOnlyCirculator(EmitNode):
         """
         val = self._get_property('Higher Stop Band')
         return val
+
     @property
     def warnings(self) -> str:
         """Warnings
@@ -132,3 +148,4 @@ class ReadOnlyCirculator(EmitNode):
         "        """
         val = self._get_property('Warnings')
         return val
+

@@ -21,6 +21,7 @@ class ReadOnlyCouplingLinkNode(EmitNode):
         """
         val = self._get_property('Enabled')
         return val
+
     @property
     def ports(self):
         """Ports
@@ -29,3 +30,4 @@ class ReadOnlyCouplingLinkNode(EmitNode):
         "        """
         val = self._get_property('Ports')
         return val
+

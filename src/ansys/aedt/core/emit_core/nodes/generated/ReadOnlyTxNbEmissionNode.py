@@ -16,6 +16,7 @@ class ReadOnlyTxNbEmissionNode(EmitNode):
     class NarrowbandBehaviorOption(Enum):
             ABSOLUTE = "Absolute Freqs and Power"
             RELATIVEBANDWIDTH = "Relative Freqs and Attenuation"
+
     @property
     def narrowband_behavior(self) -> NarrowbandBehaviorOption:
         """Narrowband Behavior
@@ -24,6 +25,7 @@ class ReadOnlyTxNbEmissionNode(EmitNode):
         val = self._get_property('Narrowband Behavior')
         val = self.NarrowbandBehaviorOption[val]
         return val
+
     @property
     def measurement_frequency(self) -> float:
         """Measurement Frequency
@@ -31,3 +33,4 @@ class ReadOnlyTxNbEmissionNode(EmitNode):
         "        """
         val = self._get_property('Measurement Frequency')
         return val
+

@@ -21,6 +21,7 @@ class ReadOnlyAntennaPassband(EmitNode):
         """
         val = self._get_property('Passband Loss')
         return val
+
     @property
     def out_of_band_attenuation(self) -> float:
         """Out of Band Attenuation
@@ -29,6 +30,7 @@ class ReadOnlyAntennaPassband(EmitNode):
         """
         val = self._get_property('Out of Band Attenuation')
         return val
+
     @property
     def lower_stop_band(self) -> float:
         """Lower Stop Band
@@ -37,6 +39,7 @@ class ReadOnlyAntennaPassband(EmitNode):
         """
         val = self._get_property('Lower Stop Band')
         return val
+
     @property
     def lower_cutoff(self) -> float:
         """Lower Cutoff
@@ -45,6 +48,7 @@ class ReadOnlyAntennaPassband(EmitNode):
         """
         val = self._get_property('Lower Cutoff')
         return val
+
     @property
     def higher_cutoff(self) -> float:
         """Higher Cutoff
@@ -53,6 +57,7 @@ class ReadOnlyAntennaPassband(EmitNode):
         """
         val = self._get_property('Higher Cutoff')
         return val
+
     @property
     def higher_stop_band(self) -> float:
         """Higher Stop Band
@@ -61,6 +66,7 @@ class ReadOnlyAntennaPassband(EmitNode):
         """
         val = self._get_property('Higher Stop Band')
         return val
+
     @property
     def notes(self) -> str:
         """Notes
@@ -68,3 +74,4 @@ class ReadOnlyAntennaPassband(EmitNode):
         "        """
         val = self._get_property('Notes')
         return val
+

@@ -28,6 +28,7 @@ class Terminator(EmitNode):
         """
         val = self._get_property('Filename')
         return val
+
     @filename.setter
     def filename(self, value: str):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Filename=' + value])
@@ -40,6 +41,7 @@ class Terminator(EmitNode):
         """
         val = self._get_property('Noise Temperature')
         return val
+
     @noise_temperature.setter
     def noise_temperature(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Noise Temperature=' + value])
@@ -51,6 +53,7 @@ class Terminator(EmitNode):
         "        """
         val = self._get_property('Notes')
         return val
+
     @notes.setter
     def notes(self, value: str):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
@@ -58,6 +61,7 @@ class Terminator(EmitNode):
     class TypeOption(Enum):
             BYFILE = "By File"
             PARAMETRIC = "Parametric"
+
     @property
     def type(self) -> TypeOption:
         """Type
@@ -66,6 +70,7 @@ class Terminator(EmitNode):
         val = self._get_property('Type')
         val = self.TypeOption[val]
         return val
+
     @type.setter
     def type(self, value: TypeOption):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Type=' + value.value])
@@ -73,6 +78,7 @@ class Terminator(EmitNode):
     class PortLocationOption(Enum):
             RADIOSIDE = "Radio Side"
             ANTENNASIDE = "Antenna Side"
+
     @property
     def port_location(self) -> PortLocationOption:
         """Port Location
@@ -81,6 +87,7 @@ class Terminator(EmitNode):
         val = self._get_property('Port Location')
         val = self.PortLocationOption[val]
         return val
+
     @port_location.setter
     def port_location(self, value: PortLocationOption):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Port Location=' + value.value])
@@ -93,6 +100,7 @@ class Terminator(EmitNode):
         """
         val = self._get_property('VSWR')
         return val
+
     @vswr.setter
     def vswr(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['VSWR=' + value])
@@ -104,3 +112,4 @@ class Terminator(EmitNode):
         "        """
         val = self._get_property('Warnings')
         return val
+

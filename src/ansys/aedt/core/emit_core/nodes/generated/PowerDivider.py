@@ -28,6 +28,7 @@ class PowerDivider(EmitNode):
         """
         val = self._get_property('Filename')
         return val
+
     @filename.setter
     def filename(self, value: str):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Filename=' + value])
@@ -40,6 +41,7 @@ class PowerDivider(EmitNode):
         """
         val = self._get_property('Noise Temperature')
         return val
+
     @noise_temperature.setter
     def noise_temperature(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Noise Temperature=' + value])
@@ -51,6 +53,7 @@ class PowerDivider(EmitNode):
         "        """
         val = self._get_property('Notes')
         return val
+
     @notes.setter
     def notes(self, value: str):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
@@ -59,6 +62,7 @@ class PowerDivider(EmitNode):
             BYFILE = "By File"
             _3DB = "3 dB"
             RESISTIVE = "Resistive"
+
     @property
     def type(self) -> TypeOption:
         """Type
@@ -67,6 +71,7 @@ class PowerDivider(EmitNode):
         val = self._get_property('Type')
         val = self.TypeOption[val]
         return val
+
     @type.setter
     def type(self, value: TypeOption):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Type=' + value.value])
@@ -74,6 +79,7 @@ class PowerDivider(EmitNode):
     class OrientationOption(Enum):
             RADIOSIDE = "Divider"
             ANTENNASIDE = "Combiner"
+
     @property
     def orientation(self) -> OrientationOption:
         """Orientation
@@ -82,6 +88,7 @@ class PowerDivider(EmitNode):
         val = self._get_property('Orientation')
         val = self.OrientationOption[val]
         return val
+
     @orientation.setter
     def orientation(self, value: OrientationOption):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Orientation=' + value.value])
@@ -94,6 +101,7 @@ class PowerDivider(EmitNode):
         """
         val = self._get_property('Insertion Loss Above Ideal')
         return val
+
     @insertion_loss_above_ideal.setter
     def insertion_loss_above_ideal(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Insertion Loss Above Ideal=' + value])
@@ -106,6 +114,7 @@ class PowerDivider(EmitNode):
         """
         val = self._get_property('Finite Isolation')
         return val
+
     @finite_isolation.setter
     def finite_isolation(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Finite Isolation=' + value])
@@ -118,6 +127,7 @@ class PowerDivider(EmitNode):
         """
         val = self._get_property('Isolation')
         return val
+
     @isolation.setter
     def isolation(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Isolation=' + value])
@@ -130,6 +140,7 @@ class PowerDivider(EmitNode):
         """
         val = self._get_property('Finite Bandwidth')
         return val
+
     @finite_bandwidth.setter
     def finite_bandwidth(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Finite Bandwidth=' + value])
@@ -142,6 +153,7 @@ class PowerDivider(EmitNode):
         """
         val = self._get_property('Out-of-band Attenuation')
         return val
+
     @out_of_band_attenuation.setter
     def out_of_band_attenuation(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Out-of-band Attenuation=' + value])
@@ -154,6 +166,7 @@ class PowerDivider(EmitNode):
         """
         val = self._get_property('Lower Stop Band')
         return val
+
     @lower_stop_band.setter
     def lower_stop_band(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Lower Stop Band=' + value])
@@ -166,6 +179,7 @@ class PowerDivider(EmitNode):
         """
         val = self._get_property('Lower Cutoff')
         return val
+
     @lower_cutoff.setter
     def lower_cutoff(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Lower Cutoff=' + value])
@@ -178,6 +192,7 @@ class PowerDivider(EmitNode):
         """
         val = self._get_property('Higher Cutoff')
         return val
+
     @higher_cutoff.setter
     def higher_cutoff(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Higher Cutoff=' + value])
@@ -190,6 +205,7 @@ class PowerDivider(EmitNode):
         """
         val = self._get_property('Higher Stop Band')
         return val
+
     @higher_stop_band.setter
     def higher_stop_band(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Higher Stop Band=' + value])
@@ -201,3 +217,4 @@ class PowerDivider(EmitNode):
         "        """
         val = self._get_property('Warnings')
         return val
+

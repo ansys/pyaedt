@@ -21,3 +21,4 @@ class ReadOnlySolutionsNode(EmitNode):
         """
         val = self._get_property('Enabled')
         return val
+

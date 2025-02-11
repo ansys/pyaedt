@@ -37,6 +37,7 @@ class RadioNode(EmitNode):
         "            "Type: 
         "            """
         return self._get_table_data()
+
     @table_data.setter
     def table_data(self, value):
         self._set_table_data(value)
@@ -48,6 +49,7 @@ class RadioNode(EmitNode):
         "        """
         val = self._get_property('Notes')
         return val
+
     @notes.setter
     def notes(self, value: str):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])

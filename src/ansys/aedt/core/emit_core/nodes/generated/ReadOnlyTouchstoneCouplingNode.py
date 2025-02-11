@@ -21,6 +21,7 @@ class ReadOnlyTouchstoneCouplingNode(EmitNode):
         """
         val = self._get_property('Enabled')
         return val
+
     @property
     def enable_refinement(self) -> bool:
         """Enable Refinement
@@ -29,6 +30,7 @@ class ReadOnlyTouchstoneCouplingNode(EmitNode):
         """
         val = self._get_property('Enable Refinement')
         return val
+
     @property
     def adaptive_sampling(self) -> bool:
         """Adaptive Sampling
@@ -37,6 +39,7 @@ class ReadOnlyTouchstoneCouplingNode(EmitNode):
         """
         val = self._get_property('Adaptive Sampling')
         return val
+
     @property
     def refinement_domain(self):
         """Refinement Domain
@@ -44,6 +47,7 @@ class ReadOnlyTouchstoneCouplingNode(EmitNode):
         "        """
         val = self._get_property('Refinement Domain')
         return val
+
     @property
     def filename(self) -> str:
         """Filename
@@ -52,6 +56,7 @@ class ReadOnlyTouchstoneCouplingNode(EmitNode):
         """
         val = self._get_property('Filename')
         return val
+
     @property
     def savant_matched_coupling_file(self) -> str:
         """Savant Matched Coupling File
@@ -59,6 +64,7 @@ class ReadOnlyTouchstoneCouplingNode(EmitNode):
         "        """
         val = self._get_property('Savant Matched Coupling File')
         return val
+
     @property
     def enable_em_isolation(self) -> bool:
         """Enable EM Isolation
@@ -67,6 +73,7 @@ class ReadOnlyTouchstoneCouplingNode(EmitNode):
         """
         val = self._get_property('Enable EM Isolation')
         return val
+
     @property
     def port_antenna_assignment(self):
         """Port-Antenna Assignment
@@ -75,6 +82,7 @@ class ReadOnlyTouchstoneCouplingNode(EmitNode):
         "        """
         val = self._get_property('Port-Antenna Assignment')
         return val
+
     @property
     def notes(self) -> str:
         """Notes
@@ -82,3 +90,4 @@ class ReadOnlyTouchstoneCouplingNode(EmitNode):
         "        """
         val = self._get_property('Notes')
         return val
+

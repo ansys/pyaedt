@@ -28,6 +28,7 @@ class ReadOnlySamplingNode(EmitNode):
             SAMPLEALLCHANNELS = "Sample All Channels in Range(s)"
             RANDOMSAMPLING = "Random Sampling"
             UNIFORMSAMPLING = "Uniform Sampling"
+
     @property
     def sampling_type(self) -> SamplingTypeOption:
         """Sampling Type
@@ -36,6 +37,7 @@ class ReadOnlySamplingNode(EmitNode):
         val = self._get_property('Sampling Type')
         val = self.SamplingTypeOption[val]
         return val
+
     @property
     def specify_percentage(self) -> bool:
         """Specify Percentage
@@ -44,6 +46,7 @@ class ReadOnlySamplingNode(EmitNode):
         """
         val = self._get_property('Specify Percentage')
         return val
+
     @property
     def percentage_of_channels(self) -> float:
         """Percentage of Channels
@@ -52,6 +55,7 @@ class ReadOnlySamplingNode(EmitNode):
         """
         val = self._get_property('Percentage of Channels')
         return val
+
     @property
     def max__channelsrangeband(self) -> int:
         """Max # Channels/Range/Band
@@ -60,6 +64,7 @@ class ReadOnlySamplingNode(EmitNode):
         """
         val = self._get_property('Max # Channels/Range/Band')
         return val
+
     @property
     def seed(self) -> int:
         """Seed
@@ -68,6 +73,7 @@ class ReadOnlySamplingNode(EmitNode):
         """
         val = self._get_property('Seed')
         return val
+
     @property
     def total_tx_channels(self) -> int:
         """Total Tx Channels
@@ -75,6 +81,7 @@ class ReadOnlySamplingNode(EmitNode):
         "        """
         val = self._get_property('Total Tx Channels')
         return val
+
     @property
     def total_rx_channels(self) -> int:
         """Total Rx Channels
@@ -82,6 +89,7 @@ class ReadOnlySamplingNode(EmitNode):
         "        """
         val = self._get_property('Total Rx Channels')
         return val
+
     @property
     def warnings(self) -> str:
         """Warnings
@@ -89,3 +97,4 @@ class ReadOnlySamplingNode(EmitNode):
         "        """
         val = self._get_property('Warnings')
         return val
+

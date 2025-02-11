@@ -33,6 +33,7 @@ class LogDistanceCouplingNode(EmitNode):
         """
         val = self._get_property('Enabled')
         return val
+
     @enabled.setter
     def enabled(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Enabled=' + value])
@@ -44,6 +45,7 @@ class LogDistanceCouplingNode(EmitNode):
         "        """
         val = self._get_property('Antenna A')
         return val
+
     @antenna_a.setter
     def antenna_a(self, value: EmitNode):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Antenna A=' + value])
@@ -55,6 +57,7 @@ class LogDistanceCouplingNode(EmitNode):
         "        """
         val = self._get_property('Antenna B')
         return val
+
     @antenna_b.setter
     def antenna_b(self, value: EmitNode):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Antenna B=' + value])
@@ -67,6 +70,7 @@ class LogDistanceCouplingNode(EmitNode):
         """
         val = self._get_property('Enable Refinement')
         return val
+
     @enable_refinement.setter
     def enable_refinement(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Enable Refinement=' + value])
@@ -79,6 +83,7 @@ class LogDistanceCouplingNode(EmitNode):
         """
         val = self._get_property('Adaptive Sampling')
         return val
+
     @adaptive_sampling.setter
     def adaptive_sampling(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Adaptive Sampling=' + value])
@@ -90,6 +95,7 @@ class LogDistanceCouplingNode(EmitNode):
         "        """
         val = self._get_property('Refinement Domain')
         return val
+
     @refinement_domain.setter
     def refinement_domain(self, value):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Refinement Domain=' + value])
@@ -102,6 +108,7 @@ class LogDistanceCouplingNode(EmitNode):
             BUILDINGOBSTRUCTED = "Building - Obstructed"
             FACTORYOBSTRUCTED = "Factory - Obstructed"
             CUSTOMEXPONENT = "Custom"
+
     @property
     def environment(self) -> EnvironmentOption:
         """Environment
@@ -110,6 +117,7 @@ class LogDistanceCouplingNode(EmitNode):
         val = self._get_property('Environment')
         val = self.EnvironmentOption[val]
         return val
+
     @environment.setter
     def environment(self, value: EnvironmentOption):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Environment=' + value.value])
@@ -122,6 +130,7 @@ class LogDistanceCouplingNode(EmitNode):
         """
         val = self._get_property('Path Loss Exponent')
         return val
+
     @path_loss_exponent.setter
     def path_loss_exponent(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Path Loss Exponent=' + value])
@@ -134,6 +143,7 @@ class LogDistanceCouplingNode(EmitNode):
         """
         val = self._get_property('Custom Fading Margin')
         return val
+
     @custom_fading_margin.setter
     def custom_fading_margin(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Custom Fading Margin=' + value])
@@ -146,6 +156,7 @@ class LogDistanceCouplingNode(EmitNode):
         """
         val = self._get_property('Polarization Mismatch')
         return val
+
     @polarization_mismatch.setter
     def polarization_mismatch(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Polarization Mismatch=' + value])
@@ -158,6 +169,7 @@ class LogDistanceCouplingNode(EmitNode):
         """
         val = self._get_property('Pointing Error Loss')
         return val
+
     @pointing_error_loss.setter
     def pointing_error_loss(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Pointing Error Loss=' + value])
@@ -167,6 +179,7 @@ class LogDistanceCouplingNode(EmitNode):
             FASTFADINGONLY = "Fast Fading Only"
             SHADOWINGONLY = "Shadowing Only"
             SHADOWINGANDFASTFADING = "Fast Fading and Shadowing"
+
     @property
     def fading_type(self) -> FadingTypeOption:
         """Fading Type
@@ -175,6 +188,7 @@ class LogDistanceCouplingNode(EmitNode):
         val = self._get_property('Fading Type')
         val = self.FadingTypeOption[val]
         return val
+
     @fading_type.setter
     def fading_type(self, value: FadingTypeOption):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Fading Type=' + value.value])
@@ -187,6 +201,7 @@ class LogDistanceCouplingNode(EmitNode):
         """
         val = self._get_property('Fading Availability')
         return val
+
     @fading_availability.setter
     def fading_availability(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Fading Availability=' + value])
@@ -199,6 +214,7 @@ class LogDistanceCouplingNode(EmitNode):
         """
         val = self._get_property('Std Deviation')
         return val
+
     @std_deviation.setter
     def std_deviation(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Std Deviation=' + value])
@@ -211,6 +227,7 @@ class LogDistanceCouplingNode(EmitNode):
         """
         val = self._get_property('Include Rain Attenuation')
         return val
+
     @include_rain_attenuation.setter
     def include_rain_attenuation(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Include Rain Attenuation=' + value])
@@ -223,6 +240,7 @@ class LogDistanceCouplingNode(EmitNode):
         """
         val = self._get_property('Rain Availability')
         return val
+
     @rain_availability.setter
     def rain_availability(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Rain Availability=' + value])
@@ -235,6 +253,7 @@ class LogDistanceCouplingNode(EmitNode):
         """
         val = self._get_property('Rain Rate')
         return val
+
     @rain_rate.setter
     def rain_rate(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Rain Rate=' + value])
@@ -247,6 +266,7 @@ class LogDistanceCouplingNode(EmitNode):
         """
         val = self._get_property('Polarization Tilt Angle')
         return val
+
     @polarization_tilt_angle.setter
     def polarization_tilt_angle(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Polarization Tilt Angle=' + value])
@@ -259,6 +279,7 @@ class LogDistanceCouplingNode(EmitNode):
         """
         val = self._get_property('Include Atmospheric Absorption')
         return val
+
     @include_atmospheric_absorption.setter
     def include_atmospheric_absorption(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Include Atmospheric Absorption=' + value])
@@ -271,6 +292,7 @@ class LogDistanceCouplingNode(EmitNode):
         """
         val = self._get_property('Temperature')
         return val
+
     @temperature.setter
     def temperature(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Temperature=' + value])
@@ -283,6 +305,7 @@ class LogDistanceCouplingNode(EmitNode):
         """
         val = self._get_property('Total Air Pressure')
         return val
+
     @total_air_pressure.setter
     def total_air_pressure(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Total Air Pressure=' + value])
@@ -295,6 +318,7 @@ class LogDistanceCouplingNode(EmitNode):
         """
         val = self._get_property('Water Vapor Concentration')
         return val
+
     @water_vapor_concentration.setter
     def water_vapor_concentration(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Water Vapor Concentration=' + value])

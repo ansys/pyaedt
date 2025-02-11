@@ -21,6 +21,7 @@ class ReadOnlyTxMeasNode(EmitNode):
         """
         val = self._get_property('File')
         return val
+
     @property
     def source_file(self) -> str:
         """Source File
@@ -29,6 +30,7 @@ class ReadOnlyTxMeasNode(EmitNode):
         """
         val = self._get_property('Source File')
         return val
+
     @property
     def transmit_frequency(self) -> float:
         """Transmit Frequency
@@ -36,6 +38,7 @@ class ReadOnlyTxMeasNode(EmitNode):
         "        """
         val = self._get_property('Transmit Frequency')
         return val
+
     @property
     def use_ams_limits(self) -> bool:
         """Use AMS Limits
@@ -44,6 +47,7 @@ class ReadOnlyTxMeasNode(EmitNode):
         """
         val = self._get_property('Use AMS Limits')
         return val
+
     @property
     def start_frequency(self) -> float:
         """Start Frequency
@@ -52,6 +56,7 @@ class ReadOnlyTxMeasNode(EmitNode):
         """
         val = self._get_property('Start Frequency')
         return val
+
     @property
     def stop_frequency(self) -> float:
         """Stop Frequency
@@ -60,6 +65,7 @@ class ReadOnlyTxMeasNode(EmitNode):
         """
         val = self._get_property('Stop Frequency')
         return val
+
     @property
     def exclude_harmonics_below_noise(self) -> bool:
         """Exclude Harmonics Below Noise
@@ -68,3 +74,4 @@ class ReadOnlyTxMeasNode(EmitNode):
         """
         val = self._get_property('Exclude Harmonics Below Noise')
         return val
+

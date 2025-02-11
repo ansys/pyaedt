@@ -17,6 +17,7 @@ class ReadOnlyRxMixerProductNode(EmitNode):
             CONSTANT = "Constant"
             MIL_STD_461G = "MIL-STD-461G"
             DUFF_MODEL = "Duff Model"
+
     @property
     def mixer_product_taper(self) -> MixerProductTaperOption:
         """Mixer Product Taper
@@ -25,6 +26,7 @@ class ReadOnlyRxMixerProductNode(EmitNode):
         val = self._get_property('Mixer Product Taper')
         val = self.MixerProductTaperOption[val]
         return val
+
     @property
     def mixer_product_susceptibility(self) -> float:
         """Mixer Product Susceptibility
@@ -33,6 +35,7 @@ class ReadOnlyRxMixerProductNode(EmitNode):
         """
         val = self._get_property('Mixer Product Susceptibility')
         return val
+
     @property
     def spurious_rejection(self) -> float:
         """Spurious Rejection
@@ -41,6 +44,7 @@ class ReadOnlyRxMixerProductNode(EmitNode):
         """
         val = self._get_property('Spurious Rejection')
         return val
+
     @property
     def minimum_tuning_frequency(self) -> float:
         """Minimum Tuning Frequency
@@ -49,6 +53,7 @@ class ReadOnlyRxMixerProductNode(EmitNode):
         """
         val = self._get_property('Minimum Tuning Frequency')
         return val
+
     @property
     def maximum_tuning_frequency(self) -> float:
         """Maximum Tuning Frequency
@@ -57,6 +62,7 @@ class ReadOnlyRxMixerProductNode(EmitNode):
         """
         val = self._get_property('Maximum Tuning Frequency')
         return val
+
     @property
     def mixer_product_slope(self) -> float:
         """Mixer Product Slope
@@ -65,6 +71,7 @@ class ReadOnlyRxMixerProductNode(EmitNode):
         """
         val = self._get_property('Mixer Product Slope')
         return val
+
     @property
     def mixer_product_intercept(self) -> float:
         """Mixer Product Intercept
@@ -73,6 +80,7 @@ class ReadOnlyRxMixerProductNode(EmitNode):
         """
         val = self._get_property('Mixer Product Intercept')
         return val
+
     @property
     def _80_db_bandwidth(self) -> float:
         """80 dB Bandwidth
@@ -81,6 +89,7 @@ class ReadOnlyRxMixerProductNode(EmitNode):
         """
         val = self._get_property('80 dB Bandwidth')
         return val
+
     @property
     def image_rejection(self) -> float:
         """Image Rejection
@@ -89,6 +98,7 @@ class ReadOnlyRxMixerProductNode(EmitNode):
         """
         val = self._get_property('Image Rejection')
         return val
+
     @property
     def maximum_rf_harmonic_order(self) -> int:
         """Maximum RF Harmonic Order
@@ -97,6 +107,7 @@ class ReadOnlyRxMixerProductNode(EmitNode):
         """
         val = self._get_property('Maximum RF Harmonic Order')
         return val
+
     @property
     def maximum_lo_harmonic_order(self) -> int:
         """Maximum LO Harmonic Order
@@ -105,10 +116,12 @@ class ReadOnlyRxMixerProductNode(EmitNode):
         """
         val = self._get_property('Maximum LO Harmonic Order')
         return val
+
     class MixingModeOption(Enum):
             ABOVETUNEDFREQUENCY = "LO Above Tuned (RF) Frequency"
             BELOWTUNEDFREQUENCY = "LO Below Tuned (RF) Frequency"
             BOTHTUNEDFREQUENCIES = "LO Above/Below Tuned (RF) Frequency"
+
     @property
     def mixing_mode(self) -> MixingModeOption:
         """Mixing Mode
@@ -117,6 +130,7 @@ class ReadOnlyRxMixerProductNode(EmitNode):
         val = self._get_property('Mixing Mode')
         val = self.MixingModeOption[val]
         return val
+
     @property
     def _1st_if_frequency(self):
         """1st IF Frequency
@@ -125,6 +139,7 @@ class ReadOnlyRxMixerProductNode(EmitNode):
         """
         val = self._get_property('1st IF Frequency')
         return val
+
     @property
     def rf_transition_frequency(self) -> float:
         """RF Transition Frequency
@@ -132,9 +147,11 @@ class ReadOnlyRxMixerProductNode(EmitNode):
         "        """
         val = self._get_property('RF Transition Frequency')
         return val
+
     class UseHighLOOption(Enum):
             ABOVETRANSITION = "Above Transition Frequency"
             BELOWTRANSITION = "Below Transition Frequency"
+
     @property
     def use_high_lo(self) -> UseHighLOOption:
         """Use High LO
@@ -143,9 +160,11 @@ class ReadOnlyRxMixerProductNode(EmitNode):
         val = self._get_property('Use High LO')
         val = self.UseHighLOOption[val]
         return val
+
     class MixerProductTableUnitsOption(Enum):
             ABSOLUTE = "Absolute"
             RELATIVE = "Relative"
+
     @property
     def mixer_product_table_units(self) -> MixerProductTableUnitsOption:
         """Mixer Product Table Units
@@ -154,3 +173,4 @@ class ReadOnlyRxMixerProductNode(EmitNode):
         val = self._get_property('Mixer Product Table Units')
         val = self.MixerProductTableUnitsOption[val]
         return val
+

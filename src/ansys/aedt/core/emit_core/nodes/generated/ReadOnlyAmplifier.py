@@ -16,6 +16,7 @@ class ReadOnlyAmplifier(EmitNode):
         """
         val = self._get_property('Filename')
         return val
+
     @property
     def noise_temperature(self) -> float:
         """Noise Temperature
@@ -24,6 +25,7 @@ class ReadOnlyAmplifier(EmitNode):
         """
         val = self._get_property('Noise Temperature')
         return val
+
     @property
     def notes(self) -> str:
         """Notes
@@ -31,9 +33,11 @@ class ReadOnlyAmplifier(EmitNode):
         "        """
         val = self._get_property('Notes')
         return val
+
     class AmplifierTypeOption(Enum):
             TRANSMIT_AMPLIFIER = "Transmit Amplifier"
             RECEIVE_AMPLIFIER = "Receive Amplifier"
+
     @property
     def amplifier_type(self) -> AmplifierTypeOption:
         """Amplifier Type
@@ -42,6 +46,7 @@ class ReadOnlyAmplifier(EmitNode):
         val = self._get_property('Amplifier Type')
         val = self.AmplifierTypeOption[val]
         return val
+
     @property
     def gain(self) -> float:
         """Gain
@@ -50,6 +55,7 @@ class ReadOnlyAmplifier(EmitNode):
         """
         val = self._get_property('Gain')
         return val
+
     @property
     def center_frequency(self) -> float:
         """Center Frequency
@@ -58,6 +64,7 @@ class ReadOnlyAmplifier(EmitNode):
         """
         val = self._get_property('Center Frequency')
         return val
+
     @property
     def bandwidth(self) -> float:
         """Bandwidth
@@ -66,6 +73,7 @@ class ReadOnlyAmplifier(EmitNode):
         """
         val = self._get_property('Bandwidth')
         return val
+
     @property
     def noise_figure(self) -> float:
         """Noise Figure
@@ -74,6 +82,7 @@ class ReadOnlyAmplifier(EmitNode):
         """
         val = self._get_property('Noise Figure')
         return val
+
     @property
     def saturation_level(self) -> float:
         """Saturation Level
@@ -82,6 +91,7 @@ class ReadOnlyAmplifier(EmitNode):
         """
         val = self._get_property('Saturation Level')
         return val
+
     @property
     def _1_db_point_ref_input(self) -> float:
         """1-dB Point, Ref. Input
@@ -90,6 +100,7 @@ class ReadOnlyAmplifier(EmitNode):
         """
         val = self._get_property('1-dB Point, Ref. Input')
         return val
+
     @property
     def ip3_ref_input(self) -> float:
         """IP3, Ref. Input
@@ -98,6 +109,7 @@ class ReadOnlyAmplifier(EmitNode):
         """
         val = self._get_property('IP3, Ref. Input')
         return val
+
     @property
     def shape_factor(self) -> float:
         """Shape Factor
@@ -106,6 +118,7 @@ class ReadOnlyAmplifier(EmitNode):
         """
         val = self._get_property('Shape Factor')
         return val
+
     @property
     def reverse_isolation(self) -> float:
         """Reverse Isolation
@@ -114,6 +127,7 @@ class ReadOnlyAmplifier(EmitNode):
         """
         val = self._get_property('Reverse Isolation')
         return val
+
     @property
     def max_intermod_order(self) -> int:
         """Max Intermod Order
@@ -122,3 +136,4 @@ class ReadOnlyAmplifier(EmitNode):
         """
         val = self._get_property('Max Intermod Order')
         return val
+

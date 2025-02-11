@@ -21,6 +21,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         """
         val = self._get_property('Enabled')
         return val
+
     @property
     def base_antenna(self) -> EmitNode:
         """Base Antenna
@@ -28,6 +29,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         "        """
         val = self._get_property('Base Antenna')
         return val
+
     @property
     def mobile_antenna(self) -> EmitNode:
         """Mobile Antenna
@@ -35,6 +37,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         "        """
         val = self._get_property('Mobile Antenna')
         return val
+
     @property
     def enable_refinement(self) -> bool:
         """Enable Refinement
@@ -43,6 +46,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         """
         val = self._get_property('Enable Refinement')
         return val
+
     @property
     def adaptive_sampling(self) -> bool:
         """Adaptive Sampling
@@ -51,6 +55,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         """
         val = self._get_property('Adaptive Sampling')
         return val
+
     @property
     def refinement_domain(self):
         """Refinement Domain
@@ -58,10 +63,12 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         "        """
         val = self._get_property('Refinement Domain')
         return val
+
     class EnvironmentOption(Enum):
             URBANMICROCELL = "Urban Microcell"
             URBANMACROCELL = "Urban Macrocell"
             RURALMACROCELL = "Rural Macrocell"
+
     @property
     def environment(self) -> EnvironmentOption:
         """Environment
@@ -70,6 +77,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         val = self._get_property('Environment')
         val = self.EnvironmentOption[val]
         return val
+
     @property
     def los(self) -> bool:
         """LOS
@@ -78,6 +86,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         """
         val = self._get_property('LOS')
         return val
+
     @property
     def include_bpl(self) -> bool:
         """Include BPL
@@ -86,9 +95,11 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         """
         val = self._get_property('Include BPL')
         return val
+
     class NYUBPLModelOption(Enum):
             LOWLOSSMODEL = "Low-loss model"
             HIGHLOSSMODEL = "High-loss model"
+
     @property
     def nyu_bpl_model(self) -> NYUBPLModelOption:
         """NYU BPL Model
@@ -97,6 +108,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         val = self._get_property('NYU BPL Model')
         val = self.NYUBPLModelOption[val]
         return val
+
     @property
     def custom_fading_margin(self) -> float:
         """Custom Fading Margin
@@ -105,6 +117,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         """
         val = self._get_property('Custom Fading Margin')
         return val
+
     @property
     def polarization_mismatch(self) -> float:
         """Polarization Mismatch
@@ -113,6 +126,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         """
         val = self._get_property('Polarization Mismatch')
         return val
+
     @property
     def pointing_error_loss(self) -> float:
         """Pointing Error Loss
@@ -121,11 +135,13 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         """
         val = self._get_property('Pointing Error Loss')
         return val
+
     class FadingTypeOption(Enum):
             NOFADING = "None"
             FASTFADINGONLY = "Fast Fading Only"
             SHADOWINGONLY = "Shadowing Only"
             SHADOWINGANDFASTFADING = "Fast Fading and Shadowing"
+
     @property
     def fading_type(self) -> FadingTypeOption:
         """Fading Type
@@ -134,6 +150,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         val = self._get_property('Fading Type')
         val = self.FadingTypeOption[val]
         return val
+
     @property
     def fading_availability(self) -> float:
         """Fading Availability
@@ -142,6 +159,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         """
         val = self._get_property('Fading Availability')
         return val
+
     @property
     def std_deviation(self) -> float:
         """Std Deviation
@@ -150,6 +168,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         """
         val = self._get_property('Std Deviation')
         return val
+
     @property
     def include_rain_attenuation(self) -> bool:
         """Include Rain Attenuation
@@ -158,6 +177,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         """
         val = self._get_property('Include Rain Attenuation')
         return val
+
     @property
     def rain_availability(self) -> float:
         """Rain Availability
@@ -166,6 +186,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         """
         val = self._get_property('Rain Availability')
         return val
+
     @property
     def rain_rate(self) -> float:
         """Rain Rate
@@ -174,6 +195,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         """
         val = self._get_property('Rain Rate')
         return val
+
     @property
     def polarization_tilt_angle(self) -> float:
         """Polarization Tilt Angle
@@ -182,6 +204,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         """
         val = self._get_property('Polarization Tilt Angle')
         return val
+
     @property
     def include_atmospheric_absorption(self) -> bool:
         """Include Atmospheric Absorption
@@ -190,6 +213,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         """
         val = self._get_property('Include Atmospheric Absorption')
         return val
+
     @property
     def temperature(self) -> float:
         """Temperature
@@ -198,6 +222,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         """
         val = self._get_property('Temperature')
         return val
+
     @property
     def total_air_pressure(self) -> float:
         """Total Air Pressure
@@ -206,6 +231,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         """
         val = self._get_property('Total Air Pressure')
         return val
+
     @property
     def water_vapor_concentration(self) -> float:
         """Water Vapor Concentration
@@ -214,3 +240,4 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         """
         val = self._get_property('Water Vapor Concentration')
         return val
+

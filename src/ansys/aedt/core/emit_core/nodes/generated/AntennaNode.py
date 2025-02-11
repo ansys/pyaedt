@@ -15,7 +15,7 @@ class AntennaNode(EmitNode):
 
     def add_antenna_passband(self):
         """Add a New Passband to this Antenna"""
-        return self._add_child_node("AntennaPassband")
+        return self._add_child_node("Antenna Passband")
 
     def rename(self, new_name):
         """Rename this node"""
@@ -36,6 +36,7 @@ class AntennaNode(EmitNode):
         "        """
         val = self._get_property('Tags')
         return val
+
     @tags.setter
     def tags(self, value: str):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Tags=' + value])
@@ -48,6 +49,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Show Relative Coordinates')
         return val
+
     @show_relative_coordinates.setter
     def show_relative_coordinates(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Show Relative Coordinates=' + value])
@@ -60,6 +62,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Position')
         return val
+
     @position.setter
     def position(self, value):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Position=' + value])
@@ -72,6 +75,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Relative Position')
         return val
+
     @relative_position.setter
     def relative_position(self, value):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Relative Position=' + value])
@@ -79,6 +83,7 @@ class AntennaNode(EmitNode):
     class OrientationModeOption(Enum):
             RPYDEG = "Roll-Pitch-Yaw"
             AETDEG = "Az-El-Twist"
+
     @property
     def orientation_mode(self) -> OrientationModeOption:
         """Orientation Mode
@@ -87,6 +92,7 @@ class AntennaNode(EmitNode):
         val = self._get_property('Orientation Mode')
         val = self.OrientationModeOption[val]
         return val
+
     @orientation_mode.setter
     def orientation_mode(self, value: OrientationModeOption):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Orientation Mode=' + value.value])
@@ -99,6 +105,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Orientation')
         return val
+
     @orientation.setter
     def orientation(self, value):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Orientation=' + value])
@@ -111,6 +118,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Relative Orientation')
         return val
+
     @relative_orientation.setter
     def relative_orientation(self, value):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Relative Orientation=' + value])
@@ -123,6 +131,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Position Defined')
         return val
+
     @position_defined.setter
     def position_defined(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Position Defined=' + value])
@@ -135,6 +144,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Antenna Temperature')
         return val
+
     @antenna_temperature.setter
     def antenna_temperature(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Antenna Temperature=' + value])
@@ -146,6 +156,7 @@ class AntennaNode(EmitNode):
         "        """
         val = self._get_property('Type')
         return val
+
     @type.setter
     def type(self, value):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Type=' + value])
@@ -157,6 +168,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Antenna File')
         return val
+
     @antenna_file.setter
     def antenna_file(self, value: str):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Antenna File=' + value])
@@ -169,6 +181,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Project Name')
         return val
+
     @project_name.setter
     def project_name(self, value: str):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Project Name=' + value])
@@ -181,6 +194,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Peak Gain')
         return val
+
     @peak_gain.setter
     def peak_gain(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Peak Gain=' + value])
@@ -189,6 +203,7 @@ class AntennaNode(EmitNode):
             XAXIS = "+X Axis"
             YAXIS = "+Y Axis"
             ZAXIS = "+Z Axis"
+
     @property
     def boresight(self) -> BoresightOption:
         """Boresight
@@ -197,6 +212,7 @@ class AntennaNode(EmitNode):
         val = self._get_property('Boresight')
         val = self.BoresightOption[val]
         return val
+
     @boresight.setter
     def boresight(self, value: BoresightOption):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Boresight=' + value.value])
@@ -209,6 +225,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Vertical Beamwidth')
         return val
+
     @vertical_beamwidth.setter
     def vertical_beamwidth(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Vertical Beamwidth=' + value])
@@ -221,6 +238,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Horizontal Beamwidth')
         return val
+
     @horizontal_beamwidth.setter
     def horizontal_beamwidth(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Horizontal Beamwidth=' + value])
@@ -233,6 +251,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Extra Sidelobe')
         return val
+
     @extra_sidelobe.setter
     def extra_sidelobe(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Extra Sidelobe=' + value])
@@ -245,6 +264,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('First Sidelobe Level')
         return val
+
     @first_sidelobe_level.setter
     def first_sidelobe_level(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['First Sidelobe Level=' + value])
@@ -257,6 +277,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('First Sidelobe Vert. BW')
         return val
+
     @first_sidelobe_vert_bw.setter
     def first_sidelobe_vert_bw(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['First Sidelobe Vert. BW=' + value])
@@ -269,6 +290,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('First Sidelobe Hor. BW')
         return val
+
     @first_sidelobe_hor_bw.setter
     def first_sidelobe_hor_bw(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['First Sidelobe Hor. BW=' + value])
@@ -281,6 +303,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Outer/Backlobe Level')
         return val
+
     @outerbacklobe_level.setter
     def outerbacklobe_level(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Outer/Backlobe Level=' + value])
@@ -293,6 +316,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Resonant Frequency')
         return val
+
     @resonant_frequency.setter
     def resonant_frequency(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Resonant Frequency=' + value])
@@ -305,6 +329,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Slot Length')
         return val
+
     @slot_length.setter
     def slot_length(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Slot Length=' + value])
@@ -317,6 +342,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Mouth Width')
         return val
+
     @mouth_width.setter
     def mouth_width(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Mouth Width=' + value])
@@ -329,6 +355,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Mouth Height')
         return val
+
     @mouth_height.setter
     def mouth_height(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Mouth Height=' + value])
@@ -341,6 +368,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Waveguide Width')
         return val
+
     @waveguide_width.setter
     def waveguide_width(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Waveguide Width=' + value])
@@ -353,6 +381,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Width Flare Half-angle')
         return val
+
     @width_flare_half_angle.setter
     def width_flare_half_angle(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Width Flare Half-angle=' + value])
@@ -365,6 +394,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Height Flare Half-angle')
         return val
+
     @height_flare_half_angle.setter
     def height_flare_half_angle(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Height Flare Half-angle=' + value])
@@ -377,6 +407,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Mouth Diameter')
         return val
+
     @mouth_diameter.setter
     def mouth_diameter(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Mouth Diameter=' + value])
@@ -389,6 +420,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Flare Half-angle')
         return val
+
     @flare_half_angle.setter
     def flare_half_angle(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Flare Half-angle=' + value])
@@ -401,6 +433,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('VSWR')
         return val
+
     @vswr.setter
     def vswr(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['VSWR=' + value])
@@ -410,6 +443,7 @@ class AntennaNode(EmitNode):
             HORIZONTAL = "Horizontal"
             RHCP = "RHCP"
             LHCP = "LHCP"
+
     @property
     def antenna_polarization(self) -> AntennaPolarizationOption:
         """Antenna Polarization
@@ -418,6 +452,7 @@ class AntennaNode(EmitNode):
         val = self._get_property('Antenna Polarization')
         val = self.AntennaPolarizationOption[val]
         return val
+
     @antenna_polarization.setter
     def antenna_polarization(self, value: AntennaPolarizationOption):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Antenna Polarization=' + value.value])
@@ -425,6 +460,7 @@ class AntennaNode(EmitNode):
     class CrossDipoleModeOption(Enum):
             FREESTANDING = "Freestanding"
             OVER_GROUND_PLANE = "Over Ground Plane"
+
     @property
     def cross_dipole_mode(self) -> CrossDipoleModeOption:
         """Cross Dipole Mode
@@ -433,6 +469,7 @@ class AntennaNode(EmitNode):
         val = self._get_property('Cross Dipole Mode')
         val = self.CrossDipoleModeOption[val]
         return val
+
     @cross_dipole_mode.setter
     def cross_dipole_mode(self, value: CrossDipoleModeOption):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Cross Dipole Mode=' + value.value])
@@ -440,6 +477,7 @@ class AntennaNode(EmitNode):
     class CrossDipolePolarizationOption(Enum):
             RHCP = "RHCP"
             LHCP = "LHCP"
+
     @property
     def cross_dipole_polarization(self) -> CrossDipolePolarizationOption:
         """Cross Dipole Polarization
@@ -448,6 +486,7 @@ class AntennaNode(EmitNode):
         val = self._get_property('Cross Dipole Polarization')
         val = self.CrossDipolePolarizationOption[val]
         return val
+
     @cross_dipole_polarization.setter
     def cross_dipole_polarization(self, value: CrossDipolePolarizationOption):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Cross Dipole Polarization=' + value.value])
@@ -460,6 +499,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Override Height')
         return val
+
     @override_height.setter
     def override_height(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Override Height=' + value])
@@ -472,6 +512,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Offset Height')
         return val
+
     @offset_height.setter
     def offset_height(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Offset Height=' + value])
@@ -484,6 +525,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Auto Height Offset')
         return val
+
     @auto_height_offset.setter
     def auto_height_offset(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Auto Height Offset=' + value])
@@ -496,6 +538,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Conform / Adjust Antenna')
         return val
+
     @conform__adjust_antenna.setter
     def conform__adjust_antenna(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Conform / Adjust Antenna=' + value])
@@ -508,6 +551,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Element Offset')
         return val
+
     @element_offset.setter
     def element_offset(self, value):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Element Offset=' + value])
@@ -516,6 +560,7 @@ class AntennaNode(EmitNode):
             NONE = "None"
             ALONG_NORMAL = "Along Normal"
             PERPENDICULAR_TO_PLANE = "Perpendicular to Plane"
+
     @property
     def conform_to_platform(self) -> ConformtoPlatformOption:
         """Conform to Platform
@@ -524,6 +569,7 @@ class AntennaNode(EmitNode):
         val = self._get_property('Conform to Platform')
         val = self.ConformtoPlatformOption[val]
         return val
+
     @conform_to_platform.setter
     def conform_to_platform(self, value: ConformtoPlatformOption):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Conform to Platform=' + value.value])
@@ -532,6 +578,7 @@ class AntennaNode(EmitNode):
             XY_PLANE = "XY Plane"
             YZ_PLANE = "YZ Plane"
             ZX_PLANE = "ZX Plane"
+
     @property
     def reference_plane(self) -> ReferencePlaneOption:
         """Reference Plane
@@ -540,6 +587,7 @@ class AntennaNode(EmitNode):
         val = self._get_property('Reference Plane')
         val = self.ReferencePlaneOption[val]
         return val
+
     @reference_plane.setter
     def reference_plane(self, value: ReferencePlaneOption):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Reference Plane=' + value.value])
@@ -552,6 +600,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Conform Element Orientation')
         return val
+
     @conform_element_orientation.setter
     def conform_element_orientation(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Conform Element Orientation=' + value])
@@ -564,6 +613,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Show Axes')
         return val
+
     @show_axes.setter
     def show_axes(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Show Axes=' + value])
@@ -576,6 +626,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Show Icon')
         return val
+
     @show_icon.setter
     def show_icon(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Show Icon=' + value])
@@ -588,6 +639,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Size')
         return val
+
     @size.setter
     def size(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Size=' + value])
@@ -600,6 +652,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Color')
         return val
+
     @color.setter
     def color(self, value):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Color=' + value])
@@ -611,6 +664,7 @@ class AntennaNode(EmitNode):
         "        """
         val = self._get_property('El Sample Interval')
         return val
+
     @property
     def az_sample_interval(self) -> float:
         """Az Sample Interval
@@ -618,6 +672,7 @@ class AntennaNode(EmitNode):
         "        """
         val = self._get_property('Az Sample Interval')
         return val
+
     @property
     def has_frequency_domain(self) -> bool:
         """Has Frequency Domain
@@ -626,6 +681,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Has Frequency Domain')
         return val
+
     @property
     def frequency_domain(self):
         """Frequency Domain
@@ -633,6 +689,7 @@ class AntennaNode(EmitNode):
         "        """
         val = self._get_property('Frequency Domain')
         return val
+
     @property
     def number_of_electric_sources(self) -> int:
         """Number of Electric Sources
@@ -640,6 +697,7 @@ class AntennaNode(EmitNode):
         "        """
         val = self._get_property('Number of Electric Sources')
         return val
+
     @property
     def number_of_magnetic_sources(self) -> int:
         """Number of Magnetic Sources
@@ -647,6 +705,7 @@ class AntennaNode(EmitNode):
         "        """
         val = self._get_property('Number of Magnetic Sources')
         return val
+
     @property
     def number_of_imaged_electric_sources(self) -> int:
         """Number of Imaged Electric Sources
@@ -654,6 +713,7 @@ class AntennaNode(EmitNode):
         "        """
         val = self._get_property('Number of Imaged Electric Sources')
         return val
+
     @property
     def number_of_imaged_magnetic_sources(self) -> int:
         """Number of Imaged Magnetic Sources
@@ -661,6 +721,7 @@ class AntennaNode(EmitNode):
         "        """
         val = self._get_property('Number of Imaged Magnetic Sources')
         return val
+
     @property
     def waveguide_height(self) -> float:
         """Waveguide Height
@@ -668,6 +729,7 @@ class AntennaNode(EmitNode):
         "        """
         val = self._get_property('Waveguide Height')
         return val
+
     @property
     def waveguide_cutoff_frequency(self) -> float:
         """Waveguide Cutoff Frequency
@@ -675,6 +737,7 @@ class AntennaNode(EmitNode):
         "        """
         val = self._get_property('Waveguide Cutoff Frequency')
         return val
+
     @property
     def aperture_cutoff_frequency(self) -> float:
         """Aperture Cutoff Frequency
@@ -682,10 +745,12 @@ class AntennaNode(EmitNode):
         "        """
         val = self._get_property('Aperture Cutoff Frequency')
         return val
+
     class SWEModeTruncationOption(Enum):
             DYNAMIC = "Dynamic"
             CUSTOM = "Fixed (Custom)"
             NONE = "None"
+
     @property
     def swe_mode_truncation(self) -> SWEModeTruncationOption:
         """SWE Mode Truncation
@@ -694,6 +759,7 @@ class AntennaNode(EmitNode):
         val = self._get_property('SWE Mode Truncation')
         val = self.SWEModeTruncationOption[val]
         return val
+
     @swe_mode_truncation.setter
     def swe_mode_truncation(self, value: SWEModeTruncationOption):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['SWE Mode Truncation=' + value.value])
@@ -706,6 +772,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Max N Index')
         return val
+
     @max_n_index.setter
     def max_n_index(self, value: int):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Max N Index=' + value])
@@ -717,6 +784,7 @@ class AntennaNode(EmitNode):
         "        """
         val = self._get_property('Notes')
         return val
+
     @notes.setter
     def notes(self, value: str):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
@@ -729,6 +797,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Show Composite Passband')
         return val
+
     @show_composite_passband.setter
     def show_composite_passband(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Show Composite Passband=' + value])
@@ -741,6 +810,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('Use Phase Center')
         return val
+
     @use_phase_center.setter
     def use_phase_center(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Use Phase Center=' + value])
@@ -752,6 +822,7 @@ class AntennaNode(EmitNode):
         "        """
         val = self._get_property('Coordinate Systems')
         return val
+
     @property
     def phasecenterposition(self):
         """PhaseCenterPosition
@@ -760,6 +831,7 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('PhaseCenterPosition')
         return val
+
     @property
     def phasecenterorientation(self):
         """PhaseCenterOrientation
@@ -768,3 +840,4 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property('PhaseCenterOrientation')
         return val
+

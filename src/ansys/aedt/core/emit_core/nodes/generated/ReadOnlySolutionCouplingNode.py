@@ -21,6 +21,7 @@ class ReadOnlySolutionCouplingNode(EmitNode):
         """
         val = self._get_property('Enabled')
         return val
+
     @property
     def enable_refinement(self) -> bool:
         """Enable Refinement
@@ -29,6 +30,7 @@ class ReadOnlySolutionCouplingNode(EmitNode):
         """
         val = self._get_property('Enable Refinement')
         return val
+
     @property
     def adaptive_sampling(self) -> bool:
         """Adaptive Sampling
@@ -37,6 +39,7 @@ class ReadOnlySolutionCouplingNode(EmitNode):
         """
         val = self._get_property('Adaptive Sampling')
         return val
+
     @property
     def refinement_domain(self):
         """Refinement Domain
@@ -44,3 +47,4 @@ class ReadOnlySolutionCouplingNode(EmitNode):
         "        """
         val = self._get_property('Refinement Domain')
         return val
+

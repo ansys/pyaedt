@@ -29,3 +29,4 @@ class ReadOnlyRadioNode(EmitNode):
         "        """
         val = self._get_property('Notes')
         return val
+

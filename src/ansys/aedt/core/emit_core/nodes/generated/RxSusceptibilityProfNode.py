@@ -17,6 +17,7 @@ class RxSusceptibilityProfNode(EmitNode):
     def enabled(self) -> bool:
         """Enabled state for this node."""
         return self._oDesign.GetModule('EmitCom').GetEmitNodeProperties(self._result_id,self._node_id,'enabled')
+
     @enabled.setter
     def enabled(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['enabled=' + value])
@@ -26,6 +27,7 @@ class RxSusceptibilityProfNode(EmitNode):
             DBUV = "dBuV"
             MILLIWATTS = "milliwatts"
             MICROVOLTS = "microvolts"
+
     @property
     def sensitivity_units(self) -> SensitivityUnitsOption:
         """Sensitivity Units
@@ -34,6 +36,7 @@ class RxSusceptibilityProfNode(EmitNode):
         val = self._get_property('Sensitivity Units')
         val = self.SensitivityUnitsOption[val]
         return val
+
     @sensitivity_units.setter
     def sensitivity_units(self, value: SensitivityUnitsOption):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Sensitivity Units=' + value.value])
@@ -46,6 +49,7 @@ class RxSusceptibilityProfNode(EmitNode):
         """
         val = self._get_property('Min. Receive Signal Pwr ')
         return val
+
     @min_receive_signal_pwr_.setter
     def min_receive_signal_pwr_(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Min. Receive Signal Pwr =' + value])
@@ -58,6 +62,7 @@ class RxSusceptibilityProfNode(EmitNode):
         """
         val = self._get_property('SNR at Rx Signal Pwr')
         return val
+
     @snr_at_rx_signal_pwr.setter
     def snr_at_rx_signal_pwr(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['SNR at Rx Signal Pwr=' + value])
@@ -70,6 +75,7 @@ class RxSusceptibilityProfNode(EmitNode):
         """
         val = self._get_property('Processing Gain')
         return val
+
     @processing_gain.setter
     def processing_gain(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Processing Gain=' + value])
@@ -82,6 +88,7 @@ class RxSusceptibilityProfNode(EmitNode):
         """
         val = self._get_property('Apply PG to Narrowband Only')
         return val
+
     @apply_pg_to_narrowband_only.setter
     def apply_pg_to_narrowband_only(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Apply PG to Narrowband Only=' + value])
@@ -94,6 +101,7 @@ class RxSusceptibilityProfNode(EmitNode):
         """
         val = self._get_property('Saturation Level')
         return val
+
     @saturation_level.setter
     def saturation_level(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Saturation Level=' + value])
@@ -106,6 +114,7 @@ class RxSusceptibilityProfNode(EmitNode):
         """
         val = self._get_property('Rx Noise Figure')
         return val
+
     @rx_noise_figure.setter
     def rx_noise_figure(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Rx Noise Figure=' + value])
@@ -118,6 +127,7 @@ class RxSusceptibilityProfNode(EmitNode):
         """
         val = self._get_property('Receiver Sensitivity ')
         return val
+
     @receiver_sensitivity_.setter
     def receiver_sensitivity_(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Receiver Sensitivity =' + value])
@@ -130,6 +140,7 @@ class RxSusceptibilityProfNode(EmitNode):
         """
         val = self._get_property('SNR/SINAD at Sensitivity ')
         return val
+
     @snrsinad_at_sensitivity_.setter
     def snrsinad_at_sensitivity_(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['SNR/SINAD at Sensitivity =' + value])
@@ -142,6 +153,7 @@ class RxSusceptibilityProfNode(EmitNode):
         """
         val = self._get_property('Perform Rx Intermod Analysis')
         return val
+
     @perform_rx_intermod_analysis.setter
     def perform_rx_intermod_analysis(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Perform Rx Intermod Analysis=' + value])
@@ -154,6 +166,7 @@ class RxSusceptibilityProfNode(EmitNode):
         """
         val = self._get_property('Amplifier Saturation Level')
         return val
+
     @amplifier_saturation_level.setter
     def amplifier_saturation_level(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Amplifier Saturation Level=' + value])
@@ -166,6 +179,7 @@ class RxSusceptibilityProfNode(EmitNode):
         """
         val = self._get_property('1-dB Point, Ref. Input ')
         return val
+
     @_1_db_point_ref_input_.setter
     def _1_db_point_ref_input_(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['1-dB Point, Ref. Input =' + value])
@@ -178,6 +192,7 @@ class RxSusceptibilityProfNode(EmitNode):
         """
         val = self._get_property('IP3, Ref. Input')
         return val
+
     @ip3_ref_input.setter
     def ip3_ref_input(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['IP3, Ref. Input=' + value])
@@ -190,6 +205,7 @@ class RxSusceptibilityProfNode(EmitNode):
         """
         val = self._get_property('Max Intermod Order')
         return val
+
     @max_intermod_order.setter
     def max_intermod_order(self, value: int):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Max Intermod Order=' + value])

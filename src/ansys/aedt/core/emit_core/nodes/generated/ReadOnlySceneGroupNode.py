@@ -21,6 +21,7 @@ class ReadOnlySceneGroupNode(EmitNode):
         """
         val = self._get_property('Show Relative Coordinates')
         return val
+
     @property
     def position(self):
         """Position
@@ -29,6 +30,7 @@ class ReadOnlySceneGroupNode(EmitNode):
         """
         val = self._get_property('Position')
         return val
+
     @property
     def relative_position(self):
         """Relative Position
@@ -37,9 +39,11 @@ class ReadOnlySceneGroupNode(EmitNode):
         """
         val = self._get_property('Relative Position')
         return val
+
     class OrientationModeOption(Enum):
             RPYDEG = "Roll-Pitch-Yaw"
             AETDEG = "Az-El-Twist"
+
     @property
     def orientation_mode(self) -> OrientationModeOption:
         """Orientation Mode
@@ -48,6 +52,7 @@ class ReadOnlySceneGroupNode(EmitNode):
         val = self._get_property('Orientation Mode')
         val = self.OrientationModeOption[val]
         return val
+
     @property
     def orientation(self):
         """Orientation
@@ -56,6 +61,7 @@ class ReadOnlySceneGroupNode(EmitNode):
         """
         val = self._get_property('Orientation')
         return val
+
     @property
     def relative_orientation(self):
         """Relative Orientation
@@ -64,6 +70,7 @@ class ReadOnlySceneGroupNode(EmitNode):
         """
         val = self._get_property('Relative Orientation')
         return val
+
     @property
     def show_axes(self) -> bool:
         """Show Axes
@@ -72,6 +79,7 @@ class ReadOnlySceneGroupNode(EmitNode):
         """
         val = self._get_property('Show Axes')
         return val
+
     @property
     def box_color(self):
         """Box Color
@@ -80,6 +88,7 @@ class ReadOnlySceneGroupNode(EmitNode):
         """
         val = self._get_property('Box Color')
         return val
+
     @property
     def notes(self) -> str:
         """Notes
@@ -87,3 +96,4 @@ class ReadOnlySceneGroupNode(EmitNode):
         "        """
         val = self._get_property('Notes')
         return val
+

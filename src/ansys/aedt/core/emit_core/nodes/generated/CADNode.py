@@ -33,6 +33,7 @@ class CADNode(EmitNode):
         """
         val = self._get_property('File')
         return val
+
     class ModelTypeOption(Enum):
             PLATE = "Plate"
             BOX = "Box"
@@ -48,6 +49,7 @@ class CADNode(EmitNode):
             PRISM = "Prism"
             TAPERED_PRISM = "Tapered Prism"
             TOPHAT = "Tophat"
+
     @property
     def model_type(self) -> ModelTypeOption:
         """Model Type
@@ -56,6 +58,7 @@ class CADNode(EmitNode):
         val = self._get_property('Model Type')
         val = self.ModelTypeOption[val]
         return val
+
     @model_type.setter
     def model_type(self, value: ModelTypeOption):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Model Type=' + value.value])
@@ -68,6 +71,7 @@ class CADNode(EmitNode):
         """
         val = self._get_property('Length')
         return val
+
     @length.setter
     def length(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Length=' + value])
@@ -80,6 +84,7 @@ class CADNode(EmitNode):
         """
         val = self._get_property('Width')
         return val
+
     @width.setter
     def width(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Width=' + value])
@@ -92,6 +97,7 @@ class CADNode(EmitNode):
         """
         val = self._get_property('Height')
         return val
+
     @height.setter
     def height(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Height=' + value])
@@ -104,6 +110,7 @@ class CADNode(EmitNode):
         """
         val = self._get_property('Angle')
         return val
+
     @angle.setter
     def angle(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Angle=' + value])
@@ -116,6 +123,7 @@ class CADNode(EmitNode):
         """
         val = self._get_property('Top Side')
         return val
+
     @top_side.setter
     def top_side(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Top Side=' + value])
@@ -128,6 +136,7 @@ class CADNode(EmitNode):
         """
         val = self._get_property('Top Radius')
         return val
+
     @top_radius.setter
     def top_radius(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Top Radius=' + value])
@@ -140,6 +149,7 @@ class CADNode(EmitNode):
         """
         val = self._get_property('Side')
         return val
+
     @side.setter
     def side(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Side=' + value])
@@ -152,6 +162,7 @@ class CADNode(EmitNode):
         """
         val = self._get_property('Radius')
         return val
+
     @radius.setter
     def radius(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Radius=' + value])
@@ -164,6 +175,7 @@ class CADNode(EmitNode):
         """
         val = self._get_property('Base Radius')
         return val
+
     @base_radius.setter
     def base_radius(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Base Radius=' + value])
@@ -176,6 +188,7 @@ class CADNode(EmitNode):
         """
         val = self._get_property('Center Radius')
         return val
+
     @center_radius.setter
     def center_radius(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Center Radius=' + value])
@@ -188,6 +201,7 @@ class CADNode(EmitNode):
         """
         val = self._get_property('X Axis Ellipsoid Radius')
         return val
+
     @x_axis_ellipsoid_radius.setter
     def x_axis_ellipsoid_radius(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['X Axis Ellipsoid Radius=' + value])
@@ -200,6 +214,7 @@ class CADNode(EmitNode):
         """
         val = self._get_property('Y Axis Ellipsoid Radius')
         return val
+
     @y_axis_ellipsoid_radius.setter
     def y_axis_ellipsoid_radius(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Y Axis Ellipsoid Radius=' + value])
@@ -212,6 +227,7 @@ class CADNode(EmitNode):
         """
         val = self._get_property('Z Axis Ellipsoid Radius')
         return val
+
     @z_axis_ellipsoid_radius.setter
     def z_axis_ellipsoid_radius(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Z Axis Ellipsoid Radius=' + value])
@@ -224,6 +240,7 @@ class CADNode(EmitNode):
         """
         val = self._get_property('Focal Length')
         return val
+
     @focal_length.setter
     def focal_length(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Focal Length=' + value])
@@ -235,6 +252,7 @@ class CADNode(EmitNode):
         "        """
         val = self._get_property('Offset')
         return val
+
     @offset.setter
     def offset(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Offset=' + value])
@@ -247,6 +265,7 @@ class CADNode(EmitNode):
         """
         val = self._get_property('X Direction Taper')
         return val
+
     @x_direction_taper.setter
     def x_direction_taper(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['X Direction Taper=' + value])
@@ -259,6 +278,7 @@ class CADNode(EmitNode):
         """
         val = self._get_property('Y Direction Taper')
         return val
+
     @y_direction_taper.setter
     def y_direction_taper(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Y Direction Taper=' + value])
@@ -271,6 +291,7 @@ class CADNode(EmitNode):
         """
         val = self._get_property('Prism Direction')
         return val
+
     @prism_direction.setter
     def prism_direction(self, value):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Prism Direction=' + value])
@@ -283,6 +304,7 @@ class CADNode(EmitNode):
         """
         val = self._get_property('Closed Top')
         return val
+
     @closed_top.setter
     def closed_top(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Closed Top=' + value])
@@ -295,6 +317,7 @@ class CADNode(EmitNode):
         """
         val = self._get_property('Closed Base')
         return val
+
     @closed_base.setter
     def closed_base(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Closed Base=' + value])
@@ -307,6 +330,7 @@ class CADNode(EmitNode):
         """
         val = self._get_property('Mesh Density')
         return val
+
     @mesh_density.setter
     def mesh_density(self, value: int):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Mesh Density=' + value])
@@ -319,6 +343,7 @@ class CADNode(EmitNode):
         """
         val = self._get_property('Use Symmetric Mesh')
         return val
+
     @use_symmetric_mesh.setter
     def use_symmetric_mesh(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Use Symmetric Mesh=' + value])
@@ -326,6 +351,7 @@ class CADNode(EmitNode):
     class MeshOptionOption(Enum):
             IMPROVED = "Improved"
             LEGACY = "Legacy"
+
     @property
     def mesh_option(self) -> MeshOptionOption:
         """Mesh Option
@@ -334,6 +360,7 @@ class CADNode(EmitNode):
         val = self._get_property('Mesh Option')
         val = self.MeshOptionOption[val]
         return val
+
     @mesh_option.setter
     def mesh_option(self, value: MeshOptionOption):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Mesh Option=' + value.value])
@@ -346,6 +373,7 @@ class CADNode(EmitNode):
         """
         val = self._get_property('Coating Index')
         return val
+
     @coating_index.setter
     def coating_index(self, value: int):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Coating Index=' + value])
@@ -358,6 +386,7 @@ class CADNode(EmitNode):
         """
         val = self._get_property('Show Relative Coordinates')
         return val
+
     @show_relative_coordinates.setter
     def show_relative_coordinates(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Show Relative Coordinates=' + value])
@@ -370,6 +399,7 @@ class CADNode(EmitNode):
         """
         val = self._get_property('Position')
         return val
+
     @position.setter
     def position(self, value):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Position=' + value])
@@ -382,6 +412,7 @@ class CADNode(EmitNode):
         """
         val = self._get_property('Relative Position')
         return val
+
     @relative_position.setter
     def relative_position(self, value):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Relative Position=' + value])
@@ -389,6 +420,7 @@ class CADNode(EmitNode):
     class OrientationModeOption(Enum):
             RPYDEG = "Roll-Pitch-Yaw"
             AETDEG = "Az-El-Twist"
+
     @property
     def orientation_mode(self) -> OrientationModeOption:
         """Orientation Mode
@@ -397,6 +429,7 @@ class CADNode(EmitNode):
         val = self._get_property('Orientation Mode')
         val = self.OrientationModeOption[val]
         return val
+
     @orientation_mode.setter
     def orientation_mode(self, value: OrientationModeOption):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Orientation Mode=' + value.value])
@@ -409,6 +442,7 @@ class CADNode(EmitNode):
         """
         val = self._get_property('Orientation')
         return val
+
     @orientation.setter
     def orientation(self, value):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Orientation=' + value])
@@ -421,6 +455,7 @@ class CADNode(EmitNode):
         """
         val = self._get_property('Relative Orientation')
         return val
+
     @relative_orientation.setter
     def relative_orientation(self, value):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Relative Orientation=' + value])
@@ -433,6 +468,7 @@ class CADNode(EmitNode):
         """
         val = self._get_property('Visible')
         return val
+
     @visible.setter
     def visible(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Visible=' + value])
@@ -442,6 +478,7 @@ class CADNode(EmitNode):
             WIRE_FRAME = "Wire-Frame"
             HIDDEN_WIRE_FRAME = "Hidden Wire-Frame"
             OUTLINE = "Outline"
+
     @property
     def render_mode(self) -> RenderModeOption:
         """Render Mode
@@ -450,6 +487,7 @@ class CADNode(EmitNode):
         val = self._get_property('Render Mode')
         val = self.RenderModeOption[val]
         return val
+
     @render_mode.setter
     def render_mode(self, value: RenderModeOption):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Render Mode=' + value.value])
@@ -462,6 +500,7 @@ class CADNode(EmitNode):
         """
         val = self._get_property('Show Axes')
         return val
+
     @show_axes.setter
     def show_axes(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Show Axes=' + value])
@@ -474,6 +513,7 @@ class CADNode(EmitNode):
         """
         val = self._get_property('Min')
         return val
+
     @property
     def max(self):
         """Max
@@ -482,6 +522,7 @@ class CADNode(EmitNode):
         """
         val = self._get_property('Max')
         return val
+
     @property
     def number_of_surfaces(self) -> int:
         """Number of Surfaces
@@ -489,6 +530,7 @@ class CADNode(EmitNode):
         "        """
         val = self._get_property('Number of Surfaces')
         return val
+
     @property
     def color(self):
         """Color
@@ -497,6 +539,7 @@ class CADNode(EmitNode):
         """
         val = self._get_property('Color')
         return val
+
     @color.setter
     def color(self, value):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Color=' + value])
@@ -508,6 +551,7 @@ class CADNode(EmitNode):
         "        """
         val = self._get_property('Notes')
         return val
+
     @notes.setter
     def notes(self, value: str):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])

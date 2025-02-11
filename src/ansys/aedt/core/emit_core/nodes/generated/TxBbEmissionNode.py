@@ -31,6 +31,7 @@ class TxBbEmissionNode(EmitNode):
         "    Value should be between -200 and 150."
         """
         return self._get_table_data()
+
     @table_data.setter
     def table_data(self, value):
         self._set_table_data(value)
@@ -39,6 +40,7 @@ class TxBbEmissionNode(EmitNode):
     def enabled(self) -> bool:
         """Enabled state for this node."""
         return self._oDesign.GetModule('EmitCom').GetEmitNodeProperties(self._result_id,self._node_id,'enabled')
+
     @enabled.setter
     def enabled(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['enabled=' + value])
@@ -48,6 +50,7 @@ class TxBbEmissionNode(EmitNode):
             RELATIVEBANDWIDTH = "Relative (Bandwidth)"
             RELATIVEOFFSET = "Relative (Offset)"
             BROADBANDEQUATION = "Equation"
+
     @property
     def noise_behavior(self) -> NoiseBehaviorOption:
         """Noise Behavior
@@ -56,6 +59,7 @@ class TxBbEmissionNode(EmitNode):
         val = self._get_property('Noise Behavior')
         val = self.NoiseBehaviorOption[val]
         return val
+
     @noise_behavior.setter
     def noise_behavior(self, value: NoiseBehaviorOption):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Noise Behavior=' + value.value])
@@ -68,6 +72,7 @@ class TxBbEmissionNode(EmitNode):
         """
         val = self._get_property('Use Log-Linear Interpolation')
         return val
+
     @use_log_linear_interpolation.setter
     def use_log_linear_interpolation(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Use Log-Linear Interpolation=' + value])

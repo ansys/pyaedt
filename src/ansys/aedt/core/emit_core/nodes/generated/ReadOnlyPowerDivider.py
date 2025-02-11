@@ -16,6 +16,7 @@ class ReadOnlyPowerDivider(EmitNode):
         """
         val = self._get_property('Filename')
         return val
+
     @property
     def noise_temperature(self) -> float:
         """Noise Temperature
@@ -24,6 +25,7 @@ class ReadOnlyPowerDivider(EmitNode):
         """
         val = self._get_property('Noise Temperature')
         return val
+
     @property
     def notes(self) -> str:
         """Notes
@@ -31,10 +33,12 @@ class ReadOnlyPowerDivider(EmitNode):
         "        """
         val = self._get_property('Notes')
         return val
+
     class TypeOption(Enum):
             BYFILE = "By File"
             _3DB = "3 dB"
             RESISTIVE = "Resistive"
+
     @property
     def type(self) -> TypeOption:
         """Type
@@ -43,9 +47,11 @@ class ReadOnlyPowerDivider(EmitNode):
         val = self._get_property('Type')
         val = self.TypeOption[val]
         return val
+
     class OrientationOption(Enum):
             RADIOSIDE = "Divider"
             ANTENNASIDE = "Combiner"
+
     @property
     def orientation(self) -> OrientationOption:
         """Orientation
@@ -54,6 +60,7 @@ class ReadOnlyPowerDivider(EmitNode):
         val = self._get_property('Orientation')
         val = self.OrientationOption[val]
         return val
+
     @property
     def insertion_loss_above_ideal(self) -> float:
         """Insertion Loss Above Ideal
@@ -62,6 +69,7 @@ class ReadOnlyPowerDivider(EmitNode):
         """
         val = self._get_property('Insertion Loss Above Ideal')
         return val
+
     @property
     def finite_isolation(self) -> bool:
         """Finite Isolation
@@ -70,6 +78,7 @@ class ReadOnlyPowerDivider(EmitNode):
         """
         val = self._get_property('Finite Isolation')
         return val
+
     @property
     def isolation(self) -> float:
         """Isolation
@@ -78,6 +87,7 @@ class ReadOnlyPowerDivider(EmitNode):
         """
         val = self._get_property('Isolation')
         return val
+
     @property
     def finite_bandwidth(self) -> bool:
         """Finite Bandwidth
@@ -86,6 +96,7 @@ class ReadOnlyPowerDivider(EmitNode):
         """
         val = self._get_property('Finite Bandwidth')
         return val
+
     @property
     def out_of_band_attenuation(self) -> float:
         """Out-of-band Attenuation
@@ -94,6 +105,7 @@ class ReadOnlyPowerDivider(EmitNode):
         """
         val = self._get_property('Out-of-band Attenuation')
         return val
+
     @property
     def lower_stop_band(self) -> float:
         """Lower Stop Band
@@ -102,6 +114,7 @@ class ReadOnlyPowerDivider(EmitNode):
         """
         val = self._get_property('Lower Stop Band')
         return val
+
     @property
     def lower_cutoff(self) -> float:
         """Lower Cutoff
@@ -110,6 +123,7 @@ class ReadOnlyPowerDivider(EmitNode):
         """
         val = self._get_property('Lower Cutoff')
         return val
+
     @property
     def higher_cutoff(self) -> float:
         """Higher Cutoff
@@ -118,6 +132,7 @@ class ReadOnlyPowerDivider(EmitNode):
         """
         val = self._get_property('Higher Cutoff')
         return val
+
     @property
     def higher_stop_band(self) -> float:
         """Higher Stop Band
@@ -126,6 +141,7 @@ class ReadOnlyPowerDivider(EmitNode):
         """
         val = self._get_property('Higher Stop Band')
         return val
+
     @property
     def warnings(self) -> str:
         """Warnings
@@ -133,3 +149,4 @@ class ReadOnlyPowerDivider(EmitNode):
         "        """
         val = self._get_property('Warnings')
         return val
+

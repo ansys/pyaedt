@@ -42,7 +42,6 @@ class EmitNode:
             if split_prop[1].find('|') != -1:
                 result[split_prop[0]] = split_prop[1].split('|')
             result[split_prop[0]] = split_prop[1]
-
         return result
 
     @property
@@ -56,20 +55,9 @@ class EmitNode:
 
     @property
     def _parent(self):
-        from . import generated
-        # from .generated import *
-
         # parent_id = self._oDesign.GetModule('EmitCom').GetParentNodeID(self._result_id, self._node_id)
         parent_id = 1
-
-        parent_props = self._oDesign.GetModule('EmitCom').GetEmitNodeProperties(self._result_id, parent_id, True)
-        parent_props = self.props_to_dict(parent_props)
-
-        parent_type = parent_props['Type']
-
-        parent_type_class = getattr(generated, parent_type)
-        parent_node = parent_type_class(self._oDesign, self._result_id, parent_id)
-
+        parent_node = self._get_node(parent_id)
         return parent_node
 
     @property
@@ -85,6 +73,44 @@ class EmitNode:
     @property
     def allowed_child_types(self):
         return self._oDesign.GetModule('EmitCom').GetAllowedChildTypes(self._result_id, self._node_id)
+
+    def _get_node(self, id: int):
+        """Gets a node for this node's revision with the given id.
+
+        Parameters
+        ----------
+        id: int
+            id of node to construct.
+
+        Returns
+        -------
+        node: EmitNode
+            The node.
+
+        Examples
+        --------
+        >>> new_node = node._get_node(node_id)
+        """
+        from . import generated
+
+        props = self._oDesign.GetModule('EmitCom').GetEmitNodeProperties(self._result_id, id, True)
+        props = self.props_to_dict(props)
+        type = props['Type']
+
+        node = None
+        try:
+            type_class = getattr(generated, type)
+            node = type_class(self._oDesign, self._result_id, id)
+        except AttributeError:
+            node = EmitNode(self._oDesign, self._result_id, id)
+        return node
+    
+    @property
+    def children(self):
+        child_names = self._oDesign.GetModule('EmitCom').GetChildNodeNames(self._result_id, self._node_id)
+        child_ids = [self._oDesign.GetModule('EmitCom').GetChildNodeID(self._result_id, self._node_id, name) for name in child_names]
+        child_nodes = [self._get_node(child_id) for child_id in child_ids]
+        return child_nodes 
     
     def _get_property(self, prop):
         props = self._oDesign.GetModule('EmitCom').GetEmitNodeProperties(self._result_id, self._node_id, True)
@@ -133,3 +159,16 @@ class EmitNode:
     def _set_table_data(self, nested_list):
         rows = [col.join(' ') for col in nested_list]
         self._oDesign.GetModule('EmitCom').SetTableData(self._result_id, self._node_id, rows)
+    
+    def _add_child_node(self, child_type, child_name = None):
+        if not child_name:
+            child_name = f'New {child_type}'
+
+        new_id = None
+        if child_type not in self.allowed_child_types:
+            raise ValueError(f"Child type {child_type} is not allowed for this node. Allowed types are: {self.allowed_child_types}")
+        try:
+            new_id = self._oDesign.GetModule('EmitCom').CreateEmitNode(self._result_id, self._node_id, child_name, child_type)
+        except Exception as e:
+            print(f"Failed to add child node of type {child_type} to node {self.name}. Error: {e}")
+        return new_id

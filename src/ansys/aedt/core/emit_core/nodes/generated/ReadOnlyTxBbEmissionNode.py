@@ -29,6 +29,7 @@ class ReadOnlyTxBbEmissionNode(EmitNode):
             RELATIVEBANDWIDTH = "Relative (Bandwidth)"
             RELATIVEOFFSET = "Relative (Offset)"
             BROADBANDEQUATION = "Equation"
+
     @property
     def noise_behavior(self) -> NoiseBehaviorOption:
         """Noise Behavior
@@ -37,6 +38,7 @@ class ReadOnlyTxBbEmissionNode(EmitNode):
         val = self._get_property('Noise Behavior')
         val = self.NoiseBehaviorOption[val]
         return val
+
     @property
     def use_log_linear_interpolation(self) -> bool:
         """Use Log-Linear Interpolation
@@ -45,3 +47,4 @@ class ReadOnlyTxBbEmissionNode(EmitNode):
         """
         val = self._get_property('Use Log-Linear Interpolation')
         return val
+

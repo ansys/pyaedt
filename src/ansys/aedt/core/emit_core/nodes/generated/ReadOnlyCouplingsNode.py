@@ -16,6 +16,7 @@ class ReadOnlyCouplingsNode(EmitNode):
         """
         val = self._get_property('Minimum Allowed Coupling')
         return val
+
     @property
     def global_default_coupling(self) -> float:
         """Global Default Coupling
@@ -24,6 +25,7 @@ class ReadOnlyCouplingsNode(EmitNode):
         """
         val = self._get_property('Global Default Coupling')
         return val
+
     @property
     def antenna_tags(self) -> str:
         """Antenna Tags
@@ -31,3 +33,4 @@ class ReadOnlyCouplingsNode(EmitNode):
         "        """
         val = self._get_property('Antenna Tags')
         return val
+

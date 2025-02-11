@@ -21,6 +21,7 @@ class ReadOnlyRfSystemGroup(EmitNode):
         """
         val = self._get_property('Enable Passive Noise')
         return val
+
     @property
     def enforce_thermal_noise_floor(self) -> bool:
         """Enforce Thermal Noise Floor
@@ -29,3 +30,4 @@ class ReadOnlyRfSystemGroup(EmitNode):
         """
         val = self._get_property('Enforce Thermal Noise Floor')
         return val
+

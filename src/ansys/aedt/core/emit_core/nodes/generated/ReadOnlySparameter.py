@@ -16,6 +16,7 @@ class ReadOnlySparameter(EmitNode):
         """
         val = self._get_property('File')
         return val
+
     @property
     def noise_temperature(self) -> float:
         """Noise Temperature
@@ -24,6 +25,7 @@ class ReadOnlySparameter(EmitNode):
         """
         val = self._get_property('Noise Temperature')
         return val
+
     @property
     def notes(self) -> str:
         """Notes
@@ -31,6 +33,7 @@ class ReadOnlySparameter(EmitNode):
         "        """
         val = self._get_property('Notes')
         return val
+
     @property
     def radio_side_ports(self):
         """Radio Side Ports
@@ -39,6 +42,7 @@ class ReadOnlySparameter(EmitNode):
         "        """
         val = self._get_property('Radio Side Ports')
         return val
+
     @property
     def antenna_side_ports(self):
         """Antenna Side Ports
@@ -47,6 +51,7 @@ class ReadOnlySparameter(EmitNode):
         "        """
         val = self._get_property('Antenna Side Ports')
         return val
+
     @property
     def warnings(self) -> str:
         """Warnings
@@ -54,3 +59,4 @@ class ReadOnlySparameter(EmitNode):
         "        """
         val = self._get_property('Warnings')
         return val
+

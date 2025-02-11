@@ -21,3 +21,4 @@ class ReadOnlyRxSelectivityNode(EmitNode):
         """
         val = self._get_property('Use Arithmetic Mean')
         return val
+

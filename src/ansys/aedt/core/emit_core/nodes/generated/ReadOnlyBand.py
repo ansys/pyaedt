@@ -20,6 +20,7 @@ class ReadOnlyBand(EmitNode):
         "        """
         val = self._get_property('Port')
         return val
+
     @property
     def use_dd_1494_mode(self) -> bool:
         """Use DD-1494 Mode
@@ -28,6 +29,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Use DD-1494 Mode')
         return val
+
     @property
     def use_emission_designator(self) -> bool:
         """Use Emission Designator
@@ -36,6 +38,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Use Emission Designator')
         return val
+
     @property
     def emission_designator(self) -> str:
         """Emission Designator
@@ -43,6 +46,7 @@ class ReadOnlyBand(EmitNode):
         "        """
         val = self._get_property('Emission Designator')
         return val
+
     @property
     def emission_designator_ch_bw(self) -> float:
         """Emission Designator Ch. BW
@@ -50,6 +54,7 @@ class ReadOnlyBand(EmitNode):
         "        """
         val = self._get_property('Emission Designator Ch. BW')
         return val
+
     @property
     def emit_modulation_type(self) -> str:
         """EMIT Modulation Type
@@ -57,6 +62,7 @@ class ReadOnlyBand(EmitNode):
         "        """
         val = self._get_property('EMIT Modulation Type')
         return val
+
     @property
     def override_emission_designator_bw(self) -> bool:
         """Override Emission Designator BW
@@ -65,6 +71,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Override Emission Designator BW')
         return val
+
     @property
     def channel_bandwidth(self) -> float:
         """Channel Bandwidth
@@ -73,6 +80,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Channel Bandwidth')
         return val
+
     class ModulationOption(Enum):
             GENERIC = "Generic"
             AM = "AM"
@@ -85,6 +93,7 @@ class ReadOnlyBand(EmitNode):
             QAM = "QAM"
             APSK = "APSK"
             RADAR = "Radar"
+
     @property
     def modulation(self) -> ModulationOption:
         """Modulation
@@ -93,12 +102,14 @@ class ReadOnlyBand(EmitNode):
         val = self._get_property('Modulation')
         val = self.ModulationOption[val]
         return val
+
     class WaveformOption(Enum):
             PERIODIC_CLOCK = "Periodic Clock"
             SPREAD_SPECTRUM = "Spread Spectrum Clock"
             PRBS = "PRBS"
             PRBS_PERIODIC = "PRBS (Periodic)"
             IMPORTED = "Imported"
+
     @property
     def waveform(self) -> WaveformOption:
         """Waveform
@@ -107,6 +118,7 @@ class ReadOnlyBand(EmitNode):
         val = self._get_property('Waveform')
         val = self.WaveformOption[val]
         return val
+
     @property
     def max_modulating_freq(self) -> float:
         """Max Modulating Freq.
@@ -115,6 +127,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Max Modulating Freq.')
         return val
+
     @property
     def modulation_index(self) -> float:
         """Modulation Index
@@ -123,6 +136,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Modulation Index')
         return val
+
     @property
     def freq_deviation(self) -> float:
         """Freq. Deviation
@@ -131,6 +145,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Freq. Deviation')
         return val
+
     @property
     def bit_rate(self) -> float:
         """Bit Rate
@@ -139,6 +154,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Bit Rate')
         return val
+
     @property
     def sidelobes(self) -> int:
         """Sidelobes
@@ -147,6 +163,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Sidelobes')
         return val
+
     @property
     def freq_deviation_(self) -> float:
         """Freq. Deviation 
@@ -155,6 +172,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Freq. Deviation ')
         return val
+
     class PSKTypeOption(Enum):
             BPSK = "BPSK"
             QPSK = "QPSK"
@@ -162,6 +180,7 @@ class ReadOnlyBand(EmitNode):
             _16_PSK = "16-PSK"
             _32_PSK = "32-PSK"
             _64_PSK = "64-PSK"
+
     @property
     def psk_type(self) -> PSKTypeOption:
         """PSK Type
@@ -170,10 +189,12 @@ class ReadOnlyBand(EmitNode):
         val = self._get_property('PSK Type')
         val = self.PSKTypeOption[val]
         return val
+
     class FSKTypeOption(Enum):
             _2_FSK = "2-FSK"
             _4_FSK = "4-FSK"
             _8_FSK = "8-FSK"
+
     @property
     def fsk_type(self) -> FSKTypeOption:
         """FSK Type
@@ -182,12 +203,14 @@ class ReadOnlyBand(EmitNode):
         val = self._get_property('FSK Type')
         val = self.FSKTypeOption[val]
         return val
+
     class QAMTypeOption(Enum):
             _4_QAM = "4-QAM"
             _16_QAM = "16-QAM"
             _64_QAM = "64-QAM"
             _256_QAM = "256-QAM"
             _1024_QAM = "1024-QAM"
+
     @property
     def qam_type(self) -> QAMTypeOption:
         """QAM Type
@@ -196,12 +219,14 @@ class ReadOnlyBand(EmitNode):
         val = self._get_property('QAM Type')
         val = self.QAMTypeOption[val]
         return val
+
     class APSKTypeOption(Enum):
             _4_APSK = "4-APSK"
             _16_APSK = "16-APSK"
             _64_APSK = "64-APSK"
             _256_APSK = "256-APSK"
             _1024_APSK = "1024-APSK"
+
     @property
     def apsk_type(self) -> APSKTypeOption:
         """APSK Type
@@ -210,6 +235,7 @@ class ReadOnlyBand(EmitNode):
         val = self._get_property('APSK Type')
         val = self.APSKTypeOption[val]
         return val
+
     @property
     def start_frequency(self) -> float:
         """Start Frequency
@@ -218,6 +244,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Start Frequency')
         return val
+
     @property
     def stop_frequency(self) -> float:
         """Stop Frequency
@@ -226,6 +253,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Stop Frequency')
         return val
+
     @property
     def channel_spacing(self) -> float:
         """Channel Spacing
@@ -234,6 +262,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Channel Spacing')
         return val
+
     @property
     def tx_offset(self) -> float:
         """Tx Offset
@@ -242,6 +271,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Tx Offset')
         return val
+
     @property
     def clock_duty_cycle(self) -> float:
         """Clock Duty Cycle
@@ -250,6 +280,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Clock Duty Cycle')
         return val
+
     @property
     def clock_risefall_time(self) -> float:
         """Clock Rise/Fall Time
@@ -258,10 +289,12 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Clock Rise/Fall Time')
         return val
+
     class SpreadingTypeOption(Enum):
             LOW_SPREAD = "Low Spread"
             CENTER_SPREAD = "Center Spread"
             HIGH_SPREAD = "High Spread"
+
     @property
     def spreading_type(self) -> SpreadingTypeOption:
         """Spreading Type
@@ -270,6 +303,7 @@ class ReadOnlyBand(EmitNode):
         val = self._get_property('Spreading Type')
         val = self.SpreadingTypeOption[val]
         return val
+
     @property
     def spread_percentage(self) -> float:
         """Spread Percentage
@@ -278,6 +312,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Spread Percentage')
         return val
+
     @property
     def imported_spectrum(self) -> str:
         """Imported Spectrum
@@ -285,6 +320,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Imported Spectrum')
         return val
+
     @property
     def raw_data_format(self) -> str:
         """Raw Data Format
@@ -292,6 +328,7 @@ class ReadOnlyBand(EmitNode):
         "        """
         val = self._get_property('Raw Data Format')
         return val
+
     @property
     def system_impedance(self) -> float:
         """System Impedance
@@ -300,6 +337,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('System Impedance')
         return val
+
     @property
     def advanced_extraction_params(self) -> bool:
         """Advanced Extraction Params
@@ -308,6 +346,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Advanced Extraction Params')
         return val
+
     @property
     def nb_window_size(self) -> float:
         """NB Window Size
@@ -316,6 +355,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('NB Window Size')
         return val
+
     @property
     def bb_smoothing_factor(self) -> float:
         """BB Smoothing Factor
@@ -324,6 +364,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('BB Smoothing Factor')
         return val
+
     @property
     def nb_detector_threshold(self) -> float:
         """NB Detector Threshold
@@ -332,9 +373,11 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('NB Detector Threshold')
         return val
+
     class AlgorithmOption(Enum):
             FFT = "FFT"
             FOURIER_TRANSFORM = "Fourier Transform"
+
     @property
     def algorithm(self) -> AlgorithmOption:
         """Algorithm
@@ -343,6 +386,7 @@ class ReadOnlyBand(EmitNode):
         val = self._get_property('Algorithm')
         val = self.AlgorithmOption[val]
         return val
+
     @property
     def start(self) -> float:
         """Start
@@ -351,6 +395,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Start')
         return val
+
     @property
     def stop(self) -> float:
         """Stop
@@ -358,6 +403,7 @@ class ReadOnlyBand(EmitNode):
         "        """
         val = self._get_property('Stop')
         return val
+
     @property
     def max_frequency(self) -> float:
         """Max Frequency
@@ -366,6 +412,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Max Frequency')
         return val
+
     class WindowTypeOption(Enum):
             RECTANGULAR = "Rectangular"
             BARTLETT = "Bartlett"
@@ -376,6 +423,7 @@ class ReadOnlyBand(EmitNode):
             LANZCOS = "Lanzcos"
             WELCH = "Welch"
             WEBER = "Weber"
+
     @property
     def window_type(self) -> WindowTypeOption:
         """Window Type
@@ -384,6 +432,7 @@ class ReadOnlyBand(EmitNode):
         val = self._get_property('Window Type')
         val = self.WindowTypeOption[val]
         return val
+
     @property
     def kaiser_parameter(self) -> float:
         """Kaiser Parameter
@@ -392,6 +441,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Kaiser Parameter')
         return val
+
     @property
     def adjust_coherent_gain(self) -> bool:
         """Adjust Coherent Gain
@@ -400,6 +450,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Adjust Coherent Gain')
         return val
+
     @property
     def data_rate(self) -> float:
         """Data Rate
@@ -408,6 +459,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Data Rate')
         return val
+
     @property
     def _of_bits(self) -> int:
         """# of Bits
@@ -416,6 +468,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('# of Bits')
         return val
+
     @property
     def use_envelope(self) -> bool:
         """Use Envelope
@@ -424,6 +477,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Use Envelope')
         return val
+
     @property
     def min_ptsnull(self) -> int:
         """Min Pts/Null
@@ -432,6 +486,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Min Pts/Null')
         return val
+
     @property
     def delay_skew(self) -> float:
         """Delay Skew
@@ -440,12 +495,14 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Delay Skew')
         return val
+
     class RadarTypeOption(Enum):
             CW = "CW"
             FM_CW = "FM-CW"
             FM_PULSE = "FM Pulse"
             NON_FM_PULSE = "Non-FM Pulse"
             PHASE_CODED = "Phase Coded"
+
     @property
     def radar_type(self) -> RadarTypeOption:
         """Radar Type
@@ -454,6 +511,7 @@ class ReadOnlyBand(EmitNode):
         val = self._get_property('Radar Type')
         val = self.RadarTypeOption[val]
         return val
+
     @property
     def hopping_radar(self) -> bool:
         """Hopping Radar
@@ -462,6 +520,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Hopping Radar')
         return val
+
     @property
     def post_october_2020_procurement(self) -> bool:
         """Post October 2020 Procurement
@@ -470,6 +529,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Post October 2020 Procurement')
         return val
+
     @property
     def hop_range_min_freq(self) -> float:
         """Hop Range Min Freq
@@ -478,6 +538,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Hop Range Min Freq')
         return val
+
     @property
     def hop_range_max_freq(self) -> float:
         """Hop Range Max Freq
@@ -486,6 +547,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Hop Range Max Freq')
         return val
+
     @property
     def pulse_duration(self) -> float:
         """Pulse Duration
@@ -494,6 +556,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Pulse Duration')
         return val
+
     @property
     def pulse_rise_time(self) -> float:
         """Pulse Rise Time
@@ -502,6 +565,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Pulse Rise Time')
         return val
+
     @property
     def pulse_fall_time(self) -> float:
         """Pulse Fall Time
@@ -510,6 +574,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Pulse Fall Time')
         return val
+
     @property
     def pulse_repetition_rate(self) -> float:
         """Pulse Repetition Rate
@@ -518,6 +583,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Pulse Repetition Rate')
         return val
+
     @property
     def number_of_chips(self) -> float:
         """Number of Chips
@@ -526,6 +592,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Number of Chips')
         return val
+
     @property
     def pulse_compression_ratio(self) -> float:
         """Pulse Compression Ratio
@@ -534,6 +601,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('Pulse Compression Ratio')
         return val
+
     @property
     def fm_chirp_period(self) -> float:
         """FM Chirp Period
@@ -542,6 +610,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('FM Chirp Period')
         return val
+
     @property
     def fm_freq_deviation(self) -> float:
         """FM Freq Deviation
@@ -550,6 +619,7 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('FM Freq Deviation')
         return val
+
     @property
     def fm_freq_dev_bandwidth(self) -> float:
         """FM Freq Dev Bandwidth
@@ -558,3 +628,4 @@ class ReadOnlyBand(EmitNode):
         """
         val = self._get_property('FM Freq Dev Bandwidth')
         return val
+

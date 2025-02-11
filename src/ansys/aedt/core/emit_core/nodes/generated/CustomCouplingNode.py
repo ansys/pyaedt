@@ -39,6 +39,7 @@ class CustomCouplingNode(EmitNode):
         "    Value should be between -1000 and 0."
         """
         return self._get_table_data()
+
     @table_data.setter
     def table_data(self, value):
         self._set_table_data(value)
@@ -51,6 +52,7 @@ class CustomCouplingNode(EmitNode):
         """
         val = self._get_property('Enabled')
         return val
+
     @enabled.setter
     def enabled(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Enabled=' + value])
@@ -62,6 +64,7 @@ class CustomCouplingNode(EmitNode):
         "        """
         val = self._get_property('Antenna A')
         return val
+
     @antenna_a.setter
     def antenna_a(self, value: EmitNode):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Antenna A=' + value])
@@ -73,6 +76,7 @@ class CustomCouplingNode(EmitNode):
         "        """
         val = self._get_property('Antenna B')
         return val
+
     @antenna_b.setter
     def antenna_b(self, value: EmitNode):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Antenna B=' + value])
@@ -85,6 +89,7 @@ class CustomCouplingNode(EmitNode):
         """
         val = self._get_property('Enable Refinement')
         return val
+
     @enable_refinement.setter
     def enable_refinement(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Enable Refinement=' + value])
@@ -97,6 +102,7 @@ class CustomCouplingNode(EmitNode):
         """
         val = self._get_property('Adaptive Sampling')
         return val
+
     @adaptive_sampling.setter
     def adaptive_sampling(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Adaptive Sampling=' + value])
@@ -108,6 +114,7 @@ class CustomCouplingNode(EmitNode):
         "        """
         val = self._get_property('Refinement Domain')
         return val
+
     @refinement_domain.setter
     def refinement_domain(self, value):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Refinement Domain=' + value])

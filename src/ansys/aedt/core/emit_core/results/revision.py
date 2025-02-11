@@ -30,6 +30,10 @@ from ansys.aedt.core.emit_core.emit_constants import ResultType
 from ansys.aedt.core.emit_core.emit_constants import TxRxMode
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
+from ansys.aedt.core.emit_core.nodes.EmitNode import EmitNode
+from ansys.aedt.core.emit_core.nodes import generated
+from ansys.aedt.core.emit_core.nodes.generated import *
+
 
 class Revision:
     """
@@ -803,6 +807,7 @@ class Revision:
         engine = self.emit_project._emit_api.get_engine()
         engine.set_emi_category_filter_enabled(category, enabled)
 
+    @pyaedt_function_handler
     def get_license_session(self):
         """Get a license session.
 
@@ -821,3 +826,433 @@ class Revision:
             raise RuntimeError("This function is only supported in AEDT version 2024 R2 and later.")
         engine = self.emit_project._emit_api.get_engine()
         return engine.license_session()
+
+    def error_if_below_aedt_version(version: int):
+        def decorator(func):
+            def wrapper(self, *args, **kwargs):
+                if self.aedt_version > version:
+                    result = func(self, *args, **kwargs)
+                    return result
+                else:
+                    raise RuntimeError(f'This function is only supported in AEDT version {version} and later.')
+            return wrapper 
+        return decorator
+
+    @pyaedt_function_handler
+    @error_if_below_aedt_version(251)
+    def _get_all_component_names(self) -> list[str]:
+        """Gets all component names from this revision.
+
+        Returns
+        -------
+        component_names: list
+            List of component names.
+
+        Examples
+        --------
+        >>> components = revision._get_all_component_names()
+        """
+        component_names = self._emit_com.GetComponentNames(self.results_index, "")
+        return component_names
+
+    @pyaedt_function_handler
+    @error_if_below_aedt_version(251)
+    def _get_all_top_level_node_ids(self) -> list[int]:
+        """Gets all top level node ids from this revision.
+
+        Returns
+        -------
+        node_ids: list
+            List of top level node ids.
+
+        Examples
+        --------
+        >>> top_level_node_ids = revision._get_all_top_level_node_ids()
+        """
+        top_level_node_names = [
+            # 'Windows-*-Configuration Diagram',
+            'Windows-*-Result Plot',
+            # 'Windows-*-EMI Margin Plot',
+            'Windows-*-Result Categorization',
+            # 'Windows-*-Plot',
+            # 'Windows-*-Coupling Plot',
+            'Windows-*-Project Tree',
+            'Windows-*-Properties',
+            # 'Windows-*-JETS Search',
+            'Windows-*-Antenna Coupling Matrix',
+            'Windows-*-Scenario Matrix',
+            'Windows-*-Scenario Details',
+            'Windows-*-Interaction Diagram',
+            # 'Windows-*-Link Analysis',
+            # 'Windows-*-Event Log',
+            # 'Windows-*-Library Tree',
+            # 'Windows-*-Python Script Window',
+            'RF Systems',
+            'Couplings',
+            # 'Analysis',
+            'Simulation',
+            'Scene',
+        ]
+        top_level_node_ids = []
+        for name in top_level_node_names:
+            top_level_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, name)
+            top_level_node_ids.append(top_level_node_id)
+        return top_level_node_ids
+
+    @pyaedt_function_handler
+    @error_if_below_aedt_version(251)
+    def get_all_top_level_nodes(self) -> list[EmitNode]:
+        """Gets all top level nodes from this revision.
+
+        Returns
+        -------
+        nodes: list
+            List of top level nodes.
+
+        Examples
+        --------
+        >>> top_level_nodes = revision.get_all_top_level_nodes()
+        """
+        top_level_node_ids = self._get_all_top_level_node_ids()
+        top_level_nodes = [self._get_node(node_id) for node_id in top_level_node_ids]
+        return top_level_nodes
+    
+    @pyaedt_function_handler
+    @error_if_below_aedt_version(251)
+    def get_all_component_nodes(self) -> list[EmitNode]:
+        """Gets all component nodes from this revision.
+
+        Returns
+        -------
+        component_nodes: list
+            List of component nodes.
+
+        Examples
+        --------
+        >>> nodes = revision.get_all_component_nodes()
+        """
+        component_names = self._get_all_component_names()
+        component_node_ids = [self._emit_com.GetComponentNodeID(self.results_index, name) for name in component_names]
+        component_nodes = [self._get_node(node_id) for node_id in component_node_ids]
+        return component_nodes
+    
+    @pyaedt_function_handler
+    @error_if_below_aedt_version(251)
+    def get_all_component_nodes(self) -> list[EmitNode]:
+        """Gets all component nodes from this revision.
+
+        Returns
+        -------
+        component_nodes: list
+            List of component nodes.
+
+        Examples
+        --------
+        >>> nodes = revision.get_all_component_nodes()
+        """
+        component_names = self._get_all_component_names()
+        component_node_ids = [self._emit_com.GetComponentNodeID(self.results_index, name) for name in component_names]
+        component_nodes = [self._get_node(node_id) for node_id in component_node_ids]
+        return component_nodes
+
+    @pyaedt_function_handler
+    @error_if_below_aedt_version(251)
+    def _get_all_node_ids(self) -> list[int]:
+        """Gets all node ids from this revision.
+
+        Returns
+        -------
+        node_ids: list
+            List of node ids.
+
+        Examples
+        --------
+        >>> node_ids = revision._get_all_node_ids()
+        """
+        node_ids = []
+        node_ids_to_search = []
+
+        top_level_node_ids = self._get_all_top_level_node_ids()
+        node_ids_to_search.extend(top_level_node_ids)
+
+        component_names = self._get_all_component_names()
+        component_node_ids = [self._emit_com.GetComponentNodeID(self.results_index, name) for name in component_names]
+        node_ids_to_search.extend(component_node_ids)
+
+        while len(node_ids_to_search) > 0:
+            node_id_to_search = node_ids_to_search.pop()
+            if node_id_to_search not in node_ids:
+                node_ids.append(node_id_to_search)
+
+                child_names = self._emit_com.GetChildNodeNames(self.results_index, node_id_to_search)
+                child_ids = [self._emit_com.GetChildNodeID(self.results_index, node_id_to_search, name) for name in child_names]
+                if len(child_ids) > 0:
+                    node_ids_to_search.extend(child_ids)
+        
+        return node_ids
+
+    @pyaedt_function_handler
+    @error_if_below_aedt_version(251)
+    def _get_node(self, id: int) -> EmitNode:
+        """Gets a node for this revision with the given id.
+
+        Parameters
+        ----------
+        id: int
+            id of node to construct.
+
+        Returns
+        -------
+        node: EmitNode
+            The node.
+
+        Examples
+        --------
+        >>> node = revision._get_node(node_id)
+        """
+        props = self._emit_com.GetEmitNodeProperties(self.results_index, id, True)
+        props = EmitNode.props_to_dict(props)
+        type = props['Type']
+
+        node = None
+        try:
+            type_class = getattr(generated, type)
+            node = type_class(self.emit_project.odesign, self.results_index, id)
+        except AttributeError:
+            node = EmitNode(self.emit_project.odesign, self.results_index, id)
+        return node
+
+    @pyaedt_function_handler
+    @error_if_below_aedt_version(251)
+    def get_all_nodes(self) -> list[EmitNode]:
+        """Gets all nodes for this revision.
+
+        Returns
+        -------
+        nodes: list
+            List of all nodes from this revision.
+
+        Examples
+        --------
+        >>> nodes = revision.get_all_nodes()
+        """
+        ids = self._get_all_node_ids()
+        nodes = [self._get_node(id) for id in ids]
+        return nodes
+
+    # Methods to get specific top level nodes
+    @pyaedt_function_handler
+    @error_if_below_aedt_version(251)
+    def get_scene_node(self) -> EmitSceneNode:
+        """Gets the Scene node for this revision.
+
+        Returns
+        -------
+        node: EmitSceneNode 
+            The Scene node for this revision.
+
+        Examples
+        --------
+        >>> scene_node = revision.get_scene_node()
+        """
+        scene_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Scene")
+        scene_node = self._get_node(scene_node_id)
+        return scene_node
+
+    @pyaedt_function_handler
+    @error_if_below_aedt_version(251)
+    def get_couplings_node(self) -> CouplingsNode:
+        """Gets the Couplings node for this revision.
+
+        Returns
+        -------
+        node: CouplingsNode 
+            The Couplings node for this revision.
+
+        Examples
+        --------
+        >>> couplings_node = revision.get_couplings_node()
+        """
+        couplings_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Couplings")
+        couplings_node = self._get_node(couplings_node_id)
+        return couplings_node
+
+    @pyaedt_function_handler
+    @error_if_below_aedt_version(251)
+    def get_simulation_node(self) -> EmitNode:
+        """Gets the Simulation node for this revision.
+
+        Returns
+        -------
+        node: EmitNode
+            The Simulation node for this revision.
+        
+        Examples
+        --------
+        >>> simulation_node = revision.get_simulation_node()
+        """
+        simulation_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Simulation")
+        simulation_node = self._get_node(simulation_node_id)
+        return simulation_node
+
+    @pyaedt_function_handler
+    @error_if_below_aedt_version(251)
+    def get_rf_systems_node(self) -> EmitNode:
+        """Gets the RF Systems node for this revision.
+
+        Returns
+        -------
+        node: EmitNode
+            The RF Systems node for this revision.
+
+        Examples
+        --------
+        >>> rf_systems_node = revision.get_rf_systems_node()
+        """
+        rf_systems_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "RF Systems")
+        rf_systems_node = self._get_node(rf_systems_node_id)
+        return rf_systems_node
+
+    @pyaedt_function_handler
+    @error_if_below_aedt_version(251)
+    def get_result_plot_node(self) -> ResultPlotNode:
+        """Gets the Result Plot node for this revision.
+
+        Returns
+        -------
+        node: ResultPlotNode 
+            The Result Plot node for this revision.
+
+        Examples
+        --------
+        >>> result_plot_node = revision.get_result_plot_node()
+        """
+        result_plot_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Windows-*-Result Plot")
+        result_plot_node = self._get_node(result_plot_node_id)
+        return result_plot_node
+
+    @pyaedt_function_handler
+    @error_if_below_aedt_version(251)
+    def get_result_categorization_node(self) -> EmitNode:
+        """Gets the Result Categorization node for this revision.
+
+        Returns
+        -------
+        node: EmitNode
+            The Result Categorization node for this revision.
+
+        Examples
+        --------
+        >>> result_categorization_node = revision.get_result_categorization_node()
+        """
+        result_categorization_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Windows-*-Result Categorization")
+        result_categorization_node = self._get_node(result_categorization_node_id)
+        return result_categorization_node
+
+    @pyaedt_function_handler
+    @error_if_below_aedt_version(251)
+    def get_project_tree_node(self) -> EmitNode:
+        """Gets the Project Tree node for this revision.
+
+        Returns
+        -------
+        node: EmitNode 
+            The Project Tree node for this revision.
+
+        Examples
+        --------
+        >>> project_tree_node = revision.get_project_tree_node()
+        """
+        project_tree_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Windows-*-Project Tree")
+        project_tree_node = self._get_node(project_tree_node_id)
+        return project_tree_node
+
+    @pyaedt_function_handler
+    @error_if_below_aedt_version(251)
+    def get_properties_node(self) -> EmitNode:
+        """Gets the Properties node for this revision.
+
+        Returns
+        -------
+        node: EmitNode
+            The Properties node for this revision.
+
+        Examples
+        --------
+        >>> properties_node = revision.get_properties_node()
+        """
+        properties_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Windows-*-Properties")
+        properties_node = self._get_node(properties_node_id)
+        return properties_node
+
+    @pyaedt_function_handler
+    @error_if_below_aedt_version(251)
+    def get_antenna_coupling_matrix_node(self) -> EmitNode:
+        """Gets the Antenna Coupling Matrix node for this revision.
+
+        Returns
+        -------
+        node: EmitNode
+            The Antenna Coupling Matrix node for this revision.
+
+        Examples
+        --------
+        >>> antenna_coupling_matrix_node = revision.get_antenna_coupling_matrix_node()
+        """
+        antenna_coupling_matrix_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Windows-*-Antenna Coupling Matrix")
+        antenna_coupling_matrix_node = self._get_node(antenna_coupling_matrix_node_id)
+        return antenna_coupling_matrix_node
+
+    @pyaedt_function_handler
+    @error_if_below_aedt_version(251)
+    def get_scenario_matrix_node(self) -> EmitNode:
+        """Gets the Scenario Matrix node for this revision.
+
+        Returns
+        -------
+        node: EmitNode
+            The Scenario Matrix node for this revision.
+
+        Examples
+        --------
+        >>> scenario_matrix_node = revision.get_scenario_matrix_node()
+        """
+        scenario_matrix_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Windows-*-Scenario Matrix")
+        scenario_matrix_node = self._get_node(scenario_matrix_node_id)
+        return scenario_matrix_node
+
+    @pyaedt_function_handler
+    @error_if_below_aedt_version(251)
+    def get_scenario_details_node(self) -> EmitNode:
+        """Gets the Scenario Details node for this revision.
+
+        Returns
+        -------
+        node: EmitNode
+            The Scenario Details node for this revision.
+
+        Examples
+        --------
+        >>> scenario_details_node = revision.get_scenario_details_node()
+        """
+        scenario_details_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Windows-*-Scenario Details")
+        scenario_details_node = self._get_node(scenario_details_node_id)
+        return scenario_details_node
+
+    @pyaedt_function_handler
+    @error_if_below_aedt_version(251)
+    def get_interaction_diagram_node(self) -> EmitNode:
+        """Gets the Interaction Diagram node for this revision.
+
+        Returns
+        -------
+        node: EmitNode
+            The Interaction Diagram node for this revision.
+
+        Examples
+        --------
+        >>> interaction_diagram_node = revision.get_interaction_diagram_node()
+        """
+        interaction_diagram_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Windows-*-Interaction Diagram")
+        interaction_diagram_node = self._get_node(interaction_diagram_node_id)
+        return interaction_diagram_node

@@ -32,6 +32,7 @@ class ReadOnlyCustomCouplingNode(EmitNode):
         """
         val = self._get_property('Enabled')
         return val
+
     @property
     def antenna_a(self) -> EmitNode:
         """Antenna A
@@ -39,6 +40,7 @@ class ReadOnlyCustomCouplingNode(EmitNode):
         "        """
         val = self._get_property('Antenna A')
         return val
+
     @property
     def antenna_b(self) -> EmitNode:
         """Antenna B
@@ -46,6 +48,7 @@ class ReadOnlyCustomCouplingNode(EmitNode):
         "        """
         val = self._get_property('Antenna B')
         return val
+
     @property
     def enable_refinement(self) -> bool:
         """Enable Refinement
@@ -54,6 +57,7 @@ class ReadOnlyCustomCouplingNode(EmitNode):
         """
         val = self._get_property('Enable Refinement')
         return val
+
     @property
     def adaptive_sampling(self) -> bool:
         """Adaptive Sampling
@@ -62,6 +66,7 @@ class ReadOnlyCustomCouplingNode(EmitNode):
         """
         val = self._get_property('Adaptive Sampling')
         return val
+
     @property
     def refinement_domain(self):
         """Refinement Domain
@@ -69,3 +74,4 @@ class ReadOnlyCustomCouplingNode(EmitNode):
         "        """
         val = self._get_property('Refinement Domain')
         return val
+

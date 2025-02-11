@@ -15,10 +15,12 @@ class ReadOnlyEmitSceneNode(EmitNode):
         "        """
         val = self._get_property('Notes')
         return val
+
     class GroundPlaneNormalOption(Enum):
             XAXIS = "X Axis"
             YAXIS = "Y Axis"
             ZAXIS = "Z Axis"
+
     @property
     def ground_plane_normal(self) -> GroundPlaneNormalOption:
         """Ground Plane Normal
@@ -27,6 +29,7 @@ class ReadOnlyEmitSceneNode(EmitNode):
         val = self._get_property('Ground Plane Normal')
         val = self.GroundPlaneNormalOption[val]
         return val
+
     @property
     def gp_position_along_normal(self) -> float:
         """GP Position Along Normal
@@ -34,3 +37,4 @@ class ReadOnlyEmitSceneNode(EmitNode):
         "        """
         val = self._get_property('GP Position Along Normal')
         return val
+

@@ -29,6 +29,7 @@ class ReadOnlyTxSpurNode(EmitNode):
     class SpurTableUnitsOption(Enum):
             ABSOLUTE = "Absolute"
             RELATIVE = "Relative"
+
     @property
     def spur_table_units(self) -> SpurTableUnitsOption:
         """Spur Table Units
@@ -37,3 +38,4 @@ class ReadOnlyTxSpurNode(EmitNode):
         val = self._get_property('Spur Table Units')
         val = self.SpurTableUnitsOption[val]
         return val
+

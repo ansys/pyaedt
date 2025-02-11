@@ -16,6 +16,7 @@ class ReadOnlyCable(EmitNode):
         """
         val = self._get_property('Filename')
         return val
+
     @property
     def noise_temperature(self) -> float:
         """Noise Temperature
@@ -24,6 +25,7 @@ class ReadOnlyCable(EmitNode):
         """
         val = self._get_property('Noise Temperature')
         return val
+
     @property
     def notes(self) -> str:
         """Notes
@@ -31,10 +33,12 @@ class ReadOnlyCable(EmitNode):
         "        """
         val = self._get_property('Notes')
         return val
+
     class TypeOption(Enum):
             BYFILE = "By File"
             CONSTANT = "Constant Loss"
             COAXIAL = "Coaxial Cable"
+
     @property
     def type(self) -> TypeOption:
         """Type
@@ -43,6 +47,7 @@ class ReadOnlyCable(EmitNode):
         val = self._get_property('Type')
         val = self.TypeOption[val]
         return val
+
     @property
     def length(self) -> float:
         """Length
@@ -51,6 +56,7 @@ class ReadOnlyCable(EmitNode):
         """
         val = self._get_property('Length')
         return val
+
     @property
     def loss_per_length(self) -> float:
         """Loss Per Length
@@ -59,6 +65,7 @@ class ReadOnlyCable(EmitNode):
         """
         val = self._get_property('Loss Per Length')
         return val
+
     @property
     def measurement_length(self) -> float:
         """Measurement Length
@@ -67,6 +74,7 @@ class ReadOnlyCable(EmitNode):
         """
         val = self._get_property('Measurement Length')
         return val
+
     @property
     def resistive_loss_constant(self) -> float:
         """Resistive Loss Constant
@@ -75,6 +83,7 @@ class ReadOnlyCable(EmitNode):
         """
         val = self._get_property('Resistive Loss Constant')
         return val
+
     @property
     def dielectric_loss_constant(self) -> float:
         """Dielectric Loss Constant
@@ -83,6 +92,7 @@ class ReadOnlyCable(EmitNode):
         """
         val = self._get_property('Dielectric Loss Constant')
         return val
+
     @property
     def warnings(self) -> str:
         """Warnings
@@ -90,3 +100,4 @@ class ReadOnlyCable(EmitNode):
         "        """
         val = self._get_property('Warnings')
         return val
+

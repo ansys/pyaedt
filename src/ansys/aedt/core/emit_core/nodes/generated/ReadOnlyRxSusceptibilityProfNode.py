@@ -18,6 +18,7 @@ class ReadOnlyRxSusceptibilityProfNode(EmitNode):
             DBUV = "dBuV"
             MILLIWATTS = "milliwatts"
             MICROVOLTS = "microvolts"
+
     @property
     def sensitivity_units(self) -> SensitivityUnitsOption:
         """Sensitivity Units
@@ -26,6 +27,7 @@ class ReadOnlyRxSusceptibilityProfNode(EmitNode):
         val = self._get_property('Sensitivity Units')
         val = self.SensitivityUnitsOption[val]
         return val
+
     @property
     def min_receive_signal_pwr_(self) -> float:
         """Min. Receive Signal Pwr 
@@ -34,6 +36,7 @@ class ReadOnlyRxSusceptibilityProfNode(EmitNode):
         """
         val = self._get_property('Min. Receive Signal Pwr ')
         return val
+
     @property
     def snr_at_rx_signal_pwr(self) -> float:
         """SNR at Rx Signal Pwr
@@ -42,6 +45,7 @@ class ReadOnlyRxSusceptibilityProfNode(EmitNode):
         """
         val = self._get_property('SNR at Rx Signal Pwr')
         return val
+
     @property
     def processing_gain(self) -> float:
         """Processing Gain
@@ -50,6 +54,7 @@ class ReadOnlyRxSusceptibilityProfNode(EmitNode):
         """
         val = self._get_property('Processing Gain')
         return val
+
     @property
     def apply_pg_to_narrowband_only(self) -> bool:
         """Apply PG to Narrowband Only
@@ -58,6 +63,7 @@ class ReadOnlyRxSusceptibilityProfNode(EmitNode):
         """
         val = self._get_property('Apply PG to Narrowband Only')
         return val
+
     @property
     def saturation_level(self) -> float:
         """Saturation Level
@@ -66,6 +72,7 @@ class ReadOnlyRxSusceptibilityProfNode(EmitNode):
         """
         val = self._get_property('Saturation Level')
         return val
+
     @property
     def rx_noise_figure(self) -> float:
         """Rx Noise Figure
@@ -74,6 +81,7 @@ class ReadOnlyRxSusceptibilityProfNode(EmitNode):
         """
         val = self._get_property('Rx Noise Figure')
         return val
+
     @property
     def receiver_sensitivity_(self) -> float:
         """Receiver Sensitivity 
@@ -82,6 +90,7 @@ class ReadOnlyRxSusceptibilityProfNode(EmitNode):
         """
         val = self._get_property('Receiver Sensitivity ')
         return val
+
     @property
     def snrsinad_at_sensitivity_(self) -> float:
         """SNR/SINAD at Sensitivity 
@@ -90,6 +99,7 @@ class ReadOnlyRxSusceptibilityProfNode(EmitNode):
         """
         val = self._get_property('SNR/SINAD at Sensitivity ')
         return val
+
     @property
     def perform_rx_intermod_analysis(self) -> bool:
         """Perform Rx Intermod Analysis
@@ -98,6 +108,7 @@ class ReadOnlyRxSusceptibilityProfNode(EmitNode):
         """
         val = self._get_property('Perform Rx Intermod Analysis')
         return val
+
     @property
     def amplifier_saturation_level(self) -> float:
         """Amplifier Saturation Level
@@ -106,6 +117,7 @@ class ReadOnlyRxSusceptibilityProfNode(EmitNode):
         """
         val = self._get_property('Amplifier Saturation Level')
         return val
+
     @property
     def _1_db_point_ref_input_(self) -> float:
         """1-dB Point, Ref. Input 
@@ -114,6 +126,7 @@ class ReadOnlyRxSusceptibilityProfNode(EmitNode):
         """
         val = self._get_property('1-dB Point, Ref. Input ')
         return val
+
     @property
     def ip3_ref_input(self) -> float:
         """IP3, Ref. Input
@@ -122,6 +135,7 @@ class ReadOnlyRxSusceptibilityProfNode(EmitNode):
         """
         val = self._get_property('IP3, Ref. Input')
         return val
+
     @property
     def max_intermod_order(self) -> int:
         """Max Intermod Order
@@ -130,3 +144,4 @@ class ReadOnlyRxSusceptibilityProfNode(EmitNode):
         """
         val = self._get_property('Max Intermod Order')
         return val
+

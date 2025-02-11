@@ -16,6 +16,7 @@ class ReadOnlyTR_Switch(EmitNode):
         """
         val = self._get_property('Filename')
         return val
+
     @property
     def noise_temperature(self) -> float:
         """Noise Temperature
@@ -24,6 +25,7 @@ class ReadOnlyTR_Switch(EmitNode):
         """
         val = self._get_property('Noise Temperature')
         return val
+
     @property
     def notes(self) -> str:
         """Notes
@@ -31,9 +33,11 @@ class ReadOnlyTR_Switch(EmitNode):
         "        """
         val = self._get_property('Notes')
         return val
+
     class TxPortOption(Enum):
             _0 = "Port 1"
             _1 = "Port 2"
+
     @property
     def tx_port(self) -> TxPortOption:
         """Tx Port
@@ -42,9 +46,11 @@ class ReadOnlyTR_Switch(EmitNode):
         val = self._get_property('Tx Port')
         val = self.TxPortOption[val]
         return val
+
     class CommonPortLocationOption(Enum):
             RADIOSIDE = "Radio Side"
             ANTENNASIDE = "Antenna Side"
+
     @property
     def common_port_location(self) -> CommonPortLocationOption:
         """Common Port Location
@@ -53,6 +59,7 @@ class ReadOnlyTR_Switch(EmitNode):
         val = self._get_property('Common Port Location')
         val = self.CommonPortLocationOption[val]
         return val
+
     @property
     def insertion_loss(self) -> float:
         """Insertion Loss
@@ -61,6 +68,7 @@ class ReadOnlyTR_Switch(EmitNode):
         """
         val = self._get_property('Insertion Loss')
         return val
+
     @property
     def finite_isolation(self) -> bool:
         """Finite Isolation
@@ -69,6 +77,7 @@ class ReadOnlyTR_Switch(EmitNode):
         """
         val = self._get_property('Finite Isolation')
         return val
+
     @property
     def isolation(self) -> float:
         """Isolation
@@ -77,6 +86,7 @@ class ReadOnlyTR_Switch(EmitNode):
         """
         val = self._get_property('Isolation')
         return val
+
     @property
     def finite_bandwidth(self) -> bool:
         """Finite Bandwidth
@@ -85,6 +95,7 @@ class ReadOnlyTR_Switch(EmitNode):
         """
         val = self._get_property('Finite Bandwidth')
         return val
+
     @property
     def out_of_band_attenuation(self) -> float:
         """Out-of-band Attenuation
@@ -93,6 +104,7 @@ class ReadOnlyTR_Switch(EmitNode):
         """
         val = self._get_property('Out-of-band Attenuation')
         return val
+
     @property
     def lower_stop_band(self) -> float:
         """Lower Stop Band
@@ -101,6 +113,7 @@ class ReadOnlyTR_Switch(EmitNode):
         """
         val = self._get_property('Lower Stop Band')
         return val
+
     @property
     def lower_cutoff(self) -> float:
         """Lower Cutoff
@@ -109,6 +122,7 @@ class ReadOnlyTR_Switch(EmitNode):
         """
         val = self._get_property('Lower Cutoff')
         return val
+
     @property
     def higher_cutoff(self) -> float:
         """Higher Cutoff
@@ -117,6 +131,7 @@ class ReadOnlyTR_Switch(EmitNode):
         """
         val = self._get_property('Higher Cutoff')
         return val
+
     @property
     def higher_stop_band(self) -> float:
         """Higher Stop Band
@@ -125,3 +140,4 @@ class ReadOnlyTR_Switch(EmitNode):
         """
         val = self._get_property('Higher Stop Band')
         return val
+

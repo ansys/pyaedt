@@ -25,6 +25,7 @@ class TxNbEmissionNode(EmitNode):
     def enabled(self) -> bool:
         """Enabled state for this node."""
         return self._oDesign.GetModule('EmitCom').GetEmitNodeProperties(self._result_id,self._node_id,'enabled')
+
     @enabled.setter
     def enabled(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['enabled=' + value])
@@ -32,6 +33,7 @@ class TxNbEmissionNode(EmitNode):
     class NarrowbandBehaviorOption(Enum):
             ABSOLUTE = "Absolute Freqs and Power"
             RELATIVEBANDWIDTH = "Relative Freqs and Attenuation"
+
     @property
     def narrowband_behavior(self) -> NarrowbandBehaviorOption:
         """Narrowband Behavior
@@ -40,6 +42,7 @@ class TxNbEmissionNode(EmitNode):
         val = self._get_property('Narrowband Behavior')
         val = self.NarrowbandBehaviorOption[val]
         return val
+
     @narrowband_behavior.setter
     def narrowband_behavior(self, value: NarrowbandBehaviorOption):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Narrowband Behavior=' + value.value])
@@ -51,6 +54,7 @@ class TxNbEmissionNode(EmitNode):
         "        """
         val = self._get_property('Measurement Frequency')
         return val
+
     @measurement_frequency.setter
     def measurement_frequency(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Measurement Frequency=' + value])

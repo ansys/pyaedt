@@ -21,6 +21,7 @@ class SolutionCouplingNode(EmitNode):
         """
         val = self._get_property('Enabled')
         return val
+
     @enabled.setter
     def enabled(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Enabled=' + value])
@@ -33,6 +34,7 @@ class SolutionCouplingNode(EmitNode):
         """
         val = self._get_property('Enable Refinement')
         return val
+
     @enable_refinement.setter
     def enable_refinement(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Enable Refinement=' + value])
@@ -45,6 +47,7 @@ class SolutionCouplingNode(EmitNode):
         """
         val = self._get_property('Adaptive Sampling')
         return val
+
     @adaptive_sampling.setter
     def adaptive_sampling(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Adaptive Sampling=' + value])
@@ -56,6 +59,7 @@ class SolutionCouplingNode(EmitNode):
         "        """
         val = self._get_property('Refinement Domain')
         return val
+
     @refinement_domain.setter
     def refinement_domain(self, value):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Refinement Domain=' + value])

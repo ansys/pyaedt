@@ -28,6 +28,7 @@ class Sparameter(EmitNode):
         """
         val = self._get_property('File')
         return val
+
     @file.setter
     def file(self, value: str):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['File=' + value])
@@ -40,6 +41,7 @@ class Sparameter(EmitNode):
         """
         val = self._get_property('Noise Temperature')
         return val
+
     @noise_temperature.setter
     def noise_temperature(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Noise Temperature=' + value])
@@ -51,6 +53,7 @@ class Sparameter(EmitNode):
         "        """
         val = self._get_property('Notes')
         return val
+
     @notes.setter
     def notes(self, value: str):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
@@ -63,6 +66,7 @@ class Sparameter(EmitNode):
         "        """
         val = self._get_property('Radio Side Ports')
         return val
+
     @radio_side_ports.setter
     def radio_side_ports(self, value):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Radio Side Ports=' + value])
@@ -75,6 +79,7 @@ class Sparameter(EmitNode):
         "        """
         val = self._get_property('Antenna Side Ports')
         return val
+
     @antenna_side_ports.setter
     def antenna_side_ports(self, value):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Antenna Side Ports=' + value])
@@ -86,3 +91,4 @@ class Sparameter(EmitNode):
         "        """
         val = self._get_property('Warnings')
         return val
+

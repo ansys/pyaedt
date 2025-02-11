@@ -25,6 +25,7 @@ class TxHarmonicNode(EmitNode):
     def enabled(self) -> bool:
         """Enabled state for this node."""
         return self._oDesign.GetModule('EmitCom').GetEmitNodeProperties(self._result_id,self._node_id,'enabled')
+
     @enabled.setter
     def enabled(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['enabled=' + value])
@@ -32,6 +33,7 @@ class TxHarmonicNode(EmitNode):
     class HarmonicTableUnitsOption(Enum):
             ABSOLUTE = "Absolute"
             RELATIVE = "Relative"
+
     @property
     def harmonic_table_units(self) -> HarmonicTableUnitsOption:
         """Harmonic Table Units
@@ -40,6 +42,7 @@ class TxHarmonicNode(EmitNode):
         val = self._get_property('Harmonic Table Units')
         val = self.HarmonicTableUnitsOption[val]
         return val
+
     @harmonic_table_units.setter
     def harmonic_table_units(self, value: HarmonicTableUnitsOption):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Harmonic Table Units=' + value.value])

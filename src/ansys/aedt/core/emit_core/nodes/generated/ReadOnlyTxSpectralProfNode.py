@@ -16,6 +16,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
     class SpectrumTypeOption(Enum):
             BOTH = "Narrowband & Broadband"
             BROADBANDONLY = "Broadband Only"
+
     @property
     def spectrum_type(self) -> SpectrumTypeOption:
         """Spectrum Type
@@ -24,9 +25,11 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         val = self._get_property('Spectrum Type')
         val = self.SpectrumTypeOption[val]
         return val
+
     class TxPowerOption(Enum):
             PEAK_POWER = "Peak Power"
             AVERAGE_POWER = "Average Power"
+
     @property
     def tx_power(self) -> TxPowerOption:
         """Tx Power
@@ -35,6 +38,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         val = self._get_property('Tx Power')
         val = self.TxPowerOption[val]
         return val
+
     @property
     def peak_power(self) -> float:
         """Peak Power
@@ -43,6 +47,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         """
         val = self._get_property('Peak Power')
         return val
+
     @property
     def average_power(self) -> float:
         """Average Power
@@ -51,6 +56,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         """
         val = self._get_property('Average Power')
         return val
+
     @property
     def output_voltage_peak(self) -> float:
         """Output Voltage Peak
@@ -58,6 +64,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         "        """
         val = self._get_property('Output Voltage Peak')
         return val
+
     @property
     def include_phase_noise(self) -> bool:
         """Include Phase Noise
@@ -66,6 +73,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         """
         val = self._get_property('Include Phase Noise')
         return val
+
     @property
     def tx_broadband_noise(self) -> float:
         """Tx Broadband Noise
@@ -74,11 +82,13 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         """
         val = self._get_property('Tx Broadband Noise')
         return val
+
     class HarmonicTaperOption(Enum):
             CONSTANT = "Constant"
             MIL_STD_461G = "MIL-STD-461G"
             MIL_STD_461G_NAVY = "MIL-STD-461G Navy"
             DUFF_MODEL = "Duff Model"
+
     @property
     def harmonic_taper(self) -> HarmonicTaperOption:
         """Harmonic Taper
@@ -87,6 +97,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         val = self._get_property('Harmonic Taper')
         val = self.HarmonicTaperOption[val]
         return val
+
     @property
     def harmonic_amplitude(self) -> float:
         """Harmonic Amplitude
@@ -95,6 +106,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         """
         val = self._get_property('Harmonic Amplitude')
         return val
+
     @property
     def harmonic_slope(self) -> float:
         """Harmonic Slope
@@ -103,6 +115,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         """
         val = self._get_property('Harmonic Slope')
         return val
+
     @property
     def harmonic_intercept(self) -> float:
         """Harmonic Intercept
@@ -111,6 +124,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         """
         val = self._get_property('Harmonic Intercept')
         return val
+
     @property
     def enable_harmonic_bw_expansion(self) -> bool:
         """Enable Harmonic BW Expansion
@@ -119,6 +133,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         """
         val = self._get_property('Enable Harmonic BW Expansion')
         return val
+
     @property
     def number_of_harmonics(self) -> int:
         """Number of Harmonics
@@ -127,6 +142,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         """
         val = self._get_property('Number of Harmonics')
         return val
+
     @property
     def _2nd_harmonic_level(self) -> float:
         """2nd Harmonic Level
@@ -135,6 +151,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         """
         val = self._get_property('2nd Harmonic Level')
         return val
+
     @property
     def _3rd_harmonic_level(self) -> float:
         """3rd Harmonic Level
@@ -143,6 +160,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         """
         val = self._get_property('3rd Harmonic Level')
         return val
+
     @property
     def other_harmonic_levels(self) -> float:
         """Other Harmonic Levels
@@ -151,6 +169,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         """
         val = self._get_property('Other Harmonic Levels')
         return val
+
     @property
     def perform_tx_intermod_analysis(self) -> bool:
         """Perform Tx Intermod Analysis
@@ -159,6 +178,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         """
         val = self._get_property('Perform Tx Intermod Analysis')
         return val
+
     @property
     def internal_amp_gain(self) -> float:
         """Internal Amp Gain
@@ -167,6 +187,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         """
         val = self._get_property('Internal Amp Gain')
         return val
+
     @property
     def noise_figure(self) -> float:
         """Noise Figure
@@ -175,6 +196,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         """
         val = self._get_property('Noise Figure')
         return val
+
     @property
     def amplifier_saturation_level(self) -> float:
         """Amplifier Saturation Level
@@ -183,6 +205,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         """
         val = self._get_property('Amplifier Saturation Level')
         return val
+
     @property
     def _1_db_point_ref_input_(self) -> float:
         """1-dB Point, Ref. Input 
@@ -191,6 +214,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         """
         val = self._get_property('1-dB Point, Ref. Input ')
         return val
+
     @property
     def ip3_ref_input(self) -> float:
         """IP3, Ref. Input
@@ -199,6 +223,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         """
         val = self._get_property('IP3, Ref. Input')
         return val
+
     @property
     def reverse_isolation(self) -> float:
         """Reverse Isolation
@@ -207,6 +232,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         """
         val = self._get_property('Reverse Isolation')
         return val
+
     @property
     def max_intermod_order(self) -> int:
         """Max Intermod Order
@@ -215,3 +241,4 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         """
         val = self._get_property('Max Intermod Order')
         return val
+

@@ -21,6 +21,7 @@ class SolutionsNode(EmitNode):
         """
         val = self._get_property('Enabled')
         return val
+
     @enabled.setter
     def enabled(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Enabled=' + value])

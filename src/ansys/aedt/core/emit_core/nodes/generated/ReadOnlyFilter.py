@@ -16,6 +16,7 @@ class ReadOnlyFilter(EmitNode):
         """
         val = self._get_property('Filename')
         return val
+
     @property
     def noise_temperature(self) -> float:
         """Noise Temperature
@@ -24,6 +25,7 @@ class ReadOnlyFilter(EmitNode):
         """
         val = self._get_property('Noise Temperature')
         return val
+
     @property
     def notes(self) -> str:
         """Notes
@@ -31,6 +33,7 @@ class ReadOnlyFilter(EmitNode):
         "        """
         val = self._get_property('Notes')
         return val
+
     class TypeOption(Enum):
             BYFILE = "By File"
             LOWPASS = "Low Pass"
@@ -39,6 +42,7 @@ class ReadOnlyFilter(EmitNode):
             BANDSTOP = "Band Stop"
             TUNABLEBANDPASS = "Tunable Bandpass"
             TUNABLEBANDSTOP = "Tunable Bandstop"
+
     @property
     def type(self) -> TypeOption:
         """Type
@@ -47,6 +51,7 @@ class ReadOnlyFilter(EmitNode):
         val = self._get_property('Type')
         val = self.TypeOption[val]
         return val
+
     @property
     def insertion_loss(self) -> float:
         """Insertion Loss
@@ -55,6 +60,7 @@ class ReadOnlyFilter(EmitNode):
         """
         val = self._get_property('Insertion Loss')
         return val
+
     @property
     def stop_band_attenuation(self) -> float:
         """Stop band Attenuation
@@ -63,6 +69,7 @@ class ReadOnlyFilter(EmitNode):
         """
         val = self._get_property('Stop band Attenuation')
         return val
+
     @property
     def max_pass_band(self) -> float:
         """Max Pass Band
@@ -71,6 +78,7 @@ class ReadOnlyFilter(EmitNode):
         """
         val = self._get_property('Max Pass Band')
         return val
+
     @property
     def min_stop_band(self) -> float:
         """Min Stop Band
@@ -79,6 +87,7 @@ class ReadOnlyFilter(EmitNode):
         """
         val = self._get_property('Min Stop Band')
         return val
+
     @property
     def max_stop_band(self) -> float:
         """Max Stop Band
@@ -87,6 +96,7 @@ class ReadOnlyFilter(EmitNode):
         """
         val = self._get_property('Max Stop Band')
         return val
+
     @property
     def min_pass_band(self) -> float:
         """Min Pass Band
@@ -95,6 +105,7 @@ class ReadOnlyFilter(EmitNode):
         """
         val = self._get_property('Min Pass Band')
         return val
+
     @property
     def lower_stop_band(self) -> float:
         """Lower Stop Band
@@ -103,6 +114,7 @@ class ReadOnlyFilter(EmitNode):
         """
         val = self._get_property('Lower Stop Band')
         return val
+
     @property
     def lower_cutoff(self) -> float:
         """Lower Cutoff
@@ -111,6 +123,7 @@ class ReadOnlyFilter(EmitNode):
         """
         val = self._get_property('Lower Cutoff')
         return val
+
     @property
     def higher_cutoff(self) -> float:
         """Higher Cutoff
@@ -119,6 +132,7 @@ class ReadOnlyFilter(EmitNode):
         """
         val = self._get_property('Higher Cutoff')
         return val
+
     @property
     def higher_stop_band(self) -> float:
         """Higher Stop Band
@@ -127,6 +141,7 @@ class ReadOnlyFilter(EmitNode):
         """
         val = self._get_property('Higher Stop Band')
         return val
+
     @property
     def lower_cutoff_(self) -> float:
         """Lower Cutoff 
@@ -135,6 +150,7 @@ class ReadOnlyFilter(EmitNode):
         """
         val = self._get_property('Lower Cutoff ')
         return val
+
     @property
     def lower_stop_band_(self) -> float:
         """Lower Stop Band 
@@ -143,6 +159,7 @@ class ReadOnlyFilter(EmitNode):
         """
         val = self._get_property('Lower Stop Band ')
         return val
+
     @property
     def higher_stop_band_(self) -> float:
         """Higher Stop Band 
@@ -151,6 +168,7 @@ class ReadOnlyFilter(EmitNode):
         """
         val = self._get_property('Higher Stop Band ')
         return val
+
     @property
     def higher_cutoff_(self) -> float:
         """Higher Cutoff 
@@ -159,6 +177,7 @@ class ReadOnlyFilter(EmitNode):
         """
         val = self._get_property('Higher Cutoff ')
         return val
+
     @property
     def lowest_tuned_frequency_(self) -> float:
         """Lowest Tuned Frequency 
@@ -167,6 +186,7 @@ class ReadOnlyFilter(EmitNode):
         """
         val = self._get_property('Lowest Tuned Frequency ')
         return val
+
     @property
     def highest_tuned_frequency_(self) -> float:
         """Highest Tuned Frequency 
@@ -175,6 +195,7 @@ class ReadOnlyFilter(EmitNode):
         """
         val = self._get_property('Highest Tuned Frequency ')
         return val
+
     @property
     def percent_bandwidth(self) -> float:
         """Percent Bandwidth
@@ -183,6 +204,7 @@ class ReadOnlyFilter(EmitNode):
         """
         val = self._get_property('Percent Bandwidth')
         return val
+
     @property
     def shape_factor(self) -> float:
         """Shape Factor
@@ -191,6 +213,7 @@ class ReadOnlyFilter(EmitNode):
         """
         val = self._get_property('Shape Factor')
         return val
+
     @property
     def warnings(self) -> str:
         """Warnings
@@ -198,3 +221,4 @@ class ReadOnlyFilter(EmitNode):
         "        """
         val = self._get_property('Warnings')
         return val
+

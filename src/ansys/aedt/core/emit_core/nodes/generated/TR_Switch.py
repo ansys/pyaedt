@@ -28,6 +28,7 @@ class TR_Switch(EmitNode):
         """
         val = self._get_property('Filename')
         return val
+
     @filename.setter
     def filename(self, value: str):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Filename=' + value])
@@ -40,6 +41,7 @@ class TR_Switch(EmitNode):
         """
         val = self._get_property('Noise Temperature')
         return val
+
     @noise_temperature.setter
     def noise_temperature(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Noise Temperature=' + value])
@@ -51,6 +53,7 @@ class TR_Switch(EmitNode):
         "        """
         val = self._get_property('Notes')
         return val
+
     @notes.setter
     def notes(self, value: str):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
@@ -58,6 +61,7 @@ class TR_Switch(EmitNode):
     class TxPortOption(Enum):
             _0 = "Port 1"
             _1 = "Port 2"
+
     @property
     def tx_port(self) -> TxPortOption:
         """Tx Port
@@ -66,6 +70,7 @@ class TR_Switch(EmitNode):
         val = self._get_property('Tx Port')
         val = self.TxPortOption[val]
         return val
+
     @tx_port.setter
     def tx_port(self, value: TxPortOption):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Tx Port=' + value.value])
@@ -73,6 +78,7 @@ class TR_Switch(EmitNode):
     class CommonPortLocationOption(Enum):
             RADIOSIDE = "Radio Side"
             ANTENNASIDE = "Antenna Side"
+
     @property
     def common_port_location(self) -> CommonPortLocationOption:
         """Common Port Location
@@ -81,6 +87,7 @@ class TR_Switch(EmitNode):
         val = self._get_property('Common Port Location')
         val = self.CommonPortLocationOption[val]
         return val
+
     @common_port_location.setter
     def common_port_location(self, value: CommonPortLocationOption):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Common Port Location=' + value.value])
@@ -93,6 +100,7 @@ class TR_Switch(EmitNode):
         """
         val = self._get_property('Insertion Loss')
         return val
+
     @insertion_loss.setter
     def insertion_loss(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Insertion Loss=' + value])
@@ -105,6 +113,7 @@ class TR_Switch(EmitNode):
         """
         val = self._get_property('Finite Isolation')
         return val
+
     @finite_isolation.setter
     def finite_isolation(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Finite Isolation=' + value])
@@ -117,6 +126,7 @@ class TR_Switch(EmitNode):
         """
         val = self._get_property('Isolation')
         return val
+
     @isolation.setter
     def isolation(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Isolation=' + value])
@@ -129,6 +139,7 @@ class TR_Switch(EmitNode):
         """
         val = self._get_property('Finite Bandwidth')
         return val
+
     @finite_bandwidth.setter
     def finite_bandwidth(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Finite Bandwidth=' + value])
@@ -141,6 +152,7 @@ class TR_Switch(EmitNode):
         """
         val = self._get_property('Out-of-band Attenuation')
         return val
+
     @out_of_band_attenuation.setter
     def out_of_band_attenuation(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Out-of-band Attenuation=' + value])
@@ -153,6 +165,7 @@ class TR_Switch(EmitNode):
         """
         val = self._get_property('Lower Stop Band')
         return val
+
     @lower_stop_band.setter
     def lower_stop_band(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Lower Stop Band=' + value])
@@ -165,6 +178,7 @@ class TR_Switch(EmitNode):
         """
         val = self._get_property('Lower Cutoff')
         return val
+
     @lower_cutoff.setter
     def lower_cutoff(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Lower Cutoff=' + value])
@@ -177,6 +191,7 @@ class TR_Switch(EmitNode):
         """
         val = self._get_property('Higher Cutoff')
         return val
+
     @higher_cutoff.setter
     def higher_cutoff(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Higher Cutoff=' + value])
@@ -189,6 +204,7 @@ class TR_Switch(EmitNode):
         """
         val = self._get_property('Higher Stop Band')
         return val
+
     @higher_stop_band.setter
     def higher_stop_band(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Higher Stop Band=' + value])

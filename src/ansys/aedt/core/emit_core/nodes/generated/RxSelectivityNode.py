@@ -25,6 +25,7 @@ class RxSelectivityNode(EmitNode):
     def enabled(self) -> bool:
         """Enabled state for this node."""
         return self._oDesign.GetModule('EmitCom').GetEmitNodeProperties(self._result_id,self._node_id,'enabled')
+
     @enabled.setter
     def enabled(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['enabled=' + value])
@@ -37,6 +38,7 @@ class RxSelectivityNode(EmitNode):
         """
         val = self._get_property('Use Arithmetic Mean')
         return val
+
     @use_arithmetic_mean.setter
     def use_arithmetic_mean(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Use Arithmetic Mean=' + value])

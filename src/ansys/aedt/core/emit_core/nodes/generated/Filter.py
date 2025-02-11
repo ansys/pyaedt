@@ -28,6 +28,7 @@ class Filter(EmitNode):
         """
         val = self._get_property('Filename')
         return val
+
     @filename.setter
     def filename(self, value: str):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Filename=' + value])
@@ -40,6 +41,7 @@ class Filter(EmitNode):
         """
         val = self._get_property('Noise Temperature')
         return val
+
     @noise_temperature.setter
     def noise_temperature(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Noise Temperature=' + value])
@@ -51,6 +53,7 @@ class Filter(EmitNode):
         "        """
         val = self._get_property('Notes')
         return val
+
     @notes.setter
     def notes(self, value: str):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
@@ -63,6 +66,7 @@ class Filter(EmitNode):
             BANDSTOP = "Band Stop"
             TUNABLEBANDPASS = "Tunable Bandpass"
             TUNABLEBANDSTOP = "Tunable Bandstop"
+
     @property
     def type(self) -> TypeOption:
         """Type
@@ -71,6 +75,7 @@ class Filter(EmitNode):
         val = self._get_property('Type')
         val = self.TypeOption[val]
         return val
+
     @type.setter
     def type(self, value: TypeOption):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Type=' + value.value])
@@ -83,6 +88,7 @@ class Filter(EmitNode):
         """
         val = self._get_property('Insertion Loss')
         return val
+
     @insertion_loss.setter
     def insertion_loss(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Insertion Loss=' + value])
@@ -95,6 +101,7 @@ class Filter(EmitNode):
         """
         val = self._get_property('Stop band Attenuation')
         return val
+
     @stop_band_attenuation.setter
     def stop_band_attenuation(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Stop band Attenuation=' + value])
@@ -107,6 +114,7 @@ class Filter(EmitNode):
         """
         val = self._get_property('Max Pass Band')
         return val
+
     @max_pass_band.setter
     def max_pass_band(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Max Pass Band=' + value])
@@ -119,6 +127,7 @@ class Filter(EmitNode):
         """
         val = self._get_property('Min Stop Band')
         return val
+
     @min_stop_band.setter
     def min_stop_band(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Min Stop Band=' + value])
@@ -131,6 +140,7 @@ class Filter(EmitNode):
         """
         val = self._get_property('Max Stop Band')
         return val
+
     @max_stop_band.setter
     def max_stop_band(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Max Stop Band=' + value])
@@ -143,6 +153,7 @@ class Filter(EmitNode):
         """
         val = self._get_property('Min Pass Band')
         return val
+
     @min_pass_band.setter
     def min_pass_band(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Min Pass Band=' + value])
@@ -155,6 +166,7 @@ class Filter(EmitNode):
         """
         val = self._get_property('Lower Stop Band')
         return val
+
     @lower_stop_band.setter
     def lower_stop_band(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Lower Stop Band=' + value])
@@ -167,6 +179,7 @@ class Filter(EmitNode):
         """
         val = self._get_property('Lower Cutoff')
         return val
+
     @lower_cutoff.setter
     def lower_cutoff(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Lower Cutoff=' + value])
@@ -179,6 +192,7 @@ class Filter(EmitNode):
         """
         val = self._get_property('Higher Cutoff')
         return val
+
     @higher_cutoff.setter
     def higher_cutoff(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Higher Cutoff=' + value])
@@ -191,6 +205,7 @@ class Filter(EmitNode):
         """
         val = self._get_property('Higher Stop Band')
         return val
+
     @higher_stop_band.setter
     def higher_stop_band(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Higher Stop Band=' + value])
@@ -203,6 +218,7 @@ class Filter(EmitNode):
         """
         val = self._get_property('Lower Cutoff ')
         return val
+
     @lower_cutoff_.setter
     def lower_cutoff_(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Lower Cutoff =' + value])
@@ -215,6 +231,7 @@ class Filter(EmitNode):
         """
         val = self._get_property('Lower Stop Band ')
         return val
+
     @lower_stop_band_.setter
     def lower_stop_band_(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Lower Stop Band =' + value])
@@ -227,6 +244,7 @@ class Filter(EmitNode):
         """
         val = self._get_property('Higher Stop Band ')
         return val
+
     @higher_stop_band_.setter
     def higher_stop_band_(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Higher Stop Band =' + value])
@@ -239,6 +257,7 @@ class Filter(EmitNode):
         """
         val = self._get_property('Higher Cutoff ')
         return val
+
     @higher_cutoff_.setter
     def higher_cutoff_(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Higher Cutoff =' + value])
@@ -251,6 +270,7 @@ class Filter(EmitNode):
         """
         val = self._get_property('Lowest Tuned Frequency ')
         return val
+
     @lowest_tuned_frequency_.setter
     def lowest_tuned_frequency_(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Lowest Tuned Frequency =' + value])
@@ -263,6 +283,7 @@ class Filter(EmitNode):
         """
         val = self._get_property('Highest Tuned Frequency ')
         return val
+
     @highest_tuned_frequency_.setter
     def highest_tuned_frequency_(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Highest Tuned Frequency =' + value])
@@ -275,6 +296,7 @@ class Filter(EmitNode):
         """
         val = self._get_property('Percent Bandwidth')
         return val
+
     @percent_bandwidth.setter
     def percent_bandwidth(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Percent Bandwidth=' + value])
@@ -287,6 +309,7 @@ class Filter(EmitNode):
         """
         val = self._get_property('Shape Factor')
         return val
+
     @shape_factor.setter
     def shape_factor(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Shape Factor=' + value])
@@ -298,3 +321,4 @@ class Filter(EmitNode):
         "        """
         val = self._get_property('Warnings')
         return val
+

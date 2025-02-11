@@ -16,6 +16,7 @@ class ReadOnlyTxHarmonicNode(EmitNode):
     class HarmonicTableUnitsOption(Enum):
             ABSOLUTE = "Absolute"
             RELATIVE = "Relative"
+
     @property
     def harmonic_table_units(self) -> HarmonicTableUnitsOption:
         """Harmonic Table Units
@@ -24,3 +25,4 @@ class ReadOnlyTxHarmonicNode(EmitNode):
         val = self._get_property('Harmonic Table Units')
         val = self.HarmonicTableUnitsOption[val]
         return val
+

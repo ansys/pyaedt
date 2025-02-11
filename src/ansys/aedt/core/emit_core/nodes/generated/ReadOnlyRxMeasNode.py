@@ -21,6 +21,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         """
         val = self._get_property('File')
         return val
+
     @property
     def source_file(self) -> str:
         """Source File
@@ -29,6 +30,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         """
         val = self._get_property('Source File')
         return val
+
     @property
     def receive_frequency(self) -> float:
         """Receive Frequency
@@ -36,10 +38,12 @@ class ReadOnlyRxMeasNode(EmitNode):
         "        """
         val = self._get_property('Receive Frequency')
         return val
+
     class MeasurementModeOption(Enum):
             AUDIO_SINAD = "Audio SINAD"
             DIGITAL_BER = "Digital BER"
             GPS_CNR = "GPS CNR"
+
     @property
     def measurement_mode(self) -> MeasurementModeOption:
         """Measurement Mode
@@ -48,6 +52,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         val = self._get_property('Measurement Mode')
         val = self.MeasurementModeOption[val]
         return val
+
     @property
     def sinad_threshold(self) -> float:
         """SINAD Threshold
@@ -56,6 +61,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         """
         val = self._get_property('SINAD Threshold')
         return val
+
     @property
     def gps_cnr_threshold(self) -> float:
         """GPS CNR Threshold
@@ -64,6 +70,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         """
         val = self._get_property('GPS CNR Threshold')
         return val
+
     @property
     def ber_threshold(self) -> float:
         """BER Threshold
@@ -72,6 +79,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         """
         val = self._get_property('BER Threshold')
         return val
+
     @property
     def default_intended_power(self) -> bool:
         """Default Intended Power
@@ -80,6 +88,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         """
         val = self._get_property('Default Intended Power')
         return val
+
     @property
     def intended_signal_power(self) -> float:
         """Intended Signal Power
@@ -88,6 +97,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         """
         val = self._get_property('Intended Signal Power')
         return val
+
     @property
     def freq_deviation(self) -> float:
         """Freq. Deviation
@@ -96,6 +106,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         """
         val = self._get_property('Freq. Deviation')
         return val
+
     @property
     def modulation_depth(self) -> float:
         """Modulation Depth
@@ -104,6 +115,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         """
         val = self._get_property('Modulation Depth')
         return val
+
     @property
     def measure_selectivity(self) -> bool:
         """Measure Selectivity
@@ -112,6 +124,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         """
         val = self._get_property('Measure Selectivity')
         return val
+
     @property
     def measure_mixer_products(self) -> bool:
         """Measure Mixer Products
@@ -120,6 +133,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         """
         val = self._get_property('Measure Mixer Products')
         return val
+
     @property
     def max_rf_order(self) -> int:
         """Max RF Order
@@ -128,6 +142,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         """
         val = self._get_property('Max RF Order')
         return val
+
     @property
     def max_lo_order(self) -> int:
         """Max LO Order
@@ -136,6 +151,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         """
         val = self._get_property('Max LO Order')
         return val
+
     @property
     def include_if(self) -> bool:
         """Include IF
@@ -144,6 +160,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         """
         val = self._get_property('Include IF')
         return val
+
     @property
     def measure_saturation(self) -> bool:
         """Measure Saturation
@@ -152,6 +169,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         """
         val = self._get_property('Measure Saturation')
         return val
+
     @property
     def use_ams_limits(self) -> bool:
         """Use AMS Limits
@@ -160,6 +178,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         """
         val = self._get_property('Use AMS Limits')
         return val
+
     @property
     def start_frequency(self) -> float:
         """Start Frequency
@@ -168,6 +187,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         """
         val = self._get_property('Start Frequency')
         return val
+
     @property
     def stop_frequency(self) -> float:
         """Stop Frequency
@@ -176,6 +196,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         """
         val = self._get_property('Stop Frequency')
         return val
+
     @property
     def samples(self) -> int:
         """Samples
@@ -184,6 +205,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         """
         val = self._get_property('Samples')
         return val
+
     @property
     def exclude_mixer_products_below_noise(self) -> bool:
         """Exclude Mixer Products Below Noise
@@ -192,3 +214,4 @@ class ReadOnlyRxMeasNode(EmitNode):
         """
         val = self._get_property('Exclude Mixer Products Below Noise')
         return val
+

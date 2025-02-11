@@ -18,6 +18,7 @@ class ReadOnlyMultiplexerBand(EmitNode):
             LOWPASS = "Low Pass"
             HIGHPASS = "High Pass"
             BANDPASS = "Band Pass"
+
     @property
     def type(self) -> TypeOption:
         """Type
@@ -26,6 +27,7 @@ class ReadOnlyMultiplexerBand(EmitNode):
         val = self._get_property('Type')
         val = self.TypeOption[val]
         return val
+
     @property
     def filename(self) -> str:
         """Filename
@@ -34,6 +36,7 @@ class ReadOnlyMultiplexerBand(EmitNode):
         """
         val = self._get_property('Filename')
         return val
+
     @property
     def insertion_loss(self) -> float:
         """Insertion Loss
@@ -42,6 +45,7 @@ class ReadOnlyMultiplexerBand(EmitNode):
         """
         val = self._get_property('Insertion Loss')
         return val
+
     @property
     def stop_band_attenuation(self) -> float:
         """Stop band Attenuation
@@ -50,6 +54,7 @@ class ReadOnlyMultiplexerBand(EmitNode):
         """
         val = self._get_property('Stop band Attenuation')
         return val
+
     @property
     def max_pass_band(self) -> float:
         """Max Pass Band
@@ -58,6 +63,7 @@ class ReadOnlyMultiplexerBand(EmitNode):
         """
         val = self._get_property('Max Pass Band')
         return val
+
     @property
     def min_stop_band(self) -> float:
         """Min Stop Band
@@ -66,6 +72,7 @@ class ReadOnlyMultiplexerBand(EmitNode):
         """
         val = self._get_property('Min Stop Band')
         return val
+
     @property
     def max_stop_band(self) -> float:
         """Max Stop Band
@@ -74,6 +81,7 @@ class ReadOnlyMultiplexerBand(EmitNode):
         """
         val = self._get_property('Max Stop Band')
         return val
+
     @property
     def min_pass_band(self) -> float:
         """Min Pass Band
@@ -82,6 +90,7 @@ class ReadOnlyMultiplexerBand(EmitNode):
         """
         val = self._get_property('Min Pass Band')
         return val
+
     @property
     def lower_stop_band(self) -> float:
         """Lower Stop Band
@@ -90,6 +99,7 @@ class ReadOnlyMultiplexerBand(EmitNode):
         """
         val = self._get_property('Lower Stop Band')
         return val
+
     @property
     def lower_cutoff(self) -> float:
         """Lower Cutoff
@@ -98,6 +108,7 @@ class ReadOnlyMultiplexerBand(EmitNode):
         """
         val = self._get_property('Lower Cutoff')
         return val
+
     @property
     def higher_cutoff(self) -> float:
         """Higher Cutoff
@@ -106,6 +117,7 @@ class ReadOnlyMultiplexerBand(EmitNode):
         """
         val = self._get_property('Higher Cutoff')
         return val
+
     @property
     def higher_stop_band(self) -> float:
         """Higher Stop Band
@@ -114,6 +126,7 @@ class ReadOnlyMultiplexerBand(EmitNode):
         """
         val = self._get_property('Higher Stop Band')
         return val
+
     @property
     def warnings(self) -> str:
         """Warnings
@@ -121,3 +134,4 @@ class ReadOnlyMultiplexerBand(EmitNode):
         "        """
         val = self._get_property('Warnings')
         return val
+

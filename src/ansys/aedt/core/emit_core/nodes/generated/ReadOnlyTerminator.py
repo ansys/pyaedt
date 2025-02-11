@@ -16,6 +16,7 @@ class ReadOnlyTerminator(EmitNode):
         """
         val = self._get_property('Filename')
         return val
+
     @property
     def noise_temperature(self) -> float:
         """Noise Temperature
@@ -24,6 +25,7 @@ class ReadOnlyTerminator(EmitNode):
         """
         val = self._get_property('Noise Temperature')
         return val
+
     @property
     def notes(self) -> str:
         """Notes
@@ -31,9 +33,11 @@ class ReadOnlyTerminator(EmitNode):
         "        """
         val = self._get_property('Notes')
         return val
+
     class TypeOption(Enum):
             BYFILE = "By File"
             PARAMETRIC = "Parametric"
+
     @property
     def type(self) -> TypeOption:
         """Type
@@ -42,9 +46,11 @@ class ReadOnlyTerminator(EmitNode):
         val = self._get_property('Type')
         val = self.TypeOption[val]
         return val
+
     class PortLocationOption(Enum):
             RADIOSIDE = "Radio Side"
             ANTENNASIDE = "Antenna Side"
+
     @property
     def port_location(self) -> PortLocationOption:
         """Port Location
@@ -53,6 +59,7 @@ class ReadOnlyTerminator(EmitNode):
         val = self._get_property('Port Location')
         val = self.PortLocationOption[val]
         return val
+
     @property
     def vswr(self) -> float:
         """VSWR
@@ -61,6 +68,7 @@ class ReadOnlyTerminator(EmitNode):
         """
         val = self._get_property('VSWR')
         return val
+
     @property
     def warnings(self) -> str:
         """Warnings
@@ -68,3 +76,4 @@ class ReadOnlyTerminator(EmitNode):
         "        """
         val = self._get_property('Warnings')
         return val
+

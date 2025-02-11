@@ -14,39 +14,39 @@ class CouplingsNode(EmitNode):
 
     def add_custom_coupling(self):
         """Add a new node to define custom coupling between antennas"""
-        return self._add_child_node("CustomCouplingNode")
+        return self._add_child_node("Custom Coupling")
 
     def add_path_loss_coupling(self):
         """Add a new node to define path loss coupling between antennas"""
-        return self._add_child_node("PropagationLossCouplingNode")
+        return self._add_child_node("Propagation Loss Coupling")
 
     def add_two_ray_path_loss_coupling(self):
         """Add a new node to define two ray ground reflection coupling between antennas"""
-        return self._add_child_node("TwoRayPathLossCouplingNode")
+        return self._add_child_node("Two Ray Path Loss Coupling")
 
     def add_log_distance_coupling(self):
         """Add a new node to define coupling between antennas using the Log Distance model"""
-        return self._add_child_node("LogDistanceCouplingNode")
+        return self._add_child_node("Log Distance Coupling")
 
     def add_hata_coupling(self):
         """Add a new node to define coupling between antennas using the Hata COST 231 model"""
-        return self._add_child_node("HataCouplingNode")
+        return self._add_child_node("Hata Coupling")
 
     def add_walfisch_ikegami_coupling(self):
         """Add a new node to define coupling between antennas using the Walfisch-Ikegami model"""
-        return self._add_child_node("WalfischCouplingNode")
+        return self._add_child_node("Walfisch-Ikegami Coupling")
 
     def add_erceg_coupling(self):
         """Add a new node to define coupling between antennas using the Erceg coupling model"""
-        return self._add_child_node("ErcegCouplingNode")
+        return self._add_child_node("Erceg Coupling")
 
     def add_indoor_propagation_coupling(self):
         """Add a new node to define coupling between antennas using the ITU Indoor Propagation model"""
-        return self._add_child_node("IndoorPropagationCouplingNode")
+        return self._add_child_node("Indoor Propagation Coupling")
 
     def add__5g_channel_model_coupling(self):
         """Add a new node to define coupling between antennas using the 5G channel coupling model"""
-        return self._add_child_node("FiveGChannelModel")
+        return self._add_child_node("5G Channel Model Coupling")
 
     @property
     def minimum_allowed_coupling(self) -> float:
@@ -56,6 +56,7 @@ class CouplingsNode(EmitNode):
         """
         val = self._get_property('Minimum Allowed Coupling')
         return val
+
     @minimum_allowed_coupling.setter
     def minimum_allowed_coupling(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Minimum Allowed Coupling=' + value])
@@ -68,6 +69,7 @@ class CouplingsNode(EmitNode):
         """
         val = self._get_property('Global Default Coupling')
         return val
+
     @global_default_coupling.setter
     def global_default_coupling(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Global Default Coupling=' + value])
@@ -79,3 +81,4 @@ class CouplingsNode(EmitNode):
         "        """
         val = self._get_property('Antenna Tags')
         return val
+

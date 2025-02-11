@@ -28,6 +28,7 @@ class Cable(EmitNode):
         """
         val = self._get_property('Filename')
         return val
+
     @filename.setter
     def filename(self, value: str):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Filename=' + value])
@@ -40,6 +41,7 @@ class Cable(EmitNode):
         """
         val = self._get_property('Noise Temperature')
         return val
+
     @noise_temperature.setter
     def noise_temperature(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Noise Temperature=' + value])
@@ -51,6 +53,7 @@ class Cable(EmitNode):
         "        """
         val = self._get_property('Notes')
         return val
+
     @notes.setter
     def notes(self, value: str):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
@@ -59,6 +62,7 @@ class Cable(EmitNode):
             BYFILE = "By File"
             CONSTANT = "Constant Loss"
             COAXIAL = "Coaxial Cable"
+
     @property
     def type(self) -> TypeOption:
         """Type
@@ -67,6 +71,7 @@ class Cable(EmitNode):
         val = self._get_property('Type')
         val = self.TypeOption[val]
         return val
+
     @type.setter
     def type(self, value: TypeOption):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Type=' + value.value])
@@ -79,6 +84,7 @@ class Cable(EmitNode):
         """
         val = self._get_property('Length')
         return val
+
     @length.setter
     def length(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Length=' + value])
@@ -91,6 +97,7 @@ class Cable(EmitNode):
         """
         val = self._get_property('Loss Per Length')
         return val
+
     @loss_per_length.setter
     def loss_per_length(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Loss Per Length=' + value])
@@ -103,6 +110,7 @@ class Cable(EmitNode):
         """
         val = self._get_property('Measurement Length')
         return val
+
     @measurement_length.setter
     def measurement_length(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Measurement Length=' + value])
@@ -115,6 +123,7 @@ class Cable(EmitNode):
         """
         val = self._get_property('Resistive Loss Constant')
         return val
+
     @resistive_loss_constant.setter
     def resistive_loss_constant(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Resistive Loss Constant=' + value])
@@ -127,6 +136,7 @@ class Cable(EmitNode):
         """
         val = self._get_property('Dielectric Loss Constant')
         return val
+
     @dielectric_loss_constant.setter
     def dielectric_loss_constant(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Dielectric Loss Constant=' + value])
@@ -138,3 +148,4 @@ class Cable(EmitNode):
         "        """
         val = self._get_property('Warnings')
         return val
+

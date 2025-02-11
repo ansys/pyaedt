@@ -32,6 +32,7 @@ class ProfileTraceNode(EmitNode):
         "        """
         val = self._get_property('Data Source')
         return val
+
     @data_source.setter
     def data_source(self, value):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Data Source=' + value])
@@ -44,6 +45,7 @@ class ProfileTraceNode(EmitNode):
         """
         val = self._get_property('Visible')
         return val
+
     @visible.setter
     def visible(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Visible=' + value])
@@ -56,6 +58,7 @@ class ProfileTraceNode(EmitNode):
         """
         val = self._get_property('Custom Legend')
         return val
+
     @custom_legend.setter
     def custom_legend(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Custom Legend=' + value])
@@ -67,6 +70,7 @@ class ProfileTraceNode(EmitNode):
         "        """
         val = self._get_property('Name')
         return val
+
     @name.setter
     def name(self, value: str):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Name=' + value])
@@ -78,6 +82,7 @@ class ProfileTraceNode(EmitNode):
             DOT_DASH = "Dot-Dash"
             DOT_DOT_DASH = "Dot-Dot-Dash"
             NONE = "None"
+
     @property
     def style(self) -> StyleOption:
         """Style
@@ -86,6 +91,7 @@ class ProfileTraceNode(EmitNode):
         val = self._get_property('Style')
         val = self.StyleOption[val]
         return val
+
     @style.setter
     def style(self, value: StyleOption):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Style=' + value.value])
@@ -98,6 +104,7 @@ class ProfileTraceNode(EmitNode):
         """
         val = self._get_property('Line Width')
         return val
+
     @line_width.setter
     def line_width(self, value: int):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Line Width=' + value])
@@ -110,6 +117,7 @@ class ProfileTraceNode(EmitNode):
         """
         val = self._get_property('Line Color')
         return val
+
     @line_color.setter
     def line_color(self, value):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Line Color=' + value])
@@ -130,6 +138,7 @@ class ProfileTraceNode(EmitNode):
             STAR1 = "Star1"
             STAR2 = "Star2"
             HEXAGON = "Hexagon"
+
     @property
     def symbol(self) -> SymbolOption:
         """Symbol
@@ -138,6 +147,7 @@ class ProfileTraceNode(EmitNode):
         val = self._get_property('Symbol')
         val = self.SymbolOption[val]
         return val
+
     @symbol.setter
     def symbol(self, value: SymbolOption):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Symbol=' + value.value])
@@ -150,6 +160,7 @@ class ProfileTraceNode(EmitNode):
         """
         val = self._get_property('Symbol Size')
         return val
+
     @symbol_size.setter
     def symbol_size(self, value: int):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Size=' + value])
@@ -162,6 +173,7 @@ class ProfileTraceNode(EmitNode):
         """
         val = self._get_property('Symbol Color')
         return val
+
     @symbol_color.setter
     def symbol_color(self, value):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Color=' + value])
@@ -174,6 +186,7 @@ class ProfileTraceNode(EmitNode):
         """
         val = self._get_property('Symbol Line Width')
         return val
+
     @symbol_line_width.setter
     def symbol_line_width(self, value: int):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Line Width=' + value])
@@ -186,6 +199,7 @@ class ProfileTraceNode(EmitNode):
         """
         val = self._get_property('Symbol Filled')
         return val
+
     @symbol_filled.setter
     def symbol_filled(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Filled=' + value])

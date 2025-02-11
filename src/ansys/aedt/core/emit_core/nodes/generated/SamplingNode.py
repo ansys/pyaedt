@@ -23,6 +23,7 @@ class SamplingNode(EmitNode):
         "    Value should be greater than 1."
         """
         return self._get_table_data()
+
     @table_data.setter
     def table_data(self, value):
         self._set_table_data(value)
@@ -31,6 +32,7 @@ class SamplingNode(EmitNode):
             SAMPLEALLCHANNELS = "Sample All Channels in Range(s)"
             RANDOMSAMPLING = "Random Sampling"
             UNIFORMSAMPLING = "Uniform Sampling"
+
     @property
     def sampling_type(self) -> SamplingTypeOption:
         """Sampling Type
@@ -39,6 +41,7 @@ class SamplingNode(EmitNode):
         val = self._get_property('Sampling Type')
         val = self.SamplingTypeOption[val]
         return val
+
     @sampling_type.setter
     def sampling_type(self, value: SamplingTypeOption):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Sampling Type=' + value.value])
@@ -51,6 +54,7 @@ class SamplingNode(EmitNode):
         """
         val = self._get_property('Specify Percentage')
         return val
+
     @specify_percentage.setter
     def specify_percentage(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Specify Percentage=' + value])
@@ -63,6 +67,7 @@ class SamplingNode(EmitNode):
         """
         val = self._get_property('Percentage of Channels')
         return val
+
     @percentage_of_channels.setter
     def percentage_of_channels(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Percentage of Channels=' + value])
@@ -75,6 +80,7 @@ class SamplingNode(EmitNode):
         """
         val = self._get_property('Max # Channels/Range/Band')
         return val
+
     @max__channelsrangeband.setter
     def max__channelsrangeband(self, value: int):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Max # Channels/Range/Band=' + value])
@@ -87,6 +93,7 @@ class SamplingNode(EmitNode):
         """
         val = self._get_property('Seed')
         return val
+
     @seed.setter
     def seed(self, value: int):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Seed=' + value])
@@ -98,6 +105,7 @@ class SamplingNode(EmitNode):
         "        """
         val = self._get_property('Total Tx Channels')
         return val
+
     @property
     def total_rx_channels(self) -> int:
         """Total Rx Channels
@@ -105,6 +113,7 @@ class SamplingNode(EmitNode):
         "        """
         val = self._get_property('Total Rx Channels')
         return val
+
     @property
     def warnings(self) -> str:
         """Warnings
@@ -112,3 +121,4 @@ class SamplingNode(EmitNode):
         "        """
         val = self._get_property('Warnings')
         return val
+

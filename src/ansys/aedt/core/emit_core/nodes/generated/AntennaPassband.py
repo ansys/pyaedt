@@ -29,6 +29,7 @@ class AntennaPassband(EmitNode):
     def enabled(self) -> bool:
         """Enabled state for this node."""
         return self._oDesign.GetModule('EmitCom').GetEmitNodeProperties(self._result_id,self._node_id,'enabled')
+
     @enabled.setter
     def enabled(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['enabled=' + value])
@@ -41,6 +42,7 @@ class AntennaPassband(EmitNode):
         """
         val = self._get_property('Passband Loss')
         return val
+
     @passband_loss.setter
     def passband_loss(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Passband Loss=' + value])
@@ -53,6 +55,7 @@ class AntennaPassband(EmitNode):
         """
         val = self._get_property('Out of Band Attenuation')
         return val
+
     @out_of_band_attenuation.setter
     def out_of_band_attenuation(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Out of Band Attenuation=' + value])
@@ -65,6 +68,7 @@ class AntennaPassband(EmitNode):
         """
         val = self._get_property('Lower Stop Band')
         return val
+
     @lower_stop_band.setter
     def lower_stop_band(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Lower Stop Band=' + value])
@@ -77,6 +81,7 @@ class AntennaPassband(EmitNode):
         """
         val = self._get_property('Lower Cutoff')
         return val
+
     @lower_cutoff.setter
     def lower_cutoff(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Lower Cutoff=' + value])
@@ -89,6 +94,7 @@ class AntennaPassband(EmitNode):
         """
         val = self._get_property('Higher Cutoff')
         return val
+
     @higher_cutoff.setter
     def higher_cutoff(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Higher Cutoff=' + value])
@@ -101,6 +107,7 @@ class AntennaPassband(EmitNode):
         """
         val = self._get_property('Higher Stop Band')
         return val
+
     @higher_stop_band.setter
     def higher_stop_band(self, value: float):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Higher Stop Band=' + value])
@@ -112,6 +119,7 @@ class AntennaPassband(EmitNode):
         "        """
         val = self._get_property('Notes')
         return val
+
     @notes.setter
     def notes(self, value: str):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])

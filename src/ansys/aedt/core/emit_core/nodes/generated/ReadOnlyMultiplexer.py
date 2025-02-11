@@ -16,6 +16,7 @@ class ReadOnlyMultiplexer(EmitNode):
         """
         val = self._get_property('Filename')
         return val
+
     @property
     def noise_temperature(self) -> float:
         """Noise Temperature
@@ -24,6 +25,7 @@ class ReadOnlyMultiplexer(EmitNode):
         """
         val = self._get_property('Noise Temperature')
         return val
+
     @property
     def notes(self) -> str:
         """Notes
@@ -31,9 +33,11 @@ class ReadOnlyMultiplexer(EmitNode):
         "        """
         val = self._get_property('Notes')
         return val
+
     class TypeOption(Enum):
             PARAMETRIC = "By Pass Band"
             BYFILE = "By File"
+
     @property
     def type(self) -> TypeOption:
         """Type
@@ -42,9 +46,11 @@ class ReadOnlyMultiplexer(EmitNode):
         val = self._get_property('Type')
         val = self.TypeOption[val]
         return val
+
     class Port1LocationOption(Enum):
             RADIOSIDE = "Radio Side"
             ANTENNASIDE = "Antenna Side"
+
     @property
     def port_1_location(self) -> Port1LocationOption:
         """Port 1 Location
@@ -53,6 +59,7 @@ class ReadOnlyMultiplexer(EmitNode):
         val = self._get_property('Port 1 Location')
         val = self.Port1LocationOption[val]
         return val
+
     @property
     def flip_ports_vertically(self) -> bool:
         """Flip Ports Vertically
@@ -61,6 +68,7 @@ class ReadOnlyMultiplexer(EmitNode):
         """
         val = self._get_property('Flip Ports Vertically')
         return val
+
     @property
     def ports(self):
         """Ports
@@ -69,6 +77,7 @@ class ReadOnlyMultiplexer(EmitNode):
         "        """
         val = self._get_property('Ports')
         return val
+
     @property
     def warnings(self) -> str:
         """Warnings
@@ -76,3 +85,4 @@ class ReadOnlyMultiplexer(EmitNode):
         "        """
         val = self._get_property('Warnings')
         return val
+

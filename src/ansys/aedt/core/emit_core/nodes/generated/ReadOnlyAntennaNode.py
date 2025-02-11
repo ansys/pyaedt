@@ -20,6 +20,7 @@ class ReadOnlyAntennaNode(EmitNode):
         "        """
         val = self._get_property('Tags')
         return val
+
     @property
     def show_relative_coordinates(self) -> bool:
         """Show Relative Coordinates
@@ -28,6 +29,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Show Relative Coordinates')
         return val
+
     @property
     def position(self):
         """Position
@@ -36,6 +38,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Position')
         return val
+
     @property
     def relative_position(self):
         """Relative Position
@@ -44,9 +47,11 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Relative Position')
         return val
+
     class OrientationModeOption(Enum):
             RPYDEG = "Roll-Pitch-Yaw"
             AETDEG = "Az-El-Twist"
+
     @property
     def orientation_mode(self) -> OrientationModeOption:
         """Orientation Mode
@@ -55,6 +60,7 @@ class ReadOnlyAntennaNode(EmitNode):
         val = self._get_property('Orientation Mode')
         val = self.OrientationModeOption[val]
         return val
+
     @property
     def orientation(self):
         """Orientation
@@ -63,6 +69,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Orientation')
         return val
+
     @property
     def relative_orientation(self):
         """Relative Orientation
@@ -71,6 +78,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Relative Orientation')
         return val
+
     @property
     def position_defined(self) -> bool:
         """Position Defined
@@ -79,6 +87,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Position Defined')
         return val
+
     @property
     def antenna_temperature(self) -> float:
         """Antenna Temperature
@@ -87,6 +96,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Antenna Temperature')
         return val
+
     @property
     def type(self):
         """Type
@@ -94,6 +104,7 @@ class ReadOnlyAntennaNode(EmitNode):
         "        """
         val = self._get_property('Type')
         return val
+
     @property
     def antenna_file(self) -> str:
         """Antenna File
@@ -101,6 +112,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Antenna File')
         return val
+
     @property
     def project_name(self) -> str:
         """Project Name
@@ -109,6 +121,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Project Name')
         return val
+
     @property
     def peak_gain(self) -> float:
         """Peak Gain
@@ -117,10 +130,12 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Peak Gain')
         return val
+
     class BoresightOption(Enum):
             XAXIS = "+X Axis"
             YAXIS = "+Y Axis"
             ZAXIS = "+Z Axis"
+
     @property
     def boresight(self) -> BoresightOption:
         """Boresight
@@ -129,6 +144,7 @@ class ReadOnlyAntennaNode(EmitNode):
         val = self._get_property('Boresight')
         val = self.BoresightOption[val]
         return val
+
     @property
     def vertical_beamwidth(self) -> float:
         """Vertical Beamwidth
@@ -137,6 +153,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Vertical Beamwidth')
         return val
+
     @property
     def horizontal_beamwidth(self) -> float:
         """Horizontal Beamwidth
@@ -145,6 +162,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Horizontal Beamwidth')
         return val
+
     @property
     def extra_sidelobe(self) -> bool:
         """Extra Sidelobe
@@ -153,6 +171,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Extra Sidelobe')
         return val
+
     @property
     def first_sidelobe_level(self) -> float:
         """First Sidelobe Level
@@ -161,6 +180,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('First Sidelobe Level')
         return val
+
     @property
     def first_sidelobe_vert_bw(self) -> float:
         """First Sidelobe Vert. BW
@@ -169,6 +189,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('First Sidelobe Vert. BW')
         return val
+
     @property
     def first_sidelobe_hor_bw(self) -> float:
         """First Sidelobe Hor. BW
@@ -177,6 +198,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('First Sidelobe Hor. BW')
         return val
+
     @property
     def outerbacklobe_level(self) -> float:
         """Outer/Backlobe Level
@@ -185,6 +207,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Outer/Backlobe Level')
         return val
+
     @property
     def resonant_frequency(self) -> float:
         """Resonant Frequency
@@ -193,6 +216,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Resonant Frequency')
         return val
+
     @property
     def slot_length(self) -> float:
         """Slot Length
@@ -201,6 +225,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Slot Length')
         return val
+
     @property
     def mouth_width(self) -> float:
         """Mouth Width
@@ -209,6 +234,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Mouth Width')
         return val
+
     @property
     def mouth_height(self) -> float:
         """Mouth Height
@@ -217,6 +243,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Mouth Height')
         return val
+
     @property
     def waveguide_width(self) -> float:
         """Waveguide Width
@@ -225,6 +252,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Waveguide Width')
         return val
+
     @property
     def width_flare_half_angle(self) -> float:
         """Width Flare Half-angle
@@ -233,6 +261,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Width Flare Half-angle')
         return val
+
     @property
     def height_flare_half_angle(self) -> float:
         """Height Flare Half-angle
@@ -241,6 +270,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Height Flare Half-angle')
         return val
+
     @property
     def mouth_diameter(self) -> float:
         """Mouth Diameter
@@ -249,6 +279,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Mouth Diameter')
         return val
+
     @property
     def flare_half_angle(self) -> float:
         """Flare Half-angle
@@ -257,6 +288,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Flare Half-angle')
         return val
+
     @property
     def vswr(self) -> float:
         """VSWR
@@ -265,11 +297,13 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('VSWR')
         return val
+
     class AntennaPolarizationOption(Enum):
             VERTICAL = "Vertical"
             HORIZONTAL = "Horizontal"
             RHCP = "RHCP"
             LHCP = "LHCP"
+
     @property
     def antenna_polarization(self) -> AntennaPolarizationOption:
         """Antenna Polarization
@@ -278,9 +312,11 @@ class ReadOnlyAntennaNode(EmitNode):
         val = self._get_property('Antenna Polarization')
         val = self.AntennaPolarizationOption[val]
         return val
+
     class CrossDipoleModeOption(Enum):
             FREESTANDING = "Freestanding"
             OVER_GROUND_PLANE = "Over Ground Plane"
+
     @property
     def cross_dipole_mode(self) -> CrossDipoleModeOption:
         """Cross Dipole Mode
@@ -289,9 +325,11 @@ class ReadOnlyAntennaNode(EmitNode):
         val = self._get_property('Cross Dipole Mode')
         val = self.CrossDipoleModeOption[val]
         return val
+
     class CrossDipolePolarizationOption(Enum):
             RHCP = "RHCP"
             LHCP = "LHCP"
+
     @property
     def cross_dipole_polarization(self) -> CrossDipolePolarizationOption:
         """Cross Dipole Polarization
@@ -300,6 +338,7 @@ class ReadOnlyAntennaNode(EmitNode):
         val = self._get_property('Cross Dipole Polarization')
         val = self.CrossDipolePolarizationOption[val]
         return val
+
     @property
     def override_height(self) -> bool:
         """Override Height
@@ -308,6 +347,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Override Height')
         return val
+
     @property
     def offset_height(self) -> float:
         """Offset Height
@@ -316,6 +356,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Offset Height')
         return val
+
     @property
     def auto_height_offset(self) -> bool:
         """Auto Height Offset
@@ -324,6 +365,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Auto Height Offset')
         return val
+
     @property
     def conform__adjust_antenna(self) -> bool:
         """Conform / Adjust Antenna
@@ -332,6 +374,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Conform / Adjust Antenna')
         return val
+
     @property
     def element_offset(self):
         """Element Offset
@@ -340,10 +383,12 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Element Offset')
         return val
+
     class ConformtoPlatformOption(Enum):
             NONE = "None"
             ALONG_NORMAL = "Along Normal"
             PERPENDICULAR_TO_PLANE = "Perpendicular to Plane"
+
     @property
     def conform_to_platform(self) -> ConformtoPlatformOption:
         """Conform to Platform
@@ -352,10 +397,12 @@ class ReadOnlyAntennaNode(EmitNode):
         val = self._get_property('Conform to Platform')
         val = self.ConformtoPlatformOption[val]
         return val
+
     class ReferencePlaneOption(Enum):
             XY_PLANE = "XY Plane"
             YZ_PLANE = "YZ Plane"
             ZX_PLANE = "ZX Plane"
+
     @property
     def reference_plane(self) -> ReferencePlaneOption:
         """Reference Plane
@@ -364,6 +411,7 @@ class ReadOnlyAntennaNode(EmitNode):
         val = self._get_property('Reference Plane')
         val = self.ReferencePlaneOption[val]
         return val
+
     @property
     def conform_element_orientation(self) -> bool:
         """Conform Element Orientation
@@ -372,6 +420,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Conform Element Orientation')
         return val
+
     @property
     def show_axes(self) -> bool:
         """Show Axes
@@ -380,6 +429,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Show Axes')
         return val
+
     @property
     def show_icon(self) -> bool:
         """Show Icon
@@ -388,6 +438,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Show Icon')
         return val
+
     @property
     def size(self) -> float:
         """Size
@@ -396,6 +447,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Size')
         return val
+
     @property
     def color(self):
         """Color
@@ -404,6 +456,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Color')
         return val
+
     @property
     def el_sample_interval(self) -> float:
         """El Sample Interval
@@ -411,6 +464,7 @@ class ReadOnlyAntennaNode(EmitNode):
         "        """
         val = self._get_property('El Sample Interval')
         return val
+
     @property
     def az_sample_interval(self) -> float:
         """Az Sample Interval
@@ -418,6 +472,7 @@ class ReadOnlyAntennaNode(EmitNode):
         "        """
         val = self._get_property('Az Sample Interval')
         return val
+
     @property
     def has_frequency_domain(self) -> bool:
         """Has Frequency Domain
@@ -426,6 +481,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Has Frequency Domain')
         return val
+
     @property
     def frequency_domain(self):
         """Frequency Domain
@@ -433,6 +489,7 @@ class ReadOnlyAntennaNode(EmitNode):
         "        """
         val = self._get_property('Frequency Domain')
         return val
+
     @property
     def number_of_electric_sources(self) -> int:
         """Number of Electric Sources
@@ -440,6 +497,7 @@ class ReadOnlyAntennaNode(EmitNode):
         "        """
         val = self._get_property('Number of Electric Sources')
         return val
+
     @property
     def number_of_magnetic_sources(self) -> int:
         """Number of Magnetic Sources
@@ -447,6 +505,7 @@ class ReadOnlyAntennaNode(EmitNode):
         "        """
         val = self._get_property('Number of Magnetic Sources')
         return val
+
     @property
     def number_of_imaged_electric_sources(self) -> int:
         """Number of Imaged Electric Sources
@@ -454,6 +513,7 @@ class ReadOnlyAntennaNode(EmitNode):
         "        """
         val = self._get_property('Number of Imaged Electric Sources')
         return val
+
     @property
     def number_of_imaged_magnetic_sources(self) -> int:
         """Number of Imaged Magnetic Sources
@@ -461,6 +521,7 @@ class ReadOnlyAntennaNode(EmitNode):
         "        """
         val = self._get_property('Number of Imaged Magnetic Sources')
         return val
+
     @property
     def waveguide_height(self) -> float:
         """Waveguide Height
@@ -468,6 +529,7 @@ class ReadOnlyAntennaNode(EmitNode):
         "        """
         val = self._get_property('Waveguide Height')
         return val
+
     @property
     def waveguide_cutoff_frequency(self) -> float:
         """Waveguide Cutoff Frequency
@@ -475,6 +537,7 @@ class ReadOnlyAntennaNode(EmitNode):
         "        """
         val = self._get_property('Waveguide Cutoff Frequency')
         return val
+
     @property
     def aperture_cutoff_frequency(self) -> float:
         """Aperture Cutoff Frequency
@@ -482,10 +545,12 @@ class ReadOnlyAntennaNode(EmitNode):
         "        """
         val = self._get_property('Aperture Cutoff Frequency')
         return val
+
     class SWEModeTruncationOption(Enum):
             DYNAMIC = "Dynamic"
             CUSTOM = "Fixed (Custom)"
             NONE = "None"
+
     @property
     def swe_mode_truncation(self) -> SWEModeTruncationOption:
         """SWE Mode Truncation
@@ -494,6 +559,7 @@ class ReadOnlyAntennaNode(EmitNode):
         val = self._get_property('SWE Mode Truncation')
         val = self.SWEModeTruncationOption[val]
         return val
+
     @property
     def max_n_index(self) -> int:
         """Max N Index
@@ -502,6 +568,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Max N Index')
         return val
+
     @property
     def notes(self) -> str:
         """Notes
@@ -509,6 +576,7 @@ class ReadOnlyAntennaNode(EmitNode):
         "        """
         val = self._get_property('Notes')
         return val
+
     @property
     def show_composite_passband(self) -> bool:
         """Show Composite Passband
@@ -517,6 +585,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Show Composite Passband')
         return val
+
     @property
     def use_phase_center(self) -> bool:
         """Use Phase Center
@@ -525,6 +594,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('Use Phase Center')
         return val
+
     @property
     def coordinate_systems(self) -> str:
         """Coordinate Systems
@@ -532,6 +602,7 @@ class ReadOnlyAntennaNode(EmitNode):
         "        """
         val = self._get_property('Coordinate Systems')
         return val
+
     @property
     def phasecenterposition(self):
         """PhaseCenterPosition
@@ -540,6 +611,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('PhaseCenterPosition')
         return val
+
     @property
     def phasecenterorientation(self):
         """PhaseCenterOrientation
@@ -548,3 +620,4 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property('PhaseCenterOrientation')
         return val
+

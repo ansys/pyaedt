@@ -21,6 +21,7 @@ class CouplingLinkNode(EmitNode):
         """
         val = self._get_property('Enabled')
         return val
+
     @enabled.setter
     def enabled(self, value: bool):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Enabled=' + value])
@@ -33,6 +34,7 @@ class CouplingLinkNode(EmitNode):
         "        """
         val = self._get_property('Ports')
         return val
+
     @ports.setter
     def ports(self, value):
         self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Ports=' + value])
