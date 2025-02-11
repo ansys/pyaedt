@@ -67,6 +67,8 @@ from ansys.aedt.core import Desktop
 from ansys.aedt.core import Edb
 from ansys.aedt.core import Hfss
 from ansys.aedt.core.aedt_logger import pyaedt_logger
+from ansys.aedt.core.filtersolutions import DistributedDesign
+from ansys.aedt.core.filtersolutions import LumpedDesign
 from ansys.aedt.core.generic.filesystem import Scratch
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 
@@ -226,3 +228,15 @@ def add_edb(local_scratch):
         )
 
     return _method
+
+
+@pytest.fixture(scope="function")
+def lumped_design():
+    """Fixture for creating a LumpedDesign object."""
+    return LumpedDesign(config["desktopVersion"])
+
+
+@pytest.fixture(scope="function")
+def distributed_design():
+    """Fixture for creating a DistributedDesign object."""
+    return DistributedDesign(config["desktopVersion"])

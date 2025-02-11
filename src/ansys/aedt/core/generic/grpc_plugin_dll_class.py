@@ -348,9 +348,9 @@ class AEDT:
 
     def CreateAedtApplication(self, machine="", port=0, NGmode=False, alwaysNew=True):
         if not alwaysNew and port:
-            gChannel = grpc.insecure_channel(f"{machine}:{port}")
+            grpc_channel = grpc.insecure_channel(f"{machine}:{port}")
             try:
-                grpc.channel_ready_future(gChannel).result(settings.desktop_launch_timeout)
+                grpc.channel_ready_future(grpc_channel).result(settings.desktop_launch_timeout)
             except grpc.FutureTimeoutError:
                 settings.logger.error("Failed to connect to Desktop Session")
                 return

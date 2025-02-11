@@ -122,11 +122,11 @@ def launch_aedt(full_path, non_graphical, port, student_version, first_run=True)
             settings.logger.warning("Electronics Desktop license not found on the default license server.")
 
     timeout = settings.desktop_launch_timeout
-    gChannel = grpc.insecure_channel(f"127.0.0.1:{port}")
+    grpc_channel = grpc.insecure_channel(f"127.0.0.1:{port}")
 
     try:
         start = time.time()
-        grpc.channel_ready_future(gChannel).result(timeout)
+        grpc.channel_ready_future(grpc_channel).result(timeout)
         end = time.time() - start
     except grpc.FutureTimeoutError:
         active_s = active_sessions(student_version=student_version)
