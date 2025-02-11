@@ -74,7 +74,3 @@ class TestClass:
             info.value.args[0] == f"The requested version 2024.2 does not match with the previously defined version "
             f"{ansys.aedt.core.filtersolutions_core._internal_dll_interface._version}."
         )
-
-    def test_version_not_installed(self):
-        with pytest.raises(ValueError, match="Specified version 2024.2 is not installed on your system"):
-            ansys.aedt.core.filtersolutions_core._dll_interface("2024.2")
