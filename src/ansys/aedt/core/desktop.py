@@ -52,6 +52,7 @@ from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
+import grpc
 
 if is_linux:
     os.environ["ANS_NODEPCHECK"] = str(1)
@@ -121,25 +122,28 @@ def launch_aedt(full_path, non_graphical, port, student_version, first_run=True)
             settings.logger.warning("Electronics Desktop license not found on the default license server.")
 
     timeout = settings.desktop_launch_timeout
-    k = 0
-    while not port in grpc_active_sessions(non_graphical=non_graphical):
-        if k > timeout:  # pragma: no cover
-            active_s = active_sessions(student_version=student_version)
-            for pid in active_s:
-                if port == active_s[pid]:
-                    try:
-                        os.kill(pid, 9)
-                    except (OSError, PermissionError):
-                        pass
-            if first_run:
-                new_port = _find_free_port()
-                settings.logger.warning(f"Failed to start on gRPC port: {port}. Trying to start on {new_port}.")
-                return launch_aedt(full_path, non_graphical, new_port, student_version, first_run=False)
-            settings.logger.error(f"Failed to start on gRPC port: {port}.")
-            return False, _find_free_port()
-        time.sleep(1)
-        k += 1
-    settings.logger.info(f"Electronics Desktop started on gRPC port: {port}.")
+    gChannel = grpc.insecure_channel(f"127.0.0.1:{port}")
+
+    try:
+        start = time.time()
+        grpc.channel_ready_future(gChannel).result(timeout)
+        end = time.time() - start
+    except grpc.FutureTimeoutError:
+        active_s = active_sessions(student_version=student_version)
+        for pid in active_s:
+            if port == active_s[pid]:
+                try:
+                    os.kill(pid, 9)
+                except (OSError, PermissionError):
+                    pass
+        if first_run:
+            new_port = _find_free_port()
+            settings.logger.warning(f"Failed to start on gRPC port: {port}. Trying to start on {new_port}.")
+            return launch_aedt(full_path, non_graphical, new_port, student_version, first_run=False)
+        settings.logger.error(f"Failed to start on gRPC port: {port}.")
+        return False, _find_free_port()
+
+    settings.logger.info(f"Electronics Desktop started on gRPC port: {port} after {end} seconds.")
     return True, port
 
 

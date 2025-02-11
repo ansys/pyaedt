@@ -350,7 +350,7 @@ class AEDT:
         if not alwaysNew and port:
             gChannel = grpc.insecure_channel(f"{machine}:{port}")
             try:
-                grpc.channel_ready_future(gChannel).result(300 if "PYTEST_CURRENT_TEST" in os.environ else 60)
+                grpc.channel_ready_future(gChannel).result(settings.desktop_launch_timeout)
             except grpc.FutureTimeoutError:
                 settings.logger.error("Failed to connect to Desktop Session")
                 return
