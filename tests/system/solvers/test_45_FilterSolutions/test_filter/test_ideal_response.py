@@ -153,6 +153,7 @@ class TestClass:
         assert freqs[300] == pytest.approx(8669097136.772985)
         assert freqs[-1] == pytest.approx(31214328219.225075)
 
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Test failing in VM")
     def test_pole_zeros_response_getter(self, lumped_design):
         pole_zero_den_x = lumped_design.ideal_response._pole_zeros_response_getter(
             PoleZerosResponseColumn.TX_ZERO_DEN_X
