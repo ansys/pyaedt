@@ -33,6 +33,7 @@ from tests.system.general.conftest import config
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
+@pytest.mark.timeout(30)
 class TestClass:
 
     def test_substrate_type(self, distributed_design):

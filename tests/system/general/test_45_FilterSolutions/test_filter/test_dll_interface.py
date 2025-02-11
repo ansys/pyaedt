@@ -38,6 +38,7 @@ from tests.system.general.test_45_FilterSolutions.test_filter import test_transm
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
+@pytest.mark.timeout(30)
 class TestClass:
 
     def test_dll_path(self):
