@@ -626,6 +626,7 @@ class MonostaticRCSPlotter(object):
         self.show_geometry = True
         self.__all_scene_actors = {"model": {}, "annotations": {}, "results": {}}
         self.__x_max, self.__x_min, self.__y_max, self.__y_min, self.__z_max, self.__z_min = 0, 0, 0, 0, 0, 0
+        self.__model_info = None
 
         # Get geometries
         if self.__rcs_data and "model_info" in self.rcs_data.metadata.keys():
