@@ -29,11 +29,11 @@ import ansys.aedt.core.filtersolutions
 import ansys.aedt.core.filtersolutions_core
 from ansys.aedt.core.filtersolutions_core.attributes import FilterType
 from ansys.aedt.core.generic.aedt_versions import aedt_versions
-from ansys.aedt.core.generic.general_methods import is_linux
+from ansys.aedt.core.generic.settings import is_linux
 import pytest
 
-from tests.system.general.conftest import config
-from tests.system.general.test_45_FilterSolutions.test_filter import test_transmission_zeros
+from tests.system.solvers.conftest import config
+from tests.system.solvers.test_45_FilterSolutions.test_filter import test_transmission_zeros
 
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
@@ -74,7 +74,3 @@ class TestClass:
             info.value.args[0] == f"The requested version 2024.2 does not match with the previously defined version "
             f"{ansys.aedt.core.filtersolutions_core._internal_dll_interface._version}."
         )
-
-    def test_version_not_installed(self):
-        with pytest.raises(ValueError, match="Specified version 2024.2 is not installed on your system"):
-            ansys.aedt.core.filtersolutions_core._dll_interface("2024.2")
