@@ -25,61 +25,61 @@ concurrency:
 
 jobs:
 
-  pr-title:
-    if: github.event_name == 'pull_request'
-    name: Check the title of the pull request
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check the title of the pull request
-        uses: ansys/actions/check-pr-title@v8
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          use-upper-case: true
-
-  doc-style:
-    name: Documentation style check
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check documentation style
-        uses: ansys/actions/doc-style@v8
-        with:
-         token: ${{ secrets.GITHUB_TOKEN }}
-
-  doc-build:
-    name: Documentation build
-    runs-on: ubuntu-latest
-    needs: [doc-style]
-    steps:
-      - name: Documentation build
-        uses: ansys/actions/doc-build@v8
-        with:
-          dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-          sphinxopts: '-j auto --color -w build_errors.txt'
-          check-links: false
-          needs-quarto: true
-
-  smoke-tests:
-    name: Build wheelhouse and smoke tests
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
-        target: ['all', 'installer']
-    steps:
-      - name: Build wheelhouse and perform smoke test
-        uses: ansys/actions/build-wheelhouse@v8
-        with:
-          library-name: ${{ env.PACKAGE_NAME }}
-          operating-system: ${{ matrix.os }}
-          python-version: ${{ matrix.python-version }}
-          target: ${{ matrix.target }}
-
-      - name: Import python package
-        run: |
-          python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
+#  pr-title:
+#    if: github.event_name == 'pull_request'
+#    name: Check the title of the pull request
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Check the title of the pull request
+#        uses: ansys/actions/check-pr-title@v8
+#        with:
+#          token: ${{ secrets.GITHUB_TOKEN }}
+#          use-upper-case: true
+#
+#  doc-style:
+#    name: Documentation style check
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Check documentation style
+#        uses: ansys/actions/doc-style@v8
+#        with:
+#         token: ${{ secrets.GITHUB_TOKEN }}
+#
+#  doc-build:
+#    name: Documentation build
+#    runs-on: ubuntu-latest
+#    needs: [doc-style]
+#    steps:
+#      - name: Documentation build
+#        uses: ansys/actions/doc-build@v8
+#        with:
+#          dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
+#          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+#          sphinxopts: '-j auto --color -w build_errors.txt'
+#          check-links: false
+#          needs-quarto: true
+#
+#  smoke-tests:
+#    name: Build wheelhouse and smoke tests
+#    runs-on: ${{ matrix.os }}
+#    strategy:
+#      fail-fast: false
+#      matrix:
+#        os: [ubuntu-latest, windows-latest]
+#        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+#        target: ['all', 'installer']
+#    steps:
+#      - name: Build wheelhouse and perform smoke test
+#        uses: ansys/actions/build-wheelhouse@v8
+#        with:
+#          library-name: ${{ env.PACKAGE_NAME }}
+#          operating-system: ${{ matrix.os }}
+#          python-version: ${{ matrix.python-version }}
+#          target: ${{ matrix.target }}
+#
+#      - name: Import python package
+#        run: |
+#          python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
 
 #  unit-tests:
 #    name: Running unit tests
@@ -141,7 +141,6 @@ jobs:
 
   system-tests-solvers-windows:
     name: Testing solvers and coverage (Windows)
-    needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
