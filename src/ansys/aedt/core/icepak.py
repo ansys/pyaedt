@@ -91,7 +91,7 @@ class Icepak(FieldAnalysisIcepak):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is  used.
         This parameter is ignored when Script is launched within AEDT.
-        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
+        Examples of input values are ``251``, ``25.1``, ``2025.1``, ``"2025.1"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -154,10 +154,10 @@ class Icepak(FieldAnalysisIcepak):
     PyAEDT INFO: No design is present. Inserting a new design.
     PyAEDT INFO: Added design ...
 
-    Create an instance of Icepak using the 2023 R2 release and
+    Create an instance of Icepak using the 2025 R1 release and
     open the specified project, which is ``myipk2.aedt``.
 
-    >>> icepak = Icepak(version=2023.2, project="myipk2.aedt")
+    >>> icepak = Icepak(version=2025.1, project="myipk2.aedt")
     PyAEDT INFO: Project...
     PyAEDT INFO: No design is present. Inserting a new design.
     PyAEDT INFO: Added design...

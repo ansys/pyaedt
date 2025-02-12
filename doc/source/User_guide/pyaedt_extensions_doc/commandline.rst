@@ -5,7 +5,7 @@ Every extension can also launch the extension user interface from the terminal:
 .. code::
 
    SET PYAEDT_SCRIPT_PORT=50051
-   SET PYAEDT_SCRIPT_VERSION=2024.2
+   SET PYAEDT_SCRIPT_VERSION=2025.1
    python.exe path/to/pyaedt/workflows/project/import_nastran.py
 
 The available arguments are: ``file_path``, ``planar``, ``lightweight``, and ``decimate``.
@@ -20,7 +20,7 @@ This code shows how to pass the input file as an argument, which doesn't launch 
 .. code::
 
    export PYAEDT_SCRIPT_PORT=50051
-   export PYAEDT_SCRIPT_VERSION=2024.2
+   export PYAEDT_SCRIPT_VERSION=2025.1
    python.exe path/to/pyaedt/workflows/project/import_nastran.py --file_path="my_file.stl"
 
 Finally, this code shows how you can run the extension directly from a Python script:
