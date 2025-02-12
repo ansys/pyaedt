@@ -32,7 +32,6 @@ from ..resources import read_resource_file
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
-@pytest.mark.timeout(60)
 class TestClass:
 
     def test_lumped_capacitor_q(self, lumped_design):

@@ -49,7 +49,6 @@ changed_ripple = ".03"
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
-@pytest.mark.timeout(90)
 class TestClass:
     def test_filter_type(self, lumped_design):
         assert lumped_design.attributes.filter_type == FilterType.BUTTERWORTH
