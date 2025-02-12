@@ -115,7 +115,7 @@ This code creates the previous PDF report:
     from ansys.aedt.core.visualization.plot.pdf import AnsysReport
     import os
     report = AnsysReport()
-    report.aedt_version = "2024R2"
+    report.aedt_version = "2025R1"
     report.template_name = "AnsysTemplate"
     report.project_name = "Coaxial1"
     report.design_name = "Design2"

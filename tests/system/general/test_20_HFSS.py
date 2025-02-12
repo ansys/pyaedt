@@ -234,9 +234,11 @@ class TestClass:
         assert port3.name in [i.name for i in self.aedtapp.boundaries]
 
     def test_06a_create_linear_count_sweep(self):
-        setup = self.aedtapp.create_setup("MySetup")
-        setup.props["Frequency"] = "1GHz"
-        setup.props["BasisOrder"] = 2
+        # Newer, simplified notation to pass native API keywords
+        setup = self.aedtapp.create_setup("MySetup", Frequency="1GHz", BasisOrder=2)
+        assert setup.props["Frequency"] == "1GHz"
+        assert setup.props["BasisOrder"] == 2
+        # Legacy notation using setup.props followed by setup.update()
         setup.props["MaximumPasses"] = 1
         assert setup.update()
         assert self.aedtapp.create_linear_count_sweep("MySetup", "GHz", 0.8, 1.2, 401)
@@ -1570,7 +1572,9 @@ class TestClass:
         ),
     )
     def test_64_import_dxf(self, dxf_file: str, object_count: int, self_stitch_tolerance: float):
-        design_name = self.aedtapp.insert_design("test_64_import_dxf")
+        from pyedb.generic.general_methods import generate_unique_name
+
+        design_name = self.aedtapp.insert_design(generate_unique_name("test_64_import_dxf"))
         self.aedtapp.set_active_design(design_name)
         dxf_layers = self.aedtapp.get_dxf_layers(dxf_file)
         assert isinstance(dxf_layers, list)

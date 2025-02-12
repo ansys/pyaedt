@@ -33,10 +33,10 @@ from ansys.aedt.core.filtersolutions_core.attributes import RaisedCosineAlphaPer
 from ansys.aedt.core.filtersolutions_core.attributes import RippleConstrictionBandSelect
 from ansys.aedt.core.filtersolutions_core.attributes import SinglePointRippleInfZeros
 from ansys.aedt.core.filtersolutions_core.attributes import StopbandDefinition
-from ansys.aedt.core.generic.general_methods import is_linux
+from ansys.aedt.core.generic.settings import is_linux
 import pytest
 
-from tests.system.general.conftest import config
+from tests.system.solvers.conftest import config
 
 default_center_freq = "1G"
 changed_freq = "500M"

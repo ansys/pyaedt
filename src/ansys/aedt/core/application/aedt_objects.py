@@ -390,13 +390,18 @@ class AedtObjects(object):
         ----------
         >>> oEditor = oDesign.SetActiveEditor("SchematicEditor")"""
         if not self._oeditor and self._odesign:
-            if self.design_type in ["Circuit Design", "Twin Builder", "Maxwell Circuit", "EMIT"]:
+            if self.design_type in ["Circuit Design"]:
+                self._oeditor = self._odesign.GetEditor("SchematicEditor")
+                if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
+                    time.sleep(1)
+                    self.desktop_class.close_windows()
+            elif self.design_type in ["Twin Builder", "Maxwell Circuit", "EMIT"]:
                 self._oeditor = self._odesign.SetActiveEditor("SchematicEditor")
                 if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
                     time.sleep(1)
                     self.desktop_class.close_windows()
             elif self.design_type in ["HFSS 3D Layout Design", "HFSS3DLayout"]:
-                self._oeditor = self._odesign.SetActiveEditor("Layout")
+                self._oeditor = self._odesign.GetEditor("Layout")
             elif self.design_type in ["RMxprt", "RMxprtSolution"]:
                 self._oeditor = self._odesign.SetActiveEditor("Machine")
             elif self.design_type in ["Circuit Netlist"]:
@@ -414,7 +419,7 @@ class AedtObjects(object):
         >>> oDesign.SetActiveEditor("Layout")
         """
         if not self._layouteditor and self.design_type in ["Circuit Design"]:
-            self._layouteditor = self._odesign.SetActiveEditor("Layout")
+            self._layouteditor = self._odesign.GetEditor("Layout")
         return self._layouteditor
 
     @property

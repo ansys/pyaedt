@@ -76,7 +76,9 @@ PyAEDT has different compatibility requirements based on its version. Below is a
     - Compatible with Python 3.8 and versions up to Python 3.12.
   - AEDT Compatibility:
     - Version 0.9.x has been tested using AEDT 2024 R1.
-    - Starting from version 0.10.0, all tests are performed with AEDT 2024 R2.
+    - From versions 0.10.0 to 0.13.3, all tests have been performed with AEDT 2024 R2.
+    - Starting from version 0.14.0, all tests are performed with AEDT 2025 R1.
+
 
 ## About PyAnsys
 
