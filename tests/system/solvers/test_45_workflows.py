@@ -639,7 +639,7 @@ class TestClass:
         aedtapp.close_project(aedtapp.project_name)
 
     def test_20_layout_design_toolkit_antipad_1(self, add_app, local_scratch):
-        from ansys.aedt.core.workflows.hfss3dlayout.layout_design_toolkit import BackendAntipad
+        from ansys.aedt.core.workflows.hfss3dlayout.post_layout_design_toolkit import BackendAntipad
 
         h3d = add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder=test_subfolder)
         h3d.save_project()
@@ -648,7 +648,7 @@ class TestClass:
         h3d.close_project()
 
     def test_20_layout_design_toolkit_antipad_2(self, add_app, local_scratch):
-        from ansys.aedt.core.workflows.hfss3dlayout.layout_design_toolkit import BackendAntipad
+        from ansys.aedt.core.workflows.hfss3dlayout.post_layout_design_toolkit import BackendAntipad
 
         h3d = add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder=test_subfolder)
         h3d.save_project()
@@ -658,7 +658,7 @@ class TestClass:
         h3d.close_project()
 
     def test_20_layout_design_toolkit_micro_via(self, add_app, local_scratch):
-        from ansys.aedt.core.workflows.hfss3dlayout.layout_design_toolkit import BackendMircoVia
+        from ansys.aedt.core.workflows.hfss3dlayout.post_layout_design_toolkit import BackendMircoVia
 
         h3d = add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder=test_subfolder)
         h3d.save_project()
