@@ -269,7 +269,7 @@ The Python script requires a common initial part to define the port and the vers
         version = os.environ["PYAEDT_SCRIPT_VERSION"]
     else:
         port = 0
-        version = "2024.2"
+        version = "2025.1"
 
     # your pyaedt script
     app = ansys.aedt.core.Desktop(new_desktop_session=False, specified_version=version, port=port)

@@ -26,14 +26,14 @@ from ansys.aedt.core.filtersolutions_core.ideal_response import FrequencyRespons
 from ansys.aedt.core.filtersolutions_core.ideal_response import PoleZerosResponseColumn
 from ansys.aedt.core.filtersolutions_core.ideal_response import SParametersResponseColumn
 from ansys.aedt.core.filtersolutions_core.ideal_response import TimeResponseColumn
-from ansys.aedt.core.generic.general_methods import is_linux
+from ansys.aedt.core.generic.settings import is_linux
 import pytest
 
-from tests.system.general.conftest import config
+from tests.system.solvers.conftest import config
+from tests.system.solvers.test_45_FilterSolutions.resources import read_resource_file
 
-from ..resources import read_resource_file
 
-
+@pytest.mark.skip(reason="Temporary deactivated due to a conflict between FilterSolutions dll and pytest")
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
 class TestClass:

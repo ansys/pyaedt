@@ -96,7 +96,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
         This parameter is ignored when a script is launched within AEDT.
-        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
+        Examples of input values are ``251``, ``25.1``, ``2025.1``, ``"2025.1"``.
     non_graphical : bool, optional
         Whether to run AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -166,19 +166,19 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
     PyAEDT INFO: Added design...
 
 
-    Create an instance of HFSS using the 2023 R2 release and open
+    Create an instance of HFSS using the 2025 R1 release and open
     the specified project, which is named ``"myfile2.aedt"``.
 
-    >>> hfss = Hfss(version=232, project="myfile2.aedt")
+    >>> hfss = Hfss(version=251, project="myfile2.aedt")
     PyAEDT INFO: Project myfile2 has been created.
     PyAEDT INFO: No design is present. Inserting a new design.
     PyAEDT INFO: Added design...
 
 
-    Create an instance of HFSS using the 2023 R2 student version and open
+    Create an instance of HFSS using the 2025 R1 student version and open
     the specified project, which is named ``"myfile3.aedt"``.
 
-    >>> hfss = Hfss(version="2023.2", project="myfile3.aedt", student_version=True)
+    >>> hfss = Hfss(version="251", project="myfile3.aedt", student_version=True)
     PyAEDT INFO: Project myfile3 has been created.
     PyAEDT INFO: No design is present. Inserting a new design.
     PyAEDT INFO: Added design...
@@ -1733,9 +1733,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> target_project = "my/path/to/targetProject.aedt"
         >>> source_project = "my/path/to/sourceProject.aedt"
         >>> target = Hfss(project=target_project, solution_type="SBR+",
-        ...               version="2024.2", new_desktop=False)
+        ...               version="2025.1", new_desktop=False)
         >>> source = Hfss(project=source_project, design="feeder",
-        ...               version="2024.2", new_desktop=False)
+        ...               version="2025.1", new_desktop=False)
         >>> target.create_sbr_linked_antenna(source,target_cs="feederPosition",field_type="farfield")  # doctest: +SKIP
 
         """
