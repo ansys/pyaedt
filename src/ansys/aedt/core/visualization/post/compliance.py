@@ -1118,7 +1118,8 @@ class VirtualCompliance:
                 for page in range(1, _design.modeler.pages + 1):
                     name = os.path.join(self._output_folder, f"{_design.design_name}_{page}.jpg")
                     image = _design.post.export_model_picture(name, page)
-                    report.add_image(image, caption=f"Schematic {_design.design_name}, page {page}.")
+                    if os.path.exists(image):
+                        report.add_image(image, caption=f"Schematic {_design.design_name}, page {page}.")
                 components = [["Reference Designator", "Parameters"]]
                 for element in _design.modeler.components.components.values():
                     if "refdes" in dir(element):
