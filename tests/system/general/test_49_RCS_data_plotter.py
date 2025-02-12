@@ -331,3 +331,12 @@ class TestClass:
         plot = rcs_plotter.plot_scene(show=False)
         assert isinstance(plot, Plotter)
         assert rcs_plotter.clear_scene()
+
+    def test_15_rcs_plotter_only_settings(self):
+        rcs_plotter = MonostaticRCSPlotter()
+        rcs_plotter.show_geometry = False
+
+        rcs_plotter.add_range_profile_settings()
+        plot = rcs_plotter.plot_scene(show=True)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
