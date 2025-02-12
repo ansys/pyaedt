@@ -96,7 +96,7 @@ class MonostaticRCSData(object):
     Examples
     --------
     >>> from ansys.aedt.core import Hfss
-    >>> from ansys.aedt.core.generic.rcs_visualization import MonostaticRCSData
+    >>> from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
     >>> app = Hfss(version="2023.2", design="Antenna")
     >>> data = app.get_rcs_data()
     >>> metadata_file = data.metadata_file
@@ -599,14 +599,14 @@ class MonostaticRCSPlotter(object):
 
     Parameters
     ----------
-    rcs_data : :class:`ansys.aedt.core.generic.rcs_visualization.MonostaticRCSData`
+    rcs_data : :class:`ansys.aedt.core.visualization.advanced.rcs_visualization`, optional
         Monostatic RCS data object.
 
     Examples
     --------
     >>> from ansys.aedt.core import Hfss
-    >>> from ansys.aedt.core.generic.rcs_visualization import MonostaticRCSData
-    >>> from ansys.aedt.core.generic.rcs_visualization import MonostaticRCSPlotter
+    >>> from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
+    >>> from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSPlotter
     >>> app = Hfss(version="2023.2", design="Antenna")
     >>> data = app.get_rcs_data()
     >>> metadata_file = data.metadata_file
@@ -615,7 +615,7 @@ class MonostaticRCSPlotter(object):
     >>> rcs_plotter = MonostaticRCSPlotter(rcs_data)
     """
 
-    def __init__(self, rcs_data):
+    def __init__(self, rcs_data=None):
 
         # Private
         self.__rcs_data = rcs_data
