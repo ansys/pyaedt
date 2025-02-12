@@ -183,7 +183,10 @@ class UserDefinedComponent(object):
                 },
             )
             if props:
-                self._update_props(self._props["NativeComponentDefinitionProvider"], props)
+                self._update_props(
+                    self._props["NativeComponentDefinitionProvider"],
+                    props.get("NativeComponentDefinitionProvider", props),
+                )
             self.native_properties = self._props["NativeComponentDefinitionProvider"]
             self.auto_update = True
 
@@ -759,7 +762,7 @@ class UserDefinedComponent(object):
     def _get_args(self, props=None):
         if props is None:
             props = self.props
-        arg = ["NAME:" + self.name]
+        arg = ["NAME:EditNativeComponentDefinitionData"]
         _dict2arg(props, arg)
         return arg
 
