@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -35,7 +35,9 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.load_aedt_file import load_entire_aedt_file
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.setup_templates import Sweep3DLayout
+from ansys.aedt.core.modules.setup_templates import SweepEddyCurrent
 from ansys.aedt.core.modules.setup_templates import SweepHfss3D
+from ansys.aedt.core.modules.setup_templates import SweepQ3D
 from ansys.aedt.core.modules.setup_templates import SweepSiwave
 
 open3 = open
@@ -108,25 +110,35 @@ class SweepHFSS(object):
     def __init__(self, setup, name, sweep_type="Interpolating", props=None):
         self._app = setup
         self.oanalysis = setup.omodule
-        self.props = {}
         self.setup_name = setup.name
         self.name = name
+        self.props = copy.deepcopy(SweepHfss3D)
         if props:
-            self.props = props
+            if "RangeStep" in props.keys():  # LinearCount is the default sweep type. Change it if RangeStep is passed.
+                if "RangeCount" in props.keys():
+                    self._app.p_app.logger.info(
+                        "Inconsistent arguments 'RangeCount' and 'RangeStep' passed to 'SweepHFSS',"
+                    )
+                    self._app.p_app.logger.info("Default remains 'LinearCount' sweep type.")
+                else:
+                    self.props["RangeType"] = "LinearStep"
+            for key, value in props.items():
+                if key in self.props.keys():
+                    self.props[key] = value
+                else:
+                    error_message = f"Parameter '{key}' is invalid and will be ignored."
+                    self._app.p_app.logger.warning(error_message)
+
+        if SequenceMatcher(None, sweep_type.lower(), "interpolating").ratio() > 0.8:
+            sweep_type = "Interpolating"
+        elif SequenceMatcher(None, sweep_type.lower(), "discrete").ratio() > 0.8:
+            sweep_type = "Discrete"
+        elif SequenceMatcher(None, sweep_type.lower(), "fast").ratio() > 0.8:
+            sweep_type = "Fast"
         else:
-            self.props = copy.deepcopy(SweepHfss3D)
-            # for t in SweepHfss3D:
-            #    _tuple2dict(t, self.props)
-            if SequenceMatcher(None, sweep_type.lower(), "interpolating").ratio() > 0.8:
-                sweep_type = "Interpolating"
-            elif SequenceMatcher(None, sweep_type.lower(), "discrete").ratio() > 0.8:
-                sweep_type = "Discrete"
-            elif SequenceMatcher(None, sweep_type.lower(), "fast").ratio() > 0.8:
-                sweep_type = "Fast"
-            else:
-                warnings.warn("Invalid sweep type. `Interpolating` will be set as the default.")
-                sweep_type = "Interpolating"
-            self.props["Type"] = sweep_type
+            warnings.warn("Invalid sweep type. `Interpolating` will be set as the default.")
+            sweep_type = "Interpolating"
+        self.props["Type"] = sweep_type
 
     @property
     def is_solved(self):
@@ -608,21 +620,22 @@ class SweepMatrix(object):
     props : dict
         Dictionary of the properties.  The default is ``None``, in which case
         the default properties are retrieved.
-
     """
 
     def __init__(self, setup, name, sweep_type="Interpolating", props=None):
-        self._app = setup
+        self._app = setup  # TODO: Remove sweep_type as an argument as it can be passed in props
         self.oanalysis = setup.omodule
         self.setup_name = setup.name
         self.name = name
-        self.props = {}
+        self.props = copy.deepcopy(SweepQ3D)
         if props:
-            self.props = props
+            for key, value in props.items():
+                if key in self.props:
+                    self.props[key] = value
         else:
             self.props["Type"] = sweep_type
             if sweep_type == "Discrete":
-                self.props["isenabled"] = True
+                self.props["IsEnabled"] = True
                 self.props["RangeType"] = "LinearCount"
                 self.props["RangeStart"] = "2.5GHz"
                 self.props["RangeStep"] = "1GHz"
@@ -823,6 +836,151 @@ class SweepMatrix(object):
         if props is None:
             props = self.props
         arg = ["NAME:" + self.name]
+        _dict2arg(props, arg)
+        return arg
+
+
+class SweepMaxwellEC(object):
+    """Initializes, creates, and updates sweeps in Maxwell Eddy Current.
+
+    Parameters
+    ----------
+    setup : :class 'from ansys.aedt.core.modules.solve_setup.Setup'
+        Setup used for the analysis.
+    name : str
+        Name of the sweep.
+    sweep_type : str, optional
+        Type of the sweep. Options are ``"LinearStep"``, ``"LinearCount"``,
+         ``"LogScale"`` and ``"SinglePoints"``. The default is ``"LinearStep"``.
+    props : dict
+        Dictionary of the properties.  The default is ``None``, in which case
+        the default properties are retrieved.
+    """
+
+    def __init__(self, setup, sweep_type="LinearStep", props=None):
+        self._setup = setup
+        self.oanalysis = setup.omodule
+        self.setup_name = setup.name
+        self.props = {}
+        if props:
+            self.props = props
+        else:
+            self.props = copy.deepcopy(SweepEddyCurrent)
+            self.props["RangeType"] = sweep_type
+            if sweep_type == "LinearStep":
+                self.props["RangeStep"] = "10Hz"
+            elif sweep_type == "LinearCount":
+                self.props["RangeCount"] = "10"
+            elif sweep_type == "LogScale":
+                self.props["RangeSamples"] = "2"
+            elif sweep_type == "SinglePoints":
+                self.props["RangeEnd"] = self.props["RangeStart"]
+
+    @property
+    def is_solved(self):
+        """Verify if solutions are available for the sweep.
+
+        Returns
+        -------
+        bool
+            `True` if solutions are available.
+        """
+        expressions = [
+            i for i in self._setup.p_app.post.available_report_quantities(solution=self._setup.p_app.nominal_sweep)
+        ]
+        sol = self._setup.p_app.post.reports_by_category.standard(
+            expressions=expressions[0], setup=self._setup.p_app.nominal_sweep
+        )
+        if identify_setup(self.props):
+            sol.domain = "Time"
+        return True if sol.get_solution_data() else False
+
+    @property
+    def frequencies(self):
+        """List of all frequencies of the active sweep.
+
+        To see values, the project must be saved and solved.
+
+        Returns
+        -------
+        list of float
+            Frequency points.
+        """
+        expressions = [
+            i for i in self._setup.p_app.post.available_report_quantities(solution=self._setup.p_app.nominal_sweep)
+        ]
+        sol = self._setup.p_app.post.reports_by_category.standard(
+            expressions=expressions[0], setup=self._setup.p_app.nominal_sweep
+        )
+        soldata = sol.get_solution_data()
+        if soldata and "Freq" in soldata.intrinsics:
+            return soldata.intrinsics["Freq"]
+        return []
+
+    @pyaedt_function_handler()
+    def create(self):
+        """Create a Maxwell Eddy Current sweep.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        self.oanalysis.EditSetup(self.setup_name, self._get_args(self._setup.props))
+        return True
+
+    @pyaedt_function_handler()
+    def update(self):
+        """Update a Maxwell Eddy Current sweep.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        self.oanalysis.EditSetup(self.setup_name, self._get_args(self._setup.props))
+        return True
+
+    @pyaedt_function_handler()
+    def delete(self):
+        """Delete a Maxwell Eddy Current sweep.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        setup_sweeps = self._setup.props["SweepRanges"]["Subrange"].copy()
+        if isinstance(self._setup.props["SweepRanges"]["Subrange"], list):
+            for sweep in setup_sweeps:
+                if self.props == sweep:
+                    self._setup.props["SweepRanges"]["Subrange"].remove(self.props)
+                    [self._setup._sweeps.remove(s) for s in self._setup._sweeps if s.props == sweep]
+        else:
+            pass
+        self._setup.update()
+        return True
+
+    @pyaedt_function_handler()
+    def _get_args(self, props=None):
+        """Get arguments.
+
+        Parameters
+        ----------
+        props : dict, optional
+             Dictionary of the properties. The default is ``None``, in which
+             case the default properties are retrieved.
+
+        Returns
+        -------
+        dict
+            Dictionary of the properties.
+
+        """
+        if props is None:
+            props = self.props
+        arg = ["NAME:" + self.setup_name]
         _dict2arg(props, arg)
         return arg
 

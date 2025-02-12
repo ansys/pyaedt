@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -49,10 +49,12 @@ from ansys.aedt.core.modules.solve_sweeps import SetupProps
 from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
 from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
 from ansys.aedt.core.modules.solve_sweeps import SweepMatrix
+from ansys.aedt.core.modules.solve_sweeps import SweepMaxwellEC
 from ansys.aedt.core.modules.solve_sweeps import identify_setup
 
 
 class CommonSetup(PropsManager, BinaryTreeNode):
+
     def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup=True):
         self.auto_update = False
         self._app = None
@@ -67,27 +69,48 @@ class CommonSetup(PropsManager, BinaryTreeNode):
             self.setuptype = self.p_app.design_solutions._solution_options[solution_type]["default_setup"]
         self._name = name
         self._legacy_props = {}
-        self._sweeps = []
+        self._sweeps = None
         self._is_new_setup = is_new_setup
         # self._init_props(is_new_setup)
         self.auto_update = True
-        child_object = self._app.get_oo_object(self._app.odesign, f"Analysis/{self._name}")
+        self._initialize_tree_node()
 
-        if child_object:
-            BinaryTreeNode.__init__(self, self._name, child_object, False)
+    @property
+    def _child_object(self):
+        """Object-oriented properties.
+
+        Returns
+        -------
+        class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTreeNode`
+
+        """
+        child_object = None
+        design_childs = self._app.get_oo_name(self._app.odesign)
+
+        if "Analysis" in design_childs:
+            cc = self._app.get_oo_object(self._app.odesign, "Analysis")
+            cc_names = self._app.get_oo_name(cc)
+            if self._name in cc_names:
+                child_object = cc.GetChildObject(self._name)
+        return child_object
+
+    @pyaedt_function_handler()
+    def _initialize_tree_node(self):
+        if self._child_object:
+            BinaryTreeNode.__init__(self, self._name, self._child_object, False)
+            return True
+        return False
 
     @property
     def sweeps(self):
-        if self._sweeps:
+        if self._sweeps is not None:
             return self._sweeps
         try:
+            self._sweeps = []
             setups_data = self.p_app.design_properties["AnalysisSetup"]["SolveSetups"]
             if self.name in setups_data:
                 setup_data = setups_data[self.name]
-                if "Sweeps" in setup_data and self.setuptype not in [
-                    0,
-                    7,
-                ]:  # 0 and 7 represent setup HFSSDrivenAuto
+                if "Sweeps" in setup_data and self.setuptype != 0:  # 0 represents setup HFSSDrivenAuto
                     if self.setuptype <= 4:
                         app = setup_data["Sweeps"]
                         app.pop("NextUniqueID", None)
@@ -102,6 +125,13 @@ class CommonSetup(PropsManager, BinaryTreeNode):
                             if isinstance(app[el], dict):
                                 self._sweeps.append(SweepMatrix(self, el, props=app[el]))
                     setup_data.pop("Sweeps", None)
+                elif "SweepRanges" in setup_data:
+                    app = setup_data["SweepRanges"]
+                    if isinstance(app["Subrange"], list):
+                        for subrange in app["Subrange"]:
+                            self._sweeps.append(SweepMaxwellEC(self, props=subrange))
+                    else:
+                        self._sweeps.append(SweepMaxwellEC(self, props=app["Subrange"]))
         except (TypeError, KeyError):
             pass
         return self._sweeps
@@ -115,26 +145,30 @@ class CommonSetup(PropsManager, BinaryTreeNode):
         dict
             Dictionary which keys are typically Freq, Phase or Time.
         """
-        intr = {}
+        intrinsics = {}
         if "HFSS 3D Layout" in self._app.design_type:  # pragma no cover
             try:
-                intr["Freq"] = (
+                intrinsics["Freq"] = (
                     self._app.modeler.edb.setups[self.name]
                     .adaptive_settings.adaptive_frequency_data_list[0]
                     .adaptive_frequency
                 )
-                intr["Phase"] = "0deg"
-                return intr
+                intrinsics["Phase"] = "0deg"
+                return intrinsics
             except Exception:
                 settings.logger.debug("Failed to retrieve adaptive frequency.")
+
         for i in self._app.design_solutions.intrinsics:
-            if i == "Freq" and "Frequency" in self.props:
-                intr[i] = self.props["Frequency"]
+            if i == "Freq":
+                if "Frequency" in self.props:
+                    intrinsics[i] = self.props["Frequency"]
+                elif "Solution Freq" in self.properties:
+                    intrinsics[i] = self.properties["Solution Freq"]
             elif i == "Phase":
-                intr[i] = "0deg"
+                intrinsics[i] = "0deg"
             elif i == "Time":
-                intr[i] = "0s"
-        return intr
+                intrinsics[i] = "0s"
+        return intrinsics
 
     def __repr__(self):
         return "SetupName " + self.name + " with " + str(len(self.sweeps)) + " Sweeps"
@@ -207,6 +241,7 @@ class CommonSetup(PropsManager, BinaryTreeNode):
 
     @property
     def props(self):
+        """Properties of the setup."""
         if self._legacy_props:
             return self._legacy_props
         if self._is_new_setup:
@@ -398,6 +433,8 @@ class CommonSetup(PropsManager, BinaryTreeNode):
             ]
         else:
             setup_sweep_name = [i for i in self._app.existing_analysis_sweeps if self.name == i.split(" : ")[0]]
+            if report_category == "Fields":
+                sweep = self._app.nominal_adaptive  # Use last adaptive if no sweep is named explicitly.
         if setup_sweep_name:
             return self._app.post.get_solution_data(
                 expressions=expressions,
@@ -408,7 +445,7 @@ class CommonSetup(PropsManager, BinaryTreeNode):
                 context=context,
                 polyline_points=polyline_points,
                 math_formula=math_formula,
-                setup_sweep_name=sweep,
+                setup_sweep_name=sweep,  # Should this be setup_sweep_name?
             )
         return None
 
@@ -534,8 +571,8 @@ class Setup(CommonSetup):
 
         Returns
         -------
-        dict
-            Dictionary of arguments.
+        bool
+            Result of operation.
 
         References
         ----------
@@ -545,12 +582,7 @@ class Setup(CommonSetup):
         arg = ["NAME:" + self._name]
         _dict2arg(self.props, arg)
         self.omodule.InsertSetup(soltype, arg)
-        child_object = self._app.get_oo_object(self._app.odesign, f"Analysis/{self._name}")
-
-        if child_object:
-            BinaryTreeNode.__init__(self, self._name, child_object, False)
-
-        return arg
+        return self._initialize_tree_node()
 
     @pyaedt_function_handler(update_dictionary="properties")
     def update(self, properties=None):
@@ -777,7 +809,7 @@ class Setup(CommonSetup):
         return True
 
     @pyaedt_function_handler(setup_name="name")
-    def enable(self, name=None):
+    def enable(self):
         """Enable a setup.
 
         Parameters
@@ -794,14 +826,11 @@ class Setup(CommonSetup):
         ----------
         >>> oModule.EditSetup
         """
-        if not name:
-            name = self.name
-
-        self.omodule.EditSetup(name, ["NAME:" + name, "IsEnabled:=", True])
+        self.props["Enabled"] = True
         return True
 
-    @pyaedt_function_handler(setup_name="name")
-    def disable(self, name=None):
+    @pyaedt_function_handler()
+    def disable(self):
         """Disable a setup.
 
         Parameters
@@ -818,10 +847,7 @@ class Setup(CommonSetup):
         ----------
         >>> oModule.EditSetup
         """
-        if not name:
-            name = self.name
-
-        self.omodule.EditSetup(name, ["NAME:" + name, "IsEnabled:", False])
+        self.props["Enabled"] = False
         return True
 
     @pyaedt_function_handler(
@@ -846,7 +872,7 @@ class Setup(CommonSetup):
             Name of the source design.
         solution : str, optional
             Name of the source design solution in the format ``"name : solution_name"``.
-            If ``None``, the default value is ``name : LastAdaptive``.
+            If ``None``, the default value is taken from the nominal adaptive solution.
         parameters : dict, optional
             Dictionary of the "mapping" variables from the source design.
             If ``None``, the default is `appname.available_variations.nominal_w_values_dict`.
@@ -899,9 +925,7 @@ class Setup(CommonSetup):
                 design_type = self.p_app.design_type
             meshlinks["Product"] = design_type
             # design name
-            if not design or design is None:
-                raise ValueError("Provide design name to add mesh link to.")
-            elif design not in self.p_app.design_list:
+            if design not in self.p_app.design_list:
                 raise ValueError("Design does not exist in current project.")
             else:
                 meshlinks["Design"] = design
@@ -919,15 +943,8 @@ class Setup(CommonSetup):
             meshlinks["ImportMesh"] = True
             # solution name
             if solution is None:
-                meshlinks["Soln"] = (
-                    f'{self.p_app.oproject.GetDesign(design).GetChildObject("Analysis").GetChildNames()[0]} : '
-                    f"LastAdaptive"
-                )
-            elif (
-                solution.split()[0] in self.p_app.oproject.GetDesign(design).GetChildObject("Analysis").GetChildNames()
-            ):
-                meshlinks["Soln"] = f"{solution.split()[0]} : LastAdaptive"
-            else:
+                meshlinks["Soln"] = self.p_app.nominal_adaptive
+            elif solution.split()[0] not in self.p_app.existing_analysis_setups:
                 raise ValueError("Setup does not exist in current design.")
             # parameters
             meshlinks["Params"] = {}
@@ -944,7 +961,7 @@ class Setup(CommonSetup):
             meshlinks["ForceSourceToSolve"] = force_source_to_solve
             meshlinks["PreservePartnerSoln"] = preserve_partner_solution
             meshlinks["ApplyMeshOp"] = apply_mesh_operations
-            if self.p_app.design_type != "Maxwell 2D" or self.p_app.design_type != "Maxwell 3D":
+            if self.p_app.design_type not in ["Maxwell 2D", "Maxwell 3D"]:
                 meshlinks["AdaptPort"] = adapt_port
             self.update()
             self.auto_update = auto_update
@@ -1137,8 +1154,8 @@ class SetupCircuit(CommonSetup):
 
         Returns
         -------
-        dict
-            Dictionary of the arguments.
+        bool
+            Result of operation.
 
         References
         ----------
@@ -1153,11 +1170,7 @@ class SetupCircuit(CommonSetup):
         arg = ["NAME:SimSetup"]
         _dict2arg(self.props, arg)
         self._setup(soltype, arg)
-        child_object = self._app.get_oo_object(self._app.odesign, f"Analysis/{self._name}")
-
-        if child_object:
-            BinaryTreeNode.__init__(self, self._name, child_object, False)
-        return arg
+        return self._initialize_tree_node()
 
     @pyaedt_function_handler()
     def _setup(self, soltype, arg, newsetup=True):
@@ -1790,9 +1803,10 @@ class Setup3DLayout(CommonSetup):
 
     @property
     def sweeps(self):
-        if self._sweeps:
+        if self._sweeps is not None:
             return self._sweeps
         try:
+            self._sweeps = []
             setups_data = self._app.design_properties["Setup"]["Data"]
             if self.name in setups_data:
                 setup_data = setups_data[self.name]
@@ -1876,11 +1890,12 @@ class Setup3DLayout(CommonSetup):
         try:
             return self.properties["Solver"]
         except Exception:
-            pass
+            self.p_app.logger.debug("Cannot retrieve solver type with key 'Solver'")
         try:
             return self.props["SolveSetupType"]
         except Exception:
-            return None
+            self.p_app.logger.debug("Cannot retrieve solver type with key 'SolveSetupType'")
+        return None
 
     @pyaedt_function_handler()
     def create(self):
@@ -1898,7 +1913,7 @@ class Setup3DLayout(CommonSetup):
         arg = ["NAME:" + self.name]
         _dict2arg(self.props, arg)
         self.omodule.Add(arg)
-        return True
+        return self._initialize_tree_node()
 
     @pyaedt_function_handler(update_dictionary="properties")
     def update(self, properties=None):
@@ -2856,7 +2871,7 @@ class SetupHFSS(Setup, object):
         return sweepdata
 
     @pyaedt_function_handler(sweepname="name", sweeptype="sweep_type")
-    def add_sweep(self, name=None, sweep_type="Interpolating"):
+    def add_sweep(self, name=None, sweep_type="Interpolating", **props):
         """Add a sweep to the project.
 
         Parameters
@@ -2866,11 +2881,12 @@ class SetupHFSS(Setup, object):
             case a name is automatically assigned.
         sweep_type : str, optional
             Type of the sweep. The default is ``"Interpolating"``.
+        **props : Optional context-dependent keyword arguments can be passed
+            to the sweep setup
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS` or
-        :class:`ansys.aedt.core.modules.solve_sweeps.SweepMatrix`
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS`
             Sweep object.
 
         References
@@ -2879,18 +2895,19 @@ class SetupHFSS(Setup, object):
         """
         if not name:
             name = generate_unique_name("Sweep")
-        if self.setuptype == 7:
-            self._app.logger.warning("This method only applies to HFSS and Q3D. Use add_eddy_current_sweep method.")
-            return False
         if self.setuptype <= 4:
-            sweep_n = SweepHFSS(self, name=name, sweep_type=sweep_type)
+            sweep_n = SweepHFSS(self, name=name, sweep_type=sweep_type, props=props)
         elif self.setuptype in [14, 30, 31]:
-            sweep_n = SweepMatrix(self, name=name, sweep_type=sweep_type)
+            sweep_n = SweepMatrix(self, name=name, sweep_type=sweep_type)  # TODO: add , props=props)
         else:
             self._app.logger.warning("This method only applies to HFSS, Q2D, and Q3D.")
             return False
         sweep_n.create()
         self.sweeps.append(sweep_n)
+        for setup in self.p_app.setups:
+            if self.name == setup.name:
+                setup.sweeps.append(sweep_n)
+                break
         return sweep_n
 
     @pyaedt_function_handler(sweepname="name")
@@ -2905,8 +2922,7 @@ class SetupHFSS(Setup, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS` or
-        :class:`ansys.aedt.core.modules.solve_sweeps.SweepMatrix`
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS`
 
         Examples
         --------
@@ -3560,7 +3576,7 @@ class SetupSBR(Setup, object):
 
 
 class SetupMaxwell(Setup, object):
-    """Initializes, creates, and updates an HFSS setup.
+    """Initializes, creates, and updates a Maxwell setup.
 
     Parameters
     ----------
@@ -3604,7 +3620,7 @@ class SetupMaxwell(Setup, object):
         step_size : int or float, optional
             Frequency count or frequency step. Required for ``range_type="LinearCount"|"LinearStep"|"LogScale"``.
         units : str, optional
-            Unit of the frequency. For example, ``"MHz`` or ``"GHz"``. The default is ``"Hz"``.
+            Unit of the frequency. For example, ``"Hz`` or ``"MHz"``. The default is ``"Hz"``.
         clear : bool, optional
             If set to ``True``, all other subranges will be suppressed except the current one under creation.
             Default value is ``False``.
@@ -3614,38 +3630,73 @@ class SetupMaxwell(Setup, object):
 
         Returns
         -------
-        bool
-            ``True`` if successful, ``False`` if it fails.
-        """
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepMaxwellEC`
+            Sweep object.
 
-        if self.setuptype != 7:
+        Example
+        -------
+        >>> import ansys.aedt.core
+        >>> m2d = ansys.aedt.core.Maxwell2d(version="2025.1")
+        >>> m2d.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY
+        >>> setup = m2d.create_setup()
+        >>> sweep = setup.add_eddy_current_sweep(sweep_type="LinearStep", start_frequency=1, stop_frequency=20,
+        ...                                      step_size=2, units="Hz", clear=False)
+        >>> sweep.props["RangeStart"] = "0.1Hz"
+        >>> sweep.update()
+        >>> m2d.release_desktop()
+        """
+        if self.setuptype not in [7, 60]:
             self._app.logger.warning("This method only applies to Maxwell Eddy Current Solution.")
             return False
+        sweep = SweepMaxwellEC(self, sweep_type=sweep_type)
         legacy_update = self.auto_update
         self.auto_update = False
-        sweep_props = {
-            "RangeType": sweep_type,
-            "RangeStart": f"{start_frequency}{units}",
-            "RangeEnd": f"{stop_frequency}{units}",
-        }
-        self.props["HasSweepSetup"] = True
+        sweep.props["RangeType"] = sweep_type
+        sweep.props["RangeStart"] = f"{start_frequency}{units}"
+        sweep.props["RangeEnd"] = f"{stop_frequency}{units}"
         if sweep_type == "LinearStep":
-            sweep_props["RangeStep"] = f"{step_size}{units}"
+            sweep.props["RangeStep"] = f"{step_size}{units}"
         elif sweep_type == "LinearCount":
-            sweep_props["RangeCount"] = step_size
+            sweep.props["RangeCount"] = step_size
         elif sweep_type == "LogScale":
-            sweep_props["RangeSamples"] = step_size
+            sweep.props["RangeSamples"] = step_size
         elif sweep_type == "SinglePoints":
-            sweep_props["RangeEnd"] = f"{start_frequency}{units}"
-        if clear:
-            self.props["SweepRanges"]["Subrange"] = sweep_props
-        elif isinstance(self.props["SweepRanges"]["Subrange"], list):
-            self.props["SweepRanges"]["Subrange"].append(sweep_props)
-        else:
-            self.props["SweepRanges"]["Subrange"] = [self.props["SweepRanges"]["Subrange"], sweep_props]
+            sweep.props["RangeEnd"] = f"{start_frequency}{units}"
         self.props["SaveAllFields"] = save_all_fields
+        if self.sweeps:
+            if clear:
+                self.props["SweepRanges"] = {"Subrange": [SetupProps(self, sweep.props)]}
+                self.sweeps.clear()
+            else:
+                if isinstance(self.props["SweepRanges"]["Subrange"], dict):
+                    temp = self.props["SweepRanges"]["Subrange"]
+                    self.props["SweepRanges"].pop("Subrange", None)
+                    self.props["SweepRanges"]["Subrange"] = [SetupProps(self, temp)]
+                self.props["SweepRanges"]["Subrange"].append(SetupProps(self, sweep.props))
+        else:
+            self.props["HasSweepSetup"] = True
+            self.props["SweepRanges"] = {"Subrange": [SetupProps(self, sweep.props)]}
+            sweep.create()
         self.update()
         self.auto_update = legacy_update
+        self.sweeps.append(sweep)
+        return sweep
+
+    @pyaedt_function_handler()
+    def delete_all_eddy_current_sweeps(self):
+        """Delete all Maxwell Eddy Current sweeps.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if self.setuptype not in [7, 60]:
+            self._app.logger.warning("This method only applies to Maxwell Eddy Current Solution.")
+            return False
+        self.props.pop("SweepRanges")
+        self._sweeps.clear()
+        self.update()
         return True
 
     @pyaedt_function_handler()
@@ -3704,6 +3755,118 @@ class SetupMaxwell(Setup, object):
         self.update()
 
         return True
+
+    @pyaedt_function_handler()
+    def set_save_fields(
+        self, enable=True, range_type="Custom", subrange_type="LinearStep", start=0, stop=100000, count=1, units="ns"
+    ):
+        """Enable the save fields option in the setup.
+
+        Parameters
+        ----------
+        enable : bool, optional
+            Whether to enable the save fields option.
+            The default value is ``True``.
+        range_type : str, optional
+            Range type. The available options are ``"Custom"`` to set a custom range type
+            or ``"Every N Steps"`` to set the steps within the range.
+            The default value is ``Custom``.
+        subrange_type : str, optional
+            In case of a custom range type the ``subrange_type`` defines the subrange type.
+            The available options are ``"LinearStep"``, ``"LinearCount"`` and ``"SinglePoints"``.
+            The default option is ``"LinearStep"``.
+        start : float, optional
+            Range or steps starting point.
+            The default value is 0.
+        stop : float, optional
+            Range or steps starting point.
+            The default value is 100000.
+        count : float, optional
+            Range count or step.
+            The default value is 1.
+        units : str, optional
+            Time units.
+            The default is "ns".
+
+        Returns
+        -------
+        bool
+            ``True`` if successful, ``False`` if it fails.
+
+        Example
+        -------
+        >>> import ansys.aedt.core
+        >>> m2d = ansys.aedt.core.Maxwell2d(version="2025.1")
+        >>> m2d.solution_type = SOLUTIONS.Maxwell2d.TransientXY
+        >>> setup = m2d.create_setup()
+        >>> setup.set_save_fields(enable=True, range_type="Custom", subrange_type="LinearStep", start=0, stop=8,
+        ...                       count=2, units="ms")
+        >>> m2d.release_desktop()
+        """
+        if self.setuptype != 5:
+            if enable:
+                self.props["SolveFieldOnly"] = True
+            else:
+                self.props["SolveFieldOnly"] = False
+            self.update()
+            return True
+        else:
+            if enable:
+                if range_type == "Custom":
+                    if self.props["SaveFieldsType"] == "Every N Steps":
+                        self.props.pop("Steps From", None)
+                        self.props.pop("Steps To", None)
+                        self.props.pop("N Steps", None)
+                    self.props["SaveFieldsType"] = range_type
+                    range_props = {
+                        "RangeType": subrange_type,
+                        "RangeStart": f"{start}{units}",
+                        "RangeEnd": f"{stop}{units}",
+                    }
+                    if subrange_type == "LinearStep":
+                        range_props["RangeStep"] = f"{count}{units}"
+                    elif subrange_type == "LinearCount":
+                        range_props["RangeCount"] = count
+                    elif subrange_type == "SinglePoints":
+                        range_props["RangeEnd"] = f"{start}{units}"
+                    if "SweepRanges" in self.props.keys():
+                        if isinstance(self.props["SweepRanges"]["Subrange"], dict):
+                            temp = self.props["SweepRanges"]["Subrange"]
+                            self.props["SweepRanges"].pop("Subrange", None)
+                            self.props["SweepRanges"]["Subrange"] = [temp]
+                        self.props["SweepRanges"]["Subrange"].append(range_props)
+                    else:
+                        self.props["SweepRanges"] = {"Subrange": [range_props]}
+                    self.update()
+                    return True
+                elif range_type == "Every N Steps":
+                    if self.props["SaveFieldsType"] == "Custom":
+                        self.props.pop("SweepRanges", None)
+                    self.auto_update = False
+                    self.props["SaveFieldsType"] = "Every N Steps"
+                    self.props["N Steps"] = f"{count}"
+                    self.props["Steps From"] = f"{start}{units}"
+                    self.props["Steps To"] = f"{stop}{units}"
+                    self.update()
+                    return True
+                elif range_type == "None":
+                    if self.props["SaveFieldsType"] == "Custom":
+                        self.props.pop("SweepRanges", None)
+                    elif self.props["SaveFieldsType"] == "Every N Steps":
+                        self.props.pop("N Steps", None)
+                        self.props.pop("Steps From", None)
+                        self.props.pop("Steps To", None)
+                    self.props["SaveFieldsType"] = "None"
+                    self.update()
+                    return True
+                else:
+                    self._app.logger.error("Invalid range type. It has to be either 'Custom' or 'Every N Steps'.")
+                    return False
+            else:
+                self.props["SaveFieldsType"] = "None"
+                self.props.pop("SweepRanges", None)
+                self.update()
+                return True
 
 
 class SetupQ3D(Setup, object):
@@ -4001,7 +4164,7 @@ class SetupQ3D(Setup, object):
         return sweepdata
 
     @pyaedt_function_handler(sweepname="name", sweeptype="sweep_type")
-    def add_sweep(self, name=None, sweep_type="Interpolating"):
+    def add_sweep(self, name=None, sweep_type="Interpolating", **props):
         """Add a sweep to the project.
 
         Parameters
@@ -4014,7 +4177,6 @@ class SetupQ3D(Setup, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS` or
         :class:`ansys.aedt.core.modules.solve_sweeps.SweepMatrix`
             Sweep object.
 
@@ -4024,13 +4186,15 @@ class SetupQ3D(Setup, object):
         """
         if not name:
             name = generate_unique_name("Sweep")
+        if self.setuptype in [14, 30, 31]:
+            sweep_n = SweepMatrix(self, name=name, sweep_type=sweep_type)
         if self.setuptype == 7:
             self._app.logger.warning("This method only applies to HFSS and Q3D. Use add_eddy_current_sweep method.")
             return False
         if self.setuptype <= 4:
-            sweep_n = SweepHFSS(self, name=name, sweep_type=sweep_type)
+            sweep_n = SweepHFSS(self, name=name, sweep_type=sweep_type, props=props)
         elif self.setuptype in [14, 30, 31]:
-            sweep_n = SweepMatrix(self, name=name, sweep_type=sweep_type)
+            sweep_n = SweepMatrix(self, name=name, sweep_type=sweep_type, props=props)
         else:
             self._app.logger.warning("This method only applies to HFSS, Q2D, and Q3D.")
             return False
@@ -4054,8 +4218,7 @@ class SetupQ3D(Setup, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solve_sweeps.SweepQ3D` or
-        :class:`ansys.aedt.core.modules.solve_sweeps.SweepMatrix`
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepQ3D`
 
         Examples
         --------

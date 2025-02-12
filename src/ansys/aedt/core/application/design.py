@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -68,7 +68,7 @@ from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import unit_system
 from ansys.aedt.core.generic.data_handlers import variation_string_to_dict
-from ansys.aedt.core.generic.general_methods import GrpcApiError
+from ansys.aedt.core.generic.errors import GrpcApiError
 from ansys.aedt.core.generic.general_methods import check_and_download_file
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import inner_project_settings
@@ -85,6 +85,7 @@ from ansys.aedt.core.generic.general_methods import write_csv
 from ansys.aedt.core.generic.load_aedt_file import load_entire_aedt_file
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
+from ansys.aedt.core.modules.boundary.layout_boundary import BoundaryObject3dLayout
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
 
 if sys.version_info.major > 2:
@@ -385,7 +386,6 @@ class Design(AedtObjects):
     def boundaries(self) -> List[BoundaryObject]:
         """Design boundaries and excitations.
 
-
         Returns
         -------
         list[:class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`]
@@ -478,7 +478,7 @@ class Design(AedtObjects):
                     del self._boundaries[k]
         for boundary, boundarytype in zip(current_boundaries, current_types):
             if boundary in self._boundaries:
-                self._boundaries[boundary]._initialize_bynary_tree()
+                self._boundaries[boundary]._initialize_tree_node()
                 continue
             if boundarytype == "MaxwellParameters":
                 maxwell_parameter_type = self.get_oo_property_value(self.odesign, f"Parameters\\{boundary}", "Type")
@@ -492,10 +492,14 @@ class Design(AedtObjects):
                 self._boundaries[boundary] = NetworkObject(self, boundary)
             else:
                 self._boundaries[boundary] = BoundaryObject(self, boundary, boundarytype=boundarytype)
+
         try:
             for k, v in zip(current_excitations, current_excitation_types):
                 if k not in self._boundaries:
-                    self._boundaries[k] = BoundaryObject(self, k, boundarytype=v)
+                    if self.design_type == "HFSS 3D Layout Design" and v == "Port":
+                        self._boundaries[k] = BoundaryObject3dLayout(self, k, props=None, boundarytype=v)
+                    else:
+                        self._boundaries[k] = BoundaryObject(self, k, boundarytype=v)
         except Exception:
             self.logger.info("Failed to design boundary object.")
         return list(self._boundaries.values())
@@ -1021,7 +1025,6 @@ class Design(AedtObjects):
     def toolkit_directory(self) -> str:
         """Path to the toolkit directory.
 
-
         Returns
         -------
         str
@@ -1121,11 +1124,19 @@ class Design(AedtObjects):
                         valids.append(name)
                     elif self._temp_solution_type in des.GetSolutionType():
                         valids.append(name)
-            if len(valids) != 1:
-                warning_msg = "No consistent unique design is present. Inserting a new design."
-            else:
+            if len(valids) > 1:
+                des_name = self.oproject.GetActiveDesign().GetName()
+                if des_name in valids:
+                    activedes = self.oproject.GetActiveDesign().GetName()
+                else:
+                    activedes = valids[0]
+                warning_msg = f"Active Design set to {valids[0]}"
+            elif len(valids) == 1:
                 activedes = valids[0]
                 warning_msg = f"Active Design set to {valids[0]}"
+            else:
+                warning_msg = "No consistent unique design is present. Inserting a new design."
+
         # legacy support for version < 2021.2
         elif self.design_list:  # pragma: no cover
             self._odesign = self._oproject.GetDesign(self.design_list[0])
@@ -4088,6 +4099,7 @@ class Design(AedtObjects):
                     raise ValueError(f"Specified design is not of type {self._design_type}.")
             elif self._design_type not in {"RMxprtSolution", "ModelCreation"}:
                 raise ValueError(f"Specified design is not of type {self._design_type}.")
+
             return True
         elif ":" in des_name:
             try:

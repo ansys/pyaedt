@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -354,6 +354,12 @@ class TestClass:
         port = self.aedtapp.create_coax_port("port_via", 0.5, "Top", "Lower")
         assert port.name == "Port2"
         assert port.props["Radial Extent Factor"] == "0.5"
+        self.aedtapp.delete_port(name=port.name, remove_geometry=False)
+        assert len(self.aedtapp.port_list) == 0
+        self.aedtapp.odesign.Undo()
+        self.aedtapp.delete_port(name=port.name)
+        assert len(self.aedtapp.port_list) == 0
+        self.aedtapp.odesign.Undo()
 
     def test_14_create_setup(self):
         setup_name = "RFBoardSetup"

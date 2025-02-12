@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -73,7 +73,10 @@ class RMXprtModule(object):
                     prps = dict_in.properties[name][::]
                     prps[1] = value
                     value = prps
-                dict_in.properties[name] = value
+                try:
+                    dict_in.properties[name] = value
+                except KeyError:
+                    self._app.logger.error(f"{name} is read only.")
                 return True
             else:
                 for _, child in dict_in.children.items():
@@ -158,7 +161,7 @@ class Rmxprt(FieldAnalysisRMxprt):
         Version of AEDT to use. The default is ``None``, in which case
         the active setup is used or the latest installed version is
         used.
-        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
+        Examples of input values are ``251``, ``25.1``, ``2025.1``, ``"2025.1"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -346,10 +349,10 @@ class Rmxprt(FieldAnalysisRMxprt):
         """
 
         def jsonalize(dict_in, dict_out):
-            dict_out[dict_in.node] = {}
+            dict_out[dict_in._node] = {}
             for k, v in dict_in.properties.items():
                 if not k.endswith("/Choices"):
-                    dict_out[dict_in.node][k] = v
+                    dict_out[dict_in._node][k] = v
             for _, c in dict_in.children.items():
                 jsonalize(c, dict_out)
 

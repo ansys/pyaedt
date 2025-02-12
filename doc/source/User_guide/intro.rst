@@ -5,9 +5,9 @@ You can initiate AEDT in non-graphical mode from Python using this code:
 
 .. code:: python
 
-    # Launch AEDT 2023 R2 in non-graphical mode
+    # Launch AEDT 2025 R1 in non-graphical mode
     import ansys.aedt.core
-    with ansys.aedt.core.Desktop(specified_version="2023.2", non_graphical=True, new_desktop_session=True, close_on_exit=True,
+    with ansys.aedt.core.Desktop(specified_version="2025.1", non_graphical=True, new_desktop_session=True, close_on_exit=True,
                  student_version=False):
         circuit = ansys.aedt.core.Circuit()
         ...

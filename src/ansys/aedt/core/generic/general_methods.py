@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -47,6 +47,8 @@ import traceback
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.constants import CSS4_COLORS
+from ansys.aedt.core.generic.errors import GrpcApiError
+from ansys.aedt.core.generic.errors import MethodNotSupportedError
 from ansys.aedt.core.generic.settings import inner_project_settings  # noqa: F401
 from ansys.aedt.core.generic.settings import settings
 import psutil
@@ -65,18 +67,6 @@ inclusion_list = [
     "ImportGerber",
     "EditSources",
 ]
-
-
-class GrpcApiError(Exception):
-    """ """
-
-    pass
-
-
-class MethodNotSupportedError(Exception):
-    """ """
-
-    pass
 
 
 def _write_mes(mes_text):
@@ -404,7 +394,7 @@ def open_file(file_path, file_options="r", encoding=None, override_existing=True
 
     Parameters
     ----------
-    file_path : str
+    file_path : str or Path
         Full absolute path to the file (either local or remote).
     file_options : str, optional
         Options for opening the file.
@@ -802,22 +792,22 @@ def generate_unique_project_name(root_name=None, folder_name=None, project_name=
 
 
 def _retry_ntimes(n, function, *args, **kwargs):
-    """
+    """Retry a function several times.
 
     Parameters
     ----------
     n : int
-
-    function :
-
-    *args :
-
-    **kwargs :
-
+        The number of retries.
+    function : function
+        Function to retry.
+    *args : tuple
+        Arguments for the function.
+    **kwargs : dict
+        Keyword arguments for the function.
 
     Returns
     -------
-
+    None
     """
     func_name = None
     try:
@@ -978,6 +968,13 @@ def available_license_feature(
     """
     import subprocess  # nosec B404
 
+    if os.getenv("ANSYSLMD_LICENSE_FILE", None):
+        name_env = os.getenv("ANSYSLMD_LICENSE_FILE")
+        name_env = name_env.split(",")[0].split("@")
+        if len(name_env) == 2:
+            port = name_env[0]
+            name = name_env[1]
+
     if not input_dir:
         input_dir = list(aedt_versions.installed_versions.values())[0]
 
@@ -1014,6 +1011,10 @@ def available_license_feature(
             if match_error:
                 pyaedt_logger.error(line)
                 return False
+
+    # Clean up temp file after processing
+    os.remove(tempfile_checkout)
+
     return available_licenses
 
 
@@ -2188,6 +2189,7 @@ def _check_installed_version(install_path, long_version):
 @pyaedt_function_handler()
 def install_with_pip(package_name, package_path=None, upgrade=False, uninstall=False):  # pragma: no cover
     """Install a new package using pip.
+
     This method is useful for installing a package from the AEDT Console without launching the Python environment.
 
     Parameters

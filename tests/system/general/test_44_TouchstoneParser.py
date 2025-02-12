@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -80,6 +80,16 @@ class TestClass:
                 assert v[1]
             elif v and v[0] == "causality":
                 assert not v[1]
+
+    def test_get_coupling_in_range(self, local_scratch):
+        touchstone_file = os.path.join(test_T44_dir, "port_order_1234.s8p")
+        output_file = os.path.join(self.local_scratch.path, "test_44_gcir.log")
+        ts = TouchstoneData(touchstone_file=touchstone_file)
+        res = ts.get_coupling_in_range(
+            start_frequency=1e9, high_loss=-60, low_loss=-40, frequency_sample=5, output_file=output_file
+        )
+
+        assert isinstance(res, list)
 
 
 def test_get_mixed_mode_touchstone_data_failure(touchstone_file, caplog: pytest.LogCaptureFixture):

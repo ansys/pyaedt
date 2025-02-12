@@ -14,11 +14,11 @@ In this case, you can use the Python interpreter available in the AEDT installat
 
    Python 3.7 is available in AEDT 2023 R1 and earlier. Python 3.10 is available in AEDT 2023 R2.
 
-Here is the path to the Python 3.10 interpreter for the 2024 R2 installation:
+Here is the path to the Python 3.10 interpreter for the 2025 R1 installation:
 
 .. code:: python
 
-   path\to\AnsysEM\v242\commonfiles\CPython\3_10\winx64\Release\python"
+   path\to\AnsysEM\v251\commonfiles\CPython\3_10\winx64\Release\python"
 
 
 Error installing PyAEDT using pip
@@ -98,13 +98,13 @@ Run the following command to start AEDT as a gRPC server:
 
 .. code:: console
 
-   path\to\AnsysEM\v231\Win64\ansysedt.exe -grpcsrv 50001
+   path\to\AnsysEM\v251\Win64\ansysedt.exe -grpcsrv 50001
 
 **On Linux:**
 
 .. code:: console
 
-   path\to\AnsysEM\v231\Lin64\ansysedt -grpcsrv 50352
+   path\to\AnsysEM\v251\Lin64\ansysedt -grpcsrv 50352
 
 The server port number is used by AEDT to listen and receive
 commands from the PyAEDT client. This configuration
@@ -122,7 +122,7 @@ variables have been defined correctly.
 .. code:: python
 
     import sys
-    sys.path.append(r"ANSYSEM_ROOT231\PythonFiles\DesktopPlugin")
+    sys.path.append(r"ANSYSEM_ROOT251\PythonFiles\DesktopPlugin")
     import ScriptEnv
     print(dir())
     ScriptEnv.Initialize("", False, "", 50051)
@@ -199,3 +199,20 @@ gRPC calls on the client where the Python script is to be run.
 Now run the PyAEDT script, (making sure it connects to the same port as the gRPC server - 50051).
 Capture the output in a file. For example *client.txt*. Then send all the logs
 to `Ansys Support <https://www.ansys.com/it-solutions/contacting-technical-support>`_.
+
+
+Numpy compatibility
+-------------------
+If you use Numpy 2.Y.Z, you may encounter compatibility issues with PyAEDT or PyEDB.
+
+This kind of problem can occur when a user is in a Linux environment and wants to use .NET.
+If you encounter such issue, you can try patching it by importing PyAEDT or PyEDB before any import of Numpy as below
+
+.. code-block:: python
+
+    import ansys.aedt.core
+    import numpy
+
+.. note::
+
+    If you use gRPC or previous Numpy releases, you shouldn't be impacted with this issue.

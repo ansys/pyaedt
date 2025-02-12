@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -41,6 +41,7 @@ from ansys.aedt.core.modules.layer_stackup import Layers
 
 class Modeler3DLayout(Modeler, Primitives3DLayout):
     """Manages Modeler 3D layouts.
+
     This class is inherited in the caller application and is accessible through the modeler variable
     object (for example, ``hfss3dlayout.modeler``).
 
@@ -175,7 +176,8 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
     @model_units.setter
     def model_units(self, units):
-        assert units in AEDT_UNITS["Length"], f"Invalid units string {units}."
+        if not units in AEDT_UNITS["Length"]:
+            raise ValueError(f"Invalid units '{units}'")
         self.oeditor.SetActiveUnits(units)
         self._model_units = units
 
@@ -356,7 +358,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                     comp_name = str(i)
                     break
             except Exception:
-                continue
+                self.logger.debug(f"Couldn't get component name from component {i}")
         if not comp_name:
             return False
         comp = ComponentsSubCircuit3DLayout(self, comp_name)
@@ -647,8 +649,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                 objnames.append(el)
             elif "name" in dir(el):
                 objnames.append(el.name)
-            else:
-                pass
         if return_list:
             return objnames
         else:
@@ -938,6 +938,314 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         self.oeditor.UpdateModels(args)
         self.logger.info(f"Spice Model Correctly assigned to {assignment}.")
         return True
+
+    @pyaedt_function_handler()
+    def set_touchstone_model(self, assignment, input_file, model_name=None):
+        """Assign a Touchstone model to a component.
+
+        Parameters
+        ----------
+        assignment : str
+            Name of the component.
+        input_file : str, optional
+            Full path to the model file. The default is ``None``.
+        model_name : str, optional
+            Name of the model. The default is ``None``, in which case the model name is the file name without an
+            extension.
+
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+
+        >>> from ansys.aedt.core import Hfss3dLayout
+        >>> h3d = Hfss3dLayout("myproject")
+        >>> h3d.modeler.set_touchstone_model(assignment="C1",input_file="comp.s2p")
+
+        """
+
+        if not model_name:
+            model_name = os.path.splitext(os.path.basename(input_file))[0]
+            if "." in model_name:
+                model_name = model_name.replace(".", "_")
+        if model_name in list(self.o_model_manager.GetNames()):
+            model_name = generate_unique_name(model_name, n=2)
+        num_terminal = int(os.path.splitext(input_file)[1].lower().strip(".sp"))
+
+        port_names = []
+        with open_file(input_file, "r") as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith(("!", "#", "")):
+                    if "Port" in line and "=" in line and "Impedance" not in line:
+                        port_names.append(line.split("=")[-1].strip().replace(" ", "_").strip("[]"))
+                else:
+                    break
+        image_subcircuit_path = ""
+        bmp_file_name = ""
+
+        if not port_names:
+            port_names = ["Port" + str(i + 1) for i in range(num_terminal)]
+        arg = [
+            "NAME:" + model_name,
+            "Name:=",
+            model_name,
+            "ModTime:=",
+            0,
+            "Library:=",
+            "",
+            "LibLocation:=",
+            "Project",
+            "ModelType:=",
+            "nport",
+            "Description:=",
+            "",
+            "ImageFile:=",
+            image_subcircuit_path,
+            "SymbolPinConfiguration:=",
+            0,
+            ["NAME:PortInfoBlk"],
+            ["NAME:PortOrderBlk"],
+            "filename:=",
+            input_file,
+            "numberofports:=",
+            num_terminal,
+            "sssfilename:=",
+            "",
+            "sssmodel:=",
+            False,
+            "PortNames:=",
+            port_names,
+            "domain:=",
+            "frequency",
+            "datamode:=",
+            "Link",
+            "devicename:=",
+            "",
+            "SolutionName:=",
+            "",
+            "displayformat:=",
+            "MagnitudePhase",
+            "datatype:=",
+            "SMatrix",
+            [
+                "NAME:DesignerCustomization",
+                "DCOption:=",
+                0,
+                "InterpOption:=",
+                0,
+                "ExtrapOption:=",
+                1,
+                "Convolution:=",
+                0,
+                "Passivity:=",
+                0,
+                "Reciprocal:=",
+                False,
+                "ModelOption:=",
+                "",
+                "DataType:=",
+                1,
+            ],
+            [
+                "NAME:NexximCustomization",
+                "DCOption:=",
+                3,
+                "InterpOption:=",
+                1,
+                "ExtrapOption:=",
+                3,
+                "Convolution:=",
+                0,
+                "Passivity:=",
+                0,
+                "Reciprocal:=",
+                False,
+                "ModelOption:=",
+                "",
+                "DataType:=",
+                2,
+            ],
+            [
+                "NAME:HSpiceCustomization",
+                "DCOption:=",
+                1,
+                "InterpOption:=",
+                2,
+                "ExtrapOption:=",
+                3,
+                "Convolution:=",
+                0,
+                "Passivity:=",
+                0,
+                "Reciprocal:=",
+                False,
+                "ModelOption:=",
+                "",
+                "DataType:=",
+                3,
+            ],
+            "NoiseModelOption:=",
+            "External",
+        ]
+        self.o_model_manager.Add(arg)
+        arg = [
+            "NAME:" + model_name,
+            "Info:=",
+            [
+                "Type:=",
+                10,
+                "NumTerminals:=",
+                num_terminal,
+                "DataSource:=",
+                "",
+                "ModifiedOn:=",
+                1618569625,
+                "Manufacturer:=",
+                "",
+                "Symbol:=",
+                "",
+                "ModelNames:=",
+                "",
+                "Footprint:=",
+                "",
+                "Description:=",
+                "",
+                "InfoTopic:=",
+                "",
+                "InfoHelpFile:=",
+                "",
+                "IconFile:=",
+                bmp_file_name,
+                "Library:=",
+                "",
+                "OriginalLocation:=",
+                "Project",
+                "IEEE:=",
+                "",
+                "Author:=",
+                "",
+                "OriginalAuthor:=",
+                "",
+                "CreationDate:=",
+                1618569625,
+                "ExampleFile:=",
+                "",
+                "HiddenComponent:=",
+                0,
+                "CircuitEnv:=",
+                0,
+                "GroupID:=",
+                0,
+            ],
+            "CircuitEnv:=",
+            0,
+            "Refbase:=",
+            "S",
+            "NumParts:=",
+            1,
+            "ModSinceLib:=",
+            False,
+        ]
+        for i in range(num_terminal):
+            arg.append("Terminal:=")
+            arg.append([port_names[i], port_names[i], "A", False, i, 1, "", "Electrical", "0"])
+        arg.append("CompExtID:=")
+        arg.append(5)
+        arg.append(
+            [
+                "NAME:Parameters",
+                "MenuProp:=",
+                ["CoSimulator", "SD", "", "Default", 0],
+                "ButtonProp:=",
+                ["CosimDefinition", "SD", "", "Edit", "Edit", 40501, "ButtonPropClientData:=", []],
+            ]
+        )
+        arg.append(
+            [
+                "NAME:CosimDefinitions",
+                [
+                    "NAME:CosimDefinition",
+                    "CosimulatorType:=",
+                    102,
+                    "CosimDefName:=",
+                    "Default",
+                    "IsDefinition:=",
+                    True,
+                    "Connect:=",
+                    True,
+                    "ModelDefinitionName:=",
+                    model_name,
+                    "ShowRefPin2:=",
+                    2,
+                    "LenPropName:=",
+                    "",
+                ],
+                "DefaultCosim:=",
+                "Default",
+            ]
+        )
+
+        self.o_component_manager.Add(arg)
+        self.o_component_manager.AddSolverOnDemandModel(
+            self.components[assignment].part,
+            [
+                "NAME:CosimDefinition",
+                "CosimulatorType:=",
+                102,
+                "CosimDefName:=",
+                model_name,
+                "IsDefinition:=",
+                True,
+                "Connect:=",
+                True,
+                "ModelDefinitionName:=",
+                model_name,
+                "ShowRefPin2:=",
+                2,
+                "LenPropName:=",
+                "",
+            ],
+        )
+        self.oeditor.ChangeProperty(
+            [
+                "NAME:AllTabs",
+                [
+                    "NAME:BaseElementTab",
+                    ["NAME:PropServers", assignment],
+                    [
+                        "NAME:ChangedProps",
+                        [
+                            "NAME:Model Info",
+                            [
+                                "NAME:Model",
+                                "RLCProp:=",
+                                [
+                                    "CompPropEnabled:=",
+                                    True,
+                                    "Pid:=",
+                                    -1,
+                                    "Pmo:=",
+                                    "0",
+                                    "CompPropType:=",
+                                    0,
+                                    "PinPairRLC:=",
+                                    ["RLCModelType:=", 1, "CosimDefintion:=", model_name],
+                                ],
+                                "CompType:=",
+                                3,
+                            ],
+                        ],
+                    ],
+                ],
+            ]
+        )
+
+        return model_name
 
     @pyaedt_function_handler()
     def clip_plane(self):

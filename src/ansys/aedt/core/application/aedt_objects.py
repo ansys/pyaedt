@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -81,6 +81,7 @@ class AedtObjects(object):
         self._o_symbol_manager = None
         self._opadstackmanager = None
         self._oradfield = None
+        self._onetwork_data_explorer = None
 
     @property
     def oradfield(self):
@@ -389,13 +390,18 @@ class AedtObjects(object):
         ----------
         >>> oEditor = oDesign.SetActiveEditor("SchematicEditor")"""
         if not self._oeditor and self._odesign:
-            if self.design_type in ["Circuit Design", "Twin Builder", "Maxwell Circuit", "EMIT"]:
+            if self.design_type in ["Circuit Design"]:
+                self._oeditor = self._odesign.GetEditor("SchematicEditor")
+                if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
+                    time.sleep(1)
+                    self.desktop_class.close_windows()
+            elif self.design_type in ["Twin Builder", "Maxwell Circuit", "EMIT"]:
                 self._oeditor = self._odesign.SetActiveEditor("SchematicEditor")
                 if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
                     time.sleep(1)
                     self.desktop_class.close_windows()
             elif self.design_type in ["HFSS 3D Layout Design", "HFSS3DLayout"]:
-                self._oeditor = self._odesign.SetActiveEditor("Layout")
+                self._oeditor = self._odesign.GetEditor("Layout")
             elif self.design_type in ["RMxprt", "RMxprtSolution"]:
                 self._oeditor = self._odesign.SetActiveEditor("Machine")
             elif self.design_type in ["Circuit Netlist"]:
@@ -413,7 +419,7 @@ class AedtObjects(object):
         >>> oDesign.SetActiveEditor("Layout")
         """
         if not self._layouteditor and self.design_type in ["Circuit Design"]:
-            self._layouteditor = self._odesign.SetActiveEditor("Layout")
+            self._layouteditor = self._odesign.GetEditor("Layout")
         return self._layouteditor
 
     @property
@@ -429,3 +435,15 @@ class AedtObjects(object):
         if not self._o_model_manager and self.odefinition_manager:
             self._o_model_manager = self.odefinition_manager.GetManager("Model")
         return self._o_model_manager
+
+    @property
+    def onetwork_data_explorer(self):
+        """Network data explorer module.
+
+        References
+        ----------
+        >>> oDesktop.GetTool("NdExplorer")
+        """
+        if not self._onetwork_data_explorer:
+            self._onetwork_data_explorer = self._odesktop.GetTool("NdExplorer")
+        return self._onetwork_data_explorer

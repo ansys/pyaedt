@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -47,23 +47,23 @@ class DllInterface:
     def _init_dll_path(self, version):
         """Set DLL path and print the status of the DLL access to the screen."""
         latest_version = aedt_versions.latest_version
-        if latest_version == "":
+        if latest_version == "":  # pragma: no cover
             raise Exception("AEDT is not installed on your system. Install AEDT 2025 R1 or later.")
         if version is None:
             version = latest_version
-        if float(version[0:6]) < 2025:
-            raise ValueError(
-                "FilterSolutions supports AEDT version 2025 R1 and later. Recommended version is 2025 R1 or later."
-            )
         if not (version in aedt_versions.installed_versions) and not (
             version + "CL" in aedt_versions.installed_versions
         ):
             raise ValueError(f"Specified version {version[0:6]} is not installed on your system")
+        if float(version[0:6]) < 2025:  # pragma: no cover
+            raise ValueError(
+                "FilterSolutions supports AEDT version 2025 R1 and later. Recommended version is 2025 R1 or later."
+            )
         self.dll_path = os.path.join(aedt_versions.installed_versions[version], "nuhertz", "FilterSolutionsAPI.dll")
         print("DLL Path:", self.dll_path)
         if not os.path.isfile(self.dll_path):
             raise RuntimeError(f"The 'FilterSolutions' API DLL was not found at {self.dll_path}.")  # pragma: no cover
-        self.version = version
+        self._version = version
 
     def _init_dll(self, show_gui):
         """Load DLL and initialize application parameters to default values."""
@@ -122,8 +122,7 @@ class DllInterface:
         return text
 
     def set_string(self, dll_function: Callable, string: str):
-        """
-        Call a DLL function that sets a string.
+        """Call a DLL function that sets a string.
 
         Parameters
         ----------
@@ -137,8 +136,7 @@ class DllInterface:
         self.raise_error(status)
 
     def string_to_enum(self, enum_type: Enum, string: str) -> Enum:
-        """
-        Convert a string to a string defined by an enum.
+        """Convert a string to a string defined by an enum.
 
         Parameters
         ----------
@@ -156,8 +154,7 @@ class DllInterface:
         return enum_type[fixed_string]
 
     def enum_to_string(self, enum_value: Enum) -> str:
-        """
-        Convert an enum value to a string.
+        """Convert an enum value to a string.
 
         Parameters
         ----------
@@ -173,8 +170,7 @@ class DllInterface:
         return fixed_string
 
     def api_version(self) -> str:
-        """
-        Get the version of the API.
+        """Get the version of the API.
 
         Returns
         -------
@@ -185,6 +181,18 @@ class DllInterface:
         return version
 
     def raise_error(self, error_status):
+        """Raise an exception if the error status is not 0.
+
+        Parameters
+        ----------
+        error_status: int
+            Error status to check.
+
+        Raises
+        ------
+        RuntimeError
+            If the error status is not 0, an exception is raised.
+        """
         if error_status != 0:
             error_message = self.get_string(self._dll.getErrorMessage, 4096)
             raise RuntimeError(error_message)

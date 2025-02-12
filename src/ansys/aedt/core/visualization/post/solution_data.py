@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -962,9 +962,15 @@ class SolutionData(object):
 
         min_r = 1e12
         max_r = -1e12
-        for el in r:
-            min_r = min(min_r, el.values.min())
-            max_r = max(max_r, el.values.max())
+        if self.enable_pandas_output:
+            for el in r:
+                min_r = min(min_r, el.values.min())
+                max_r = max(max_r, el.values.max())
+        else:
+            for el in r:
+                min_r = min(min_r, min(el))
+                max_r = max(max_r, max(el))
+
         if min_r < 0:
             r = [i + np.abs(min_r) for i in r]
         theta_grid, phi_grid = np.meshgrid(theta, phi)

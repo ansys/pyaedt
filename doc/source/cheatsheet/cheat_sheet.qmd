@@ -48,7 +48,7 @@ Open a Desktop session in graphical mode, open a project and connect to an activ
 ```{python}
 #| eval: false
 from ansys.aedt.core import Desktop
-desktop = Desktop(version="2024.2", new_desktop=True, non_graphical=False, close_on_exit=True)
+desktop = Desktop(version="2025.1", new_desktop=True, non_graphical=False, close_on_exit=True)
 app = desktop.load_project( project_file="project_path")
 ```
 
@@ -56,7 +56,7 @@ Open a Desktop session in non-graphical mode and create a new Maxwell 3D design:
 ```{python}
 #| eval: false
 from ansys.aedt.core import Desktop, Maxwell3d
-desktop = Desktop(version="2024.2", new_desktop=True, non_graphical=True, close_on_exit=True)
+desktop = Desktop(version="2025.1", new_desktop=True, non_graphical=True, close_on_exit=True)
 app = Maxwell3d()
 ```
 

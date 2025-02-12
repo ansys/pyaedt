@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -494,7 +494,28 @@ class PostProcessorCommon(object):
             report_category = self.available_report_types[0]
         if report_category:
             return list(self.oreportsetup.GetAvailableSolutions(report_category))
-        return None  # pragma: no cover
+        return None
+
+    @pyaedt_function_handler()  # pragma: no cover
+    def _get_setup_from_sweep_name(self, sweep_name):
+        if ":" not in sweep_name:
+            sweep_names = []  # Look for sweep name in setups if the setup is not
+            for s in self._app.setups:  # passed explicitly in setup_sweep_name.
+                for sweep in s.sweeps:
+                    this_name = s.name + " : " + sweep.name if sweep.name == sweep_name else None
+                    if this_name:
+                        sweep_names.append(this_name)
+            if len(sweep_names) > 1:
+                warning_str = "More than one sweep with name '{setup_sweep_name}' found. "
+                warning_str += f"Returning '{sweep_names[0]}'."
+                self.logger.warning(warning_str)
+                return sweep_names[0]
+            elif len(sweep_names) == 1:
+                return sweep_names[0]
+            else:
+                return sweep_name  # Nothing found, pass the sweep name through.
+        else:
+            return sweep_name
 
     @pyaedt_function_handler()
     def _get_plot_inputs(self):
@@ -1211,7 +1232,12 @@ class PostProcessorCommon(object):
         >>> m3d.release_desktop(False, False)
         """
         if not setup_sweep_name:
-            setup_sweep_name = self._app.nominal_sweep
+            if report_category == "Fields":
+                setup_sweep_name = self._app.nominal_adaptive  # Field report and no sweep name passed.
+            else:
+                setup_sweep_name = self._app.nominal_sweep
+        elif domain == "Sweep":
+            setup_sweep_name = self._get_setup_from_sweep_name(setup_sweep_name)
         if not domain:
             domain = "Sweep"
             setup_name = setup_sweep_name.split(":")[0]
@@ -1654,6 +1680,8 @@ class PostProcessorCommon(object):
                 solution_name = self._app.nominal_sweep
             else:
                 solution_name = self._app.nominal_adaptive
+        else:
+            solution_name = self._get_setup_from_sweep_name(solution_name)  # If only the sweep name is passed.
         if props.get("report_category", None) and props["report_category"] in TEMPLATES_BY_NAME:
             if props.get("context", {"context": {}}).get("domain", "") == "Spectral":
                 report_temp = TEMPLATES_BY_NAME["Spectrum"]
@@ -1979,7 +2007,8 @@ class Reports(object):
         >>> solutions = report.get_solution_data()
         """
         if not setup:
-            setup = self._post_app._app.nominal_sweep
+            # setup = self._post_app._app.nominal_sweep
+            setup = self._post_app._app.nominal_adaptive
         rep = None
         if "Fields" in self._templates:
             rep = ansys.aedt.core.visualization.report.field.Fields(self._post_app, "Fields", setup)
@@ -2111,7 +2140,7 @@ class Reports(object):
         return rep
 
     @pyaedt_function_handler(setup_name="setup")
-    def far_field(self, expressions=None, setup=None, sphere_name=None, source_context=None):
+    def far_field(self, expressions=None, setup=None, sphere_name=None, source_context=None, **variations):
         """Create a Far Field Report object.
 
         Parameters
@@ -2146,10 +2175,17 @@ class Reports(object):
             setup = self._post_app._app.nominal_sweep
         rep = None
         if "Far Fields" in self._templates:
-            rep = ansys.aedt.core.visualization.report.field.FarField(self._post_app, "Far Fields", setup)
+            rep = ansys.aedt.core.visualization.report.field.FarField(self._post_app, "Far Fields", setup, **variations)
             rep.far_field_sphere = sphere_name
             rep.source_context = source_context
-            rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
+            rep.report_type = "Radiation Pattern"
+            if expressions:
+                if type(expressions) == list:
+                    rep.expressions = expressions
+                else:
+                    rep.expressions = [expressions]
+            else:
+                rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
     @pyaedt_function_handler(setup_name="setup", sphere_name="infinite_sphere")

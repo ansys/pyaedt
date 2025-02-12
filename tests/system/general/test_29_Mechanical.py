@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -28,6 +28,7 @@ import shutil
 from ansys.aedt.core import Hfss
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Mechanical
+from ansys.aedt.core.generic.errors import AEDTRuntimeError
 import pytest
 
 from tests.system.general.conftest import config
@@ -90,7 +91,7 @@ class TestClass:
 
     @pytest.mark.skipif(config["desktopVersion"] < "2021.2", reason="Skipped on versions lower than 2021.2")
     def test_07_assign_thermal_loss(self, add_app):
-        ipk = add_app(application=Icepak, solution_type=self.aedtapp.SOLUTIONS.Icepak.SteadyTemperatureAndFlow)
+        ipk = add_app(application=Icepak, solution_type=self.aedtapp.SOLUTIONS.Icepak.SteadyState)
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
         ipk.modeler.create_cylinder(ipk.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
@@ -113,8 +114,10 @@ class TestClass:
         self.aedtapp.oproject.InsertDesign("Mechanical", "MechanicalDesign3", "Thermal", "")
         self.aedtapp.set_active_design("MechanicalDesign3")
         self.aedtapp.modeler.create_cylinder(self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
-        assert not self.aedtapp.assign_fixed_support(self.aedtapp.modeler["MyCylinder"].faces[0].id)
-        assert not self.aedtapp.assign_frictionless_support(self.aedtapp.modeler["MyCylinder"].faces[0].id)
+        with pytest.raises(AEDTRuntimeError, match="This method works only in a Mechanical Structural analysis."):
+            self.aedtapp.assign_fixed_support(self.aedtapp.modeler["MyCylinder"].faces[0].id)
+        with pytest.raises(AEDTRuntimeError, match="This method works only in a Mechanical Structural analysis."):
+            self.aedtapp.assign_frictionless_support(self.aedtapp.modeler["MyCylinder"].faces[0].id)
 
     def test_08_mesh_settings(self):
         assert self.aedtapp.mesh.initial_mesh_settings
@@ -143,7 +146,7 @@ class TestClass:
         assert meshlink_props["Project"] == "This Project*"
         assert meshlink_props["PathRelativeTo"] == "TargetProject"
         assert meshlink_props["Design"] == "MechanicalDesign2"
-        assert meshlink_props["Soln"] == "MySetupAuto : LastAdaptive"
+        assert meshlink_props["Soln"] == self.aedtapp.nominal_adaptive
         assert meshlink_props["Params"] == self.aedtapp.available_variations.nominal_w_values_dict
         assert not self.aedtapp.setups[0].add_mesh_link(design="")
         assert not self.aedtapp.setups[0].add_mesh_link(

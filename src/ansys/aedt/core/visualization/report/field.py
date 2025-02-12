@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -131,19 +131,19 @@ class NearField(CommonReport):
 class FarField(CommonReport):
     """Provides for managing far field reports."""
 
-    def __init__(self, app, report_category, setup_name, expressions=None):
+    def __init__(self, app, report_category, setup_name, expressions=None, **variations):
         CommonReport.__init__(self, app, report_category, setup_name, expressions)
+        variation_defaults = {"Phi": ["All"], "Theta": ["All"], "Freq": ["Nominal"]}
         self.domain = "Sweep"
         self.primary_sweep = "Phi"
         self.secondary_sweep = "Theta"
         self.source_context = None
         self.source_group = None
-        if "Phi" not in self.variations:
-            self.variations["Phi"] = ["All"]
-        if "Theta" not in self.variations:
-            self.variations["Theta"] = ["All"]
-        if "Freq" not in self.variations:
-            self.variations["Freq"] = ["Nominal"]
+        for key, default_value in variation_defaults.items():
+            if key in variations:
+                self.variations[key] = variations[key]
+            else:
+                self.variations[key] = default_value
 
     @property
     def far_field_sphere(self):

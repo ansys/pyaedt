@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -42,28 +42,21 @@ import pytest
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 
-if config["desktopVersion"] > "2022.2":
-    test_field_name = "Potter_Horn_231"
-    test_project_name = "coax_setup_solved_231"
-    sbr_file = "poc_scat_small_231"
-    q3d_file = "via_gsg_231"
-    m2d_file = "m2d_field_lines_test_231"
-    ipk_markers_proj = "ipk_markers"
+test_field_name = "Potter_Horn_242"
+test_project_name = "coax_setup_solved_231"
+sbr_file = "poc_scat_small_solved"
+q3d_file = "via_gsg_solved"
+m2d_file = "m2d_field_lines_test_231"
+ipk_markers_proj = "ipk_markers"
 
-else:
-    test_field_name = "Potter_Horn"
-    test_project_name = "coax_setup_solved"
-    sbr_file = "poc_scat_small"
-    q3d_file = "via_gsg"
-    m2d_file = "m2d_field_lines_test"
 
-test_circuit_name = "Switching_Speed_FET_And_Diode"
+test_circuit_name = "Switching_Speed_FET_And_Diode_Solved"
 if config["desktopVersion"] > "2024.2":
     test_emi_name = "EMI_RCV_251"
 else:
     test_emi_name = "EMI_RCV_241"
 
-eye_diagram = "SimpleChannel"
+eye_diagram = "channel_solved"
 ami = "ami"
 if config["desktopVersion"] > "2024.2":
     ipk_post_proj = "for_icepak_post_parasolid"
@@ -73,70 +66,81 @@ test_subfolder = "T12"
 settings.enable_pandas_output = True
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture()
 def field_test(add_app):
     app = add_app(project_name=test_field_name, subfolder=test_subfolder)
-    return app
+    yield app
+    app.close_project(save=False)
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture()
 def circuit_test(add_app):
     app = add_app(project_name=test_circuit_name, design_name="Diode", application=Circuit, subfolder=test_subfolder)
-    return app
+    yield app
+    app.close_project(save=False)
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture()
 def emi_receiver_test(add_app):
     app = add_app(project_name=test_emi_name, design_name="CE_band", application=Circuit, subfolder=test_subfolder)
-    return app
+    yield app
+    app.close_project(save=False)
 
 
-@pytest.fixture(scope="class")
-def diff_test(add_app, circuit_test):
-    app = add_app(project_name=circuit_test.project_name, design_name="diff", application=Circuit, just_open=True)
-    return app
+@pytest.fixture()
+def diff_test(add_app):
+    app = add_app(project_name=test_circuit_name, design_name="diff", application=Circuit, subfolder=test_subfolder)
+    yield app
+    app.close_project(save=False)
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture()
 def sbr_test(add_app):
     app = add_app(project_name=sbr_file, subfolder=test_subfolder)
-    return app
+    yield app
+    app.close_project(save=False)
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture()
 def q3dtest(add_app):
     app = add_app(project_name=q3d_file, application=Q3d, subfolder=test_subfolder)
-    return app
+    yield app
+    app.close_project(save=False)
 
 
-@pytest.fixture(scope="class")
-def q2dtest(add_app, q3dtest):
-    app = add_app(project_name=q3dtest.project_name, application=Q2d, just_open=True)
-    return app
+@pytest.fixture()
+def q2dtest(add_app):
+    app = add_app(project_name=q3d_file, application=Q2d, subfolder=test_subfolder)
+    yield app
+    app.close_project(save=False)
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture()
 def eye_test(add_app, q3dtest):
     app = add_app(project_name=eye_diagram, application=Circuit, subfolder=test_subfolder)
-    return app
+    yield app
+    app.close_project(save=False)
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture()
 def icepak_post(add_app):
     app = add_app(project_name=ipk_post_proj, application=Icepak, subfolder=test_subfolder)
-    return app
+    yield app
+    app.close_project(save=False)
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture()
 def ami_test(add_app, q3dtest):
     app = add_app(project_name=ami, application=Circuit, subfolder=test_subfolder)
-    return app
+    yield app
+    app.close_project(save=False)
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture()
 def m2dtest(add_app, q3dtest):
     app = add_app(project_name=m2d_file, application=Maxwell2d, subfolder=test_subfolder)
-    return app
+    yield app
+    app.close_project(save=False)
 
 
 class TestClass:
@@ -151,7 +155,7 @@ class TestClass:
         variations["Freq"] = ["30GHz"]
         field_test.set_source_context(["1"])
         context = {"Context": "3D", "SourceContext": "1:1"}
-        assert field_test.post.create_report(
+        nominal_report = field_test.post.create_report(
             "db(GainTotal)",
             field_test.nominal_adaptive,
             variations=variations,
@@ -161,9 +165,12 @@ class TestClass:
             plot_type="3D Polar Plot",
             context=context,
         )
-        plot = field_test.post.create_report(
+        assert nominal_report
+        sweep = field_test.setups[0].sweeps[0]
+        variations["Freq"] = "30.1GHz"
+        sweep_report = field_test.post.create_report(
             "db(GainTotal)",
-            field_test.nominal_adaptive,
+            sweep.name,
             variations=variations,
             primary_sweep_variable="Phi",
             secondary_sweep_variable="Theta",
@@ -171,10 +178,10 @@ class TestClass:
             plot_type="3D Polar Plot",
             context="3D",
         )
-        assert plot
-        assert plot.export_config(os.path.join(self.local_scratch.path, f"{plot.plot_name}.json"))
+        assert sweep_report
+        assert sweep_report.export_config(os.path.join(self.local_scratch.path, f"{sweep_report.plot_name}.json"))
         assert field_test.post.create_report_from_configuration(
-            os.path.join(self.local_scratch.path, f"{plot.plot_name}.json"), solution_name=field_test.nominal_adaptive
+            os.path.join(self.local_scratch.path, f"{sweep_report.plot_name}.json"), solution_name=sweep.name
         )
         report = AnsysReport()
         report.create()
@@ -190,6 +197,7 @@ class TestClass:
         new_report.report_type = "3D Polar Plot"
         new_report.far_field_sphere = "3D"
         assert new_report.create()
+        field_test.set_source_context(["1"])
 
         new_report2 = field_test.post.reports_by_category.far_field(
             "db(RealizedGainTotal)", field_test.nominal_adaptive, "3D", "1:1"
@@ -225,7 +233,6 @@ class TestClass:
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
         variations["Freq"] = ["30GHz"]
-        field_test.analyze(field_test.active_setup)
         data = field_test.post.get_solution_data(
             "GainTotal",
             field_test.nominal_adaptive,
@@ -314,21 +321,16 @@ class TestClass:
         assert report.add_project_info(circuit_test)
 
     def test_09b_export_report_B(self, q2dtest):
-        q2dtest.analyze()
         files = q2dtest.export_results()
         assert len(files) > 0
 
     def test_09b_export_report_C(self, q3dtest):
-        q3dtest.analyze_setup("Setup1")
         files = q3dtest.export_results()
         assert len(files) > 0
 
     @pytest.mark.skipif(is_linux, reason="Crashing on Linux")
     def test_17_circuit(self, circuit_test):
-        assert not circuit_test.setups[0].is_solved
 
-        circuit_test.analyze_setup("LNA")
-        circuit_test.analyze_setup("Transient")
         assert circuit_test.setups[0].is_solved
         assert circuit_test.setups[0].create_report(["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"])
         new_report = circuit_test.post.reports_by_category.standard(
@@ -389,6 +391,8 @@ class TestClass:
         new_report.time_stop = "190ns"
         new_report.plot_continous_spectrum = True
         assert new_report.create()
+        set1 = circuit_test.create_setup()
+        assert not set1.is_solved
 
     @pytest.mark.skipif(is_linux, reason="Crashing on Linux")
     def test_18_diff_plot(self, diff_test):
@@ -396,7 +400,6 @@ class TestClass:
         assert len(diff_test.post.available_report_types) > 0
         assert len(diff_test.post.available_report_quantities()) > 0
         assert len(diff_test.post.available_report_solutions()) > 0
-        diff_test.analyze_setup("LinearFrequency")
         assert diff_test.setups[0].is_solved
         variations = diff_test.available_variations.nominal_w_values_dict
         variations["Freq"] = ["All"]
@@ -417,6 +420,8 @@ class TestClass:
         new_report2 = diff_test.post.reports_by_category.standard("TDRZ(1)")
         new_report2.differential_pairs = True
         new_report2.pulse_rise_time = 3e-12
+        new_report2.maximum_time = 30e-12
+        new_report2.step_time = 6e-13
         new_report2.time_windowing = 3
         new_report2.domain = "Time"
 
@@ -449,7 +454,6 @@ class TestClass:
         is_linux or sys.version_info < (3, 8), reason="plot_scene method is not supported in ironpython"
     )
     def test_55_time_plot(self, sbr_test):
-        sbr_test.analyze(sbr_test.active_setup, use_auto_settings=False)
         assert sbr_test.setups[0].is_solved
         solution_data = sbr_test.post.get_solution_data(
             expressions=["NearEX", "NearEY", "NearEZ"], report_category="Near Fields", context="Near_Field"
@@ -481,7 +485,6 @@ class TestClass:
         assert os.path.exists(os.path.join(sbr_test.working_directory, "animation2.gif"))
 
     def test_56_test_export_q3d_results(self, q3dtest):
-        q3dtest.analyze(q3dtest.active_setup)
         assert os.path.exists(q3dtest.export_convergence("Setup1"))
         assert os.path.exists(q3dtest.export_profile("Setup1"))
         new_report = q3dtest.post.reports_by_category.standard(q3dtest.get_traces_for_plot())
@@ -496,7 +499,6 @@ class TestClass:
         assert len(q3dtest.post.plots) == 6
 
     def test_57_test_export_q2d_results(self, q2dtest):
-        q2dtest.analyze(q2dtest.active_setup)
         assert os.path.exists(q2dtest.export_convergence("Setup1"))
         assert os.path.exists(q2dtest.export_profile("Setup1"))
         new_report = q2dtest.post.reports_by_category.standard(q2dtest.get_traces_for_plot())
@@ -546,7 +548,6 @@ class TestClass:
         assert os.path.exists(q3dtest.export_mesh_stats("Setup1"))
 
     def test_62_eye_diagram(self, eye_test):
-        eye_test.analyze(eye_test.active_setup)
         rep = eye_test.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
         rep.time_start = "0ps"
         rep.time_stop = "50us"
@@ -557,7 +558,6 @@ class TestClass:
         config["desktopVersion"] < "2022.2", reason="Not working in non graphical in version lower than 2022.2"
     )
     def test_63_mask(self, eye_test):
-        eye_test.analyze(eye_test.active_setup)
         rep = eye_test.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
         rep.time_start = "0ps"
         rep.time_stop = "50us"
@@ -576,7 +576,6 @@ class TestClass:
         config["desktopVersion"] < "2022.2", reason="Not working in non graphical in version lower than 2022.2"
     )
     def test_64_eye_meas(self, eye_test):
-        eye_test.analyze(eye_test.active_setup)
         rep = eye_test.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
         rep.time_start = "0ps"
         rep.time_stop = "50us"
@@ -594,7 +593,6 @@ class TestClass:
 
     def test_66_spectral_from_json(self, circuit_test):
 
-        circuit_test.analyze_setup("Transient")
         assert circuit_test.post.create_report_from_configuration(
             os.path.join(TESTS_GENERAL_PATH, "example_models", "report_json", "Spectral_Report_Simple.json"),
             solution_name="Transient",
@@ -613,7 +611,6 @@ class TestClass:
         config["desktopVersion"] < "2022.2", reason="Not working in non graphical in version lower than 2022.2"
     )
     def test_69_spectral_from_json(self, circuit_test):
-        circuit_test.analyze_setup("Transient")
         assert circuit_test.post.create_report_from_configuration(
             os.path.join(TESTS_GENERAL_PATH, "example_models", "report_json", "Spectral_Report.json"),
             solution_name="Transient",
@@ -757,9 +754,10 @@ class TestClass:
 
     @pytest.mark.skipif(config["desktopVersion"] < "2024.1", reason="EMI receiver available from 2024R1.")
     def test_76_emi_receiver(self, emi_receiver_test):
-        emi_receiver_test.analyze()
         new_report = emi_receiver_test.post.reports_by_category.emi_receiver()
         new_report.band = "2"
+        new_report.rbw = "2"
+        new_report.rbw_factor = "0"
         new_report.emission = "RE"
         new_report.time_start = "1ns"
         new_report.time_stop = "2us"

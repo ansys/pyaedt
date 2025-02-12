@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -3437,7 +3437,7 @@ class PostProcessor3D(PostProcessorCommon):
 
         Returns
         -------
-        :class:`ansys.aedt.core.generic.plot.ModelPlotter`
+        :class:`ansys.aedt.core.visualization.plot.pyvista.ModelPlotter`
             Model Object.
         """
         intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)

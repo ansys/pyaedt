@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -27,74 +27,79 @@ import os
 from ansys.aedt.core import Q3d
 import pytest
 
-from tests import TESTS_SOLVERS_PATH
-from tests.system.solvers.conftest import desktop_version
-
+q3d_solved_file = "Q3d_solved"
+q3d_solved2_file = "q3d_solved2"
 test_project_name = "coax_Q3D"
-if desktop_version > "2022.2":
-    bondwire_project_name = "bondwireq3d_231.aedt"
-    q2d_q3d = "q2d_q3d_231"
+bondwire_project_name = "bondwireq3d_231"
+q2d_q3d = "q2d_q3d_231"
 
-else:
-    bondwire_project_name = "bondwireq3d.aedt"
-    q2d_q3d = "q2d_q3d"
 
 mutual_coupling = "coupling"
 
 test_subfolder = "T31"
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture()
 def aedtapp(add_app):
     app = add_app(application=Q3d)
-    return app
+    yield app
+    app.close_project(save=False)
 
 
 @pytest.fixture(scope="class")
 def coupling(add_app):
     app = add_app(application=Q3d, project_name=mutual_coupling, subfolder=test_subfolder)
-    return app
+    yield app
+    app.close_project(save=False)
 
 
-@pytest.fixture(scope="class", autouse=True)
-def examples(local_scratch):
-    example_project = os.path.join(TESTS_SOLVERS_PATH, "example_models", test_subfolder, bondwire_project_name)
-    test_project = local_scratch.copyfile(example_project)
-    test_matrix = local_scratch.copyfile(
-        os.path.join(TESTS_SOLVERS_PATH, "example_models", test_subfolder, q2d_q3d + ".aedt")
-    )
-    return test_project, test_matrix
+@pytest.fixture()
+def bond(add_app):
+    app = add_app(project_name=bondwire_project_name, subfolder=test_subfolder, application=Q3d)
+    yield app
+    app.close_project(save=False)
+
+
+@pytest.fixture()
+def q3d_solved(add_app):
+    app = add_app(project_name=q3d_solved_file, subfolder=test_subfolder, application=Q3d)
+    yield app
+    app.close_project(save=False)
+
+
+@pytest.fixture()
+def q3d_solved2(add_app):
+    app = add_app(project_name=q3d_solved2_file, subfolder=test_subfolder, application=Q3d)
+    yield app
+    app.close_project(save=False)
 
 
 class TestClass:
 
     @pytest.fixture(autouse=True)
-    def init(self, aedtapp, examples, local_scratch):
-        self.aedtapp = aedtapp
+    def init(self, local_scratch):
         self.local_scratch = local_scratch
-        self.test_project = examples[0]
-        self.test_matrix = examples[1]
 
-    def test_01_save(self):
+    def test_01_save(self, aedtapp):
         test_project = os.path.join(self.local_scratch.path, test_project_name + ".aedt")
-        self.aedtapp.save_project(test_project)
+        aedtapp.save_project(test_project)
         assert os.path.exists(test_project)
 
-    def test_02_create_primitive(self):
-        udp = self.aedtapp.modeler.Position(0, 0, 0)
+    def test_02_create_primitive(self, aedtapp):
+        udp = aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
-        o = self.aedtapp.modeler.create_cylinder(
-            self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, name="MyCylinder", material="brass"
+        o = aedtapp.modeler.create_cylinder(
+            aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, name="MyCylinder", material="brass"
         )
         assert isinstance(o.id, int)
 
-    def test_03_get_properties(self):
-        assert self.aedtapp.odefinition_manager
-        assert self.aedtapp.omaterial_manager
-        assert self.aedtapp.design_file
+    def test_03_get_properties(self, aedtapp):
+        assert aedtapp.odefinition_manager
+        assert aedtapp.omaterial_manager
+        assert aedtapp.design_file
 
-    def test_06a_create_setup(self):
-        mysetup = self.aedtapp.create_setup()
+    def test_06a_create_setup(self, aedtapp):
+        mysetup = aedtapp.create_setup()
         mysetup.props["SaveFields"] = True
         assert mysetup.update()
         assert mysetup.dc_enabled
@@ -102,12 +107,12 @@ class TestClass:
         assert mysetup.dc_resistance_only
         mysetup.dc_enabled = False
         mysetup.dc_enabled = True
-        sweep = self.aedtapp.create_discrete_sweep(mysetup.name, sweepname="mysweep", freqstart=1, units="GHz")
+        sweep = aedtapp.create_discrete_sweep(mysetup.name, sweepname="mysweep", freqstart=1, units="GHz")
         assert sweep
         assert sweep.props["RangeStart"] == "1GHz"
 
         # Create a discrete sweep with the same name of an existing sweep is not possible.
-        assert not self.aedtapp.create_discrete_sweep(mysetup.name, sweepname="mysweep", freqstart=1, units="GHz")
+        assert not aedtapp.create_discrete_sweep(mysetup.name, sweepname="mysweep", freqstart=1, units="GHz")
         assert mysetup.create_linear_step_sweep(
             name="StepFast",
             unit="GHz",
@@ -147,156 +152,176 @@ class TestClass:
             sweep_type="Interpolating",
         )
 
-    def test_06b_create_setup(self):
-        mysetup = self.aedtapp.create_setup()
+    def test_06b_create_setup(self, aedtapp):
+        mysetup = aedtapp.create_setup()
         mysetup.props["SaveFields"] = True
         assert mysetup.update()
-        sweep2 = mysetup.create_frequency_sweep(sweepname="mysweep2", unit="GHz", freqstart=1, freqstop=4)
+        sweep2 = mysetup.create_frequency_sweep(name="mysweep2", unit="GHz", start_frequency=1, stop_frequency=4)
         assert sweep2
-        sweep2_1 = mysetup.create_frequency_sweep(sweepname="mysweep2", unit="GHz", freqstart=1, freqstop=4)
+        sweep2_1 = mysetup.create_frequency_sweep(name="mysweep2", unit="GHz", start_frequency=1, stop_frequency=4)
         assert sweep2_1
         assert sweep2.name != sweep2_1.name
         assert sweep2.props["RangeEnd"] == "4GHz"
-        sweep3 = mysetup.create_frequency_sweep(unit="GHz", freqstart=1, freqstop=4)
+        sweep3 = mysetup.create_frequency_sweep(unit="GHz", start_frequency=1, stop_frequency=4)
         assert sweep3
         with pytest.raises(AttributeError) as execinfo:
             mysetup.create_frequency_sweep(
-                sweepname="mysweep4", unit="GHz", freqstart=1, freqstop=4, sweep_type="Invalid"
+                name="mysweep4", unit="GHz", start_frequency=1, stop_frequency=4, sweep_type="Invalid"
             )
             assert (
                 execinfo.args[0]
                 == "Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'"
             )
 
-    def test_06c_auto_identify(self):
-        assert self.aedtapp.auto_identify_nets()
-        assert self.aedtapp.delete_all_nets()
-        assert self.aedtapp.auto_identify_nets()
+    def test_06c_auto_identify(self, aedtapp):
+        aedtapp.modeler.create_box([0, 0, 0], [1, 1, 20], material="brass")
+        aedtapp.modeler.create_box([20, 5, 0], [1, 1, 20], material="brass")
 
-    def test_07_create_source_sinks(self):
-        source = self.aedtapp.source("MyCylinder", direction=0, name="Source1")
-        sink = self.aedtapp.sink("MyCylinder", direction=3, name="Sink1")
+        assert aedtapp.auto_identify_nets()
+        assert aedtapp.delete_all_nets()
+        assert aedtapp.auto_identify_nets()
+
+    def test_07_create_source_sinks(self, aedtapp):
+        udp = aedtapp.modeler.Position(0, 0, 0)
+        coax_dimension = 30
+        aedtapp.modeler.create_cylinder(
+            aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, name="MyCylinder", material="brass"
+        )
+        source = aedtapp.source("MyCylinder", direction=0, name="Source1")
+        sink = aedtapp.sink("MyCylinder", direction=3, name="Sink1")
         assert source.name == "Source1"
         assert sink.name == "Sink1"
-        assert len(self.aedtapp.excitations) > 0
+        assert len(aedtapp.excitations) > 0
 
-    def test_07B_create_source_tosheet(self):
-        self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, [0, 0, 0], 4, name="Source1")
-        self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, [10, 10, 10], 4, name="Sink1")
+    def test_07b_create_source_to_sheet(self, aedtapp):
 
-        source = self.aedtapp.source("Source1", name="Source3")
-        sink = self.aedtapp.sink("Sink1", name="Sink3")
+        udp = aedtapp.modeler.Position(0, 0, 0)
+        coax_dimension = 30
+        aedtapp.modeler.create_cylinder(
+            aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, name="MyCylinder", material="brass"
+        )
+
+        udp = aedtapp.modeler.Position(10, 10, 0)
+        coax_dimension = 30
+        aedtapp.modeler.create_cylinder(aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, name="GND", material="brass")
+
+        aedtapp.auto_identify_nets()
+        aedtapp.modeler.create_circle(aedtapp.PLANE.XY, [0, 0, 0], 4, name="Source1")
+        aedtapp.modeler.create_circle(aedtapp.PLANE.XY, [0, 0, coax_dimension], 4, name="Sink1")
+
+        aedtapp.modeler.create_circle(aedtapp.PLANE.XY, [10, 10, 0], 4, name="Source2")
+        aedtapp.modeler.create_circle(aedtapp.PLANE.XY, [10, 10, coax_dimension], 4, name="Sink2")
+
+        source = aedtapp.source("Source1", name="Source3")
+        sink = aedtapp.sink("Sink1", name="Sink3")
+
         assert source.name == "Source3"
         assert sink.name == "Sink3"
         assert source.props["TerminalType"] == "ConstantVoltage"
         assert sink.props["TerminalType"] == "ConstantVoltage"
 
-        self.aedtapp.modeler.delete("Source1")
-        self.aedtapp.modeler.delete("Sink1")
-        self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, [0, 0, 0], 4, name="Source1")
-        self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, [10, 10, 10], 4, name="Sink1")
-        source = self.aedtapp.source("Source1", name="Source3", terminal_type="current")
-        sink = self.aedtapp.sink("Sink1", name="Sink3", terminal_type="current")
+        aedtapp.modeler.delete("Source1")
+        aedtapp.modeler.delete("Sink1")
+
+        aedtapp.modeler.create_circle(aedtapp.PLANE.XY, [0, 0, 0], 4, name="Source1")
+        aedtapp.modeler.create_circle(aedtapp.PLANE.XY, [0, 0, coax_dimension], 4, name="Sink1")
+
+        source = aedtapp.source("Source1", name="Source3", terminal_type="current")
+        sink = aedtapp.sink("Sink1", name="Sink3", terminal_type="current")
+
         assert source.props["TerminalType"] == "UniformCurrent"
         assert sink.props["TerminalType"] == "UniformCurrent"
 
-        self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, [0, 0, 0], 4, name="Source1")
-        self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, [10, 10, 10], 4, name="Sink1")
+        source = aedtapp.source("Source2", name="Cylinder1", net_name="GND")
+        source.props["Objects"] = ["Source2"]
+        sink = aedtapp.sink("Sink2", net_name="GND")
 
-        source = self.aedtapp.source(["Source1", "Sink1"], name="Cylinder1", net_name="GND")
-        source.props["Objects"] = ["Source1"]
-        sink = self.aedtapp.sink("Sink1", net_name="GND")
         assert source
         assert sink
         sink.name = "My_new_name"
         assert sink.update()
         assert sink.name == "My_new_name"
-        assert len(self.aedtapp.nets) > 0
-        assert len(self.aedtapp.net_sources("GND")) > 0
-        assert len(self.aedtapp.net_sinks("GND")) > 0
-        assert len(self.aedtapp.net_sources("PGND")) == 0
-        assert len(self.aedtapp.net_sinks("PGND")) == 0
-        obj_list = self.aedtapp.objects_from_nets(self.aedtapp.nets[0])
-        assert len(obj_list[self.aedtapp.nets[0]]) > 0
-        obj_list = self.aedtapp.objects_from_nets(self.aedtapp.nets[0], "steel")
-        assert len(obj_list[self.aedtapp.nets[0]]) == 0
+        assert len(aedtapp.nets) > 0
+        assert len(aedtapp.net_sources("GND")) > 0
+        assert len(aedtapp.net_sinks("GND")) > 0
+        assert len(aedtapp.net_sources("PGND")) == 0
+        assert len(aedtapp.net_sinks("PGND")) == 0
+        obj_list = aedtapp.objects_from_nets(aedtapp.nets[0])
+        assert len(obj_list[aedtapp.nets[0]]) > 0
+        obj_list = aedtapp.objects_from_nets(aedtapp.nets[0], "steel")
+        assert len(obj_list[aedtapp.nets[0]]) == 0
 
-    def test_08_create_faceted_bondwire(self):
-        self.aedtapp.load_project(self.test_project, close_active=True, set_active=False)
-        test = self.aedtapp.modeler.create_faceted_bondwire_from_true_surface(
-            "bondwire_example", self.aedtapp.AXIS.Z, min_size=0.2, number_of_segments=8
+    def test_08_create_faceted_bondwire(self, bond):
+        test = bond.modeler.create_faceted_bondwire_from_true_surface(
+            "bondwire_example", bond.AXIS.Z, min_size=0.2, number_of_segments=8
         )
         assert test
 
-    def test_11_assign_net(self):
-        box = self.aedtapp.modeler.create_box([30, 30, 30], [10, 10, 10], name="mybox")
+    def test_11_assign_net(self, aedtapp):
+        box = aedtapp.modeler.create_box([30, 30, 30], [10, 10, 10], name="mybox")
         net_name = "my_net"
-        net = self.aedtapp.assign_net(box, net_name)
+        net = aedtapp.assign_net(box, net_name)
         assert net
         assert net.name == net_name
-        box = self.aedtapp.modeler.create_box([40, 30, 30], [10, 10, 10], name="mybox2")
-        net = self.aedtapp.assign_net(box, None, "Ground")
+        box = aedtapp.modeler.create_box([40, 30, 30], [10, 10, 10], name="mybox2")
+        net = aedtapp.assign_net(box, None, "Ground")
         assert net
-        box = self.aedtapp.modeler.create_box([60, 30, 30], [10, 10, 10], name="mybox3")
-        net = self.aedtapp.assign_net(box, None, "Floating")
+        box = aedtapp.modeler.create_box([60, 30, 30], [10, 10, 10], name="mybox3")
+        net = aedtapp.assign_net(box, None, "Floating")
         assert net
         net.name = "new_net_name"
         assert net.update()
         assert net.name == "new_net_name"
 
-    def test_11a_set_material_thresholds(self):
-        assert self.aedtapp.set_material_thresholds()
+    def test_11a_set_material_thresholds(self, aedtapp):
+        assert aedtapp.set_material_thresholds()
         insulator_threshold = 2000
         perfect_conductor_threshold = 2e30
         magnetic_threshold = 3
-        assert self.aedtapp.set_material_thresholds(
-            insulator_threshold, perfect_conductor_threshold, magnetic_threshold
-        )
+        assert aedtapp.set_material_thresholds(insulator_threshold, perfect_conductor_threshold, magnetic_threshold)
         insulator_threshold = 2000
         perfect_conductor_threshold = 200
         magnetic_threshold = 3
-        assert not self.aedtapp.set_material_thresholds(
-            insulator_threshold, perfect_conductor_threshold, magnetic_threshold
-        )
+        assert not aedtapp.set_material_thresholds(insulator_threshold, perfect_conductor_threshold, magnetic_threshold)
 
-    def test_12_mesh_settings(self):
-        assert self.aedtapp.mesh.initial_mesh_settings
-        assert self.aedtapp.mesh.initial_mesh_settings.props
+    def test_12_mesh_settings(self, aedtapp):
+        assert aedtapp.mesh.initial_mesh_settings
+        assert aedtapp.mesh.initial_mesh_settings.props
 
-    def test_13_matrix_reduction(self, add_app):
-        q3d = add_app(application=Q3d, project_name=self.test_matrix, just_open=True)
+    def test_13_matrix_reduction(self, q3d_solved):
+        q3d = q3d_solved
         assert q3d.matrices[0].name == "Original"
         assert len(q3d.matrices[0].sources()) > 0
         assert len(q3d.matrices[0].sources(False)) > 0
-        assert q3d.insert_reduced_matrix("JoinSeries", ["Source1", "Sink4"], "JointTest")
-        assert q3d.matrices[1].name == "JointTest"
-        q3d.matrices[1].delete()
-        assert q3d.insert_reduced_matrix("JoinSeries", ["Source1", "Sink4"], "JointTest", "New_net")
-        assert "New_net" in q3d.matrices[1].sources()
-        assert q3d.insert_reduced_matrix("JoinParallel", ["Source1", "Source2"], "JointTest2")
-        assert q3d.matrices[2].name == "JointTest2"
+        mm = q3d.insert_reduced_matrix("JoinSeries", ["Source1", "Sink4"], "JointTest_mm")
+        assert mm.name == "JointTest_mm"
+        mm.delete()
+        mm = q3d.insert_reduced_matrix("JoinSeries", ["Source1", "Sink4"], "JointTest_mm", "New_net")
+        assert "New_net" in mm.sources()
+        mm = q3d.insert_reduced_matrix("JoinParallel", ["Source1", "Source2"], "JointTest2_mm")
+        assert mm.name == "JointTest2_mm"
+        assert mm.delete()
+        mm = q3d.insert_reduced_matrix("JoinParallel", ["Box1", "Box1_1"], "JointTest2_mm")
+        assert mm.name == "JointTest2_mm"
         assert q3d.matrices[2].delete()
-        assert q3d.insert_reduced_matrix("JoinParallel", ["Box1", "Box1_1"], "JointTest2")
-        assert q3d.matrices[2].name == "JointTest2"
-        assert q3d.matrices[2].delete()
-        assert q3d.insert_reduced_matrix(
+        mm = q3d.insert_reduced_matrix(
             "JoinParallel", ["Box1", "Box1_1"], "JointTest2", "New_net", "New_source", "New_sink"
         )
-        assert "New_net" in q3d.matrices[2].sources()
-        assert q3d.matrices[2].add_operation(q3d.MATRIXOPERATIONS.JoinParallel, ["Box1_2", "New_net"])
-        assert len(q3d.matrices[2].operations) == 2
-        assert q3d.insert_reduced_matrix("FloatInfinity", None, "JointTest3")
-        assert q3d.matrices[3].name == "JointTest3"
-        assert q3d.insert_reduced_matrix(q3d.MATRIXOPERATIONS.MoveSink, "Source2", "JointTest4")
-        assert q3d.matrices[4].name == "JointTest4"
-        assert q3d.insert_reduced_matrix(q3d.MATRIXOPERATIONS.ReturnPath, "Source2", "JointTest5")
-        assert q3d.matrices[5].name == "JointTest5"
-        assert q3d.insert_reduced_matrix(q3d.MATRIXOPERATIONS.GroundNet, "Box1", "JointTest6")
-        assert q3d.matrices[6].name == "JointTest6"
-        assert q3d.insert_reduced_matrix(q3d.MATRIXOPERATIONS.FloatTerminal, "Source2", "JointTest7")
-        assert q3d.matrices[7].name == "JointTest7"
-        assert q3d.matrices[7].delete()
-        assert q3d.matrices[6].add_operation(q3d.MATRIXOPERATIONS.ReturnPath, "Source2")
+        assert "New_net" in mm.sources()
+        assert mm.add_operation(q3d.MATRIXOPERATIONS.JoinParallel, ["Box1_2", "New_net"])
+        assert len(mm.operations) == 2
+        mm = q3d.insert_reduced_matrix("FloatInfinity", None, "JointTest3_mm")
+        assert mm.name == "JointTest3_mm"
+        mm = q3d.insert_reduced_matrix(q3d.MATRIXOPERATIONS.MoveSink, "Source2", "JointTest4_mm")
+        assert mm.name == "JointTest4_mm"
+        mm = q3d.insert_reduced_matrix(q3d.MATRIXOPERATIONS.ReturnPath, "Source2", "JointTest5")
+        assert mm.name == "JointTest5"
+        mm = q3d.insert_reduced_matrix(q3d.MATRIXOPERATIONS.GroundNet, "Box1", "JointTest6")
+        assert mm.name == "JointTest6"
+        assert mm.add_operation(q3d.MATRIXOPERATIONS.ReturnPath, "Source2")
+        mm = q3d.insert_reduced_matrix(q3d.MATRIXOPERATIONS.FloatTerminal, "Source2", "JointTest7")
+        assert mm.name == "JointTest7"
+        assert mm.delete()
         full_list = q3d.matrices[0].get_sources_for_plot()
         mutual_list = q3d.matrices[0].get_sources_for_plot(
             get_self_terms=False, category=q3d.matrices[0].CATEGORIES.Q3D.ACL
@@ -306,54 +331,52 @@ class TestClass:
         assert q3d.matrices[0].get_sources_for_plot(first_element_filter="Box?", second_element_filter="B*2") == [
             "C(Box1,Box1_2)"
         ]
-        self.aedtapp.close_project(q3d.project_name, save=False)
 
-    def test_14_edit_sources(self, add_app):
-        q3d = add_app(application=Q3d, project_name=self.test_matrix, just_open=True)
+    def test_14_edit_sources(self, q3d_solved):
         sources_cg = {"Box1": ("2V", "45deg"), "Box1_2": "4V"}
         sources_ac = {"Box1:Source1": "2A"}
-        assert q3d.edit_sources(sources_cg, sources_ac)
+        assert q3d_solved.edit_sources(sources_cg, sources_ac)
 
         sources_cg = {"Box1": ("20V", "15deg"), "Box1_2": "40V"}
         sources_ac = {"Box1:Source1": "2A", "Box1_1:Source2": "20A"}
         sources_dc = {"Box1:Source1": "20V"}
-        assert q3d.edit_sources(sources_cg, sources_ac, sources_dc)
+        assert q3d_solved.edit_sources(sources_cg, sources_ac, sources_dc)
 
         sources_cg = {"Box1": "2V"}
         sources_ac = {"Box1:Source1": ["2"], "Box1_1:Source2": "5V"}
-        assert q3d.edit_sources(sources_cg, sources_ac)
+        assert q3d_solved.edit_sources(sources_cg, sources_ac)
 
         sources_cg = {"Box1": ["20V"], "Box1_2": "4V"}
         sources_ac = {"Box1:Source1": "2A"}
-        assert q3d.edit_sources(sources_cg, sources_ac)
+        assert q3d_solved.edit_sources(sources_cg, sources_ac)
 
         sources_dc = {"Box1:Source1": "20"}
-        assert q3d.edit_sources()
+        assert q3d_solved.edit_sources()
 
         sources_cg = {"Box2": "2V"}
-        assert not q3d.edit_sources(sources_cg)
+        assert not q3d_solved.edit_sources(sources_cg)
         sources_ac = {"Box1:Source2": "2V"}
-        assert not q3d.edit_sources(sources_ac)
+        assert not q3d_solved.edit_sources(sources_ac)
         sources_dc = {"Box1:Source2": "2V"}
-        assert not q3d.edit_sources(sources_dc)
-        sources = q3d.get_all_sources()
+        assert not q3d_solved.edit_sources(sources_dc)
+        sources = q3d_solved.get_all_sources()
         assert sources[0] == "Box1:Source1"
 
         sources_dc = {"Box1:Source1": ["20v"]}
-        assert q3d.edit_sources(None, None, sources_dc)
+        assert q3d_solved.edit_sources(None, None, sources_dc)
 
-        self.aedtapp.close_project(q3d.project_name, save=False)
+    def test_15_insert_reduced(self, q3d_solved):
+        q3d = q3d_solved
+        mm = q3d.insert_reduced_matrix("JoinSeries", ["Source1", "Sink4"], "JointTest_r")
+        assert mm.name == "JointTest_r"
+        mm = q3d.insert_reduced_matrix("JoinParallel", ["Source1", "Source2"], "JointTest2_r")
+        assert mm.name == "JointTest2_r"
+        mm = q3d.insert_reduced_matrix("FloatInfinity", None, "JointTest3_r")
+        assert mm.name == "JointTest3_r"
 
-    def test_15_export_matrix_data(self, add_app):
-        q3d = add_app(application=Q3d, project_name=self.test_matrix, just_open=True)
-        q3d.insert_reduced_matrix("JoinSeries", ["Source1", "Sink4"], "JointTest")
-        assert q3d.matrices[1].name == "JointTest"
-        q3d.insert_reduced_matrix("JoinParallel", ["Source1", "Source2"], "JointTest2")
-        assert q3d.matrices[2].name == "JointTest2"
-        q3d.insert_reduced_matrix("FloatInfinity", None, "JointTest3")
-        assert q3d.matrices[3].name == "JointTest3"
-        sweep = q3d.setups[0].add_sweep()
-        q3d.analyze_setup(q3d.active_setup, cores=6)
+    def test_15_export_matrix_data(self, q3d_solved):
+        q3d = q3d_solved
+        sweep = q3d.setups[0].sweeps[0]
         assert len(sweep.frequencies) > 0
         assert sweep.basis_frequencies == []
         assert q3d.export_matrix_data(os.path.join(self.local_scratch.path, "test.txt"))
@@ -437,19 +460,11 @@ class TestClass:
         assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), c_unit="H")
         assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), g_unit="fSie")
         assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), g_unit="A")
-        self.aedtapp.close_project(q3d.project_name, save=False)
 
-    def test_16_export_equivalent_circuit(self, add_app):
-        test_matrix2 = self.local_scratch.copyfile(
-            os.path.join(TESTS_SOLVERS_PATH, "example_models", test_subfolder, q2d_q3d + ".aedt"),
-            os.path.join(self.local_scratch.path, "test_14.aedt"),
-        )
-        q3d = add_app(application=Q3d, project_name=test_matrix2, just_open=True)
-        q3d.insert_reduced_matrix("JoinSeries", ["Source1", "Sink4"], "JointTest")
-        assert q3d.matrices[1].name == "JointTest"
-        q3d["d"] = "10mm"
-        q3d.modeler.duplicate_along_line(objid="Box1", vector=[0, "d", 0])
-        q3d.analyze_setup(q3d.active_setup, cores=6)
+    def test_equivalent_circuit(self, q3d_solved2):
+        q3d = q3d_solved2
+        exported_files = q3d_solved2.export_results()
+        assert len(exported_files) > 0
         assert q3d.export_equivalent_circuit(
             os.path.join(self.local_scratch.path, "test_export_circuit.cir"), variations=["d: 10mm"]
         )
@@ -500,38 +515,23 @@ class TestClass:
         assert q3d.export_equivalent_circuit(
             output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model="test"
         )
-        self.aedtapp.close_project(q3d.project_name, save=False)
 
-    def test_17_export_results_q3d(self, add_app):
-        q3d = add_app(application=Q3d, project_name=self.test_matrix, just_open=True)
-        exported_files = q3d.export_results()
-        assert len(exported_files) == 0
-        for setup_name in q3d.setup_names:
-            q3d.analyze_setup(setup_name, cores=6)
-        exported_files = q3d.export_results()
-        assert len(exported_files) > 0
-        q3d.setups[0].add_sweep()
-        q3d.analyze(cores=6)
-        exported_files = q3d.export_results()
-        assert len(exported_files) > 0
-        q3d.close_project(q3d.project_name, save=False)
+    def test_18_set_variable(self, aedtapp):
+        aedtapp.variable_manager.set_variable("var_test", expression="123")
+        aedtapp["var_test"] = "234"
+        assert "var_test" in aedtapp.variable_manager.design_variable_names
+        assert aedtapp.variable_manager.design_variables["var_test"].expression == "234"
 
-    def test_18_set_variable(self):
-        self.aedtapp.variable_manager.set_variable("var_test", expression="123")
-        self.aedtapp["var_test"] = "234"
-        assert "var_test" in self.aedtapp.variable_manager.design_variable_names
-        assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"
-
-    def test_19_assign_thin_conductor(self, add_app):
-        q3d = add_app(application=Q3d, project_name="thin", just_open=True)
+    def test_19_assign_thin_conductor(self, aedtapp):
+        q3d = aedtapp
         box = q3d.modeler.create_box([1, 1, 1], [10, 10, 10])
         assert q3d.assign_thin_conductor(box.top_face_z, material="copper", thickness=1, name="Thin1")
         rect = q3d.modeler.create_rectangle("X", [1, 1, 1], [10, 10])
         assert q3d.assign_thin_conductor(rect, material="aluminum", thickness="3mm", name="")
         assert not q3d.assign_thin_conductor(box, material="aluminum", thickness="3mm", name="")
 
-    def test_20_auto_identify_no_metal(self, add_app):
-        q3d = add_app(application=Q3d, project_name="no_metal", just_open=True)
+    def test_20_auto_identify_no_metal(self, aedtapp):
+        q3d = aedtapp
         q3d.modeler.create_box([0, 0, 0], [10, 20, 30], material="vacuum")
         assert q3d.auto_identify_nets()
         assert not q3d.nets

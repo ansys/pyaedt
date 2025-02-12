@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import csv
 from ctypes import POINTER
 from ctypes import byref
 from ctypes import c_char_p
@@ -110,6 +109,7 @@ class OptimizationGoalsTable:
     @property
     def row_count(self) -> int:
         """Number of golas in the optimization goals table.
+
         The default is `0`.
 
         Returns
@@ -123,6 +123,7 @@ class OptimizationGoalsTable:
 
     def row(self, row_index) -> list:
         """Get the values for one row of the optimization goals table.
+
         The values are returned as a list: [value1, value2, ..., value7].
 
         Parameters
@@ -296,41 +297,33 @@ class OptimizationGoalsTable:
         status = self._dll.setDesignGoals()
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
-    def save_goals(self, design, file_path) -> str:
-        """Save the optimization goals from a design's optimization goals table to a CSV file.
+    def save_goals(self, file_path) -> str:
+        """Save the optimization goals from a design's optimization goals table to a config file.
 
         Parameters
         ----------
-        design: The design object containing the optimization goals table.
-        file_path: The path to the CSV file where the goals will be saved.
+        file_path: The path to the config file where the goals will be saved.
         """
         with open(file_path, mode="w", newline="") as file:
-            writer = csv.writer(file)
-            writer.writerow(
-                ["Start Frequency", "Stop Frequency", "Goal Value", "Condition", "Parameter", "Weight", "Enabled"]
-            )
-            for row_index in range(design.optimization_goals_table.row_count):
-                row_data = design.optimization_goals_table.row(row_index)
-                writer.writerow(row_data)
+            for row_index in range(self.row_count):
+                row_data = self.row(row_index)
+                slash_separated = "/".join(row_data)
+                file.write(slash_separated + "\n")
 
     def load_goals(self, file_path) -> str:
-        """Load optimization goals from a CSV file into this optimization goals table.
+        """Load optimization goals from a config file into this optimization goals table.
 
         Parameters
         ----------
         file_path: str
-            The path to the CSV file from which the goals will be loaded.
+            The path to the config file from which the goals will be loaded.
         """
-        try:
-            with open(file_path, mode="r", newline="") as file:
-                reader = csv.reader(file)
-                next(reader, None)
-                for row in reader:
-                    self.append_row(*row)
-        except FileNotFoundError:
-            print(f"File {file_path} not found.")
-        except Exception as e:
-            print(f"An error occurred while loading goals: {e}")
+        with open(file_path, mode="r", newline="") as file:
+            self.clear_goal_entries()
+            lines = file.readlines()
+            for line in lines:
+                row = line.strip().split("/")
+                self.append_row(*row)
 
     def adjust_goal_frequency(self, adjust_goal_frequency_string):
         """Adjust all goal frequencies in the table by the adjusting

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -97,6 +97,7 @@ def hfss3dl_b(add_app):
 class TestClass:
     def test_01_hfss_export(self, aedtapp, add_app):
         aedtapp.mesh.assign_length_mesh("sub")
+        aedtapp.boundaries[-1].props
         conf_file = aedtapp.configurations.export_config()
         assert aedtapp.configurations.validate(conf_file)
         filename = aedtapp.design_name

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -67,19 +67,19 @@ from ansys.aedt.core import Desktop
 from ansys.aedt.core import Edb
 from ansys.aedt.core import Hfss
 from ansys.aedt.core.aedt_logger import pyaedt_logger
+from ansys.aedt.core.filtersolutions import DistributedDesign
+from ansys.aedt.core.filtersolutions import LumpedDesign
 from ansys.aedt.core.generic.filesystem import Scratch
 from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import inside_desktop
 
 local_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(local_path)
 
 # Initialize default desktop configuration
-default_version = "2024.2"
+default_version = "2025.1"
 
 os.environ["ANSYSEM_FEATURE_SS544753_ICEPAK_VIRTUALMESHREGION_PARADIGM_ENABLE"] = "1"
-if inside_desktop and "oDesktop" in dir(sys.modules["__main__"]):
-    default_version = sys.modules["__main__"].oDesktop.GetVersion()[0:6]
+
 config = {
     "desktopVersion": default_version,
     "NonGraphical": True,
@@ -228,3 +228,15 @@ def add_edb(local_scratch):
         )
 
     return _method
+
+
+@pytest.fixture(scope="function")
+def lumped_design():
+    """Fixture for creating a LumpedDesign object."""
+    return LumpedDesign(config["desktopVersion"])
+
+
+@pytest.fixture(scope="function")
+def distributed_design():
+    """Fixture for creating a DistributedDesign object."""
+    return DistributedDesign(config["desktopVersion"])
