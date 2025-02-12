@@ -733,12 +733,20 @@ def _preview_pyvista(dict_in, decimation=0, output_stls=None):
 
 
 @pyaedt_function_handler()
-def nastran_to_stl(input_file, output_folder=None, decimation=0, enable_planar_merge="True", preview=False):
+def nastran_to_stl(
+    input_file,
+    output_folder=None,
+    decimation=0,
+    enable_planar_merge="True",
+    preview=False,
+    remove_triple_constraints=False,
+):
     """Convert the Nastran file into stl."""
     logger = logging.getLogger("Global")
     nas_to_dict = _parse_nastran(input_file)
 
-    _remove_triple_constraints(nas_to_dict)
+    if remove_triple_constraints:
+        _remove_triple_constraints(nas_to_dict)
 
     empty = True
     for assembly in nas_to_dict["Assemblies"].values():
@@ -763,11 +771,34 @@ def nastran_to_stl(input_file, output_folder=None, decimation=0, enable_planar_m
 @pyaedt_function_handler()
 def _remove_triple_constraints(dict_in):
     """Remove the triple constraints by creating separated bodies."""
+    logger = logging.getLogger("Global")
+    # get the data
     points = copy.deepcopy(dict_in["Points"])
+    sets = copy.deepcopy(dict_in["Sets"])
+    set_v1 = min([s["Elements"] for s in sets.values()], key=len)
+    set_v2 = max([s["Elements"] for s in sets.values()], key=len)
+    set_all = {trg for s in sets.values() for trg in s["Elements"]}
     assemblies_trg = {}
-    for a in dict_in["Assemblies"]:
-        if a["Triangles"]:
-            assemblies_trg = copy.deepcopy(a["Triangles"])
+    assemblies_trgid = {}
+    for a, v in dict_in["Assemblies"].items():
+        if v["Triangles"]:
+            assemblies_trg[a] = copy.deepcopy(v["Triangles"])
+            assemblies_trgid[a] = copy.deepcopy(v["Triangles_id"])
+    # do check on data
+    if not sets:
+        logger.error("Sets are not defined in the Nastran file. Ignoring 'remove_triple_constraints' option.")
+        return dict_in
+
+    # remove the trg belonging to the triple constraints
+    for a, v in assemblies_trg.items():
+        for body_id, trg_list in v.items():
+            new_trg_list = []
+            for i, t in enumerate(trg_list):
+                if assemblies_trgid[a][body_id][i] not in set_all:
+                    new_trg_list.append(t)
+            dict_in["Assemblies"][a]["Triangles"][body_id] = new_trg_list
+
+    return dict_in
 
 
 @pyaedt_function_handler()
