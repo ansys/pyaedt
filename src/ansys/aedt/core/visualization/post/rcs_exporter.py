@@ -51,11 +51,12 @@ class MonostaticRCSExporter:
     ----------
     app : :class:`pyaedt.Hfss`
         HFSS application instance.
-    setup_name : str
+    setup_name : str, optional
         Name of the setup. Make sure to build a setup string in the form of ``"SetupName : SetupSweep"``.
-    frequencies : list
+        The default is ``None``, in which case only the geometry is exported.
+    frequencies : list, optional
         Frequency list to export. Specify either a list of strings with units or a list of floats in Hertz units.
-        For example, ``["9GHz", 9e9]``.
+        For example, ``["9GHz", 9e9]``. The default is ``None``, in which case only the geometry is exported.
     expression : str, optional
         Monostatic expression name. The default value is ``"ComplexMonostaticRCSTheta"``.
     variations : dict, optional
@@ -77,8 +78,8 @@ class MonostaticRCSExporter:
     def __init__(
         self,
         app,
-        setup_name,
-        frequencies,
+        setup_name=None,
+        frequencies=None,
         expression=None,
         variations=None,
         overwrite=True,
@@ -100,7 +101,7 @@ class MonostaticRCSExporter:
         self.variations = variations
         self.overwrite = overwrite
 
-        if not isinstance(frequencies, list):
+        if frequencies and not isinstance(frequencies, list):
             self.frequencies = [frequencies]
         else:
             self.frequencies = frequencies
@@ -160,9 +161,11 @@ class MonostaticRCSExporter:
         return solution_data
 
     @pyaedt_function_handler()
-    def export_rcs(self, name="rcs_data", metadata_name="pyaedt_rcs_metadata"):
+    def export_rcs(self, name="rcs_data", metadata_name="pyaedt_rcs_metadata", only_geometry=False):
         """Export RCS solution data."""
         # Output directory
+        if not self.setup_name:
+            self.setup_name = "Nominal"
         solution_setup_name = self.setup_name.replace(":", "_").replace(" ", "")
         full_setup = f"{solution_setup_name}"
         export_path = Path(self.__app.working_directory) / full_setup
@@ -188,47 +191,45 @@ class MonostaticRCSExporter:
 
         # Export monostatic RCS
         if self.overwrite or not file_exists:
-
-            data = self.get_monostatic_rcs()
-
-            if not data or data.number_of_variations != 1:  # pragma: no cover
-                self.__app.logger.error("Data can not be obtained.")
-                return False
-
-            df = data.full_matrix_real_imag[0] + complex(0, 1) * data.full_matrix_real_imag[1]
-            df.index.names = [*data.variations[0].keys(), *data.intrinsics.keys()]
-            df = df.reset_index(level=[*data.variations[0].keys()], drop=True)
-            df = unit_converter(
-                df, unit_system="Length", input_units=data.units_data[self.expression], output_units="meter"
-            )
-
-            df.rename(
-                columns={
-                    self.expression: self.column_name,
-                },
-                inplace=True,
-            )
-
-            try:
-                df.to_hdf(self.data_file, key="df", mode="w", format="table")
-            except ImportError as e:  # pragma: no cover
-                self.__app.logger.error(f"PyTables is not installed: {e}")
-                return False
-
-            if not self.data_file.is_file():
-                self.__app.logger.error("RCS data file not exported.")
-                return False
-        else:
-            self.__app.logger.info("Using existing RCS file.")
-
-        # Export geometry
-        if self.data_file.is_file():
+            # Export geometry
             geometry_path = export_path / "geometry"
             if not geometry_path.exists():
                 geometry_path.mkdir()
             obj_list = self.__create_geometries(geometry_path)
             if obj_list:
                 self.__model_info["object_list"] = obj_list
+
+            if only_geometry:
+                file_name = None
+            else:
+                data = self.get_monostatic_rcs()
+                if not data or data.number_of_variations != 1:  # pragma: no cover
+                    self.__app.logger.error("Data can not be obtained.")
+                    return False
+
+                df = data.full_matrix_real_imag[0] + complex(0, 1) * data.full_matrix_real_imag[1]
+                df.index.names = [*data.variations[0].keys(), *data.intrinsics.keys()]
+                df = df.reset_index(level=[*data.variations[0].keys()], drop=True)
+                df = unit_converter(
+                    df, unit_system="Length", input_units=data.units_data[self.expression], output_units="meter"
+                )
+                df.rename(
+                    columns={
+                        self.expression: self.column_name,
+                    },
+                    inplace=True,
+                )
+                try:
+                    df.to_hdf(self.data_file, key="df", mode="w", format="table")
+                except ImportError as e:  # pragma: no cover
+                    self.__app.logger.error(f"PyTables is not installed: {e}")
+                    return False
+
+                if not self.data_file.is_file():
+                    self.__app.logger.error("RCS data file not exported.")
+                    return False
+        else:
+            self.__app.logger.info("Using existing RCS file.")
 
         items = {
             "solution": self.solution,
@@ -249,7 +250,8 @@ class MonostaticRCSExporter:
             return False
 
         self.__metadata_file = pyaedt_metadata_file
-        self.__rcs_data = MonostaticRCSData(str(pyaedt_metadata_file))
+        if not only_geometry:
+            self.__rcs_data = MonostaticRCSData(str(pyaedt_metadata_file))
         return pyaedt_metadata_file
 
     @pyaedt_function_handler()

@@ -174,7 +174,8 @@ class MonostaticRCSData(object):
     @property
     def name(self):
         """Data name."""
-        self.__name = self.raw_data.columns[0]
+        if self.raw_data:
+            self.__name = self.raw_data.columns[0]
         return self.__name
 
     @property
@@ -196,7 +197,7 @@ class MonostaticRCSData(object):
     @property
     def frequencies(self):
         """Available frequencies."""
-        if "Freq" in self.raw_data.index.names:
+        if self.raw_data and "Freq" in self.raw_data.index.names:
             frequencies = np.unique(np.array(self.raw_data.index.get_level_values("Freq")))
             self.__frequencies = frequencies.tolist()
         return self.__frequencies
@@ -204,7 +205,7 @@ class MonostaticRCSData(object):
     @property
     def available_incident_wave_theta(self):
         """Available incident wave Theta."""
-        if "IWaveTheta" in self.raw_data.index.names:
+        if self.raw_data and "IWaveTheta" in self.raw_data.index.names:
             self.__available_incident_wave_theta = np.unique(
                 np.array(self.raw_data.index.get_level_values("IWaveTheta"))
             )
@@ -213,7 +214,7 @@ class MonostaticRCSData(object):
     @property
     def incident_wave_theta(self):
         """Active incident wave Theta."""
-        if self.__incident_wave_theta is None:
+        if self.raw_data and self.__incident_wave_theta is None:
             self.__incident_wave_theta = self.available_incident_wave_theta[0]
         return self.__incident_wave_theta
 
@@ -228,14 +229,14 @@ class MonostaticRCSData(object):
     @property
     def available_incident_wave_phi(self):
         """Available incident wave Phi."""
-        if "IWavePhi" in self.raw_data.index.names:
+        if self.raw_data and "IWavePhi" in self.raw_data.index.names:
             self.__available_incident_wave_phi = np.unique(np.array(self.raw_data.index.get_level_values("IWavePhi")))
         return self.__available_incident_wave_phi
 
     @property
     def incident_wave_phi(self):
         """Active incident wave Phi."""
-        if self.__incident_wave_phi is None:
+        if self.raw_data and self.__incident_wave_phi is None:
             self.__incident_wave_phi = self.available_incident_wave_phi[0]
         return self.__incident_wave_phi
 
@@ -342,213 +343,234 @@ class MonostaticRCSData(object):
     @property
     def rcs(self):
         """RCS data for active frequency, theta and phi."""
-        data = self.rcs_active_theta_phi
-        data = data[data["Freq"] == self.frequency]
-        data = data.drop(columns=["Freq"])
-        value = data.values
-        return value[0][0]
+        rcs_value = None
+        if self.raw_data:
+            data = self.rcs_active_theta_phi
+            data = data[data["Freq"] == self.frequency]
+            data = data.drop(columns=["Freq"])
+            value = data.values
+            rcs_value = value[0][0]
+        return rcs_value
 
     @property
     def rcs_active_theta_phi(self):
         """RCS data for active theta and phi."""
-        data = self.rcs_active_theta
-        data = data[data["IWavePhi"] == self.incident_wave_phi]
-        data = data.drop(columns=["IWavePhi"])
-        return data
+        rcs_value = None
+        if self.rcs_active_theta:
+            data = self.rcs_active_theta
+            data = data[data["IWavePhi"] == self.incident_wave_phi]
+            rcs_value = data.drop(columns=["IWavePhi"])
+        return rcs_value
 
     @property
     def rcs_active_frequency(self):
         """RCS data for active frequency."""
-        data = self.raw_data.xs(key=self.frequency, level="Freq")
-        data_converted = conversion_function(data[self.name], self.data_conversion_function)
-        df = data_converted.reset_index()
-        df.columns = ["IWavePhi", "IWaveTheta", "Data"]
-        return df
+        value = None
+        if self.raw_data:
+            data = self.raw_data.xs(key=self.frequency, level="Freq")
+            data_converted = conversion_function(data[self.name], self.data_conversion_function)
+            df = data_converted.reset_index()
+            df.columns = ["IWavePhi", "IWaveTheta", "Data"]
+            value = df
+        return value
 
     @property
     def rcs_active_theta(self):
         """RCS data for active incident wave theta."""
-        data = self.raw_data.xs(key=self.incident_wave_theta, level="IWaveTheta")
-        if self.data_conversion_function:
-            data = conversion_function(data[self.name], self.data_conversion_function)
-        df = data.reset_index()
-        df.columns = ["Freq", "IWavePhi", "Data"]
-        return df
+        value = None
+        if self.raw_data:
+            data = self.raw_data.xs(key=self.incident_wave_theta, level="IWaveTheta")
+            if self.data_conversion_function:
+                data = conversion_function(data[self.name], self.data_conversion_function)
+            df = data.reset_index()
+            df.columns = ["Freq", "IWavePhi", "Data"]
+            value = df
+        return value
 
     @property
     def rcs_active_phi(self):
         """RCS data for active incident wave phi."""
-        data = self.raw_data.xs(key=self.incident_wave_phi, level="IWavePhi")
-        if self.data_conversion_function:
-            data = conversion_function(data[self.name], self.data_conversion_function)
-        df = data.reset_index()
-        df.columns = ["Freq", "IWaveTheta", "Data"]
-        return df
+        value = None
+        if self.raw_data:
+            data = self.raw_data.xs(key=self.incident_wave_phi, level="IWavePhi")
+            if self.data_conversion_function:
+                data = conversion_function(data[self.name], self.data_conversion_function)
+            df = data.reset_index()
+            df.columns = ["Freq", "IWaveTheta", "Data"]
+            value = df
+        return value
 
     @property
     def range_profile(self):
         """Range profile."""
-        data_conversion_function_original = self.data_conversion_function
-        self.data_conversion_function = None
-        data = self.rcs_active_theta_phi["Data"]
-        # Take needed properties
-        size = self.window_size
-        nfreq = len(self.frequencies)
+        value = None
+        if self.raw_data:
+            data_conversion_function_original = self.data_conversion_function
+            self.data_conversion_function = None
+            data = self.rcs_active_theta_phi["Data"]
+            # Take needed properties
+            size = self.window_size
+            nfreq = len(self.frequencies)
 
-        # Compute window
-        win_range, _ = self.window_function(self.window, nfreq)
-        windowed_data = data * win_range
+            # Compute window
+            win_range, _ = self.window_function(self.window, nfreq)
+            windowed_data = data * win_range
 
-        # Perform FFT
-        sf_upsample = self.window_size / nfreq
-        windowed_data = np.fft.fftshift(sf_upsample * np.fft.ifft(windowed_data.to_numpy(), n=size))
+            # Perform FFT
+            sf_upsample = self.window_size / nfreq
+            windowed_data = np.fft.fftshift(sf_upsample * np.fft.ifft(windowed_data.to_numpy(), n=size))
 
-        self.data_conversion_function = data_conversion_function_original
-        data_converted = conversion_function(windowed_data, self.data_conversion_function)
+            self.data_conversion_function = data_conversion_function_original
+            data_converted = conversion_function(windowed_data, self.data_conversion_function)
 
-        df = unit_converter((self.frequencies[1] - self.frequencies[0]), "Freq", self.frequency_units, "Hz")
-        pd_t = 1.0 / df
-        dt = pd_t / size
-        c0 = 299792458
-        range_norm = dt * np.linspace(start=-0.5 * size, stop=0.5 * size - 1, num=size) / 2 * c0
+            df = unit_converter((self.frequencies[1] - self.frequencies[0]), "Freq", self.frequency_units, "Hz")
+            pd_t = 1.0 / df
+            dt = pd_t / size
+            c0 = 299792458
+            range_norm = dt * np.linspace(start=-0.5 * size, stop=0.5 * size - 1, num=size) / 2 * c0
 
-        index_names = ["Range", "Data"]
-        df = pd.DataFrame(columns=index_names)
-        df["Range"] = range_norm
-        df["Data"] = data_converted
+            index_names = ["Range", "Data"]
+            df = pd.DataFrame(columns=index_names)
+            df["Range"] = range_norm
+            df["Data"] = data_converted
+            value = df
 
-        return df
+        return value
 
     @property
     def waterfall(self):
         """Waterfall."""
-        waterfall_data = []
-        original_phi = self.incident_wave_phi
-        for phi in self.available_incident_wave_phi:
-            self.incident_wave_phi = phi
-            range_profile = self.range_profile
-            new_data = {
-                "Range": range_profile["Range"],
-                "Data": range_profile["Data"],
-                "IWavePhi": np.full(range_profile["Range"].size, phi),
-            }
-            waterfall_data.append(pd.DataFrame(new_data))
-        self.incident_wave_phi = original_phi
-        waterfall_df = pd.concat(waterfall_data, ignore_index=True)
+        waterfall_df = None
+        if self.raw_data:
+            waterfall_data = []
+            original_phi = self.incident_wave_phi
+            for phi in self.available_incident_wave_phi:
+                self.incident_wave_phi = phi
+                range_profile = self.range_profile
+                new_data = {
+                    "Range": range_profile["Range"],
+                    "Data": range_profile["Data"],
+                    "IWavePhi": np.full(range_profile["Range"].size, phi),
+                }
+                waterfall_data.append(pd.DataFrame(new_data))
+            self.incident_wave_phi = original_phi
+            waterfall_df = pd.concat(waterfall_data, ignore_index=True)
         return waterfall_df
 
     @property
     def isar_2d(self):
         """ISAR 2D."""
-        phis = self.available_incident_wave_phi
-        thetas = self.available_incident_wave_theta
-        nfreq = len(self.frequencies)
-        c0 = 299792458
+        df = None
+        if self.raw_data:
+            phis = self.available_incident_wave_phi
+            thetas = self.available_incident_wave_theta
+            nfreq = len(self.frequencies)
+            c0 = 299792458
 
-        ndrng = self.upsample_range
-        nxrng = self.upsample_azimuth
-        data_conversion_function_original = self.data_conversion_function
-        self.data_conversion_function = None
-        if self.aspect_range == "Horizontal":
-            nangles = len(phis)
-            azel_samples = -phis.reshape(1, -1)
-            data = self.rcs_active_theta["Data"]
-        else:
-            nangles = len(thetas)
-            azel_samples = 90.0 - thetas.reshape(1, -1)
-            data = self.rcs_active_phi["Data"]
+            ndrng = self.upsample_range
+            nxrng = self.upsample_azimuth
+            data_conversion_function_original = self.data_conversion_function
+            self.data_conversion_function = None
+            if self.aspect_range == "Horizontal":
+                nangles = len(phis)
+                azel_samples = -phis.reshape(1, -1)
+                data = self.rcs_active_theta["Data"]
+            else:
+                nangles = len(thetas)
+                azel_samples = 90.0 - thetas.reshape(1, -1)
+                data = self.rcs_active_phi["Data"]
 
-        azel_samples = np.unwrap(np.radians(azel_samples))
-        azel_ctr = np.mean(azel_samples)
+            azel_samples = np.unwrap(np.radians(azel_samples))
+            azel_ctr = np.mean(azel_samples)
 
-        azel_span = np.max(azel_samples) - np.min(azel_samples)
+            azel_span = np.max(azel_samples) - np.min(azel_samples)
 
-        freqs = unit_converter(self.frequencies, "Freq", self.frequency_units, "Hz")
-        freqs = np.unique(freqs)
-        freqs = freqs.reshape(-1, 1)
+            freqs = unit_converter(self.frequencies, "Freq", self.frequency_units, "Hz")
+            freqs = np.unique(freqs)
+            freqs = freqs.reshape(-1, 1)
 
-        # True fx and fy locations for this f, az grid
-        fxtrue = freqs * np.cos(azel_samples - azel_ctr)
-        fxtrue = fxtrue.reshape(-1)
-        fytrue = freqs * np.sin(azel_samples - azel_ctr)
-        fytrue = fytrue.reshape(-1)
+            # True fx and fy locations for this f, az grid
+            fxtrue = freqs * np.cos(azel_samples - azel_ctr)
+            fxtrue = fxtrue.reshape(-1)
+            fytrue = freqs * np.sin(azel_samples - azel_ctr)
+            fytrue = fytrue.reshape(-1)
 
-        fxmin = np.min(freqs)
-        fxmax = np.max(freqs)
-        f_c = np.mean(freqs)
-        fymax = np.sin(azel_span / 2) * f_c
+            fxmin = np.min(freqs)
+            fxmax = np.max(freqs)
+            f_c = np.mean(freqs)
+            fymax = np.sin(azel_span / 2) * f_c
 
-        fx = np.linspace(fxmin, fxmax, nfreq)  # desired downrange frequencies
-        fy = np.linspace(-fymax, fymax, nangles)  # desired crossrange frequencies
-        grid_x, grid_y = np.meshgrid(fx, fy)
+            fx = np.linspace(fxmin, fxmax, nfreq)  # desired downrange frequencies
+            fy = np.linspace(-fymax, fymax, nangles)  # desired crossrange frequencies
+            grid_x, grid_y = np.meshgrid(fx, fy)
 
-        rdata = scipy.interpolate.griddata((fxtrue, fytrue), data, (grid_x, grid_y), "linear", fill_value=0.0)
-        rdata = rdata.transpose()
+            rdata = scipy.interpolate.griddata((fxtrue, fytrue), data, (grid_x, grid_y), "linear", fill_value=0.0)
+            rdata = rdata.transpose()
 
-        winx, winx_sum = self.window_function(self.window, nfreq)
-        winy, winy_sum = self.window_function(self.window, nangles)
+            winx, winx_sum = self.window_function(self.window, nfreq)
+            winy, winy_sum = self.window_function(self.window, nangles)
 
-        winx = winx.reshape(-1, 1)
-        winy = winy.reshape(1, -1)
+            winx = winx.reshape(-1, 1)
+            winy = winy.reshape(1, -1)
 
-        # Zero padding
-        if ndrng < nfreq:
-            # Warning('nx should be at least as large as the length of f -- increasing nx')
-            self.__logger.warning("nx should be at least as large as the number of frequencies.")
-            ndrng = nfreq
-        if nxrng < nangles:
-            # warning('ny should be at least as large as the length of az -- increasing ny');
-            self.__logger.warning("ny should be at least as large as the number of azimuth angles.")
-            nxrng = nangles
+            # Zero padding
+            if ndrng < nfreq:
+                # Warning('nx should be at least as large as the length of f -- increasing nx')
+                self.__logger.warning("nx should be at least as large as the number of frequencies.")
+                ndrng = nfreq
+            if nxrng < nangles:
+                # warning('ny should be at least as large as the length of az -- increasing ny');
+                self.__logger.warning("ny should be at least as large as the number of azimuth angles.")
+                nxrng = nangles
 
-        iq = np.zeros((ndrng, nxrng), dtype=np.complex128)
-        xshift = (ndrng - nfreq) // 2
-        yshift = (nxrng - nangles) // 2
-        iq[xshift : xshift + nfreq, yshift : yshift + nangles] = np.multiply(rdata, winx * winy)
+            iq = np.zeros((ndrng, nxrng), dtype=np.complex128)
+            xshift = (ndrng - nfreq) // 2
+            yshift = (nxrng - nangles) // 2
+            iq[xshift : xshift + nfreq, yshift : yshift + nangles] = np.multiply(rdata, winx * winy)
 
-        # Normalize so that unit amplitude scatterers have about unit amplitude in
-        # the image (normalized for the windows).  The "about" comes because of the
-        # truncation of the polar shape into a rectangular shape.
-        #
-        iq = np.fft.fftshift(iq) * ndrng * nxrng / winx_sum / winy_sum
-        isar_image = np.fft.fftshift(np.fft.ifft2(iq))
-        # Nx x Ny
-        isar_image = conversion_function(isar_image, self.data_conversion_function)
+            # Normalize so that unit amplitude scatterers have about unit amplitude in
+            # the image (normalized for the windows).  The "about" comes because of the
+            # truncation of the polar shape into a rectangular shape.
+            #
+            iq = np.fft.fftshift(iq) * ndrng * nxrng / winx_sum / winy_sum
+            isar_image = np.fft.fftshift(np.fft.ifft2(iq))
+            # Nx x Ny
+            isar_image = conversion_function(isar_image, self.data_conversion_function)
 
-        isar_image = isar_image.transpose()
-        isar_image = isar_image[:, ::-1]
+            isar_image = isar_image.transpose()
+            isar_image = isar_image[:, ::-1]
 
-        #  Compute the image plane downrange and cross-range distance vectors (in
-        #  meters)
+            #  Compute the image plane downrange and cross-range distance vectors (in
+            #  meters)
 
-        dfx = fx[1] - fx[0]  # difference in x-frequencies
-        dfy = fy[1] - fy[0]  # difference in y-frequencies
-        dx = c0 / (2 * dfx) / ndrng
-        dy = c0 / (2 * dfy) / nxrng
-        x = np.transpose(np.arange(start=0, step=dx, stop=ndrng * dx))  # ndrng x 1
-        y = np.arange(start=0, step=dy, stop=nxrng * dy)  # 1 x Ny
+            dfx = fx[1] - fx[0]  # difference in x-frequencies
+            dfy = fy[1] - fy[0]  # difference in y-frequencies
+            dx = c0 / (2 * dfx) / ndrng
+            dy = c0 / (2 * dfy) / nxrng
+            x = np.transpose(np.arange(start=0, step=dx, stop=ndrng * dx))  # ndrng x 1
+            y = np.arange(start=0, step=dy, stop=nxrng * dy)  # 1 x Ny
 
-        #  Make the center x and y values zero
-        #  these two lines ensure one value of x and y are zero when nx or ny are even
+            #  Make the center x and y values zero
+            #  these two lines ensure one value of x and y are zero when nx or ny are even
 
-        range_values = x - x[ndrng // 2]
-        range_values_interp = np.linspace(range_values[0], range_values[-1], num=ndrng)
-        cross_range_values = y - y[nxrng // 2]
-        cross_range_values_interp = np.linspace(cross_range_values[0], cross_range_values[-1], num=nxrng)
+            range_values = x - x[ndrng // 2]
+            range_values_interp = np.linspace(range_values[0], range_values[-1], num=ndrng)
+            cross_range_values = y - y[nxrng // 2]
+            cross_range_values_interp = np.linspace(cross_range_values[0], cross_range_values[-1], num=nxrng)
 
-        RR, XR = np.meshgrid(range_values_interp, cross_range_values_interp)
+            RR, XR = np.meshgrid(range_values_interp, cross_range_values_interp)
 
-        RR_flat = RR.ravel()
-        XR_flat = XR.ravel()
-        isar_image_flat = isar_image.ravel()
+            RR_flat = RR.ravel()
+            XR_flat = XR.ravel()
+            isar_image_flat = isar_image.ravel()
 
-        index_names = ["Down-range", "Cross-range", "Data"]
-        df = pd.DataFrame(columns=index_names)
-        df["Down-range"] = RR_flat
-        df["Cross-range"] = XR_flat
-        df["Data"] = isar_image_flat
+            index_names = ["Down-range", "Cross-range", "Data"]
+            df = pd.DataFrame(columns=index_names)
+            df["Down-range"] = RR_flat
+            df["Cross-range"] = XR_flat
+            df["Data"] = isar_image_flat
 
-        self.data_conversion_function = data_conversion_function_original
+            self.data_conversion_function = data_conversion_function_original
         return df
 
     @staticmethod
