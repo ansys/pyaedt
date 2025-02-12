@@ -39,7 +39,7 @@ class ReportSpec:
     """Data class containing all report template specifications."""
 
     document_prefix: str = "ANSS"
-    ansys_version: str = "2023R2"
+    ansys_version: str = "2025R1"
     revision: str = "Rev 1.0"
     logo_name: str = os.path.join(os.path.dirname(__file__), "../../generic/Ansys.png")
     company_name: str = "Ansys Inc."
@@ -73,7 +73,7 @@ class ReportSpec:
 
 
 class AnsysReport(FPDF):
-    def __init__(self, version="2023R2", design_name="design1", project_name="AnsysProject", tempplate_json_file=None):
+    def __init__(self, version="2025R1", design_name="design1", project_name="AnsysProject", tempplate_json_file=None):
         super().__init__()
         self.report_specs = ReportSpec()
         self.read_template(tempplate_json_file)
