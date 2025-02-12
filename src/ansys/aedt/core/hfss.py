@@ -31,7 +31,6 @@ import math
 import os
 from pathlib import Path
 import tempfile
-from typing import TYPE_CHECKING
 import warnings
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
@@ -53,13 +52,11 @@ from ansys.aedt.core.modeler import cad
 from ansys.aedt.core.modeler.cad.component_array import ComponentArray
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
+from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
 from ansys.aedt.core.modules.boundary.hfss_boundary import NearFieldSetup
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from ansys.aedt.core.modules.setup_templates import SetupKeys
-
-if TYPE_CHECKING:  # pragma: no cover
-    from ansys.aedt.core.modules.boundary.common import BoundaryObject
 
 
 class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
