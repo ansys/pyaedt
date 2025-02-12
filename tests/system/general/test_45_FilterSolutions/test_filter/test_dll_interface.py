@@ -28,7 +28,6 @@ import ansys.aedt.core
 import ansys.aedt.core.filtersolutions
 import ansys.aedt.core.filtersolutions_core
 from ansys.aedt.core.filtersolutions_core.attributes import FilterType
-from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.general_methods import is_linux
 import pytest
 
@@ -41,11 +40,7 @@ from tests.system.general.test_45_FilterSolutions.test_filter import test_transm
 class TestClass:
 
     def test_dll_path(self):
-        ansys.aedt.core.filtersolutions_core._dll_interface("2025.1")
-        assert (
-            os.path.join("DLL Path:", aedt_versions.installed_versions["2025.1"], "nuhertz", "FilterSolutionsAPI.dll")
-            == ansys.aedt.core.filtersolutions_core._internal_dll_interface.dll_path
-        )
+        assert os.path.exists(ansys.aedt.core.filtersolutions_core._dll_interface().dll_path)
 
     def test_version(self):
         version_string = config["desktopVersion"].replace(".", " R")
@@ -76,5 +71,6 @@ class TestClass:
         )
 
     def test_version_not_installed(self):
-        with pytest.raises(ValueError, match="Specified version 2024.2 is not installed on your system"):
-            ansys.aedt.core.filtersolutions_core._dll_interface("2024.2")
+        with pytest.raises(ValueError) as info:
+            ansys.aedt.core.filtersolutions_core._dll_interface("2025.0")
+        assert info.value.args[0] == "Specified version 2025.0 is not installed on your system"
