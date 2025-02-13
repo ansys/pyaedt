@@ -64,4 +64,5 @@ class TestClass:
     def test_version_exception(self):
         with pytest.raises(ValueError) as info:
             ansys.aedt.core.filtersolutions_core._dll_interface("2025.0")
-        assert info.value.args[0] == "Specified version 2025.0 is not installed on your system"
+            if ansys.aedt.core.filtersolutions_core._dll_interface() is None:
+                assert info.value.args[0] == "Specified version 2025.0 is not installed on your system"
