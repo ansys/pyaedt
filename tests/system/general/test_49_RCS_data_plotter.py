@@ -334,8 +334,111 @@ class TestClass:
 
     def test_15_rcs_plotter_only_settings(self):
         rcs_plotter = MonostaticRCSPlotter()
-        rcs_plotter.show_geometry = False
-
         rcs_plotter.add_range_profile_settings()
         plot = rcs_plotter.plot_scene(show=False)
         assert isinstance(plot, Plotter)
+
+    def test_16_rcs_plotter_add_incident_rcs_settings(self):
+        rcs_data = MonostaticRCSData(input_file=str(self.metadata_file))
+        rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_data)
+        rcs_plotter.add_incident_rcs_settings()
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+        rcs_plotter.add_incident_rcs_settings(theta_angle=80.0, line_color="blue")
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+        rcs_plotter.add_incident_rcs_settings(theta_angle=250.0, phi_angle=45.0, arrow_color="black")
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+        rcs_plotter.add_incident_rcs_settings(phi_angle=45.0, arrow_color="pink")
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+        rcs_plotter = MonostaticRCSPlotter()
+        rcs_plotter.add_incident_rcs_settings(theta_angle=250.0, phi_angle=45.0)
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+    def test_17_rcs_plotter_add_incident_range_profile_settings(self):
+        rcs_data = MonostaticRCSData(input_file=str(self.metadata_file))
+        rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_data)
+        rcs_plotter.add_incident_range_profile_settings()
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+        rcs_plotter = MonostaticRCSPlotter()
+        rcs_plotter.add_incident_range_profile_settings()
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+    def test_18_rcs_plotter_add_incident_isar3d_settings(self):
+        rcs_data = MonostaticRCSData(input_file=str(self.metadata_file))
+        rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_data)
+        rcs_plotter.add_incident_isar_3d_settings()
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+        rcs_plotter.add_incident_isar_3d_settings(theta_angle=80.0, line_color="blue")
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+        rcs_plotter.add_incident_isar_3d_settings(theta_angle=250.0, phi_angle=45.0, arrow_color="black")
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+        rcs_plotter = MonostaticRCSPlotter()
+        rcs_plotter.add_incident_isar_3d_settings(theta_angle=250.0, phi_angle=45.0)
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+    def test_19_rcs_plotter_add_incident_isar2d_settings(self):
+        rcs_data = MonostaticRCSData(input_file=str(self.metadata_file))
+        rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_data)
+        rcs_plotter.add_incident_isar_2d_settings()
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+        rcs_plotter.add_incident_isar_2d_settings(phi_angle=80.0, line_color="blue")
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+        rcs_plotter = MonostaticRCSPlotter()
+        rcs_plotter.add_incident_isar_2d_settings(phi_angle=45.0)
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+    def test_20_rcs_plotter_add_incident_waterfall_settings(self):
+        rcs_data = MonostaticRCSData(input_file=str(self.metadata_file))
+        rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_data)
+        rcs_plotter.add_incident_waterfall_settings()
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+        rcs_plotter.add_incident_waterfall_settings(phi_angle=250.0, line_color="blue")
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+        rcs_plotter = MonostaticRCSPlotter()
+        rcs_plotter.add_incident_waterfall_settings(phi_angle=12.0)
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()

@@ -174,7 +174,7 @@ class MonostaticRCSData(object):
     @property
     def name(self):
         """Data name."""
-        if self.raw_data:
+        if isinstance(self.raw_data, pd.DataFrame):
             self.__name = self.raw_data.columns[0]
         return self.__name
 
@@ -197,7 +197,7 @@ class MonostaticRCSData(object):
     @property
     def frequencies(self):
         """Available frequencies."""
-        if self.raw_data and "Freq" in self.raw_data.index.names:
+        if isinstance(self.raw_data, pd.DataFrame) and "Freq" in self.raw_data.index.names:
             frequencies = np.unique(np.array(self.raw_data.index.get_level_values("Freq")))
             self.__frequencies = frequencies.tolist()
         return self.__frequencies
@@ -205,7 +205,7 @@ class MonostaticRCSData(object):
     @property
     def available_incident_wave_theta(self):
         """Available incident wave Theta."""
-        if self.raw_data and "IWaveTheta" in self.raw_data.index.names:
+        if isinstance(self.raw_data, pd.DataFrame) and "IWaveTheta" in self.raw_data.index.names:
             self.__available_incident_wave_theta = np.unique(
                 np.array(self.raw_data.index.get_level_values("IWaveTheta"))
             )
@@ -214,7 +214,7 @@ class MonostaticRCSData(object):
     @property
     def incident_wave_theta(self):
         """Active incident wave Theta."""
-        if self.raw_data and self.__incident_wave_theta is None:
+        if isinstance(self.raw_data, pd.DataFrame) and self.__incident_wave_theta is None:
             self.__incident_wave_theta = self.available_incident_wave_theta[0]
         return self.__incident_wave_theta
 
@@ -229,14 +229,14 @@ class MonostaticRCSData(object):
     @property
     def available_incident_wave_phi(self):
         """Available incident wave Phi."""
-        if self.raw_data and "IWavePhi" in self.raw_data.index.names:
+        if isinstance(self.raw_data, pd.DataFrame) and "IWavePhi" in self.raw_data.index.names:
             self.__available_incident_wave_phi = np.unique(np.array(self.raw_data.index.get_level_values("IWavePhi")))
         return self.__available_incident_wave_phi
 
     @property
     def incident_wave_phi(self):
         """Active incident wave Phi."""
-        if self.raw_data and self.__incident_wave_phi is None:
+        if isinstance(self.raw_data, pd.DataFrame) and self.__incident_wave_phi is None:
             self.__incident_wave_phi = self.available_incident_wave_phi[0]
         return self.__incident_wave_phi
 
@@ -344,7 +344,7 @@ class MonostaticRCSData(object):
     def rcs(self):
         """RCS data for active frequency, theta and phi."""
         rcs_value = None
-        if self.raw_data:
+        if isinstance(self.raw_data, pd.DataFrame):
             data = self.rcs_active_theta_phi
             data = data[data["Freq"] == self.frequency]
             data = data.drop(columns=["Freq"])
@@ -356,7 +356,7 @@ class MonostaticRCSData(object):
     def rcs_active_theta_phi(self):
         """RCS data for active theta and phi."""
         rcs_value = None
-        if self.rcs_active_theta:
+        if isinstance(self.rcs_active_theta, pd.DataFrame):
             data = self.rcs_active_theta
             data = data[data["IWavePhi"] == self.incident_wave_phi]
             rcs_value = data.drop(columns=["IWavePhi"])
@@ -366,7 +366,7 @@ class MonostaticRCSData(object):
     def rcs_active_frequency(self):
         """RCS data for active frequency."""
         value = None
-        if self.raw_data:
+        if isinstance(self.raw_data, pd.DataFrame):
             data = self.raw_data.xs(key=self.frequency, level="Freq")
             data_converted = conversion_function(data[self.name], self.data_conversion_function)
             df = data_converted.reset_index()
@@ -378,7 +378,7 @@ class MonostaticRCSData(object):
     def rcs_active_theta(self):
         """RCS data for active incident wave theta."""
         value = None
-        if self.raw_data:
+        if isinstance(self.raw_data, pd.DataFrame):
             data = self.raw_data.xs(key=self.incident_wave_theta, level="IWaveTheta")
             if self.data_conversion_function:
                 data = conversion_function(data[self.name], self.data_conversion_function)
@@ -391,7 +391,7 @@ class MonostaticRCSData(object):
     def rcs_active_phi(self):
         """RCS data for active incident wave phi."""
         value = None
-        if self.raw_data:
+        if isinstance(self.raw_data, pd.DataFrame):
             data = self.raw_data.xs(key=self.incident_wave_phi, level="IWavePhi")
             if self.data_conversion_function:
                 data = conversion_function(data[self.name], self.data_conversion_function)
@@ -404,7 +404,7 @@ class MonostaticRCSData(object):
     def range_profile(self):
         """Range profile."""
         value = None
-        if self.raw_data:
+        if isinstance(self.raw_data, pd.DataFrame):
             data_conversion_function_original = self.data_conversion_function
             self.data_conversion_function = None
             data = self.rcs_active_theta_phi["Data"]
@@ -441,7 +441,7 @@ class MonostaticRCSData(object):
     def waterfall(self):
         """Waterfall."""
         waterfall_df = None
-        if self.raw_data:
+        if isinstance(self.raw_data, pd.DataFrame):
             waterfall_data = []
             original_phi = self.incident_wave_phi
             for phi in self.available_incident_wave_phi:
@@ -461,7 +461,7 @@ class MonostaticRCSData(object):
     def isar_2d(self):
         """ISAR 2D."""
         df = None
-        if self.raw_data:
+        if isinstance(self.raw_data, pd.DataFrame):
             phis = self.available_incident_wave_phi
             thetas = self.available_incident_wave_theta
             nfreq = len(self.frequencies)
@@ -647,7 +647,7 @@ class MonostaticRCSPlotter(object):
         # Scene properties
         self.show_geometry = True
         self.__all_scene_actors = {"model": {}, "annotations": {}, "results": {}}
-        self.__x_max, self.__x_min, self.__y_max, self.__y_min, self.__z_max, self.__z_min = 0, 0, 0, 0, 0, 0
+        self.__x_max, self.__x_min, self.__y_max, self.__y_min, self.__z_max, self.__z_min = 1, -1, 1, -1, 1, -1
         self.__model_info = None
 
         # Get geometries
@@ -686,7 +686,7 @@ class MonostaticRCSPlotter(object):
 
     @property
     def center(self):
-        """Geometry extents."""
+        """Geometry center."""
         x_mid = (self.__x_max + self.__x_min) / 2
         z_mid = (self.__z_max + self.__z_min) / 2
         y_mid = (self.__y_max + self.__y_min) / 2
@@ -1730,6 +1730,136 @@ class MonostaticRCSPlotter(object):
         self.all_scene_actors["results"]["isar_2d"][isar_name] = rcs_mesh
 
     @pyaedt_function_handler()
+    def add_incident_rcs_settings(self, theta_angle=None, phi_angle=None, arrow_color="#ff0000", line_color="#ff0000"):
+        """Add incident wave arrow setting for RCS scene.
+
+        This function visualizes the incident wave arrows for RCS settings.
+
+        Parameters
+        ----------
+        theta_angle : float, optional
+            Incident theta angle in degrees. The default is ``None``.
+        phi_angle : float, optional
+            Incident phi angle in degrees. The default is ``None``.
+        arrow_color : str, optional
+            Color of the arrow. The default is red (``"#ff0000"``).
+        line_color : str, optional
+            Color of the line. The default is red (``"#ff0000"``).
+        """
+        self._add_incident_settings(
+            scene_type="rcs",
+            theta_angle=theta_angle,
+            phi_angle=phi_angle,
+            arrow_color=arrow_color,
+            line_color=line_color,
+        )
+
+    @pyaedt_function_handler()
+    def add_incident_range_profile_settings(self, arrow_color="#ff0000"):
+        """Add incident wave arrow setting for range profile scene.
+
+        This function visualizes the incident wave arrows for RCS settings.
+
+        Parameters
+        ----------
+        arrow_color : str, optional
+            Color of the arrow. The default is red (``"#ff0000"``).
+        """
+        self._add_incident_settings(scene_type="range_profile", arrow_color=arrow_color)
+
+    @pyaedt_function_handler()
+    def add_incident_waterfall_settings(self, phi_angle=None, arrow_color="#ff0000", line_color="#ff0000"):
+        """Add incident wave arrow setting for waterfall scene.
+
+        This function visualizes the incident wave arrows for waterfall settings.
+
+        Parameters
+        ----------
+        phi_angle : float, optional
+            Incident phi angle in degrees. The default is ``None``.
+        arrow_color : str, optional
+            Color of the arrow. The default is red (``"#ff0000"``).
+        line_color : str, optional
+            Color of the line. The default is red (``"#ff0000"``).
+        """
+        self._add_incident_settings(
+            scene_type="waterfall", phi_angle=phi_angle, arrow_color=arrow_color, line_color=line_color
+        )
+
+    @pyaedt_function_handler()
+    def add_incident_isar_2d_settings(self, phi_angle=None, arrow_color="#ff0000", line_color="#ff0000"):
+        """Add incident wave arrow setting for ISAR 2D scene.
+
+        This function visualizes the incident wave arrows for ISAR 2D settings.
+
+        Parameters
+        ----------
+        phi_angle : float, optional
+            Incident phi angle in degrees. The default is ``None``.
+        arrow_color : str, optional
+            Color of the arrow. The default is red (``"#ff0000"``).
+        line_color : str, optional
+            Color of the line. The default is red (``"#ff0000"``).
+        """
+        self._add_incident_settings(
+            scene_type="isar_2d", phi_angle=phi_angle, arrow_color=arrow_color, line_color=line_color
+        )
+
+    @pyaedt_function_handler()
+    def add_incident_isar_3d_settings(
+        self, theta_angle=None, phi_angle=None, arrow_color="#ff0000", line_color="#ff0000"
+    ):
+        """Add incident wave arrow setting for ISAR 3D scene.
+
+        This function visualizes the incident wave arrows for ISAR 3D settings.
+
+        Parameters
+        ----------
+        theta_angle : float, optional
+            Incident theta angle in degrees. The default is ``None``.
+        phi_angle : float, optional
+            Incident phi angle in degrees. The default is ``None``.
+        arrow_color : str, optional
+            Color of the arrow. The default is red (``"#ff0000"``).
+        line_color : str, optional
+            Color of the line. The default is red (``"#ff0000"``).
+        """
+        self._add_incident_settings(
+            scene_type="isar_2d",
+            theta_angle=theta_angle,
+            phi_angle=phi_angle,
+            arrow_color=arrow_color,
+            line_color=line_color,
+        )
+
+    @pyaedt_function_handler()
+    def add_incident_isar_3d_settings(
+        self, theta_angle=None, phi_angle=None, arrow_color="#ff0000", line_color="#ff0000"
+    ):
+        """Add incident wave arrow setting for ISAR 3D scene.
+
+        This function visualizes the incident wave arrows for ISAR 3D settings.
+
+        Parameters
+        ----------
+        theta_angle : float, optional
+            Incident theta angle in degrees. The default is ``None``.
+        phi_angle : float, optional
+            Incident phi angle in degrees. The default is ``None``.
+        arrow_color : str, optional
+            Color of the arrow. The default is red (``"#ff0000"``).
+        line_color : str, optional
+            Color of the line. The default is red (``"#ff0000"``).
+        """
+        self._add_incident_settings(
+            scene_type="isar_3d",
+            theta_angle=theta_angle,
+            phi_angle=phi_angle,
+            arrow_color=arrow_color,
+            line_color=line_color,
+        )
+
+    @pyaedt_function_handler()
     def clear_scene(self, first_level=None, second_level=None, name=None):
         if not first_level:
             self.all_scene_actors["annotations"] = {}
@@ -1746,6 +1876,174 @@ class MonostaticRCSPlotter(object):
                 elif name in self.all_scene_actors[first_level][second_level].keys():
                     del self.all_scene_actors[first_level][second_level][name]
         return True
+
+    @pyaedt_function_handler()
+    def _add_incident_settings(
+        self, scene_type="RCS", theta_angle=None, phi_angle=None, arrow_color="#ff0000", line_color="#ff0000"
+    ):
+        # Compute parameters
+        radius_max = max([abs(self.extents[0]), abs(self.extents[1]), abs(self.extents[2]), abs(self.extents[3])])
+        arrow_length = radius_max * 0.25
+
+        if "incident_wave" not in self.all_scene_actors["annotations"]:
+            self.all_scene_actors["annotations"]["incident_wave"] = {}
+
+        # Arrow 1
+        if phi_angle:
+            arrow1_start = (
+                (radius_max + arrow_length) * np.cos(np.deg2rad(-phi_angle / 2)),
+                (radius_max + arrow_length) * np.sin(np.deg2rad(-phi_angle / 2)),
+                self.center[2],
+            )
+            arrow1_direction = (
+                -(radius_max + arrow_length) * np.cos(np.deg2rad(-phi_angle / 2)),
+                -(radius_max + arrow_length) * np.sin(np.deg2rad(-phi_angle / 2)),
+                0,
+            )
+        else:
+            arrow1_start = (radius_max + arrow_length, 0, self.center[2])
+            arrow1_direction = (-1, 0, 0)
+
+        name = "arrow1"
+        arrow_mesh = self._create_arrow(
+            start=arrow1_start, direction=arrow1_direction, scale=arrow_length, name=name, color=arrow_color
+        )
+        self.all_scene_actors["annotations"]["incident_wave"][name] = arrow_mesh
+
+        if scene_type == "range_profile":
+            return True
+
+        if phi_angle:
+            # Arrow 2
+            if "waterfall" in scene_type:
+                arrow2_start = (
+                    (radius_max + arrow_length) * np.cos(np.deg2rad(phi_angle)),
+                    (radius_max + arrow_length) * np.sin(np.deg2rad(phi_angle)),
+                    self.center[2],
+                )
+                arrow2_direction = (
+                    -(radius_max + arrow_length) * np.cos(np.deg2rad(phi_angle)),
+                    -(radius_max + arrow_length) * np.sin(np.deg2rad(phi_angle)),
+                    0,
+                )
+            else:
+                arrow2_start = (
+                    (radius_max + arrow_length) * np.cos(np.deg2rad(phi_angle / 2)),
+                    (radius_max + arrow_length) * np.sin(np.deg2rad(phi_angle / 2)),
+                    self.center[2],
+                )
+                arrow2_direction = (
+                    -(radius_max + arrow_length) * np.cos(np.deg2rad(phi_angle / 2)),
+                    -(radius_max + arrow_length) * np.sin(np.deg2rad(phi_angle / 2)),
+                    0,
+                )
+            name = "arrow2"
+            arrow2_mesh = self._create_arrow(
+                start=arrow2_start, direction=arrow2_direction, scale=arrow_length, name=name, color=arrow_color
+            )
+
+            self.all_scene_actors["annotations"]["incident_wave"][name] = arrow2_mesh
+
+            # Line
+            center = [0, 0, self.center[2]]
+            negative = False
+            if phi_angle >= 180:
+                negative = True
+
+            name = "arc1"
+            arc1_mesh = self._create_arc(
+                pointa=arrow1_start,
+                pointb=arrow2_start,
+                center=center,
+                resolution=100,
+                negative=negative,
+                name=name,
+                color=line_color,
+            )
+            self.all_scene_actors["annotations"]["incident_wave"][name] = arc1_mesh
+
+        if theta_angle:
+
+            arrow3_start = (
+                (radius_max + arrow_length) * np.cos(np.deg2rad(theta_angle / 2)),
+                self.center[1],
+                -(radius_max + arrow_length) * np.sin(np.deg2rad(theta_angle / 2)) + self.center[2],
+            )
+            arrow3_direction = (
+                -(radius_max + arrow_length) * np.cos(np.deg2rad(-theta_angle / 2)),
+                0,
+                -(radius_max + arrow_length) * np.sin(np.deg2rad(-theta_angle / 2)),
+            )
+            arrow4_start = (
+                (radius_max + arrow_length) * np.cos(np.deg2rad(theta_angle / 2)),
+                self.center[1],
+                (radius_max + arrow_length) * np.sin(np.deg2rad(theta_angle / 2)) + self.center[2],
+            )
+            arrow4_direction = (
+                -(radius_max + arrow_length) * np.cos(np.deg2rad(theta_angle / 2)),
+                0,
+                -(radius_max + arrow_length) * np.sin(np.deg2rad(theta_angle / 2)),
+            )
+
+            # Arrow 1 theta
+            name = "arrow3"
+            arrow3_mesh = self._create_arrow(
+                start=arrow3_start, direction=arrow3_direction, scale=arrow_length, name=name, color=arrow_color
+            )
+            self.all_scene_actors["annotations"]["incident_wave"][name] = arrow3_mesh
+
+            # Arrow 2 theta
+            name = "arrow4"
+            arrow4_mesh = self._create_arrow(
+                start=arrow4_start, direction=arrow4_direction, scale=arrow_length, name=name, color=arrow_color
+            )
+            self.all_scene_actors["annotations"]["incident_wave"][name] = arrow4_mesh
+
+            negative = False
+            if theta_angle >= 180:
+                negative = True
+            center = [0, 0, self.center[2]]
+
+            name = "arc2"
+            arc2_mesh = self._create_arc(
+                pointa=arrow3_start,
+                pointb=arrow4_start,
+                center=center,
+                resolution=100,
+                negative=negative,
+                name=name,
+                color=line_color,
+            )
+            self.all_scene_actors["annotations"]["incident_wave"][name] = arc2_mesh
+        return True
+
+    @pyaedt_function_handler()
+    def _create_arrow(self, start, direction, scale, name, color):
+        arrow = pv.Arrow(start=start, direction=direction, scale=scale)
+        arrow_object = SceneMeshObject()
+        arrow_object.name = name
+        arrow_object.color = color
+        arrow_object.line_width = 5
+        arrow_object.specular = 0.5
+        arrow_object.lighting = True
+        arrow_object.smooth_shading = False
+        arrow_object.mesh = arrow
+
+        return MeshObjectPlot(arrow_object, arrow_object.get_mesh())
+
+    @pyaedt_function_handler()
+    def _create_arc(self, pointa, pointb, center, resolution, negative, name, color):
+        arc = pv.CircularArc(pointa=pointa, pointb=pointb, center=center, resolution=resolution, negative=negative)
+        arc_object = SceneMeshObject()
+        arc_object.name = name
+        arc_object.color = color
+        arc_object.line_width = 5
+        arc_object.specular = 0.5
+        arc_object.lighting = True
+        arc_object.smooth_shading = False
+        arc_object.mesh = arc
+
+        return MeshObjectPlot(arc_object, arc_object.get_mesh())
 
     @pyaedt_function_handler()
     def __get_pyvista_range_profile_actor(
@@ -1905,12 +2203,12 @@ class MonostaticRCSPlotter(object):
         x_max, x_min, y_max, y_min, z_max, z_min = [], [], [], [], [], []
 
         if len(self.all_scene_actors["model"]) == 0:
-            x_max = [10]
-            x_min = [0]
-            y_max = [10]
-            y_min = [0]
-            z_max = [10]
-            z_min = [0]
+            x_max = [1]
+            x_min = [-1]
+            y_max = [1]
+            y_min = [-1]
+            z_max = [1]
+            z_min = [-1]
         for each in self.all_scene_actors["model"].values():
             x_max.append(each.mesh.bounds[1])
             x_min.append(each.mesh.bounds[0])
@@ -1983,6 +2281,9 @@ class SceneMeshObject:
         self.color = None
         self.color_map = "jet"
         self.line_width = 1.0
+        self.specular = 0.0
+        self.lighting = False
+        self.smooth_shading = True
         self.scalar_dict = dict(color="#000000", title="Dummy")
         self.show = True
 
@@ -2094,7 +2395,13 @@ class SceneMeshObject:
         dict
             A dictionary with the color and line width settings for annotating the model.
         """
-        return {"color": self.color, "line_width": self.line_width}
+        return {
+            "color": self.color,
+            "line_width": self.line_width,
+            "specular": self.specular,
+            "lighting": self.lighting,
+            "smooth_shading": self.smooth_shading,
+        }
 
     def get_result_options(self):
         """Retrieve the result options for the mesh.
