@@ -761,3 +761,40 @@ class TestClass:
         assert setup.enable()
         assert not sweep.is_solved
         assert isinstance(sweep.frequencies, list)
+
+    def test_export_c_matrix(self, local_scratch, m2d_app):
+        m2d_app.solution_type = SOLUTIONS.Maxwell2d.ElectroStaticXY
+
+        ground = m2d_app.modeler.create_rectangle([0, 0, 0], [11, 15], name="ground", material="vacuum")
+        v1 = m2d_app.modeler.create_rectangle([4, 2, 0], [1, 9], name="v1", material="vacuum")
+        v2 = m2d_app.modeler.create_rectangle([6, 2, 0], [1, 9], name="v2", material="vacuum")
+
+        m2d_app.assign_voltage(assignment=ground.edges, amplitude=0, name="grd")
+        m2d_app.assign_voltage(assignment=v1, amplitude=1, name="v1")
+        m2d_app.assign_voltage(assignment=v2, amplitude=1, name="v2")
+
+        output_file = os.path.join(local_scratch.path, "c_matrix.txt")
+
+        assert not m2d_app.export_c_matrix(matrix_name="Matrix1", output_file=output_file)
+
+        m2d_app.assign_matrix(assignment=["v1", "v2"], matrix_name="Matrix1", group_sources="grd")
+
+        m2d_app.create_setup()
+
+        m2d_app.analyze()
+
+        assert m2d_app.export_c_matrix(matrix_name="Matrix1", output_file=output_file)
+        assert os.path.exists(output_file)
+
+        assert not m2d_app.export_c_matrix(matrix_name="invalid", output_file=output_file)
+
+        m2d_app["m"] = "1m"
+        m2d_app["l"] = "2m2"
+
+        m2d_app.analyze()
+
+        assert m2d_app.export_c_matrix(matrix_name="Matrix1", output_file=output_file)
+        assert os.path.exists(output_file)
+
+        output_file = os.path.join(local_scratch.path, "c_matrix.csv")
+        assert not m2d_app.export_c_matrix(matrix_name="Matrix1", output_file=output_file)

@@ -2135,6 +2135,175 @@ class Maxwell(object):
         setup.update()
         return setup
 
+    @pyaedt_function_handler(file_path="output_file", setup_name="setup")
+    def export_rl_matrix(
+        self,
+        matrix_name,
+        output_file,
+        is_format_default=True,
+        width=8,
+        precision=2,
+        is_exponential=False,
+        setup=None,
+        default_adaptive="LastAdaptive",
+        is_post_processed=False,
+    ):
+        """Export R/L matrix after solving.
+
+        Parameters
+        ----------
+        matrix_name : str
+            Matrix name to be exported.
+        output_file : str
+            Output file path to export R/L matrix file to.
+            Extension must be ``.txt``.
+        is_format_default : bool, optional
+            Whether the exported format is default or not.
+            If False the custom format is set (no exponential).
+        width : int, optional
+            Column width in exported .txt file.
+        precision : int, optional
+            Decimal precision number in exported \\*.txt file.
+        is_exponential : bool, optional
+            Whether the format number is exponential or not.
+        setup : str, optional
+            Name of the setup.
+            If not provided, the active setup is used.
+        default_adaptive : str, optional
+            Adaptive type.
+            The default is ``"LastAdaptive"``.
+        is_post_processed : bool, optional
+            Boolean to check if it is post processed. Default value is ``False``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if self.solution_type not in [
+            SOLUTIONS.Maxwell2d.EddyCurrentXY,
+            SOLUTIONS.Maxwell2d.EddyCurrentZ,
+            SOLUTIONS.Maxwell3d.EddyCurrent,
+        ]:
+            self.logger.error("RL Matrix can only be exported if solution type is Eddy Current.")
+            return False
+
+        matrix_names_list = [matrix.name for matrix in self.boundaries if isinstance(matrix, MaxwellParameters)]
+        if not matrix_names_list:
+            self.logger.error("Matrix list is empty, can't export a valid matrix.")
+            return False
+        elif matrix_name not in matrix_names_list:
+            self.logger.error("Matrix name doesn't exist, provide and existing matrix name.")
+            return False
+
+        if os.path.splitext(output_file)[1] != ".txt":
+            self.logger.error("File extension must be .txt")
+            return False
+
+        if setup is None:
+            setup = self.active_setup
+
+        analysis_setup = setup + " : " + default_adaptive
+
+        if not self.available_variations.nominal_w_values_dict:
+            variations = ""
+        else:
+            variations = " ".join(
+                f"{key}=\\'{value}\\'" for key, value in self.available_variations.nominal_w_values_dict.items()
+            )
+
+        if not is_format_default:
+            try:
+                self.oanalysis.ExportSolnData(
+                    analysis_setup,
+                    matrix_name,
+                    is_post_processed,
+                    variations,
+                    output_file,
+                    -1,
+                    is_format_default,
+                    width,
+                    precision,
+                    is_exponential,
+                )
+            except Exception:
+                self.logger.error("Solutions are empty. Solve before exporting.")
+                return False
+        else:
+            try:
+                self.oanalysis.ExportSolnData(analysis_setup, matrix_name, is_post_processed, variations, output_file)
+            except Exception:
+                self.logger.error("Solutions are empty. Solve before exporting.")
+                return False
+
+        return True
+
+    def export_c_matrix(
+        self,
+        matrix_name,
+        output_file,
+        setup=None,
+        default_adaptive="LastAdaptive",
+        is_post_processed=False,
+    ):
+        """Export R/L matrix after solving.
+
+        Parameters
+        ----------
+        matrix_name : str
+            Matrix name to be exported.
+        output_file : str
+            Output file path to export R/L matrix file to.
+            Extension must be ``.txt``.
+        setup : str, optional
+            Name of the setup.
+            If not provided, the active setup is used.
+        default_adaptive : str, optional
+            Adaptive type.
+            The default is ``"LastAdaptive"``.
+        is_post_processed : bool, optional
+            Boolean to check if it is post processed. Default value is ``False``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if self.solution_type not in [
+            SOLUTIONS.Maxwell2d.ElectroStaticXY,
+            SOLUTIONS.Maxwell2d.ElectroStaticZ,
+            SOLUTIONS.Maxwell3d.ElectroStatic,
+        ]:
+            AEDTRuntimeError("C Matrix can only be exported if solution type is Electrostatic.")
+
+        matrix_names_list = [matrix.name for matrix in self.boundaries if isinstance(matrix, MaxwellParameters)]
+        if not matrix_names_list:
+            self.logger.error("Matrix list is empty, can't export a valid matrix.")
+            return False
+        elif matrix_name not in matrix_names_list:
+            self.logger.error("Matrix name doesn't exist, provide and existing matrix name.")
+            return False
+
+        if os.path.splitext(output_file)[1] != ".txt":
+            self.logger.error("File extension must be .txt")
+            return False
+
+        if setup is None:
+            setup = self.active_setup
+
+        analysis_setup = setup + " : " + default_adaptive
+
+        if not self.available_variations.nominal_w_values_dict:
+            variations = ""
+        else:
+            variations = " ".join(
+                f"{key}=\\'{value}\\'" for key, value in self.available_variations.nominal_w_values_dict.items()
+            )
+
+        self.oanalysis.ExportSolnData(analysis_setup, matrix_name, is_post_processed, variations, output_file)
+
+        return True
+
     def _create_boundary_object(self, name, props, boundary_type):
         if boundary_type in ["Force", "Torque", "Matrix", "LayoutForce"]:
             bound = MaxwellParameters(self, name, props, boundary_type)
