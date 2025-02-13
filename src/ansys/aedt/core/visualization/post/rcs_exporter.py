@@ -143,7 +143,13 @@ class MonostaticRCSExporter:
 
     @pyaedt_function_handler()
     def get_monostatic_rcs(self):
-        """Get RCS solution data."""
+        """Get RCS solution data.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.solutions.SolutionData`
+            Solution Data object.
+        """
         variations = self.variations
         variations["IWaveTheta"] = ["All"]
         variations["IWavePhi"] = ["All"]
@@ -162,7 +168,23 @@ class MonostaticRCSExporter:
 
     @pyaedt_function_handler()
     def export_rcs(self, name="rcs_data", metadata_name="pyaedt_rcs_metadata", only_geometry=False):
-        """Export RCS solution data."""
+        """Export RCS solution data.
+
+        Parameters
+        ----------
+        name : str, optional
+            Name of the RCS data file. The default is ``"rcs_data"``.
+        metadata_name : str, optional
+            Name of the metadata file. The default is ``"pyaedt_rcs_metadata"``.
+        only_geometry : bool, optional
+           Export only the geometry. The default is ``False``.
+
+        Returns
+        -------
+        str
+            Metadata file.
+
+        """
         # Output directory
         if not self.setup_name:
             self.setup_name = "Nominal"

@@ -56,12 +56,12 @@ def test_init_with_default_values():
 
     assert "name" == exporter.setup_name
     assert DEFAULT_EXPRESSION == exporter.expression
-    assert True == exporter.overwrite
+    assert exporter.overwrite
     assert FREQUENCIES == exporter.frequencies
-    assert None == exporter.data_file
+    assert exporter.data_file is None
     # Properties
     assert {} == exporter.model_info
-    assert None == exporter.rcs_data
+    assert exporter.rcs_data is None
     assert "" == exporter.metadata_file
     assert DEFAULT_EXPRESSION == exporter.column_name
     # App related
