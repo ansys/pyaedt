@@ -664,7 +664,7 @@ class TestClass:
             high_surface_thick="0.1in",
         )
 
-    def test034__create_fan(self, ipk):
+    def test034__create_fan(self, ipk, local_scratch):
         fan = ipk.create_fan("Fan1", cross_section="YZ", radius="15mm", hub_radius="5mm", origin=[5, 21, 1])
         assert fan
         assert fan.name in ipk.modeler.oeditor.Get3DComponentInstanceNames(fan.definition_name)[0]
@@ -674,6 +674,14 @@ class TestClass:
         assert fan.name in ipk.native_components
         assert not "Fan1" in ipk.native_components
         assert not "Fan1" in ipk.modeler.user_defined_components
+        temp_prj = os.path.join(local_scratch.path, "fan_test.aedt")
+        ipk.save_project(temp_prj)
+        ipk = Icepak(temp_prj)
+        ipk.modeler.user_defined_components["Fan2"].native_properties["Swirl"] = "10"
+        ipk.modeler.user_defined_components["Fan2"].update_native()
+        ipk.save_project(temp_prj)
+        ipk = Icepak(temp_prj)
+        assert ipk.native_components["Fan1"].props["NativeComponentDefinitionProvider"]["Swirl"] == "10"
 
     def test035__create_heat_sink(self, ipk):
         assert ipk.create_parametric_fin_heat_sink(
