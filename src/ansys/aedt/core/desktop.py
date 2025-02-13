@@ -319,6 +319,15 @@ def _close_aedt_application(desktop_class, close_desktop, pid, is_grpc_api):
                     os.kill(pid, 9)
                 else:
                     desktop_class.odesktop.QuitApplication()
+                    if desktop_class.is_grpc_api:
+                        desktop_class.grpc_plugin.Release()
+                    timeout = 20
+                    while pid in active_sessions():
+                        time.sleep(1)
+                        if timeout == 0:
+                            os.kill(pid, 9)
+                            break
+                        timeout -= 1
                 if _desktop_sessions:
                     for v in _desktop_sessions.values():
                         if pid in v.parent_desktop_id:  # pragma: no cover
