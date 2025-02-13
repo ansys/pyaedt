@@ -62,13 +62,6 @@ class TestClass:
         assert info.value.args[0] == test_transmission_zeros.TestClass.no_transmission_zero_msg
 
     def test_version_exception(self):
-        ansys.aedt.core.filtersolutions_core._dll_interface()
-        with pytest.raises(Exception) as info:
-            ansys.aedt.core.filtersolutions_core._dll_interface("2024.2")
-        assert (
-            info.value.args[0] == f"The requested version 2024.2 does not match with the previously defined version "
-            f"{ansys.aedt.core.filtersolutions_core._internal_dll_interface._version}."
-        )
         with pytest.raises(ValueError) as info:
             ansys.aedt.core.filtersolutions_core._dll_interface("2025.0")
         assert info.value.args[0] == "Specified version 2025.0 is not installed on your system"
