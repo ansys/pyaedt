@@ -2238,6 +2238,7 @@ class Maxwell(object):
 
         return True
 
+    @pyaedt_function_handler()
     def export_c_matrix(
         self,
         matrix_name,
@@ -2246,7 +2247,7 @@ class Maxwell(object):
         default_adaptive="LastAdaptive",
         is_post_processed=False,
     ):
-        """Export R/L matrix after solving.
+        """Export Capacitance matrix after solving.
 
         Parameters
         ----------
