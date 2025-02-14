@@ -70,10 +70,11 @@ class CreateBoundaryMixin:
         """
         try:
             bound = BoundaryObject(self, name, props, boundary_type)
-            result = bound.create()
-            if result:
-                self._boundaries[bound.name] = bound
-                self.logger.info(f"Boundary {boundary_type} {name} has been created.")
-                return bound
+            if not bound.create():
+                raise AEDTRuntimeError(f"Failed to create boundary {boundary_type} {name}")
+
+            self._boundaries[bound.name] = bound
+            self.logger.info(f"Boundary {boundary_type} {name} has been created.")
+            return bound
         except GrpcApiError as e:
             raise AEDTRuntimeError(f"Failed to create boundary {boundary_type} {name}") from e
