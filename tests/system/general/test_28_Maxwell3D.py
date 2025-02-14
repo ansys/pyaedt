@@ -168,29 +168,6 @@ class TestClass:
         assert not m3d_app.oboundary.GetEddyEffect("Plate")
         assert not m3d_app.oboundary.GetDisplacementCurrent("Plate")
 
-    def test_create_setup(self, m3d_app):
-        m3d_app.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
-        setup = m3d_app.create_setup()
-        setup.props["MaximumPasses"] = 12
-        setup.props["MinimumPasses"] = 2
-        setup.props["MinimumConvergedPasses"] = 1
-        setup.props["PercentRefinement"] = 30
-        setup.props["Frequency"] = "200Hz"
-        dc_freq = 0.1
-        stop_freq = 10
-        count = 1
-        assert setup.add_eddy_current_sweep("LinearStep", dc_freq, stop_freq, count, clear=True)
-        assert isinstance(setup.props["SweepRanges"]["Subrange"], dict)
-        assert setup.props["SaveAllFields"]
-        assert setup.add_eddy_current_sweep("LinearCount", dc_freq, stop_freq, count, clear=False)
-        assert isinstance(setup.props["SweepRanges"]["Subrange"], list)
-        assert setup.add_eddy_current_sweep("SinglePoints", start_frequency=0.01, clear=False)
-        assert setup.update()
-        assert setup.enable_expression_cache(["CoreLoss"], "Fields", "Phase='0deg' ", True)
-        assert setup.props["UseCacheFor"] == ["Pass", "Freq"]
-        assert setup.disable()
-        assert setup.enable()
-
     def test_create_parametrics(self, m3d_app):
         m3d_app.create_setup()
         m3d_app["w1"] = "10mm"

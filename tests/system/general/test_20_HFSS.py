@@ -40,10 +40,8 @@ from ansys.aedt.core.visualization.advanced.misc import convert_nearfield_data
 
 test_subfolder = "T20"
 
-if config["desktopVersion"] > "2022.2":
-    component = "Circ_Patch_5GHz_232.a3dcomp"
-else:
-    component = "Circ_Patch_5GHz.a3dcomp"
+component = "Circ_Patch_5GHz_232.a3dcomp"
+
 
 if config["desktopVersion"] > "2023.1":
     diff_proj_name = "differential_pairs_231"
@@ -236,9 +234,11 @@ class TestClass:
         assert port3.name in [i.name for i in self.aedtapp.boundaries]
 
     def test_06a_create_linear_count_sweep(self):
-        setup = self.aedtapp.create_setup("MySetup")
-        setup.props["Frequency"] = "1GHz"
-        setup.props["BasisOrder"] = 2
+        # Newer, simplified notation to pass native API keywords
+        setup = self.aedtapp.create_setup("MySetup", Frequency="1GHz", BasisOrder=2)
+        assert setup.props["Frequency"] == "1GHz"
+        assert setup.props["BasisOrder"] == 2
+        # Legacy notation using setup.props followed by setup.update()
         setup.props["MaximumPasses"] = 1
         assert setup.update()
         assert self.aedtapp.create_linear_count_sweep("MySetup", "GHz", 0.8, 1.2, 401)
@@ -1572,7 +1572,9 @@ class TestClass:
         ),
     )
     def test_64_import_dxf(self, dxf_file: str, object_count: int, self_stitch_tolerance: float):
-        design_name = self.aedtapp.insert_design("test_64_import_dxf")
+        from pyedb.generic.general_methods import generate_unique_name
+
+        design_name = self.aedtapp.insert_design(generate_unique_name("test_64_import_dxf"))
         self.aedtapp.set_active_design(design_name)
         dxf_layers = self.aedtapp.get_dxf_layers(dxf_file)
         assert isinstance(dxf_layers, list)
@@ -1865,4 +1867,26 @@ class TestClass:
         exc2 = aedtapp.hertzian_dipole_wave(polarization=[1, 0, 0], name="dipole", radius=20)
         assert len(aedtapp.excitations) == 2
         assert exc2.name == "dipole"
+        aedtapp.close_project(save=False)
+
+    def test_74_wave_port_integration_line(self, add_app):
+        aedtapp = add_app(project_name="test_74", solution_type="Modal")
+        c = aedtapp.modeler.create_circle("XY", [-1.4, -1.6, 0], 1, name="wave_port")
+        start = [["-1.4mm", "-1.6mm", "0mm"], ["-1.4mm", "-1.6mm", "0mm"]]
+        end = [["-1.4mm", "-0.6mm", "0mm"], ["-1.4mm", "-2.6mm", "0mm"]]
+
+        with pytest.raises(ValueError, match=re.escape("List of characteristic impedance is not set correctly.")):
+            aedtapp.wave_port(c.name, integration_line=[start, end], characteristic_impedance=["Zwave"], modes=2)
+
+        assert aedtapp.wave_port(
+            c.name, integration_line=[start, end], characteristic_impedance=["Zwave", "Zpv"], modes=2
+        )
+
+        assert aedtapp.wave_port(c.name, integration_line=[start, end], modes=2)
+
+        start = [["-1.4mm", "-1.6mm", "0mm"], None, ["-1.4mm", "-1.6mm", "0mm"]]
+        end = [["-1.4mm", "-0.6mm", "0mm"], None, ["-1.4mm", "-2.6mm", "0mm"]]
+
+        assert aedtapp.wave_port(c.name, integration_line=[start, end], modes=3)
+
         aedtapp.close_project(save=False)
