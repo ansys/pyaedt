@@ -2119,33 +2119,6 @@ class MonostaticRCSPlotter(object):
             Color of the line. The default is red (``"#ff0000"``).
         """
         self._add_incident_settings(
-            scene_type="isar_2d",
-            theta_angle=theta_angle,
-            phi_angle=phi_angle,
-            arrow_color=arrow_color,
-            line_color=line_color,
-        )
-
-    @pyaedt_function_handler()
-    def add_incident_isar_3d_settings(
-        self, theta_angle=None, phi_angle=None, arrow_color="#ff0000", line_color="#ff0000"
-    ):
-        """Add incident wave arrow setting for ISAR 3D scene.
-
-        This function visualizes the incident wave arrows for ISAR 3D settings.
-
-        Parameters
-        ----------
-        theta_angle : float, optional
-            Incident theta angle in degrees. The default is ``None``.
-        phi_angle : float, optional
-            Incident phi angle in degrees. The default is ``None``.
-        arrow_color : str, optional
-            Color of the arrow. The default is red (``"#ff0000"``).
-        line_color : str, optional
-            Color of the line. The default is red (``"#ff0000"``).
-        """
-        self._add_incident_settings(
             scene_type="isar_3d",
             theta_angle=theta_angle,
             phi_angle=phi_angle,
