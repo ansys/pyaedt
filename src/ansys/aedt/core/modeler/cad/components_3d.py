@@ -25,8 +25,8 @@
 from __future__ import absolute_import
 
 import os
-import random
 import re
+import secrets
 import warnings
 
 from ansys.aedt.core.edb import Edb
@@ -172,7 +172,7 @@ class UserDefinedComponent(object):
                     "MaterialDefinitionParameters": {"VariableOrders": {}},
                     "MapInstanceParameters": "DesignVariable",
                     "UniqueDefinitionIdentifier": "89d26167-fb77-480e-a7ab-"
-                    + "".join(random.choice("abcdef0123456789") for _ in range(int(12))),
+                    + "".join(secrets.choice("abcdef0123456789") for _ in range(int(12))),
                     "OriginFilePath": "",
                     "IsLocal": False,
                     "ChecksumString": "",
@@ -183,7 +183,10 @@ class UserDefinedComponent(object):
                 },
             )
             if props:
-                self._update_props(self._props["NativeComponentDefinitionProvider"], props)
+                self._update_props(
+                    self._props["NativeComponentDefinitionProvider"],
+                    props.get("NativeComponentDefinitionProvider", props),
+                )
             self.native_properties = self._props["NativeComponentDefinitionProvider"]
             self.auto_update = True
 
@@ -759,7 +762,7 @@ class UserDefinedComponent(object):
     def _get_args(self, props=None):
         if props is None:
             props = self.props
-        arg = ["NAME:" + self.name]
+        arg = ["NAME:EditNativeComponentDefinitionData"]
         _dict2arg(props, arg)
         return arg
 

@@ -74,17 +74,13 @@ from ansys.aedt.core.desktop import _delete_objects
 from ansys.aedt.core.generic.desktop_sessions import _desktop_sessions
 from ansys.aedt.core.generic.filesystem import Scratch
 from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import inside_desktop
 
 local_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(local_path)
 
 # Initialize default desktop configuration
-default_version = "2024.2"
+default_version = "2025.1"
 
-
-if inside_desktop and "oDesktop" in dir(sys.modules["__main__"]):
-    default_version = sys.modules["__main__"].oDesktop.GetVersion()[0:6]
 config = {
     "desktopVersion": default_version,
     "NonGraphical": True,

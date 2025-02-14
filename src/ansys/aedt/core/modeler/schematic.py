@@ -525,6 +525,16 @@ class ModelerNexxim(ModelerCircuit):
         return self._schematic
 
     @property
+    def pages(self):
+        """Return the number of pages of the current schematic.
+
+        Returns
+        -------
+        int
+        """
+        return self.oeditor.GetNumPages()
+
+    @property
     def edb(self):
         """EDB.
 

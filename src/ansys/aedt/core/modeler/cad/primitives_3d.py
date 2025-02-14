@@ -159,17 +159,25 @@ class Primitives3D(GeometryModeler):
             self.logger.error("The ``dimension_list`` argument must be a valid three-element list.")
             return False
 
-        XPosition, YPosition, ZPosition = self._pos_with_arg(origin)
-        XSize, YSize, ZSize = self._pos_with_arg(sizes)
-        vArg1 = ["NAME:BoxParameters"]
-        vArg1.append("XPosition:="), vArg1.append(XPosition)
-        vArg1.append("YPosition:="), vArg1.append(YPosition)
-        vArg1.append("ZPosition:="), vArg1.append(ZPosition)
-        vArg1.append("XSize:="), vArg1.append(XSize)
-        vArg1.append("YSize:="), vArg1.append(YSize)
-        vArg1.append("ZSize:="), vArg1.append(ZSize)
-        vArg2 = self._default_object_attributes(name=name, material=material)
-        new_object_name = self.oeditor.CreateBox(vArg1, vArg2)
+        x_position, y_position, z_position = self._pos_with_arg(origin)
+        x_size, y_size, z_size = self._pos_with_arg(sizes)
+        arg_1 = [
+            "NAME:BoxParameters",
+            "XPosition:=",
+            x_position,
+            "YPosition:=",
+            y_position,
+            "ZPosition:=",
+            z_position,
+            "XSize:=",
+            x_size,
+            "YSize:=",
+            y_size,
+            "ZSize:=",
+            z_size,
+        ]
+        arg_2 = self._default_object_attributes(name=name, material=material)
+        new_object_name = self.oeditor.CreateBox(arg_1, arg_2)
         return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler(cs_axis="orientation", position="origin", numSides="num_sides", matname="material")
@@ -234,22 +242,31 @@ class Primitives3D(GeometryModeler):
             self.logger.error("The ``position`` argument must be a valid three-element list.")
             return False
 
-        szAxis = GeometryOperators.cs_axis_str(orientation)
-        XCenter, YCenter, ZCenter = self._pos_with_arg(origin)
+        axis = GeometryOperators.cs_axis_str(orientation)
+        x_center, y_center, z_center = self._pos_with_arg(origin)
 
-        Radius = self._arg_with_dim(radius)
-        Height = self._arg_with_dim(height)
+        radius = self._arg_with_dim(radius)
+        height = self._arg_with_dim(height)
 
-        vArg1 = ["NAME:CylinderParameters"]
-        vArg1.append("XCenter:="), vArg1.append(XCenter)
-        vArg1.append("YCenter:="), vArg1.append(YCenter)
-        vArg1.append("ZCenter:="), vArg1.append(ZCenter)
-        vArg1.append("Radius:="), vArg1.append(Radius)
-        vArg1.append("Height:="), vArg1.append(Height)
-        vArg1.append("WhichAxis:="), vArg1.append(szAxis)
-        vArg1.append("NumSides:="), vArg1.append(f"{num_sides}")
-        vArg2 = self._default_object_attributes(name=name, material=material)
-        new_object_name = self.oeditor.CreateCylinder(vArg1, vArg2)
+        arg_1 = [
+            "NAME:CylinderParameters",
+            "XCenter:=",
+            x_center,
+            "YCenter:=",
+            y_center,
+            "ZCenter:=",
+            z_center,
+            "Radius:=",
+            radius,
+            "Height:=",
+            height,
+            "WhichAxis:=",
+            axis,
+            "NumSides:=",
+            f"{num_sides}",
+        ]
+        arg_2 = self._default_object_attributes(name=name, material=material)
+        new_object_name = self.oeditor.CreateCylinder(arg_1, arg_2)
         return self._create_object(new_object_name, **kwargs)
 
     # fmt: off
@@ -322,18 +339,20 @@ class Primitives3D(GeometryModeler):
 
         height = self._arg_with_dim(height)
 
-        vArg1 = ["NAME:PolyhedronParameters"]
-        vArg1.append("XCenter:="), vArg1.append(x_center)
-        vArg1.append("YCenter:="), vArg1.append(y_center)
-        vArg1.append("ZCenter:="), vArg1.append(z_center)
-        vArg1.append("XStart:="), vArg1.append(x_start)
-        vArg1.append("YStart:="), vArg1.append(y_start)
-        vArg1.append("ZStart:="), vArg1.append(z_start)
-        vArg1.append("Height:="), vArg1.append(height)
-        vArg1.append("NumSides:="), vArg1.append(int(num_sides))
-        vArg1.append("WhichAxis:="), vArg1.append(orientation)
-        vArg2 = self._default_object_attributes(name=name, material=material)
-        new_object_name = self.oeditor.CreateRegularPolyhedron(vArg1, vArg2)
+        arg_1 = [
+            "NAME:PolyhedronParameters",
+            "XCenter:=", x_center,
+            "YCenter:=", y_center,
+            "ZCenter:=", z_center,
+            "XStart:=", x_start,
+            "YStart:=", y_start,
+            "ZStart:=", z_start,
+            "Height:=", height,
+            "NumSides:=", int(num_sides),
+            "WhichAxis:=", orientation
+        ]
+        arg_2 = self._default_object_attributes(name=name, material=material)
+        new_object_name = self.oeditor.CreateRegularPolyhedron(arg_1, arg_2)
         return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler(cs_axis="orientation", position="origin", matname="material")
@@ -405,22 +424,22 @@ class Primitives3D(GeometryModeler):
             self.logger.error("The ``position`` argument must be a valid three-element list.")
             return False
 
-        XCenter, YCenter, ZCenter = self._pos_with_arg(origin)
-        szAxis = GeometryOperators.cs_axis_str(orientation)
-        Height = self._arg_with_dim(height)
-        RadiusBt = self._arg_with_dim(bottom_radius)
-        RadiusUp = self._arg_with_dim(top_radius)
+        x_center, y_center, z_center = self._pos_with_arg(origin)
+        axis = GeometryOperators.cs_axis_str(orientation)
+        height = self._arg_with_dim(height)
+        bottom_radius = self._arg_with_dim(bottom_radius)
+        top_radius = self._arg_with_dim(top_radius)
 
-        vArg1 = ["NAME:ConeParameters"]
-        vArg1.append("XCenter:="), vArg1.append(XCenter)
-        vArg1.append("YCenter:="), vArg1.append(YCenter)
-        vArg1.append("ZCenter:="), vArg1.append(ZCenter)
-        vArg1.append("WhichAxis:="), vArg1.append(szAxis)
-        vArg1.append("Height:="), vArg1.append(Height)
-        vArg1.append("BottomRadius:="), vArg1.append(RadiusBt)
-        vArg1.append("TopRadius:="), vArg1.append(RadiusUp)
-        vArg2 = self._default_object_attributes(name=name, material=material)
-        new_object_name = self.oeditor.CreateCone(vArg1, vArg2)
+        arg_1 = ["NAME:ConeParameters",
+                 "XCenter:=", x_center,
+                 "YCenter:=", y_center,
+                 "ZCenter:=", z_center,
+                 "WhichAxis:=", axis,
+                 "Height:=", height,
+                 "BottomRadius:=", bottom_radius,
+                 "TopRadius:=", top_radius]
+        arg_2 = self._default_object_attributes(name=name, material=material)
+        new_object_name = self.oeditor.CreateCone(arg_1, arg_2)
         return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler(position="origin", matname="material")
@@ -472,17 +491,18 @@ class Primitives3D(GeometryModeler):
             self.logger.error("The ``radius`` argument must be greater than 0.")
             return False
 
-        XCenter, YCenter, ZCenter = self._pos_with_arg(origin)
+        x_center, y_center, z_center = self._pos_with_arg(origin)
+        radius = self._arg_with_dim(radius)
 
-        Radius = self._arg_with_dim(radius)
-
-        vArg1 = ["NAME:SphereParameters"]
-        vArg1.append("XCenter:="), vArg1.append(XCenter)
-        vArg1.append("YCenter:="), vArg1.append(YCenter)
-        vArg1.append("ZCenter:="), vArg1.append(ZCenter)
-        vArg1.append("Radius:="), vArg1.append(Radius)
-        vArg2 = self._default_object_attributes(name=name, material=material)
-        new_object_name = self.oeditor.CreateSphere(vArg1, vArg2)
+        arg_1 = [
+            "NAME:SphereParameters",
+            "XCenter:=", x_center,
+            "YCenter:=", y_center,
+            "ZCenter:=", z_center,
+            "Radius:=", radius,
+        ]
+        arg_2 = self._default_object_attributes(name=name, material=material)
+        new_object_name = self.oeditor.CreateSphere(arg_1, arg_2)
         return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler(center="origin", material_name="material")
@@ -747,22 +767,24 @@ class Primitives3D(GeometryModeler):
         if len(sizes) != 2:
             self.logger.error("The ``sizes`` argument must be a valid two-element list.")
             return False
-        szAxis = GeometryOperators.cs_plane_to_axis_str(orientation)
-        XStart, YStart, ZStart = self._pos_with_arg(origin)
 
-        Width = self._arg_with_dim(sizes[0])
-        Height = self._arg_with_dim(sizes[1])
+        axis = GeometryOperators.cs_plane_to_axis_str(orientation)
+        x_start, y_start, z_start = self._pos_with_arg(origin)
+        width = self._arg_with_dim(sizes[0])
+        height = self._arg_with_dim(sizes[1])
 
-        vArg1 = ["NAME:RectangleParameters"]
-        vArg1.append("IsCovered:="), vArg1.append(is_covered)
-        vArg1.append("XStart:="), vArg1.append(XStart)
-        vArg1.append("YStart:="), vArg1.append(YStart)
-        vArg1.append("ZStart:="), vArg1.append(ZStart)
-        vArg1.append("Width:="), vArg1.append(Width)
-        vArg1.append("Height:="), vArg1.append(Height)
-        vArg1.append("WhichAxis:="), vArg1.append(szAxis)
-        vArg2 = self._default_object_attributes(name=name, material=material)
-        new_object_name = self.oeditor.CreateRectangle(vArg1, vArg2)
+        arg_1 = [
+            "NAME:RectangleParameters",
+            "IsCovered:=", is_covered,
+            "XStart:=", x_start,
+            "YStart:=", y_start,
+            "ZStart:=", z_start,
+            "Width:=", width,
+            "Height:=", height,
+            "WhichAxis:=", axis
+        ]
+        arg_2 = self._default_object_attributes(name=name, material=material)
+        new_object_name = self.oeditor.CreateRectangle(arg_1, arg_2)
         return self._create_object(new_object_name, **kwargs)
 
     # fmt: off
@@ -828,19 +850,21 @@ class Primitives3D(GeometryModeler):
         non_model_flag = ""
         if non_model:
             non_model_flag = "NonModel#"
-        szAxis = GeometryOperators.cs_plane_to_axis_str(orientation)
-        XCenter, YCenter, ZCenter = self._pos_with_arg(origin)
-        Radius = self._arg_with_dim(radius)
-        vArg1 = ["NAME:CircleParameters"]
-        vArg1.append("IsCovered:="), vArg1.append(is_covered)
-        vArg1.append("XCenter:="), vArg1.append(XCenter)
-        vArg1.append("YCenter:="), vArg1.append(YCenter)
-        vArg1.append("ZCenter:="), vArg1.append(ZCenter)
-        vArg1.append("Radius:="), vArg1.append(Radius)
-        vArg1.append("WhichAxis:="), vArg1.append(szAxis)
-        vArg1.append("NumSegments:="), vArg1.append(f"{num_sides}")
-        vArg2 = self._default_object_attributes(name=name, material=material, flags=non_model_flag)
-        new_object_name = self.oeditor.CreateCircle(vArg1, vArg2)
+        axis = GeometryOperators.cs_plane_to_axis_str(orientation)
+        x_center, y_center, z_center = self._pos_with_arg(origin)
+        radius = self._arg_with_dim(radius)
+        arg_1 = [
+            "NAME:CircleParameters",
+            "IsCovered:=", is_covered,
+            "XCenter:=", x_center,
+            "YCenter:=", y_center,
+            "ZCenter:=", z_center,
+            "Radius:=", radius,
+            "WhichAxis:=", axis,
+            "NumSegments:=", f"{num_sides}"
+        ]
+        arg_2 = self._default_object_attributes(name=name, material=material, flags=non_model_flag)
+        new_object_name = self.oeditor.CreateCircle(arg_1, arg_2)
         return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler(cs_plane="orientation", position="origin", matname="material")
@@ -919,23 +943,23 @@ class Primitives3D(GeometryModeler):
         ...                                          major_radius=2, ratio=2, is_covered=True, name="myell",
         ...                                          material="vacuum")
         """
-        szAxis = GeometryOperators.cs_plane_to_axis_str(orientation)
-        XStart, YStart, ZStart = self._pos_with_arg(origin)
+        axis = GeometryOperators.cs_plane_to_axis_str(orientation)
+        x_start, y_start, z_start = self._pos_with_arg(origin)
+        major_radius = self._arg_with_dim(major_radius)
 
-        MajorRadius = self._arg_with_dim(major_radius)
-
-        vArg1 = ["NAME:EllipseParameters"]
-        vArg1.append("IsCovered:="), vArg1.append(is_covered)
-        vArg1.append("XCenter:="), vArg1.append(XStart)
-        vArg1.append("YCenter:="), vArg1.append(YStart)
-        vArg1.append("ZCenter:="), vArg1.append(ZStart)
-        vArg1.append("MajRadius:="), vArg1.append(MajorRadius)
-        vArg1.append("Ratio:="), vArg1.append(ratio)
-        vArg1.append("WhichAxis:="), vArg1.append(szAxis)
-        vArg1.append("NumSegments:="), vArg1.append(segments)
-
-        vArg2 = self._default_object_attributes(name=name, material=material)
-        new_object_name = self.oeditor.CreateEllipse(vArg1, vArg2)
+        arg_1 = [
+            "NAME:EllipseParameters",
+            "IsCovered:=", is_covered,
+            "XCenter:=", x_start,
+            "YCenter:=", y_start,
+            "ZCenter:=", z_start,
+            "MajRadius:=", major_radius,
+            "Ratio:=", ratio,
+            "WhichAxis:=", axis,
+            "NumSegments:=", segments
+        ]
+        arg_2 = self._default_object_attributes(name=name, material=material)
+        new_object_name = self.oeditor.CreateEllipse(arg_1, arg_2)
         return self._create_object(new_object_name, **kwargs)
 
     # fmt: off
@@ -1039,28 +1063,21 @@ class Primitives3D(GeometryModeler):
             bend_type=xsection_bend_type,
         )
 
-        vArg1 = [
+        arg_1 = [
             "NAME:EquationBasedCurveParameters",
-            "XtFunction:=",
-            str(x_t),
-            "YtFunction:=",
-            str(y_t),
-            "ZtFunction:=",
-            str(z_t),
-            "tStart:=",
-            str(t_start),
-            "tEnd:=",
-            str(t_end),
-            "NumOfPointsOnCurve:=",
-            num_points,
-            "Version:=",
-            1,
+            "XtFunction:=", str(x_t),
+            "YtFunction:=", str(y_t),
+            "ZtFunction:=", str(z_t),
+            "tStart:=", str(t_start),
+            "tEnd:=", str(t_end),
+            "NumOfPointsOnCurve:=", num_points,
+            "Version:=", 1,
             x_section,
         ]
 
-        vArg2 = self._default_object_attributes(name)
+        arg_2 = self._default_object_attributes(name)
 
-        new_name = self.oeditor.CreateEquationCurve(vArg1, vArg2)
+        new_name = self.oeditor.CreateEquationCurve(arg_1, arg_2)
         return self._create_object(new_name, **kwargs)
 
     # fmt: off
@@ -1123,29 +1140,21 @@ class Primitives3D(GeometryModeler):
         ...                                                     )
         """
 
-        vArg1 = [
+        arg_1 = [
             "NAME:EquationBasedSurfaceParameters",
-            "XuvFunction:=",
-            str(x_uv),
-            "YuvFunction:=",
-            str(y_uv),
-            "ZuvFunction:=",
-            str(z_uv),
-            "uStart:=",
-            str(u_start),
-            "uEnd:=",
-            str(u_end),
-            "vStart:=",
-            str(v_start),
-            "vEnd:=",
-            str(v_end),
-            "Version:=",
-            1,
+            "XuvFunction:=", str(x_uv),
+            "YuvFunction:=", str(y_uv),
+            "ZuvFunction:=", str(z_uv),
+            "uStart:=", str(u_start),
+            "uEnd:=", str(u_end),
+            "vStart:=", str(v_start),
+            "vEnd:=", str(v_end),
+            "Version:=", 1,
         ]
 
-        vArg2 = self._default_object_attributes(name)
+        arg_2 = self._default_object_attributes(name)
 
-        new_name = self.oeditor.CreateEquationSurface(vArg1, vArg2)
+        new_name = self.oeditor.CreateEquationSurface(arg_1, arg_2)
         return self._create_object(new_name, **kwargs)
 
     # fmt: off
@@ -1213,33 +1222,25 @@ class Primitives3D(GeometryModeler):
             return False
         x_center, y_center, z_center = self._pos_with_arg(origin)
 
-        vArg1 = ["NAME:Selections"]
-        vArg1.append("Selections:="), vArg1.append(assignment)
-        vArg1.append("NewPartsModelFlag:="), vArg1.append("Model")
-
-        vArg2 = ["NAME:HelixParameters"]
-        vArg2.append("XCenter:=")
-        vArg2.append(x_center)
-        vArg2.append("YCenter:=")
-        vArg2.append(y_center)
-        vArg2.append("ZCenter:=")
-        vArg2.append(z_center)
-        vArg2.append("XStartDir:=")
-        vArg2.append(self._arg_with_dim(x_start_dir))
-        vArg2.append("YStartDir:=")
-        vArg2.append(self._arg_with_dim(y_start_dir))
-        vArg2.append("ZStartDir:=")
-        vArg2.append(self._arg_with_dim(z_start_dir))
-        vArg2.append("NumThread:=")
-        vArg2.append(turns)
-        vArg2.append("RightHand:=")
-        vArg2.append(right_hand)
-        vArg2.append("RadiusIncrement:=")
-        vArg2.append(self._arg_with_dim(radius_increment))
-        vArg2.append("Thread:=")
-        vArg2.append(self._arg_with_dim(thread))
-
-        self.oeditor.CreateHelix(vArg1, vArg2)
+        arg_1 = [
+            "NAME:Selections",
+            "Selections:=", assignment,
+            "NewPartsModelFlag:=", "Model"
+        ]
+        arg_2 = [
+            "NAME:HelixParameters",
+            "XCenter:=", x_center,
+            "YCenter:=", y_center,
+            "ZCenter:=", z_center,
+            "XStartDir:=", self._arg_with_dim(x_start_dir),
+            "YStartDir:=", self._arg_with_dim(y_start_dir),
+            "ZStartDir:=", self._arg_with_dim(z_start_dir),
+            "NumThread:=", turns,
+            "RightHand:=", right_hand,
+            "RadiusIncrement:=", self._arg_with_dim(radius_increment),
+            "Thread:=", self._arg_with_dim(thread)
+        ]
+        self.oeditor.CreateHelix(arg_1, arg_2)
         if assignment in self.objects_by_name:
             del self.objects[self.objects_by_name[assignment].id]
         return self._create_object(assignment, **kwargs)
@@ -1275,8 +1276,8 @@ class Primitives3D(GeometryModeler):
         >>> oEditor.CreateUserDefinedModel
 
         """
-        vArg1 = ["NAME:UserDefinedModelParameters", ["NAME:Definition"], ["NAME:Options"]]
-        vArgParamVector = ["NAME:GeometryParams"]
+        arg_1 = ["NAME:UserDefinedModelParameters", ["NAME:Definition"], ["NAME:Options"]]
+        arg_param_vector = ["NAME:GeometryParams"]
 
         for pair in parameters:
             if isinstance(pair, list):
@@ -1286,44 +1287,36 @@ class Primitives3D(GeometryModeler):
                 name_param = pair.Name
                 val = pair.Value
             if isinstance(val, int):
-                vArgParamVector.append(
+                arg_param_vector += [
                     ["NAME:UDMParam", "Name:=", name_param, "Value:=", str(val), "PropType2:=", 3, "PropFlag2:=", 2]
-                )
+                ]
             elif str(val)[0] in "0123456789":
-                vArgParamVector.append(
+                arg_param_vector += [
                     ["NAME:UDMParam", "Name:=", name_param, "Value:=", str(val), "PropType2:=", 3, "PropFlag2:=", 4]
-                )
+                ]
             elif val in self._app.variable_manager.variables:
-                vArgParamVector.append(
+                arg_param_vector += [
                     ["NAME:UDMParam", "Name:=", name_param, "Value:=", str(val), "PropType2:=", 3, "PropFlag2:=", 2]
-                )
+                ]
             else:
-                vArgParamVector.append(
+                arg_param_vector += [
                     [
                         "NAME:UDMParam",
-                        "Name:=",
-                        name_param,
-                        "Value:=",
-                        str(val),
-                        "DataType:=",
-                        "String",
-                        "PropType2:=",
-                        1,
-                        "PropFlag2:=",
-                        0,
+                        "Name:=", name_param,
+                        "Value:=", str(val),
+                        "DataType:=", "String",
+                        "PropType2:=", 1,
+                        "PropFlag2:=", 0,
                     ]
-                )
-
-        vArg1.append(vArgParamVector)
-        vArg1.append("DllName:=")
-        vArg1.append(udm_full_name)
-        vArg1.append("Library:=")
-        vArg1.append(library)
-        vArg1.append("Version:=")
-        vArg1.append("2.0")
-        vArg1.append("ConnectionID:=")
-        vArg1.append("")
-        oname = self.oeditor.CreateUserDefinedModel(vArg1)
+                ]
+        arg_1 += [
+            arg_param_vector,
+            "DllName:=", udm_full_name,
+            "Library:=", library,
+            "Version:=", "2.0",
+            "ConnectionID:=", "",
+        ]
+        oname = self.oeditor.CreateUserDefinedModel(arg_1)
         if oname:
             obj_list = list(self.oeditor.GetPartsForUserDefinedModel(oname))
             for new_name in obj_list:
@@ -1576,6 +1569,8 @@ class Primitives3D(GeometryModeler):
         """
         if password is None:
             password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
+        if not input_file.endswith(".a3dcomp"):
+            input_file += ".a3dcomp"
         aedt_fh = open_file(input_file, "rb")
         if aedt_fh:
             temp = aedt_fh.read().splitlines()
@@ -1588,10 +1583,10 @@ class Primitives3D(GeometryModeler):
             for line in _all_lines:
                 if "IsEncrypted" in line:
                     line_list = line.split("=")
-                    if line_list[1] in ["true", "True", True] and password == "":
-                        self.logger.warning("Encrypted model.")
+                    if line_list[1] in ["true", "True", True] and not password:
+                        self.logger.warning("Encrypted model but no password provided.")
             aedt_fh.close()
-        vArg1 = ["NAME:InsertComponentData"]
+
         sz_geo_params = ""
         if not geometry_parameters:
             geometryparams = self._app.get_components3d_vars(input_file)
@@ -1600,28 +1595,22 @@ class Primitives3D(GeometryModeler):
 
         if geometry_parameters:
             sz_geo_params = "".join([f"{par}='{val}' " for par, val in geometry_parameters.items()])
-        vArg1.append("TargetCS:=")
-        vArg1.append(coordinate_system)
-        vArg1.append("ComponentFile:=")
-        vArg1.append(input_file)
-        vArg1.append("IsLocal:=")
-        vArg1.append(False)
-        vArg1.append("UniqueIdentifier:=")
-        vArg1.append("")
-        varg2 = [
-            "NAME:InstanceParameters",
-            "GeometryParameters:=",
-            sz_geo_params,
-            "MaterialParameters:=",
-            material_parameters,
-            "DesignParameters:=",
-            design_parameters,
+        arg_1 = [
+            "NAME:InsertComponentData",
+            "TargetCS:=", coordinate_system,
+            "ComponentFile:=", input_file,
+            "IsLocal:=", False,
+            "UniqueIdentifier:=", ""
         ]
-        vArg1.append(varg2)
-        vArg1.append("Password:=")
-        vArg1.append(password)
+        arg_2 = [
+            "NAME:InstanceParameters",
+            "GeometryParameters:=", sz_geo_params,
+            "MaterialParameters:=", material_parameters,
+            "DesignParameters:=", design_parameters,
+        ]
+        arg_1 += [arg_2, "Password:=", password]
         try:
-            new_object_name = self.oeditor.Insert3DComponent(vArg1)
+            new_object_name = self.oeditor.Insert3DComponent(arg_1)
             if new_object_name:
                 obj_list = list(self.oeditor.Get3DComponentPartNames(new_object_name))
                 for new_name in obj_list:
@@ -1865,133 +1854,94 @@ class Primitives3D(GeometryModeler):
 
             component_obj.close()
 
-        vArg1 = ["NAME:InsertNativeComponentData"]
-        vArg1.append("TargetCS:=")
-        vArg1.append(coordinate_system)
-        vArg1.append("SubmodelDefinitionName:=")
-        vArg1.append("LC")
-        varg2 = ["NAME:ComponentPriorityLists"]
-        vArg1.append(varg2)
-        vArg1.append("NextUniqueID:=")
-        vArg1.append(0)
-        vArg1.append("MoveBackwards:=")
-        vArg1.append(False)
-        vArg1.append("DatasetType:=")
-        vArg1.append("ComponentDatasetType")
-        varg3 = ["NAME:DatasetDefinitions"]
-        vArg1.append(varg3)
-        varg4 = [
-            "NAME:BasicComponentInfo",
-            "ComponentName:=",
-            "LC",
-            "Company:=",
-            "",
-            "Company URL:=",
-            "",
-            "Model Number:=",
-            "",
-            "Help URL:=",
-            "",
-            "Version:=",
-            "1.0",
-            "Notes:=",
-            "",
-            "IconType:=",
-            "Layout Component",
+        arg_1 = [
+            "NAME:InsertNativeComponentData",
+            "TargetCS:=", coordinate_system,
+            "SubmodelDefinitionName:=", "LC",
+            ["NAME:ComponentPriorityLists"],
+            "NextUniqueID:=", 0,
+            "MoveBackwards:=", False,
+            "DatasetType:=", "ComponentDatasetType",
+            ["NAME:DatasetDefinitions"],
+            [
+                "NAME:BasicComponentInfo",
+                "ComponentName:=", "LC",
+                "Company:=", "",
+                "Company URL:=", "",
+                "Model Number:=", "",
+                "Help URL:=", "",
+                "Version:=", "1.0",
+                "Notes:=", "",
+                "IconType:=", "Layout Component",
+            ],
         ]
-        vArg1.append(varg4)
-        varg5 = [
+        sub_arg_0 = [
             "NAME:GeometryDefinitionParameters",
         ]
         if parameters and parameter_mapping:
             for param in parameters:
-                varg5.append("VariableProp:=")
-                varg5.append([parameters[param][0], "D", "", parameters[param][1]])
-
-        varg5.append(["NAME:VariableOrders"])
-        vArg1.append(varg5)
-
-        varg6 = ["NAME:DesignDefinitionParameters", ["NAME:VariableOrders"]]
-        vArg1.append(varg6)
-
-        varg7 = ["NAME:MaterialDefinitionParameters", ["NAME:VariableOrders"]]
-        vArg1.append(varg7)
-
-        vArg1.append("DefReferenceCSID:=")
-        vArg1.append(1)
-        vArg1.append("MapInstanceParameters:=")
-        vArg1.append("DesignVariable")
-        vArg1.append("UniqueDefinitionIdentifier:=")
-        vArg1.append("")
-        vArg1.append("OriginFilePath:=")
-        vArg1.append("")
-        vArg1.append("IsLocal:=")
-        vArg1.append(False)
-        vArg1.append("ChecksumString:=")
-        vArg1.append("")
-        vArg1.append("ChecksumHistory:=")
-        vArg1.append([])
-        vArg1.append("VersionHistory:=")
-        vArg1.append([])
-
-        varg8 = ["NAME:VariableMap"]
-
+                sub_arg_0 += ["VariableProp:=", [parameters[param][0], "D", "", parameters[param][1]]]
+        sub_arg_0.append(["NAME:VariableOrders"])
+        arg_1.append(sub_arg_0)
+        arg_1.append(["NAME:DesignDefinitionParameters", ["NAME:VariableOrders"]])
+        arg_1.append(["NAME:MaterialDefinitionParameters", ["NAME:VariableOrders"]])
+        arg_1 += [
+            "DefReferenceCSID:=", 1,
+            "MapInstanceParameters:=", "DesignVariable",
+            "UniqueDefinitionIdentifier:=", "",
+            "OriginFilePath:=", "",
+            "IsLocal:=", False,
+            "ChecksumString:=", "",
+            "ChecksumHistory:=", [],
+            "VersionHistory:=", [],
+        ]
+        sub_arg_1 = ["NAME:VariableMap"]
         for param in parameters:
-            varg8.append(param + ":=")
+            sub_arg_1.append(param + ":=")
             if parameter_mapping:
-                varg8.append(parameters[param][0])
+                sub_arg_1.append(parameters[param][0])
             else:
-                varg8.append(parameters[param][1])
-
-        varg9 = [
+                sub_arg_1.append(parameters[param][1])
+        sub_arg_2 = [
             "NAME:NativeComponentDefinitionProvider",
-            "Type:=",
-            "Layout Component",
-            "Unit:=",
-            "mm",
-            "Version:=",
-            1.1,
-            "EDBDefinition:=",
-            aedt_component_name,
-            varg8,
-            "ReferenceCS:=",
-            reference_coordinate_system,
+            "Type:=", "Layout Component",
+            "Unit:=", "mm",
+            "Version:=", 1.1,
+            "EDBDefinition:=", aedt_component_name,
+            sub_arg_1,
+            "ReferenceCS:=", reference_coordinate_system,
             "CSToImport:=",
         ]
-
         if component_cs and not layout_coordinate_systems:  # pragma: no cover
-            varg10 = component_cs
-            varg10.append("Global")
+            sub_arg_3 = component_cs
+            sub_arg_3.append("Global")
         elif component_cs and layout_coordinate_systems:  # pragma: no cover
-            varg10 = ["Global"]
+            sub_arg_3 = ["Global"]
             for cs in layout_coordinate_systems:
                 if cs in component_cs:
-                    varg10.append(cs)
+                    sub_arg_3.append(cs)
         else:
-            varg10 = ["Global"]
+            sub_arg_3 = ["Global"]
 
-        varg9.append(varg10)
-        vArg1.append(varg9)
+        sub_arg_2.append(sub_arg_3)
+        arg_1.append(sub_arg_2)
 
-        varg11 = ["NAME:InstanceParameters"]
-        varg11.append("GeometryParameters:=")
-
+        sub_arg_4 = ["NAME:InstanceParameters", "GeometryParameters:="]
         if parameters and parameter_mapping:
-            varg12 = ""
+            sub_arg_5 = ""
             for param in parameters:
-                varg12 += f" {parameters[param][0]}='{parameters[param][0]}'"
+                sub_arg_5 += f" {parameters[param][0]}='{parameters[param][0]}'"
         else:
-            varg12 = ""
-        varg11.append(varg12[1:])
-
-        varg11.append("MaterialParameters:=")
-        varg11.append("")
-        varg11.append("DesignParameters:=")
-        varg11.append("")
-        vArg1.append(varg11)
+            sub_arg_5 = ""
+        sub_arg_4 += [
+            sub_arg_5[1:],
+            "MaterialParameters:=", "",
+            "DesignParameters:=", ""
+        ]
+        arg_1.append(sub_arg_4)
 
         try:
-            new_object_name = self.oeditor.InsertNativeComponent(vArg1)
+            new_object_name = self.oeditor.InsertNativeComponent(arg_1)
             udm_obj = False
             if new_object_name:
                 obj_list = list(self.oeditor.Get3DComponentPartNames(new_object_name))
@@ -2599,9 +2549,8 @@ class Primitives3D(GeometryModeler):
         list_duplicated_object = []
         if isinstance(list_object[0], list):
             for i in range(len(list_object)):
-                success = list_object[i][0].set_crosssection_properties(
-                    type=section, width=w_dia, num_seg=segment_number
-                )
+                success = list_object[i][0].set_crosssection_properties(section=section, width=w_dia,
+                                                                        num_seg=segment_number)
             returned_list = returned_list + list_object
         else:
             success = list_object[0].set_crosssection_properties(type=section, width=w_dia, num_seg=segment_number)
@@ -2618,16 +2567,16 @@ class Primitives3D(GeometryModeler):
                                                            material=material_wind)
                         duplication.mirror([0, 0, 0], [-1, 0, 0])
                         duplication_points = self.get_vertices_of_line(duplication.name)
-                        success = duplication.set_crosssection_properties(
-                            type=section, width=w_dia, num_seg=segment_number
-                        )
+                        success = duplication.set_crosssection_properties(section=section, width=w_dia,
+                                                                          num_seg=segment_number)
                         list_duplicated_object.append([duplication, duplication_points])
 
                 else:
                     duplication = self.create_polyline(points=list_object[1], name=name_wind, material=material_wind)
                     duplication.mirror([0, 0, 0], [-1, 0, 0])
                     duplication_points = self.get_vertices_of_line(duplication.name)
-                    success = duplication.set_crosssection_properties(type=section, width=w_dia, num_seg=segment_number)
+                    success = duplication.set_crosssection_properties(section=section, width=w_dia,
+                                                                      num_seg=segment_number)
                     list_duplicated_object.append([duplication, duplication_points])
             else:
                 if isinstance(list_object[0], list):
@@ -2637,9 +2586,8 @@ class Primitives3D(GeometryModeler):
                                                                material=material_wind)
                             duplication.rotate("Z", (j + 1) * 360 / number_duplication)
                             duplication_points = self.get_vertices_of_line(duplication.name)
-                            success = duplication.set_crosssection_properties(
-                                type=section, width=w_dia, num_seg=segment_number
-                            )
+                            success = duplication.set_crosssection_properties(section=section, width=w_dia,
+                                                                              num_seg=segment_number)
                             list_duplicated_object.append([duplication, duplication_points])
                 else:
                     for j in range(number_duplication - 1):
@@ -2647,9 +2595,8 @@ class Primitives3D(GeometryModeler):
                                                            material=material_wind)
                         duplication.rotate("Z", (j + 1) * 360 / number_duplication)
                         duplication_points = self.get_vertices_of_line(duplication.name)
-                        success = duplication.set_crosssection_properties(
-                            type=section, width=w_dia, num_seg=segment_number
-                        )
+                        success = duplication.set_crosssection_properties(section=section, width=w_dia,
+                                                                          num_seg=segment_number)
                         list_duplicated_object.append([duplication, duplication_points])
             returned_list = returned_list + list_duplicated_object
         if success:

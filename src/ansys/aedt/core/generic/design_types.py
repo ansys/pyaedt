@@ -52,7 +52,6 @@ Simplorer = TwinBuilder
 
 def FilterSolutions(
     version=None,
-    implementation_type=None,
 ):
     """Initialize a ``FilterSolutions` instance.
 
@@ -61,9 +60,6 @@ def FilterSolutions(
     version : str optional
         Version of AEDT to use in ``xxxx.x`` format to use. The default is ``None``, in which case the
         active setup or latest installed version is used.
-    implementation_type : enum, optional
-        Type of filter implementation available from the ``FilterImplementation`` enum.
-        The default is ``None``, in which case the lumped implementation is used.
 
     Returns
     -------
@@ -73,7 +69,7 @@ def FilterSolutions(
     --------
     Define a band-pass Butterworth filter with a center frequency of 1 GHz and a pass band width of 500 MHz.
 
-    design = ansys.aedt.core.FilterSolutions(version="2025.1", implementation_type= FilterImplementation.LUMPED)
+    design = ansys.aedt.core.LumpedDesign(version="2025.1")
     design.attributes.filter_class = FilterClass.BAND_PASS
     design.attributes.filter_type = FilterType.BUTTERWORTH
     design.attributes.pass_band_center_frequency = "1G"
@@ -83,7 +79,6 @@ def FilterSolutions(
 
     return app(
         version=version,
-        implementation_type=implementation_type,
     )
 
 

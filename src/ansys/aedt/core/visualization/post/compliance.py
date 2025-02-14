@@ -26,6 +26,7 @@ import os.path
 from pathlib import Path
 import time
 
+from ansys.aedt.core import settings
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.generic.filesystem import search_files
 from ansys.aedt.core.generic.general_methods import generate_unique_name
@@ -648,6 +649,7 @@ class VirtualCompliance:
         _design = None
         first_trace = True
         for template_report in self._reports.values():
+            settings.logger.info(f"Adding report  {template_report.name}.")
             config_file = template_report.config_file
             if not os.path.exists(config_file) and not os.path.exists(os.path.join(self._template_folder, config_file)):
                 self._desktop_class.logger.error(f"{config_file} is not found.")
@@ -829,6 +831,7 @@ class VirtualCompliance:
                     else:  # pragma: no cover
                         msg = f"Failed to create the report. Check {config_file} configuration file."
                         self._desktop_class.logger.error(msg)
+            settings.logger.info(f"Report {template_report.name} added to the pdf.")
 
     @pyaedt_function_handler()
     def _create_parameters(self, pdf_report):
@@ -874,6 +877,7 @@ class VirtualCompliance:
                     "Effective Return Losses",
                     table_out,
                 )
+            settings.logger.info(f"Parameters {template_report.name} added to the report.")
 
     @pyaedt_function_handler()
     def _add_lna_violations(self, report, pdf_report, image_name, local_config):
@@ -1111,6 +1115,11 @@ class VirtualCompliance:
             report.add_empty_line(3)
 
             if _design.design_type == "Circuit Design":
+                for page in range(1, _design.modeler.pages + 1):
+                    name = os.path.join(self._output_folder, f"{_design.design_name}_{page}.jpg")
+                    image = _design.post.export_model_picture(name, page)
+                    if os.path.exists(image):
+                        report.add_image(image, caption=f"Schematic {_design.design_name}, page {page}.")
                 components = [["Reference Designator", "Parameters"]]
                 for element in _design.modeler.components.components.values():
                     if "refdes" in dir(element):
@@ -1170,11 +1179,12 @@ class VirtualCompliance:
                         report.add_image(file, caption=caption, width=report.epw - 50)
                     else:
                         report.add_image(file, caption=caption, height=report.eph - 100)
-
+            settings.logger.info("Specifications info added to the report.")
         self._create_parameters(report)
         self._create_aedt_reports(report)
         if self._add_project_info:
             self._create_project_info(report)
+            settings.logger.info("Project info added to the report.")
         report.add_toc()
         output = report.save_pdf(self._output_folder, file_name=file_name)
         if close_project:

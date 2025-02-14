@@ -26,7 +26,7 @@ import os.path
 import warnings
 
 from ansys.aedt.core.generic.data_handlers import _dict2arg
-from ansys.aedt.core.generic.general_methods import GrpcApiError
+from ansys.aedt.core.generic.errors import GrpcApiError
 from ansys.aedt.core.generic.general_methods import _dim_arg
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -933,12 +933,12 @@ class MeshRegion(MeshRegionCommon):
                     for sr in sub_regions:
                         p1 = []
                         p2 = []
-                        if "Part Names" in self._app.modeler[sr].history().props:
-                            p1 = self._app.modeler[sr].history().props.get("Part Names", None)
+                        if "Part Names" in self._app.modeler[sr].history().properties:
+                            p1 = self._app.modeler[sr].history().properties.get("Part Names", None)
                             if not isinstance(p1, list):
                                 p1 = [p1]
-                        elif "Submodel Names" in self._app.modeler[sr].history().props:
-                            p2 = self._app.modeler[sr].history().props.get("Submodel Names", None)
+                        elif "Submodel Names" in self._app.modeler[sr].history().properties:
+                            p2 = self._app.modeler[sr].history().properties.get("Submodel Names", None)
                             if not isinstance(p2, list):
                                 p2 = [p2]
                         p1 += p2
@@ -1338,7 +1338,9 @@ class IcepakMesh(object):
 
     @pyaedt_function_handler(accuracy2="accuracy", stairStep="enable_stair_step")
     def automatic_mesh_3D(self, accuracy, enable_stair_step=True):
-        """Create a generic custom mesh for a custom 3D object.
+        """Create a generic custom mesh.
+
+        .. deprecated:: 0.13.0
 
         Parameters
         ----------
@@ -1360,14 +1362,14 @@ class IcepakMesh(object):
         xsize = self.boundingdimension[0] / (10 * accuracy * accuracy)
         ysize = self.boundingdimension[1] / (10 * accuracy * accuracy)
         zsize = self.boundingdimension[2] / (10 * accuracy)
-        self.global_mesh_region.MaxElementSizeX = xsize
-        self.global_mesh_region.MaxElementSizeY = ysize
-        self.global_mesh_region.MaxElementSizeZ = zsize
-        self.global_mesh_region.UserSpecifiedSettings = True
-        self.global_mesh_region.MinGapX = str(xsize / 100)
-        self.global_mesh_region.MinGapY = str(ysize / 100)
-        self.global_mesh_region.MinGapZ = str(zsize / 100)
-        self.global_mesh_region.StairStepMeshing = enable_stair_step
+        self.global_mesh_region.manual_settings = True
+        self.global_mesh_region.settings["MaxElementSizeX"] = xsize
+        self.global_mesh_region.settings["MaxElementSizeY"] = ysize
+        self.global_mesh_region.settings["MaxElementSizeZ"] = zsize
+        self.global_mesh_region.settings["MinGapX"] = str(xsize / 100)
+        self.global_mesh_region.settings["MinGapY"] = str(ysize / 100)
+        self.global_mesh_region.settings["MinGapZ"] = str(zsize / 100)
+        self.global_mesh_region.settings["StairStepMeshing"] = enable_stair_step
         self.global_mesh_region.update()
         return True
 

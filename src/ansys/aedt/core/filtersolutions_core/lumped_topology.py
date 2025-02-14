@@ -32,15 +32,16 @@ import ansys.aedt.core
 
 
 class LumpedTopology:
-    """Defines attributes and parameters of lumped filters.
+    """Defines topology parameters of lumped filters.
 
-    This class lets you construct all the necessary attributes for the ``LumpedDesign`` class.
+    This class lets you construct all parameters for the ``LumpedDesign`` class.
     """
 
     def __init__(self):
         self._dll = ansys.aedt.core.filtersolutions_core._dll_interface()._dll
         self._dll_interface = ansys.aedt.core.filtersolutions_core._dll_interface()
         self._define_topology_dll_functions()
+        # self._set_lump_implementation()
 
     def _define_topology_dll_functions(self):
         """Define C++ API DLL functions."""
@@ -154,35 +155,40 @@ class LumpedTopology:
         self._dll.getLumpedCircuitResponse.argtypes = [c_char_p, c_int]
         self._dll.getLumpedCircuitResponse.restype = c_int
 
+    # def _set_lump_implementation(self):
+    #     """Set ``FilterSolutions`` attributes to lump design."""
+    #     filter_implementation_status = self._dll.setFilterImplementation(0)
+    #     ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(filter_implementation_status)
+
     @property
-    def generator_resistor(self) -> str:
+    def source_resistance(self) -> str:
         """Generator resistor. The default is ``50``.
 
         Returns
         -------
         str
         """
-        generator_resistor_string = self._dll_interface.get_string(self._dll.getLumpedGeneratorResistor)
-        return generator_resistor_string
+        source_resistance_string = self._dll_interface.get_string(self._dll.getLumpedGeneratorResistor)
+        return source_resistance_string
 
-    @generator_resistor.setter
-    def generator_resistor(self, generator_resistor_string):
-        self._dll_interface.set_string(self._dll.setLumpedGeneratorResistor, generator_resistor_string)
+    @source_resistance.setter
+    def source_resistance(self, source_resistance_string):
+        self._dll_interface.set_string(self._dll.setLumpedGeneratorResistor, source_resistance_string)
 
     @property
-    def load_resistor(self) -> str:
+    def load_resistance(self) -> str:
         """Load resistor. The default is ``50``.
 
         Returns
         -------
         str
         """
-        load_resistor_string = self._dll_interface.get_string(self._dll.getLumpedLoadResistor)
-        return load_resistor_string
+        load_resistance_string = self._dll_interface.get_string(self._dll.getLumpedLoadResistor)
+        return load_resistance_string
 
-    @load_resistor.setter
-    def load_resistor(self, load_resistor_string):
-        self._dll_interface.set_string(self._dll.setLumpedLoadResistor, load_resistor_string)
+    @load_resistance.setter
+    def load_resistance(self, load_resistance_string):
+        self._dll_interface.set_string(self._dll.setLumpedLoadResistor, load_resistance_string)
 
     @property
     def current_source(self) -> bool:
@@ -529,12 +535,10 @@ class LumpedTopology:
         status = self._dll.setLumpedComplexElementTuneEnabled(complex_element_tune_enabled)
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
-    def circuit_response(self):
+    def netlist(self):
         """Execute real filter synthesis"""
         size = c_int()
         status = self._dll.getLumpedCircuitResponseSize(byref(size))
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
-        circuit_response_string = self._dll_interface.get_string(
-            self._dll.getLumpedCircuitResponse, max_size=size.value
-        )
-        return circuit_response_string
+        netlist_string = self._dll_interface.get_string(self._dll.getLumpedCircuitResponse, max_size=size.value)
+        return netlist_string

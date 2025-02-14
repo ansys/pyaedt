@@ -92,7 +92,7 @@ class FfdSolutionData(object):
 
     Examples
     --------
-    >>> from ansys.aedt.core
+    >>> from ansys.aedt.core import Hfss
     >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
     >>> app = ansys.aedt.core.Hfss(version="2023.2", design="Antenna")
     >>> data = app.get_antenna_data()
@@ -842,7 +842,7 @@ class FfdSolutionData(object):
         Examples
         --------
         >>> from ansys.aedt.core
-        >>> app = ansys.aedt.core.Hfss(version="2024.2", design="Antenna")
+        >>> app = ansys.aedt.core.Hfss(version="2025.1", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
