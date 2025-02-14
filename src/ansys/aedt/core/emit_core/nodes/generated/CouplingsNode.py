@@ -5,9 +5,6 @@ class CouplingsNode(EmitNode):
         self._is_component = False
         EmitNode.__init__(self, oDesign, result_id, node_id)
 
-    def __eq__(self, other):
-      return ((self._result_id == other._result_id) and (self._node_id == other._node_id))
-
     def import_touchstone(self, file_name):
         """Open an Existing S-Matrix Data File"""
         return self._import(file_name,'TouchstoneCoupling')
@@ -18,7 +15,7 @@ class CouplingsNode(EmitNode):
 
     def add_path_loss_coupling(self):
         """Add a new node to define path loss coupling between antennas"""
-        return self._add_child_node("Propagation Loss Coupling")
+        return self._add_child_node("Path Loss Coupling")
 
     def add_two_ray_path_loss_coupling(self):
         """Add a new node to define two ray ground reflection coupling between antennas"""

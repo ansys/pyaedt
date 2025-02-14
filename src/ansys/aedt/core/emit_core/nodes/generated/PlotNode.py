@@ -5,9 +5,6 @@ class PlotNode(EmitNode):
         self._is_component = False
         EmitNode.__init__(self, oDesign, result_id, node_id)
 
-    def __eq__(self, other):
-      return ((self._result_id == other._result_id) and (self._node_id == other._node_id))
-
     def add_marker(self):
         """Add an icon and/or label to this plot"""
         return self._add_child_node("Plot Marker")
