@@ -59,6 +59,7 @@ Distributed filters rely on transmission lines and resonators.
 * ``DistributedTopology`` to define attributes and parameters of filters implemented using a distributed topology.
 * ``DistributedSubstrate`` to define attributes and  parameters of the substrate used in distributed filters.
 * ``DistributedGeometry`` to define attributes and parameters of the substrate geometry used in distributed filters.
+* ``DistributedRadial`` to define attributes and parameters of the substrate radial used in distributed filters.
 
 
 They are accessible through:
@@ -74,6 +75,7 @@ They are accessible through:
    distributed_topology.DistributedTopology
    distributed_substrate.DistributedSubstrate
    distributed_geometry.DistributedGeometry
+   distributed_radial.DistributedRadial
 
 ``Distributed Filter`` example:
 
