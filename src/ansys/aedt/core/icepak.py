@@ -4994,7 +4994,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         if not boundary_name:
             boundary_name = generate_unique_name("AdiabaticPlate")
-        bound = self._create_boundary(boundary_name, props, "AdiabaticPlate")
+        bound = self._create_boundary(boundary_name, props, "Adiabatic Plate")
         return bound
 
     @pyaedt_function_handler()
