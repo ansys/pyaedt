@@ -34,15 +34,16 @@ import ansys.aedt.core
 class DistributedRadial:
     """Defines radial parameters of distributed filters.
 
-    This class lets you construct all paramaeters for the radial page of the ``DistributedDesign`` class.
+    This class allows you to define and modify the radial and delta stub parameters of distributed filters.
+    These parameter changes are applicable exclusively to low-pass filters that include stub resonators.
     """
 
     def __init__(self):
         self._dll = ansys.aedt.core.filtersolutions_core._dll_interface()._dll
         self._dll_interface = ansys.aedt.core.filtersolutions_core._dll_interface()
-        self._define_geomtry_dll_functions()
+        self._define_radial_dll_functions()
 
-    def _define_geomtry_dll_functions(self):
+    def _define_radial_dll_functions(self):
         """Define C++ API DLL functions."""
         self._dll.setDistributedRadialStubs.argtype = c_bool
         self._dll.setDistributedRadialStubs.restype = c_int
