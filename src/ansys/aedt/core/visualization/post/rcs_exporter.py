@@ -216,7 +216,11 @@ class MonostaticRCSExporter:
             # Export geometry
             geometry_path = export_path / "geometry"
             if not geometry_path.exists():
-                geometry_path.mkdir()
+                try:
+                    geometry_path.mkdir()
+                except OSError as e:
+                    self.__app.logger.error(f"Failed to create directory {geometry_path}: {e}")
+                    return False
             obj_list = self.__create_geometries(geometry_path)
             if obj_list:
                 self.__model_info["object_list"] = obj_list

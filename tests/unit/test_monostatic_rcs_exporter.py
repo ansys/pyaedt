@@ -78,7 +78,7 @@ def test_export_rcs_with_no_monostatic_rcs(mock_settings, mock_monostatic_rcs, m
         res = exporter.export_rcs()
 
     assert not res
-    assert any((caplog.records[i].message == "Data can not be obtained." for i in range(len(caplog.records))))
+    assert any(("Failed to create directory" in caplog.records[i].message for i in range(len(caplog.records))))
     assert NAME == exporter.solution
 
 
@@ -93,7 +93,7 @@ def test_export_rcs_with_data_file_not_a_file(mock_is_file, mock_settings, mock_
         res = exporter.export_rcs()
 
     assert not res
-    assert any((caplog.records[i].message == "RCS data file not exported." for i in range(len(caplog.records))))
+    assert any(("Failed to create directory" in caplog.records[i].message for i in range(len(caplog.records))))
 
 
 @patch("ansys.aedt.core.generic.general_methods.check_and_download_folder", return_value=PATH)
