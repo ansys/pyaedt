@@ -38,7 +38,6 @@ class DllInterface:
     def __init__(self, show_gui=False, version=None):
         self._init_dll_path(version)
         self._init_dll(show_gui)
-        self._version = version
 
     def restore_defaults(self):
         """Restore the state of the API, including all options and values, to the initial startup state."""

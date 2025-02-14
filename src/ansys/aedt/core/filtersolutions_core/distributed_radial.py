@@ -103,7 +103,7 @@ class DistributedRadial:
     @property
     def radial_stubs(self) -> bool:
         """Flag indicating if the distributed radial stubs is enabled.
-        This property utilizes radial stubs for open lines.
+        If true, radial stubs are used for open lines.
 
         Returns
         -------
@@ -137,7 +137,7 @@ class DistributedRadial:
     @property
     def delta_stubs(self) -> bool:
         """Flag indicating if the distributed delta stubs is enabled.
-        This property utilizes delta stubs for open lines.
+        If true, delta stubs are used for open lines.
 
         Returns
         -------
@@ -156,7 +156,11 @@ class DistributedRadial:
     @property
     def split_wide_angle(self) -> str:
         """Angle in degrees that triggers the splitting of the wide radial or delta stubs.
-        All stubs wider than this angle will be split. The default is ``0``.
+
+        This parameter controls the splitting of wide stubs into upper and lower sections,
+        which helps reduce the overall stub thickness.
+        Stubs wider than the specified angle will be split.
+        A default value of ``0`` ensures that all stubs are split.
 
         Returns
         -------
@@ -204,7 +208,7 @@ class DistributedRadial:
 
     @property
     def adjust_width_max(self) -> bool:
-        """Flag indicating if the adjust the radial or delta width to the upper angle limit is enabled.
+        """Flag indicating if the adjustment of radial or delta width to the upper angle limit is enabled.
 
         Returns
         -------
@@ -237,7 +241,7 @@ class DistributedRadial:
 
     @property
     def adjust_length_max(self) -> bool:
-        """Flag indicating if the adjust the radial or delta length to the upper angle limit is enabled.
+        """Flag indicating if the adjustment of radial or delta length to the upper angle limit is enabled.
 
         Returns
         -------
@@ -270,7 +274,7 @@ class DistributedRadial:
 
     @property
     def apply_limits_radial_delta(self) -> bool:
-        """Flag indicating if the given radial or delta minimum and maximum angles are applied.
+        """Flag indicating if the radial or delta minimum and maximum angle limits are applied.
 
         Returns
         -------
