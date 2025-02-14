@@ -33,6 +33,9 @@ class EmitNode:
         self._result_id = result_id
         self._node_id = node_id
         self._valid = True
+    
+    def __eq__(self, other):
+        return ((self._result_id == other._result_id) and (self._node_id == other._node_id))
 
     @staticmethod
     def props_to_dict(props):

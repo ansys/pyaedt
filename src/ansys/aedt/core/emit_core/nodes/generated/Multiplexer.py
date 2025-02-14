@@ -5,9 +5,6 @@ class Multiplexer(EmitNode):
         self._is_component = True
         EmitNode.__init__(self, oDesign, result_id, node_id)
 
-    def __eq__(self, other):
-      return ((self._result_id == other._result_id) and (self._node_id == other._node_id))
-
     def add_multiplexer_pass_band(self):
         """Add a New Multiplexer Band to this Multiplexer"""
         return self._add_child_node("Multiplexer Pass Band")
