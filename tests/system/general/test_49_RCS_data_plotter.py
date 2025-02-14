@@ -317,7 +317,7 @@ class TestClass:
 
         rcs_plotter.add_waterfall_settings(aspect_ang_phi=90.0)
         plot = rcs_plotter.plot_scene(show=False)
-        # assert isinstance(plot, Plotter)
+        assert isinstance(plot, Plotter)
         assert rcs_plotter.clear_scene()
 
     def test_rcs_plotter_add_isar_2d_settings(self):
@@ -335,7 +335,14 @@ class TestClass:
         rcs_data = MonostaticRCSData(input_file=str(self.metadata_file))
         rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_data)
 
-        rcs_plotter.add_isar_3d_settings()
+        rcs_plotter.add_isar_3d_settings(
+            size_range=1.0,
+            range_resolution=0.01,
+            size_cross_range=1.0,
+            cross_range_resolution=0.01,
+            size_elevation_range=1.0,
+            elevation_range_resolution=0.01,
+        )
         plot = rcs_plotter.plot_scene(show=False)
         assert isinstance(plot, Plotter)
         assert rcs_plotter.clear_scene()
@@ -450,7 +457,7 @@ class TestClass:
         assert isinstance(plot, Plotter)
         assert rcs_plotter.clear_scene()
 
-        rcs_plotter.add_incident_waterfall_settings(phi_angle=250.0, line_color="blue")
+        rcs_plotter.add_incident_waterfall_settings(phi_angle=90.0, line_color="blue")
         plot = rcs_plotter.plot_scene(show=False)
         assert isinstance(plot, Plotter)
         assert rcs_plotter.clear_scene()
