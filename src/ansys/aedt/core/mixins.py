@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 from ansys.aedt.core.generic.errors import AEDTRuntimeError
+from ansys.aedt.core.generic.errors import GrpcApiError
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
 
@@ -67,11 +68,12 @@ class CreateBoundaryMixin:
             Boundary object.
 
         """
-
-        bound = BoundaryObject(self, name, props, boundary_type)
-        result = bound.create()
-        if result:
-            self._boundaries[bound.name] = bound
-            self.logger.info(f"Boundary {boundary_type} {name} has been created.")
-            return bound
-        raise AEDTRuntimeError(f"Failed to create boundary {boundary_type} {name}")
+        try:
+            bound = BoundaryObject(self, name, props, boundary_type)
+            result = bound.create()
+            if result:
+                self._boundaries[bound.name] = bound
+                self.logger.info(f"Boundary {boundary_type} {name} has been created.")
+                return bound
+        except GrpcApiError as e:
+            raise AEDTRuntimeError(f"Failed to create boundary {boundary_type} {name}") from e
