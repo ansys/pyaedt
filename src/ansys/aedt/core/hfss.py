@@ -5911,6 +5911,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             self.logger.info("Far field sphere %s is created.", setup)
 
         frequency_units = self.odesktop.GetDefaultUnit("Frequency")
+
+        # Prepend analysis name if only the sweep name is passed for the analysis.
+        setup = self.nominal_adaptive.split(":")[0] + ": " + setup if not ":" in setup else setup
+
         if setup in self.existing_analysis_sweeps and frequencies is None:
             trace_name = "mag(rETheta)"
             farfield_data = self.post.get_far_field_data(expressions=trace_name, setup_sweep_name=setup, domain=sphere)
@@ -5920,7 +5924,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         if frequencies is not None:
             if type(frequencies) in [float, int, str]:
                 frequencies = [frequencies]
-            frequencies = [str(freq) + frequency_units for freq in frequencies if is_number(freq)]
+            frequencies = [str(freq) + frequency_units if is_number(freq) else str(freq) for freq in frequencies]
         else:  # pragma: no cover
             self.logger.info("Frequencies could not be obtained.")
             return False
