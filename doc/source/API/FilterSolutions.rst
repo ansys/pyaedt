@@ -57,6 +57,9 @@ The ``DistributedDesign`` module includes all the necessary classes for creating
 Distributed filters rely on transmission lines and resonators.
 
 * ``DistributedTopology`` to define attributes and parameters of filters implemented using a distributed topology.
+* ``DistributedSubstrate`` to define attributes and  parameters of the substrate used in distributed filters.
+* ``DistributedGeometry`` to define attributes and parameters of the substrate geometry used in distributed filters.
+
 
 They are accessible through:
 
@@ -69,6 +72,8 @@ They are accessible through:
 
 
    distributed_topology.DistributedTopology
+   distributed_substrate.DistributedSubstrate
+   distributed_geometry.DistributedGeometry
 
 ``Distributed Filter`` example:
 
@@ -93,7 +98,6 @@ Base filter design
 The ``FilterDesignBase`` module provides all the essential classes for creating and modifying the primary parameters applicable to all design types.
 
 * ``Attributes`` to define attributes and parameters of filters.
-* ``DllInterface`` to establish an interface with the FilterSolutions DLL.
 * ``GraphSetup`` to define the frequency and time graph parameters of the exported responses.
 * ``IdealResponse`` to return the data for the available ideal filter responses.
 * ``MultipleBandsTable`` to manage access to the entries in the multiple bands table.
@@ -112,7 +116,6 @@ They are accessible through:
 
 
    attributes.Attributes
-   dll_interface.DllInterface
    graph_setup.GraphSetup
    ideal_response.IdealResponse
    multiple_bands_table.MultipleBandsTable
