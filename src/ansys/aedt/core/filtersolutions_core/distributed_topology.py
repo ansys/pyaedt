@@ -93,7 +93,7 @@ class TapPosition(Enum):
 class DistributedTopology:
     """Defines topology parameters of distributed filters.
 
-    This class lets you construct all parameters for the topology page of the ``DistributedDesign`` class.
+    This class allows you to define and modify the topology parameters of distributed filters.
     """
 
     def __init__(self):

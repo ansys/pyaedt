@@ -25,6 +25,7 @@
 from ansys.aedt.core import settings
 import ansys.aedt.core.filtersolutions_core
 from ansys.aedt.core.filtersolutions_core.attributes import Attributes
+from ansys.aedt.core.filtersolutions_core.distributed_geometry import DistributedGeometry
 from ansys.aedt.core.filtersolutions_core.distributed_substrate import DistributedSubstrate
 from ansys.aedt.core.filtersolutions_core.distributed_topology import DistributedTopology
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import ExportToAedt
@@ -124,6 +125,7 @@ class DistributedDesign(FilterDesignBase):
         """Initialize the ``FilterSolutions`` object to support a distributed filter design."""
         self.topology = DistributedTopology()
         self.substrate = DistributedSubstrate()
+        self.geometry = DistributedGeometry()
 
     def _set_distributed_implementation(self):
         """Set ``FilterSolutions`` implementation to ``Distributed Design``."""
