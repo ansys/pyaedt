@@ -100,17 +100,29 @@ class Results:
         --------
         >>> aedtapp.results.delete_revision("Revision 10")
         """
-        if revision_name in self.design.GetResultList():
-            self.design.DeleteResult(revision_name)
-            if self.current_revision.name == revision_name and self.current_revision.revision_loaded:
-                self.emit_project._emit_api.close()
-                self.current_revision = None
-            for rev in self.revisions:
-                if revision_name in rev.name:
-                    self.revisions.remove(rev)
-                    break
-            else:
-                warnings.warn(f"{revision_name} does not exist")
+        self.aedt_version = int(self.emit_project.aedt_version_id[-3:])
+        if self.aedt_version > 251:
+            if revision_name in self.design.GetKeptResultNames():
+                self.design.DeleteKeptResult(revision_name)
+                if self.current_revision.name == revision_name and self.current_revision.revision_loaded:
+                    self.emit_project._emit_api.close()
+                    self.current_revision = None
+                for rev in self.revisions:
+                    if revision_name in rev.name:
+                        self.revisions.remove(rev)
+                        break
+        else:
+            if revision_name in self.design.GetResultList():
+                self.design.DeleteResult(revision_name)
+                if self.current_revision.name == revision_name and self.current_revision.revision_loaded:
+                    self.emit_project._emit_api.close()
+                    self.current_revision = None
+                for rev in self.revisions:
+                    if revision_name in rev.name:
+                        self.revisions.remove(rev)
+                        break
+                else:
+                    warnings.warn(f"{revision_name} does not exist")
 
     @staticmethod
     def interaction_domain():

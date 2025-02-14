@@ -79,7 +79,7 @@ class Revision:
                 self.results_index = self._emit_com.GetKeptResultIndex(name)
 
             # Get the SimulationNodeID for the current result
-            self._sim_node_id = self._get_top_level_node_id("Simulation")
+            self._sim_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Simulation")
         else:
             if not name:
                 name = emit_obj.odesign.GetCurrentResult()
@@ -111,10 +111,6 @@ class Revision:
             self.revision_loaded = False
             """``True`` if the revision is loaded and ``False`` if it is not."""
             self._load_revision()
-
-    @pyaedt_function_handler()
-    def _get_top_level_node_id(self, node_name):
-        return self._emit_com.GetTopLevelNodeID(self.results_index, node_name)
 
     @pyaedt_function_handler()
     def _load_revision(self):
@@ -195,28 +191,23 @@ class Revision:
         >>> rev.run(domain)
 
         """
-        # TODO: update when Domain methods are added to API
-        # for now, just run the whole project
-        if self.aedt_version > 251:
-            self.emit_project.Run()
-        else:
-            if domain.receiver_channel_frequency > 0:
-                raise ValueError("The domain must not have channels specified.")
-            if len(domain.interferer_channel_frequencies) != 0:
-                for freq in domain.interferer_channel_frequencies:
-                    if freq > 0:
-                        raise ValueError("The domain must not have channels specified.")
-            self._load_revision()
-            engine = self.emit_project._emit_api.get_engine()
-            if self.emit_project._aedt_version < "2024.1":
-                if len(domain.interferer_names) == 1:
-                    engine.max_simultaneous_interferers = 1
-                if len(domain.interferer_names) > 1:
-                    raise ValueError("Multiple interferers cannot be specified prior to AEDT version 2024 R1.")
-            interaction = engine.run(domain)
-            # save the project and revision
-            self.emit_project.save_project()
-            return interaction
+        if domain.receiver_channel_frequency > 0:
+            raise ValueError("The domain must not have channels specified.")
+        if len(domain.interferer_channel_frequencies) != 0:
+            for freq in domain.interferer_channel_frequencies:
+                if freq > 0:
+                    raise ValueError("The domain must not have channels specified.")
+        self._load_revision()
+        engine = self.emit_project._emit_api.get_engine()
+        if self.emit_project._aedt_version < "2024.1":
+            if len(domain.interferer_names) == 1:
+                engine.max_simultaneous_interferers = 1
+            if len(domain.interferer_names) > 1:
+                raise ValueError("Multiple interferers cannot be specified prior to AEDT version 2024 R1.")
+        interaction = engine.run(domain)
+        # save the project and revision
+        self.emit_project.save_project()
+        return interaction
 
     @pyaedt_function_handler()
     def is_domain_valid(self, domain):
@@ -234,7 +225,6 @@ class Revision:
         >>> aedtapp.results.current_revision.is_domain_valid(domain)
         True
         """
-        # TODO: update when Domain methods are added to API
         self._load_revision()
         engine = self.emit_project._emit_api.get_engine()
         return engine.is_domain_valid(domain)
@@ -259,14 +249,9 @@ class Revision:
         >>> domain = aedtapp.interaction_domain()
         >>> num_instances = aedtapp.results.current_revision.get_instance_count(domain)
         """
-        # TODO: update when Domain methods are added to API
-        if self.aedt_version > 251:
-            return 0
-            pass
-        else:
-            self._load_revision()
-            engine = self.emit_project._emit_api.get_engine()
-            return engine.get_instance_count(domain)
+        self._load_revision()
+        engine = self.emit_project._emit_api.get_engine()
+        return engine.get_instance_count(domain)
 
     @pyaedt_function_handler()
     def get_receiver_names(self):
@@ -286,24 +271,16 @@ class Revision:
         --------
         >>> rxs = aedtapp.results.current_revision.get_reciver_names()
         """
-        # TODO: update when Domain methods are added to API
-        if self.aedt_version > 251:
-            comps = self.emit_project.oeditor.GetAllComponents()
-            for comp in comps:
-                comp_id = self._emit_com.GetComponentNodeID(self.results_index, comp)
-                props = self._emit_com.GetEmitNodeProperties(self.results_index, comp_id)
-                pass
+        if self.revision_loaded:
+            radios = self.emit_project._emit_api.get_radio_names(TxRxMode.RX, InterfererType.TRANSMITTERS_AND_EMITTERS)
         else:
-            if self.revision_loaded:
-                radios = self.emit_project._emit_api.get_radio_names(TxRxMode.RX, InterfererType.TRANSMITTERS_AND_EMITTERS)
-            else:
-                radios = None
-                err_msg = self.result_mode_error()
-                warnings.warn(err_msg)
-                return radios
-            if len(radios) == 0:
-                warnings.warn("No valid receivers in the project.")
+            radios = None
+            err_msg = self.result_mode_error()
+            warnings.warn(err_msg)
             return radios
+        if len(radios) == 0:
+            warnings.warn("No valid receivers in the project.")
+        return radios
 
     @pyaedt_function_handler()
     def get_interferer_names(self, interferer_type=None):
@@ -451,20 +428,13 @@ class Revision:
         >>> aedtapp.results.current_revision.n_to_1_limit
         1048576
         """
-        # TODO: update when Domain methods are added to API
-        if self.aedt_version > 251:
-            # get the SimulationNode props
-            props = self._emit_com.GetEmitNodeProperties(self.results_index,
-                                                         self._sim_node_id)
-            pass
-        else:
-            if self.emit_project._aedt_version < "2024.1":  # pragma: no cover
-                raise RuntimeError("This function is only supported in AEDT version 2024.1 and later.")
-            if self.revision_loaded:
-                engine = self.emit_project._emit_api.get_engine()
-                max_instances = engine.n_to_1_limit
-            else:  # pragma: no cover
-                max_instances = None
+        if self.emit_project._aedt_version < "2024.1":  # pragma: no cover
+            raise RuntimeError("This function is only supported in AEDT version 2024.1 and later.")
+        if self.revision_loaded:
+            engine = self.emit_project._emit_api.get_engine()
+            max_instances = engine.n_to_1_limit
+        else:  # pragma: no cover
+            max_instances = None
         return max_instances
 
     @n_to_1_limit.setter
@@ -780,17 +750,10 @@ class Revision:
         bool
             ``True`` when the EMI category filter is enabled, ``False`` otherwise.
         """
-        # TODO: update when Domain methods are added to API
-        if self.aedt_version > 251:
-            cat_node_id = self._get_top_level_node_id("Windows-*-Result Categorization")
-            props = self._emit_com.GetEmitNodeProperties(self.results_index,
-                                                         cat_node_id)
-            pass
-        else:
-            if self.emit_project._aedt_version < "2024.1":  # pragma: no cover
-                raise RuntimeError("This function is only supported in AEDT version 2024 R1 and later.")
-            engine = self.emit_project._emit_api.get_engine()
-            return engine.get_emi_category_filter_enabled(category)
+        if self.emit_project._aedt_version < "2024.1":  # pragma: no cover
+            raise RuntimeError("This function is only supported in AEDT version 2024 R1 and later.")
+        engine = self.emit_project._emit_api.get_engine()
+        return engine.get_emi_category_filter_enabled(category)
 
     def set_emi_category_filter_enabled(self, category: EmiCategoryFilter, enabled: bool):
         """Set whether the EMI category filter is enabled.
