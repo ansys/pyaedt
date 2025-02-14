@@ -2687,12 +2687,11 @@ class CommonReport(BinaryTreeNode):
         if extension not in [".tab", ".csv"]:
             self._post.logger.error("Please enter a valid file extension: ``.tab``, ``.csv`` ")
             return False
-        if table_type not in ["Marker", "DeltaMarker","Legend"]:
+        if table_type not in ["Marker", "DeltaMarker", "Legend"]:
             self._post.logger.error("Please enter a valid file extension: ``Marker``, ``DeltaMarker``, ``Legend`` ")
             return False
         self._post.oreportsetup.ExportTableToFile(plot_name, output_file, table_type)
         return True
-
 
     @staticmethod
     @pyaedt_function_handler()
