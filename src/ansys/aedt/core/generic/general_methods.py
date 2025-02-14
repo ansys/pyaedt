@@ -602,7 +602,7 @@ def env_path(input_version):
     Examples
     --------
     >>> env_path_student("2025.1")
-    "C:/Program Files/ANSYSEM/ANSYSEM2021.2/Win64"
+    "C:/Program Files/ANSYSEM/ANSYSEM2025.1/Win64"
     """
     return os.getenv(
         f"ANSYSEM_ROOT{get_version_and_release(input_version)[0]}{get_version_and_release(input_version)[1]}", ""
@@ -626,7 +626,7 @@ def env_value(input_version):
     Examples
     --------
     >>> env_value(2025.1)
-    "ANSYSEM_ROOT212"
+    "ANSYSEM_ROOT251"
     """
     return f"ANSYSEM_ROOT{get_version_and_release(input_version)[0]}{get_version_and_release(input_version)[1]}"
 
@@ -648,7 +648,7 @@ def env_path_student(input_version):
     Examples
     --------
     >>> env_path_student(2025.1)
-    "C:/Program Files/ANSYSEM/ANSYSEM2021.2/Win64"
+    "C:/Program Files/ANSYSEM/ANSYSEM2025.1/Win64"
     """
     return os.getenv(
         f"ANSYSEMSV_ROOT{get_version_and_release(input_version)[0]}{get_version_and_release(input_version)[1]}",
@@ -673,7 +673,7 @@ def env_value_student(input_version):
     Examples
     --------
     >>> env_value_student(2025.1)
-    "ANSYSEMSV_ROOT212"
+    "ANSYSEMSV_ROOT251"
     """
     return f"ANSYSEMSV_ROOT{get_version_and_release(input_version)[0]}{get_version_and_release(input_version)[1]}"
 
