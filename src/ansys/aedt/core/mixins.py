@@ -35,18 +35,18 @@ class CreateBoundaryMixin:
     Methods provided by this mixin should be implemented or extended by subclasses
     to define specific boundary condition behaviors.
 
-    For example:
-        ```python
-        class MyClass(CreateBoundaryMixin):
+    Example
+    -------
+    A class can use the default behavior or use a custom implementation.
 
-            def _create_boundary(self):
-                # Use default behavior
-                if boundary_type not in ("SpecificString"):
-                    return super()._create_boundary(name, props, boundary_type)
-                # Custom implementation to create boundary conditions
-                else:
-                    pass
-        ```
+    >>> class MyClass(CreateBoundaryMixin):
+    >>>     def _create_boundary(self):
+    >>>         # Use default behavior
+    >>>         if boundary_type not in ("SpecificString"):
+    >>>             return super()._create_boundary(name, props, boundary_type)
+    >>>         # Custom implementation to create boundary conditions
+    >>>         else:
+    >>>             pass
     """
 
     @pyaedt_function_handler()
