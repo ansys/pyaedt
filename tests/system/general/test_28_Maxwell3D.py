@@ -545,6 +545,11 @@ class TestClass:
         export_path_2 = os.path.join(local_scratch.path, "export_rl_matrix_Test2.txt")
         assert m3d_app.export_rl_matrix("matrix_export_test", export_path_2, False, 10, 3, True)
         assert os.path.exists(export_path_2)
+        export_path_3 = os.path.join(local_scratch.path, "export_rl_matrix_Test3.txt")
+        assert m3d_app.setups[0].export_matrix(
+            matrix_type="RL", matrix_name="matrix_export_test", output_file=export_path_3
+        )
+        assert os.path.exists(export_path_3)
 
     @pytest.mark.skipif(is_linux, reason="Failing in Ubuntu 22.")
     def test_get_solution_data(self, m3d_app):

@@ -786,6 +786,9 @@ class TestClass:
         assert m2d_app.export_c_matrix(matrix_name="Matrix1", output_file=output_file)
         assert os.path.exists(output_file)
 
+        assert m2d_app.setups[0].export_matrix(matrix_type="C", matrix_name="Matrix1", output_file=output_file)
+        assert os.path.exists(output_file)
+
         assert not m2d_app.export_c_matrix(matrix_name="invalid", output_file=output_file)
 
         m2d_app["m"] = "1m"
@@ -794,6 +797,9 @@ class TestClass:
         m2d_app.analyze()
 
         assert m2d_app.export_c_matrix(matrix_name="Matrix1", output_file=output_file)
+        assert os.path.exists(output_file)
+
+        assert m2d_app.setups[0].export_matrix(matrix_type="C", matrix_name="Matrix1", output_file=output_file)
         assert os.path.exists(output_file)
 
         output_file = os.path.join(local_scratch.path, "c_matrix.csv")
