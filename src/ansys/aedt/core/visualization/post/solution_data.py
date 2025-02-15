@@ -817,10 +817,7 @@ class SolutionData(object):
             if props is None:
                 props = {"x_label": self.primary_sweep, "y_label": ""}
             active_intr = ",".join([f"{i}={k}" for i, k in self.active_intrinsic.items() if i != self.primary_sweep])
-            if formula:
-                name = f"{formula}({curve})_{active_intr}"
-            else:
-                name = f"({curve})_{active_intr}"
+            name = f"{formula}({curve})_{active_intr}" if formula else f"({curve})_{active_intr}"
             new.add_trace([sw, self._get_data_formula(curve, formula)], name=name, properties=props)
         return new
 
