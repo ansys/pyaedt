@@ -955,7 +955,10 @@ class SolutionData(object):
         if not curve:
             curve = self.active_expression
         if not formula:
-            formula = "mag"
+            if curve[0:2].lower() == "db":
+                formula = "re"  # Avoid taking magnitude for db traces.
+            else:
+                formula = "mag"
         primary_radians = [i * math.pi / 180 for i in self.variation_values(primary_sweep)]
         secondary_values =  self.variation_values(secondary_sweep)
 
@@ -997,7 +1000,7 @@ class SolutionData(object):
         if min_r < 0:
             r = [i + np.abs(min_r) for i in r]
         primary_grid, secondary_grid = np.meshgrid(primary_radians, secondary_radians)
-        r_grid = np.reshape(r, (len(primary_radians), len(secondary_radians)))
+        r_grid = np.reshape(r, (len(secondary_radians), len(primary_radians)))
         if self.primary_sweep == "Phi":
             phi_grid = primary_grid
             theta_grid = secondary_grid
