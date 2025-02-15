@@ -898,8 +898,9 @@ class SolutionData(object):
         else:
             return report_plotter.plot_2d(snapshot_path=snapshot_path, show=show)
 
-    @pyaedt_function_handler(xlabel="x_label", ylabel="y_label", math_formula="formula", x_axis="primary_sweep",
-                             y_axis="secondary_sweep")
+    @pyaedt_function_handler(
+        xlabel="x_label", ylabel="y_label", math_formula="formula", x_axis="primary_sweep", y_axis="secondary_sweep"
+    )
     def plot_3d(
         self,
         curve=None,
@@ -960,7 +961,7 @@ class SolutionData(object):
             else:
                 formula = "mag"
         primary_radians = [i * math.pi / 180 for i in self.variation_values(primary_sweep)]
-        secondary_values =  self.variation_values(secondary_sweep)
+        secondary_values = self.variation_values(secondary_sweep)
 
         secondary_radians = []
         r = []
