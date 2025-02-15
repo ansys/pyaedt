@@ -38,17 +38,16 @@ from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.data_handlers import random_string
 from ansys.aedt.core.generic.errors import AEDTRuntimeError
-from ansys.aedt.core.generic.errors import GrpcApiError
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
-from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.icepak_boundary import BoundaryDictionary
 from ansys.aedt.core.modules.boundary.icepak_boundary import ExponentialDictionary
 from ansys.aedt.core.modules.boundary.icepak_boundary import LinearDictionary
@@ -57,13 +56,12 @@ from ansys.aedt.core.modules.boundary.icepak_boundary import PieceWiseLinearDict
 from ansys.aedt.core.modules.boundary.icepak_boundary import PowerLawDictionary
 from ansys.aedt.core.modules.boundary.icepak_boundary import SinusoidalDictionary
 from ansys.aedt.core.modules.boundary.icepak_boundary import SquareWaveDictionary
-from ansys.aedt.core.modules.boundary.icepak_boundary import _create_boundary
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 
 
-class Icepak(FieldAnalysisIcepak):
+class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
     """Provides the Icepak application interface.
 
     This class allows you to connect to an existing Icepak design or create a
@@ -91,7 +89,7 @@ class Icepak(FieldAnalysisIcepak):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is  used.
         This parameter is ignored when Script is launched within AEDT.
-        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
+        Examples of input values are ``251``, ``25.1``, ``2025.1``, ``"2025.1"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -154,10 +152,10 @@ class Icepak(FieldAnalysisIcepak):
     PyAEDT INFO: No design is present. Inserting a new design.
     PyAEDT INFO: Added design ...
 
-    Create an instance of Icepak using the 2023 R2 release and
+    Create an instance of Icepak using the 2025 R1 release and
     open the specified project, which is ``myipk2.aedt``.
 
-    >>> icepak = Icepak(version=2023.2, project="myipk2.aedt")
+    >>> icepak = Icepak(version=2025.1, project="myipk2.aedt")
     PyAEDT INFO: Project...
     PyAEDT INFO: No design is present. Inserting a new design.
     PyAEDT INFO: Added design...
@@ -301,12 +299,8 @@ class Icepak(FieldAnalysisIcepak):
 
         props["X"] = x_curve
         props["Y"] = y_curve
-        bound = BoundaryObject(self, boundary_name, props, "Grille")
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            self.logger.info("Grille Assigned")
-            return bound
-        return None
+        bound = self._create_boundary(boundary_name, props, "Grille")
+        return bound
 
     @pyaedt_function_handler()
     def assign_openings(self, air_faces):
@@ -347,12 +341,8 @@ class Icepak(FieldAnalysisIcepak):
         props["External Rad. Temperature"] = "AmbientRadTemp"
         props["Inlet Type"] = "Pressure"
         props["Total Pressure"] = "AmbientPressure"
-        bound = BoundaryObject(self, boundary_name, props, "Opening")
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            self.logger.info("Opening Assigned")
-            return bound
-        return None
+        bound = self._create_boundary(boundary_name, props, "Opening")
+        return bound
 
     @pyaedt_function_handler(setup_name="setup")
     def assign_2way_coupling(
@@ -528,12 +518,8 @@ class Icepak(FieldAnalysisIcepak):
         else:
             boundary_name = generate_unique_name("Block")
 
-        bound = BoundaryObject(self, boundary_name, props, "Block")
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            self.logger.info(f"Block on {object_name} with {input_power} power created correctly.")
-            return bound
-        return None
+        bound = self._create_boundary(boundary_name, props, "Block")
+        return bound
 
     @pyaedt_function_handler()
     def create_conduting_plate(
@@ -647,8 +633,8 @@ class Icepak(FieldAnalysisIcepak):
             }
 
         props["Shell Conduction"] = shell_conduction
-        bound = BoundaryObject(self, bc_name, props, "Conducting Plate")
-        return _create_boundary(bound)
+        bound = self._create_boundary(bc_name, props, "Conducting Plate")
+        return bound
 
     @pyaedt_function_handler()
     def create_source_power(
@@ -734,8 +720,8 @@ class Icepak(FieldAnalysisIcepak):
         props["Surface Heat"] = surface_heat
         props["Temperature"] = temperature
         props["Radiation"] = {"Radiate": radiate}
-        bound = BoundaryObject(self, source_name, props, "SourceIcepak")
-        return _create_boundary(bound)
+        bound = self._create_boundary(source_name, props, "SourceIcepak")
+        return bound
 
     @pyaedt_function_handler()
     def create_network_block(
@@ -840,12 +826,8 @@ class Icepak(FieldAnalysisIcepak):
                 "Link2": ["Face" + str(fcrjb), "Internal", "R", str(rjb) + "cel_per_w"],
             }
             props["SchematicData"] = {}
-            bound = BoundaryObject(self, boundary_name, props, "Network")
-            if bound.create():
-                self._boundaries[bound.name] = bound
-                self.modeler[object_name].solve_inside = False
-                return bound
-            return None
+            bound = self._create_boundary(boundary_name, props, "Network")
+            return bound
 
     @pyaedt_function_handler()
     def create_network_blocks(
@@ -1840,12 +1822,8 @@ class Icepak(FieldAnalysisIcepak):
         props["SurfaceOnly"] = surfaces
 
         name = generate_unique_name("EMLoss")
-        bound = BoundaryObject(self, name, props, "EMLoss")
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            self.logger.info("EM losses mapped from design: %s.", design)
-            return bound
-        return False
+        bound = self._create_boundary(name, props, "EMLoss")
+        return bound
 
     @pyaedt_function_handler()
     def eval_surface_quantity_from_field_summary(
@@ -3444,12 +3422,8 @@ class Icepak(FieldAnalysisIcepak):
         }
 
         self.modeler.primitives[object_name].material_name = "Ceramic_material"
-        boundary = BoundaryObject(self, object_name, props, "Network")
-        if boundary.create():
-            self._boundaries[boundary.name] = boundary
-            self.modeler.primitives[object_name].solve_inside = False
-            return boundary
-        return None
+        bound = self._create_boundary(object_name, props, "Network")
+        return bound
 
     @pyaedt_function_handler(htc_dataset="htc")
     def assign_stationary_wall(
@@ -3678,8 +3652,8 @@ class Icepak(FieldAnalysisIcepak):
         props["External Surface Radiation"] = ext_surf_rad
         props["External Material"] = ext_surf_rad_material
         props["External Radiation View Factor"] = ext_surf_rad_view_factor
-        bound = BoundaryObject(self, name, props, "Stationary Wall")
-        return _create_boundary(bound)
+        bound = self._create_boundary(name, props, "Stationary Wall")
+        return bound
 
     @pyaedt_function_handler()
     def assign_stationary_wall_with_heat_flux(
@@ -4143,12 +4117,8 @@ class Icepak(FieldAnalysisIcepak):
             else:
                 props[quantity] = value
 
-        bound = BoundaryObject(self, boundary_name, props, "SourceIcepak")
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            return bound
-        else:
-            return None
+        bound = self._create_boundary(boundary_name, props, "SourceIcepak")
+        return bound
 
     @pyaedt_function_handler()
     def create_network_object(self, name=None, props=None, create=False):
@@ -4371,8 +4341,8 @@ class Icepak(FieldAnalysisIcepak):
         if not boundary_name:
             boundary_name = generate_unique_name("Block")
 
-        bound = BoundaryObject(self, boundary_name, props, "Block")
-        return _create_boundary(bound)
+        bound = self._create_boundary(boundary_name, props, "Block")
+        return bound
 
     @pyaedt_function_handler
     def assign_hollow_block(
@@ -4490,8 +4460,8 @@ class Icepak(FieldAnalysisIcepak):
         if not boundary_name:
             boundary_name = generate_unique_name("Block")
 
-        bound = BoundaryObject(self, boundary_name, props, "Block")
-        return _create_boundary(bound)
+        bound = self._create_boundary(boundary_name, props, "Block")
+        return bound
 
     @pyaedt_function_handler(timestep="time_step")
     def get_fans_operating_point(self, export_file=None, setup_name=None, time_step=None, design_variation=None):
@@ -4694,13 +4664,8 @@ class Icepak(FieldAnalysisIcepak):
 
         if not boundary_name:
             boundary_name = generate_unique_name("Opening")
-
-        bound = BoundaryObject(self, boundary_name, props, "Opening")
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            return bound
-        else:
-            return None
+        bound = self._create_boundary(boundary_name, props, "Opening")
+        return bound
 
     @pyaedt_function_handler()
     def assign_pressure_free_opening(
@@ -4960,8 +4925,8 @@ class Icepak(FieldAnalysisIcepak):
         else:
             props["Objects"] = geometry
 
-        bound = BoundaryObject(self, boundary_name, props, "Symmetry Wall")
-        return _create_boundary(bound)
+        bound = self._create_boundary(boundary_name, props, "Symmetry Wall")
+        return bound
 
     @pyaedt_function_handler()
     def assign_adiabatic_plate(self, assignment, high_radiation_dict=None, low_radiation_dict=None, boundary_name=None):
@@ -5029,16 +4994,8 @@ class Icepak(FieldAnalysisIcepak):
 
         if not boundary_name:
             boundary_name = generate_unique_name("AdiabaticPlate")
-
-        bound = BoundaryObject(self, boundary_name, props, "Adiabatic Plate")
-        try:
-            if bound.create():
-                self._boundaries[bound.name] = bound
-                return bound
-            else:  # pragma: no cover
-                raise SystemExit
-        except (GrpcApiError, SystemExit):  # pragma: no cover
-            return None
+        bound = self._create_boundary(boundary_name, props, "Adiabatic Plate")
+        return bound
 
     @pyaedt_function_handler()
     def assign_resistance(
@@ -5207,16 +5164,8 @@ class Icepak(FieldAnalysisIcepak):
 
         if not boundary_name:
             boundary_name = generate_unique_name("Resistance")
-
-        bound = BoundaryObject(self, boundary_name, props, "Resistance")
-        try:
-            if bound.create():
-                self._boundaries[bound.name] = bound
-                return bound
-            else:  # pragma: no cover
-                raise SystemExit
-        except (GrpcApiError, SystemExit):  # pragma: no cover
-            return None
+        bound = self._create_boundary(boundary_name, props, "Resistance")
+        return bound
 
     @pyaedt_function_handler()
     def assign_power_law_resistance(
@@ -5610,8 +5559,8 @@ class Icepak(FieldAnalysisIcepak):
         if not boundary_name:
             boundary_name = generate_unique_name("Recirculating")
 
-        bound = BoundaryObject(self, boundary_name, props, "Recirculating")
-        return _create_boundary(bound)
+        bound = self._create_boundary(boundary_name, props, "Recirculating")
+        return bound
 
     @pyaedt_function_handler()
     def assign_blower_type1(
@@ -5807,8 +5756,8 @@ class Icepak(FieldAnalysisIcepak):
         props["Y"] = [str(pt) for pt in fan_curve_pressure]
         if not boundary_name:
             boundary_name = generate_unique_name("Blower")
-        bound = BoundaryObject(self, boundary_name, props, "Blower")
-        return _create_boundary(bound)
+        bound = self._create_boundary(boundary_name, props, "Blower")
+        return bound
 
     @pyaedt_function_handler()
     def assign_conducting_plate(
@@ -5927,8 +5876,8 @@ class Icepak(FieldAnalysisIcepak):
         props["Shell Conduction"] = shell_conduction
         if not boundary_name:
             boundary_name = generate_unique_name("Plate")
-        bound = BoundaryObject(self, boundary_name, props, "Conducting Plate")
-        return _create_boundary(bound)
+        bound = self._create_boundary(boundary_name, props, "Conducting Plate")
+        return bound
 
     def assign_conducting_plate_with_thickness(
         self,

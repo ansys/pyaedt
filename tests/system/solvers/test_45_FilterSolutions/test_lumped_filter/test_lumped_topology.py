@@ -25,10 +25,10 @@
 from ansys.aedt.core.filtersolutions_core.attributes import DiplexerType
 from ansys.aedt.core.filtersolutions_core.attributes import FilterClass
 from ansys.aedt.core.filtersolutions_core.attributes import FilterType
-from ansys.aedt.core.generic.general_methods import is_linux
+from ansys.aedt.core.generic.settings import is_linux
 import pytest
 
-from tests.system.general.conftest import config
+from tests.system.solvers.conftest import config
 
 from ..resources import read_resource_file
 
