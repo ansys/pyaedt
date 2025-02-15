@@ -5924,7 +5924,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         if frequencies is not None:
             if type(frequencies) in [float, int, str]:
                 frequencies = [frequencies]
-            frequencies = [str(freq) + frequency_units if is_number(freq) else str(freq) for freq in frequencies]
+            frequencies = [f"{freq}{frequency_units}" if is_number(freq) else f"{freq}" for freq in frequencies]
         else:  # pragma: no cover
             self.logger.info("Frequencies could not be obtained.")
             return False
