@@ -100,9 +100,9 @@ if is_linux and cpython:
             os.environ["DOTNET_ROOT"] = dotnet_root.as_posix()
             if "mono" not in os.getenv("LD_LIBRARY_PATH", ""):
                 warnings.warn("LD_LIBRARY_PATH needs to be setup to use pyaedt.")
-                warnings.warn("export ANSYSEM_ROOT242=/path/to/AnsysEM/v242/Linux64")
+                warnings.warn("export ANSYSEM_ROOT251=/path/to/AnsysEM/v251/Linux64")
                 msg = "export LD_LIBRARY_PATH="
-                msg += "$ANSYSEM_ROOT242/common/mono/Linux64/lib64:$LD_LIBRARY_PATH"
+                msg += "$ANSYSEM_ROOT251/common/mono/Linux64/lib64:$LD_LIBRARY_PATH"
                 warnings.warn(msg)
             is_clr = True
         except ImportError:

@@ -34,6 +34,7 @@ import re
 
 from ansys.aedt.core.application.analysis_3d_layout import FieldAnalysis3DLayout
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
+from ansys.aedt.core.generic.checks import min_aedt_version
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import parse_excitation_file
@@ -72,7 +73,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
     version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
-        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
+        Examples of input values are ``251``, ``25.1``, ``2025.1``, ``"2025.1"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``True```, in which case AEDT is launched in graphical mode.
@@ -127,20 +128,20 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
     >>> aedtapp = Hfss3dLayout("myfile.aedt")
 
-    Create an AEDT 2023 R1 object and then create a
+    Create an AEDT 2025 R1 object and then create a
     ``Hfss3dLayout`` object and open the specified project.
 
-    >>> aedtapp = Hfss3dLayout(version="2024.2", project="myfile.aedt")
+    >>> aedtapp = Hfss3dLayout(version="2025.1", project="myfile.aedt")
 
     Create an instance of ``Hfss3dLayout`` from an ``Edb``
 
     >>> import ansys.aedt.core
     >>> edb_path = "/path/to/edbfile.aedb"
-    >>> edb = ansys.aedt.core.Edb(edb_path, edbversion=231)
+    >>> edb = ansys.aedt.core.Edb(edb_path, edbversion=251)
     >>> edb.stackup.import_stackup("stackup.xml")  # Import stackup. Manipulate edb, ...
     >>> edb.save_edb()
     >>> edb.close_edb()
-    >>> aedtapp = ansys.aedt.core.Hfss3dLayout(version=231, project=edb_path)
+    >>> aedtapp = ansys.aedt.core.Hfss3dLayout(version=251, project=edb_path)
 
     """
 
@@ -187,7 +188,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             remove_lock=remove_lock,
         )
         ScatteringMethods.__init__(self, self)
-        self.onetwork_data_explorer = self.odesktop.GetTool("NdExplorer")
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
@@ -689,13 +689,15 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             return False
 
     @pyaedt_function_handler(portname="name")
-    def delete_port(self, name):
+    def delete_port(self, name, remove_geometry=True):
         """Delete a port.
 
         Parameters
         ----------
         name : str
             Name of the port.
+        remove_geometry : bool, optional
+            Whether to remove geometry. The default is ``True``.
 
         Returns
         -------
@@ -705,8 +707,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         References
         ----------
         >>> oModule.Delete
+        >>> oModule.DeleteExcitations
         """
-        self.oexcitation.Delete(name)
+        if remove_geometry:
+            self.oexcitation.Delete(name)
+        else:
+            self.oexcitation.DeleteExcitation(name)
+
         for bound in self.boundaries:
             if bound.name == name:
                 self.boundaries.remove(bound)
@@ -916,6 +923,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         return True
 
     @pyaedt_function_handler()
+    @min_aedt_version("2025.1")
     def set_export_touchstone(
         self,
         file_format="TouchStone1.0",
@@ -996,9 +1004,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
 
         """
-        if settings.aedt_version < "2025.1":
-            self.logger.warning("Touchstone export setup aborted. This method is available from AEDT 2025.1.")
-            return False
         preferences = "Planar EM\\"
         design_name = self.design_name
 

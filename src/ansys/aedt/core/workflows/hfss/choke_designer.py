@@ -459,7 +459,7 @@ def main(extension_args):
     hfss.modeler.create_region(pad_percent=1000)
 
     # Create setup
-    setup = hfss.create_setup("Setup1")
+    setup = hfss.create_setup("Setup1", setup_type="HFSSDriven")
     setup.props["Frequency"] = "50MHz"
     setup.props["MaximumPasses"] = 10
 

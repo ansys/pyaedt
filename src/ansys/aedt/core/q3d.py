@@ -37,19 +37,11 @@ from ansys.aedt.core.generic.constants import MATRIXOPERATIONSQ3D
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.q3d_boundary import Matrix
 from ansys.aedt.core.modules.setup_templates import SetupKeys
-
-try:
-    import numpy as np
-except ImportError:  # pragma: no cover
-    warnings.warn(
-        "The NumPy module is required to use functionalities provided by the module ansys.edt.core.q3d.\n"
-        "Install with \n\npip install numpy"
-    )
-    np = None
 
 
 class QExtractor(FieldAnalysis3D, object):
@@ -1219,7 +1211,7 @@ class QExtractor(FieldAnalysis3D, object):
                 return False
 
 
-class Q3d(QExtractor, object):
+class Q3d(QExtractor, CreateBoundaryMixin):
     """Provides the Q3D app interface.
 
     This class allows you to create an instance of Q3D and link to an
@@ -1247,7 +1239,7 @@ class Q3d(QExtractor, object):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
         This parameter is ignored when Script is launched within AEDT.
-        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
+        Examples of input values are ``251``, ``25.1``, ``2025.1``, ``"2025.1"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -1544,11 +1536,8 @@ class Q3d(QExtractor, object):
             type_bound = "GroundNet"
         elif net_type.lower() == "floating":
             type_bound = "FloatingNet"
-        bound = BoundaryObject(self, net_name, props, type_bound)
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            return bound
-        return False
+
+        return self._create_boundary(net_name, props, type_bound)
 
     @pyaedt_function_handler(objects="assignment", axisdir="direction")
     def source(self, assignment=None, direction=0, name=None, net_name=None, terminal_type="voltage"):
@@ -1645,11 +1634,7 @@ class Q3d(QExtractor, object):
         props["TerminalType"] = terminal_str
         if net_name:
             props["Net"] = net_name
-        bound = BoundaryObject(self, name, props, exc_type)
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            return bound
-        return False
+        return self._create_boundary(name, props, exc_type)
 
     @pyaedt_function_handler(
         object_name="assignment",
@@ -1702,10 +1687,7 @@ class Q3d(QExtractor, object):
             net_name = assignment
         if a:
             props = dict({"Faces": [a], "ParentBndID": assignment, "TerminalType": "ConstantVoltage", "Net": net_name})
-            bound = BoundaryObject(self, name, props, "Sink")
-            if bound.create():
-                self._boundaries[bound.name] = bound
-                return bound
+            return self._create_boundary(name, props, "Sink")
         return False
 
     @pyaedt_function_handler(sheetname="assignment", objectname="object_name", netname="net_name", sinkname="sink_name")
@@ -1764,11 +1746,7 @@ class Q3d(QExtractor, object):
         if net_name:
             props["Net"] = net_name
 
-        bound = BoundaryObject(self, sink_name, props, "Sink")
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            return bound
-        return False
+        return self._create_boundary(sink_name, props, "Sink")
 
     @pyaedt_function_handler()
     def create_frequency_sweep(self, setupname, units=None, freqstart=0, freqstop=1, freqstep=None, sweepname=None):
@@ -1944,6 +1922,8 @@ class Q3d(QExtractor, object):
             ``True`` when successful, ``False`` when failed.
         """
         try:
+            import numpy as np
+
             if not insulator_threshold:
                 insulator_threshold = 10000
             if not perfect_conductor_threshold:
@@ -1962,6 +1942,11 @@ class Q3d(QExtractor, object):
 
             self.oboundary.SetMaterialThresholds(insulator_threshold, perfect_conductor_threshold, magnetic_threshold)
             return True
+        except ImportError:  # pragma: no cover
+            warnings.warn(
+                "The NumPy module is required to use functionalities provided by the module ansys.edt.core.q3d.\n"
+                "Install with \n\npip install numpy"
+            )
         except Exception:
             return False
 
@@ -2053,11 +2038,7 @@ class Q3d(QExtractor, object):
             thickness = str(thickness) + self.modeler.model_units
         props = dict({"Objects": new_ass, "Material": material, "Thickness": thickness})
 
-        bound = BoundaryObject(self, name, props, "ThinConductor")
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            return bound
-        return False  # pragma: no cover
+        return self._create_boundary(name, props, "ThinConductor")
 
     @pyaedt_function_handler()
     def get_mutual_coupling(
@@ -2201,7 +2182,7 @@ class Q3d(QExtractor, object):
         return data
 
 
-class Q2d(QExtractor, object):
+class Q2d(QExtractor, CreateBoundaryMixin):
     """Provides the Q2D app interface.
 
     This class allows you to create an instance of Q2D and link to an
@@ -2229,7 +2210,7 @@ class Q2d(QExtractor, object):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.  This
         parameter is ignored when a script is launched within AEDT.
-        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
+        Examples of input values are ``251``, ``25.1``, ``2025.1``, ``"2025.1"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -2455,11 +2436,7 @@ class Q2d(QExtractor, object):
 
         props = dict({"Objects": obj_names, "SolveOption": solve_option, "Thickness": str(thickness) + units})
 
-        bound = BoundaryObject(self, name, props, conductor_type)
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            return bound
-        return False
+        return self._create_boundary(name, props, conductor_type)
 
     @pyaedt_function_handler(edges="assignment", unit="units")
     def assign_huray_finitecond_to_edges(self, assignment, radius, ratio, units="um", name=""):
@@ -2497,11 +2474,7 @@ class Q2d(QExtractor, object):
 
         props = dict({"Edges": a, "UseCoating": False, "Radius": ra, "Ratio": str(ratio)})
 
-        bound = BoundaryObject(self, name, props, "Finite Conductivity")
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            return bound
-        return False
+        return self._create_boundary(name, props, "Finite Conductivity")
 
     @pyaedt_function_handler()
     def auto_assign_conductors(self):

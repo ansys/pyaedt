@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from ansys.aedt.core import settings
 import ansys.aedt.core.filtersolutions_core
 from ansys.aedt.core.filtersolutions_core.attributes import Attributes
 from ansys.aedt.core.filtersolutions_core.distributed_geometry import DistributedGeometry
@@ -48,18 +49,15 @@ class FilterDesignBase:
     This class has access to ideal filter attributes and calculated output parameters.
     """
 
-    # See Also
-    # --------
-    # :doc:`filtersolutions`
-
     def __init__(self, version=None):
-        self.version = version
+        self.version = version if version else settings.aedt_version
         ansys.aedt.core.filtersolutions_core._dll_interface(version)
         self.attributes = Attributes()
         self.ideal_response = IdealResponse()
         self.graph_setup = GraphSetup()
         self.transmission_zeros_ratio = TransmissionZeros(TableFormat.RATIO)
         self.transmission_zeros_bandwidth = TransmissionZeros(TableFormat.BANDWIDTH)
+        self.export_to_aedt = ExportToAedt()
 
 
 class LumpedDesign(FilterDesignBase):
@@ -91,7 +89,6 @@ class LumpedDesign(FilterDesignBase):
         self.source_impedance_table = LumpedTerminationImpedance(TerminationType.SOURCE)
         self.load_impedance_table = LumpedTerminationImpedance(TerminationType.LOAD)
         self.multiple_bands_table = MultipleBandsTable()
-        self.export_to_aedt = ExportToAedt()
         self.optimization_goals_table = OptimizationGoalsTable()
         self.topology = LumpedTopology()
         self.parasitics = LumpedParasitics()

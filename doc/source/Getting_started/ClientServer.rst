@@ -51,8 +51,8 @@ On Linux, in addition to the preceding requirements, these environments are need
 - You can use the CPython version in the AEDT installation folder if you first
 add the Python library folder to the ``LD_LIBRARY_PATH`` environment variable.
 - You can use the Python 3.8 or later version that is installed.
-- You can export ``ANSYSEM_ROOT242=/path/to/AnsysEM/v242/Linux64``.
-- You can export ``LD_LIBRARY_PATH=$ANSYSEM_ROOT242/common/mono/Linux64/lib:$ANSYSEM_ROOT242/Delcross:$LD_LIBRARY_PATH``.
+- You can export ``ANSYSEM_ROOT251=/path/to/AnsysEM/v251/AnsysEM``.
+- You can export ``LD_LIBRARY_PATH=$ANSYSEM_ROOT251/common/mono/Linux64/lib:$LD_LIBRARY_PATH``.
 
 On the server, the ``pyaedt_service_manager`` service listen for incoming connections:
 

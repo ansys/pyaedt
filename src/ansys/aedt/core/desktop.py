@@ -52,6 +52,7 @@ from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
+import grpc
 
 if is_linux:
     os.environ["ANS_NODEPCHECK"] = str(1)
@@ -63,6 +64,7 @@ from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.desktop_sessions import _desktop_sessions
 from ansys.aedt.core.generic.desktop_sessions import _edb_sessions
 from ansys.aedt.core.generic.general_methods import active_sessions
+from ansys.aedt.core.generic.general_methods import available_license_feature
 from ansys.aedt.core.generic.general_methods import com_active_sessions
 from ansys.aedt.core.generic.general_methods import get_string_version
 from ansys.aedt.core.generic.general_methods import grpc_active_sessions
@@ -110,23 +112,38 @@ def launch_aedt(full_path, non_graphical, port, student_version, first_run=True)
     _aedt_process_thread = threading.Thread(target=launch_desktop_on_port)
     _aedt_process_thread.daemon = True
     _aedt_process_thread.start()
+
+    on_ci = os.getenv("ON_CI", "False")
+    if not student_version and on_ci != "True":
+        available_licenses = available_license_feature()
+        if available_licenses > 0:
+            settings.logger.info("Electronics Desktop license available.")
+        elif available_licenses == 0:  # pragma: no cover
+            settings.logger.warning("Electronics Desktop license not found on the default license server.")
+
     timeout = settings.desktop_launch_timeout
-    k = 0
-    while not _is_port_occupied(port):
-        if k > timeout:  # pragma: no cover
-            active_s = active_sessions(student_version=student_version)
-            for pid in active_s:
-                if port == active_s[pid]:
-                    try:
-                        os.kill(pid, 9)
-                    except (OSError, PermissionError):
-                        pass
-            if first_run:
-                port = _find_free_port()
-                return launch_aedt(full_path, non_graphical, port, student_version, first_run=False)
-            return False, _find_free_port()
-        time.sleep(1)
-        k += 1
+    grpc_channel = grpc.insecure_channel(f"127.0.0.1:{port}")
+
+    try:
+        start = time.time()
+        grpc.channel_ready_future(grpc_channel).result(timeout)
+        end = time.time() - start
+    except grpc.FutureTimeoutError:
+        active_s = active_sessions(student_version=student_version)
+        for pid in active_s:
+            if port == active_s[pid]:
+                try:
+                    os.kill(pid, 9)
+                except (OSError, PermissionError):
+                    pass
+        if first_run:
+            new_port = _find_free_port()
+            settings.logger.warning(f"Failed to start on gRPC port: {port}. Trying to start on {new_port}.")
+            return launch_aedt(full_path, non_graphical, new_port, student_version, first_run=False)
+        settings.logger.error(f"Failed to start on gRPC port: {port}.")
+        return False, _find_free_port()
+
+    settings.logger.info(f"Electronics Desktop started on gRPC port: {port} after {end} seconds.")
     return True, port
 
 
@@ -302,6 +319,15 @@ def _close_aedt_application(desktop_class, close_desktop, pid, is_grpc_api):
                     os.kill(pid, 9)
                 else:
                     desktop_class.odesktop.QuitApplication()
+                    if desktop_class.is_grpc_api:
+                        desktop_class.grpc_plugin.Release()
+                    timeout = 20
+                    while pid in active_sessions():
+                        time.sleep(1)
+                        if timeout == 0:
+                            os.kill(pid, 9)
+                            break
+                        timeout -= 1
                 if _desktop_sessions:
                     for v in _desktop_sessions.values():
                         if pid in v.parent_desktop_id:  # pragma: no cover
@@ -394,7 +420,7 @@ class Desktop(object):
     version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case the
         active setup or latest installed version is used.
-        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
+        Examples of input values are ``251``, ``25.1``,``2025.1``,``"2025.1"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -425,19 +451,19 @@ class Desktop(object):
 
     Examples
     --------
-    Launch AEDT 2023 R1 in non-graphical mode and initialize HFSS.
+    Launch AEDT 2025 R1 in non-graphical mode and initialize HFSS.
 
     >>> import ansys.aedt.core
-    >>> desktop = ansys.aedt.core.Desktop(version="2023.2", non_graphical=False)
+    >>> desktop = ansys.aedt.core.Desktop(version="2025.1", non_graphical=False)
     PyAEDT INFO: pyaedt v...
     PyAEDT INFO: Python version ...
     >>> hfss = ansys.aedt.core.Hfss(design="HFSSDesign1")
     PyAEDT INFO: Project...
     PyAEDT INFO: Added design 'HFSSDesign1' of type HFSS.
 
-    Launch AEDT 2023 R2 in graphical mode and initialize HFSS.
+    Launch AEDT 2025 R1 in graphical mode and initialize HFSS.
 
-    >>> desktop = Desktop(232)
+    >>> desktop = Desktop(251)
     PyAEDT INFO: pyaedt v...
     PyAEDT INFO: Python version ...
     >>> hfss = ansys.aedt.core.Hfss(design="HFSSDesign1")
@@ -463,7 +489,7 @@ class Desktop(object):
         port = kwargs.get("port") or 0 if (not args or len(args) < 7) else args[6]
         aedt_process_id = kwargs.get("aedt_process_id") or None if (not args or len(args) < 8) else args[7]
         if not settings.remote_api:
-            pyaedt_logger.info("Python version %s", sys.version)
+            pyaedt_logger.info(f"Python version {sys.version}.")
         pyaedt_logger.info(f"PyAEDT version {pyaedt_version}.")
         if settings.use_multi_desktop and not inside_desktop and new_desktop:
             pyaedt_logger.info("Initializing new Desktop session.")
@@ -516,8 +542,8 @@ class Desktop(object):
         if getattr(self, "_initialized", None) is not None and self._initialized:
             try:
                 self.grpc_plugin.recreate_application(True)
-            except Exception:  # nosec
-                pass
+            except Exception:
+                pyaedt_logger.debug("Failed to recreate application.")
             return
         else:
             self._initialized = True
@@ -761,6 +787,8 @@ class Desktop(object):
         if is_linux and settings.aedt_version == "2024.1" and design_type == "Circuit Design":  # pragma: no cover
             time.sleep(1)
             self.close_windows()
+        warning_msg = f"Active Design set to {active_design.GetName()}"
+        settings.logger.info(warning_msg)
         return active_design
 
     @pyaedt_function_handler()
@@ -1076,7 +1104,7 @@ class Desktop(object):
                 self.logger.error("Use client.aedt(port) to start aedt on remote machine before connecting.")
             elif new_aedt_session:
                 self.port = _find_free_port()
-                self.logger.info("New AEDT session is starting on gRPC port %s", self.port)
+                self.logger.info(f"New AEDT session is starting on gRPC port {self.port}.")
             else:
                 sessions = grpc_active_sessions(
                     version=version, student_version=student_version, non_graphical=non_graphical
@@ -1084,10 +1112,10 @@ class Desktop(object):
                 if sessions:
                     self.port = sessions[0]
                     if len(sessions) == 1:
-                        self.logger.info("Found active AEDT gRPC session on port %s", self.port)
+                        self.logger.info(f"Found active AEDT gRPC session on port {self.port}.")
                     else:
                         self.logger.warning(
-                            "Multiple AEDT gRPC sessions are found. Setting the active session on port %s", self.port
+                            f"Multiple AEDT gRPC sessions are found. Setting the active session on port {self.port}."
                         )
                 else:
                     if is_windows:  # pragma: no cover
@@ -1100,18 +1128,18 @@ class Desktop(object):
                                 non_graphical, new_aedt_session, version, student_version, version_key
                             )
                     self.port = _find_free_port()
-                    self.logger.info("New AEDT session is starting on gRPC port %s", self.port)
+                    self.logger.info(f"New AEDT session is starting on gRPC port {self.port}.")
                     new_aedt_session = True
         elif new_aedt_session and not _is_port_occupied(self.port, self.machine):
-            self.logger.info("New AEDT session is starting on gRPC port %s", self.port)
+            self.logger.info(f"New AEDT session is starting on gRPC port {self.port}.")
         elif new_aedt_session:
             self.logger.warning("New Session of AEDT cannot be started on specified port because occupied.")
             self.port = _find_free_port()
-            self.logger.info("New AEDT session is starting on gRPC port %s", self.port)
+            self.logger.info(f"New AEDT session is starting on gRPC port {self.port}.")
         elif _is_port_occupied(self.port, self.machine):
-            self.logger.info("Connecting to AEDT session on gRPC port %s", self.port)
+            self.logger.info(f"Connecting to AEDT session on gRPC port {self.port}.")
         else:
-            self.logger.info("AEDT session is starting on gRPC port %s", self.port)
+            self.logger.info(f"AEDT session is starting on gRPC port {self.port}.")
             new_aedt_session = True
 
         if new_aedt_session and settings.use_lsf_scheduler and is_linux:  # pragma: no cover
@@ -1122,7 +1150,7 @@ class Desktop(object):
                     is_grpc=True, machine=self.machine, port=self.port, new_session=False, version=version_key
                 )
             else:
-                self.logger.error("Failed to start LSF job on machine: %s.", self.machine)
+                self.logger.error(f"Failed to start LSF job on machine: {self.machine}.")
                 return
         elif new_aedt_session:
             installer = os.path.join(settings.aedt_install_dir, "ansysedt")
@@ -1714,18 +1742,18 @@ class Desktop(object):
         if isinstance(key_value, str):
             try:
                 self.odesktop.SetRegistryString(key_full_name, key_value)
-                self.logger.info("Key %s correctly changed.", key_full_name)
+                self.logger.info(f"Key {key_full_name} correctly changed.")
                 return True
             except Exception:
-                self.logger.warning("Error setting up Key %s.", key_full_name)
+                self.logger.warning(f"Error setting up Key {key_full_name}.")
                 return False
         elif isinstance(key_value, int):
             try:
                 self.odesktop.SetRegistryInt(key_full_name, key_value)
-                self.logger.info("Key %s correctly changed.", key_full_name)
+                self.logger.info(f"Key {key_full_name} correctly changed.")
                 return True
             except Exception:
-                self.logger.warning("Error setting up Key %s.", key_full_name)
+                self.logger.warning(f"Error setting up Key {key_full_name}.")
                 return False
         else:
             self.logger.warning("Key value must be an integer or string.")
@@ -1750,10 +1778,10 @@ class Desktop(object):
         """
         try:
             self.change_registry_key(f"Desktop/ActiveDSOConfigurations/{product_name}", config_name)
-            self.logger.info("Configuration Changed correctly to %s for %s.", config_name, product_name)
+            self.logger.info(f"Configuration Changed correctly to {config_name} for {product_name}.")
             return True
         except Exception:
-            self.logger.warning("Error Setting Up Configuration %s for %s.", config_name, product_name)
+            self.logger.warning(f"Error Setting Up Configuration {config_name} for {product_name}.")
             return False
 
     def change_registry_from_file(self, registry_file, make_active=True):  # pragma: no cover
@@ -1963,7 +1991,7 @@ class Desktop(object):
         --------
         >>> from ansys.aedt.core import Desktop
 
-        >>> d = Desktop(version="2024.2", new_desktop=False)
+        >>> d = Desktop(version="2025.1", new_desktop=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
         >>> job_id, job_name = d.submit_ansys_cloud_job('via_gsg.aedt',
@@ -2052,7 +2080,7 @@ class Desktop(object):
         --------
         >>> from ansys.aedt.core import Desktop
 
-        >>> d = Desktop(version="2024.2", new_desktop=False)
+        >>> d = Desktop(version="2025.1", new_desktop=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
         >>> job_id, job_name = d.submit_ansys_cloud_job('via_gsg.aedt',
@@ -2119,7 +2147,7 @@ class Desktop(object):
         --------
         >>> from ansys.aedt.core import Desktop
 
-        >>> d = Desktop(version="2024.2", new_desktop=False)
+        >>> d = Desktop(version="2025.1", new_desktop=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
         >>> job_id, job_name = d.submit_ansys_cloud_job('via_gsg.aedt',
@@ -2161,7 +2189,7 @@ class Desktop(object):
         --------
         >>> from ansys.aedt.core import Desktop
 
-        >>> d = Desktop(version="2024.2", new_desktop=False)
+        >>> d = Desktop(version="2025.1", new_desktop=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
         >>> job_id, job_name = d.submit_ansys_cloud_job('via_gsg.aedt',
@@ -2255,7 +2283,7 @@ class Desktop(object):
         """
         counts = {"profile": 0, "convergence": 0, "sweptvar": 0, "progress": 0, "variations": 0, "displaytype": 0}
         if self.are_there_simulations_running:
-            reqstr = " ".join(["%s %d 0" % (t, counts[t]) for t in counts])
+            reqstr = " ".join([f"{t} {counts[t]} 0" for t in counts])
             data = self.odesktop.GetMonitorData(reqstr)
             all_lines = (line.strip() for line in data.split("\n"))
             for line in all_lines:
