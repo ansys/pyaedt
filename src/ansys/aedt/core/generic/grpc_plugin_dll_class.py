@@ -31,13 +31,13 @@ from ctypes import py_object
 import os
 import re
 import socket
-import time
 import types
 
 from ansys.aedt.core.generic.errors import GrpcApiError
 from ansys.aedt.core.generic.general_methods import _retry_ntimes
 from ansys.aedt.core.generic.general_methods import inclusion_list
 from ansys.aedt.core.generic.general_methods import settings
+import grpc
 
 logger = settings.logger
 
@@ -347,14 +347,19 @@ class AEDT:
         return success
 
     def CreateAedtApplication(self, machine="", port=0, NGmode=False, alwaysNew=True):
+        if not alwaysNew and port:
+            grpc_channel = grpc.insecure_channel(f"{machine}:{port}")
+            try:
+                grpc.channel_ready_future(grpc_channel).result(settings.desktop_launch_timeout)
+            except grpc.FutureTimeoutError:
+                settings.logger.error("Failed to connect to Desktop Session")
+                return
         try:
             self.aedt = self.AedtAPI.CreateAedtApplication(machine, port, NGmode, alwaysNew)
-        except Exception:  # pragma: no cover
-            if port and self._is_port_occupied(port):
-                time.sleep(5)  # waiting for Desktop to initialize Grpc Server
-                self.aedt = self.AedtAPI.CreateAedtApplication(machine, port, NGmode, alwaysNew)
-            if not self.aedt:
-                raise GrpcApiError("Failed to connect to Desktop Session")
+        except Exception:
+            settings.logger.warning(f"Failed to create AedtApplication.")
+        if not self.aedt:
+            raise GrpcApiError("Failed to connect to Desktop Session")
         self.machine = machine
         self.non_graphical = NGmode
         if port == 0:

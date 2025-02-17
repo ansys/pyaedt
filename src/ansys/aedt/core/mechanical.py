@@ -31,11 +31,11 @@ from ansys.aedt.core.generic.constants import SOLUTIONS
 from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.modules.boundary.common import BoundaryObject
+from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 
 
-class Mechanical(FieldAnalysis3D, object):
+class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
     """Provides the Mechanical application interface.
 
     Parameters
@@ -60,7 +60,7 @@ class Mechanical(FieldAnalysis3D, object):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
         This parameter is ignored when a script is launched within AEDT.
-        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
+        Examples of input values are ``251``, ``25.1``, ``2025.1``, ``"2025.1"``.
     non_graphical : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default
         is ``False``, in which case AEDT is launched in the graphical mode.
@@ -116,11 +116,11 @@ class Mechanical(FieldAnalysis3D, object):
 
     >>> aedtapp = Mechanical("myfile.aedt")
 
-    Create a ``Desktop on 2023 R2`` object and then create an
+    Create a ``Desktop on 2025 R1`` object and then create an
     ``Mechanical`` object and open the specified project, which is
     named ``"myfile.aedt"``.
 
-    >>> aedtapp = Mechanical(version=23.2, project="myfile.aedt")
+    >>> aedtapp = Mechanical(version=25.1, project="myfile.aedt")
 
     """
 
@@ -270,12 +270,7 @@ class Mechanical(FieldAnalysis3D, object):
             props["SurfaceOnly"] = surfaces
 
         name = generate_unique_name("EMLoss")
-        bound = BoundaryObject(self, name, props, "EMLoss")
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            self.logger.info("EM losses mapped from design %s.", design)
-            return bound
-        return False
+        return self._create_boundary(name, props, "EMLoss")
 
     @pyaedt_function_handler(
         designname="design",
@@ -364,13 +359,7 @@ class Mechanical(FieldAnalysis3D, object):
         }
 
         name = generate_unique_name("ThermalLink")
-        bound = BoundaryObject(self, name, props, "ThermalCondition")
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            self.logger.info("Thermal conditions are mapped from design %s.", design)
-            return bound
-
-        return True
+        return self._create_boundary(name, props, "ThermalCondition")
 
     @pyaedt_function_handler(objects_list="assignment", boundary_name="name")
     def assign_uniform_convection(
@@ -424,11 +413,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         if not name:
             name = generate_unique_name("Convection")
-        bound = BoundaryObject(self, name, props, "Convection")
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            return bound
-        return False
+        return self._create_boundary(name, props, "Convection")
 
     @pyaedt_function_handler(objects_list="assignment", boundary_name="name")
     def assign_uniform_temperature(self, assignment, temperature="AmbientTemp", name=""):
@@ -471,11 +456,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         if not name:
             name = generate_unique_name("Temp")
-        bound = BoundaryObject(self, name, props, "Temperature")
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            return bound
-        return False
+        return self._create_boundary(name, props, "Temperature")
 
     @pyaedt_function_handler(objects_list="assignment", boundary_name="name")
     def assign_frictionless_support(self, assignment, name=""):
@@ -514,11 +495,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         if not name:
             name = generate_unique_name("Temp")
-        bound = BoundaryObject(self, name, props, "Frictionless")
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            return bound
-        return False
+        return self._create_boundary(name, props, "Frictionless")
 
     @pyaedt_function_handler(objects_list="assignment", boundary_name="name")
     def assign_fixed_support(self, assignment, name=""):
@@ -555,11 +532,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         if not name:
             name = generate_unique_name("Temp")
-        bound = BoundaryObject(self, name, props, "FixedSupport")
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            return bound
-        return False
+        return self._create_boundary(name, props, "FixedSupport")
 
     @property
     def existing_analysis_sweeps(self):
@@ -623,12 +596,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         if not name:
             name = generate_unique_name("HeatFlux")
-
-        bound = BoundaryObject(self, name, props, "HeatFlux")
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            return bound
-        return False
+        return self._create_boundary(name, props, "HeatFlux")
 
     @pyaedt_function_handler(objects_list="assignment", boundary_name="name")
     def assign_heat_generation(self, assignment, value, name=""):
@@ -665,12 +633,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         if not name:
             name = generate_unique_name("HeatGeneration")
-
-        bound = BoundaryObject(self, name, props, "HeatGeneration")
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            return bound
-        return False
+        return self._create_boundary(name, props, "HeatGeneration")
 
     @pyaedt_function_handler()
     def assign_2way_coupling(self, setup=None, number_of_iterations=2):

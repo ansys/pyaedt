@@ -842,7 +842,7 @@ class FfdSolutionData(object):
         Examples
         --------
         >>> from ansys.aedt.core
-        >>> app = ansys.aedt.core.Hfss(version="2024.2", design="Antenna")
+        >>> app = ansys.aedt.core.Hfss(version="2025.1", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
@@ -967,8 +967,6 @@ class FfdSolutionData(object):
             y_key, x_key = "Phi", "Theta"
             temp = data_to_plot.T
         x = data[x_key]
-        if is_polar:
-            x = [i * 2 * math.pi / 360 for i in x]
         if secondary_sweep_value == "all":
             for el in data[y_key]:
                 idx = self.__find_nearest(data[y_key], el)

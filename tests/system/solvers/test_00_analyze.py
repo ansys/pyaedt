@@ -109,7 +109,8 @@ def icepak_app(add_app):
 @pytest.fixture(scope="class")
 def hfss3dl_solve(add_app):
     app = add_app(project_name=test_solve, application=Hfss3dLayout, subfolder=test_subfolder)
-    return app
+    yield app
+    app.close_project(save=False)
 
 
 @pytest.fixture(scope="class")
@@ -146,9 +147,26 @@ def m3dtransient(add_app):
 
 class TestClass:
     @pytest.fixture(autouse=True)
-    def init(self, local_scratch, icepak_app, hfss3dl_solve):
+    def init(self, local_scratch):
         self.local_scratch = local_scratch
-        self.hfss3dl_solve = hfss3dl_solve
+
+    def test_3dl_generate_mesh(self, hfss3dl_solve):
+        assert hfss3dl_solve.mesh.generate_mesh("Setup1")
+
+    @pytest.mark.skipif(desktop_version < "2023.2", reason="Working only from 2023 R2")
+    def test_3dl_analyze_setup(self, hfss3dl_solve):
+        assert hfss3dl_solve.export_touchstone_on_completion(export=False)
+        assert hfss3dl_solve.export_touchstone_on_completion(export=True)
+        if desktop_version > "2024.2":
+            assert hfss3dl_solve.set_export_touchstone()
+        else:
+            with pytest.raises(AEDTRuntimeError):
+                hfss3dl_solve.set_export_touchstone()
+        assert hfss3dl_solve.analyze_setup("Setup1", cores=4, blocking=False)
+        assert hfss3dl_solve.are_there_simulations_running
+        assert hfss3dl_solve.stop_simulations()
+        while hfss3dl_solve.are_there_simulations_running:
+            time.sleep(1)
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not supported.")
     def test_01a_sbr_link_array(self, sbr_platform, array):
@@ -406,24 +424,6 @@ class TestClass:
             export_field_in_reference=False,
         )
         assert os.path.exists(fld_file_3)
-
-    def test_04a_3dl_generate_mesh(self):
-        assert self.hfss3dl_solve.mesh.generate_mesh("Setup1")
-
-    @pytest.mark.skipif(desktop_version < "2023.2", reason="Working only from 2023 R2")
-    def test_04b_3dl_analyze_setup(self):
-        assert self.hfss3dl_solve.export_touchstone_on_completion(export=False)
-        assert self.hfss3dl_solve.export_touchstone_on_completion(export=True)
-        if desktop_version > "2024.2":
-            assert self.hfss3dl_solve.set_export_touchstone()
-        else:
-            with pytest.raises(AEDTRuntimeError):
-                self.hfss3dl_solve.set_export_touchstone()
-        assert self.hfss3dl_solve.analyze_setup("Setup1", cores=4, blocking=False)
-        assert self.hfss3dl_solve.are_there_simulations_running
-        assert self.hfss3dl_solve.stop_simulations()
-        while self.hfss3dl_solve.are_there_simulations_running:
-            time.sleep(1)
 
     def test_04c_3dl_analyze_setup(self, hfss3dl_solved):
         assert os.path.exists(hfss3dl_solved.export_profile("Setup1"))

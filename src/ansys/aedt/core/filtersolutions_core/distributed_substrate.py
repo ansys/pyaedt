@@ -39,7 +39,7 @@ from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateType
 class DistributedSubstrate:
     """Defines substrate parameters of distributed filters.
 
-    This class lets you construct all parameters for the substrate page of the ``DistributedDesign`` class.
+    This class allows you to define and modify the substrate parameters of distributed filters.
     """
 
     def __init__(self):

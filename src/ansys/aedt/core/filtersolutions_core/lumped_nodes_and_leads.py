@@ -34,8 +34,8 @@ import ansys.aedt.core
 class LumpedNodesandLeads:
     """Defines attributes of the lumped element node capacitors and lead inductors.
 
-    This class lets you to construct all the necessary node capacitors and
-    lead inductors attributes of the lumped elements for the ``LumpedDesign`` class.
+    This class allows you to define and modify the node capacitors and
+    lead inductors parameters of the lumped elements used in the designed filter.
     """
 
     def __init__(self):
