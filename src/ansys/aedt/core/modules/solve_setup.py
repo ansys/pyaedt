@@ -139,26 +139,30 @@ class CommonSetup(PropsManager, BinaryTreeNode):
         dict
             Dictionary which keys are typically Freq, Phase or Time.
         """
-        intr = {}
+        intrinsics = {}
         if "HFSS 3D Layout" in self._app.design_type:  # pragma no cover
             try:
-                intr["Freq"] = (
+                intrinsics["Freq"] = (
                     self._app.modeler.edb.setups[self.name]
                     .adaptive_settings.adaptive_frequency_data_list[0]
                     .adaptive_frequency
                 )
-                intr["Phase"] = "0deg"
-                return intr
+                intrinsics["Phase"] = "0deg"
+                return intrinsics
             except Exception:
                 settings.logger.debug("Failed to retrieve adaptive frequency.")
+
         for i in self._app.design_solutions.intrinsics:
-            if i == "Freq" and "Frequency" in self.props:
-                intr[i] = self.props["Frequency"]
+            if i == "Freq":
+                if "Frequency" in self.props:
+                    intrinsics[i] = self.props["Frequency"]
+                elif "Solution Freq" in self.properties:
+                    intrinsics[i] = self.properties["Solution Freq"]
             elif i == "Phase":
-                intr[i] = "0deg"
+                intrinsics[i] = "0deg"
             elif i == "Time":
-                intr[i] = "0s"
-        return intr
+                intrinsics[i] = "0s"
+        return intrinsics
 
     def __repr__(self):
         return "SetupName " + self.name + " with " + str(len(self.sweeps)) + " Sweeps"

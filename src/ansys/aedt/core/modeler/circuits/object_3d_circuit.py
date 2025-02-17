@@ -283,7 +283,7 @@ class CircuitPins(object):
             try:
                 page_name = self._circuit_comp.name.split("@")[1].replace(";", "_")
             except Exception:
-                pass
+                self._component._circuit_components.logger.debug("Cannot parse page name from circuit component name")
         else:
             for cmp in assignment:
                 if "Port" in cmp._circuit_comp.composed_name:
@@ -291,7 +291,9 @@ class CircuitPins(object):
                         page_name = cmp._circuit_comp.name.split("@")[1].replace(";", "_")
                         break
                     except Exception:
-                        continue
+                        self._component._circuit_components.logger.debug(
+                            "Cannot parse page name from circuit component name"
+                        )
         try:
             x_loc = AEDT_UNITS["Length"][decompose_variable_value(self._circuit_comp.location[0])[1]] * float(
                 decompose_variable_value(self._circuit_comp.location[1])[0]
