@@ -366,7 +366,7 @@ class TestClass:
     def test_rcs_plotter_add_incident_rcs_settings(self):
         rcs_data = MonostaticRCSData(input_file=str(self.metadata_file))
         rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_data)
-        rcs_plotter.add_incident_rcs_settings()
+        rcs_plotter.add_incident_rcs_settings(theta_span=20, num_theta=101, phi_span=20, num_phi=101)
         plot = rcs_plotter.plot_scene(show=False)
         assert isinstance(plot, Plotter)
         assert rcs_plotter.clear_scene()
