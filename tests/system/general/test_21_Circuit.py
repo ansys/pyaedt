@@ -1018,3 +1018,5 @@ class TestClass:
         assert list(self.aedtapp.modeler.components.components.values())[0].component_path
         assert self.aedtapp.modeler.components.create_component(component_library="", component_name="RES_")
         assert not list(self.aedtapp.modeler.components.components.values())[1].component_path
+        t1 = self.aedtapp.modeler.schematic.create_touchstone_component(self.touchstone_file)
+        assert t1.component_path
