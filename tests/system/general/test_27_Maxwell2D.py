@@ -300,7 +300,8 @@ class TestClass:
     def test_export_rl_matrix(self, local_scratch, sinusoidal):
         export_path_1 = os.path.join(local_scratch.path, "export_rl_matrix_Test1.txt")
         assert sinusoidal.export_rl_matrix("Test1", export_path_1)
-        assert not sinusoidal.export_rl_matrix("abcabc", export_path_1)
+        with pytest.raises(AEDTRuntimeError):
+            sinusoidal.export_rl_matrix("abcabc", export_path_1)
         assert os.path.exists(export_path_1)
         export_path_2 = os.path.join(local_scratch.path, "export_rl_matrix_Test2.txt")
         assert sinusoidal.export_rl_matrix("Test2", export_path_2, False, 10, 3, True)
@@ -308,7 +309,8 @@ class TestClass:
         sinusoidal.setups[0].delete()
         setup_name = "new_setup"
         sinusoidal.create_setup(name=setup_name)
-        assert not sinusoidal.export_rl_matrix("Test1", export_path_1)
+        with pytest.raises(AEDTRuntimeError):
+            sinusoidal.export_rl_matrix("Test1", export_path_1)
 
     def test_assign_current_density(self, sinusoidal):
         sinusoidal.set_active_design("Sinusoidal")
@@ -775,7 +777,8 @@ class TestClass:
 
         output_file = os.path.join(local_scratch.path, "c_matrix.txt")
 
-        assert not m2d_app.export_c_matrix(matrix_name="Matrix1", output_file=output_file)
+        with pytest.raises(AEDTRuntimeError):
+            m2d_app.export_c_matrix(matrix_name="Matrix1", output_file=output_file)
 
         m2d_app.assign_matrix(assignment=["v1", "v2"], matrix_name="Matrix1", group_sources="grd")
 
@@ -789,7 +792,8 @@ class TestClass:
         assert m2d_app.setups[0].export_matrix(matrix_type="C", matrix_name="Matrix1", output_file=output_file)
         assert os.path.exists(output_file)
 
-        assert not m2d_app.export_c_matrix(matrix_name="invalid", output_file=output_file)
+        with pytest.raises(AEDTRuntimeError):
+            m2d_app.export_c_matrix(matrix_name="invalid", output_file=output_file)
 
         m2d_app["m"] = "1m"
         m2d_app["l"] = "2m2"
@@ -802,5 +806,9 @@ class TestClass:
         assert m2d_app.setups[0].export_matrix(matrix_type="C", matrix_name="Matrix1", output_file=output_file)
         assert os.path.exists(output_file)
 
+        with pytest.raises(AEDTRuntimeError):
+            m2d_app.setups[0].export_matrix(matrix_type="invalid", matrix_name="Matrix1", output_file=output_file)
+
         output_file = os.path.join(local_scratch.path, "c_matrix.csv")
-        assert not m2d_app.export_c_matrix(matrix_name="Matrix1", output_file=output_file)
+        with pytest.raises(AEDTRuntimeError):
+            m2d_app.export_c_matrix(matrix_name="Matrix1", output_file=output_file)

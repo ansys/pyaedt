@@ -535,12 +535,15 @@ class TestClass:
         setup = m3d_app.create_setup(name=setup_name)
         setup.props["MaximumPasses"] = 2
         export_path_1 = os.path.join(local_scratch.path, "export_rl_matrix_Test1.txt")
-        assert not m3d_app.export_rl_matrix("matrix_export_test", export_path_1)
-        assert not m3d_app.export_rl_matrix("matrix_export_test", export_path_1, False, 10, 3, True)
+        with pytest.raises(AEDTRuntimeError):
+            m3d_app.export_rl_matrix("matrix_export_test", export_path_1)
+        with pytest.raises(AEDTRuntimeError):
+            m3d_app.export_rl_matrix("matrix_export_test", export_path_1, False, 10, 3, True)
         m3d_app.validate_simple()
         m3d_app.analyze_setup(setup_name, cores=1)
         assert m3d_app.export_rl_matrix("matrix_export_test", export_path_1)
-        assert not m3d_app.export_rl_matrix("abcabc", export_path_1)
+        with pytest.raises(AEDTRuntimeError):
+            m3d_app.export_rl_matrix("abcabc", export_path_1)
         assert os.path.exists(export_path_1)
         export_path_2 = os.path.join(local_scratch.path, "export_rl_matrix_Test2.txt")
         assert m3d_app.export_rl_matrix("matrix_export_test", export_path_2, False, 10, 3, True)
