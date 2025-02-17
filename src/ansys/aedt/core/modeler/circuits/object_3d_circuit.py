@@ -1090,6 +1090,9 @@ class CircuitComponent(object):
     def component_path(self):
         """Component definition path."""
         component_definition = self.component_info["Info"]
+        model_data = self._circuit_components.o_model_manager.GetData(component_definition)
+        if "filename:=" in model_data:
+            return model_data[model_data.index("filename:=") + 1]
         component_data = self._circuit_components.o_component_manager.GetData(component_definition)
         if not component_data:
             self._circuit_components._app.logger.warning("Component " + self.refdes + " has no path")
