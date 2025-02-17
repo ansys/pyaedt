@@ -28,6 +28,7 @@ from pathlib import Path
 import shutil
 
 from ansys.aedt.core.generic.constants import unit_converter
+from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.generic.general_methods import check_and_download_folder
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
@@ -216,11 +217,8 @@ class MonostaticRCSExporter:
             # Export geometry
             geometry_path = export_path / "geometry"
             if not geometry_path.exists():
-                try:
-                    geometry_path.mkdir()
-                except OSError as e:
-                    self.__app.logger.error(f"Failed to create directory {geometry_path}: {e}")
-                    return False
+                geometry_path.mkdir()
+
             obj_list = self.__create_geometries(geometry_path)
             if obj_list:
                 self.__model_info["object_list"] = obj_list
@@ -230,8 +228,7 @@ class MonostaticRCSExporter:
             else:
                 data = self.get_monostatic_rcs()
                 if not data or data.number_of_variations != 1:  # pragma: no cover
-                    self.__app.logger.error("Data can not be obtained.")
-                    return False
+                    raise AEDTRuntimeError("Data can not be obtained.")
 
                 df = data.full_matrix_real_imag[0] + complex(0, 1) * data.full_matrix_real_imag[1]
                 df.index.names = [*data.variations[0].keys(), *data.intrinsics.keys()]
@@ -252,8 +249,8 @@ class MonostaticRCSExporter:
                     return False
 
                 if not self.data_file.is_file():
-                    self.__app.logger.error("RCS data file not exported.")
-                    return False
+                    raise AEDTRuntimeError("RCS data file not exported.")
+
         else:
             self.__app.logger.info("Using existing RCS file.")
 
@@ -272,8 +269,7 @@ class MonostaticRCSExporter:
             with pyaedt_metadata_file.open("w") as f:
                 json.dump(items, f, indent=2)
         except Exception as e:
-            self.__app.logger.error(f"An error occurred when writing metadata: {e}")
-            return False
+            raise AEDTRuntimeError(f"An error occurred when writing metadata: {e}")
 
         self.__metadata_file = pyaedt_metadata_file
         if not only_geometry:
