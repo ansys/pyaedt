@@ -76,7 +76,7 @@ def test_init_with_default_values():
 def test_export_rcs_with_no_monostatic_rcs(mock_settings, mock_monostatic_rcs, mock_download):
     exporter = MonostaticRCSExporter(mock_app, "name", FREQUENCIES)
 
-    with pytest.raises(OSError):
+    with pytest.raises(AEDTRuntimeError):
         exporter.export_rcs()
 
 
@@ -87,7 +87,7 @@ def test_export_rcs_with_no_monostatic_rcs(mock_settings, mock_monostatic_rcs, m
 def test_export_rcs_with_data_file_not_a_file(mock_is_file, mock_settings, mock_monostatic_rcs, mock_download, caplog):
     exporter = MonostaticRCSExporter(mock_app, "name", FREQUENCIES)
 
-    with pytest.raises(OSError):
+    with pytest.raises(AEDTRuntimeError):
         exporter.export_rcs()
 
 
