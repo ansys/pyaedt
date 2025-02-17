@@ -176,7 +176,7 @@ class SubstrateResistivity(Enum):
 class ExportToAedt:
     """Defines attributes and parameters for exporting filter .
 
-    This class lets you construct all the necessary attributes for the ``ExportToAedt`` class.
+    This class allows you to define and modify the parameters for exporting a designed filter to ``AEDT``.
     """
 
     def __init__(self):
