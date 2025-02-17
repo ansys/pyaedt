@@ -2185,20 +2185,16 @@ class Maxwell(CreateBoundaryMixin):
             SOLUTIONS.Maxwell2d.EddyCurrentZ,
             SOLUTIONS.Maxwell3d.EddyCurrent,
         ]:
-            self.logger.error("RL Matrix can only be exported if solution type is Eddy Current.")
-            return False
+            raise AEDTRuntimeError("RL Matrix can only be exported if solution type is Eddy Current.")
 
         matrix_names_list = [matrix.name for matrix in self.boundaries if isinstance(matrix, MaxwellParameters)]
         if not matrix_names_list:
-            self.logger.error("Matrix list is empty, can't export a valid matrix.")
-            return False
+            raise AEDTRuntimeError("Matrix list is empty, can't export a valid matrix.")
         elif matrix_name not in matrix_names_list:
-            self.logger.error("Matrix name doesn't exist, provide and existing matrix name.")
-            return False
+            raise AEDTRuntimeError("Matrix name doesn't exist, provide and existing matrix name.")
 
         if os.path.splitext(output_file)[1] != ".txt":
-            self.logger.error("File extension must be .txt")
-            return False
+            raise AEDTRuntimeError("File extension must be .txt")
 
         if setup is None:
             setup = self.active_setup
@@ -2226,15 +2222,13 @@ class Maxwell(CreateBoundaryMixin):
                     precision,
                     is_exponential,
                 )
-            except Exception:
-                self.logger.error("Solutions are empty. Solve before exporting.")
-                return False
+            except Exception as e:
+                raise AEDTRuntimeError("Solutions are empty. Solve before exporting.") from e
         else:
             try:
                 self.oanalysis.ExportSolnData(analysis_setup, matrix_name, is_post_processed, variations, output_file)
-            except Exception:
-                self.logger.error("Solutions are empty. Solve before exporting.")
-                return False
+            except Exception as e:
+                raise AEDTRuntimeError("Solutions are empty. Solve before exporting.") from e
 
         return True
 
@@ -2275,19 +2269,16 @@ class Maxwell(CreateBoundaryMixin):
             SOLUTIONS.Maxwell2d.ElectroStaticZ,
             SOLUTIONS.Maxwell3d.ElectroStatic,
         ]:
-            AEDTRuntimeError("C Matrix can only be exported if solution type is Electrostatic.")
+            raise AEDTRuntimeError("C Matrix can only be exported if solution type is Electrostatic.")
 
         matrix_names_list = [matrix.name for matrix in self.boundaries if isinstance(matrix, MaxwellParameters)]
         if not matrix_names_list:
-            self.logger.error("Matrix list is empty, can't export a valid matrix.")
-            return False
+            raise AEDTRuntimeError("Matrix list is empty, can't export a valid matrix.")
         elif matrix_name not in matrix_names_list:
-            self.logger.error("Matrix name doesn't exist, provide and existing matrix name.")
-            return False
+            raise AEDTRuntimeError("Matrix name doesn't exist, provide and existing matrix name.")
 
         if os.path.splitext(output_file)[1] != ".txt":
-            self.logger.error("File extension must be .txt")
-            return False
+            raise AEDTRuntimeError("File extension must be .txt")
 
         if setup is None:
             setup = self.active_setup
