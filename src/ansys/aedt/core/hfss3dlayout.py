@@ -689,13 +689,15 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             return False
 
     @pyaedt_function_handler(portname="name")
-    def delete_port(self, name):
+    def delete_port(self, name, remove_geometry=True):
         """Delete a port.
 
         Parameters
         ----------
         name : str
             Name of the port.
+        remove_geometry : bool, optional
+            Whether to remove geometry. The default is ``True``.
 
         Returns
         -------
@@ -705,8 +707,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         References
         ----------
         >>> oModule.Delete
+        >>> oModule.DeleteExcitations
         """
-        self.oexcitation.Delete(name)
+        if remove_geometry:
+            self.oexcitation.Delete(name)
+        else:
+            self.oexcitation.DeleteExcitation(name)
+
         for bound in self.boundaries:
             if bound.name == name:
                 self.boundaries.remove(bound)

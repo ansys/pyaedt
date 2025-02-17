@@ -60,8 +60,8 @@ from ansys.aedt.core.modeler.cad.modeler import Lists
 from ansys.aedt.core.modeler.cad.modeler import Modeler
 from ansys.aedt.core.modeler.cad.modeler import ObjectCoordinateSystem
 from ansys.aedt.core.modeler.cad.object_3d import Object3d
+from ansys.aedt.core.modeler.cad.object_3d import PolylineSegment
 from ansys.aedt.core.modeler.cad.polylines import Polyline
-from ansys.aedt.core.modeler.cad.polylines import PolylineSegment
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modules.material_lib import Material
 
@@ -853,39 +853,40 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler()
     def _refresh_all_ids_wrapper(self):
-        if settings.aedt_version >= "2025.1":
+        if settings.aedt_version >= "2023.2":
             return self._refresh_all_ids_from_data_model()
         else:
             return self._refresh_all_ids_from_aedt_file()
 
     @pyaedt_function_handler()
     def _refresh_all_ids_from_data_model(self):
-        self._app.logger.info("Refreshing objects from Data Model")
-        from ansys.aedt.core.application import _get_data_model
+        self._app.logger.info("Refreshing bodies from Object Info")
+        self._app.logger.reset_timer()
+        import json
 
-        dm = _get_data_model(self.oeditor, 2)
+        dm = self.oeditor.GetAllObjectInfo(self.object_names)
+        dm = json.loads(dm)
 
-        for attribs in dm.get("children", []):
-            if attribs["type"] == "Part":
-                pid = 0
-                is_polyline = False
-                try:
-                    if attribs["children"][0]["Command"] == "CreatePolyline":
-                        is_polyline = True
-                except Exception:
-                    is_polyline = False
-
-                o = self._create_object(name=attribs["Name"], pid=pid, use_cached=True, is_polyline=is_polyline)
-                o._part_coordinate_system = attribs["Orientation"]
-                o._model = attribs["Model"]
-                o._wireframe = attribs["Display Wireframe"]
-                o._m_groupName = attribs["Model"]
-                o._color = (attribs["Color/Red"], attribs["Color/Green"], attribs["Color/Blue"])
-                o._material_name = attribs.get("Material", None)
-                o._surface_material = attribs.get("Surface Material", None)
-                o._solve_inside = attribs.get("Solve Inside", False)
-                o._is_updated = True
-                # pid+=1
+        for attribs in dm:
+            pid = int(attribs["id"])
+            o = self._create_object(name=attribs["Name"], pid=pid, use_cached=True, is_polyline=None)
+            o._part_coordinate_system = attribs["Orientation"]
+            o._model = True if attribs["Model"] in ["true", True, "True"] else False
+            o._wireframe = True if attribs["Display Wireframe"] in ["true", True, "True"] else False
+            o._m_groupName = attribs.get("Group", None)
+            RGBint = int(attribs["Color"])
+            b = RGBint & 255
+            g = (RGBint >> 8) & 255
+            r = (RGBint >> 16) & 255
+            o._color = (r, g, b)
+            o._material_name = attribs.get("Material", None)
+            if o._material_name:
+                o._material_name = o._material_name[1:-1]
+            o._surface_material = attribs.get("Surface Material", None)
+            o._solve_inside = True if attribs.get("Solve Inside", False) in ["true", True, "True"] else False
+            o._is_updated = True
+            o._transparency = float(attribs.get("Transparent", 0.0))
+        self._app.logger.info_timer("Bodies Info Refreshed")
         return len(self.objects)
 
     @pyaedt_function_handler()
@@ -4393,12 +4394,12 @@ class GeometryModeler(Modeler):
         P = self.get_existing_polyline(assignment=new_edges[0])
 
         if edge_to_delete:
-            P.remove_edges(edge_to_delete)
+            P.remove_segments(edge_to_delete)
 
         angle = math.pi * (180 - 360 / number_of_segments) / 360
 
         status = P.set_crosssection_properties(
-            type="Circle", num_seg=number_of_segments, width=(rad * (2 - math.sin(angle))) * 2
+            section="Circle", width=(rad * (2 - math.sin(angle))) * 2, num_seg=number_of_segments
         )
         if status:
             self.move(new_edges[0], move_vector)
@@ -8665,16 +8666,16 @@ class GeometryModeler(Modeler):
             self.planes[name] = o
         elif name in line_names:
             o = Object3d(self, name)
+            o.is_polyline = True
             if pid:
                 new_id = pid
             else:
                 new_id = o.id
-            o = self.get_existing_polyline(o)
             self.objects[new_id] = o
+
         else:
             o = Object3d(self, name)
-            if is_polyline:
-                o = self.get_existing_polyline(o)
+            o.is_polyline = is_polyline
             if pid:
                 new_id = pid
             else:
