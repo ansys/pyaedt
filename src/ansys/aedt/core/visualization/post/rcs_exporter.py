@@ -216,7 +216,10 @@ class MonostaticRCSExporter:
         if self.overwrite or not file_exists:
             # Export geometry
             geometry_path = export_path / "geometry"
-            if not geometry_path.exists():
+
+            if settings.remote_rpc_session:
+                settings.remote_rpc_session.filemanager.makedirs(geometry_path)
+            elif not geometry_path.exists():
                 geometry_path.mkdir()
 
             obj_list = self.__create_geometries(geometry_path)
