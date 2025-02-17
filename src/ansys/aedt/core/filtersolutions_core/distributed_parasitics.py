@@ -31,15 +31,15 @@ import ansys.aedt.core
 class DistributedParasitics:
     """Defines parasitics parameters of distributed filters.
 
-    This class lets you construct all parameters for the parasitics page of the ``DistributedDesign`` class.
+    This class allows you to define and modify the layout parasitics parameters of distributed filters.
     """
 
     def __init__(self):
         self._dll = ansys.aedt.core.filtersolutions_core._dll_interface()._dll
         self._dll_interface = ansys.aedt.core.filtersolutions_core._dll_interface()
-        self._define_geomtry_dll_functions()
+        self._define_parasitics_dll_functions()
 
-    def _define_geomtry_dll_functions(self):
+    def _define_parasitics_dll_functions(self):
         """Define C++ API DLL functions."""
         self._dll.setDistributedCapacitorQ.argtype = c_char_p
         self._dll.setDistributedCapacitorQ.restype = c_int
@@ -237,7 +237,8 @@ class DistributedParasitics:
     @property
     def line_odd_resistance(self) -> str:
         """Odd-mode conductor resistance value of the line per unit length."
-        This parameter is defined for ``RLGC`` substrate types. The default is ``0``.
+        This parameter is defined for standard ``RLGC`` transmission line model substrate types.
+        The default is ``0``.
 
         Returns
         -------
@@ -253,7 +254,8 @@ class DistributedParasitics:
     @property
     def line_even_resistance(self) -> str:
         """Even-mode conductor resistance value of the line per unit length."
-        This parameter is defined for ``RLGC`` substrate types. The default is ``0``.
+        This parameter is defined for standard ``RLGC`` transmission line model substrate types.
+        The default is ``0``.
 
         Returns
         -------
@@ -269,7 +271,8 @@ class DistributedParasitics:
     @property
     def line_odd_conductance(self) -> str:
         """Odd-mode dielectric conductance of the line per unit length.
-        This parameter is defined for ``RLGC`` substrate types. The default is ``0``.
+        This parameter is defined for standard ``RLGC`` transmission line model substrate types.
+        The default is ``0``.
 
         Returns
         -------
@@ -285,7 +288,8 @@ class DistributedParasitics:
     @property
     def line_even_conductance(self) -> str:
         """Even-mode dielectric conductance of the line per unit length.
-        This parameter is defined for ``RLGC`` substrate types. The default is ``0``.
+        This parameter is defined for standard ``RLGC`` transmission line model substrate types.
+        The default is ``0``.
 
         Returns
         -------
@@ -301,7 +305,8 @@ class DistributedParasitics:
     @property
     def line_min_segment_lengths(self) -> str:
         """Default value for the minimum segment lengths between stubs.
-        This parameter is defined for ``RLGC`` substrate types. The default is ``0``.
+        This parameter is defined for standard ``RLGC`` transmission line model substrate types.
+        The default is ``0``.
 
         Returns
         -------
