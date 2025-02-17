@@ -1608,7 +1608,7 @@ class MonostaticRCSPlotter(object):
             along the elevation axis. The default is ``0.1 meters``.
         tick_color : str, optional
             Color of the tick marks along both the range and cross-range axes. The default is
-            black ("#000000").
+            black (``"#000000"``).
         line_color : str, optional
             Color of the line. The default is red (``"#ff0000"``).
         """
