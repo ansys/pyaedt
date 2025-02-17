@@ -245,8 +245,7 @@ class MonostaticRCSExporter:
                 try:
                     df.to_hdf(self.data_file, key="df", mode="w", format="table")
                 except ImportError as e:  # pragma: no cover
-                    self.__app.logger.error(f"PyTables is not installed: {e}")
-                    return False
+                    raise AEDTRuntimeError("PyTables is not installed") from e
 
                 if not self.data_file.is_file():
                     raise AEDTRuntimeError("RCS data file not exported.")
