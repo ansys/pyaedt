@@ -2323,6 +2323,7 @@ class MonostaticRCSPlotter(object):
         cone_object.lighting = True
         cone_object.smooth_shading = False
         cone_object.mesh = cone
+
         return MeshObjectPlot(cone_object, cone_object.get_mesh())
 
     @pyaedt_function_handler()
