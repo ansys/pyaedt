@@ -43,14 +43,14 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import read_configuration_file
 from ansys.aedt.core.generic.general_methods import write_configuration_file
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
-from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 
 
-class Maxwell(object):
+class Maxwell(CreateBoundaryMixin):
     def __init__(self):
         pass
 
@@ -431,7 +431,7 @@ class Maxwell(object):
                         prop = dict({"GroupName": element, "NumberOfBranches": branches[cont], "Sources": source_list})
                         props["MatrixGroup"]["MatrixGroup"].append(prop)
                         cont += 1
-            return self._create_boundary_object(matrix_name, props, "Matrix")
+            return self._create_boundary(matrix_name, props, "Matrix")
         else:
             raise AEDTRuntimeError("Solution type does not have matrix parameters")
 
@@ -753,7 +753,7 @@ class Maxwell(object):
                 props = dict({"Objects": assignment, "Current": amplitude, "IsPositive": swap_direction})
             else:
                 raise ValueError("Input must be a 2D object.")
-        return self._create_boundary_object(name, props, "Current")
+        return self._create_boundary(name, props, "Current")
 
     @pyaedt_function_handler(band_object="assignment")
     def assign_translate_motion(
@@ -850,7 +850,7 @@ class Maxwell(object):
                 "Objects": object_list,
             }
         )
-        return self._create_boundary_object(motion_name, props, "Band")
+        return self._create_boundary(motion_name, props, "Band")
 
     @pyaedt_function_handler(band_object="assignment")
     def assign_rotate_motion(
@@ -945,7 +945,7 @@ class Maxwell(object):
                 "Objects": object_list,
             }
         )
-        return self._create_boundary_object(motion_name, props, "Band")
+        return self._create_boundary(motion_name, props, "Band")
 
     @pyaedt_function_handler(face_list="assignment")
     def assign_voltage(self, assignment, amplitude=1, name=None):
@@ -1010,7 +1010,7 @@ class Maxwell(object):
                 key = "Edges" if is_maxwell_2d else "Faces"
                 props[key].append(element)
 
-        return self._create_boundary_object(name, props, "Voltage")
+        return self._create_boundary(name, props, "Voltage")
 
     @pyaedt_function_handler(face_list="assignment")
     def assign_voltage_drop(self, assignment, amplitude=1, swap_direction=False, name=None):
@@ -1047,7 +1047,7 @@ class Maxwell(object):
         assignment = self.modeler.convert_to_selections(assignment, True)
 
         props = dict({"Faces": assignment, "Voltage Drop": amplitude, "Point out of terminal": swap_direction})
-        return self._create_boundary_object(name, props, "VoltageDrop")
+        return self._create_boundary(name, props, "VoltageDrop")
 
     @pyaedt_function_handler()
     def assign_floating(self, assignment, charge_value=0, name=None):
@@ -1120,7 +1120,7 @@ class Maxwell(object):
         if not name:
             name = generate_unique_name("Floating")
 
-        return self._create_boundary_object(name, props, "Floating")
+        return self._create_boundary(name, props, "Floating")
 
     @pyaedt_function_handler(coil_terminals="assignment", current_value="current", res="resistance", ind="inductance")
     def assign_winding(
@@ -1190,7 +1190,7 @@ class Maxwell(object):
                 "Phase": self.modeler._arg_with_dim(phase, "deg"),
             }
         )
-        bound = self._create_boundary_object(name, props, "Winding")
+        bound = self._create_boundary(name, props, "Winding")
         if bound:
             if assignment is None:
                 assignment = []
@@ -1293,7 +1293,7 @@ class Maxwell(object):
             else:
                 raise AEDTRuntimeError("Face Selection is not allowed in Maxwell 2D. Provide a 2D object.")
 
-        return self._create_boundary_object(name, props, bound_type)
+        return self._create_boundary(name, props, bound_type)
 
     @pyaedt_function_handler(input_object="assignment", reference_cs="coordinate_system")
     def assign_force(self, assignment, coordinate_system="Global", is_virtual=True, force_name=None):
@@ -1371,7 +1371,7 @@ class Maxwell(object):
                     "Objects": assignment,
                 }
             )
-        return self._create_boundary_object(force_name, prop, "Force")
+        return self._create_boundary(force_name, prop, "Force")
 
     @pyaedt_function_handler(input_object="assignment", reference_cs="coordinate_system")
     def assign_torque(
@@ -1438,7 +1438,7 @@ class Maxwell(object):
                     "Objects": assignment,
                 }
             )
-        return self._create_boundary_object(torque_name, prop, "Torque")
+        return self._create_boundary(torque_name, prop, "Torque")
 
     @pyaedt_function_handler()
     def solve_inside(self, name, activate=True):
@@ -1561,7 +1561,7 @@ class Maxwell(object):
                 prop = dict({"Name": symmetry_name, "Faces": assignment, "IsOdd": is_odd})
         else:
             raise ValueError("At least one edge must be provided.")
-        return self._create_boundary_object(symmetry_name, prop, "Symmetry")
+        return self._create_boundary(symmetry_name, prop, "Symmetry")
 
     @pyaedt_function_handler(
         entities="assignment",
@@ -1692,7 +1692,7 @@ class Maxwell(object):
                     bound_name = current_density_name
                     bound_type = "CurrentDensity"
 
-            return self._create_boundary_object(bound_name, bound_props, bound_type)
+            return self._create_boundary(bound_name, bound_props, bound_type)
         except Exception:
             raise AEDTRuntimeError("Couldn't assign current density to desired list of objects.")
 
@@ -1746,7 +1746,7 @@ class Maxwell(object):
                 props["Objects"].append(sel)
             elif isinstance(sel, int):
                 props["Faces"].append(sel)
-        return self._create_boundary_object(radiation, props, "Radiation")
+        return self._create_boundary(radiation, props, "Radiation")
 
     @pyaedt_function_handler(objects="assignment")
     def enable_harmonic_force(
@@ -2264,16 +2264,21 @@ class Maxwell(object):
         setup.update()
         return setup
 
-    def _create_boundary_object(self, name, props, boundary_type):
-        if boundary_type in ["Force", "Torque", "Matrix", "LayoutForce"]:
-            bound = MaxwellParameters(self, name, props, boundary_type)
-        else:
-            bound = BoundaryObject(self, name, props, boundary_type)
-        if bound.create():
-            self.logger.info(f"Boundary {name} has been correctly created.")
+    @pyaedt_function_handler
+    # NOTE: Extend Mixin behaviour to handle Maxwell parameters
+    def _create_boundary(self, name, props, boundary_type):
+        # Non Maxwell parameters cases
+        if boundary_type not in ("Force", "Torque", "Matrix", "LayoutForce"):
+            return super()._create_boundary(name, props, boundary_type)
+
+        # Maxwell parameters cases
+        bound = MaxwellParameters(self, name, props, boundary_type)
+        result = bound.create()
+        if result:
             self._boundaries[bound.name] = bound
+            self.logger.info(f"Boundary {boundary_type} {name} has been created.")
             return bound
-        raise AEDTRuntimeError(f"Boundary {name} was not created.")
+        raise AEDTRuntimeError(f"Failed to create boundary {boundary_type} {name}")
 
 
 class Maxwell3d(Maxwell, FieldAnalysis3D, object):
@@ -2465,7 +2470,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                 props["Objects"].append(sel)
             elif isinstance(sel, int):
                 props["Faces"].append(sel)
-        return self._create_boundary_object(insulation, props, "Insulating")
+        return self._create_boundary(insulation, props, "Insulating")
 
     @pyaedt_function_handler(geometry_selection="assignment", impedance_name="impedance")
     def assign_impedance(
@@ -2546,7 +2551,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             props["UseMaterial"] = False
             props["Permeability"] = permeability
             props["Conductivity"] = conductivity
-        return self._create_boundary_object(impedance, props, "Impedance")
+        return self._create_boundary(impedance, props, "Impedance")
 
     @pyaedt_function_handler(entities="assignment")
     def assign_current_density_terminal(self, assignment, current_density_name=None):
@@ -2592,7 +2597,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                 bound_name = current_density_name
                 bound_type = "CurrentDensityTerminal"
 
-            boundary = self._create_boundary_object(bound_name, props, bound_type)
+            boundary = self._create_boundary(bound_name, props, bound_type)
             if boundary:
                 return True
         except GrpcApiError as e:
@@ -2702,7 +2707,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             master_props = dict(
                 {"Faces": independent, "CoordSysVector": u_master_vector_coordinates, "ReverseV": reverse_master}
             )
-            master = self._create_boundary_object(bound_name_m, master_props, "Independent")
+            master = self._create_boundary(bound_name_m, master_props, "Independent")
             if master:
                 u_slave_vector_coordinates = dict(
                     {
@@ -2721,7 +2726,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                         "RelationIsSame": same_as_master,
                     }
                 )
-                slave = self._create_boundary_object(bound_name_s, slave_props, "Dependent")
+                slave = self._create_boundary(bound_name_s, slave_props, "Dependent")
                 if slave:
                     return master, slave
         except GrpcApiError as e:
@@ -2773,7 +2778,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         props = {"NAME": flux_name, "Faces": []}
         for sel in assignment:
             props["Faces"].append(sel)
-        return self._create_boundary_object(flux_name, props, "FluxTangential")
+        return self._create_boundary(flux_name, props, "FluxTangential")
 
     @pyaedt_function_handler(nets_layers_mapping="net_layers", reference_cs="coordinate_system")
     def assign_layout_force(
@@ -2848,7 +2853,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                 "NetsAndLayersChoices": dict({component_name: dict({"NetLayerSetMap": nets_layers_props})}),
             }
         )
-        return self._create_boundary_object(force_name, props, "LayoutForce")
+        return self._create_boundary(force_name, props, "LayoutForce")
 
     @pyaedt_function_handler(faces="assignment")
     def assign_tangential_h_field(
@@ -2932,7 +2937,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         props["CoordSysVector"] = dict({"Coordinate System": coordinate_system, "Origin": origin, "UPos": u_pos})
         props["ReverseV"] = reverse
-        return self._create_boundary_object(bound_name, props, "Tangential H Field")
+        return self._create_boundary(bound_name, props, "Tangential H Field")
 
     @pyaedt_function_handler(faces="assignment", bound_name="boundary")
     def assign_zero_tangential_h_field(self, assignment, boundary=None):
@@ -2966,7 +2971,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                 "Faces": assignment,
             }
         )
-        return self._create_boundary_object(boundary, props, "Zero Tangential H Field")
+        return self._create_boundary(boundary, props, "Zero Tangential H Field")
 
     @pyaedt_function_handler()
     def assign_resistive_sheet(
@@ -3094,7 +3099,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             props["CathodeParC"] = cathode_c
             props["CathodeParD"] = cathode_d
 
-        return self._create_boundary_object(name, props, "ResistiveSheet")
+        return self._create_boundary(name, props, "ResistiveSheet")
 
 
 class Maxwell2d(Maxwell, FieldAnalysis3D, object):
@@ -3366,7 +3371,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
             boundary = generate_unique_name("Balloon")
 
         props = dict({"Edges": assignment})
-        return self._create_boundary_object(boundary, props, "Balloon")
+        return self._create_boundary(boundary, props, "Balloon")
 
     @pyaedt_function_handler(input_edge="assignment", vectorvalue="vector_value", bound_name="boundary")
     def assign_vector_potential(self, assignment, vector_value=0, boundary=None):
@@ -3413,7 +3418,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         else:
             props2 = dict({"Edges": assignment, "Value": str(vector_value), "CoordinateSystem": ""})
 
-        return self._create_boundary_object(boundary, props2, "Vector Potential")
+        return self._create_boundary(boundary, props2, "Vector Potential")
 
     @pyaedt_function_handler(master_edge="independent", slave_edge="dependent", bound_name="boundary")
     def assign_master_slave(
@@ -3458,7 +3463,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
                 bound_name_m = boundary
                 bound_name_s = boundary + "_dep"
             master_props = dict({"Edges": independent, "ReverseV": reverse_master})
-            master = self._create_boundary_object(bound_name_m, master_props, "Independent")
+            master = self._create_boundary(bound_name_m, master_props, "Independent")
             if master:
                 slave_props = dict(
                     {
@@ -3468,7 +3473,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
                         "SameAsMaster": same_as_master,
                     }
                 )
-                slave = self._create_boundary_object(bound_name_s, slave_props, "Dependent")
+                slave = self._create_boundary(bound_name_s, slave_props, "Dependent")
                 if slave:
                     return master, slave
         except GrpcApiError as e:
@@ -3518,4 +3523,4 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
                 "InductanceValue": self.modeler._arg_with_dim(inductance, "H"),
             }
         )
-        return self._create_boundary_object(boundary, props, "EndConnection")
+        return self._create_boundary(boundary, props, "EndConnection")
