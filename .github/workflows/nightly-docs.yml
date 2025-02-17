@@ -18,14 +18,16 @@ jobs:
 
   doc-build:
     name: Documentation build
-    runs-on: [ self-hosted, Windows, pyaedt ]
+    runs-on: ubuntu-latest
     steps:
       - name: Documentation build
         uses: ansys/actions/doc-build@v8
         with:
+          dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          sphinxopts: '-j auto --color -w build_errors.txt'
+          check-links: false
           needs-quarto: true
-          use-python-cache: false
 
   upload-dev-doc:
     name: Upload dev documentation

@@ -967,8 +967,6 @@ class FfdSolutionData(object):
             y_key, x_key = "Phi", "Theta"
             temp = data_to_plot.T
         x = data[x_key]
-        if is_polar:
-            x = [i * 2 * math.pi / 360 for i in x]
         if secondary_sweep_value == "all":
             for el in data[y_key]:
                 idx = self.__find_nearest(data[y_key], el)
