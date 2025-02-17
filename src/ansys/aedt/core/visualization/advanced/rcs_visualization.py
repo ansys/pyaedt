@@ -558,16 +558,16 @@ class MonostaticRCSData(object):
             cross_range_values = y - y[nxrng // 2]
             cross_range_values_interp = np.linspace(cross_range_values[0], cross_range_values[-1], num=nxrng)
 
-            RR, XR = np.meshgrid(range_values_interp, cross_range_values_interp)
+            rr, xr = np.meshgrid(range_values_interp, cross_range_values_interp)
 
-            RR_flat = RR.ravel()
-            XR_flat = XR.ravel()
+            rr_flat = rr.ravel()
+            xr_flat = xr.ravel()
             isar_image_flat = isar_image.ravel()
 
             index_names = ["Down-range", "Cross-range", "Data"]
             df = pd.DataFrame(columns=index_names)
-            df["Down-range"] = RR_flat
-            df["Cross-range"] = XR_flat
+            df["Down-range"] = rr_flat
+            df["Cross-range"] = xr_flat
             df["Data"] = isar_image_flat
 
             self.data_conversion_function = data_conversion_function_original
