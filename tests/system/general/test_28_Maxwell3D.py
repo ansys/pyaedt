@@ -681,9 +681,10 @@ class TestClass:
 
     def test_assign_current_density_terminal(self, m3d_app):
         box = m3d_app.modeler.create_box([50, 0, 50], [294, 294, 19], name="box")
-        assert m3d_app.assign_current_density_terminal(box.faces[0], "current_density_t_1")
-        with pytest.raises(AEDTRuntimeError, match="Current density terminal could not be assigned."):
-            m3d_app.assign_current_density_terminal(box.faces[0], "current_density_t_1")
+        density_name = "current_density_t_1"
+        assert m3d_app.assign_current_density_terminal(box.faces[0], density_name)
+        with pytest.raises(AEDTRuntimeError, match=f"Failed to create boundary CurrentDensityTerminal {density_name}"):
+            m3d_app.assign_current_density_terminal(box.faces[0], density_name)
         assert m3d_app.assign_current_density_terminal([box.faces[0], box.faces[1]], "current_density_t_2")
         m3d_app.solution_type = SOLUTIONS.Maxwell3d.Transient
         with pytest.raises(

@@ -206,7 +206,7 @@ class TestClass:
         )
         assert mas.name == "my_bound"
         assert slave.name == "my_bound_dep"
-        with pytest.raises(AEDTRuntimeError, match="Slave boundary could not be created."):
+        with pytest.raises(AEDTRuntimeError, match=r"Failed to create boundary Dependent Dependent_[A-Za-z0-9]*$"):
             aedtapp.assign_master_slave(
                 aedtapp.modeler["Rectangle1"].edges[0].id,
                 aedtapp.modeler["Rectangle1"].edges[1].id,

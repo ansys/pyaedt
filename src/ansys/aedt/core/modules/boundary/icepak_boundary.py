@@ -255,17 +255,6 @@ class PieceWiseLinearDictionary(BoundaryDictionary):
         return self.dataset.name
 
 
-def _create_boundary(bound):
-    try:
-        if bound.create():
-            bound._app._boundaries[bound.name] = bound
-            return bound
-        else:  # pragma : no cover
-            raise Exception
-    except Exception:  # pragma: no cover
-        return None
-
-
 class NetworkObject(BoundaryObject):
     """Manages networks in Icepak projects."""
 

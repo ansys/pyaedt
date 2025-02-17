@@ -47,6 +47,7 @@ from ansys.aedt.core.generic.general_methods import parse_excitation_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import read_configuration_file
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modeler import cad
 from ansys.aedt.core.modeler.cad.component_array import ComponentArray
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
@@ -58,7 +59,7 @@ from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObje
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 
 
-class Hfss(FieldAnalysis3D, ScatteringMethods):
+class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
     """Provides the HFSS application interface.
 
     This class allows you to create an interactive instance of HFSS and
@@ -185,14 +186,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
     """
 
-    # def __repr__(self):
-    #     try:
-    #         return "HFSS {} {}. ProjectName:{} DesignName:{} ".format(
-    #             self._aedt_version, self.solution_type, self.project_name, self.design_name
-    #         )
-    #     except Exception:
-    #         return "HFSS Module"
-
     @pyaedt_function_handler(
         designname="design",
         projectname="project",
@@ -274,7 +267,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         """
         return self.odesign.GetChildObject("Radiation").GetChildNames()
 
-    class BoundaryType(object):
+    class BoundaryType(CreateBoundaryMixin):
         """Creates and manages boundaries."""
 
         (
@@ -379,34 +372,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         elif source_name in self.excitations or source_name + ":1" in self.excitations:
             source_name = generate_unique_name(source_name)
         return source_name
-
-    @pyaedt_function_handler()
-    def _create_boundary(self, name, props, boundary_type):
-        """Create a boundary.
-
-        Parameters
-        ----------
-        name : str
-            Name of the boundary.
-        props : list or dict
-            List of properties for the boundary.
-        boundary_type :
-            Type of the boundary.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
-            Boundary object.
-
-        """
-
-        bound = BoundaryObject(self, name, props, boundary_type)
-        result = bound.create()
-        if result:
-            self._boundaries[bound.name] = bound
-            self.logger.info(f"Boundary {boundary_type} {name} has been correctly created.")
-            return bound
-        raise AEDTRuntimeError(f"Failed to create boundary {boundary_type} {name}")
 
     @pyaedt_function_handler(objectname="assignment", portname="port_name")
     def _create_lumped_driven(self, assignment, int_line_start, int_line_stop, impedance, port_name, renorm, deemb):
@@ -5911,6 +5876,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             self.logger.info("Far field sphere %s is created.", setup)
 
         frequency_units = self.odesktop.GetDefaultUnit("Frequency")
+
+        # Prepend analysis name if only the sweep name is passed for the analysis.
+        setup = self.nominal_adaptive.split(":")[0] + ": " + setup if not ":" in setup else setup
+
         if setup in self.existing_analysis_sweeps and frequencies is None:
             trace_name = "mag(rETheta)"
             farfield_data = self.post.get_far_field_data(expressions=trace_name, setup_sweep_name=setup, domain=sphere)
@@ -5920,7 +5889,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         if frequencies is not None:
             if type(frequencies) in [float, int, str]:
                 frequencies = [frequencies]
-            frequencies = [str(freq) + frequency_units for freq in frequencies if is_number(freq)]
+            frequencies = [f"{freq}{frequency_units}" if is_number(freq) else f"{freq}" for freq in frequencies]
         else:  # pragma: no cover
             self.logger.info("Frequencies could not be obtained.")
             return False
@@ -6841,7 +6810,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         is_electric=True,
         radius="10mm",
         name=None,
-    ) -> BoundaryObject:
+    ) -> "BoundaryObject":
         """Create a hertzian dipole wave excitation.
 
         The excitation is assigned in the assigned sphere. Inside this sphere, the field magnitude
