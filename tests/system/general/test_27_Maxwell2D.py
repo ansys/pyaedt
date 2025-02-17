@@ -48,6 +48,8 @@ sinusoidal_name = "Sinusoidal"
 
 m2d_transient_ec = "Setup_Transient_EC"
 
+export_rl_c_matrix = "export_matrix"
+
 
 @pytest.fixture()
 def aedtapp(add_app):
@@ -78,6 +80,13 @@ def sinusoidal(add_app):
 @pytest.fixture()
 def m2d_ctrl_prg(add_app):
     app = add_app(application=ansys.aedt.core.Maxwell2d, project_name=ctrl_prg, subfolder=test_subfolder)
+    yield app
+    app.close_project(app.project_name)
+
+
+@pytest.fixture()
+def m2d_export_matrix(add_app):
+    app = add_app(application=ansys.aedt.core.Maxwell2d, project_name=export_rl_c_matrix, subfolder=test_subfolder)
     yield app
     app.close_project(app.project_name)
 
@@ -296,21 +305,6 @@ class TestClass:
             if bound.name == "Symmetry_Test_IsEven":
                 assert bound.type == "Symmetry"
                 assert not bound.props["IsOdd"]
-
-    def test_export_rl_matrix(self, local_scratch, sinusoidal):
-        export_path_1 = os.path.join(local_scratch.path, "export_rl_matrix_Test1.txt")
-        assert sinusoidal.export_rl_matrix("Test1", export_path_1)
-        with pytest.raises(AEDTRuntimeError):
-            sinusoidal.export_rl_matrix("abcabc", export_path_1)
-        assert os.path.exists(export_path_1)
-        export_path_2 = os.path.join(local_scratch.path, "export_rl_matrix_Test2.txt")
-        assert sinusoidal.export_rl_matrix("Test2", export_path_2, False, 10, 3, True)
-        assert os.path.exists(export_path_2)
-        sinusoidal.setups[0].delete()
-        setup_name = "new_setup"
-        sinusoidal.create_setup(name=setup_name)
-        with pytest.raises(AEDTRuntimeError):
-            sinusoidal.export_rl_matrix("Test1", export_path_1)
 
     def test_assign_current_density(self, sinusoidal):
         sinusoidal.set_active_design("Sinusoidal")
@@ -764,51 +758,80 @@ class TestClass:
         assert not sweep.is_solved
         assert isinstance(sweep.frequencies, list)
 
-    def test_export_c_matrix(self, local_scratch, m2d_app):
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.ElectroStaticXY
-
-        ground = m2d_app.modeler.create_rectangle([0, 0, 0], [11, 15], name="ground", material="vacuum")
-        v1 = m2d_app.modeler.create_rectangle([4, 2, 0], [1, 9], name="v1", material="vacuum")
-        v2 = m2d_app.modeler.create_rectangle([6, 2, 0], [1, 9], name="v2", material="vacuum")
-
-        m2d_app.assign_voltage(assignment=ground.edges, amplitude=0, name="grd")
-        m2d_app.assign_voltage(assignment=v1, amplitude=1, name="v1")
-        m2d_app.assign_voltage(assignment=v2, amplitude=1, name="v2")
-
+    def test_export_c_matrix(self, local_scratch, m2d_export_matrix):
         output_file = os.path.join(local_scratch.path, "c_matrix.txt")
-
+        # invalid solution type
+        m2d_export_matrix.set_active_design("export_rl_magneto")
         with pytest.raises(AEDTRuntimeError):
-            m2d_app.export_c_matrix(matrix_name="Matrix1", output_file=output_file)
-
-        m2d_app.assign_matrix(assignment=["v1", "v2"], matrix_name="Matrix1", group_sources="grd")
-
-        m2d_app.create_setup()
-
-        m2d_app.analyze()
-
-        assert m2d_app.export_c_matrix(matrix_name="Matrix1", output_file=output_file)
-        assert os.path.exists(output_file)
-
-        assert m2d_app.setups[0].export_matrix(matrix_type="C", matrix_name="Matrix1", output_file=output_file)
-        assert os.path.exists(output_file)
-
+            m2d_export_matrix.export_rl_matrix("Matrix1", output_file)
+        # no matrix
+        m2d_export_matrix.set_active_design("export_c_electrostatic_no_matrix")
         with pytest.raises(AEDTRuntimeError):
-            m2d_app.export_c_matrix(matrix_name="invalid", output_file=output_file)
+            m2d_export_matrix.export_c_matrix(matrix_name="Matrix1", output_file=output_file)
 
-        m2d_app["m"] = "1m"
-        m2d_app["l"] = "2m2"
-
-        m2d_app.analyze()
-
-        assert m2d_app.export_c_matrix(matrix_name="Matrix1", output_file=output_file)
+        m2d_export_matrix.set_active_design("export_c_electrostatic")
+        assert m2d_export_matrix.export_c_matrix(matrix_name="Matrix1", output_file=output_file)
         assert os.path.exists(output_file)
 
-        assert m2d_app.setups[0].export_matrix(matrix_type="C", matrix_name="Matrix1", output_file=output_file)
+        assert m2d_export_matrix.setups[0].export_matrix(
+            matrix_type="C", matrix_name="Matrix1", output_file=output_file
+        )
         assert os.path.exists(output_file)
 
         with pytest.raises(AEDTRuntimeError):
-            m2d_app.setups[0].export_matrix(matrix_type="invalid", matrix_name="Matrix1", output_file=output_file)
+            m2d_export_matrix.export_c_matrix(matrix_name="invalid", output_file=output_file)
+
+        m2d_export_matrix.set_active_design("export_c_electrostatic_param")
+
+        assert m2d_export_matrix.export_c_matrix(matrix_name="Matrix1", output_file=output_file)
+        assert os.path.exists(output_file)
+
+        assert m2d_export_matrix.setups[0].export_matrix(
+            matrix_type="C", matrix_name="Matrix1", output_file=output_file
+        )
+        assert os.path.exists(output_file)
+
+        with pytest.raises(AEDTRuntimeError):
+            m2d_export_matrix.setups[0].export_matrix(
+                matrix_type="invalid", matrix_name="Matrix1", output_file=output_file
+            )
 
         output_file = os.path.join(local_scratch.path, "c_matrix.csv")
         with pytest.raises(AEDTRuntimeError):
-            m2d_app.export_c_matrix(matrix_name="Matrix1", output_file=output_file)
+            m2d_export_matrix.export_c_matrix(matrix_name="Matrix1", output_file=output_file)
+
+    def test_export_rl_matrix(self, local_scratch, m2d_export_matrix):
+        # invalid path
+        export_path = os.path.join(local_scratch.path, "export_rl_matrix.csv")
+        with pytest.raises(AEDTRuntimeError):
+            m2d_export_matrix.export_rl_matrix("Matrix1", export_path)
+
+        export_path = os.path.join(local_scratch.path, "export_rl_matrix.txt")
+        # invalid solution type
+        m2d_export_matrix.set_active_design("export_rl_magneto")
+        with pytest.raises(AEDTRuntimeError):
+            m2d_export_matrix.export_rl_matrix("Matrix1", export_path)
+        # no matrix
+        m2d_export_matrix.set_active_design("export_rl_eddycurrent_no_matrix")
+        with pytest.raises(AEDTRuntimeError):
+            m2d_export_matrix.export_rl_matrix("Matrix1", export_path)
+        # no setup
+        m2d_export_matrix.set_active_design("export_rl_eddycurrent_unsolved")
+        with pytest.raises(AEDTRuntimeError):
+            m2d_export_matrix.export_rl_matrix("Matrix1", export_path, False, 10, 3, True)
+        # EC
+        m2d_export_matrix.set_active_design("export_rl_eddycurrent")
+        assert m2d_export_matrix.export_rl_matrix("Matrix1", export_path)
+        assert os.path.exists(export_path)
+        with pytest.raises(AEDTRuntimeError):
+            m2d_export_matrix.export_rl_matrix("invalid", export_path)
+        # EC param
+        m2d_export_matrix.set_active_design("export_rl_eddycurrent_param")
+        export_path_1 = os.path.join(local_scratch.path, "export_rl_matrix_1.txt")
+        assert m2d_export_matrix.export_rl_matrix("Matrix1", export_path_1, False, 10, 3, True)
+        assert os.path.exists(export_path_1)
+        export_path_2 = os.path.join(local_scratch.path, "export_rl_matrix_2.txt")
+        assert m2d_export_matrix.setups[0].export_matrix(
+            matrix_type="RL", matrix_name="Matrix1", output_file=export_path_2
+        )
+        assert os.path.exists(export_path_2)
