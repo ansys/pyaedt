@@ -27,8 +27,8 @@
 from __future__ import absolute_import  # noreorder
 
 import math
-from pathlib import PurePath
 from pathlib import Path
+from pathlib import PurePath
 
 from ansys.aedt.core.application.analysis_twin_builder import AnalysisTwinBuilder
 from ansys.aedt.core.application.variables import Variable
