@@ -2159,14 +2159,14 @@ def _dim_arg(value, units):
 
 
 @pyaedt_function_handler()
-def _arg_with_dim(self, value, units=None):
+def _arg_with_dim(aedt_object, value, units=None):
     if units is None:
-        if hasattr(self, "model_units"):
-            units = self.model_units
-        elif hasattr(self, "schematic_units"):
-            units = self.schematic_units
-        elif hasattr(self, "LengthUnit"):
-            units = self.LengthUnit
+        if hasattr(aedt_object, "model_units"):
+            units = aedt_object.model_units
+        elif hasattr(aedt_object, "schematic_units"):
+            units = aedt_object.schematic_units
+        elif hasattr(aedt_object, "LengthUnit"):
+            units = aedt_object.LengthUnit
     if isinstance(value, str):
         try:
             float(value)
