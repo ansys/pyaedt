@@ -93,10 +93,10 @@ class MonostaticRCSExporter:
             self.expression = "ComplexMonostaticRCSTheta"
 
         if not variations:
-            independent_flag = self.available_variations.independent
-            self.available_variations.independent = False
-            variations = self.available_variations.nominal_values
-            self.available_variations.independent = independent_flag
+            independent_flag = app.available_variations.independent
+            app.available_variations.independent = False
+            variations = app.available_variations.nominal_values
+            app.available_variations.independent = independent_flag
         else:
             # Set variation to Nominal
             for var_name, var_value in variations.items():
