@@ -621,7 +621,7 @@ class PostProcessor3D(PostProcessorCommon):
         --------
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
-        >>> var = hfss.available_variations.nominal_w_values
+        >>> var = hfss.available_variations.nominal_values
         >>> setup = "Setup1 : LastAdaptive"
         >>> path = "Field.fld"
         >>> hfss.post.export_field_file_on_grid("E",setup,var,path,'Cartesian',[0, 0, 0],intrinsics="8GHz")

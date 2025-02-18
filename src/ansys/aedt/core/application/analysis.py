@@ -1091,10 +1091,14 @@ class Analysis(Design, object):
         list of str
             List of nominal variations.
         """
+        independent_flag = self.available_variations.independent
+        self.available_variations.independent = True
         if not with_values:
-            return self.available_variations.nominal
+            variations = self.available_variations.nominal
         else:
-            return self.available_variations.nominal_w_values
+            variations = self.available_variations.nominal_values
+        self.available_variations.independent = independent_flag
+        return variations
 
     @pyaedt_function_handler()
     def get_sweeps(self, name):
@@ -2455,7 +2459,7 @@ class AvailableVariations(object):
 
         References
         ----------
-        >>> oDesign.GetChildObject('Variables').GetChildNames
+        >>> oDesign.GetChildObject('Variables').GetChildNames()
         >>> oDesign.GetVariables
         >>> oDesign.GetVariableValue
         >>> oDesign.GetNominalVariation
@@ -2539,7 +2543,7 @@ class AvailableVariations(object):
         >>> hfss["a"] = 2
         >>> setup = hfss.create_setup()
         >>> setup.analyze()
-        >>> variation = hfss.available_variations.variations(hfss.existing_analysis_sweeps[0])
+        >>> variations = hfss.available_variations.variations(hfss.existing_analysis_sweeps[0])
         """
         variations_string = self._get_variation_strings(setup_sweep)
         variables = [k for k, v in self._app.variable_manager.variables.items() if not v.post_processing]
