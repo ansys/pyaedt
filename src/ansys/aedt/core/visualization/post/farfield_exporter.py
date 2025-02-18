@@ -99,7 +99,10 @@ class FfdSolutionDataExporter:
         self.setup_name = setup_name
 
         if not variations:
-            variations = app.available_variations.nominal_w_values_dict_w_dependent
+            independent_flag = self.available_variations.independent
+            self.available_variations.independent = False
+            variations = self.available_variations.nominal_values
+            self.available_variations.independent = independent_flag
         else:
             # Set variation to Nominal
             for var_name, var_value in variations.items():

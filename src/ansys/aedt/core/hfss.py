@@ -5851,7 +5851,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
 
         if not variations:
-            variations = self.available_variations.nominal_w_values_dict_w_dependent
+            independent_flag = self.available_variations.independent
+            self.available_variations.independent = False
+            variations = self.available_variations.nominal_values
+            self.available_variations.independent = independent_flag
         if not setup:
             setup = self.nominal_adaptive
 
@@ -5970,7 +5973,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
 
         if not variations:
-            variations = self.available_variations.nominal_w_values_dict_w_dependent
+            independent_flag = self.available_variations.independent
+            self.available_variations.independent = False
+            variations = self.available_variations.nominal_values
+            self.available_variations.independent = independent_flag
         if not setup:
             setup = self.nominal_adaptive
 
