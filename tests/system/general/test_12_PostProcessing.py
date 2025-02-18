@@ -805,9 +805,9 @@ class TestClass:
 
     def test_z99_delete_variations_B(self, field_test):
         setup = field_test.existing_analysis_sweeps
-        vars = field_test.available_variations._get_variation_strings(setup[0])
-        assert field_test.cleanup_solution(vars, entire_solution=False)
-        assert field_test.cleanup_solution(vars, entire_solution=True)
+        variations = field_test.available_variations._get_variation_strings(setup[0])
+        assert field_test.cleanup_solution(variations, entire_solution=False)
+        assert field_test.cleanup_solution(variations, entire_solution=True)
 
     def test_100_ipk_get_scalar_field_value(self, icepak_post):
         assert icepak_post.post.get_scalar_field_value(
