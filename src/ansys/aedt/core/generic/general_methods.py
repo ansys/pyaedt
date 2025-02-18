@@ -2159,6 +2159,26 @@ def _dim_arg(value, units):
 
 
 @pyaedt_function_handler()
+def _arg_with_dim(self, value, units=None):
+    if units is None:
+        if hasattr(self, "model_units"):
+            units = self.model_units
+        elif hasattr(self, "schematic_units"):
+            units = self.schematic_units
+        elif hasattr(self, "LengthUnit"):
+            units = self.LengthUnit
+    if isinstance(value, str):
+        try:
+            float(value)
+            val = f"{value}{units}"
+        except Exception:
+            val = value
+    else:
+        val = f"{value}{units}"
+    return val
+
+
+@pyaedt_function_handler()
 def _check_installed_version(install_path, long_version):
     """Check installation folder to determine if it is for specified Ansys EM version.
 

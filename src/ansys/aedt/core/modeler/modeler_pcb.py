@@ -27,6 +27,7 @@ import re
 from warnings import warn
 
 from ansys.aedt.core.generic.constants import AEDT_UNITS
+from ansys.aedt.core.generic.general_methods import _arg_with_dim
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import get_filename_without_extension
 from ansys.aedt.core.generic.general_methods import inside_desktop
@@ -217,30 +218,16 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         pur = bb.BBoxUR()
         return [pll.GetX(), pll.GetY(), pur.GetX(), pur.GetY()]
 
-    @pyaedt_function_handler()
-    def _arg_with_dim(self, value, units=None):
-        if units is None:
-            units = self.model_units
-        if isinstance(value, str):
-            try:
-                float(value)
-                val = f"{value}{units}"
-            except Exception:
-                val = value
-        else:
-            val = f"{value}{units}"
-        return val
-
     def _pos_with_arg(self, pos, units=None):
-        xpos = self._arg_with_dim(pos[0], units)
+        xpos = _arg_with_dim(pos[0], units)
         if len(pos) < 2:
-            ypos = self._arg_with_dim(0, units)
+            ypos = _arg_with_dim(0, units)
         else:
-            ypos = self._arg_with_dim(pos[1], units)
+            ypos = _arg_with_dim(pos[1], units)
         if len(pos) < 3:
-            zpos = self._arg_with_dim(0, units)
+            zpos = _arg_with_dim(0, units)
         else:
-            zpos = self._arg_with_dim(pos[2], units)
+            zpos = _arg_with_dim(pos[2], units)
 
         return xpos, ypos, zpos
 
@@ -297,7 +284,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                 ]
             )
         elif isinstance(value, (float, int)):
-            xpos = self._arg_with_dim(value, self.model_units)
+            xpos = _arg_with_dim(value, self.model_units)
             self.oeditor.ChangeProperty(
                 [
                     "NAME:AllTabs",
@@ -365,10 +352,10 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         self.components_3d[comp_name] = comp
         comp.is_3d_placement = True
         comp.local_origin = [0.0, 0.0, 0.0]
-        x = self._arg_with_dim(x)
-        y = self._arg_with_dim(y)
-        z = self._arg_with_dim(z)
-        rotation = self._arg_with_dim(rotation, "deg")
+        x = _arg_with_dim(x)
+        y = _arg_with_dim(y)
+        z = _arg_with_dim(z)
+        rotation = _arg_with_dim(rotation, "deg")
         comp.angle = rotation
         comp.location = [x, y, z]
         return comp

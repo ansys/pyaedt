@@ -32,6 +32,7 @@ from __future__ import absolute_import  # noreorder
 
 from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import unit_converter
+from ansys.aedt.core.generic.general_methods import _arg_with_dim
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
@@ -427,7 +428,7 @@ class Layer(object):
 
     @thickness.setter
     def thickness(self, val):
-        self._thickness = self._arg_with_dim(val, self.thickness_units)
+        self._thickness = _arg_with_dim(val, self.thickness_units)
         self.update_stackup_layer()
         tck = decompose_variable_value(self._thickness)
         self._thickness = tck[0]
@@ -909,35 +910,6 @@ class Layer(object):
 
         return True
 
-    @pyaedt_function_handler()
-    def _arg_with_dim(self, value, units=None):
-        """Argument with dimensions.
-
-        Parameters
-        ----------
-        value : str, float
-            Value of the quantity.
-        units :
-            Unit of the quantity. The default is ``None``.
-
-        Returns
-        -------
-        str
-            String containing both the value and the unit properly formatted.
-
-        """
-        if units is None:
-            units = self.LengthUnit
-        if isinstance(value, str):
-            try:
-                float(value)
-                val = f"{value}{units}"
-            except Exception:
-                val = value
-        else:
-            val = f"{value}{units}"
-        return val
-
     @property
     def _get_layer_arg(self):
         if self.type in ["signal", "via", "dielectric"]:
@@ -980,15 +952,15 @@ class Layer(object):
                     [
                         "NAME:Sublayer",
                         "Thickness:=",
-                        self._arg_with_dim(self.thickness, self.thickness_units),
+                        _arg_with_dim(self.thickness, self.thickness_units),
                         "LowerElevation:=",
-                        self._arg_with_dim(self.lower_elevation, self.LengthUnit),
+                        _arg_with_dim(self.lower_elevation, self.LengthUnit),
                         "Roughness:=",
-                        self._arg_with_dim(self.roughness, self.LengthUnitRough),
+                        _arg_with_dim(self.roughness, self.LengthUnitRough),
                         "BotRoughness:=",
-                        self._arg_with_dim(self.bottom_roughness, self.LengthUnitRough),
+                        _arg_with_dim(self.bottom_roughness, self.LengthUnitRough),
                         "SideRoughness:=",
-                        self._arg_with_dim(self.top_roughness, self.LengthUnitRough),
+                        _arg_with_dim(self.top_roughness, self.LengthUnitRough),
                         "Material:=",
                         self._layers._app.materials[self.material].name if self.material != "" else "",
                         "FillMaterial:=",
@@ -1008,7 +980,7 @@ class Layer(object):
                         + " , dt="
                         + str(self.hfssSp["dt"])
                         + ", dtv='"
-                        + self._arg_with_dim(self.hfssSp["dtv"])
+                        + _arg_with_dim(self.hfssSp["dtv"])
                         + "')",
                     ],
                     [
@@ -1031,19 +1003,19 @@ class Layer(object):
                     "RMdl:=",
                     self._RMdl,
                     "NR:=",
-                    self._arg_with_dim(self._NR, self.LengthUnitRough),
+                    _arg_with_dim(self._NR, self.LengthUnitRough),
                     "HRatio:=",
                     str(self._HRatio),
                     "BRMdl:=",
                     self._BRMdl,
                     "BNR:=",
-                    self._arg_with_dim(self._BNR, self.LengthUnitRough),
+                    _arg_with_dim(self._BNR, self.LengthUnitRough),
                     "BHRatio:=",
                     str(self._BHRatio),
                     "SRMdl:=",
                     self._SRMdl,
                     "SNR:=",
-                    self._arg_with_dim(self._SNR, self.LengthUnitRough),
+                    _arg_with_dim(self._SNR, self.LengthUnitRough),
                     "SHRatio:=",
                     str(self._SHRatio),
                 ]
@@ -1072,9 +1044,9 @@ class Layer(object):
                     [
                         "NAME:Sublayer",
                         "Thickness:=",
-                        self._arg_with_dim(self.thickness, self.thickness_units),
+                        _arg_with_dim(self.thickness, self.thickness_units),
                         "LowerElevation:=",
-                        self._arg_with_dim(self.lower_elevation, self.LengthUnit),
+                        _arg_with_dim(self.lower_elevation, self.LengthUnit),
                         "Roughness:=",
                         0,
                         "BotRoughness:=",
