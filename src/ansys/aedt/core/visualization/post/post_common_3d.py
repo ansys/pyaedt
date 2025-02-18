@@ -853,7 +853,7 @@ class PostProcessor3D(PostProcessorCommon):
             independent_flag = self._app.available_variations.independent
             self._app.available_variations.independent = True
             variations = self._app.available_variations.nominal_values
-            self.available_variations.independent = independent_flag
+            self._app.available_variations.independent = independent_flag
 
         variation = []
         for el, value in variations.items():
