@@ -28,10 +28,10 @@ from __future__ import absolute_import  # noreorder
 
 import io
 import os
+from pathlib import Path
+from pathlib import PurePath
 import re
 import time
-from pathlib import PurePath
-from pathlib import Path
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.application.variables import decompose_variable_value
