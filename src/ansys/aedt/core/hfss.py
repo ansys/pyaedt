@@ -1720,7 +1720,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         if not setup:
             setup = assignment.nominal_adaptive
         params = {}
-        pars = assignment.available_variations.nominal_w_values_dict
+        independent_flag = assignment.independent
+        assignment.available_variations.independent = True
+        pars = assignment.available_variations.nominal_values
+        assignment.available_variations.independent = independent_flag
+
         for el in pars:
             params[el] = pars[el]
         native_props = dict(

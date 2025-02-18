@@ -1551,8 +1551,11 @@ class Design(AedtObjects):
             output_file = os.path.join(self.working_directory, generate_unique_name("Profile") + ".prof")
         if not variation:
             val_str = []
-            for el, val in self.available_variations.nominal_w_values_dict.items():
+            independent_flag = self.available_variations.independent
+            self.available_variations.independent = True
+            for el, val in self.available_variations.nominal_values.items():
                 val_str.append(f"{el}={val}")
+            self.available_variations.independent = independent_flag
             if self.design_type == "HFSS 3D Layout Design":
                 variation = " ".join(val_str)
             else:

@@ -149,7 +149,10 @@ class TestClass:
         self.local_scratch = local_scratch
 
     def test_09_manipulate_report(self, field_test):
-        variations = field_test.available_variations.nominal_w_values_dict
+        independent_flag = field_test.available_variations.independent
+        field_test.available_variations.independent = True
+        variations = field_test.available_variations.nominal_values
+        field_test.available_variations.independent = independent_flag
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
         variations["Freq"] = ["30GHz"]
@@ -188,7 +191,10 @@ class TestClass:
         assert report.add_project_info(field_test)
 
     def test_09_manipulate_report_B(self, field_test):
-        variations = field_test.available_variations.nominal_w_values_dict
+        independent_flag = field_test.available_variations.independent
+        field_test.available_variations.independent = True
+        variations = field_test.available_variations.nominal_values
+        field_test.available_variations.independent = independent_flag
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
         variations["Freq"] = ["30GHz"]
@@ -229,7 +235,10 @@ class TestClass:
         assert field_test.post.create_report_from_configuration(template)
 
     def test_09_manipulate_report_C(self, field_test):
-        variations = field_test.available_variations.nominal_w_values_dict
+        independent_flag = field_test.available_variations.independent
+        field_test.available_variations.independent = True
+        variations = field_test.available_variations.nominal_values
+        field_test.available_variations.independent = independent_flag
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
         variations["Freq"] = ["30GHz"]
@@ -250,7 +259,10 @@ class TestClass:
         )
 
     def test_09_manipulate_report_D(self, field_test):
-        variations = field_test.available_variations.nominal_w_values_dict
+        independent_flag = field_test.available_variations.independent
+        field_test.available_variations.independent = True
+        variations = field_test.available_variations.nominal_values
+        field_test.available_variations.independent = independent_flag
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
         variations["Freq"] = ["30GHz"]
@@ -275,7 +287,10 @@ class TestClass:
 
     def test_09_manipulate_report_E(self, field_test):
         field_test.modeler.create_polyline([[0, 0, 0], [0, 5, 30]], name="Poly1", non_model=True)
-        variations2 = field_test.available_variations.nominal_w_values_dict
+        independent_flag = field_test.available_variations.independent
+        field_test.available_variations.independent = True
+        variations2 = field_test.available_variations.nominal_values
+        field_test.available_variations.independent = independent_flag
 
         assert field_test.setups[0].create_report(
             "Mag_E", primary_sweep_variable="Distance", report_category="Fields", context="Poly1"
@@ -401,7 +416,12 @@ class TestClass:
         assert len(diff_test.post.available_report_quantities()) > 0
         assert len(diff_test.post.available_report_solutions()) > 0
         assert diff_test.setups[0].is_solved
-        variations = diff_test.available_variations.nominal_w_values_dict
+
+        independent_flag = diff_test.available_variations.independent
+        diff_test.available_variations.independent = True
+        variations = diff_test.available_variations.nominal_values
+        diff_test.available_variations.independent = independent_flag
+
         variations["Freq"] = ["All"]
         variations["l1"] = ["All"]
         assert diff_test.post.create_report(
@@ -784,7 +804,8 @@ class TestClass:
         assert q3dtest.cleanup_solution()
 
     def test_z99_delete_variations_B(self, field_test):
-        vars = field_test.available_variations.get_variation_strings()
+        setup = field_test.existing_analysis_sweeps
+        vars = field_test.available_variations._get_variation_strings(setup[0])
         assert field_test.cleanup_solution(vars, entire_solution=False)
         assert field_test.cleanup_solution(vars, entire_solution=True)
 

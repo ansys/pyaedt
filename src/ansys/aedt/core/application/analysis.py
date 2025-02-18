@@ -819,6 +819,9 @@ class Analysis(Design, object):
 
         # setups
         setups = self.setups
+        independent_flag = self.available_variations.independent
+        self.available_variations.independent = True
+
         for s in setups:
             if self.design_type == "Circuit Design":
                 exported_files.append(self.browse_log_file(export_folder))
@@ -832,13 +835,13 @@ class Analysis(Design, object):
                     variations_list = variations
                     if not variations:
                         variations_list = []
-                        if not self.available_variations.nominal_w_values_dict:
+                        if not self.available_variations.nominal_values:
                             variations_list.append("")
                         else:
-                            for x in range(0, len(self.available_variations.nominal_w_values_dict)):
+                            for x in range(0, len(self.available_variations.nominal_values)):
                                 variation = (
-                                    f"{list(self.available_variations.nominal_w_values_dict.keys())[x]}="
-                                    f"'{list(self.available_variations.nominal_w_values_dict.values())[x]}'"
+                                    f"{list(self.available_variations.nominal_values.keys())[x]}="
+                                    f"'{list(self.available_variations.nominal_values.values())[x]}'"
                                 )
                                 variations_list.append(variation)
                     # sweeps
@@ -957,6 +960,7 @@ class Analysis(Design, object):
                                     self.logger.warning("Export SnP failed: no solutions found")
                 else:
                     self.logger.warning("Setup is not solved. To export results please analyze setup first.")
+        self.available_variations.independent = independent_flag
         return exported_files
 
     @pyaedt_function_handler(setup_name="setup", variation_string="variations", file_path="output_file")
@@ -988,10 +992,13 @@ class Analysis(Design, object):
         if not output_file:
             output_file = os.path.join(self.working_directory, generate_unique_name("Convergence") + ".prop")
         if not variations:
+            independent_flag = self.available_variations.independent
+            self.available_variations.independent = True
             val_str = []
-            for el, val in self.available_variations.nominal_w_values_dict.items():
+            for el, val in self.available_variations.nominal_values.items():
                 val_str.append(f"{el}={val}")
             variations = ",".join(val_str)
+            self.available_variations.independent = independent_flag
         if self.design_type == "2D Extractor":
             for s in self.setups:
                 if s.name == setup:
@@ -1999,9 +2006,12 @@ class Analysis(Design, object):
             file name when successful, ``False`` when failed.
         """
         if variations is None:
-            variations = list(self.available_variations.nominal_w_values_dict.keys())
+            independent_flag = self.available_variations.independent
+            self.available_variations.independent = True
+            variations = list(self.available_variations.nominal_values.keys())
             if variations_value is None:
-                variations_value = [str(x) for x in list(self.available_variations.nominal_w_values_dict.values())]
+                variations_value = [str(x) for x in list(self.available_variations.nominal_values.values())]
+            self.available_variations.independent = independent_flag
 
         if setup_name is None:
             nominal_sweep_list = [x.strip() for x in self.nominal_sweep.split(":")]
@@ -2211,12 +2221,15 @@ class Analysis(Design, object):
             default_adaptive = self.design_solutions.default_adaptive
         analysis_setup = setup + " : " + default_adaptive
 
-        if not self.available_variations.nominal_w_values_dict:
+        independent_flag = self.available_variations.independent
+        self.available_variations.independent = True
+        if not self.available_variations.nominal_values:
             variations = ""
         else:
             variations = " ".join(
-                f"{key}=\\'{value}\\'" for key, value in self.available_variations.nominal_w_values_dict.items()
+                f"{key}=\\'{value}\\'" for key, value in self.available_variations.nominal_values.items()
             )
+        self.available_variations.independent = independent_flag
 
         if not is_format_default:
             try:

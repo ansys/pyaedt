@@ -405,7 +405,7 @@ class CommonSetup(PropsManager, BinaryTreeNode):
         >>> aedtapp = Hfss()
         >>> aedtapp.post.create_report("dB(S(1,1))")
 
-        >>> variations = aedtapp.available_variations.nominal_w_values_dict
+        >>> variations = aedtapp.available_variations.nominal_values
         >>> variations["Theta"] = ["All"]
         >>> variations["Phi"] = ["All"]
         >>> variations["Freq"] = ["30GHz"]
@@ -519,7 +519,7 @@ class CommonSetup(PropsManager, BinaryTreeNode):
         >>> aedtapp = Circuit()
         >>> aedtapp.post.create_report("dB(S(1,1))")
 
-        >>> variations = aedtapp.available_variations.nominal_w_values_dict
+        >>> variations = aedtapp.available_variations.nominal_values
         >>> aedtapp.post.setups[0].create_report("dB(S(1,1))",variations=variations,primary_sweep_variable="Freq")
 
         >>> aedtapp.post.create_report("S(1,1)",variations=variations,plot_type="Smith Chart")
@@ -875,7 +875,7 @@ class Setup(CommonSetup):
             If ``None``, the default value is taken from the nominal adaptive solution.
         parameters : dict, optional
             Dictionary of the "mapping" variables from the source design.
-            If ``None``, the default is `appname.available_variations.nominal_w_values_dict`.
+            If ``None``, the default is `appname.available_variations.nominal_values`.
         project : str, optional
             Name of the project with the design. The default is ``"This Project*"``.
             However, you can supply the full path and name to another project.
@@ -948,16 +948,22 @@ class Setup(CommonSetup):
                 raise ValueError("Setup does not exist in current design.")
             # parameters
             meshlinks["Params"] = {}
+
+            independent_flag = self.p_app.available_variations.independent
+            self.p_app.available_variations.independent = True
+
             if parameters is None:
-                parameters = self.p_app.available_variations.nominal_w_values_dict
+                parameters = self.p_app.available_variations.nominal_values
                 for el in parameters:
                     meshlinks["Params"][el] = el
             else:
                 for el in parameters:
-                    if el in list(self._app.available_variations.nominal_w_values_dict.keys()):
+                    if el in list(self._app.available_variations.nominal_values.keys()):
                         meshlinks["Params"][el] = el
                     else:
                         meshlinks["Params"][el] = parameters[el]
+            self.p_app.available_variations.independent = independent_flag
+
             meshlinks["ForceSourceToSolve"] = force_source_to_solve
             meshlinks["PreservePartnerSoln"] = preserve_partner_solution
             meshlinks["ApplyMeshOp"] = apply_mesh_operations
@@ -973,20 +979,23 @@ class Setup(CommonSetup):
     def _parse_link_parameters(self, map_variables_by_name, parameters):
         # parameters
         params = {}
+        independent_flag = self.p_app.available_variations.independent
+        self.p_app.available_variations.independent = True
         if map_variables_by_name:
-            parameters = self.p_app.available_variations.nominal_w_values_dict
+            parameters = self.p_app.available_variations.nominal_values
             for k, v in parameters.items():
                 params[k] = k
         elif parameters is None:
-            parameters = self.p_app.available_variations.nominal_w_values_dict
+            parameters = self.p_app.available_variations.nominal_values
             for k, v in parameters.items():
                 params[k] = v
         else:
             for k, v in parameters.items():
-                if k in list(self._app.available_variations.nominal_w_values_dict.keys()):
+                if k in list(self._app.available_variations.nominal_values.keys()):
                     params[k] = v
                 else:
                     params[k] = parameters[v]
+        self.p_app.available_variations.independent = independent_flag
         return params
 
     def _parse_link_solution(self, project, design, solution):
@@ -1046,7 +1055,7 @@ class Setup(CommonSetup):
         parameters : dict, optional
             Dictionary of the parameters. This parameter is not considered if
             ``map_variables_by_name=True``. If ``None``, the default is
-            ``appname.available_variations.nominal_w_values_dict``.
+            ``appname.available_variations.nominal_values``.
         project : str, optional
             Name of the project with the design. The default is ``"This Project*"``.
             However, you can supply the full path and name to another project.
@@ -4374,7 +4383,7 @@ class SetupIcepak(Setup, object):
         parameters : dict, optional
             Dictionary of the parameters. This argument is not considered if
             ``map_variables_by_name=True``. If ``None``, the default is
-            ``appname.available_variations.nominal_w_values_dict``.
+            ``appname.available_variations.nominal_values``.
         project : str, optional
             Name of the project with the design. The default is ``"This Project*"``.
             However, you can supply the full path and name to another project.

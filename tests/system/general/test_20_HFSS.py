@@ -934,8 +934,11 @@ class TestClass:
         assert meshlink_props["PathRelativeTo"] == "TargetProject"
         assert meshlink_props["Design"] == design_name
         assert meshlink_props["Soln"] == nominal_adaptive
+
+        # Deprecated
         assert sorted(list(meshlink_props["Params"].keys())) == sorted(self.aedtapp.available_variations.variables)
         assert sorted(list(meshlink_props["Params"].values())) == sorted(self.aedtapp.available_variations.variables)
+
         assert not self.aedtapp.setups[0].add_mesh_link(design="")
         assert self.aedtapp.setups[0].add_mesh_link(design=design_name, solution="MySetup : LastAdaptive")
         assert not self.aedtapp.setups[0].add_mesh_link(design=design_name, solution="Setup_Test : LastAdaptive")

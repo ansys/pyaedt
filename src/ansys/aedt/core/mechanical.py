@@ -247,8 +247,14 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
             intr = []
 
         argparam = {}
-        for el in self.available_variations.nominal_w_values_dict:
-            argparam[el] = self.available_variations.nominal_w_values_dict[el]
+
+        independent_flag = self.available_variations.independent
+        self.available_variations.independent = True
+
+        for key, value in self.available_variations.nominal_values.items():
+            argparam[key] = value
+
+        self.available_variations.independent = independent_flag
 
         for el in parameters:
             argparam[el] = el
@@ -339,8 +345,12 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
         else:
             all_objects = assignment[:]
         argparam = {}
-        for el in self.available_variations.nominal_w_values_dict:
-            argparam[el] = self.available_variations.nominal_w_values_dict[el]
+
+        independent_flag = self.available_variations.independent
+        self.available_variations.independent = True
+        for key, value in self.available_variations.nominal_values.items():
+            argparam[key] = value
+        self.available_variations.independent = independent_flag
 
         for el in parameters:
             argparam[el] = el
