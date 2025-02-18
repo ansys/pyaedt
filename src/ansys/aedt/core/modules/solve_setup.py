@@ -39,6 +39,7 @@ import warnings
 
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.data_handlers import _dict2arg
+from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -3867,6 +3868,80 @@ class SetupMaxwell(Setup, object):
                 self.props.pop("SweepRanges", None)
                 self.update()
                 return True
+
+    @pyaedt_function_handler()
+    def export_matrix(
+        self,
+        matrix_type,
+        matrix_name,
+        output_file,
+        is_format_default=True,
+        width=8,
+        precision=2,
+        is_exponential=False,
+        setup=None,
+        default_adaptive="LastAdaptive",
+        is_post_processed=False,
+    ):
+        """Export R/L or Capacitance matrix after solving.
+
+        Parameters
+        ----------
+        matrix_type : str
+            Matrix type to be exported.
+            The options are ``"RL"`` or ``"C"``.
+        matrix_name : str
+            Matrix name to be exported.
+        output_file : str
+            Output file path to export R/L matrix file to.
+            Extension must be ``.txt``.
+        is_format_default : bool, optional
+            Whether the exported format is default or not.
+            If False the custom format is set (no exponential).
+        width : int, optional
+            Column width in exported .txt file.
+        precision : int, optional
+            Decimal precision number in exported \\*.txt file.
+        is_exponential : bool, optional
+            Whether the format number is exponential or not.
+        setup : str, optional
+            Name of the setup.
+            If not provided, the active setup is used.
+        default_adaptive : str, optional
+            Adaptive type.
+            The default is ``"LastAdaptive"``.
+        is_post_processed : bool, optional
+            Boolean to check if it is post processed. Default value is ``False``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if matrix_type == "RL":
+            if self.p_app.export_rl_matrix(
+                matrix_name=matrix_name,
+                output_file=output_file,
+                is_format_default=is_format_default,
+                width=width,
+                precision=precision,
+                is_exponential=is_exponential,
+                setup=setup,
+                default_adaptive=default_adaptive,
+                is_post_processed=is_post_processed,
+            ):
+                return True
+        elif matrix_type == "C":
+            if self.p_app.export_c_matrix(
+                matrix_name=matrix_name,
+                output_file=output_file,
+                setup=setup,
+                default_adaptive=default_adaptive,
+                is_post_processed=is_post_processed,
+            ):
+                return True
+        else:
+            raise AEDTRuntimeError("Invalid matrix type. It has to be either 'RL' or 'C'.")
 
 
 class SetupQ3D(Setup, object):
