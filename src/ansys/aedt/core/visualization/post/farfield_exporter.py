@@ -99,10 +99,10 @@ class FfdSolutionDataExporter:
         self.setup_name = setup_name
 
         if not variations:
-            independent_flag = self.available_variations.independent
-            self.available_variations.independent = False
-            variations = self.available_variations.nominal_values
-            self.available_variations.independent = independent_flag
+            independent_flag = app.available_variations.independent
+            app.available_variations.independent = False
+            variations = app.available_variations.nominal_values
+            app.available_variations.independent = independent_flag
         else:
             # Set variation to Nominal
             for var_name, var_value in variations.items():
@@ -239,11 +239,8 @@ class FfdSolutionDataExporter:
                 self.__model_info["lattice_vector"] = component_array.lattice_vector()
 
         # Create PyAEDT Metadata
-        var = []
         if self.variations:
-            for k, v in self.variations.items():
-                var.append(f"{k}='{v}'")
-            variation = " ".join(var)
+            variation = self.__app.available_variations.variation_string(self.variations)
         else:
             variation = self.__app.odesign.GetNominalVariation()
 

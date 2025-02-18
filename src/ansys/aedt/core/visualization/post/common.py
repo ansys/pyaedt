@@ -997,7 +997,7 @@ class PostProcessorCommon(object):
             independent_flag = self._app.available_variations.independent
             self._app.available_variations.independent = True
             variations = self._app.available_variations.nominal_values
-            self.available_variations.independent = independent_flag
+            self._app.available_variations.independent = independent_flag
         for el in list(variations.keys()):
             if el == primary_sweep_variable:
                 continue
@@ -1273,7 +1273,7 @@ class PostProcessorCommon(object):
             independent_flag = self._app.available_variations.independent
             self._app.available_variations.independent = True
             variations = self._app.available_variations.nominal_values
-            self.available_variations.independent = independent_flag
+            self._app.available_variations.independent = independent_flag
             if variations:
                 variations["Freq"] = "All"
             else:
@@ -1282,7 +1282,7 @@ class PostProcessorCommon(object):
             independent_flag = self._app.available_variations.independent
             self._app.available_variations.independent = True
             variations = self._app.available_variations.nominal_values
-            self.available_variations.independent = independent_flag
+            self._app.available_variations.independent = independent_flag
         report.variations = variations
         if primary_sweep_variable:
             report.primary_sweep = primary_sweep_variable
@@ -1531,7 +1531,7 @@ class PostProcessorCommon(object):
             independent_flag = self._app.available_variations.independent
             self._app.available_variations.independent = True
             variations = self._app.available_variations.nominal_values
-            self.available_variations.independent = independent_flag
+            self._app.available_variations.independent = independent_flag
             if variations:
                 variations["Freq"] = "All"
             else:
@@ -1540,7 +1540,7 @@ class PostProcessorCommon(object):
             independent_flag = self._app.available_variations.independent
             self._app.available_variations.independent = True
             variations = self._app.available_variations.nominal_values
-            self.available_variations.independent = independent_flag
+            self._app.available_variations.independent = independent_flag
         report.variations = variations
         report.sub_design_id = subdesign_id
         report.point_number = polyline_points

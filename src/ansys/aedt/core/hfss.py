@@ -1720,7 +1720,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         if not setup:
             setup = assignment.nominal_adaptive
         params = {}
-        independent_flag = assignment.independent
+        independent_flag = assignment.available_variations.independent
         assignment.available_variations.independent = True
         pars = assignment.available_variations.nominal_values
         assignment.available_variations.independent = independent_flag
@@ -7041,12 +7041,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         >>> oModule.ExportElementPatternToFile
         """
         self.logger.info("Exporting embedded element patterns...")
-        var = []
-        if variations:
-            for k, v in variations.items():
-                var.append(f"{k}='{v}'")
-        variation = " ".join(var)
 
+        variation = self.available_variations.variation_string(variations)
         command = [
             "ExportFileName:=",
             os.path.join(output_dir, element_name + ".ffd"),
@@ -7119,11 +7115,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         >>> oModule.ExportMetadata
         """
         self.logger.info("Exporting antenna metadata...")
-        var = []
-        if variations:
-            for k, v in variations.items():
-                var.append(f"{k}='{v}'")
-        variation = " ".join(var)
+
+        variation = self.available_variations.variation_string(variations)
 
         command = [
             "SolutionName:=",

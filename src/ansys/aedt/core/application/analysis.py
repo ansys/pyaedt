@@ -1095,8 +1095,8 @@ class Analysis(Design, object):
 
         Returns
         -------
-        list of str
-            List of nominal variations.
+        dict
+
         """
         independent_flag = self.available_variations.independent
         self.available_variations.independent = True

@@ -189,7 +189,7 @@ class TestClass:
                 trace_names.append("S(" + el + "," + el2 + ")")
         families = {"Freq": ["All"]}
         independent_flag = aedtapp.available_variations.independent
-        aedtapple_variations.independent = True
+        aedtapp.available_variations.independent = True
         for key, value in aedtapp.available_variations.nominal_values.items():
             families[key] = value
         aedtapp.available_variations.independent = independent_flag
