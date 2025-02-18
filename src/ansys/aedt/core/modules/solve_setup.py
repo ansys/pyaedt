@@ -2865,7 +2865,7 @@ class SetupHFSS(Setup, object):
         sweepdata.props["SMatrixOnlySolveMode"] = "Auto"
         if add_subranges:
             for f, s in zip(freq, save_single_field):
-                sweepdata.add_subrange(rangetype="SinglePoints", start=f, unit=unit, save_single_fields=s)
+                sweepdata.add_subrange(range_type="SinglePoints", start=f, unit=unit, save_single_fields=s)
         sweepdata.update()
         self._app.logger.info(f"Single point sweep {name} has been correctly created")
         return sweepdata
@@ -4158,7 +4158,7 @@ class SetupQ3D(Setup, object):
         sweepdata.props["SMatrixOnlySolveMode"] = "Auto"
         if add_subranges:
             for f, s in zip(freq, save_single_field):
-                sweepdata.add_subrange(rangetype="SinglePoints", start=f, unit=unit, save_single_fields=s)
+                sweepdata.add_subrange(range_type="SinglePoints", start=f, unit=unit, save_single_fields=s)
         sweepdata.update()
         self._app.logger.info(f"Single point sweep {name} has been correctly created")
         return sweepdata

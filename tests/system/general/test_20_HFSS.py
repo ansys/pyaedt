@@ -131,7 +131,7 @@ class TestClass:
             "inner_1",
         )
         args = {
-            "mat": "aluminum",
+            "material": "aluminum",
             "use_thickness": True,
             "thickness": "0.5mm",
             "is_two_side": True,
@@ -1499,7 +1499,7 @@ class TestClass:
         box2.material_name = "Copper"
 
         _ = self.aedtapp.lumped_port(
-            signal=box1.name,
+            assignment=box1.name,
             reference=box2.name,
             create_port_sheet=True,
             port_on_plane=True,
