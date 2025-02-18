@@ -61,7 +61,6 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
-from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
 from ansys.aedt.core.modules.design_xploration import OptimizationSetups
 from ansys.aedt.core.modules.design_xploration import ParametricSetups
 from ansys.aedt.core.modules.solve_setup import Setup

@@ -75,7 +75,7 @@ class FfdSolutionDataExporter:
     Examples
     --------
     >>> from ansys.aedt.core
-    >>> app = ansys.aedt.core.Hfss(version="2023.2", design="Antenna")
+    >>> app = ansys.aedt.core.Hfss(version="2025.1", design="Antenna")
     >>> setup_name = "Setup1 : LastAdaptive"
     >>> frequencies = [77e9]
     >>> sphere = "3D"
@@ -156,7 +156,7 @@ class FfdSolutionDataExporter:
 
         # 2024.1
         file_path_xml = os.path.join(export_path, self.__app.design_name + ".xml")
-        # 2023.2
+        # 2025.1
         file_path_txt = os.path.join(export_path, exported_name_map)
 
         input_file = file_path_xml
