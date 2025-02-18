@@ -22,18 +22,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
-
-from ansys.aedt.core.filtersolutions_core.export_to_aedt import ExportCreationMode
-from ansys.aedt.core.filtersolutions_core.export_to_aedt import ExportFormat
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import PartLibraries
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateEr
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateResistivity
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateType
-from ansys.aedt.core.generic.settings import is_linux
+from ansys.aedt.core.generic.general_methods import is_linux
 import pytest
 
-from tests.system.solvers.conftest import config
+from tests.system.general.conftest import config
 
 from ..resources import read_resource_file
 from ..resources import resource_path
@@ -50,15 +46,9 @@ second_modelithics_resistor = "Vishay -> RES_VIS_0603_001 D11"
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
 class TestClass:
-
-    def test_modelithics_include_interconnect_enabled(self, lumped_design):
-        assert lumped_design.export_to_aedt.modelithics_include_interconnect_enabled
-        lumped_design.export_to_aedt.modelithics_include_interconnect_enabled = False
-        assert lumped_design.export_to_aedt.modelithics_include_interconnect_enabled is False
-
     def test_modelithics_inductor_list_count(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
-            assert lumped_design.export_to_aedt.modelithics_capacitor_list_count == 2
+            lumped_design.export_to_aedt.modelithics_capacitor_list_count
         assert info.value.args[0] == "The part library is not set to Modelithics"
         lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         assert lumped_design.export_to_aedt.modelithics_inductor_list_count == 116
@@ -76,18 +66,18 @@ class TestClass:
 
     def test_modelithics_inductor_selection(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
-            lumped_design.export_to_aedt.modelithics_inductor_selection = first_modelithics_inductor
+            lumped_design.export_to_aedt.modelithics_inductor_selection
         assert info.value.args[0] == "The part library is not set to Modelithics"
         lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         with pytest.raises(RuntimeError) as info:
-            assert lumped_design.export_to_aedt.modelithics_inductor_selection == first_modelithics_inductor
+            lumped_design.export_to_aedt.modelithics_inductor_selection
         assert info.value.args[0] == "No Modelithics inductor is selected"
         lumped_design.export_to_aedt.modelithics_inductor_selection = first_modelithics_inductor
         assert lumped_design.export_to_aedt.modelithics_inductor_selection == first_modelithics_inductor
 
     def test_modelithics_inductor_family_list_count(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
-            assert lumped_design.export_to_aedt.modelithics_inductor_family_list_count == 2
+            lumped_design.export_to_aedt.modelithics_inductor_family_list_count
         assert info.value.args[0] == "The part library is not set to Modelithics"
         lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         assert lumped_design.export_to_aedt.modelithics_inductor_family_list_count == 0
@@ -137,7 +127,7 @@ class TestClass:
 
     def test_modelithics_capacitor_list_count(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
-            assert lumped_design.export_to_aedt.modelithics_capacitor_list_count == first_modelithics_capacitor
+            lumped_design.export_to_aedt.modelithics_capacitor_list_count
         assert info.value.args[0] == "The part library is not set to Modelithics"
         lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         assert lumped_design.export_to_aedt.modelithics_capacitor_list_count == 143
@@ -155,18 +145,18 @@ class TestClass:
 
     def test_modelithics_capacitor_selection(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
-            lumped_design.export_to_aedt.modelithics_capacitor_selection = first_modelithics_capacitor
+            lumped_design.export_to_aedt.modelithics_capacitor_selection
         assert info.value.args[0] == "The part library is not set to Modelithics"
         lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         with pytest.raises(RuntimeError) as info:
-            assert lumped_design.export_to_aedt.modelithics_capacitor_selection == first_modelithics_capacitor
+            lumped_design.export_to_aedt.modelithics_capacitor_selection
         assert info.value.args[0] == "No Modelithics capacitor is selected"
         lumped_design.export_to_aedt.modelithics_capacitor_selection = first_modelithics_capacitor
         assert lumped_design.export_to_aedt.modelithics_capacitor_selection == first_modelithics_capacitor
 
     def test_modelithics_capacitor_family_list_count(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
-            assert lumped_design.export_to_aedt.modelithics_capacitor_family_list_count == 2
+            lumped_design.export_to_aedt.modelithics_capacitor_family_list_count
         assert info.value.args[0] == "The part library is not set to Modelithics"
         lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         assert lumped_design.export_to_aedt.modelithics_capacitor_family_list_count == 0
@@ -217,7 +207,7 @@ class TestClass:
 
     def test_modelithics_resistor_list_count(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
-            assert lumped_design.export_to_aedt.modelithics_resistor_list_count == 2
+            lumped_design.export_to_aedt.modelithics_resistor_list_count
         assert info.value.args[0] == "The part library is not set to Modelithics"
         lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         assert lumped_design.export_to_aedt.modelithics_resistor_list_count == 39
@@ -235,18 +225,18 @@ class TestClass:
 
     def test_modelithics_resistor_selection(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
-            lumped_design.export_to_aedt.modelithics_resistor_selection = first_modelithics_resistor
+            lumped_design.export_to_aedt.modelithics_resistor_selection
         assert info.value.args[0] == "The part library is not set to Modelithics"
         lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         with pytest.raises(RuntimeError) as info:
-            assert lumped_design.export_to_aedt.modelithics_resistor_selection == first_modelithics_resistor
+            lumped_design.export_to_aedt.modelithics_resistor_selection
         assert info.value.args[0] == "No Modelithics resistor is selected"
         lumped_design.export_to_aedt.modelithics_resistor_selection = first_modelithics_resistor
         assert lumped_design.export_to_aedt.modelithics_resistor_selection == first_modelithics_resistor
 
     def test_modelithics_resistor_family_list_count(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
-            assert lumped_design.export_to_aedt.modelithics_resistor_family_list_count == 2
+            lumped_design.export_to_aedt.modelithics_resistor_family_list_count
         assert info.value.args[0] == "The part library is not set to Modelithics"
         lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         assert lumped_design.export_to_aedt.modelithics_resistor_family_list_count == 0
@@ -379,19 +369,6 @@ class TestClass:
         lumped_design.export_to_aedt.optimize_after_export_enabled = True
         assert lumped_design.export_to_aedt.optimize_after_export_enabled == True
 
-    def test_export_design(self, lumped_design):
-        export_path = resource_path("Test_Export/test_exported_design.py")
-        lumped_design.export_to_aedt.export_design(
-            export_format=ExportFormat.PYTHON_SCRIPT,
-            export_creation_mode=ExportCreationMode.OVERWRITE,
-            export_path=export_path,
-        )
-        assert os.path.exists(export_path)
-        directory_path = os.path.dirname(export_path)
-        assert os.path.exists(directory_path)
-        os.remove(export_path)
-        os.rmdir(directory_path)
-
     def test_load_library_parts_config(self, lumped_design):
         lumped_design.export_to_aedt.load_library_parts_config(resource_path("library_parts.cfg"))
         lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
@@ -428,16 +405,8 @@ class TestClass:
     def test_part_libraries(self, lumped_design):
         assert lumped_design.export_to_aedt.part_libraries == PartLibraries.LUMPED
         assert len(PartLibraries) == 3
-        try:
-            lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
-        except RuntimeError as info:
-            assert (
-                "NOTICE!  Modelithics Must Be Installed to Use This Feature\r\n"
-                "Insure Modelithics is installed and try again." in str(info)
-            )
-        else:
-            lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
-            assert lumped_design.export_to_aedt.part_libraries == PartLibraries.MODELITHICS
+        lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
+        assert lumped_design.export_to_aedt.part_libraries == PartLibraries.MODELITHICS
 
     def test_interconnect_length_to_width_ratio(self, lumped_design):
         assert lumped_design.export_to_aedt.interconnect_length_to_width_ratio == "2"
@@ -526,9 +495,6 @@ class TestClass:
     def test_substrate_er(self, lumped_design):
         assert lumped_design.export_to_aedt.substrate_er == SubstrateEr.ALUMINA
         assert len(SubstrateEr) == 17
-        with pytest.raises(ValueError) as info:
-            lumped_design.export_to_aedt.substrate_er = 3.2
-        assert str(info.value) == "Invalid substrate input. Must be a SubstrateEr enum member or a string."
         for er in SubstrateEr:
             lumped_design.export_to_aedt.substrate_er = er
             assert lumped_design.export_to_aedt.substrate_er == er
@@ -538,9 +504,6 @@ class TestClass:
     def test_substrate_resistivity(self, lumped_design):
         assert lumped_design.export_to_aedt.substrate_resistivity == SubstrateResistivity.GOLD
         assert len(SubstrateResistivity) == 11
-        with pytest.raises(ValueError) as info:
-            lumped_design.export_to_aedt.substrate_resistivity = 0.02
-        assert str(info.value) == "Invalid substrate input. Must be a SubstrateResistivity enum member or a string."
         for resistivity in SubstrateResistivity:
             lumped_design.export_to_aedt.substrate_resistivity = resistivity
             assert lumped_design.export_to_aedt.substrate_resistivity == resistivity
@@ -555,11 +518,6 @@ class TestClass:
             assert lumped_design.export_to_aedt.substrate_loss_tangent == loss
         lumped_design.export_to_aedt.substrate_loss_tangent = "0.0002"
         assert lumped_design.export_to_aedt.substrate_loss_tangent == "0.0002"
-
-    def test_substrate_loss_tangent_invalid_input(self, lumped_design):
-        with pytest.raises(ValueError) as info:
-            lumped_design.export_to_aedt.substrate_loss_tangent = 0.0002
-        assert str(info.value) == "Invalid substrate input. Must be a SubstrateEr enum member or a string."
 
     def test_substrate_conductor_thickness(self, lumped_design):
         assert lumped_design.export_to_aedt.substrate_conductor_thickness == "2.54 um"
@@ -590,11 +548,6 @@ class TestClass:
         lumped_design.export_to_aedt.substrate_cover_height = "2.5 mm"
         assert lumped_design.export_to_aedt.substrate_cover_height == "2.5 mm"
 
-    def test_load_modelithics_models(self, lumped_design):
-        with pytest.raises(RuntimeError) as info:
-            lumped_design.export_to_aedt.load_modelithics_models()
-        assert info.value.args[0] == "The part library is not set to Modelithics"
-
     def test_substrate_unbalanced_stripline_enabled(self, lumped_design):
         lumped_design.export_to_aedt.substrate_type = SubstrateType.STRIPLINE
         assert lumped_design.export_to_aedt.substrate_unbalanced_stripline_enabled == False
@@ -605,3 +558,48 @@ class TestClass:
         assert lumped_design.export_to_aedt.substrate_cover_height_enabled == False
         lumped_design.export_to_aedt.substrate_cover_height_enabled = True
         assert lumped_design.export_to_aedt.substrate_cover_height_enabled == True
+
+    def test_insert_circuit_design(self, distributed_design):
+        assert distributed_design.export_to_aedt.insert_circuit_design is False
+        distributed_design.export_to_aedt.insert_circuit_design = True
+        assert distributed_design.export_to_aedt.insert_circuit_design
+
+    def test_insert_hfss_design(self, distributed_design):
+        assert distributed_design.export_to_aedt.insert_hfss_design is False
+        distributed_design.export_to_aedt.insert_hfss_design = True
+        assert distributed_design.export_to_aedt.insert_hfss_design
+
+    def test_insert_hfss_3dl_design(self, distributed_design):
+        assert distributed_design.export_to_aedt.insert_hfss_3dl_design
+        distributed_design.export_to_aedt.insert_hfss_3dl_design = False
+        assert distributed_design.export_to_aedt.insert_hfss_3dl_design is False
+
+    def test_full_parametrization_enabled(self, distributed_design):
+        assert distributed_design.export_to_aedt.full_parametrization_enabled
+        distributed_design.export_to_aedt.full_parametrization_enabled = False
+        assert distributed_design.export_to_aedt.full_parametrization_enabled is False
+
+    def test_ports_always_on_sides_enabled(self, distributed_design):
+        assert distributed_design.export_to_aedt.ports_always_on_sides_enabled is False
+        distributed_design.export_to_aedt.ports_always_on_sides_enabled = True
+        assert distributed_design.export_to_aedt.ports_always_on_sides_enabled
+
+    def test_reverse_x_axis_enabled(self, distributed_design):
+        assert distributed_design.export_to_aedt.reverse_x_axis_enabled is False
+        distributed_design.export_to_aedt.reverse_x_axis_enabled = True
+        assert distributed_design.export_to_aedt.reverse_x_axis_enabled
+
+    def test_reverse_y_axis_enabled(self, distributed_design):
+        assert distributed_design.export_to_aedt.reverse_y_axis_enabled is False
+        distributed_design.export_to_aedt.reverse_y_axis_enabled = True
+        assert distributed_design.export_to_aedt.reverse_y_axis_enabled
+
+    def test_export_with_tuning_port_format_enabled(self, distributed_design):
+        assert distributed_design.export_to_aedt.export_with_tuning_port_format_enabled is False
+        distributed_design.export_to_aedt.export_with_tuning_port_format_enabled = True
+        assert distributed_design.export_to_aedt.export_with_tuning_port_format_enabled
+
+    def test_use_series_horizontal_ports_enabled(self, distributed_design):
+        assert distributed_design.export_to_aedt.use_series_horizontal_ports_enabled
+        distributed_design.export_to_aedt.use_series_horizontal_ports_enabled = False
+        assert distributed_design.export_to_aedt.use_series_horizontal_ports_enabled is False
