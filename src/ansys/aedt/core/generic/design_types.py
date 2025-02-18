@@ -132,19 +132,19 @@ def launch_desktop(
 
     Examples
     --------
-    Launch AEDT 2021 R1 in non-graphical mode and initialize HFSS.
+    Launch AEDT 2025 R1 in non-graphical mode and initialize HFSS.
 
     >>> import ansys.aedt.core
-    >>> desktop = ansys.aedt.core.launch_desktop("2022.2", non_graphical=True)
+    >>> desktop = ansys.aedt.core.launch_desktop("2025.1", non_graphical=True)
     PyAEDT INFO: pyaedt v...
     PyAEDT INFO: Python version ...
     >>> hfss = ansys.aedt.core.Hfss(design="HFSSDesign1")
     PyAEDT INFO: Project...
     PyAEDT INFO: Added design 'HFSSDesign1' of type HFSS.
 
-    Launch AEDT 2021 R1 in graphical mode and initialize HFSS.
+    Launch AEDT 2025 R1 in graphical mode and initialize HFSS.
 
-    >>> desktop = Desktop("2021.2")
+    >>> desktop = Desktop("2025.1")
     PyAEDT INFO: pyaedt v...
     PyAEDT INFO: Python version ...
     >>> hfss = ansys.aedt.core.Hfss(design="HFSSDesign1")
