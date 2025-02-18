@@ -27,13 +27,15 @@
 from __future__ import absolute_import  # noreorder
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
+from ansys.aedt.core.generic.constants import SOLUTIONS
+from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.modules.boundary.common import BoundaryObject
+from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 
 
-class Mechanical(FieldAnalysis3D, object):
+class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
     """Provides the Mechanical application interface.
 
     Parameters
@@ -58,7 +60,7 @@ class Mechanical(FieldAnalysis3D, object):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
         This parameter is ignored when a script is launched within AEDT.
-        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
+        Examples of input values are ``251``, ``25.1``, ``2025.1``, ``"2025.1"``.
     non_graphical : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default
         is ``False``, in which case AEDT is launched in the graphical mode.
@@ -114,11 +116,11 @@ class Mechanical(FieldAnalysis3D, object):
 
     >>> aedtapp = Mechanical("myfile.aedt")
 
-    Create a ``Desktop on 2023 R2`` object and then create an
+    Create a ``Desktop on 2025 R1`` object and then create an
     ``Mechanical`` object and open the specified project, which is
     named ``"myfile.aedt"``.
 
-    >>> aedtapp = Mechanical(version=23.2, project="myfile.aedt")
+    >>> aedtapp = Mechanical(version=25.1, project="myfile.aedt")
 
     """
 
@@ -215,14 +217,15 @@ class Mechanical(FieldAnalysis3D, object):
         ----------
         >>> oModule.AssignEMLoss
         """
+        if self.solution_type not in (SOLUTIONS.Mechanical.Thermal, SOLUTIONS.Mechanical.SteadyStateThermal):
+            raise AEDTRuntimeError("This method works only in a Mechanical Thermal analysis.")
+
         if surface_objects is None:
             surface_objects = []
         if parameters is None:
             parameters = []
         if assignment is None:
             assignment = []
-
-        assert "Thermal" in self.solution_type, "This method works only in a Mechanical Thermal analysis."
 
         self.logger.info("Mapping HFSS EM Loss")
         oName = self.project_name
@@ -267,12 +270,7 @@ class Mechanical(FieldAnalysis3D, object):
             props["SurfaceOnly"] = surfaces
 
         name = generate_unique_name("EMLoss")
-        bound = BoundaryObject(self, name, props, "EMLoss")
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            self.logger.info("EM losses mapped from design %s.", design)
-            return bound
-        return False
+        return self._create_boundary(name, props, "EMLoss")
 
     @pyaedt_function_handler(
         designname="design",
@@ -283,7 +281,7 @@ class Mechanical(FieldAnalysis3D, object):
     )
     def assign_thermal_map(
         self,
-        object_list,
+        assignment,
         design="IcepakDesign1",
         setup="Setup1",
         sweep="SteadyState",
@@ -297,7 +295,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        object_list : list
+        assignment : list
 
         design : str, optional
             Name of the design with the source mapping. The default is ``"IcepakDesign1"``.
@@ -320,10 +318,11 @@ class Mechanical(FieldAnalysis3D, object):
         ----------
         >>> oModule.AssignThermalCondition
         """
+        if self.solution_type != SOLUTIONS.Mechanical.Structural:
+            raise AEDTRuntimeError("This method works only in a Mechanical Structural analysis.")
+
         if parameters is None:
             parameters = []
-
-        assert self.solution_type == "Structural", "This method works only in a Mechanical Structural analysis."
 
         self.logger.info("Mapping HFSS EM Loss")
         oName = self.project_name
@@ -334,11 +333,11 @@ class Mechanical(FieldAnalysis3D, object):
         #
         # Generate a list of model objects from the lists made previously and use to map the HFSS losses into Icepak.
         #
-        object_list = self.modeler.convert_to_selections(object_list, True)
-        if not object_list:
-            allObjects = self.modeler.object_names
+        assignment = self.modeler.convert_to_selections(assignment, True)
+        if not assignment:
+            all_objects = self.modeler.object_names
         else:
-            allObjects = object_list[:]
+            all_objects = assignment[:]
         argparam = {}
         for el in self.available_variations.nominal_w_values_dict:
             argparam[el] = self.available_variations.nominal_w_values_dict[el]
@@ -347,7 +346,7 @@ class Mechanical(FieldAnalysis3D, object):
             argparam[el] = el
 
         props = {
-            "Objects": allObjects,
+            "Objects": all_objects,
             "Uniform": False,
             "Project": projname,
             "Product": "ElectronicsDesktop",
@@ -360,13 +359,7 @@ class Mechanical(FieldAnalysis3D, object):
         }
 
         name = generate_unique_name("ThermalLink")
-        bound = BoundaryObject(self, name, props, "ThermalCondition")
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            self.logger.info("Thermal conditions are mapped from design %s.", design)
-            return bound
-
-        return True
+        return self._create_boundary(name, props, "ThermalCondition")
 
     @pyaedt_function_handler(objects_list="assignment", boundary_name="name")
     def assign_uniform_convection(
@@ -402,7 +395,8 @@ class Mechanical(FieldAnalysis3D, object):
         ----------
         >>> oModule.AssignConvection
         """
-        assert "Thermal" in self.solution_type, "This method works only in a Mechanical Thermal analysis."
+        if self.solution_type not in (SOLUTIONS.Mechanical.Thermal, SOLUTIONS.Mechanical.SteadyStateThermal):
+            raise AEDTRuntimeError("This method works only in a Mechanical Thermal analysis.")
 
         props = {}
         assignment = self.modeler.convert_to_selections(assignment, True)
@@ -419,11 +413,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         if not name:
             name = generate_unique_name("Convection")
-        bound = BoundaryObject(self, name, props, "Convection")
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            return bound
-        return False
+        return self._create_boundary(name, props, "Convection")
 
     @pyaedt_function_handler(objects_list="assignment", boundary_name="name")
     def assign_uniform_temperature(self, assignment, temperature="AmbientTemp", name=""):
@@ -450,7 +440,8 @@ class Mechanical(FieldAnalysis3D, object):
         ----------
         >>> oModule.AssignTemperature
         """
-        assert "Thermal" in self.solution_type, "This method works only in a Mechanical Thermal analysis."
+        if self.solution_type not in (SOLUTIONS.Mechanical.Thermal, SOLUTIONS.Mechanical.SteadyStateThermal):
+            raise AEDTRuntimeError("This method works only in a Mechanical Thermal analysis.")
 
         props = {}
         assignment = self.modeler.convert_to_selections(assignment, True)
@@ -465,11 +456,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         if not name:
             name = generate_unique_name("Temp")
-        bound = BoundaryObject(self, name, props, "Temperature")
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            return bound
-        return False
+        return self._create_boundary(name, props, "Temperature")
 
     @pyaedt_function_handler(objects_list="assignment", boundary_name="name")
     def assign_frictionless_support(self, assignment, name=""):
@@ -495,12 +482,11 @@ class Mechanical(FieldAnalysis3D, object):
         ----------
         >>> oModule.AssignFrictionlessSupport
         """
-        if not (self.solution_type == "Structural" or "Modal" in self.solution_type):
-            self.logger.error("This method works only in Mechanical Structural analysis.")
-            return False
+        if self.solution_type not in (SOLUTIONS.Mechanical.Structural, SOLUTIONS.Mechanical.Modal):
+            raise AEDTRuntimeError("This method works only in a Mechanical Structural analysis.")
+
         props = {}
         assignment = self.modeler.convert_to_selections(assignment, True)
-
         if type(assignment) is list:
             if type(assignment[0]) is str:
                 props["Objects"] = assignment
@@ -509,11 +495,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         if not name:
             name = generate_unique_name("Temp")
-        bound = BoundaryObject(self, name, props, "Frictionless")
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            return bound
-        return False
+        return self._create_boundary(name, props, "Frictionless")
 
     @pyaedt_function_handler(objects_list="assignment", boundary_name="name")
     def assign_fixed_support(self, assignment, name=""):
@@ -539,9 +521,9 @@ class Mechanical(FieldAnalysis3D, object):
         ----------
         >>> oModule.AssignFixedSupport
         """
-        if not (self.solution_type == "Structural" or "Modal" in self.solution_type):
-            self.logger.error("This method works only in a Mechanical Structural analysis.")
-            return False
+        if self.solution_type not in (SOLUTIONS.Mechanical.Structural, SOLUTIONS.Mechanical.Modal):
+            raise AEDTRuntimeError("This method works only in a Mechanical Structural analysis.")
+
         props = {}
         assignment = self.modeler.convert_to_selections(assignment, True)
 
@@ -550,11 +532,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         if not name:
             name = generate_unique_name("Temp")
-        bound = BoundaryObject(self, name, props, "FixedSupport")
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            return bound
-        return False
+        return self._create_boundary(name, props, "FixedSupport")
 
     @property
     def existing_analysis_sweeps(self):
@@ -600,7 +578,8 @@ class Mechanical(FieldAnalysis3D, object):
         ----------
         >>> oModule.AssignHeatFlux
         """
-        assert "Thermal" in self.solution_type, "This method works only in a Mechanical Thermal analysis."
+        if self.solution_type not in (SOLUTIONS.Mechanical.Thermal, SOLUTIONS.Mechanical.SteadyStateThermal):
+            raise AEDTRuntimeError("This method works only in a Mechanical Thermal analysis.")
 
         props = {}
         assignment = self.modeler.convert_to_selections(assignment, True)
@@ -617,12 +596,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         if not name:
             name = generate_unique_name("HeatFlux")
-
-        bound = BoundaryObject(self, name, props, "HeatFlux")
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            return bound
-        return False
+        return self._create_boundary(name, props, "HeatFlux")
 
     @pyaedt_function_handler(objects_list="assignment", boundary_name="name")
     def assign_heat_generation(self, assignment, value, name=""):
@@ -647,7 +621,8 @@ class Mechanical(FieldAnalysis3D, object):
         ----------
         >>> oModule.AssignHeatGeneration
         """
-        assert "Thermal" in self.solution_type, "This method works only in a Mechanical Thermal analysis."
+        if self.solution_type not in (SOLUTIONS.Mechanical.Thermal, SOLUTIONS.Mechanical.SteadyStateThermal):
+            raise AEDTRuntimeError("This method works only in a Mechanical Thermal analysis.")
 
         props = {}
         assignment = self.modeler.convert_to_selections(assignment, True)
@@ -658,12 +633,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         if not name:
             name = generate_unique_name("HeatGeneration")
-
-        bound = BoundaryObject(self, name, props, "HeatGeneration")
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            return bound
-        return False
+        return self._create_boundary(name, props, "HeatGeneration")
 
     @pyaedt_function_handler()
     def assign_2way_coupling(self, setup=None, number_of_iterations=2):

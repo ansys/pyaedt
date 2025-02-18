@@ -22,9 +22,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import ansys.aedt.core
 from ansys.aedt.core.filtersolutions_core.attributes import BesselRipplePercentage
 from ansys.aedt.core.filtersolutions_core.attributes import DiplexerType
 from ansys.aedt.core.filtersolutions_core.attributes import FilterClass
+from ansys.aedt.core.filtersolutions_core.attributes import FilterImplementation
 from ansys.aedt.core.filtersolutions_core.attributes import FilterType
 from ansys.aedt.core.filtersolutions_core.attributes import GaussianBesselReflection
 from ansys.aedt.core.filtersolutions_core.attributes import GaussianTransition
@@ -41,15 +43,21 @@ from tests.system.general.conftest import config
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
 class TestClass:
-    def test_filter_type(self, lumped_design):
-        assert lumped_design.attributes.filter_type == FilterType.BUTTERWORTH
-        assert len(FilterType) == 10
-        for ftype in FilterType:
-            lumped_design.attributes.filter_type = ftype
-            assert lumped_design.attributes.filter_type == ftype
+    def test_filter_type(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        assert design.attributes.filter_type == FilterType.BUTTERWORTH
 
-    def test_filter_class(self, lumped_design):
-        assert lumped_design.attributes.filter_class == FilterClass.LOW_PASS
+        assert len(FilterType) == 10
+
+        for fimp in [FilterImplementation.LUMPED]:
+            design.attributes.filter_implementation = fimp
+            for ftype in FilterType:
+                design.attributes.filter_type = ftype
+                assert design.attributes.filter_type == ftype
+
+    def test_filter_class(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        assert design.attributes.filter_class == FilterClass.LOW_PASS
 
         # Only lumped supports all classes
         # TODO: Confirm proper exceptions are raised when setting unsupported filter class for each implementation.
@@ -57,379 +65,438 @@ class TestClass:
         assert len(FilterClass) == 10
         for index, fclass in enumerate(FilterClass):
             if index > 5:
-                lumped_design.attributes.filter_multiple_bands_enabled = True
-            lumped_design.attributes.filter_class = fclass
-            assert lumped_design.attributes.filter_class == fclass
+                design.attributes.filter_multiple_bands_enabled = True
+            design.attributes.filter_class = fclass
+            assert design.attributes.filter_class == fclass
 
-    def test_filter_multiple_bands_enabled(self, lumped_design):
-        assert lumped_design.attributes.filter_multiple_bands_enabled is False
-        lumped_design.attributes.filter_multiple_bands_enabled = True
-        assert lumped_design.attributes.filter_multiple_bands_enabled
+    def test_filter_multiple_bands_enabled(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        assert design.attributes.filter_multiple_bands_enabled is False
+        design.attributes.filter_multiple_bands_enabled = True
+        assert design.attributes.filter_multiple_bands_enabled
 
-    def test_filter_multiple_bands_low_pass_frequency(self, lumped_design):
-        lumped_design.attributes.filter_multiple_bands_enabled = True
-        lumped_design.attributes.filter_class = FilterClass.LOW_BAND
-        assert lumped_design.attributes.filter_multiple_bands_low_pass_frequency == "1G"
-        lumped_design.attributes.filter_multiple_bands_low_pass_frequency = "500M"
-        assert lumped_design.attributes.filter_multiple_bands_low_pass_frequency == "500M"
+    def test_filter_multiple_bands_low_pass_frequency(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_multiple_bands_enabled = True
+        design.attributes.filter_class = FilterClass.LOW_BAND
+        assert design.attributes.filter_multiple_bands_low_pass_frequency == "1G"
+        design.attributes.filter_multiple_bands_low_pass_frequency = "500M"
+        assert design.attributes.filter_multiple_bands_low_pass_frequency == "500M"
 
-    def test_filter_multiple_bands_high_pass_frequency(self, lumped_design):
-        lumped_design.attributes.filter_multiple_bands_enabled = True
-        lumped_design.attributes.filter_class = FilterClass.BAND_HIGH
-        assert lumped_design.attributes.filter_multiple_bands_high_pass_frequency == "1G"
-        lumped_design.attributes.filter_multiple_bands_high_pass_frequency = "500M"
-        assert lumped_design.attributes.filter_multiple_bands_high_pass_frequency == "500M"
+    def test_filter_multiple_bands_high_pass_frequency(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_multiple_bands_enabled = True
+        design.attributes.filter_class = FilterClass.BAND_HIGH
+        assert design.attributes.filter_multiple_bands_high_pass_frequency == "1G"
+        design.attributes.filter_multiple_bands_high_pass_frequency = "500M"
+        assert design.attributes.filter_multiple_bands_high_pass_frequency == "500M"
 
-    def test_diplexer_type(self, lumped_design):
+    def test_filter_implementation(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        assert len(FilterImplementation) == 5
+        for fimplementation in FilterImplementation:
+            design.attributes.filter_implementation = fimplementation
+            assert design.attributes.filter_implementation == fimplementation
+
+    def test_diplexer_type(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         assert len(DiplexerType) == 6
         for index, diplexer_type in enumerate(DiplexerType):
             if index < 3:
-                lumped_design.attributes.filter_class = FilterClass.DIPLEXER_1
+                design.attributes.filter_class = FilterClass.DIPLEXER_1
             elif index > 2:
-                lumped_design.attributes.filter_class = FilterClass.DIPLEXER_2
-            lumped_design.attributes.diplexer_type = diplexer_type
-            assert lumped_design.attributes.diplexer_type == diplexer_type
+                design.attributes.filter_class = FilterClass.DIPLEXER_2
+            design.attributes.diplexer_type = diplexer_type
+            assert design.attributes.diplexer_type == diplexer_type
 
-    def test_filter_order(self, lumped_design):
-        assert lumped_design.attributes.filter_order == 5
+    def test_filter_order(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        assert design.attributes.filter_order == 5
+
         with pytest.raises(RuntimeError) as info:
-            lumped_design.attributes.filter_order = 0
+            design.attributes.filter_order = 0
         assert info.value.args[0] == "The minimum order is 1"
 
         for i in range(1, 22):
-            lumped_design.attributes.filter_order = i
-            assert lumped_design.attributes.filter_order == i
+            design.attributes.filter_order = i
+            assert design.attributes.filter_order == i
 
         with pytest.raises(RuntimeError) as info:
-            lumped_design.attributes.filter_order = 22
+            design.attributes.filter_order = 22
         assert info.value.args[0] == "The maximum order is 21"
 
-    def test_minimum_order_stop_band_att(self, lumped_design):
-        assert lumped_design.attributes.minimum_order_stop_band_attenuation_db == "60 dB"
-        lumped_design.attributes.minimum_order_stop_band_attenuation_db = "40 dB"
-        assert lumped_design.attributes.minimum_order_stop_band_attenuation_db == "40 dB"
+    def test_minimum_order_stop_band_att(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        assert design.attributes.minimum_order_stop_band_attenuation_db == "60 dB"
+        design.attributes.minimum_order_stop_band_attenuation_db = "40 dB"
+        assert design.attributes.minimum_order_stop_band_attenuation_db == "40 dB"
 
-    def test_minimum_order_stop_band_freq(self, lumped_design):
-        assert lumped_design.attributes.minimum_order_stop_band_frequency == "10 GHz"
-        lumped_design.attributes.minimum_order_stop_band_frequency = "500 MHz"
-        assert lumped_design.attributes.minimum_order_stop_band_frequency == "500 MHz"
+    def test_minimum_order_stop_band_freq(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        assert design.attributes.minimum_order_stop_band_frequency == "10 GHz"
+        design.attributes.minimum_order_stop_band_frequency = "500 MHz"
+        assert design.attributes.minimum_order_stop_band_frequency == "500 MHz"
 
-    def test_minimum_order_group_delay_error_percent(self, lumped_design):
-        lumped_design.attributes.filter_type = FilterType.DELAY
-        assert lumped_design.attributes.minimum_order_group_delay_error_percent == "5"
-        lumped_design.attributes.minimum_order_group_delay_error_percent = "7"
-        assert lumped_design.attributes.minimum_order_group_delay_error_percent == "7"
+    def test_minimum_order_group_delay_error_percent(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_type = FilterType.DELAY
+        assert design.attributes.minimum_order_group_delay_error_percent == "5"
+        design.attributes.minimum_order_group_delay_error_percent = "7"
+        assert design.attributes.minimum_order_group_delay_error_percent == "7"
 
-    def test_minimum_order_group_delay_cutoff(self, lumped_design):
-        lumped_design.attributes.filter_type = FilterType.DELAY
-        assert lumped_design.attributes.minimum_order_group_delay_cutoff == "2 GHz"
-        lumped_design.attributes.minimum_order_group_delay_cutoff = "500 MHz"
-        assert lumped_design.attributes.minimum_order_group_delay_cutoff == "500 MHz"
+    def test_minimum_order_group_delay_cutoff(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_type = FilterType.DELAY
+        assert design.attributes.minimum_order_group_delay_cutoff == "2 GHz"
+        design.attributes.minimum_order_group_delay_cutoff = "500 MHz"
+        assert design.attributes.minimum_order_group_delay_cutoff == "500 MHz"
 
-    def test_minimum_order(self, lumped_design):
-        assert lumped_design.attributes.filter_order == 5
-        lumped_design.attributes.ideal_minimum_order
-        assert lumped_design.attributes.filter_order == 3
+    def test_minimum_order(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        assert design.attributes.filter_order == 5
+        design.attributes.ideal_minimum_order
+        assert design.attributes.filter_order == 3
 
-    def test_pass_band_definition(self, lumped_design):
-        lumped_design.attributes.filter_class = FilterClass.BAND_PASS
+    def test_pass_band_definition(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_class = FilterClass.BAND_PASS
         assert len(PassbandDefinition) == 2
-        assert lumped_design.attributes.pass_band_definition == PassbandDefinition.CENTER_FREQUENCY
+        assert design.attributes.pass_band_definition == PassbandDefinition.CENTER_FREQUENCY
         for pbd in PassbandDefinition:
-            lumped_design.attributes.pass_band_definition = pbd
-            assert lumped_design.attributes.pass_band_definition == pbd
+            design.attributes.pass_band_definition = pbd
+            assert design.attributes.pass_band_definition == pbd
 
-    def test_pass_band_center_frequency(self, lumped_design):
-        assert lumped_design.attributes.pass_band_center_frequency == "1G"
-        lumped_design.attributes.pass_band_center_frequency = "500M"
-        assert lumped_design.attributes.pass_band_center_frequency == "500M"
+    def test_pass_band_center_frequency(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        assert design.attributes.pass_band_center_frequency == "1G"
+        design.attributes.pass_band_center_frequency = "500M"
+        assert design.attributes.pass_band_center_frequency == "500M"
 
-    def test_pass_band_frequency(self, lumped_design):
-        lumped_design.attributes.filter_class = FilterClass.BAND_PASS
-        assert lumped_design.attributes.pass_band_width_frequency == "200M"
-        lumped_design.attributes.pass_band_width_frequency = "500M"
-        assert lumped_design.attributes.pass_band_width_frequency == "500M"
+    def test_pass_band_frequency(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_class = FilterClass.BAND_PASS
+        assert design.attributes.pass_band_width_frequency == "200M"
+        design.attributes.pass_band_width_frequency = "500M"
+        assert design.attributes.pass_band_width_frequency == "500M"
 
-    def test_lower_frequency(self, lumped_design):
-        lumped_design.attributes.filter_class = FilterClass.BAND_PASS
-        lumped_design.attributes.pass_band_definition = PassbandDefinition.CORNER_FREQUENCIES
-        assert lumped_design.attributes.lower_frequency == "905 M"
-        lumped_design.attributes.lower_frequency = "800M"
-        assert lumped_design.attributes.lower_frequency == "800M"
+    def test_lower_frequency(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_class = FilterClass.BAND_PASS
+        design.attributes.pass_band_definition = PassbandDefinition.CORNER_FREQUENCIES
+        assert design.attributes.lower_frequency == "905 M"
+        design.attributes.lower_frequency = "800M"
+        assert design.attributes.lower_frequency == "800M"
 
-    def test_upper_frequency(self, lumped_design):
-        lumped_design.attributes.filter_class = FilterClass.BAND_PASS
-        lumped_design.attributes.pass_band_definition = PassbandDefinition.CORNER_FREQUENCIES
-        assert lumped_design.attributes.upper_frequency == "1.105 G"
-        lumped_design.attributes.upper_frequency = "1.2 G"
-        assert lumped_design.attributes.upper_frequency == "1.2 G"
+    def test_upper_frequency(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_class = FilterClass.BAND_PASS
+        design.attributes.pass_band_definition = PassbandDefinition.CORNER_FREQUENCIES
+        assert design.attributes.upper_frequency == "1.105 G"
+        design.attributes.upper_frequency = "1.2 G"
+        assert design.attributes.upper_frequency == "1.2 G"
 
-    def test_stop_band_definition(self, lumped_design):
-        lumped_design.attributes.filter_type = FilterType.ELLIPTIC
+    def test_stop_band_definition(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_type = FilterType.ELLIPTIC
         assert len(StopbandDefinition) == 3
-        assert lumped_design.attributes.stop_band_definition == StopbandDefinition.RATIO
+        assert design.attributes.stop_band_definition == StopbandDefinition.RATIO
         for sbd in StopbandDefinition:
-            lumped_design.attributes.stop_band_definition = sbd
-            assert lumped_design.attributes.stop_band_definition == sbd
+            design.attributes.stop_band_definition = sbd
+            assert design.attributes.stop_band_definition == sbd
 
-    def test_stop_band_ratio(self, lumped_design):
-        lumped_design.attributes.filter_type = FilterType.ELLIPTIC
-        assert lumped_design.attributes.stop_band_ratio == "1.2"
-        lumped_design.attributes.stop_band_ratio = "1.5"
-        assert lumped_design.attributes.stop_band_ratio == "1.5"
+    def test_stop_band_ratio(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_type = FilterType.ELLIPTIC
+        assert design.attributes.stop_band_ratio == "1.2"
+        design.attributes.stop_band_ratio = "1.5"
+        assert design.attributes.stop_band_ratio == "1.5"
 
-    def test_stop_band_frequency(self, lumped_design):
-        lumped_design.attributes.filter_type = FilterType.ELLIPTIC
-        lumped_design.attributes.stop_band_definition = StopbandDefinition.FREQUENCY
-        assert lumped_design.attributes.stop_band_frequency == "1.2 G"
-        lumped_design.attributes.stop_band_frequency = "1.5 G"
-        assert lumped_design.attributes.stop_band_frequency == "1.5 G"
+    def test_stop_band_frequency(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_type = FilterType.ELLIPTIC
+        design.attributes.stop_band_definition = StopbandDefinition.FREQUENCY
+        assert design.attributes.stop_band_frequency == "1.2 G"
+        design.attributes.stop_band_frequency = "1.5 G"
+        assert design.attributes.stop_band_frequency == "1.5 G"
 
-    def test_stop_band_attenuation(self, lumped_design):
-        lumped_design.attributes.filter_type = FilterType.ELLIPTIC
-        lumped_design.attributes.stop_band_definition = StopbandDefinition.ATTENUATION_DB
-        assert lumped_design.attributes.stop_band_attenuation_db == "60"
-        lumped_design.attributes.stop_band_attenuation_db = "40 dB"
-        assert lumped_design.attributes.stop_band_attenuation_db == "40"
+    def test_stop_band_attenuation(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_type = FilterType.ELLIPTIC
+        design.attributes.stop_band_definition = StopbandDefinition.ATTENUATION_DB
+        assert design.attributes.stop_band_attenuation_db == "60"
+        design.attributes.stop_band_attenuation_db = "40 dB"
+        assert design.attributes.stop_band_attenuation_db == "40"
 
-    def test_standard_pass_band_attenuation(self, lumped_design):
-        assert lumped_design.attributes.standard_pass_band_attenuation
-        lumped_design.attributes.standard_pass_band_attenuation = False
-        assert lumped_design.attributes.standard_pass_band_attenuation is False
+    def test_standard_pass_band_attenuation(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        assert design.attributes.standard_pass_band_attenuation
+        design.attributes.standard_pass_band_attenuation = False
+        assert design.attributes.standard_pass_band_attenuation is False
 
-    def test_standard_pass_band_attenuation_value_db(self, lumped_design):
-        lumped_design.attributes.standard_pass_band_attenuation = False
-        assert lumped_design.attributes.standard_pass_band_attenuation_value_db == "3.01"
-        lumped_design.attributes.standard_pass_band_attenuation_value_db = "4"
-        assert lumped_design.attributes.standard_pass_band_attenuation_value_db == "4"
+    def test_standard_pass_band_attenuation_value_db(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.standard_pass_band_attenuation = False
+        assert design.attributes.standard_pass_band_attenuation_value_db == "3.01"
+        design.attributes.standard_pass_band_attenuation_value_db = "4"
+        assert design.attributes.standard_pass_band_attenuation_value_db == "4"
 
-    def test_equiripple_delay(self, lumped_design):
-        lumped_design.attributes.filter_type = FilterType.DELAY
-        assert lumped_design.attributes.equiripple_delay
-        lumped_design.attributes.equiripple_delay = False
-        assert lumped_design.attributes.equiripple_delay is False
+    def test_equiripple_delay(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_type = FilterType.DELAY
+        assert design.attributes.equiripple_delay
+        design.attributes.equiripple_delay = False
+        assert design.attributes.equiripple_delay is False
 
-    def test_group_delay_ripple_period(self, lumped_design):
-        lumped_design.attributes.filter_type = FilterType.DELAY
-        assert lumped_design.attributes.group_delay_ripple_period == "2"
-        lumped_design.attributes.group_delay_ripple_period = "3"
-        assert lumped_design.attributes.group_delay_ripple_period == "3"
+    def test_group_delay_ripple_period(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_type = FilterType.DELAY
+        assert design.attributes.group_delay_ripple_period == "2"
+        design.attributes.group_delay_ripple_period = "3"
+        assert design.attributes.group_delay_ripple_period == "3"
 
-    def test_normalized_group_delay_percentage(self, lumped_design):
-        lumped_design.attributes.filter_type = FilterType.DELAY
+    def test_normalized_group_delay_percentage(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_type = FilterType.DELAY
         assert len(BesselRipplePercentage) == 6
         for normalized_group_delay_percentage in BesselRipplePercentage:
-            lumped_design.attributes.normalized_group_delay_percentage = normalized_group_delay_percentage
-            assert lumped_design.attributes.normalized_group_delay_percentage == normalized_group_delay_percentage
+            design.attributes.normalized_group_delay_percentage = normalized_group_delay_percentage
+            assert design.attributes.normalized_group_delay_percentage == normalized_group_delay_percentage
 
-    def test_bessel_normalized_delay(self, lumped_design):
-        lumped_design.attributes.filter_type = FilterType.BESSEL
-        assert lumped_design.attributes.bessel_normalized_delay is False
-        lumped_design.attributes.bessel_normalized_delay = True
-        assert lumped_design.attributes.bessel_normalized_delay
+    def test_bessel_normalized_delay(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_type = FilterType.BESSEL
+        assert design.attributes.bessel_normalized_delay is False
+        design.attributes.bessel_normalized_delay = True
+        assert design.attributes.bessel_normalized_delay
 
-    def test_bessel_normalized_delay_period(self, lumped_design):
-        lumped_design.attributes.filter_type = FilterType.BESSEL
-        lumped_design.attributes.bessel_normalized_delay = True
-        assert lumped_design.attributes.bessel_normalized_delay_period == "2"
-        lumped_design.attributes.bessel_normalized_delay_period = "3"
-        assert lumped_design.attributes.bessel_normalized_delay_period == "3"
+    def test_bessel_normalized_delay_period(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_type = FilterType.BESSEL
+        design.attributes.bessel_normalized_delay = True
+        assert design.attributes.bessel_normalized_delay_period == "2"
+        design.attributes.bessel_normalized_delay_period = "3"
+        assert design.attributes.bessel_normalized_delay_period == "3"
 
-    def test_bessel_normalized_delay_percentage(self, lumped_design):
-        lumped_design.attributes.filter_type = FilterType.BESSEL
-        lumped_design.attributes.bessel_normalized_delay = True
+    def test_bessel_normalized_delay_percentage(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_type = FilterType.BESSEL
+        design.attributes.bessel_normalized_delay = True
         assert len(BesselRipplePercentage) == 6
         for bessel_normalized_delay_percentage in BesselRipplePercentage:
-            lumped_design.attributes.bessel_normalized_delay_percentage = bessel_normalized_delay_percentage
-            assert lumped_design.attributes.bessel_normalized_delay_percentage == bessel_normalized_delay_percentage
+            design.attributes.bessel_normalized_delay_percentage = bessel_normalized_delay_percentage
+            assert design.attributes.bessel_normalized_delay_percentage == bessel_normalized_delay_percentage
 
-    def test_pass_band_ripple(self, lumped_design):
-        lumped_design.attributes.filter_type = FilterType.ELLIPTIC
-        assert lumped_design.attributes.pass_band_ripple == ".05"
-        lumped_design.attributes.pass_band_ripple = ".03"
-        assert lumped_design.attributes.pass_band_ripple == ".03"
+    def test_pass_band_ripple(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_type = FilterType.ELLIPTIC
+        assert design.attributes.pass_band_ripple == ".05"
+        design.attributes.pass_band_ripple = ".03"
+        assert design.attributes.pass_band_ripple == ".03"
 
-    def test_arith_symmetry(self, lumped_design):
-        lumped_design.attributes.filter_type = FilterType.ELLIPTIC
-        lumped_design.attributes.filter_class = FilterClass.BAND_PASS
-        assert lumped_design.attributes.arith_symmetry is False
-        lumped_design.attributes.arith_symmetry = True
-        assert lumped_design.attributes.arith_symmetry
+    def test_arith_symmetry(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_type = FilterType.ELLIPTIC
+        design.attributes.filter_class = FilterClass.BAND_PASS
+        assert design.attributes.arith_symmetry is False
+        design.attributes.arith_symmetry = True
+        assert design.attributes.arith_symmetry
 
-    def test_asymmetric(self, lumped_design):
-        lumped_design.attributes.filter_class = FilterClass.BAND_PASS
-        assert lumped_design.attributes.asymmetric is False
-        lumped_design.attributes.asymmetric = True
-        assert lumped_design.attributes.asymmetric
+    def test_asymmetric(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_class = FilterClass.BAND_PASS
+        assert design.attributes.asymmetric is False
+        design.attributes.asymmetric = True
+        assert design.attributes.asymmetric
 
-    def test_asymmetric_low_order(self, lumped_design):
-        lumped_design.attributes.filter_class = FilterClass.BAND_PASS
-        lumped_design.attributes.asymmetric = True
-        assert lumped_design.attributes.asymmetric_low_order == 5
+    def test_asymmetric_low_order(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_class = FilterClass.BAND_PASS
+        design.attributes.asymmetric = True
+        assert design.attributes.asymmetric_low_order == 5
 
         with pytest.raises(RuntimeError) as info:
-            lumped_design.attributes.asymmetric_low_order = 0
+            design.attributes.asymmetric_low_order = 0
         assert info.value.args[0] == "The minimum order is 1"
 
         for i in range(1, 22):
-            lumped_design.attributes.asymmetric_low_order = i
-            assert lumped_design.attributes.asymmetric_low_order == i
+            design.attributes.asymmetric_low_order = i
+            assert design.attributes.asymmetric_low_order == i
 
         with pytest.raises(RuntimeError) as info:
-            lumped_design.attributes.asymmetric_low_order = 22
+            design.attributes.asymmetric_low_order = 22
         assert info.value.args[0] == "The maximum order is 21"
 
-    def test_asymmetric_high_order(self, lumped_design):
-        lumped_design.attributes.filter_class = FilterClass.BAND_PASS
-        lumped_design.attributes.asymmetric = True
-        assert lumped_design.attributes.asymmetric_high_order == 5
+    def test_asymmetric_high_order(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_class = FilterClass.BAND_PASS
+        design.attributes.asymmetric = True
+        assert design.attributes.asymmetric_high_order == 5
 
         with pytest.raises(RuntimeError) as info:
-            lumped_design.attributes.asymmetric_high_order = 0
+            design.attributes.asymmetric_high_order = 0
         assert info.value.args[0] == "The minimum order is 1"
 
         for i in range(1, 22):
-            lumped_design.attributes.asymmetric_high_order = i
-            assert lumped_design.attributes.asymmetric_high_order == i
+            design.attributes.asymmetric_high_order = i
+            assert design.attributes.asymmetric_high_order == i
 
         with pytest.raises(RuntimeError) as info:
-            lumped_design.attributes.asymmetric_high_order = 22
+            design.attributes.asymmetric_high_order = 22
         assert info.value.args[0] == "The maximum order is 21"
 
-    def test_asymmetric_low_stop_band_ratio(self, lumped_design):
-        lumped_design.attributes.filter_class = FilterClass.BAND_PASS
-        lumped_design.attributes.filter_type = FilterType.ELLIPTIC
-        lumped_design.attributes.asymmetric = True
-        assert lumped_design.attributes.asymmetric_low_stop_band_ratio == "1.2"
-        lumped_design.attributes.asymmetric_low_stop_band_ratio = "1.5"
-        assert lumped_design.attributes.asymmetric_low_stop_band_ratio == "1.5"
+    def test_asymmetric_low_stop_band_ratio(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_class = FilterClass.BAND_PASS
+        design.attributes.filter_type = FilterType.ELLIPTIC
+        design.attributes.asymmetric = True
+        assert design.attributes.asymmetric_low_stop_band_ratio == "1.2"
+        design.attributes.asymmetric_low_stop_band_ratio = "1.5"
+        assert design.attributes.asymmetric_low_stop_band_ratio == "1.5"
 
-    def test_asymmetric_high_stop_band_ratio(self, lumped_design):
-        lumped_design.attributes.filter_class = FilterClass.BAND_PASS
-        lumped_design.attributes.filter_type = FilterType.ELLIPTIC
-        lumped_design.attributes.asymmetric = True
-        assert lumped_design.attributes.asymmetric_high_stop_band_ratio == "1.2"
-        lumped_design.attributes.asymmetric_high_stop_band_ratio = "1.5"
-        assert lumped_design.attributes.asymmetric_high_stop_band_ratio == "1.5"
+    def test_asymmetric_high_stop_band_ratio(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_class = FilterClass.BAND_PASS
+        design.attributes.filter_type = FilterType.ELLIPTIC
+        design.attributes.asymmetric = True
+        assert design.attributes.asymmetric_high_stop_band_ratio == "1.2"
+        design.attributes.asymmetric_high_stop_band_ratio = "1.5"
+        assert design.attributes.asymmetric_high_stop_band_ratio == "1.5"
 
-    def test_asymmetric_low_stop_band_attenuation_db(self, lumped_design):
-        lumped_design.attributes.filter_class = FilterClass.BAND_PASS
-        lumped_design.attributes.filter_type = FilterType.ELLIPTIC
-        lumped_design.attributes.asymmetric = True
-        assert lumped_design.attributes.asymmetric_low_stop_band_attenuation_db == "60"
-        lumped_design.attributes.asymmetric_low_stop_band_attenuation_db = "40"
-        assert lumped_design.attributes.asymmetric_low_stop_band_attenuation_db == "40"
+    def test_asymmetric_low_stop_band_attenuation_db(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_class = FilterClass.BAND_PASS
+        design.attributes.filter_type = FilterType.ELLIPTIC
+        design.attributes.asymmetric = True
+        assert design.attributes.asymmetric_low_stop_band_attenuation_db == "60"
+        design.attributes.asymmetric_low_stop_band_attenuation_db = "40"
+        assert design.attributes.asymmetric_low_stop_band_attenuation_db == "40"
 
-    def test_asymmetric_high_stop_band_attenuation_db(self, lumped_design):
-        lumped_design.attributes.filter_class = FilterClass.BAND_PASS
-        lumped_design.attributes.filter_type = FilterType.ELLIPTIC
-        lumped_design.attributes.asymmetric = True
-        assert lumped_design.attributes.asymmetric_high_stop_band_attenuation_db == "60"
-        lumped_design.attributes.asymmetric_high_stop_band_attenuation_db = "40"
-        assert lumped_design.attributes.asymmetric_high_stop_band_attenuation_db == "40"
+    def test_asymmetric_high_stop_band_attenuation_db(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_class = FilterClass.BAND_PASS
+        design.attributes.filter_type = FilterType.ELLIPTIC
+        design.attributes.asymmetric = True
+        assert design.attributes.asymmetric_high_stop_band_attenuation_db == "60"
+        design.attributes.asymmetric_high_stop_band_attenuation_db = "40"
+        assert design.attributes.asymmetric_high_stop_band_attenuation_db == "40"
 
-    def test_gaussian_transition(self, lumped_design):
-        lumped_design.attributes.filter_type = FilterType.GAUSSIAN
+    def test_gaussian_transition(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_type = FilterType.GAUSSIAN
         assert len(GaussianTransition) == 6
         for gaussian_transition in GaussianTransition:
-            lumped_design.attributes.gaussian_transition = gaussian_transition
-            assert lumped_design.attributes.gaussian_transition == gaussian_transition
+            design.attributes.gaussian_transition = gaussian_transition
+            assert design.attributes.gaussian_transition == gaussian_transition
 
-    def test_gaussian_bessel_reflection(self, lumped_design):
-        lumped_design.attributes.filter_type = FilterType.BESSEL
+    def test_gaussian_bessel_reflection(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_type = FilterType.BESSEL
         assert len(GaussianBesselReflection) == 3
         for gaussian_bessel_reflection in GaussianBesselReflection:
-            lumped_design.attributes.gaussian_bessel_reflection = gaussian_bessel_reflection
-            assert lumped_design.attributes.gaussian_bessel_reflection == gaussian_bessel_reflection
+            design.attributes.gaussian_bessel_reflection = gaussian_bessel_reflection
+            assert design.attributes.gaussian_bessel_reflection == gaussian_bessel_reflection
 
-    def test_even_order(self, lumped_design):
-        lumped_design.attributes.filter_type = FilterType.ELLIPTIC
-        lumped_design.attributes.filter_order = 4
-        assert lumped_design.attributes.even_order
-        lumped_design.attributes.even_order = False
-        assert lumped_design.attributes.even_order is False
+    def test_even_order(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_type = FilterType.ELLIPTIC
+        design.attributes.filter_order = 4
+        assert design.attributes.even_order
+        design.attributes.even_order = False
+        assert design.attributes.even_order is False
 
-    def test_even_order_refl_zero(self, lumped_design):
-        lumped_design.attributes.filter_type = FilterType.ELLIPTIC
-        lumped_design.attributes.filter_order = 4
-        assert lumped_design.attributes.even_order_refl_zero
-        lumped_design.attributes.even_order_refl_zero = False
-        assert lumped_design.attributes.even_order_refl_zero is False
+    def test_even_order_refl_zero(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_type = FilterType.ELLIPTIC
+        design.attributes.filter_order = 4
+        assert design.attributes.even_order_refl_zero
+        design.attributes.even_order_refl_zero = False
+        assert design.attributes.even_order_refl_zero is False
 
-    def test_even_order_trn_zero(self, lumped_design):
-        lumped_design.attributes.filter_type = FilterType.ELLIPTIC
-        lumped_design.attributes.filter_order = 4
-        assert lumped_design.attributes.even_order_trn_zero
-        lumped_design.attributes.even_order_trn_zero = False
-        assert lumped_design.attributes.even_order_trn_zero is False
+    def test_even_order_trn_zero(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_type = FilterType.ELLIPTIC
+        design.attributes.filter_order = 4
+        assert design.attributes.even_order_trn_zero
+        design.attributes.even_order_trn_zero = False
+        assert design.attributes.even_order_trn_zero is False
 
-    def test_constrict_ripple(self, lumped_design):
-        lumped_design.attributes.filter_type = FilterType.ELLIPTIC
-        assert lumped_design.attributes.constrict_ripple is False
-        lumped_design.attributes.constrict_ripple = True
-        assert lumped_design.attributes.constrict_ripple
+    def test_constrict_ripple(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_type = FilterType.ELLIPTIC
+        assert design.attributes.constrict_ripple is False
+        design.attributes.constrict_ripple = True
+        assert design.attributes.constrict_ripple
 
-    def test_single_point_ripple(self, lumped_design):
-        lumped_design.attributes.filter_type = FilterType.ELLIPTIC
-        assert lumped_design.attributes.single_point_ripple is False
-        lumped_design.attributes.single_point_ripple = True
-        assert lumped_design.attributes.single_point_ripple
+    def test_single_point_ripple(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_type = FilterType.ELLIPTIC
+        assert design.attributes.single_point_ripple is False
+        design.attributes.single_point_ripple = True
+        assert design.attributes.single_point_ripple
 
-    def test_half_band_ripple(self, lumped_design):
-        lumped_design.attributes.filter_type = FilterType.ELLIPTIC
-        assert lumped_design.attributes.half_band_ripple is False
-        lumped_design.attributes.half_band_ripple = True
-        assert lumped_design.attributes.half_band_ripple
+    def test_half_band_ripple(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_type = FilterType.ELLIPTIC
+        assert design.attributes.half_band_ripple is False
+        design.attributes.half_band_ripple = True
+        assert design.attributes.half_band_ripple
 
-    def test_constrict_ripple_percent(self, lumped_design):
-        lumped_design.attributes.filter_type = FilterType.ELLIPTIC
-        lumped_design.attributes.constrict_ripple = True
-        assert lumped_design.attributes.constrict_ripple_percent == "50%"
-        lumped_design.attributes.constrict_ripple_percent = "40%"
-        assert lumped_design.attributes.constrict_ripple_percent == "40%"
+    def test_constrict_ripple_percent(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_type = FilterType.ELLIPTIC
+        design.attributes.constrict_ripple = True
+        assert design.attributes.constrict_ripple_percent == "50%"
+        design.attributes.constrict_ripple_percent = "40%"
+        assert design.attributes.constrict_ripple_percent == "40%"
 
-    def test_ripple_constriction_band(self, lumped_design):
-        lumped_design.attributes.filter_type = FilterType.ELLIPTIC
-        lumped_design.attributes.constrict_ripple = True
+    def test_ripple_constriction_band(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_type = FilterType.ELLIPTIC
+        design.attributes.constrict_ripple = True
         assert len(RippleConstrictionBandSelect) == 3
         for ripple_constriction_band in RippleConstrictionBandSelect:
-            lumped_design.attributes.ripple_constriction_band = ripple_constriction_band
-            assert lumped_design.attributes.ripple_constriction_band == ripple_constriction_band
+            design.attributes.ripple_constriction_band = ripple_constriction_band
+            assert design.attributes.ripple_constriction_band == ripple_constriction_band
 
-    def test_single_point_ripple_inf_zeros(self, lumped_design):
-        lumped_design.attributes.filter_type = FilterType.ELLIPTIC
-        lumped_design.attributes.single_point_ripple = True
+    def test_single_point_ripple_inf_zeros(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.filter_type = FilterType.ELLIPTIC
+        design.attributes.single_point_ripple = True
         assert len(SinglePointRippleInfZeros) == 2
         for single_point_ripple_inf_zeros in SinglePointRippleInfZeros:
-            lumped_design.attributes.single_point_ripple_inf_zeros = single_point_ripple_inf_zeros
-            assert lumped_design.attributes.single_point_ripple_inf_zeros == single_point_ripple_inf_zeros
+            design.attributes.single_point_ripple_inf_zeros = single_point_ripple_inf_zeros
+            assert design.attributes.single_point_ripple_inf_zeros == single_point_ripple_inf_zeros
 
-    def test_delay_equalizer(self, lumped_design):
-        assert lumped_design.attributes.delay_equalizer is False
-        lumped_design.attributes.delay_equalizer = True
-        assert lumped_design.attributes.delay_equalizer
+    def test_delay_equalizer(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        assert design.attributes.delay_equalizer is False
+        design.attributes.delay_equalizer = True
+        assert design.attributes.delay_equalizer
 
-    def test_delay_equalizer_order(self, lumped_design):
-        lumped_design.attributes.delay_equalizer = True
-        assert lumped_design.attributes.delay_equalizer_order == 2
+    def test_delay_equalizer_order(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.delay_equalizer = True
+        assert design.attributes.delay_equalizer_order == 2
 
         for i in range(0, 21):
-            lumped_design.attributes.delay_equalizer_order = i
-            assert lumped_design.attributes.delay_equalizer_order == i
+            design.attributes.delay_equalizer_order = i
+            assert design.attributes.delay_equalizer_order == i
 
         with pytest.raises(RuntimeError) as info:
-            lumped_design.attributes.delay_equalizer_order = 21
+            design.attributes.delay_equalizer_order = 21
         assert info.value.args[0] == "The maximum order is 20"
 
-    def test_standard_delay_equ_pass_band_attenuation(self, lumped_design):
-        lumped_design.attributes.delay_equalizer = True
-        assert lumped_design.attributes.standard_delay_equ_pass_band_attenuation
-        lumped_design.attributes.standard_delay_equ_pass_band_attenuation = False
-        assert lumped_design.attributes.standard_delay_equ_pass_band_attenuation is False
+    def test_standard_delay_equ_pass_band_attenuation(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.delay_equalizer = True
+        assert design.attributes.standard_delay_equ_pass_band_attenuation
+        design.attributes.standard_delay_equ_pass_band_attenuation = False
+        assert design.attributes.standard_delay_equ_pass_band_attenuation is False
 
-    def test_standard_delay_equ_pass_band_attenuation_value_db(self, lumped_design):
-        lumped_design.attributes.delay_equalizer = True
-        lumped_design.attributes.standard_delay_equ_pass_band_attenuation = False
-        assert lumped_design.attributes.standard_delay_equ_pass_band_attenuation_value_db == "3.01"
-        lumped_design.attributes.standard_delay_equ_pass_band_attenuation_value_db = "4"
-        assert lumped_design.attributes.standard_delay_equ_pass_band_attenuation_value_db == "4"
+    def test_standard_delay_equ_pass_band_attenuation_value_db(self):
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design.attributes.delay_equalizer = True
+        design.attributes.standard_delay_equ_pass_band_attenuation = False
+        assert design.attributes.standard_delay_equ_pass_band_attenuation_value_db == "3.01"
+        design.attributes.standard_delay_equ_pass_band_attenuation_value_db = "4"
+        assert design.attributes.standard_delay_equ_pass_band_attenuation_value_db == "4"

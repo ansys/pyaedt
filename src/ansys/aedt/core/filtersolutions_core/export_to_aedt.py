@@ -176,7 +176,7 @@ class SubstrateResistivity(Enum):
 class ExportToAedt:
     """Defines attributes and parameters for exporting filter .
 
-    This class lets you construct all the necessary attributes for the ``ExportToAedt`` class.
+    This class allows you to define and modify the parameters for exporting a designed filter to ``AEDT``.
     """
 
     def __init__(self):
@@ -871,6 +871,7 @@ class ExportToAedt:
             export_path = ""
         else:
             directory_path = os.path.dirname(export_path)
+            # Check if the directory path exists, if not, create it to ensure the export path is valid
             if not os.path.exists(directory_path):
                 os.makedirs(directory_path)
         export_path_bytes = bytes(export_path, "ascii")
@@ -1259,12 +1260,12 @@ class ExportToAedt:
         status = self._dll.setInterconnectGeometryOptimization(interconnect_geometry_optimization_enabled)
         self._dll_interface.raise_error(status)
 
-    def update_interconncet_parameters(self):
+    def update_interconncet_parameters(self):  # pragma: no cover
         """Update interconnect geometry equations with entered and selected parameters"""
         status = self._dll.updateInterConnectParmeters()
         self._dll_interface.raise_error(status)
 
-    def update_inductor_capacitor_tolerances(self):
+    def update_inductor_capacitor_tolerances(self):  # pragma: no cover
         """Update interconnect inductor and capacitor tolerances with entered values"""
         status = self._dll.updatePartsTolerances()
         self._dll_interface.raise_error(status)
@@ -1319,7 +1320,6 @@ class ExportToAedt:
             substrate_er_index = -1
         else:
             raise ValueError("Invalid substrate input. Must be a SubstrateEr enum member or a string.")
-
         substrate_er_value_bytes = bytes(substrate_er_value, "ascii")
         status = self._dll.setEr(substrate_er_value_bytes, substrate_er_index)
         self._dll_interface.raise_error(status)

@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from ansys.aedt.core import settings
 import ansys.aedt.core.filtersolutions_core
 from ansys.aedt.core.filtersolutions_core.attributes import Attributes
 from ansys.aedt.core.filtersolutions_core.distributed_geometry import DistributedGeometry
@@ -48,12 +49,8 @@ class FilterDesignBase:
     This class has access to ideal filter attributes and calculated output parameters.
     """
 
-    # See Also
-    # --------
-    # :doc:`filtersolutions`
-
     def __init__(self, version=None):
-        self.version = version
+        self.version = version if version else settings.aedt_version
         ansys.aedt.core.filtersolutions_core._dll_interface(version)
         self.attributes = Attributes()
         self.ideal_response = IdealResponse()

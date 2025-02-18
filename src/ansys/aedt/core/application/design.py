@@ -68,7 +68,7 @@ from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import unit_system
 from ansys.aedt.core.generic.data_handlers import variation_string_to_dict
-from ansys.aedt.core.generic.general_methods import GrpcApiError
+from ansys.aedt.core.generic.errors import GrpcApiError
 from ansys.aedt.core.generic.general_methods import check_and_download_file
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import inner_project_settings
@@ -1124,11 +1124,19 @@ class Design(AedtObjects):
                         valids.append(name)
                     elif self._temp_solution_type in des.GetSolutionType():
                         valids.append(name)
-            if len(valids) != 1:
-                warning_msg = "No consistent unique design is present. Inserting a new design."
-            else:
+            if len(valids) > 1:
+                des_name = self.oproject.GetActiveDesign().GetName()
+                if des_name in valids:
+                    activedes = self.oproject.GetActiveDesign().GetName()
+                else:
+                    activedes = valids[0]
+                warning_msg = f"Active Design set to {valids[0]}"
+            elif len(valids) == 1:
                 activedes = valids[0]
                 warning_msg = f"Active Design set to {valids[0]}"
+            else:
+                warning_msg = "No consistent unique design is present. Inserting a new design."
+
         # legacy support for version < 2021.2
         elif self.design_list:  # pragma: no cover
             self._odesign = self._oproject.GetDesign(self.design_list[0])
@@ -4091,6 +4099,7 @@ class Design(AedtObjects):
                     raise ValueError(f"Specified design is not of type {self._design_type}.")
             elif self._design_type not in {"RMxprtSolution", "ModelCreation"}:
                 raise ValueError(f"Specified design is not of type {self._design_type}.")
+
             return True
         elif ":" in des_name:
             try:
