@@ -772,12 +772,11 @@ class TestClass:
         assert new_report2.create()
 
     def test_98_get_variations(self, field_test):
-        vars = field_test.available_variations.get_variation_strings()
-        assert vars
-        variations = field_test.available_variations.variations()
+        setup = field_test.existing_analysis_sweeps[0]
+        variations = field_test.available_variations.variations(setup)
         assert isinstance(variations, list)
         assert isinstance(variations[0], list)
-        vars_dict = field_test.available_variations.variations(output_as_dict=True)
+        vars_dict = field_test.available_variations.variations(setup_sweep=setup, output_as_dict=True)
         assert isinstance(vars_dict, list)
         assert isinstance(vars_dict[0], dict)
 
