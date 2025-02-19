@@ -2249,24 +2249,24 @@ class AvailableVariations(object):
 
     @property
     def all(self):
-        """All variables with `"All"` value.
+        """Create a dictionary with variables names associated to ``"All"``.
 
         Returns
         -------
         dict
-            Dictionary of all variables with `"All"` value.
+            Dictionary of all variables with ``"All"`` value.
 
         """
         return {name: "All" for name in self.__variable_names()}
 
     @property
     def nominal(self):
-        """All variables with `"Nominal"` value.
+        """Create a dictionary with variables names associated to ``"Nominal"``.
 
         Returns
         -------
         dict
-            Dictionary of all variables with `"Nominal"` value.
+            Dictionary of all variables with ``"Nominal"`` value.
         """
         return {name: "Nominal" for name in self.__variable_names()}
 
