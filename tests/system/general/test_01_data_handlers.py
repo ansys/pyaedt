@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 from ansys.aedt.core.generic import data_handlers as dh
+from ansys.aedt.core.generic.numbers import Number
 import pytest
 
 
@@ -47,3 +48,25 @@ class TestClass:
         dirty = "-Hello Wòrld - Test---Strïng  -  With -  Múltiple    Spaces ç & Unsupport€d Ch@rachter$ £ike * "  # codespell:ignore  # noqa: E501
         clean = "Hello_World_Test_String_With_Multiple_Spaces_c_and_UnsupportEd_ChatrachterS_Like"  # codespell:ignore  # noqa: E501
         assert dh.normalize_string_format(dirty) == clean
+
+    def test_numbers(self):
+        a = Number("1GHz")
+        assert a == 1
+        assert str(a) == "1.0GHz"
+        a.rescale = True
+        assert a.rescale == True
+        a.unit = "Hz"
+        assert a.unit == "Hz"
+        assert a.value == 1e9
+        a.rescale = False
+        a.unit = "MHz"
+        assert a.value == 1e9
+        a.unit = "GHz"
+        a.value = 1
+        assert float(a + 1) == 2
+        assert float(a + "2GHz") == 3
+        b = Number("1GHz")
+        assert isinstance(b - a, Number)
+        assert b * 2
+        assert b / 2
+        assert b + "1GHz"

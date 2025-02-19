@@ -28,9 +28,9 @@ import math
 
 from ansys.aedt.core import MaxwellCircuit
 from ansys.aedt.core.application.variables import Variable
-from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.application.variables import generate_validation_errors
-from ansys.aedt.core.generic.general_methods import isclose
+from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.generic.numbers import isclose
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 import pytest
 

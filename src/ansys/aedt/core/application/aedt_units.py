@@ -25,6 +25,8 @@ from ansys.aedt.core.generic.constants import AEDT_UNITS
 
 
 class AedtUnits:
+    """Class containing all default AEDT units. All properties are read-only except length units."""
+
     def __init__(self, aedt_object=None):
         self._aedt_object = aedt_object
         self._frequency = self._get_model_unit("Frequency")
@@ -55,10 +57,6 @@ class AedtUnits:
         """
         return self._rescale_model
 
-    @rescale_model.setter
-    def rescale_model(self, value):
-        self._rescale_model = value
-
     def _get_model_unit(self, unit_system):
         if self._aedt_object:
             return self._aedt_object._odesktop.GetDefaultUnit(unit_system)
@@ -82,10 +80,6 @@ class AedtUnits:
         """
         return self._frequency
 
-    @frequency.setter
-    def frequency(self, value):
-        self._set_model_unit("_frequency", value, "Frequency")
-
     @property
     def length(self):
         """Default length unit to be used in active design.
@@ -98,12 +92,17 @@ class AedtUnits:
             Unit value.
         """
         if self._length is None and self._aedt_object:
-            self._length = self._aedt_object.oeditor.GetModelUnits()
+            if "GetActiveUnits" in dir(self._aedt_object.oeditor):
+                self._length = self._aedt_object.oeditor.GetActiveUnits()
+            if "GetActiveUnits" in dir(self._aedt_object.layouteditor):
+                self._length = self._aedt_object.layouteditor.GetActiveUnits()
+            elif "GetModelUnits" in dir(self._aedt_object.oeditor):
+                self._length = self._aedt_object.oeditor.GetModelUnits()
         return self._length
 
     @length.setter
     def length(self, value):
-        if value in AEDT_UNITS["Lengths"]:
+        if value in AEDT_UNITS["Length"]:
             self._length = value
             if "SetModelUnits" in dir(self._aedt_object.oeditor):
                 self._aedt_object.oeditor.SetModelUnits(
@@ -111,6 +110,8 @@ class AedtUnits:
                 )
             elif "SetActiveUnits" in dir(self._aedt_object.oeditor):
                 self._aedt_object.oeditor.SetActiveUnits(value)
+            elif "SetActiveUnits" in dir(self._aedt_object.layouteditor):
+                self._aedt_object.layouteditor.SetActiveUnits(value)
         else:
             raise AttributeError(f"Unit {value} is incorrect.")
 
@@ -127,10 +128,6 @@ class AedtUnits:
         """
         return self._angle
 
-    @angle.setter
-    def angle(self, value):
-        self._set_model_unit("_angle", value, "Angle")
-
     @property
     def resistance(self):
         """Default resistance unit to be used in active design.
@@ -143,10 +140,6 @@ class AedtUnits:
             Unit value.
         """
         return self._resistance
-
-    @resistance.setter
-    def resistance(self, value):
-        self._set_model_unit("_resistance", value, "Resistance")
 
     @property
     def power(self):
@@ -161,10 +154,6 @@ class AedtUnits:
         """
         return self._power
 
-    @power.setter
-    def power(self, value):
-        self._set_model_unit("_power", value, "Power")
-
     @property
     def time(self):
         """Default time unit to be used in active design.
@@ -177,10 +166,6 @@ class AedtUnits:
             Unit value.
         """
         return self._time
-
-    @time.setter
-    def time(self, value):
-        self._set_model_unit("_time", value, "Time")
 
     @property
     def temperature(self):
@@ -195,10 +180,6 @@ class AedtUnits:
         """
         return self._temperature
 
-    @temperature.setter
-    def temperature(self, value):
-        self._set_model_unit("_temperature", value, "Temperature")
-
     @property
     def inductance(self):
         """Default inductance unit to be used in active design.
@@ -211,10 +192,6 @@ class AedtUnits:
             Unit value.
         """
         return self._inductance
-
-    @inductance.setter
-    def inductance(self, value):
-        self._set_model_unit("_inductance", value, "Inductance")
 
     @property
     def voltage(self):
@@ -229,10 +206,6 @@ class AedtUnits:
         """
         return self._voltage
 
-    @voltage.setter
-    def voltage(self, value):
-        self._set_model_unit("_voltage", value, "Voltage")
-
     @property
     def current(self):
         """Default current unit to be used in active design.
@@ -245,10 +218,6 @@ class AedtUnits:
             Unit value.
         """
         return self._current
-
-    @current.setter
-    def current(self, value):
-        self._set_model_unit("_current", value, "Current")
 
     @property
     def angular_speed(self):
@@ -263,10 +232,6 @@ class AedtUnits:
         """
         return self._angular_speed
 
-    @angular_speed.setter
-    def angular_speed(self, value):
-        self._set_model_unit("_angular_speed", value, "AngularSpeed")
-
     @property
     def capacitance(self):
         """Default capacitance unit to be used in active design.
@@ -279,10 +244,6 @@ class AedtUnits:
             Unit value.
         """
         return self._capacitance
-
-    @capacitance.setter
-    def capacitance(self, value):
-        self._set_model_unit("_capacitance", value, "Capacitance")
 
     @property
     def conductance(self):
@@ -297,10 +258,6 @@ class AedtUnits:
         """
         return self._conductance
 
-    @conductance.setter
-    def conductance(self, value):
-        self._set_model_unit("_conductance", value, "Conductance")
-
     @property
     def mass(self):
         """Default mass unit to be used in active design.
@@ -314,10 +271,6 @@ class AedtUnits:
         """
         return self._mass
 
-    @mass.setter
-    def mass(self, value):
-        self._set_model_unit("_mass", value, "Mass")
-
     @property
     def speed(self):
         """Default speed unit to be used in active design.
@@ -330,7 +283,3 @@ class AedtUnits:
             Unit value.
         """
         return self._speed
-
-    @speed.setter
-    def speed(self, value):
-        self._set_model_unit("_speed", value, "Speed")

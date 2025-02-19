@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from __future__ import absolute_import
 
 from enum import IntEnum
 from enum import auto
@@ -136,7 +137,7 @@ def unit_system(units):
     """
 
     for unit_type, unit_dict in AEDT_UNITS.items():
-        if units in unit_dict:
+        if units.lower() in [i.lower() for i in unit_dict.keys()]:
             return unit_type
 
     return False

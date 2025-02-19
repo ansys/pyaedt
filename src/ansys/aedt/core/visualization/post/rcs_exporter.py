@@ -111,7 +111,7 @@ class MonostaticRCSExporter:
         self.__model_info = {}
         self.__rcs_data = None
         self.__metadata_file = ""
-        self.__frequency_unit = self.__app.units.frequencies
+        self.__frequency_unit = self.__app.units.frequency
 
         self.__column_name = copy.deepcopy(self.expression)
 

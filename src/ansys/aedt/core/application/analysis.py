@@ -41,7 +41,6 @@ import time
 from ansys.aedt.core.application.design import Design
 from ansys.aedt.core.application.job_manager import update_hpc_option
 from ansys.aedt.core.application.variables import Variable
-from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import AXIS
 from ansys.aedt.core.generic.constants import GRAVITY
 from ansys.aedt.core.generic.constants import PLANE
@@ -54,6 +53,8 @@ from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers import Number
+from ansys.aedt.core.generic.numbers import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
@@ -558,23 +559,23 @@ class Analysis(Design, object):
                     intrinsics = set_obj.default_intrinsics
                     break
 
-        elif isinstance(input_data, str):
+        elif isinstance(input_data, (str, Number)):
             if "Freq" in self.design_solutions.intrinsics:
-                intrinsics["Freq"] = input_data
+                intrinsics["Freq"] = str(input_data)
                 if "Phase" in self.design_solutions.intrinsics:
-                    intrinsics["Phase"] = input_phase if input_phase else "0deg"
+                    intrinsics["Phase"] = str(input_phase) if input_phase else "0deg"
             elif "Time" in self.design_solutions.intrinsics:
-                intrinsics["Time"] = input_data
+                intrinsics["Time"] = str(input_data)
         elif isinstance(input_data, dict):
             for k, v in input_data.items():
                 if k in ["Freq", "freq", "frequency", "Frequency"]:
-                    intrinsics["Freq"] = v
+                    intrinsics["Freq"] = str(v)
                 elif k in ["Phase", "phase"]:
-                    intrinsics["Phase"] = v
+                    intrinsics["Phase"] = str(v)
                 elif k in ["Time", "time"]:
-                    intrinsics["Time"] = v
+                    intrinsics["Time"] = str(v)
                 if input_phase:
-                    intrinsics["Phase"] = input_phase
+                    intrinsics["Phase"] = str(input_phase)
                 if "Phase" in self.design_solutions.intrinsics and "Phase" not in intrinsics:
                     intrinsics["Phase"] = "0deg"
         else:
@@ -2510,86 +2511,3 @@ class Analysis(Design, object):
 
         """
         return self.modeler._arg_with_dim(value, units)
-
-    @pyaedt_function_handler()
-    def _units_assignment(self, variable, value):
-        if isinstance(value, list):
-            new_value = []
-            for val in value:
-                if isinstance(val, (int, float)):
-                    if variable in [
-                        "Time",
-                        "StopTime",
-                        "TimeStep",
-                        "Steps From",
-                        "Steps To",
-                        "Start Time",
-                        "Stop Time",
-                        "Time Step",
-                        "Stop",
-                        "InitialStep",
-                        "MaxStep",
-                    ]:
-                        new_value.append(f"{val}{self.units.time}")
-                    elif variable in [
-                        "Frequency",
-                        "Freq",
-                        "AdaptiveFrequency",
-                        "HfssFrequency",
-                        "MinFreq",
-                        "MaxFreq",
-                        "SweepMinFreq",
-                        "SweepMaxFreq",
-                        "MinimumFrequency",
-                        "AdaptiveFreq",
-                        "MeshFrequency",
-                        "MinSolvedFreq",
-                        "MinFreqSMatrixOnlySolve",
-                        "MinFreqSMatOnlySolve",
-                    ]:
-                        new_value.append(f"{val}{self.units.frequency}")
-                    elif variable in ["Theta", "Phi", "Angle"]:
-                        new_value.append(f"{val}{self.units.angle}")
-                    else:
-                        new_value.append(val)
-                else:
-                    new_value.append(val)
-            return new_value
-        elif isinstance(value, (int, float)):
-            if variable in [
-                "Time",
-                "StopTime",
-                "TimeStep",
-                "Steps From",
-                "Steps To",
-                "Start Time",
-                "Stop Time",
-                "Time Step",
-                "Stop",
-                "InitialStep",
-                "MaxStep",
-            ]:
-                return f"{value}{self.units.time}"
-            elif variable in [
-                "Frequency",
-                "Freq",
-                "AdaptiveFrequency",
-                "HfssFrequency",
-                "MinFreq",
-                "MaxFreq",
-                "SweepMinFreq",
-                "SweepMaxFreq",
-                "MinimumFrequency",
-                "AdaptiveFreq",
-                "MeshFrequency",
-                "MinSolvedFreq",
-                "MinFreqSMatrixOnlySolve",
-                "MinFreqSMatOnlySolve",
-            ]:
-                return f"{value}{self.units.frequency}"
-            elif variable in ["Theta", "Phi", "Angle"]:
-                return f"{value}{self.units.angle}"
-            else:
-                return value
-        else:
-            return value

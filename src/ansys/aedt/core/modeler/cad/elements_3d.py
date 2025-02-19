@@ -29,6 +29,7 @@ from ansys.aedt.core.generic.general_methods import clamp
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import rgb_color_codes
 from ansys.aedt.core.generic.general_methods import settings
+from ansys.aedt.core.generic.numbers import _units_assignment
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
@@ -1347,8 +1348,9 @@ class HistoryProps(dict):
     """Manages an object's history properties."""
 
     def __setitem__(self, key, value):
+        value = _units_assignment(value)
         if self._pyaedt_child._app:
-            value = self._pyaedt_child._app._units_assignment(key, value)
+            value = _units_assignment(value)
         dict.__setitem__(self, key, value)
         if "auto_update" in dir(self._pyaedt_child) and self._pyaedt_child.auto_update:
             self._pyaedt_child.update_property(key, value)

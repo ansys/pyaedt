@@ -32,6 +32,7 @@ from ansys.aedt.core.generic.constants import TraceType
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import write_configuration_file
+from ansys.aedt.core.generic.numbers import _units_assignment
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modeler.cad.elements_3d import HistoryProps
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
@@ -44,7 +45,6 @@ class LimitLine(BinaryTreeNode):
         self._oo = oo
         self._app = post._app
         self._oreport_setup = post.oreportsetup
-        self._oreport_setup = report_setup
         self.line_name = trace_name
         self.LINESTYLE = LineStyle()
         self._initialize_tree_node()
@@ -1087,7 +1087,11 @@ class CommonReport(BinaryTreeNode):
 
     @variations.setter
     def variations(self, value):
-
+        if isinstance(value, list):
+            value_dict = {}
+            for i in range(0, len(value), 2):
+                value_dict[value[i][:-2]] = value[i + 1]
+            value = value_dict
         self._legacy_props["context"]["variations"] = HistoryProps(self, value)
 
     @property
@@ -1281,22 +1285,20 @@ class CommonReport(BinaryTreeNode):
         if self.primary_sweep:
             sweep_list.append(self.primary_sweep + ":=")
             if self.primary_sweep_range == ["All"] and self.primary_sweep in self.variations:
-                sweep_list.append(self._app._units_assignment(self.primary_sweep, self.variations[self.primary_sweep]))
+                sweep_list.append(_units_assignment(self.variations[self.primary_sweep]))
             else:
                 sweep_list.append(self.primary_sweep_range)
         if self.secondary_sweep:
             sweep_list.append(self.secondary_sweep + ":=")
             if self.secondary_sweep_range == ["All"] and self.secondary_sweep in self.variations:
-                sweep_list.append(
-                    self._app._units_assignment(self.secondary_sweep, self.variations[self.secondary_sweep])
-                )
+                sweep_list.append(_units_assignment(self.variations[self.secondary_sweep]))
             else:
                 sweep_list.append(self.secondary_sweep_range)
         for el, k in sweeps.items():
             if el in [self.primary_sweep, self.secondary_sweep]:
                 continue
             sweep_list.append(f"{el}:=")
-            sweep_list.append(self._app._units_assignment(el, k))
+            sweep_list.append(_units_assignment(k))
         for el in list(self._app.available_variations.nominal_w_values_dict.keys()):
             if el not in sweeps:
                 sweep_list.append(f"{el}:=")
