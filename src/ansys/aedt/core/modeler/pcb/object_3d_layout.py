@@ -33,7 +33,6 @@ from typing import Optional
 from typing import Tuple
 
 from ansys.aedt.core.generic.constants import unit_converter
-from ansys.aedt.core.generic.general_methods import _dim_arg
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
@@ -1664,11 +1663,17 @@ class Line3dLayout(Geometries3DLayout, object):
         u = self._primitives.model_units
         for point_name, value in points.items():
             if len(value) == 2:
-                vpoint = [f"NAME:{point_name}", "X:=", _dim_arg(value[0], u), "Y:=", _dim_arg(value[1], u)]
+                vpoint = [
+                    f"NAME:{point_name}",
+                    "X:=",
+                    self._primitives._app.value_with_units(value[0], u),
+                    "Y:=",
+                    self._primitives._app.value_with_units(value[1], u),
+                ]
             elif isinstance(value, list):
-                vpoint = [f"NAME:{point_name}", "Value:=", _dim_arg(value[0], u)]
+                vpoint = [f"NAME:{point_name}", "Value:=", self._primitives._app.value_with_units(value[0], u)]
             else:
-                vpoint = [f"NAME:{point_name}", "Value:=", _dim_arg(value, u)]
+                vpoint = [f"NAME:{point_name}", "Value:=", self._primitives._app.value_with_units(value, u)]
             self.change_property(vpoint)
         self._center_line = {}
 
@@ -2301,11 +2306,11 @@ class Padstack(object):
             sizes = [1]
         hole = self.PDSHole()
         hole.shape = hole_type
-        sizes = [_dim_arg(i, self.units) for i in sizes if type(i) is int or float]
+        sizes = [self._primitives._app.value_with_units(i, self.units) for i in sizes if type(i) is int or float]
         hole.sizes = sizes
-        hole.x = _dim_arg(x, self.units)
-        hole.y = _dim_arg(y, self.units)
-        hole.rot = _dim_arg(rotation, "deg")
+        hole.x = self._primitives._app.value_with_units(x, self.units)
+        hole.y = self._primitives._app.value_with_units(y, self.units)
+        hole.rot = self._primitives._app.value_with_units(rotation, "deg")
         return hole
 
     @pyaedt_function_handler()

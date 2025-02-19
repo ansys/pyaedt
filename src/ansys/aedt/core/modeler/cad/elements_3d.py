@@ -24,7 +24,6 @@
 
 from __future__ import absolute_import
 
-from ansys.aedt.core.generic.general_methods import _dim_arg
 from ansys.aedt.core.generic.general_methods import clamp
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import rgb_color_codes
@@ -827,7 +826,7 @@ class FacePrimitive(object):
                     "MoveAlongNormalFlag:=",
                     True,
                     "OffsetDistance:=",
-                    _dim_arg(offset, self._object3d.object_units),
+                    self._object3d._primitives._app.value_with_units(offset, self._object3d.object_units),
                     "MoveVectorX:=",
                     "0mm",
                     "MoveVectorY:=",
@@ -871,11 +870,11 @@ class FacePrimitive(object):
                     "OffsetDistance:=",
                     "0mm",
                     "MoveVectorX:=",
-                    _dim_arg(vector[0], self._object3d.object_units),
+                    self._object3d._primitives._app.value_with_units(vector[0], self._object3d.object_units),
                     "MoveVectorY:=",
-                    _dim_arg(vector[1], self._object3d.object_units),
+                    self._object3d._primitives._app.value_with_units(vector[1], self._object3d.object_units),
                     "MoveVectorZ:=",
-                    _dim_arg(vector[2], self._object3d.object_units),
+                    self._object3d._primitives._app.value_with_units(vector[2], self._object3d.object_units),
                     "FacesToMove:=",
                     [self.id],
                 ],

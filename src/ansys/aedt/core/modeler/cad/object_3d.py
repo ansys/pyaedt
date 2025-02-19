@@ -44,7 +44,6 @@ from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import PLANE
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.errors import AEDTRuntimeError
-from ansys.aedt.core.generic.general_methods import _dim_arg
 from ansys.aedt.core.generic.general_methods import _to_boolean
 from ansys.aedt.core.generic.general_methods import _uname
 from ansys.aedt.core.generic.general_methods import clamp
@@ -2292,11 +2291,11 @@ class Object3d(object):
     def _pl_point(self, pt):
         pt_data = ["NAME:PLPoint"]
         pt_data.append("X:=")
-        pt_data.append(_dim_arg(pt[0], self._primitives.model_units))
+        pt_data.append(self._primitives._app.value_with_units(pt[0], self._primitives.model_units))
         pt_data.append("Y:=")
-        pt_data.append(_dim_arg(pt[1], self._primitives.model_units))
+        pt_data.append(self._primitives._app.value_with_units(pt[1], self._primitives.model_units))
         pt_data.append("Z:=")
-        pt_data.append(_dim_arg(pt[2], self._primitives.model_units))
+        pt_data.append(self._primitives._app.value_with_units(pt[2], self._primitives.model_units))
         return pt_data
 
     @pyaedt_function_handler()
@@ -2488,11 +2487,11 @@ class Object3d(object):
                 "ArcAngle:=",
                 segment_data.arc_angle,
                 "ArcCenterX:=",
-                f"{_dim_arg(segment_data.arc_center[0], mod_units)}",
+                f"{self._primitives._app.value_with_units(segment_data.arc_center[0], mod_units)}",
                 "ArcCenterY:=",
-                f"{_dim_arg(segment_data.arc_center[1], mod_units)}",
+                f"{self._primitives._app.value_with_units(segment_data.arc_center[1], mod_units)}",
                 "ArcCenterZ:=",
-                f"{_dim_arg(segment_data.arc_center[2], mod_units)}",
+                f"{self._primitives._app.value_with_units(segment_data.arc_center[2], mod_units)}",
                 "ArcPlane:=",
                 segment_data.arc_plane,
             ]
@@ -2724,14 +2723,14 @@ class Object3d(object):
         arg3.append(["NAME:Type", "Value:=", section_type])
         arg3.append(["NAME:Orientation", "Value:=", section_orient])
         arg3.append(["NAME:Bend Type", "Value:=", section_bend])
-        arg3.append(["NAME:Width/Diameter", "Value:=", _dim_arg(width, model_units)])
+        arg3.append(["NAME:Width/Diameter", "Value:=", self._primitives._app.value_with_units(width, model_units)])
         if section_type == "Rectangle":
-            arg3.append(["NAME:Height", "Value:=", _dim_arg(height, model_units)])
+            arg3.append(["NAME:Height", "Value:=", self._primitives._app.value_with_units(height, model_units)])
         elif section_type == "Circle":
             arg3.append(["NAME:Number of Segments", "Value:=", num_seg])
         elif section_type == "Isosceles Trapezoid":
-            arg3.append(["NAME:Top Width", "Value:=", _dim_arg(topwidth, model_units)])
-            arg3.append(["NAME:Height", "Value:=", _dim_arg(height, model_units)])
+            arg3.append(["NAME:Top Width", "Value:=", self._primitives._app.value_with_units(topwidth, model_units)])
+            arg3.append(["NAME:Height", "Value:=", self._primitives._app.value_with_units(height, model_units)])
         arg2.append(arg3)
         arg1.append(arg2)
         self._primitives.oeditor.ChangeProperty(arg1)

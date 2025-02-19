@@ -2134,7 +2134,7 @@ def _to_boolean(val):
 
 
 @pyaedt_function_handler()
-def _dim_arg(value, units):
+def _arg_with_dim(value, units):
     """Concatenate a specified units string to a numerical input.
 
     Parameters
@@ -2147,19 +2147,8 @@ def _dim_arg(value, units):
     Returns
     -------
     str
-
+        Concatenated string with value and units.
     """
-    try:
-        val = float(value)
-        if isinstance(value, int):
-            val = value
-        return str(val) + units
-    except Exception:
-        return value
-
-
-@pyaedt_function_handler()
-def _arg_with_dim(value, units):
     if isinstance(value, str):
         try:
             float(value)
