@@ -2420,7 +2420,7 @@ class AvailableVariations(object):
         >>> setup.analyze()
         >>> variations = hfss.available_variations.variations(hfss.existing_analysis_sweeps[0])
         """
-        variations_string = self.__get_variation_strings(setup_sweep)
+        variations_string = self._get_variation_strings(setup_sweep)
         variables = [k for k, v in self._app.variable_manager.variables.items() if not v.post_processing]
         families = []
         if variations_string:
@@ -2468,7 +2468,7 @@ class AvailableVariations(object):
         return variations
 
     @pyaedt_function_handler()
-    def __get_variation_strings(self, setup_sweep):
+    def _get_variation_strings(self, setup_sweep):
         """Return variation strings.
 
         Parameters
