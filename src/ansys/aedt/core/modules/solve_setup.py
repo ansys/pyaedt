@@ -950,20 +950,18 @@ class Setup(CommonSetup):
             # parameters
             meshlinks["Params"] = {}
 
-            independent_flag = self.p_app.available_variations.independent
-            self.p_app.available_variations.independent = True
+            nominal_values = self.p_app.available_variations.get_independent_nominal_values()
 
             if parameters is None:
-                parameters = self.p_app.available_variations.nominal_values
+                parameters = nominal_values
                 for el in parameters:
                     meshlinks["Params"][el] = el
             else:
                 for el in parameters:
-                    if el in list(self._app.available_variations.nominal_values.keys()):
+                    if el in list(nominal_values.keys()):
                         meshlinks["Params"][el] = el
                     else:
                         meshlinks["Params"][el] = parameters[el]
-            self.p_app.available_variations.independent = independent_flag
 
             meshlinks["ForceSourceToSolve"] = force_source_to_solve
             meshlinks["PreservePartnerSoln"] = preserve_partner_solution
@@ -980,23 +978,21 @@ class Setup(CommonSetup):
     def _parse_link_parameters(self, map_variables_by_name, parameters):
         # parameters
         params = {}
-        independent_flag = self.p_app.available_variations.independent
-        self.p_app.available_variations.independent = True
+        nominal_values = self.p_app.available_variations.get_independent_nominal_values()
         if map_variables_by_name:
-            parameters = self.p_app.available_variations.nominal_values
+            parameters = nominal_values
             for k, v in parameters.items():
                 params[k] = k
         elif parameters is None:
-            parameters = self.p_app.available_variations.nominal_values
+            parameters = nominal_values
             for k, v in parameters.items():
                 params[k] = v
         else:
             for k, v in parameters.items():
-                if k in list(self._app.available_variations.nominal_values.keys()):
+                if k in list(nominal_values.keys()):
                     params[k] = v
                 else:
                     params[k] = parameters[v]
-        self.p_app.available_variations.independent = independent_flag
         return params
 
     def _parse_link_solution(self, project, design, solution):

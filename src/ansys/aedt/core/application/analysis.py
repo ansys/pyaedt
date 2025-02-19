@@ -159,7 +159,7 @@ class Analysis(Design, object):
         if setup_name:
             self.active_setup = setup_name
         self._materials = None
-        self._available_variations = AvailableVariations(self)
+        self._available_variations = None
         self._setups = []
         self._parametrics = []
         self._optimizations = []
@@ -176,6 +176,7 @@ class Analysis(Design, object):
             self._setups = self.setups
             self._parametrics = self.parametrics
             self._optimizations = self.optimizations
+            self._available_variations = self.available_variations
 
     @property
     def native_components(self):
@@ -297,10 +298,12 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.application.analysis.Analysis.AvailableVariations`
+        :class:`ansys.aedt.core.application.analysis.AvailableVariations`
             Available variation object.
 
         """
+        if self._available_variations is None:
+            self._available_variations = AvailableVariations(self)
         return self._available_variations
 
     @property
@@ -818,8 +821,8 @@ class Analysis(Design, object):
 
         # setups
         setups = self.setups
-        independent_flag = self.available_variations.independent
-        self.available_variations.independent = True
+
+        nominal_variation = self.available_variations.get_independent_nominal_values()
 
         for s in setups:
             if self.design_type == "Circuit Design":
@@ -834,13 +837,12 @@ class Analysis(Design, object):
                     variations_list = variations
                     if not variations:
                         variations_list = []
-                        if not self.available_variations.nominal_values:
+                        if not nominal_variation:
                             variations_list.append("")
                         else:
-                            for x in range(0, len(self.available_variations.nominal_values)):
+                            for x in range(0, len(nominal_variation)):
                                 variation = (
-                                    f"{list(self.available_variations.nominal_values.keys())[x]}="
-                                    f"'{list(self.available_variations.nominal_values.values())[x]}'"
+                                    f"{list(nominal_variation.keys())[x]}=" f"'{list(nominal_variation.values())[x]}'"
                                 )
                                 variations_list.append(variation)
                     # sweeps
@@ -959,7 +961,6 @@ class Analysis(Design, object):
                                     self.logger.warning("Export SnP failed: no solutions found")
                 else:
                     self.logger.warning("Setup is not solved. To export results please analyze setup first.")
-        self.available_variations.independent = independent_flag
         return exported_files
 
     @pyaedt_function_handler(setup_name="setup", variation_string="variations", file_path="output_file")
@@ -991,13 +992,11 @@ class Analysis(Design, object):
         if not output_file:
             output_file = os.path.join(self.working_directory, generate_unique_name("Convergence") + ".prop")
         if not variations:
-            independent_flag = self.available_variations.independent
-            self.available_variations.independent = True
+            nominal_variation = self.available_variations.get_independent_nominal_values()
             val_str = []
-            for el, val in self.available_variations.nominal_values.items():
+            for el, val in nominal_variation.items():
                 val_str.append(f"{el}={val}")
             variations = ",".join(val_str)
-            self.available_variations.independent = independent_flag
         if self.design_type == "2D Extractor":
             for s in self.setups:
                 if s.name == setup:
@@ -2005,12 +2004,11 @@ class Analysis(Design, object):
             file name when successful, ``False`` when failed.
         """
         if variations is None:
-            independent_flag = self.available_variations.independent
-            self.available_variations.independent = True
-            variations = list(self.available_variations.nominal_values.keys())
+            variations = self.available_variations.get_independent_nominal_values()
+            variations_keys = list(variations.keys())
             if variations_value is None:
-                variations_value = [str(x) for x in list(self.available_variations.nominal_values.values())]
-            self.available_variations.independent = independent_flag
+                variations_value = [str(x) for x in list(variations.values())]
+            variations = variations_keys
 
         if setup_name is None:
             nominal_sweep_list = [x.strip() for x in self.nominal_sweep.split(":")]
@@ -2256,12 +2254,10 @@ class AvailableVariations(object):
         Returns
         -------
         dict
+            Dictionary of all variables with `"All"` value.
 
         """
-        families = {}
-        for name in self.__variable_names:
-            families[name] = "All"
-        return families
+        return {name: "All" for name in self.__variable_names}
 
     @property
     def nominal(self):
@@ -2270,12 +2266,9 @@ class AvailableVariations(object):
         Returns
         -------
         dict
-
+            Dictionary of all variables with `"Nominal"` value.
         """
-        families = {}
-        for name in self.__variable_names:
-            families[name] = "Nominal"
-        return families
+        return {name: "Nominal" for name in self.__variable_names}
 
     @property
     def nominal_values(self):
@@ -2287,12 +2280,7 @@ class AvailableVariations(object):
             Dictionary of nominal variations with values.
 
         """
-
-        families = {}
-        for k, v in list(self.__available_variables.items()):
-            families[k] = v.expression
-
-        return families
+        return {k: v.expression for k, v in list(self.__available_variables.items())}
 
     @property
     def __variable_names(self):
@@ -2478,6 +2466,21 @@ class AvailableVariations(object):
                 else:
                     families.append(family_list)
         return families
+
+    @pyaedt_function_handler()
+    def get_independent_nominal_values(self) -> Dict:
+        """Retrieve variations for a given setup.
+
+        Returns
+        -------
+        dict
+            Dictionary of independent nominal variations with values.
+        """
+        independent_flag = self.independent
+        self.independent = True
+        variations = self.nominal_values
+        self.independent = independent_flag
+        return variations
 
     @pyaedt_function_handler()
     def _get_variation_strings(self, setup_sweep):

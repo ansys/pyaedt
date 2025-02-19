@@ -498,10 +498,7 @@ class PostProcessor3D(PostProcessorCommon):
             self.ofieldsreporter.CalcOp(scalar_function)
 
         if not variations:
-            independent_flag = self._app.available_variations.independent
-            self._app.available_variations.independent = True
-            variations = self._app.available_variations.nominal_values
-            self._app.available_variations.independent = independent_flag
+            variations = self._app.available_variations.get_independent_nominal_values()
 
         variation = []
         for el, value in variations.items():
@@ -679,10 +676,7 @@ class PostProcessor3D(PostProcessorCommon):
             return False
 
         if not variations:
-            independent_flag = self._app.available_variations.independent
-            self._app.available_variations.independent = True
-            variations = self._app.available_variations.nominal_values
-            self._app.available_variations.independent = independent_flag
+            variations = self._app.available_variations.get_independent_nominal_values()
 
         variation = []
         for el, value in variations.items():
@@ -850,10 +844,7 @@ class PostProcessor3D(PostProcessorCommon):
             self.ofieldsreporter.CopyNamedExprToStack(quantity)
 
         if not variations:
-            independent_flag = self._app.available_variations.independent
-            self._app.available_variations.independent = True
-            variations = self._app.available_variations.nominal_values
-            self._app.available_variations.independent = independent_flag
+            variations = self._app.available_variations.get_independent_nominal_values()
 
         variation = []
         for el, value in variations.items():

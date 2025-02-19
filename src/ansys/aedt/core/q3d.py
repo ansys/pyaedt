@@ -566,20 +566,15 @@ class QExtractor(FieldAnalysis3D, object):
                     return False
 
         if variations is None:
-            independent_flag = self.available_variations.independent
-            self.available_variations.independent = True
-            if not self.available_variations.nominal_values:
+            nominal_values = self.available_variations.get_independent_nominal_values()
+            if not nominal_values:
                 variations = ""
             else:
                 variations_list = []
-                for x in range(0, len(self.available_variations.nominal_values)):
-                    variation = (
-                        f"{list(self.available_variations.nominal_values.keys())[x]}="
-                        f"'{list(self.available_variations.nominal_values.values())[x]}'"
-                    )
+                for x in range(0, len(nominal_values)):
+                    variation = f"{list(nominal_values.keys())[x]}=" f"'{list(nominal_values.values())[x]}'"
                     variations_list.append(variation)
                 variations = ",".join(variations_list)
-            self.available_variations.independent = independent_flag
 
         if setup is None:
             setup = self.active_setup
@@ -961,20 +956,16 @@ class QExtractor(FieldAnalysis3D, object):
         analysis_setup = setup + " : " + sweep.replace(" ", "")
 
         if variations is None:
-            independent_flag = self.available_variations.independent
-            self.available_variations.independent = True
-            if not self.available_variations.nominal_values:
+            nominal_values = self.available_variations.get_independent_nominal_values()
+
+            if not nominal_values:
                 variations = ""
             else:
                 variations_list = []
-                for x in range(0, len(self.available_variations.nominal_values)):
-                    variation = (
-                        f"{list(self.available_variations.nominal_values.keys())[x]}="
-                        f"'{list(self.available_variations.nominal_values.values())[x]}'"
-                    )
+                for x in range(0, len(nominal_values)):
+                    variation = f"{list(nominal_values.keys())[x]}=" f"'{list(nominal_values.values())[x]}'"
                     variations_list.append(variation)
                 variations = ",".join(variations_list)
-            self.available_variations.independent = independent_flag
         else:
             variations_list = []
             if not isinstance(variations, list):

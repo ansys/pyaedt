@@ -497,10 +497,8 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         if not component_name:
             component_name = generate_unique_name("SimpQ3DData")
 
-        independent_flag = app.available_variations.independent
-        app.available_variations.independent = True
-        var = app.available_variations.nominal_values
-        app.available_variations.independent = independent_flag
+        var = app.available_variations.get_independent_nominal_values()
+
         props = ["NAME:Properties"]
         for k, v in var.items():
             props.append("paramProp:=")

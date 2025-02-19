@@ -994,10 +994,7 @@ class PostProcessorCommon(object):
         else:
             families_input[primary_sweep_variable] = [variations[primary_sweep_variable]]
         if not variations:
-            independent_flag = self._app.available_variations.independent
-            self._app.available_variations.independent = True
-            variations = self._app.available_variations.nominal_values
-            self._app.available_variations.independent = independent_flag
+            variations = self._app.available_variations.get_independent_nominal_values()
         for el in list(variations.keys()):
             if el == primary_sweep_variable:
                 continue
@@ -1270,19 +1267,13 @@ class PostProcessorCommon(object):
         report.expressions = expressions
         report.domain = domain
         if not variations and domain == "Sweep":
-            independent_flag = self._app.available_variations.independent
-            self._app.available_variations.independent = True
-            variations = self._app.available_variations.nominal_values
-            self._app.available_variations.independent = independent_flag
+            variations = self._app.available_variations.get_independent_nominal_values()
             if variations:
                 variations["Freq"] = "All"
             else:
                 variations = {"Freq": ["All"]}
         elif not variations and domain != "Sweep":
-            independent_flag = self._app.available_variations.independent
-            self._app.available_variations.independent = True
-            variations = self._app.available_variations.nominal_values
-            self._app.available_variations.independent = independent_flag
+            variations = self._app.available_variations.get_independent_nominal_values()
         report.variations = variations
         if primary_sweep_variable:
             report.primary_sweep = primary_sweep_variable
@@ -1528,19 +1519,13 @@ class PostProcessorCommon(object):
         if primary_sweep_variable:
             report.primary_sweep = primary_sweep_variable
         if not variations and domain == "Sweep":
-            independent_flag = self._app.available_variations.independent
-            self._app.available_variations.independent = True
-            variations = self._app.available_variations.nominal_values
-            self._app.available_variations.independent = independent_flag
+            variations = self._app.available_variations.get_independent_nominal_values()
             if variations:
                 variations["Freq"] = "All"
             else:
                 variations = {"Freq": ["All"]}
         elif not variations and domain != "Sweep":
-            independent_flag = self._app.available_variations.independent
-            self._app.available_variations.independent = True
-            variations = self._app.available_variations.nominal_values
-            self._app.available_variations.independent = independent_flag
+            variations = self._app.available_variations.get_independent_nominal_values()
         report.variations = variations
         report.sub_design_id = subdesign_id
         report.point_number = polyline_points
