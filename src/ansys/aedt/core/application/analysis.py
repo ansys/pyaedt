@@ -1099,11 +1099,11 @@ class Analysis(Design, object):
         independent_flag = self.available_variations.independent
         self.available_variations.independent = True
         if not with_values:
-            variations = self.available_variations.nominal
+            variation = self.available_variations.nominal
         else:
-            variations = self.available_variations.nominal_values
+            variation = self.available_variations.nominal_values
         self.available_variations.independent = independent_flag
-        return variations
+        return variation
 
     @pyaedt_function_handler()
     def get_sweeps(self, name):
@@ -2257,7 +2257,7 @@ class AvailableVariations(object):
             Dictionary of all variables with `"All"` value.
 
         """
-        return {name: "All" for name in self.__variable_names}
+        return {name: "All" for name in self.__variable_names()}
 
     @property
     def nominal(self):
@@ -2268,7 +2268,7 @@ class AvailableVariations(object):
         dict
             Dictionary of all variables with `"Nominal"` value.
         """
-        return {name: "Nominal" for name in self.__variable_names}
+        return {name: "Nominal" for name in self.__variable_names()}
 
     @property
     def nominal_values(self):
@@ -2280,23 +2280,8 @@ class AvailableVariations(object):
             Dictionary of nominal variations with values.
 
         """
-        return {k: v.expression for k, v in list(self.__available_variables.items())}
-
-    @property
-    def __variable_names(self):
-        if self.independent:
-            variable_names = self._app.variable_manager.independent_variable_names
-        else:
-            variable_names = self._app.variable_manager.variable_names
-        return variable_names
-
-    @property
-    def __available_variables(self):
-        if self.independent:
-            variables = self._app.variable_manager.independent_variables
-        else:
-            variables = self._app.variable_manager.variables
-        return variables
+        available_variables = self.__available_variables()
+        return {k: v.expression for k, v in list(available_variables.items())}
 
     @property
     def nominal_w_values_dict(self):
@@ -2435,7 +2420,7 @@ class AvailableVariations(object):
         >>> setup.analyze()
         >>> variations = hfss.available_variations.variations(hfss.existing_analysis_sweeps[0])
         """
-        variations_string = self._get_variation_strings(setup_sweep)
+        variations_string = self.__get_variation_strings(setup_sweep)
         variables = [k for k, v in self._app.variable_manager.variables.items() if not v.post_processing]
         families = []
         if variations_string:
@@ -2483,7 +2468,7 @@ class AvailableVariations(object):
         return variations
 
     @pyaedt_function_handler()
-    def _get_variation_strings(self, setup_sweep):
+    def __get_variation_strings(self, setup_sweep):
         """Return variation strings.
 
         Parameters
@@ -2501,3 +2486,19 @@ class AvailableVariations(object):
         >>> oModule.GetAvailableVariations
         """
         return self._app.osolution.GetAvailableVariations(setup_sweep)
+
+    @pyaedt_function_handler()
+    def __variable_names(self):
+        if self.independent:
+            variable_names = self._app.variable_manager.independent_variable_names
+        else:
+            variable_names = self._app.variable_manager.variable_names
+        return variable_names
+
+    @pyaedt_function_handler()
+    def __available_variables(self):
+        if self.independent:
+            variables = self._app.variable_manager.independent_variables
+        else:
+            variables = self._app.variable_manager.variables
+        return variables

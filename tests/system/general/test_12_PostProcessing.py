@@ -787,7 +787,7 @@ class TestClass:
 
     def test_z99_delete_variations_B(self, field_test):
         setup = field_test.existing_analysis_sweeps
-        variations = field_test.available_variations._get_variation_strings(setup[0])
+        variations = field_test.available_variations.__get_variation_strings(setup[0])
         assert field_test.cleanup_solution(variations, entire_solution=False)
         assert field_test.cleanup_solution(variations, entire_solution=True)
 
