@@ -1298,7 +1298,7 @@ class CommonReport(BinaryTreeNode):
                 sweep_list.append(sweeps[el])
             else:
                 sweep_list.append([sweeps[el]])
-        nominal_values = self._post._app.get_independent_nominal_values()
+        nominal_values = self._post._app.available_variations.get_independent_nominal_values()
         for el in list(nominal_values.keys()):
             if el not in sweeps:
                 sweep_list.append(el + ":=")
