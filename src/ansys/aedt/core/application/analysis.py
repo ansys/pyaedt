@@ -48,6 +48,7 @@ from ansys.aedt.core.generic.constants import PLANE
 from ansys.aedt.core.generic.constants import SETUPS
 from ansys.aedt.core.generic.constants import SOLUTIONS
 from ansys.aedt.core.generic.constants import VIEW
+from ansys.aedt.core.generic.general_methods import _arg_with_dim
 from ansys.aedt.core.generic.general_methods import filter_tuple
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
@@ -2301,18 +2302,26 @@ class Analysis(Design, object):
         str
             String that combines the value and the units (e.g. "1.2mm").
         """
+        v, u = decompose_variable_value(value)
+        if u:
+            return value
+
         if units is None:
             if units_system == "Length":
-                units = self.modeler.model_units
+                if hasattr(self.oeditor, "GetModelUnits"):
+                    units = self.oeditor.GetModelUnits()
+                elif hasattr(self.oeditor, "GetActiveUnits"):
+                    units = self.oeditor.GetActiveUnits()
+                else:
+                    units = self.odesktop.GetDefaultUnit(units_system)
             else:
                 try:
                     units = self.odesktop.GetDefaultUnit(units_system)
                 except Exception:
                     self.logger.warning("Defined unit system is incorrect.")
                     units = ""
-        from ansys.aedt.core.generic.general_methods import _dim_arg
 
-        return _dim_arg(value, units)
+        return _arg_with_dim(value, units)
 
     @pyaedt_function_handler()
     def change_property(self, aedt_object, tab_name, property_object, property_name, property_value):
