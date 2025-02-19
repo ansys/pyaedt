@@ -230,6 +230,9 @@ def add_edb(local_scratch):
     return _method
 
 
+modelithics_not_installed = False
+
+
 @pytest.fixture(scope="function")
 def lumped_design():
     """Fixture for creating a LumpedDesign object."""
