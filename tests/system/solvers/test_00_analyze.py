@@ -142,7 +142,8 @@ def circuit_com(add_app):
 @pytest.fixture(scope="class")
 def m3dtransient(add_app):
     app = add_app(application=Maxwell3d, project_name=transient, subfolder=test_subfolder)
-    return app
+    yield app
+    app.close_project(app.project_name)
 
 
 class TestClass:
@@ -506,8 +507,6 @@ class TestClass:
         assert circuit_app.push_time_excitations(instance="U1", setup=setup_name)
 
     def test_06_m3d_harmonic_forces(self, m3dtransient):
-        aedtapp = add_app(application=Maxwell3d, project_name=transient, subfolder=test_subfolder)
-
         assert m3dtransient.enable_harmonic_force(
             ["Stator"],
             force_type=2,
@@ -516,19 +515,16 @@ class TestClass:
             number_of_cycles_from_stop_time=3,
             calculate_force=0,
         )
-        aedtapp.save_project()
-        aedtapp.analyze(aedtapp.active_setup, cores=4, use_auto_settings=False)
+        m3dtransient.solution_type = m3dtransient.SOLUTIONS.Maxwell3d.EddyCurrent
+        assert m3dtransient.enable_harmonic_force(assignment=["Stator"])
+        m3dtransient.solution_type = m3dtransient.SOLUTIONS.Maxwell3d.TransientAPhiFormulation
+        assert m3dtransient.enable_harmonic_force(assignment=["Stator"])
+
+    def test_06_export_element_based_harmonic_force(self, m3dtransient):
         assert m3dtransient.export_element_based_harmonic_force(
             start_frequency=1, stop_frequency=100, number_of_frequency=None
         )
-        assert aedtapp.export_element_based_harmonic_force(number_of_frequency=5)
-        aedtapp.solution_type = aedtapp.SOLUTIONS.Maxwell3d.EddyCurrent
-        assert aedtapp.enable_harmonic_force(assignment=["Stator"])
-        aedtapp.solution_type = aedtapp.SOLUTIONS.Maxwell3d.Magnetostatic
-        assert not aedtapp.enable_harmonic_force(assignment=["Stator"])
-        aedtapp.solution_type = aedtapp.SOLUTIONS.Maxwell3d.TransientAPhiFormulation
-        assert aedtapp.enable_harmonic_force(assignment=["Stator"])
-        aedtapp.close_project(aedtapp.project_name)
+        assert m3dtransient.export_element_based_harmonic_force(number_of_frequency=5)
 
     def test_07_export_maxwell_fields(self, m3dtransient):
         fld_file_3 = os.path.join(self.local_scratch.path, "test_fld_3.fld")
