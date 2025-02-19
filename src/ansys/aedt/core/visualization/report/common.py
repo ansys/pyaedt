@@ -404,7 +404,7 @@ class CommonReport(BinaryTreeNode):
         self._legacy_props["context"]["secondary_sweep_range"] = ["All"]
         self._legacy_props["context"]["variations"] = {"Freq": ["All"]}
         if hasattr(self._post._app, "available_variations") and self._post._app.available_variations:
-            nominal_variation = self._app.available_variations.get_independent_nominal_values()
+            nominal_variation = self._post._app.available_variations.get_independent_nominal_values()
             for el, k in nominal_variation.items():
                 self._legacy_props["context"]["variations"][el] = k
         self._legacy_props["expressions"] = None
