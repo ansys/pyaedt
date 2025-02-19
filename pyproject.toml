@@ -34,6 +34,7 @@ classifiers = [
 
 dependencies = [
     "fpdf2",
+    "grpcio>=1.50.0,<1.71",
     "jsonschema",
     "psutil",
     "pyedb>=0.4.0; python_version == '3.7'",
@@ -98,7 +99,7 @@ doc = [
     "sphinx-autobuild==2021.3.14; python_version == '3.8'",
     "sphinx-autobuild==2024.10.3; python_version > '3.8'",
     "sphinx-copybutton>=0.5.0,<0.6",
-    "sphinx-gallery>=0.14.0,<0.18",
+    "sphinx-gallery>=0.14.0,<0.20",
     "sphinx_design>=0.4.0,<0.7",
     "pyvista[io]>=0.38.0,<0.45",
 ]

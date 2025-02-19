@@ -12,7 +12,7 @@ They are accessible through the ``modeler.objects`` property:
 .. code:: python
 
     from ansys.aedt.core import Hfss
-    app = Hfss(specified_version="2023.1",
+    app = Hfss(specified_version="2025.1",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
 
@@ -72,7 +72,7 @@ They contain all getters and setters to simplify object manipulation.
 .. code:: python
 
     from ansys.aedt.core import Hfss
-    app = Hfss(specified_version="2023.1",
+    app = Hfss(specified_version="2025.1",
                non_graphical=False, new_desktop_session=True,
                close_on_exit=True, student_version=False)
 
@@ -117,7 +117,7 @@ imported and used because it is made by static methods.
 .. code:: python
 
     from ansys.aedt.core import Hfss
-    app = Hfss(specified_version="2023.1",
+    app = Hfss(specified_version="2025.1",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
 

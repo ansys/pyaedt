@@ -646,8 +646,12 @@ class TestClass:
             voltage_current_choice="Current",
             voltage_current_value={"Type": "Transient", "Function": "Sinusoidal", "Values": ["0A", 1, 1, "1s"]},
         )
-        assert ipk.create_source_power(ipk.modeler["boxSource"].top_face_z.id, input_power="2W", source_name="s01")
-        assert not ipk.create_source_power(ipk.modeler["boxSource"].top_face_z.id, input_power="2W", source_name="s01")
+        source_name = "s01"
+        assert ipk.create_source_power(
+            ipk.modeler["boxSource"].top_face_z.id, input_power="2W", source_name=source_name
+        )
+        with pytest.raises(AEDTRuntimeError, match=f"Failed to create boundary SourceIcepak {source_name}"):
+            ipk.create_source_power(ipk.modeler["boxSource"].top_face_z.id, input_power="2W", source_name=source_name)
 
     def test033__import_idf(self, ipk):
         assert ipk.import_idf(os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "brd_board.emn"))
@@ -664,7 +668,7 @@ class TestClass:
             high_surface_thick="0.1in",
         )
 
-    def test034__create_fan(self, ipk):
+    def test034__create_fan(self, ipk, local_scratch):
         fan = ipk.create_fan("Fan1", cross_section="YZ", radius="15mm", hub_radius="5mm", origin=[5, 21, 1])
         assert fan
         assert fan.name in ipk.modeler.oeditor.Get3DComponentInstanceNames(fan.definition_name)[0]
@@ -674,6 +678,14 @@ class TestClass:
         assert fan.name in ipk.native_components
         assert not "Fan1" in ipk.native_components
         assert not "Fan1" in ipk.modeler.user_defined_components
+        temp_prj = os.path.join(local_scratch.path, "fan_test.aedt")
+        ipk.save_project(temp_prj)
+        ipk = Icepak(temp_prj)
+        ipk.modeler.user_defined_components["Fan2"].native_properties["Swirl"] = "10"
+        ipk.modeler.user_defined_components["Fan2"].update_native()
+        ipk.save_project(temp_prj)
+        ipk = Icepak(temp_prj)
+        assert ipk.native_components["Fan1"].props["NativeComponentDefinitionProvider"]["Swirl"] == "10"
 
     def test035__create_heat_sink(self, ipk):
         assert ipk.create_parametric_fin_heat_sink(
@@ -1036,9 +1048,10 @@ class TestClass:
             input_power="1W",
             thickness="1mm",
         )
-        assert not ipk.create_conduting_plate(
-            None, thermal_specification="Thickness", input_power="1W", thickness="1mm", radiate_low=True
-        )
+        with pytest.raises(AEDTRuntimeError, match=r"Failed to create boundary Conducting Plate Source_[A-Za-z0-9]*$"):
+            ipk.create_conduting_plate(
+                None, thermal_specification="Thickness", input_power="1W", thickness="1mm", radiate_low=True
+            )
         assert ipk.create_conduting_plate(
             box_fc_ids,
             thermal_specification="Thickness",
@@ -1115,13 +1128,16 @@ class TestClass:
             ext_surf_rad_ref_temp=0,
             ext_surf_rad_view_factor=0.5,
         )
-        assert not ipk.assign_stationary_wall_with_htc(
-            "surf01",
-            ext_surf_rad=True,
-            ext_surf_rad_material="Stainless-steel-cleaned",
-            ext_surf_rad_ref_temp=0,
-            ext_surf_rad_view_factor=0.5,
-        )
+        with pytest.raises(
+            AEDTRuntimeError, match=r"Failed to create boundary Stationary Wall StationaryWall_[A-Za-z0-9]*$"
+        ):
+            ipk.assign_stationary_wall_with_htc(
+                "surf01",
+                ext_surf_rad=True,
+                ext_surf_rad_material="Stainless-steel-cleaned",
+                ext_surf_rad_ref_temp=0,
+                ext_surf_rad_view_factor=0.5,
+            )
         ipk.solution_type = "Transient"
         assert ipk.assign_stationary_wall_with_temperature(
             "surf1",
@@ -1201,9 +1217,11 @@ class TestClass:
         block = ipk.assign_hollow_block("BlockBox5", "Total Power", power_dict, "Test")
         assert block
         block.delete()
-        block = ipk.assign_hollow_block("BlockBox5", "Total Power", "1W", boundary_name="TestH")
+        boundary_name = "TestH"
+        block = ipk.assign_hollow_block("BlockBox5", "Total Power", "1W", boundary_name=boundary_name)
         assert block
-        assert not ipk.assign_hollow_block("BlockBox5", "Total Power", "1W", boundary_name="TestH")
+        with pytest.raises(AEDTRuntimeError, match=f"Failed to create boundary Block {boundary_name}"):
+            ipk.assign_hollow_block("BlockBox5", "Total Power", "1W", boundary_name=boundary_name)
 
     def test056__assign_solid_block(self, ipk):
         ipk.solution_type = "Transient"
@@ -1225,9 +1243,11 @@ class TestClass:
         block = ipk.assign_solid_block("BlockBox3", "Joule Heating")
         assert block
         block.delete()
-        block = ipk.assign_solid_block("BlockBox3", "1W", boundary_name="Test")
+        boundary_name = "Test"
+        block = ipk.assign_solid_block("BlockBox3", "1W", boundary_name=boundary_name)
         assert block
-        assert not ipk.assign_solid_block("BlockBox3", "1W", boundary_name="Test")
+        with pytest.raises(AEDTRuntimeError, match=f"Failed to create boundary Block {boundary_name}"):
+            ipk.assign_solid_block("BlockBox3", "1W", boundary_name=boundary_name)
 
     def test057__assign_network_from_matrix(self, ipk):
         box = ipk.modeler.create_box([0, 0, 0], [20, 50, 80])
@@ -1441,7 +1461,10 @@ class TestClass:
             boundary_name="sym_bc03",
         )
         assert ipk.assign_symmetry_wall(geometry=region_fc_ids[1:4])
-        assert not ipk.assign_symmetry_wall(geometry="surf01")
+        with pytest.raises(
+            AEDTRuntimeError, match=r"Failed to create boundary Symmetry Wall SymmetryWall_[A-Za-z0-9]*$"
+        ):
+            ipk.assign_symmetry_wall(geometry="surf01")
 
     def test063__update_3d_component(self, ipk, local_scratch):
         file_path = local_scratch.path

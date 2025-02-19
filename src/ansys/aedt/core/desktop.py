@@ -52,6 +52,7 @@ from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
+import grpc
 
 if is_linux:
     os.environ["ANS_NODEPCHECK"] = str(1)
@@ -121,25 +122,28 @@ def launch_aedt(full_path, non_graphical, port, student_version, first_run=True)
             settings.logger.warning("Electronics Desktop license not found on the default license server.")
 
     timeout = settings.desktop_launch_timeout
-    k = 0
-    while not port in grpc_active_sessions(non_graphical=non_graphical):
-        if k > timeout:  # pragma: no cover
-            active_s = active_sessions(student_version=student_version)
-            for pid in active_s:
-                if port == active_s[pid]:
-                    try:
-                        os.kill(pid, 9)
-                    except (OSError, PermissionError):
-                        pass
-            if first_run:
-                new_port = _find_free_port()
-                settings.logger.warning(f"Failed to start on gRPC port: {port}. Trying to start on {new_port}.")
-                return launch_aedt(full_path, non_graphical, new_port, student_version, first_run=False)
-            settings.logger.error(f"Failed to start on gRPC port: {port}.")
-            return False, _find_free_port()
-        time.sleep(1)
-        k += 1
-    settings.logger.info(f"Electronics Desktop started on gRPC port: {port}.")
+    grpc_channel = grpc.insecure_channel(f"127.0.0.1:{port}")
+
+    try:
+        start = time.time()
+        grpc.channel_ready_future(grpc_channel).result(timeout)
+        end = time.time() - start
+    except grpc.FutureTimeoutError:
+        active_s = active_sessions(student_version=student_version)
+        for pid in active_s:
+            if port == active_s[pid]:
+                try:
+                    os.kill(pid, 9)
+                except (OSError, PermissionError):
+                    pass
+        if first_run:
+            new_port = _find_free_port()
+            settings.logger.warning(f"Failed to start on gRPC port: {port}. Trying to start on {new_port}.")
+            return launch_aedt(full_path, non_graphical, new_port, student_version, first_run=False)
+        settings.logger.error(f"Failed to start on gRPC port: {port}.")
+        return False, _find_free_port()
+
+    settings.logger.info(f"Electronics Desktop started on gRPC port: {port} after {end} seconds.")
     return True, port
 
 
@@ -315,6 +319,15 @@ def _close_aedt_application(desktop_class, close_desktop, pid, is_grpc_api):
                     os.kill(pid, 9)
                 else:
                     desktop_class.odesktop.QuitApplication()
+                    if desktop_class.is_grpc_api:
+                        desktop_class.grpc_plugin.Release()
+                    timeout = 20
+                    while pid in active_sessions():
+                        time.sleep(1)
+                        if timeout == 0:
+                            os.kill(pid, 9)
+                            break
+                        timeout -= 1
                 if _desktop_sessions:
                     for v in _desktop_sessions.values():
                         if pid in v.parent_desktop_id:  # pragma: no cover
@@ -407,7 +420,7 @@ class Desktop(object):
     version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case the
         active setup or latest installed version is used.
-        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
+        Examples of input values are ``251``, ``25.1``,``2025.1``,``"2025.1"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -438,19 +451,19 @@ class Desktop(object):
 
     Examples
     --------
-    Launch AEDT 2023 R1 in non-graphical mode and initialize HFSS.
+    Launch AEDT 2025 R1 in non-graphical mode and initialize HFSS.
 
     >>> import ansys.aedt.core
-    >>> desktop = ansys.aedt.core.Desktop(version="2023.2", non_graphical=False)
+    >>> desktop = ansys.aedt.core.Desktop(version="2025.1", non_graphical=False)
     PyAEDT INFO: pyaedt v...
     PyAEDT INFO: Python version ...
     >>> hfss = ansys.aedt.core.Hfss(design="HFSSDesign1")
     PyAEDT INFO: Project...
     PyAEDT INFO: Added design 'HFSSDesign1' of type HFSS.
 
-    Launch AEDT 2023 R2 in graphical mode and initialize HFSS.
+    Launch AEDT 2025 R1 in graphical mode and initialize HFSS.
 
-    >>> desktop = Desktop(232)
+    >>> desktop = Desktop(251)
     PyAEDT INFO: pyaedt v...
     PyAEDT INFO: Python version ...
     >>> hfss = ansys.aedt.core.Hfss(design="HFSSDesign1")
@@ -1559,7 +1572,7 @@ class Desktop(object):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> desktop = ansys.aedt.core.Desktop("2021.2")
+        >>> desktop = ansys.aedt.core.Desktop("2025.1")
         PyAEDT INFO: pyaedt v...
         PyAEDT INFO: Python version ...
         >>> desktop.release_desktop(close_projects=False, close_on_exit=False) # doctest: +SKIP
@@ -1618,7 +1631,7 @@ class Desktop(object):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> desktop = ansys.aedt.core.Desktop("2021.2")
+        >>> desktop = ansys.aedt.core.Desktop("2025.1")
         PyAEDT INFO: pyaedt v...
         PyAEDT INFO: Python version ...
         >>> desktop.close_desktop() # doctest: +SKIP
@@ -1635,7 +1648,7 @@ class Desktop(object):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> desktop = ansys.aedt.core.Desktop("2021.2")
+        >>> desktop = ansys.aedt.core.Desktop("2025.1")
         PyAEDT INFO: pyaedt v...
         PyAEDT INFO: Python version ...
         >>> desktop.enable_autosave()
@@ -1649,7 +1662,7 @@ class Desktop(object):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> desktop = ansys.aedt.core.Desktop("2021.2")
+        >>> desktop = ansys.aedt.core.Desktop("2025.1")
         PyAEDT INFO: pyaedt v...
         PyAEDT INFO: Python version ...
         >>> desktop.disable_autosave()
@@ -1978,7 +1991,7 @@ class Desktop(object):
         --------
         >>> from ansys.aedt.core import Desktop
 
-        >>> d = Desktop(version="2024.2", new_desktop=False)
+        >>> d = Desktop(version="2025.1", new_desktop=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
         >>> job_id, job_name = d.submit_ansys_cloud_job('via_gsg.aedt',
@@ -2067,7 +2080,7 @@ class Desktop(object):
         --------
         >>> from ansys.aedt.core import Desktop
 
-        >>> d = Desktop(version="2024.2", new_desktop=False)
+        >>> d = Desktop(version="2025.1", new_desktop=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
         >>> job_id, job_name = d.submit_ansys_cloud_job('via_gsg.aedt',
@@ -2134,7 +2147,7 @@ class Desktop(object):
         --------
         >>> from ansys.aedt.core import Desktop
 
-        >>> d = Desktop(version="2024.2", new_desktop=False)
+        >>> d = Desktop(version="2025.1", new_desktop=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
         >>> job_id, job_name = d.submit_ansys_cloud_job('via_gsg.aedt',
@@ -2176,7 +2189,7 @@ class Desktop(object):
         --------
         >>> from ansys.aedt.core import Desktop
 
-        >>> d = Desktop(version="2024.2", new_desktop=False)
+        >>> d = Desktop(version="2025.1", new_desktop=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
         >>> job_id, job_name = d.submit_ansys_cloud_job('via_gsg.aedt',

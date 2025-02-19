@@ -26,9 +26,11 @@ import logging
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
+from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.generic.settings import Settings
 from ansys.aedt.core.visualization.post.rcs_exporter import DEFAULT_EXPRESSION
 from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
+import pytest
 
 FREQUENCIES_VALUE = 77e9
 FREQUENCIES = [FREQUENCIES_VALUE]
@@ -56,12 +58,12 @@ def test_init_with_default_values():
 
     assert "name" == exporter.setup_name
     assert DEFAULT_EXPRESSION == exporter.expression
-    assert True == exporter.overwrite
+    assert exporter.overwrite
     assert FREQUENCIES == exporter.frequencies
-    assert None == exporter.data_file
+    assert exporter.data_file is None
     # Properties
     assert {} == exporter.model_info
-    assert None == exporter.rcs_data
+    assert exporter.rcs_data is None
     assert "" == exporter.metadata_file
     assert DEFAULT_EXPRESSION == exporter.column_name
     # App related
@@ -71,15 +73,11 @@ def test_init_with_default_values():
 @patch("ansys.aedt.core.generic.general_methods.check_and_download_folder", return_value=PATH)
 @patch.object(MonostaticRCSExporter, "get_monostatic_rcs", return_value=mock_data_with_two_variations)
 @patch.object(Settings, "remote_rpc_session", new_callable=lambda: mock_settings)
-def test_export_rcs_with_no_monostatic_rcs(mock_settings, mock_monostatic_rcs, mock_download, caplog):
+def test_export_rcs_with_no_monostatic_rcs(mock_settings, mock_monostatic_rcs, mock_download):
     exporter = MonostaticRCSExporter(mock_app, "name", FREQUENCIES)
 
-    with caplog.at_level(logging.ERROR, logger="Global"):
-        res = exporter.export_rcs()
-
-    assert not res
-    assert any((caplog.records[i].message == "Data can not be obtained." for i in range(len(caplog.records))))
-    assert NAME == exporter.solution
+    with pytest.raises(AEDTRuntimeError):
+        exporter.export_rcs()
 
 
 @patch("ansys.aedt.core.generic.general_methods.check_and_download_folder", return_value=PATH)
@@ -89,11 +87,8 @@ def test_export_rcs_with_no_monostatic_rcs(mock_settings, mock_monostatic_rcs, m
 def test_export_rcs_with_data_file_not_a_file(mock_is_file, mock_settings, mock_monostatic_rcs, mock_download, caplog):
     exporter = MonostaticRCSExporter(mock_app, "name", FREQUENCIES)
 
-    with caplog.at_level(logging.ERROR, logger="Global"):
-        res = exporter.export_rcs()
-
-    assert not res
-    assert any((caplog.records[i].message == "RCS data file not exported." for i in range(len(caplog.records))))
+    with pytest.raises(AEDTRuntimeError):
+        exporter.export_rcs()
 
 
 @patch("ansys.aedt.core.generic.general_methods.check_and_download_folder", return_value=PATH)
@@ -102,17 +97,9 @@ def test_export_rcs_with_data_file_not_a_file(mock_is_file, mock_settings, mock_
 @patch("pathlib.Path.is_file", return_value=False)
 @patch("json.dump", side_effect=Exception("Dummy exception"))
 def test_export_rcs_with_dump_json_exception(
-    mock_json_dump, mock_is_file, mock_settings, mock_monostatic_rcs, mock_download, caplog
+    mock_json_dump, mock_is_file, mock_settings, mock_monostatic_rcs, mock_download
 ):
     exporter = MonostaticRCSExporter(mock_app, "name", FREQUENCIES, overwrite=False)
 
-    with caplog.at_level(logging.ERROR, logger="Global"):
-        res = exporter.export_rcs()
-
-    assert not res
-    assert any(
-        (
-            caplog.records[i].message.startswith("An error occurred when writing metadata")
-            for i in range(len(caplog.records))
-        )
-    )
+    with pytest.raises(AEDTRuntimeError):
+        exporter.export_rcs()

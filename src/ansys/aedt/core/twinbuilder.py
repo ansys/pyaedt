@@ -64,7 +64,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         Version of AEDT to use. The default is ``None``, in which
         case the active setup or latest installed version is
         used.
-        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
+        Examples of input values are ``251``, ``25.1``, ``2025.1``, ``"2025.1"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -655,7 +655,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         export_uniform_points=False,
         export_uniform_points_step=1e-5,
         excitations=None,
-    ):  # pragma: no cover
+    ):
         """Use the excitation component to assign output quantities
 
         This works in a Twin Builder design to a windings in a Maxwell design.

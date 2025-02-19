@@ -34,7 +34,7 @@ import ansys.aedt.core
 class LumpedTopology:
     """Defines topology parameters of lumped filters.
 
-    This class lets you construct all parameters for the ``LumpedDesign`` class.
+    This class allows you to define and modify the topology parameters of lumped filters.
     """
 
     def __init__(self):
