@@ -28,7 +28,6 @@ import time
 import warnings
 
 from ansys.aedt.core.generic.constants import AEDT_UNITS
-from ansys.aedt.core.generic.general_methods import _arg_with_dim
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
@@ -335,11 +334,13 @@ class ModelerCircuit(Modeler):
                 g3 = (rect_border_color >> 8) & 0xFF
                 b3 = (rect_border_color >> 0) & 0xFF
             self.change_text_property(str(text_id), "Color", [r, g, b])
-            self.change_text_property(str(text_id), "Angle", _arg_with_dim(text_angle, "deg"))
+            self.change_text_property(str(text_id), "Angle", self._app.value_with_units(text_angle, "deg"))
             self.change_text_property(str(text_id), "DisplayRectangle", show_rect)
             if show_rect:
                 self.change_text_property(str(text_id), "Rectangle Color", [r2, g2, b2])
-                self.change_text_property(str(text_id), "Rectangle BorderWidth", _arg_with_dim(rect_line_width, "mil"))
+                self.change_text_property(
+                    str(text_id), "Rectangle BorderWidth", self._app.value_with_units(rect_line_width, "mil")
+                )
                 self.change_text_property(str(text_id), "Rectangle BorderColor", [r3, g3, b3])
                 self.change_text_property(str(text_id), "Rectangle FillStyle", fill[rect_fill])
             return text_out
@@ -399,8 +400,8 @@ class ModelerCircuit(Modeler):
                 ]
             )
         elif isinstance(value, list) and len(value) == 2:
-            xpos = _arg_with_dim(value[0])
-            ypos = _arg_with_dim(value[1])
+            xpos = self._app.value_with_units(value[0])
+            ypos = self._app.value_with_units(value[1])
             self.oeditor.ChangeProperty(
                 [
                     "NAME:AllTabs",

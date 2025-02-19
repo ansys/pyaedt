@@ -126,8 +126,8 @@ class EdgeTypePrimitive(object):
         vArg2 = ["NAME:FilletParameters"]
         vArg2.append("Edges:="), vArg2.append(edge_id_list)
         vArg2.append("Vertices:="), vArg2.append(vertex_id_list)
-        vArg2.append("Radius:="), vArg2.append(self._object3d._primitives._arg_with_dim(radius))
-        vArg2.append("Setback:="), vArg2.append(self._object3d._primitives._arg_with_dim(setback))
+        vArg2.append("Radius:="), vArg2.append(self._object3d._primitives._app.value_with_units(radius))
+        vArg2.append("Setback:="), vArg2.append(self._object3d._primitives._app.value_with_units(setback))
         self._object3d._oeditor.Fillet(vArg1, ["NAME:Parameters", vArg2])
         if self._object3d.name in list(self._object3d._oeditor.GetObjectsInGroup("UnClassified")):
             self._object3d._primitives._odesign.Undo()
@@ -188,22 +188,34 @@ class EdgeTypePrimitive(object):
                 self._object3d.logger.error(
                     "Do not set right distance or ensure that left distance equals right distance."
                 )
-            vArg2.append("LeftDistance:="), vArg2.append(self._object3d._primitives._arg_with_dim(left_distance))
-            vArg2.append("RightDistance:="), vArg2.append(self._object3d._primitives._arg_with_dim(right_distance))
+            vArg2.append("LeftDistance:="), vArg2.append(
+                self._object3d._primitives._app.value_with_units(left_distance)
+            )
+            vArg2.append("RightDistance:="), vArg2.append(
+                self._object3d._primitives._app.value_with_units(right_distance)
+            )
             vArg2.append("ChamferType:="), vArg2.append("Symmetric")
         elif chamfer_type == 1:
-            vArg2.append("LeftDistance:="), vArg2.append(self._object3d._primitives._arg_with_dim(left_distance))
-            vArg2.append("RightDistance:="), vArg2.append(self._object3d._primitives._arg_with_dim(right_distance))
+            vArg2.append("LeftDistance:="), vArg2.append(
+                self._object3d._primitives._app.value_with_units(left_distance)
+            )
+            vArg2.append("RightDistance:="), vArg2.append(
+                self._object3d._primitives._app.value_with_units(right_distance)
+            )
             vArg2.append("ChamferType:="), vArg2.append("Left Distance-Right Distance")
         elif chamfer_type == 2:
-            vArg2.append("LeftDistance:="), vArg2.append(self._object3d._primitives._arg_with_dim(left_distance))
+            vArg2.append("LeftDistance:="), vArg2.append(
+                self._object3d._primitives._app.value_with_units(left_distance)
+            )
             # NOTE: Seems like there is a bug in the API as Angle can't be used
             vArg2.append("RightDistance:="), vArg2.append(f"{angle}deg")
             vArg2.append("ChamferType:="), vArg2.append("Left Distance-Angle")
         elif chamfer_type == 3:
             # NOTE: Seems like there is a bug in the API as Angle can't be used
             vArg2.append("LeftDistance:="), vArg2.append(f"{angle}deg")
-            vArg2.append("RightDistance:="), vArg2.append(self._object3d._primitives._arg_with_dim(right_distance))
+            vArg2.append("RightDistance:="), vArg2.append(
+                self._object3d._primitives._app.value_with_units(right_distance)
+            )
             vArg2.append("ChamferType:="), vArg2.append("Right Distance-Angle")
         else:
             self._object3d.logger.error("Wrong chamfer_type provided. Value must be an integer from 0 to 3.")

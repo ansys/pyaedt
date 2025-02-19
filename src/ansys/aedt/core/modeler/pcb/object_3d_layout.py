@@ -287,10 +287,10 @@ class Object3DLayout(object):
             rect = self._primitives.create_rectangle(
                 layername,
                 [
-                    self._primitives.number_with_units(start_points[0]),
-                    self._primitives.number_with_units(start_points[1]),
+                    self._primitives._app.value_with_units(start_points[0]),
+                    self._primitives._app.value_with_units(start_points[1]),
                 ],
-                [self._primitives.number_with_units(dims[0]), self._primitives.number_with_units(dims[1])],
+                [self._primitives._app.value_with_units(dims[0]), self._primitives._app.value_with_units(dims[1])],
             )
             self._primitives.rectangles[rect.name].negative = True
         return True
@@ -345,9 +345,9 @@ class Object3DLayout(object):
             props = [
                 "NAME:Location",
                 "X:=",
-                self._primitives.number_with_units(position[0]),
+                self._primitives._app.value_with_units(position[0]),
                 "Y:=",
-                self._primitives.number_with_units(position[1]),
+                self._primitives._app.value_with_units(position[1]),
             ]
             self.change_property(props)
         if self.prim_type == "component":
@@ -372,9 +372,9 @@ class Object3DLayout(object):
                 props = [
                     "NAME:Location",
                     "X:=",
-                    self._primitives.number_with_units(position[0]),
+                    self._primitives._app.value_with_units(position[0]),
                     "Y:=",
-                    self._primitives.number_with_units(position[1]),
+                    self._primitives._app.value_with_units(position[1]),
                 ]
                 self.change_property(props)
 
@@ -1688,9 +1688,10 @@ class Line3dLayout(Geometries3DLayout, object):
         :class:`ansys.aedt.core.modeler.pcb.object_3d_layout.Line3dLayout`
         """
         points = [
-            [self._primitives.number_with_units(j, self.object_units) for j in i] for i in (self.center_line.values())
+            [self._primitives._app.value_with_units(j, self.object_units) for j in i]
+            for i in (self.center_line.values())
         ]
-        points.insert(position, [self._primitives.number_with_units(j, self.object_units) for j in point])
+        points.insert(position, [self._primitives._app.value_with_units(j, self.object_units) for j in point])
         line = self._primitives.create_line(self.placement_layer, points)
         line_name = self.name
         self._primitives.oeditor.Delete([self.name])
@@ -1715,7 +1716,7 @@ class Line3dLayout(Geometries3DLayout, object):
         if isinstance(point, str):
             point = [point]
         points = [
-            [self._primitives.number_with_units(j, self.object_units) for j in v]
+            [self._primitives._app.value_with_units(j, self.object_units) for j in v]
             for i, v in self.center_line.items()
             if i not in point
         ]
@@ -1736,7 +1737,7 @@ class Line3dLayout(Geometries3DLayout, object):
             "LayerName:=",
             self.placement_layer,
             "lw:=",
-            self._primitives.number_with_units(self.width),
+            self._primitives._app.value_with_units(self.width),
             "endstyle:=",
             self.end_cap_type,
             "StartCap:=",
@@ -1943,7 +1944,7 @@ class ComponentsSubCircuit3DLayout(Object3DLayout, object):
     @local_origin.setter
     def local_origin(self, value):
         if self.is_3d_placement:
-            value = [self._primitives._arg_with_dim(i) for i in value]
+            value = [self._primitives._app.value_with_units(i) for i in value]
             props = ["NAME:Local Origin", "X:=", value[0], "Y:=", value[1], "Z:=", value[2]]
             self.change_property(props)
 
@@ -1975,14 +1976,14 @@ class ComponentsSubCircuit3DLayout(Object3DLayout, object):
         props = [
             "NAME:Location",
             "X:=",
-            self._primitives.number_with_units(position[0]),
+            self._primitives._app.value_with_units(position[0]),
             "Y:=",
-            self._primitives.number_with_units(position[1]),
+            self._primitives._app.value_with_units(position[1]),
             "Z:=",
             (
-                self._primitives.number_with_units(self.location[2])
+                self._primitives._app.value_with_units(self.location[2])
                 if len(position) < 3
-                else self._primitives.number_with_units(position[2])
+                else self._primitives._app.value_with_units(position[2])
             ),
         ]
         self.change_property(props)

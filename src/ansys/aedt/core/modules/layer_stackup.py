@@ -980,7 +980,7 @@ class Layer(object):
                         + " , dt="
                         + str(self.hfssSp["dt"])
                         + ", dtv='"
-                        + _arg_with_dim(self.hfssSp["dtv"])
+                        + _arg_with_dim(self.hfssSp["dtv"], self.LengthUnit)
                         + "')",
                     ],
                     [

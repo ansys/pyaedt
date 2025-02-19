@@ -2308,9 +2308,9 @@ class Analysis(Design, object):
 
         if units is None:
             if units_system == "Length":
-                if hasattr(self.oeditor, "GetModelUnits"):
+                if "GetModelUnits" in dir(self.oeditor):
                     units = self.oeditor.GetModelUnits()
-                elif hasattr(self.oeditor, "GetActiveUnits"):
+                elif "GetActiveUnits" in dir(self.oeditor):
                     units = self.oeditor.GetActiveUnits()
                 else:
                     units = self.odesktop.GetDefaultUnit(units_system)
@@ -2376,7 +2376,7 @@ class Analysis(Design, object):
                 ]
             )
         elif isinstance(property_value, (str, float, int)):
-            xpos = self.modeler._arg_with_dim(property_value, self.modeler.model_units)
+            xpos = self.value_with_units(property_value, self.modeler.model_units)
             aedt_object.ChangeProperty(
                 [
                     "NAME:AllTabs",
@@ -2397,6 +2397,9 @@ class Analysis(Design, object):
     def number_with_units(self, value, units=None):
         """Convert a number to a string with units. If value is a string, it's returned as is.
 
+        .. deprecated:: 0.14.0
+            Use :func:`value_with_units` instead.
+
         Parameters
         ----------
         value : float, int, str
@@ -2410,4 +2413,4 @@ class Analysis(Design, object):
            String concatenating the value and unit.
 
         """
-        return self.modeler._arg_with_dim(value, units)
+        return self.value_with_units(value, units)

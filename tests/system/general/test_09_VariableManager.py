@@ -564,7 +564,6 @@ class TestClass:
         assert self.aedtapp.variable_manager.decompose("v2") == (6.0, "mm")
         assert self.aedtapp.variable_manager["v2"].decompose() == (6.0, "mm")
         assert self.aedtapp.variable_manager.decompose("5mm") == (5.0, "mm")
-        assert self.aedtapp.number_with_units(3.0, "mil") == "3.0mil"
 
     def test_21_test_validator_exact_match(self, validation_input):
         property_names, expected_settings, actual_settings = validation_input
@@ -687,3 +686,9 @@ class TestClass:
         assert self.aedtapp.variable_manager.delete_unused_variables()
         new_number_of_variables = len(self.aedtapp.variable_manager.variable_names)
         assert number_of_variables != new_number_of_variables
+
+    def test_33_value_with_units(self):
+        assert self.aedtapp.value_with_units("10mm") == "10mm"
+        assert self.aedtapp.value_with_units("10") == "10mm"
+        assert self.aedtapp.value_with_units("10", units_system="Angle") == "10deg"
+        assert self.aedtapp.value_with_units("10", units_system="invalid") == "10"

@@ -784,20 +784,20 @@ class Modeler3D(Primitives3D):
             if not wg_thickness:
                 wg_thickness = wgheight / 20
             if parametrize_h:
-                self._app[wgmodel + "_H"] = self._arg_with_dim(wgheight)
+                self._app[wgmodel + "_H"] = self._app.value_with_units(wgheight)
                 h = wgmodel + "_H"
-                hb = wgmodel + "_H + 2*" + self._arg_with_dim(wg_thickness)
+                hb = wgmodel + "_H + 2*" + self._app.value_with_units(wg_thickness)
             else:
-                h = self._arg_with_dim(wgheight)
-                hb = self._arg_with_dim(wgheight) + " + 2*" + self._arg_with_dim(wg_thickness)
+                h = self._app.value_with_units(wgheight)
+                hb = self._app.value_with_units(wgheight) + " + 2*" + self._app.value_with_units(wg_thickness)
 
             if parametrize_w:
-                self._app[wgmodel + "_W"] = self._arg_with_dim(wgwidth)
+                self._app[wgmodel + "_W"] = self._app.value_with_units(wgwidth)
                 w = wgmodel + "_W"
-                wb = wgmodel + "_W + " + self._arg_with_dim(2 * wg_thickness)
+                wb = wgmodel + "_W + " + self._app.value_with_units(2 * wg_thickness)
             else:
-                w = self._arg_with_dim(wgwidth)
-                wb = self._arg_with_dim(wgwidth) + " + 2*" + self._arg_with_dim(wg_thickness)
+                w = self._app.value_with_units(wgwidth)
+                wb = self._app.value_with_units(wgwidth) + " + 2*" + self._app.value_with_units(wg_thickness)
             if wg_direction_axis == self._app.AXIS.Z:
                 airbox = self.create_box(origin, [w, h, wg_length])
 
@@ -1132,7 +1132,7 @@ class Modeler3D(Primitives3D):
 
         if import_lines:
             if lines_thickness:
-                self._app["x_section_thickness"] = self._arg_with_dim(lines_thickness)
+                self._app["x_section_thickness"] = self._app.value_with_units(lines_thickness)
             self.logger.info("Importing lines. This operation can take time....")
             for assembly_name, assembly in nas_to_dict["Assemblies"].items():
                 if assembly["Lines"]:
