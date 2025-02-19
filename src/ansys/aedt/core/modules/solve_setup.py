@@ -57,16 +57,15 @@ class CommonSetup(PropsManager, BinaryTreeNode):
 
     def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup=True):
         self.auto_update = False
-        self._app = None
-        self.p_app = app
+        self._app = app
         if solution_type is None:
-            self.setuptype = self.p_app.design_solutions.default_setup
+            self.setuptype = self._app.design_solutions.default_setup
         elif isinstance(solution_type, int):
             self.setuptype = solution_type
         elif solution_type in SetupKeys.SetupNames:
             self.setuptype = SetupKeys.SetupNames.index(solution_type)
         else:
-            self.setuptype = self.p_app.design_solutions._solution_options[solution_type]["default_setup"]
+            self.setuptype = self._app.design_solutions._solution_options[solution_type]["default_setup"]
         self._name = name
         self._legacy_props = {}
         self._sweeps = None
@@ -74,6 +73,16 @@ class CommonSetup(PropsManager, BinaryTreeNode):
         # self._init_props(is_new_setup)
         self.auto_update = True
         self._initialize_tree_node()
+
+    def _setup_dict_to_arg(self, name=None, props=None):
+        if name is None:
+            arg = ["NAME:" + self.name]
+        else:
+            arg = ["NAME:" + name]
+        if props is None:
+            props = self.props
+        _dict2arg(props, arg)
+        return arg
 
     @property
     def _child_object(self):
@@ -97,7 +106,7 @@ class CommonSetup(PropsManager, BinaryTreeNode):
     @pyaedt_function_handler()
     def _initialize_tree_node(self):
         if self._child_object:
-            BinaryTreeNode.__init__(self, self._name, self._child_object, False)
+            BinaryTreeNode.__init__(self, self._name, self._child_object, False, app=self._app)
             return True
         return False
 
@@ -107,7 +116,7 @@ class CommonSetup(PropsManager, BinaryTreeNode):
             return self._sweeps
         try:
             self._sweeps = []
-            setups_data = self.p_app.design_properties["AnalysisSetup"]["SolveSetups"]
+            setups_data = self._app.design_properties["AnalysisSetup"]["SolveSetups"]
             if self.name in setups_data:
                 setup_data = setups_data[self.name]
                 if "Sweeps" in setup_data and self.setuptype != 0:  # 0 represents setup HFSSDrivenAuto
@@ -251,13 +260,13 @@ class CommonSetup(PropsManager, BinaryTreeNode):
             self._is_new_setup = False
         else:
             try:
-                if "AnalysisSetup" in self.p_app.design_properties.keys():
-                    setups_data = self.p_app.design_properties["AnalysisSetup"]["SolveSetups"]
+                if "AnalysisSetup" in self._app.design_properties.keys():
+                    setups_data = self._app.design_properties["AnalysisSetup"]["SolveSetups"]
                     if self.name in setups_data:
                         setup_data = setups_data[self.name]
                         self._legacy_props = SetupProps(self, setup_data)
-                elif "SimSetups" in self.p_app.design_properties.keys():
-                    setup_data = self.p_app.design_properties["SimSetups"]["SimSetup"]
+                elif "SimSetups" in self._app.design_properties.keys():
+                    setup_data = self._app.design_properties["SimSetups"]["SimSetup"]
                     self._legacy_props = SetupProps(self, setup_data)
             except Exception:
                 self._legacy_props = SetupProps(self, {})
@@ -276,32 +285,23 @@ class CommonSetup(PropsManager, BinaryTreeNode):
         bool
             ``True`` if solutions are available, ``False`` otherwise.
         """
-        if self.p_app.design_solutions.default_adaptive:
+        if self._app.design_solutions.default_adaptive:
             expressions = [
                 i
-                for i in self.p_app.post.available_report_quantities(
-                    solution=f"{self.name} : {self.p_app.design_solutions.default_adaptive}"
+                for i in self._app.post.available_report_quantities(
+                    solution=f"{self.name} : {self._app.design_solutions.default_adaptive}"
                 )
             ]
-            sol = self.p_app.post.reports_by_category.standard(
+            sol = self._app.post.reports_by_category.standard(
                 expressions=expressions[0],
-                setup=f"{self.name} : {self.p_app.design_solutions.default_adaptive}",
+                setup=f"{self.name} : {self._app.design_solutions.default_adaptive}",
             )
         else:
-            expressions = [i for i in self.p_app.post.available_report_quantities(solution=self.name)]
-            sol = self.p_app.post.reports_by_category.standard(expressions=expressions[0], setup=self.name)
+            expressions = [i for i in self._app.post.available_report_quantities(solution=self.name)]
+            sol = self._app.post.reports_by_category.standard(expressions=expressions[0], setup=self.name)
         if identify_setup(self.props):
             sol.domain = "Time"
         return True if sol.get_solution_data() else False
-
-    @property
-    def p_app(self):
-        """Parent."""
-        return self._app
-
-    @p_app.setter
-    def p_app(self, value):
-        self._app = value
 
     @property
     def omodule(self):
@@ -579,8 +579,7 @@ class Setup(CommonSetup):
         >>> oModule.InsertSetup
         """
         soltype = SetupKeys.SetupNames[self.setuptype]
-        arg = ["NAME:" + self._name]
-        _dict2arg(self.props, arg)
+        arg = self._setup_dict_to_arg()
         self.omodule.InsertSetup(soltype, arg)
         return self._initialize_tree_node()
 
@@ -608,8 +607,7 @@ class Setup(CommonSetup):
             for el in properties:
                 self.props[el] = properties[el]
         self.auto_update = legacy_update
-        arg = ["NAME:" + self.name]
-        _dict2arg(self.props, arg)
+        arg = self._setup_dict_to_arg()
 
         self.omodule.EditSetup(self.name, arg)
         return True
@@ -794,13 +792,13 @@ class Setup(CommonSetup):
         ----------
         >>> oModule.EditSetup
         """
-        arg = ["NAME:" + self.name]
         self.props["UseCacheFor"] = []
         if use_cache_for_pass:
             self.props["UseCacheFor"].append("Pass")
         if use_cache_for_freq:
             self.props["UseCacheFor"].append("Freq")
-        _dict2arg(self.props, arg)
+        arg = self._setup_dict_to_arg()
+
         expression_cache = self._expression_cache(
             expressions, report_type, intrinsics, isconvergence, isrelativeconvergence, conv_criteria
         )
@@ -917,15 +915,15 @@ class Setup(CommonSetup):
             self.auto_update = False
             meshlinks = self.props["MeshLink"]
             # design type
-            if self.p_app.design_type == "Mechanical":
+            if self._app.design_type == "Mechanical":
                 design_type = "ElectronicsDesktop"
-            elif self.p_app.design_type == "Maxwell 2D" or self.p_app.design_type == "Maxwell 3D":
+            elif self._app.design_type == "Maxwell 2D" or self._app.design_type == "Maxwell 3D":
                 design_type = "Maxwell"
             else:
-                design_type = self.p_app.design_type
+                design_type = self._app.design_type
             meshlinks["Product"] = design_type
             # design name
-            if design not in self.p_app.design_list:
+            if design not in self._app.design_list:
                 raise ValueError("Design does not exist in current project.")
             else:
                 meshlinks["Design"] = design
@@ -939,17 +937,17 @@ class Setup(CommonSetup):
             else:
                 meshlinks["Project"] = project
                 meshlinks["PathRelativeTo"] = "TargetProject"
-            # if self.p_app.solution_type == "SBR+":
+            # if self._app.solution_type == "SBR+":
             meshlinks["ImportMesh"] = True
             # solution name
             if solution is None:
-                meshlinks["Soln"] = self.p_app.nominal_adaptive
-            elif solution.split()[0] not in self.p_app.existing_analysis_setups:
+                meshlinks["Soln"] = self._app.nominal_adaptive
+            elif solution.split()[0] not in self._app.existing_analysis_setups:
                 raise ValueError("Setup does not exist in current design.")
             # parameters
             meshlinks["Params"] = {}
             if parameters is None:
-                parameters = self.p_app.available_variations.nominal_w_values_dict
+                parameters = self._app.available_variations.nominal_w_values_dict
                 for el in parameters:
                     meshlinks["Params"][el] = el
             else:
@@ -961,7 +959,7 @@ class Setup(CommonSetup):
             meshlinks["ForceSourceToSolve"] = force_source_to_solve
             meshlinks["PreservePartnerSoln"] = preserve_partner_solution
             meshlinks["ApplyMeshOp"] = apply_mesh_operations
-            if self.p_app.design_type not in ["Maxwell 2D", "Maxwell 3D"]:
+            if self._app.design_type not in ["Maxwell 2D", "Maxwell 3D"]:
                 meshlinks["AdaptPort"] = adapt_port
             self.update()
             self.auto_update = auto_update
@@ -974,11 +972,11 @@ class Setup(CommonSetup):
         # parameters
         params = {}
         if map_variables_by_name:
-            parameters = self.p_app.available_variations.nominal_w_values_dict
+            parameters = self._app.available_variations.nominal_w_values_dict
             for k, v in parameters.items():
                 params[k] = k
         elif parameters is None:
-            parameters = self.p_app.available_variations.nominal_w_values_dict
+            parameters = self._app.available_variations.nominal_w_values_dict
             for k, v in parameters.items():
                 params[k] = v
         else:
@@ -1006,7 +1004,7 @@ class Setup(CommonSetup):
         # design name
         if not design or design is None:
             raise ValueError("Provide design name to add mesh link to.")
-        elif design not in self.p_app.design_list:
+        elif design not in self._app.design_list:
             raise ValueError("Design does not exist in current project.")
         else:
             prev_solution["Design"] = design
@@ -1131,7 +1129,7 @@ class SetupCircuit(CommonSetup):
         else:
             self._legacy_props = SetupProps(self, {})
             try:
-                setups_data = self.p_app.design_properties["SimSetups"]["SimSetup"]
+                setups_data = self._app.design_properties["SimSetups"]["SimSetup"]
                 if not isinstance(setups_data, list):
                     setups_data = [setups_data]
                 for setup in setups_data:
@@ -1167,8 +1165,9 @@ class SetupCircuit(CommonSetup):
         >>> oModule.AddAMIAnalysis
         """
         soltype = SetupKeys.SetupNames[self.setuptype]
-        arg = ["NAME:SimSetup"]
-        _dict2arg(self.props, arg)
+
+        arg = self._setup_dict_to_arg(name="SimSetup")
+
         self._setup(soltype, arg)
         return self._initialize_tree_node()
 
@@ -1235,9 +1234,8 @@ class SetupCircuit(CommonSetup):
         if properties:
             for el in properties:
                 self.props[el] = properties[el]
-        arg = ["NAME:SimSetup"]
         soltype = SetupKeys.SetupNames[self.setuptype]
-        _dict2arg(self.props, arg)
+        arg = self._setup_dict_to_arg(name="SimSetup")
         self._setup(soltype, arg, False)
         self.auto_update = legacy_update
         return True
@@ -1569,8 +1567,7 @@ class SetupCircuit(CommonSetup):
         ----------
         >>> oModule.EditSetup
         """
-        arg = ["Name:SimSetup"]
-        _dict2arg(self.props, arg)
+        arg = self._setup_dict_to_arg(name="SimSetup")
         expression_cache = self._expression_cache(
             expressions, report_type, intrinsics, isconvergence, isrelativeconvergence, conv_criteria
         )
@@ -1861,17 +1858,17 @@ class Setup3DLayout(CommonSetup):
             key = "SolveSetupType"
         if props.get(key, "HFSS") == "HFSS":
             combined_name = f"{self.name} : Last Adaptive"
-            expressions = [i for i in self.p_app.post.available_report_quantities(solution=combined_name)]
+            expressions = [i for i in self._app.post.available_report_quantities(solution=combined_name)]
             sol = self._app.post.reports_by_category.standard(expressions=expressions[0], setup=combined_name)
         elif props.get(key, "HFSS") == "SIwave":
             combined_name = f"{self.name} : {self.sweeps[0].name}"
-            expressions = [i for i in self.p_app.post.available_report_quantities(solution=combined_name)]
+            expressions = [i for i in self._app.post.available_report_quantities(solution=combined_name)]
             sol = self._app.post.reports_by_category.standard(expressions=expressions[0], setup=combined_name)
         elif props.get(key, "HFSS") == "SIwaveDCIR":
-            expressions = self.p_app.post.available_report_quantities(solution=self.name, is_siwave_dc=True)
+            expressions = self._app.post.available_report_quantities(solution=self.name, is_siwave_dc=True)
             sol = self._app.post.reports_by_category.standard(expressions=expressions[0], setup=self.name)
         else:
-            expressions = [i for i in self.p_app.post.available_report_quantities(solution=self.name)]
+            expressions = [i for i in self._app.post.available_report_quantities(solution=self.name)]
 
             sol = self._app.post.reports_by_category.standard(expressions=expressions[0], setup=self.name)
         if identify_setup(props):
@@ -1890,11 +1887,11 @@ class Setup3DLayout(CommonSetup):
         try:
             return self.properties["Solver"]
         except Exception:
-            self.p_app.logger.debug("Cannot retrieve solver type with key 'Solver'")
+            self._app.logger.debug("Cannot retrieve solver type with key 'Solver'")
         try:
             return self.props["SolveSetupType"]
         except Exception:
-            self.p_app.logger.debug("Cannot retrieve solver type with key 'SolveSetupType'")
+            self._app.logger.debug("Cannot retrieve solver type with key 'SolveSetupType'")
         return None
 
     @pyaedt_function_handler()
@@ -1910,8 +1907,8 @@ class Setup3DLayout(CommonSetup):
         ----------
         >>> oModule.Add
         """
-        arg = ["NAME:" + self.name]
-        _dict2arg(self.props, arg)
+        arg = self._setup_dict_to_arg()
+
         self.omodule.Add(arg)
         return self._initialize_tree_node()
 
@@ -1936,8 +1933,7 @@ class Setup3DLayout(CommonSetup):
         if properties:
             for el in properties:
                 self.props._setitem_without_update(el, properties[el])
-        arg = ["NAME:" + self.name]
-        _dict2arg(self.props, arg)
+        arg = self._setup_dict_to_arg()
         self.omodule.Edit(self.name, arg)
         return True
 
@@ -2015,8 +2011,8 @@ class Setup3DLayout(CommonSetup):
         if not os.path.isdir(os.path.dirname(output_file)):
             return False
         output_file = os.path.splitext(output_file)[0] + ".aedt"
-        info_messages = list(self.p_app.odesktop.GetMessages(self.p_app.project_name, self.p_app.design_name, 0))
-        error_messages = list(self.p_app.odesktop.GetMessages(self.p_app.project_name, self.p_app.design_name, 2))
+        info_messages = list(self._app.odesktop.GetMessages(self._app.project_name, self._app.design_name, 0))
+        error_messages = list(self._app.odesktop.GetMessages(self._app.project_name, self._app.design_name, 2))
         self.omodule.ExportToHfss(self.name, output_file)
         succeeded = self._check_export_log(info_messages, error_messages, output_file)
         if succeeded and keep_net_name:
@@ -2029,12 +2025,12 @@ class Setup3DLayout(CommonSetup):
     def _get_net_names(self, app, file_fullname, unite):
         """Identify nets and unite bodies that belong to the same net."""
         primitives_3d_pts_per_nets = self._get_primitives_points_per_net()
-        self.p_app.logger.info("Processing vias...")
+        self._app.logger.info("Processing vias...")
         via_per_nets = self._get_via_position_per_net()
-        self.p_app.logger.info("Vias processing completed.")
+        self._app.logger.info("Vias processing completed.")
         layers_elevation = {
             lay.name: lay.lower_elevation + lay.thickness / 2
-            for lay in list(self.p_app.modeler.edb.stackup.signal_layers.values())
+            for lay in list(self._app.modeler.edb.stackup.signal_layers.values())
         }
         aedtapp = app(project=file_fullname)
         units = aedtapp.modeler.model_units
@@ -2078,7 +2074,7 @@ class Setup3DLayout(CommonSetup):
             net = net.replace("-", "m")
             net = net.replace("+", "p")
             net_name = re.sub("[^a-zA-Z0-9 .\n]", "_", net)
-            self.p_app.logger.info(f"Renaming primitives for net {net_name}...")
+            self._app.logger.info(f"Renaming primitives for net {net_name}...")
             object_names = list(set(object_names))
             if len(object_names) == 1:
                 object_p = aedtapp.modeler[object_names[0]]
@@ -2109,18 +2105,18 @@ class Setup3DLayout(CommonSetup):
 
     @pyaedt_function_handler()
     def _get_primitives_points_per_net(self):
-        edb = self.p_app.modeler.edb
+        edb = self._app.modeler.edb
         if not edb:
             return
         net_primitives = edb.modeler.primitives_by_net
         primitive_dict = {}
         layers_elevation = {
             lay.name: lay.lower_elevation + lay.thickness / 2
-            for lay in list(self.p_app.modeler.edb.stackup.signal_layers.values())
+            for lay in list(self._app.modeler.edb.stackup.signal_layers.values())
         }
         for net, primitives in net_primitives.items():
             primitive_dict[net] = []
-            self.p_app.logger.info(f"Processing net {net}...")
+            self._app.logger.info(f"Processing net {net}...")
             for prim in primitives:
 
                 if prim.layer_name not in layers_elevation:
@@ -2136,7 +2132,7 @@ class Setup3DLayout(CommonSetup):
                     primitive_dict[net].append(pt)
 
                 elif prim.__class__.__name__ in ["EdbPolygon", "Polygon"]:
-                    pdata = self.p_app.modeler.edb._edb.Geometry.PolygonData.CreateFromArcs(
+                    pdata = self._app.modeler.edb._edb.Geometry.PolygonData.CreateFromArcs(
                         prim.polygon_data._edb_object.GetArcData(), True
                     )
 
@@ -2164,7 +2160,7 @@ class Setup3DLayout(CommonSetup):
                             pt.append(z)
                             primitive_dict[net].append(pt)
                             break
-        self.p_app.logger.info("Net processing completed.")
+        self._app.logger.info("Net processing completed.")
         return primitive_dict
 
     @pyaedt_function_handler()
@@ -2200,18 +2196,18 @@ class Setup3DLayout(CommonSetup):
     @pyaedt_function_handler()
     def _get_via_position_per_net(self):
         via_dict = {}
-        if not self.p_app.modeler.edb:
+        if not self._app.modeler.edb:
             return
-        via_list = list(self.p_app.modeler.edb.padstacks.instances.values())
+        via_list = list(self._app.modeler.edb.padstacks.instances.values())
         if via_list:
-            for net in list(self.p_app.modeler.edb.nets.nets.keys()):
+            for net in list(self._app.modeler.edb.nets.nets.keys()):
                 vias = [via for via in via_list if via.net_name == net and via.start_layer != via.stop_layer]
                 if vias:
                     via_dict[net] = []
                     for via in vias:
                         via_pos = via.position
-                        z1 = self.p_app.modeler.edb.stackup.signal_layers[via.start_layer].lower_elevation
-                        z2 = self.p_app.modeler.edb.stackup.signal_layers[via.stop_layer].upper_elevation
+                        z1 = self._app.modeler.edb.stackup.signal_layers[via.start_layer].lower_elevation
+                        z2 = self._app.modeler.edb.stackup.signal_layers[via.stop_layer].upper_elevation
                         z = (z2 + z1) / 2
                         via_pos.append(z)
                         via_dict[net].append(via_pos)
@@ -2228,14 +2224,14 @@ class Setup3DLayout(CommonSetup):
         run = True
         succeeded = False
         while run:
-            info_messages_n = list(self.p_app.odesktop.GetMessages(self.p_app.project_name, self.p_app.design_name, 0))
-            error_messages_n = list(self.p_app.odesktop.GetMessages(self.p_app.project_name, self.p_app.design_name, 2))
+            info_messages_n = list(self._app.odesktop.GetMessages(self._app.project_name, self._app.design_name, 0))
+            error_messages_n = list(self._app.odesktop.GetMessages(self._app.project_name, self._app.design_name, 2))
             infos = [i for i in info_messages_n if i not in info_messages]
             if infos:
                 for info in infos:
                     if "Export complete" in info:
                         succeeded = True
-                    self.p_app.logger.info(info)
+                    self._app.logger.info(info)
                 info_messages.extend(info_messages_n)
                 if succeeded:
                     break
@@ -2245,7 +2241,7 @@ class Setup3DLayout(CommonSetup):
             infos_errors = [i for i in error_messages_n if i not in error_messages]
             if infos_errors:
                 for message in infos_errors:
-                    self.p_app.logger.error(message)
+                    self._app.logger.error(message)
                 break
             time.sleep(2)
         return succeeded
@@ -2280,8 +2276,8 @@ class Setup3DLayout(CommonSetup):
         output_file = os.path.splitext(output_file)[0] + ".aedt"
         if os.path.exists(output_file):
             os.unlink(output_file)
-        info_messages = list(self.p_app.odesktop.GetMessages(self.p_app.project_name, self.p_app.design_name, 0))
-        error_messages = list(self.p_app.odesktop.GetMessages(self.p_app.project_name, self.p_app.design_name, 2))
+        info_messages = list(self._app.odesktop.GetMessages(self._app.project_name, self._app.design_name, 0))
+        error_messages = list(self._app.odesktop.GetMessages(self._app.project_name, self._app.design_name, 2))
         self.omodule.ExportToQ3d(self.name, output_file)
         succeeded = self._check_export_log(info_messages, error_messages, output_file)
         if succeeded and keep_net_name:
@@ -2674,8 +2670,8 @@ class SetupHFSS(Setup, object):
         if not sweepdata:
             return False
         sweepdata.props["RangeType"] = "LinearCount"
-        sweepdata.props["RangeStart"] = self.p_app.value_with_units(start_frequency, unit, "Frequency")
-        sweepdata.props["RangeEnd"] = self.p_app.value_with_units(stop_frequency, unit, "Frequency")
+        sweepdata.props["RangeStart"] = self._app.value_with_units(start_frequency, unit, "Frequency")
+        sweepdata.props["RangeEnd"] = self._app.value_with_units(stop_frequency, unit, "Frequency")
 
         sweepdata.props["RangeCount"] = num_of_freq_points
         sweepdata.props["Type"] = sweep_type
@@ -2904,7 +2900,7 @@ class SetupHFSS(Setup, object):
             return False
         sweep_n.create()
         self.sweeps.append(sweep_n)
-        for setup in self.p_app.setups:
+        for setup in self._app.setups:
             if self.name == setup.name:
                 setup.sweeps.append(sweep_n)
                 break
@@ -3019,7 +3015,7 @@ class SetupHFSS(Setup, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if self.setuptype != 1 or self.p_app.solution_type not in ["Modal", "Terminal"]:
+        if self.setuptype != 1 or self._app.solution_type not in ["Modal", "Terminal"]:
             self._app.logger.error("Method applies only to HFSS-driven solutions.")
             return False
         self.auto_update = False
@@ -3056,7 +3052,7 @@ class SetupHFSS(Setup, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if self.setuptype != 1 or self.p_app.solution_type not in ["Modal", "Terminal"]:
+        if self.setuptype != 1 or self._app.solution_type not in ["Modal", "Terminal"]:
             self._app.logger.error("Method applies only to HFSS-driven solutions.")
             return False
         self.auto_update = False
@@ -3091,7 +3087,7 @@ class SetupHFSS(Setup, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if self.setuptype != 1 or self.p_app.solution_type not in ["Modal", "Terminal"]:
+        if self.setuptype != 1 or self._app.solution_type not in ["Modal", "Terminal"]:
             self._app.logger.error("Method applies only to HFSS-driven solutions.")
             return False
         self.auto_update = False
@@ -3398,7 +3394,7 @@ class SetupHFSSAuto(Setup, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if self.setuptype != 1 or self.p_app.solution_type not in ["Modal", "Terminal"]:
+        if self.setuptype != 1 or self._app.solution_type not in ["Modal", "Terminal"]:
             self._app.logger.error("Method applies only to HFSS-driven solutions.")
             return False
         self.auto_update = False
@@ -3436,7 +3432,7 @@ class SetupHFSSAuto(Setup, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if self.setuptype != 1 or self.p_app.solution_type not in ["Modal", "Terminal"]:
+        if self.setuptype != 1 or self._app.solution_type not in ["Modal", "Terminal"]:
             self._app.logger.error("Method applies only to HFSS-driven solutions.")
             return False
         self.auto_update = False
@@ -3471,7 +3467,7 @@ class SetupHFSSAuto(Setup, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if self.setuptype != 1 or self.p_app.solution_type not in ["Modal", "Terminal"]:
+        if self.setuptype != 1 or self._app.solution_type not in ["Modal", "Terminal"]:
             self._app.logger.error("Method applies only to HFSS-driven solutions.")
             return False
         self.auto_update = False
@@ -3734,7 +3730,7 @@ class SetupMaxwell(Setup, object):
         ----------
         >>> oModule.EditSetup
         """
-        if self.p_app.solution_type not in ["Transient", "TransientXY", "TransientZ"]:
+        if self._app.solution_type not in ["Transient", "TransientXY", "TransientZ"]:
             self._app.logger.error("Control Program is only available in Maxwell 2D and 3D Transient solutions.")
             return False
 
@@ -3972,8 +3968,8 @@ class SetupQ3D(Setup, object):
         if not sweepdata:
             return False
         sweepdata.props["RangeType"] = "LinearCount"
-        sweepdata.props["RangeStart"] = self.p_app.value_with_units(start_frequency, unit, "Frequency")
-        sweepdata.props["RangeEnd"] = self.p_app.value_with_units(stop_frequency, unit, "Frequency")
+        sweepdata.props["RangeStart"] = self._app.value_with_units(start_frequency, unit, "Frequency")
+        sweepdata.props["RangeEnd"] = self._app.value_with_units(stop_frequency, unit, "Frequency")
         sweepdata.props["RangeCount"] = num_of_freq_points
         sweepdata.props["Type"] = sweep_type
         if sweep_type == "Interpolating":
@@ -4200,7 +4196,7 @@ class SetupQ3D(Setup, object):
             return False
         sweep_n.create()
         self.sweeps.append(sweep_n)
-        for setup in self.p_app.setups:
+        for setup in self._app.setups:
             if self.name == setup.name:
                 setup.sweeps.append(sweep_n)
                 break
@@ -4330,7 +4326,6 @@ class SetupQ3D(Setup, object):
             for el in properties:
                 self.props[el] = properties[el]
         self.auto_update = legacy_update
-        arg = ["NAME:" + self.name]
         props1 = {i: v for i, v in self.props.items()}
         if not self.capacitance_enabled:
             del props1["Cap"]
@@ -4338,7 +4333,7 @@ class SetupQ3D(Setup, object):
             del props1["AC"]
         if not self.dc_enabled:
             del props1["DC"]
-        _dict2arg(props1, arg)
+        arg = self._setup_dict_to_arg(props=props1)
 
         self.omodule.EditSetup(self.name, arg)
         return True

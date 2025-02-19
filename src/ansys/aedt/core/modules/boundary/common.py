@@ -95,7 +95,7 @@ class BoundaryCommon(PropsManager):
     @pyaedt_function_handler()
     def _initialize_tree_node(self):
         if self._child_object:
-            BinaryTreeNode.__init__(self, self._name, self._child_object, False)
+            BinaryTreeNode.__init__(self, self._name, self._child_object, False, app=self._app)
             return True
         return False
 

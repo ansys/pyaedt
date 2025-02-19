@@ -739,6 +739,7 @@ class PostProcessorCommon(object):
         """
         if sweeps is None:
             sweeps = {"Theta": "All", "Phi": "All", "Freq": "All"}
+        sweeps = {i: self._app._units_assignment(i, k) for i, k in sweeps.items()}
         if not context:
             context = []
         if not isinstance(expressions, list):

@@ -157,7 +157,7 @@ class CircuitComponents(object):
     @property
     def model_units(self):
         """Model units."""
-        return self._modeler.model_units
+        return self._app.units.length
 
     @property
     def schematic_units(self):

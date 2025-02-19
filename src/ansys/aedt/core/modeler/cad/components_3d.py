@@ -225,7 +225,9 @@ class UserDefinedComponent(object):
         """
         try:
             child_object = self._primitives.oeditor.GetChildObject(self.name)
-            return BinaryTreeNode(list(child_object.GetChildNames("Operations"))[0], child_object, True, "Operations")
+            return BinaryTreeNode(
+                list(child_object.GetChildNames("Operations"))[0], child_object, True, "Operations", app=self._app
+            )
         except Exception:
             return False
 

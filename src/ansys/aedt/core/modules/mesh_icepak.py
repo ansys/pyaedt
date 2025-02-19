@@ -667,7 +667,7 @@ class MeshRegionCommon(BinaryTreeNode):
         if self._child_object:
             child_object = self._app.get_oo_object(self._app.odesign, f"Mesh/{self._name}")
             if child_object:
-                BinaryTreeNode.__init__(self, self._name, child_object, False)
+                BinaryTreeNode.__init__(self, self._name, child_object, False, app=self._app)
                 return True
         return False
 

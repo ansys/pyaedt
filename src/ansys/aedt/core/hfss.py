@@ -5852,6 +5852,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         if not variations:
             variations = self.available_variations.nominal_w_values_dict_w_dependent
+
+        variations = {i: self._units_assignment(i, k) for i, k in variations.items()}
         if not setup:
             setup = self.nominal_adaptive
 
@@ -5875,7 +5877,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             )
             self.logger.info("Far field sphere %s is created.", setup)
 
-        frequency_units = self.odesktop.GetDefaultUnit("Frequency")
+        frequency_units = self.units.frequency
 
         # Prepend analysis name if only the sweep name is passed for the analysis.
         setup = self.nominal_adaptive.split(":")[0] + ": " + setup if not ":" in setup else setup
@@ -5887,9 +5889,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                 frequencies = farfield_data.primary_sweep_values
 
         if frequencies is not None:
-            if type(frequencies) in [float, int, str]:
-                frequencies = [frequencies]
-            frequencies = [f"{freq}{frequency_units}" if is_number(freq) else f"{freq}" for freq in frequencies]
+            frequencies = self._units_assignment("Freq", frequencies)
         else:  # pragma: no cover
             self.logger.info("Frequencies could not be obtained.")
             return False
@@ -5983,7 +5983,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             )
             if rcs_data and rcs_data.primary_sweep_values is not None:
                 frequencies = rcs_data.primary_sweep_values
-                frequency_units = self.odesktop.GetDefaultUnit("Frequency")
+                frequency_units = self.units.frequency
                 frequencies = [str(freq) + frequency_units for freq in frequencies]
 
         if not frequencies:  # pragma: no cover

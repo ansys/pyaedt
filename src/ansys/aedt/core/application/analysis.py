@@ -2510,3 +2510,86 @@ class Analysis(Design, object):
 
         """
         return self.modeler._arg_with_dim(value, units)
+
+    @pyaedt_function_handler()
+    def _units_assignment(self, variable, value):
+        if isinstance(value, list):
+            new_value = []
+            for val in value:
+                if isinstance(val, (int, float)):
+                    if variable in [
+                        "Time",
+                        "StopTime",
+                        "TimeStep",
+                        "Steps From",
+                        "Steps To",
+                        "Start Time",
+                        "Stop Time",
+                        "Time Step",
+                        "Stop",
+                        "InitialStep",
+                        "MaxStep",
+                    ]:
+                        new_value.append(f"{val}{self.units.time}")
+                    elif variable in [
+                        "Frequency",
+                        "Freq",
+                        "AdaptiveFrequency",
+                        "HfssFrequency",
+                        "MinFreq",
+                        "MaxFreq",
+                        "SweepMinFreq",
+                        "SweepMaxFreq",
+                        "MinimumFrequency",
+                        "AdaptiveFreq",
+                        "MeshFrequency",
+                        "MinSolvedFreq",
+                        "MinFreqSMatrixOnlySolve",
+                        "MinFreqSMatOnlySolve",
+                    ]:
+                        new_value.append(f"{val}{self.units.frequency}")
+                    elif variable in ["Theta", "Phi", "Angle"]:
+                        new_value.append(f"{val}{self.units.angle}")
+                    else:
+                        new_value.append(val)
+                else:
+                    new_value.append(val)
+            return new_value
+        elif isinstance(value, (int, float)):
+            if variable in [
+                "Time",
+                "StopTime",
+                "TimeStep",
+                "Steps From",
+                "Steps To",
+                "Start Time",
+                "Stop Time",
+                "Time Step",
+                "Stop",
+                "InitialStep",
+                "MaxStep",
+            ]:
+                return f"{value}{self.units.time}"
+            elif variable in [
+                "Frequency",
+                "Freq",
+                "AdaptiveFrequency",
+                "HfssFrequency",
+                "MinFreq",
+                "MaxFreq",
+                "SweepMinFreq",
+                "SweepMaxFreq",
+                "MinimumFrequency",
+                "AdaptiveFreq",
+                "MeshFrequency",
+                "MinSolvedFreq",
+                "MinFreqSMatrixOnlySolve",
+                "MinFreqSMatOnlySolve",
+            ]:
+                return f"{value}{self.units.frequency}"
+            elif variable in ["Theta", "Phi", "Angle"]:
+                return f"{value}{self.units.angle}"
+            else:
+                return value
+        else:
+            return value

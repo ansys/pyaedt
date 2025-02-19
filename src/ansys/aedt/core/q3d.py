@@ -646,8 +646,8 @@ class QExtractor(FieldAnalysis3D, object):
                 .groups()[0]
             )
         else:
-            if freq_unit != self.odesktop.GetDefaultUnit("Frequency") and freq_unit is not None:
-                freq = go.parse_dim_arg(f"{freq}{freq_unit}", self.odesktop.GetDefaultUnit("Frequency"))
+            if freq_unit != self.units.frequency and freq_unit is not None:
+                freq = go.parse_dim_arg(f"{freq}{freq_unit}", self.units.frequency)
 
         if export_ac_dc_res is None:
             export_ac_dc_res = False

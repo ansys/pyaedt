@@ -37,7 +37,6 @@ import warnings
 import ansys.aedt.core
 from ansys.aedt.core.application.variables import Variable
 from ansys.aedt.core.application.variables import decompose_variable_value
-from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.data_handlers import json_to_dict
 from ansys.aedt.core.generic.general_methods import _dim_arg
 from ansys.aedt.core.generic.general_methods import _uname
@@ -437,16 +436,11 @@ class GeometryModeler(Modeler):
         >>> hfss.modeler.rescale_model = True
         >>> hfss.modeler.model_units = "mm"
         """
-        if not self._model_units:
-            self._model_units = self.oeditor.GetModelUnits()
-        return self._model_units
+        return self._app.units.length
 
     @model_units.setter
     def model_units(self, units):
-        if units not in AEDT_UNITS["Length"]:
-            raise RuntimeError(f"Invalid units string {units}.")
-        self.oeditor.SetModelUnits(["NAME:Units Parameter", "Units:=", units, "Rescale:=", self.rescale_model])
-        self._model_units = units
+        self._app.units.length = units
 
     @property
     def selections(self):

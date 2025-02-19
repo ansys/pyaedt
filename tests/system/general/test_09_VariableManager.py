@@ -448,9 +448,7 @@ class TestClass:
     def test_14_intrinsics(self):
         self.aedtapp["fc"] = "Freq"
         assert self.aedtapp["fc"] == "Freq"
-        assert self.aedtapp.variable_manager.dependent_variables["fc"].units == self.aedtapp.odesktop.GetDefaultUnit(
-            "Frequency"
-        )
+        assert self.aedtapp.variable_manager.dependent_variables["fc"].units == self.aedtapp.units.frequency
 
     def test_15_arrays(self):
         self.aedtapp["arr_index"] = 0

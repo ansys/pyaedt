@@ -196,7 +196,7 @@ class SweepHFSS(object):
                             values=new_list,
                             unit_system="Freq",
                             input_units="Hz",
-                            output_units=self._app._app.odesktop.GetDefaultUnit("Frequency"),
+                            output_units=self.units.frequency,
                         )
                         fr.append(new_list)
                     except (KeyError, NameError, IndexError):
@@ -712,7 +712,7 @@ class SweepMatrix(object):
                             values=new_list,
                             unit_system="Freq",
                             input_units="Hz",
-                            output_units=self._app._app.odesktop.GetDefaultUnit("Frequency"),
+                            output_units=self.units.frequency,
                         )
                         fr.append(new_list)
                     except (KeyError, NameError, IndexError):
@@ -992,6 +992,7 @@ class SetupProps(dict):
         if isinstance(value, dict):
             dict.__setitem__(self, key, SetupProps(self._pyaedt_setup, value))
         else:
+            value = self._pyaedt_setup._app._units_assignment(key, value)
             dict.__setitem__(self, key, value)
         if self._pyaedt_setup.auto_update:
             res = self._pyaedt_setup.update()

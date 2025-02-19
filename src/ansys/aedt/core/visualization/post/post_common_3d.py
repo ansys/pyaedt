@@ -119,10 +119,7 @@ class PostProcessor3D(PostProcessorCommon):
         str
            Model units, such as ``"mm"``.
         """
-        model_units = None
-        if self.oeditor and "GetModelUnits" in self.oeditor.__dir__():
-            model_units = self.oeditor.GetModelUnits()
-        return model_units
+        return self._app.units.length
 
     @property
     def post_osolution(self):
