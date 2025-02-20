@@ -31,60 +31,6 @@ from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
-@pyaedt_function_handler()
-def _dict2arg(d, arg_out):
-    """Convert a dictionary to an argument list.
-
-    Parameters
-    ----------
-    d : dict
-
-    arg_out :
-
-
-    Returns
-    -------
-
-    """
-    for k, v in d.items():
-        if "_pyaedt" in k:
-            continue
-        if k == "Point" or k == "DimUnits":
-            if isinstance(v[0], (list, tuple)):
-                for e in v:
-                    arg = ["NAME:" + k, e[0], e[1]]
-                    arg_out.append(arg)
-            else:
-                arg = ["NAME:" + k, v[0], v[1]]
-                arg_out.append(arg)
-        elif k == "Range":
-            if isinstance(v[0], (list, tuple)):
-                for e in v:
-                    arg_out.append(k + ":=")
-                    arg_out.append([i for i in e])
-            else:
-                arg_out.append(k + ":=")
-                arg_out.append([i for i in v])
-        elif isinstance(v, dict):
-            arg = ["NAME:" + k]
-            _dict2arg(v, arg)
-            arg_out.append(arg)
-        elif v is None:
-            arg_out.append(["NAME:" + k])
-        elif isinstance(v, list) and len(v) > 0 and isinstance(v[0], dict):
-            for el in v:
-                arg = ["NAME:" + k]
-                _dict2arg(el, arg)
-                arg_out.append(arg)
-
-        else:
-            arg_out.append(k + ":=")
-            if isinstance(v, (EdgePrimitive, FacePrimitive, VertexPrimitive)):
-                arg_out.append(v.id)
-            else:
-                arg_out.append(v)
-
-
 class EdgeTypePrimitive(object):
     """Provides common methods for EdgePrimitive and FacePrimitive."""
 

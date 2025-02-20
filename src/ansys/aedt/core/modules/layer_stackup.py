@@ -32,58 +32,9 @@ from __future__ import absolute_import  # noreorder
 
 from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import unit_converter
+from ansys.aedt.core.generic.data_handlers import str_to_bool
 from ansys.aedt.core.generic.general_methods import _arg_with_dim
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-
-
-@pyaedt_function_handler()
-def _str2bool(str0):
-    """Convert a string to a Boolean value.
-
-    Parameters
-    ----------
-    str0 : str
-       String to convert.
-
-    Returns
-    -------
-    bool
-        ``True`` when successful, ``False`` when failed.
-    """
-    if str0.lower() == "false":
-        return False
-    elif str0 == "true":
-        return True
-    else:
-        return ""
-
-
-def _conv_number(number, typen=float):
-    """Convert a number.
-
-    Parameters
-    ----------
-    number : int, float
-       Number represented a float.
-    typen : type
-         The default is ``float``.
-
-    Returns
-    -------
-    int or float
-        Number converted either to ``int`` or ``float``.
-
-    """
-    if typen is float:
-        try:
-            return float(number)
-        except Exception:
-            return number
-    elif typen is int:
-        try:
-            return int(number)
-        except Exception:
-            return number
 
 
 @pyaedt_function_handler()
@@ -1326,15 +1277,15 @@ class Layers(object):
             else:
                 o.type = infosdict["Type"]
                 o._is_negative = False
-            o._locked = _str2bool(infosdict["IsLocked"])
+            o._locked = str_to_bool(infosdict["IsLocked"])
             o._top_bottom = infosdict["TopBottomAssociation"].lower()
-            o._is_visible = _str2bool(infosdict["IsVisible"])
+            o._is_visible = str_to_bool(infosdict["IsVisible"])
             if "IsVisiblePath" in infosdict:
-                o._is_visible_path = _str2bool(infosdict["IsVisiblePath"])
-                o._is_visible_pad = _str2bool(infosdict["IsVisiblePad"])
-                o._is_visible_component = _str2bool(infosdict["IsVisibleComponent"])
-                o._is_visible_shape = _str2bool(infosdict["IsVisibleShape"])
-                o._is_visible_hole = _str2bool(infosdict["IsVisibleHole"])
+                o._is_visible_path = str_to_bool(infosdict["IsVisiblePath"])
+                o._is_visible_pad = str_to_bool(infosdict["IsVisiblePad"])
+                o._is_visible_component = str_to_bool(infosdict["IsVisibleComponent"])
+                o._is_visible_shape = str_to_bool(infosdict["IsVisibleShape"])
+                o._is_visible_hole = str_to_bool(infosdict["IsVisibleHole"])
             o._color = _getRGBfromI(int(infosdict["Color"][:-1]))
             if o.type in ["signal", "dielectric", "via"]:
                 o._index = int(infosdict["Index"])
