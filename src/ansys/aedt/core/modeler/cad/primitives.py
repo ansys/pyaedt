@@ -24,8 +24,6 @@
 
 """This module contains these Primitives classes: `Polyline` and `Primitives`."""
 
-from __future__ import absolute_import  # noreorder
-
 import copy
 import math
 import os

@@ -29,8 +29,6 @@ It includes common classes for file management and messaging and all
 calls to AEDT modules like the modeler, mesh, postprocessing, and setup.
 """
 
-from __future__ import absolute_import  # noreorder
-
 import os
 import re
 import shutil

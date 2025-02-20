@@ -24,7 +24,7 @@
 
 """This module contains the ``Hfss`` class."""
 
-from __future__ import absolute_import  # noreorder
+# noreorder
 
 import ast
 import math
