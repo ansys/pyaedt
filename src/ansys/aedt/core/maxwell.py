@@ -299,7 +299,7 @@ class Maxwell(CreateBoundaryMixin):
         Set matrix in a Maxwell magnetostatic analysis.
 
         >>> from ansys.aedt.core import Maxwell2d
-        >>> m2d = Maxwell2d(solution_type="MagnetostaticXY",version="2022.1",close_on_exit=True)
+        >>> m2d = Maxwell2d(solution_type="MagnetostaticXY",version="2025.1",close_on_exit=True)
         >>> coil1 = m2d.modeler.create_rectangle([0, 1.5, 0], [8, 3], is_covered=True, name="Coil_1")
         >>> coil2 = m2d.modeler.create_rectangle([8.5, 1.5, 0], [8, 3], is_covered=True, name="Coil_2")
         >>> coil3 = m2d.modeler.create_rectangle([16, 1.5, 0], [8, 3], is_covered=True, name="Coil_3")
@@ -2134,6 +2134,167 @@ class Maxwell(CreateBoundaryMixin):
         setup.auto_update = True
         setup.update()
         return setup
+
+    @pyaedt_function_handler(file_path="output_file", setup_name="setup")
+    def export_rl_matrix(
+        self,
+        matrix_name,
+        output_file,
+        is_format_default=True,
+        width=8,
+        precision=2,
+        is_exponential=False,
+        setup=None,
+        default_adaptive="LastAdaptive",
+        is_post_processed=False,
+    ):
+        """Export R/L matrix after solving.
+
+        Parameters
+        ----------
+        matrix_name : str
+            Matrix name to be exported.
+        output_file : str
+            Output file path to export R/L matrix file to.
+            Extension must be ``.txt``.
+        is_format_default : bool, optional
+            Whether the exported format is default or not.
+            If False the custom format is set (no exponential).
+        width : int, optional
+            Column width in exported .txt file.
+        precision : int, optional
+            Decimal precision number in exported \\*.txt file.
+        is_exponential : bool, optional
+            Whether the format number is exponential or not.
+        setup : str, optional
+            Name of the setup.
+            If not provided, the active setup is used.
+        default_adaptive : str, optional
+            Adaptive type.
+            The default is ``"LastAdaptive"``.
+        is_post_processed : bool, optional
+            Boolean to check if it is post processed. Default value is ``False``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if self.solution_type not in [
+            SOLUTIONS.Maxwell2d.EddyCurrentXY,
+            SOLUTIONS.Maxwell2d.EddyCurrentZ,
+            SOLUTIONS.Maxwell3d.EddyCurrent,
+        ]:
+            raise AEDTRuntimeError("RL Matrix can only be exported if solution type is Eddy Current.")
+
+        matrix_names_list = [matrix.name for matrix in self.boundaries if isinstance(matrix, MaxwellParameters)]
+        if not matrix_names_list:
+            raise AEDTRuntimeError("Matrix list is empty, can't export a valid matrix.")
+        elif matrix_name not in matrix_names_list:
+            raise AEDTRuntimeError("Matrix name doesn't exist, provide and existing matrix name.")
+
+        if os.path.splitext(output_file)[1] != ".txt":
+            raise AEDTRuntimeError("File extension must be .txt")
+
+        if setup is None:
+            setup = self.active_setup
+
+        analysis_setup = setup + " : " + default_adaptive
+
+        if not self.available_variations.nominal_w_values_dict:
+            variations = ""
+        else:
+            variations = " ".join(
+                f"{key}=\\'{value}\\'" for key, value in self.available_variations.nominal_w_values_dict.items()
+            )
+
+        if not is_format_default:
+            try:
+                self.oanalysis.ExportSolnData(
+                    analysis_setup,
+                    matrix_name,
+                    is_post_processed,
+                    variations,
+                    output_file,
+                    -1,
+                    is_format_default,
+                    width,
+                    precision,
+                    is_exponential,
+                )
+            except Exception as e:
+                raise AEDTRuntimeError("Solutions are empty. Solve before exporting.") from e
+        else:
+            try:
+                self.oanalysis.ExportSolnData(analysis_setup, matrix_name, is_post_processed, variations, output_file)
+            except Exception as e:
+                raise AEDTRuntimeError("Solutions are empty. Solve before exporting.") from e
+
+        return True
+
+    @pyaedt_function_handler()
+    def export_c_matrix(
+        self,
+        matrix_name,
+        output_file,
+        setup=None,
+        default_adaptive="LastAdaptive",
+        is_post_processed=False,
+    ):
+        """Export Capacitance matrix after solving.
+
+        Parameters
+        ----------
+        matrix_name : str
+            Matrix name to be exported.
+        output_file : str
+            Output file path to export R/L matrix file to.
+            Extension must be ``.txt``.
+        setup : str, optional
+            Name of the setup.
+            If not provided, the active setup is used.
+        default_adaptive : str, optional
+            Adaptive type.
+            The default is ``"LastAdaptive"``.
+        is_post_processed : bool, optional
+            Boolean to check if it is post processed. Default value is ``False``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if self.solution_type not in [
+            SOLUTIONS.Maxwell2d.ElectroStaticXY,
+            SOLUTIONS.Maxwell2d.ElectroStaticZ,
+            SOLUTIONS.Maxwell3d.ElectroStatic,
+        ]:
+            raise AEDTRuntimeError("C Matrix can only be exported if solution type is Electrostatic.")
+
+        matrix_names_list = [matrix.name for matrix in self.boundaries if isinstance(matrix, MaxwellParameters)]
+        if not matrix_names_list:
+            raise AEDTRuntimeError("Matrix list is empty, can't export a valid matrix.")
+        elif matrix_name not in matrix_names_list:
+            raise AEDTRuntimeError("Matrix name doesn't exist, provide and existing matrix name.")
+
+        if os.path.splitext(output_file)[1] != ".txt":
+            raise AEDTRuntimeError("File extension must be .txt")
+
+        if setup is None:
+            setup = self.active_setup
+
+        analysis_setup = setup + " : " + default_adaptive
+
+        if not self.available_variations.nominal_w_values_dict:
+            variations = ""
+        else:
+            variations = " ".join(
+                f"{key}=\\'{value}\\'" for key, value in self.available_variations.nominal_w_values_dict.items()
+            )
+
+        self.oanalysis.ExportSolnData(analysis_setup, matrix_name, is_post_processed, variations, output_file)
+
+        return True
 
     @pyaedt_function_handler
     # NOTE: Extend Mixin behaviour to handle Maxwell parameters
