@@ -28,8 +28,6 @@ This module contains the `PostProcessor` class.
 It contains all advanced postprocessing functionalities that require Python 3.x packages like NumPy and Matplotlib.
 """
 
-# noreorder
-
 import csv
 import os
 import re

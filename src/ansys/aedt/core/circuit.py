@@ -24,8 +24,6 @@
 
 """This module contains the ``Circuit`` class."""
 
-# noreorder
-
 import io
 import math
 import os

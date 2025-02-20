@@ -24,8 +24,6 @@
 
 """This module contains the ``Icepak`` class."""
 
-# noreorder
-
 import csv
 import os
 import re

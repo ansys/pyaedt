@@ -24,8 +24,6 @@
 
 """This module contains the ``Hfss`` class."""
 
-# noreorder
-
 import ast
 import math
 import os

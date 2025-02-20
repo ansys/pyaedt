@@ -24,8 +24,6 @@
 
 """This module contains these classes: ``Q2d``, ``Q3d``, and ``QExtractor``."""
 
-# noreorder
-
 import os
 import re
 import warnings

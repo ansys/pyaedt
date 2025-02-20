@@ -24,8 +24,6 @@
 
 """This module contains the ``MaxwellCircuit`` class."""
 
-# noreorder
-
 import math
 import os
 
