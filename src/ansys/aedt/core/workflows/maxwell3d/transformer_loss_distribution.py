@@ -26,7 +26,9 @@
 from pathlib import Path
 
 import ansys.aedt.core
+from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.workflows.misc import get_aedt_version
+from ansys.aedt.core.workflows.misc import get_arguments
 from ansys.aedt.core.workflows.misc import get_port
 from ansys.aedt.core.workflows.misc import get_process_id
 from ansys.aedt.core.workflows.misc import is_student
@@ -43,6 +45,7 @@ extension_description = "Extension template"
 
 def frontend():
     import tkinter as tk
+    from tkinter import filedialog
     import tkinter.ttk as ttk
 
     import PIL.Image
@@ -63,8 +66,8 @@ def frontend():
         active_project_name = "No active project"
     else:
         active_project_name = active_project.GetName()
-        active_design_name = app.active_design(active_project_name)
-        maxwell = ansys.aedt.core.Maxwell3D(active_project_name, active_design_name)
+        active_design_name = app.active_design().GetName()
+        maxwell = ansys.aedt.core.Maxwell3d(active_project_name, active_design_name)
 
     # Create UI
     master = tk.Tk()
@@ -106,36 +109,37 @@ def frontend():
     design_name_label = ttk.Label(master, text="Design Name:", width=20, style="PyAEDT.TLabel")
     design_name_label.grid(row=1, column=0, pady=10)
     design_name_entry = tk.Text(master, width=40, height=1)
-    design_name_entry.insert(tk.INSERT, active_project_name)
+    design_name_entry.insert(tk.INSERT, active_design_name)
     design_name_entry.grid(row=1, column=1, pady=15, padx=10)
     design_name_entry.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
 
     # Objects list
-    objects_list = maxwell.modeler.objects
+    scroll_bar = tk.Scrollbar(master)
+    # scroll_bar.pack(side=tk.RIGHT, fill=tk.Y)
+    objects_list = maxwell.modeler.object_names
     objects_list_label = ttk.Label(master, text="Objects list:", width=20, style="PyAEDT.TLabel")
     objects_list_label.grid(row=2, column=0, pady=10)
-    objects_list_lb = tk.Listbox(master, selectmode=tk.MULTIPLE, height=len(objects_list), width=50)
+    objects_list_lb = tk.Listbox(master, selectmode=tk.MULTIPLE, yscrollcommand=scroll_bar.set)
     for obj in objects_list:
         objects_list_lb.insert(tk.END, obj)
-        objects_list_lb.pack()
-    objects_list_lb.grid(row=2, column=1, pady=15, padx=10)
+    scroll_bar.config(command=objects_list_lb.yview)
+    objects_list_lb.grid(row=2, column=1, pady=15, padx=20)
 
-    # Formats list
-    formats_list = [".tab", ".csv", ".mat"]
-    formats_list_label = ttk.Label(master, text="Available output formats:", width=20, style="PyAEDT.TLabel")
-    formats_list_label.grid(row=3, column=0, pady=10)
-    formats_list_lb = tk.Listbox(master, selectmode=tk.MULTIPLE, height=len(formats_list), width=50)
-    for format in formats_list:
-        formats_list_lb.insert(tk.END, format)
-        formats_list_lb.pack()
-    formats_list_lb.grid(row=3, column=1, pady=15, padx=10)
+    # Export options
+    export_options_list = ["Loss - Ohmic loss", "Force"]
+    export_options_label = ttk.Label(master, text="Export options:", width=20, style="PyAEDT.TLabel")
+    export_options_label.grid(row=3, column=0, pady=10)
+    variable = tk.StringVar(master)
+    variable.set("")  # default value
+    export_options_lb = tk.OptionMenu(master, variable, *export_options_list)
+    export_options_lb.grid(row=3, column=1, pady=15, padx=10)
 
-    # Browse output file entry
-    browse_file_label = ttk.Label(master, text="Output file location:", width=20, style="PyAEDT.TLabel")
-    browse_file_label.grid(row=4, column=0, pady=10)
-    browse_file_entry = tk.Text(master, width=40, height=1)
-    browse_file_entry.grid(row=4, column=1, pady=15, padx=10)
-    browse_file_entry.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
+    # Export file
+    export_file_label = ttk.Label(master, text="Output file location:", width=20, style="PyAEDT.TLabel")
+    export_file_label.grid(row=4, column=0, pady=10)
+    export_file_entry = tk.Text(master, width=40, height=1)
+    export_file_entry.grid(row=4, column=1, pady=15, padx=10)
+    export_file_entry.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
 
     def toggle_theme():
         if master.theme == "light":
@@ -178,3 +182,95 @@ def frontend():
         project_name_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
         theme.apply_dark_theme(style)
         # change_theme_button.config(text="\u2600")
+
+    def callback():
+        # master.origin_x = origin_x_entry.get("1.0", tk.END).strip()
+        # master.origin_y = origin_y_entry.get("1.0", tk.END).strip()
+        # master.origin_z = origin_z_entry.get("1.0", tk.END).strip()
+        # master.radius = radius_entry.get("1.0", tk.END).strip()
+        master.destroy()
+
+    def save_as_files():
+        filename = filedialog.asksaveasfilename(
+            initialdir="/",
+            defaultextension=".tab",
+            filetypes=[
+                ("tab data file", ".tab"),
+                ("csv data file", ".csv"),
+                ("MATLAB", ".mat"),
+                ("Numpy array", ".npy"),
+            ],
+        )
+        export_file_entry.insert(tk.END, filename)
+        master.file_path = export_file_entry.get("1.0", tk.END).strip()
+        master.destroy()
+
+    # Create button to save fields data
+    save_as_button = ttk.Button(master, text="...", command=save_as_files, width=10, style="PyAEDT.TButton")
+    save_as_button.grid(row=5, column=2, pady=10, padx=15)
+
+    # Create buttons to create sphere and change theme color
+    # create_button = ttk.Button(master, text="Create Sphere", command=callback, style="PyAEDT.TButton")
+    # change_theme_button = ttk.Button(master, text="\u263D", width=2, command=toggle_theme, style="PyAEDT.TButton")
+    # create_button.grid(row=6, column=0, padx=15, pady=10)
+    # change_theme_button.grid(row=6, column=2, pady=10)
+
+    # Get objects list selection
+    selected_objects = variable.get()
+
+    tk.mainloop()
+
+    app.release_desktop(False, False)
+
+    return {}
+
+
+def main(extension_args):
+    app = ansys.aedt.core.Desktop(
+        new_desktop=False,
+        version=version,
+        port=port,
+        aedt_process_id=aedt_process_id,
+        student_version=is_student,
+    )
+
+    active_project = app.active_project()
+    active_design = app.active_design()
+
+    project_name = active_project.GetName()
+    if active_design.GetDesignType() == "HFSS 3D Layout Design":
+        design_name = active_design.GetDesignName()
+    else:
+        design_name = active_design.GetName()
+
+    aedtapp = get_pyaedt_app(project_name, design_name)
+
+    # origin_x = extension_args.get("origin_x", extension_arguments["origin_x"])
+    # origin_y = extension_args.get("origin_y", extension_arguments["origin_y"])
+    # origin_z = extension_args.get("origin_z", extension_arguments["origin_z"])
+    # radius = extension_args.get("radius", extension_arguments["radius"])
+    # file_path = extension_args.get("file_path", extension_arguments["file_path"])
+
+    # Your script
+    # if file_path:
+    #     #     aedtapp.load_project(file_path, set_active=True)
+    #     # else:
+    #     #     aedtapp.modeler.create_sphere([origin_x, origin_y, origin_z], radius)
+
+    if not extension_args["is_test"]:  # pragma: no cover
+        app.release_desktop(False, False)
+    return True
+
+
+if __name__ == "__main__":
+    args = get_arguments(extension_arguments, extension_description)
+
+    # Open UI
+    if not args["is_batch"]:  # pragma: no cover
+        output = frontend()
+        if output:
+            for output_name, output_value in output.items():
+                if output_name in extension_arguments:
+                    args[output_name] = output_value
+
+    main(args)
