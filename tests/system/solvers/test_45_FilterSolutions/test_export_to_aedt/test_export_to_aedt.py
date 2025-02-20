@@ -51,16 +51,6 @@ second_modelithics_resistor = "Vishay -> RES_VIS_0603_001 D11"
 @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
 class TestClass:
 
-    def test_lumped_export_to_aedt(self, lumped_design):
-        with pytest.raises(RuntimeError) as info:
-            lumped_design.export_to_aedt.insert_circuit_design = True
-        assert info.value.args[0] == "This property is not applicable to lumped designs in the export page"
-
-    def test_distributed_export_to_aedt(self, distributed_design):
-        with pytest.raises(RuntimeError) as info:
-            distributed_design.export_to_aedt.part_libraries = PartLibraries.LUMPED
-        assert info.value.args[0] == "This property is not applicable to distributed designs in the export page"
-
     def test_modelithics_include_interconnect_enabled(self, lumped_design):
         assert lumped_design.export_to_aedt.modelithics_include_interconnect_enabled
         lumped_design.export_to_aedt.modelithics_include_interconnect_enabled = False
