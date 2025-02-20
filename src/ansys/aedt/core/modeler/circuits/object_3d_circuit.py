@@ -1082,7 +1082,7 @@ class CircuitComponent(object):
 
         edit_context_arg = ["NAME:EditContext", "RefPinOption:=", 2, "CompName:=", self.model_name, terminals_arg]
 
-        self._circuit_components.o_symbol_manager.EditSymbolAndUpdateComps(self.model_name, args, [], edit_context_arg)
+        self._circuit_components.osymbol_manager.EditSymbolAndUpdateComps(self.model_name, args, [], edit_context_arg)
         self._circuit_components.oeditor.MovePins(self.composed_name, -0, -0, 0, 0, ["NAME:PinMoveData"])
         return True
 

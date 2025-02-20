@@ -25,6 +25,7 @@
 import math
 import os
 import secrets
+import warnings
 
 from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -145,9 +146,23 @@ class CircuitComponents(object):
         return self._app.o_component_manager
 
     @property
-    def o_symbol_manager(self):
+    def osymbol_manager(self):
         """Model manager object."""
-        return self._app.o_symbol_manager
+        return self._app.osymbol_manager
+
+    @property
+    def o_symbol_manager(self):
+        """Model manager object.
+
+        .. deprecated:: 0.15.0
+           Use :func:`osymbol_manager` method instead.
+
+        """
+        warnings.warn(
+            "`o_symbol_manager` is deprecated. Use `osymbol_manager` instead.",
+            DeprecationWarning,
+        )
+        return self._app.osymbol_manager
 
     @property
     def version(self):
@@ -943,7 +958,7 @@ class CircuitComponents(object):
             [0, 1],
             ["NAME:Graphics"],
         ]
-        self.o_symbol_manager.Add(arg)
+        self.osymbol_manager.Add(arg)
 
         id = 2
         i = 1
@@ -972,7 +987,7 @@ class CircuitComponents(object):
                 ["NAME:1", "Rect:=", [0, 0, 0, 0, (x1 + x2) / 2, (y1 + y2) / 2, x2 - x1, y1 - y2, 0, 0, 8192]],
             ]
         )
-        self.o_symbol_manager.EditWithComps(name, arg, [])
+        self.osymbol_manager.EditWithComps(name, arg, [])
         return True
 
     @pyaedt_function_handler()

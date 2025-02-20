@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 from collections import defaultdict
+import warnings
 
 from ansys.aedt.core.emit_core import emit_constants as emit_consts
 import ansys.aedt.core.generic.constants as consts
@@ -76,14 +77,31 @@ class EmitComponents(object):
         return self._parent._oproject.GetDefinitionManager()
 
     @property
-    def o_symbol_manager(self):
+    def osymbol_manager(self):
         """AEDT Symbol Manager.
 
         References
         ----------
         >>> oSymbolManager = oDefinitionManager.GetManager("Symbol")
         """
-        return self._parent.o_symbol_manager
+        return self._parent.osymbol_manager
+
+    @property
+    def o_symbol_manager(self):
+        """AEDT Symbol Manager.
+
+        .. deprecated:: 0.15.0
+           Use :func:`osymbol_manager` method instead.
+
+        References
+        ----------
+        >>> oSymbolManager = oDefinitionManager.GetManager("Symbol")
+        """
+        warnings.warn(
+            "`o_symbol_manager` is deprecated. Use `osymbol_manager` instead.",
+            DeprecationWarning,
+        )
+        return self.osymbol_manager
 
     @property
     def o_component_manager(self):

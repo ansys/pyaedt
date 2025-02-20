@@ -24,6 +24,7 @@
 
 import sys
 import time
+import warnings
 
 from ansys.aedt.core.generic.desktop_sessions import _desktop_sessions
 from ansys.aedt.core.generic.general_methods import is_linux
@@ -78,14 +79,14 @@ class AedtObjects(object):
         self._layouteditor = None
         self._o_component_manager = None
         self._o_model_manager = None
-        self._o_symbol_manager = None
+        self._osymbol_manager = None
         self._opadstackmanager = None
         self._oradfield = None
         self._onetwork_data_explorer = None
 
     @property
     def oradfield(self):
-        """AEDT Radiation Field Object.
+        """AEDT radiation field object.
 
         References
         ----------
@@ -97,7 +98,7 @@ class AedtObjects(object):
 
     @pyaedt_function_handler()
     def get_module(self, module_name):
-        """Aedt Module object."""
+        """AEDT module object."""
         if self.design_type not in ["EMIT"] and self._odesign:
             try:
                 return self._odesign.GetModule(module_name)
@@ -106,8 +107,8 @@ class AedtObjects(object):
         return None
 
     @property
-    def o_symbol_manager(self):
-        """Aedt Symbol Manager.
+    def osymbol_manager(self):
+        """AEDT symbol manager.
 
         References
         ----------
@@ -116,6 +117,23 @@ class AedtObjects(object):
         if self.odefinition_manager:
             return self.odefinition_manager.GetManager("Symbol")
         return
+
+    @property
+    def o_symbol_manager(self):
+        """AEDT symbol manager.
+
+        .. deprecated:: 0.15.0
+           Use :func:`osymbol_manager` method instead.
+
+        References
+        ----------
+        >>> oSymbolManager = oDefinitionManager.GetManager("Symbol")
+        """
+        warnings.warn(
+            "`o_symbol_manager` is deprecated. Use `osymbol_manager` instead.",
+            DeprecationWarning,
+        )
+        return self.osymbol_manager
 
     @property
     def opadstackmanager(self):
