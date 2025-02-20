@@ -26,7 +26,6 @@ from ansys.aedt.core import settings
 import ansys.aedt.core.filtersolutions_core
 from ansys.aedt.core.filtersolutions_core.attributes import Attributes
 from ansys.aedt.core.filtersolutions_core.distributed_geometry import DistributedGeometry
-from ansys.aedt.core.filtersolutions_core.distributed_parasitics import DistributedParasitics
 from ansys.aedt.core.filtersolutions_core.distributed_radial import DistributedRadial
 from ansys.aedt.core.filtersolutions_core.distributed_substrate import DistributedSubstrate
 from ansys.aedt.core.filtersolutions_core.distributed_topology import DistributedTopology
