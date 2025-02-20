@@ -29,7 +29,7 @@ import ansys.aedt.core
 
 
 class DistributedParasitics:
-    """Defines parasitics parameters of distributed filters.
+    """Defines parasitic parameters of distributed filters.
 
     This class allows you to define and modify the layout parasitics parameters of distributed filters.
     """
