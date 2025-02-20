@@ -148,10 +148,10 @@ class Quantity:
         self._parse_units(_unit)
 
     def __repr__(self):
-        return f"{self.value}{self.unit}"
+        return "%.16g" % self.value + self.unit
 
     def __str__(self):
-        return f"{self.value}{self.unit}"
+        return "%.16g" % self.value + self.unit
 
     def __add__(self, other):
         if isinstance(other, Quantity):

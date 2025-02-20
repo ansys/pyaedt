@@ -52,7 +52,7 @@ class TestClass:
     def test_numbers(self):
         a = Quantity("1GHz")
         assert a == 1
-        assert str(a) == "1.0GHz"
+        assert str(a) == "1GHz"
         a.rescale = True
         assert a.to("MHz") == 1e3
         a.unit = "Hz"
