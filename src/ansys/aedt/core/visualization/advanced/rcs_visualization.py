@@ -33,7 +33,6 @@ if current_python_version < (3, 10):  # pragma: no cover
 import warnings
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
-from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.general_methods import conversion_function
