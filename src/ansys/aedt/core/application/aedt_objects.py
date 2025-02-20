@@ -83,7 +83,7 @@ class AedtObjects(object):
         self._opadstackmanager = None
         self._oradfield = None
         self._onetwork_data_explorer = None
-        self._units = AedtUnits(self)
+        self.__aedtunits = AedtUnits(self)
 
     @property
     def units(self):
@@ -94,7 +94,7 @@ class AedtObjects(object):
         :class:`ansys.aedt.core.application.aedt_units.AedtUnits`
 
         """
-        return self._units
+        return self.__aedtunits
 
     @property
     def oradfield(self):

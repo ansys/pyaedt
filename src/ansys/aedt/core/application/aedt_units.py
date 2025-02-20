@@ -28,7 +28,7 @@ class AedtUnits:
     """Class containing all default AEDT units. All properties are read-only except length units."""
 
     def __init__(self, aedt_object=None):
-        self._aedt_object = aedt_object
+        self.__app = aedt_object
         self._frequency = self._get_model_unit("Frequency")
         self._length = None
         self._resistance = self._get_model_unit("Resistance")
@@ -57,9 +57,13 @@ class AedtUnits:
         """
         return self._rescale_model
 
+    @rescale_model.setter
+    def rescale_model(self, val):
+        self._rescale_model = val
+
     def _get_model_unit(self, unit_system):
-        if self._aedt_object:
-            return self._aedt_object._odesktop.GetDefaultUnit(unit_system)
+        if self.__app:
+            return self.__app._odesktop.GetDefaultUnit(unit_system)
 
     def _set_model_unit(self, prop, value, unit_system):
         if value in AEDT_UNITS[unit_system]:
@@ -91,27 +95,27 @@ class AedtUnits:
         str
             Unit value.
         """
-        if self._length is None and self._aedt_object:
-            if "GetActiveUnits" in dir(self._aedt_object.oeditor):
-                self._length = self._aedt_object.oeditor.GetActiveUnits()
-            if "GetActiveUnits" in dir(self._aedt_object.layouteditor):
-                self._length = self._aedt_object.layouteditor.GetActiveUnits()
-            elif "GetModelUnits" in dir(self._aedt_object.oeditor):
-                self._length = self._aedt_object.oeditor.GetModelUnits()
+        if self._length is None and self.__app:
+            if "GetActiveUnits" in dir(self.__app.oeditor):
+                self._length = self.__app.oeditor.GetActiveUnits()
+            if "GetActiveUnits" in dir(self.__app.layouteditor):
+                self._length = self.__app.layouteditor.GetActiveUnits()
+            elif "GetModelUnits" in dir(self.__app.oeditor):
+                self._length = self.__app.oeditor.GetModelUnits()
         return self._length
 
     @length.setter
     def length(self, value):
         if value in AEDT_UNITS["Length"]:
             self._length = value
-            if "SetModelUnits" in dir(self._aedt_object.oeditor):
-                self._aedt_object.oeditor.SetModelUnits(
+            if "SetModelUnits" in dir(self.__app.oeditor):
+                self.__app.oeditor.SetModelUnits(
                     ["NAME:Units Parameter", "Units:=", value, "Rescale:=", self.rescale_model]
                 )
-            elif "SetActiveUnits" in dir(self._aedt_object.oeditor):
-                self._aedt_object.oeditor.SetActiveUnits(value)
-            elif "SetActiveUnits" in dir(self._aedt_object.layouteditor):
-                self._aedt_object.layouteditor.SetActiveUnits(value)
+            elif "SetActiveUnits" in dir(self.__app.oeditor):
+                self.__app.oeditor.SetActiveUnits(value)
+            elif "SetActiveUnits" in dir(self.__app.layouteditor):
+                self.__app.layouteditor.SetActiveUnits(value)
         else:
             raise AttributeError(f"Unit {value} is incorrect.")
 

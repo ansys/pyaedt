@@ -3910,7 +3910,7 @@ class SetupMaxwell(Setup, object):
             ``True`` when successful, ``False`` when failed.
         """
         if matrix_type == "RL":
-            if self.p_app.export_rl_matrix(
+            if self._app.export_rl_matrix(
                 matrix_name=matrix_name,
                 output_file=output_file,
                 is_format_default=is_format_default,
@@ -3923,7 +3923,7 @@ class SetupMaxwell(Setup, object):
             ):
                 return True
         elif matrix_type == "C":
-            if self.p_app.export_c_matrix(
+            if self._app.export_c_matrix(
                 matrix_name=matrix_name,
                 output_file=output_file,
                 setup=setup,
