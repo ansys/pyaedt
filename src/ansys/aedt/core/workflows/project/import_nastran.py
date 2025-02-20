@@ -25,7 +25,7 @@ from pathlib import Path
 
 import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
-from ansys.aedt.core.visualization.advanced.misc import nastran_to_stl
+from ansys.aedt.core.generic.nastran_import import nastran_to_stl
 import ansys.aedt.core.workflows
 from ansys.aedt.core.workflows.misc import get_aedt_version
 from ansys.aedt.core.workflows.misc import get_arguments
