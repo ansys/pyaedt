@@ -26,7 +26,8 @@
 from pathlib import Path
 
 import ansys.aedt.core
-from ansys.aedt.core.generic.design_types import get_pyaedt_app
+
+# from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.workflows.misc import get_aedt_version
 from ansys.aedt.core.workflows.misc import get_arguments
 from ansys.aedt.core.workflows.misc import get_port
@@ -52,23 +53,22 @@ def frontend():
     import PIL.ImageTk
     from ansys.aedt.core.workflows.misc import ExtensionTheme
 
-    app = ansys.aedt.core.Desktop(
-        new_desktop=False,
-        specified_version=version,
-        port=port,
-        aedt_process_id=aedt_process_id,
-        student_version=is_student,
-    )
-
-    active_project = app.active_project()
-
-    if not active_project:
-        active_project_name = "No active project"
-    else:
-        active_project_name = active_project.GetName()
-        active_design_name = app.active_design().GetName()
-        maxwell = ansys.aedt.core.Maxwell3d(active_project_name, active_design_name)
-
+    # app = ansys.aedt.core.Desktop(
+    #     new_desktop=False,
+    #     specified_version=version,
+    #     port=port,
+    #     aedt_process_id=aedt_process_id,
+    #     student_version=is_student,
+    # )
+    #
+    # active_project = app.active_project()
+    #
+    # if not active_project:
+    #     active_project_name = "No active project"
+    # else:
+    #     active_project_name = active_project.GetName()
+    #     active_design_name = app.active_design().GetName()
+    #     maxwell = ansys.aedt.core.Maxwell3d(active_project_name, active_design_name)
     # Create UI
     master = tk.Tk()
 
@@ -101,7 +101,7 @@ def frontend():
     project_name_label = ttk.Label(master, text="Project Name:", width=20, style="PyAEDT.TLabel")
     project_name_label.grid(row=0, column=0, pady=10)
     project_name_entry = tk.Text(master, width=40, height=1)
-    project_name_entry.insert(tk.INSERT, active_project_name)
+    project_name_entry.insert(tk.INSERT, "active_project_name")
     project_name_entry.grid(row=0, column=1, pady=15, padx=10)
     project_name_entry.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
 
@@ -109,21 +109,28 @@ def frontend():
     design_name_label = ttk.Label(master, text="Design Name:", width=20, style="PyAEDT.TLabel")
     design_name_label.grid(row=1, column=0, pady=10)
     design_name_entry = tk.Text(master, width=40, height=1)
-    design_name_entry.insert(tk.INSERT, active_design_name)
+    design_name_entry.insert(tk.INSERT, "active_design_name")
     design_name_entry.grid(row=1, column=1, pady=15, padx=10)
     design_name_entry.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
 
     # Objects list
-    scroll_bar = tk.Scrollbar(master)
+    frame = tk.Frame(master)
+    frame.grid(row=2, column=1, columnspan=2, pady=10, padx=10)
+    scroll_bar = tk.Scrollbar(frame, orient=tk.VERTICAL)
+    scroll_bar.pack(side=tk.RIGHT, fill=tk.Y)
     # scroll_bar.pack(side=tk.RIGHT, fill=tk.Y)
-    objects_list = maxwell.modeler.object_names
+    # objects_list = maxwell.modeler.object_names
+    objects_list = ["Object1", "Object2", "Object3", "Object1", "Object2", "Object3", "Object1", "Object2", "Object3"]
     objects_list_label = ttk.Label(master, text="Objects list:", width=20, style="PyAEDT.TLabel")
     objects_list_label.grid(row=2, column=0, pady=10)
-    objects_list_lb = tk.Listbox(master, selectmode=tk.MULTIPLE, yscrollcommand=scroll_bar.set)
+    objects_list_lb = tk.Listbox(frame, selectmode=tk.MULTIPLE, yscrollcommand=scroll_bar.set, height=20, width=20)
+    objects_list_lb.pack(expand=True, fill=tk.Y)
     for obj in objects_list:
         objects_list_lb.insert(tk.END, obj)
+    # objects_list_lb.config(height=len(objects_list))
+    objects_list_lb.config(height=2)
     scroll_bar.config(command=objects_list_lb.yview)
-    objects_list_lb.grid(row=2, column=1, pady=15, padx=20)
+    # objects_list_lb.grid(row=2, column=1, pady=15, padx=20)
 
     # Export options
     export_options_list = ["Loss - Ohmic loss", "Force"]
@@ -220,30 +227,30 @@ def frontend():
 
     tk.mainloop()
 
-    app.release_desktop(False, False)
+    # app.release_desktop(False, False)
 
     return {}
 
 
 def main(extension_args):
-    app = ansys.aedt.core.Desktop(
-        new_desktop=False,
-        version=version,
-        port=port,
-        aedt_process_id=aedt_process_id,
-        student_version=is_student,
-    )
-
-    active_project = app.active_project()
-    active_design = app.active_design()
-
-    project_name = active_project.GetName()
-    if active_design.GetDesignType() == "HFSS 3D Layout Design":
-        design_name = active_design.GetDesignName()
-    else:
-        design_name = active_design.GetName()
-
-    aedtapp = get_pyaedt_app(project_name, design_name)
+    # app = ansys.aedt.core.Desktop(
+    #     new_desktop=False,
+    #     version=version,
+    #     port=port,
+    #     aedt_process_id=aedt_process_id,
+    #     student_version=is_student,
+    # )
+    #
+    # active_project = app.active_project()
+    # active_design = app.active_design()
+    #
+    # project_name = active_project.GetName()
+    # if active_design.GetDesignType() == "HFSS 3D Layout Design":
+    #     design_name = active_design.GetDesignName()
+    # else:
+    #     design_name = active_design.GetName()
+    #
+    # aedtapp = get_pyaedt_app(project_name, design_name)
 
     # origin_x = extension_args.get("origin_x", extension_arguments["origin_x"])
     # origin_y = extension_args.get("origin_y", extension_arguments["origin_y"])
@@ -258,7 +265,8 @@ def main(extension_args):
     #     #     aedtapp.modeler.create_sphere([origin_x, origin_y, origin_z], radius)
 
     if not extension_args["is_test"]:  # pragma: no cover
-        app.release_desktop(False, False)
+        # app.release_desktop(False, False)
+        pass
     return True
 
 
