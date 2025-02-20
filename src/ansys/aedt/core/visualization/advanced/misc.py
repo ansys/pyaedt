@@ -291,7 +291,7 @@ def parse_rdat_file(file_path):
 def _parse_nastran(file_path):
     """Nastran file parser."""
     logger = logging.getLogger("Global")
-    nas_to_dict = {"Points": [], "PointsId": {}, "Assemblies": {}, "Sets": {}}
+    nas_to_dict = {"Points": [], "PointsId": {}, "Assemblies": {}}
     includes = []
 
     def parse_lines(input_lines, input_pts_id=0, in_assembly="Main"):
@@ -310,47 +310,13 @@ def _parse_nastran(file_path):
                 n = n[0] + n[1:].replace("-", "e-")
             return n
 
-        def get_sets(lines, input_index, set_dict):
-            pattern = r"^SET (\d+)=(.*)"
-            il = input_index - 1
-            while il < len(lines) - 1:
-                il += 1
-                line = lines[il]
-                if "END OF SET DEFINITION SECTION" in line:
-                    break
-                elif line.startswith("$"):
-                    continue
-                elif line.startswith("SET"):
-                    match = re.match(pattern, line)
-                    if match:
-                        set_id = int(match.group(1))
-                        rest_of_line = match.group(2).strip()
-                        set_name = lines[il - 1][1:]
-                        set_dict[set_id] = {"Elements": [], "set_name": set_name}
-                        # Save the elements
-                        set_dict[set_id]["Elements"].extend([int(i) for i in rest_of_line.split(",") if i != ""])
-                        set_line = rest_of_line
-                        while set_line.endswith(","):
-                            il += 1
-                            set_line = lines[il].strip()
-                            # Save the elements
-                            set_dict[set_id]["Elements"].extend([int(i) for i in set_line.split(",") if i != ""])
-                    else:
-                        continue
-            return il
-
         line_header = ""
-        lk = -1
-        while lk < len(input_lines) - 1:
-            lk += 1
-
+        for lk in range(len(input_lines)):
             line = input_lines[lk]
             line_type = line[:8].strip()
             obj_type = "Triangles"
             if line.startswith("$"):
                 line_header = line[1:]
-                if "SET DEFINITION SECTION" in line:
-                    lk = get_sets(input_lines, lk, nas_to_dict["Sets"])
                 continue
             elif line.startswith("*"):
                 continue
@@ -739,14 +705,14 @@ def nastran_to_stl(
     decimation=0,
     enable_planar_merge="True",
     preview=False,
-    remove_triple_constraints=False,
+    remove_multiple_constraints=False,
 ):
     """Convert the Nastran file into stl."""
     logger = logging.getLogger("Global")
     nas_to_dict = _parse_nastran(input_file)
 
-    if remove_triple_constraints:
-        _remove_triple_constraints(nas_to_dict)
+    if remove_multiple_constraints:
+        _remove_multiple_constraints(nas_to_dict)
 
     empty = True
     for assembly in nas_to_dict["Assemblies"].values():
@@ -769,7 +735,7 @@ def nastran_to_stl(
 
 
 @pyaedt_function_handler()
-def _remove_triple_constraints(dict_in):
+def _remove_multiple_constraints(dict_in):
     """Remove the triple constraints by creating separated bodies."""
     logger = logging.getLogger("Global")
     # get the data
@@ -802,7 +768,7 @@ def _remove_triple_constraints(dict_in):
 
 
 @pyaedt_function_handler()
-def simplify_stl(input_file, output_file=None, decimation=0.5, preview=False):
+def simplify_and_preview_stl(input_file, output_file=None, decimation=0.5, preview=False):
     """Import and simplify a stl file using pyvista and fast-simplification.
 
     Parameters
