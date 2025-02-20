@@ -97,9 +97,23 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         return self._app.oeditor
 
     @property
-    def o_component_manager(self):
+    def ocomponent_manager(self):
         """Component manager object."""
-        return self._app.o_component_manager
+        return self._app.ocomponent_manager
+
+    @property
+    def o_component_manager(self):
+        """Component manager object.
+
+        .. deprecated:: 0.15.0
+           Use :func:`ocomponent_manager` method instead.
+
+        """
+        warn(
+            "`o_component_manager` is deprecated. Use `ocomponent_manager` instead.",
+            DeprecationWarning,
+        )
+        return self._app.ocomponent_manager
 
     @property
     def o_model_manager(self):
@@ -1190,8 +1204,8 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             ]
         )
 
-        self.o_component_manager.Add(arg)
-        self.o_component_manager.AddSolverOnDemandModel(
+        self.ocomponent_manager.Add(arg)
+        self.ocomponent_manager.AddSolverOnDemandModel(
             self.components[assignment].part,
             [
                 "NAME:CosimDefinition",

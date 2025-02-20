@@ -141,9 +141,22 @@ class CircuitComponents(object):
         return self._app.oproject.GetDefinitionManager()
 
     @property
-    def o_component_manager(self):
+    def ocomponent_manager(self):
         """Component manager object."""
-        return self._app.o_component_manager
+        return self._app.ocomponent_manager
+
+    @property
+    def o_component_manager(self):
+        """Component manager object.
+
+        .. deprecated:: 0.15.0
+           Use :func:`ocomponent_manager` method instead.
+        """
+        warnings.warn(
+            "`o_component_manager` is deprecated. Use `ocomponent_manager` instead.",
+            DeprecationWarning,
+        )
+        return self.ocomponent_manager
 
     @property
     def osymbol_manager(self):
@@ -704,7 +717,7 @@ class CircuitComponents(object):
             ]
         )
 
-        self.o_component_manager.Add(arg)
+        self.ocomponent_manager.Add(arg)
         return model_name
 
     @pyaedt_function_handler()
@@ -858,7 +871,7 @@ class CircuitComponents(object):
         """
         name = assignment
 
-        properties = self.o_component_manager.GetData(name)
+        properties = self.ocomponent_manager.GetData(name)
         if len(properties) > 0:
             nexxim = list(properties[len(properties) - 1][1])
             for el in nexxim:
@@ -866,7 +879,7 @@ class CircuitComponents(object):
                     nexxim_data = list(nexxim[nexxim.index(el) + 1])
                     nexxim_data[1] = ""
                     nexxim[nexxim.index(el) + 1] = nexxim_data
-        self.o_component_manager.Edit(
+        self.ocomponent_manager.Edit(
             name, ["Name:" + assignment, ["NAME:CosimDefinitions", nexxim, "DefaultCosim:=", "DefaultNetlist"]]
         )
         return True
@@ -897,7 +910,7 @@ class CircuitComponents(object):
 
         name = assignment
 
-        properties = self.o_component_manager.GetData(name)
+        properties = self.ocomponent_manager.GetData(name)
         if len(properties) > 0:
             nexxim = list(properties[len(properties) - 1][1])
             for el in nexxim:
@@ -905,7 +918,7 @@ class CircuitComponents(object):
                     nexxim_data = list(nexxim[nexxim.index(el) + 1])
                     nexxim_data[1] = "\n".join(global_netlist_list).replace("\\", "/")
                     nexxim[nexxim.index(el) + 1] = nexxim_data
-        self.o_component_manager.Edit(
+        self.ocomponent_manager.Edit(
             name,
             ["Name:" + assignment, ["NAME:CosimDefinitions", nexxim, "DefaultCosim:=", "DefaultNetlist"]],
         )
@@ -1016,7 +1029,7 @@ class CircuitComponents(object):
         else:
             name = component_name
 
-        properties = self.o_component_manager.GetData(name)
+        properties = self.ocomponent_manager.GetData(name)
         if len(properties) > 0:
             nexxim = list(properties[len(properties) - 1][1])
             for el in nexxim:
@@ -1030,7 +1043,7 @@ class CircuitComponents(object):
                 elif el == "GRef:=":
                     nexxim_data = list(nexxim[nexxim.index(el) + 1])
                     nexxim[nexxim.index(el) + 1] = nexxim_data
-        self.o_component_manager.Edit(
+        self.ocomponent_manager.Edit(
             name,
             ["Name:" + component_name, ["NAME:CosimDefinitions", nexxim, "DefaultCosim:=", "DefaultNetlist"]],
         )

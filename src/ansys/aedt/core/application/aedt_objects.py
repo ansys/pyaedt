@@ -67,7 +67,7 @@ class AedtObjects(object):
         self._odefinition_manager = None
         self._omaterial_manager = None
         self._omodel_setup = None
-        self._o_maxwell_parameters = None
+        self._omaxwell_parameters = None
         self._omonitor = None
         self._osolution = None
         self._oexcitation = None
@@ -77,7 +77,7 @@ class AedtObjects(object):
         self._omeshmodule = None
         self._oeditor = None
         self._layouteditor = None
-        self._o_component_manager = None
+        self._ocomponent_manager = None
         self._o_model_manager = None
         self._osymbol_manager = None
         self._opadstack_manager = None
@@ -162,7 +162,7 @@ class AedtObjects(object):
             "`opadstackmanager` is deprecated. Use `opadstack_manager` instead.",
             DeprecationWarning,
         )
-        return self._opadstack_manager
+        return self.opadstack_manager
 
     @property
     def design_type(self):
@@ -291,9 +291,9 @@ class AedtObjects(object):
         """
         if self._odesign and self.design_type not in ["Maxwell 3D", "Maxwell 2D"]:
             return
-        if not self._o_maxwell_parameters:
-            self._o_maxwell_parameters = self.get_module("MaxwellParameterSetup")
-        return self._o_maxwell_parameters
+        if not self._omaxwell_parameters:
+            self._omaxwell_parameters = self.get_module("MaxwellParameterSetup")
+        return self._omaxwell_parameters
 
     @property
     def o_maxwell_parameters(self):
@@ -475,11 +475,24 @@ class AedtObjects(object):
         return self._layouteditor
 
     @property
-    def o_component_manager(self):
+    def ocomponent_manager(self):
         """Component manager object."""
-        if not self._o_component_manager and self.odefinition_manager:
-            self._o_component_manager = self.odefinition_manager.GetManager("Component")
-        return self._o_component_manager
+        if not self._ocomponent_manager and self.odefinition_manager:
+            self._ocomponent_manager = self.odefinition_manager.GetManager("Component")
+        return self._ocomponent_manager
+
+    @property
+    def o_component_manager(self):
+        """Component manager object.
+
+        .. deprecated:: 0.15.0
+           Use :func:`ocomponent_manager` method instead.
+        """
+        warnings.warn(
+            "`o_component_manager` is deprecated. Use `ocomponent_manager` instead.",
+            DeprecationWarning,
+        )
+        return self.ocomponent_manager
 
     @property
     def o_model_manager(self):

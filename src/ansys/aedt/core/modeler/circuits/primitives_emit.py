@@ -104,14 +104,32 @@ class EmitComponents(object):
         return self.osymbol_manager
 
     @property
-    def o_component_manager(self):
+    def ocomponent_manager(self):
         """AEDT Component Manager.
 
         References
         ----------
         >>> oComponentManager = oDefinitionManager.GetManager("Component")
         """
-        return self._parent.o_component_manager
+
+        return self._parent.ocomponent_manager
+
+    @property
+    def o_component_manager(self):
+        """AEDT Component Manager.
+
+        .. deprecated:: 0.15.0
+           Use :func:`ocomponent_manager` method instead.
+
+        References
+        ----------
+        >>> oComponentManager = oDefinitionManager.GetManager("Component")
+        """
+        warnings.warn(
+            "`o_component_manager` is deprecated. Use `ocomponent_manager` instead.",
+            DeprecationWarning,
+        )
+        return self.ocomponent_manager
 
     @property
     def design_type(self):
