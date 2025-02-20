@@ -2050,7 +2050,7 @@ class NexximComponents(CircuitComponents):
         --------
         >>> from pathlib import Path
         >>> from ansys.aedt.core import Circuit
-        >>> cir = Circuit(version="2023.2")
+        >>> cir = Circuit(version="2025.1")
         >>> model = Path("Your path") / "test.lib"
         >>> cir.modeler.schematic.create_component_from_spicemodel(input_file=model,model="GRM1234",symbol="nexx_cap")
         >>> cir.release_desktop(False, False)
