@@ -62,9 +62,23 @@ class EmitComponents(object):
         return self.modeler.model_units
 
     @property
-    def o_model_manager(self):
-        """Aedt Model Manager."""
+    def omodel_manager(self):
+        """AEDT model manager."""
         return self.modeler.o_model_manager
+
+    @property
+    def o_model_manager(self):
+        """AEDT model manager.
+
+        .. deprecated:: 0.15.0
+           Use :func:`omodel_manager` method instead.
+
+        """
+        warnings.warn(
+            "`o_model_manager` is deprecated. Use `omodel_manager` instead.",
+            DeprecationWarning,
+        )
+        return self.omodel_manager
 
     @property
     def o_definition_manager(self):

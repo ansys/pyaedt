@@ -77,7 +77,7 @@ class CircuitComponents(object):
         self._app = modeler._app
         self._modeler = modeler
         self.logger = self._app.logger
-        self.o_model_manager = self._modeler.o_model_manager
+        self.omodel_manager = self._modeler.omodel_manager
 
         self.oeditor = self._modeler.oeditor
         self._currentId = 0
@@ -494,7 +494,7 @@ class CircuitComponents(object):
             model_name = os.path.splitext(os.path.basename(input_file))[0]
             if "." in model_name:
                 model_name = model_name.replace(".", "_")
-        if model_name in list(self.o_model_manager.GetNames()):
+        if model_name in list(self.omodel_manager.GetNames()):
             model_name = generate_unique_name(model_name, n=2)
         num_terminal = int(os.path.splitext(input_file)[1].lower().strip(".sp"))
         # with open_file(touchstone_full_path, "r") as f:
@@ -619,7 +619,7 @@ class CircuitComponents(object):
             "NoiseModelOption:=",
             "External",
         ]
-        self.o_model_manager.Add(arg)
+        self.omodel_manager.Add(arg)
         arg = [
             "NAME:" + model_name,
             "Info:=",

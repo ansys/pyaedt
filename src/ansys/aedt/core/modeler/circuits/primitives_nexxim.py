@@ -532,7 +532,7 @@ class NexximComponents(CircuitComponents):
             "RenormImpedance:=",
             50,
         ]
-        self.o_model_manager.Add(arg)
+        self.omodel_manager.Add(arg)
         arg = [
             "NAME:" + component_name,
             "Info:=",
@@ -1771,7 +1771,7 @@ class NexximComponents(CircuitComponents):
                 matrix = ["NAME:Reduce Matrix Choices", "Original"]
             compInfo.extend(["Reduce Matrix:=", default_matrix, matrix, "EnableCableModeling:=", enable_cable_modeling])
 
-        self.o_model_manager.Add(compInfo)
+        self.omodel_manager.Add(compInfo)
 
         info = [
             "Type:=",

@@ -78,7 +78,7 @@ class AedtObjects(object):
         self._oeditor = None
         self._layouteditor = None
         self._ocomponent_manager = None
-        self._o_model_manager = None
+        self._omodel_manager = None
         self._osymbol_manager = None
         self._opadstack_manager = None
         self._oradfield = None
@@ -495,11 +495,25 @@ class AedtObjects(object):
         return self.ocomponent_manager
 
     @property
-    def o_model_manager(self):
+    def omodel_manager(self):
         """Model manager object."""
-        if not self._o_model_manager and self.odefinition_manager:
-            self._o_model_manager = self.odefinition_manager.GetManager("Model")
-        return self._o_model_manager
+        if not self._omodel_manager and self.odefinition_manager:
+            self._omodel_manager = self.odefinition_manager.GetManager("Model")
+        return self._omodel_manager
+
+    @property
+    def o_model_manager(self):
+        """Model manager object.
+
+        .. deprecated:: 0.15.0
+           Use :func:`omodel_manager` method instead.
+
+        """
+        warnings.warn(
+            "`o_model_manager` is deprecated. Use `omodel_manager` instead.",
+            DeprecationWarning,
+        )
+        return self.omodel_manager
 
     @property
     def onetwork_data_explorer(self):
