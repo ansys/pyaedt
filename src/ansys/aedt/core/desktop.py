@@ -1572,7 +1572,7 @@ class Desktop(object):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> desktop = ansys.aedt.core.Desktop("2021.2")
+        >>> desktop = ansys.aedt.core.Desktop("2025.1")
         PyAEDT INFO: pyaedt v...
         PyAEDT INFO: Python version ...
         >>> desktop.release_desktop(close_projects=False, close_on_exit=False) # doctest: +SKIP
@@ -1631,7 +1631,7 @@ class Desktop(object):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> desktop = ansys.aedt.core.Desktop("2021.2")
+        >>> desktop = ansys.aedt.core.Desktop("2025.1")
         PyAEDT INFO: pyaedt v...
         PyAEDT INFO: Python version ...
         >>> desktop.close_desktop() # doctest: +SKIP
@@ -1648,7 +1648,7 @@ class Desktop(object):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> desktop = ansys.aedt.core.Desktop("2021.2")
+        >>> desktop = ansys.aedt.core.Desktop("2025.1")
         PyAEDT INFO: pyaedt v...
         PyAEDT INFO: Python version ...
         >>> desktop.enable_autosave()
@@ -1662,7 +1662,7 @@ class Desktop(object):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> desktop = ansys.aedt.core.Desktop("2021.2")
+        >>> desktop = ansys.aedt.core.Desktop("2025.1")
         PyAEDT INFO: pyaedt v...
         PyAEDT INFO: Python version ...
         >>> desktop.disable_autosave()
