@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 from ansys.aedt.core.generic import data_handlers as dh
-from ansys.aedt.core.generic.numbers import Number
+from ansys.aedt.core.generic.numbers import Quantity
 import pytest
 
 
@@ -50,23 +50,22 @@ class TestClass:
         assert dh.normalize_string_format(dirty) == clean
 
     def test_numbers(self):
-        a = Number("1GHz")
+        a = Quantity("1GHz")
         assert a == 1
         assert str(a) == "1.0GHz"
         a.rescale = True
-        assert a.rescale == True
+        assert a.to("MHz") == 1e3
         a.unit = "Hz"
         assert a.unit == "Hz"
-        assert a.value == 1e9
+        assert a.value == 1
         a.rescale = False
         a.unit = "MHz"
-        assert a.value == 1e9
+        assert a.value == 1
         a.unit = "GHz"
-        a.value = 1
         assert float(a + 1) == 2
         assert float(a + "2GHz") == 3
-        b = Number("1GHz")
-        assert isinstance(b - a, Number)
+        b = Quantity("1GHz")
+        assert isinstance(b - a, Quantity)
         assert b * 2
         assert b / 2
         assert b + "1GHz"

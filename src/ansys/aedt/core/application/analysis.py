@@ -53,7 +53,7 @@ from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import Number
+from ansys.aedt.core.generic.numbers import Quantity
 from ansys.aedt.core.generic.numbers import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
@@ -558,7 +558,7 @@ class Analysis(Design, object):
                     intrinsics = set_obj.default_intrinsics
                     break
 
-        elif isinstance(input_data, (str, Number)):
+        elif isinstance(input_data, (str, Quantity)):
             if "Freq" in self.design_solutions.intrinsics:
                 intrinsics["Freq"] = str(input_data)
                 if "Phase" in self.design_solutions.intrinsics:

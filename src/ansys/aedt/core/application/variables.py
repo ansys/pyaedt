@@ -54,7 +54,7 @@ from ansys.aedt.core.generic.errors import GrpcApiError
 from ansys.aedt.core.generic.general_methods import check_numeric_equivalence
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import Number
+from ansys.aedt.core.generic.numbers import Quantity
 from ansys.aedt.core.generic.numbers import decompose_variable_value
 from ansys.aedt.core.generic.numbers import is_array
 from ansys.aedt.core.generic.numbers import is_number
@@ -1010,7 +1010,7 @@ class VariableManager(object):
         elif isinstance(expression, Variable):
             # Handle input type variable
             variable = expression.evaluated_value
-        elif isinstance(expression, Number):
+        elif isinstance(expression, Quantity):
             variable = str(expression)
         elif is_number(expression):
             # Handle input type int/float, etc (including numeric 0)

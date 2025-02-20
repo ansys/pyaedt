@@ -35,14 +35,14 @@ from ansys.aedt.core.generic.constants import unit_system
 
 
 def _units_assignment(value):
-    if isinstance(value, Number):
+    if isinstance(value, Quantity):
         return str(value)
     elif isinstance(value, list):
         return [_units_assignment(i) for i in value]
     return value
 
 
-class Number:
+class Quantity:
     """Stores a number with its unit.
 
     Parameters
@@ -58,7 +58,6 @@ class Number:
         expression,
         unit=None,
     ):
-        self._rescale = True
         self._unit = ""
         if unit in AEDT_UNITS:
             self._unit_system = unit
@@ -70,19 +69,13 @@ class Number:
         if _unit:
             self._parse_units(_unit)
 
-    @property
-    def rescale(self):
-        """Whether to rescale or not the value when unit is set. Default is  `True`.
-
-        Returns
-        -------
-        bool
-        """
-        return self._rescale
-
-    @rescale.setter
-    def rescale(self, value):
-        self._rescale = value
+    def to(self, unit):
+        """Convert the actual number to new unit."""
+        if unit in AEDT_UNITS[self.unit_system]:
+            new_value = unit_converter(
+                self.value, unit_system=self.unit_system, input_units=self._unit, output_units=unit
+            )
+            return Quantity(new_value, unit)
 
     @property
     def _units_lower(self):
@@ -135,12 +128,7 @@ class Number:
 
     @unit.setter
     def unit(self, value):
-        if self.rescale and value in AEDT_UNITS[self.unit_system]:
-            self.value = unit_converter(
-                self.value, unit_system=self.unit_system, input_units=self._unit, output_units=value
-            )
-            self._unit = value
-        elif value in AEDT_UNITS[self.unit_system]:
+        if value in AEDT_UNITS[self.unit_system]:
             self._unit = value
 
     @property
@@ -166,57 +154,53 @@ class Number:
         return f"{self.value}{self.unit}"
 
     def __add__(self, other):
-        if isinstance(other, Number):
+        if isinstance(other, Quantity):
             if self.unit == other.unit:
-                return Number(self.value + other.value, self.unit)
+                return Quantity(self.value + other.value, self.unit)
             else:
-                other.rescale = True
-                other.unit = self.unit
-                return Number(self.value + other.value, self.unit)
+                new_other = other.to(self.unit)
+                return Quantity(self.value + new_other.value, self.unit)
         elif isinstance(other, str):
-            other = Number(other)
+            other = Quantity(other)
             if other.unit_system == self.unit_system:
-                other.rescale = True
-                other.unit = self.unit
-                return Number(self.value + other.value, self.unit)
+                new_other = other.to(self.unit)
+                return Quantity(self.value + new_other.value, self.unit)
         elif isinstance(other, (int, float)):
-            return Number(self.value + other, self.unit)
+            return Quantity(self.value + other, self.unit)
         else:
             raise TypeError("Unsupported type for addition")
 
     def __sub__(self, other):
-        if isinstance(other, Number):
+        if isinstance(other, Quantity):
             if self.unit == other.unit:
-                return Number(self.value - other.value, self.unit)
+                return Quantity(self.value - other.value, self.unit)
             else:
-                other.rescale = True
-                other.unit = self.unit
-                return Number(self.value + other.value, self.unit)
+                new_other = other.to(self.unit)
+                return Quantity(self.value + new_other.value, self.unit)
         elif isinstance(other, str):
-            other = Number(other)
+            other = Quantity(other)
             if other.unit_system == self.unit_system:
-                other.rescale = True
-                other.unit = self.unit
-                return Number(self.value + other.value, self.unit)
+                new_other = other.to(self.unit)
+                return Quantity(self.value + new_other.value, self.unit)
         elif isinstance(other, (int, float)):
-            return Number(self.value - other, self.unit)
+            return Quantity(self.value - other, self.unit)
         else:
             raise TypeError("Unsupported type for subtraction")
 
     def __mul__(self, other):
         if isinstance(other, (int, float)):
-            return Number(self.value * other, self.unit)
+            return Quantity(self.value * other, self.unit)
         else:
             raise TypeError("Unsupported type for multiplication")
 
     def __truediv__(self, other):
         if isinstance(other, (int, float)):
-            return Number(self.value / other, self.unit)
+            return Quantity(self.value / other, self.unit)
         else:
             raise TypeError("Unsupported type for division")
 
     def __eq__(self, other):
-        if isinstance(other, Number):
+        if isinstance(other, Quantity):
             return self.value == other.value and self.unit == other.unit
         elif isinstance(other, (int, float)):
             return self.value == other
@@ -227,7 +211,7 @@ class Number:
         return not self.__eq__(other)
 
     def __lt__(self, other):
-        if isinstance(other, Number):
+        if isinstance(other, Quantity):
             if self.unit == other.unit:
                 return self.value < other.value
             else:

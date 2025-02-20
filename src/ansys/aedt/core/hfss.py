@@ -45,7 +45,7 @@ from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import parse_excitation_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import read_configuration_file
-from ansys.aedt.core.generic.numbers import Number
+from ansys.aedt.core.generic.numbers import Quantity
 from ansys.aedt.core.generic.numbers import _units_assignment
 from ansys.aedt.core.generic.numbers import is_number
 from ansys.aedt.core.generic.settings import settings
@@ -5890,7 +5890,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             farfield_data = self.post.get_far_field_data(expressions=trace_name, setup_sweep_name=setup, domain=sphere)
             if farfield_data and getattr(farfield_data, "primary_sweep_values", None) is not None:
                 frequencies = [
-                    Number(i, farfield_data.units_sweeps["Freq"]) for i in farfield_data.primary_sweep_values
+                    Quantity(i, farfield_data.units_sweeps["Freq"]) for i in farfield_data.primary_sweep_values
                 ]
 
         if frequencies is not None:
