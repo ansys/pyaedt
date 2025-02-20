@@ -282,7 +282,7 @@ class AedtObjects(object):
         return self._omodel_setup
 
     @property
-    def o_maxwell_parameters(self):
+    def omaxwell_parameters(self):
         """AEDT Maxwell Parameter Setup Object.
 
         References
@@ -294,6 +294,23 @@ class AedtObjects(object):
         if not self._o_maxwell_parameters:
             self._o_maxwell_parameters = self.get_module("MaxwellParameterSetup")
         return self._o_maxwell_parameters
+
+    @property
+    def o_maxwell_parameters(self):
+        """AEDT Maxwell Parameter Setup Object.
+
+        .. deprecated:: 0.15.0
+           Use :func:`omaxwell_parameters` method instead.
+
+        References
+        ----------
+        >>> oDesign.GetModule("MaxwellParameterSetup")
+        """
+        warnings.warn(
+            "`o_maxwell_parameters` is deprecated. Use `omaxwell_parameters` instead.",
+            DeprecationWarning,
+        )
+        return self.omaxwell_parameters
 
     @property
     def omonitor(self):
