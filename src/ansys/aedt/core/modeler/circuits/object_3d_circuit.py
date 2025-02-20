@@ -1091,7 +1091,9 @@ class CircuitComponent(object):
         """Component definition path."""
         component_definition = self.component_info["Info"]
         model_data = self._circuit_components.o_model_manager.GetData(component_definition)
-        if "filename:=" in model_data:
+        if "sssfilename:=" in model_data and model_data[model_data.index("sssfilename:=") + 1]:
+            return model_data[model_data.index("sssfilename:=") + 1]
+        elif "filename:=" in model_data and model_data[model_data.index("filename:=") + 1]:
             return model_data[model_data.index("filename:=") + 1]
         component_data = self._circuit_components.o_component_manager.GetData(component_definition)
         if not component_data:
