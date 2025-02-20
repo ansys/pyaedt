@@ -90,6 +90,7 @@ config = {
     "skip_circuits": False,
     "skip_edb": False,
     "skip_debug": False,
+    "skip_modelithics": True,
     "local": False,
     "use_grpc": True,
     "disable_sat_bounding_box": True,
@@ -228,9 +229,6 @@ def add_edb(local_scratch):
         )
 
     return _method
-
-
-modelithics_not_installed = True
 
 
 @pytest.fixture(scope="function")

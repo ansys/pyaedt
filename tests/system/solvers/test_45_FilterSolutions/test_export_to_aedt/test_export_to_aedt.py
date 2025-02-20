@@ -34,7 +34,6 @@ from ansys.aedt.core.generic.settings import is_linux
 import pytest
 
 from tests.system.solvers.conftest import config
-from tests.system.solvers.conftest import modelithics_not_installed
 
 from ..resources import read_resource_file
 from ..resources import resource_path
@@ -57,7 +56,7 @@ class TestClass:
         lumped_design.export_to_aedt.modelithics_include_interconnect_enabled = False
         assert lumped_design.export_to_aedt.modelithics_include_interconnect_enabled is False
 
-    @pytest.mark.skipif(modelithics_not_installed, reason="Modelithics is not installed.")
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_inductor_list_count(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             assert lumped_design.export_to_aedt.modelithics_capacitor_list_count == 2
@@ -65,7 +64,7 @@ class TestClass:
         lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         assert lumped_design.export_to_aedt.modelithics_inductor_list_count == 116
 
-    @pytest.mark.skipif(modelithics_not_installed, reason="Modelithics is not installed.")
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_inductor_list(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.modelithics_inductor_list(0)
@@ -77,7 +76,7 @@ class TestClass:
         lumped_design.export_to_aedt.modelithics_inductor_selection = first_modelithics_inductor
         assert lumped_design.export_to_aedt.modelithics_inductor_list(0) == first_modelithics_inductor
 
-    @pytest.mark.skipif(modelithics_not_installed, reason="Modelithics is not installed.")
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_inductor_selection(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.modelithics_inductor_selection = first_modelithics_inductor
@@ -89,7 +88,7 @@ class TestClass:
         lumped_design.export_to_aedt.modelithics_inductor_selection = first_modelithics_inductor
         assert lumped_design.export_to_aedt.modelithics_inductor_selection == first_modelithics_inductor
 
-    @pytest.mark.skipif(modelithics_not_installed, reason="Modelithics is not installed.")
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_inductor_family_list_count(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             assert lumped_design.export_to_aedt.modelithics_inductor_family_list_count == 2
@@ -101,7 +100,7 @@ class TestClass:
         lumped_design.export_to_aedt.modelithics_inductor_add_family(third_modelithics_inductor)
         assert lumped_design.export_to_aedt.modelithics_inductor_family_list_count == 2
 
-    @pytest.mark.skipif(modelithics_not_installed, reason="Modelithics is not installed.")
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_inductor_family_list(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.modelithics_inductor_family_list(0)
@@ -115,7 +114,7 @@ class TestClass:
         assert lumped_design.export_to_aedt.modelithics_inductor_family_list(0) == second_modelithics_inductor
         assert lumped_design.export_to_aedt.modelithics_inductor_family_list(1) == third_modelithics_inductor
 
-    @pytest.mark.skipif(modelithics_not_installed, reason="Modelithics is not installed.")
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_inductor_family_list_add_family(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.modelithics_inductor_add_family(second_modelithics_inductor)
@@ -129,7 +128,7 @@ class TestClass:
         assert lumped_design.export_to_aedt.modelithics_inductor_family_list(0) == second_modelithics_inductor
         assert lumped_design.export_to_aedt.modelithics_inductor_family_list(1) == third_modelithics_inductor
 
-    @pytest.mark.skipif(modelithics_not_installed, reason="Modelithics is not installed.")
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_inductor_family_list_remove_family(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.modelithics_inductor_remove_family(second_modelithics_inductor)
@@ -143,7 +142,7 @@ class TestClass:
         lumped_design.export_to_aedt.modelithics_inductor_remove_family(third_modelithics_inductor)
         assert lumped_design.export_to_aedt.modelithics_inductor_family_list_count == 1
 
-    @pytest.mark.skipif(modelithics_not_installed, reason="Modelithics is not installed.")
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_capacitor_list_count(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             assert lumped_design.export_to_aedt.modelithics_capacitor_list_count == first_modelithics_capacitor
@@ -151,7 +150,7 @@ class TestClass:
         lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         assert lumped_design.export_to_aedt.modelithics_capacitor_list_count == 143
 
-    @pytest.mark.skipif(modelithics_not_installed, reason="Modelithics is not installed.")
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_capacitor_list(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.modelithics_capacitor_list(0)
@@ -163,7 +162,7 @@ class TestClass:
         lumped_design.export_to_aedt.modelithics_capacitor_selection = first_modelithics_capacitor
         assert lumped_design.export_to_aedt.modelithics_capacitor_list(0) == first_modelithics_capacitor
 
-    @pytest.mark.skipif(modelithics_not_installed, reason="Modelithics is not installed.")
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_capacitor_selection(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.modelithics_capacitor_selection = first_modelithics_capacitor
@@ -175,7 +174,7 @@ class TestClass:
         lumped_design.export_to_aedt.modelithics_capacitor_selection = first_modelithics_capacitor
         assert lumped_design.export_to_aedt.modelithics_capacitor_selection == first_modelithics_capacitor
 
-    @pytest.mark.skipif(modelithics_not_installed, reason="Modelithics is not installed.")
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_capacitor_family_list_count(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             assert lumped_design.export_to_aedt.modelithics_capacitor_family_list_count == 2
@@ -187,7 +186,7 @@ class TestClass:
         lumped_design.export_to_aedt.modelithics_capacitor_add_family(second_modelithics_capacitor)
         assert lumped_design.export_to_aedt.modelithics_capacitor_family_list_count == 2
 
-    @pytest.mark.skipif(modelithics_not_installed, reason="Modelithics is not installed.")
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_capacitor_family_list(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.modelithics_capacitor_family_list(0)
@@ -201,7 +200,7 @@ class TestClass:
         assert lumped_design.export_to_aedt.modelithics_capacitor_family_list(0) == first_modelithics_capacitor
         assert lumped_design.export_to_aedt.modelithics_capacitor_family_list(1) == second_modelithics_capacitor
 
-    @pytest.mark.skipif(modelithics_not_installed, reason="Modelithics is not installed.")
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_capacitor_family_list_add_family(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.modelithics_capacitor_add_family(first_modelithics_capacitor)
@@ -215,7 +214,7 @@ class TestClass:
         assert lumped_design.export_to_aedt.modelithics_capacitor_family_list(0) == first_modelithics_capacitor
         assert lumped_design.export_to_aedt.modelithics_capacitor_family_list(1) == second_modelithics_capacitor
 
-    @pytest.mark.skipif(modelithics_not_installed, reason="Modelithics is not installed.")
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_capacitor_family_list_remove_family(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.modelithics_capacitor_remove_family(second_modelithics_capacitor)
@@ -230,7 +229,7 @@ class TestClass:
         lumped_design.export_to_aedt.modelithics_capacitor_remove_family(second_modelithics_capacitor)
         assert lumped_design.export_to_aedt.modelithics_capacitor_family_list_count == 1
 
-    @pytest.mark.skipif(modelithics_not_installed, reason="Modelithics is not installed.")
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_resistor_list_count(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             assert lumped_design.export_to_aedt.modelithics_resistor_list_count == 2
@@ -238,7 +237,7 @@ class TestClass:
         lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         assert lumped_design.export_to_aedt.modelithics_resistor_list_count == 39
 
-    @pytest.mark.skipif(modelithics_not_installed, reason="Modelithics is not installed.")
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_resistor_list(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.modelithics_resistor_list(0)
@@ -250,7 +249,7 @@ class TestClass:
         lumped_design.export_to_aedt.modelithics_resistor_selection = first_modelithics_resistor
         assert lumped_design.export_to_aedt.modelithics_resistor_list(0) == first_modelithics_resistor
 
-    @pytest.mark.skipif(modelithics_not_installed, reason="Modelithics is not installed.")
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_resistor_selection(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.modelithics_resistor_selection = first_modelithics_resistor
@@ -262,7 +261,7 @@ class TestClass:
         lumped_design.export_to_aedt.modelithics_resistor_selection = first_modelithics_resistor
         assert lumped_design.export_to_aedt.modelithics_resistor_selection == first_modelithics_resistor
 
-    @pytest.mark.skipif(modelithics_not_installed, reason="Modelithics is not installed.")
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_resistor_family_list_count(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             assert lumped_design.export_to_aedt.modelithics_resistor_family_list_count == 2
@@ -274,7 +273,7 @@ class TestClass:
         lumped_design.export_to_aedt.modelithics_resistor_add_family(second_modelithics_resistor)
         assert lumped_design.export_to_aedt.modelithics_resistor_family_list_count == 2
 
-    @pytest.mark.skipif(modelithics_not_installed, reason="Modelithics is not installed.")
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_resistor_family_list(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.modelithics_resistor_family_list(0)
@@ -288,7 +287,7 @@ class TestClass:
         assert lumped_design.export_to_aedt.modelithics_resistor_family_list(0) == first_modelithics_resistor
         assert lumped_design.export_to_aedt.modelithics_resistor_family_list(1) == second_modelithics_resistor
 
-    @pytest.mark.skipif(modelithics_not_installed, reason="Modelithics is not installed.")
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_resistor_family_list_add_family(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.modelithics_resistor_add_family(first_modelithics_resistor)
@@ -302,7 +301,7 @@ class TestClass:
         assert lumped_design.export_to_aedt.modelithics_resistor_family_list(0) == first_modelithics_resistor
         assert lumped_design.export_to_aedt.modelithics_resistor_family_list(1) == second_modelithics_resistor
 
-    @pytest.mark.skipif(modelithics_not_installed, reason="Modelithics is not installed.")
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_resistor_family_list_remove_family(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.modelithics_resistor_remove_family(second_modelithics_resistor)
@@ -605,7 +604,7 @@ class TestClass:
         lumped_design.export_to_aedt.substrate_cover_height = "2.5 mm"
         assert lumped_design.export_to_aedt.substrate_cover_height == "2.5 mm"
 
-    @pytest.mark.skipif(modelithics_not_installed, reason="Modelithics is not installed.")
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_load_modelithics_models(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.load_modelithics_models()

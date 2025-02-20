@@ -128,7 +128,6 @@ class DistributedDesign(FilterDesignBase):
         self.substrate = DistributedSubstrate()
         self.geometry = DistributedGeometry()
         self.radial = DistributedRadial()
-        self.parasitics = DistributedParasitics()
 
     def _set_distributed_implementation(self):
         """Set ``FilterSolutions`` implementation to ``Distributed Design``."""
