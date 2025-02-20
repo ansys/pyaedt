@@ -518,7 +518,7 @@ class TestClass:
         m3dtransient.solution_type = m3dtransient.SOLUTIONS.Maxwell3d.EddyCurrent
         assert m3dtransient.enable_harmonic_force(assignment=["Stator"])
         m3dtransient.solution_type = m3dtransient.SOLUTIONS.Maxwell3d.TransientAPhiFormulation
-        assert m3dtransient.enable_harmonic_force(assignment=["Stator"])
+        assert m3dtransient.enable_harmonic_force(assignment=["Stator"], calculate_force=1)
 
     def test_06_export_element_based_harmonic_force(self, m3dtransient):
         assert m3dtransient.export_element_based_harmonic_force(
