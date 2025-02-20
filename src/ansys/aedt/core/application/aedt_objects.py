@@ -80,7 +80,7 @@ class AedtObjects(object):
         self._o_component_manager = None
         self._o_model_manager = None
         self._osymbol_manager = None
-        self._opadstackmanager = None
+        self._opadstack_manager = None
         self._oradfield = None
         self._onetwork_data_explorer = None
 
@@ -136,16 +136,33 @@ class AedtObjects(object):
         return self.osymbol_manager
 
     @property
-    def opadstackmanager(self):
-        """AEDT oPadstackManager.
+    def opadstack_manager(self):
+        """AEDT padstack manager.
 
         References
         ----------
         >>> oPadstackManger = oDefinitionManager.GetManager("Padstack")
         """
-        if self._oproject and not self._opadstackmanager:
-            self._opadstackmanager = self._oproject.GetDefinitionManager().GetManager("Padstack")
-        return self._opadstackmanager
+        if self._oproject and not self._opadstack_manager:
+            self._opadstack_manager = self._oproject.GetDefinitionManager().GetManager("Padstack")
+        return self._opadstack_manager
+
+    @property
+    def opadstackmanager(self):
+        """AEDT oPadstackManager.
+
+        .. deprecated:: 0.15.0
+           Use :func:`opadstack_manager` method instead.
+
+        References
+        ----------
+        >>> oPadstackManger = oDefinitionManager.GetManager("Padstack")
+        """
+        warnings.warn(
+            "`opadstackmanager` is deprecated. Use `opadstack_manager` instead.",
+            DeprecationWarning,
+        )
+        return self._opadstack_manager
 
     @property
     def design_type(self):
