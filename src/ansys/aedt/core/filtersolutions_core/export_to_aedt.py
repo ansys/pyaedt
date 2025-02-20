@@ -1893,7 +1893,7 @@ class ExportToAedt:
 
     @property
     def ports_always_on_sides_enabled(self) -> bool:
-        """Flag indicating if the ports are always placed  on the side walls.
+        """Flag indicating if the ports are always placed on the side walls.
 
         Returns
         -------
@@ -1965,7 +1965,7 @@ class ExportToAedt:
 
     @property
     def use_series_horizontal_ports_enabled(self) -> bool:
-        """Flag indicating if  horizontal ports are used for series element only cases .
+        """Flag indicating if  horizontal ports are used for series element only cases.
 
         Returns
         -------
@@ -1992,7 +1992,7 @@ class ExportToAedt:
         self._dll_interface.raise_error(status)
 
     def simulate_full_port_tuning(self):
-        """Simulate the port tuning  project and the linked circuits schematic."""
+        """Simulate the port tuning project and the linked circuits schematic."""
         status = self._dll.simulateFull()
         self._dll_interface.raise_error(status)
 
@@ -2002,6 +2002,6 @@ class ExportToAedt:
         self._dll_interface.raise_error(status)
 
     def optimize_port_tuning(self):
-        """Simulate the ``HFSS Design`` or ``HFSS 3D Layout Design`` of the port tuning  project."""
+        """Simulate the ``HFSS Design`` or ``HFSS 3D Layout Design`` of the port tuning project."""
         status = self._dll.optimizerPortTunedVariables()
         self._dll_interface.raise_error(status)

@@ -230,7 +230,7 @@ def add_edb(local_scratch):
     return _method
 
 
-modelithics_not_installed = False
+modelithics_not_installed = True
 
 
 @pytest.fixture(scope="function")
