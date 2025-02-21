@@ -28,7 +28,6 @@ from __future__ import absolute_import  # noreorder
 
 import io
 from pathlib import Path
-from pathlib import PurePath
 import re
 import time
 
@@ -78,7 +77,7 @@ class Maxwell(CreateBoundaryMixin):
     @property
     def design_file(self):
         """Design file."""
-        design_file = PurePath(self.working_directory) / "design_data.json"
+        design_file = Path(self.working_directory) / "design_data.json"
         return design_file
 
     @pyaedt_function_handler()
@@ -470,7 +469,7 @@ class Maxwell(CreateBoundaryMixin):
             raise AEDTRuntimeError("Control Program is only available in Maxwell 2D and 3D Transient solutions.")
 
         self._py_file = setupname + ".py"
-        ctl_file_path = PurePath(self.working_directory) / self._py_file
+        ctl_file_path = Path(self.working_directory) / self._py_file
 
         if aedt_lib_dir:
             source_dir = aedt_lib_dir
@@ -3349,7 +3348,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
             "MaterialProperties": self.get_object_material_properties(solid_bodies),
         }
 
-        design_file = PurePath(self.working_directory) / "design_data.json"
+        design_file = Path(self.working_directory) / "design_data.json"
         write_configuration_file(self.design_data, design_file)
         return True
 
@@ -3363,7 +3362,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
             Dictionary of design data.
 
         """
-        design_file = PurePath(self.working_directory) / "design_data.json"
+        design_file = Path(self.working_directory) / "design_data.json"
         return read_configuration_file(design_file)
 
     @pyaedt_function_handler(edge_list="assignment", bound_name="boundary")
