@@ -106,14 +106,14 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         """Component manager object.
 
         .. deprecated:: 0.15.1
-           Use :func:`ocomponent_manager` method instead.
+           Use :func:`ocomponent_manager` property instead.
 
         """
         warn(
             "`o_component_manager` is deprecated. Use `ocomponent_manager` instead.",
             DeprecationWarning,
         )
-        return self._app.ocomponent_manager
+        return self._app.ocomponent_manager  # pragma: no cover
 
     @property
     def omodel_manager(self):
@@ -125,13 +125,13 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         """Model manager object.
 
         .. deprecated:: 0.15.1
-           Use :func:`omodel_manager` method instead.
+           Use :func:`omodel_manager` property instead.
         """
         warnings.warn(
             "`o_model_manager` is deprecated. Use `omodel_manager` instead.",
             DeprecationWarning,
         )
-        return self.omodel_manager
+        return self.omodel_manager  # pragma: no cover
 
     @property
     def _edb_folder(self):

@@ -150,13 +150,13 @@ class CircuitComponents(object):
         """Component manager object.
 
         .. deprecated:: 0.15.0
-           Use :func:`ocomponent_manager` method instead.
+           Use :func:`ocomponent_manager` property instead.
         """
         warnings.warn(
             "`o_component_manager` is deprecated. Use `ocomponent_manager` instead.",
             DeprecationWarning,
         )
-        return self.ocomponent_manager
+        return self.ocomponent_manager  # pragma: no cover
 
     @property
     def osymbol_manager(self):
@@ -168,14 +168,14 @@ class CircuitComponents(object):
         """Model manager object.
 
         .. deprecated:: 0.15.0
-           Use :func:`osymbol_manager` method instead.
+           Use :func:`osymbol_manager` property instead.
 
         """
         warnings.warn(
             "`o_symbol_manager` is deprecated. Use `osymbol_manager` instead.",
             DeprecationWarning,
         )
-        return self._app.osymbol_manager
+        return self._app.osymbol_manager  # pragma: no cover
 
     @property
     def version(self):

@@ -64,21 +64,21 @@ class EmitComponents(object):
     @property
     def omodel_manager(self):
         """AEDT model manager."""
-        return self.modeler.o_model_manager
+        return self.modeler.omodel_manager
 
     @property
     def o_model_manager(self):
         """AEDT model manager.
 
         .. deprecated:: 0.15.0
-           Use :func:`omodel_manager` method instead.
+           Use :func:`omodel_manager` property instead.
 
         """
         warnings.warn(
             "`o_model_manager` is deprecated. Use `omodel_manager` instead.",
             DeprecationWarning,
         )
-        return self.omodel_manager
+        return self.omodel_manager  # pragma: no cover
 
     @property
     def o_definition_manager(self):
@@ -105,7 +105,7 @@ class EmitComponents(object):
         """AEDT Symbol Manager.
 
         .. deprecated:: 0.15.0
-           Use :func:`osymbol_manager` method instead.
+           Use :func:`osymbol_manager` property instead.
 
         References
         ----------
@@ -115,7 +115,7 @@ class EmitComponents(object):
             "`o_symbol_manager` is deprecated. Use `osymbol_manager` instead.",
             DeprecationWarning,
         )
-        return self.osymbol_manager
+        return self.osymbol_manager  # pragma: no cover
 
     @property
     def ocomponent_manager(self):
@@ -133,7 +133,7 @@ class EmitComponents(object):
         """AEDT Component Manager.
 
         .. deprecated:: 0.15.0
-           Use :func:`ocomponent_manager` method instead.
+           Use :func:`ocomponent_manager` property instead.
 
         References
         ----------
@@ -143,7 +143,7 @@ class EmitComponents(object):
             "`o_component_manager` is deprecated. Use `ocomponent_manager` instead.",
             DeprecationWarning,
         )
-        return self.ocomponent_manager
+        return self.ocomponent_manager  # pragma: no cover
 
     @property
     def design_type(self):

@@ -101,14 +101,14 @@ class ModelerCircuit(Modeler):
         """Component manager object.
 
         .. deprecated:: 0.15.0
-           Use :func:`ocomponent_manager` method instead.
+           Use :func:`ocomponent_manager` property instead.
 
         """
         warnings.warn(
             "`o_component_manager` is deprecated. Use `ocomponent_manager` instead.",
             DeprecationWarning,
         )
-        return self.ocomponent_manager
+        return self.ocomponent_manager  # pragma: no cover
 
     @property
     def omodel_manager(self):
@@ -120,13 +120,13 @@ class ModelerCircuit(Modeler):
         """Model manager object.
 
         .. deprecated:: 0.15.0
-           Use :func:`omodel_manager` method instead.
+           Use :func:`omodel_manager` property instead.
         """
         warnings.warn(
             "`o_model_manager` is deprecated. Use `omodel_manager` instead.",
             DeprecationWarning,
         )
-        return self.omodel_manager
+        return self.omodel_manager  # pragma: no cover
 
     @property
     def oeditor(self):
