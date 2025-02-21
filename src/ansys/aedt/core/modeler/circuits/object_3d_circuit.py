@@ -1105,8 +1105,6 @@ class CircuitComponent(object):
                     if len(data[1][12]) == 0:
                         return component_data[17][2][4]
                     return (data[1][12][1].split(" ")[1])[1:-1]
-        else:
-            return component_data[2][5]
 
 
 class Wire(object):

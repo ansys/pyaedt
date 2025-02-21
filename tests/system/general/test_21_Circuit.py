@@ -1027,3 +1027,10 @@ class TestClass:
         sss = self.aedtapp.modeler.schematic.create_nexxim_state_space_component(nexxim_state_space, 16)
         assert len(self.aedtapp.modeler.schematic.components) == 4
         assert sss.component_path
+        ibis_model = self.aedtapp.get_ibis_model_from_file(
+            os.path.join(TESTS_GENERAL_PATH, "example_models", "T15", "u26a_800_modified.ibs")
+        )
+        ibis_model.buffers["RDQS#_u26a_800_modified"].add()
+        buffer = ibis_model.buffers["RDQS#_u26a_800_modified"].insert(0.1016, 0.05334, 0.0)
+        assert len(self.aedtapp.modeler.schematic.components) == 5
+        assert buffer.component_path
