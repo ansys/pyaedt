@@ -32,16 +32,15 @@ import platform
 
 is_linux = os.name == "posix"
 
-if is_linux:
-    import subprocessdotnet as subprocess
-else:
-    import subprocess
-
 is_iron_python = platform.python_implementation().lower() == "ironpython"
 
 
 def aedt_script():
     try:
+        if is_linux:
+            import subprocessdotnet as subprocess
+        else:
+            import subprocess
         toolkits_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
         sys.path.append(toolkits_dir)
         import pyaedt_utils
@@ -75,6 +74,7 @@ def aedt_script():
 
 
 def pyaedt_script():
+    import subprocess
     # CPython interpreter
     python_exe = r"##PYTHON_EXE##"
     # Python script
