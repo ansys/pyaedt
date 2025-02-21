@@ -28,7 +28,6 @@ from __future__ import absolute_import  # noreorder
 
 import math
 from pathlib import Path
-from pathlib import PurePath
 
 from ansys.aedt.core.application.analysis_twin_builder import AnalysisTwinBuilder
 from ansys.aedt.core.application.variables import Variable
@@ -477,7 +476,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
                 is_loaded = True
         elif source_project in self.project_list:
             project_name = source_project
-            project_path = PurePath(self.project_path) / str(project_name + ".aedt")
+            project_path = Path(self.project_path) / str(project_name + ".aedt")
             app = dkp[[source_project, source_design_name]]
         else:
             raise ValueError("Invalid project name or path provided.")
