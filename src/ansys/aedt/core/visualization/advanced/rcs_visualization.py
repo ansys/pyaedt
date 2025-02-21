@@ -2067,10 +2067,12 @@ class MonostaticRCSPlotter(object):
         arrow_color : str, optional
             Color of the arrow. The default is red (``"#ff0000"``).
         """
-        self._add_incident_settings(scene_type="range_profile", arrow_color=arrow_color)
+        self._add_incident_settings(
+            scene_type="range_profile", 
+            arrow_color=arrow_color)
 
     @pyaedt_function_handler()
-    def add_incident_waterfall_settings(self, phi_angle=None, arrow_color="#ff0000", line_color="#ff0000"):
+    def add_incident_waterfall_settings(self, phi_span, num_phi, arrow_color="#ff0000", line_color="#ff0000"):
         """Add incident wave arrow setting for waterfall scene.
 
         This function visualizes the incident wave arrows for waterfall settings.
@@ -2085,11 +2087,19 @@ class MonostaticRCSPlotter(object):
             Color of the line. The default is red (``"#ff0000"``).
         """
         self._add_incident_settings(
+<<<<<<< Updated upstream
             scene_type="waterfall", phi_angle=phi_angle, arrow_color=arrow_color, line_color=line_color
+=======
+            scene_type="waterfall", 
+            phi_span=phi_span, 
+            num_phi=num_phi, 
+            arrow_color=arrow_color, 
+            line_color=line_color
+>>>>>>> Stashed changes
         )
 
     @pyaedt_function_handler()
-    def add_incident_isar_2d_settings(self, phi_angle=None, arrow_color="#ff0000", line_color="#ff0000"):
+    def add_incident_isar_2d_settings(self, phi_span, num_phi, arrow_color="#ff0000", line_color="#ff0000"):
         """Add incident wave arrow setting for ISAR 2D scene.
 
         This function visualizes the incident wave arrows for ISAR 2D settings.
@@ -2104,12 +2114,16 @@ class MonostaticRCSPlotter(object):
             Color of the line. The default is red (``"#ff0000"``).
         """
         self._add_incident_settings(
-            scene_type="isar_2d", phi_angle=phi_angle, arrow_color=arrow_color, line_color=line_color
+            scene_type="isar_2d", 
+            phi_span=phi_span, 
+            num_phi=num_phi,
+            arrow_color=arrow_color, 
+            line_color=line_color
         )
 
     @pyaedt_function_handler()
     def add_incident_isar_3d_settings(
-        self, theta_angle=None, phi_angle=None, arrow_color="#ff0000", line_color="#ff0000"
+        self, theta_span, num_theta, phi_span, num_phi, arrow_color="#ff0000", line_color="#ff0000"
     ):
         """Add incident wave arrow setting for ISAR 3D scene.
 
@@ -2128,8 +2142,10 @@ class MonostaticRCSPlotter(object):
         """
         self._add_incident_settings(
             scene_type="isar_3d",
-            theta_angle=theta_angle,
-            phi_angle=phi_angle,
+            theta_span=theta_span,
+            num_theta=num_theta,
+            phi_span=phi_span,
+            num_phi=num_phi,
             arrow_color=arrow_color,
             line_color=line_color,
         )
