@@ -2105,7 +2105,7 @@ class Analysis(Design, object):
         >>> oEditor.GetModelUnits
         >>> oEditor.GetActiveUnits
         """
-        v, u = decompose_variable_value(value)
+        _, u = decompose_variable_value(value)
         if u:
             return value
 
