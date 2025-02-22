@@ -118,8 +118,6 @@ def frontend():
     frame.grid(row=2, column=1, columnspan=2, pady=10, padx=10)
     scroll_bar = tk.Scrollbar(frame, orient=tk.VERTICAL)
     scroll_bar.pack(side=tk.RIGHT, fill=tk.Y)
-    # scroll_bar.pack(side=tk.RIGHT, fill=tk.Y)
-    # objects_list = maxwell.modeler.object_names
     objects_list = ["Object1", "Object2", "Object3", "Object1", "Object2", "Object3", "Object1", "Object2", "Object3"]
     objects_list_label = ttk.Label(master, text="Objects list:", width=20, style="PyAEDT.TLabel")
     objects_list_label.grid(row=2, column=0, pady=10)
@@ -127,19 +125,19 @@ def frontend():
     objects_list_lb.pack(expand=True, fill=tk.Y)
     for obj in objects_list:
         objects_list_lb.insert(tk.END, obj)
-    # objects_list_lb.config(height=len(objects_list))
-    objects_list_lb.config(height=2)
+    objects_list_lb.config(height=6, width=30)
     scroll_bar.config(command=objects_list_lb.yview)
-    # objects_list_lb.grid(row=2, column=1, pady=15, padx=20)
 
     # Export options
-    export_options_list = ["Loss - Ohmic loss", "Force"]
+    frame = tk.Frame(master)
+    frame.grid(row=3, column=1, columnspan=2, pady=10, padx=10)
+    export_options_list = ["Ohmic loss", "Force"]
     export_options_label = ttk.Label(master, text="Export options:", width=20, style="PyAEDT.TLabel")
     export_options_label.grid(row=3, column=0, pady=10)
-    variable = tk.StringVar(master)
-    variable.set("")  # default value
-    export_options_lb = tk.OptionMenu(master, variable, *export_options_list)
-    export_options_lb.grid(row=3, column=1, pady=15, padx=10)
+    export_options_lb = tk.Listbox(frame, selectmode=tk.MULTIPLE, yscrollcommand=scroll_bar.set, height=2, width=20)
+    export_options_lb.pack(expand=True, fill=tk.Y)
+    for opt in export_options_list:
+        export_options_lb.insert(tk.END, opt)
 
     # Export file
     export_file_label = ttk.Label(master, text="Output file location:", width=20, style="PyAEDT.TLabel")
@@ -223,7 +221,7 @@ def frontend():
     # change_theme_button.grid(row=6, column=2, pady=10)
 
     # Get objects list selection
-    selected_objects = variable.get()
+    # selected_objects = variable.get()
 
     tk.mainloop()
 
