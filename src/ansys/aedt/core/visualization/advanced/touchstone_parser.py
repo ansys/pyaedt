@@ -165,8 +165,10 @@ class TouchstoneData(rf.Network):
         s_db = self.s_db[:, :, :]
         temp_list = []
         temp_file = []
+        # This if statement is mandatory in case the user just wants to use this function on S parameter which does not
+        # have a corresponding projetc. Additionaly it ensures backward compatibility
         if aedb_path is not None:
-            edbapp = Edb(edbpath=aedb_path, cellname=design_name)
+            edbapp = Edb(edbpath=aedb_path, cellname=design_name, edbversion="2024.2")
             for i in range(nb_port):
                 for j in range(i, nb_port):
                     if i == j:
@@ -177,6 +179,9 @@ class TouchstoneData(rf.Network):
                             temp_list.append((i, j))
                             port1 = self.port_names[i]
                             port2 = self.port_names[j]
+                            print(port1, port2)
+                            # This if statement is mandatory as the codeword to use is different with regard to
+                            # port type: Circuit(.location) or Gap(.position)
                             if edbapp.ports[port1].hfss_type == 'Circuit':
                                 loc_port_1 = edbapp.ports[port1].location
                             else:
@@ -185,6 +190,8 @@ class TouchstoneData(rf.Network):
                                 loc_port_2 = edbapp.ports[port2].location
                             else:
                                 loc_port_2 = edbapp.ports[port2].position
+                            # This if statement is mandatory as some port return None for port location which will
+                            # issue error on the formatting
                             if loc_port_1 is not None:
                                 loc_port_1[0] = f"{loc_port_1[0]:.4f}"
                                 loc_port_1[1] = f"{loc_port_1[1]:.4f}"
@@ -193,7 +200,7 @@ class TouchstoneData(rf.Network):
                                 loc_port_2[1] = f"{loc_port_2[1]:.4f}"
                             sxy = f"S({port1},{port2})"
                             ports_location = f"{port1}: {loc_port_1}, {port2}: {loc_port_2}"
-                            line = f"{sxy} Loss= {loss:.2f} dB Freq= {(self.f[k] * 1e-9):.3f}GHz, {ports_location}\n"
+                            line = f"{sxy} Loss= {loss:.2f}dB Freq= {(self.f[k] * 1e-9):.3f}GHz, {ports_location}\n"
                             temp_file.append(line)
                             break
             edbapp.close_edb()
@@ -207,18 +214,18 @@ class TouchstoneData(rf.Network):
                         if high_loss < loss < low_loss:
                             temp_list.append((i, j))
                             sxy = f"S({self.port_names[i]},{self.port_names[j]})"
-                            line = f"{sxy} Loss = {loss:.2f} dB Freq = {(self.f[k] * 1e-9):.3f} GHz\n"
+                            line = f"{sxy} Loss= {loss:.2f}dB Freq= {(self.f[k] * 1e-9):.3f}GHz\n"
                             temp_file.append(line)
                             break
-            if output_file is not None:
-                if os.path.exists(output_file):
-                    logger.info("File " + output_file + " exist and we be replace by new one.")
-                    with open_file(output_file, "w") as f:
-                        for s in temp_file:
-                            f.write(s)
-                    logger.info("File " + output_file + " created.")
-                    f.close()
-            return temp_list
+        if output_file is not None:
+            if os.path.exists(output_file):
+                logger.info("File " + output_file + " exist and we be replace by new one.")
+            with open_file(output_file, "w") as f:
+                for s in temp_file:
+                    f.write(s)
+            logger.info("File " + output_file + " created.")
+            f.close()
+        return temp_list
 
     @pyaedt_function_handler()
     def get_insertion_loss_index(self, threshold=-3):
