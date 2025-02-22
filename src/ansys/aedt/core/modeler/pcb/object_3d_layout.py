@@ -2306,7 +2306,7 @@ class Padstack(object):
             sizes = [1]
         hole = self.PDSHole()
         hole.shape = hole_type
-        sizes = [_arg_with_dim(i, self.units) for i in sizes if isinstance(i, int, float)]
+        sizes = [_arg_with_dim(i, self.units) for i in sizes if isinstance(i, (int, float))]
         hole.sizes = sizes
         hole.x = _arg_with_dim(x, self.units)
         hole.y = _arg_with_dim(y, self.units)
