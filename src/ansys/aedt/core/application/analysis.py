@@ -1764,6 +1764,9 @@ class Analysis(Design, object):
         -------
         float
 
+        References
+        ----------
+        >>> oDesktop.AreThereSimulationsRunning
         """
         return self.desktop_class.are_there_simulations_running
 
@@ -1778,6 +1781,9 @@ class Analysis(Design, object):
         -------
         dict
 
+        References
+        ----------
+        >>> oDesktop.GetMonitorData
         """
         return self.desktop_class.get_monitor_data()
 
@@ -1792,6 +1798,9 @@ class Analysis(Design, object):
         -------
         str
 
+        References
+        ----------
+        >>> oDesktop.StopSimulations
         """
         return self.desktop_class.stop_simulations(clean_stop=clean_stop)
 
@@ -2134,6 +2143,12 @@ class Analysis(Design, object):
         -------
         str
             String that combines the value and the units (e.g. "1.2mm").
+
+        References
+        ----------
+        >>> oEditor.GetDefaultUnit
+        >>> oEditor.GetModelUnits
+        >>> oEditor.GetActiveUnits
         """
         v, u = decompose_variable_value(value)
         if u:
