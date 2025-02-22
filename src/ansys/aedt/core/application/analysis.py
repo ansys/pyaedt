@@ -1309,6 +1309,9 @@ class Analysis(Design, object):
     def edit_setup(self, name, properties):
         """Modify a setup.
 
+        .. deprecated:: 0.15.0
+            Use :func:`update` from setup object instead.
+
         Parameters
         ----------
         name : str
@@ -1324,7 +1327,9 @@ class Analysis(Design, object):
         ----------
         >>> oModule.EditSetup
         """
-
+        warnings.warn(
+            "`edit_setup` is deprecated. " "Use `update` method from setup object instead.", DeprecationWarning
+        )
         setuptype = self.design_solutions.default_setup
         setup = Setup(self, setuptype, name)
         setup.update(properties)
