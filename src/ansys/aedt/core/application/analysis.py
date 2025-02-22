@@ -2241,6 +2241,9 @@ class Analysis(Design, object):
            String concatenating the value and unit.
 
         """
+        warnings.warn(
+            "`number_with_units` is deprecated. " "Use `value_with_units` method instead.", DeprecationWarning
+        )
         return self.value_with_units(value, units)
 
 
