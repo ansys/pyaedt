@@ -28,30 +28,30 @@ The script executes the PyAEDT workflow.
 """
 import os
 import sys
+import platform
 
 is_linux = os.name == "posix"
 
-if is_linux:
-    import subprocessdotnet as subprocess
-else:
-    import subprocess
-
-toolkits_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-
-sys.path.append(toolkits_dir)
-
-import pyaedt_utils
+is_iron_python = platform.python_implementation().lower() == "ironpython"
 
 
-def main():
+def aedt_script():
     try:
+        if is_linux:
+            import subprocessdotnet as subprocess
+        else:
+            import subprocess
+        toolkits_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+        sys.path.append(toolkits_dir)
+        import pyaedt_utils
+
         # Get AEDT version
         short_version = oDesktop.GetVersion()[2:6].replace(".", "")
         oDesktop.AddMessage("", "", 0, "Toolkit launched. Wait.")
         # CPython interpreter
         python_exe = r"##PYTHON_EXE##"
         # Python script
-        pyaedt_script = r"##PYTHON_SCRIPT##"
+        extension_pyaedt_script = os.path.normpath(__file__)
         # Check if CPython interpreter and AEDT release match
         python_exe = pyaedt_utils.sanitize_interpreter_path(python_exe, short_version)
         # Check python executable
@@ -59,7 +59,7 @@ def main():
         if not python_exe_flag:
             return
         # Check script file
-        pyaedt_script_flag = pyaedt_utils.check_file(pyaedt_script, oDesktop)
+        pyaedt_script_flag = pyaedt_utils.check_file(extension_pyaedt_script, oDesktop)
         if not pyaedt_script_flag:
             return
         # Add environment variables
@@ -67,11 +67,25 @@ def main():
         # Run workflow
         pyaedt_utils.set_ansys_em_environment(oDesktop)
         my_env = dict(os.environ.copy())
-        command = [python_exe, pyaedt_script]
+        command = [python_exe, extension_pyaedt_script]
         subprocess.Popen(command, env=my_env)
     except Exception as e:
         pyaedt_utils.show_error(str(e), oDesktop)
 
 
+def pyaedt_script():
+    import subprocess
+    # CPython interpreter
+    python_exe = r"##PYTHON_EXE##"
+    # Python script
+    pyaedt_script = r"##PYTHON_SCRIPT##"
+    command = [python_exe, pyaedt_script]
+    my_env = dict(os.environ.copy())
+    subprocess.Popen(command, env=my_env)
+
+
 if __name__ == "__main__":
-    main()
+    if is_iron_python:
+        aedt_script()
+    else:
+        pyaedt_script()
