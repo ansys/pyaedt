@@ -103,7 +103,9 @@ def frontend():
     project_name_entry = tk.Text(master, width=40, height=1)
     project_name_entry.insert(tk.INSERT, "active_project_name")
     project_name_entry.grid(row=0, column=1, pady=15, padx=10)
-    project_name_entry.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
+    project_name_entry.configure(
+        bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font, state=tk.DISABLED
+    )
 
     # Design name info
     design_name_label = ttk.Label(master, text="Design Name:", width=20, style="PyAEDT.TLabel")
@@ -111,33 +113,39 @@ def frontend():
     design_name_entry = tk.Text(master, width=40, height=1)
     design_name_entry.insert(tk.INSERT, "active_design_name")
     design_name_entry.grid(row=1, column=1, pady=15, padx=10)
-    design_name_entry.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
+    design_name_entry.configure(
+        bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font, state=tk.DISABLED
+    )
+
+    # Export options
+    frame = tk.Frame(master)
+    frame.grid(row=2, column=0, pady=10, padx=10)
+    export_options_list = ["Ohmic loss", "Force"]
+    export_options_label = ttk.Label(
+        frame, text="Export options:", width=15, style="PyAEDT.TLabel", justify=tk.CENTER, anchor=tk.CENTER
+    )
+    export_options_label.pack(side=tk.TOP, fill=tk.BOTH)
+    export_options_lb = tk.Listbox(frame, selectmode=tk.SINGLE, height=2, width=15, justify=tk.CENTER)
+    export_options_lb.pack(expand=True, fill=tk.BOTH)
+    for opt in export_options_list:
+        export_options_lb.insert(tk.END, opt)
 
     # Objects list
     frame = tk.Frame(master)
-    frame.grid(row=2, column=1, columnspan=2, pady=10, padx=10)
+    frame.grid(row=2, column=1, pady=10, padx=10)
+    objects_list = ["Object1", "Object2", "Object3", "Object1", "Object2", "Object3", "Object1", "Object2", "Object3"]
+    objects_list_label = ttk.Label(
+        frame, text="Objects list:", width=15, style="PyAEDT.TLabel", justify=tk.CENTER, anchor=tk.CENTER
+    )
+    objects_list_label.pack(side=tk.TOP, fill=tk.BOTH)
     scroll_bar = tk.Scrollbar(frame, orient=tk.VERTICAL)
     scroll_bar.pack(side=tk.RIGHT, fill=tk.Y)
-    objects_list = ["Object1", "Object2", "Object3", "Object1", "Object2", "Object3", "Object1", "Object2", "Object3"]
-    objects_list_label = ttk.Label(master, text="Objects list:", width=20, style="PyAEDT.TLabel")
-    objects_list_label.grid(row=2, column=0, pady=10)
-    objects_list_lb = tk.Listbox(frame, selectmode=tk.MULTIPLE, yscrollcommand=scroll_bar.set, height=20, width=20)
-    objects_list_lb.pack(expand=True, fill=tk.Y)
+    objects_list_lb = tk.Listbox(frame, selectmode=tk.MULTIPLE, yscrollcommand=scroll_bar.set, justify=tk.CENTER)
+    objects_list_lb.pack(expand=True, fill=tk.BOTH)
     for obj in objects_list:
         objects_list_lb.insert(tk.END, obj)
     objects_list_lb.config(height=6, width=30)
     scroll_bar.config(command=objects_list_lb.yview)
-
-    # Export options
-    frame = tk.Frame(master)
-    frame.grid(row=3, column=1, columnspan=2, pady=10, padx=10)
-    export_options_list = ["Ohmic loss", "Force"]
-    export_options_label = ttk.Label(master, text="Export options:", width=20, style="PyAEDT.TLabel")
-    export_options_label.grid(row=3, column=0, pady=10)
-    export_options_lb = tk.Listbox(frame, selectmode=tk.MULTIPLE, yscrollcommand=scroll_bar.set, height=2, width=20)
-    export_options_lb.pack(expand=True, fill=tk.Y)
-    for opt in export_options_list:
-        export_options_lb.insert(tk.END, opt)
 
     # Export file
     export_file_label = ttk.Label(master, text="Output file location:", width=20, style="PyAEDT.TLabel")
@@ -156,22 +164,20 @@ def frontend():
 
     def set_light_theme():
         master.configure(bg=theme.light["widget_bg"])
-        # origin_x_entry.configure(
-        #     background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
-        # )
-        # origin_y_entry.configure(
-        #     background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
-        # )
-        # origin_z_entry.configure(
-        #     background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
-        # )
-        # radius_entry.configure(
-        #     background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
-        # )
-        # browse_file_entry.configure(
-        #     background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
-        # )
         project_name_entry.configure(
+            background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
+        )
+        design_name_entry.configure(
+            background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
+        )
+        export_options_lb.configure(
+            background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
+        )
+        objects_list_lb.configure(
+            background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
+        )
+        scroll_bar.configure(background=theme.light["pane_bg"])
+        export_file_entry.configure(
             background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
         )
         theme.apply_light_theme(style)
@@ -179,11 +185,12 @@ def frontend():
 
     def set_dark_theme():
         master.configure(bg=theme.dark["widget_bg"])
-        # origin_x_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        # origin_y_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        # origin_z_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        # radius_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        # browse_file_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
+        project_name_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
+        design_name_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
+        export_options_lb.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
+        objects_list_lb.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
+        scroll_bar.configure(bg=theme.dark["pane_bg"])
+        export_file_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
         project_name_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
         theme.apply_dark_theme(style)
         # change_theme_button.config(text="\u2600")
@@ -208,17 +215,20 @@ def frontend():
         )
         export_file_entry.insert(tk.END, filename)
         master.file_path = export_file_entry.get("1.0", tk.END).strip()
-        master.destroy()
+        # master.destroy()
 
-    # Create button to save fields data
-    save_as_button = ttk.Button(master, text="...", command=save_as_files, width=10, style="PyAEDT.TButton")
-    save_as_button.grid(row=5, column=2, pady=10, padx=15)
+    # Create button to select output file location
+    save_as_button = ttk.Button(master, text="Save as...", command=save_as_files, width=10, style="PyAEDT.TButton")
+    save_as_button.grid(row=4, column=2, pady=10, padx=15)
+
+    # Create button to export fields data
+    # In command put the workflow to export the data
+    export_button = ttk.Button(master, text="Export", width=10, style="PyAEDT.TButton")
+    export_button.grid(row=5, column=1, pady=10, padx=15)
 
     # Create buttons to create sphere and change theme color
-    # create_button = ttk.Button(master, text="Create Sphere", command=callback, style="PyAEDT.TButton")
-    # change_theme_button = ttk.Button(master, text="\u263D", width=2, command=toggle_theme, style="PyAEDT.TButton")
-    # create_button.grid(row=6, column=0, padx=15, pady=10)
-    # change_theme_button.grid(row=6, column=2, pady=10)
+    change_theme_button = ttk.Button(master, text="\u263D", width=2, command=toggle_theme, style="PyAEDT.TButton")
+    change_theme_button.grid(row=6, column=2, pady=10)
 
     # Get objects list selection
     # selected_objects = variable.get()
