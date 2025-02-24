@@ -96,14 +96,41 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         return self._app.oeditor
 
     @property
-    def o_component_manager(self):
+    def ocomponent_manager(self):
         """Component manager object."""
-        return self._app.o_component_manager
+        return self._app.ocomponent_manager
 
     @property
-    def o_model_manager(self):
+    def o_component_manager(self):  # pragma: no cover
+        """Component manager object.
+
+        .. deprecated:: 0.15.1
+           Use :func:`ocomponent_manager` property instead.
+
+        """
+        warn(
+            "`o_component_manager` is deprecated. Use `ocomponent_manager` instead.",
+            DeprecationWarning,
+        )
+        return self._app.ocomponent_manager
+
+    @property
+    def omodel_manager(self):
         """Model manager object."""
-        return self._app.o_model_manager
+        return self._app.omodel_manager
+
+    @property
+    def o_model_manager(self):  # pragma: no cover
+        """Model manager object.
+
+        .. deprecated:: 0.15.1
+           Use :func:`omodel_manager` property instead.
+        """
+        warn(
+            "`o_model_manager` is deprecated. Use `omodel_manager` instead.",
+            DeprecationWarning,
+        )
+        return self.omodel_manager
 
     @property
     def _edb_folder(self):
@@ -859,7 +886,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         """
         if not model_name:
             model_name = get_filename_without_extension(input_file)
-        if model_name not in list(self.o_model_manager.GetNames()):
+        if model_name not in list(self.omodel_manager.GetNames()):
             args = [
                 "NAME:" + model_name,
                 "Name:=",
@@ -885,7 +912,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                 "modelname:=",
                 model_name,
             ]
-            self.o_model_manager.Add(args)
+            self.omodel_manager.Add(args)
         if not subcircuit_name:
             subcircuit_name = model_name
         with open_file(input_file, "r") as f:
@@ -966,7 +993,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             model_name = os.path.splitext(os.path.basename(input_file))[0]
             if "." in model_name:
                 model_name = model_name.replace(".", "_")
-        if model_name in list(self.o_model_manager.GetNames()):
+        if model_name in list(self.omodel_manager.GetNames()):
             model_name = generate_unique_name(model_name, n=2)
         num_terminal = int(os.path.splitext(input_file)[1].lower().strip(".sp"))
 
@@ -1086,7 +1113,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             "NoiseModelOption:=",
             "External",
         ]
-        self.o_model_manager.Add(arg)
+        self.omodel_manager.Add(arg)
         arg = [
             "NAME:" + model_name,
             "Info:=",
@@ -1184,8 +1211,8 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             ]
         )
 
-        self.o_component_manager.Add(arg)
-        self.o_component_manager.AddSolverOnDemandModel(
+        self.ocomponent_manager.Add(arg)
+        self.ocomponent_manager.AddSolverOnDemandModel(
             self.components[assignment].part,
             [
                 "NAME:CosimDefinition",
