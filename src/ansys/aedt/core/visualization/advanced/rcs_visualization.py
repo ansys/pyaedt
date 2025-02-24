@@ -2067,9 +2067,7 @@ class MonostaticRCSPlotter(object):
         arrow_color : str, optional
             Color of the arrow. The default is red (``"#ff0000"``).
         """
-        self._add_incident_settings(
-            scene_type="range_profile", 
-            arrow_color=arrow_color)
+        self._add_incident_settings(scene_type="range_profile", arrow_color=arrow_color)
 
     @pyaedt_function_handler()
     def add_incident_waterfall_settings(self, phi_span, num_phi, arrow_color="#ff0000", line_color="#ff0000"):
@@ -2087,15 +2085,7 @@ class MonostaticRCSPlotter(object):
             Color of the line. The default is red (``"#ff0000"``).
         """
         self._add_incident_settings(
-<<<<<<< Updated upstream
-            scene_type="waterfall", phi_angle=phi_angle, arrow_color=arrow_color, line_color=line_color
-=======
-            scene_type="waterfall", 
-            phi_span=phi_span, 
-            num_phi=num_phi, 
-            arrow_color=arrow_color, 
-            line_color=line_color
->>>>>>> Stashed changes
+            scene_type="waterfall", phi_span=phi_span, num_phi=num_phi, arrow_color=arrow_color, line_color=line_color
         )
 
     @pyaedt_function_handler()
@@ -2114,11 +2104,7 @@ class MonostaticRCSPlotter(object):
             Color of the line. The default is red (``"#ff0000"``).
         """
         self._add_incident_settings(
-            scene_type="isar_2d", 
-            phi_span=phi_span, 
-            num_phi=num_phi,
-            arrow_color=arrow_color, 
-            line_color=line_color
+            scene_type="isar_2d", phi_span=phi_span, num_phi=num_phi, arrow_color=arrow_color, line_color=line_color
         )
 
     @pyaedt_function_handler()
