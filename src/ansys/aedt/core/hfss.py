@@ -39,11 +39,13 @@ from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.data_handlers import str_to_bool
 from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import is_number
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import parse_excitation_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import read_configuration_file
+from ansys.aedt.core.generic.numbers import Quantity
+from ansys.aedt.core.generic.numbers import _units_assignment
+from ansys.aedt.core.generic.numbers import is_number
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modeler import cad
@@ -2851,7 +2853,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Parameters
         ----------
-        frequency : str, optional
+        frequency : int, float, str optional
             Frequency with units. The default is ``"1GHz"``.
         boundary : str, optional
             Type of the boundary. The default is ``"Radiation"``.
@@ -2869,6 +2871,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         ----------
         >>> oModule.CreateOpenRegion
         """
+        frequency = _units_assignment(frequency)
         vars = [
             "NAME:Settings",
             "OpFreq:=",
@@ -4398,6 +4401,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         if not ports_excited:
             ports_excited = ports
         traces = ["dB(S(" + p + "," + q + "))" for p, q in zip(list(ports), list(ports_excited))]
+        if sweep is None:
+            sweep = self.nominal_sweep
         return self.post.create_report(
             traces, sweep, variations=variations, report_category=solution_data, plot_name=plot
         )
@@ -5851,6 +5856,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         if not variations:
             variations = self.available_variations.get_independent_nominal_values()
+
+        variations = {i: _units_assignment(k) for i, k in variations.items()}
         if not setup:
             setup = self.nominal_adaptive
 
@@ -5874,8 +5881,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             )
             self.logger.info("Far field sphere %s is created.", setup)
 
-        frequency_units = self.odesktop.GetDefaultUnit("Frequency")
-
         # Prepend analysis name if only the sweep name is passed for the analysis.
         setup = self.nominal_adaptive.split(":")[0] + ": " + setup if not ":" in setup else setup
 
@@ -5883,16 +5888,16 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             trace_name = "mag(rETheta)"
             farfield_data = self.post.get_far_field_data(expressions=trace_name, setup_sweep_name=setup, domain=sphere)
             if farfield_data and getattr(farfield_data, "primary_sweep_values", None) is not None:
-                frequencies = farfield_data.primary_sweep_values
+                frequencies = [
+                    Quantity(i, farfield_data.units_sweeps["Freq"]) for i in farfield_data.primary_sweep_values
+                ]
 
         if frequencies is not None:
-            if type(frequencies) in [float, int, str]:
-                frequencies = [frequencies]
-            frequencies = [f"{freq}{frequency_units}" if is_number(freq) else f"{freq}" for freq in frequencies]
+            frequencies = _units_assignment(frequencies)
         else:  # pragma: no cover
             self.logger.info("Frequencies could not be obtained.")
             return False
-
+        frequencies = [self.value_with_units(i, self.units.frequency, "Freq") for i in frequencies]
         ffd = FfdSolutionDataExporter(
             self,
             sphere_name=sphere,
@@ -5982,7 +5987,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             )
             if rcs_data and rcs_data.primary_sweep_values is not None:
                 frequencies = rcs_data.primary_sweep_values
-                frequency_units = self.odesktop.GetDefaultUnit("Frequency")
+                frequency_units = self.units.frequency
                 frequencies = [str(freq) + frequency_units for freq in frequencies]
 
         if not frequencies:  # pragma: no cover
