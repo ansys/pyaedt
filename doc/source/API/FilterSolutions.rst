@@ -60,6 +60,8 @@ Distributed filters rely on transmission lines and resonators.
 * ``DistributedSubstrate`` to define attributes and  parameters of the substrate used in distributed filters.
 * ``DistributedGeometry`` to define attributes and parameters of the substrate geometry used in distributed filters.
 * ``DistributedRadial`` to define attributes and parameters of the substrate radial used in distributed filters.
+* ``DistributedParasitics`` to define attributes and parameters of parasitic values associated with lumped elements.
+
 
 
 They are accessible through:
@@ -76,6 +78,7 @@ They are accessible through:
    distributed_substrate.DistributedSubstrate
    distributed_geometry.DistributedGeometry
    distributed_radial.DistributedRadial
+   distributed_parasitics.DistributedParasitics
 
 ``Distributed Filter`` example:
 

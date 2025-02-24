@@ -410,7 +410,8 @@ class CommonReport(BinaryTreeNode):
         self._legacy_props["context"]["secondary_sweep_range"] = ["All"]
         self._legacy_props["context"]["variations"] = {"Freq": ["All"]}
         if hasattr(self._app, "available_variations") and self._app.available_variations:
-            for el, k in self._app.available_variations.nominal_w_values_dict.items():
+            nominal_variation = self._post._app.available_variations.get_independent_nominal_values()
+            for el, k in nominal_variation.items():
                 self._legacy_props["context"]["variations"][el] = k
         self._legacy_props["expressions"] = None
         self._legacy_props["plot_name"] = None
@@ -1297,9 +1298,16 @@ class CommonReport(BinaryTreeNode):
         for el, k in sweeps.items():
             if el in [self.primary_sweep, self.secondary_sweep]:
                 continue
+            sweep_list.append(el + ":=")
+            if isinstance(sweeps[el], list):
+                sweep_list.append(sweeps[el])
+            else:
+                sweep_list.append([sweeps[el]])
+        nominal_values = self._app.available_variations.get_independent_nominal_values()
+        for el in list(sweeps.keys()):
             sweep_list.append(f"{el}:=")
             sweep_list.append(_units_assignment(k))
-        for el in list(self._app.available_variations.nominal_w_values_dict.keys()):
+        for el in list(nominal_values.keys()):
             if el not in sweeps:
                 sweep_list.append(f"{el}:=")
                 sweep_list.append(["Nominal"])
