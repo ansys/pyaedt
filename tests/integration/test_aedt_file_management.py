@@ -23,8 +23,9 @@
 # SOFTWARE.
 
 import os
+import shutil
 import pytest
-
+from pathlib import Path
 from ansys.aedt.core.application.aedt_file_management import (
     read_info_fromcsv,
     clean_proj_folder,
@@ -34,47 +35,54 @@ from ansys.aedt.core.application.aedt_file_management import (
 )
 
 def test_integration_read_info_fromcsv(tmp_path):
-    # Create a temporary CSV file with known content.
     csv_content = "header1,header2\nvalue1,value2"
     csv_file = tmp_path / "data.csv"
     csv_file.write_text(csv_content, encoding="utf-8")
     
-    # Call the function.
-    result = read_info_fromcsv(str(tmp_path), "data.csv")
+    # Use as_posix() for a more descriptive path.
+    result = read_info_fromcsv(csv_file.as_posix(), "data.csv")
     expected = [['header1', 'header2'], ['value1', 'value2']]
     assert result == expected
 
 def test_integration_clean_proj_folder(tmp_path):
-    # Create a temporary project directory with a dummy file.
     project_dir = tmp_path / "project"
     project_dir.mkdir()
-    (project_dir / "dummy.txt").write_text("data", encoding="utf-8")
+    dummy_file = project_dir / "dummy.txt"
+    dummy_file.write_text("content", encoding="utf-8")
+    # Assert that the dummy file exists before cleaning.
+    assert dummy_file.is_file()
     
-    result = clean_proj_folder(str(project_dir), "project")
+    result = clean_proj_folder(project_dir.as_posix(), "project")
     assert result is True
-    # The folder is recreated empty.
+    # After cleaning, the project directory should exist but be empty.
     assert list(project_dir.iterdir()) == []
 
 def test_integration_create_output_folder(tmp_path):
-    # Create a temporary project directory.
     project_dir = tmp_path / "ProjectIntegration"
-    project_dir.mkdir()
+    # Ensure the directory is empty or does not contain subdirectories.
+    if project_dir.exists():
+        for child in project_dir.iterdir():
+            if child.is_dir():
+                shutil.rmtree(child)
+            else:
+                child.unlink()
+    else:
+        project_dir.mkdir()
     
-    picture_path, results_path = create_output_folder(str(project_dir))
+    picture_path, results_path = create_output_folder(project_dir.as_posix())
     
-    # The output folder is defined as project_dir / basename(project_dir)
-    output_dir = project_dir / "ProjectIntegration"
+    base = project_dir.name
+    output_dir = project_dir / base
     assert output_dir.exists() and output_dir.is_dir()
     
-    expected_picture = os.path.join(str(output_dir), "Pictures")
-    expected_results = os.path.join(str(output_dir), "Results")
+    expected_picture = (output_dir / "Pictures").as_posix()
+    expected_results = (output_dir / "Results").as_posix()
     assert picture_path == expected_picture
     assert results_path == expected_results
-    assert os.path.isdir(picture_path)
-    assert os.path.isdir(results_path)
+    assert Path(picture_path).is_dir()
+    assert Path(results_path).is_dir()
 
 def test_integration_change_objects_visibility(tmp_path):
-    # Create a temporary AEDT file with multiline content.
     content = (
         "$begin 'EditorWindow'\n"
         "Header info\n"
@@ -85,13 +93,12 @@ def test_integration_change_objects_visibility(tmp_path):
     origfile = tmp_path / "integration.aedt"
     origfile.write_text(content, encoding="utf-8")
     
-    # Ensure no lock file exists.
     lock_file = tmp_path / "integration.aedt.lock"
     if lock_file.exists():
         lock_file.unlink()
     
     solid_list = ["int_obj1", "int_obj2"]
-    result = change_objects_visibility(str(origfile), solid_list)
+    result = change_objects_visibility(origfile.as_posix(), solid_list)
     assert result is True
     
     new_content = origfile.read_text(encoding="utf-8")
@@ -99,7 +106,6 @@ def test_integration_change_objects_visibility(tmp_path):
     assert expected_view_str in new_content
 
 def test_integration_change_model_orientation(tmp_path):
-    # Create a temporary AEDT file with an OrientationMatrix placeholder.
     content = (
         "$begin 'EditorWindow'\n"
         "Header info\n"
@@ -110,15 +116,17 @@ def test_integration_change_model_orientation(tmp_path):
     origfile = tmp_path / "integration.aedt"
     origfile.write_text(content, encoding="utf-8")
     
-    # Ensure no lock file exists.
     lock_file = tmp_path / "integration.aedt.lock"
     if lock_file.exists():
         lock_file.unlink()
     
-    result = change_model_orientation(str(origfile), "+Y")
+    result = change_model_orientation(origfile.as_posix(), "+Y")
     assert result is True
     
     new_content = origfile.read_text(encoding="utf-8")
-    # Verify that the OrientationMatrix placeholder was replaced.
-    assert "OrientationMatrix(" in new_content and "old_value" not in new_content
+    assert "OrientationMatrix(" in new_content
+    assert "old_value" not in new_content
+    # Assert that part of the expected orientation for "+Y" is present.
+    # (Adjust the expected substring as needed.)
+    assert "-0.816496670246124" in new_content
     

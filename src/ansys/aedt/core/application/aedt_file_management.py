@@ -26,6 +26,8 @@ import csv
 import os
 import re
 import shutil
+import logging
+from pathlib import Path
 
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -47,14 +49,20 @@ def read_info_fromcsv(projdir, name):
     list
 
     """
-
-    filename = projdir + "//" + name
-    rows = []
-    with open_file(filename, "r", encoding="utf-8") as csvfile:
-        reader = csv.reader(csvfile, delimiter=",")
+ # Construct the filename using pathlib.
+    filename = str(Path(projdir) / name)
+    listmcad = []
+    with open_file(filename, "rb") as csvfile:
+        content_bytes = csvfile.read()
+        try:
+            content = content_bytes.decode("utf-8")
+        except UnicodeDecodeError:
+            content = content_bytes.decode("latin1")
+        # Split content into lines for csv.reader.
+        reader = csv.reader(content.splitlines(), delimiter=",")
         for row in reader:
-            rows.append(row)
-    return rows
+            listmcad.append(row)
+    return listmcad
 
 
 @pyaedt_function_handler()
@@ -97,17 +105,14 @@ def create_output_folder(ProjectDir):
     npath = os.path.normpath(ProjectDir)
     base = os.path.basename(npath)
 
-    # set pathname for the Output
+    # Set pathnames for the output folders.
     output_path = os.path.join(npath, base)
-    # set pathname for the images
     picture_path = os.path.join(output_path, "Pictures")
-    # set pathname for the files
     results_path = os.path.join(output_path, "Results")
 
-    # Add folders for outputs
-    os.makedirs(output_path, exist_ok=True)
-    os.makedirs(picture_path, exist_ok=True)
-    os.makedirs(results_path, exist_ok=True)
+    # Create directories using a loop.
+    for directory in [output_path, picture_path, results_path]:
+        os.makedirs(directory, exist_ok=True)
     return picture_path, results_path
 
 
@@ -139,8 +144,7 @@ def change_objects_visibility(origfile, solid_list):
 
                 # Searching file content for pattern
                 pattern = re.compile(
-                    r"(\$begin 'EditorWindow'\n.+)(Drawings\[.+\])(.+\n\s*\$end 'EditorWindow')",
-                    re.UNICODE | re.DOTALL
+                    r"(\$begin 'EditorWindow'\n.+)(Drawings\[.+\])(.+\n\s*\$end 'EditorWindow')", re.UNICODE | re.DOTALL
                 )
                 # Replacing string
                 # fmt: off
@@ -157,10 +161,10 @@ def change_objects_visibility(origfile, solid_list):
             # Cleanup temporary file if exists.
             if os.path.exists(newfile):
                 os.remove(newfile)
-            print("change_objects_visibility: Error encountered -", e)
+            logging.error("change_objects_visibility: Error encountered - %s", e)
             return False
     else:  # project is locked
-        print("change_objects_visibility: Project %s is still locked." % origfile)
+        logging.error("change_objects_visibility: Project %s is still locked.", origfile)
         return False
 
 
@@ -215,7 +219,7 @@ def change_model_orientation(origfile, bottom_dir):
                 # Searching file content for pattern
                 pattern = re.compile(
                     r"(\$begin 'EditorWindow'\n.+?)(OrientationMatrix\(.+?\))(.+\n\s*\$end 'EditorWindow')",
-                    re.UNICODE | re.DOTALL
+                    re.UNICODE | re.DOTALL,
                 )
                 # Replacing string
                 orientation_str = orientation.get(bottom_dir, "")
@@ -230,8 +234,8 @@ def change_model_orientation(origfile, bottom_dir):
         except Exception as e:
             if os.path.exists(newfile):
                 os.remove(newfile)
-            print("change_model_orientation: Error encountered -", e)
+            logging.error("change_model_orientation: Error encountered - %s", e)
             return False
     else:  # Project is locked
-        print("change_model_orientation: Project %s is still locked." % origfile)
+        logging.error("change_model_orientation: Project %s is still locked.", origfile)
         return False
