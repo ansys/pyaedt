@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 from ansys.aedt.core.filtersolutions_core.distributed_topology import TopologyType
-from ansys.aedt.core.generic.general_methods import is_linux
+from ansys.aedt.core.solvers.general_methods import is_linux
 import pytest
 
 from tests.system.general.conftest import config
