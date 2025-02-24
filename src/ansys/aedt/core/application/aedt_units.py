@@ -65,12 +65,6 @@ class AedtUnits:
         if self.__app:
             return self.__app._odesktop.GetDefaultUnit(unit_system)
 
-    def _set_model_unit(self, prop, value, unit_system):
-        if value in AEDT_UNITS[unit_system]:
-            setattr(self, prop, value)
-        else:
-            raise AttributeError(f"Unit {value} is incorrect.")
-
     @property
     def frequency(self):
         """Default frequency units to be used in active design.
