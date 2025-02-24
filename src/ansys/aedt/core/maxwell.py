@@ -24,15 +24,12 @@
 
 """This module contains these Maxwell classes: ``Maxwell``, ``Maxwell2d``, and ``Maxwell3d``."""
 
-from __future__ import absolute_import  # noreorder
-
 import io
-import os
+from pathlib import Path
 import re
 import time
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
-from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import SOLUTIONS
 from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.generic.errors import GrpcApiError
@@ -42,6 +39,7 @@ from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import read_configuration_file
 from ansys.aedt.core.generic.general_methods import write_configuration_file
+from ansys.aedt.core.generic.numbers import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
@@ -77,7 +75,7 @@ class Maxwell(CreateBoundaryMixin):
     @property
     def design_file(self):
         """Design file."""
-        design_file = os.path.join(self.working_directory, "design_data.json")
+        design_file = Path(self.working_directory) / "design_data.json"
         return design_file
 
     @pyaedt_function_handler()
@@ -469,14 +467,14 @@ class Maxwell(CreateBoundaryMixin):
             raise AEDTRuntimeError("Control Program is only available in Maxwell 2D and 3D Transient solutions.")
 
         self._py_file = setupname + ".py"
-        ctl_file_path = os.path.join(self.working_directory, self._py_file)
+        ctl_file_path = Path(self.working_directory) / self._py_file
 
         if aedt_lib_dir:
             source_dir = aedt_lib_dir
         else:
             source_dir = self.pyaedt_dir
 
-        if os.path.exists(ctl_file_path) and keep_modifications:
+        if Path(ctl_file_path).exists() and keep_modifications:
             with open_file(ctl_file_path, "r") as fi:
                 existing_data = fi.readlines()
             with open_file(ctl_file_path, "w") as fo:
@@ -496,7 +494,7 @@ class Maxwell(CreateBoundaryMixin):
             if file_str is not None:
                 with io.open(ctl_file_path, "w", newline="\n") as fo:
                     fo.write(file_str)
-                if not os.path.exists(ctl_file_path):
+                if not Path(ctl_file_path).exists():
                     raise FileNotFoundError("Control program file could not be created.")
 
         self.oanalysis.EditSetup(
@@ -1182,12 +1180,12 @@ class Maxwell(CreateBoundaryMixin):
             {
                 "Type": winding_type,
                 "IsSolid": is_solid,
-                "Current": self.modeler._arg_with_dim(current, "A"),
-                "Resistance": self.modeler._arg_with_dim(resistance, "ohm"),
-                "Inductance": self.modeler._arg_with_dim(inductance, "H"),
-                "Voltage": self.modeler._arg_with_dim(voltage, "V"),
+                "Current": self.value_with_units(current, "A"),
+                "Resistance": self.value_with_units(resistance, "ohm"),
+                "Inductance": self.value_with_units(inductance, "H"),
+                "Voltage": self.value_with_units(voltage, "V"),
                 "ParallelBranchesNum": str(parallel_branches),
-                "Phase": self.modeler._arg_with_dim(phase, "deg"),
+                "Phase": self.value_with_units(phase, "deg"),
             }
         )
         bound = self._create_boundary(name, props, "Winding")
@@ -2193,7 +2191,7 @@ class Maxwell(CreateBoundaryMixin):
         elif matrix_name not in matrix_names_list:
             raise AEDTRuntimeError("Matrix name doesn't exist, provide and existing matrix name.")
 
-        if os.path.splitext(output_file)[1] != ".txt":
+        if Path(output_file).suffix != ".txt":
             raise AEDTRuntimeError("File extension must be .txt")
 
         if setup is None:
@@ -2277,7 +2275,7 @@ class Maxwell(CreateBoundaryMixin):
         elif matrix_name not in matrix_names_list:
             raise AEDTRuntimeError("Matrix name doesn't exist, provide and existing matrix name.")
 
-        if os.path.splitext(output_file)[1] != ".txt":
+        if Path(output_file).suffix != ".txt":
             raise AEDTRuntimeError("File extension must be .txt")
 
         if setup is None:
@@ -3298,7 +3296,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
     def model_depth(self, value):
         """Set model depth."""
         if isinstance(value, float) or isinstance(value, int):
-            value = self.modeler._arg_with_dim(value, self.modeler.model_units)
+            value = self.value_with_units(value, self.modeler.model_units)
         self.change_design_settings({"ModelDepth": value})
 
     @pyaedt_function_handler(linefilter="line_filter", objectfilter="object_filter")
@@ -3348,7 +3346,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
             "MaterialProperties": self.get_object_material_properties(solid_bodies),
         }
 
-        design_file = os.path.join(self.working_directory, "design_data.json")
+        design_file = Path(self.working_directory) / "design_data.json"
         write_configuration_file(self.design_data, design_file)
         return True
 
@@ -3362,7 +3360,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
             Dictionary of design data.
 
         """
-        design_file = os.path.join(self.working_directory, "design_data.json")
+        design_file = Path(self.working_directory) / "design_data.json"
         return read_configuration_file(design_file)
 
     @pyaedt_function_handler(edge_list="assignment", bound_name="boundary")
@@ -3551,8 +3549,8 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         props = dict(
             {
                 "Objects": assignment,
-                "ResistanceValue": self.modeler._arg_with_dim(resistance, "ohm"),
-                "InductanceValue": self.modeler._arg_with_dim(inductance, "H"),
+                "ResistanceValue": self.value_with_units(resistance, "ohm"),
+                "InductanceValue": self.value_with_units(inductance, "H"),
             }
         )
         return self._create_boundary(boundary, props, "EndConnection")

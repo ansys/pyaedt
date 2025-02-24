@@ -30,8 +30,6 @@ These classes are inherited in the main tool class.
 
 """
 
-from __future__ import absolute_import  # noreorder
-
 from abc import abstractmethod
 import gc
 import json
@@ -61,7 +59,6 @@ from ansys.aedt.core.application.design_solutions import model_names
 from ansys.aedt.core.application.design_solutions import solutions_defaults
 from ansys.aedt.core.application.variables import DataSet
 from ansys.aedt.core.application.variables import VariableManager
-from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.desktop import _init_desktop_from_design
 from ansys.aedt.core.desktop import exception_to_desktop
 from ansys.aedt.core.generic.aedt_versions import aedt_versions
@@ -83,6 +80,8 @@ from ansys.aedt.core.generic.general_methods import remove_project_lock
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.generic.general_methods import write_csv
 from ansys.aedt.core.generic.load_aedt_file import load_entire_aedt_file
+from ansys.aedt.core.generic.numbers import _units_assignment
+from ansys.aedt.core.generic.numbers import decompose_variable_value
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
 from ansys.aedt.core.modules.boundary.layout_boundary import BoundaryObject3dLayout
@@ -306,6 +305,7 @@ class Design(AedtObjects):
 
     @pyaedt_function_handler()
     def __setitem__(self, variable_name: str, variable_value: Optional[Union[str, int, float]]) -> bool:
+        variable_value = _units_assignment(variable_value)
         self.variable_manager[variable_name] = variable_value
         return True
 
@@ -1398,7 +1398,7 @@ class Design(AedtObjects):
                         profile_setup_obj = self.get_oo_object(profile_setups_obj, profile_setup_name)
                         if profile_setup_obj and self.get_oo_name(profile_setup_obj):
                             try:
-                                profile_tree = BinaryTreeNode("profile", profile_setup_obj)
+                                profile_tree = BinaryTreeNode("profile", profile_setup_obj, app=self._app)
                                 profile_objs[profile_setup_name] = profile_tree
                             except Exception:  # pragma: no cover
                                 self.logger.error(f"{profile_setup_name} profile could not be obtained.")
@@ -1551,7 +1551,8 @@ class Design(AedtObjects):
             output_file = os.path.join(self.working_directory, generate_unique_name("Profile") + ".prof")
         if not variation:
             val_str = []
-            for el, val in self.available_variations.nominal_w_values_dict.items():
+            nominal_variation = self.available_variations.get_independent_nominal_values()
+            for el, val in nominal_variation.items():
                 val_str.append(f"{el}={val}")
             if self.design_type == "HFSS 3D Layout Design":
                 variation = " ".join(val_str)
@@ -4259,6 +4260,7 @@ class DesignSettings:
         return "\n".join(lines)
 
     def __setitem__(self, key: str, value: Any) -> Union[bool, None]:
+        value = _units_assignment(value)
         if key in self.available_properties:
             if self.manipulate_inputs is not None:
                 value = self.manipulate_inputs.execute(key, value)

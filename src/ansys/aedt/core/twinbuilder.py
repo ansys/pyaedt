@@ -24,19 +24,17 @@
 
 """This module contains the ``TwinBuilder`` class."""
 
-from __future__ import absolute_import  # noreorder
-
 import math
 import os.path
 
 from ansys.aedt.core.application.analysis_twin_builder import AnalysisTwinBuilder
 from ansys.aedt.core.application.variables import Variable
-from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import is_number
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.generic.numbers import is_number
 
 
 class TwinBuilder(AnalysisTwinBuilder, object):
@@ -496,7 +494,9 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             raise ValueError("Invalid matrix name.")
         if not component_name:
             component_name = generate_unique_name("SimpQ3DData")
-        var = app.available_variations.nominal_w_values_dict
+
+        var = app.available_variations.get_independent_nominal_values()
+
         props = ["NAME:Properties"]
         for k, v in var.items():
             props.append("paramProp:=")
@@ -567,7 +567,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             enforce_passivity = True
         else:
             raise TypeError("Link type is not valid.")
-        self.o_component_manager.AddDynamicNPortData(
+        self.ocomponent_manager.AddDynamicNPortData(
             [
                 "NAME:ComponentData",
                 "ComponentDataType:=",
@@ -820,7 +820,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
                 grid_data.append("{}:=".format(e.name))
                 grid_data.append(maxwell_excitations[e.name])
 
-        comp_name = self.o_component_manager.AddExcitationModel([settings, excitations_data, grid_data])
+        comp_name = self.ocomponent_manager.AddExcitationModel([settings, excitations_data, grid_data])
         comp = self.modeler.schematic.create_component(component_library="", component_name=comp_name)
 
         return comp

@@ -24,8 +24,6 @@
 
 """This module contains the ``Mechanical`` class."""
 
-from __future__ import absolute_import  # noreorder
-
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.generic.constants import SOLUTIONS
 from ansys.aedt.core.generic.errors import AEDTRuntimeError
@@ -247,8 +245,11 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
             intr = []
 
         argparam = {}
-        for el in self.available_variations.nominal_w_values_dict:
-            argparam[el] = self.available_variations.nominal_w_values_dict[el]
+
+        variations = self.available_variations.get_independent_nominal_values()
+
+        for key, value in variations.items():
+            argparam[key] = value
 
         for el in parameters:
             argparam[el] = el
@@ -339,8 +340,10 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
         else:
             all_objects = assignment[:]
         argparam = {}
-        for el in self.available_variations.nominal_w_values_dict:
-            argparam[el] = self.available_variations.nominal_w_values_dict[el]
+
+        variations = self.available_variations.get_independent_nominal_values()
+        for key, value in variations.items():
+            argparam[key] = value
 
         for el in parameters:
             argparam[el] = el
