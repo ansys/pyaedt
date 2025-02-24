@@ -2222,19 +2222,15 @@ class MonostaticRCSPlotter(object):
             n_arrow_direction = -np.array([np.cos(n_p) * np.sin(n_t), np.sin(n_p) * np.sin(n_t), np.cos(n_t)])
             corner2 = -n_arrow_direction * (radius_max + arrow_length)
 
-            c_t, c_p = (n_t + t) / 2, (n_p + p) / 2
-            c_arrow_direction = -np.array([np.cos(c_p) * np.sin(c_t), np.sin(c_p) * np.sin(c_t), np.cos(c_t)])
-            center = -c_arrow_direction * (radius_max + arrow_length)
-
             name = "arc" + str(i)
 
             # TODO
-            negative = True
+            negative = False
 
             arc_mesh = self._create_arc(
                 pointa=corner1,
                 pointb=corner2,
-                center=center,
+                center=(0, 0, 0),
                 resolution=100,
                 negative=negative,
                 name=name,
