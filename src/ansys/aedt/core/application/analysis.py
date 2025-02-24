@@ -1261,7 +1261,7 @@ class Analysis(Design, object):
         return False
 
     @pyaedt_function_handler(setupname="name", properties_dict="properties")
-    def edit_setup(self, name, properties):
+    def edit_setup(self, name, properties):  # pragma: no cover
         """Modify a setup.
 
         .. deprecated:: 0.15.0
@@ -2197,7 +2197,7 @@ class Analysis(Design, object):
         return True
 
     @pyaedt_function_handler()
-    def number_with_units(self, value, units=None):
+    def number_with_units(self, value, units=None):  # pragma: no cover
         """Convert a number to a string with units. If value is a string, it's returned as is.
 
         .. deprecated:: 0.15.0
