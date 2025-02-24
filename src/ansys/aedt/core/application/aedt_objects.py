@@ -119,7 +119,7 @@ class AedtObjects(object):
         return
 
     @property
-    def o_symbol_manager(self):
+    def o_symbol_manager(self):  # pragma: no cover
         """AEDT symbol manager.
 
         .. deprecated:: 0.15.0
@@ -133,7 +133,7 @@ class AedtObjects(object):
             "`o_symbol_manager` is deprecated. Use `osymbol_manager` instead.",
             DeprecationWarning,
         )
-        return self.osymbol_manager  # pragma: no cover
+        return self.osymbol_manager
 
     @property
     def opadstack_manager(self):
@@ -148,7 +148,7 @@ class AedtObjects(object):
         return self._opadstack_manager
 
     @property
-    def opadstackmanager(self):
+    def opadstackmanager(self):  # pragma: no cover
         """AEDT oPadstackManager.
 
         .. deprecated:: 0.15.0
@@ -162,7 +162,7 @@ class AedtObjects(object):
             "`opadstackmanager` is deprecated. Use `opadstack_manager` instead.",
             DeprecationWarning,
         )
-        return self.opadstack_manager  # pragma: no cover
+        return self.opadstack_manager
 
     @property
     def design_type(self):
@@ -296,7 +296,7 @@ class AedtObjects(object):
         return self._omaxwell_parameters
 
     @property
-    def o_maxwell_parameters(self):
+    def o_maxwell_parameters(self):  # pragma: no cover
         """AEDT Maxwell Parameter Setup Object.
 
         .. deprecated:: 0.15.0
@@ -310,7 +310,7 @@ class AedtObjects(object):
             "`o_maxwell_parameters` is deprecated. Use `omaxwell_parameters` instead.",
             DeprecationWarning,
         )
-        return self.omaxwell_parameters  # pragma: no cover
+        return self.omaxwell_parameters
 
     @property
     def omonitor(self):
@@ -482,7 +482,7 @@ class AedtObjects(object):
         return self._ocomponent_manager
 
     @property
-    def o_component_manager(self):
+    def o_component_manager(self):  # pragma: no cover
         """Component manager object.
 
         .. deprecated:: 0.15.0
@@ -492,7 +492,7 @@ class AedtObjects(object):
             "`o_component_manager` is deprecated. Use `ocomponent_manager` instead.",
             DeprecationWarning,
         )
-        return self.ocomponent_manager  # pragma: no cover
+        return self.ocomponent_manager
 
     @property
     def omodel_manager(self):
@@ -502,7 +502,7 @@ class AedtObjects(object):
         return self._omodel_manager
 
     @property
-    def o_model_manager(self):
+    def o_model_manager(self):  # pragma: no cover
         """Model manager object.
 
         .. deprecated:: 0.15.0
@@ -513,7 +513,7 @@ class AedtObjects(object):
             "`o_model_manager` is deprecated. Use `omodel_manager` instead.",
             DeprecationWarning,
         )
-        return self.omodel_manager  # pragma: no cover
+        return self.omodel_manager
 
     @property
     def onetwork_data_explorer(self):

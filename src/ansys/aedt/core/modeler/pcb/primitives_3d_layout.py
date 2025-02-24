@@ -128,7 +128,7 @@ class Primitives3DLayout(object):
         return self._app.opadstack_manager
 
     @property
-    def opadstackmanager(self):
+    def opadstackmanager(self):  # pragma: no cover
         """AEDT oPadstackManager.
 
         .. deprecated:: 0.15.0
@@ -142,7 +142,7 @@ class Primitives3DLayout(object):
             "`opadstackmanager` is deprecated. Use `opadstack_manager` instead.",
             DeprecationWarning,
         )
-        return self._app.opadstack_manager  # pragma: no cover
+        return self._app.opadstack_manager
 
     @property
     def components(self):

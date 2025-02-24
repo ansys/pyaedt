@@ -146,7 +146,7 @@ class CircuitComponents(object):
         return self._app.ocomponent_manager
 
     @property
-    def o_component_manager(self):
+    def o_component_manager(self):  # pragma: no cover
         """Component manager object.
 
         .. deprecated:: 0.15.0
@@ -156,7 +156,7 @@ class CircuitComponents(object):
             "`o_component_manager` is deprecated. Use `ocomponent_manager` instead.",
             DeprecationWarning,
         )
-        return self.ocomponent_manager  # pragma: no cover
+        return self.ocomponent_manager
 
     @property
     def osymbol_manager(self):
@@ -164,7 +164,7 @@ class CircuitComponents(object):
         return self._app.osymbol_manager
 
     @property
-    def o_symbol_manager(self):
+    def o_symbol_manager(self):  # pragma: no cover
         """Model manager object.
 
         .. deprecated:: 0.15.0
@@ -175,7 +175,7 @@ class CircuitComponents(object):
             "`o_symbol_manager` is deprecated. Use `osymbol_manager` instead.",
             DeprecationWarning,
         )
-        return self._app.osymbol_manager  # pragma: no cover
+        return self._app.osymbol_manager
 
     @property
     def version(self):
