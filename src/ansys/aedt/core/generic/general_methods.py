@@ -873,6 +873,8 @@ def available_license_feature(
     feature="electronics_desktop", input_dir=None, port=1055, name="127.0.0.1"
 ):  # pragma: no cover
     """Check available license feature.
+    The method retrieves the port and name values from the ``ANSYSLMD_LICENSE_FILE`` environment variable if available.
+    If not, the default values are applied.
 
     Parameters
     ----------
@@ -883,9 +885,9 @@ def available_license_feature(
         installation from :func:`ansys.aedt.core.generic.aedt_versions.installed_versions`
         method is taken.
     port : int, optional
-        Server port number.
+        Server port number. The default is ``1055``.
     name : str, optional
-        License server name.
+        License server name. The default is ``"127.0.0.1"``.
 
     Returns
     -------
