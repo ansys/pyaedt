@@ -26,8 +26,7 @@
 from pathlib import Path
 
 import ansys.aedt.core
-
-# from ansys.aedt.core.generic.design_types import get_pyaedt_app
+from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.workflows.misc import get_aedt_version
 from ansys.aedt.core.workflows.misc import get_arguments
 from ansys.aedt.core.workflows.misc import get_port
@@ -40,7 +39,7 @@ aedt_process_id = get_process_id()
 is_student = is_student()
 
 # Extension batch arguments
-extension_arguments = {"origin_x": 0, "origin_y": 0, "origin_z": 0, "radius": 1, "file_path": ""}
+extension_arguments = {"points_file": "", "export_file": "", "export_option": "Ohmic loss", "objects_list": []}
 extension_description = "Extension template"
 
 
@@ -53,22 +52,23 @@ def frontend():
     import PIL.ImageTk
     from ansys.aedt.core.workflows.misc import ExtensionTheme
 
-    # app = ansys.aedt.core.Desktop(
-    #     new_desktop=False,
-    #     specified_version=version,
-    #     port=port,
-    #     aedt_process_id=aedt_process_id,
-    #     student_version=is_student,
-    # )
-    #
-    # active_project = app.active_project()
-    #
-    # if not active_project:
-    #     active_project_name = "No active project"
-    # else:
-    #     active_project_name = active_project.GetName()
-    #     active_design_name = app.active_design().GetName()
-    #     maxwell = ansys.aedt.core.Maxwell3d(active_project_name, active_design_name)
+    app = ansys.aedt.core.Desktop(
+        new_desktop=False,
+        specified_version=version,
+        port=port,
+        aedt_process_id=aedt_process_id,
+        student_version=is_student,
+    )
+
+    active_project = app.active_project()
+
+    if not active_project:
+        active_project_name = "No active project"
+    else:
+        active_project_name = active_project.GetName()
+        active_design_name = app.active_design().GetName()
+        maxwell = ansys.aedt.core.Maxwell3d(active_project_name, active_design_name)
+
     # Create UI
     master = tk.Tk()
 
@@ -105,7 +105,7 @@ def frontend():
     project_name_label = ttk.Label(master, text="Project Name:", width=20, style="PyAEDT.TLabel")
     project_name_label.grid(row=0, column=0, pady=10)
     project_name_entry = tk.Text(master, width=40, height=1)
-    project_name_entry.insert(tk.INSERT, "active_project_name")
+    project_name_entry.insert(tk.INSERT, active_project_name)
     project_name_entry.grid(row=0, column=1, pady=15, padx=10)
     project_name_entry.configure(
         bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font, state=tk.DISABLED
@@ -115,7 +115,7 @@ def frontend():
     design_name_label = ttk.Label(master, text="Design Name:", width=20, style="PyAEDT.TLabel")
     design_name_label.grid(row=1, column=0, pady=10)
     design_name_entry = tk.Text(master, width=40, height=1)
-    design_name_entry.insert(tk.INSERT, "active_design_name")
+    design_name_entry.insert(tk.INSERT, active_design_name)
     design_name_entry.grid(row=1, column=1, pady=15, padx=10)
     design_name_entry.configure(
         bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font, state=tk.DISABLED
@@ -137,7 +137,7 @@ def frontend():
     # Objects list
     frame = tk.Frame(master)
     frame.grid(row=2, column=1, pady=10, padx=10)
-    objects_list = ["Object1", "Object2", "Object3", "Object1", "Object2", "Object3", "Object1", "Object2", "Object3"]
+    objects_list = maxwell.modeler.objects_by_name
     objects_list_label = ttk.Label(
         frame, text="Objects list:", width=15, style="PyAEDT.TLabel", justify=tk.CENTER, anchor=tk.CENTER
     )
@@ -191,6 +191,10 @@ def frontend():
         export_file_entry.configure(
             background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
         )
+        sample_points_entry.configure(
+            background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
+        )
+        text_area.configure(background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
         theme.apply_light_theme(style)
         # change_theme_button.config(text="\u263D")
 
@@ -202,15 +206,18 @@ def frontend():
         objects_list_lb.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
         scroll_bar.configure(bg=theme.dark["pane_bg"])
         export_file_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        project_name_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
+        sample_points_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
+        text_area.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
         theme.apply_dark_theme(style)
         # change_theme_button.config(text="\u2600")
 
     def callback():
-        # master.origin_x = origin_x_entry.get("1.0", tk.END).strip()
-        # master.origin_y = origin_y_entry.get("1.0", tk.END).strip()
-        # master.origin_z = origin_z_entry.get("1.0", tk.END).strip()
-        # master.radius = radius_entry.get("1.0", tk.END).strip()
+        master.points_file = sample_points_entry.get("1.0", tk.END).strip()
+        master.export_file = export_file_entry.get("1.0", tk.END).strip()
+        selected_export = export_options_lb.curselection()
+        master.export_option = [objects_list_lb.get(i) for i in selected_export]
+        selected_objects = objects_list_lb.curselection()
+        master.objects_list = [objects_list_lb.get(i) for i in selected_objects]
         master.destroy()
 
     def browse_files():
@@ -270,46 +277,60 @@ def frontend():
 
     tk.mainloop()
 
-    # app.release_desktop(False, False)
+    points_file = getattr(master, "points_file", extension_arguments["points_file"])
+    export_file = getattr(master, "export_file", extension_arguments["export_file"])
+    export_option = getattr(master, "export_option", extension_arguments["export_option"])
+    objects_list = getattr(master, "objects_list", extension_arguments["objects_list"])
 
-    return {}
+    output_dict = {
+        "points_file": points_file,
+        "export_file": export_file,
+        "export_option": export_option,
+        "objects_list": objects_list,
+    }
+
+    app.release_desktop(False, False)
+
+    return output_dict
 
 
 def main(extension_args):
-    # app = ansys.aedt.core.Desktop(
-    #     new_desktop=False,
-    #     version=version,
-    #     port=port,
-    #     aedt_process_id=aedt_process_id,
-    #     student_version=is_student,
-    # )
-    #
-    # active_project = app.active_project()
-    # active_design = app.active_design()
-    #
-    # project_name = active_project.GetName()
-    # if active_design.GetDesignType() == "HFSS 3D Layout Design":
-    #     design_name = active_design.GetDesignName()
-    # else:
-    #     design_name = active_design.GetName()
-    #
-    # aedtapp = get_pyaedt_app(project_name, design_name)
+    app = ansys.aedt.core.Desktop(
+        new_desktop=False,
+        version=version,
+        port=port,
+        aedt_process_id=aedt_process_id,
+        student_version=is_student,
+    )
 
-    # origin_x = extension_args.get("origin_x", extension_arguments["origin_x"])
-    # origin_y = extension_args.get("origin_y", extension_arguments["origin_y"])
-    # origin_z = extension_args.get("origin_z", extension_arguments["origin_z"])
-    # radius = extension_args.get("radius", extension_arguments["radius"])
-    # file_path = extension_args.get("file_path", extension_arguments["file_path"])
+    active_project = app.active_project()
+    active_design = app.active_design()
 
-    # Your script
-    # if file_path:
-    #     #     aedtapp.load_project(file_path, set_active=True)
-    #     # else:
-    #     #     aedtapp.modeler.create_sphere([origin_x, origin_y, origin_z], radius)
+    project_name = active_project.GetName()
+    if active_design.GetDesignType() == "HFSS 3D Layout Design":
+        design_name = active_design.GetDesignName()
+    else:
+        design_name = active_design.GetName()
+
+    aedtapp = get_pyaedt_app(project_name, design_name)
+
+    points_file = extension_args.get("points_file", extension_arguments["points_file"])
+    export_file = extension_args.get("export_file", extension_arguments["export_file"])
+    export_option = extension_args.get("export_option", extension_arguments["export_option"])
+    objects_list = extension_args.get("objects_list", extension_arguments["objects_list"])
+
+    # Your workflow
+    # Check notes
+    if not points_file:
+        points_file = None
+    elif not objects_list:
+        objects_list = "AllObjects"
+    aedtapp.post.export_field_file(
+        quantity=export_option, output_file=export_file, sample_points=points_file, assignment="AllObjects"
+    )
 
     if not extension_args["is_test"]:  # pragma: no cover
-        # app.release_desktop(False, False)
-        pass
+        app.release_desktop(False, False)
     return True
 
 
