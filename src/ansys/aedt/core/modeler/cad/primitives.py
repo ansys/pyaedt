@@ -268,6 +268,12 @@ class GeometryModeler(Modeler):
 
     @property
     def rescale_model(self):
+        """Whether to rescale the model to model units.
+
+        Returns
+        -------
+        bool
+        """
         return self._app.units.rescale_model
 
     @rescale_model.setter

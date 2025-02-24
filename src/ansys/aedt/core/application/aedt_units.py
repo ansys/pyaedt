@@ -49,7 +49,7 @@ class AedtUnits:
 
     @property
     def rescale_model(self):
-        """Whether if rescale model on model unit change or not.
+        """Whether to rescale the model to model units.
 
         Returns
         -------
@@ -76,7 +76,6 @@ class AedtUnits:
         """Default frequency units to be used in active design.
         The setter doesn't change AEDT default units.
 
-
         Returns
         -------
         str
@@ -88,7 +87,6 @@ class AedtUnits:
     def length(self):
         """Default length unit to be used in active design.
         The setter changes AEDT default units.
-
 
         Returns
         -------
@@ -123,7 +121,6 @@ class AedtUnits:
     def angle(self):
         """Default angle unit to be used in active design.
         The setter doesn't change AEDT default units.
-
 
         Returns
         -------

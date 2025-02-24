@@ -27,6 +27,8 @@ from __future__ import division
 
 import ast
 import re
+from typing import Dict
+from typing import Optional
 
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import SI_UNITS
@@ -255,20 +257,24 @@ def _find_units_in_dependent_variables(variable_value, full_variables={}):
     return ""
 
 
-def decompose_variable_value(variable_value, full_variables={}):
+def decompose_variable_value(variable_value: str, full_variables: Optional[Dict[str]] = None) -> tuple:
     """Decompose a variable value.
 
     Parameters
     ----------
     variable_value : str
-    full_variables : dict
+        The variable value to decompose, which may include a unit.
+    full_variables : dict, optional
+        A dictionary of full variable names and their values, used to resolve dependent variables.
 
     Returns
     -------
     tuples
-        Tuples made of the float value of the variable and the units exposed as a string.
+        Tuple with variable value and unit.
     """
     # set default return values - then check for valid units
+    if full_variables is None:
+        full_variables = {}
     float_value = variable_value
     units = ""
 
