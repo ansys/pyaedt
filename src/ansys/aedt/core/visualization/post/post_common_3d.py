@@ -240,7 +240,7 @@ class PostProcessor3D(PostProcessorCommon):
                 if "Phase" in self._app.design_solutions.intrinsics and "Phase" not in intrinsics:
                     intrinsics["Phase"] = "0deg"
         else:
-            raise AttributeError("Intrinsics has to be a string or list.")
+            raise TypeError("Invalid input_data type. It should be of type None, string or dictionary.")
         if return_list:
             intrinsics_list = []
             for k, v in intrinsics.items():
