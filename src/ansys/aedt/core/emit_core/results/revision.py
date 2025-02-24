@@ -1024,21 +1024,21 @@ class Revision:
 
     @pyaedt_function_handler
     @error_if_below_aedt_version(251)
-    def get_couplings_node(self) -> CouplingsNode:
-        """Gets the Couplings node for this revision.
+    def get_coupling_data_node(self) -> CouplingsNode:
+        """Gets the Coupling Data node for this revision.
 
         Returns
         -------
         node: CouplingsNode 
-            The Couplings node for this revision.
+            The Coupling Data node for this revision.
 
         Examples
         --------
-        >>> couplings_node = revision.get_couplings_node()
+        >>> coupling_data_node = revision.get_coupling_data_node()
         """
-        couplings_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Couplings")
-        couplings_node = self._get_node(couplings_node_id)
-        return couplings_node
+        ccoupling_data_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Couplings")
+        coupling_data_node = self._get_node(ccoupling_data_node_id)
+        return coupling_data_node
 
     @pyaedt_function_handler
     @error_if_below_aedt_version(251)
