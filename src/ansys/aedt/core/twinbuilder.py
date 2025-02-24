@@ -577,7 +577,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
                 "name:=",
                 component_name,
                 "filename:=",
-                project_path,
+                str(project_path),
                 "numberofports:=",
                 2 * len(app.excitations),
                 "Is3D:=",
