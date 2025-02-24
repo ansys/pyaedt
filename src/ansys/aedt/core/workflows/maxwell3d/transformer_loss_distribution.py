@@ -40,7 +40,7 @@ is_student = is_student()
 
 # Extension batch arguments
 extension_arguments = {"points_file": "", "export_file": "", "export_option": "Ohmic loss", "objects_list": []}
-extension_description = "Extension template"
+extension_description = "Export of transformer loss distribution"
 
 
 def frontend():
@@ -61,13 +61,18 @@ def frontend():
     )
 
     active_project = app.active_project()
+    active_design = app.active_design()
 
     if not active_project:
         active_project_name = "No active project"
     else:
         active_project_name = active_project.GetName()
-        active_design_name = app.active_design().GetName()
-        maxwell = ansys.aedt.core.Maxwell3d(active_project_name, active_design_name)
+        active_design_name = active_design.GetName()
+        design_type = active_design.GetDesignType()
+        if design_type == "Maxwell 2D":
+            maxwell = ansys.aedt.core.Maxwell2d(active_project_name, active_design_name)
+        elif design_type == "Maxwell 3D":
+            maxwell = ansys.aedt.core.Maxwell3d(active_project_name, active_design_name)
 
     # Create UI
     master = tk.Tk()
@@ -218,7 +223,7 @@ def frontend():
         master.export_option = [objects_list_lb.get(i) for i in selected_export]
         selected_objects = objects_list_lb.curselection()
         master.objects_list = [objects_list_lb.get(i) for i in selected_objects]
-        master.destroy()
+        # master.destroy()
 
     def browse_files():
         filename = filedialog.askopenfilename(
@@ -255,7 +260,7 @@ def frontend():
 
     # Create button to export fields data
     # In command put the workflow to export the data
-    export_button = ttk.Button(master, text="Export", width=10, style="PyAEDT.TButton")
+    export_button = ttk.Button(master, text="Export", command=callback, width=10, style="PyAEDT.TButton")
     export_button.grid(row=5, column=1, pady=10, padx=15)
 
     # Configure logging
@@ -264,7 +269,8 @@ def frontend():
     text_area.config(state=tk.DISABLED)
     if sample_points_entry.get("1.0", tk.END).strip() == "":
         text_area.insert(
-            tk.INSERT, "If a points file is not selected the export fields will be performed on mesh nodes."
+            tk.INSERT,
+            "INFO: If a points file is not selected the export fields will be performed on mesh nodes." + "\n",
         )
     text_area.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
 
@@ -281,6 +287,11 @@ def frontend():
     export_file = getattr(master, "export_file", extension_arguments["export_file"])
     export_option = getattr(master, "export_option", extension_arguments["export_option"])
     objects_list = getattr(master, "objects_list", extension_arguments["objects_list"])
+
+    if not objects_list:
+        text_area.insert(
+            tk.INSERT, "INFO: If no objects are selected all objects are taken into account for field export." + "\n"
+        )
 
     output_dict = {
         "points_file": points_file,
@@ -307,10 +318,7 @@ def main(extension_args):
     active_design = app.active_design()
 
     project_name = active_project.GetName()
-    if active_design.GetDesignType() == "HFSS 3D Layout Design":
-        design_name = active_design.GetDesignName()
-    else:
-        design_name = active_design.GetName()
+    design_name = active_design.GetName()
 
     aedtapp = get_pyaedt_app(project_name, design_name)
 
@@ -326,7 +334,7 @@ def main(extension_args):
     elif not objects_list:
         objects_list = "AllObjects"
     aedtapp.post.export_field_file(
-        quantity=export_option, output_file=export_file, sample_points=points_file, assignment="AllObjects"
+        quantity=export_option, output_file=export_file, sample_points=points_file, assignment=objects_list
     )
 
     if not extension_args["is_test"]:  # pragma: no cover
