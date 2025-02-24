@@ -2275,6 +2275,9 @@ class AvailableVariations(object):
     def nominal_w_values_dict(self):
         """Nominal independent with values in a dictionary.
 
+        .. deprecated:: 0.15.0
+            Use :func:`nominal_values` from setup object instead.
+
         Returns
         -------
         dict
@@ -2300,6 +2303,9 @@ class AvailableVariations(object):
     def variables(self):
         """Variables.
 
+        .. deprecated:: 0.15.0
+            Use :func:`variable_manager.independent_variable_names` from setup object instead.
+
         Returns
         -------
         list of str
@@ -2314,6 +2320,9 @@ class AvailableVariations(object):
     @property
     def nominal_w_values(self):
         """Nominal independent with values in a list.
+
+        .. deprecated:: 0.15.0
+            Use :func:`nominal_values` from setup object instead.
 
         Returns
         -------
