@@ -29,11 +29,11 @@ import re
 import subprocess  # nosec
 import warnings
 
+from ansys.aedt.core import Edb
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core import Edb
 
 try:
     import numpy as np
@@ -114,13 +114,15 @@ class TouchstoneData(rf.Network):
 
     @pyaedt_function_handler()
     def get_coupling_in_range(
-            self, start_frequency=1e9,
-            low_loss=-40,
-            high_loss=-60,
-            frequency_sample=5,
-            output_file=None,
-            aedb_path=None,
-            design_name=None):
+        self,
+        start_frequency=1e9,
+        low_loss=-40,
+        high_loss=-60,
+        frequency_sample=5,
+        output_file=None,
+        aedb_path=None,
+        design_name=None,
+    ):
         """Get coupling losses, excluding return loss, that has at least one frequency point between a range of
         losses.
 
@@ -179,11 +181,11 @@ class TouchstoneData(rf.Network):
                             port2 = self.port_names[j]
                             # This if statement is mandatory as the codeword to use is different with regard to
                             # port type: Circuit(.location) or Gap(.position)
-                            if edbapp.ports[port1].hfss_type == 'Circuit':
+                            if edbapp.ports[port1].hfss_type == "Circuit":
                                 loc_port_1 = edbapp.ports[port1].location
                             else:
                                 loc_port_1 = edbapp.ports[port1].position
-                            if edbapp.ports[port2].hfss_type == 'Circuit':
+                            if edbapp.ports[port2].hfss_type == "Circuit":
                                 loc_port_2 = edbapp.ports[port2].location
                             else:
                                 loc_port_2 = edbapp.ports[port2].position
