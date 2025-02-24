@@ -39,6 +39,7 @@ import warnings
 
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.data_handlers import _dict2arg
+from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -405,7 +406,7 @@ class CommonSetup(PropsManager, BinaryTreeNode):
         >>> aedtapp = Hfss()
         >>> aedtapp.post.create_report("dB(S(1,1))")
 
-        >>> variations = aedtapp.available_variations.nominal_w_values_dict
+        >>> variations = aedtapp.available_variations.nominal_values
         >>> variations["Theta"] = ["All"]
         >>> variations["Phi"] = ["All"]
         >>> variations["Freq"] = ["30GHz"]
@@ -519,7 +520,7 @@ class CommonSetup(PropsManager, BinaryTreeNode):
         >>> aedtapp = Circuit()
         >>> aedtapp.post.create_report("dB(S(1,1))")
 
-        >>> variations = aedtapp.available_variations.nominal_w_values_dict
+        >>> variations = aedtapp.available_variations.nominal_values
         >>> aedtapp.post.setups[0].create_report("dB(S(1,1))",variations=variations,primary_sweep_variable="Freq")
 
         >>> aedtapp.post.create_report("S(1,1)",variations=variations,plot_type="Smith Chart")
@@ -875,7 +876,7 @@ class Setup(CommonSetup):
             If ``None``, the default value is taken from the nominal adaptive solution.
         parameters : dict, optional
             Dictionary of the "mapping" variables from the source design.
-            If ``None``, the default is `appname.available_variations.nominal_w_values_dict`.
+            If ``None``, the default is `appname.available_variations.nominal_values`.
         project : str, optional
             Name of the project with the design. The default is ``"This Project*"``.
             However, you can supply the full path and name to another project.
@@ -948,16 +949,20 @@ class Setup(CommonSetup):
                 raise ValueError("Setup does not exist in current design.")
             # parameters
             meshlinks["Params"] = {}
+
+            nominal_values = self.p_app.available_variations.get_independent_nominal_values()
+
             if parameters is None:
-                parameters = self.p_app.available_variations.nominal_w_values_dict
+                parameters = nominal_values
                 for el in parameters:
                     meshlinks["Params"][el] = el
             else:
                 for el in parameters:
-                    if el in list(self._app.available_variations.nominal_w_values_dict.keys()):
+                    if el in list(nominal_values.keys()):
                         meshlinks["Params"][el] = el
                     else:
                         meshlinks["Params"][el] = parameters[el]
+
             meshlinks["ForceSourceToSolve"] = force_source_to_solve
             meshlinks["PreservePartnerSoln"] = preserve_partner_solution
             meshlinks["ApplyMeshOp"] = apply_mesh_operations
@@ -973,17 +978,18 @@ class Setup(CommonSetup):
     def _parse_link_parameters(self, map_variables_by_name, parameters):
         # parameters
         params = {}
+        nominal_values = self.p_app.available_variations.get_independent_nominal_values()
         if map_variables_by_name:
-            parameters = self.p_app.available_variations.nominal_w_values_dict
+            parameters = nominal_values
             for k, v in parameters.items():
                 params[k] = k
         elif parameters is None:
-            parameters = self.p_app.available_variations.nominal_w_values_dict
+            parameters = nominal_values
             for k, v in parameters.items():
                 params[k] = v
         else:
             for k, v in parameters.items():
-                if k in list(self._app.available_variations.nominal_w_values_dict.keys()):
+                if k in list(nominal_values.keys()):
                     params[k] = v
                 else:
                     params[k] = parameters[v]
@@ -1046,7 +1052,7 @@ class Setup(CommonSetup):
         parameters : dict, optional
             Dictionary of the parameters. This parameter is not considered if
             ``map_variables_by_name=True``. If ``None``, the default is
-            ``appname.available_variations.nominal_w_values_dict``.
+            ``appname.available_variations.nominal_values``.
         project : str, optional
             Name of the project with the design. The default is ``"This Project*"``.
             However, you can supply the full path and name to another project.
@@ -2865,7 +2871,7 @@ class SetupHFSS(Setup, object):
         sweepdata.props["SMatrixOnlySolveMode"] = "Auto"
         if add_subranges:
             for f, s in zip(freq, save_single_field):
-                sweepdata.add_subrange(rangetype="SinglePoints", start=f, unit=unit, save_single_fields=s)
+                sweepdata.add_subrange(range_type="SinglePoints", start=f, unit=unit, save_single_fields=s)
         sweepdata.update()
         self._app.logger.info(f"Single point sweep {name} has been correctly created")
         return sweepdata
@@ -2897,11 +2903,6 @@ class SetupHFSS(Setup, object):
             name = generate_unique_name("Sweep")
         if self.setuptype <= 4:
             sweep_n = SweepHFSS(self, name=name, sweep_type=sweep_type, props=props)
-        elif self.setuptype in [14, 30, 31]:
-            sweep_n = SweepMatrix(self, name=name, sweep_type=sweep_type)  # TODO: add , props=props)
-        else:
-            self._app.logger.warning("This method only applies to HFSS, Q2D, and Q3D.")
-            return False
         sweep_n.create()
         self.sweeps.append(sweep_n)
         for setup in self.p_app.setups:
@@ -3868,6 +3869,80 @@ class SetupMaxwell(Setup, object):
                 self.update()
                 return True
 
+    @pyaedt_function_handler()
+    def export_matrix(
+        self,
+        matrix_type,
+        matrix_name,
+        output_file,
+        is_format_default=True,
+        width=8,
+        precision=2,
+        is_exponential=False,
+        setup=None,
+        default_adaptive="LastAdaptive",
+        is_post_processed=False,
+    ):
+        """Export R/L or Capacitance matrix after solving.
+
+        Parameters
+        ----------
+        matrix_type : str
+            Matrix type to be exported.
+            The options are ``"RL"`` or ``"C"``.
+        matrix_name : str
+            Matrix name to be exported.
+        output_file : str
+            Output file path to export R/L matrix file to.
+            Extension must be ``.txt``.
+        is_format_default : bool, optional
+            Whether the exported format is default or not.
+            If False the custom format is set (no exponential).
+        width : int, optional
+            Column width in exported .txt file.
+        precision : int, optional
+            Decimal precision number in exported \\*.txt file.
+        is_exponential : bool, optional
+            Whether the format number is exponential or not.
+        setup : str, optional
+            Name of the setup.
+            If not provided, the active setup is used.
+        default_adaptive : str, optional
+            Adaptive type.
+            The default is ``"LastAdaptive"``.
+        is_post_processed : bool, optional
+            Boolean to check if it is post processed. Default value is ``False``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if matrix_type == "RL":
+            if self.p_app.export_rl_matrix(
+                matrix_name=matrix_name,
+                output_file=output_file,
+                is_format_default=is_format_default,
+                width=width,
+                precision=precision,
+                is_exponential=is_exponential,
+                setup=setup,
+                default_adaptive=default_adaptive,
+                is_post_processed=is_post_processed,
+            ):
+                return True
+        elif matrix_type == "C":
+            if self.p_app.export_c_matrix(
+                matrix_name=matrix_name,
+                output_file=output_file,
+                setup=setup,
+                default_adaptive=default_adaptive,
+                is_post_processed=is_post_processed,
+            ):
+                return True
+        else:
+            raise AEDTRuntimeError("Invalid matrix type. It has to be either 'RL' or 'C'.")
+
 
 class SetupQ3D(Setup, object):
     """Initializes, creates, and updates an Q3D setup.
@@ -4158,7 +4233,7 @@ class SetupQ3D(Setup, object):
         sweepdata.props["SMatrixOnlySolveMode"] = "Auto"
         if add_subranges:
             for f, s in zip(freq, save_single_field):
-                sweepdata.add_subrange(rangetype="SinglePoints", start=f, unit=unit, save_single_fields=s)
+                sweepdata.add_subrange(range_type="SinglePoints", start=f, unit=unit, save_single_fields=s)
         sweepdata.update()
         self._app.logger.info(f"Single point sweep {name} has been correctly created")
         return sweepdata
@@ -4188,16 +4263,6 @@ class SetupQ3D(Setup, object):
             name = generate_unique_name("Sweep")
         if self.setuptype in [14, 30, 31]:
             sweep_n = SweepMatrix(self, name=name, sweep_type=sweep_type)
-        if self.setuptype == 7:
-            self._app.logger.warning("This method only applies to HFSS and Q3D. Use add_eddy_current_sweep method.")
-            return False
-        if self.setuptype <= 4:
-            sweep_n = SweepHFSS(self, name=name, sweep_type=sweep_type, props=props)
-        elif self.setuptype in [14, 30, 31]:
-            sweep_n = SweepMatrix(self, name=name, sweep_type=sweep_type, props=props)
-        else:
-            self._app.logger.warning("This method only applies to HFSS, Q2D, and Q3D.")
-            return False
         sweep_n.create()
         self.sweeps.append(sweep_n)
         for setup in self.p_app.setups:
@@ -4374,7 +4439,7 @@ class SetupIcepak(Setup, object):
         parameters : dict, optional
             Dictionary of the parameters. This argument is not considered if
             ``map_variables_by_name=True``. If ``None``, the default is
-            ``appname.available_variations.nominal_w_values_dict``.
+            ``appname.available_variations.nominal_values``.
         project : str, optional
             Name of the project with the design. The default is ``"This Project*"``.
             However, you can supply the full path and name to another project.
