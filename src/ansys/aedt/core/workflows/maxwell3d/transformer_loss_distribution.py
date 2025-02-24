@@ -72,6 +72,10 @@ def frontend():
     # Create UI
     master = tk.Tk()
 
+    # Configure the grid to expand with the window
+    master.grid_rowconfigure(0, weight=1)
+    master.grid_columnconfigure(0, weight=1)
+
     master.geometry()
 
     master.title(extension_description)
@@ -147,6 +151,13 @@ def frontend():
     objects_list_lb.config(height=6, width=30)
     scroll_bar.config(command=objects_list_lb.yview)
 
+    # Sample points file
+    sample_points_label = ttk.Label(master, text="Sample points file:", width=20, style="PyAEDT.TLabel")
+    sample_points_label.grid(row=3, column=0, pady=10)
+    sample_points_entry = tk.Text(master, width=40, height=1)
+    sample_points_entry.grid(row=3, column=1, pady=15, padx=10)
+    sample_points_entry.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
+
     # Export file
     export_file_label = ttk.Label(master, text="Output file location:", width=20, style="PyAEDT.TLabel")
     export_file_label.grid(row=4, column=0, pady=10)
@@ -202,6 +213,20 @@ def frontend():
         # master.radius = radius_entry.get("1.0", tk.END).strip()
         master.destroy()
 
+    def browse_files():
+        filename = filedialog.askopenfilename(
+            initialdir="/",
+            title="Select an Electronics File",
+            filetypes=(("Points file", ".pst"), ("all files", "*.*")),
+        )
+        sample_points_entry.insert(tk.END, filename)
+        master.file_path = sample_points_entry.get("1.0", tk.END).strip()
+        master.destroy()
+
+    # Export points file button
+    export_points_button = ttk.Button(master, text="...", command=browse_files, width=10, style="PyAEDT.TButton")
+    export_points_button.grid(row=3, column=2, pady=10, padx=15)
+
     def save_as_files():
         filename = filedialog.asksaveasfilename(
             initialdir="/",
@@ -209,7 +234,7 @@ def frontend():
             filetypes=[
                 ("tab data file", ".tab"),
                 ("csv data file", ".csv"),
-                ("MATLAB", ".mat"),
+                # ("MATLAB", ".mat"),
                 ("Numpy array", ".npy"),
             ],
         )
@@ -226,9 +251,19 @@ def frontend():
     export_button = ttk.Button(master, text="Export", width=10, style="PyAEDT.TButton")
     export_button.grid(row=5, column=1, pady=10, padx=15)
 
+    # Configure logging
+    text_area = tk.Text(master, wrap=tk.WORD, width=40, height=2)
+    text_area.grid(row=6, column=1, pady=10, sticky="nsew")
+    text_area.config(state=tk.DISABLED)
+    if sample_points_entry.get("1.0", tk.END).strip() == "":
+        text_area.insert(
+            tk.INSERT, "If a points file is not selected the export fields will be performed on mesh nodes."
+        )
+    text_area.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
+
     # Create buttons to create sphere and change theme color
     change_theme_button = ttk.Button(master, text="\u263D", width=2, command=toggle_theme, style="PyAEDT.TButton")
-    change_theme_button.grid(row=6, column=2, pady=10)
+    change_theme_button.grid(row=7, column=2, pady=10)
 
     # Get objects list selection
     # selected_objects = variable.get()
