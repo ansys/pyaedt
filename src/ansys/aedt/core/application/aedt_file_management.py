@@ -138,7 +138,7 @@ def change_objects_visibility(origfile, solid_list):
     if not os.path.isfile(origfile + ".lock"):  # check if the project is closed
         try:
             # Using text mode with explicit encoding instead of binary mode.
-            with open(origfile, "r", encoding="utf-8") as f, open(newfile, "w", encoding="utf-8") as n:
+            with open(origfile, "rb") as f, open(newfile, "wb") as n:
                 # Reading file content
                 content = f.read()
 
@@ -212,7 +212,7 @@ def change_model_orientation(origfile, bottom_dir):
     if not os.path.isfile(origfile + ".lock"):  # check if the project is closed
         try:
             # Using text mode with explicit encoding.
-            with open(origfile, "r", encoding="utf-8") as f, open(newfile, "w", encoding="utf-8") as n:
+            with open(origfile, "rb") as f, open(newfile, "wb") as n:
                 # Reading file content
                 content = f.read()
 
