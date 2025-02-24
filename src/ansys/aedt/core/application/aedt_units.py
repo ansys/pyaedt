@@ -73,7 +73,7 @@ class AedtUnits:
 
     @property
     def frequency(self):
-        """Default frequency unit to be used in active design.
+        """Default frequency units to be used in active design.
         The setter doesn't change AEDT default units.
 
 
