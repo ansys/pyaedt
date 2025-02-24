@@ -1299,14 +1299,12 @@ class CommonReport(BinaryTreeNode):
             if el in [self.primary_sweep, self.secondary_sweep]:
                 continue
             sweep_list.append(el + ":=")
+
             if isinstance(sweeps[el], list):
-                sweep_list.append(sweeps[el])
+                sweep_list.append(_units_assignment(k))
             else:
-                sweep_list.append([sweeps[el]])
+                sweep_list.append([_units_assignment(k)])
         nominal_values = self._app.available_variations.get_independent_nominal_values()
-        for el in list(sweeps.keys()):
-            sweep_list.append(f"{el}:=")
-            sweep_list.append(_units_assignment(k))
         for el in list(nominal_values.keys()):
             if el not in sweeps:
                 sweep_list.append(f"{el}:=")
