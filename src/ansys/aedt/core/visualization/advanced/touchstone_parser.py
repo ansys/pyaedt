@@ -160,17 +160,15 @@ class TouchstoneData(rf.Network):
             else:
                 k = k + 1
 
-        port_names = self.port_names
-        nb_port = len(port_names)
         s_db = self.s_db[:, :, :]
         temp_list = []
         temp_file = []
         # This if statement is mandatory in case the user just wants to use this function on S parameter which does not
         # have a corresponding projetc. Additionaly it ensures backward compatibility
         if aedb_path is not None:
-            edbapp = Edb(edbpath=aedb_path, cellname=design_name, edbversion="2024.2")
-            for i in range(nb_port):
-                for j in range(i, nb_port):
+            edbapp = Edb(edbpath=aedb_path, cellname=design_name)
+            for i in range(self.number_of_ports):
+                for j in range(i, self.number_of_ports):
                     if i == j:
                         continue
                     for k in range(k_start, nb_freq, frequency_sample):
@@ -179,7 +177,6 @@ class TouchstoneData(rf.Network):
                             temp_list.append((i, j))
                             port1 = self.port_names[i]
                             port2 = self.port_names[j]
-                            print(port1, port2)
                             # This if statement is mandatory as the codeword to use is different with regard to
                             # port type: Circuit(.location) or Gap(.position)
                             if edbapp.ports[port1].hfss_type == 'Circuit':
@@ -203,10 +200,10 @@ class TouchstoneData(rf.Network):
                             line = f"{sxy} Loss= {loss:.2f}dB Freq= {(self.f[k] * 1e-9):.3f}GHz, {ports_location}\n"
                             temp_file.append(line)
                             break
-            edbapp.close_edb()
+            edbapp.close()
         else:
-            for i in range(nb_port):
-                for j in range(i, nb_port):
+            for i in range(self.number_of_ports):
+                for j in range(i, self.number_of_ports):
                     if i == j:
                         continue
                     for k in range(k_start, nb_freq, frequency_sample):
