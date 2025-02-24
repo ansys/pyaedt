@@ -292,7 +292,7 @@ class TestClass:
         )
         assert os.path.exists(fld_file2)
         fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss6.fld")
-        with pytest.raises(AttributeError):
+        with pytest.raises(TypeError):
             hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1", intrinsics=[])
         assert not os.path.exists(fld_file2)
 
