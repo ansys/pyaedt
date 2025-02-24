@@ -2025,7 +2025,13 @@ class MonostaticRCSPlotter(object):
 
     @pyaedt_function_handler()
     def add_incident_rcs_settings(
-        self, theta_span, num_theta, phi_span, num_phi, arrow_color="#ff0000", line_color="#ff0000"
+        self,
+        theta_span: float,
+        num_theta: int,
+        phi_span: float,
+        num_phi: int,
+        arrow_color: str = "#ff0000",
+        line_color: str = "#ff0000",
     ):
         """Add incident wave arrow setting for RCS scene.
 
@@ -2057,7 +2063,7 @@ class MonostaticRCSPlotter(object):
         )
 
     @pyaedt_function_handler()
-    def add_incident_range_profile_settings(self, arrow_color="#ff0000"):
+    def add_incident_range_profile_settings(self, arrow_color: str = "#ff0000"):
         """Add incident wave arrow setting for range profile scene.
 
         This function visualizes the incident wave arrows for RCS settings.
@@ -2070,15 +2076,19 @@ class MonostaticRCSPlotter(object):
         self._add_incident_settings(scene_type="range_profile", arrow_color=arrow_color)
 
     @pyaedt_function_handler()
-    def add_incident_waterfall_settings(self, phi_span, num_phi, arrow_color="#ff0000", line_color="#ff0000"):
+    def add_incident_waterfall_settings(
+        self, phi_span: float, num_phi: int, arrow_color: str = "#ff0000", line_color: str = "#ff0000"
+    ):
         """Add incident wave arrow setting for waterfall scene.
 
         This function visualizes the incident wave arrows for waterfall settings.
 
         Parameters
         ----------
-        phi_angle : float, optional
-            Incident phi angle in degrees. The default is ``None``.
+        phi_span : float
+            Incident phi angle in degrees.
+        num_phi : int
+            Number of phi points.
         arrow_color : str, optional
             Color of the arrow. The default is red (``"#ff0000"``).
         line_color : str, optional
@@ -2089,15 +2099,19 @@ class MonostaticRCSPlotter(object):
         )
 
     @pyaedt_function_handler()
-    def add_incident_isar_2d_settings(self, phi_span, num_phi, arrow_color="#ff0000", line_color="#ff0000"):
+    def add_incident_isar_2d_settings(
+        self, phi_span: float, num_phi: int, arrow_color: str = "#ff0000", line_color: str = "#ff0000"
+    ):
         """Add incident wave arrow setting for ISAR 2D scene.
 
         This function visualizes the incident wave arrows for ISAR 2D settings.
 
         Parameters
         ----------
-        phi_angle : float, optional
-            Incident phi angle in degrees. The default is ``None``.
+        phi_span : float
+            Incident phi angle in degrees.
+        num_phi : int
+            Number of phi points.
         arrow_color : str, optional
             Color of the arrow. The default is red (``"#ff0000"``).
         line_color : str, optional
@@ -2109,7 +2123,13 @@ class MonostaticRCSPlotter(object):
 
     @pyaedt_function_handler()
     def add_incident_isar_3d_settings(
-        self, theta_span, num_theta, phi_span, num_phi, arrow_color="#ff0000", line_color="#ff0000"
+        self,
+        theta_span: float,
+        num_theta: int,
+        phi_span: float,
+        num_phi: int,
+        arrow_color: str = "#ff0000",
+        line_color: str = "#ff0000",
     ):
         """Add incident wave arrow setting for ISAR 3D scene.
 
@@ -2117,10 +2137,14 @@ class MonostaticRCSPlotter(object):
 
         Parameters
         ----------
-        theta_angle : float, optional
-            Incident theta angle in degrees. The default is ``None``.
-        phi_angle : float, optional
-            Incident phi angle in degrees. The default is ``None``.
+        theta_span : float
+            Incident theta angle in degrees.
+        num_theta : int
+            Number of theta points.
+        phi_span : float
+            Incident phi angle in degrees.
+        num_phi : int
+            Number of phi points.
         arrow_color : str, optional
             Color of the arrow. The default is red (``"#ff0000"``).
         line_color : str, optional
