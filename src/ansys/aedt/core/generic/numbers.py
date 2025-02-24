@@ -22,26 +22,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from __future__ import absolute_import
-from __future__ import division
-
 import ast
 import re
+from typing import Any
 from typing import Dict
-from typing import Optional
 
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import SI_UNITS
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.constants import unit_system
-
-
-def _units_assignment(value):
-    if isinstance(value, Quantity):
-        return str(value)
-    elif isinstance(value, list):
-        return [_units_assignment(i) for i in value]
-    return value
 
 
 class Quantity:
@@ -239,25 +228,7 @@ class Quantity:
         return int(self.value)
 
 
-def _find_units_in_dependent_variables(variable_value, full_variables={}):
-    m2 = re.findall(r"[0-9.]+ *([a-z_A-Z]+)", variable_value)
-    if len(m2) > 0:
-        if len(set(m2)) <= 1:
-            return m2[0]
-        else:
-            if unit_system(m2[0]):
-                return SI_UNITS[unit_system(m2[0])]
-    else:
-        m1 = re.findall(r"(?<=[/+-/*//^/(/[])([a-z_A-Z/$]\w*)", variable_value.replace(" ", ""))
-        m2 = re.findall(r"^([a-z_A-Z/$]\w*)", variable_value.replace(" ", ""))
-        m = list(set(m1).union(m2))
-        for i, v in full_variables.items():
-            if i in m and _find_units_in_dependent_variables(v):
-                return _find_units_in_dependent_variables(v)
-    return ""
-
-
-def decompose_variable_value(variable_value: str, full_variables: Optional[Dict[str]] = None) -> tuple:
+def decompose_variable_value(variable_value: str, full_variables: Dict[str, Any] = None) -> tuple:
     """Decompose a variable value.
 
     Parameters
@@ -303,7 +274,7 @@ def decompose_variable_value(variable_value: str, full_variables: Optional[Dict[
     return float_value, units
 
 
-def isclose(a, b, relative_tolerance=1e-9, absolute_tolerance=0.0):
+def isclose(a: float, b: float, relative_tolerance: float = 1e-9, absolute_tolerance: float = 0.0) -> bool:
     """Whether two numbers are close to each other given relative and absolute tolerances.
 
     Parameters
@@ -325,7 +296,7 @@ def isclose(a, b, relative_tolerance=1e-9, absolute_tolerance=0.0):
     return abs(a - b) <= max(relative_tolerance * max(abs(a), abs(b)), absolute_tolerance)
 
 
-def is_number(a):
+def is_number(a: Any) -> bool:
     """Whether the given input is a number.
 
     Parameters
@@ -350,7 +321,7 @@ def is_number(a):
         return False
 
 
-def is_array(a):
+def is_array(a: Any) -> bool:
     """Whether the given input is an array.
 
     Parameters
@@ -372,3 +343,33 @@ def is_array(a):
             return True
         else:
             return False
+
+
+def _units_assignment(value):
+    """Recursively assigns units to a value or a list of values."""
+    if isinstance(value, Quantity):
+        return str(value)
+    elif isinstance(value, list):
+        return [_units_assignment(i) for i in value]
+    return value
+
+
+def _find_units_in_dependent_variables(variable_value, full_variables=None):
+    """Find units in dependent variables."""
+    if full_variables is None:
+        full_variables = {}
+    m2 = re.findall(r"[0-9.]+ *([a-z_A-Z]+)", variable_value)
+    if len(m2) > 0:
+        if len(set(m2)) <= 1:
+            return m2[0]
+        else:
+            if unit_system(m2[0]):
+                return SI_UNITS[unit_system(m2[0])]
+    else:
+        m1 = re.findall(r"(?<=[/+-/*//^/(/[])([a-z_A-Z/$]\w*)", variable_value.replace(" ", ""))
+        m2 = re.findall(r"^([a-z_A-Z/$]\w*)", variable_value.replace(" ", ""))
+        m = list(set(m1).union(m2))
+        for i, v in full_variables.items():
+            if i in m and _find_units_in_dependent_variables(v):
+                return _find_units_in_dependent_variables(v)
+    return ""
