@@ -2214,25 +2214,19 @@ class MonostaticRCSPlotter(object):
             arrow_mesh = self._create_arrow(
                 start=arrow_start, direction=arrow_direction, scale=arrow_length, name=name, color=arrow_color
             )
-
             self.all_scene_actors["annotations"]["incident_wave"][name] = arrow_mesh
 
             corner1 = arrow_start
             n_t, n_p = corners[(i + 1) % 4]
             n_arrow_direction = -np.array([np.cos(n_p) * np.sin(n_t), np.sin(n_p) * np.sin(n_t), np.cos(n_t)])
             corner2 = -n_arrow_direction * (radius_max + arrow_length)
-
             name = "arc" + str(i)
-
-            # TODO
-            negative = False
-
             arc_mesh = self._create_arc(
                 pointa=corner1,
                 pointb=corner2,
                 center=(0, 0, 0),
                 resolution=100,
-                negative=negative,
+                negative=False,
                 name=name,
                 color=line_color,
             )
