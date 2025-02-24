@@ -1100,11 +1100,16 @@ class CircuitComponent(object):
             self._circuit_components._app.logger.warning("Component " + self.refdes + " has no path")
             return False
         if len(component_data[2][5]) == 0:
+            def_name = ""
             for data in component_data:
                 if isinstance(data, list) and isinstance(data[0], str) and data[0] == "NAME:CosimDefinitions":
-                    if len(data[1][12]) == 0:
-                        return component_data[17][2][4]
-                    return (data[1][12][1].split(" ")[1])[1:-1]
+                    for dd in range(len(data[1])):
+                        if data[1][dd] == "GRef:=":
+                            if len(data[1][dd + 1]) > 0:
+                                return (data[1][12][1].split(" ")[1])[1:-1]
+                        elif data[1][dd] == "CosimDefName:=":
+                            def_name = data[1][dd + 1]
+            return def_name
 
 
 class Wire(object):
