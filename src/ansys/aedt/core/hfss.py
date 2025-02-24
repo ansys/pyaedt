@@ -5900,7 +5900,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             self.logger.info("Frequencies could not be obtained.")
             return False
         frequencies = [self.value_with_units(i, self.units.frequency, "Freq") for i in frequencies]
-
         ffd = FfdSolutionDataExporter(
             self,
             sphere_name=sphere,
