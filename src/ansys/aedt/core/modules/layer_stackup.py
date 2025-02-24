@@ -33,6 +33,7 @@ from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.data_handlers import str_to_bool
 from ansys.aedt.core.generic.general_methods import _arg_with_dim
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers import decompose_variable_value
 
 
 @pyaedt_function_handler()
