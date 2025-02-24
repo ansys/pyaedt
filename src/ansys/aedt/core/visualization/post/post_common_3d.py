@@ -28,7 +28,7 @@ Module containing the class: `PostProcessor3D`.
 This module provides all functionalities for creating and editing plots in the 3D tools.
 
 """
-from __future__ import absolute_import
+
 
 import ast
 import os
@@ -203,6 +203,51 @@ class PostProcessor3D(PostProcessorCommon):
                 if isinstance(intr, list) and len(intr) == 2:
                     intr_dict[intr[0]] = intr[1].replace("\\", "").replace("'", "")
         return intr_dict  # pragma: no cover
+
+    @pyaedt_function_handler()
+    def _check_intrinsics(self, input_data, input_phase=None, setup=None, return_list=False):
+        intrinsics = {}
+        if input_data is None:
+            if setup is None:
+                try:
+                    setup = self._app.existing_analysis_sweeps[0].split(":")[0].strip()
+                except Exception:
+                    setup = None
+            else:
+                setup = setup.split(":")[0].strip()
+            for set_obj in self._app.setups:
+                if set_obj.name == setup:
+                    intrinsics = set_obj.default_intrinsics
+                    break
+
+        elif isinstance(input_data, str):
+            if "Freq" in self._app.design_solutions.intrinsics:
+                intrinsics["Freq"] = input_data
+                if "Phase" in self._app.design_solutions.intrinsics:
+                    intrinsics["Phase"] = input_phase if input_phase else "0deg"
+            elif "Time" in self._app.design_solutions.intrinsics:
+                intrinsics["Time"] = input_data
+        elif isinstance(input_data, dict):
+            for k, v in input_data.items():
+                if k in ["Freq", "freq", "frequency", "Frequency"]:
+                    intrinsics["Freq"] = v
+                elif k in ["Phase", "phase"]:
+                    intrinsics["Phase"] = v
+                elif k in ["Time", "time"]:
+                    intrinsics["Time"] = v
+                if input_phase:
+                    intrinsics["Phase"] = input_phase
+                if "Phase" in self._app.design_solutions.intrinsics and "Phase" not in intrinsics:
+                    intrinsics["Phase"] = "0deg"
+        else:
+            raise TypeError("Invalid input_data type. It should be of type None, string or dictionary.")
+        if return_list:
+            intrinsics_list = []
+            for k, v in intrinsics.items():
+                intrinsics_list.append(f"{k}:=")
+                intrinsics_list.append(v)
+            return intrinsics_list
+        return intrinsics
 
     @pyaedt_function_handler(list_objs="assignment")
     def _get_volume_objects(self, assignment):
@@ -464,7 +509,7 @@ class PostProcessor3D(PostProcessorCommon):
         >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name)
         >>> plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name)
         """
-        intrinsics = self._app._check_intrinsics(intrinsics, phase, solution, return_list=True)
+        intrinsics = self._check_intrinsics(intrinsics, phase, solution, return_list=True)
         self.logger.info(f"Exporting {quantity} field. Be patient")
         if not solution:
             solution = self._app.existing_analysis_sweeps[0]
@@ -626,7 +671,7 @@ class PostProcessor3D(PostProcessorCommon):
         >>> path = "Field.fld"
         >>> hfss.post.export_field_file_on_grid("E",setup,var,path,'Cartesian',[0, 0, 0],intrinsics="8GHz")
         """
-        intrinsics = self._app._check_intrinsics(intrinsics, phase, solution, return_list=True)
+        intrinsics = self._check_intrinsics(intrinsics, phase, solution, return_list=True)
         self.logger.info("Exporting %s field. Be patient", quantity)
         if grid_step is None:
             grid_step = [0, 0, 0]
@@ -824,7 +869,7 @@ class PostProcessor3D(PostProcessorCommon):
         >>>  hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
         >>>                                     )
         """
-        intrinsics = self._app._check_intrinsics(intrinsics, phase, solution, return_list=True)
+        intrinsics = self._check_intrinsics(intrinsics, phase, solution, return_list=True)
         self.logger.info("Exporting %s field. Be patient", quantity)
         if not solution:
             if not self._app.existing_analysis_sweeps:
@@ -1037,7 +1082,7 @@ class PostProcessor3D(PostProcessorCommon):
         field_type=None,
         create_plot=True,
     ):
-        intrinsics = self._app._check_intrinsics(intrinsics, None, setup)
+        intrinsics = self._check_intrinsics(intrinsics, None, setup)
         if not list_type.startswith("Layer") and self._app.design_type != "HFSS 3D Layout Design":
             assignment = self._app.modeler.convert_to_selections(assignment, True)
         if not setup:
@@ -1199,7 +1244,7 @@ class PostProcessor3D(PostProcessorCommon):
         >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name)
         >>> plot1 = aedtapp.post.create_fieldplot_line("Polyline1", quantity_name, setup_name)
         """
-        intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
+        intrinsics = self._check_intrinsics(intrinsics, setup=setup)
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info(f"Plot {plot_name} exists. returning the object.")
             return self.field_plots[plot_name]
@@ -1272,7 +1317,7 @@ class PostProcessor3D(PostProcessorCommon):
         >>>                                                   plot_name="LineTracesTest",
         >>>                                                   intrinsics="200Hz")
         """
-        intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
+        intrinsics = self._check_intrinsics(intrinsics, setup=setup)
         if self._app.solution_type != "Electrostatic":
             self.logger.error("Field line traces is valid only for electrostatic solution")
             return False
@@ -1456,7 +1501,7 @@ class PostProcessor3D(PostProcessorCommon):
         ----------
         >>> oModule.CreateFieldPlot
         """
-        intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
+        intrinsics = self._check_intrinsics(intrinsics, setup=setup)
         if not setup:
             setup = self._app.existing_analysis_sweeps[0]
         if nets is None:
@@ -1556,7 +1601,7 @@ class PostProcessor3D(PostProcessorCommon):
         ----------
         >>> oModule.CreateFieldPlot
         """
-        intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
+        intrinsics = self._check_intrinsics(intrinsics, setup=setup)
         if not setup:
             setup = self._app.existing_analysis_sweeps[0]
         if nets is None:
@@ -1632,7 +1677,7 @@ class PostProcessor3D(PostProcessorCommon):
         ----------
         >>> oModule.CreateFieldPlot
         """
-        intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
+        intrinsics = self._check_intrinsics(intrinsics, setup=setup)
         if not (
             "APhi" in self.post_solution_type and settings.aedt_version >= "2023.2"
         ) and not self._app.design_type in ["HFSS", "HFSS 3D Layout Design"]:
@@ -1896,7 +1941,7 @@ class PostProcessor3D(PostProcessorCommon):
                 obj_list.extend([face for face in self._app.modeler[element].faces if face.id not in obj_list])
             else:
                 obj_list.append(element)
-        intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
+        intrinsics = self._check_intrinsics(intrinsics, setup=setup)
 
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info(f"Plot {plot_name} exists. returning the object.")
@@ -2310,7 +2355,7 @@ class PostProcessor3D(PostProcessorCommon):
 
         if not setup:
             setup = self._app.nominal_adaptive
-        intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
+        intrinsics = self._check_intrinsics(intrinsics, setup=setup)
 
         mesh_list = []
         obj_list = self._app.modeler.object_names
@@ -3440,7 +3485,7 @@ class PostProcessor3D(PostProcessorCommon):
         :class:`ansys.aedt.core.visualization.plot.pyvista.ModelPlotter`
             Model Object.
         """
-        intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
+        intrinsics = self._check_intrinsics(intrinsics, setup=setup)
         if filter_objects is None:
             filter_objects = []
         if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t"):  # pragma: no cover
@@ -3578,7 +3623,7 @@ class PostProcessor3D(PostProcessorCommon):
         :class:`ansys.aedt.core.generic.plot.ModelPlotter`
             Model Object.
         """
-        intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
+        intrinsics = self._check_intrinsics(intrinsics, setup=setup)
         if variations is None:
             variations = ["0deg"]
         if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t"):  # pragma: no cover
