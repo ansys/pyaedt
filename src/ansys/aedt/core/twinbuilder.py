@@ -496,7 +496,9 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             raise ValueError("Invalid matrix name.")
         if not component_name:
             component_name = generate_unique_name("SimpQ3DData")
-        var = app.available_variations.nominal_w_values_dict
+
+        var = app.available_variations.get_independent_nominal_values()
+
         props = ["NAME:Properties"]
         for k, v in var.items():
             props.append("paramProp:=")
@@ -567,7 +569,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             enforce_passivity = True
         else:
             raise TypeError("Link type is not valid.")
-        self.o_component_manager.AddDynamicNPortData(
+        self.ocomponent_manager.AddDynamicNPortData(
             [
                 "NAME:ComponentData",
                 "ComponentDataType:=",
@@ -655,7 +657,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         export_uniform_points=False,
         export_uniform_points_step=1e-5,
         excitations=None,
-    ):  # pragma: no cover
+    ):
         """Use the excitation component to assign output quantities
 
         This works in a Twin Builder design to a windings in a Maxwell design.
@@ -820,7 +822,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
                 grid_data.append("{}:=".format(e.name))
                 grid_data.append(maxwell_excitations[e.name])
 
-        comp_name = self.o_component_manager.AddExcitationModel([settings, excitations_data, grid_data])
+        comp_name = self.ocomponent_manager.AddExcitationModel([settings, excitations_data, grid_data])
         comp = self.modeler.schematic.create_component(component_library="", component_name=comp_name)
 
         return comp
