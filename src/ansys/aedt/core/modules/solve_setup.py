@@ -3946,7 +3946,7 @@ class SetupQ3D(Setup, object):
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.application.analysis_3d.FieldAnalysis3D`
+    app : :class:`ansys.aedt.core.application.analysis.Analysis`
         Inherited app object.
     solution_type : int, str
         Type of the setup.
