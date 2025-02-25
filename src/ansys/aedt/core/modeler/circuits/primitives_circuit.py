@@ -827,7 +827,7 @@ class CircuitComponents(object):
             "NoiseModelOption:=",
             "External",
         ]
-        self.o_model_manager.Add(arg)
+        self.omodel_manager.Add(arg)
         arg = [
             "NAME:" + model_name,
             "Info:=",
