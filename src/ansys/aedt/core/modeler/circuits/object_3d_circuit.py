@@ -481,7 +481,7 @@ class CircuitComponent(object):
     def _property_data(self):
         """Property Data List."""
         try:
-            return list(self._circuit_components.o_component_manager.GetData(self.name.split("@")[1]))
+            return list(self._circuit_components.ocomponent_manager.GetData(self.name.split("@")[1]))
         except Exception:
             return []
 
