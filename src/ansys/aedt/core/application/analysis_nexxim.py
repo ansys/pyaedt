@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+import warnings
 
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -112,7 +113,7 @@ class FieldAnalysisCircuit(Analysis):
         ----------
         >>> oModule.RemoveSimSetup
         """
-        if name in self.existing_analysis_setups:
+        if name in self.setup_names:
             self.oanalysis.RemoveSimSetup([name])
             for s in self.setups:
                 if s.name == name:
@@ -191,23 +192,33 @@ class FieldAnalysisCircuit(Analysis):
         References
         ----------
         >>> oModule.GetAllSolutionSetups"""
-        return self.existing_analysis_setups
+        return self.setup_names
 
     @property
     def existing_analysis_setups(self):
-        """Analysis setups.
+        """Existing analysis setups.
+
+        .. deprecated:: 0.15.0
+            Use :func:`setup_names` from setup object instead.
+
+        Returns
+        -------
+        list of str
+            List of all analysis setups in the design.
 
         References
         ----------
-        >>> oModule.GetAllSolutionSetups"""
-        setups = self.oanalysis.GetAllSolutionSetups()
-        return setups
+        >>> oModule.GetSetups
+        """
+        msg = "`existing_analysis_setups` is deprecated. " "Use `setup_names` method from setup object instead."
+        warnings.warn(msg, DeprecationWarning)
+        return self.setup_names
 
     @property
     def nominal_sweep(self):
         """Nominal sweep."""
-        if self.existing_analysis_setups:
-            return self.existing_analysis_setups[0]
+        if self.setup_names:
+            return self.setup_names[0]
         else:
             return ""
 

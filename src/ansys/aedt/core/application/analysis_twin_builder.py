@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+import warnings
 
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -41,13 +42,19 @@ class AnalysisTwinBuilder(Analysis):
 
     @property
     def existing_analysis_setups(self):
-        """Get all analysis solution setups.
+        """Existing analysis setups.
 
-        References
-        ----------
-        >>> oModule.GetAllSolutionSetups"""
-        setups = list(self.oanalysis.GetAllSolutionSetups())
-        return setups
+        .. deprecated:: 0.15.0
+            Use :func:`setup_names` from setup object instead.
+
+        Returns
+        -------
+        list of str
+            List of all analysis setups in the design.
+        """
+        msg = "`existing_analysis_setups` is deprecated. " "Use `setup_names` method from setup object instead."
+        warnings.warn(msg, DeprecationWarning)
+        return self.setup_names
 
     @property
     def setup_names(self):
@@ -108,7 +115,7 @@ class AnalysisTwinBuilder(Analysis):
             List of all analysis setups in the design.
 
         """
-        return self.existing_analysis_setups
+        return self.setup_names
 
     @property
     def modeler(self):

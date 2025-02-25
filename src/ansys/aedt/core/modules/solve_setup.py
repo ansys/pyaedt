@@ -181,6 +181,12 @@ class CommonSetup(PropsManager, BinaryTreeNode):
     def __repr__(self):
         return "SetupName " + self.name + " with " + str(len(self.sweeps)) + " Sweeps"
 
+    def __str__(self):
+        if not self._app.design_solutions.default_adaptive:
+            return self.name
+        else:
+            return f"{self.name} : {self._app.design_solutions.default_adaptive}"
+
     @pyaedt_function_handler(num_cores="cores", num_tasks="tasks", num_gpu="gpus")
     def analyze(
         self,
@@ -941,7 +947,7 @@ class Setup(CommonSetup):
             # solution name
             if solution is None:
                 meshlinks["Soln"] = self._app.nominal_adaptive
-            elif solution.split()[0] not in self._app.existing_analysis_setups:
+            elif solution.split()[0] not in self._app.setup_names:
                 raise ValueError("Setup does not exist in current design.")
             # parameters
             meshlinks["Params"] = {}

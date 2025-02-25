@@ -320,8 +320,8 @@ class Analysis(Design, object):
         """
         if self._setup:
             return self._setup
-        elif self.existing_analysis_setups:
-            return self.existing_analysis_setups[0]
+        elif self.setup_names:
+            return self.setup_names[0]
         else:
             self._setup = None
             return self._setup
@@ -329,13 +329,49 @@ class Analysis(Design, object):
     @active_setup.setter
     @pyaedt_function_handler(setup_name="name")
     def active_setup(self, name):
-        setup_list = self.existing_analysis_setups
+        setup_list = self.setup_names
         if setup_list:
             if name not in setup_list:
                 raise ValueError(f"Setup name {name} is invalid.")
             self._setup = name
         else:
             raise AttributeError("No setup is defined.")
+
+    @property
+    def get_all_setup_and_sweeps(self):
+        """Get all available setup names and sweeps.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the nominal value for such setup and all available sweeps.
+        """
+        setup_list = self.setup_names
+        sweep_list = {}
+        if self.solution_type == "HFSS3DLayout" or self.solution_type == "HFSS 3D Layout Design":
+            solutions = self.oanalysis.GetAllSolutionNames()
+            solutions = [i for i in solutions if "Adaptive Pass" not in i]
+            solutions.reverse()
+            for k in solutions:
+                sol_sweep = k.split(" : ")
+                if sol_sweep[0] not in sweep_list:
+                    sweep_list[sol_sweep[0]] = {"Nominal": None, "Sweeps": []}
+                if "Adaptive Pass" in sol_sweep[1]:
+                    sweep_list[sol_sweep[0]]["Nominal"] = sol_sweep[1]
+                else:
+                    sweep_list[sol_sweep[0]]["Sweeps"].append(sol_sweep[1])
+        else:
+            for el in setup_list:
+                sweep_list[el] = {"Nominal": None, "Sweeps": []}
+                setuptype = self.design_solutions.default_adaptive
+                if setuptype:
+                    sweep_list[el]["Nominal"] = setuptype
+                if "GetSweeps" in dir(self.oanalysis):
+                    try:
+                        sweep_list[el]["Sweeps"].extend(list(self.oanalysis.GetSweeps(el)))
+                    except Exception:
+                        sweep_list[el]["Sweeps"] = []
+        return sweep_list
 
     @property
     def existing_analysis_sweeps(self):
@@ -351,30 +387,14 @@ class Analysis(Design, object):
         >>> oModule.GelAllSolutionNames
         >>> oModule.GetSweeps
         """
-        setup_list = self.existing_analysis_setups
         sweep_list = []
-        if self.solution_type == "HFSS3DLayout" or self.solution_type == "HFSS 3D Layout Design":
-            sweep_list = self.oanalysis.GetAllSolutionNames()
-            sweep_list = [i for i in sweep_list if "Adaptive Pass" not in i]
-            sweep_list.reverse()
-        else:
-            for el in setup_list:
-                sweeps = []
-                setuptype = self.design_solutions.default_adaptive
-                if setuptype:
-                    sweep_list.append(el + " : " + setuptype)
-                else:
-                    sweep_list.append(el)
-                if self.design_type in ["HFSS 3D Layout Design"]:
-                    sweeps = self.oanalysis.GelAllSolutionNames()
-                elif self.solution_type not in ["Eigenmode"]:
-                    try:
-                        sweeps = list(self.oanalysis.GetSweeps(el))
-                    except Exception:
-                        sweeps = []
-                for sw in sweeps:
-                    if el + " : " + sw not in sweep_list:
-                        sweep_list.append(el + " : " + sw)
+        for k, v in self.get_all_setup_and_sweeps.items():
+            if v["Nominal"] is None:
+                sweep_list.append(k)
+            else:
+                sweep_list.append(f"{k} : {v['Nominal']}")
+            for sw in v["Sweeps"]:
+                sweep_list.append(f"{k} : {sw}")
         return sweep_list
 
     @property
@@ -391,10 +411,12 @@ class Analysis(Design, object):
         >>> oModule.GelAllSolutionNames
         >>> oModule.GetSweeps
         """
-        if len(self.existing_analysis_sweeps) > 0:
-            return self.existing_analysis_sweeps[0]
-        else:
+        if not self.active_setup or self.active_setup not in self.get_all_setup_and_sweeps:
             return ""
+        if self.get_all_setup_and_sweeps[self.active_setup]["Nominal"] is None:
+            return self.active_setup
+        else:
+            return f'{self.active_setup} : {self.get_all_setup_and_sweeps[self.active_setup]["Nominal"]}'
 
     @property
     def nominal_sweep(self):
@@ -411,14 +433,19 @@ class Analysis(Design, object):
         >>> oModule.GelAllSolutionNames
         >>> oModule.GetSweeps
         """
-        if len(self.existing_analysis_sweeps) > 1:
-            return self.existing_analysis_sweeps[1]
+        if not self.active_setup or self.active_setup not in self.get_all_setup_and_sweeps:
+            return ""
+        if self.get_all_setup_and_sweeps[self.active_setup]["Sweeps"]:
+            return f'{self.active_setup} : {self.get_all_setup_and_sweeps[self.active_setup]["Sweeps"][0]}'
         else:
             return self.nominal_adaptive
 
     @property
     def existing_analysis_setups(self):
         """Existing analysis setups.
+
+        .. deprecated:: 0.15.0
+            Use :func:`setup_names` from setup object instead.
 
         Returns
         -------
@@ -429,12 +456,9 @@ class Analysis(Design, object):
         ----------
         >>> oModule.GetSetups
         """
-        setups = []
-        if self.oanalysis and "GetSetups" in self.oanalysis.__dir__():
-            setups = self.oanalysis.GetSetups()
-        if setups:
-            return list(setups)
-        return []
+        msg = "`existing_analysis_setups` is deprecated. " "Use `setup_names` method from setup object instead."
+        warnings.warn(msg, DeprecationWarning)
+        return self.setup_names
 
     @property
     def setup_names(self):
@@ -1124,7 +1148,7 @@ class Analysis(Design, object):
         if not name:
             name = "Setup"
         index = 2
-        while name in self.existing_analysis_setups:
+        while name in self.setup_names:
             name = name + f"_{index}"
             index += 1
         return name
@@ -1252,7 +1276,7 @@ class Analysis(Design, object):
         ...
         PyAEDT INFO: Sweep was deleted correctly.
         """
-        if name in self.existing_analysis_setups:
+        if name in self.setup_names:
             self.oanalysis.DeleteSetups([name])
             for s in self._setups:
                 if s.name == name:
@@ -1675,7 +1699,7 @@ class Analysis(Design, object):
                     self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
                 self.logger.error("Error in solving all setups (AnalyzeAll).")
                 return False
-        elif name in self.existing_analysis_setups:
+        elif name in self.setup_names:
             try:
                 if revert_to_initial_mesh:
                     self.oanalysis.RevertSetupToInitial(name)

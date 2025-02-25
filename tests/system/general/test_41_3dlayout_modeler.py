@@ -364,7 +364,7 @@ class TestClass:
     def test_14_create_setup(self):
         setup_name = "RFBoardSetup"
         setup = self.aedtapp.create_setup(name=setup_name)
-        assert setup.name == self.aedtapp.existing_analysis_setups[0]
+        assert setup.name == self.aedtapp.setup_names[0]
         assert setup.solver_type == "HFSS"
 
     def test_15_edit_setup(self):
@@ -436,7 +436,7 @@ class TestClass:
         assert sweep.set_save_fields(False, False)
 
     def test_17_get_setup(self):
-        setup4 = self.aedtapp.get_setup(self.aedtapp.existing_analysis_setups[0])
+        setup4 = self.aedtapp.get_setup(self.aedtapp.setup_names[0])
         setup4.props["PercentRefinementPerPass"] = 37
         setup4.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = 44
         assert setup4.update()
@@ -563,9 +563,9 @@ class TestClass:
     def test_18d_delete_setup(self):
         setup_name = "SetupToDelete"
         setuptd = self.aedtapp.create_setup(name=setup_name)
-        assert setuptd.name in self.aedtapp.existing_analysis_setups
+        assert setuptd.name in self.aedtapp.setup_names
         self.aedtapp.delete_setup(setup_name)
-        assert setuptd.name not in self.aedtapp.existing_analysis_setups
+        assert setuptd.name not in self.aedtapp.setup_names
 
     def test_19a_validate(self):
         assert self.aedtapp.validate_full_design()
@@ -578,7 +578,7 @@ class TestClass:
         file_fullname = os.path.join(self.local_scratch.path, filename)
         file_fullname2 = os.path.join(self.local_scratch.path, filename2)
         file_fullname3 = os.path.join(self.local_scratch.path, filename3)
-        setup = self.aedtapp.get_setup(self.aedtapp.existing_analysis_setups[0])
+        setup = self.aedtapp.get_setup(self.aedtapp.setup_names[0])
         assert setup.export_to_hfss(output_file=file_fullname)
         if not is_linux:
             # TODO: EDB failing in Linux
@@ -589,13 +589,13 @@ class TestClass:
     def test_19e_export_to_q3d(self):
         filename = "export_to_q3d_test"
         file_fullname = os.path.join(self.local_scratch.path, filename)
-        setup = self.aedtapp.get_setup(self.aedtapp.existing_analysis_setups[0])
+        setup = self.aedtapp.get_setup(self.aedtapp.setup_names[0])
         assert setup.export_to_q3d(file_fullname)
 
     def test_19f_export_to_q3d(self):
         filename = "export_to_q3d_non_unite_test"
         file_fullname = os.path.join(self.local_scratch.path, filename)
-        setup = self.aedtapp.get_setup(self.aedtapp.existing_analysis_setups[0])
+        setup = self.aedtapp.get_setup(self.aedtapp.setup_names[0])
         assert setup.export_to_q3d(file_fullname, keep_net_name=True, unite=False)
 
     def test_21_variables(self):

@@ -225,7 +225,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
             List of all analysis setups in the design.
 
         """
-        setup_list = self.existing_analysis_setups
+        setup_list = self.setup_names
         sweep_list = []
         s_type = self.solution_type
         for el in setup_list:
