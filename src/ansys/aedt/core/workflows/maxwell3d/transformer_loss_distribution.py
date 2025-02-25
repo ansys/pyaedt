@@ -223,6 +223,16 @@ def frontend():
         master.export_option = [objects_list_lb.get(i) for i in selected_export]
         selected_objects = objects_list_lb.curselection()
         master.objects_list = [objects_list_lb.get(i) for i in selected_objects]
+        if master.points_file == "":
+            text_area.insert(
+                tk.INSERT,
+                "INFO: If a points file is not selected the export fields will be performed on mesh nodes." + "\n",
+            )
+        if not master.objects_list:
+            text_area.insert(
+                tk.INSERT,
+                "INFO: If no objects are selected all objects are taken into account for field export." + "\n",
+            )
         # master.destroy()
 
     def browse_files():
@@ -267,11 +277,6 @@ def frontend():
     text_area = tk.Text(master, wrap=tk.WORD, width=40, height=2)
     text_area.grid(row=6, column=1, pady=10, sticky="nsew")
     text_area.config(state=tk.DISABLED)
-    if sample_points_entry.get("1.0", tk.END).strip() == "":
-        text_area.insert(
-            tk.INSERT,
-            "INFO: If a points file is not selected the export fields will be performed on mesh nodes." + "\n",
-        )
     text_area.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
 
     # Create buttons to create sphere and change theme color
@@ -279,19 +284,12 @@ def frontend():
     change_theme_button.grid(row=7, column=2, pady=10)
 
     # Get objects list selection
-    # selected_objects = variable.get()
-
     tk.mainloop()
 
     points_file = getattr(master, "points_file", extension_arguments["points_file"])
     export_file = getattr(master, "export_file", extension_arguments["export_file"])
     export_option = getattr(master, "export_option", extension_arguments["export_option"])
     objects_list = getattr(master, "objects_list", extension_arguments["objects_list"])
-
-    if not objects_list:
-        text_area.insert(
-            tk.INSERT, "INFO: If no objects are selected all objects are taken into account for field export." + "\n"
-        )
 
     output_dict = {
         "points_file": points_file,
@@ -352,5 +350,6 @@ if __name__ == "__main__":
             for output_name, output_value in output.items():
                 if output_name in extension_arguments:
                     args[output_name] = output_value
-
-    main(args)
+            main(args)
+    else:
+        main(args)
