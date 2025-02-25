@@ -182,7 +182,9 @@ class TestClass:
         solution_data = sbr_platform_solved.setups[0].get_solution_data()
 
         ffdata = sbr_platform_solved.get_antenna_data(frequencies=solution_data.intrinsics["Freq"], sphere="3D")
-        sbr_platform_solved.get_antenna_data(frequencies=solution_data.intrinsics["Freq"], sphere="3D", overwrite=False)
+        ffdata2 = sbr_platform_solved.get_antenna_data(
+            frequencies=solution_data.intrinsics["Freq"][0], sphere="3D", overwrite=False
+        )
 
         ffdata.farfield_data.plot_cut(
             quantity="RealizedGain",
@@ -195,6 +197,7 @@ class TestClass:
             output_file=os.path.join(self.local_scratch.path, "2d1_array.jpg"),
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d1_array.jpg"))
+        assert os.path.isfile(ffdata2.metadata_file)
 
     def test_01b_sbr_create_vrt(self, sbr_app):
         sbr_app.rename_design("vtr")
