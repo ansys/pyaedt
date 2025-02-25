@@ -360,26 +360,6 @@ class FieldAnalysisCircuit(Analysis):
                                 props[new_port] = Excitations(self, new_port)
         return props
 
-    @pyaedt_function_handler(setupname="name")
-    def get_setup(self, name):
-        """Retrieve the setup from the current design.
-
-        Parameters
-        ----------
-        name : str
-            Name of the setup.
-
-        Returns
-        -------
-        type
-            Setup object.
-
-        """
-        setup = SetupCircuit(self, self.solution_type, name, is_new_setup=False)
-        if setup.props:
-            self.active_setup = name
-        return setup
-
     @pyaedt_function_handler(setupname="name", setuptype="setup_type")
     def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
         """Create a setup.
