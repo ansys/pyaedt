@@ -1012,7 +1012,11 @@ class TestClass:
         assert self.aedtapp.delete_imported_data(table)
         assert table not in self.aedtapp.existing_analysis_sweeps
 
-    def test_54_get_component_path_and_import_sss_files(self):
+    def test_54_value_with_units(self):
+        assert self.aedtapp.value_with_units("10mm") == "10mm"
+        assert self.aedtapp.value_with_units("10") == "10mm"
+        
+    def test_55_get_component_path_and_import_sss_files(self):
         model = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "test.lib")
         assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model)
         assert len(self.aedtapp.modeler.schematic.components) == 1

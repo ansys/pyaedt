@@ -27,7 +27,6 @@ import os
 import secrets
 import warnings
 
-from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.general_methods import filter_string
 from ansys.aedt.core.generic.general_methods import generate_unique_name
@@ -35,6 +34,7 @@ from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import recursive_glob
 from ansys.aedt.core.generic.load_aedt_file import load_keyword_in_aedt_file
+from ansys.aedt.core.generic.numbers import decompose_variable_value
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import Wire
 
@@ -185,7 +185,7 @@ class CircuitComponents(object):
     @property
     def model_units(self):
         """Model units."""
-        return self._modeler.model_units
+        return self._app.units.length
 
     @property
     def schematic_units(self):
@@ -1447,6 +1447,9 @@ class CircuitComponents(object):
     def number_with_units(self, value, units=None):
         """Convert a number to a string with units. If value is a string, it's returned as is.
 
+        .. deprecated:: 0.14.0
+           Use :func:`value_with_units` in Analysis class instead.
+
         Parameters
         ----------
         value : float, int, str
@@ -1460,7 +1463,7 @@ class CircuitComponents(object):
            String concatenating the value and unit.
 
         """
-        return self._app.number_with_units(value, units)
+        return self._app.value_with_units(value, units)
 
     @pyaedt_function_handler(points_array="points", line_width="width")
     def create_line(self, points, color=0, width=0):
