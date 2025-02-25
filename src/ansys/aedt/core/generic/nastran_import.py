@@ -22,15 +22,18 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from collections import defaultdict
 import copy
 import logging
-import os
+import os.path
+import time
 import warnings
 
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.visualization.advanced.misc import preview_pyvista
+import numpy as np
 
 try:
     import pyvista as pv
@@ -40,6 +43,31 @@ except ImportError:  # pragma: no cover
         "Install with \n\npip install pyvista"
     )
     pv = None
+
+
+def format_elapsed_time(elapsed_seconds, seconds_decimals=2):
+    """Format elapsed time into hours, minutes, and seconds with variable decimal places.
+
+    Args:
+        elapsed_seconds (float): The elapsed time in seconds.
+        seconds_decimals (int): Number of decimal places for seconds.
+
+    Returns:
+        str: Formatted time string.
+    """
+    hours, remainder = divmod(elapsed_seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+
+    formatted_time = []
+
+    if hours >= 1:
+        formatted_time.append(f"{int(hours)}h")
+    if minutes >= 1:
+        formatted_time.append(f"{int(minutes)}m")
+
+    formatted_time.append(f"{seconds:.{seconds_decimals}f}s")
+
+    return " ".join(formatted_time)
 
 
 @pyaedt_function_handler()
@@ -419,34 +447,224 @@ def nastran_to_stl(
     return output_stls, nas_to_dict, enable_stl_merge
 
 
+def _detect_triple_connections_node(triangles):
+    """Detects all triangles connected to a triple connection edge or its nodes."""
+
+    edge_to_triangles = defaultdict(list)
+
+    # Step 1: Build edge-to-triangle mapping
+    for i, tri in enumerate(triangles):
+        edges = [tuple(sorted([tri[0], tri[1]])), tuple(sorted([tri[1], tri[2]])), tuple(sorted([tri[2], tri[0]]))]
+        for edge in edges:
+            edge_to_triangles[edge].append(i)
+
+    # Step 2: Identify triple connection edges
+    triple_edges = {edge for edge, tri_list in edge_to_triangles.items() if len(tri_list) >= 3}
+
+    # Step 3: Collect affected nodes
+    affected_nodes = set()
+    for edge in triple_edges:
+        affected_nodes.update(edge)
+
+    # Step 4: Collect all triangles with at least one affected node
+    invalid_trg_indices = set()
+    for i, tri in enumerate(triangles):
+        if any(v in affected_nodes for v in tri):  # If any vertex is in the triple connection nodes
+            invalid_trg_indices.add(i)
+
+    # Convert to triangle triplets
+
+    invalid_triangles = [triangles[i] for i in range(len(triangles)) if i in invalid_trg_indices]
+    valid_triangles = [triangles[i] for i in range(len(triangles)) if i not in invalid_trg_indices]
+
+    return valid_triangles, invalid_triangles
+
+
+def _split_invalid_triangles(invalid_triangles):
+    """Splits invalid triangles into two groups while handling triple connections on edges and nodes."""
+    t0 = time.time()
+
+    invalid_triangles = np.array(invalid_triangles)
+
+    # Step 1: Build edge-to-triangle mapping
+    edge_to_triangles = defaultdict(list)
+
+    for i, tri in enumerate(invalid_triangles):
+        edges = [tuple(sorted([tri[0], tri[1]])), tuple(sorted([tri[1], tri[2]])), tuple(sorted([tri[2], tri[0]]))]
+
+        for edge in edges:
+            edge_to_triangles[edge].append(i)
+
+    print(f"Step 1: {format_elapsed_time(time.time() - t0, seconds_decimals=3)}")
+
+    # Step 2: Identify groups
+    t0 = time.time()
+
+    group_A = set()  # Stores indices of triangles assigned to Group A
+    group_B = set()  # Stores indices of triangles assigned to Group B
+    visited_triangles = set()  # Tracks already assigned triangles
+
+    for edge, tri_indices in edge_to_triangles.items():
+        if len(tri_indices) == 3:  # Triple connection detected
+            unassigned = [t for t in tri_indices if t not in visited_triangles]
+
+            if len(unassigned) == 3:
+                # First time encountering these triangles → Assign one to A, two to B
+                group_A.add(unassigned[0])
+                group_B.update(unassigned[1:])
+                visited_triangles.update(unassigned)
+            elif len(unassigned) == 2:
+                # If one triangle has been already assigned, let's check where the already assigned triangle is
+                assigned_triangles = [t for t in tri_indices if t in group_A or t in group_B]
+                if assigned_triangles:
+                    already_assigned = assigned_triangles[0]  # Pick the assigned triangle
+                    if already_assigned in group_A:
+                        group_B.update(unassigned)  # Remaining go to Group B
+                    else:
+                        group_A.update(unassigned)  # Remaining go to Group A
+                else:
+                    # Fallback: if for some reason nothing is assigned (shouldn't happen), default to the simple logic
+                    group_B.update(unassigned)
+                visited_triangles.update(unassigned)
+            elif len(unassigned) == 1:
+                # If two triangles are already assigned, we have to check where they are assigned.
+                assigned_triangles = [t for t in tri_indices if t in group_A or t in group_B]
+                if set(assigned_triangles) <= group_A:  # Assigned trg are both in Group A
+                    group_B.update(unassigned)  # Remaining go to Group B
+                elif set(assigned_triangles) <= group_B:  # Assigned trg are both in Group B
+                    group_A.update(unassigned)  # Remaining go to Group A
+                else:  # assigned are one in Group A and one in Group B
+                    group_B.update(unassigned)  # Remaining go to Group B
+                visited_triangles.update(unassigned)
+
+    print(f"Step 2: {format_elapsed_time(time.time() - t0, seconds_decimals=3)}")
+
+    # Step 3: Assign remaining triangles (those connected only by a node)
+    t0 = time.time()
+
+    remaining_triangles = set(range(len(invalid_triangles))) - (group_A | group_B)
+    node_to_triangles = defaultdict(set)
+
+    for idx, tri in enumerate(invalid_triangles):
+        for v in tri:
+            node_to_triangles[v].add(idx)  # node index to trg index
+
+    print(f"Step 3.1: {format_elapsed_time(time.time() - t0, seconds_decimals=3)}")
+
+    t0 = time.time()
+    t1 = t2 = 0
+    i1 = i2 = i3 = 0
+    group_A_or_group_B = group_A | group_B
+    while remaining_triangles:
+        for tri_idx in list(remaining_triangles):
+            tt = time.time()
+            assigned_neighbors = set()
+            for v in invalid_triangles[tri_idx]:
+                assigned_neighbors.update(node_to_triangles[v] & group_A_or_group_B)
+            t1 += time.time() - tt
+
+            tt = time.time()
+
+            if assigned_neighbors:
+                is_set = False
+                # Assign based on any adjacent triangle's assignment
+                for ref_triangle in list(assigned_neighbors):  # iter(assigned_neighbors):
+                    # Check if the triangles have two nodes in common, meaning that they are adjacent.
+                    if len(set(invalid_triangles[ref_triangle]) & set(invalid_triangles[tri_idx])) == 2:
+                        i1 += 1
+                        if ref_triangle in group_A:
+                            group_A.add(tri_idx)
+                            group_A_or_group_B.add(tri_idx)
+                        else:
+                            group_B.add(tri_idx)
+                            group_A_or_group_B.add(tri_idx)
+                        is_set = True
+                        remaining_triangles.remove(tri_idx)
+                        break
+                # If no adjacent triangle is present (shouldn't happen), assign based on the first in the list
+                # if not is_set:
+                #     i2 += 1
+                #     ref_triangle = list(assigned_neighbors)[0]  # next(iter(assigned_neighbors))
+                #     if ref_triangle in group_A:
+                #         group_B.add(tri_idx)
+                #     else:
+                #         group_A.add(tri_idx)
+                #
+                # remaining_triangles.remove(tri_idx)
+            else:
+                i3 += 1
+
+            t2 += time.time() - tt
+
+    print(f"Step 3.2: {format_elapsed_time(time.time() - t0, seconds_decimals=3)}")
+    print(f"Step 3.2t1: {format_elapsed_time(t1, seconds_decimals=3)}")
+    print(f"Step 3.2t2: {format_elapsed_time(t2, seconds_decimals=3)}")
+    print(f"i1={i1}, i2={i2}, i3={i3}")
+
+    # Convert sets to NumPy arrays to index them
+    group_A_triangles = invalid_triangles[list(group_A)]
+    group_B_triangles = invalid_triangles[list(group_B)]
+
+    return group_A_triangles.tolist(), group_B_triangles.tolist()
+
+
+@pyaedt_function_handler()
+def _total_len(lst):
+    """returns the total number of elements in a list of lists"""
+    return sum(len(sublist) for sublist in lst)
+
+
 @pyaedt_function_handler()
 def _remove_multiple_constraints(dict_in):
     """Remove the triple constraints by creating separated bodies."""
     logger = logging.getLogger("Global")
     # get the data
     points = copy.deepcopy(dict_in["Points"])
-    sets = copy.deepcopy(dict_in["Sets"])
-    set_v1 = min([s["Elements"] for s in sets.values()], key=len)
-    set_v2 = max([s["Elements"] for s in sets.values()], key=len)
-    set_all = {trg for s in sets.values() for trg in s["Elements"]}
     assemblies_trg = {}
-    assemblies_trgid = {}
     for a, v in dict_in["Assemblies"].items():
         if v["Triangles"]:
             assemblies_trg[a] = copy.deepcopy(v["Triangles"])
-            assemblies_trgid[a] = copy.deepcopy(v["Triangles_id"])
-    # do check on data
-    if not sets:
-        logger.error("Sets are not defined in the Nastran file. Ignoring 'remove_triple_constraints' option.")
-        return dict_in
+
+    # get the total number of triangles
+    num_total_trg = {}
+    for a in assemblies_trg:
+        num_total_trg[a] = len(assemblies_trg[a])
+
+    def recursive_fix(all_lists, valid_list, ii):
+        """
+        Recursively applies _detect_triple_connections_node and _split_invalid_triangles to all
+        sub-lists until the stopping condition is met.
+        """
+        ii += 1
+        new_lists = []
+
+        for lst in all_lists:
+            valid_trgs, invalid_trgs = _detect_triple_connections_node(lst)
+            valid_list.append(valid_trgs)
+            if invalid_trgs:
+                group_A, group_B = _split_invalid_triangles(invalid_trgs)
+                new_lists.append(group_A)
+                new_lists.append(group_B)
+
+        print(
+            f"Iteration {ii}, total valid: {_total_len(valid_list)}, total new lists: {len(new_lists)}, "
+            f"total elements in new_lists: {_total_len(new_lists)}"
+        )
+
+        # Stopping condition: check if new elements are divided in two groups (invalid trg are detected).
+        if len(new_lists) == 0:
+            return valid_list
+
+        return recursive_fix(new_lists, valid_list, ii)
 
     # remove the trg belonging to the triple constraints
-    for a, v in assemblies_trg.items():
-        for body_id, trg_list in v.items():
-            new_trg_list = []
-            for i, t in enumerate(trg_list):
-                if assemblies_trgid[a][body_id][i] not in set_all:
-                    new_trg_list.append(t)
-            dict_in["Assemblies"][a]["Triangles"][body_id] = new_trg_list
+    for assembly, bodies in assemblies_trg.items():
+        for body, trg in bodies.items():
+            ii = 0
+            valid_triangles = []
+            aaa = recursive_fix([trg], valid_triangles, ii)
+
+    # mettere i risultati dendro dict_in
+    pass
 
     return dict_in
