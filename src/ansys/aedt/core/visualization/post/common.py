@@ -29,8 +29,6 @@ This module provides all functionalities for common AEDT post processing.
 
 """
 
-from __future__ import absolute_import  # noreorder
-
 import os
 import re
 
@@ -38,6 +36,7 @@ from ansys.aedt.core.generic.data_handlers import _dict_items_to_list_items
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import read_configuration_file
+from ansys.aedt.core.generic.numbers import _units_assignment
 from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 from ansys.aedt.core.visualization.post.solution_data import SolutionData
 from ansys.aedt.core.visualization.report.constants import TEMPLATES_BY_DESIGN
@@ -739,6 +738,7 @@ class PostProcessorCommon(object):
         """
         if sweeps is None:
             sweeps = {"Theta": "All", "Phi": "All", "Freq": "All"}
+        sweeps = {i: _units_assignment(k) for i, k in sweeps.items()}
         if not context:
             context = []
         if not isinstance(expressions, list):
@@ -994,7 +994,7 @@ class PostProcessorCommon(object):
         else:
             families_input[primary_sweep_variable] = [variations[primary_sweep_variable]]
         if not variations:
-            variations = self._app.available_variations.nominal_w_values_dict
+            variations = self._app.available_variations.get_independent_nominal_values()
         for el in list(variations.keys()):
             if el == primary_sweep_variable:
                 continue
@@ -1188,7 +1188,7 @@ class PostProcessorCommon(object):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.post.create_report("dB(S(1,1))")
-        >>> variations = hfss.available_variations.nominal_w_values_dict
+        >>> variations = hfss.available_variations.nominal_values
         >>> variations["Theta"] = ["All"]
         >>> variations["Phi"] = ["All"]
         >>> variations["Freq"] = ["30GHz"]
@@ -1267,13 +1267,13 @@ class PostProcessorCommon(object):
         report.expressions = expressions
         report.domain = domain
         if not variations and domain == "Sweep":
-            variations = self._app.available_variations.nominal_w_values_dict
+            variations = self._app.available_variations.get_independent_nominal_values()
             if variations:
                 variations["Freq"] = "All"
             else:
                 variations = {"Freq": ["All"]}
         elif not variations and domain != "Sweep":
-            variations = self._app.available_variations.nominal_w_values_dict
+            variations = self._app.available_variations.get_independent_nominal_values()
         report.variations = variations
         if primary_sweep_variable:
             report.primary_sweep = primary_sweep_variable
@@ -1430,7 +1430,7 @@ class PostProcessorCommon(object):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.post.create_report("dB(S(1,1))")
-        >>> variations = hfss.available_variations.nominal_w_values_dict
+        >>> variations = hfss.available_variations.nominal_values
         >>> variations["Theta"] = ["All"]
         >>> variations["Phi"] = ["All"]
         >>> variations["Freq"] = ["30GHz"]
@@ -1519,13 +1519,13 @@ class PostProcessorCommon(object):
         if primary_sweep_variable:
             report.primary_sweep = primary_sweep_variable
         if not variations and domain == "Sweep":
-            variations = self._app.available_variations.nominal_w_values_dict
+            variations = self._app.available_variations.get_independent_nominal_values()
             if variations:
                 variations["Freq"] = "All"
             else:
                 variations = {"Freq": ["All"]}
         elif not variations and domain != "Sweep":
-            variations = self._app.available_variations.nominal_w_values_dict
+            variations = self._app.available_variations.get_independent_nominal_values()
         report.variations = variations
         report.sub_design_id = subdesign_id
         report.point_number = polyline_points
@@ -2175,6 +2175,7 @@ class Reports(object):
             setup = self._post_app._app.nominal_sweep
         rep = None
         if "Far Fields" in self._templates:
+            setup = self._post_app._get_setup_from_sweep_name(setup)
             rep = ansys.aedt.core.visualization.report.field.FarField(self._post_app, "Far Fields", setup, **variations)
             rep.far_field_sphere = sphere_name
             rep.source_context = source_context

@@ -455,3 +455,7 @@ class TestClass:
 
         assert aedtapp.delete_imported_data(table)
         assert table not in aedtapp.existing_analysis_sweeps
+
+    def test_27_value_with_units(self, aedtapp):
+        assert aedtapp.value_with_units("10mm") == "10mm"
+        assert aedtapp.value_with_units("10") == "10mm"

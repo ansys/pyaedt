@@ -24,19 +24,18 @@
 
 """This module contains these classes: ``Q2d``, ``Q3d``, and ``QExtractor``."""
 
-from __future__ import absolute_import  # noreorder
-
 import os
 import re
 import warnings
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
-from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import MATRIXOPERATIONSQ2D
 from ansys.aedt.core.generic.constants import MATRIXOPERATIONSQ3D
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.q3d_boundary import Matrix
@@ -565,15 +564,13 @@ class QExtractor(FieldAnalysis3D, object):
                     return False
 
         if variations is None:
-            if not self.available_variations.nominal_w_values_dict:
+            nominal_values = self.available_variations.get_independent_nominal_values()
+            if not nominal_values:
                 variations = ""
             else:
                 variations_list = []
-                for x in range(0, len(self.available_variations.nominal_w_values_dict)):
-                    variation = (
-                        f"{list(self.available_variations.nominal_w_values_dict.keys())[x]}="
-                        f"'{list(self.available_variations.nominal_w_values_dict.values())[x]}'"
-                    )
+                for x in range(0, len(nominal_values)):
+                    variation = f"{list(nominal_values.keys())[x]}=" f"'{list(nominal_values.values())[x]}'"
                     variations_list.append(variation)
                 variations = ",".join(variations_list)
 
@@ -645,8 +642,8 @@ class QExtractor(FieldAnalysis3D, object):
                 .groups()[0]
             )
         else:
-            if freq_unit != self.odesktop.GetDefaultUnit("Frequency") and freq_unit is not None:
-                freq = go.parse_dim_arg(f"{freq}{freq_unit}", self.odesktop.GetDefaultUnit("Frequency"))
+            if freq_unit != self.units.frequency and freq_unit is not None:
+                freq = go.parse_dim_arg(f"{freq}{freq_unit}", self.units.frequency)
 
         if export_ac_dc_res is None:
             export_ac_dc_res = False
@@ -957,15 +954,14 @@ class QExtractor(FieldAnalysis3D, object):
         analysis_setup = setup + " : " + sweep.replace(" ", "")
 
         if variations is None:
-            if not self.available_variations.nominal_w_values_dict:
+            nominal_values = self.available_variations.get_independent_nominal_values()
+
+            if not nominal_values:
                 variations = ""
             else:
                 variations_list = []
-                for x in range(0, len(self.available_variations.nominal_w_values_dict)):
-                    variation = (
-                        f"{list(self.available_variations.nominal_w_values_dict.keys())[x]}="
-                        f"'{list(self.available_variations.nominal_w_values_dict.values())[x]}'"
-                    )
+                for x in range(0, len(nominal_values)):
+                    variation = f"{list(nominal_values.keys())[x]}=" f"'{list(nominal_values.values())[x]}'"
                     variations_list.append(variation)
                 variations = ",".join(variations_list)
         else:
@@ -1210,7 +1206,7 @@ class QExtractor(FieldAnalysis3D, object):
                 return False
 
 
-class Q3d(QExtractor, object):
+class Q3d(QExtractor, CreateBoundaryMixin):
     """Provides the Q3D app interface.
 
     This class allows you to create an instance of Q3D and link to an
@@ -1535,11 +1531,8 @@ class Q3d(QExtractor, object):
             type_bound = "GroundNet"
         elif net_type.lower() == "floating":
             type_bound = "FloatingNet"
-        bound = BoundaryObject(self, net_name, props, type_bound)
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            return bound
-        return False
+
+        return self._create_boundary(net_name, props, type_bound)
 
     @pyaedt_function_handler(objects="assignment", axisdir="direction")
     def source(self, assignment=None, direction=0, name=None, net_name=None, terminal_type="voltage"):
@@ -1636,11 +1629,7 @@ class Q3d(QExtractor, object):
         props["TerminalType"] = terminal_str
         if net_name:
             props["Net"] = net_name
-        bound = BoundaryObject(self, name, props, exc_type)
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            return bound
-        return False
+        return self._create_boundary(name, props, exc_type)
 
     @pyaedt_function_handler(
         object_name="assignment",
@@ -1693,10 +1682,7 @@ class Q3d(QExtractor, object):
             net_name = assignment
         if a:
             props = dict({"Faces": [a], "ParentBndID": assignment, "TerminalType": "ConstantVoltage", "Net": net_name})
-            bound = BoundaryObject(self, name, props, "Sink")
-            if bound.create():
-                self._boundaries[bound.name] = bound
-                return bound
+            return self._create_boundary(name, props, "Sink")
         return False
 
     @pyaedt_function_handler(sheetname="assignment", objectname="object_name", netname="net_name", sinkname="sink_name")
@@ -1755,11 +1741,7 @@ class Q3d(QExtractor, object):
         if net_name:
             props["Net"] = net_name
 
-        bound = BoundaryObject(self, sink_name, props, "Sink")
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            return bound
-        return False
+        return self._create_boundary(sink_name, props, "Sink")
 
     @pyaedt_function_handler()
     def create_frequency_sweep(self, setupname, units=None, freqstart=0, freqstop=1, freqstep=None, sweepname=None):
@@ -2051,11 +2033,7 @@ class Q3d(QExtractor, object):
             thickness = str(thickness) + self.modeler.model_units
         props = dict({"Objects": new_ass, "Material": material, "Thickness": thickness})
 
-        bound = BoundaryObject(self, name, props, "ThinConductor")
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            return bound
-        return False  # pragma: no cover
+        return self._create_boundary(name, props, "ThinConductor")
 
     @pyaedt_function_handler()
     def get_mutual_coupling(
@@ -2199,7 +2177,7 @@ class Q3d(QExtractor, object):
         return data
 
 
-class Q2d(QExtractor, object):
+class Q2d(QExtractor, CreateBoundaryMixin):
     """Provides the Q2D app interface.
 
     This class allows you to create an instance of Q2D and link to an
@@ -2453,11 +2431,7 @@ class Q2d(QExtractor, object):
 
         props = dict({"Objects": obj_names, "SolveOption": solve_option, "Thickness": str(thickness) + units})
 
-        bound = BoundaryObject(self, name, props, conductor_type)
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            return bound
-        return False
+        return self._create_boundary(name, props, conductor_type)
 
     @pyaedt_function_handler(edges="assignment", unit="units")
     def assign_huray_finitecond_to_edges(self, assignment, radius, ratio, units="um", name=""):
@@ -2495,11 +2469,7 @@ class Q2d(QExtractor, object):
 
         props = dict({"Edges": a, "UseCoating": False, "Radius": ra, "Ratio": str(ratio)})
 
-        bound = BoundaryObject(self, name, props, "Finite Conductivity")
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            return bound
-        return False
+        return self._create_boundary(name, props, "Finite Conductivity")
 
     @pyaedt_function_handler()
     def auto_assign_conductors(self):

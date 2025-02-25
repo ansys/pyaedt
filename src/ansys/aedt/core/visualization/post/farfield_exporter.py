@@ -27,10 +27,10 @@ import shutil
 import time
 
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
-from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.general_methods import check_and_download_folder
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
 from ansys.aedt.core.visualization.advanced.farfield_visualization import export_pyaedt_antenna_metadata
@@ -75,7 +75,7 @@ class FfdSolutionDataExporter:
     Examples
     --------
     >>> from ansys.aedt.core
-    >>> app = ansys.aedt.core.Hfss(version="2023.2", design="Antenna")
+    >>> app = ansys.aedt.core.Hfss(version="2025.1", design="Antenna")
     >>> setup_name = "Setup1 : LastAdaptive"
     >>> frequencies = [77e9]
     >>> sphere = "3D"
@@ -99,7 +99,7 @@ class FfdSolutionDataExporter:
         self.setup_name = setup_name
 
         if not variations:
-            variations = app.available_variations.nominal_w_values_dict_w_dependent
+            variations = app.available_variations.get_independent_nominal_values()
         else:
             # Set variation to Nominal
             for var_name, var_value in variations.items():
@@ -153,7 +153,7 @@ class FfdSolutionDataExporter:
 
         # 2024.1
         file_path_xml = os.path.join(export_path, self.__app.design_name + ".xml")
-        # 2023.2
+        # 2025.1
         file_path_txt = os.path.join(export_path, exported_name_map)
 
         input_file = file_path_xml
@@ -236,11 +236,8 @@ class FfdSolutionDataExporter:
                 self.__model_info["lattice_vector"] = component_array.lattice_vector()
 
         # Create PyAEDT Metadata
-        var = []
         if self.variations:
-            for k, v in self.variations.items():
-                var.append(f"{k}='{v}'")
-            variation = " ".join(var)
+            variation = self.__app.available_variations.variation_string(self.variations)
         else:
             variation = self.__app.odesign.GetNominalVariation()
 

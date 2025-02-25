@@ -33,12 +33,12 @@ if current_python_version < (3, 10):  # pragma: no cover
 import warnings
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
-from ansys.aedt.core.application.variables import decompose_variable_value
+from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.general_methods import conversion_function
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers import decompose_variable_value
 from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
-from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 
 try:
     import numpy as np
@@ -96,8 +96,8 @@ class MonostaticRCSData(object):
     Examples
     --------
     >>> from ansys.aedt.core import Hfss
-    >>> from ansys.aedt.core.generic.rcs_visualization import MonostaticRCSData
-    >>> app = Hfss(version="2023.2", design="Antenna")
+    >>> from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
+    >>> app = Hfss(version="2025.1", design="Antenna")
     >>> data = app.get_rcs_data()
     >>> metadata_file = data.metadata_file
     >>> app.release_desktop()
@@ -174,7 +174,8 @@ class MonostaticRCSData(object):
     @property
     def name(self):
         """Data name."""
-        self.__name = self.raw_data.columns[0]
+        if isinstance(self.raw_data, pd.DataFrame):
+            self.__name = self.raw_data.columns[0]
         return self.__name
 
     @property
@@ -196,7 +197,7 @@ class MonostaticRCSData(object):
     @property
     def frequencies(self):
         """Available frequencies."""
-        if "Freq" in self.raw_data.index.names:
+        if isinstance(self.raw_data, pd.DataFrame) and "Freq" in self.raw_data.index.names:
             frequencies = np.unique(np.array(self.raw_data.index.get_level_values("Freq")))
             self.__frequencies = frequencies.tolist()
         return self.__frequencies
@@ -204,7 +205,7 @@ class MonostaticRCSData(object):
     @property
     def available_incident_wave_theta(self):
         """Available incident wave Theta."""
-        if "IWaveTheta" in self.raw_data.index.names:
+        if isinstance(self.raw_data, pd.DataFrame) and "IWaveTheta" in self.raw_data.index.names:
             self.__available_incident_wave_theta = np.unique(
                 np.array(self.raw_data.index.get_level_values("IWaveTheta"))
             )
@@ -213,7 +214,7 @@ class MonostaticRCSData(object):
     @property
     def incident_wave_theta(self):
         """Active incident wave Theta."""
-        if self.__incident_wave_theta is None:
+        if isinstance(self.raw_data, pd.DataFrame) and self.__incident_wave_theta is None:
             self.__incident_wave_theta = self.available_incident_wave_theta[0]
         return self.__incident_wave_theta
 
@@ -228,14 +229,14 @@ class MonostaticRCSData(object):
     @property
     def available_incident_wave_phi(self):
         """Available incident wave Phi."""
-        if "IWavePhi" in self.raw_data.index.names:
+        if isinstance(self.raw_data, pd.DataFrame) and "IWavePhi" in self.raw_data.index.names:
             self.__available_incident_wave_phi = np.unique(np.array(self.raw_data.index.get_level_values("IWavePhi")))
         return self.__available_incident_wave_phi
 
     @property
     def incident_wave_phi(self):
         """Active incident wave Phi."""
-        if self.__incident_wave_phi is None:
+        if isinstance(self.raw_data, pd.DataFrame) and self.__incident_wave_phi is None:
             self.__incident_wave_phi = self.available_incident_wave_phi[0]
         return self.__incident_wave_phi
 
@@ -342,213 +343,234 @@ class MonostaticRCSData(object):
     @property
     def rcs(self):
         """RCS data for active frequency, theta and phi."""
-        data = self.rcs_active_theta_phi
-        data = data[data["Freq"] == self.frequency]
-        data = data.drop(columns=["Freq"])
-        value = data.values
-        return value[0][0]
+        rcs_value = None
+        if isinstance(self.raw_data, pd.DataFrame):
+            data = self.rcs_active_theta_phi
+            data = data[data["Freq"] == self.frequency]
+            data = data.drop(columns=["Freq"])
+            value = data.values
+            rcs_value = value[0][0]
+        return rcs_value
 
     @property
     def rcs_active_theta_phi(self):
         """RCS data for active theta and phi."""
-        data = self.rcs_active_theta
-        data = data[data["IWavePhi"] == self.incident_wave_phi]
-        data = data.drop(columns=["IWavePhi"])
-        return data
+        rcs_value = None
+        if isinstance(self.rcs_active_theta, pd.DataFrame):
+            data = self.rcs_active_theta
+            data = data[data["IWavePhi"] == self.incident_wave_phi]
+            rcs_value = data.drop(columns=["IWavePhi"])
+        return rcs_value
 
     @property
     def rcs_active_frequency(self):
         """RCS data for active frequency."""
-        data = self.raw_data.xs(key=self.frequency, level="Freq")
-        data_converted = conversion_function(data[self.name], self.data_conversion_function)
-        df = data_converted.reset_index()
-        df.columns = ["IWavePhi", "IWaveTheta", "Data"]
-        return df
+        value = None
+        if isinstance(self.raw_data, pd.DataFrame):
+            data = self.raw_data.xs(key=self.frequency, level="Freq")
+            data_converted = conversion_function(data[self.name], self.data_conversion_function)
+            df = data_converted.reset_index()
+            df.columns = ["IWavePhi", "IWaveTheta", "Data"]
+            value = df
+        return value
 
     @property
     def rcs_active_theta(self):
         """RCS data for active incident wave theta."""
-        data = self.raw_data.xs(key=self.incident_wave_theta, level="IWaveTheta")
-        if self.data_conversion_function:
-            data = conversion_function(data[self.name], self.data_conversion_function)
-        df = data.reset_index()
-        df.columns = ["Freq", "IWavePhi", "Data"]
-        return df
+        value = None
+        if isinstance(self.raw_data, pd.DataFrame):
+            data = self.raw_data.xs(key=self.incident_wave_theta, level="IWaveTheta")
+            if self.data_conversion_function:
+                data = conversion_function(data[self.name], self.data_conversion_function)
+            df = data.reset_index()
+            df.columns = ["Freq", "IWavePhi", "Data"]
+            value = df
+        return value
 
     @property
     def rcs_active_phi(self):
         """RCS data for active incident wave phi."""
-        data = self.raw_data.xs(key=self.incident_wave_phi, level="IWavePhi")
-        if self.data_conversion_function:
-            data = conversion_function(data[self.name], self.data_conversion_function)
-        df = data.reset_index()
-        df.columns = ["Freq", "IWaveTheta", "Data"]
-        return df
+        value = None
+        if isinstance(self.raw_data, pd.DataFrame):
+            data = self.raw_data.xs(key=self.incident_wave_phi, level="IWavePhi")
+            if self.data_conversion_function:
+                data = conversion_function(data[self.name], self.data_conversion_function)
+            df = data.reset_index()
+            df.columns = ["Freq", "IWaveTheta", "Data"]
+            value = df
+        return value
 
     @property
     def range_profile(self):
         """Range profile."""
-        data_conversion_function_original = self.data_conversion_function
-        self.data_conversion_function = None
-        data = self.rcs_active_theta_phi["Data"]
-        # Take needed properties
-        size = self.window_size
-        nfreq = len(self.frequencies)
+        value = None
+        if isinstance(self.raw_data, pd.DataFrame):
+            data_conversion_function_original = self.data_conversion_function
+            self.data_conversion_function = None
+            data = self.rcs_active_theta_phi["Data"]
+            # Take needed properties
+            size = self.window_size
+            nfreq = len(self.frequencies)
 
-        # Compute window
-        win_range, _ = self.window_function(self.window, nfreq)
-        windowed_data = data * win_range
+            # Compute window
+            win_range, _ = self.window_function(self.window, nfreq)
+            windowed_data = data * win_range
 
-        # Perform FFT
-        sf_upsample = self.window_size / nfreq
-        windowed_data = np.fft.fftshift(sf_upsample * np.fft.ifft(windowed_data.to_numpy(), n=size))
+            # Perform FFT
+            sf_upsample = self.window_size / nfreq
+            windowed_data = np.fft.fftshift(sf_upsample * np.fft.ifft(windowed_data.to_numpy(), n=size))
 
-        self.data_conversion_function = data_conversion_function_original
-        data_converted = conversion_function(windowed_data, self.data_conversion_function)
+            self.data_conversion_function = data_conversion_function_original
+            data_converted = conversion_function(windowed_data, self.data_conversion_function)
 
-        df = unit_converter((self.frequencies[1] - self.frequencies[0]), "Freq", self.frequency_units, "Hz")
-        pd_t = 1.0 / df
-        dt = pd_t / size
-        c0 = 299792458
-        range_norm = dt * np.linspace(start=-0.5 * size, stop=0.5 * size - 1, num=size) / 2 * c0
+            df = unit_converter((self.frequencies[1] - self.frequencies[0]), "Freq", self.frequency_units, "Hz")
+            pd_t = 1.0 / df
+            dt = pd_t / size
+            c0 = 299792458
+            range_norm = dt * np.linspace(start=-0.5 * size, stop=0.5 * size - 1, num=size) / 2 * c0
 
-        index_names = ["Range", "Data"]
-        df = pd.DataFrame(columns=index_names)
-        df["Range"] = range_norm
-        df["Data"] = data_converted
+            index_names = ["Range", "Data"]
+            df = pd.DataFrame(columns=index_names)
+            df["Range"] = range_norm
+            df["Data"] = data_converted
+            value = df
 
-        return df
+        return value
 
     @property
     def waterfall(self):
         """Waterfall."""
-        waterfall_data = []
-        original_phi = self.incident_wave_phi
-        for phi in self.available_incident_wave_phi:
-            self.incident_wave_phi = phi
-            range_profile = self.range_profile
-            new_data = {
-                "Range": range_profile["Range"],
-                "Data": range_profile["Data"],
-                "IWavePhi": np.full(range_profile["Range"].size, phi),
-            }
-            waterfall_data.append(pd.DataFrame(new_data))
-        self.incident_wave_phi = original_phi
-        waterfall_df = pd.concat(waterfall_data, ignore_index=True)
+        waterfall_df = None
+        if isinstance(self.raw_data, pd.DataFrame):
+            waterfall_data = []
+            original_phi = self.incident_wave_phi
+            for phi in self.available_incident_wave_phi:
+                self.incident_wave_phi = phi
+                range_profile = self.range_profile
+                new_data = {
+                    "Range": range_profile["Range"],
+                    "Data": range_profile["Data"],
+                    "IWavePhi": np.full(range_profile["Range"].size, phi),
+                }
+                waterfall_data.append(pd.DataFrame(new_data))
+            self.incident_wave_phi = original_phi
+            waterfall_df = pd.concat(waterfall_data, ignore_index=True)
         return waterfall_df
 
     @property
     def isar_2d(self):
         """ISAR 2D."""
-        phis = self.available_incident_wave_phi
-        thetas = self.available_incident_wave_theta
-        nfreq = len(self.frequencies)
-        c0 = 299792458
+        df = None
+        if isinstance(self.raw_data, pd.DataFrame):
+            phis = self.available_incident_wave_phi
+            thetas = self.available_incident_wave_theta
+            nfreq = len(self.frequencies)
+            c0 = 299792458
 
-        ndrng = self.upsample_range
-        nxrng = self.upsample_azimuth
-        data_conversion_function_original = self.data_conversion_function
-        self.data_conversion_function = None
-        if self.aspect_range == "Horizontal":
-            nangles = len(phis)
-            azel_samples = -phis.reshape(1, -1)
-            data = self.rcs_active_theta["Data"]
-        else:
-            nangles = len(thetas)
-            azel_samples = 90.0 - thetas.reshape(1, -1)
-            data = self.rcs_active_phi["Data"]
+            ndrng = self.upsample_range
+            nxrng = self.upsample_azimuth
+            data_conversion_function_original = self.data_conversion_function
+            self.data_conversion_function = None
+            if self.aspect_range == "Horizontal":
+                nangles = len(phis)
+                azel_samples = -phis.reshape(1, -1)
+                data = self.rcs_active_theta["Data"]
+            else:
+                nangles = len(thetas)
+                azel_samples = 90.0 - thetas.reshape(1, -1)
+                data = self.rcs_active_phi["Data"]
 
-        azel_samples = np.unwrap(np.radians(azel_samples))
-        azel_ctr = np.mean(azel_samples)
+            azel_samples = np.unwrap(np.radians(azel_samples))
+            azel_ctr = np.mean(azel_samples)
 
-        azel_span = np.max(azel_samples) - np.min(azel_samples)
+            azel_span = np.max(azel_samples) - np.min(azel_samples)
 
-        freqs = unit_converter(self.frequencies, "Freq", self.frequency_units, "Hz")
-        freqs = np.unique(freqs)
-        freqs = freqs.reshape(-1, 1)
+            freqs = unit_converter(self.frequencies, "Freq", self.frequency_units, "Hz")
+            freqs = np.unique(freqs)
+            freqs = freqs.reshape(-1, 1)
 
-        # True fx and fy locations for this f, az grid
-        fxtrue = freqs * np.cos(azel_samples - azel_ctr)
-        fxtrue = fxtrue.reshape(-1)
-        fytrue = freqs * np.sin(azel_samples - azel_ctr)
-        fytrue = fytrue.reshape(-1)
+            # True fx and fy locations for this f, az grid
+            fxtrue = freqs * np.cos(azel_samples - azel_ctr)
+            fxtrue = fxtrue.reshape(-1)
+            fytrue = freqs * np.sin(azel_samples - azel_ctr)
+            fytrue = fytrue.reshape(-1)
 
-        fxmin = np.min(freqs)
-        fxmax = np.max(freqs)
-        f_c = np.mean(freqs)
-        fymax = np.sin(azel_span / 2) * f_c
+            fxmin = np.min(freqs)
+            fxmax = np.max(freqs)
+            f_c = np.mean(freqs)
+            fymax = np.sin(azel_span / 2) * f_c
 
-        fx = np.linspace(fxmin, fxmax, nfreq)  # desired downrange frequencies
-        fy = np.linspace(-fymax, fymax, nangles)  # desired crossrange frequencies
-        grid_x, grid_y = np.meshgrid(fx, fy)
+            fx = np.linspace(fxmin, fxmax, nfreq)  # desired downrange frequencies
+            fy = np.linspace(-fymax, fymax, nangles)  # desired crossrange frequencies
+            grid_x, grid_y = np.meshgrid(fx, fy)
 
-        rdata = scipy.interpolate.griddata((fxtrue, fytrue), data, (grid_x, grid_y), "linear", fill_value=0.0)
-        rdata = rdata.transpose()
+            rdata = scipy.interpolate.griddata((fxtrue, fytrue), data, (grid_x, grid_y), "linear", fill_value=0.0)
+            rdata = rdata.transpose()
 
-        winx, winx_sum = self.window_function(self.window, nfreq)
-        winy, winy_sum = self.window_function(self.window, nangles)
+            winx, winx_sum = self.window_function(self.window, nfreq)
+            winy, winy_sum = self.window_function(self.window, nangles)
 
-        winx = winx.reshape(-1, 1)
-        winy = winy.reshape(1, -1)
+            winx = winx.reshape(-1, 1)
+            winy = winy.reshape(1, -1)
 
-        # Zero padding
-        if ndrng < nfreq:
-            # Warning('nx should be at least as large as the length of f -- increasing nx')
-            self.__logger.warning("nx should be at least as large as the number of frequencies.")
-            ndrng = nfreq
-        if nxrng < nangles:
-            # warning('ny should be at least as large as the length of az -- increasing ny');
-            self.__logger.warning("ny should be at least as large as the number of azimuth angles.")
-            nxrng = nangles
+            # Zero padding
+            if ndrng < nfreq:
+                # Warning('nx should be at least as large as the length of f -- increasing nx')
+                self.__logger.warning("nx should be at least as large as the number of frequencies.")
+                ndrng = nfreq
+            if nxrng < nangles:
+                # warning('ny should be at least as large as the length of az -- increasing ny');
+                self.__logger.warning("ny should be at least as large as the number of azimuth angles.")
+                nxrng = nangles
 
-        iq = np.zeros((ndrng, nxrng), dtype=np.complex128)
-        xshift = (ndrng - nfreq) // 2
-        yshift = (nxrng - nangles) // 2
-        iq[xshift : xshift + nfreq, yshift : yshift + nangles] = np.multiply(rdata, winx * winy)
+            iq = np.zeros((ndrng, nxrng), dtype=np.complex128)
+            xshift = (ndrng - nfreq) // 2
+            yshift = (nxrng - nangles) // 2
+            iq[xshift : xshift + nfreq, yshift : yshift + nangles] = np.multiply(rdata, winx * winy)
 
-        # Normalize so that unit amplitude scatterers have about unit amplitude in
-        # the image (normalized for the windows).  The "about" comes because of the
-        # truncation of the polar shape into a rectangular shape.
-        #
-        iq = np.fft.fftshift(iq) * ndrng * nxrng / winx_sum / winy_sum
-        isar_image = np.fft.fftshift(np.fft.ifft2(iq))
-        # Nx x Ny
-        isar_image = conversion_function(isar_image, self.data_conversion_function)
+            # Normalize so that unit amplitude scatterers have about unit amplitude in
+            # the image (normalized for the windows).  The "about" comes because of the
+            # truncation of the polar shape into a rectangular shape.
+            #
+            iq = np.fft.fftshift(iq) * ndrng * nxrng / winx_sum / winy_sum
+            isar_image = np.fft.fftshift(np.fft.ifft2(iq))
+            # Nx x Ny
+            isar_image = conversion_function(isar_image, self.data_conversion_function)
 
-        isar_image = isar_image.transpose()
-        isar_image = isar_image[:, ::-1]
+            isar_image = isar_image.transpose()
+            isar_image = isar_image[:, ::-1]
 
-        #  Compute the image plane downrange and cross-range distance vectors (in
-        #  meters)
+            #  Compute the image plane downrange and cross-range distance vectors (in
+            #  meters)
 
-        dfx = fx[1] - fx[0]  # difference in x-frequencies
-        dfy = fy[1] - fy[0]  # difference in y-frequencies
-        dx = c0 / (2 * dfx) / ndrng
-        dy = c0 / (2 * dfy) / nxrng
-        x = np.transpose(np.arange(start=0, step=dx, stop=ndrng * dx))  # ndrng x 1
-        y = np.arange(start=0, step=dy, stop=nxrng * dy)  # 1 x Ny
+            dfx = fx[1] - fx[0]  # difference in x-frequencies
+            dfy = fy[1] - fy[0]  # difference in y-frequencies
+            dx = c0 / (2 * dfx) / ndrng
+            dy = c0 / (2 * dfy) / nxrng
+            x = np.transpose(np.arange(start=0, step=dx, stop=ndrng * dx))  # ndrng x 1
+            y = np.arange(start=0, step=dy, stop=nxrng * dy)  # 1 x Ny
 
-        #  Make the center x and y values zero
-        #  these two lines ensure one value of x and y are zero when nx or ny are even
+            #  Make the center x and y values zero
+            #  these two lines ensure one value of x and y are zero when nx or ny are even
 
-        range_values = x - x[ndrng // 2]
-        range_values_interp = np.linspace(range_values[0], range_values[-1], num=ndrng)
-        cross_range_values = y - y[nxrng // 2]
-        cross_range_values_interp = np.linspace(cross_range_values[0], cross_range_values[-1], num=nxrng)
+            range_values = x - x[ndrng // 2]
+            range_values_interp = np.linspace(range_values[0], range_values[-1], num=ndrng)
+            cross_range_values = y - y[nxrng // 2]
+            cross_range_values_interp = np.linspace(cross_range_values[0], cross_range_values[-1], num=nxrng)
 
-        RR, XR = np.meshgrid(range_values_interp, cross_range_values_interp)
+            rr, xr = np.meshgrid(range_values_interp, cross_range_values_interp)
 
-        RR_flat = RR.ravel()
-        XR_flat = XR.ravel()
-        isar_image_flat = isar_image.ravel()
+            rr_flat = rr.ravel()
+            xr_flat = xr.ravel()
+            isar_image_flat = isar_image.ravel()
 
-        index_names = ["Down-range", "Cross-range", "Data"]
-        df = pd.DataFrame(columns=index_names)
-        df["Down-range"] = RR_flat
-        df["Cross-range"] = XR_flat
-        df["Data"] = isar_image_flat
+            index_names = ["Down-range", "Cross-range", "Data"]
+            df = pd.DataFrame(columns=index_names)
+            df["Down-range"] = rr_flat
+            df["Cross-range"] = xr_flat
+            df["Data"] = isar_image_flat
 
-        self.data_conversion_function = data_conversion_function_original
+            self.data_conversion_function = data_conversion_function_original
         return df
 
     @staticmethod
@@ -599,15 +621,15 @@ class MonostaticRCSPlotter(object):
 
     Parameters
     ----------
-    rcs_data : :class:`ansys.aedt.core.generic.rcs_visualization.MonostaticRCSData`
+    rcs_data : :class:`ansys.aedt.core.visualization.advanced.rcs_visualization`, optional
         Monostatic RCS data object.
 
     Examples
     --------
     >>> from ansys.aedt.core import Hfss
-    >>> from ansys.aedt.core.generic.rcs_visualization import MonostaticRCSData
-    >>> from ansys.aedt.core.generic.rcs_visualization import MonostaticRCSPlotter
-    >>> app = Hfss(version="2023.2", design="Antenna")
+    >>> from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
+    >>> from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSPlotter
+    >>> app = Hfss(version="2025.1", design="Antenna")
     >>> data = app.get_rcs_data()
     >>> metadata_file = data.metadata_file
     >>> app.release_desktop()
@@ -615,7 +637,7 @@ class MonostaticRCSPlotter(object):
     >>> rcs_plotter = MonostaticRCSPlotter(rcs_data)
     """
 
-    def __init__(self, rcs_data):
+    def __init__(self, rcs_data=None):
 
         # Private
         self.__rcs_data = rcs_data
@@ -625,10 +647,11 @@ class MonostaticRCSPlotter(object):
         # Scene properties
         self.show_geometry = True
         self.__all_scene_actors = {"model": {}, "annotations": {}, "results": {}}
-        self.__x_max, self.__x_min, self.__y_max, self.__y_min, self.__z_max, self.__z_min = 0, 0, 0, 0, 0, 0
+        self.__x_max, self.__x_min, self.__y_max, self.__y_min, self.__z_max, self.__z_min = 1, -1, 1, -1, 1, -1
+        self.__model_info = None
 
         # Get geometries
-        if "model_info" in self.rcs_data.metadata.keys():
+        if self.__rcs_data and "model_info" in self.rcs_data.metadata.keys():
             self.__model_info = self.rcs_data.metadata["model_info"]
             obj_meshes = self.__get_geometry()
             self.__all_scene_actors["model"] = obj_meshes
@@ -663,7 +686,7 @@ class MonostaticRCSPlotter(object):
 
     @property
     def center(self):
-        """Geometry extents."""
+        """Geometry center."""
         x_mid = (self.__x_max + self.__x_min) / 2
         z_mid = (self.__z_max + self.__z_min) / 2
         y_mid = (self.__y_max + self.__y_min) / 2
@@ -671,8 +694,10 @@ class MonostaticRCSPlotter(object):
 
     @property
     def radius(self):
-        """Geometry extents."""
-        return max([abs(a) for a in (self.__x_min, self.__x_max, self.__y_min, self.__y_max)])
+        """Geometry radius."""
+        return max(
+            [abs(a) for a in (self.__x_min, self.__x_max, self.__y_min, self.__y_max, self.__z_min, self.__z_max)]
+        )
 
     @pyaedt_function_handler()
     def plot_rcs(
@@ -1066,6 +1091,12 @@ class MonostaticRCSPlotter(object):
         for all_scene_results in self.all_scene_actors["results"]:
             for result_actor in self.all_scene_actors["results"][all_scene_results].values():
                 self.__add_mesh(result_actor, plotter, "results")
+
+        plotter.backend.scene.show_grid(
+            xtitle=f"X Axis ({self.model_units})",
+            ytitle=f"Y Axis ({self.model_units})",
+            ztitle=f"Z Axis ({self.model_units})",
+        )
         if show:
             plotter.show()
         else:
@@ -1149,7 +1180,15 @@ class MonostaticRCSPlotter(object):
         self.all_scene_actors["results"]["rcs"][rcs_name] = rcs_mesh
 
     @pyaedt_function_handler()
-    def add_range_profile_settings(self, size_range=10.0, range_resolution=0.1, tick_color="#000000"):
+    def add_range_profile_settings(
+        self,
+        size_range=10.0,
+        range_resolution=0.1,
+        tick_color="#000000",
+        line_color="#ff0000",
+        disc_color="ff0000",
+        cone_color="#00ff00",
+    ):
         """Add a 3D range profile setting representation to the current scene.
 
         This function visualizes a 3D range profile with a main line representing the range axis
@@ -1167,7 +1206,19 @@ class MonostaticRCSPlotter(object):
             the range profile. The default is ``0.1``.
         tick_color : str, optional
             Color of the tick marks along the range profile. The default is black (``"#000000"``).
+        line_color : str, optional
+            Color of the line. The default is red (``"#ff0000"``).
+        disc_color : str, optional
+            Color of the disc. The default is red (``"#ff0000"``).
+        cone_color : str, optional
+            Color of the cone. The default is green (``"#00ff00"``).
         """
+        size_range = unit_converter(
+            size_range, unit_system="Length", input_units="meters", output_units=self.model_units
+        )
+        range_resolution = unit_converter(
+            range_resolution, unit_system="Length", input_units="meters", output_units=self.model_units
+        )
         # Compute parameters
         range_max = size_range - range_resolution
         range_num = int(np.round(size_range / range_resolution))
@@ -1175,7 +1226,6 @@ class MonostaticRCSPlotter(object):
         distance_range -= distance_range[range_num // 2]
         range_first = -distance_range[0]
         range_last = -distance_range[-1]
-        z_mid = self.extents[5] + (self.extents[4] - self.extents[5]) / 2
         num_ticks = int(size_range / range_resolution)
         # Using 5% of total range length
         tick_length = size_range * 0.05
@@ -1184,26 +1234,30 @@ class MonostaticRCSPlotter(object):
             self.all_scene_actors["annotations"]["range_profile"] = {}
 
         # Main red line
-        main_line = pv.Line(
-            pointa=(range_first, self.extents[2] * 10, z_mid), pointb=(range_last, self.extents[2] * 10, z_mid)
+        name = "main_line"
+        main_line_az_mesh = self._create_line(
+            pointa=(range_first + self.center[0], self.extents[2] * 10 + self.center[1], self.center[2]),
+            pointb=(range_last + self.center[0], self.extents[2] * 10 + self.center[1], self.center[2]),
+            name=name,
+            color=line_color,
         )
-        annotation_name = "main_line"
 
-        main_line_object = SceneMeshObject()
-        main_line_object.name = annotation_name
-        main_line_object.color = "red"
-        main_line_object.line_width = 5
-        main_line_object.mesh = main_line
-
-        main_line_mesh = MeshObjectPlot(main_line_object, main_line_object.get_mesh())
-        self.all_scene_actors["annotations"]["range_profile"][annotation_name] = main_line_mesh
+        self.all_scene_actors["annotations"]["range_profile"][name] = main_line_az_mesh
 
         # Ticks
         tick_lines = pv.PolyData()
         for tick in range(num_ticks + 1):  # create line with tick marks
             if tick % 1 == 0:  # only do every nth tick
-                tick_pos_start = (range_first - range_resolution * tick, self.extents[2] * 10, z_mid)
-                tick_pos_end = (range_first - range_resolution * tick, self.extents[2] * 10 + tick_length, z_mid)
+                tick_pos_start = (
+                    range_first - range_resolution * tick + self.center[0],
+                    self.extents[2] * 10 + self.center[1],
+                    self.center[2],
+                )
+                tick_pos_end = (
+                    range_first - range_resolution * tick + self.center[0],
+                    self.extents[2] * 10 + tick_length + self.center[1],
+                    self.center[2],
+                )
                 tick_lines += pv.Line(pointa=tick_pos_start, pointb=tick_pos_end)
 
         annotation_name = "ticks"
@@ -1217,38 +1271,40 @@ class MonostaticRCSPlotter(object):
         self.all_scene_actors["annotations"]["range_profile"][annotation_name] = tick_lines_mesh
 
         start_geo = pv.Disc(
-            center=(range_last, self.extents[2] * 10, z_mid), outer=tick_length, inner=0, normal=(-1, 0, 0), c_res=12
+            center=(range_last + self.center[0], self.extents[2] * 10 + self.center[1], self.center[2]),
+            outer=tick_length,
+            inner=0,
+            normal=(-1, 0, 0),
+            c_res=12,
         )
 
         annotation_name = "disc"
         start_geo_object = SceneMeshObject()
         start_geo_object.name = annotation_name
-        start_geo_object.color = "red"
+        start_geo_object.color = disc_color
         start_geo_object.line_width = 5
         start_geo_object.mesh = start_geo
 
         disc_geo_mesh = MeshObjectPlot(start_geo_object, start_geo_object.get_mesh())
         self.all_scene_actors["annotations"]["range_profile"][annotation_name] = disc_geo_mesh
 
-        end_geo = pv.Cone(
-            center=(range_first, self.extents[2] * 10, z_mid),
+        name = "cone"
+        cone_center = (range_first + self.center[0], self.extents[2] * 10 + self.center[1], self.center[2])
+        end_geo_mesh = self._create_cone(
+            center=cone_center,
             direction=(-1, 0, 0),
             radius=tick_length,
             height=tick_length * 2,
             resolution=12,
+            name=name,
+            color=cone_color,
         )
-        annotation_name = "cone"
-        end_geo_object = SceneMeshObject()
-        end_geo_object.name = annotation_name
-        end_geo_object.color = "green"
-        end_geo_object.line_width = 5
-        end_geo_object.mesh = end_geo
-
-        end_geo_mesh = MeshObjectPlot(end_geo_object, end_geo_object.get_mesh())
-        self.all_scene_actors["annotations"]["range_profile"][annotation_name] = end_geo_mesh
+        self.all_scene_actors["annotations"]["range_profile"][name] = end_geo_mesh
 
     @pyaedt_function_handler()
-    def add_waterfall_settings(self, aspect_ang_phi=360.0, phi_num=10, tick_color="#000000"):
+    def add_waterfall_settings(
+        self, aspect_ang_phi=360.0, phi_num=10, tick_color="#000000", line_color="#ff0000", cone_color="#00ff00"
+    ):
         """
         Add a 3D waterfall setting representation to the current scene.
 
@@ -1266,31 +1322,44 @@ class MonostaticRCSPlotter(object):
             The number of tick marks to be placed along the arc. The default is ``10``.
         tick_color : str, optional
             Color of the tick marks. The default is black (``"#000000"``).
+        line_color : str, optional
+            Color of the line. The default is red (``"#ff0000"``).
+        cone_color : str, optional
+            Color of the cone. The default is green (``"#00ff00"``).
         """
         radius_max = self.radius
-        z_mid = self.extents[5] + (self.extents[4] - self.extents[5]) / 2
-        normal = [0, 0, z_mid + 1]
-        center = self.center
+        center = [self.center[0], self.center[1], self.center[2]]
 
-        polar = [radius_max, 0, z_mid]
         angle = aspect_ang_phi - 1
 
         if "waterfall" not in self.all_scene_actors["annotations"]:
             self.all_scene_actors["annotations"]["waterfall"] = {}
 
         # Circular Arc
-        arc = pv.CircularArcFromNormal(center=center, resolution=100, normal=normal, polar=polar, angle=angle)
+        x_start = center[0] + radius_max
+        y_start = center[1]
+        start_point = (x_start, y_start, center[2])
+        end_point = [
+            center[0] + radius_max * np.cos(np.deg2rad(angle)),
+            center[1] + radius_max * np.sin(np.deg2rad(angle)),
+            center[2],
+        ]
 
-        annotation_name = "arc"
+        negative = False
+        if angle >= 180:
+            negative = True
 
-        arc_object = SceneMeshObject()
-        arc_object.name = annotation_name
-        arc_object.color = "red"
-        arc_object.line_width = 5
-        arc_object.mesh = arc
-
-        arc_mesh = MeshObjectPlot(arc_object, arc_object.get_mesh())
-        self.all_scene_actors["annotations"]["waterfall"][annotation_name] = arc_mesh
+        name = "arc"
+        arc_mesh = self._create_arc(
+            pointa=start_point,
+            pointb=end_point,
+            center=center,
+            resolution=100,
+            negative=negative,
+            name="arc",
+            color=line_color,
+        )
+        self.all_scene_actors["annotations"]["waterfall"][name] = arc_mesh
 
         # Ticks
         tick_spacing_deg = int(aspect_ang_phi) / phi_num
@@ -1303,8 +1372,8 @@ class MonostaticRCSPlotter(object):
                     y_start = center[1] + radius_max * 0.95 * np.sin(np.deg2rad(tick * tick_spacing_deg))
                     x_stop = center[0] + radius_max * 1.05 * np.cos(np.deg2rad(tick * tick_spacing_deg))
                     y_stop = center[1] + radius_max * 1.05 * np.sin(np.deg2rad(tick * tick_spacing_deg))
-                    tick_pos_start = (x_start, y_start, z_mid)
-                    tick_pos_end = (x_stop, y_stop, z_mid)
+                    tick_pos_start = (x_start, y_start, self.center[2])
+                    tick_pos_end = (x_stop, y_stop, self.center[2])
                     tick_lines += pv.Line(pointa=tick_pos_start, pointb=tick_pos_end)
 
             annotation_name = "ticks"
@@ -1320,29 +1389,27 @@ class MonostaticRCSPlotter(object):
         end_point = [
             center[0] + radius_max * np.cos(np.deg2rad(angle)),
             center[1] + radius_max * np.sin(np.deg2rad(angle)),
-            center[2] + z_mid,
+            self.center[2],
         ]
         end_point_plus_one = [
             center[0] + radius_max * np.cos(np.deg2rad(aspect_ang_phi)),
             center[1] + radius_max * np.sin(np.deg2rad(aspect_ang_phi)),
-            center[2] + z_mid,
+            center[2],
         ]
         direction = np.array(end_point_plus_one) - np.array(end_point)
         direction_mag = np.linalg.norm(direction)
 
-        arrow_tip = pv.Cone(
-            center=end_point, direction=direction, radius=direction_mag * 2, height=direction_mag * 4, resolution=12
+        name = "cone"
+        end_geo_mesh = self._create_cone(
+            center=end_point,
+            direction=direction,
+            radius=direction_mag * 2,
+            height=direction_mag * 4,
+            resolution=12,
+            name=name,
+            color=cone_color,
         )
-
-        annotation_name = "cone"
-        end_geo_object = SceneMeshObject()
-        end_geo_object.name = annotation_name
-        end_geo_object.color = "green"
-        end_geo_object.line_width = 5
-        end_geo_object.mesh = arrow_tip
-
-        end_geo_mesh = MeshObjectPlot(end_geo_object, end_geo_object.get_mesh())
-        self.all_scene_actors["annotations"]["waterfall"][annotation_name] = end_geo_mesh
+        self.all_scene_actors["annotations"]["waterfall"][name] = end_geo_mesh
 
     @pyaedt_function_handler()
     def add_isar_2d_settings(
@@ -1352,6 +1419,7 @@ class MonostaticRCSPlotter(object):
         size_cross_range=10.0,
         cross_range_resolution=0.1,
         tick_color="#000000",
+        line_color="#ff0000",
     ):
         """
         Add a 2D ISAR (Inverse Synthetic Aperture Radar) visualization to the current 3D scene.
@@ -1378,7 +1446,22 @@ class MonostaticRCSPlotter(object):
         tick_color : str, optional
             Color of the tick marks along both the range and cross-range axes. The default is
             black ("#000000").
+        line_color : str, optional
+            Color of the line. The default is red (``"#ff0000"``).
         """
+        size_range = unit_converter(
+            size_range, unit_system="Length", input_units="meters", output_units=self.model_units
+        )
+        range_resolution = unit_converter(
+            range_resolution, unit_system="Length", input_units="meters", output_units=self.model_units
+        )
+        size_cross_range = unit_converter(
+            size_cross_range, unit_system="Length", input_units="meters", output_units=self.model_units
+        )
+        cross_range_resolution = unit_converter(
+            cross_range_resolution, unit_system="Length", input_units="meters", output_units=self.model_units
+        )
+
         # Compute parameters
         range_max = size_range - range_resolution
         range_num = int(np.round(size_range / range_resolution))
@@ -1394,7 +1477,6 @@ class MonostaticRCSPlotter(object):
         range_first_az = range_az[0]
         range_last_az = range_az[-1]
 
-        z_mid = self.extents[5] + (self.extents[4] - self.extents[5]) / 2
         num_ticks = range_num
         num_ticks_az = range_num_az
 
@@ -1406,61 +1488,55 @@ class MonostaticRCSPlotter(object):
             self.all_scene_actors["annotations"]["isar_2d"] = {}
 
         # Main red line
-        main_line = pv.Line(pointa=(range_first, range_first_az, z_mid), pointb=(range_last, range_first_az, z_mid))
-        annotation_name = "main_line"
-        main_line_object = SceneMeshObject()
-        main_line_object.name = annotation_name
-        main_line_object.color = "red"
-        main_line_object.line_width = 5
-        main_line_object.mesh = main_line
-
-        main_line_mesh = MeshObjectPlot(main_line_object, main_line_object.get_mesh())
-        self.all_scene_actors["annotations"]["isar_2d"][annotation_name] = main_line_mesh
-
-        main_line_opposite = pv.Line(
-            pointa=(range_first, range_last_az, z_mid), pointb=(range_last, range_last_az, z_mid)
+        name = "main_line"
+        main_line_mesh = self._create_line(
+            pointa=(range_first + self.center[0], range_first_az + self.center[1], self.center[2]),
+            pointb=(range_last + self.center[0], range_first_az + self.center[1], self.center[2]),
+            name=name,
+            color=line_color,
         )
-        annotation_name = "main_line_opposite"
-        main_line_opposite_object = SceneMeshObject()
-        main_line_opposite_object.name = annotation_name
-        main_line_opposite_object.color = "red"
-        main_line_opposite_object.line_width = 5
-        main_line_opposite_object.mesh = main_line_opposite
 
-        main_line_opposite_mesh = MeshObjectPlot(main_line_opposite_object, main_line_opposite_object.get_mesh())
-        self.all_scene_actors["annotations"]["isar_2d"][annotation_name] = main_line_opposite_mesh
+        self.all_scene_actors["annotations"]["isar_2d"][name] = main_line_mesh
 
-        main_line_az = pv.Line(pointa=(range_first, range_first_az, z_mid), pointb=(range_first, range_last_az, z_mid))
-        annotation_name = "main_line_az"
-        main_line_az_object = SceneMeshObject()
-        main_line_az_object.name = annotation_name
-        main_line_az_object.color = "red"
-        main_line_az_object.line_width = 5
-        main_line_az_object.mesh = main_line_az
-
-        main_line_az_mesh = MeshObjectPlot(main_line_az_object, main_line_az_object.get_mesh())
-        self.all_scene_actors["annotations"]["isar_2d"][annotation_name] = main_line_az_mesh
-
-        main_line_az_opposite = pv.Line(
-            pointa=(range_last, range_first_az, z_mid), pointb=(range_last, range_last_az, z_mid)
+        name = "main_line_opposite"
+        main_line_opposite_mesh = self._create_line(
+            pointa=(range_first + self.center[0], range_last_az + self.center[1], self.center[2]),
+            pointb=(range_last + self.center[0], range_last_az + self.center[1], self.center[2]),
+            name=name,
+            color=line_color,
         )
-        annotation_name = "main_line_az_opposite"
-        main_line_az_opposite_object = SceneMeshObject()
-        main_line_az_opposite_object.name = annotation_name
-        main_line_az_opposite_object.color = "red"
-        main_line_az_opposite_object.line_width = 5
-        main_line_az_opposite_object.mesh = main_line_az_opposite
 
-        main_line_az_opposite_mesh = MeshObjectPlot(
-            main_line_az_opposite_object, main_line_az_opposite_object.get_mesh()
+        self.all_scene_actors["annotations"]["isar_2d"][name] = main_line_opposite_mesh
+
+        name = "main_line_az"
+        main_line_az_mesh = self._create_line(
+            pointa=(range_first + self.center[0], range_first_az + self.center[1], self.center[2]),
+            pointb=(range_first + self.center[0], range_last_az + self.center[1], self.center[2]),
+            name=name,
+            color=line_color,
         )
-        self.all_scene_actors["annotations"]["isar_2d"][annotation_name] = main_line_az_opposite_mesh
+
+        self.all_scene_actors["annotations"]["isar_2d"][name] = main_line_az_mesh
+
+        pointa = (range_last + self.center[0], range_first_az + self.center[1], self.center[2])
+        pointb = (range_last + self.center[0], range_last_az + self.center[1], self.center[2])
+        name = "main_line_az_opposite"
+        main_line_az_opposite_mesh = self._create_line(pointa=pointa, pointb=pointb, name=name, color=line_color)
+        self.all_scene_actors["annotations"]["isar_2d"][name] = main_line_az_opposite_mesh
 
         if num_ticks <= 256:  # don't display too many ticks
             tick_lines = pv.PolyData()
-            for tick in range(0, num_ticks, 2):  # create line with tick marks
-                tick_pos_start = (distance_range[tick], range_first_az, z_mid)
-                tick_pos_end = (distance_range[tick], range_first_az - tick_length, z_mid)
+            for tick in range(1, num_ticks, 2):  # create line with tick marks
+                tick_pos_start = (
+                    distance_range[tick] + self.center[0],
+                    range_first_az + self.center[1],
+                    self.center[2],
+                )
+                tick_pos_end = (
+                    distance_range[tick] + self.center[0],
+                    range_first_az - tick_length + self.center[1],
+                    self.center[2],
+                )
                 tick_lines += pv.Line(pointa=tick_pos_start, pointb=tick_pos_end)
 
             annotation_name = "ticks_range"
@@ -1476,9 +1552,13 @@ class MonostaticRCSPlotter(object):
         # add azimuth line
         if num_ticks_az <= 256:  # don't display too many ticks
             tick_lines = pv.PolyData()
-            for tick in range(0, num_ticks_az, 2):  # create line with tick marks
-                tick_pos_start = (range_first, range_az[tick], z_mid)
-                tick_pos_end = (range_first + tick_length_az, range_az[tick], z_mid)
+            for tick in range(1, num_ticks_az - 1, 2):  # create line with tick marks
+                tick_pos_start = (range_first + self.center[0], range_az[tick] + self.center[1], self.center[2])
+                tick_pos_end = (
+                    range_first + tick_length_az + self.center[0],
+                    range_az[tick] + self.center[1],
+                    self.center[2],
+                )
                 tick_lines += pv.Line(pointa=tick_pos_start, pointb=tick_pos_end)
 
             annotation_name = "ticks_az"
@@ -1490,6 +1570,243 @@ class MonostaticRCSPlotter(object):
 
             tick_lines_az_mesh = MeshObjectPlot(tick_lines_az_object, tick_lines_az_object.get_mesh())
             self.all_scene_actors["annotations"]["isar_2d"][annotation_name] = tick_lines_az_mesh
+
+    @pyaedt_function_handler()
+    def add_isar_3d_settings(
+        self,
+        size_range=10.0,
+        range_resolution=0.1,
+        size_cross_range=10.0,
+        cross_range_resolution=0.1,
+        size_elevation_range=10.0,
+        elevation_range_resolution=0.1,
+        tick_color="#000000",
+        line_color="#ff0000",
+    ):
+        """
+        Add a 3D ISAR (Inverse Synthetic Aperture Radar) visualization to the current 3D scene.
+
+        Parameters
+        ----------
+        size_range : float, optional
+            The total size of the range axis in meters. This sets the overall length of the
+            range axis. The default is ``10.0 meters``.
+        range_resolution : float, optional
+            Resolution of the range axis in meters, specifying the spacing between each tick mark.
+            The default is ``0.1 meters``.
+        size_cross_range : float, optional
+            The total size of the cross-range axis in meters. This sets the width of the cross-range
+            axis. The default is ``10.0 meters``.
+        cross_range_resolution : float, optional
+            Resolution of the cross-range axis in meters, specifying the spacing between each tick mark
+            along the azimuth axis. The default is ``0.1 meters``.
+        size_elevation_range : float, optional
+            The total size of the elevation-range axis in meters. This sets the width of the elevation-range
+            axis. The default is ``10.0 meters``.
+        elevation_range_resolution : float, optional
+            Resolution of the elevation-range axis in meters, specifying the spacing between each tick mark
+            along the elevation axis. The default is ``0.1 meters``.
+        tick_color : str, optional
+            Color of the tick marks along both the range and cross-range axes. The default is
+            black (``"#000000"``).
+        line_color : str, optional
+            Color of the line. The default is red (``"#ff0000"``).
+        """
+        size_range = unit_converter(
+            size_range, unit_system="Length", input_units="meters", output_units=self.model_units
+        )
+        range_resolution = unit_converter(
+            range_resolution, unit_system="Length", input_units="meters", output_units=self.model_units
+        )
+        size_cross_range = unit_converter(
+            size_cross_range, unit_system="Length", input_units="meters", output_units=self.model_units
+        )
+        cross_range_resolution = unit_converter(
+            cross_range_resolution, unit_system="Length", input_units="meters", output_units=self.model_units
+        )
+        size_elevation_range = unit_converter(
+            size_elevation_range, unit_system="Length", input_units="meters", output_units=self.model_units
+        )
+        elevation_range_resolution = unit_converter(
+            elevation_range_resolution, unit_system="Length", input_units="meters", output_units=self.model_units
+        )
+
+        # Compute parameters
+        range_max = size_range - range_resolution
+        range_num = int(np.round(size_range / range_resolution))
+        distance_range = np.linspace(0, range_max, range_num)
+        distance_range -= distance_range[range_num // 2]
+        range_first = -distance_range[0]
+        range_last = -distance_range[-1]
+
+        range_max_az = size_cross_range - cross_range_resolution
+        range_num_az = int(np.round(size_cross_range / cross_range_resolution))
+        range_az = np.linspace(0, range_max_az, range_num_az)
+        range_az -= range_az[range_num_az // 2]
+        range_first_az = range_az[0]
+        range_last_az = range_az[-1]
+
+        range_max_el = size_elevation_range - elevation_range_resolution
+        range_num_el = int(np.round(size_elevation_range / elevation_range_resolution))
+        range_el = np.linspace(0, range_max_el, range_num_el)
+        range_el -= range_el[range_num_az // 2]
+        range_first_el = range_el[0]
+        range_last_el = range_el[-1]
+
+        num_ticks = range_num
+        num_ticks_az = range_num_az
+        num_ticks_el = range_num_el
+
+        # Using 5% of total range length
+        tick_length = size_range * 0.05
+        tick_length_az = size_cross_range * 0.05
+        tick_length_el = size_elevation_range * 0.05
+
+        if "range_profile" not in self.all_scene_actors["annotations"]:
+            self.all_scene_actors["annotations"]["isar_3d"] = {}
+
+        # Main red line
+        name = "main_line"
+        main_line_mesh = self._create_line(
+            pointa=(range_first + self.center[0], range_first_az + self.center[1], self.center[2]),
+            pointb=(range_last + self.center[0], range_first_az + self.center[1], self.center[2]),
+            name=name,
+            color=line_color,
+        )
+
+        self.all_scene_actors["annotations"]["isar_3d"][name] = main_line_mesh
+
+        name = "main_line_opposite"
+        main_line_opposite_mesh = self._create_line(
+            pointa=(range_first + self.center[0], range_last_az + self.center[1], self.center[2]),
+            pointb=(range_last + self.center[0], range_last_az + self.center[1], self.center[2]),
+            name=name,
+            color=line_color,
+        )
+
+        self.all_scene_actors["annotations"]["isar_3d"][name] = main_line_opposite_mesh
+
+        name = "main_line_az"
+        main_line_az_mesh = self._create_line(
+            pointa=(range_first + self.center[0], range_first_az + self.center[1], self.center[2]),
+            pointb=(range_first + self.center[0], range_last_az + self.center[1], self.center[2]),
+            name=name,
+            color=line_color,
+        )
+
+        self.all_scene_actors["annotations"]["isar_3d"][name] = main_line_az_mesh
+
+        pointa = (range_last + self.center[0], range_first_az + self.center[1], self.center[2])
+        pointb = (range_last + self.center[0], range_last_az + self.center[1], self.center[2])
+        name = "main_line_az_opposite"
+        main_line_az_opposite_mesh = self._create_line(pointa=pointa, pointb=pointb, name=name, color=line_color)
+        self.all_scene_actors["annotations"]["isar_3d"][name] = main_line_az_opposite_mesh
+
+        name = "main_line_el"
+        main_line_el_mesh = self._create_line(
+            pointa=(range_first + self.center[0], range_first_az + self.center[1], range_first_el + self.center[2]),
+            pointb=(range_first + self.center[0], range_first_az + self.center[1], range_last_el + self.center[2]),
+            name=name,
+            color=line_color,
+        )
+
+        self.all_scene_actors["annotations"]["isar_3d"][name] = main_line_el_mesh
+
+        box_bounds = (
+            range_first + self.center[0],
+            range_last + self.center[0],
+            range_first_az + self.center[1],
+            range_last_az + self.center[1],
+            range_first_el + self.center[2],
+            range_last_el + self.center[2],
+        )
+        name = "box"
+        box = pv.Box(box_bounds)
+        box_object = SceneMeshObject()
+        box_object.name = name
+        box_object.color = line_color
+        box_object.opacity = 0.05
+        box_object.line_width = 5
+        box_object.show_edges = True
+        box_object.edge_color = line_color
+        box_object.mesh = box
+
+        box_mesh = MeshObjectPlot(box_object, box_object.get_mesh())
+
+        self.all_scene_actors["annotations"]["isar_3d"][name] = box_mesh
+
+        if num_ticks <= 256:  # don't display too many ticks
+            tick_lines = pv.PolyData()
+            for tick in range(1, num_ticks, 2):  # create line with tick marks
+                tick_pos_start = (
+                    distance_range[tick] + self.center[0],
+                    range_first_az + self.center[1],
+                    self.center[2],
+                )
+                tick_pos_end = (
+                    distance_range[tick] + self.center[0],
+                    range_first_az - tick_length + self.center[1],
+                    self.center[2],
+                )
+                tick_lines += pv.Line(pointa=tick_pos_start, pointb=tick_pos_end)
+
+            annotation_name = "ticks_range"
+            tick_lines_range_object = SceneMeshObject()
+            tick_lines_range_object.name = annotation_name
+            tick_lines_range_object.color = tick_color
+            tick_lines_range_object.line_width = 2
+            tick_lines_range_object.mesh = tick_lines
+
+            tick_lines_range_mesh = MeshObjectPlot(tick_lines_range_object, tick_lines_range_object.get_mesh())
+            self.all_scene_actors["annotations"]["isar_3d"][annotation_name] = tick_lines_range_mesh
+
+        # add azimuth line
+        if num_ticks_az <= 256:  # don't display too many ticks
+            tick_lines = pv.PolyData()
+            for tick in range(1, num_ticks_az - 1, 2):  # create line with tick marks
+                tick_pos_start = (range_first + self.center[0], range_az[tick] + self.center[1], self.center[2])
+                tick_pos_end = (
+                    range_first + tick_length_az + self.center[0],
+                    range_az[tick] + self.center[1],
+                    self.center[2],
+                )
+                tick_lines += pv.Line(pointa=tick_pos_start, pointb=tick_pos_end)
+
+            annotation_name = "ticks_az"
+            tick_lines_az_object = SceneMeshObject()
+            tick_lines_az_object.name = annotation_name
+            tick_lines_az_object.color = tick_color
+            tick_lines_az_object.line_width = 2
+            tick_lines_az_object.mesh = tick_lines
+
+            tick_lines_az_mesh = MeshObjectPlot(tick_lines_az_object, tick_lines_az_object.get_mesh())
+            self.all_scene_actors["annotations"]["isar_3d"][annotation_name] = tick_lines_az_mesh
+
+        # add elevation line
+        if num_ticks_el <= 256:  # don't display too many ticks
+            tick_lines = pv.PolyData()
+            for tick in range(1, num_ticks_el - 1, 2):  # create line with tick marks
+                tick_pos_start = (
+                    range_first + self.center[0],
+                    range_first_az + self.center[1],
+                    range_el[tick] + self.center[2],
+                )
+                tick_pos_end = (
+                    range_first + tick_length_el + self.center[0],
+                    range_first_az + self.center[1],
+                    range_el[tick] + self.center[2],
+                )
+                tick_lines += pv.Line(pointa=tick_pos_start, pointb=tick_pos_end)
+
+            annotation_name = "ticks_el"
+            tick_lines_el_object = SceneMeshObject()
+            tick_lines_el_object.name = annotation_name
+            tick_lines_el_object.color = tick_color
+            tick_lines_el_object.line_width = 2
+            tick_lines_el_object.mesh = tick_lines
+
+            tick_lines_el_mesh = MeshObjectPlot(tick_lines_el_object, tick_lines_el_object.get_mesh())
+            self.all_scene_actors["annotations"]["isar_3d"][annotation_name] = tick_lines_el_mesh
 
     @pyaedt_function_handler()
     def add_range_profile(
@@ -1707,6 +2024,143 @@ class MonostaticRCSPlotter(object):
         self.all_scene_actors["results"]["isar_2d"][isar_name] = rcs_mesh
 
     @pyaedt_function_handler()
+    def add_incident_rcs_settings(
+        self,
+        theta_span: float,
+        num_theta: int,
+        phi_span: float,
+        num_phi: int,
+        arrow_color: str = "#ff0000",
+        line_color: str = "#ff0000",
+    ):
+        """Add incident wave arrow setting for RCS scene.
+
+        This function visualizes the incident wave arrows for RCS settings.
+
+        Parameters
+        ----------
+        theta_span : float
+            Incident theta angle in degrees.
+        num_theta : int
+            Number of theta points.
+        phi_span : float
+            Incident phi angle in degrees.
+        num_phi : int
+            Number of phi points.
+        arrow_color : str, optional
+            Color of the arrow. The default is red (``"#ff0000"``).
+        line_color : str, optional
+            Color of the line. The default is red (``"#ff0000"``).
+        """
+        self._add_incident_settings(
+            scene_type="rcs",
+            theta_span=theta_span,
+            num_theta=num_theta,
+            phi_span=phi_span,
+            num_phi=num_phi,
+            arrow_color=arrow_color,
+            line_color=line_color,
+        )
+
+    @pyaedt_function_handler()
+    def add_incident_range_profile_settings(self, arrow_color: str = "#ff0000"):
+        """Add incident wave arrow setting for range profile scene.
+
+        This function visualizes the incident wave arrows for RCS settings.
+
+        Parameters
+        ----------
+        arrow_color : str, optional
+            Color of the arrow. The default is red (``"#ff0000"``).
+        """
+        self._add_incident_settings(scene_type="range_profile", arrow_color=arrow_color)
+
+    @pyaedt_function_handler()
+    def add_incident_waterfall_settings(
+        self, phi_span: float, num_phi: int, arrow_color: str = "#ff0000", line_color: str = "#ff0000"
+    ):
+        """Add incident wave arrow setting for waterfall scene.
+
+        This function visualizes the incident wave arrows for waterfall settings.
+
+        Parameters
+        ----------
+        phi_span : float
+            Incident phi angle in degrees.
+        num_phi : int
+            Number of phi points.
+        arrow_color : str, optional
+            Color of the arrow. The default is red (``"#ff0000"``).
+        line_color : str, optional
+            Color of the line. The default is red (``"#ff0000"``).
+        """
+        self._add_incident_settings(
+            scene_type="waterfall", phi_span=phi_span, num_phi=num_phi, arrow_color=arrow_color, line_color=line_color
+        )
+
+    @pyaedt_function_handler()
+    def add_incident_isar_2d_settings(
+        self, phi_span: float, num_phi: int, arrow_color: str = "#ff0000", line_color: str = "#ff0000"
+    ):
+        """Add incident wave arrow setting for ISAR 2D scene.
+
+        This function visualizes the incident wave arrows for ISAR 2D settings.
+
+        Parameters
+        ----------
+        phi_span : float
+            Incident phi angle in degrees.
+        num_phi : int
+            Number of phi points.
+        arrow_color : str, optional
+            Color of the arrow. The default is red (``"#ff0000"``).
+        line_color : str, optional
+            Color of the line. The default is red (``"#ff0000"``).
+        """
+        self._add_incident_settings(
+            scene_type="isar_2d", phi_span=phi_span, num_phi=num_phi, arrow_color=arrow_color, line_color=line_color
+        )
+
+    @pyaedt_function_handler()
+    def add_incident_isar_3d_settings(
+        self,
+        theta_span: float,
+        num_theta: int,
+        phi_span: float,
+        num_phi: int,
+        arrow_color: str = "#ff0000",
+        line_color: str = "#ff0000",
+    ):
+        """Add incident wave arrow setting for ISAR 3D scene.
+
+        This function visualizes the incident wave arrows for ISAR 3D settings.
+
+        Parameters
+        ----------
+        theta_span : float
+            Incident theta angle in degrees.
+        num_theta : int
+            Number of theta points.
+        phi_span : float
+            Incident phi angle in degrees.
+        num_phi : int
+            Number of phi points.
+        arrow_color : str, optional
+            Color of the arrow. The default is red (``"#ff0000"``).
+        line_color : str, optional
+            Color of the line. The default is red (``"#ff0000"``).
+        """
+        self._add_incident_settings(
+            scene_type="isar_3d",
+            theta_span=theta_span,
+            num_theta=num_theta,
+            phi_span=phi_span,
+            num_phi=num_phi,
+            arrow_color=arrow_color,
+            line_color=line_color,
+        )
+
+    @pyaedt_function_handler()
     def clear_scene(self, first_level=None, second_level=None, name=None):
         if not first_level:
             self.all_scene_actors["annotations"] = {}
@@ -1723,6 +2177,114 @@ class MonostaticRCSPlotter(object):
                 elif name in self.all_scene_actors[first_level][second_level].keys():
                     del self.all_scene_actors[first_level][second_level][name]
         return True
+
+    @pyaedt_function_handler()
+    def _add_incident_settings(
+        self,
+        scene_type="RCS",
+        theta_span=0.0,
+        num_theta=101,
+        phi_span=0.0,
+        num_phi=101,
+        arrow_color="#ff0000",
+        line_color="#ff0000",
+    ):
+        # Compute parameters
+        radius_max = max([abs(self.extents[0]), abs(self.extents[1]), abs(self.extents[2]), abs(self.extents[3])])
+        arrow_length = radius_max * 0.25
+
+        if "incident_wave" not in self.all_scene_actors["annotations"]:
+            self.all_scene_actors["annotations"]["incident_wave"] = {}
+
+        # Plot arrows
+        # if we end up wanting to plot points, we need to keep the whole span.
+        # Arrows are only plotted at the edges of the domain
+        theta = np.linspace(0, theta_span, num_theta)
+        theta -= theta[len(theta) // 2]
+        theta += 90
+        theta = np.deg2rad([theta[0], theta[-1]])
+        phi = np.linspace(0, phi_span, num_phi)
+        phi -= phi[len(phi) // 2]
+        phi = np.deg2rad([phi[0], phi[-1]])
+        corners = ((theta[0], phi[0]), (theta[0], phi[1]), (theta[1], phi[1]), (theta[1], phi[0]))
+        for i, (t, p) in enumerate(corners):
+            arrow_direction = -np.array([np.cos(p) * np.sin(t), np.sin(p) * np.sin(t), np.cos(t)])
+            arrow_start = -arrow_direction * (radius_max + arrow_length)
+            name = "arrow" + str(i)
+            arrow_mesh = self._create_arrow(
+                start=arrow_start, direction=arrow_direction, scale=arrow_length, name=name, color=arrow_color
+            )
+            self.all_scene_actors["annotations"]["incident_wave"][name] = arrow_mesh
+
+            corner1 = arrow_start
+            n_t, n_p = corners[(i + 1) % 4]
+            n_arrow_direction = -np.array([np.cos(n_p) * np.sin(n_t), np.sin(n_p) * np.sin(n_t), np.cos(n_t)])
+            corner2 = -n_arrow_direction * (radius_max + arrow_length)
+            name = "arc" + str(i)
+            arc_mesh = self._create_arc(
+                pointa=corner1,
+                pointb=corner2,
+                center=(0, 0, 0),
+                resolution=100,
+                negative=False,
+                name=name,
+                color=line_color,
+            )
+            self.all_scene_actors["annotations"]["incident_wave"][name] = arc_mesh
+        return True
+
+    @pyaedt_function_handler()
+    def _create_arrow(self, start, direction, scale, name, color):
+        arrow = pv.Arrow(start=start, direction=direction, scale=scale)
+        arrow_object = SceneMeshObject()
+        arrow_object.name = name
+        arrow_object.color = color
+        arrow_object.line_width = 5
+        arrow_object.specular = 0.5
+        arrow_object.lighting = True
+        arrow_object.smooth_shading = False
+        arrow_object.mesh = arrow
+
+        return MeshObjectPlot(arrow_object, arrow_object.get_mesh())
+
+    @pyaedt_function_handler()
+    def _create_arc(self, pointa, pointb, center, resolution, negative, name, color):
+        arc = pv.CircularArc(pointa=pointa, pointb=pointb, center=center, resolution=resolution, negative=negative)
+        arc_object = SceneMeshObject()
+        arc_object.name = name
+        arc_object.color = color
+        arc_object.line_width = 5
+        arc_object.specular = 0.5
+        arc_object.lighting = True
+        arc_object.smooth_shading = False
+        arc_object.mesh = arc
+
+        return MeshObjectPlot(arc_object, arc_object.get_mesh())
+
+    @pyaedt_function_handler()
+    def _create_cone(self, center, direction, radius, height, resolution, name, color):
+        cone = pv.Cone(center=center, direction=direction, radius=radius, height=height, resolution=resolution)
+        cone_object = SceneMeshObject()
+        cone_object.name = name
+        cone_object.color = color
+        cone_object.line_width = 5
+        cone_object.specular = 0.5
+        cone_object.lighting = True
+        cone_object.smooth_shading = False
+        cone_object.mesh = cone
+
+        return MeshObjectPlot(cone_object, cone_object.get_mesh())
+
+    @pyaedt_function_handler()
+    def _create_line(self, pointa, pointb, name, color):
+        line = pv.Line(pointa=pointa, pointb=pointb)
+        line_object = SceneMeshObject()
+        line_object.name = name
+        line_object.color = color
+        line_object.line_width = 5
+        line_object.mesh = line
+
+        return MeshObjectPlot(line_object, line_object.get_mesh())
 
     @pyaedt_function_handler()
     def __get_pyvista_range_profile_actor(
@@ -1882,12 +2444,12 @@ class MonostaticRCSPlotter(object):
         x_max, x_min, y_max, y_min, z_max, z_min = [], [], [], [], [], []
 
         if len(self.all_scene_actors["model"]) == 0:
-            x_max = [10]
-            x_min = [0]
-            y_max = [10]
-            y_min = [0]
-            z_max = [10]
-            z_min = [0]
+            x_max = [1]
+            x_min = [-1]
+            y_max = [1]
+            y_min = [-1]
+            z_max = [1]
+            z_min = [-1]
         for each in self.all_scene_actors["model"].values():
             x_max.append(each.mesh.bounds[1])
             x_min.append(each.mesh.bounds[0])
@@ -1900,45 +2462,39 @@ class MonostaticRCSPlotter(object):
         self.__z_max, self.__z_min = max(z_max), min(z_min)
 
     @pyaedt_function_handler()
-    def __get_geometry(self, off_screen=False):
+    def __get_geometry(self):
         """Get 3D meshes."""
         model_info = self.model_info
+
         obj_meshes = {}
         first_value = next(iter(model_info.values()))
         self.__model_units = first_value[3]
         for object_in in model_info.values():
-            model_pv = ModelPlotter()
-            model_pv.off_screen = off_screen
-            relative_path = Path("geometry") / Path(object_in[0])
+            relative_cad_path, color, opacity, units = object_in
+            relative_path = Path(relative_cad_path)
+            name = relative_path.stem
+            relative_path = Path("geometry") / relative_path
             cad_path = Path(self.rcs_data.output_dir) / relative_path
+            try:
+                conv = AEDT_UNITS["Length"][units]
+            except Exception:
+                conv = 1
             if cad_path.exists():
-                model_pv.add_object(
-                    str(cad_path),
-                    object_in[1],
-                    object_in[2],
-                    object_in[3],
-                )
+                mesh = pv.read(str(cad_path))
+                mesh.scale(conv)
             else:
                 self.__logger.warning(f"{cad_path} does not exist.")
                 return False
 
-            model_pv.generate_geometry_mesh()
+            color_cad = [i / 255 for i in color]
+            model_object = SceneMeshObject()
+            model_object.color = color_cad
+            model_object.opacity = opacity
+            model_object.name = name
+            model_object.mesh = mesh
 
-            # mesh = obj._cached_polydata
-            # translated_mesh = mesh.copy()
-            for obj in model_pv.objects:
-                color_cad = [i / 255 for i in obj.color]
-                obj.color = color_cad
-
-                model_object = SceneMeshObject()
-                model_object.color = color_cad
-                model_object.opacity = obj.opacity
-                model_object.name = obj.name
-                model_object.mesh = obj._cached_polydata
-
-                mesh_object = MeshObjectPlot(model_object, model_object.get_mesh())
-                obj_meshes[obj.name] = mesh_object
-                model_pv.close()
+            mesh_object = MeshObjectPlot(model_object, model_object.get_mesh())
+            obj_meshes[model_object.name] = mesh_object
 
         return obj_meshes
 
@@ -1960,6 +2516,11 @@ class SceneMeshObject:
         self.color = None
         self.color_map = "jet"
         self.line_width = 1.0
+        self.specular = 0.0
+        self.lighting = False
+        self.smooth_shading = True
+        self.edge_color = None
+        self.show_edges = True
         self.scalar_dict = dict(color="#000000", title="Dummy")
         self.show = True
 
@@ -2071,7 +2632,16 @@ class SceneMeshObject:
         dict
             A dictionary with the color and line width settings for annotating the model.
         """
-        return {"color": self.color, "line_width": self.line_width}
+        return {
+            "color": self.color,
+            "line_width": self.line_width,
+            "specular": self.specular,
+            "lighting": self.lighting,
+            "smooth_shading": self.smooth_shading,
+            "opacity": self.opacity,
+            "show_edges": self.show_edges,
+            "edge_color": self.edge_color,
+        }
 
     def get_result_options(self):
         """Retrieve the result options for the mesh.

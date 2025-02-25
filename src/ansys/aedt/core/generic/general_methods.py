@@ -22,9 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from __future__ import absolute_import
 
-import ast
 import codecs
 import csv
 import datetime
@@ -49,6 +47,7 @@ from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.constants import CSS4_COLORS
 from ansys.aedt.core.generic.errors import GrpcApiError
 from ansys.aedt.core.generic.errors import MethodNotSupportedError
+from ansys.aedt.core.generic.numbers import _units_assignment
 from ansys.aedt.core.generic.settings import inner_project_settings  # noqa: F401
 from ansys.aedt.core.generic.settings import settings
 import psutil
@@ -601,8 +600,8 @@ def env_path(input_version):
 
     Examples
     --------
-    >>> env_path_student("2021.2")
-    "C:/Program Files/ANSYSEM/ANSYSEM2021.2/Win64"
+    >>> env_path_student("2025.1")
+    "C:/Program Files/ANSYSEM/ANSYSEM2025.1/Win64"
     """
     return os.getenv(
         f"ANSYSEM_ROOT{get_version_and_release(input_version)[0]}{get_version_and_release(input_version)[1]}", ""
@@ -625,8 +624,8 @@ def env_value(input_version):
 
     Examples
     --------
-    >>> env_value("2021.2")
-    "ANSYSEM_ROOT212"
+    >>> env_value(2025.1)
+    "ANSYSEM_ROOT251"
     """
     return f"ANSYSEM_ROOT{get_version_and_release(input_version)[0]}{get_version_and_release(input_version)[1]}"
 
@@ -647,8 +646,8 @@ def env_path_student(input_version):
 
     Examples
     --------
-    >>> env_path_student("2021.2")
-    "C:/Program Files/ANSYSEM/ANSYSEM2021.2/Win64"
+    >>> env_path_student(2025.1)
+    "C:/Program Files/ANSYSEM/ANSYSEM2025.1/Win64"
     """
     return os.getenv(
         f"ANSYSEMSV_ROOT{get_version_and_release(input_version)[0]}{get_version_and_release(input_version)[1]}",
@@ -672,8 +671,8 @@ def env_value_student(input_version):
 
     Examples
     --------
-    >>> env_value_student("2021.2")
-    "ANSYSEMSV_ROOT212"
+    >>> env_value_student(2025.1)
+    "ANSYSEMSV_ROOT251"
     """
     return f"ANSYSEMSV_ROOT{get_version_and_release(input_version)[0]}{get_version_and_release(input_version)[1]}"
 
@@ -846,80 +845,6 @@ def time_fn(fn, *args, **kwargs):
     return results
 
 
-@pyaedt_function_handler(rel_tol="relative_tolerance", abs_tol="absolute_tolerance")
-def isclose(a, b, relative_tolerance=1e-9, absolute_tolerance=0.0):
-    """Whether two numbers are close to each other given relative and absolute tolerances.
-
-    Parameters
-    ----------
-    a : float, int
-        First number to compare.
-    b : float, int
-        Second number to compare.
-    relative_tolerance : float
-        Relative tolerance. The default value is ``1e-9``.
-    absolute_tolerance : float
-        Absolute tolerance. The default value is ``0.0``.
-
-    Returns
-    -------
-    bool
-        ``True`` if the two numbers are closed, ``False`` otherwise.
-    """
-    return abs(a - b) <= max(relative_tolerance * max(abs(a), abs(b)), absolute_tolerance)
-
-
-@pyaedt_function_handler()
-def is_number(a):
-    """Whether the given input is a number.
-
-    Parameters
-    ----------
-    a : float, int, str
-        Number to check.
-
-    Returns
-    -------
-    bool
-        ``True`` if it is a number, ``False`` otherwise.
-    """
-    if isinstance(a, float) or isinstance(a, int):
-        return True
-    elif isinstance(a, str):
-        try:
-            float(a)
-            return True
-        except ValueError:
-            return False
-    else:
-        return False
-
-
-@pyaedt_function_handler()
-def is_array(a):
-    """Whether the given input is an array.
-
-    Parameters
-    ----------
-    a : list
-        List to check.
-
-    Returns
-    -------
-    bool
-        ``True`` if it is an array, ``False`` otherwise.
-    """
-    try:
-        v = list(ast.literal_eval(a))
-    except (ValueError, TypeError, NameError, SyntaxError):
-        return False
-    else:
-        if isinstance(v, list):
-            return True
-        else:
-            return False
-
-
 @pyaedt_function_handler()
 def is_project_locked(project_path):
     """Check if an AEDT project lock file exists.
@@ -947,6 +872,8 @@ def available_license_feature(
     feature="electronics_desktop", input_dir=None, port=1055, name="127.0.0.1"
 ):  # pragma: no cover
     """Check available license feature.
+    The method retrieves the port and name values from the ``ANSYSLMD_LICENSE_FILE`` environment variable if available.
+    If not, the default values are applied.
 
     Parameters
     ----------
@@ -957,9 +884,9 @@ def available_license_feature(
         installation from :func:`ansys.aedt.core.generic.aedt_versions.installed_versions`
         method is taken.
     port : int, optional
-        Server port number.
+        Server port number. The default is ``1055``.
     name : str, optional
-        License server name.
+        License server name. The default is ``"127.0.0.1"``.
 
     Returns
     -------
@@ -1356,163 +1283,6 @@ def write_configuration_file(input_data, output_file):
         return _create_json_file(input_data, output_file)
     elif ext == ".toml":
         return _create_toml_file(input_data, output_file)
-
-
-# @pyaedt_function_handler()
-# def com_active_sessions(version=None, student_version=False, non_graphical=False):
-#     """Get information for the active COM AEDT sessions.
-#
-#     Parameters
-#     ----------
-#     version : str, optional
-#         Version to check. The default is ``None``, in which case all versions are checked.
-#         When specifying a version, you can use a three-digit format like ``"222"`` or a
-#         five-digit format like ``"2022.2"``.
-#     student_version : bool, optional
-#         Whether to check for student version sessions. The default is ``False``.
-#     non_graphical : bool, optional
-#         Whether to check only for active non-graphical sessions. The default is ``False``.
-#
-#     Returns
-#     -------
-#     list
-#         List of AEDT PIDs.
-#     """
-#     if student_version:
-#         keys = ["ansysedtsv.exe"]
-#     else:
-#         keys = ["ansysedt.exe"]
-#     long_version = None
-#     if len(version) > 6:
-#         version = version[-6:]
-#     if version and "." in version:
-#         long_version = version
-#         version = version[-4:].replace(".", "")
-#     if version < "221":
-#         version = version[:2] + "." + version[2]
-#         long_version = "20{}".format(version)
-#     sessions = []
-#     for p in psutil.process_iter():
-#         try:
-#             if p.name() in keys:
-#                 if long_version and _check_installed_version(os.path.dirname(p.exe()), long_version):
-#                     sessions.append(p.pid)
-#                     continue
-#                 cmd = p.cmdline()
-#                 if non_graphical and "-ng" in cmd or not non_graphical:
-#                     if not version or (version and version in cmd[0]):
-#                         sessions.append(p.pid)
-#         except Exception:
-#             pass
-#     return sessions
-#
-#
-# @pyaedt_function_handler()
-# def grpc_active_sessions(version=None, student_version=False, non_graphical=False):
-#     """Get information for the active gRPC AEDT sessions.
-#
-#     Parameters
-#     ----------
-#     version : str, optional
-#         Version to check. The default is ``None``, in which case all versions are checked.
-#         When specifying a version, you can use a three-digit format like ``"222"`` or a
-#         five-digit format like ``"2022.2"``.
-#     student_version : bool, optional
-#         Whether to check for student version sessions. The default is ``False``.
-#     non_graphical : bool, optional
-#         Whether to check only for active non-graphical sessions. The default is ``False``.
-#
-#     Returns
-#     -------
-#     list
-#         List of gRPC ports.
-#     """
-#     if student_version:
-#         keys = ["ansysedtsv.exe", "ansysedtsv"]
-#     else:
-#         keys = ["ansysedt.exe", "ansysedt"]
-#     if version and "." in version:
-#         version = version[-4:].replace(".", "")
-#     sessions = []
-#     for p in psutil.process_iter():
-#         try:
-#             if p.name() in keys:
-#                 cmd = p.cmdline()
-#                 if "-grpcsrv" in cmd:
-#                     if non_graphical and "-ng" in cmd or not non_graphical:
-#                         if not version or (version and version in cmd[0]):
-#                             try:
-#                                 sessions.append(
-#                                     int(cmd[cmd.index("-grpcsrv") + 1]),
-#                                 )
-#                             except (IndexError, ValueError):
-#                                 # default desktop grpc port.
-#                                 sessions.append(50051)
-#         except Exception:
-#             pass
-#     return sessions
-#
-#
-# def active_sessions(version=None, student_version=False, non_graphical=False):
-#     """Get information for the active AEDT sessions.
-#
-#     Parameters
-#     ----------
-#     version : str, optional
-#         Version to check. The default is ``None``, in which case all versions are checked.
-#         When specifying a version, you can use a three-digit format like ``"222"`` or a
-#         five-digit format like ``"2022.2"``.
-#     student_version : bool, optional
-#     non_graphical : bool, optional
-#
-#
-#     Returns
-#     -------
-#     list
-#         List of tuple (AEDT PIDs, port).
-#     """
-#     if student_version:
-#         keys = ["ansysedtsv.exe", "ansysedtsv"]
-#     else:
-#         keys = ["ansysedt.exe", "ansysedt"]
-#     if version and "." in version:
-#         version = version[-4:].replace(".", "")
-#     if version and version < "222":
-#         version = version[:2] + "." + version[2]
-#     sessions = []
-#     for p in psutil.process_iter():
-#         try:
-#             if p.name() in keys:
-#                 cmd = p.cmdline()
-#                 if non_graphical and "-ng" in cmd or not non_graphical:
-#                     if not version or (version and version in cmd[0]):
-#                         if "-grpcsrv" in cmd:
-#                             if not version or (version and version in cmd[0]):
-#                                 try:
-#                                     sessions.append(
-#                                         [
-#                                             p.pid,
-#                                             int(cmd[cmd.index("-grpcsrv") + 1]),
-#                                         ]
-#                                     )
-#                                 except (IndexError, ValueError):
-#                                     # default desktop grpc port.
-#                                     sessions.append(
-#                                         [
-#                                             p.pid,
-#                                             50051,
-#                                         ]
-#                                     )
-#                         else:
-#                             sessions.append(
-#                                 [
-#                                     p.pid,
-#                                     -1,
-#                                 ]
-#                             )
-#         except Exception:
-#             pass
-#     return sessions
 
 
 @pyaedt_function_handler()
@@ -1947,6 +1717,7 @@ class PropsManager(object):
 
             else:
                 matching_percentage -= 0.02
+        value = _units_assignment(value)
         if found_el:
             found_el[1][found_el[2]] = value
             self.update()
@@ -2027,57 +1798,6 @@ rgb_color_codes = {
 }
 
 
-@pyaedt_function_handler()
-def _arg2dict(arg, dict_out):
-    if arg[0] == "NAME:DimUnits" or "NAME:Point" in arg[0]:
-        if arg[0][5:] in dict_out:
-            if isinstance(dict_out[arg[0][5:]][0], (list, tuple)):
-                dict_out[arg[0][5:]].append(list(arg[1:]))
-            else:
-                dict_out[arg[0][5:]] = [dict_out[arg[0][5:]]]
-                dict_out[arg[0][5:]].append(list(arg[1:]))
-        else:
-            dict_out[arg[0][5:]] = list(arg[1:])
-    elif arg[0][:5] == "NAME:":
-        top_key = arg[0][5:]
-        dict_in = {}
-        i = 1
-        while i < len(arg):
-            if arg[i][0][:5] == "NAME:" and (
-                isinstance(arg[i], (list, tuple)) or str(type(arg[i])) == r"<type 'List'>"
-            ):
-                _arg2dict(list(arg[i]), dict_in)
-                i += 1
-            elif arg[i][-2:] == ":=":
-                if str(type(arg[i + 1])) == r"<type 'List'>":
-                    if arg[i][:-2] in dict_in:
-                        dict_in[arg[i][:-2]].append(list(arg[i + 1]))
-                    else:
-                        dict_in[arg[i][:-2]] = list(arg[i + 1])
-                else:
-                    if arg[i][:-2] in dict_in:
-                        if isinstance(dict_in[arg[i][:-2]], list):
-                            dict_in[arg[i][:-2]].append(arg[i + 1])
-                        else:
-                            dict_in[arg[i][:-2]] = [dict_in[arg[i][:-2]]]
-                            dict_in[arg[i][:-2]].append(arg[i + 1])
-                    else:
-                        dict_in[arg[i][:-2]] = arg[i + 1]
-
-                i += 2
-            else:
-                raise ValueError("Incorrect data argument format")
-        if top_key in dict_out:
-            if isinstance(dict_out[top_key], list):
-                dict_out[top_key].append(dict_in)
-            else:
-                dict_out[top_key] = [dict_out[top_key], dict_in]
-        else:
-            dict_out[top_key] = dict_in
-    else:
-        raise ValueError("Incorrect data argument format")
-
-
 # FIXME: Remove usage of random module once IronPython compatibility is removed
 def _uname(name=None):
     """Append a 6-digit hash code to a specified name.
@@ -2134,7 +1854,7 @@ def _to_boolean(val):
 
 
 @pyaedt_function_handler()
-def _dim_arg(value, units):
+def _arg_with_dim(value, units):
     """Concatenate a specified units string to a numerical input.
 
     Parameters
@@ -2147,15 +1867,17 @@ def _dim_arg(value, units):
     Returns
     -------
     str
-
+        Concatenated string with value and units.
     """
-    try:
-        val = float(value)
-        if isinstance(value, int):
+    if isinstance(value, str):
+        try:
+            float(value)
+            val = f"{value}{units}"
+        except Exception:
             val = value
-        return str(val) + units
-    except Exception:
-        return value
+    else:
+        val = f"{value}{units}"
+    return val
 
 
 @pyaedt_function_handler()

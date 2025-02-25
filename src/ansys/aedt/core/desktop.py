@@ -29,8 +29,6 @@ You can initialize this module before launching an app or
 have the app automatically initialize it to the latest installed AEDT version.
 """
 
-from __future__ import absolute_import  # noreorder
-
 import atexit
 import datetime
 import gc
@@ -114,7 +112,7 @@ def launch_aedt(full_path, non_graphical, port, student_version, first_run=True)
     _aedt_process_thread.start()
 
     on_ci = os.getenv("ON_CI", "False")
-    if not student_version and on_ci != "True":
+    if not student_version and on_ci != "True" and not settings.skip_license_check:
         available_licenses = available_license_feature()
         if available_licenses > 0:
             settings.logger.info("Electronics Desktop license available.")
@@ -1572,7 +1570,7 @@ class Desktop(object):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> desktop = ansys.aedt.core.Desktop("2021.2")
+        >>> desktop = ansys.aedt.core.Desktop("2025.1")
         PyAEDT INFO: pyaedt v...
         PyAEDT INFO: Python version ...
         >>> desktop.release_desktop(close_projects=False, close_on_exit=False) # doctest: +SKIP
@@ -1631,7 +1629,7 @@ class Desktop(object):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> desktop = ansys.aedt.core.Desktop("2021.2")
+        >>> desktop = ansys.aedt.core.Desktop("2025.1")
         PyAEDT INFO: pyaedt v...
         PyAEDT INFO: Python version ...
         >>> desktop.close_desktop() # doctest: +SKIP
@@ -1648,7 +1646,7 @@ class Desktop(object):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> desktop = ansys.aedt.core.Desktop("2021.2")
+        >>> desktop = ansys.aedt.core.Desktop("2025.1")
         PyAEDT INFO: pyaedt v...
         PyAEDT INFO: Python version ...
         >>> desktop.enable_autosave()
@@ -1662,7 +1660,7 @@ class Desktop(object):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> desktop = ansys.aedt.core.Desktop("2021.2")
+        >>> desktop = ansys.aedt.core.Desktop("2025.1")
         PyAEDT INFO: pyaedt v...
         PyAEDT INFO: Python version ...
         >>> desktop.disable_autosave()

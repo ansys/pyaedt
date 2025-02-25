@@ -153,7 +153,7 @@ class IdealResponse:
     Types of responses Include ``frequency``, ``time``, ``S parameters``, ``transfer function``,
     and ``pole zero location``.
 
-    This class allows you to construct all the necessary ideal response attributes for the ``FilterDesign`` class.
+    This class allows you to define and modify the ideal response parameters for the designed filter.
     """
 
     def __init__(self):

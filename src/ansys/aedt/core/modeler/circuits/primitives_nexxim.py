@@ -28,13 +28,13 @@ import secrets
 import time
 import warnings
 
-from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.load_aedt_file import load_keyword_in_aedt_file
+from ansys.aedt.core.generic.numbers import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
 from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
@@ -532,7 +532,7 @@ class NexximComponents(CircuitComponents):
             "RenormImpedance:=",
             50,
         ]
-        self.o_model_manager.Add(arg)
+        self.omodel_manager.Add(arg)
         arg = [
             "NAME:" + component_name,
             "Info:=",
@@ -634,7 +634,7 @@ class NexximComponents(CircuitComponents):
             ]
         )
 
-        self.o_component_manager.Add(arg)
+        self.ocomponent_manager.Add(arg)
         self._app._odesign.AddCompInstance(component_name)
         self.refresh_all_ids()
         for el in self.components:
@@ -1456,7 +1456,7 @@ class NexximComponents(CircuitComponents):
         ]
         arg.append(arg3)
         print(arg)
-        self.o_component_manager.Add(arg)
+        self.ocomponent_manager.Add(arg)
         return True
 
     @pyaedt_function_handler(toolNum="tool_index")
@@ -1586,10 +1586,10 @@ class NexximComponents(CircuitComponents):
             if name in self.components[el].composed_name:
                 if extrusion_length:
                     _, units = decompose_variable_value(self.components[el].parameters["Length"])
-                    self.components[el].set_property("Length", self.number_with_units(extrusion_length, units))
+                    self.components[el].set_property("Length", self._app.value_with_units(extrusion_length, units))
                 if tline_port and extrusion_length:
                     _, units = decompose_variable_value(self.components[el].parameters["TLineLength"])
-                    self.components[el].set_property("TLineLength", self.number_with_units(extrusion_length, units))
+                    self.components[el].set_property("TLineLength", self._app.value_with_units(extrusion_length, units))
                 return self.components[el]
         return False
 
@@ -1771,7 +1771,7 @@ class NexximComponents(CircuitComponents):
                 matrix = ["NAME:Reduce Matrix Choices", "Original"]
             compInfo.extend(["Reduce Matrix:=", default_matrix, matrix, "EnableCableModeling:=", enable_cable_modeling])
 
-        self.o_model_manager.Add(compInfo)
+        self.omodel_manager.Add(compInfo)
 
         info = [
             "Type:=",
@@ -1850,7 +1850,7 @@ class NexximComponents(CircuitComponents):
         ]
         if owner == "2DExtractor":
             variable_args.append("VariableProp:=")
-            variable_args.append(["Length", "D", "", self.number_with_units(extrusion_length_q2d)])
+            variable_args.append(["Length", "D", "", self._app.value_with_units(extrusion_length_q2d)])
         if variables:
             for k, v in variables.items():
                 variable_args.append("VariableProp:=")
@@ -1886,7 +1886,7 @@ class NexximComponents(CircuitComponents):
             ]
         )
 
-        self.o_component_manager.Add(compInfo2)
+        self.ocomponent_manager.Add(compInfo2)
         self._app._odesign.AddCompInstance(comp_name)
         self.refresh_all_ids()
         for el in self.components:
@@ -1999,7 +1999,7 @@ class NexximComponents(CircuitComponents):
         if "@" in name:
             name = name.split("@")[1]
         name = name.split(";")[0]
-        self.o_component_manager.UpdateDynamicLink(name)
+        self.ocomponent_manager.UpdateDynamicLink(name)
         return True
 
     @pyaedt_function_handler()
@@ -2050,7 +2050,7 @@ class NexximComponents(CircuitComponents):
         --------
         >>> from pathlib import Path
         >>> from ansys.aedt.core import Circuit
-        >>> cir = Circuit(version="2023.2")
+        >>> cir = Circuit(version="2025.1")
         >>> model = Path("Your path") / "test.lib"
         >>> cir.modeler.schematic.create_component_from_spicemodel(input_file=model,model="GRM1234",symbol="nexx_cap")
         >>> cir.release_desktop(False, False)
@@ -2074,7 +2074,7 @@ class NexximComponents(CircuitComponents):
             else:
                 arg2.append([False, "", "", False])
         arg.append(arg2)
-        self.o_component_manager.ImportModelsFromFile(input_file.as_posix(), arg)
+        self.ocomponent_manager.ImportModelsFromFile(input_file.as_posix(), arg)
 
         if create_component:
             return self.create_component(None, component_library=None, component_name=model, location=location)

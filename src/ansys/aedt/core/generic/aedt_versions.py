@@ -170,7 +170,7 @@ class AedtVersions:
         Examples
         --------
         >>> from ansys.aedt.core import desktop
-        >>> desktop.get_version_env_variable("2021.2")
+        >>> desktop.get_version_env_variable("2025.1")
         'ANSYSEM_ROOT212'
 
         """
