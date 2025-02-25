@@ -509,7 +509,7 @@ class CircuitComponent(object):
             return self._model_data
         if self.model_name:
             _parameters = {}
-            _arg2dict(list(self._circuit_components.o_model_manager.GetData(self.model_name)), _parameters)
+            _arg2dict(list(self._circuit_components.omodel_manager.GetData(self.model_name)), _parameters)
             self._model_data = ModelParameters(self, self.model_name, _parameters[self.model_name])
         return self._model_data
 
