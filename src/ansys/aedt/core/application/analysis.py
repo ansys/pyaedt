@@ -153,16 +153,16 @@ class Analysis(Design, object):
             ic_mode,
             remove_lock,
         )
-        self._excitation_objects = {}
+        self._excitation_objects = None
         self._setup = None
         if setup_name:
             self.active_setup = setup_name
         self._materials = None
         self._available_variations = None
-        self._setups = []
-        self._parametrics = []
-        self._optimizations = []
-        self._native_components = []
+        self._setups = None
+        self._parametrics = None
+        self._optimizations = None
+        self._native_components = None
         self.SOLUTIONS = SOLUTIONS()
         self.SETUPS = SETUPS()
         self.AXIS = AXIS()
@@ -185,7 +185,7 @@ class Analysis(Design, object):
         -------
         dict[str, :class:`ansys.aedt.core.modules.Boundaries.NativeComponentObject`]
         """
-        if not self._native_components:
+        if self._native_components is None:
             self._native_components = self._get_native_data()
         return {nc.name: nc for nc in self._native_components}
 
@@ -244,7 +244,7 @@ class Analysis(Design, object):
             Setups in the project.
 
         """
-        if not self._setups:
+        if self._setups is None:
             if self.design_type not in ["Maxwell Circuit", "Circuit Netlist"]:
                 self._setups = [self.get_setup(setup_name) for setup_name in self.setup_names]
         return self._setups
@@ -259,7 +259,7 @@ class Analysis(Design, object):
             Parametric setups in the project.
 
         """
-        if not self._parametrics:
+        if self._parametrics is None:
             self._parametrics = ParametricSetups(self)
         return self._parametrics
 
@@ -273,7 +273,7 @@ class Analysis(Design, object):
             Parametric setups in the project.
 
         """
-        if not self._optimizations:
+        if self._optimizations is None:
             self._optimizations = OptimizationSetups(self)
         return self._optimizations
 
@@ -318,7 +318,7 @@ class Analysis(Design, object):
         ----------
         >>> oModule.GetAllSolutionSetups()
         """
-        if self._setup:
+        if self._setup is not None:
             return self._setup
         elif self.existing_analysis_setups:
             return self.existing_analysis_setups[0]
@@ -529,6 +529,9 @@ class Analysis(Design, object):
         ----------
         >>> oModule.GetExcitations
         """
+        if self._excitation_objects is None:
+            self._excitation_objects = {}
+
         exc_names = self.excitations[::]
 
         for el in self.boundaries:
