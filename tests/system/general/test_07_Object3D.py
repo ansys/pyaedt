@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -27,8 +27,8 @@ import math
 from ansys.aedt.core.generic.general_methods import _to_boolean
 from ansys.aedt.core.generic.general_methods import _uname
 from ansys.aedt.core.generic.general_methods import is_linux
-from ansys.aedt.core.generic.general_methods import isclose
 from ansys.aedt.core.generic.general_methods import time_fn
+from ansys.aedt.core.generic.numbers import isclose
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 import pytest

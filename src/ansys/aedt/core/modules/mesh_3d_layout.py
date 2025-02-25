@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -28,8 +28,6 @@ This module contains these classes: `Mesh` and `Mesh3DOperation`.
 This module provides all functionalities for creating and editing the mesh in the 3D tools.
 
 """
-
-from __future__ import absolute_import  # noreorder
 
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import PropsManager

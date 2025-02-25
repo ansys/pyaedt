@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -68,6 +68,7 @@ class MultipleBandsTable:
     @property
     def row_count(self) -> int:
         """Total number of rows present in the multiple bands table.
+
         The default is ``2``.
 
         Returns

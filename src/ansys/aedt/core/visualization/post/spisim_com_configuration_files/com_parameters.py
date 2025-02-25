@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -46,7 +46,12 @@ class COMStandards(Enum):
 
 
 class COMParameters:
-    """Base class to manage COM parameters."""
+    """Base class to manage COM parameters.
+
+    Parameters
+    ----------
+    standard  : int
+    """
 
     _CFG_DIR = Path(__file__).parent
     _STD_TABLE_MAPPING = {
@@ -59,12 +64,6 @@ class COMParameters:
     }
 
     def __init__(self, standard):
-        """
-
-        Parameters
-        ----------
-        standard  : int
-        """
         self.table_93a1 = {}
         self.filter_and_eq = {}
         self.io_control = {}

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,35 +29,37 @@ It includes common classes for file management and messaging and all
 calls to AEDT modules like the modeler, mesh, postprocessing, and setup.
 """
 
-from __future__ import absolute_import  # noreorder
-
 import os
 import re
 import shutil
 import subprocess  # nosec
 import tempfile
 import time
+from typing import Dict
+from typing import List
+from typing import Union
+import warnings
 
 from ansys.aedt.core.application.design import Design
 from ansys.aedt.core.application.job_manager import update_hpc_option
 from ansys.aedt.core.application.variables import Variable
-from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import AXIS
 from ansys.aedt.core.generic.constants import GRAVITY
 from ansys.aedt.core.generic.constants import PLANE
 from ansys.aedt.core.generic.constants import SETUPS
 from ansys.aedt.core.generic.constants import SOLUTIONS
 from ansys.aedt.core.generic.constants import VIEW
+from ansys.aedt.core.generic.general_methods import _arg_with_dim
 from ansys.aedt.core.generic.general_methods import filter_tuple
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
-from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
 from ansys.aedt.core.modules.design_xploration import OptimizationSetups
 from ansys.aedt.core.modules.design_xploration import ParametricSetups
 from ansys.aedt.core.modules.solve_setup import Setup
@@ -156,7 +158,7 @@ class Analysis(Design, object):
         if setup_name:
             self.active_setup = setup_name
         self._materials = None
-        self._available_variations = self.AvailableVariations(self)
+        self._available_variations = None
         self._setups = []
         self._parametrics = []
         self._optimizations = []
@@ -173,6 +175,7 @@ class Analysis(Design, object):
             self._setups = self.setups
             self._parametrics = self.parametrics
             self._optimizations = self.optimizations
+            self._available_variations = self.available_variations
 
     @property
     def native_components(self):
@@ -294,10 +297,12 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.application.analysis.Analysis.AvailableVariations`
+        :class:`ansys.aedt.core.application.analysis.AvailableVariations`
             Available variation object.
 
         """
+        if self._available_variations is None:
+            self._available_variations = AvailableVariations(self)
         return self._available_variations
 
     @property
@@ -543,51 +548,6 @@ class Analysis(Design, object):
         return self._excitation_objects
 
     @pyaedt_function_handler()
-    def _check_intrinsics(self, input_data, input_phase=None, setup=None, return_list=False):
-        intrinsics = {}
-        if input_data is None:
-            if setup is None:
-                try:
-                    setup = self.existing_analysis_sweeps[0].split(":")[0].strip()
-                except Exception:
-                    setup = None
-            else:
-                setup = setup.split(":")[0].strip()
-            for set_obj in self.setups:
-                if set_obj.name == setup:
-                    intrinsics = set_obj.default_intrinsics
-                    break
-
-        elif isinstance(input_data, str):
-            if "Freq" in self.design_solutions.intrinsics:
-                intrinsics["Freq"] = input_data
-                if "Phase" in self.design_solutions.intrinsics:
-                    intrinsics["Phase"] = input_phase if input_phase else "0deg"
-            elif "Time" in self.design_solutions.intrinsics:
-                intrinsics["Time"] = input_data
-        elif isinstance(input_data, dict):
-            for k, v in input_data.items():
-                if k in ["Freq", "freq", "frequency", "Frequency"]:
-                    intrinsics["Freq"] = v
-                elif k in ["Phase", "phase"]:
-                    intrinsics["Phase"] = v
-                elif k in ["Time", "time"]:
-                    intrinsics["Time"] = v
-                if input_phase:
-                    intrinsics["Phase"] = input_phase
-                if "Phase" in self.design_solutions.intrinsics and "Phase" not in intrinsics:
-                    intrinsics["Phase"] = "0deg"
-        else:
-            raise AttributeError("Intrinsics has to be a string or list.")
-        if return_list:
-            intrinsics_list = []
-            for k, v in intrinsics.items():
-                intrinsics_list.append(f"{k}:=")
-                intrinsics_list.append(v)
-            return intrinsics_list
-        return intrinsics
-
-    @pyaedt_function_handler()
     def get_traces_for_plot(
         self,
         get_self_terms=True,
@@ -795,7 +755,7 @@ class Analysis(Design, object):
         for report_name in self.post.all_report_names:
             name_no_space = report_name.replace(" ", "_")
             self.post.oreportsetup.UpdateReports([str(report_name)])
-            export_path = os.path.join(export_folder, "{self.project_name}_{self.design_name}_{name_no_space}.csv")
+            export_path = os.path.join(export_folder, f"{self.project_name}_{self.design_name}_{name_no_space}.csv")
             try:
                 self.post.oreportsetup.ExportToFile(str(report_name), export_path)
                 self.logger.info(f"Export Data: {export_path}")
@@ -815,6 +775,9 @@ class Analysis(Design, object):
 
         # setups
         setups = self.setups
+
+        nominal_variation = self.available_variations.get_independent_nominal_values()
+
         for s in setups:
             if self.design_type == "Circuit Design":
                 exported_files.append(self.browse_log_file(export_folder))
@@ -828,13 +791,12 @@ class Analysis(Design, object):
                     variations_list = variations
                     if not variations:
                         variations_list = []
-                        if not self.available_variations.nominal_w_values_dict:
+                        if not nominal_variation:
                             variations_list.append("")
                         else:
-                            for x in range(0, len(self.available_variations.nominal_w_values_dict)):
+                            for x in range(0, len(nominal_variation)):
                                 variation = (
-                                    f"{list(self.available_variations.nominal_w_values_dict.keys())[x]}="
-                                    f"'{list(self.available_variations.nominal_w_values_dict.values())[x]}'"
+                                    f"{list(nominal_variation.keys())[x]}=" f"'{list(nominal_variation.values())[x]}'"
                                 )
                                 variations_list.append(variation)
                     # sweeps
@@ -984,8 +946,9 @@ class Analysis(Design, object):
         if not output_file:
             output_file = os.path.join(self.working_directory, generate_unique_name("Convergence") + ".prop")
         if not variations:
+            nominal_variation = self.available_variations.get_independent_nominal_values()
             val_str = []
-            for el, val in self.available_variations.nominal_w_values_dict.items():
+            for el, val in nominal_variation.items():
                 val_str.append(f"{el}={val}")
             variations = ",".join(val_str)
         if self.design_type == "2D Extractor":
@@ -1051,192 +1014,6 @@ class Analysis(Design, object):
             self.logger.debug("Failed to add native component object.")
         return boundaries
 
-    class AvailableVariations(object):
-        def __init__(self, app):
-            """Contains available variations.
-
-            Parameters
-            ----------
-            app :
-                Inherited parent object.
-
-            Returns
-            -------
-            object
-                Parent object.
-
-            """
-            self._app = app
-
-        @property
-        def variables(self):
-            """Variables.
-
-            Returns
-            -------
-            list of str
-                List of names of independent variables.
-            """
-            return self._app.variable_manager.independent_variable_names
-
-        @pyaedt_function_handler()
-        def variations(self, setup_sweep=None, output_as_dict=False):
-            """Variations.
-
-            Parameters
-            ----------
-            setup_sweep : str, optional
-                Setup name with the sweep to search for variations on. The default is ``None``.
-            output_as_dict : bool, optional
-                Whether to output the variations as a dict. The default is ``False``.
-
-            Returns
-            -------
-            list of lists, List of dicts
-                List of variation families.
-
-            References
-            ----------
-            >>> oModule.GetAvailableVariations
-            """
-            variations_string = self.get_variation_strings(setup_sweep)
-            variables = [k for k, v in self._app.variable_manager.variables.items() if not v.post_processing]
-            families = []
-            if variations_string:
-                for vs in variations_string:
-                    vsplit = vs.split(" ")
-                    variation = []
-                    for v in vsplit:
-                        m = re.search(r"(.+?)='(.+?)'", v)
-                        if m and len(m.groups()) == 2:
-                            variation.append([m.group(1), m.group(2)])
-                        else:  # pragma: no cover
-                            raise Exception("Error in splitting the variation variable.")
-                    family_list = []
-                    family_dict = {}
-                    count = 0
-                    for var in variables:
-                        family_list.append(var + ":=")
-                        for v in variation:
-                            if var == v[0]:
-                                family_list.append([v[1]])
-                                family_dict[v[0]] = v[1]
-                                count += 1
-                                break
-                    if count != len(variation):  # pragma: no cover
-                        raise IndexError("Not all variations were found in variables.")
-                    if output_as_dict:
-                        families.append(family_dict)
-                    else:
-                        families.append(family_list)
-            return families
-
-        @pyaedt_function_handler()
-        def get_variation_strings(self, setup_sweep=None):
-            """Return variation strings.
-
-            Parameters
-            ----------
-            setup_sweep : str, optional
-                Setup name with the sweep to search for variations on.
-                The default is ``None`` in which case the first of the existing analysis setups is taken.
-
-            Returns
-            -------
-            list of str
-                List of variation families.
-
-            References
-            ----------
-            >>> oModule.GetAvailableVariations
-            """
-            if not setup_sweep:
-                setup_sweep = self._app.existing_analysis_sweeps[0]
-            return self._app.osolution.GetAvailableVariations(setup_sweep)
-
-        @property
-        def nominal(self):
-            """Nominal."""
-            families = []
-            for el in self.variables:
-                families.append(el + ":=")
-                families.append(["Nominal"])
-            return families
-
-        @property
-        def nominal_w_values(self):
-            """Nominal independent with values in a list.
-
-            Returns
-            -------
-            list
-                List of nominal independent variations with expressions.
-
-            References
-            ----------
-            >>> oDesign.GetChildObject('Variables').GetChildNames
-            >>> oDesign.GetVariables
-            >>> oDesign.GetVariableValue
-            >>> oDesign.GetNominalVariation
-            """
-            families = []
-            for k, v in list(self._app.variable_manager.independent_variables.items()):
-                families.append(k + ":=")
-                families.append([v.expression])
-            return families
-
-        @property
-        def nominal_w_values_dict(self):
-            """Nominal independent with values in a dictionary.
-
-            Returns
-            -------
-            dict
-                Dictionary of nominal independent variations with values.
-
-            References
-            ----------
-            >>> oDesign.GetChildObject('Variables').GetChildNames
-            >>> oDesign.GetVariables
-            >>> oDesign.GetVariableValue
-            >>> oDesign.GetNominalVariation
-            """
-            families = {}
-            for k, v in list(self._app.variable_manager.independent_variables.items()):
-                families[k] = v.expression
-
-            return families
-
-        @property
-        def nominal_w_values_dict_w_dependent(self):
-            """Nominal independent and dependent with values in a dictionary.
-
-            Returns
-            -------
-            dict
-                Dictionary of nominal independent and dependent variations with values.
-
-            References
-            ----------
-            >>> oDesign.GetChildObject('Variables').GetChildNames
-            >>> oDesign.GetVariables
-            >>> oDesign.GetVariableValue
-            >>> oDesign.GetNominalVariation"""
-            families = {}
-            for k, v in list(self._app.variable_manager.variables.items()):
-                families[k] = v.expression
-
-            return families
-
-        @property
-        def all(self):
-            """List of all independent variables with `["All"]` value."""
-            families = []
-            for el in self.variables:
-                families.append(el + ":=")
-                families.append(["All"])
-            return families
-
     class AxisDir(object):
         """Contains constants for the axis directions."""
 
@@ -1270,13 +1047,17 @@ class Analysis(Design, object):
 
         Returns
         -------
-        list of str
-            List of nominal variations.
+        dict
+
         """
+        independent_flag = self.available_variations.independent
+        self.available_variations.independent = True
         if not with_values:
-            return self.available_variations.nominal
+            variation = self.available_variations.nominal
         else:
-            return self.available_variations.nominal_w_values
+            variation = self.available_variations.nominal_values
+        self.available_variations.independent = independent_flag
+        return variation
 
     @pyaedt_function_handler()
     def get_sweeps(self, name):
@@ -1360,9 +1141,9 @@ class Analysis(Design, object):
             setup = SetupHFSSAuto(self, setup_type, name)
         elif setup_type == 4:
             setup = SetupSBR(self, setup_type, name)
-        elif setup_type in [5, 6, 7, 8, 9, 10, 56, 58, 59]:
+        elif setup_type in [5, 6, 7, 8, 9, 10, 56, 58, 59, 60]:
             setup = SetupMaxwell(self, setup_type, name)
-        elif setup_type == 14:
+        elif setup_type in [14, 30]:
             setup = SetupQ3D(self, setup_type, name)
         elif setup_type in [11, 36]:
             setup = SetupIcepak(self, setup_type, name)
@@ -1480,8 +1261,11 @@ class Analysis(Design, object):
         return False
 
     @pyaedt_function_handler(setupname="name", properties_dict="properties")
-    def edit_setup(self, name, properties):
+    def edit_setup(self, name, properties):  # pragma: no cover
         """Modify a setup.
+
+        .. deprecated:: 0.15.0
+            Use :func:`update` from setup object instead.
 
         Parameters
         ----------
@@ -1498,7 +1282,9 @@ class Analysis(Design, object):
         ----------
         >>> oModule.EditSetup
         """
-
+        warnings.warn(
+            "`edit_setup` is deprecated. " "Use `update` method from setup object instead.", DeprecationWarning
+        )
         setuptype = self.design_solutions.default_setup
         setup = Setup(self, setuptype, name)
         setup.update(properties)
@@ -1524,13 +1310,15 @@ class Analysis(Design, object):
         if self.solution_type == "SBR+":
             setuptype = 4
             setup = SetupSBR(self, setuptype, name, is_new_setup=False)
-        elif self.design_type in ["Q3D Extractor", "2D Extractor", "HFSS"]:
+        elif self.design_type == "HFSS":
             setup = SetupHFSS(self, setuptype, name, is_new_setup=False)
             if setup.properties:
                 if "Auto Solver Setting" in setup.properties:
                     setup = SetupHFSSAuto(self, 0, name, is_new_setup=False)
             elif setup.props and setup.props.get("SetupType", "") == "HfssDrivenAuto":
                 setup = SetupHFSSAuto(self, 0, name, is_new_setup=False)
+        elif self.design_type in ["Q3D Extractor", "2D Extractor"]:
+            setup = SetupQ3D(self, setuptype, name, is_new_setup=False)
         elif self.design_type in ["Maxwell 2D", "Maxwell 3D"]:
             setup = SetupMaxwell(self, setuptype, name, is_new_setup=False)
         else:
@@ -1541,7 +1329,6 @@ class Analysis(Design, object):
     @pyaedt_function_handler()
     def create_output_variable(self, variable, expression, solution=None, context=None):
         """Create or modify an output variable.
-
 
         Parameters
         ----------
@@ -1644,7 +1431,7 @@ class Analysis(Design, object):
 
         dict = {}
         for entry in assignment:
-            mat_name = self.modeler[entry].material_name
+            mat_name = self.modeler[entry].material_name.casefold()
             mat_props = self.materials.material_keys[mat_name]
             if prop_names is None:
                 dict[entry] = mat_props._props
@@ -1932,6 +1719,9 @@ class Analysis(Design, object):
         -------
         float
 
+        References
+        ----------
+        >>> oDesktop.AreThereSimulationsRunning
         """
         return self.desktop_class.are_there_simulations_running
 
@@ -1946,6 +1736,9 @@ class Analysis(Design, object):
         -------
         dict
 
+        References
+        ----------
+        >>> oDesktop.GetMonitorData
         """
         return self.desktop_class.get_monitor_data()
 
@@ -1960,6 +1753,9 @@ class Analysis(Design, object):
         -------
         str
 
+        References
+        ----------
+        >>> oDesktop.StopSimulations
         """
         return self.desktop_class.stop_simulations(clean_stop=clean_stop)
 
@@ -2176,9 +1972,11 @@ class Analysis(Design, object):
             file name when successful, ``False`` when failed.
         """
         if variations is None:
-            variations = list(self.available_variations.nominal_w_values_dict.keys())
+            variations = self.available_variations.get_independent_nominal_values()
+            variations_keys = list(variations.keys())
             if variations_value is None:
-                variations_value = [str(x) for x in list(self.available_variations.nominal_w_values_dict.values())]
+                variations_value = [str(x) for x in list(variations.values())]
+            variations = variations_keys
 
         if setup_name is None:
             nominal_sweep_list = [x.strip() for x in self.nominal_sweep.split(":")]
@@ -2300,126 +2098,33 @@ class Analysis(Design, object):
         -------
         str
             String that combines the value and the units (e.g. "1.2mm").
+
+        References
+        ----------
+        >>> oEditor.GetDefaultUnit
+        >>> oEditor.GetModelUnits
+        >>> oEditor.GetActiveUnits
         """
+        _, u = decompose_variable_value(value)
+        if u:
+            return value
+
         if units is None:
             if units_system == "Length":
-                units = self.modeler.model_units
+                if "GetModelUnits" in dir(self.oeditor):
+                    units = self.oeditor.GetModelUnits()
+                elif "GetActiveUnits" in dir(self.oeditor):
+                    units = self.oeditor.GetActiveUnits()
+                else:
+                    units = self.odesktop.GetDefaultUnit(units_system)
             else:
                 try:
                     units = self.odesktop.GetDefaultUnit(units_system)
                 except Exception:
                     self.logger.warning("Defined unit system is incorrect.")
                     units = ""
-        from ansys.aedt.core.generic.general_methods import _dim_arg
 
-        return _dim_arg(value, units)
-
-    @pyaedt_function_handler(file_path="output_file", setup_name="setup")
-    def export_rl_matrix(
-        self,
-        matrix_name,
-        output_file,
-        is_format_default=True,
-        width=8,
-        precision=2,
-        is_exponential=False,
-        setup=None,
-        default_adaptive=None,
-        is_post_processed=False,
-    ):
-        """Export R/L matrix after solving.
-
-        Parameters
-        ----------
-        matrix_name : str
-            Matrix name to be exported.
-        output_file : str
-            Output file path to export R/L matrix file to.
-        is_format_default : bool, optional
-            Whether the exported format is default or not.
-            If False the custom format is set (no exponential).
-        width : int, optional
-            Column width in exported .txt file.
-        precision : int, optional
-            Decimal precision number in exported \\*.txt file.
-        is_exponential : bool, optional
-            Whether the format number is exponential or not.
-        setup : str, optional
-            Name of the setup.
-        default_adaptive : str, optional
-            Adaptive type.
-        is_post_processed : bool, optional
-            Boolean to check if it is post processed. Default value is ``False``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
-        if not self.solution_type == "EddyCurrent":
-            self.logger.error("RL Matrix can only be exported if solution type is Eddy Current.")
-            return False
-        matrix_list = [bound for bound in self.boundaries if isinstance(bound, MaxwellParameters)]
-        if matrix_name is None:
-            self.logger.error("Matrix name to be exported must be provided.")
-            return False
-        if matrix_list:
-            if not [
-                matrix
-                for matrix in matrix_list
-                if matrix.name == matrix_name or [x for x in matrix.available_properties if matrix_name in x]
-            ]:
-                self.logger.error("Matrix name doesn't exist, provide and existing matrix name.")
-                return False
-        else:
-            self.logger.error("Matrix list parameters is empty, can't export a valid matrix.")
-            return False
-
-        if output_file is None:
-            self.logger.error("File path to export R/L matrix must be provided.")
-            return False
-        elif os.path.splitext(output_file)[1] != ".txt":
-            self.logger.error("File extension must be .txt")
-            return False
-
-        if setup is None:
-            setup = self.active_setup
-        if default_adaptive is None:
-            default_adaptive = self.design_solutions.default_adaptive
-        analysis_setup = setup + " : " + default_adaptive
-
-        if not self.available_variations.nominal_w_values_dict:
-            variations = ""
-        else:
-            variations = " ".join(
-                f"{key}=\\'{value}\\'" for key, value in self.available_variations.nominal_w_values_dict.items()
-            )
-
-        if not is_format_default:
-            try:
-                self.oanalysis.ExportSolnData(
-                    analysis_setup,
-                    matrix_name,
-                    is_post_processed,
-                    variations,
-                    output_file,
-                    -1,
-                    is_format_default,
-                    width,
-                    precision,
-                    is_exponential,
-                )
-            except Exception:
-                self.logger.error("Solutions are empty. Solve before exporting.")
-                return False
-        else:
-            try:
-                self.oanalysis.ExportSolnData(analysis_setup, matrix_name, is_post_processed, variations, output_file)
-            except Exception:
-                self.logger.error("Solutions are empty. Solve before exporting.")
-                return False
-
-        return True
+        return _arg_with_dim(value, units)
 
     @pyaedt_function_handler()
     def change_property(self, aedt_object, tab_name, property_object, property_name, property_value):
@@ -2474,7 +2179,7 @@ class Analysis(Design, object):
                 ]
             )
         elif isinstance(property_value, (str, float, int)):
-            xpos = self.modeler._arg_with_dim(property_value, self.modeler.model_units)
+            xpos = self.value_with_units(property_value, self.modeler.model_units)
             aedt_object.ChangeProperty(
                 [
                     "NAME:AllTabs",
@@ -2492,8 +2197,11 @@ class Analysis(Design, object):
         return True
 
     @pyaedt_function_handler()
-    def number_with_units(self, value, units=None):
+    def number_with_units(self, value, units=None):  # pragma: no cover
         """Convert a number to a string with units. If value is a string, it's returned as is.
+
+        .. deprecated:: 0.15.0
+            Use :func:`value_with_units` instead.
 
         Parameters
         ----------
@@ -2508,4 +2216,286 @@ class Analysis(Design, object):
            String concatenating the value and unit.
 
         """
-        return self.modeler._arg_with_dim(value, units)
+        warnings.warn(
+            "`number_with_units` is deprecated. " "Use `value_with_units` method instead.", DeprecationWarning
+        )
+        return self.value_with_units(value, units)
+
+
+class AvailableVariations(object):
+    def __init__(self, app):
+        """Contains available variations.
+
+        Parameters
+        ----------
+        app : :class:`ansys.aedt.core.application.analysis.Analysis`
+            Analysis object.
+
+        """
+        self._app = app
+        self.independent = True
+
+    @property
+    def all(self):
+        """Create a dictionary with variables names associated to ``"All"``.
+
+        Returns
+        -------
+        dict
+            Dictionary of all variables with ``"All"`` value.
+
+        """
+        return {name: "All" for name in self.__variable_names()}
+
+    @property
+    def nominal(self):
+        """Create a dictionary with variables names associated to ``"Nominal"``.
+
+        Returns
+        -------
+        dict
+            Dictionary of all variables with ``"Nominal"`` value.
+        """
+        return {name: "Nominal" for name in self.__variable_names()}
+
+    @property
+    def nominal_values(self):
+        """All variables with nominal values.
+
+        Returns
+        -------
+        dict
+            Dictionary of nominal variations with values.
+
+        """
+        available_variables = self.__available_variables()
+        return {k: v.expression for k, v in list(available_variables.items())}
+
+    @property
+    def nominal_w_values_dict(self):
+        """Nominal independent with values in a dictionary.
+
+        .. deprecated:: 0.15.0
+            Use :func:`nominal_values` from setup object instead.
+
+        Returns
+        -------
+        dict
+            Dictionary of nominal independent variations with values.
+
+        References
+        ----------
+        >>> oDesign.GetChildObject('Variables').GetChildNames
+        >>> oDesign.GetVariables
+        >>> oDesign.GetVariableValue
+        >>> oDesign.GetNominalVariation
+        """
+        warnings.warn(
+            "`nominal_w_values_dict` is deprecated. " "Use `nominal_values` method instead.", DeprecationWarning
+        )
+        families = {}
+        for k, v in list(self._app.variable_manager.independent_variables.items()):
+            families[k] = v.expression
+
+        return families
+
+    @property
+    def variables(self):
+        """Variables.
+
+        .. deprecated:: 0.15.0
+            Use :func:`variable_manager.independent_variable_names` from setup object instead.
+
+        Returns
+        -------
+        list of str
+            List of names of independent variables.
+        """
+        warnings.warn(
+            "`variables` is deprecated. " "Use `variable_manager.independent_variable_names` method instead.",
+            DeprecationWarning,
+        )
+        return self._app.variable_manager.independent_variable_names
+
+    @property
+    def nominal_w_values(self):
+        """Nominal independent with values in a list.
+
+        .. deprecated:: 0.15.0
+            Use :func:`nominal_values` from setup object instead.
+
+        Returns
+        -------
+        list
+            List of nominal independent variations with expressions.
+
+        References
+        ----------
+        >>> oDesign.GetChildObject('Variables').GetChildNames()
+        >>> oDesign.GetVariables
+        >>> oDesign.GetVariableValue
+        >>> oDesign.GetNominalVariation
+        """
+        warnings.warn("`nominal_w_values` is deprecated. " "Use `nominal_values` method instead.", DeprecationWarning)
+        families = []
+        for k, v in list(self._app.variable_manager.independent_variables.items()):
+            families.append(k + ":=")
+            families.append([v.expression])
+        return families
+
+    @property
+    def nominal_w_values_dict_w_dependent(self):
+        """Nominal independent and dependent with values in a dictionary.
+
+        Returns
+        -------
+        dict
+            Dictionary of nominal independent and dependent variations with values.
+
+        References
+        ----------
+        >>> oDesign.GetChildObject('Variables').GetChildNames
+        >>> oDesign.GetVariables
+        >>> oDesign.GetVariableValue
+        >>> oDesign.GetNominalVariation"""
+        warnings.warn("`nominal_w_values_dict_w_dependent` is deprecated.", DeprecationWarning)
+        families = {}
+        for k, v in list(self._app.variable_manager.variables.items()):
+            families[k] = v.expression
+
+        return families
+
+    @pyaedt_function_handler()
+    def variation_string(self, variation: dict) -> str:
+        """Convert a variation dictionary to a string.
+        This method is useful because AEDT API methods require this format.
+
+        Parameters
+        ----------
+        variation : dict
+            Dictionary containing the variations. Keys are variable names and values are their corresponding values.
+
+        Returns
+        -------
+        str
+            String containing the variations.
+
+        """
+        var = []
+        for k, v in variation.items():
+            var.append(f"{k}='{v}'")
+        variation_str = " ".join(var)
+        return variation_str
+
+    @pyaedt_function_handler()
+    def variations(self, setup_sweep: str, output_as_dict: bool = False) -> Union[List[List], List[Dict]]:
+        """Retrieve variations for a given setup.
+
+        Parameters
+        ----------
+        setup_sweep : str
+            Setup name with the sweep to search for variations on.
+        output_as_dict : bool, optional
+            Whether to output the variations as a dict. The default is ``False``.
+
+        Returns
+        -------
+        list of lists, list of dicts
+            List of variation families. Each family is either a list or a dictionary,
+            depending on the value of `output_as_dict`.
+
+        References
+        ----------
+        >>> oModule.GetAvailableVariations
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss["a"] = 2
+        >>> setup = hfss.create_setup()
+        >>> setup.analyze()
+        >>> variations = hfss.available_variations.variations(hfss.existing_analysis_sweeps[0])
+        """
+        variations_string = self._get_variation_strings(setup_sweep)
+        variables = [k for k, v in self._app.variable_manager.variables.items() if not v.post_processing]
+        families = []
+        if variations_string:
+            for vs in variations_string:
+                vsplit = vs.split(" ")
+                variation = []
+                for v in vsplit:
+                    m = re.search(r"(.+?)='(.+?)'", v)
+                    if m and len(m.groups()) == 2:
+                        variation.append([m.group(1), m.group(2)])
+                    else:  # pragma: no cover
+                        raise Exception("Error in splitting the variation variable.")
+                family_list = []
+                family_dict = {}
+                count = 0
+                for var in variables:
+                    family_list.append(var + ":=")
+                    for v in variation:
+                        if var == v[0]:
+                            family_list.append([v[1]])
+                            family_dict[v[0]] = v[1]
+                            count += 1
+                            break
+                if count != len(variation):  # pragma: no cover
+                    raise IndexError("Not all variations were found in variables.")
+                if output_as_dict:
+                    families.append(family_dict)
+                else:
+                    families.append(family_list)
+        return families
+
+    @pyaedt_function_handler()
+    def get_independent_nominal_values(self) -> Dict:
+        """Retrieve variations for a given setup.
+
+        Returns
+        -------
+        dict
+            Dictionary of independent nominal variations with values.
+        """
+        independent_flag = self.independent
+        self.independent = True
+        variations = self.nominal_values
+        self.independent = independent_flag
+        return variations
+
+    @pyaedt_function_handler()
+    def _get_variation_strings(self, setup_sweep):
+        """Return variation strings.
+
+        Parameters
+        ----------
+        setup_sweep : str
+            Setup name with the sweep to search for variations on.
+
+        Returns
+        -------
+        list of str
+            List of variation families.
+
+        References
+        ----------
+        >>> oModule.GetAvailableVariations
+        """
+        return self._app.osolution.GetAvailableVariations(setup_sweep)
+
+    @pyaedt_function_handler()
+    def __variable_names(self):
+        if self.independent:
+            variable_names = self._app.variable_manager.independent_variable_names
+        else:
+            variable_names = self._app.variable_manager.variable_names
+        return variable_names
+
+    @pyaedt_function_handler()
+    def __available_variables(self):
+        if self.independent:
+            variables = self._app.variable_manager.independent_variables
+        else:
+            variables = self._app.variable_manager.variables
+        return variables

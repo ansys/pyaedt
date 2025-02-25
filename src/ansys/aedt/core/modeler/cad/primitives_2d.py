@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -101,21 +101,29 @@ class Primitives2D(GeometryModeler, object):
 
         """
         # TODO: kwargs such as 'matname' and 'nonmodel' should be deprecated.
-        szAxis = self.plane2d
-        XCenter, YCenter, ZCenter = self._pos_with_arg(origin)
-        Radius = self._arg_with_dim(radius)
+        axis = self.plane2d
+        x_center, y_center, z_center = self._pos_with_arg(origin)
+        radius = self._app.value_with_units(radius)
 
-        vArg1 = ["NAME:CircleParameters"]
-        vArg1.append("IsCovered:="), vArg1.append(is_covered)
-        vArg1.append("XCenter:="), vArg1.append(XCenter)
-        vArg1.append("YCenter:="), vArg1.append(YCenter)
-        vArg1.append("ZCenter:="), vArg1.append(ZCenter)
-        vArg1.append("Radius:="), vArg1.append(Radius)
-        vArg1.append("WhichAxis:="), vArg1.append(szAxis)
-        vArg1.append("NumSegments:="), vArg1.append(f"{num_sides}")
-
-        vArg2 = self._default_object_attributes(name=name, material=material, flags="NonModel#" if non_model else "")
-        new_object_name = self.oeditor.CreateCircle(vArg1, vArg2)
+        arg_1 = [
+            "NAME:CircleParameters",
+            "IsCovered:=",
+            is_covered,
+            "XCenter:=",
+            x_center,
+            "YCenter:=",
+            y_center,
+            "ZCenter:=",
+            z_center,
+            "Radius:=",
+            radius,
+            "WhichAxis:=",
+            axis,
+            "NumSegments:=",
+            f"{num_sides}",
+        ]
+        arg_2 = self._default_object_attributes(name=name, material=material, flags="NonModel#" if non_model else "")
+        new_object_name = self.oeditor.CreateCircle(arg_1, arg_2)
         return self._create_object(new_object_name, **kwargs)
 
     # fmt: off
@@ -175,21 +183,22 @@ class Primitives2D(GeometryModeler, object):
         >>> ellipse2 = aedtapp.modeler.create_ellipse(origin=[0, -2, -2], major_radius=4.0, ratio=0.2,
         ...                                           name="MyEllipse", material="Copper")
         """
-        szAxis = self.plane2d
-        XStart, YStart, ZStart = self._pos_with_arg(origin)
+        axis = self.plane2d
+        x_center, y_center, z_center = self._pos_with_arg(origin)
 
-        vArg1 = ["NAME:EllipseParameters"]
-        vArg1.append("IsCovered:="), vArg1.append(is_covered)
-        vArg1.append("XCenter:="), vArg1.append(XStart)
-        vArg1.append("YCenter:="), vArg1.append(YStart)
-        vArg1.append("ZCenter:="), vArg1.append(ZStart)
-        vArg1.append("MajRadius:="), vArg1.append(self._arg_with_dim(major_radius))
-        vArg1.append("Ratio:="), vArg1.append(ratio)
-        vArg1.append("WhichAxis:="), vArg1.append(szAxis)
-        vArg1.append("NumSegments:="), vArg1.append(segments)
-
-        vArg2 = self._default_object_attributes(name=name, material=material, flags="NonModel#" if non_model else "")
-        new_object_name = self.oeditor.CreateEllipse(vArg1, vArg2)
+        arg_1 = [
+            "NAME:EllipseParameters",
+            "IsCovered:=", is_covered,
+            "XCenter:=", x_center,
+            "YCenter:=", y_center,
+            "ZCenter:=", z_center,
+            "MajRadius:=", self._app.value_with_units(major_radius),
+            "Ratio:=", ratio,
+            "WhichAxis:=", axis,
+            "NumSegments:=", segments
+        ]
+        arg_2 = self._default_object_attributes(name=name, material=material, flags="NonModel#" if non_model else "")
+        new_object_name = self.oeditor.CreateEllipse(arg_1, arg_2)
         return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler(position="origin", dimension_list="sizes", matname="material")
@@ -232,20 +241,22 @@ class Primitives2D(GeometryModeler, object):
         # TODO: Primitives in Maxwell 2D must have Z=0, otherwise the transparency cannot be changed. (issue 4071)
         axis = self.plane2d
         x_start, y_start, z_start = self._pos_with_arg(origin)
-        width = self._arg_with_dim(sizes[0])
-        height = self._arg_with_dim(sizes[1])
+        width = self._app.value_with_units(sizes[0])
+        height = self._app.value_with_units(sizes[1])
 
-        vArg1 = ["NAME:RectangleParameters"]
-        vArg1.append("IsCovered:="), vArg1.append(is_covered)
-        vArg1.append("XStart:="), vArg1.append(x_start)
-        vArg1.append("YStart:="), vArg1.append(y_start)
-        vArg1.append("ZStart:="), vArg1.append(z_start)
-        vArg1.append("Width:="), vArg1.append(width)
-        vArg1.append("Height:="), vArg1.append(height)
-        vArg1.append("WhichAxis:="), vArg1.append(axis)
+        arg_1 = [
+            "NAME:RectangleParameters",
+            "IsCovered:=", is_covered,
+            "XStart:=", x_start,
+            "YStart:=", y_start,
+            "ZStart:=", z_start,
+            "Width:=", width,
+            "Height:=", height,
+            "WhichAxis:=", axis
+        ]
 
-        vArg2 = self._default_object_attributes(name=name, material=material, flags="NonModel#" if non_model else "")
-        new_object_name = self.oeditor.CreateRectangle(vArg1, vArg2)
+        arg_2 = self._default_object_attributes(name=name, material=material, flags="NonModel#" if non_model else "")
+        new_object_name = self.oeditor.CreateRectangle(arg_1, arg_2)
         return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler(position="origin", matname="material")
@@ -295,21 +306,24 @@ class Primitives2D(GeometryModeler, object):
         x_start, y_start, z_start = self._pos_with_arg(start_point)
 
         n_sides = int(num_sides)
-        assert n_sides > 2  # TODO: Replace assert with an exception.
+        if n_sides < 3:
+            self.logger.error("Number of sides must be an integer >= 3.")
+            return False
 
-        vArg1 = ["NAME:RegularPolygonParameters"]
-        vArg1.append("XCenter:="), vArg1.append(x_center)
-        vArg1.append("YCenter:="), vArg1.append(y_center)
-        vArg1.append("ZCenter:="), vArg1.append(z_center)
-        vArg1.append("XStart:="), vArg1.append(x_start)
-        vArg1.append("YStart:="), vArg1.append(y_start)
-        vArg1.append("ZStart:="), vArg1.append(z_start)
+        arg_1 = [
+            "NAME:RegularPolygonParameters",
+            "XCenter:=", x_center,
+            "YCenter:=", y_center,
+            "ZCenter:=", z_center,
+            "XStart:=", x_start,
+            "YStart:=", y_start,
+            "ZStart:=", z_start,
+            "NumSides:=", n_sides,
+            "WhichAxis:=", self.plane2d
+        ]
 
-        vArg1.append("NumSides:="), vArg1.append(n_sides)
-        vArg1.append("WhichAxis:="), vArg1.append(self.plane2d)
-
-        vArg2 = self._default_object_attributes(name=name, material=material, flags="NonModel#" if non_model else "")
-        new_object_name = self.oeditor.CreateRegularPolygon(vArg1, vArg2)
+        arg_2 = self._default_object_attributes(name=name, material=material, flags="NonModel#" if non_model else "")
+        new_object_name = self.oeditor.CreateRegularPolygon(arg_1, arg_2)
         return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler(region_name="name")

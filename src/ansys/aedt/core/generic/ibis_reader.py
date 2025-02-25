@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -258,7 +258,7 @@ class Pin:
     def add(self):
         """Add a pin to the list of components in the Project Manager."""
         try:
-            return self._circuit.modeler.schematic.o_component_manager.AddSolverOnDemandModel(
+            return self._circuit.modeler.schematic.ocomponent_manager.AddSolverOnDemandModel(
                 self.buffer_name,
                 [
                     "NAME:CosimDefinition",
@@ -419,7 +419,7 @@ class DifferentialPin:
     def add(self):
         """Add a pin to the list of components in the Project Manager."""
         try:
-            return self._circuit.modeler.schematic.o_component_manager.AddSolverOnDemandModel(
+            return self._circuit.modeler.schematic.ocomponent_manager.AddSolverOnDemandModel(
                 self.buffer_name,
                 [
                     "NAME:CosimDefinition",
@@ -483,7 +483,7 @@ class Buffer:
 
     def add(self):
         """Add a buffer to the list of components in the Project Manager."""
-        self._circuit.modeler.schematic.o_component_manager.AddSolverOnDemandModel(
+        self._circuit.modeler.schematic.ocomponent_manager.AddSolverOnDemandModel(
             self.name,
             [
                 "NAME:CosimDefinition",
@@ -762,6 +762,7 @@ class AMI:
 
 class IbisReader(object):
     """Reads *.ibis file content.
+
     Setup an Ibis object exposing all the extracted data.
 
     Parameters
@@ -844,7 +845,7 @@ class IbisReader(object):
         ibis.buffers = buffers
         self._ibis_model = ibis
 
-        available_names = self._circuit.modeler.schematic.o_component_manager.GetNames()
+        available_names = self._circuit.modeler.schematic.ocomponent_manager.GetNames()
         already_present = [i for i in buffers.keys() if i in available_names]
         if len(already_present) == len(buffers):
             return ibis_info
@@ -879,7 +880,7 @@ class IbisReader(object):
             args.append(arg_buffers)
             args.append(arg_components)
 
-            self._circuit.modeler.schematic.o_component_manager.ImportModelsFromFile(self._filename, args)
+            self._circuit.modeler.schematic.ocomponent_manager.ImportModelsFromFile(self._filename, args)
 
         return ibis_info
 
@@ -1298,7 +1299,7 @@ class AMIReader(IbisReader):
             args.append(arg_buffers)
             args.append(arg_components)
 
-            self._circuit.modeler.schematic.o_component_manager.ImportModelsFromFile(self._filename, args)
+            self._circuit.modeler.schematic.ocomponent_manager.ImportModelsFromFile(self._filename, args)
 
         self._ibis_model = ibis
         return ibis_info

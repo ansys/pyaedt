@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -25,8 +25,8 @@
 import math
 import os
 import secrets
+import warnings
 
-from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.general_methods import filter_string
 from ansys.aedt.core.generic.general_methods import generate_unique_name
@@ -34,6 +34,7 @@ from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import recursive_glob
 from ansys.aedt.core.generic.load_aedt_file import load_keyword_in_aedt_file
+from ansys.aedt.core.generic.numbers import decompose_variable_value
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import Wire
 
@@ -76,7 +77,7 @@ class CircuitComponents(object):
         self._app = modeler._app
         self._modeler = modeler
         self.logger = self._app.logger
-        self.o_model_manager = self._modeler.o_model_manager
+        self.omodel_manager = self._modeler.omodel_manager
 
         self.oeditor = self._modeler.oeditor
         self._currentId = 0
@@ -140,14 +141,41 @@ class CircuitComponents(object):
         return self._app.oproject.GetDefinitionManager()
 
     @property
-    def o_component_manager(self):
+    def ocomponent_manager(self):
         """Component manager object."""
-        return self._app.o_component_manager
+        return self._app.ocomponent_manager
 
     @property
-    def o_symbol_manager(self):
+    def o_component_manager(self):  # pragma: no cover
+        """Component manager object.
+
+        .. deprecated:: 0.15.0
+           Use :func:`ocomponent_manager` property instead.
+        """
+        warnings.warn(
+            "`o_component_manager` is deprecated. Use `ocomponent_manager` instead.",
+            DeprecationWarning,
+        )
+        return self.ocomponent_manager
+
+    @property
+    def osymbol_manager(self):
         """Model manager object."""
-        return self._app.o_symbol_manager
+        return self._app.osymbol_manager
+
+    @property
+    def o_symbol_manager(self):  # pragma: no cover
+        """Model manager object.
+
+        .. deprecated:: 0.15.0
+           Use :func:`osymbol_manager` property instead.
+
+        """
+        warnings.warn(
+            "`o_symbol_manager` is deprecated. Use `osymbol_manager` instead.",
+            DeprecationWarning,
+        )
+        return self._app.osymbol_manager
 
     @property
     def version(self):
@@ -157,7 +185,7 @@ class CircuitComponents(object):
     @property
     def model_units(self):
         """Model units."""
-        return self._modeler.model_units
+        return self._app.units.length
 
     @property
     def schematic_units(self):
@@ -191,6 +219,7 @@ class CircuitComponents(object):
     @pyaedt_function_handler()
     def _convert_point_to_meter(self, point):
         """Convert numbers automatically to mils.
+
         It is rounded to the nearest 100 mil which is minimum schematic snap unit.
         """
         xpos = point[0]
@@ -370,7 +399,7 @@ class CircuitComponents(object):
         return self.components[id]
 
     @pyaedt_function_handler()
-    def create_gnd(self, location=None, angle=0):
+    def create_gnd(self, location=None, angle=0, page=1):
         """Create a ground.
 
         Parameters
@@ -379,6 +408,8 @@ class CircuitComponents(object):
             Position on the X and Y axis. The default is ``None``.
         angle : optional
             Angle rotation in degrees. The default is ``0``.
+        page: int, optional
+            Schematics page number. The default value is ``1``.
 
         Returns
         -------
@@ -397,7 +428,7 @@ class CircuitComponents(object):
         angle = math.pi * angle / 180
         name = self.oeditor.CreateGround(
             ["NAME:GroundProps", "Id:=", id],
-            ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False],
+            ["NAME:Attributes", "Page:=", page, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False],
         )
         id = int(name.split(";")[1])
         self.add_id_to_component(id)
@@ -463,7 +494,7 @@ class CircuitComponents(object):
             model_name = os.path.splitext(os.path.basename(input_file))[0]
             if "." in model_name:
                 model_name = model_name.replace(".", "_")
-        if model_name in list(self.o_model_manager.GetNames()):
+        if model_name in list(self.omodel_manager.GetNames()):
             model_name = generate_unique_name(model_name, n=2)
         num_terminal = int(os.path.splitext(input_file)[1].lower().strip(".sp"))
         # with open_file(touchstone_full_path, "r") as f:
@@ -588,7 +619,7 @@ class CircuitComponents(object):
             "NoiseModelOption:=",
             "External",
         ]
-        self.o_model_manager.Add(arg)
+        self.omodel_manager.Add(arg)
         arg = [
             "NAME:" + model_name,
             "Info:=",
@@ -686,7 +717,7 @@ class CircuitComponents(object):
             ]
         )
 
-        self.o_component_manager.Add(arg)
+        self.ocomponent_manager.Add(arg)
         return model_name
 
     @pyaedt_function_handler()
@@ -755,6 +786,7 @@ class CircuitComponents(object):
         angle=0,
         use_instance_id_netlist=False,
         global_netlist_list=None,
+        page=1,
     ):
         """Create a component from a library.
 
@@ -776,6 +808,8 @@ class CircuitComponents(object):
             The default is ``False``.
         global_netlist_list : list, optional
             The default is ``None``, in which case an empty list is passed.
+        page: int, optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -803,7 +837,7 @@ class CircuitComponents(object):
         arg1 = ["NAME:ComponentProps", "Name:=", inst_name, "Id:=", str(id)]
         xpos, ypos = self._get_location(location)
         angle = math.pi * angle / 180
-        arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
+        arg2 = ["NAME:Attributes", "Page:=", page, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         id = self.oeditor.CreateComponent(arg1, arg2)
         id = int(id.split(";")[1])
         # self.refresh_all_ids()
@@ -837,7 +871,7 @@ class CircuitComponents(object):
         """
         name = assignment
 
-        properties = self.o_component_manager.GetData(name)
+        properties = self.ocomponent_manager.GetData(name)
         if len(properties) > 0:
             nexxim = list(properties[len(properties) - 1][1])
             for el in nexxim:
@@ -845,7 +879,7 @@ class CircuitComponents(object):
                     nexxim_data = list(nexxim[nexxim.index(el) + 1])
                     nexxim_data[1] = ""
                     nexxim[nexxim.index(el) + 1] = nexxim_data
-        self.o_component_manager.Edit(
+        self.ocomponent_manager.Edit(
             name, ["Name:" + assignment, ["NAME:CosimDefinitions", nexxim, "DefaultCosim:=", "DefaultNetlist"]]
         )
         return True
@@ -876,7 +910,7 @@ class CircuitComponents(object):
 
         name = assignment
 
-        properties = self.o_component_manager.GetData(name)
+        properties = self.ocomponent_manager.GetData(name)
         if len(properties) > 0:
             nexxim = list(properties[len(properties) - 1][1])
             for el in nexxim:
@@ -884,7 +918,7 @@ class CircuitComponents(object):
                     nexxim_data = list(nexxim[nexxim.index(el) + 1])
                     nexxim_data[1] = "\n".join(global_netlist_list).replace("\\", "/")
                     nexxim[nexxim.index(el) + 1] = nexxim_data
-        self.o_component_manager.Edit(
+        self.ocomponent_manager.Edit(
             name,
             ["Name:" + assignment, ["NAME:CosimDefinitions", nexxim, "DefaultCosim:=", "DefaultNetlist"]],
         )
@@ -937,7 +971,7 @@ class CircuitComponents(object):
             [0, 1],
             ["NAME:Graphics"],
         ]
-        self.o_symbol_manager.Add(arg)
+        self.osymbol_manager.Add(arg)
 
         id = 2
         i = 1
@@ -966,7 +1000,7 @@ class CircuitComponents(object):
                 ["NAME:1", "Rect:=", [0, 0, 0, 0, (x1 + x2) / 2, (y1 + y2) / 2, x2 - x1, y1 - y2, 0, 0, 8192]],
             ]
         )
-        self.o_symbol_manager.EditWithComps(name, arg, [])
+        self.osymbol_manager.EditWithComps(name, arg, [])
         return True
 
     @pyaedt_function_handler()
@@ -995,7 +1029,7 @@ class CircuitComponents(object):
         else:
             name = component_name
 
-        properties = self.o_component_manager.GetData(name)
+        properties = self.ocomponent_manager.GetData(name)
         if len(properties) > 0:
             nexxim = list(properties[len(properties) - 1][1])
             for el in nexxim:
@@ -1009,7 +1043,7 @@ class CircuitComponents(object):
                 elif el == "GRef:=":
                     nexxim_data = list(nexxim[nexxim.index(el) + 1])
                     nexxim[nexxim.index(el) + 1] = nexxim_data
-        self.o_component_manager.Edit(
+        self.ocomponent_manager.Edit(
             name,
             ["Name:" + component_name, ["NAME:CosimDefinitions", nexxim, "DefaultCosim:=", "DefaultNetlist"]],
         )
@@ -1156,6 +1190,9 @@ class CircuitComponents(object):
     def number_with_units(self, value, units=None):
         """Convert a number to a string with units. If value is a string, it's returned as is.
 
+        .. deprecated:: 0.14.0
+           Use :func:`value_with_units` in Analysis class instead.
+
         Parameters
         ----------
         value : float, int, str
@@ -1169,7 +1206,7 @@ class CircuitComponents(object):
            String concatenating the value and unit.
 
         """
-        return self._app.number_with_units(value, units)
+        return self._app.value_with_units(value, units)
 
     @pyaedt_function_handler(points_array="points", line_width="width")
     def create_line(self, points, color=0, width=0):
@@ -1200,7 +1237,7 @@ class CircuitComponents(object):
         )
 
     @pyaedt_function_handler(points_array="points", wire_name="name")
-    def create_wire(self, points, name=""):
+    def create_wire(self, points, name="", page=1):
         """Create a wire.
 
         Parameters
@@ -1210,6 +1247,8 @@ class CircuitComponents(object):
             ``[[x1, y1], [x2, y2], ...]``.
         name : str, optional
             Name of the wire. Default value is ``""``.
+        page: int, optional
+            Schematics page number. The default value is ``1``.
 
         Returns
         -------
@@ -1223,7 +1262,7 @@ class CircuitComponents(object):
         points = [str(tuple(self._convert_point_to_meter(i))) for i in points]
         wire_id = self.create_unique_id()
         arg1 = ["NAME:WireData", "Name:=", name, "Id:=", wire_id, "Points:=", points]
-        arg2 = ["NAME:Attributes", "Page:=", 1]
+        arg2 = ["NAME:Attributes", "Page:=", page]
         try:
             wire_id = self.oeditor.CreateWire(arg1, arg2)
             w = Wire(self._modeler, composed_name=wire_id)

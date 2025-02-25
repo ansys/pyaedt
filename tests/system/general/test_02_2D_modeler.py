@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,7 +29,7 @@ import os
 import sys
 
 from ansys.aedt.core.generic.general_methods import is_linux
-from ansys.aedt.core.generic.general_methods import isclose
+from ansys.aedt.core.generic.numbers import isclose
 from ansys.aedt.core.maxwell import Maxwell2d
 import pytest
 

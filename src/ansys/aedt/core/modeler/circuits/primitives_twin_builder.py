@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -518,7 +518,7 @@ class TwinBuilderComponents(CircuitComponents):
 
         arg.append(arg2)
         arg.append(arg3)
-        self.o_component_manager.ImportModelsFromFile(input_file, arg)
+        self.ocomponent_manager.ImportModelsFromFile(input_file, arg)
         return True
 
     @pyaedt_function_handler()

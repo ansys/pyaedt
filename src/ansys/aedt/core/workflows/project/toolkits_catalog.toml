@@ -25,3 +25,10 @@ script = "advanced_fields_calculator.py"
 icon = "images/large/fields.png"
 template = "run_pyaedt_toolkit_script"
 pip = ""
+
+[VersionManager]
+name = "Version Manager"
+script = "version_manager.py"
+icon = "images/large/version_manager.png"
+template = "run_pyaedt_toolkit_script"
+pip = ""

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -784,7 +784,7 @@ class SetupOpti(CommonOptimetrics, object):
         max_step : float
             Maximum Step Size for optimization. If None, 1/10 of the range will be used.
         use_manufacturable : bool
-            Either if to use or not the Manufacturable values. Default is False.
+            Either if to use or not the manufacturable values. Default is False.
         levels : list, optional
             List of available manufacturer levels.
 
@@ -845,6 +845,7 @@ class SetupOpti(CommonOptimetrics, object):
         elif self.soltype == "OptiStatistical":
             self._app.activate_variable_statistical(variable_name)
         else:
+            use_manufacturable = "true" if use_manufacturable else "false"
             arg = [
                 "i:=",
                 True,
@@ -866,7 +867,7 @@ class SetupOpti(CommonOptimetrics, object):
                 use_manufacturable,
             ]
             if self._app.aedt_version_id > "2023.2":
-                arg.extend(["DiscreteLevel:=", levels])
+                arg.extend(["Level:=", levels])
             if not self.props.get("Variables", None):
                 self.props["Variables"] = {}
             self.props["Variables"][variable_name] = arg
@@ -1162,10 +1163,13 @@ class ParametricSetups(object):
             Variation Start Point if a variation is defined or Single Value.
         end_point : float or int, optional
             Variation End Point. This parameter is optional if a Single Value is defined.
-        step : float or int
-            Variation Step or Count depending on variation_type. The default is ``100``.
+        step : float, int, or str
+            Variation Step or Count depending on variation_type. The default is ``100``
+            for the "LinearCount" variation_type. If a string is passed as an argument, it
+            must be a valid expression in the given context. For example, "0.1mm" may be passed
+            for a step size when the variation_type is "LinearStep".
         variation_type : str, optional
-            Variation Type. Admitted values are `"LinearCount"`, `"LinearStep"`, `"LogScale"`, `"SingleValue"`.
+            Variation Type. Permitted values are `"LinearCount"`, `"LinearStep"`, `"LogScale"`, `"SingleValue"`.
         solution : str, optional
             Type of the solution. The default is ``None``, in which case the default
             solution is used.

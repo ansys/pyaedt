@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,8 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-Enums from the ``EmitApiPython`` module are defined as ``None`` until this module initializes.
+"""Enums from the ``EmitApiPython`` module are defined as ``None`` until this module initializes.
+
 This allows IDE auto-complete to find them and ``emit_constants`` to import before the
 ``EmitApiPython`` module has loaded (typically when a ``ansys.aedt.core.Emit()`` object is created).
 

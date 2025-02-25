@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -101,6 +101,7 @@ ALLOWED_GENERAL_SETTINGS = [
     "pyaedt_server_path",
     "remote_rpc_session_temp_folder",
     "block_figure_plot",
+    "skip_license_check",
 ]
 ALLOWED_AEDT_ENV_VAR_SETTINGS = [
     "ANSYSEM_FEATURE_F335896_MECHANICAL_STRUCTURAL_SOLN_TYPE_ENABLE",
@@ -203,6 +204,7 @@ class Settings(object):
         self.__wait_for_license: bool = False
         self.__lazy_load: bool = True
         self.__objects_lazy_load: bool = True
+        self.__skip_license_check: bool = False
         # Previously 'public' attributes
         self.__formatter: Optional[logging.Formatter] = None
         self.__remote_rpc_session: Any = None
@@ -236,6 +238,7 @@ class Settings(object):
     @property
     def block_figure_plot(self):
         """Block matplotlib figure plot during python script run until the user close it manually.
+
         Default is ``False``."""
         return self.__block_figure_plot
 
@@ -264,6 +267,7 @@ class Settings(object):
     @property
     def enable_global_log_file(self):
         """Enable or disable the global PyAEDT log file located in the global temp folder.
+
         The default is ``True``."""
         return self.__enable_global_log_file
 
@@ -274,6 +278,7 @@ class Settings(object):
     @property
     def enable_local_log_file(self):
         """Enable or disable the local PyAEDT log file located in the ``projectname.pyaedt`` project folder.
+
         The default is ``True``."""
         return self.__enable_local_log_file
 
@@ -294,6 +299,7 @@ class Settings(object):
     @property
     def enable_debug_methods_argument_logger(self):
         """Flag for whether to write out the method's arguments in the debug logger.
+
         The default is ``False``."""
         return self.__enable_debug_methods_argument_logger
 
@@ -340,7 +346,8 @@ class Settings(object):
     @property
     def logger_formatter(self):
         """Message format of the log entries.
-        The default is ``'%(asctime)s:%(destination)s:%(extra)s%(levelname)-8s:%(message)s'``"""
+
+        The default is ``'%(asctime)s:%(destination)s:%(extra)s%(levelname)-8s:%(message)s'``."""
         return self.__logger_formatter
 
     @logger_formatter.setter
@@ -350,6 +357,7 @@ class Settings(object):
     @property
     def logger_datefmt(self):
         """Date format of the log entries.
+
         The default is ``'%Y/%m/%d %H.%M.%S'``"""
         return self.__logger_datefmt
 
@@ -378,7 +386,9 @@ class Settings(object):
     @property
     def enable_debug_geometry_operator_logger(self):
         """Enable or disable the logging for the geometry operators.
-        This setting is useful for debug purposes."""
+
+        This setting is useful for debug purposes.
+        """
         return self.__enable_debug_geometry_operator_logger
 
     @enable_debug_geometry_operator_logger.setter
@@ -388,7 +398,9 @@ class Settings(object):
     @property
     def enable_debug_internal_methods_logger(self):
         """Enable or disable the logging for internal methods.
-        This setting is useful for debug purposes."""
+
+        This setting is useful for debug purposes.
+        """
         return self.__enable_debug_internal_methods_logger
 
     @enable_debug_internal_methods_logger.setter
@@ -420,8 +432,9 @@ class Settings(object):
 
     @property
     def lsf_queue(self):
-        """LSF queue name. This attribute is valid only on Linux
-        systems running LSF Scheduler."""
+        """LSF queue name.
+
+        This attribute is valid only on Linux systems running LSF Scheduler."""
         return self.__lsf_queue
 
     @lsf_queue.setter
@@ -430,8 +443,9 @@ class Settings(object):
 
     @property
     def use_lsf_scheduler(self):
-        """Whether to use LSF Scheduler. This attribute is valid only on Linux
-        systems running LSF Scheduler."""
+        """Whether to use LSF Scheduler.
+
+        This attribute is valid only on Linux systems running LSF Scheduler."""
         return self.__use_lsf_scheduler
 
     @use_lsf_scheduler.setter
@@ -609,6 +623,7 @@ class Settings(object):
     @property
     def wait_for_license(self):
         """Enable or disable the use of the flag `-waitforlicense` when launching Electronic Desktop.
+
         The default value is ``False``."""
         return self.__wait_for_license
 
@@ -669,8 +684,8 @@ class Settings(object):
     @property
     def use_multi_desktop(self):
         """Flag indicating if multiple desktop sessions are enabled in the same Python script.
-        Current limitations follow:
 
+        Current limitations follow:
         - Release without closing the desktop is not possible,
         - The first desktop created must be the last to be closed.
 
@@ -695,9 +710,12 @@ class Settings(object):
 
     @property
     def enable_pandas_output(self):
-        """Flag for whether Pandas is being used to export dictionaries and lists. This attribute
-        applies to Solution data output.  The default is ``False``. If ``True``, the property or
-        method returns a Pandas object. This property is valid only in the CPython environment."""
+        """Flag for whether Pandas is being used to export dictionaries and lists.
+
+        This attribute applies to Solution data output.
+        The default is ``False``. If ``True``, the property or method returns a Pandas object.
+        This property is valid only in the CPython environment.
+        """
         return self.__enable_pandas_output
 
     @enable_pandas_output.setter
@@ -706,9 +724,12 @@ class Settings(object):
 
     @property
     def force_error_on_missing_project(self):
-        """Flag for whether to check the project path. The default is ``False``. If
-        ``True``, when passing a project path, the project has to exist. Otherwise, an
-        error is raised."""
+        """Flag for whether to check the project path.
+
+        The default is ``False``.
+        If ``True``, when passing a project path, the project has to exist.
+        Otherwise, an error is raised.
+        """
         return self.__force_error_on_missing_project
 
     @force_error_on_missing_project.setter
@@ -753,6 +774,16 @@ class Settings(object):
     def pyaedt_server_path(self, val):
         os.environ["PYAEDT_SERVER_AEDT_PATH"] = str(val)
         self.__pyaedt_server_path = os.environ["PYAEDT_SERVER_AEDT_PATH"]
+
+    @property
+    def skip_license_check(self):
+        """Flag indicating whether to check for license availability when launching the Desktop."""
+
+        return self.__skip_license_check
+
+    @skip_license_check.setter
+    def skip_license_check(self, value):
+        self.__skip_license_check = value
 
     def load_yaml_configuration(self, path: str, raise_on_wrong_key: bool = False):
         """Update default settings from a YAML configuration file."""

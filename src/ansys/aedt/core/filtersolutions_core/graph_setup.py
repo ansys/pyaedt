@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,7 +29,10 @@ import ansys.aedt.core
 
 
 class GraphSetup:
-    """Defines the frequency and time limits of the exported responses."""
+    """Defines the frequency and time limits of the exported responses.
+
+    This class allows you to configure the graph limit parameters.
+    """
 
     def __init__(self):
         self._dll = ansys.aedt.core.filtersolutions_core._dll_interface()._dll

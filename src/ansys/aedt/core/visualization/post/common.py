@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,8 +29,6 @@ This module provides all functionalities for common AEDT post processing.
 
 """
 
-from __future__ import absolute_import  # noreorder
-
 import os
 import re
 
@@ -38,6 +36,7 @@ from ansys.aedt.core.generic.data_handlers import _dict_items_to_list_items
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import read_configuration_file
+from ansys.aedt.core.generic.numbers import _units_assignment
 from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 from ansys.aedt.core.visualization.post.solution_data import SolutionData
 from ansys.aedt.core.visualization.report.constants import TEMPLATES_BY_DESIGN
@@ -494,7 +493,28 @@ class PostProcessorCommon(object):
             report_category = self.available_report_types[0]
         if report_category:
             return list(self.oreportsetup.GetAvailableSolutions(report_category))
-        return None  # pragma: no cover
+        return None
+
+    @pyaedt_function_handler()  # pragma: no cover
+    def _get_setup_from_sweep_name(self, sweep_name):
+        if ":" not in sweep_name:
+            sweep_names = []  # Look for sweep name in setups if the setup is not
+            for s in self._app.setups:  # passed explicitly in setup_sweep_name.
+                for sweep in s.sweeps:
+                    this_name = s.name + " : " + sweep.name if sweep.name == sweep_name else None
+                    if this_name:
+                        sweep_names.append(this_name)
+            if len(sweep_names) > 1:
+                warning_str = "More than one sweep with name '{setup_sweep_name}' found. "
+                warning_str += f"Returning '{sweep_names[0]}'."
+                self.logger.warning(warning_str)
+                return sweep_names[0]
+            elif len(sweep_names) == 1:
+                return sweep_names[0]
+            else:
+                return sweep_name  # Nothing found, pass the sweep name through.
+        else:
+            return sweep_name
 
     @pyaedt_function_handler()
     def _get_plot_inputs(self):
@@ -718,6 +738,7 @@ class PostProcessorCommon(object):
         """
         if sweeps is None:
             sweeps = {"Theta": "All", "Phi": "All", "Freq": "All"}
+        sweeps = {i: _units_assignment(k) for i, k in sweeps.items()}
         if not context:
             context = []
         if not isinstance(expressions, list):
@@ -973,7 +994,7 @@ class PostProcessorCommon(object):
         else:
             families_input[primary_sweep_variable] = [variations[primary_sweep_variable]]
         if not variations:
-            variations = self._app.available_variations.nominal_w_values_dict
+            variations = self._app.available_variations.get_independent_nominal_values()
         for el in list(variations.keys()):
             if el == primary_sweep_variable:
                 continue
@@ -1167,7 +1188,7 @@ class PostProcessorCommon(object):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.post.create_report("dB(S(1,1))")
-        >>> variations = hfss.available_variations.nominal_w_values_dict
+        >>> variations = hfss.available_variations.nominal_values
         >>> variations["Theta"] = ["All"]
         >>> variations["Phi"] = ["All"]
         >>> variations["Freq"] = ["30GHz"]
@@ -1211,7 +1232,12 @@ class PostProcessorCommon(object):
         >>> m3d.release_desktop(False, False)
         """
         if not setup_sweep_name:
-            setup_sweep_name = self._app.nominal_sweep
+            if report_category == "Fields":
+                setup_sweep_name = self._app.nominal_adaptive  # Field report and no sweep name passed.
+            else:
+                setup_sweep_name = self._app.nominal_sweep
+        elif domain == "Sweep":
+            setup_sweep_name = self._get_setup_from_sweep_name(setup_sweep_name)
         if not domain:
             domain = "Sweep"
             setup_name = setup_sweep_name.split(":")[0]
@@ -1241,13 +1267,13 @@ class PostProcessorCommon(object):
         report.expressions = expressions
         report.domain = domain
         if not variations and domain == "Sweep":
-            variations = self._app.available_variations.nominal_w_values_dict
+            variations = self._app.available_variations.get_independent_nominal_values()
             if variations:
                 variations["Freq"] = "All"
             else:
                 variations = {"Freq": ["All"]}
         elif not variations and domain != "Sweep":
-            variations = self._app.available_variations.nominal_w_values_dict
+            variations = self._app.available_variations.get_independent_nominal_values()
         report.variations = variations
         if primary_sweep_variable:
             report.primary_sweep = primary_sweep_variable
@@ -1404,7 +1430,7 @@ class PostProcessorCommon(object):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.post.create_report("dB(S(1,1))")
-        >>> variations = hfss.available_variations.nominal_w_values_dict
+        >>> variations = hfss.available_variations.nominal_values
         >>> variations["Theta"] = ["All"]
         >>> variations["Phi"] = ["All"]
         >>> variations["Freq"] = ["30GHz"]
@@ -1493,13 +1519,13 @@ class PostProcessorCommon(object):
         if primary_sweep_variable:
             report.primary_sweep = primary_sweep_variable
         if not variations and domain == "Sweep":
-            variations = self._app.available_variations.nominal_w_values_dict
+            variations = self._app.available_variations.get_independent_nominal_values()
             if variations:
                 variations["Freq"] = "All"
             else:
                 variations = {"Freq": ["All"]}
         elif not variations and domain != "Sweep":
-            variations = self._app.available_variations.nominal_w_values_dict
+            variations = self._app.available_variations.get_independent_nominal_values()
         report.variations = variations
         report.sub_design_id = subdesign_id
         report.point_number = polyline_points
@@ -1654,6 +1680,8 @@ class PostProcessorCommon(object):
                 solution_name = self._app.nominal_sweep
             else:
                 solution_name = self._app.nominal_adaptive
+        else:
+            solution_name = self._get_setup_from_sweep_name(solution_name)  # If only the sweep name is passed.
         if props.get("report_category", None) and props["report_category"] in TEMPLATES_BY_NAME:
             if props.get("context", {"context": {}}).get("domain", "") == "Spectral":
                 report_temp = TEMPLATES_BY_NAME["Spectrum"]
@@ -1979,7 +2007,8 @@ class Reports(object):
         >>> solutions = report.get_solution_data()
         """
         if not setup:
-            setup = self._post_app._app.nominal_sweep
+            # setup = self._post_app._app.nominal_sweep
+            setup = self._post_app._app.nominal_adaptive
         rep = None
         if "Fields" in self._templates:
             rep = ansys.aedt.core.visualization.report.field.Fields(self._post_app, "Fields", setup)
@@ -2111,7 +2140,7 @@ class Reports(object):
         return rep
 
     @pyaedt_function_handler(setup_name="setup")
-    def far_field(self, expressions=None, setup=None, sphere_name=None, source_context=None):
+    def far_field(self, expressions=None, setup=None, sphere_name=None, source_context=None, **variations):
         """Create a Far Field Report object.
 
         Parameters
@@ -2146,10 +2175,18 @@ class Reports(object):
             setup = self._post_app._app.nominal_sweep
         rep = None
         if "Far Fields" in self._templates:
-            rep = ansys.aedt.core.visualization.report.field.FarField(self._post_app, "Far Fields", setup)
+            setup = self._post_app._get_setup_from_sweep_name(setup)
+            rep = ansys.aedt.core.visualization.report.field.FarField(self._post_app, "Far Fields", setup, **variations)
             rep.far_field_sphere = sphere_name
             rep.source_context = source_context
-            rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
+            rep.report_type = "Radiation Pattern"
+            if expressions:
+                if type(expressions) == list:
+                    rep.expressions = expressions
+                else:
+                    rep.expressions = [expressions]
+            else:
+                rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
     @pyaedt_function_handler(setup_name="setup", sphere_name="infinite_sphere")

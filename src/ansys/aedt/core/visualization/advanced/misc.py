@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -154,14 +154,15 @@ def convert_nearfield_data(dat_folder, frequency=6, invert_phase_for_lower_faces
     index = 1
     for el in list(file_keys):
         for k in range(index, index + len(components[el].x)):
-            row = []
-            row.append(k)
-            row.append(components[el].x[k - index])
-            row.append(components[el].y[k - index])
-            row.append(components[el].z[k - index])
+            row = [k, components[el].x[k - index], components[el].y[k - index], components[el].z[k - index]]
             for field in ["Ex", "Ey", "Ez", "Hx", "Hy", "Hz"]:
-                row.append(components[el].re[field][k - index])
-                row.append(components[el].im[field][k - index])
+                field_index = k - index
+                if len(components[el].re[field]) <= field_index:
+                    row.append(0)
+                    row.append(0)
+                else:
+                    row.append(components[el].re[field][field_index])
+                    row.append(components[el].im[field][field_index])
             full_data.append(row)
         index += len(components[el].x)
 

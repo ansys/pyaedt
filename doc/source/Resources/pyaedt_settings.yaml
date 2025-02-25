@@ -124,3 +124,5 @@ general:
   remote_rpc_session_temp_folder: ''
   # Block figure plot during python script run
   block_figure_plot: false
+  # Skip license check during Desktop initialization
+  skip_license_check: false

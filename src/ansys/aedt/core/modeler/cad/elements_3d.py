@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,68 +22,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from __future__ import absolute_import
-
-from ansys.aedt.core.generic.general_methods import _dim_arg
 from ansys.aedt.core.generic.general_methods import clamp
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import rgb_color_codes
 from ansys.aedt.core.generic.general_methods import settings
+from ansys.aedt.core.generic.numbers import _units_assignment
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
-
-
-@pyaedt_function_handler()
-def _dict2arg(d, arg_out):
-    """
-
-    Parameters
-    ----------
-    d :
-
-    arg_out :
-
-
-    Returns
-    -------
-
-    """
-    for k, v in d.items():
-        if "_pyaedt" in k:
-            continue
-        if k == "Point" or k == "DimUnits":
-            if isinstance(v[0], (list, tuple)):
-                for e in v:
-                    arg = ["NAME:" + k, e[0], e[1]]
-                    arg_out.append(arg)
-            else:
-                arg = ["NAME:" + k, v[0], v[1]]
-                arg_out.append(arg)
-        elif k == "Range":
-            if isinstance(v[0], (list, tuple)):
-                for e in v:
-                    arg_out.append(k + ":=")
-                    arg_out.append([i for i in e])
-            else:
-                arg_out.append(k + ":=")
-                arg_out.append([i for i in v])
-        elif isinstance(v, dict):
-            arg = ["NAME:" + k]
-            _dict2arg(v, arg)
-            arg_out.append(arg)
-        elif v is None:
-            arg_out.append(["NAME:" + k])
-        elif isinstance(v, list) and len(v) > 0 and isinstance(v[0], dict):
-            for el in v:
-                arg = ["NAME:" + k]
-                _dict2arg(el, arg)
-                arg_out.append(arg)
-
-        else:
-            arg_out.append(k + ":=")
-            if isinstance(v, (EdgePrimitive, FacePrimitive, VertexPrimitive)):
-                arg_out.append(v.id)
-            else:
-                arg_out.append(v)
 
 
 class EdgeTypePrimitive(object):
@@ -126,8 +70,8 @@ class EdgeTypePrimitive(object):
         vArg2 = ["NAME:FilletParameters"]
         vArg2.append("Edges:="), vArg2.append(edge_id_list)
         vArg2.append("Vertices:="), vArg2.append(vertex_id_list)
-        vArg2.append("Radius:="), vArg2.append(self._object3d._primitives._arg_with_dim(radius))
-        vArg2.append("Setback:="), vArg2.append(self._object3d._primitives._arg_with_dim(setback))
+        vArg2.append("Radius:="), vArg2.append(self._object3d._primitives._app.value_with_units(radius))
+        vArg2.append("Setback:="), vArg2.append(self._object3d._primitives._app.value_with_units(setback))
         self._object3d._oeditor.Fillet(vArg1, ["NAME:Parameters", vArg2])
         if self._object3d.name in list(self._object3d._oeditor.GetObjectsInGroup("UnClassified")):
             self._object3d._primitives._odesign.Undo()
@@ -188,22 +132,34 @@ class EdgeTypePrimitive(object):
                 self._object3d.logger.error(
                     "Do not set right distance or ensure that left distance equals right distance."
                 )
-            vArg2.append("LeftDistance:="), vArg2.append(self._object3d._primitives._arg_with_dim(left_distance))
-            vArg2.append("RightDistance:="), vArg2.append(self._object3d._primitives._arg_with_dim(right_distance))
+            vArg2.append("LeftDistance:="), vArg2.append(
+                self._object3d._primitives._app.value_with_units(left_distance)
+            )
+            vArg2.append("RightDistance:="), vArg2.append(
+                self._object3d._primitives._app.value_with_units(right_distance)
+            )
             vArg2.append("ChamferType:="), vArg2.append("Symmetric")
         elif chamfer_type == 1:
-            vArg2.append("LeftDistance:="), vArg2.append(self._object3d._primitives._arg_with_dim(left_distance))
-            vArg2.append("RightDistance:="), vArg2.append(self._object3d._primitives._arg_with_dim(right_distance))
+            vArg2.append("LeftDistance:="), vArg2.append(
+                self._object3d._primitives._app.value_with_units(left_distance)
+            )
+            vArg2.append("RightDistance:="), vArg2.append(
+                self._object3d._primitives._app.value_with_units(right_distance)
+            )
             vArg2.append("ChamferType:="), vArg2.append("Left Distance-Right Distance")
         elif chamfer_type == 2:
-            vArg2.append("LeftDistance:="), vArg2.append(self._object3d._primitives._arg_with_dim(left_distance))
+            vArg2.append("LeftDistance:="), vArg2.append(
+                self._object3d._primitives._app.value_with_units(left_distance)
+            )
             # NOTE: Seems like there is a bug in the API as Angle can't be used
             vArg2.append("RightDistance:="), vArg2.append(f"{angle}deg")
             vArg2.append("ChamferType:="), vArg2.append("Left Distance-Angle")
         elif chamfer_type == 3:
             # NOTE: Seems like there is a bug in the API as Angle can't be used
             vArg2.append("LeftDistance:="), vArg2.append(f"{angle}deg")
-            vArg2.append("RightDistance:="), vArg2.append(self._object3d._primitives._arg_with_dim(right_distance))
+            vArg2.append("RightDistance:="), vArg2.append(
+                self._object3d._primitives._app.value_with_units(right_distance)
+            )
             vArg2.append("ChamferType:="), vArg2.append("Right Distance-Angle")
         else:
             self._object3d.logger.error("Wrong chamfer_type provided. Value must be an integer from 0 to 3.")
@@ -416,6 +372,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
     @pyaedt_function_handler()
     def move_along_normal(self, offset=1.0):
         """Move this edge.
+
         This method moves an edge which belong to the same solid.
 
         Parameters
@@ -431,7 +388,6 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         References
         ----------
         >>> oEditor.MoveEdges
-
         """
         if self._object3d.object_type == "Solid":
             self._object3d.logger.error("Edge Movement applies only to 2D objects.")
@@ -440,7 +396,13 @@ class EdgePrimitive(EdgeTypePrimitive, object):
 
 
 class FacePrimitive(object):
-    """Contains the face object within the AEDT Desktop Modeler."""
+    """Contains the face object within the AEDT Desktop Modeler.
+
+    Parameters
+    ----------
+        object3d : :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+        obj_id : int
+    """
 
     def __str__(self):
         return str(self.id)
@@ -449,13 +411,6 @@ class FacePrimitive(object):
         return str(self.id)
 
     def __init__(self, object3d, obj_id):
-        """
-
-        Parameters
-        ----------
-        object3d : :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
-        obj_id : int
-        """
         self._id = obj_id
         self._object3d = object3d
         self._is_planar = None
@@ -816,7 +771,7 @@ class FacePrimitive(object):
                     "MoveAlongNormalFlag:=",
                     True,
                     "OffsetDistance:=",
-                    _dim_arg(offset, self._object3d.object_units),
+                    self._object3d._primitives._app.value_with_units(offset, self._object3d.object_units),
                     "MoveVectorX:=",
                     "0mm",
                     "MoveVectorY:=",
@@ -860,11 +815,11 @@ class FacePrimitive(object):
                     "OffsetDistance:=",
                     "0mm",
                     "MoveVectorX:=",
-                    _dim_arg(vector[0], self._object3d.object_units),
+                    self._object3d._primitives._app.value_with_units(vector[0], self._object3d.object_units),
                     "MoveVectorY:=",
-                    _dim_arg(vector[1], self._object3d.object_units),
+                    self._object3d._primitives._app.value_with_units(vector[1], self._object3d.object_units),
                     "MoveVectorZ:=",
-                    _dim_arg(vector[2], self._object3d.object_units),
+                    self._object3d._primitives._app.value_with_units(vector[2], self._object3d.object_units),
                     "FacesToMove:=",
                     [self.id],
                 ],
@@ -1348,8 +1303,11 @@ class HistoryProps(dict):
     """Manages an object's history properties."""
 
     def __setitem__(self, key, value):
+        value = _units_assignment(value)
+        if self._pyaedt_child._app:
+            value = _units_assignment(value)
         dict.__setitem__(self, key, value)
-        if self._pyaedt_child.auto_update:
+        if "auto_update" in dir(self._pyaedt_child) and self._pyaedt_child.auto_update:
             self._pyaedt_child.update_property(key, value)
 
     def __init__(self, child_object, props):
@@ -1366,8 +1324,9 @@ class HistoryProps(dict):
 class BinaryTreeNode:
     """Manages an object's history structure."""
 
-    def __init__(self, node, child_object, first_level=False, get_child_obj_arg=None, root_name=None):
+    def __init__(self, node, child_object, first_level=False, get_child_obj_arg=None, root_name=None, app=None):
         self._props = None
+        self._app = app
         if not root_name:
             root_name = node
         self._saved_root_name = node if first_level else root_name
@@ -1402,7 +1361,7 @@ class BinaryTreeNode:
             elif not i.startswith("OperandPart_"):
                 try:
                     self._children[i] = BinaryTreeNode(
-                        i, self.child_object.GetChildObject(i), root_name=self._saved_root_name
+                        i, self.child_object.GetChildObject(i), root_name=self._saved_root_name, app=self._app
                     )
                 except Exception:  # nosec
                     pass
@@ -1410,10 +1369,14 @@ class BinaryTreeNode:
                 names = self.child_object.GetChildObject(i).GetChildNames()
                 for name in names:
                     self._children[name] = BinaryTreeNode(
-                        name, self.child_object.GetChildObject(i).GetChildObject(name), root_name=self._saved_root_name
+                        name,
+                        self.child_object.GetChildObject(i).GetChildObject(name),
+                        root_name=self._saved_root_name,
+                        app=self._app,
                     )
         if name and self.__first_level:
             self.child_object = self._children[name].child_object
+            self._children[name].properties["Command"] = self.properties.get("Command", "")
             self._props = self._children[name].properties
             if name == "CreatePolyline:1":
                 self.segments = self._children[name].children

@@ -62,7 +62,7 @@ They contain all getters and setters to simplify object manipulation.
 .. code:: python
 
     from ansys.aedt.core import Hfss3dLayout
-    app = Hfss3dLayout(specified_version="2023.1",
+    app = Hfss3dLayout(specified_version="2025.1",
                non_graphical=False, new_desktop_session=True,
                close_on_exit=True, student_version=False)
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from __future__ import absolute_import
 
 from enum import IntEnum
 from enum import auto
@@ -136,7 +137,7 @@ def unit_system(units):
     """
 
     for unit_type, unit_dict in AEDT_UNITS.items():
-        if units in unit_dict:
+        if units.lower() in [i.lower() for i in unit_dict.keys()]:
             return unit_type
 
     return False
@@ -334,6 +335,7 @@ AEDT_UNITS = {
         "PoundsForce": 4.44822,
     },
     "Freq": {"Hz": 1.0, "kHz": 1e3, "MHz": 1e6, "GHz": 1e9, "THz": 1e12, "rps": 1.0, "per_sec": 1.0},
+    "Frequency": {"Hz": 1.0, "kHz": 1e3, "MHz": 1e6, "GHz": 1e9, "THz": 1e12, "rps": 1.0, "per_sec": 1.0},
     "Inductance": {"fH": 1e-15, "pH": 1e-12, "nH": 1e-9, "uH": 1e-6, "mH": 1e-3, "H": 1.0},
     "Length": {
         "fm": 1e-15,
@@ -343,6 +345,7 @@ AEDT_UNITS = {
         "mm": 1e-3,
         "cm": 1e-2,
         "dm": 1e-1,
+        "m": 1.0,
         "meter": 1.0,
         "meters": 1.0,
         "km": 1e3,
@@ -718,7 +721,6 @@ class SweepType(object):
 class BasisOrder(object):
     """Enumeration-class for HFSS basis order settings.
 
-
     Warning: the value ``single`` has been renamed to ``Single`` for consistency. Please update references to
     ``single``.
     """
@@ -766,6 +768,7 @@ class SOLUTIONS(object):
             ACConduction,
             ElectricTransient,
             TransientAPhiFormulation,
+            DCBiasedEddyCurrent,
         ) = (
             "Transient",
             "Magnetostatic",
@@ -776,6 +779,7 @@ class SOLUTIONS(object):
             "ACConduction",
             "ElectricTransient",
             "TransientAPhiFormulation",
+            "DCBiasedEddyCurrent",
         )
 
     class Maxwell2d(object):
@@ -813,19 +817,11 @@ class SOLUTIONS(object):
         """Provides Icepak solution types."""
 
         (
-            SteadyTemperatureAndFlow,
-            SteadyTemperatureOnly,
-            SteadyFlowOnly,
-            TransientTemperatureAndFlow,
-            TransientTemperatureOnly,
-            TransientFlowOnly,
+            SteadyState,
+            Transient,
         ) = (
-            "SteadyStateTemperatureAndFlow",
-            "SteadyStateTemperatureOnly",
-            "SteadyStateFlowOnly",
-            "TransientTemperatureAndFlow",
-            "TransientTemperatureOnly",
-            "TransientFlowOnly",
+            "SteadyState",
+            "Transient",
         )
 
     class Circuit(object):
@@ -868,7 +864,7 @@ class SOLUTIONS(object):
     class Mechanical(object):
         """Provides Mechanical solution types."""
 
-        (Thermal, Structural, Modal) = ("Thermal", "Structural", "Modal")
+        (Thermal, Structural, Modal, SteadyStateThermal) = ("Thermal", "Structural", "Modal", "Steady-State Thermal")
 
 
 class SETUPS(object):
@@ -886,9 +882,9 @@ class SETUPS(object):
         Electrostatic,
         ElectrostaticDC,
         ElectricTransient,
-        SteadyTemperatureAndFlow,
-        SteadyTemperatureOnly,
-        SteadyFlowOnly,
+        SteadyState,
+        SteadyState,
+        SteadyState,
         Matrix,
         NexximLNA,
         NexximDC,
@@ -911,9 +907,9 @@ class SETUPS(object):
         MechModal,
         GRM,
         TR,
-        TransientTemperatureAndFlow,
-        TransientTemperatureOnly,
-        TransientFlowOnly,
+        Transient,
+        Transient,
+        Transient,
         DFIG,
         TPIM,
         SPIM,

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,8 +29,6 @@ This module provides all functionalities for basic project information and objec
 These classes are inherited in the main tool class.
 
 """
-
-from __future__ import absolute_import  # noreorder
 
 from abc import abstractmethod
 import gc
@@ -61,14 +59,13 @@ from ansys.aedt.core.application.design_solutions import model_names
 from ansys.aedt.core.application.design_solutions import solutions_defaults
 from ansys.aedt.core.application.variables import DataSet
 from ansys.aedt.core.application.variables import VariableManager
-from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.desktop import _init_desktop_from_design
 from ansys.aedt.core.desktop import exception_to_desktop
 from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import unit_system
 from ansys.aedt.core.generic.data_handlers import variation_string_to_dict
-from ansys.aedt.core.generic.general_methods import GrpcApiError
+from ansys.aedt.core.generic.errors import GrpcApiError
 from ansys.aedt.core.generic.general_methods import check_and_download_file
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import inner_project_settings
@@ -83,6 +80,8 @@ from ansys.aedt.core.generic.general_methods import remove_project_lock
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.generic.general_methods import write_csv
 from ansys.aedt.core.generic.load_aedt_file import load_entire_aedt_file
+from ansys.aedt.core.generic.numbers import _units_assignment
+from ansys.aedt.core.generic.numbers import decompose_variable_value
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
 from ansys.aedt.core.modules.boundary.layout_boundary import BoundaryObject3dLayout
@@ -306,6 +305,7 @@ class Design(AedtObjects):
 
     @pyaedt_function_handler()
     def __setitem__(self, variable_name: str, variable_value: Optional[Union[str, int, float]]) -> bool:
+        variable_value = _units_assignment(variable_value)
         self.variable_manager[variable_name] = variable_value
         return True
 
@@ -385,7 +385,6 @@ class Design(AedtObjects):
     @property
     def boundaries(self) -> List[BoundaryObject]:
         """Design boundaries and excitations.
-
 
         Returns
         -------
@@ -1026,7 +1025,6 @@ class Design(AedtObjects):
     def toolkit_directory(self) -> str:
         """Path to the toolkit directory.
 
-
         Returns
         -------
         str
@@ -1126,11 +1124,19 @@ class Design(AedtObjects):
                         valids.append(name)
                     elif self._temp_solution_type in des.GetSolutionType():
                         valids.append(name)
-            if len(valids) != 1:
-                warning_msg = "No consistent unique design is present. Inserting a new design."
-            else:
+            if len(valids) > 1:
+                des_name = self.oproject.GetActiveDesign().GetName()
+                if des_name in valids:
+                    activedes = self.oproject.GetActiveDesign().GetName()
+                else:
+                    activedes = valids[0]
+                warning_msg = f"Active Design set to {valids[0]}"
+            elif len(valids) == 1:
                 activedes = valids[0]
                 warning_msg = f"Active Design set to {valids[0]}"
+            else:
+                warning_msg = "No consistent unique design is present. Inserting a new design."
+
         # legacy support for version < 2021.2
         elif self.design_list:  # pragma: no cover
             self._odesign = self._oproject.GetDesign(self.design_list[0])
@@ -1392,7 +1398,7 @@ class Design(AedtObjects):
                         profile_setup_obj = self.get_oo_object(profile_setups_obj, profile_setup_name)
                         if profile_setup_obj and self.get_oo_name(profile_setup_obj):
                             try:
-                                profile_tree = BinaryTreeNode("profile", profile_setup_obj)
+                                profile_tree = BinaryTreeNode("profile", profile_setup_obj, app=self._app)
                                 profile_objs[profile_setup_name] = profile_tree
                             except Exception:  # pragma: no cover
                                 self.logger.error(f"{profile_setup_name} profile could not be obtained.")
@@ -1545,7 +1551,8 @@ class Design(AedtObjects):
             output_file = os.path.join(self.working_directory, generate_unique_name("Profile") + ".prof")
         if not variation:
             val_str = []
-            for el, val in self.available_variations.nominal_w_values_dict.items():
+            nominal_variation = self.available_variations.get_independent_nominal_values()
+            for el, val in nominal_variation.items():
                 val_str.append(f"{el}={val}")
             if self.design_type == "HFSS 3D Layout Design":
                 variation = " ".join(val_str)
@@ -4093,6 +4100,7 @@ class Design(AedtObjects):
                     raise ValueError(f"Specified design is not of type {self._design_type}.")
             elif self._design_type not in {"RMxprtSolution", "ModelCreation"}:
                 raise ValueError(f"Specified design is not of type {self._design_type}.")
+
             return True
         elif ":" in des_name:
             try:
@@ -4252,6 +4260,7 @@ class DesignSettings:
         return "\n".join(lines)
 
     def __setitem__(self, key: str, value: Any) -> Union[bool, None]:
+        value = _units_assignment(value)
         if key in self.available_properties:
             if self.manipulate_inputs is not None:
                 value = self.manipulate_inputs.execute(key, value)
