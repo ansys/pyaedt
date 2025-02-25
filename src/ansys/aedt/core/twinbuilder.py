@@ -24,19 +24,17 @@
 
 """This module contains the ``TwinBuilder`` class."""
 
-from __future__ import absolute_import  # noreorder
-
 import math
-import os.path
+from pathlib import Path
 
 from ansys.aedt.core.application.analysis_twin_builder import AnalysisTwinBuilder
 from ansys.aedt.core.application.variables import Variable
-from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import is_number
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.generic.numbers import is_number
 
 
 class TwinBuilder(AnalysisTwinBuilder, object):
@@ -466,9 +464,9 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         """
         dkp = self.desktop_class
         is_loaded = False
-        if os.path.isfile(source_project):
+        if Path(source_project).is_file():
             project_path = source_project
-            project_name = os.path.splitext(os.path.basename(source_project))[0]
+            project_name = Path(source_project).stem
             if project_name in dkp.project_list():
                 app = dkp[[project_name, source_design_name]]
             else:
@@ -476,7 +474,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
                 is_loaded = True
         elif source_project in self.project_list:
             project_name = source_project
-            project_path = os.path.join(self.project_path, project_name + ".aedt")
+            project_path = Path(self.project_path) / str(project_name + ".aedt")
             app = dkp[[source_project, source_design_name]]
         else:
             raise ValueError("Invalid project name or path provided.")
@@ -569,7 +567,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             enforce_passivity = True
         else:
             raise TypeError("Link type is not valid.")
-        self.o_component_manager.AddDynamicNPortData(
+        self.ocomponent_manager.AddDynamicNPortData(
             [
                 "NAME:ComponentData",
                 "ComponentDataType:=",
@@ -577,7 +575,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
                 "name:=",
                 component_name,
                 "filename:=",
-                project_path,
+                str(project_path),
                 "numberofports:=",
                 2 * len(app.excitations),
                 "Is3D:=",
@@ -730,9 +728,9 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             return False
 
         project_selection = 0
-        if os.path.isfile(project):
+        if Path(project).is_file():
             project_path = project
-            project_name = os.path.splitext(os.path.basename(project))[0]
+            project_name = Path(project).stem
             if project_name in dkp.project_list():
                 maxwell_app = dkp[[project_name, design]]
             else:
@@ -822,7 +820,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
                 grid_data.append("{}:=".format(e.name))
                 grid_data.append(maxwell_excitations[e.name])
 
-        comp_name = self.o_component_manager.AddExcitationModel([settings, excitations_data, grid_data])
+        comp_name = self.ocomponent_manager.AddExcitationModel([settings, excitations_data, grid_data])
         comp = self.modeler.schematic.create_component(component_library="", component_name=comp_name)
 
         return comp
