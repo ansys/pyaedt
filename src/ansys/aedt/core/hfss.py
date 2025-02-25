@@ -5893,6 +5893,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                 ]
 
         if frequencies is not None:
+            if not isinstance(frequencies, list):
+                frequencies = [frequencies]
             frequencies = _units_assignment(frequencies)
         else:  # pragma: no cover
             self.logger.info("Frequencies could not be obtained.")
