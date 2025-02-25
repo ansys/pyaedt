@@ -351,7 +351,7 @@ class FieldAnalysis3DLayout(Analysis):
         """
         if setup_type is None:
             setup_type = self.design_solutions.default_setup
-        for setup in self._setups:
+        for setup in self.setups:
             if name == setup.name:
                 return setup
         setup = Setup3DLayout(self, setup_type, name, is_new_setup=False)
