@@ -22,15 +22,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from __future__ import division  # noreorder
-
 import math
 
 from ansys.aedt.core import MaxwellCircuit
 from ansys.aedt.core.application.variables import Variable
-from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.application.variables import generate_validation_errors
-from ansys.aedt.core.generic.general_methods import isclose
+from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.generic.numbers import isclose
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 import pytest
 
@@ -448,9 +446,7 @@ class TestClass:
     def test_14_intrinsics(self):
         self.aedtapp["fc"] = "Freq"
         assert self.aedtapp["fc"] == "Freq"
-        assert self.aedtapp.variable_manager.dependent_variables["fc"].units == self.aedtapp.odesktop.GetDefaultUnit(
-            "Frequency"
-        )
+        assert self.aedtapp.variable_manager.dependent_variables["fc"].units == self.aedtapp.units.frequency
 
     def test_15_arrays(self):
         self.aedtapp["arr_index"] = 0
@@ -564,7 +560,6 @@ class TestClass:
         assert self.aedtapp.variable_manager.decompose("v2") == (6.0, "mm")
         assert self.aedtapp.variable_manager["v2"].decompose() == (6.0, "mm")
         assert self.aedtapp.variable_manager.decompose("5mm") == (5.0, "mm")
-        assert self.aedtapp.number_with_units(3.0, "mil") == "3.0mil"
 
     def test_21_test_validator_exact_match(self, validation_input):
         property_names, expected_settings, actual_settings = validation_input
@@ -687,3 +682,9 @@ class TestClass:
         assert self.aedtapp.variable_manager.delete_unused_variables()
         new_number_of_variables = len(self.aedtapp.variable_manager.variable_names)
         assert number_of_variables != new_number_of_variables
+
+    def test_33_value_with_units(self):
+        assert self.aedtapp.value_with_units("10mm") == "10mm"
+        assert self.aedtapp.value_with_units("10") == "10mm"
+        assert self.aedtapp.value_with_units("10", units_system="Angle") == "10deg"
+        assert self.aedtapp.value_with_units("10", units_system="invalid") == "10"

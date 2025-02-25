@@ -29,8 +29,6 @@ It includes common classes for file management and messaging and all
 calls to AEDT modules like the modeler, mesh, postprocessing, and setup.
 """
 
-from __future__ import absolute_import  # noreorder
-
 import os
 import re
 import shutil
@@ -45,19 +43,20 @@ import warnings
 from ansys.aedt.core.application.design import Design
 from ansys.aedt.core.application.job_manager import update_hpc_option
 from ansys.aedt.core.application.variables import Variable
-from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import AXIS
 from ansys.aedt.core.generic.constants import GRAVITY
 from ansys.aedt.core.generic.constants import PLANE
 from ansys.aedt.core.generic.constants import SETUPS
 from ansys.aedt.core.generic.constants import SOLUTIONS
 from ansys.aedt.core.generic.constants import VIEW
+from ansys.aedt.core.generic.general_methods import _arg_with_dim
 from ansys.aedt.core.generic.general_methods import filter_tuple
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
@@ -547,51 +546,6 @@ class Analysis(Design, object):
             del self._excitation_objects[key]
 
         return self._excitation_objects
-
-    @pyaedt_function_handler()
-    def _check_intrinsics(self, input_data, input_phase=None, setup=None, return_list=False):
-        intrinsics = {}
-        if input_data is None:
-            if setup is None:
-                try:
-                    setup = self.existing_analysis_sweeps[0].split(":")[0].strip()
-                except Exception:
-                    setup = None
-            else:
-                setup = setup.split(":")[0].strip()
-            for set_obj in self.setups:
-                if set_obj.name == setup:
-                    intrinsics = set_obj.default_intrinsics
-                    break
-
-        elif isinstance(input_data, str):
-            if "Freq" in self.design_solutions.intrinsics:
-                intrinsics["Freq"] = input_data
-                if "Phase" in self.design_solutions.intrinsics:
-                    intrinsics["Phase"] = input_phase if input_phase else "0deg"
-            elif "Time" in self.design_solutions.intrinsics:
-                intrinsics["Time"] = input_data
-        elif isinstance(input_data, dict):
-            for k, v in input_data.items():
-                if k in ["Freq", "freq", "frequency", "Frequency"]:
-                    intrinsics["Freq"] = v
-                elif k in ["Phase", "phase"]:
-                    intrinsics["Phase"] = v
-                elif k in ["Time", "time"]:
-                    intrinsics["Time"] = v
-                if input_phase:
-                    intrinsics["Phase"] = input_phase
-                if "Phase" in self.design_solutions.intrinsics and "Phase" not in intrinsics:
-                    intrinsics["Phase"] = "0deg"
-        else:
-            raise AttributeError("Intrinsics has to be a string or list.")
-        if return_list:
-            intrinsics_list = []
-            for k, v in intrinsics.items():
-                intrinsics_list.append(f"{k}:=")
-                intrinsics_list.append(v)
-            return intrinsics_list
-        return intrinsics
 
     @pyaedt_function_handler()
     def get_traces_for_plot(
@@ -1307,8 +1261,11 @@ class Analysis(Design, object):
         return False
 
     @pyaedt_function_handler(setupname="name", properties_dict="properties")
-    def edit_setup(self, name, properties):
+    def edit_setup(self, name, properties):  # pragma: no cover
         """Modify a setup.
+
+        .. deprecated:: 0.15.0
+            Use :func:`update` from setup object instead.
 
         Parameters
         ----------
@@ -1325,7 +1282,9 @@ class Analysis(Design, object):
         ----------
         >>> oModule.EditSetup
         """
-
+        warnings.warn(
+            "`edit_setup` is deprecated. " "Use `update` method from setup object instead.", DeprecationWarning
+        )
         setuptype = self.design_solutions.default_setup
         setup = Setup(self, setuptype, name)
         setup.update(properties)
@@ -1760,6 +1719,9 @@ class Analysis(Design, object):
         -------
         float
 
+        References
+        ----------
+        >>> oDesktop.AreThereSimulationsRunning
         """
         return self.desktop_class.are_there_simulations_running
 
@@ -1774,6 +1736,9 @@ class Analysis(Design, object):
         -------
         dict
 
+        References
+        ----------
+        >>> oDesktop.GetMonitorData
         """
         return self.desktop_class.get_monitor_data()
 
@@ -1788,6 +1753,9 @@ class Analysis(Design, object):
         -------
         str
 
+        References
+        ----------
+        >>> oDesktop.StopSimulations
         """
         return self.desktop_class.stop_simulations(clean_stop=clean_stop)
 
@@ -2130,19 +2098,33 @@ class Analysis(Design, object):
         -------
         str
             String that combines the value and the units (e.g. "1.2mm").
+
+        References
+        ----------
+        >>> oEditor.GetDefaultUnit
+        >>> oEditor.GetModelUnits
+        >>> oEditor.GetActiveUnits
         """
+        _, u = decompose_variable_value(value)
+        if u:
+            return value
+
         if units is None:
             if units_system == "Length":
-                units = self.modeler.model_units
+                if "GetModelUnits" in dir(self.oeditor):
+                    units = self.oeditor.GetModelUnits()
+                elif "GetActiveUnits" in dir(self.oeditor):
+                    units = self.oeditor.GetActiveUnits()
+                else:
+                    units = self.odesktop.GetDefaultUnit(units_system)
             else:
                 try:
                     units = self.odesktop.GetDefaultUnit(units_system)
                 except Exception:
                     self.logger.warning("Defined unit system is incorrect.")
                     units = ""
-        from ansys.aedt.core.generic.general_methods import _dim_arg
 
-        return _dim_arg(value, units)
+        return _arg_with_dim(value, units)
 
     @pyaedt_function_handler()
     def change_property(self, aedt_object, tab_name, property_object, property_name, property_value):
@@ -2197,7 +2179,7 @@ class Analysis(Design, object):
                 ]
             )
         elif isinstance(property_value, (str, float, int)):
-            xpos = self.modeler._arg_with_dim(property_value, self.modeler.model_units)
+            xpos = self.value_with_units(property_value, self.modeler.model_units)
             aedt_object.ChangeProperty(
                 [
                     "NAME:AllTabs",
@@ -2215,8 +2197,11 @@ class Analysis(Design, object):
         return True
 
     @pyaedt_function_handler()
-    def number_with_units(self, value, units=None):
+    def number_with_units(self, value, units=None):  # pragma: no cover
         """Convert a number to a string with units. If value is a string, it's returned as is.
+
+        .. deprecated:: 0.15.0
+            Use :func:`value_with_units` instead.
 
         Parameters
         ----------
@@ -2231,7 +2216,10 @@ class Analysis(Design, object):
            String concatenating the value and unit.
 
         """
-        return self.modeler._arg_with_dim(value, units)
+        warnings.warn(
+            "`number_with_units` is deprecated. " "Use `value_with_units` method instead.", DeprecationWarning
+        )
+        return self.value_with_units(value, units)
 
 
 class AvailableVariations(object):
@@ -2287,6 +2275,9 @@ class AvailableVariations(object):
     def nominal_w_values_dict(self):
         """Nominal independent with values in a dictionary.
 
+        .. deprecated:: 0.15.0
+            Use :func:`nominal_values` from setup object instead.
+
         Returns
         -------
         dict
@@ -2312,6 +2303,9 @@ class AvailableVariations(object):
     def variables(self):
         """Variables.
 
+        .. deprecated:: 0.15.0
+            Use :func:`variable_manager.independent_variable_names` from setup object instead.
+
         Returns
         -------
         list of str
@@ -2326,6 +2320,9 @@ class AvailableVariations(object):
     @property
     def nominal_w_values(self):
         """Nominal independent with values in a list.
+
+        .. deprecated:: 0.15.0
+            Use :func:`nominal_values` from setup object instead.
 
         Returns
         -------
