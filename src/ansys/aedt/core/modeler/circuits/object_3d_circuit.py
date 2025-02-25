@@ -484,7 +484,7 @@ class CircuitComponent(object):
     def _property_data(self):
         """Property Data List."""
         try:
-            return list(self._circuit_components.ocomponent_manager.GetData(self.name.split("@")[1]))
+            return list(self._circuit_components.o_component_manager.GetData(self.name.split("@")[1]))
         except Exception:
             return []
 
@@ -512,7 +512,7 @@ class CircuitComponent(object):
             return self._model_data
         if self.model_name:
             _parameters = {}
-            _arg2dict(list(self._circuit_components.omodel_manager.GetData(self.model_name)), _parameters)
+            _arg2dict(list(self._circuit_components.o_model_manager.GetData(self.model_name)), _parameters)
             self._model_data = ModelParameters(self, self.model_name, _parameters[self.model_name])
         return self._model_data
 
@@ -1082,7 +1082,7 @@ class CircuitComponent(object):
 
         edit_context_arg = ["NAME:EditContext", "RefPinOption:=", 2, "CompName:=", self.model_name, terminals_arg]
 
-        self._circuit_components.osymbol_manager.EditSymbolAndUpdateComps(self.model_name, args, [], edit_context_arg)
+        self._circuit_components.o_symbol_manager.EditSymbolAndUpdateComps(self.model_name, args, [], edit_context_arg)
         self._circuit_components.oeditor.MovePins(self.composed_name, -0, -0, 0, 0, ["NAME:PinMoveData"])
         return True
 
@@ -1090,7 +1090,7 @@ class CircuitComponent(object):
     def component_path(self):
         """Component definition path."""
         component_definition = self.component_info["Info"]
-        model_data = self._circuit_components.o_model_manager.GetData(component_definition)
+        model_data = self._circuit_components.omodel_manager.GetData(component_definition)
         if "sssfilename:=" in model_data and model_data[model_data.index("sssfilename:=") + 1]:
             return model_data[model_data.index("sssfilename:=") + 1]
         elif "filename:=" in model_data and model_data[model_data.index("filename:=") + 1]:
@@ -1100,16 +1100,16 @@ class CircuitComponent(object):
             self._circuit_components._app.logger.warning("Component " + self.refdes + " has no path")
             return False
         if len(component_data[2][5]) == 0:
-            def_name = ""
             for data in component_data:
-                if isinstance(data, list) and isinstance(data[0], str) and data[0] == "NAME:CosimDefinitions":
+                if isinstance(data, list) and isinstance(data[0], str) and data[0] == "NAME:Parameters":
+                    for dd in range(len(data[2])):
+                        if data[2][dd] == "file":
+                            return data[2][dd + 4]
+                elif isinstance(data, list) and isinstance(data[0], str) and data[0] == "NAME:CosimDefinitions":
                     for dd in range(len(data[1])):
                         if data[1][dd] == "GRef:=":
                             if len(data[1][dd + 1]) > 0:
                                 return (data[1][12][1].split(" ")[1])[1:-1]
-                        elif data[1][dd] == "CosimDefName:=":
-                            def_name = data[1][dd + 1]
-            return def_name
 
 
 class Wire(object):
