@@ -23,11 +23,11 @@
 # SOFTWARE.
 
 import csv
+import logging
 import os
+from pathlib import Path
 import re
 import shutil
-import logging
-from pathlib import Path
 
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -49,7 +49,7 @@ def read_info_fromcsv(projdir, name):
     list
 
     """
- # Construct the filename using pathlib.
+    # Construct the filename using pathlib.
     filename = str(Path(projdir) / name)
     listmcad = []
     with open_file(filename, "rb") as csvfile:
