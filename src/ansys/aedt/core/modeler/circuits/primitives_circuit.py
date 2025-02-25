@@ -925,7 +925,7 @@ class CircuitComponents(object):
             ]
         )
 
-        self.o_component_manager.Add(arg)
+        self.ocomponent_manager.Add(arg)
         return model_name
 
     @pyaedt_function_handler()
