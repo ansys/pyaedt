@@ -1219,6 +1219,7 @@ class TestClass:
         assert self.aedtapp.modeler.create_3dcomponent(self.component3d_file)
         assert os.path.exists(self.component3d_file)
         variables = self.aedtapp.get_component_variables(self.component3d_file)
+        assert isinstance(variables, dict)
         new_obj = self.aedtapp.modeler.duplicate_along_line("Solid", [100, 0, 0])
         rad = self.aedtapp.assign_radiation_boundary_to_objects("Solid")
         obj1 = self.aedtapp.modeler[new_obj[1][0]]
