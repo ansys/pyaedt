@@ -297,8 +297,8 @@ class FieldAnalysis3D(Analysis, object):
             show_grid=show_grid,
         )
 
-    @pyaedt_function_handler(setup_name="setup", variation_string="variations")
-    def export_mesh_stats(self, setup, variations="", mesh_path=None):
+    @pyaedt_function_handler(setup_name="setup", variation_string="variations", mesh_path="output_file")
+    def export_mesh_stats(self, setup, variations="", output_file=None):
         """Export mesh statistics to a file.
 
         Parameters
@@ -307,7 +307,7 @@ class FieldAnalysis3D(Analysis, object):
             Setup name.
         variations : str, optional
             Variation list. The default is ``""``.
-        mesh_path : str, optional
+        output_file : str, optional
             Full path to the mesh statistics file. The default is ``None``, in which
             caswe the working directory is used.
 
@@ -320,10 +320,10 @@ class FieldAnalysis3D(Analysis, object):
         ----------
         >>> oDesign.ExportMeshStats
         """
-        if not mesh_path:
-            mesh_path = os.path.join(self.working_directory, "meshstats.ms")
-        self.odesign.ExportMeshStats(setup, variations, mesh_path)
-        return mesh_path
+        if not output_file:
+            output_file = os.path.join(self.working_directory, "meshstats.ms")
+        self.odesign.ExportMeshStats(setup, variations, output_file)
+        return output_file
 
     @pyaedt_function_handler(component3dname="component_name")
     def get_components3d_vars(self, component_name):

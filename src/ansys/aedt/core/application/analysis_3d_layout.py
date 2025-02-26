@@ -206,8 +206,8 @@ class FieldAnalysis3DLayout(Analysis):
         self.odesign.DesignOptions(arg)
         return True
 
-    @pyaedt_function_handler(setup_name="setup", variation_string="variations")
-    def export_mesh_stats(self, setup, variations="", mesh_path=None):
+    @pyaedt_function_handler(setup_name="setup", variation_string="variations", mesh_path="output_file")
+    def export_mesh_stats(self, setup, variations="", output_file=None):
         """Export mesh statistics to a file.
 
         Parameters
@@ -216,7 +216,7 @@ class FieldAnalysis3DLayout(Analysis):
             Setup name.
         variations : str, optional
             Variation List.
-        mesh_path : str, optional
+        output_file : str, optional
             Full path to mesh statistics file. If `None` working_directory will be used.
 
         Returns
@@ -228,10 +228,10 @@ class FieldAnalysis3DLayout(Analysis):
         ----------
         >>> oModule.ExportMeshStats
         """
-        if not mesh_path:
-            mesh_path = os.path.join(self.working_directory, "meshstats.ms")
-        self.odesign.ExportMeshStats(setup, variations, mesh_path)
-        return mesh_path
+        if not output_file:
+            output_file = os.path.join(self.working_directory, "meshstats.ms")
+        self.odesign.ExportMeshStats(setup, variations, output_file)
+        return output_file
 
     @property
     def modeler(self):
