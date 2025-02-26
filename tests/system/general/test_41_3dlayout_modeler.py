@@ -334,7 +334,7 @@ class TestClass:
         assert port_wave
         assert self.aedtapp.delete_port(port_wave.name)
         assert self.aedtapp.create_edge_port("line1", 3, False)
-        assert len(self.aedtapp.excitations) > 0
+        assert len(self.aedtapp.excitation_names) > 0
         time_domain = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "Sinusoidal.csv")
         assert self.aedtapp.boundaries[0].properties["Magnitude"] == "1V"
         assert self.aedtapp.edit_source_from_file(
@@ -436,6 +436,7 @@ class TestClass:
         assert sweep.set_save_fields(False, False)
 
     def test_17_get_setup(self):
+        self.aedtapp.save_project()
         setup4 = self.aedtapp.get_setup(self.aedtapp.existing_analysis_setups[0])
         setup4.props["PercentRefinementPerPass"] = 37
         setup4.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = 44

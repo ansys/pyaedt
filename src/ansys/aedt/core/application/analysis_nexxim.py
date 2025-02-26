@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+import warnings
 
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -310,39 +311,65 @@ class FieldAnalysisCircuit(Analysis):
 
     @property
     def excitations(self):
-        """List of port names.
+        """Get all excitation names.
+
+        .. deprecated:: 0.15.0
+           Use :func:`excitation_names` property instead.
 
         Returns
         -------
         list
-            List of excitation names.
+            List of excitation names. Excitations with multiple modes will return one
+            excitation for each mode.
 
         References
         ----------
-        >>> oModule.GetAllPorts
+        >>> oModule.GetExcitations
         """
-        ports = [p.replace("IPort@", "").split(";")[0] for p in self.modeler.oeditor.GetAllPorts() if "IPort@" in p]
-        return ports
+        mess = "The property `excitations` is deprecated.\n"
+        mess += " Use `app.excitation_names` directly."
+        warnings.warn(mess, DeprecationWarning)
+        return self.excitation_names
 
     @property
-    def excitation_objects(self):
-        """List of port objects.
+    def excitation_names(self):
+        """Get all excitation names.
 
         Returns
         -------
-        dict
-            List of port objects.
+        list
+            List of excitation names. Excitations with multiple modes will return one
+            excitation for each mode.
+
+        References
+        ----------
+        >>> oModule.GetExcitations
+        """
+        return [p.replace("IPort@", "").split(";")[0] for p in self.modeler.oeditor.GetAllPorts() if "IPort@" in p]
+
+    @property
+    def design_excitations(self):
+        """Get all excitation.
+
+        Returns
+        -------
+        dict[str, :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`]
+           Excitation boundaries.
+
+        References
+        ----------
+        >>> oModule.GetExcitations
         """
         props = {}
         if not self._internal_excitations:
-            for port in self.excitations:
+            for port in self.excitation_names:
                 props[port] = Excitations(self, port)
             self._internal_excitations = props
         else:
             props = self._internal_excitations
-            if not sorted(list(props.keys())) == sorted(self.excitations):
+            if not sorted(list(props.keys())) == sorted(self.excitation_names):
                 a = set(str(x) for x in props.keys())
-                b = set(str(x) for x in self.excitations)
+                b = set(str(x) for x in self.excitation_names)
                 if len(a) == len(b):
                     unmatched_new_name = list(b - a)[0]
                     unmatched_old_name = list(a - b)[0]
@@ -351,34 +378,14 @@ class FieldAnalysisCircuit(Analysis):
                 else:
                     if len(a) > len(b):
                         for old_port in props.keys():
-                            if old_port not in self.excitations:
+                            if old_port not in self.excitation_names:
                                 del props[old_port]
                                 return props
                     else:
-                        for new_port in self.excitations:
+                        for new_port in self.excitation_names:
                             if new_port not in props.keys():
                                 props[new_port] = Excitations(self, new_port)
         return props
-
-    @pyaedt_function_handler(setupname="name")
-    def get_setup(self, name):
-        """Retrieve the setup from the current design.
-
-        Parameters
-        ----------
-        name : str
-            Name of the setup.
-
-        Returns
-        -------
-        type
-            Setup object.
-
-        """
-        setup = SetupCircuit(self, self.solution_type, name, is_new_setup=False)
-        if setup.props:
-            self.active_setup = name
-        return setup
 
     @pyaedt_function_handler(setupname="name", setuptype="setup_type")
     def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):

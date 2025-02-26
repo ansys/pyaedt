@@ -305,7 +305,7 @@ class QExtractor(FieldAnalysis3D, object):
         if cg:
             net_list = ["NAME:Source Names"]
 
-            excitation = self.excitations
+            excitation = self.excitation_names
 
             for key, value in cg.items():
                 if key not in excitation:
@@ -2133,9 +2133,9 @@ class Q3d(QExtractor, CreateBoundaryMixin):
             expression += source
             expression += ","
 
-            if "Sink" not in [self.excitation_objects[source].type, self.excitation_objects[sink].type]:
+            if "Sink" not in [self.design_excitations[source].type, self.design_excitations[sink].type]:
                 move_sink.append(sink)
-            elif self.excitation_objects[sink].type == "Source":
+            elif self.design_excitations[sink].type == "Source":
                 move_sink.append(sink)
 
             if "source_2" in net_props:

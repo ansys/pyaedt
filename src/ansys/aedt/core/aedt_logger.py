@@ -24,7 +24,7 @@
 
 import logging
 from logging.handlers import RotatingFileHandler
-import os
+from pathlib import Path
 import shutil
 import sys
 import tempfile
@@ -190,7 +190,7 @@ class AedtLogger(object):
                 if settings.global_log_file_name in str(handler):
                     global_handler = True
                     break
-            log_file = os.path.join(tempfile.gettempdir(), settings.global_log_file_name)
+            log_file = Path(tempfile.gettempdir()) / settings.global_log_file_name
             my_handler = RotatingFileHandler(
                 log_file,
                 mode="a",
@@ -204,7 +204,7 @@ class AedtLogger(object):
             if not global_handler and settings.global_log_file_name:
                 self._global.addHandler(my_handler)
             self._files_handlers.append(my_handler)
-        if self.filename and os.path.exists(self.filename):
+        if self.filename and Path(self.filename).exists():
             shutil.rmtree(self.filename, ignore_errors=True)
         if self.filename and settings.enable_local_log_file:
             self.add_file_logger(self.filename, "Global", level)
