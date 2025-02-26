@@ -49,5 +49,5 @@ class RadioNode(EmitNode):
 
     @notes.setter
     def notes(self, value: str):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
 

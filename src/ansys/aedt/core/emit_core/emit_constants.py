@@ -76,14 +76,109 @@ class UnitType(MutableEnum):
 EMIT_VALID_UNITS = {
     "Power": ["mW", "W", "kW", "dBm", "dBW"],
     "Frequency": ["Hz", "kHz", "MHz", "GHz", "THz"],
-    "Length": ["pm", "nm", "um", "mm", "cm", "dm", "meter", "km", "mil", "in", "ft", "yd", "mile"],
+    "Length": ["pm", "nm", "um", "mm", "cm", "dm", "meter", "meters", "km", "mil", "in", "ft", "yd", "mile"],
     "Time": ["ps", "ns", "us", "ms", "s"],
-    "Voltage": ["mV", "V"],
+    "Voltage": ["nV", "uV", "mV", "V", "kV", "MegV"],
     "Data Rate": ["bps", "kbps", "Mbps", "Gbps"],
     "Resistance": ["uOhm", "mOhm", "Ohm", "kOhm", "megOhm", "GOhm"],
 }
 """Valid units for each unit type."""
 
+EMIT_DEFAULT_UNITS = {
+    "Power": "dBm",
+    "Frequency": "Hz",
+    "Length": "meter",
+    "Time": "s",
+    "Voltage": "V",
+    "Data Rate": "bps",
+    "Resistance": "ohm",
+}
+"""Default units for each unit type."""
+
+EMIT_TO_AEDT_UNITS = {
+    "picometers" : "pm",
+    "nanometers" : "nm",
+    "micrometers" : "um",
+    "millimeters": "mm", 
+    "centimeters" : "cm",
+    "decimeters" : "dm", 
+    "meters" : "meter",
+    "kilometers" : "km",
+    "inches" : "in",
+    "mils" : "mil",
+    "feet" : "ft",
+    "yards" : "yd",
+    "miles" : "mile",
+    "hertz" : "Hz",
+    "kilohertz" : "kHz",
+    "megahertz" : "MHz",
+    "gigahertz" : "GHz",
+    "terahertz" : "THz",
+    "picoseconds" : "ps",
+    "nanoseconds" : "ns",
+    "microseconds" : "us",
+    "milliseconds" : "ms",
+    "seconds" : "s",
+    "microohms" : "uOhm",
+    "milliohms" : "mOhm",
+    "ohms" : "Ohm",
+    "kiloohms" : "kOhm",
+    "megaohms" : "megOhm",
+    "gigaohms" : "GOhm",
+    "dBm" : "dBm",
+    "dBW" : "dBW",
+    "watts" : "W",
+    "milliwatts" : "mW",
+    "kilowatts" : "kW",
+    "nanovolts" : "nV",
+    "microvolts" : "uV",
+    "millivolts" : "mV",
+    "volts" : "V",
+    "kilovolts" : "kV",
+    "megavolts" : "MegV",
+    "bps" : "bps",
+    "kbps" : "kbps", 
+    "Mbps" : "Mbps",
+    "Gbps" : "Gbps"
+}
+
+def data_rate_conv(value : float, units : str, to_default : bool = True):
+    """Converts the data rate to (from) the default units from the
+    specified units.
+
+    Args:
+        value (float): numeric value of the data rate
+        units (str): units to convert to (from)
+        to_default (bool, optional): Converts from the specified units
+            to the default units OR from the default units to the 
+            specified units. Defaults to True.
+
+    Returns:
+        value: data rate converted to/from the default units
+    """
+    if to_default:
+        if units == 'bps':
+            mult = 1.0
+        elif units == 'kbps':
+            mult = 1e-3
+        elif units == 'Mbps':
+            mult = 1e-6
+        elif units == 'Gbps':
+            mult = 1e-9
+        else:
+            raise ValueError(f"{units} are not valid units for data rate.")
+    else:
+        if units == 'bps':
+            mult = 1.0
+        elif units == 'kbps':
+            mult = 1e3
+        elif units == 'Mbps':
+            mult = 1e6
+        elif units == 'Gbps':
+            mult = 1e9
+        else:
+            raise ValueError(f"{units} are not valid units for data rate.")
+    return value*mult
 
 def emit_unit_type_string_to_enum(unit_string):
     EMIT_UNIT_TYPE_STRING_TO_ENUM = {

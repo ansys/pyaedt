@@ -33,7 +33,7 @@ class FiveGChannelModel(EmitNode):
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Enabled=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Enabled=' + value])
 
     @property
     def base_antenna(self) -> EmitNode:
@@ -45,7 +45,7 @@ class FiveGChannelModel(EmitNode):
 
     @base_antenna.setter
     def base_antenna(self, value: EmitNode):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Base Antenna=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Base Antenna=' + value])
 
     @property
     def mobile_antenna(self) -> EmitNode:
@@ -57,7 +57,7 @@ class FiveGChannelModel(EmitNode):
 
     @mobile_antenna.setter
     def mobile_antenna(self, value: EmitNode):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Mobile Antenna=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Mobile Antenna=' + value])
 
     @property
     def enable_refinement(self) -> bool:
@@ -70,7 +70,7 @@ class FiveGChannelModel(EmitNode):
 
     @enable_refinement.setter
     def enable_refinement(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Enable Refinement=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Enable Refinement=' + value])
 
     @property
     def adaptive_sampling(self) -> bool:
@@ -83,7 +83,7 @@ class FiveGChannelModel(EmitNode):
 
     @adaptive_sampling.setter
     def adaptive_sampling(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Adaptive Sampling=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Adaptive Sampling=' + value])
 
     @property
     def refinement_domain(self):
@@ -95,7 +95,7 @@ class FiveGChannelModel(EmitNode):
 
     @refinement_domain.setter
     def refinement_domain(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Refinement Domain=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Refinement Domain=' + value])
 
     class EnvironmentOption(Enum):
             URBANMICROCELL = "Urban Microcell"
@@ -113,7 +113,7 @@ class FiveGChannelModel(EmitNode):
 
     @environment.setter
     def environment(self, value: EnvironmentOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Environment=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Environment=' + value.value])
 
     @property
     def los(self) -> bool:
@@ -126,7 +126,7 @@ class FiveGChannelModel(EmitNode):
 
     @los.setter
     def los(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['LOS=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['LOS=' + value])
 
     @property
     def include_bpl(self) -> bool:
@@ -139,7 +139,7 @@ class FiveGChannelModel(EmitNode):
 
     @include_bpl.setter
     def include_bpl(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Include BPL=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Include BPL=' + value])
 
     class NYUBPLModelOption(Enum):
             LOWLOSSMODEL = "Low-loss model"
@@ -156,7 +156,7 @@ class FiveGChannelModel(EmitNode):
 
     @nyu_bpl_model.setter
     def nyu_bpl_model(self, value: NYUBPLModelOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['NYU BPL Model=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['NYU BPL Model=' + value.value])
 
     @property
     def custom_fading_margin(self) -> float:
@@ -168,8 +168,8 @@ class FiveGChannelModel(EmitNode):
         return val
 
     @custom_fading_margin.setter
-    def custom_fading_margin(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Custom Fading Margin=' + value])
+    def custom_fading_margin(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Custom Fading Margin=' + value])
 
     @property
     def polarization_mismatch(self) -> float:
@@ -181,8 +181,8 @@ class FiveGChannelModel(EmitNode):
         return val
 
     @polarization_mismatch.setter
-    def polarization_mismatch(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Polarization Mismatch=' + value])
+    def polarization_mismatch(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Polarization Mismatch=' + value])
 
     @property
     def pointing_error_loss(self) -> float:
@@ -194,8 +194,8 @@ class FiveGChannelModel(EmitNode):
         return val
 
     @pointing_error_loss.setter
-    def pointing_error_loss(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Pointing Error Loss=' + value])
+    def pointing_error_loss(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Pointing Error Loss=' + value])
 
     class FadingTypeOption(Enum):
             NOFADING = "None"
@@ -214,7 +214,7 @@ class FiveGChannelModel(EmitNode):
 
     @fading_type.setter
     def fading_type(self, value: FadingTypeOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Fading Type=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Fading Type=' + value.value])
 
     @property
     def fading_availability(self) -> float:
@@ -226,8 +226,8 @@ class FiveGChannelModel(EmitNode):
         return val
 
     @fading_availability.setter
-    def fading_availability(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Fading Availability=' + value])
+    def fading_availability(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Fading Availability=' + value])
 
     @property
     def std_deviation(self) -> float:
@@ -239,8 +239,8 @@ class FiveGChannelModel(EmitNode):
         return val
 
     @std_deviation.setter
-    def std_deviation(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Std Deviation=' + value])
+    def std_deviation(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Std Deviation=' + value])
 
     @property
     def include_rain_attenuation(self) -> bool:
@@ -253,7 +253,7 @@ class FiveGChannelModel(EmitNode):
 
     @include_rain_attenuation.setter
     def include_rain_attenuation(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Include Rain Attenuation=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Include Rain Attenuation=' + value])
 
     @property
     def rain_availability(self) -> float:
@@ -265,8 +265,8 @@ class FiveGChannelModel(EmitNode):
         return val
 
     @rain_availability.setter
-    def rain_availability(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Rain Availability=' + value])
+    def rain_availability(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Rain Availability=' + value])
 
     @property
     def rain_rate(self) -> float:
@@ -278,8 +278,8 @@ class FiveGChannelModel(EmitNode):
         return val
 
     @rain_rate.setter
-    def rain_rate(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Rain Rate=' + value])
+    def rain_rate(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Rain Rate=' + value])
 
     @property
     def polarization_tilt_angle(self) -> float:
@@ -291,8 +291,8 @@ class FiveGChannelModel(EmitNode):
         return val
 
     @polarization_tilt_angle.setter
-    def polarization_tilt_angle(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Polarization Tilt Angle=' + value])
+    def polarization_tilt_angle(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Polarization Tilt Angle=' + value])
 
     @property
     def include_atmospheric_absorption(self) -> bool:
@@ -305,7 +305,7 @@ class FiveGChannelModel(EmitNode):
 
     @include_atmospheric_absorption.setter
     def include_atmospheric_absorption(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Include Atmospheric Absorption=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Include Atmospheric Absorption=' + value])
 
     @property
     def temperature(self) -> float:
@@ -317,8 +317,8 @@ class FiveGChannelModel(EmitNode):
         return val
 
     @temperature.setter
-    def temperature(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Temperature=' + value])
+    def temperature(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Temperature=' + value])
 
     @property
     def total_air_pressure(self) -> float:
@@ -330,8 +330,8 @@ class FiveGChannelModel(EmitNode):
         return val
 
     @total_air_pressure.setter
-    def total_air_pressure(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Total Air Pressure=' + value])
+    def total_air_pressure(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Total Air Pressure=' + value])
 
     @property
     def water_vapor_concentration(self) -> float:
@@ -343,6 +343,6 @@ class FiveGChannelModel(EmitNode):
         return val
 
     @water_vapor_concentration.setter
-    def water_vapor_concentration(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Water Vapor Concentration=' + value])
+    def water_vapor_concentration(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Water Vapor Concentration=' + value])
 

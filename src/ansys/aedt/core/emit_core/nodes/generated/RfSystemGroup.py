@@ -21,7 +21,7 @@ class RfSystemGroup(EmitNode):
 
     @enable_passive_noise.setter
     def enable_passive_noise(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Enable Passive Noise=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Enable Passive Noise=' + value])
 
     @property
     def enforce_thermal_noise_floor(self) -> bool:
@@ -34,5 +34,5 @@ class RfSystemGroup(EmitNode):
 
     @enforce_thermal_noise_floor.setter
     def enforce_thermal_noise_floor(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Enforce Thermal Noise Floor=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Enforce Thermal Noise Floor=' + value])
 

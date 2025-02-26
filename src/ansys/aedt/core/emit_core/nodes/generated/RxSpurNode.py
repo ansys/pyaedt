@@ -38,11 +38,11 @@ class RxSpurNode(EmitNode):
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._oDesign.GetModule('EmitCom').GetEmitNodeProperties(self._result_id,self._node_id,'enabled')
+        return self._oRevisionData.GetEmitNodeProperties(self._result_id,self._node_id,'enabled')
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['enabled=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['enabled=' + value])
 
     class SpurTableUnitsOption(Enum):
             ABSOLUTE = "Absolute"
@@ -59,5 +59,5 @@ class RxSpurNode(EmitNode):
 
     @spur_table_units.setter
     def spur_table_units(self, value: SpurTableUnitsOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Spur Table Units=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Spur Table Units=' + value.value])
 

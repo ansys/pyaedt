@@ -28,7 +28,7 @@ class Cable(EmitNode):
 
     @filename.setter
     def filename(self, value: str):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Filename=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Filename=' + value])
 
     @property
     def noise_temperature(self) -> float:
@@ -40,8 +40,8 @@ class Cable(EmitNode):
         return val
 
     @noise_temperature.setter
-    def noise_temperature(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Noise Temperature=' + value])
+    def noise_temperature(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Noise Temperature=' + value])
 
     @property
     def notes(self) -> str:
@@ -53,7 +53,7 @@ class Cable(EmitNode):
 
     @notes.setter
     def notes(self, value: str):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
 
     class TypeOption(Enum):
             BYFILE = "By File"
@@ -71,20 +71,23 @@ class Cable(EmitNode):
 
     @type.setter
     def type(self, value: TypeOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Type=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Type=' + value.value])
 
     @property
     def length(self) -> float:
         """Length
         "Length of cable."
+        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be between 0 and 500."
         """
         val = self._get_property('Length')
+        val = self._convert_from_default_units(float(val), "Length Unit")
         return val
 
     @length.setter
-    def length(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Length=' + value])
+    def length(self, value : float|str):
+        value = self._convert_to_default_units(value, "Length Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Length=' + f"{value}"])
 
     @property
     def loss_per_length(self) -> float:
@@ -96,21 +99,24 @@ class Cable(EmitNode):
         return val
 
     @loss_per_length.setter
-    def loss_per_length(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Loss Per Length=' + value])
+    def loss_per_length(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Loss Per Length=' + value])
 
     @property
     def measurement_length(self) -> float:
         """Measurement Length
         "Length of the cable used for the measurements."
+        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be between 0 and 500."
         """
         val = self._get_property('Measurement Length')
+        val = self._convert_from_default_units(float(val), "Length Unit")
         return val
 
     @measurement_length.setter
-    def measurement_length(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Measurement Length=' + value])
+    def measurement_length(self, value : float|str):
+        value = self._convert_to_default_units(value, "Length Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Measurement Length=' + f"{value}"])
 
     @property
     def resistive_loss_constant(self) -> float:
@@ -122,8 +128,8 @@ class Cable(EmitNode):
         return val
 
     @resistive_loss_constant.setter
-    def resistive_loss_constant(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Resistive Loss Constant=' + value])
+    def resistive_loss_constant(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Resistive Loss Constant=' + value])
 
     @property
     def dielectric_loss_constant(self) -> float:
@@ -135,8 +141,8 @@ class Cable(EmitNode):
         return val
 
     @dielectric_loss_constant.setter
-    def dielectric_loss_constant(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Dielectric Loss Constant=' + value])
+    def dielectric_loss_constant(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Dielectric Loss Constant=' + value])
 
     @property
     def warnings(self) -> str:

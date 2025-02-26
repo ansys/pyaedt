@@ -209,45 +209,55 @@ class ReadOnlyAntennaNode(EmitNode):
     def resonant_frequency(self) -> float:
         """Resonant Frequency
         "Set first resonant frequency of wire dipole, monopole, or parametric antenna."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+13."
         """
         val = self._get_property('Resonant Frequency')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @property
     def slot_length(self) -> float:
         """Slot Length
         "Set slot length of parametric slot."
+        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
         val = self._get_property('Slot Length')
+        val = self._convert_from_default_units(float(val), "Length Unit")
         return val
 
     @property
     def mouth_width(self) -> float:
         """Mouth Width
         "Set mouth width (along local y-axis) of the horn antenna."
+        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be between 1e-06 and 100."
         """
         val = self._get_property('Mouth Width')
+        val = self._convert_from_default_units(float(val), "Length Unit")
         return val
 
     @property
     def mouth_height(self) -> float:
         """Mouth Height
         "Set mouth height (along local x-axis) of the horn antenna."
+        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be between 1e-06 and 100."
         """
         val = self._get_property('Mouth Height')
+        val = self._convert_from_default_units(float(val), "Length Unit")
         return val
 
     @property
     def waveguide_width(self) -> float:
         """Waveguide Width
         "Set waveguide width (along local y-axis) where flared horn walls meet the feed, determines cut-off frequency."
+        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be between 1e-06 and 100."
         """
         val = self._get_property('Waveguide Width')
+        val = self._convert_from_default_units(float(val), "Length Unit")
         return val
 
     @property
@@ -272,9 +282,11 @@ class ReadOnlyAntennaNode(EmitNode):
     def mouth_diameter(self) -> float:
         """Mouth Diameter
         "Set aperture (mouth) diameter of horn antenna."
+        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be between 1e-06 and 100."
         """
         val = self._get_property('Mouth Diameter')
+        val = self._convert_from_default_units(float(val), "Length Unit")
         return val
 
     @property
@@ -349,9 +361,11 @@ class ReadOnlyAntennaNode(EmitNode):
     def offset_height(self) -> float:
         """Offset Height
         "Sets the offset height for the current sources above the ground plane."
+        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 0."
         """
         val = self._get_property('Offset Height')
+        val = self._convert_from_default_units(float(val), "Length Unit")
         return val
 
     @property
@@ -523,24 +537,30 @@ class ReadOnlyAntennaNode(EmitNode):
     def waveguide_height(self) -> float:
         """Waveguide Height
         "Implied waveguide height (along local x-axis) where the flared horn walls meet the feed."
+        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "        """
         val = self._get_property('Waveguide Height')
+        val = self._convert_from_default_units(float(val), "Length Unit")
         return val
 
     @property
     def waveguide_cutoff_frequency(self) -> float:
         """Waveguide Cutoff Frequency
         "Implied lowest operating frequency of pyramidal horn antenna."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "        """
         val = self._get_property('Waveguide Cutoff Frequency')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @property
     def aperture_cutoff_frequency(self) -> float:
         """Aperture Cutoff Frequency
         "Implied lowest operating frequency of conical horn antenna."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "        """
         val = self._get_property('Aperture Cutoff Frequency')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     class SWEModeTruncationOption(Enum):

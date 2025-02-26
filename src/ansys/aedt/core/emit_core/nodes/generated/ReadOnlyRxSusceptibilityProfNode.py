@@ -65,9 +65,11 @@ class ReadOnlyRxSusceptibilityProfNode(EmitNode):
     def saturation_level(self) -> float:
         """Saturation Level
         "Rx input saturation level."
+        "Units options: fW, pW, nW, uW, mW, W, kW, megW, gW, dBm, dBW."
         "Value should be between -1000 and 1000."
         """
         val = self._get_property('Saturation Level')
+        val = self._convert_from_default_units(float(val), "Power Unit")
         return val
 
     @property
@@ -83,9 +85,11 @@ class ReadOnlyRxSusceptibilityProfNode(EmitNode):
     def receiver_sensitivity_(self) -> float:
         """Receiver Sensitivity 
         "Rx minimum sensitivity level (dBm)."
+        "Units options: fW, pW, nW, uW, mW, W, kW, megW, gW, dBm, dBW."
         "Value should be between -1000 and 1000."
         """
         val = self._get_property('Receiver Sensitivity ')
+        val = self._convert_from_default_units(float(val), "Power Unit")
         return val
 
     @property
@@ -110,27 +114,33 @@ class ReadOnlyRxSusceptibilityProfNode(EmitNode):
     def amplifier_saturation_level(self) -> float:
         """Amplifier Saturation Level
         "Internal Rx Amplifier's Saturation Level."
+        "Units options: fW, pW, nW, uW, mW, W, kW, megW, gW, dBm, dBW."
         "Value should be between -200 and 200."
         """
         val = self._get_property('Amplifier Saturation Level')
+        val = self._convert_from_default_units(float(val), "Power Unit")
         return val
 
     @property
     def _1_db_point_ref_input_(self) -> float:
         """1-dB Point, Ref. Input 
         "Rx's 1 dB Compression Point - total power > P1dB saturates the receiver."
+        "Units options: fW, pW, nW, uW, mW, W, kW, megW, gW, dBm, dBW."
         "Value should be between -1000 and 1000."
         """
         val = self._get_property('1-dB Point, Ref. Input ')
+        val = self._convert_from_default_units(float(val), "Power Unit")
         return val
 
     @property
     def ip3_ref_input(self) -> float:
         """IP3, Ref. Input
         "Internal Rx Amplifier's 3rd order intercept point."
+        "Units options: fW, pW, nW, uW, mW, W, kW, megW, gW, dBm, dBW."
         "Value should be between -1000 and 1000."
         """
         val = self._get_property('IP3, Ref. Input')
+        val = self._convert_from_default_units(float(val), "Power Unit")
         return val
 
     @property

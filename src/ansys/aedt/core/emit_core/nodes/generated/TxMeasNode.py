@@ -40,8 +40,10 @@ class TxMeasNode(EmitNode):
     def transmit_frequency(self) -> float:
         """Transmit Frequency
         "Channel associated with the measurement file."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "        """
         val = self._get_property('Transmit Frequency')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @property
@@ -55,33 +57,39 @@ class TxMeasNode(EmitNode):
 
     @use_ams_limits.setter
     def use_ams_limits(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Use AMS Limits=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Use AMS Limits=' + value])
 
     @property
     def start_frequency(self) -> float:
         """Start Frequency
         "Starting frequency for the measurement sweep."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be greater than 1e+06."
         """
         val = self._get_property('Start Frequency')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @start_frequency.setter
-    def start_frequency(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Start Frequency=' + value])
+    def start_frequency(self, value : float|str):
+        value = self._convert_to_default_units(value, "Frequency Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Start Frequency=' + f"{value}"])
 
     @property
     def stop_frequency(self) -> float:
         """Stop Frequency
         "Stopping frequency for the measurement sweep."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be less than 6e+09."
         """
         val = self._get_property('Stop Frequency')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @stop_frequency.setter
-    def stop_frequency(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Stop Frequency=' + value])
+    def stop_frequency(self, value : float|str):
+        value = self._convert_to_default_units(value, "Frequency Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Stop Frequency=' + f"{value}"])
 
     @property
     def exclude_harmonics_below_noise(self) -> bool:
@@ -94,14 +102,14 @@ class TxMeasNode(EmitNode):
 
     @exclude_harmonics_below_noise.setter
     def exclude_harmonics_below_noise(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Exclude Harmonics Below Noise=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Exclude Harmonics Below Noise=' + value])
 
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._oDesign.GetModule('EmitCom').GetEmitNodeProperties(self._result_id,self._node_id,'enabled')
+        return self._oRevisionData.GetEmitNodeProperties(self._result_id,self._node_id,'enabled')
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['enabled=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['enabled=' + value])
 

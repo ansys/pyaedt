@@ -33,7 +33,7 @@ class WalfischCouplingNode(EmitNode):
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Enabled=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Enabled=' + value])
 
     @property
     def base_antenna(self) -> EmitNode:
@@ -45,7 +45,7 @@ class WalfischCouplingNode(EmitNode):
 
     @base_antenna.setter
     def base_antenna(self, value: EmitNode):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Base Antenna=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Base Antenna=' + value])
 
     @property
     def mobile_antenna(self) -> EmitNode:
@@ -57,7 +57,7 @@ class WalfischCouplingNode(EmitNode):
 
     @mobile_antenna.setter
     def mobile_antenna(self, value: EmitNode):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Mobile Antenna=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Mobile Antenna=' + value])
 
     @property
     def enable_refinement(self) -> bool:
@@ -70,7 +70,7 @@ class WalfischCouplingNode(EmitNode):
 
     @enable_refinement.setter
     def enable_refinement(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Enable Refinement=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Enable Refinement=' + value])
 
     @property
     def adaptive_sampling(self) -> bool:
@@ -83,7 +83,7 @@ class WalfischCouplingNode(EmitNode):
 
     @adaptive_sampling.setter
     def adaptive_sampling(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Adaptive Sampling=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Adaptive Sampling=' + value])
 
     @property
     def refinement_domain(self):
@@ -95,7 +95,7 @@ class WalfischCouplingNode(EmitNode):
 
     @refinement_domain.setter
     def refinement_domain(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Refinement Domain=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Refinement Domain=' + value])
 
     class PathLossTypeOption(Enum):
             WALFISCHLOS = "LOS (Urban Canyon)"
@@ -112,7 +112,7 @@ class WalfischCouplingNode(EmitNode):
 
     @path_loss_type.setter
     def path_loss_type(self, value: PathLossTypeOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Path Loss Type=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Path Loss Type=' + value.value])
 
     class EnvironmentOption(Enum):
             DENSEMETROAREA = "Dense Metro"
@@ -129,46 +129,55 @@ class WalfischCouplingNode(EmitNode):
 
     @environment.setter
     def environment(self, value: EnvironmentOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Environment=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Environment=' + value.value])
 
     @property
     def roof_height(self) -> float:
         """Roof Height
         "The height of the building where the antenna is located.."
+        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be between 0 and 100."
         """
         val = self._get_property('Roof Height')
+        val = self._convert_from_default_units(float(val), "Length Unit")
         return val
 
     @roof_height.setter
-    def roof_height(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Roof Height=' + value])
+    def roof_height(self, value : float|str):
+        value = self._convert_to_default_units(value, "Length Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Roof Height=' + f"{value}"])
 
     @property
     def distance_between_buildings(self) -> float:
         """Distance Between Buildings
         "The distance between two buildings.."
+        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be between 0 and 100."
         """
         val = self._get_property('Distance Between Buildings')
+        val = self._convert_from_default_units(float(val), "Length Unit")
         return val
 
     @distance_between_buildings.setter
-    def distance_between_buildings(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Distance Between Buildings=' + value])
+    def distance_between_buildings(self, value : float|str):
+        value = self._convert_to_default_units(value, "Length Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Distance Between Buildings=' + f"{value}"])
 
     @property
     def street_width(self) -> float:
         """Street Width
         "Width of the street.."
+        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be between 0 and 100."
         """
         val = self._get_property('Street Width')
+        val = self._convert_from_default_units(float(val), "Length Unit")
         return val
 
     @street_width.setter
-    def street_width(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Street Width=' + value])
+    def street_width(self, value : float|str):
+        value = self._convert_to_default_units(value, "Length Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Street Width=' + f"{value}"])
 
     @property
     def incidence_angle(self) -> float:
@@ -180,8 +189,8 @@ class WalfischCouplingNode(EmitNode):
         return val
 
     @incidence_angle.setter
-    def incidence_angle(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Incidence Angle=' + value])
+    def incidence_angle(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Incidence Angle=' + value])
 
     @property
     def custom_fading_margin(self) -> float:
@@ -193,8 +202,8 @@ class WalfischCouplingNode(EmitNode):
         return val
 
     @custom_fading_margin.setter
-    def custom_fading_margin(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Custom Fading Margin=' + value])
+    def custom_fading_margin(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Custom Fading Margin=' + value])
 
     @property
     def polarization_mismatch(self) -> float:
@@ -206,8 +215,8 @@ class WalfischCouplingNode(EmitNode):
         return val
 
     @polarization_mismatch.setter
-    def polarization_mismatch(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Polarization Mismatch=' + value])
+    def polarization_mismatch(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Polarization Mismatch=' + value])
 
     @property
     def pointing_error_loss(self) -> float:
@@ -219,8 +228,8 @@ class WalfischCouplingNode(EmitNode):
         return val
 
     @pointing_error_loss.setter
-    def pointing_error_loss(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Pointing Error Loss=' + value])
+    def pointing_error_loss(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Pointing Error Loss=' + value])
 
     class FadingTypeOption(Enum):
             NOFADING = "None"
@@ -239,7 +248,7 @@ class WalfischCouplingNode(EmitNode):
 
     @fading_type.setter
     def fading_type(self, value: FadingTypeOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Fading Type=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Fading Type=' + value.value])
 
     @property
     def fading_availability(self) -> float:
@@ -251,8 +260,8 @@ class WalfischCouplingNode(EmitNode):
         return val
 
     @fading_availability.setter
-    def fading_availability(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Fading Availability=' + value])
+    def fading_availability(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Fading Availability=' + value])
 
     @property
     def std_deviation(self) -> float:
@@ -264,8 +273,8 @@ class WalfischCouplingNode(EmitNode):
         return val
 
     @std_deviation.setter
-    def std_deviation(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Std Deviation=' + value])
+    def std_deviation(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Std Deviation=' + value])
 
     @property
     def include_rain_attenuation(self) -> bool:
@@ -278,7 +287,7 @@ class WalfischCouplingNode(EmitNode):
 
     @include_rain_attenuation.setter
     def include_rain_attenuation(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Include Rain Attenuation=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Include Rain Attenuation=' + value])
 
     @property
     def rain_availability(self) -> float:
@@ -290,8 +299,8 @@ class WalfischCouplingNode(EmitNode):
         return val
 
     @rain_availability.setter
-    def rain_availability(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Rain Availability=' + value])
+    def rain_availability(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Rain Availability=' + value])
 
     @property
     def rain_rate(self) -> float:
@@ -303,8 +312,8 @@ class WalfischCouplingNode(EmitNode):
         return val
 
     @rain_rate.setter
-    def rain_rate(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Rain Rate=' + value])
+    def rain_rate(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Rain Rate=' + value])
 
     @property
     def polarization_tilt_angle(self) -> float:
@@ -316,8 +325,8 @@ class WalfischCouplingNode(EmitNode):
         return val
 
     @polarization_tilt_angle.setter
-    def polarization_tilt_angle(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Polarization Tilt Angle=' + value])
+    def polarization_tilt_angle(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Polarization Tilt Angle=' + value])
 
     @property
     def include_atmospheric_absorption(self) -> bool:
@@ -330,7 +339,7 @@ class WalfischCouplingNode(EmitNode):
 
     @include_atmospheric_absorption.setter
     def include_atmospheric_absorption(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Include Atmospheric Absorption=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Include Atmospheric Absorption=' + value])
 
     @property
     def temperature(self) -> float:
@@ -342,8 +351,8 @@ class WalfischCouplingNode(EmitNode):
         return val
 
     @temperature.setter
-    def temperature(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Temperature=' + value])
+    def temperature(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Temperature=' + value])
 
     @property
     def total_air_pressure(self) -> float:
@@ -355,8 +364,8 @@ class WalfischCouplingNode(EmitNode):
         return val
 
     @total_air_pressure.setter
-    def total_air_pressure(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Total Air Pressure=' + value])
+    def total_air_pressure(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Total Air Pressure=' + value])
 
     @property
     def water_vapor_concentration(self) -> float:
@@ -368,6 +377,6 @@ class WalfischCouplingNode(EmitNode):
         return val
 
     @water_vapor_concentration.setter
-    def water_vapor_concentration(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Water Vapor Concentration=' + value])
+    def water_vapor_concentration(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Water Vapor Concentration=' + value])
 

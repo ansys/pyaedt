@@ -21,11 +21,11 @@ class RxMixerProductNode(EmitNode):
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._oDesign.GetModule('EmitCom').GetEmitNodeProperties(self._result_id,self._node_id,'enabled')
+        return self._oRevisionData.GetEmitNodeProperties(self._result_id,self._node_id,'enabled')
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['enabled=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['enabled=' + value])
 
     class MixerProductTaperOption(Enum):
             CONSTANT = "Constant"
@@ -43,7 +43,7 @@ class RxMixerProductNode(EmitNode):
 
     @mixer_product_taper.setter
     def mixer_product_taper(self, value: MixerProductTaperOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Mixer Product Taper=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Mixer Product Taper=' + value.value])
 
     @property
     def mixer_product_susceptibility(self) -> float:
@@ -55,8 +55,8 @@ class RxMixerProductNode(EmitNode):
         return val
 
     @mixer_product_susceptibility.setter
-    def mixer_product_susceptibility(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Mixer Product Susceptibility=' + value])
+    def mixer_product_susceptibility(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Mixer Product Susceptibility=' + value])
 
     @property
     def spurious_rejection(self) -> float:
@@ -68,34 +68,40 @@ class RxMixerProductNode(EmitNode):
         return val
 
     @spurious_rejection.setter
-    def spurious_rejection(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Spurious Rejection=' + value])
+    def spurious_rejection(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Spurious Rejection=' + value])
 
     @property
     def minimum_tuning_frequency(self) -> float:
         """Minimum Tuning Frequency
         "Minimum tuning frequency of Rx's local oscillator."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Minimum Tuning Frequency')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @minimum_tuning_frequency.setter
-    def minimum_tuning_frequency(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Minimum Tuning Frequency=' + value])
+    def minimum_tuning_frequency(self, value : float|str):
+        value = self._convert_to_default_units(value, "Frequency Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Minimum Tuning Frequency=' + f"{value}"])
 
     @property
     def maximum_tuning_frequency(self) -> float:
         """Maximum Tuning Frequency
         "Maximum tuning frequency of Rx's local oscillator."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Maximum Tuning Frequency')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @maximum_tuning_frequency.setter
-    def maximum_tuning_frequency(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Maximum Tuning Frequency=' + value])
+    def maximum_tuning_frequency(self, value : float|str):
+        value = self._convert_to_default_units(value, "Frequency Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Maximum Tuning Frequency=' + f"{value}"])
 
     @property
     def mixer_product_slope(self) -> float:
@@ -107,8 +113,8 @@ class RxMixerProductNode(EmitNode):
         return val
 
     @mixer_product_slope.setter
-    def mixer_product_slope(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Mixer Product Slope=' + value])
+    def mixer_product_slope(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Mixer Product Slope=' + value])
 
     @property
     def mixer_product_intercept(self) -> float:
@@ -120,21 +126,24 @@ class RxMixerProductNode(EmitNode):
         return val
 
     @mixer_product_intercept.setter
-    def mixer_product_intercept(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Mixer Product Intercept=' + value])
+    def mixer_product_intercept(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Mixer Product Intercept=' + value])
 
     @property
     def _80_db_bandwidth(self) -> float:
         """80 dB Bandwidth
         "Bandwidth where Rx's susceptibility envelope is 80 dB above in-band susceptibility level."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be greater than 1."
         """
         val = self._get_property('80 dB Bandwidth')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @_80_db_bandwidth.setter
-    def _80_db_bandwidth(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['80 dB Bandwidth=' + value])
+    def _80_db_bandwidth(self, value : float|str):
+        value = self._convert_to_default_units(value, "Frequency Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['80 dB Bandwidth=' + f"{value}"])
 
     @property
     def image_rejection(self) -> float:
@@ -146,8 +155,8 @@ class RxMixerProductNode(EmitNode):
         return val
 
     @image_rejection.setter
-    def image_rejection(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Image Rejection=' + value])
+    def image_rejection(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Image Rejection=' + value])
 
     @property
     def maximum_rf_harmonic_order(self) -> int:
@@ -160,7 +169,7 @@ class RxMixerProductNode(EmitNode):
 
     @maximum_rf_harmonic_order.setter
     def maximum_rf_harmonic_order(self, value: int):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Maximum RF Harmonic Order=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Maximum RF Harmonic Order=' + value])
 
     @property
     def maximum_lo_harmonic_order(self) -> int:
@@ -173,7 +182,7 @@ class RxMixerProductNode(EmitNode):
 
     @maximum_lo_harmonic_order.setter
     def maximum_lo_harmonic_order(self, value: int):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Maximum LO Harmonic Order=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Maximum LO Harmonic Order=' + value])
 
     class MixingModeOption(Enum):
             ABOVETUNEDFREQUENCY = "LO Above Tuned (RF) Frequency"
@@ -191,7 +200,7 @@ class RxMixerProductNode(EmitNode):
 
     @mixing_mode.setter
     def mixing_mode(self, value: MixingModeOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Mixing Mode=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Mixing Mode=' + value.value])
 
     @property
     def _1st_if_frequency(self):
@@ -204,19 +213,22 @@ class RxMixerProductNode(EmitNode):
 
     @_1st_if_frequency.setter
     def _1st_if_frequency(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['1st IF Frequency=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['1st IF Frequency=' + value])
 
     @property
     def rf_transition_frequency(self) -> float:
         """RF Transition Frequency
         "RF Frequency Transition point."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "        """
         val = self._get_property('RF Transition Frequency')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @rf_transition_frequency.setter
-    def rf_transition_frequency(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['RF Transition Frequency=' + value])
+    def rf_transition_frequency(self, value : float|str):
+        value = self._convert_to_default_units(value, "Frequency Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['RF Transition Frequency=' + f"{value}"])
 
     class UseHighLOOption(Enum):
             ABOVETRANSITION = "Above Transition Frequency"
@@ -233,7 +245,7 @@ class RxMixerProductNode(EmitNode):
 
     @use_high_lo.setter
     def use_high_lo(self, value: UseHighLOOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Use High LO=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Use High LO=' + value.value])
 
     class MixerProductTableUnitsOption(Enum):
             ABSOLUTE = "Absolute"
@@ -250,5 +262,5 @@ class RxMixerProductNode(EmitNode):
 
     @mixer_product_table_units.setter
     def mixer_product_table_units(self, value: MixerProductTableUnitsOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Mixer Product Table Units=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Mixer Product Table Units=' + value.value])
 

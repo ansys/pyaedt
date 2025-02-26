@@ -37,7 +37,7 @@ class SceneGroupNode(EmitNode):
 
     @show_relative_coordinates.setter
     def show_relative_coordinates(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Show Relative Coordinates=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Show Relative Coordinates=' + value])
 
     @property
     def position(self):
@@ -50,7 +50,7 @@ class SceneGroupNode(EmitNode):
 
     @position.setter
     def position(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Position=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Position=' + value])
 
     @property
     def relative_position(self):
@@ -63,7 +63,7 @@ class SceneGroupNode(EmitNode):
 
     @relative_position.setter
     def relative_position(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Relative Position=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Relative Position=' + value])
 
     class OrientationModeOption(Enum):
             RPYDEG = "Roll-Pitch-Yaw"
@@ -80,7 +80,7 @@ class SceneGroupNode(EmitNode):
 
     @orientation_mode.setter
     def orientation_mode(self, value: OrientationModeOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Orientation Mode=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Orientation Mode=' + value.value])
 
     @property
     def orientation(self):
@@ -93,7 +93,7 @@ class SceneGroupNode(EmitNode):
 
     @orientation.setter
     def orientation(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Orientation=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Orientation=' + value])
 
     @property
     def relative_orientation(self):
@@ -106,7 +106,7 @@ class SceneGroupNode(EmitNode):
 
     @relative_orientation.setter
     def relative_orientation(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Relative Orientation=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Relative Orientation=' + value])
 
     @property
     def show_axes(self) -> bool:
@@ -119,7 +119,7 @@ class SceneGroupNode(EmitNode):
 
     @show_axes.setter
     def show_axes(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Show Axes=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Show Axes=' + value])
 
     @property
     def box_color(self):
@@ -132,7 +132,7 @@ class SceneGroupNode(EmitNode):
 
     @box_color.setter
     def box_color(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Box Color=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Box Color=' + value])
 
     @property
     def notes(self) -> str:
@@ -144,5 +144,5 @@ class SceneGroupNode(EmitNode):
 
     @notes.setter
     def notes(self, value: str):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
 

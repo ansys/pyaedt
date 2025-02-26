@@ -19,7 +19,7 @@ class EmitSceneNode(EmitNode):
 
     @notes.setter
     def notes(self, value: str):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
 
     class GroundPlaneNormalOption(Enum):
             XAXIS = "X Axis"
@@ -37,17 +37,20 @@ class EmitSceneNode(EmitNode):
 
     @ground_plane_normal.setter
     def ground_plane_normal(self, value: GroundPlaneNormalOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Ground Plane Normal=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Ground Plane Normal=' + value.value])
 
     @property
     def gp_position_along_normal(self) -> float:
         """GP Position Along Normal
         "Offset of ground plane in direction normal to the ground planes orientation."
+        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "        """
         val = self._get_property('GP Position Along Normal')
+        val = self._convert_from_default_units(float(val), "Length Unit")
         return val
 
     @gp_position_along_normal.setter
-    def gp_position_along_normal(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['GP Position Along Normal=' + value])
+    def gp_position_along_normal(self, value : float|str):
+        value = self._convert_to_default_units(value, "Length Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['GP Position Along Normal=' + f"{value}"])
 

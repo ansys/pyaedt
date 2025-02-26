@@ -58,46 +58,55 @@ class CADNode(EmitNode):
 
     @model_type.setter
     def model_type(self, value: ModelTypeOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Model Type=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Model Type=' + value.value])
 
     @property
     def length(self) -> float:
         """Length
         "Length of the model."
+        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
         val = self._get_property('Length')
+        val = self._convert_from_default_units(float(val), "Length Unit")
         return val
 
     @length.setter
-    def length(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Length=' + value])
+    def length(self, value : float|str):
+        value = self._convert_to_default_units(value, "Length Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Length=' + f"{value}"])
 
     @property
     def width(self) -> float:
         """Width
         "Width of the model."
+        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
         val = self._get_property('Width')
+        val = self._convert_from_default_units(float(val), "Length Unit")
         return val
 
     @width.setter
-    def width(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Width=' + value])
+    def width(self, value : float|str):
+        value = self._convert_to_default_units(value, "Length Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Width=' + f"{value}"])
 
     @property
     def height(self) -> float:
         """Height
         "Height of the model."
+        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
         val = self._get_property('Height')
+        val = self._convert_from_default_units(float(val), "Length Unit")
         return val
 
     @height.setter
-    def height(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Height=' + value])
+    def height(self, value : float|str):
+        value = self._convert_to_default_units(value, "Length Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Height=' + f"{value}"])
 
     @property
     def angle(self) -> float:
@@ -109,150 +118,183 @@ class CADNode(EmitNode):
         return val
 
     @angle.setter
-    def angle(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Angle=' + value])
+    def angle(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Angle=' + value])
 
     @property
     def top_side(self) -> float:
         """Top Side
         "Side of the top of a equilateral triangular cylinder model."
+        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 0."
         """
         val = self._get_property('Top Side')
+        val = self._convert_from_default_units(float(val), "Length Unit")
         return val
 
     @top_side.setter
-    def top_side(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Top Side=' + value])
+    def top_side(self, value : float|str):
+        value = self._convert_to_default_units(value, "Length Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Top Side=' + f"{value}"])
 
     @property
     def top_radius(self) -> float:
         """Top Radius
         "Radius of the top of a tapered cylinder model."
+        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 0."
         """
         val = self._get_property('Top Radius')
+        val = self._convert_from_default_units(float(val), "Length Unit")
         return val
 
     @top_radius.setter
-    def top_radius(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Top Radius=' + value])
+    def top_radius(self, value : float|str):
+        value = self._convert_to_default_units(value, "Length Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Top Radius=' + f"{value}"])
 
     @property
     def side(self) -> float:
         """Side
         "Side of the equilateral triangular cylinder."
+        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
         val = self._get_property('Side')
+        val = self._convert_from_default_units(float(val), "Length Unit")
         return val
 
     @side.setter
-    def side(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Side=' + value])
+    def side(self, value : float|str):
+        value = self._convert_to_default_units(value, "Length Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Side=' + f"{value}"])
 
     @property
     def radius(self) -> float:
         """Radius
         "Radius of the sphere or cylinder."
+        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
         val = self._get_property('Radius')
+        val = self._convert_from_default_units(float(val), "Length Unit")
         return val
 
     @radius.setter
-    def radius(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Radius=' + value])
+    def radius(self, value : float|str):
+        value = self._convert_to_default_units(value, "Length Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Radius=' + f"{value}"])
 
     @property
     def base_radius(self) -> float:
         """Base Radius
         "Radius of the base of a tophat model."
+        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
         val = self._get_property('Base Radius')
+        val = self._convert_from_default_units(float(val), "Length Unit")
         return val
 
     @base_radius.setter
-    def base_radius(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Base Radius=' + value])
+    def base_radius(self, value : float|str):
+        value = self._convert_to_default_units(value, "Length Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Base Radius=' + f"{value}"])
 
     @property
     def center_radius(self) -> float:
         """Center Radius
         "Radius of the raised portion of a tophat model."
+        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
         val = self._get_property('Center Radius')
+        val = self._convert_from_default_units(float(val), "Length Unit")
         return val
 
     @center_radius.setter
-    def center_radius(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Center Radius=' + value])
+    def center_radius(self, value : float|str):
+        value = self._convert_to_default_units(value, "Length Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Center Radius=' + f"{value}"])
 
     @property
     def x_axis_ellipsoid_radius(self) -> float:
         """X Axis Ellipsoid Radius
         "Ellipsoid semi-principal radius for the X axis."
+        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
         val = self._get_property('X Axis Ellipsoid Radius')
+        val = self._convert_from_default_units(float(val), "Length Unit")
         return val
 
     @x_axis_ellipsoid_radius.setter
-    def x_axis_ellipsoid_radius(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['X Axis Ellipsoid Radius=' + value])
+    def x_axis_ellipsoid_radius(self, value : float|str):
+        value = self._convert_to_default_units(value, "Length Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['X Axis Ellipsoid Radius=' + f"{value}"])
 
     @property
     def y_axis_ellipsoid_radius(self) -> float:
         """Y Axis Ellipsoid Radius
         "Ellipsoid semi-principal radius for the Y axis."
+        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
         val = self._get_property('Y Axis Ellipsoid Radius')
+        val = self._convert_from_default_units(float(val), "Length Unit")
         return val
 
     @y_axis_ellipsoid_radius.setter
-    def y_axis_ellipsoid_radius(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Y Axis Ellipsoid Radius=' + value])
+    def y_axis_ellipsoid_radius(self, value : float|str):
+        value = self._convert_to_default_units(value, "Length Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Y Axis Ellipsoid Radius=' + f"{value}"])
 
     @property
     def z_axis_ellipsoid_radius(self) -> float:
         """Z Axis Ellipsoid Radius
         "Ellipsoid semi-principal radius for the Z axis."
+        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
         val = self._get_property('Z Axis Ellipsoid Radius')
+        val = self._convert_from_default_units(float(val), "Length Unit")
         return val
 
     @z_axis_ellipsoid_radius.setter
-    def z_axis_ellipsoid_radius(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Z Axis Ellipsoid Radius=' + value])
+    def z_axis_ellipsoid_radius(self, value : float|str):
+        value = self._convert_to_default_units(value, "Length Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Z Axis Ellipsoid Radius=' + f"{value}"])
 
     @property
     def focal_length(self) -> float:
         """Focal Length
         "Focal length of a parabolic reflector (f = 1/4a where y=ax^2)."
+        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
         val = self._get_property('Focal Length')
+        val = self._convert_from_default_units(float(val), "Length Unit")
         return val
 
     @focal_length.setter
-    def focal_length(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Focal Length=' + value])
+    def focal_length(self, value : float|str):
+        value = self._convert_to_default_units(value, "Length Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Focal Length=' + f"{value}"])
 
     @property
     def offset(self) -> float:
         """Offset
         "Offset of parabolic reflector."
+        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "        """
         val = self._get_property('Offset')
+        val = self._convert_from_default_units(float(val), "Length Unit")
         return val
 
     @offset.setter
-    def offset(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Offset=' + value])
+    def offset(self, value : float|str):
+        value = self._convert_to_default_units(value, "Length Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Offset=' + f"{value}"])
 
     @property
     def x_direction_taper(self) -> float:
@@ -264,8 +306,8 @@ class CADNode(EmitNode):
         return val
 
     @x_direction_taper.setter
-    def x_direction_taper(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['X Direction Taper=' + value])
+    def x_direction_taper(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['X Direction Taper=' + value])
 
     @property
     def y_direction_taper(self) -> float:
@@ -277,8 +319,8 @@ class CADNode(EmitNode):
         return val
 
     @y_direction_taper.setter
-    def y_direction_taper(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Y Direction Taper=' + value])
+    def y_direction_taper(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Y Direction Taper=' + value])
 
     @property
     def prism_direction(self):
@@ -291,7 +333,7 @@ class CADNode(EmitNode):
 
     @prism_direction.setter
     def prism_direction(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Prism Direction=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Prism Direction=' + value])
 
     @property
     def closed_top(self) -> bool:
@@ -304,7 +346,7 @@ class CADNode(EmitNode):
 
     @closed_top.setter
     def closed_top(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Closed Top=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Closed Top=' + value])
 
     @property
     def closed_base(self) -> bool:
@@ -317,7 +359,7 @@ class CADNode(EmitNode):
 
     @closed_base.setter
     def closed_base(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Closed Base=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Closed Base=' + value])
 
     @property
     def mesh_density(self) -> int:
@@ -330,7 +372,7 @@ class CADNode(EmitNode):
 
     @mesh_density.setter
     def mesh_density(self, value: int):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Mesh Density=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Mesh Density=' + value])
 
     @property
     def use_symmetric_mesh(self) -> bool:
@@ -343,7 +385,7 @@ class CADNode(EmitNode):
 
     @use_symmetric_mesh.setter
     def use_symmetric_mesh(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Use Symmetric Mesh=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Use Symmetric Mesh=' + value])
 
     class MeshOptionOption(Enum):
             IMPROVED = "Improved"
@@ -360,7 +402,7 @@ class CADNode(EmitNode):
 
     @mesh_option.setter
     def mesh_option(self, value: MeshOptionOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Mesh Option=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Mesh Option=' + value.value])
 
     @property
     def coating_index(self) -> int:
@@ -373,7 +415,7 @@ class CADNode(EmitNode):
 
     @coating_index.setter
     def coating_index(self, value: int):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Coating Index=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Coating Index=' + value])
 
     @property
     def show_relative_coordinates(self) -> bool:
@@ -386,7 +428,7 @@ class CADNode(EmitNode):
 
     @show_relative_coordinates.setter
     def show_relative_coordinates(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Show Relative Coordinates=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Show Relative Coordinates=' + value])
 
     @property
     def position(self):
@@ -399,7 +441,7 @@ class CADNode(EmitNode):
 
     @position.setter
     def position(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Position=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Position=' + value])
 
     @property
     def relative_position(self):
@@ -412,7 +454,7 @@ class CADNode(EmitNode):
 
     @relative_position.setter
     def relative_position(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Relative Position=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Relative Position=' + value])
 
     class OrientationModeOption(Enum):
             RPYDEG = "Roll-Pitch-Yaw"
@@ -429,7 +471,7 @@ class CADNode(EmitNode):
 
     @orientation_mode.setter
     def orientation_mode(self, value: OrientationModeOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Orientation Mode=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Orientation Mode=' + value.value])
 
     @property
     def orientation(self):
@@ -442,7 +484,7 @@ class CADNode(EmitNode):
 
     @orientation.setter
     def orientation(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Orientation=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Orientation=' + value])
 
     @property
     def relative_orientation(self):
@@ -455,7 +497,7 @@ class CADNode(EmitNode):
 
     @relative_orientation.setter
     def relative_orientation(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Relative Orientation=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Relative Orientation=' + value])
 
     @property
     def visible(self) -> bool:
@@ -468,7 +510,7 @@ class CADNode(EmitNode):
 
     @visible.setter
     def visible(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Visible=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Visible=' + value])
 
     class RenderModeOption(Enum):
             FLAT_SHADED = "Flat-Shaded"
@@ -487,7 +529,7 @@ class CADNode(EmitNode):
 
     @render_mode.setter
     def render_mode(self, value: RenderModeOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Render Mode=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Render Mode=' + value.value])
 
     @property
     def show_axes(self) -> bool:
@@ -500,7 +542,7 @@ class CADNode(EmitNode):
 
     @show_axes.setter
     def show_axes(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Show Axes=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Show Axes=' + value])
 
     @property
     def min(self):
@@ -539,7 +581,7 @@ class CADNode(EmitNode):
 
     @color.setter
     def color(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Color=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Color=' + value])
 
     @property
     def notes(self) -> str:
@@ -551,5 +593,5 @@ class CADNode(EmitNode):
 
     @notes.setter
     def notes(self, value: str):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
 

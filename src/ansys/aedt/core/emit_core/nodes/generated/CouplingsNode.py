@@ -55,8 +55,8 @@ class CouplingsNode(EmitNode):
         return val
 
     @minimum_allowed_coupling.setter
-    def minimum_allowed_coupling(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Minimum Allowed Coupling=' + value])
+    def minimum_allowed_coupling(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Minimum Allowed Coupling=' + value])
 
     @property
     def global_default_coupling(self) -> float:
@@ -68,8 +68,8 @@ class CouplingsNode(EmitNode):
         return val
 
     @global_default_coupling.setter
-    def global_default_coupling(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Global Default Coupling=' + value])
+    def global_default_coupling(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Global Default Coupling=' + value])
 
     @property
     def antenna_tags(self) -> str:

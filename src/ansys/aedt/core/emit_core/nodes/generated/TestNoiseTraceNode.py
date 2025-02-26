@@ -33,7 +33,7 @@ class TestNoiseTraceNode(EmitNode):
 
     @input_port.setter
     def input_port(self, value: int):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Input Port=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Input Port=' + value])
 
     @property
     def output_port(self) -> int:
@@ -46,7 +46,7 @@ class TestNoiseTraceNode(EmitNode):
 
     @output_port.setter
     def output_port(self, value: int):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Output Port=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Output Port=' + value])
 
     @property
     def data_source(self):
@@ -58,7 +58,7 @@ class TestNoiseTraceNode(EmitNode):
 
     @data_source.setter
     def data_source(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Data Source=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Data Source=' + value])
 
     @property
     def visible(self) -> bool:
@@ -71,7 +71,7 @@ class TestNoiseTraceNode(EmitNode):
 
     @visible.setter
     def visible(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Visible=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Visible=' + value])
 
     @property
     def custom_legend(self) -> bool:
@@ -84,7 +84,7 @@ class TestNoiseTraceNode(EmitNode):
 
     @custom_legend.setter
     def custom_legend(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Custom Legend=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Custom Legend=' + value])
 
     @property
     def name(self) -> str:
@@ -96,7 +96,7 @@ class TestNoiseTraceNode(EmitNode):
 
     @name.setter
     def name(self, value: str):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Name=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Name=' + value])
 
     class StyleOption(Enum):
             LINES = "Lines"
@@ -117,7 +117,7 @@ class TestNoiseTraceNode(EmitNode):
 
     @style.setter
     def style(self, value: StyleOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Style=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Style=' + value.value])
 
     @property
     def line_width(self) -> int:
@@ -130,7 +130,7 @@ class TestNoiseTraceNode(EmitNode):
 
     @line_width.setter
     def line_width(self, value: int):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Line Width=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Line Width=' + value])
 
     @property
     def line_color(self):
@@ -143,7 +143,7 @@ class TestNoiseTraceNode(EmitNode):
 
     @line_color.setter
     def line_color(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Line Color=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Line Color=' + value])
 
     class SymbolOption(Enum):
             NOSYMBOL = "NoSymbol"
@@ -173,7 +173,7 @@ class TestNoiseTraceNode(EmitNode):
 
     @symbol.setter
     def symbol(self, value: SymbolOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Symbol=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Symbol=' + value.value])
 
     @property
     def symbol_size(self) -> int:
@@ -186,7 +186,7 @@ class TestNoiseTraceNode(EmitNode):
 
     @symbol_size.setter
     def symbol_size(self, value: int):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Size=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Size=' + value])
 
     @property
     def symbol_color(self):
@@ -199,7 +199,7 @@ class TestNoiseTraceNode(EmitNode):
 
     @symbol_color.setter
     def symbol_color(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Color=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Color=' + value])
 
     @property
     def symbol_line_width(self) -> int:
@@ -212,7 +212,7 @@ class TestNoiseTraceNode(EmitNode):
 
     @symbol_line_width.setter
     def symbol_line_width(self, value: int):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Line Width=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Line Width=' + value])
 
     @property
     def symbol_filled(self) -> bool:
@@ -225,85 +225,103 @@ class TestNoiseTraceNode(EmitNode):
 
     @symbol_filled.setter
     def symbol_filled(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Filled=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Filled=' + value])
 
     @property
     def frequency_1(self) -> float:
         """Frequency 1
         "1st test tone frequency."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Frequency 1')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @frequency_1.setter
-    def frequency_1(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Frequency 1=' + value])
+    def frequency_1(self, value : float|str):
+        value = self._convert_to_default_units(value, "Frequency Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Frequency 1=' + f"{value}"])
 
     @property
     def amplitude_1(self) -> float:
         """Amplitude 1
         "1st test tone amplitude."
+        "Units options: fW, pW, nW, uW, mW, W, kW, megW, gW, dBm, dBW."
         "Value should be between -100 and 200."
         """
         val = self._get_property('Amplitude 1')
+        val = self._convert_from_default_units(float(val), "Power Unit")
         return val
 
     @amplitude_1.setter
-    def amplitude_1(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Amplitude 1=' + value])
+    def amplitude_1(self, value : float|str):
+        value = self._convert_to_default_units(value, "Power Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Amplitude 1=' + f"{value}"])
 
     @property
     def bandwidth_1(self) -> float:
         """Bandwidth 1
         "1st test tone bandwidth."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be greater than 1."
         """
         val = self._get_property('Bandwidth 1')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @bandwidth_1.setter
-    def bandwidth_1(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Bandwidth 1=' + value])
+    def bandwidth_1(self, value : float|str):
+        value = self._convert_to_default_units(value, "Frequency Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Bandwidth 1=' + f"{value}"])
 
     @property
     def frequency_2(self) -> float:
         """Frequency 2
         "2nd test tone frequency."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Frequency 2')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @frequency_2.setter
-    def frequency_2(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Frequency 2=' + value])
+    def frequency_2(self, value : float|str):
+        value = self._convert_to_default_units(value, "Frequency Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Frequency 2=' + f"{value}"])
 
     @property
     def amplitude_2(self) -> float:
         """Amplitude 2
         "2nd test tone amplitude."
+        "Units options: fW, pW, nW, uW, mW, W, kW, megW, gW, dBm, dBW."
         "Value should be between -100 and 200."
         """
         val = self._get_property('Amplitude 2')
+        val = self._convert_from_default_units(float(val), "Power Unit")
         return val
 
     @amplitude_2.setter
-    def amplitude_2(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Amplitude 2=' + value])
+    def amplitude_2(self, value : float|str):
+        value = self._convert_to_default_units(value, "Power Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Amplitude 2=' + f"{value}"])
 
     @property
     def bandwidth_2(self) -> float:
         """Bandwidth 2
         "2nd test tone bandwidth."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be greater than 1."
         """
         val = self._get_property('Bandwidth 2')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @bandwidth_2.setter
-    def bandwidth_2(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Bandwidth 2=' + value])
+    def bandwidth_2(self, value : float|str):
+        value = self._convert_to_default_units(value, "Frequency Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Bandwidth 2=' + f"{value}"])
 
     @property
     def noise_level(self) -> float:
@@ -315,6 +333,6 @@ class TestNoiseTraceNode(EmitNode):
         return val
 
     @noise_level.setter
-    def noise_level(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Noise Level=' + value])
+    def noise_level(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Noise Level=' + value])
 

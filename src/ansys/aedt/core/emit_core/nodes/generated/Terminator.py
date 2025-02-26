@@ -28,7 +28,7 @@ class Terminator(EmitNode):
 
     @filename.setter
     def filename(self, value: str):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Filename=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Filename=' + value])
 
     @property
     def noise_temperature(self) -> float:
@@ -40,8 +40,8 @@ class Terminator(EmitNode):
         return val
 
     @noise_temperature.setter
-    def noise_temperature(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Noise Temperature=' + value])
+    def noise_temperature(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Noise Temperature=' + value])
 
     @property
     def notes(self) -> str:
@@ -53,7 +53,7 @@ class Terminator(EmitNode):
 
     @notes.setter
     def notes(self, value: str):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
 
     class TypeOption(Enum):
             BYFILE = "By File"
@@ -70,7 +70,7 @@ class Terminator(EmitNode):
 
     @type.setter
     def type(self, value: TypeOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Type=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Type=' + value.value])
 
     class PortLocationOption(Enum):
             RADIOSIDE = "Radio Side"
@@ -87,7 +87,7 @@ class Terminator(EmitNode):
 
     @port_location.setter
     def port_location(self, value: PortLocationOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Port Location=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Port Location=' + value.value])
 
     @property
     def vswr(self) -> float:
@@ -99,8 +99,8 @@ class Terminator(EmitNode):
         return val
 
     @vswr.setter
-    def vswr(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['VSWR=' + value])
+    def vswr(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['VSWR=' + value])
 
     @property
     def warnings(self) -> str:

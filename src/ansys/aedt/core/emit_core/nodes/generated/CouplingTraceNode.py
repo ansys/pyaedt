@@ -31,7 +31,7 @@ class CouplingTraceNode(EmitNode):
 
     @transmitter.setter
     def transmitter(self, value: EmitNode):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Transmitter=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Transmitter=' + value])
 
     @property
     def receiver(self) -> EmitNode:
@@ -42,7 +42,7 @@ class CouplingTraceNode(EmitNode):
 
     @receiver.setter
     def receiver(self, value: EmitNode):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Receiver=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Receiver=' + value])
 
     @property
     def data_source(self):
@@ -54,7 +54,7 @@ class CouplingTraceNode(EmitNode):
 
     @data_source.setter
     def data_source(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Data Source=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Data Source=' + value])
 
     @property
     def visible(self) -> bool:
@@ -67,7 +67,7 @@ class CouplingTraceNode(EmitNode):
 
     @visible.setter
     def visible(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Visible=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Visible=' + value])
 
     @property
     def custom_legend(self) -> bool:
@@ -80,7 +80,7 @@ class CouplingTraceNode(EmitNode):
 
     @custom_legend.setter
     def custom_legend(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Custom Legend=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Custom Legend=' + value])
 
     @property
     def name(self) -> str:
@@ -92,7 +92,7 @@ class CouplingTraceNode(EmitNode):
 
     @name.setter
     def name(self, value: str):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Name=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Name=' + value])
 
     class StyleOption(Enum):
             LINES = "Lines"
@@ -113,7 +113,7 @@ class CouplingTraceNode(EmitNode):
 
     @style.setter
     def style(self, value: StyleOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Style=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Style=' + value.value])
 
     @property
     def line_width(self) -> int:
@@ -126,7 +126,7 @@ class CouplingTraceNode(EmitNode):
 
     @line_width.setter
     def line_width(self, value: int):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Line Width=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Line Width=' + value])
 
     @property
     def line_color(self):
@@ -139,7 +139,7 @@ class CouplingTraceNode(EmitNode):
 
     @line_color.setter
     def line_color(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Line Color=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Line Color=' + value])
 
     class SymbolOption(Enum):
             NOSYMBOL = "NoSymbol"
@@ -169,7 +169,7 @@ class CouplingTraceNode(EmitNode):
 
     @symbol.setter
     def symbol(self, value: SymbolOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Symbol=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Symbol=' + value.value])
 
     @property
     def symbol_size(self) -> int:
@@ -182,7 +182,7 @@ class CouplingTraceNode(EmitNode):
 
     @symbol_size.setter
     def symbol_size(self, value: int):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Size=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Size=' + value])
 
     @property
     def symbol_color(self):
@@ -195,7 +195,7 @@ class CouplingTraceNode(EmitNode):
 
     @symbol_color.setter
     def symbol_color(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Color=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Color=' + value])
 
     @property
     def symbol_line_width(self) -> int:
@@ -208,7 +208,7 @@ class CouplingTraceNode(EmitNode):
 
     @symbol_line_width.setter
     def symbol_line_width(self, value: int):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Line Width=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Line Width=' + value])
 
     @property
     def symbol_filled(self) -> bool:
@@ -221,7 +221,7 @@ class CouplingTraceNode(EmitNode):
 
     @symbol_filled.setter
     def symbol_filled(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Filled=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Filled=' + value])
 
     @property
     def highlight_regions(self) -> bool:
@@ -234,7 +234,7 @@ class CouplingTraceNode(EmitNode):
 
     @highlight_regions.setter
     def highlight_regions(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Highlight Regions=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Highlight Regions=' + value])
 
     @property
     def show_region_labels(self) -> bool:
@@ -247,7 +247,7 @@ class CouplingTraceNode(EmitNode):
 
     @show_region_labels.setter
     def show_region_labels(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Show Region Labels=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Show Region Labels=' + value])
 
     @property
     def font(self):
@@ -260,7 +260,7 @@ class CouplingTraceNode(EmitNode):
 
     @font.setter
     def font(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Font=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Font=' + value])
 
     @property
     def color(self):
@@ -273,7 +273,7 @@ class CouplingTraceNode(EmitNode):
 
     @color.setter
     def color(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Color=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Color=' + value])
 
     @property
     def background_color(self):
@@ -286,7 +286,7 @@ class CouplingTraceNode(EmitNode):
 
     @background_color.setter
     def background_color(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Background Color=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Background Color=' + value])
 
     @property
     def border(self) -> bool:
@@ -299,7 +299,7 @@ class CouplingTraceNode(EmitNode):
 
     @border.setter
     def border(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Border=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Border=' + value])
 
     @property
     def border_width(self) -> int:
@@ -312,7 +312,7 @@ class CouplingTraceNode(EmitNode):
 
     @border_width.setter
     def border_width(self, value: int):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Border Width=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Border Width=' + value])
 
     @property
     def border_color(self):
@@ -325,5 +325,5 @@ class CouplingTraceNode(EmitNode):
 
     @border_color.setter
     def border_color(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Border Color=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Border Color=' + value])
 

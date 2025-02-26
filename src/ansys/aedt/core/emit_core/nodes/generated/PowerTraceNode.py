@@ -37,7 +37,7 @@ class PowerTraceNode(EmitNode):
 
     @direction.setter
     def direction(self, value: DirectionOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Direction=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Direction=' + value.value])
 
     @property
     def data_source(self):
@@ -49,7 +49,7 @@ class PowerTraceNode(EmitNode):
 
     @data_source.setter
     def data_source(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Data Source=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Data Source=' + value])
 
     @property
     def visible(self) -> bool:
@@ -62,7 +62,7 @@ class PowerTraceNode(EmitNode):
 
     @visible.setter
     def visible(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Visible=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Visible=' + value])
 
     @property
     def custom_legend(self) -> bool:
@@ -75,7 +75,7 @@ class PowerTraceNode(EmitNode):
 
     @custom_legend.setter
     def custom_legend(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Custom Legend=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Custom Legend=' + value])
 
     @property
     def name(self) -> str:
@@ -87,7 +87,7 @@ class PowerTraceNode(EmitNode):
 
     @name.setter
     def name(self, value: str):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Name=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Name=' + value])
 
     class StyleOption(Enum):
             LINES = "Lines"
@@ -108,7 +108,7 @@ class PowerTraceNode(EmitNode):
 
     @style.setter
     def style(self, value: StyleOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Style=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Style=' + value.value])
 
     @property
     def line_width(self) -> int:
@@ -121,7 +121,7 @@ class PowerTraceNode(EmitNode):
 
     @line_width.setter
     def line_width(self, value: int):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Line Width=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Line Width=' + value])
 
     @property
     def line_color(self):
@@ -134,7 +134,7 @@ class PowerTraceNode(EmitNode):
 
     @line_color.setter
     def line_color(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Line Color=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Line Color=' + value])
 
     class SymbolOption(Enum):
             NOSYMBOL = "NoSymbol"
@@ -164,7 +164,7 @@ class PowerTraceNode(EmitNode):
 
     @symbol.setter
     def symbol(self, value: SymbolOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Symbol=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Symbol=' + value.value])
 
     @property
     def symbol_size(self) -> int:
@@ -177,7 +177,7 @@ class PowerTraceNode(EmitNode):
 
     @symbol_size.setter
     def symbol_size(self, value: int):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Size=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Size=' + value])
 
     @property
     def symbol_color(self):
@@ -190,7 +190,7 @@ class PowerTraceNode(EmitNode):
 
     @symbol_color.setter
     def symbol_color(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Color=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Color=' + value])
 
     @property
     def symbol_line_width(self) -> int:
@@ -203,7 +203,7 @@ class PowerTraceNode(EmitNode):
 
     @symbol_line_width.setter
     def symbol_line_width(self, value: int):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Line Width=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Line Width=' + value])
 
     @property
     def symbol_filled(self) -> bool:
@@ -216,5 +216,5 @@ class PowerTraceNode(EmitNode):
 
     @symbol_filled.setter
     def symbol_filled(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Filled=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Filled=' + value])
 

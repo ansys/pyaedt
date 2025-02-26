@@ -28,7 +28,7 @@ class Sparameter(EmitNode):
 
     @file.setter
     def file(self, value: str):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['File=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['File=' + value])
 
     @property
     def noise_temperature(self) -> float:
@@ -40,8 +40,8 @@ class Sparameter(EmitNode):
         return val
 
     @noise_temperature.setter
-    def noise_temperature(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Noise Temperature=' + value])
+    def noise_temperature(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Noise Temperature=' + value])
 
     @property
     def notes(self) -> str:
@@ -53,7 +53,7 @@ class Sparameter(EmitNode):
 
     @notes.setter
     def notes(self, value: str):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
 
     @property
     def radio_side_ports(self):
@@ -66,7 +66,7 @@ class Sparameter(EmitNode):
 
     @radio_side_ports.setter
     def radio_side_ports(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Radio Side Ports=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Radio Side Ports=' + value])
 
     @property
     def antenna_side_ports(self):
@@ -79,7 +79,7 @@ class Sparameter(EmitNode):
 
     @antenna_side_ports.setter
     def antenna_side_ports(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Antenna Side Ports=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Antenna Side Ports=' + value])
 
     @property
     def warnings(self) -> str:

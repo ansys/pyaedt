@@ -28,7 +28,7 @@ class TR_Switch(EmitNode):
 
     @filename.setter
     def filename(self, value: str):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Filename=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Filename=' + value])
 
     @property
     def noise_temperature(self) -> float:
@@ -40,8 +40,8 @@ class TR_Switch(EmitNode):
         return val
 
     @noise_temperature.setter
-    def noise_temperature(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Noise Temperature=' + value])
+    def noise_temperature(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Noise Temperature=' + value])
 
     @property
     def notes(self) -> str:
@@ -53,7 +53,7 @@ class TR_Switch(EmitNode):
 
     @notes.setter
     def notes(self, value: str):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
 
     class TxPortOption(Enum):
             _0 = "Port 1"
@@ -70,7 +70,7 @@ class TR_Switch(EmitNode):
 
     @tx_port.setter
     def tx_port(self, value: TxPortOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Tx Port=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Tx Port=' + value.value])
 
     class CommonPortLocationOption(Enum):
             RADIOSIDE = "Radio Side"
@@ -87,7 +87,7 @@ class TR_Switch(EmitNode):
 
     @common_port_location.setter
     def common_port_location(self, value: CommonPortLocationOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Common Port Location=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Common Port Location=' + value.value])
 
     @property
     def insertion_loss(self) -> float:
@@ -99,8 +99,8 @@ class TR_Switch(EmitNode):
         return val
 
     @insertion_loss.setter
-    def insertion_loss(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Insertion Loss=' + value])
+    def insertion_loss(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Insertion Loss=' + value])
 
     @property
     def finite_isolation(self) -> bool:
@@ -113,7 +113,7 @@ class TR_Switch(EmitNode):
 
     @finite_isolation.setter
     def finite_isolation(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Finite Isolation=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Finite Isolation=' + value])
 
     @property
     def isolation(self) -> float:
@@ -125,8 +125,8 @@ class TR_Switch(EmitNode):
         return val
 
     @isolation.setter
-    def isolation(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Isolation=' + value])
+    def isolation(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Isolation=' + value])
 
     @property
     def finite_bandwidth(self) -> bool:
@@ -139,7 +139,7 @@ class TR_Switch(EmitNode):
 
     @finite_bandwidth.setter
     def finite_bandwidth(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Finite Bandwidth=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Finite Bandwidth=' + value])
 
     @property
     def out_of_band_attenuation(self) -> float:
@@ -151,58 +151,70 @@ class TR_Switch(EmitNode):
         return val
 
     @out_of_band_attenuation.setter
-    def out_of_band_attenuation(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Out-of-band Attenuation=' + value])
+    def out_of_band_attenuation(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Out-of-band Attenuation=' + value])
 
     @property
     def lower_stop_band(self) -> float:
         """Lower Stop Band
         "Lower stop band frequency."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Lower Stop Band')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @lower_stop_band.setter
-    def lower_stop_band(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Lower Stop Band=' + value])
+    def lower_stop_band(self, value : float|str):
+        value = self._convert_to_default_units(value, "Frequency Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Lower Stop Band=' + f"{value}"])
 
     @property
     def lower_cutoff(self) -> float:
         """Lower Cutoff
         "Lower cutoff frequency."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Lower Cutoff')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @lower_cutoff.setter
-    def lower_cutoff(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Lower Cutoff=' + value])
+    def lower_cutoff(self, value : float|str):
+        value = self._convert_to_default_units(value, "Frequency Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Lower Cutoff=' + f"{value}"])
 
     @property
     def higher_cutoff(self) -> float:
         """Higher Cutoff
         "Higher cutoff frequency."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Higher Cutoff')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @higher_cutoff.setter
-    def higher_cutoff(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Higher Cutoff=' + value])
+    def higher_cutoff(self, value : float|str):
+        value = self._convert_to_default_units(value, "Frequency Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Higher Cutoff=' + f"{value}"])
 
     @property
     def higher_stop_band(self) -> float:
         """Higher Stop Band
         "Higher stop band frequency."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Higher Stop Band')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @higher_stop_band.setter
-    def higher_stop_band(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Higher Stop Band=' + value])
+    def higher_stop_band(self, value : float|str):
+        value = self._convert_to_default_units(value, "Frequency Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Higher Stop Band=' + f"{value}"])
 

@@ -40,8 +40,10 @@ class RxMeasNode(EmitNode):
     def receive_frequency(self) -> float:
         """Receive Frequency
         "Channel associated with the measurement file."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "        """
         val = self._get_property('Receive Frequency')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     class MeasurementModeOption(Enum):
@@ -60,7 +62,7 @@ class RxMeasNode(EmitNode):
 
     @measurement_mode.setter
     def measurement_mode(self, value: MeasurementModeOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Measurement Mode=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Measurement Mode=' + value.value])
 
     @property
     def sinad_threshold(self) -> float:
@@ -72,8 +74,8 @@ class RxMeasNode(EmitNode):
         return val
 
     @sinad_threshold.setter
-    def sinad_threshold(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['SINAD Threshold=' + value])
+    def sinad_threshold(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['SINAD Threshold=' + value])
 
     @property
     def gps_cnr_threshold(self) -> float:
@@ -85,8 +87,8 @@ class RxMeasNode(EmitNode):
         return val
 
     @gps_cnr_threshold.setter
-    def gps_cnr_threshold(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['GPS CNR Threshold=' + value])
+    def gps_cnr_threshold(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['GPS CNR Threshold=' + value])
 
     @property
     def ber_threshold(self) -> float:
@@ -98,8 +100,8 @@ class RxMeasNode(EmitNode):
         return val
 
     @ber_threshold.setter
-    def ber_threshold(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['BER Threshold=' + value])
+    def ber_threshold(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['BER Threshold=' + value])
 
     @property
     def default_intended_power(self) -> bool:
@@ -112,7 +114,7 @@ class RxMeasNode(EmitNode):
 
     @default_intended_power.setter
     def default_intended_power(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Default Intended Power=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Default Intended Power=' + value])
 
     @property
     def intended_signal_power(self) -> float:
@@ -124,21 +126,24 @@ class RxMeasNode(EmitNode):
         return val
 
     @intended_signal_power.setter
-    def intended_signal_power(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Intended Signal Power=' + value])
+    def intended_signal_power(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Intended Signal Power=' + value])
 
     @property
     def freq_deviation(self) -> float:
         """Freq. Deviation
         "Specify the frequency deviation of the intended signal."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1000 and 200000."
         """
         val = self._get_property('Freq. Deviation')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @freq_deviation.setter
-    def freq_deviation(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Freq. Deviation=' + value])
+    def freq_deviation(self, value : float|str):
+        value = self._convert_to_default_units(value, "Frequency Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Freq. Deviation=' + f"{value}"])
 
     @property
     def modulation_depth(self) -> float:
@@ -150,8 +155,8 @@ class RxMeasNode(EmitNode):
         return val
 
     @modulation_depth.setter
-    def modulation_depth(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Modulation Depth=' + value])
+    def modulation_depth(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Modulation Depth=' + value])
 
     @property
     def measure_selectivity(self) -> bool:
@@ -164,7 +169,7 @@ class RxMeasNode(EmitNode):
 
     @measure_selectivity.setter
     def measure_selectivity(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Measure Selectivity=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Measure Selectivity=' + value])
 
     @property
     def measure_mixer_products(self) -> bool:
@@ -177,7 +182,7 @@ class RxMeasNode(EmitNode):
 
     @measure_mixer_products.setter
     def measure_mixer_products(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Measure Mixer Products=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Measure Mixer Products=' + value])
 
     @property
     def max_rf_order(self) -> int:
@@ -190,7 +195,7 @@ class RxMeasNode(EmitNode):
 
     @max_rf_order.setter
     def max_rf_order(self, value: int):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Max RF Order=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Max RF Order=' + value])
 
     @property
     def max_lo_order(self) -> int:
@@ -203,7 +208,7 @@ class RxMeasNode(EmitNode):
 
     @max_lo_order.setter
     def max_lo_order(self, value: int):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Max LO Order=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Max LO Order=' + value])
 
     @property
     def include_if(self) -> bool:
@@ -216,7 +221,7 @@ class RxMeasNode(EmitNode):
 
     @include_if.setter
     def include_if(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Include IF=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Include IF=' + value])
 
     @property
     def measure_saturation(self) -> bool:
@@ -229,7 +234,7 @@ class RxMeasNode(EmitNode):
 
     @measure_saturation.setter
     def measure_saturation(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Measure Saturation=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Measure Saturation=' + value])
 
     @property
     def use_ams_limits(self) -> bool:
@@ -242,33 +247,39 @@ class RxMeasNode(EmitNode):
 
     @use_ams_limits.setter
     def use_ams_limits(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Use AMS Limits=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Use AMS Limits=' + value])
 
     @property
     def start_frequency(self) -> float:
         """Start Frequency
         "Starting frequency for the measurement sweep."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be greater than 1e+06."
         """
         val = self._get_property('Start Frequency')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @start_frequency.setter
-    def start_frequency(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Start Frequency=' + value])
+    def start_frequency(self, value : float|str):
+        value = self._convert_to_default_units(value, "Frequency Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Start Frequency=' + f"{value}"])
 
     @property
     def stop_frequency(self) -> float:
         """Stop Frequency
         "Stopping frequency for the measurement sweep."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be less than 6e+09."
         """
         val = self._get_property('Stop Frequency')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @stop_frequency.setter
-    def stop_frequency(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Stop Frequency=' + value])
+    def stop_frequency(self, value : float|str):
+        value = self._convert_to_default_units(value, "Frequency Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Stop Frequency=' + f"{value}"])
 
     @property
     def samples(self) -> int:
@@ -281,7 +292,7 @@ class RxMeasNode(EmitNode):
 
     @samples.setter
     def samples(self, value: int):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Samples=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Samples=' + value])
 
     @property
     def exclude_mixer_products_below_noise(self) -> bool:
@@ -294,14 +305,14 @@ class RxMeasNode(EmitNode):
 
     @exclude_mixer_products_below_noise.setter
     def exclude_mixer_products_below_noise(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Exclude Mixer Products Below Noise=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Exclude Mixer Products Below Noise=' + value])
 
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._oDesign.GetModule('EmitCom').GetEmitNodeProperties(self._result_id,self._node_id,'enabled')
+        return self._oRevisionData.GetEmitNodeProperties(self._result_id,self._node_id,'enabled')
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['enabled=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['enabled=' + value])
 

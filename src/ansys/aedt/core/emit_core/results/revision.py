@@ -1036,8 +1036,8 @@ class Revision:
         --------
         >>> coupling_data_node = revision.get_coupling_data_node()
         """
-        ccoupling_data_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Couplings")
-        coupling_data_node = self._get_node(ccoupling_data_node_id)
+        coupling_data_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Couplings")
+        coupling_data_node = self._get_node(coupling_data_node_id)
         return coupling_data_node
 
     @pyaedt_function_handler
@@ -1057,6 +1057,24 @@ class Revision:
         simulation_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Simulation")
         simulation_node = self._get_node(simulation_node_id)
         return simulation_node
+    
+    @pyaedt_function_handler
+    @error_if_below_aedt_version(251)
+    def get_preferences_node(self) -> EmitNode:
+        """Gets the Preferences node for this revision.
+
+        Returns
+        -------
+        node: EmitNode
+            The Preferences node for this revision.
+        
+        Examples
+        --------
+        >>> preferences_node = revision.get_preferences_node()
+        """
+        preferences_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Preferences")
+        preferences_node = self._get_node(preferences_node_id)
+        return preferences_node
 
     @pyaedt_function_handler
     @error_if_below_aedt_version(251)

@@ -52,7 +52,7 @@ class CustomCouplingNode(EmitNode):
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Enabled=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Enabled=' + value])
 
     @property
     def antenna_a(self) -> EmitNode:
@@ -64,7 +64,7 @@ class CustomCouplingNode(EmitNode):
 
     @antenna_a.setter
     def antenna_a(self, value: EmitNode):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Antenna A=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Antenna A=' + value])
 
     @property
     def antenna_b(self) -> EmitNode:
@@ -76,7 +76,7 @@ class CustomCouplingNode(EmitNode):
 
     @antenna_b.setter
     def antenna_b(self, value: EmitNode):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Antenna B=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Antenna B=' + value])
 
     @property
     def enable_refinement(self) -> bool:
@@ -89,7 +89,7 @@ class CustomCouplingNode(EmitNode):
 
     @enable_refinement.setter
     def enable_refinement(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Enable Refinement=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Enable Refinement=' + value])
 
     @property
     def adaptive_sampling(self) -> bool:
@@ -102,7 +102,7 @@ class CustomCouplingNode(EmitNode):
 
     @adaptive_sampling.setter
     def adaptive_sampling(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Adaptive Sampling=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Adaptive Sampling=' + value])
 
     @property
     def refinement_domain(self):
@@ -114,5 +114,5 @@ class CustomCouplingNode(EmitNode):
 
     @refinement_domain.setter
     def refinement_domain(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Refinement Domain=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Refinement Domain=' + value])
 

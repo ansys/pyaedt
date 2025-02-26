@@ -33,7 +33,7 @@ class TouchstoneCouplingNode(EmitNode):
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Enabled=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Enabled=' + value])
 
     @property
     def enable_refinement(self) -> bool:
@@ -46,7 +46,7 @@ class TouchstoneCouplingNode(EmitNode):
 
     @enable_refinement.setter
     def enable_refinement(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Enable Refinement=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Enable Refinement=' + value])
 
     @property
     def adaptive_sampling(self) -> bool:
@@ -59,7 +59,7 @@ class TouchstoneCouplingNode(EmitNode):
 
     @adaptive_sampling.setter
     def adaptive_sampling(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Adaptive Sampling=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Adaptive Sampling=' + value])
 
     @property
     def refinement_domain(self):
@@ -71,7 +71,7 @@ class TouchstoneCouplingNode(EmitNode):
 
     @refinement_domain.setter
     def refinement_domain(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Refinement Domain=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Refinement Domain=' + value])
 
     @property
     def filename(self) -> str:
@@ -84,7 +84,7 @@ class TouchstoneCouplingNode(EmitNode):
 
     @filename.setter
     def filename(self, value: str):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Filename=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Filename=' + value])
 
     @property
     def savant_matched_coupling_file(self) -> str:
@@ -105,7 +105,7 @@ class TouchstoneCouplingNode(EmitNode):
 
     @enable_em_isolation.setter
     def enable_em_isolation(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Enable EM Isolation=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Enable EM Isolation=' + value])
 
     @property
     def port_antenna_assignment(self):
@@ -118,7 +118,7 @@ class TouchstoneCouplingNode(EmitNode):
 
     @port_antenna_assignment.setter
     def port_antenna_assignment(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Port-Antenna Assignment=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Port-Antenna Assignment=' + value])
 
     @property
     def notes(self) -> str:
@@ -130,5 +130,5 @@ class TouchstoneCouplingNode(EmitNode):
 
     @notes.setter
     def notes(self, value: str):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
 

@@ -21,11 +21,11 @@ class TxNbEmissionNode(EmitNode):
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._oDesign.GetModule('EmitCom').GetEmitNodeProperties(self._result_id,self._node_id,'enabled')
+        return self._oRevisionData.GetEmitNodeProperties(self._result_id,self._node_id,'enabled')
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['enabled=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['enabled=' + value])
 
     class NarrowbandBehaviorOption(Enum):
             ABSOLUTE = "Absolute Freqs and Power"
@@ -42,17 +42,20 @@ class TxNbEmissionNode(EmitNode):
 
     @narrowband_behavior.setter
     def narrowband_behavior(self, value: NarrowbandBehaviorOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Narrowband Behavior=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Narrowband Behavior=' + value.value])
 
     @property
     def measurement_frequency(self) -> float:
         """Measurement Frequency
         "Measurement frequency for the absolute freq/amp pairs.."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "        """
         val = self._get_property('Measurement Frequency')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @measurement_frequency.setter
-    def measurement_frequency(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Measurement Frequency=' + value])
+    def measurement_frequency(self, value : float|str):
+        value = self._convert_to_default_units(value, "Frequency Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Measurement Frequency=' + f"{value}"])
 

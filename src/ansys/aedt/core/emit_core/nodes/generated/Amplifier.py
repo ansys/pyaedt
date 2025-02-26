@@ -28,7 +28,7 @@ class Amplifier(EmitNode):
 
     @filename.setter
     def filename(self, value: str):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Filename=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Filename=' + value])
 
     @property
     def noise_temperature(self) -> float:
@@ -40,8 +40,8 @@ class Amplifier(EmitNode):
         return val
 
     @noise_temperature.setter
-    def noise_temperature(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Noise Temperature=' + value])
+    def noise_temperature(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Noise Temperature=' + value])
 
     @property
     def notes(self) -> str:
@@ -53,7 +53,7 @@ class Amplifier(EmitNode):
 
     @notes.setter
     def notes(self, value: str):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
 
     class AmplifierTypeOption(Enum):
             TRANSMIT_AMPLIFIER = "Transmit Amplifier"
@@ -70,7 +70,7 @@ class Amplifier(EmitNode):
 
     @amplifier_type.setter
     def amplifier_type(self, value: AmplifierTypeOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Amplifier Type=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Amplifier Type=' + value.value])
 
     @property
     def gain(self) -> float:
@@ -82,34 +82,40 @@ class Amplifier(EmitNode):
         return val
 
     @gain.setter
-    def gain(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Gain=' + value])
+    def gain(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Gain=' + value])
 
     @property
     def center_frequency(self) -> float:
         """Center Frequency
         "Center frequency of amplifiers operational bandwidth."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Center Frequency')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @center_frequency.setter
-    def center_frequency(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Center Frequency=' + value])
+    def center_frequency(self, value : float|str):
+        value = self._convert_to_default_units(value, "Frequency Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Center Frequency=' + f"{value}"])
 
     @property
     def bandwidth(self) -> float:
         """Bandwidth
         "Frequency region where the gain applies."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Bandwidth')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @bandwidth.setter
-    def bandwidth(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Bandwidth=' + value])
+    def bandwidth(self, value : float|str):
+        value = self._convert_to_default_units(value, "Frequency Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Bandwidth=' + f"{value}"])
 
     @property
     def noise_figure(self) -> float:
@@ -121,47 +127,56 @@ class Amplifier(EmitNode):
         return val
 
     @noise_figure.setter
-    def noise_figure(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Noise Figure=' + value])
+    def noise_figure(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Noise Figure=' + value])
 
     @property
     def saturation_level(self) -> float:
         """Saturation Level
         "Saturation level."
+        "Units options: fW, pW, nW, uW, mW, W, kW, megW, gW, dBm, dBW."
         "Value should be between -200 and 200."
         """
         val = self._get_property('Saturation Level')
+        val = self._convert_from_default_units(float(val), "Power Unit")
         return val
 
     @saturation_level.setter
-    def saturation_level(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Saturation Level=' + value])
+    def saturation_level(self, value : float|str):
+        value = self._convert_to_default_units(value, "Power Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Saturation Level=' + f"{value}"])
 
     @property
     def _1_db_point_ref_input(self) -> float:
         """1-dB Point, Ref. Input
         "Incoming signals > this value saturate the amplifier."
+        "Units options: fW, pW, nW, uW, mW, W, kW, megW, gW, dBm, dBW."
         "Value should be between -200 and 200."
         """
         val = self._get_property('1-dB Point, Ref. Input')
+        val = self._convert_from_default_units(float(val), "Power Unit")
         return val
 
     @_1_db_point_ref_input.setter
-    def _1_db_point_ref_input(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['1-dB Point, Ref. Input=' + value])
+    def _1_db_point_ref_input(self, value : float|str):
+        value = self._convert_to_default_units(value, "Power Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['1-dB Point, Ref. Input=' + f"{value}"])
 
     @property
     def ip3_ref_input(self) -> float:
         """IP3, Ref. Input
         "3rd order intercept point."
+        "Units options: fW, pW, nW, uW, mW, W, kW, megW, gW, dBm, dBW."
         "Value should be between -200 and 200."
         """
         val = self._get_property('IP3, Ref. Input')
+        val = self._convert_from_default_units(float(val), "Power Unit")
         return val
 
     @ip3_ref_input.setter
-    def ip3_ref_input(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['IP3, Ref. Input=' + value])
+    def ip3_ref_input(self, value : float|str):
+        value = self._convert_to_default_units(value, "Power Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['IP3, Ref. Input=' + f"{value}"])
 
     @property
     def shape_factor(self) -> float:
@@ -173,8 +188,8 @@ class Amplifier(EmitNode):
         return val
 
     @shape_factor.setter
-    def shape_factor(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Shape Factor=' + value])
+    def shape_factor(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Shape Factor=' + value])
 
     @property
     def reverse_isolation(self) -> float:
@@ -186,8 +201,8 @@ class Amplifier(EmitNode):
         return val
 
     @reverse_isolation.setter
-    def reverse_isolation(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Reverse Isolation=' + value])
+    def reverse_isolation(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Reverse Isolation=' + value])
 
     @property
     def max_intermod_order(self) -> int:
@@ -200,5 +215,5 @@ class Amplifier(EmitNode):
 
     @max_intermod_order.setter
     def max_intermod_order(self, value: int):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Max Intermod Order=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Max Intermod Order=' + value])
 

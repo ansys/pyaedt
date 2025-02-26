@@ -32,7 +32,7 @@ class Multiplexer(EmitNode):
 
     @filename.setter
     def filename(self, value: str):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Filename=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Filename=' + value])
 
     @property
     def noise_temperature(self) -> float:
@@ -44,8 +44,8 @@ class Multiplexer(EmitNode):
         return val
 
     @noise_temperature.setter
-    def noise_temperature(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Noise Temperature=' + value])
+    def noise_temperature(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Noise Temperature=' + value])
 
     @property
     def notes(self) -> str:
@@ -57,7 +57,7 @@ class Multiplexer(EmitNode):
 
     @notes.setter
     def notes(self, value: str):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
 
     class TypeOption(Enum):
             PARAMETRIC = "By Pass Band"
@@ -74,7 +74,7 @@ class Multiplexer(EmitNode):
 
     @type.setter
     def type(self, value: TypeOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Type=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Type=' + value.value])
 
     class Port1LocationOption(Enum):
             RADIOSIDE = "Radio Side"
@@ -91,7 +91,7 @@ class Multiplexer(EmitNode):
 
     @port_1_location.setter
     def port_1_location(self, value: Port1LocationOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Port 1 Location=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Port 1 Location=' + value.value])
 
     @property
     def flip_ports_vertically(self) -> bool:
@@ -104,7 +104,7 @@ class Multiplexer(EmitNode):
 
     @flip_ports_vertically.setter
     def flip_ports_vertically(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Flip Ports Vertically=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Flip Ports Vertically=' + value])
 
     @property
     def ports(self):
@@ -117,7 +117,7 @@ class Multiplexer(EmitNode):
 
     @ports.setter
     def ports(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Ports=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Ports=' + value])
 
     @property
     def warnings(self) -> str:

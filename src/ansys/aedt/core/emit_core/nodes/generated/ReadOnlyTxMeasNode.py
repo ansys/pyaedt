@@ -32,8 +32,10 @@ class ReadOnlyTxMeasNode(EmitNode):
     def transmit_frequency(self) -> float:
         """Transmit Frequency
         "Channel associated with the measurement file."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "        """
         val = self._get_property('Transmit Frequency')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @property
@@ -49,18 +51,22 @@ class ReadOnlyTxMeasNode(EmitNode):
     def start_frequency(self) -> float:
         """Start Frequency
         "Starting frequency for the measurement sweep."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be greater than 1e+06."
         """
         val = self._get_property('Start Frequency')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @property
     def stop_frequency(self) -> float:
         """Stop Frequency
         "Stopping frequency for the measurement sweep."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be less than 6e+09."
         """
         val = self._get_property('Stop Frequency')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @property

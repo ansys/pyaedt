@@ -33,7 +33,7 @@ class PlotMarkerNode(EmitNode):
 
     @visible.setter
     def visible(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Visible=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Visible=' + value])
 
     @property
     def attached(self) -> bool:
@@ -46,7 +46,7 @@ class PlotMarkerNode(EmitNode):
 
     @attached.setter
     def attached(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Attached=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Attached=' + value])
 
     @property
     def position(self) -> float:
@@ -57,8 +57,8 @@ class PlotMarkerNode(EmitNode):
         return val
 
     @position.setter
-    def position(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Position=' + value])
+    def position(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Position=' + value])
 
     @property
     def position(self) -> float:
@@ -69,8 +69,8 @@ class PlotMarkerNode(EmitNode):
         return val
 
     @position.setter
-    def position(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Position=' + value])
+    def position(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Position=' + value])
 
     @property
     def floating_label(self) -> bool:
@@ -83,7 +83,7 @@ class PlotMarkerNode(EmitNode):
 
     @floating_label.setter
     def floating_label(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Floating Label=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Floating Label=' + value])
 
     @property
     def position_from_left(self) -> float:
@@ -95,8 +95,8 @@ class PlotMarkerNode(EmitNode):
         return val
 
     @position_from_left.setter
-    def position_from_left(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Position from Left=' + value])
+    def position_from_left(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Position from Left=' + value])
 
     @property
     def position_from_top(self) -> float:
@@ -108,8 +108,8 @@ class PlotMarkerNode(EmitNode):
         return val
 
     @position_from_top.setter
-    def position_from_top(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Position from Top=' + value])
+    def position_from_top(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Position from Top=' + value])
 
     @property
     def text(self) -> str:
@@ -121,7 +121,7 @@ class PlotMarkerNode(EmitNode):
 
     @text.setter
     def text(self, value: str):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Text=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Text=' + value])
 
     class HorizontalPositionOption(Enum):
             LEFT = "Left"
@@ -139,7 +139,7 @@ class PlotMarkerNode(EmitNode):
 
     @horizontal_position.setter
     def horizontal_position(self, value: HorizontalPositionOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Horizontal Position=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Horizontal Position=' + value.value])
 
     class VerticalPositionOption(Enum):
             TOP = "Top"
@@ -157,7 +157,7 @@ class PlotMarkerNode(EmitNode):
 
     @vertical_position.setter
     def vertical_position(self, value: VerticalPositionOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Vertical Position=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Vertical Position=' + value.value])
 
     class TextAlignmentOption(Enum):
             LEFT = "Left"
@@ -175,7 +175,7 @@ class PlotMarkerNode(EmitNode):
 
     @text_alignment.setter
     def text_alignment(self, value: TextAlignmentOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Text Alignment=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Text Alignment=' + value.value])
 
     @property
     def font(self):
@@ -188,7 +188,7 @@ class PlotMarkerNode(EmitNode):
 
     @font.setter
     def font(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Font=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Font=' + value])
 
     @property
     def color(self):
@@ -201,7 +201,7 @@ class PlotMarkerNode(EmitNode):
 
     @color.setter
     def color(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Color=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Color=' + value])
 
     @property
     def background_color(self):
@@ -214,7 +214,7 @@ class PlotMarkerNode(EmitNode):
 
     @background_color.setter
     def background_color(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Background Color=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Background Color=' + value])
 
     @property
     def border(self) -> bool:
@@ -227,7 +227,7 @@ class PlotMarkerNode(EmitNode):
 
     @border.setter
     def border(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Border=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Border=' + value])
 
     @property
     def border_width(self) -> int:
@@ -240,7 +240,7 @@ class PlotMarkerNode(EmitNode):
 
     @border_width.setter
     def border_width(self, value: int):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Border Width=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Border Width=' + value])
 
     @property
     def border_color(self):
@@ -253,7 +253,7 @@ class PlotMarkerNode(EmitNode):
 
     @border_color.setter
     def border_color(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Border Color=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Border Color=' + value])
 
     class SymbolOption(Enum):
             NOSYMBOL = "NoSymbol"
@@ -284,7 +284,7 @@ class PlotMarkerNode(EmitNode):
 
     @symbol.setter
     def symbol(self, value: SymbolOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Symbol=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Symbol=' + value.value])
 
     @property
     def arrow_direction(self) -> int:
@@ -297,7 +297,7 @@ class PlotMarkerNode(EmitNode):
 
     @arrow_direction.setter
     def arrow_direction(self, value: int):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Arrow Direction=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Arrow Direction=' + value])
 
     @property
     def symbol_size(self) -> int:
@@ -310,7 +310,7 @@ class PlotMarkerNode(EmitNode):
 
     @symbol_size.setter
     def symbol_size(self, value: int):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Size=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Size=' + value])
 
     @property
     def symbol_color(self):
@@ -323,7 +323,7 @@ class PlotMarkerNode(EmitNode):
 
     @symbol_color.setter
     def symbol_color(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Color=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Color=' + value])
 
     @property
     def line_width(self) -> int:
@@ -336,7 +336,7 @@ class PlotMarkerNode(EmitNode):
 
     @line_width.setter
     def line_width(self, value: int):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Line Width=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Line Width=' + value])
 
     @property
     def filled(self) -> bool:
@@ -349,5 +349,5 @@ class PlotMarkerNode(EmitNode):
 
     @filled.setter
     def filled(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Filled=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Filled=' + value])
 

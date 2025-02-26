@@ -25,11 +25,11 @@ class AntennaPassband(EmitNode):
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._oDesign.GetModule('EmitCom').GetEmitNodeProperties(self._result_id,self._node_id,'enabled')
+        return self._oRevisionData.GetEmitNodeProperties(self._result_id,self._node_id,'enabled')
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['enabled=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['enabled=' + value])
 
     @property
     def passband_loss(self) -> float:
@@ -41,8 +41,8 @@ class AntennaPassband(EmitNode):
         return val
 
     @passband_loss.setter
-    def passband_loss(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Passband Loss=' + value])
+    def passband_loss(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Passband Loss=' + value])
 
     @property
     def out_of_band_attenuation(self) -> float:
@@ -54,60 +54,72 @@ class AntennaPassband(EmitNode):
         return val
 
     @out_of_band_attenuation.setter
-    def out_of_band_attenuation(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Out of Band Attenuation=' + value])
+    def out_of_band_attenuation(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Out of Band Attenuation=' + value])
 
     @property
     def lower_stop_band(self) -> float:
         """Lower Stop Band
         "Lower stop band frequency."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Lower Stop Band')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @lower_stop_band.setter
-    def lower_stop_band(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Lower Stop Band=' + value])
+    def lower_stop_band(self, value : float|str):
+        value = self._convert_to_default_units(value, "Frequency Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Lower Stop Band=' + f"{value}"])
 
     @property
     def lower_cutoff(self) -> float:
         """Lower Cutoff
         "Lower cutoff frequency."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Lower Cutoff')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @lower_cutoff.setter
-    def lower_cutoff(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Lower Cutoff=' + value])
+    def lower_cutoff(self, value : float|str):
+        value = self._convert_to_default_units(value, "Frequency Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Lower Cutoff=' + f"{value}"])
 
     @property
     def higher_cutoff(self) -> float:
         """Higher Cutoff
         "Higher cutoff frequency."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Higher Cutoff')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @higher_cutoff.setter
-    def higher_cutoff(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Higher Cutoff=' + value])
+    def higher_cutoff(self, value : float|str):
+        value = self._convert_to_default_units(value, "Frequency Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Higher Cutoff=' + f"{value}"])
 
     @property
     def higher_stop_band(self) -> float:
         """Higher Stop Band
         "Higher stop band frequency."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Higher Stop Band')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @higher_stop_band.setter
-    def higher_stop_band(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Higher Stop Band=' + value])
+    def higher_stop_band(self, value : float|str):
+        value = self._convert_to_default_units(value, "Frequency Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Higher Stop Band=' + f"{value}"])
 
     @property
     def notes(self) -> str:
@@ -119,5 +131,5 @@ class AntennaPassband(EmitNode):
 
     @notes.setter
     def notes(self, value: str):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
 

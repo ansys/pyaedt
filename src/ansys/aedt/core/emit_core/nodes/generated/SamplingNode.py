@@ -41,7 +41,7 @@ class SamplingNode(EmitNode):
 
     @sampling_type.setter
     def sampling_type(self, value: SamplingTypeOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Sampling Type=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Sampling Type=' + value.value])
 
     @property
     def specify_percentage(self) -> bool:
@@ -54,7 +54,7 @@ class SamplingNode(EmitNode):
 
     @specify_percentage.setter
     def specify_percentage(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Specify Percentage=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Specify Percentage=' + value])
 
     @property
     def percentage_of_channels(self) -> float:
@@ -66,8 +66,8 @@ class SamplingNode(EmitNode):
         return val
 
     @percentage_of_channels.setter
-    def percentage_of_channels(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Percentage of Channels=' + value])
+    def percentage_of_channels(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Percentage of Channels=' + value])
 
     @property
     def max__channelsrangeband(self) -> int:
@@ -80,7 +80,7 @@ class SamplingNode(EmitNode):
 
     @max__channelsrangeband.setter
     def max__channelsrangeband(self, value: int):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Max # Channels/Range/Band=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Max # Channels/Range/Band=' + value])
 
     @property
     def seed(self) -> int:
@@ -93,7 +93,7 @@ class SamplingNode(EmitNode):
 
     @seed.setter
     def seed(self, value: int):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Seed=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Seed=' + value])
 
     @property
     def total_tx_channels(self) -> int:

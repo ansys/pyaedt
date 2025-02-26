@@ -71,126 +71,154 @@ class ReadOnlyFilter(EmitNode):
     def max_pass_band(self) -> float:
         """Max Pass Band
         "Maximum pass band frequency."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Max Pass Band')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @property
     def min_stop_band(self) -> float:
         """Min Stop Band
         "Minimum stop band frequency."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Min Stop Band')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @property
     def max_stop_band(self) -> float:
         """Max Stop Band
         "Maximum stop band frequency."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Max Stop Band')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @property
     def min_pass_band(self) -> float:
         """Min Pass Band
         "Minimum pass band frequency."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Min Pass Band')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @property
     def lower_stop_band(self) -> float:
         """Lower Stop Band
         "Lower stop band frequency."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Lower Stop Band')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @property
     def lower_cutoff(self) -> float:
         """Lower Cutoff
         "Lower cutoff frequency."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Lower Cutoff')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @property
     def higher_cutoff(self) -> float:
         """Higher Cutoff
         "Higher cutoff frequency."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Higher Cutoff')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @property
     def higher_stop_band(self) -> float:
         """Higher Stop Band
         "Higher stop band frequency."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Higher Stop Band')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @property
     def lower_cutoff_(self) -> float:
         """Lower Cutoff 
         "Lower cutoff frequency."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Lower Cutoff ')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @property
     def lower_stop_band_(self) -> float:
         """Lower Stop Band 
         "Lower stop band frequency."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Lower Stop Band ')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @property
     def higher_stop_band_(self) -> float:
         """Higher Stop Band 
         "Higher stop band frequency."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Higher Stop Band ')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @property
     def higher_cutoff_(self) -> float:
         """Higher Cutoff 
         "Higher cutoff frequency."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Higher Cutoff ')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @property
     def lowest_tuned_frequency_(self) -> float:
         """Lowest Tuned Frequency 
         "Lowest tuned frequency."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Lowest Tuned Frequency ')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @property
     def highest_tuned_frequency_(self) -> float:
         """Highest Tuned Frequency 
         "Highest tuned frequency."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Highest Tuned Frequency ')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @property

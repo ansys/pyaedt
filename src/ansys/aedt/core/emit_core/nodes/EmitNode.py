@@ -25,11 +25,15 @@
 import warnings
 
 from enum import Enum
+from ansys.aedt.core.emit_core.results import revision
+from ..emit_constants import EMIT_VALID_UNITS, EMIT_DEFAULT_UNITS, EMIT_TO_AEDT_UNITS, data_rate_conv
+import ansys.aedt.core.generic.constants as consts
 
 class EmitNode:
     # meant to only be used as a parent class
     def __init__(self, oDesign, result_id, node_id):
         self._oDesign = oDesign
+        self._oRevisionData = oDesign.GetModule("EmitCom")
         self._result_id = result_id
         self._node_id = node_id
         self._valid = True
@@ -65,7 +69,7 @@ class EmitNode:
 
     @property
     def properties(self):
-        props = self._oDesign.GetModule('EmitCom').GetEmitNodeProperties(self._result_id, self._node_id, True)
+        props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, True)
         props = self.props_to_dict(props)
         return props
 
@@ -75,7 +79,7 @@ class EmitNode:
 
     @property
     def allowed_child_types(self):
-        return self._oDesign.GetModule('EmitCom').GetAllowedChildTypes(self._result_id, self._node_id)
+        return self._oRevisionData.GetAllowedChildTypes(self._result_id, self._node_id)
 
     def _get_node(self, id: int):
         """Gets a node for this node's revision with the given id.
@@ -96,7 +100,7 @@ class EmitNode:
         """
         from . import generated
 
-        props = self._oDesign.GetModule('EmitCom').GetEmitNodeProperties(self._result_id, id, True)
+        props = self._oRevisionData.GetEmitNodeProperties(self._result_id, id, True)
         props = self.props_to_dict(props)
         type = props['Type']
 
@@ -110,13 +114,13 @@ class EmitNode:
     
     @property
     def children(self):
-        child_names = self._oDesign.GetModule('EmitCom').GetChildNodeNames(self._result_id, self._node_id)
-        child_ids = [self._oDesign.GetModule('EmitCom').GetChildNodeID(self._result_id, self._node_id, name) for name in child_names]
+        child_names = self._oRevisionData.GetChildNodeNames(self._result_id, self._node_id)
+        child_ids = [self._oRevisionData.GetChildNodeID(self._result_id, self._node_id, name) for name in child_names]
         child_nodes = [self._get_node(child_id) for child_id in child_ids]
         return child_nodes 
     
     def _get_property(self, prop):
-        props = self._oDesign.GetModule('EmitCom').GetEmitNodeProperties(self._result_id, self._node_id, True)
+        props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, True)
         kv_pairs = [prop.split('=') for prop in props]
         selected_kv_pairs = [kv for kv in kv_pairs if kv[0] == prop]
         if len(selected_kv_pairs) != 1:
@@ -129,13 +133,82 @@ class EmitNode:
             return val.split('|')
         else:
             return val
+    
+    def _convert_to_default_units(self, value : float|str, unit_type : str) -> float:
+        """Takes a value and converts to default EMIT units
+        used for internally storing the values.
+
+        Args:
+            value (float | str): the specified value. If a float is specified, 
+                then global unit settings are applied. If a string is specified, 
+                then this function will split the value from the units and verify
+                that valid units are given.
+            unit_type (str): type of units. (e.g. FrequencyUnit, PowerUnit, etc)
+
+        Returns:
+            converted_value (float): value in EMIT default units (SI units where applicable).
+            
+        Examples:
+            val = self._convert_to_default_units(25, "FrequencyUnits")
+            val2 = self._convert_to_default_units("10 W", "PowerUnits")
+        """
+        unit_system = unit_type.split(' ')[0]
+        if isinstance(value, float) or isinstance(value, int):
+            # get the global units            
+            pref_node_id = self._oRevisionData.GetTopLevelNodeID(self._result_id, "Preferences")
+            props = self._oRevisionData.GetEmitNodeProperties(self._result_id, pref_node_id, True)
+            kv_pairs = [prop.split('=') for prop in props]
+            selected_kv_pairs = [kv for kv in kv_pairs if kv[0] == unit_type]
+            units = selected_kv_pairs[0][1]
+            units = EMIT_TO_AEDT_UNITS[units]
+        else:
+            units = ''.join(char for char in value if not char.isdigit())
+            units = units.strip()
+            value = float(''.join(char for char in value if char.isdigit()))
+            # verify the units are valid for the specified type            
+            if units not in EMIT_VALID_UNITS[unit_system]:
+                raise ValueError(f"{units} are not valid units for this property.")
+            
+        if unit_system == "Data Rate":
+            converted_value = data_rate_conv(value, units, True)
+        else:
+            converted_value = consts.unit_converter(value, unit_system, units, EMIT_DEFAULT_UNITS[unit_system])   
+        return converted_value
+    
+    def _convert_from_default_units(self, value : float, unit_type : str) -> float:
+        """Takes a value and converts from default EMIT units to
+        the user specified units.
+
+        Args:
+            value (float): the specified value.
+            unit_type (str): type of units. (e.g. Frequency Unit, Power Unit, etc)
+
+        Returns:
+            converted_value (float): value in global units.
+        """
+        unit_system = unit_type.rsplit(' ', 1)[0]        
+        # get the global units            
+        pref_node_id = self._oRevisionData.GetTopLevelNodeID(self._result_id, "Preferences")
+        props = self._oRevisionData.GetEmitNodeProperties(self._result_id, pref_node_id, True)
+        kv_pairs = [prop.split('=') for prop in props]
+        selected_kv_pairs = [kv for kv in kv_pairs if kv[0] == unit_type]
+        units = selected_kv_pairs[0][1]
+        units = EMIT_TO_AEDT_UNITS[units]
+            
+        if units not in EMIT_VALID_UNITS[unit_system]:
+            raise ValueError(f"{units} are not valid units for this property.")
+        if unit_system == "Data Rate":
+            converted_value = data_rate_conv(value, units, False)
+        else:
+            converted_value = consts.unit_converter(value, unit_system, EMIT_DEFAULT_UNITS[unit_system], units)
+        return converted_value
 
     def _delete(self):
-        if self._is_component(): self._oDesign.GetModule('EmitCom').DeleteEmitComponent(self._result_id, self._node_id)
-        else: self._oDesign.GetModule('EmitCom').DeleteEmitNode(self._result_id, self._node_id)
+        if self._is_component(): self._oRevisionData.DeleteEmitComponent(self._result_id, self._node_id)
+        else: self._oRevisionData.DeleteEmitNode(self._result_id, self._node_id)
 
     def _rename(self, requested_name):
-        new_name = self._oDesign.GetModule('EmitCom').RenameEmitNode(self._result_id, self._node_id, requested_name)
+        new_name = self._oRevisionData.RenameEmitNode(self._result_id, self._node_id, requested_name)
         return new_name
 
     def _duplicate(self):
@@ -143,25 +216,25 @@ class EmitNode:
         pass
 
     def _import(self, file_path, import_type):
-        self._oDesign.GetModule('EmitCom').EmitNodeImport(self._result_id, self._node_id, file_path, import_type)
+        self._oRevisionData.EmitNodeImport(self._result_id, self._node_id, file_path, import_type)
 
     def _export_model(self, file_path):
-        self._oDesign.GetModule('EmitCom').EmitExportModel(self._result_id, self._node_id, file_path)
+        self._oRevisionData.EmitExportModel(self._result_id, self._node_id, file_path)
 
     def _is_component(self):
         return self._is_component
 
     def _get_child_node_id(self, child_name):
-        return self._oDesign.GetModule('EmitCom').GetChildNodeID(self._result_id, self._node_id, child_name)
+        return self._oRevisionData.GetChildNodeID(self._result_id, self._node_id, child_name)
 
     def _get_table_data(self):
-        rows = self._oDesign.GetModule('EmitCom').GetTableData(self._result_id, self._node_id)
+        rows = self._oRevisionData.GetTableData(self._result_id, self._node_id)
         nested_list = [col.split(' ') for col in rows]
         return nested_list
 
     def _set_table_data(self, nested_list):
         rows = [col.join(' ') for col in nested_list]
-        self._oDesign.GetModule('EmitCom').SetTableData(self._result_id, self._node_id, rows)
+        self._oRevisionData.SetTableData(self._result_id, self._node_id, rows)
     
     def _add_child_node(self, child_type, child_name = None):
         if not child_name:
@@ -171,7 +244,7 @@ class EmitNode:
         if child_type not in self.allowed_child_types:
             raise ValueError(f"Child type {child_type} is not allowed for this node. Allowed types are: {self.allowed_child_types}")
         try:
-            new_id = self._oDesign.GetModule('EmitCom').CreateEmitNode(self._result_id, self._node_id, child_name, child_type)
+            new_id = self._oRevisionData.CreateEmitNode(self._result_id, self._node_id, child_name, child_type)
         except Exception as e:
             print(f"Failed to add child node of type {child_type} to node {self.name}. Error: {e}")
         return new_id

@@ -33,7 +33,7 @@ class TunableTraceNode(EmitNode):
 
     @input_port.setter
     def input_port(self, value: int):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Input Port=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Input Port=' + value])
 
     @property
     def output_port(self) -> int:
@@ -46,19 +46,22 @@ class TunableTraceNode(EmitNode):
 
     @output_port.setter
     def output_port(self, value: int):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Output Port=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Output Port=' + value])
 
     @property
     def frequency(self) -> float:
         """Frequency
         "Tunable filter center frequency."
+        "Units options: Hz, kHz, MHz, GHz, THz."
         "        """
         val = self._get_property('Frequency')
+        val = self._convert_from_default_units(float(val), "Frequency Unit")
         return val
 
     @frequency.setter
-    def frequency(self, value: float):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Frequency=' + value])
+    def frequency(self, value : float|str):
+        value = self._convert_to_default_units(value, "Frequency Unit")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Frequency=' + f"{value}"])
 
     @property
     def data_source(self):
@@ -70,7 +73,7 @@ class TunableTraceNode(EmitNode):
 
     @data_source.setter
     def data_source(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Data Source=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Data Source=' + value])
 
     @property
     def visible(self) -> bool:
@@ -83,7 +86,7 @@ class TunableTraceNode(EmitNode):
 
     @visible.setter
     def visible(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Visible=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Visible=' + value])
 
     @property
     def custom_legend(self) -> bool:
@@ -96,7 +99,7 @@ class TunableTraceNode(EmitNode):
 
     @custom_legend.setter
     def custom_legend(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Custom Legend=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Custom Legend=' + value])
 
     @property
     def name(self) -> str:
@@ -108,7 +111,7 @@ class TunableTraceNode(EmitNode):
 
     @name.setter
     def name(self, value: str):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Name=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Name=' + value])
 
     class StyleOption(Enum):
             LINES = "Lines"
@@ -129,7 +132,7 @@ class TunableTraceNode(EmitNode):
 
     @style.setter
     def style(self, value: StyleOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Style=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Style=' + value.value])
 
     @property
     def line_width(self) -> int:
@@ -142,7 +145,7 @@ class TunableTraceNode(EmitNode):
 
     @line_width.setter
     def line_width(self, value: int):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Line Width=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Line Width=' + value])
 
     @property
     def line_color(self):
@@ -155,7 +158,7 @@ class TunableTraceNode(EmitNode):
 
     @line_color.setter
     def line_color(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Line Color=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Line Color=' + value])
 
     class SymbolOption(Enum):
             NOSYMBOL = "NoSymbol"
@@ -185,7 +188,7 @@ class TunableTraceNode(EmitNode):
 
     @symbol.setter
     def symbol(self, value: SymbolOption):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Symbol=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Symbol=' + value.value])
 
     @property
     def symbol_size(self) -> int:
@@ -198,7 +201,7 @@ class TunableTraceNode(EmitNode):
 
     @symbol_size.setter
     def symbol_size(self, value: int):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Size=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Size=' + value])
 
     @property
     def symbol_color(self):
@@ -211,7 +214,7 @@ class TunableTraceNode(EmitNode):
 
     @symbol_color.setter
     def symbol_color(self, value):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Color=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Color=' + value])
 
     @property
     def symbol_line_width(self) -> int:
@@ -224,7 +227,7 @@ class TunableTraceNode(EmitNode):
 
     @symbol_line_width.setter
     def symbol_line_width(self, value: int):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Line Width=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Line Width=' + value])
 
     @property
     def symbol_filled(self) -> bool:
@@ -237,5 +240,5 @@ class TunableTraceNode(EmitNode):
 
     @symbol_filled.setter
     def symbol_filled(self, value: bool):
-        self._oDesign.GetModule('EmitCom').SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Filled=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Symbol Filled=' + value])
 
