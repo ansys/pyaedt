@@ -259,7 +259,8 @@ class Analysis(Design, object):
         if not self._setups:
             if self.design_type not in ["Maxwell Circuit", "Circuit Netlist"]:
                 self._setups = [self._get_setup(setup_name) for setup_name in self.setup_names]
-                self.active_setup = self._setups[0].name
+                if self._setups:
+                    self.active_setup = self._setups[0].name
         return self._setups
 
     @property
@@ -853,12 +854,9 @@ class Analysis(Design, object):
             self.logger.warning("Touchstone format not valid. ``MagPhase`` will be set as default")
             touchstone_format_value = 0
 
-        # setups
-        setups = self.setups
-
         nominal_variation = self.available_variations.get_independent_nominal_values()
 
-        for s in setups:
+        for s in self.setups:
             if self.design_type == "Circuit Design":
                 exported_files.append(self.browse_log_file(export_folder))
             else:
