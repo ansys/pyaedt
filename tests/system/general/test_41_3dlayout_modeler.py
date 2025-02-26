@@ -334,7 +334,7 @@ class TestClass:
         assert port_wave
         assert self.aedtapp.delete_port(port_wave.name)
         assert self.aedtapp.create_edge_port("line1", 3, False)
-        assert len(self.aedtapp.excitations) > 0
+        assert len(self.aedtapp.excitation_names) > 0
         time_domain = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "Sinusoidal.csv")
         assert self.aedtapp.boundaries[0].properties["Magnitude"] == "1V"
         assert self.aedtapp.edit_source_from_file(

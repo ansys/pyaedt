@@ -115,8 +115,8 @@ class BoundaryCommon(PropsManager):
             self._app.omaxwell_parameters.DeleteParameters([self.name])
         else:
             self._app.oboundary.DeleteBoundaries([self.name])
-            if self.name in self._app.excitation_objects.keys():
-                self._app.excitation_objects.pop(self.name)
+            if self.name in self._app.design_excitations.keys():
+                self._app.design_excitations.pop(self.name)
         return True
 
     def _get_boundary_data(self, ds):

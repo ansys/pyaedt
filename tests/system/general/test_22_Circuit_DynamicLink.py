@@ -196,9 +196,9 @@ class TestClass:
             "Port_remove",
             [hfss3Dlayout_pin2location["J3B2.2.USBH2_DN_CH"][0], hfss3Dlayout_pin2location["J3B2.2.USBH2_DN_CH"][1]],
         )
-        self.aedtapp.excitation_objects[portname.name].delete()
+        self.aedtapp.design_excitations[portname.name].delete()
 
-        assert "Port_remove" not in self.aedtapp.excitations
+        assert "Port_remove" not in self.aedtapp.excitation_names
 
     @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
     def test_08_assign_excitations(self):
