@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+import warnings
 
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.generic.configurations import Configurations3DLayout
@@ -172,12 +173,34 @@ class FieldAnalysis3DLayout(Analysis):
 
     @property
     def excitations(self):
-        """Excitation names.
+        """Get all excitation names.
+
+        .. deprecated:: 0.15.0
+           Use :func:`excitation_names` property instead.
 
         Returns
         -------
         list
-            Excitation list. Excitations with multiple modes return one
+            List of excitation names. Excitations with multiple modes will return one
+            excitation for each mode.
+
+        References
+        ----------
+        >>> oModule.GetExcitations
+        """
+        mess = "The property `excitations` is deprecated.\n"
+        mess += " Use `app.excitation_names` directly."
+        warnings.warn(mess, DeprecationWarning)
+        return self.excitation_names
+
+    @property
+    def excitation_names(self):
+        """Get all excitation names.
+
+        Returns
+        -------
+        list
+            List of excitation names. Excitations with multiple modes will return one
             excitation for each mode.
 
         References

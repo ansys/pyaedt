@@ -2442,7 +2442,7 @@ class Setup3DLayout(CommonSetup):
         self.props["AllDiagEntries"] = True if entry_selection == 1 and all_diagonal_entries else False
         self.props["AllOffDiagEntries"] = True if entry_selection == 1 and all_offdiagonal_entries else False
         self.props["MagMinThreshold"] = ignore_phase_when_mag_is_less_than
-        aa = self._app.excitations
+        aa = self._app.excitation_names
         if entry_selection < 2:
             val = []
             if entry_selection == 0 or (entry_selection == 1 and all_diagonal_entries):
@@ -3176,7 +3176,7 @@ class SetupHFSS(Setup, object):
                 conv_data["DiagonalMag"] = str(max_delta)
                 conv_data["DiagonalPhase"] = self._app.value_with_units(max_delta_phase, "deg")
                 conv_data["MagMinThreshold"] = ignore_phase_when_mag_is_less_than
-            if all_offdiagonal_entries and len(self._app.excitations) > 1:
+            if all_offdiagonal_entries and len(self._app.excitation_names) > 1:
                 conv_data["AllOffDiagEntries"] = True
                 conv_data["OffDiagonalMag"] = str(off_diagonal_mag)
                 conv_data["OffDiagonalPhase"] = self._app.value_with_units(off_diagonal_phase, "deg")

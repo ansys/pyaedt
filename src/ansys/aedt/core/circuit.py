@@ -1187,8 +1187,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         source_v = self.create_source(source_type="VoltageSin")
         for port in ports:
-            self.excitation_objects[port].enabled_sources.append(source_v.name)
-            self.excitation_objects[port].update()
+            self.design_excitations[port].enabled_sources.append(source_v.name)
+            self.design_excitations[port].update()
         return source_v
 
     @pyaedt_function_handler()
@@ -1211,8 +1211,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         """
         source_i = self.create_source(source_type="CurrentSin")
         for port in ports:
-            self.excitation_objects[port].enabled_sources.append(source_i.name)
-            self.excitation_objects[port].update()
+            self.design_excitations[port].enabled_sources.append(source_i.name)
+            self.design_excitations[port].update()
         return source_i
 
     @pyaedt_function_handler()
@@ -1235,8 +1235,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         """
         source_p = self.create_source(source_type="PowerSin")
         for port in ports:
-            self.excitation_objects[port].enabled_sources.append(source_p.name)
-            self.excitation_objects[port].update()
+            self.design_excitations[port].enabled_sources.append(source_p.name)
+            self.design_excitations[port].update()
         return source_p
 
     @pyaedt_function_handler(filepath="input_file")
@@ -1263,15 +1263,15 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             self.logger.error("Introduced file is not correct. Check path and format.")
             return False
 
-        if not all(elem in self.excitations for elem in ports):
+        if not all(elem in self.excitation_names for elem in ports):
             self.logger.error("Defined ports do not exist")
             return False
 
         source_freq = self.create_source(source_type="VoltageFrequencyDependent")
         source_freq.fds_filename = input_file
         for port in ports:
-            self.excitation_objects[port].enabled_sources.append(source_freq.name)
-            self.excitation_objects[port].update()
+            self.design_excitations[port].enabled_sources.append(source_freq.name)
+            self.design_excitations[port].update()
         return source_freq
 
     @pyaedt_function_handler(
