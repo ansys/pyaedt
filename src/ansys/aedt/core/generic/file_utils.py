@@ -48,7 +48,7 @@ def read_component_file(input_file: Union[str, Path]) -> dict:
     file_path = Path(input_file)
 
     if not file_path.is_file():
-        raise FileNotFoundError(f"The file {file_path} does not exist.")
+        return variables
 
     with open_file(str(file_path), "rb") as aedt_fh:
         temp = aedt_fh.read().splitlines()
