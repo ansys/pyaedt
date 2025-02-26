@@ -327,7 +327,7 @@ class FieldAnalysis3D(Analysis, object):
         >>> oDesign.ExportMeshStats
         """
         if not output_file:
-            output_file = os.path.join(self.working_directory, "meshstats.ms")
+            output_file = str(Path(self.working_directory) / "meshstats.ms")
         self.odesign.ExportMeshStats(setup, variations, output_file)
         return output_file
 
