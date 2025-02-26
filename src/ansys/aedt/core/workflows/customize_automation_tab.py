@@ -245,7 +245,7 @@ def add_script_to_menu(
     name : str
         Name of the toolkit to appear in AEDT.
     script_file : str
-        Full path to the script file. The script will be moved to Personal Lib.
+        Full path to the script file. The script will be copied to Personal Lib.
     template_file : str
         Script template name to use. The default is ``"run_pyaedt_toolkit_script"``.
     icon_file : str, optional
@@ -451,7 +451,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
 
     if not os.path.exists(venv_dir):
         desktop_object.logger.info("Creating virtual environment")
-        command = [base_venv, "-m", "venv", venv_dir, "--system-site-packages"]
+        command = [base_venv, "-m", "venv", venv_dir]
         run_command(command, desktop_object)
         desktop_object.logger.info("Virtual environment created.")
 

@@ -28,13 +28,13 @@ import secrets
 import time
 import warnings
 
-from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.load_aedt_file import load_keyword_in_aedt_file
+from ansys.aedt.core.generic.numbers import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
 from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
@@ -1586,10 +1586,10 @@ class NexximComponents(CircuitComponents):
             if name in self.components[el].composed_name:
                 if extrusion_length:
                     _, units = decompose_variable_value(self.components[el].parameters["Length"])
-                    self.components[el].set_property("Length", self.number_with_units(extrusion_length, units))
+                    self.components[el].set_property("Length", self._app.value_with_units(extrusion_length, units))
                 if tline_port and extrusion_length:
                     _, units = decompose_variable_value(self.components[el].parameters["TLineLength"])
-                    self.components[el].set_property("TLineLength", self.number_with_units(extrusion_length, units))
+                    self.components[el].set_property("TLineLength", self._app.value_with_units(extrusion_length, units))
                 return self.components[el]
         return False
 
@@ -1850,7 +1850,7 @@ class NexximComponents(CircuitComponents):
         ]
         if owner == "2DExtractor":
             variable_args.append("VariableProp:=")
-            variable_args.append(["Length", "D", "", self.number_with_units(extrusion_length_q2d)])
+            variable_args.append(["Length", "D", "", self._app.value_with_units(extrusion_length_q2d)])
         if variables:
             for k, v in variables.items():
                 variable_args.append("VariableProp:=")

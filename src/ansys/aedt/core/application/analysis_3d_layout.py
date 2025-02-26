@@ -331,33 +331,6 @@ class FieldAnalysis3DLayout(Analysis):
         self._setups = tmp_setups + [setup]
         return setup
 
-    @pyaedt_function_handler(setupname="name", setuptype="setup_type")
-    def get_setup(self, name, setup_type=None):
-        """Retrieve a setup.
-
-        Parameters
-        ----------
-        name : str
-            Name of the setup.
-        setup_type : SETUPS, optional
-            Type of the setup. The default is ``None``, in which case
-            the default type is applied.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.solve_setup.Setup3DLayout`
-            Setup object.
-
-        """
-        if setup_type is None:
-            setup_type = self.design_solutions.default_setup
-        for setup in self._setups:
-            if name == setup.name:
-                return setup
-        setup = Setup3DLayout(self, setup_type, name, is_new_setup=False)
-        self.active_setup = name
-        return setup
-
     @pyaedt_function_handler(setupname="name")
     def delete_setup(self, name):
         """Delete a setup.
