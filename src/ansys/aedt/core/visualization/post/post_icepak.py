@@ -31,8 +31,15 @@ It contains all advanced postprocessing functionalities that require Python 3.x 
 import csv
 import os
 import re
+import tempfile
+from typing import Dict
+from typing import Literal
+from typing import Optional
+from typing import Tuple
+from typing import Union
 
 from ansys.aedt.core.generic.checks import min_aedt_version
+from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -394,3 +401,76 @@ class PostProcessorIcepak(PostProcessor3D):
             time=time,
         )
         return self._parse_field_summary_content(fs, setup_name, variations, quantity_name)
+
+    def get_temperature_extremum(
+        self,
+        assignment: str,
+        max_min: Literal["Max", "Min"],
+        location: Literal["Surface", "Volume"],
+        setup: Optional[str] = None,
+        time: Optional[str] = None,
+    ) -> Dict[str, Union[Tuple[float, float, float], float]]:
+        """
+        Calculates the position and value of the temperature maximum or minimum.
+
+        Parameters
+        ----------
+            assignment : str
+                The name of the object to calculate the temperature extremum for.
+            max_min : Literal["Max", "Min"]
+                "Max" for maximum, "Min" for minimum.
+            location : Literal["Surface", "Volume"]
+                "Surface" for surface, "Volume" for volume.
+            time : Optional[str]
+                Time at which to retrieve results if setup is transient. Default is `None`.
+            setup : Optional[str]
+                The name of the setup to use. If `None`, the first available setup is used. Default is `None`.
+
+        Returns
+        -------
+            A dictionary containing the position (tuple of coordinates) and value of the extremum.
+            Example: {"Position": (1.0, 2.0, 3.0), "Value": 350.0}
+        """
+        if assignment not in self._app.modeler.object_names:
+            raise ValueError(f"Object '{assignment}' does not exist.")
+
+        setup = setup or self._app.setup_names[0]
+        solution = f"{setup} : {self._app.solution_type}"
+        location_method = (
+            self.fields_calculator.ofieldsreporter.EnterVol
+            if location.capitalize() == "Volume"
+            else self.fields_calculator.ofieldsreporter.EnterSurf
+        )
+        max_min_op = f"{max_min.capitalize()}Pos"
+        max_min_value_op = f"{max_min.capitalize()}imum"
+        time_l = []
+        if time:
+            time_l = ["Time:=", time]
+
+        def _calculate(operation: str) -> str:
+            self.fields_calculator.ofieldsreporter.EnterQty("Temp")
+            location_method(assignment)
+            self.fields_calculator.ofieldsreporter.CalcOp(operation)
+            self.fields_calculator.ofieldsreporter.ClcEval(solution, time_l, "Fields")
+            with tempfile.TemporaryDirectory() as temp_dir:
+                temp_file = os.path.join(temp_dir, "temp.fld")
+                self.fields_calculator.ofieldsreporter.CalculatorWrite(temp_file, ["Solution:=", solution], time_l)
+                with open(temp_file, "r") as f:
+                    return f.readlines()
+
+        position_rows = _calculate(max_min_op)
+        position = tuple(
+            unit_converter(
+                float(r.split(" ")[-1]),
+                unit_system="Length",
+                input_units="meter",
+                output_units=self._app.units.length,
+            )
+            for r in position_rows[1:]
+        )
+
+        value_rows = _calculate(max_min_value_op)
+        value = float(value_rows[1].rstrip())
+
+        self.fields_calculator.ofieldsreporter.CalcStack("clear")
+        return {"Position": position, "Value": value}

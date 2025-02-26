@@ -1939,3 +1939,14 @@ class TestClass:
         )
         obj_mat_prop = ipk.get_object_material_properties(assignment=["myBox"], prop_names="thermal_conductivity")
         assert obj_mat_prop["myBox"]["thermal_conductivity"] == "205"
+
+    @pytest.mark.parametrize("ipk", [transient_fs], indirect=True)
+    def test081__get_max_temp_location(self, ipk):
+        with pytest.raises(ValueError):
+            ipk.post.get_temperature_extremum(assignment="Box2", max_min="Max", location="Surface")
+        max_temp_s = ipk.post.get_temperature_extremum(assignment="Box1", max_min="Max", location="Surface", time="1s")
+        assert max_temp_s["Position"]
+        assert max_temp_s["Value"]
+        max_temp_v = ipk.post.get_temperature_extremum(assignment="Box1", max_min="Min", location="Volume", time="1s")
+        assert max_temp_v["Position"]
+        assert max_temp_v["Value"]
