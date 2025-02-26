@@ -1227,6 +1227,9 @@ class FieldAnalysis3D(Analysis, object):
     def get_dxf_layers(self, input_file: Union[str, Path]) -> List[str]:
         """Read a DXF file and return all layer names.
 
+        .. deprecated:: 0.15.1
+            Use :func:`ansys.aedt.core.generic.file_utils.get_dxf_layers` method instead.
+
         Parameters
         ----------
         input_file : str or :class:`pathlib.Path`
@@ -1237,6 +1240,11 @@ class FieldAnalysis3D(Analysis, object):
         list
             List of layers in the DXF file.
         """
+        warnings.warn(
+            "`get_dxf_layers` is deprecated. "
+            "Use `ansys.aedt.core.generic.file_utils.get_dxf_layers` method instead.",
+            DeprecationWarning,
+        )
         return get_dxf_layers(input_file)
 
     @pyaedt_function_handler(layers_list="layers", file_path="input_file")
