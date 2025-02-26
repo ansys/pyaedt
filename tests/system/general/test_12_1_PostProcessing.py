@@ -182,7 +182,8 @@ class TestClass:
         portnames = ["1", "2"]
         assert aedtapp.create_scattering("MyTestScattering")
         setup_name = "Setup2 : Sweep"
-        assert not aedtapp.create_scattering("MyTestScattering2", setup_name, portnames, portnames)
+        with pytest.raises(KeyError):
+            aedtapp.create_scattering("MyTestScattering2", setup_name, portnames, portnames)
 
     def test_03_get_solution_data(self, aedtapp, local_scratch):
         trace_names = []

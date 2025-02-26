@@ -161,21 +161,37 @@ class CommonSetup(PropsManager, BinaryTreeNode):
                     .adaptive_settings.adaptive_frequency_data_list[0]
                     .adaptive_frequency
                 )
-                intrinsics["Phase"] = "0deg"
+                intrinsics["Phase"] = "All"
                 return intrinsics
             except Exception:
                 settings.logger.debug("Failed to retrieve adaptive frequency.")
-
+        if self._app.design_type in ["Twin Builder"]:
+            if "Tend" in self.properties:
+                intrinsics["Time"] = "All"
+            elif "StartFrequency" in self.properties:
+                intrinsics["Freq"] = "All"
+            return intrinsics
+        elif self._app.design_type in ["Circuit Design"]:
+            if any(
+                i in self.props
+                for i in ["TransientData", "QuickEyeAnalysis", "AMIAnalysis", "HSPICETransientData", "SystemFDAnalysis"]
+            ):
+                intrinsics["Time"] = "All"
+            else:
+                intrinsics["Freq"] = "All"
+            return intrinsics
         for i in self._app.design_solutions.intrinsics:
             if i == "Freq":
                 if "Frequency" in self.props:
                     intrinsics[i] = self.props["Frequency"]
                 elif "Solution Freq" in self.properties:
                     intrinsics[i] = self.properties["Solution Freq"]
+                else:
+                    intrinsics[i] = "All"
             elif i == "Phase":
-                intrinsics[i] = "0deg"
+                intrinsics[i] = "All"
             elif i == "Time":
-                intrinsics[i] = "0s"
+                intrinsics[i] = "All"
         return intrinsics
 
     def __repr__(self):

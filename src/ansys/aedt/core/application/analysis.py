@@ -187,7 +187,7 @@ class Analysis(Design, object):
         -------
         dict[str, :class:`ansys.aedt.core.modules.solve_setup.Setup`]
         """
-        return {i.name: i for i in self.setups}
+        return {i.name.split(":")[0].strip(): i for i in self.setups}
 
     @property
     def native_components(self):
@@ -258,7 +258,8 @@ class Analysis(Design, object):
         """
         if not self._setups:
             if self.design_type not in ["Maxwell Circuit", "Circuit Netlist"]:
-                self._setups = [self._get_setup(setup_name) for setup_name in self.setup_names[::-1]]
+                self._setups = [self._get_setup(setup_name) for setup_name in self.setup_names]
+                self.active_setup = self._setups[0].name
         return self._setups
 
     @property
@@ -367,10 +368,11 @@ class Analysis(Design, object):
                 sol_sweep = k.split(" : ")
                 if sol_sweep[0] not in sweep_list:
                     sweep_list[sol_sweep[0]] = {"Nominal": None, "Sweeps": []}
-                if "Last Adaptive" in sol_sweep[1]:
-                    sweep_list[sol_sweep[0]]["Nominal"] = sol_sweep[1]
-                else:
-                    sweep_list[sol_sweep[0]]["Sweeps"].append(sol_sweep[1])
+                if len(sol_sweep) == 2:
+                    if "Last Adaptive" in sol_sweep[1]:
+                        sweep_list[sol_sweep[0]]["Nominal"] = sol_sweep[1]
+                    else:
+                        sweep_list[sol_sweep[0]]["Sweeps"].append(sol_sweep[1])
         else:
             for el in setup_list:
                 sweep_list[el] = {"Nominal": None, "Sweeps": []}

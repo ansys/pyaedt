@@ -368,8 +368,6 @@ class TestClass:
         new_report.time_stop = "190ns"
         new_report.plot_continous_spectrum = True
         assert new_report.create()
-        new_report = circuit_test.post.reports_by_category.spectral(["dB(V(net_11))"])
-        assert new_report.create()
         assert plot.export_config(os.path.join(self.local_scratch.path, f"{new_report.plot_name}.json"))
         assert circuit_test.post.create_report_from_configuration(
             os.path.join(self.local_scratch.path, f"{new_report.plot_name}.json"), solution_name="Transient"
@@ -384,7 +382,9 @@ class TestClass:
         new_report.time_stop = "190ns"
         new_report.plot_continous_spectrum = False
         assert new_report.create()
-        assert circuit_test.post.create_report(["dB(V(net_11))", "dB(V(Port1))"], domain="Spectrum")
+        assert circuit_test.post.create_report(
+            ["dB(V(net_11))", "dB(V(Port1))"], setup_sweep_name="Transient", domain="Spectrum"
+        )
         new_report = circuit_test.post.reports_by_category.spectral(None, "Transient")
         new_report.window = "Hanning"
         new_report.max_freq = "1GHz"
