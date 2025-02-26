@@ -259,7 +259,8 @@ class Analysis(Design, object):
         if not self._setups:
             if self.design_type not in ["Maxwell Circuit", "Circuit Netlist"]:
                 self._setups = [self._get_setup(setup_name) for setup_name in self.setup_names]
-                self.active_setup = self._setups[0].name
+                if self._setups:
+                    self.active_setup = self._setups[0].name
         return self._setups
 
     @property
