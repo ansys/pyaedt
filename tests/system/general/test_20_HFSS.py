@@ -482,7 +482,7 @@ class TestClass:
         assert sweep.props["SaveSingleField"] == False
 
     def test_06z_validate_setup(self):
-        list, ok = self.aedtapp.validate_full_design(ports=len(self.aedtapp.excitations))
+        list, ok = self.aedtapp.validate_full_design(ports=len(self.aedtapp.excitation_names))
         assert ok
 
     def test_07_set_power(self):
@@ -816,9 +816,9 @@ class TestClass:
         port = self.aedtapp.create_voltage_source_from_objects(
             box1.name, "BoxVolt2", self.aedtapp.AxisDir.XNeg, "Volt1"
         )
-        assert port.name in self.aedtapp.excitations
+        assert port.name in self.aedtapp.excitation_names
         port = self.aedtapp.create_current_source_from_objects("BoxVolt1", "BoxVolt2", self.aedtapp.AxisDir.XPos)
-        assert port.name in self.aedtapp.excitations
+        assert port.name in self.aedtapp.excitation_names
 
     def test_19_create_lumped_on_sheet(self):
         rect = self.aedtapp.modeler.create_rectangle(
@@ -833,7 +833,7 @@ class TestClass:
             renormalize=True,
         )
 
-        assert port.name + ":1" in self.aedtapp.excitations
+        assert port.name + ":1" in self.aedtapp.excitation_names
         port2 = self.aedtapp.lumped_port(
             assignment=rect.name,
             create_port_sheet=False,
@@ -844,7 +844,7 @@ class TestClass:
             deembed=True,
         )
 
-        assert port2.name + ":1" in self.aedtapp.excitations
+        assert port2.name + ":1" in self.aedtapp.excitation_names
         port3 = self.aedtapp.lumped_port(
             assignment=rect.name,
             create_port_sheet=False,
@@ -855,7 +855,7 @@ class TestClass:
             deembed=True,
         )
 
-        assert port3.name + ":1" in self.aedtapp.excitations
+        assert port3.name + ":1" in self.aedtapp.excitation_names
         with pytest.raises(ValueError, match="List of coordinates is not set correctly."):
             self.aedtapp.lumped_port(
                 assignment=rect.name,
@@ -872,12 +872,12 @@ class TestClass:
             self.aedtapp.PLANE.XY, [0, 0, 0], [10, 2], name="lump_volt", material="Copper"
         )
         port = self.aedtapp.assign_voltage_source_to_sheet(rect.name, self.aedtapp.AxisDir.XNeg, "LumpVolt1")
-        assert port.name in self.aedtapp.excitations
+        assert port.name in self.aedtapp.excitation_names
         assert self.aedtapp.get_property_value("BoundarySetup:LumpVolt1", "VoltageMag", "Excitation") == "1V"
         port = self.aedtapp.assign_voltage_source_to_sheet(
             rect.name, [rect.bottom_edge_x.midpoint, rect.bottom_edge_y.midpoint], "LumpVolt2"
         )
-        assert port.name in self.aedtapp.excitations
+        assert port.name in self.aedtapp.excitation_names
         with pytest.raises(AEDTRuntimeError, match="List of coordinates is not set correctly"):
             self.aedtapp.assign_voltage_source_to_sheet(rect.name, [rect.bottom_edge_x.midpoint], "LumpVolt2")
 
@@ -1153,7 +1153,7 @@ class TestClass:
             renormalize=True,
         )
 
-        assert "Lump1_T1" in self.aedtapp.excitations
+        assert "Lump1_T1" in self.aedtapp.excitation_names
         port2 = self.aedtapp.lumped_port(
             assignment=sheet.name,
             reference=box1,
@@ -1163,7 +1163,7 @@ class TestClass:
             name="Lump_sheet",
             renormalize=True,
         )
-        assert port2.name + "_T1" in self.aedtapp.excitations
+        assert port2.name + "_T1" in self.aedtapp.excitation_names
         port3 = self.aedtapp.lumped_port(
             assignment=box1,
             reference=box2.name,
@@ -1174,7 +1174,7 @@ class TestClass:
             renormalize=False,
             deembed=True,
         )
-        assert port3.name + "_T1" in self.aedtapp.excitations
+        assert port3.name + "_T1" in self.aedtapp.excitation_names
         self.aedtapp.delete_design("Design_Terminal", self.fall_back_name)
 
     def test_45B_terminal_port(self):
@@ -1251,7 +1251,7 @@ class TestClass:
         assert os.path.exists(convert_nearfield_data(example_project, output_folder=self.local_scratch.path))
 
     def test_48_traces(self):
-        assert len(self.aedtapp.excitations) > 0
+        assert len(self.aedtapp.excitation_names) > 0
         assert len(self.aedtapp.get_traces_for_plot()) > 0
 
     def test_49_port_creation_exception(self):
@@ -1369,10 +1369,10 @@ class TestClass:
         aedtapp.wave_port(assignment=box1.bottom_face_x, create_port_sheet=False, name="Port1")
         aedtapp.create_setup()
         assert aedtapp.edit_source_from_file(
-            assignment=aedtapp.excitations[0], input_file=freq_domain, is_time_domain=False, x_scale=1e9
+            assignment=aedtapp.excitation_names[0], input_file=freq_domain, is_time_domain=False, x_scale=1e9
         )
         assert aedtapp.edit_source_from_file(
-            assignment=aedtapp.excitations[0],
+            assignment=aedtapp.excitation_names[0],
             input_file=time_domain,
             is_time_domain=True,
             x_scale=1e-6,
@@ -1784,7 +1784,7 @@ class TestClass:
         new_plane_wave = aedtapp.plane_wave()
         assert len(aedtapp.boundaries) == 10
         new_plane_wave.name = "new_plane_wave"
-        assert new_plane_wave.name in aedtapp.excitations
+        assert new_plane_wave.name in aedtapp.excitation_names
 
         aedtapp.close_project(save=False)
 
@@ -1862,13 +1862,13 @@ class TestClass:
         assignment = [sphere, sphere2.faces[0].id]
 
         exc = aedtapp.hertzian_dipole_wave(assignment=assignment, is_electric=True)
-        assert len(aedtapp.excitations) == 1
+        assert len(aedtapp.excitation_names) == 1
         assert exc.properties["Electric Dipole"]
         exc.props["IsElectricDipole"] = False
         assert not exc.properties["Electric Dipole"]
 
         exc2 = aedtapp.hertzian_dipole_wave(polarization=[1, 0, 0], name="dipole", radius=20)
-        assert len(aedtapp.excitations) == 2
+        assert len(aedtapp.excitation_names) == 2
         assert exc2.name == "dipole"
         aedtapp.close_project(save=False)
 
