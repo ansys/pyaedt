@@ -24,8 +24,6 @@
 
 """This module contains the ``Hfss3dLayout`` class."""
 
-from __future__ import absolute_import  # noreorder
-
 import fnmatch
 import io
 import os
@@ -73,7 +71,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
     version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
-        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
+        Examples of input values are ``251``, ``25.1``, ``2025.1``, ``"2025.1"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``True```, in which case AEDT is launched in graphical mode.
@@ -128,20 +126,20 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
     >>> aedtapp = Hfss3dLayout("myfile.aedt")
 
-    Create an AEDT 2023 R1 object and then create a
+    Create an AEDT 2025 R1 object and then create a
     ``Hfss3dLayout`` object and open the specified project.
 
-    >>> aedtapp = Hfss3dLayout(version="2024.2", project="myfile.aedt")
+    >>> aedtapp = Hfss3dLayout(version="2025.1", project="myfile.aedt")
 
     Create an instance of ``Hfss3dLayout`` from an ``Edb``
 
     >>> import ansys.aedt.core
     >>> edb_path = "/path/to/edbfile.aedb"
-    >>> edb = ansys.aedt.core.Edb(edb_path, edbversion=231)
+    >>> edb = ansys.aedt.core.Edb(edb_path, edbversion=251)
     >>> edb.stackup.import_stackup("stackup.xml")  # Import stackup. Manipulate edb, ...
     >>> edb.save_edb()
     >>> edb.close_edb()
-    >>> aedtapp = ansys.aedt.core.Hfss3dLayout(version=231, project=edb_path)
+    >>> aedtapp = ansys.aedt.core.Hfss3dLayout(version=251, project=edb_path)
 
     """
 
@@ -689,13 +687,15 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             return False
 
     @pyaedt_function_handler(portname="name")
-    def delete_port(self, name):
+    def delete_port(self, name, remove_geometry=True):
         """Delete a port.
 
         Parameters
         ----------
         name : str
             Name of the port.
+        remove_geometry : bool, optional
+            Whether to remove geometry. The default is ``True``.
 
         Returns
         -------
@@ -705,8 +705,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         References
         ----------
         >>> oModule.Delete
+        >>> oModule.DeleteExcitations
         """
-        self.oexcitation.Delete(name)
+        if remove_geometry:
+            self.oexcitation.Delete(name)
+        else:
+            self.oexcitation.DeleteExcitation(name)
+
         for bound in self.boundaries:
             if bound.name == name:
                 self.boundaries.remove(bound)
@@ -812,7 +817,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             msg = "Excitation Messages:"
             validation.writelines(msg + "\n")
             val_list.append(msg)
-            numportsdefined = int(len(self.excitations))
+            numportsdefined = int(len(self.excitation_names))
             if ports is not None and ports != numportsdefined:
                 msg = "**** Port Number Error! - Please check model"
                 self.logger.error(msg)
@@ -830,7 +835,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
                 validation.writelines(msg2 + "\n")
                 val_list.append(msg2)
 
-            excitation_names = self.excitations
+            excitation_names = self.excitation_names
             for excitation in excitation_names:
                 msg = "Excitation name: " + str(excitation)
                 self.logger.info(msg)
@@ -873,7 +878,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         elif "Terminal" in self.solution_type:
             solution_data = "Terminal Solution Data"
         if not port_names:
-            port_names = self.excitations
+            port_names = self.excitation_names
         if not port_excited:
             port_excited = port_names
         traces = ["dB(S(" + p + "," + q + "))" for p, q in zip(list(port_names), list(port_excited))]
@@ -1894,7 +1899,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         """
 
         list_output = []
-        if len(self.excitations) != 0:
+        if len(self.excitation_names) != 0:
             tmpfile1 = os.path.join(self.working_directory, generate_unique_name("tmp"))
             file_flag = self.save_diff_pairs_to_file(tmpfile1)
             if file_flag and os.stat(tmpfile1).st_size != 0:

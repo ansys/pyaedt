@@ -817,7 +817,10 @@ class SolutionData(object):
             if props is None:
                 props = {"x_label": self.primary_sweep, "y_label": ""}
             active_intr = ",".join([f"{i}={k}" for i, k in self.active_intrinsic.items() if i != self.primary_sweep])
-            name = f"{formula}({curve})_{active_intr}"
+            if formula:
+                name = f"{formula}({curve})_{active_intr}"
+            else:
+                name = f"({curve})_{active_intr}"
             new.add_trace([sw, self._get_data_formula(curve, formula)], name=name, properties=props)
         return new
 
@@ -872,7 +875,21 @@ class SolutionData(object):
             Matplotlib class object.
         """
         props = {"x_label": x_label, "y_label": y_label}
-        report_plotter = self.get_report_plotter(curves=curves, formula=formula, to_radians=is_polar, props=props)
+        if "Phi" in self.units_sweeps.keys() and is_polar:
+            if self.units_sweeps["Phi"] == "deg":
+                to_radians = False
+            else:
+                to_radians = True
+        elif "Theta" in self.units_sweeps.keys() and is_polar:
+            if self.units_sweeps["Theta"] == "deg":
+                to_radians = False
+            else:
+                to_radians = True
+        elif is_polar:
+            to_radians = True
+        else:
+            to_radians = False
+        report_plotter = self.get_report_plotter(curves=curves, formula=formula, to_radians=to_radians, props=props)
         report_plotter.show_legend = show_legend
         report_plotter.title = title
         report_plotter.size = size
@@ -881,12 +898,14 @@ class SolutionData(object):
         else:
             return report_plotter.plot_2d(snapshot_path=snapshot_path, show=show)
 
-    @pyaedt_function_handler(xlabel="x_label", ylabel="y_label", math_formula="formula")
+    @pyaedt_function_handler(
+        xlabel="x_label", ylabel="y_label", math_formula="formula", x_axis="primary_sweep", y_axis="secondary_sweep"
+    )
     def plot_3d(
         self,
         curve=None,
-        x_axis="Theta",
-        y_axis="Phi",
+        primary_sweep="Theta",
+        secondary_sweep="Phi",
         x_label="",
         y_label="",
         title="",
@@ -901,10 +920,10 @@ class SolutionData(object):
         ----------
         curve : str
             Curve to be plotted. If None, the first curve will be plotted.
-        x_axis : str, optional
-            X-axis sweep. The default is ``"Theta"``.
-        y_axis : str, optional
-            Y-axis sweep. The default is ``"Phi"``.
+        primary_sweep : str, optional
+            Primary sweep variable. The default is ``"Theta"``.
+        secondary_sweep : str, optional
+            Secondary sweep variable. The default is ``"Phi"``.
         x_label : str
             Plot X label.
         y_label : str
@@ -928,32 +947,40 @@ class SolutionData(object):
         :class:`matplotlib.figure.Figure`
             Matplotlib figure object.
         """
+        if self.primary_sweep == "Phi":
+            primary_sweep = "Phi"
+            secondary_sweep = "Theta"
+        elif self.primary_sweep == "Theta":
+            primary_sweep = "Theta"
+            secondary_sweep = "Phi"
         if not curve:
             curve = self.active_expression
-
         if not formula:
-            formula = "mag"
-        theta = [i * math.pi / 180 for i in self.variation_values(x_axis)]
-        y_axis_val = self.variation_values(y_axis)
-
-        phi = []
-        r = []
-        for el in y_axis_val:
-            if y_axis in self.active_intrinsic:
-                self.active_intrinsic[y_axis] = el
+            if curve[0:2].lower() == "db":
+                formula = "re"  # Avoid taking magnitude for db traces.
             else:
-                self.active_variation[y_axis] = el
-            phi.append(el * math.pi / 180)
+                formula = "mag"
+        primary_radians = [i * math.pi / 180 for i in self.variation_values(primary_sweep)]
+        secondary_values = self.variation_values(secondary_sweep)
 
-            if formula == "re":
+        secondary_radians = []
+        r = []
+        for el in secondary_values:
+            if secondary_sweep in self.active_intrinsic:
+                self.active_intrinsic[secondary_sweep] = el
+            else:
+                self.active_variation[secondary_sweep] = el
+            secondary_radians.append(el * math.pi / 180)
+
+            if formula.lower() == "re":
                 r.append(self.data_real(curve))
-            elif formula == "im":
+            elif formula.lower() == "im":
                 r.append(self.data_imag(curve))
-            elif formula == "db20":
+            elif formula.lower() == "db20":
                 r.append(self.data_db20(curve))
-            elif formula == "db10":
+            elif formula.lower() == "db10":
                 r.append(self.data_db10(curve))
-            elif formula == "mag":
+            elif formula.lower() == "mag":
                 r.append(self.data_magnitude(curve))
             elif formula == "phasedeg":
                 r.append(self.data_phase(curve, False))
@@ -973,19 +1000,24 @@ class SolutionData(object):
 
         if min_r < 0:
             r = [i + np.abs(min_r) for i in r]
-        theta_grid, phi_grid = np.meshgrid(theta, phi)
-        r_grid = np.reshape(r, (len(phi), len(theta)))
-
+        primary_grid, secondary_grid = np.meshgrid(primary_radians, secondary_radians)
+        r_grid = np.reshape(r, (len(secondary_radians), len(primary_radians)))
+        if self.primary_sweep == "Phi":
+            phi_grid = primary_grid
+            theta_grid = secondary_grid
+        else:
+            phi_grid = secondary_grid
+            theta_grid = primary_grid
         x = r_grid * np.sin(theta_grid) * np.cos(phi_grid)
         y = r_grid * np.sin(theta_grid) * np.sin(phi_grid)
         z = r_grid * np.cos(theta_grid)
         data_plot = [x, y, z]
         if not x_label:
-            x_label = x_axis
+            x_label = "Phi"
         if not y_label:
-            y_label = y_axis
+            y_label = "Theta"
         if not title:
-            title = "Simulation Results Plot"
+            title = "Polar Far-Field"
         new = ReportPlotter()
         new.size = size
         new.show_legend = False

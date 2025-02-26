@@ -58,8 +58,8 @@ def setup_test_data(request, local_scratch):
         "frequency_units": "GHz",
         "model_info": {
             "Polyline1": ["Polyline1.obj", [143, 175, 143], 1.0, "mm"],
-            "Polyline1_1": ["Polyline1_1.obj", [143, 175, 143], 1.0, "mm"],
-            "Polyline1_2": ["Polyline1_2.obj", [143, 175, 143], 1.0, "mm"],
+            "Polyline1_1": ["Polyline1_1.obj", [143, 0, 0], 1.0, "mm"],
+            "Polyline1_2": ["Polyline1_2.obj", [255, 255, 0], 1.0, "mm"],
         },
     }
     metadata_file = data_dir / "rcs_metadata.json"
@@ -103,7 +103,7 @@ def setup_test_data(request, local_scratch):
 
 @pytest.mark.usefixtures("setup_test_data")
 class TestClass:
-    def test_01_rcs_data(self):
+    def test_rcs_data(self):
         with pytest.raises(Exception, match="JSON file does not exist."):
             MonostaticRCSData(input_file="invented")
 
@@ -186,7 +186,7 @@ class TestClass:
         rcs_data.aspect_range = "Horizontal"
         assert isinstance(rcs_data.isar_2d, pd.DataFrame)
 
-    def test_02_rcs_plotter_properties(self):
+    def test_rcs_plotter_properties(self):
         rcs_data = MonostaticRCSData(input_file=str(self.metadata_file))
         rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_data)
 
@@ -199,7 +199,7 @@ class TestClass:
         assert rcs_plotter.center.size == 3
         assert isinstance(rcs_plotter.radius, float)
 
-    def test_03_rcs_plotter_rcs(self):
+    def test_rcs_plotter_rcs(self):
         rcs_data = MonostaticRCSData(input_file=str(self.metadata_file))
         rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_data)
 
@@ -226,14 +226,14 @@ class TestClass:
         rcs_plotter7 = rcs_plotter.plot_rcs_3d(show=False)
         assert isinstance(rcs_plotter7, ReportPlotter)
 
-    def test_04_rcs_plotter_range_profile(self):
+    def test_rcs_plotter_range_profile(self):
         rcs_data = MonostaticRCSData(input_file=str(self.metadata_file))
         rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_data)
 
         rcs_plotter = rcs_plotter.plot_range_profile(show=False)
         assert isinstance(rcs_plotter, ReportPlotter)
 
-    def test_05_rcs_plotter_waterfall(self):
+    def test_rcs_plotter_waterfall(self):
         rcs_data = MonostaticRCSData(input_file=str(self.metadata_file))
         rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_data)
 
@@ -243,14 +243,14 @@ class TestClass:
         rcs_plotter2 = rcs_plotter.plot_waterfall(show=False, is_polar=True)
         assert isinstance(rcs_plotter2, ReportPlotter)
 
-    def test_06_rcs_plotter_2d_isar(self):
+    def test_rcs_plotter_2d_isar(self):
         rcs_data = MonostaticRCSData(input_file=str(self.metadata_file))
         rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_data)
 
         rcs_plotter1 = rcs_plotter.plot_isar_2d(show=False)
         assert isinstance(rcs_plotter1, ReportPlotter)
 
-    def test_07_rcs_plotter_add_rcs(self):
+    def test_rcs_plotter_add_rcs(self):
         rcs_data = MonostaticRCSData(input_file=str(self.metadata_file))
         rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_data)
 
@@ -262,34 +262,7 @@ class TestClass:
         assert rcs_plotter.clear_scene(first_level="results")
         assert rcs_plotter.clear_scene()
 
-    def test_08_rcs_plotter_add_profile_settings(self):
-        rcs_data = MonostaticRCSData(input_file=str(self.metadata_file))
-        rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_data)
-
-        rcs_plotter.add_range_profile_settings()
-        plot = rcs_plotter.plot_scene(show=False)
-        assert isinstance(plot, Plotter)
-        assert rcs_plotter.clear_scene()
-
-    def test_09_rcs_plotter_add_waterfall_settings(self):
-        rcs_data = MonostaticRCSData(input_file=str(self.metadata_file))
-        rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_data)
-
-        rcs_plotter.add_waterfall_settings()
-        plot = rcs_plotter.plot_scene(show=False)
-        assert isinstance(plot, Plotter)
-        assert rcs_plotter.clear_scene()
-
-    def test_10_rcs_plotter_add_isar_2d_settings(self):
-        rcs_data = MonostaticRCSData(input_file=str(self.metadata_file))
-        rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_data)
-
-        rcs_plotter.add_isar_2d_settings()
-        plot = rcs_plotter.plot_scene(show=False)
-        assert isinstance(plot, Plotter)
-        assert rcs_plotter.clear_scene()
-
-    def test_11_rcs_plotter_add_range_profile(self):
+    def test_rcs_plotter_add_range_profile(self):
         rcs_data = MonostaticRCSData(input_file=str(self.metadata_file))
         rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_data)
 
@@ -298,7 +271,7 @@ class TestClass:
         assert isinstance(plot, Plotter)
         assert rcs_plotter.clear_scene()
 
-    def test_12_rcs_plotter_add_waterfall(self):
+    def test_rcs_plotter_add_waterfall(self):
         rcs_data = MonostaticRCSData(input_file=str(self.metadata_file))
         rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_data)
 
@@ -307,7 +280,7 @@ class TestClass:
         assert isinstance(plot, Plotter)
         assert rcs_plotter.clear_scene()
 
-    def test_13_rcs_plotter_add_isar_2d(self):
+    def test_rcs_plotter_add_isar_2d(self):
         rcs_data = MonostaticRCSData(input_file=str(self.metadata_file))
         rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_data)
         rcs_plotter.show_geometry = False
@@ -322,12 +295,183 @@ class TestClass:
         assert isinstance(plot, Plotter)
         assert rcs_plotter.clear_scene()
 
-    def test_14_rcs_plotter_no_data(self):
+    def test_rcs_plotter_add_profile_settings(self):
+        rcs_data = MonostaticRCSData(input_file=str(self.metadata_file))
+        rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_data)
+
+        rcs_plotter.add_range_profile_settings()
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+    def test_rcs_plotter_add_waterfall_settings(self):
+        rcs_data = MonostaticRCSData(input_file=str(self.metadata_file))
+        rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_data)
+
+        rcs_plotter.add_waterfall_settings(aspect_ang_phi=250.0)
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+        rcs_plotter = MonostaticRCSPlotter()
+
+        rcs_plotter.add_waterfall_settings(aspect_ang_phi=90.0)
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+    def test_rcs_plotter_add_isar_2d_settings(self):
+        rcs_data = MonostaticRCSData(input_file=str(self.metadata_file))
+        rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_data)
+
+        rcs_plotter.add_isar_2d_settings(
+            size_range=0.5, range_resolution=0.01, size_cross_range=0.6, cross_range_resolution=0.02
+        )
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+    def test_rcs_plotter_add_isar_3d_settings(self):
+        rcs_data = MonostaticRCSData(input_file=str(self.metadata_file))
+        rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_data)
+
+        rcs_plotter.add_isar_3d_settings(
+            size_range=1.0,
+            range_resolution=0.01,
+            size_cross_range=1.0,
+            cross_range_resolution=0.01,
+            size_elevation_range=1.0,
+            elevation_range_resolution=0.01,
+        )
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+    def test_rcs_plotter_no_data(self):
         rcs_data = MonostaticRCSData(input_file=str(self.metadata_file_no_data))
         rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_data)
         rcs_plotter.show_geometry = False
 
         rcs_plotter.add_range_profile_settings()
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+    def test_rcs_plotter_only_settings(self):
+        rcs_plotter = MonostaticRCSPlotter()
+        rcs_plotter.add_range_profile_settings()
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+
+    def test_rcs_plotter_add_incident_rcs_settings(self):
+        rcs_data = MonostaticRCSData(input_file=str(self.metadata_file))
+        rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_data)
+        rcs_plotter.add_incident_rcs_settings(theta_span=20, num_theta=101, phi_span=20, num_phi=101)
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+        rcs_plotter.add_incident_rcs_settings(theta_span=20, num_theta=101, phi_span=20, num_phi=101, line_color="blue")
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+        rcs_plotter.add_incident_rcs_settings(
+            theta_span=20, num_theta=101, phi_span=20, num_phi=101, arrow_color="black"
+        )
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+        rcs_plotter.add_incident_rcs_settings(
+            theta_span=20, num_theta=101, phi_span=20, num_phi=101, arrow_color="pink"
+        )
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+        rcs_plotter = MonostaticRCSPlotter()
+        rcs_plotter.add_incident_rcs_settings(theta_span=20, num_theta=101, phi_span=20, num_phi=101)
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+    def test_rcs_plotter_add_incident_range_profile_settings(self):
+        rcs_data = MonostaticRCSData(input_file=str(self.metadata_file))
+        rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_data)
+        rcs_plotter.add_incident_range_profile_settings()
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+        rcs_plotter = MonostaticRCSPlotter()
+        rcs_plotter.add_incident_range_profile_settings()
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+    def test_rcs_plotter_add_incident_isar3d_settings(self):
+        rcs_data = MonostaticRCSData(input_file=str(self.metadata_file))
+        rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_data)
+        rcs_plotter.add_incident_isar_3d_settings(theta_span=20, num_theta=101, phi_span=20, num_phi=101)
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+        rcs_plotter.add_incident_isar_3d_settings(
+            theta_span=20, num_theta=101, phi_span=20, num_phi=101, line_color="blue"
+        )
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+        rcs_plotter.add_incident_isar_3d_settings(
+            theta_span=20, num_theta=101, phi_span=20, num_phi=101, arrow_color="black"
+        )
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+        rcs_plotter = MonostaticRCSPlotter()
+        rcs_plotter.add_incident_isar_3d_settings(theta_span=20, num_theta=101, phi_span=20, num_phi=101)
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+    def test_rcs_plotter_add_incident_isar2d_settings(self):
+        rcs_data = MonostaticRCSData(input_file=str(self.metadata_file))
+        rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_data)
+        rcs_plotter.add_incident_isar_2d_settings(phi_span=20, num_phi=101)
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+        rcs_plotter.add_incident_isar_2d_settings(phi_span=20, num_phi=101, line_color="blue")
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+        rcs_plotter = MonostaticRCSPlotter()
+        rcs_plotter.add_incident_isar_2d_settings(phi_span=20, num_phi=101)
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+    def test_rcs_plotter_add_incident_waterfall_settings(self):
+        rcs_data = MonostaticRCSData(input_file=str(self.metadata_file))
+        rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_data)
+        rcs_plotter.add_incident_waterfall_settings(phi_span=20, num_phi=101)
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+        rcs_plotter.add_incident_waterfall_settings(phi_span=20, num_phi=101, line_color="blue")
+        plot = rcs_plotter.plot_scene(show=False)
+        assert isinstance(plot, Plotter)
+        assert rcs_plotter.clear_scene()
+
+        rcs_plotter = MonostaticRCSPlotter()
+        rcs_plotter.add_incident_waterfall_settings(phi_span=20, num_phi=101)
         plot = rcs_plotter.plot_scene(show=False)
         assert isinstance(plot, Plotter)
         assert rcs_plotter.clear_scene()

@@ -37,7 +37,7 @@ def min_aedt_version(min_version: str):
     ----------
     min_version: str
         Minimum AEDT version required by the method.
-        The value should follow the format YEAR.RELEASE, for example '2024.2'.
+        The value should follow the format YEAR.RELEASE, for example '2025.1'.
 
     Raises
     ------

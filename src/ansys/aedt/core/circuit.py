@@ -24,8 +24,6 @@
 
 """This module contains the ``Circuit`` class."""
 
-from __future__ import absolute_import  # noreorder
-
 import io
 import math
 import os
@@ -82,7 +80,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is  used.
         This parameter is ignored when Script is launched within AEDT.
-        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
+        Examples of input values are ``251``, ``25.1``,``2025.1``,``"2025.1"``.
     non_graphical : bool, optional
         Whether to run AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -139,15 +137,12 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
     >>> aedtapp = Circuit("myfile.aedt")
 
-    Create an instance of Circuit using the 2023 R2 version and
-    open the specified project, which is ``"myfile.aedt"``.
+    Create an instance of Circuit using the 20255.1, project="myfile.aedt")
 
-    >>> aedtapp = Circuit(version=2023.2, project="myfile.aedt")
-
-    Create an instance of Circuit using the 2023 R2 student version and open
+    Create an instance of Circuit using the 2025 R1 student version and open
     the specified project, which is named ``"myfile.aedt"``.
 
-    >>> aedtapp = Circuit(version="2023.2", project="myfile.aedt", student_version=True)
+    >>> aedtapp = Circuit(version="2025.1", project="myfile.aedt", student_version=True)
 
     """
 
@@ -1192,8 +1187,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         source_v = self.create_source(source_type="VoltageSin")
         for port in ports:
-            self.excitation_objects[port].enabled_sources.append(source_v.name)
-            self.excitation_objects[port].update()
+            self.design_excitations[port].enabled_sources.append(source_v.name)
+            self.design_excitations[port].update()
         return source_v
 
     @pyaedt_function_handler()
@@ -1216,8 +1211,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         """
         source_i = self.create_source(source_type="CurrentSin")
         for port in ports:
-            self.excitation_objects[port].enabled_sources.append(source_i.name)
-            self.excitation_objects[port].update()
+            self.design_excitations[port].enabled_sources.append(source_i.name)
+            self.design_excitations[port].update()
         return source_i
 
     @pyaedt_function_handler()
@@ -1240,8 +1235,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         """
         source_p = self.create_source(source_type="PowerSin")
         for port in ports:
-            self.excitation_objects[port].enabled_sources.append(source_p.name)
-            self.excitation_objects[port].update()
+            self.design_excitations[port].enabled_sources.append(source_p.name)
+            self.design_excitations[port].update()
         return source_p
 
     @pyaedt_function_handler(filepath="input_file")
@@ -1268,15 +1263,15 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             self.logger.error("Introduced file is not correct. Check path and format.")
             return False
 
-        if not all(elem in self.excitations for elem in ports):
+        if not all(elem in self.excitation_names for elem in ports):
             self.logger.error("Defined ports do not exist")
             return False
 
         source_freq = self.create_source(source_type="VoltageFrequencyDependent")
         source_freq.fds_filename = input_file
         for port in ports:
-            self.excitation_objects[port].enabled_sources.append(source_freq.name)
-            self.excitation_objects[port].update()
+            self.design_excitations[port].enabled_sources.append(source_freq.name)
+            self.design_excitations[port].update()
         return source_freq
 
     @pyaedt_function_handler(

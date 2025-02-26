@@ -27,9 +27,9 @@ import warnings
 
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.errors import GrpcApiError
-from ansys.aedt.core.generic.general_methods import _dim_arg
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers import _units_assignment
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
@@ -505,7 +505,7 @@ class MeshSettings(object):
         for k, v in self._instance_settings.items():
             out.append(k + ":=")
             if k in ["MaxElementSizeX", "MaxElementSizeY", "MaxElementSizeZ", "MinGapX", "MinGapY", "MinGapZ"]:
-                v = _dim_arg(v, self._mesh_class._model_units)
+                v = self._app.value_with_units(v, self._mesh_class._model_units)
             out.append(v)
         out += ["UserSpecifiedSettings:=", self._mesh_class.manual_settings]
         return out
@@ -522,7 +522,7 @@ class MeshSettings(object):
         for k in self.keys():
             v = self._instance_settings[k]
             if k in ["MaxElementSizeX", "MaxElementSizeY", "MaxElementSizeZ", "MinGapX", "MinGapY", "MinGapZ"]:
-                v = _dim_arg(v, getattr(self._mesh_class, "_model_units"))
+                v = self._app.value_with_units(v, getattr(self._mesh_class, "_model_units"))
             out[k] = v
         return out
 
@@ -572,6 +572,7 @@ class MeshSettings(object):
             raise KeyError("Setting not available.")
 
     def __setitem__(self, key, value):
+        value = _units_assignment(value)
         if key == "Level":  # backward compatibility
             key = "MeshRegionResolution"
         if key in self.keys():
@@ -667,7 +668,7 @@ class MeshRegionCommon(BinaryTreeNode):
         if self._child_object:
             child_object = self._app.get_oo_object(self._app.odesign, f"Mesh/{self._name}")
             if child_object:
-                BinaryTreeNode.__init__(self, self._name, child_object, False)
+                BinaryTreeNode.__init__(self, self._name, child_object, False, app=self._app)
                 return True
         return False
 
@@ -1338,7 +1339,9 @@ class IcepakMesh(object):
 
     @pyaedt_function_handler(accuracy2="accuracy", stairStep="enable_stair_step")
     def automatic_mesh_3D(self, accuracy, enable_stair_step=True):
-        """Create a generic custom mesh for a custom 3D object.
+        """Create a generic custom mesh.
+
+        .. deprecated:: 0.13.0
 
         Parameters
         ----------
@@ -1360,14 +1363,14 @@ class IcepakMesh(object):
         xsize = self.boundingdimension[0] / (10 * accuracy * accuracy)
         ysize = self.boundingdimension[1] / (10 * accuracy * accuracy)
         zsize = self.boundingdimension[2] / (10 * accuracy)
-        self.global_mesh_region.MaxElementSizeX = xsize
-        self.global_mesh_region.MaxElementSizeY = ysize
-        self.global_mesh_region.MaxElementSizeZ = zsize
-        self.global_mesh_region.UserSpecifiedSettings = True
-        self.global_mesh_region.MinGapX = str(xsize / 100)
-        self.global_mesh_region.MinGapY = str(ysize / 100)
-        self.global_mesh_region.MinGapZ = str(zsize / 100)
-        self.global_mesh_region.StairStepMeshing = enable_stair_step
+        self.global_mesh_region.manual_settings = True
+        self.global_mesh_region.settings["MaxElementSizeX"] = xsize
+        self.global_mesh_region.settings["MaxElementSizeY"] = ysize
+        self.global_mesh_region.settings["MaxElementSizeZ"] = zsize
+        self.global_mesh_region.settings["MinGapX"] = str(xsize / 100)
+        self.global_mesh_region.settings["MinGapY"] = str(ysize / 100)
+        self.global_mesh_region.settings["MinGapZ"] = str(zsize / 100)
+        self.global_mesh_region.settings["StairStepMeshing"] = enable_stair_step
         self.global_mesh_region.update()
         return True
 

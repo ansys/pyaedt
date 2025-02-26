@@ -31,7 +31,7 @@ Ideally, it should be the same as ``conftest.default_version``"""
 import os
 import warnings
 
-CURRENT_STABLE_AEDT_VERSION = 2024.2
+CURRENT_STABLE_AEDT_VERSION = 2025.1
 
 
 class AedtVersions:
@@ -170,7 +170,7 @@ class AedtVersions:
         Examples
         --------
         >>> from ansys.aedt.core import desktop
-        >>> desktop.get_version_env_variable("2021.2")
+        >>> desktop.get_version_env_variable("2025.1")
         'ANSYSEM_ROOT212'
 
         """

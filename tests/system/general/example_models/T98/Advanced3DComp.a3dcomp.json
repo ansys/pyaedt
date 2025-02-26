@@ -1,0 +1,460 @@
+{
+    "coordinatesystems": {
+        "CS0": {
+            "Mode": "Axis/Position",
+            "OriginX": 10,
+            "OriginY": 10,
+            "OriginZ": 10,
+            "Reference CS": "Global",
+            "XAxisXvec": "1mm",
+            "XAxisYvec": "0mm",
+            "XAxisZvec": "0mm",
+            "YAxisXvec": "0mm",
+            "YAxisYvec": "1mm",
+            "YAxisZvec": "0mm"
+        },
+        "CS1": {
+            "Mode": "Axis/Position",
+            "OriginX": 10,
+            "OriginY": 10,
+            "OriginZ": 10,
+            "Reference CS": "CS0",
+            "XAxisXvec": "1mm",
+            "XAxisYvec": "0mm",
+            "XAxisZvec": "0mm",
+            "YAxisXvec": "0mm",
+            "YAxisYvec": "1mm",
+            "YAxisZvec": "0mm"
+        }
+    },
+    "datasets": [
+        {
+            "Name": "test_dataset",
+            "v": null,
+            "vunit": "",
+            "x": [
+                1,
+                2,
+                3,
+                4
+            ],
+            "xunit": "cel",
+            "y": [
+                1,
+                2,
+                3,
+                4
+            ],
+            "yunit": "W",
+            "z": null,
+            "zunit": ""
+        }
+    ],
+    "monitors": [
+        {
+            "Geometry Assignment": "box1",
+            "ID": 300,
+            "Location": [
+                25.0,
+                25.0,
+                5.0
+            ],
+            "Name": "FaceMonitor",
+            "Quantity": [
+                "Temperature"
+            ],
+            "Type": "Face"
+        },
+        {
+            "Geometry Assignment": "surf1",
+            "ID": 287,
+            "Location": [
+                5.0,
+                10.0,
+                0.0
+            ],
+            "Name": "SurfaceMonitor",
+            "Quantity": [
+                "Temperature"
+            ],
+            "Type": "Surface"
+        },
+        {
+            "Geometry Assignment": "NewObject_5HGUNW",
+            "ID": 757,
+            "Location": [
+                25.0,
+                29.5,
+                30.0
+            ],
+            "Name": "Monitor_Q6S3V8",
+            "Quantity": [
+                "Temperature"
+            ],
+            "Type": "Surface"
+        },
+        {
+            "Geometry Assignment": "NewObject_59S7OT",
+            "ID": 730,
+            "Location": [
+                29.5,
+                29.5,
+                33.0
+            ],
+            "Name": "Monitor_6NMDQH",
+            "Quantity": [
+                "Temperature"
+            ],
+            "Type": "Face"
+        },
+        {
+            "Geometry Assignment": "box1",
+            "ID": 299,
+            "Location": [
+                25.0,
+                25.0,
+                3.5
+            ],
+            "Name": "BoxMonitor",
+            "Quantity": [
+                "Temperature"
+            ],
+            "Type": "Object"
+        },
+        {
+            "Geometry Assignment": "NewObject_59S7OT",
+            "ID": 729,
+            "Location": [
+                29.5,
+                29.5,
+                30.0
+            ],
+            "Name": "Monitor_NPQW82",
+            "Quantity": [
+                "Temperature"
+            ],
+            "Type": "Object"
+        }
+    ],
+    "native components": {
+        "Fan": {
+            "Instances": {
+                "Fan1": {
+                    "CS": "Global",
+                    "Operations": null
+                },
+                "Fan2": {
+                    "CS": "CS1",
+                    "Operations": null
+                }
+            },
+            "Properties": {
+                "BasicComponentInfo": {
+                    "Company": "",
+                    "Company URL": "",
+                    "ComponentName": "Fan",
+                    "Help URL": "",
+                    "IconType": "Fan",
+                    "Model Number": "",
+                    "Notes": "",
+                    "Version": "1.0"
+                },
+                "ChecksumHistory": [
+                ],
+                "ChecksumString": "",
+                "ComponentPriorityLists": {
+                },
+                "DatasetDefinitions": {
+                },
+                "DatasetType": "ComponentDatasetType",
+                "DefReferenceCSID": 1,
+                "DesignDefinitionParameters": {
+                    "VariableOrders": {
+                    }
+                },
+                "GeometryDefinitionParameters": {
+                    "VariableOrders": {
+                    }
+                },
+                "InstanceParameters": {
+                    "DesignParameters": "",
+                    "GeometryParameters": "",
+                    "MaterialParameters": ""
+                },
+                "IsLocal": false,
+                "MapInstanceParameters": "DesignVariable",
+                "MaterialDefinitionParameters": {
+                    "VariableOrders": {
+                    }
+                },
+                "MoveBackwards": false,
+                "NativeComponentDefinitionProvider": {
+                    "CaseSide": true,
+                    "DimUnits": [
+                        "m3_per_s",
+                        "n_per_meter_sq"
+                    ],
+                    "FailedFan": false,
+                    "FlowDirChoice": "NormalPositive",
+                    "FlowType": "Curve",
+                    "HubRadius": "0mm",
+                    "IntakeTemp": "AmbientTemp",
+                    "Magnitude": "1",
+                    "ModelAs": "3D",
+                    "MovePlane": "YZ",
+                    "OperatingRPM": "0",
+                    "Pressure Loss Curve": {
+                        "DimUnits": [
+                            "m_per_sec",
+                            "n_per_meter_sq"
+                        ],
+                        "X": [
+                            "",
+                            "",
+                            "",
+                            "3"
+                        ],
+                        "Y": [
+                            "",
+                            "1",
+                            "10",
+                            "0"
+                        ]
+                    },
+                    "Radius": "1mm",
+                    "Shape": "Circular",
+                    "Swirl": "0",
+                    "SwirlType": "Magnitude",
+                    "Type": "Fan",
+                    "Unit": "mm",
+                    "X": [
+                        "0",
+                        "0.01"
+                    ],
+                    "Y": [
+                        "3",
+                        "0"
+                    ]
+                },
+                "NextUniqueID": 0,
+                "OriginFilePath": "",
+                "SubmodelDefinitionName": "Fan",
+                "TargetCS": "Global",
+                "UniqueDefinitionIdentifier": "57c8ab4e-4db9-4881-b6bb-243a6f4e8b93",
+                "VersionHistory": [
+                ]
+            },
+            "Type": "Fan"
+        },
+        "Fan_G5REB0": {
+            "Instances": {
+                "Fan_G5REB01": {
+                    "CS": "Global",
+                    "Operations": null
+                }
+            },
+            "Properties": {
+                "BasicComponentInfo": {
+                    "Company": "",
+                    "Company URL": "",
+                    "ComponentName": "Fan_G5REB0",
+                    "Help URL": "",
+                    "IconType": "Fan",
+                    "Model Number": "",
+                    "Notes": "",
+                    "Version": "1.0"
+                },
+                "ChecksumHistory": [
+                ],
+                "ChecksumString": "",
+                "ComponentPriorityLists": {
+                },
+                "DatasetDefinitions": {
+                },
+                "DatasetType": "ComponentDatasetType",
+                "DefReferenceCSID": 1,
+                "DesignDefinitionParameters": {
+                    "VariableOrders": {
+                    }
+                },
+                "GeometryDefinitionParameters": {
+                    "VariableOrders": {
+                    }
+                },
+                "InstanceParameters": {
+                    "DesignParameters": "",
+                    "GeometryParameters": "",
+                    "MaterialParameters": ""
+                },
+                "IsLocal": false,
+                "MapInstanceParameters": "DesignVariable",
+                "MaterialDefinitionParameters": {
+                    "VariableOrders": {
+                    }
+                },
+                "MoveBackwards": false,
+                "NativeComponentDefinitionProvider": {
+                    "CaseSide": true,
+                    "DimUnits": [
+                        "m3_per_s",
+                        "n_per_meter_sq"
+                    ],
+                    "FailedFan": false,
+                    "FlowDirChoice": "NormalPositive",
+                    "FlowType": "Curve",
+                    "HubRadius": "0mm",
+                    "IntakeTemp": "AmbientTemp",
+                    "Magnitude": "1",
+                    "ModelAs": "3D",
+                    "MovePlane": "XY",
+                    "OperatingRPM": "0",
+                    "Pressure Loss Curve": {
+                        "DimUnits": [
+                            "m_per_sec",
+                            "n_per_meter_sq"
+                        ],
+                        "X": [
+                            "",
+                            "",
+                            "",
+                            "3"
+                        ],
+                        "Y": [
+                            "",
+                            "1",
+                            "10",
+                            "0"
+                        ]
+                    },
+                    "Radius": "0.008mm",
+                    "Shape": "Circular",
+                    "Swirl": "0",
+                    "SwirlType": "Magnitude",
+                    "Type": "Fan",
+                    "Unit": "mm",
+                    "X": [
+                        "0",
+                        "0.01"
+                    ],
+                    "Y": [
+                        "3",
+                        "0"
+                    ]
+                },
+                "NextUniqueID": 0,
+                "OriginFilePath": "",
+                "SubmodelDefinitionName": "Fan_G5REB0",
+                "TargetCS": "Global",
+                "UniqueDefinitionIdentifier": "57c8ab4e-4db9-4881-b6bb-ee0b50064d3b",
+                "VersionHistory": [
+                ]
+            },
+            "Type": "Fan"
+        },
+        "Fan_SPTEUZ": {
+            "Instances": {
+                "Fan_SPTEUZ1": {
+                    "CS": "Global",
+                    "Operations": null
+                }
+            },
+            "Properties": {
+                "BasicComponentInfo": {
+                    "Company": "",
+                    "Company URL": "",
+                    "ComponentName": "Fan_SPTEUZ",
+                    "Help URL": "",
+                    "IconType": "Fan",
+                    "Model Number": "",
+                    "Notes": "",
+                    "Version": "1.0"
+                },
+                "ChecksumHistory": [
+                ],
+                "ChecksumString": "",
+                "ComponentPriorityLists": {
+                },
+                "DatasetDefinitions": {
+                },
+                "DatasetType": "ComponentDatasetType",
+                "DefReferenceCSID": 1,
+                "DesignDefinitionParameters": {
+                    "VariableOrders": {
+                    }
+                },
+                "GeometryDefinitionParameters": {
+                    "VariableOrders": {
+                    }
+                },
+                "InstanceParameters": {
+                    "DesignParameters": "",
+                    "GeometryParameters": "",
+                    "MaterialParameters": ""
+                },
+                "IsLocal": false,
+                "MapInstanceParameters": "DesignVariable",
+                "MaterialDefinitionParameters": {
+                    "VariableOrders": {
+                    }
+                },
+                "MoveBackwards": false,
+                "NativeComponentDefinitionProvider": {
+                    "CaseSide": true,
+                    "DimUnits": [
+                        "m3_per_s",
+                        "n_per_meter_sq"
+                    ],
+                    "FailedFan": false,
+                    "FlowDirChoice": "NormalPositive",
+                    "FlowType": "Curve",
+                    "HubRadius": "0mm",
+                    "IntakeTemp": "AmbientTemp",
+                    "Magnitude": "1",
+                    "ModelAs": "2D",
+                    "MovePlane": "XY",
+                    "OperatingRPM": "0",
+                    "Pressure Loss Curve": {
+                        "DimUnits": [
+                            "m_per_sec",
+                            "n_per_meter_sq"
+                        ],
+                        "X": [
+                            "",
+                            "",
+                            "",
+                            "3"
+                        ],
+                        "Y": [
+                            "",
+                            "1",
+                            "10",
+                            "0"
+                        ]
+                    },
+                    "Radius": "0.008mm",
+                    "Shape": "Circular",
+                    "Swirl": "0",
+                    "SwirlType": "Magnitude",
+                    "Type": "Fan",
+                    "Unit": "mm",
+                    "X": [
+                        "0",
+                        "0.01"
+                    ],
+                    "Y": [
+                        "3",
+                        "0"
+                    ]
+                },
+                "NextUniqueID": 0,
+                "OriginFilePath": "",
+                "SubmodelDefinitionName": "Fan_SPTEUZ",
+                "TargetCS": "Global",
+                "UniqueDefinitionIdentifier": "57c8ab4e-4db9-4881-b6bb-13fccacbfdfe",
+                "VersionHistory": [
+                ]
+            },
+            "Type": "Fan"
+        }
+    }
+}

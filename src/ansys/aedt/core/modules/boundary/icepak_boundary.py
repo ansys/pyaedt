@@ -24,9 +24,9 @@
 from abc import abstractmethod
 import copy
 
-from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers import decompose_variable_value
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
 
 
@@ -253,17 +253,6 @@ class PieceWiseLinearDictionary(BoundaryDictionary):
     def dataset_name(self):
         """Dataset name that defines the piecewise assignment."""
         return self.dataset.name
-
-
-def _create_boundary(bound):
-    try:
-        if bound.create():
-            bound._app._boundaries[bound.name] = bound
-            return bound
-        else:  # pragma : no cover
-            raise Exception
-    except Exception:  # pragma: no cover
-        return None
 
 
 class NetworkObject(BoundaryObject):

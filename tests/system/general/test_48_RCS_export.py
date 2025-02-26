@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
+from pathlib import Path
 
 from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
 from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
@@ -51,7 +51,7 @@ class TestClass:
         assert isinstance(rcs_data.model_info, dict)
         assert isinstance(rcs_data.rcs_data, MonostaticRCSData)
 
-        assert os.path.isfile(rcs_data.metadata_file)
+        assert Path(rcs_data.metadata_file).is_file()
 
         assert rcs_data.column_name == "ComplexMonostaticRCSTheta"
         rcs_data.column_name = "ComplexMonostaticRCSPhi"
@@ -59,3 +59,17 @@ class TestClass:
 
         data = rcs_data.get_monostatic_rcs()
         assert isinstance(data, SolutionData)
+
+    def test_02_get_rcs_geometry(self, project_test):
+        rcs_exporter = MonostaticRCSExporter(
+            project_test,
+            setup_name=None,
+            frequencies=None,
+        )
+        assert isinstance(rcs_exporter, MonostaticRCSExporter)
+        assert not rcs_exporter.rcs_data
+        assert not rcs_exporter.model_info
+        metadata_file = rcs_exporter.export_rcs(only_geometry=True)
+        assert Path(metadata_file).is_file()
+        assert not rcs_exporter.rcs_data
+        assert isinstance(rcs_exporter.model_info, dict)

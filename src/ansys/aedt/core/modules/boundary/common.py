@@ -27,6 +27,7 @@
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers import _units_assignment
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
@@ -37,6 +38,7 @@ class BoundaryProps(dict):
     """AEDT Boundary Component Internal Parameters."""
 
     def __setitem__(self, key, value):
+        value = _units_assignment(value)
         dict.__setitem__(self, key, value)
         if self._pyaedt_boundary.auto_update:
             if key in ["Edges", "Faces", "Objects"]:
@@ -95,7 +97,7 @@ class BoundaryCommon(PropsManager):
     @pyaedt_function_handler()
     def _initialize_tree_node(self):
         if self._child_object:
-            BinaryTreeNode.__init__(self, self._name, self._child_object, False)
+            BinaryTreeNode.__init__(self, self._name, self._child_object, False, app=self._app)
             return True
         return False
 
@@ -110,11 +112,11 @@ class BoundaryCommon(PropsManager):
 
         """
         if self.type == "Matrix" or self.type == "Force" or self.type == "Torque":
-            self._app.o_maxwell_parameters.DeleteParameters([self.name])
+            self._app.omaxwell_parameters.DeleteParameters([self.name])
         else:
             self._app.oboundary.DeleteBoundaries([self.name])
-            if self.name in self._app.excitation_objects.keys():
-                self._app.excitation_objects.pop(self.name)
+            if self.name in self._app.design_excitations.keys():
+                self._app.design_excitations.pop(self.name)
         return True
 
     def _get_boundary_data(self, ds):
@@ -537,6 +539,8 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
             self._app.oboundary.AssignFluxTangential(self._get_args())
         elif bound_type == "Plane Incident Wave":
             self._app.oboundary.AssignPlaneWave(self._get_args())
+        elif bound_type == "Hertzian Dipole Wave":
+            self._app.oboundary.AssignHertzianDipoleWave(self._get_args())
         elif bound_type == "ResistiveSheet":
             self._app.oboundary.AssignResistiveSheet(self._get_args())
         else:
@@ -680,6 +684,8 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
         elif bound_type == "Terminal":
             self._app.oboundary.EditTerminal(self.name, self._get_args())
         elif bound_type == "Plane Incident Wave":
+            self._app.oboundary.EditIncidentWave(self.name, self._get_args())
+        elif bound_type == "Hertzian Dipole Wave":
             self._app.oboundary.EditIncidentWave(self.name, self._get_args())
         elif bound_type == "ResistiveSheet":
             self._app.oboundary.EditResistiveSheet(self.name, self._get_args())

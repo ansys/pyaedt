@@ -22,19 +22,18 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from __future__ import absolute_import
-
 import os
 import re
 import secrets
 import warnings
 
 from ansys.aedt.core.edb import Edb
+from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.desktop_sessions import _edb_sessions
 from ansys.aedt.core.generic.general_methods import _uname
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers import _units_assignment
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
-from ansys.aedt.core.modeler.cad.elements_3d import _dict2arg
 
 
 class UserDefinedComponentParameters(dict):
@@ -63,6 +62,7 @@ class UserDefinedComponentProps(dict):
     """User Defined Component Internal Parameters."""
 
     def __setitem__(self, key, value):
+        value = _units_assignment(value)
         dict.__setitem__(self, key, value)
         if self._pyaedt_user_defined_component.auto_update:
             res = self._pyaedt_user_defined_component.update_native()
@@ -183,7 +183,10 @@ class UserDefinedComponent(object):
                 },
             )
             if props:
-                self._update_props(self._props["NativeComponentDefinitionProvider"], props)
+                self._update_props(
+                    self._props["NativeComponentDefinitionProvider"],
+                    props.get("NativeComponentDefinitionProvider", props),
+                )
             self.native_properties = self._props["NativeComponentDefinitionProvider"]
             self.auto_update = True
 
@@ -222,7 +225,13 @@ class UserDefinedComponent(object):
         """
         try:
             child_object = self._primitives.oeditor.GetChildObject(self.name)
-            return BinaryTreeNode(list(child_object.GetChildNames("Operations"))[0], child_object, True, "Operations")
+            return BinaryTreeNode(
+                list(child_object.GetChildNames("Operations"))[0],
+                child_object,
+                True,
+                "Operations",
+                app=self._primitives._app,
+            )
         except Exception:
             return False
 
@@ -759,7 +768,7 @@ class UserDefinedComponent(object):
     def _get_args(self, props=None):
         if props is None:
             props = self.props
-        arg = ["NAME:" + self.name]
+        arg = ["NAME:EditNativeComponentDefinitionData"]
         _dict2arg(props, arg)
         return arg
 

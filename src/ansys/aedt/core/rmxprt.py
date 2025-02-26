@@ -24,8 +24,6 @@
 
 """This module contains these classes: ``RMXprtModule`` and ``Rmxprt``."""
 
-from __future__ import absolute_import  # noreorder
-
 from ansys.aedt.core.application.analysis_r_m_xprt import FieldAnalysisRMxprt
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
@@ -55,7 +53,7 @@ class RMXprtModule(object):
             child_object = self._app.odesign.GetChildObject("Machine")
             if self.component:
                 child_object = child_object.GetChildObject(self.component)
-            parent = BinaryTreeNode(self.component if self.component else "Machine", child_object, False)
+            parent = BinaryTreeNode(self.component if self.component else "Machine", child_object, False, app=self._app)
             return parent
         except Exception:
             return False
@@ -161,7 +159,7 @@ class Rmxprt(FieldAnalysisRMxprt):
         Version of AEDT to use. The default is ``None``, in which case
         the active setup is used or the latest installed version is
         used.
-        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
+        Examples of input values are ``251``, ``25.1``, ``2025.1``, ``"2025.1"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.

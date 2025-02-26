@@ -28,6 +28,7 @@ from pathlib import Path
 import shutil
 
 from ansys.aedt.core.generic.constants import unit_converter
+from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.generic.general_methods import check_and_download_folder
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
@@ -51,11 +52,12 @@ class MonostaticRCSExporter:
     ----------
     app : :class:`pyaedt.Hfss`
         HFSS application instance.
-    setup_name : str
+    setup_name : str, optional
         Name of the setup. Make sure to build a setup string in the form of ``"SetupName : SetupSweep"``.
-    frequencies : list
+        The default is ``None``, in which case only the geometry is exported.
+    frequencies : list, optional
         Frequency list to export. Specify either a list of strings with units or a list of floats in Hertz units.
-        For example, ``["9GHz", 9e9]``.
+        For example, ``["9GHz", 9e9]``. The default is ``None``, in which case only the geometry is exported.
     expression : str, optional
         Monostatic expression name. The default value is ``"ComplexMonostaticRCSTheta"``.
     variations : dict, optional
@@ -66,7 +68,7 @@ class MonostaticRCSExporter:
     Examples
     --------
     >>> import ansys.aedt.core
-    >>> app = ansys.aedt.core.Hfss(version="2023.2", design="Antenna")
+    >>> app = ansys.aedt.core.Hfss(version="2025.1", design="Antenna")
     >>> setup_name = "Setup1 : LastAdaptive"
     >>> frequencies = [77e9]
     >>> sphere = "3D"
@@ -77,8 +79,8 @@ class MonostaticRCSExporter:
     def __init__(
         self,
         app,
-        setup_name,
-        frequencies,
+        setup_name=None,
+        frequencies=None,
         expression=None,
         variations=None,
         overwrite=True,
@@ -91,7 +93,7 @@ class MonostaticRCSExporter:
             self.expression = "ComplexMonostaticRCSTheta"
 
         if not variations:
-            variations = app.available_variations.nominal_w_values_dict_w_dependent
+            variations = app.available_variations.get_independent_nominal_values()
         else:
             # Set variation to Nominal
             for var_name, var_value in variations.items():
@@ -100,7 +102,7 @@ class MonostaticRCSExporter:
         self.variations = variations
         self.overwrite = overwrite
 
-        if not isinstance(frequencies, list):
+        if frequencies and not isinstance(frequencies, list):
             self.frequencies = [frequencies]
         else:
             self.frequencies = frequencies
@@ -111,7 +113,7 @@ class MonostaticRCSExporter:
         self.__model_info = {}
         self.__rcs_data = None
         self.__metadata_file = ""
-        self.__frequency_unit = self.__app.odesktop.GetDefaultUnit("Frequency")
+        self.__frequency_unit = self.__app.units.frequency
 
         self.__column_name = copy.deepcopy(self.expression)
 
@@ -142,7 +144,13 @@ class MonostaticRCSExporter:
 
     @pyaedt_function_handler()
     def get_monostatic_rcs(self):
-        """Get RCS solution data."""
+        """Get RCS solution data.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.solutions.SolutionData`
+            Solution Data object.
+        """
         variations = self.variations
         variations["IWaveTheta"] = ["All"]
         variations["IWavePhi"] = ["All"]
@@ -160,9 +168,27 @@ class MonostaticRCSExporter:
         return solution_data
 
     @pyaedt_function_handler()
-    def export_rcs(self, name="rcs_data", metadata_name="pyaedt_rcs_metadata"):
-        """Export RCS solution data."""
+    def export_rcs(self, name="rcs_data", metadata_name="pyaedt_rcs_metadata", only_geometry=False):
+        """Export RCS solution data.
+
+        Parameters
+        ----------
+        name : str, optional
+            Name of the RCS data file. The default is ``"rcs_data"``.
+        metadata_name : str, optional
+            Name of the metadata file. The default is ``"pyaedt_rcs_metadata"``.
+        only_geometry : bool, optional
+           Export only the geometry. The default is ``False``.
+
+        Returns
+        -------
+        str
+            Metadata file.
+
+        """
         # Output directory
+        if not self.setup_name:
+            self.setup_name = "Nominal"
         solution_setup_name = self.setup_name.replace(":", "_").replace(" ", "")
         full_setup = f"{solution_setup_name}"
         export_path = Path(self.__app.working_directory) / full_setup
@@ -188,47 +214,47 @@ class MonostaticRCSExporter:
 
         # Export monostatic RCS
         if self.overwrite or not file_exists:
-
-            data = self.get_monostatic_rcs()
-
-            if not data or data.number_of_variations != 1:  # pragma: no cover
-                self.__app.logger.error("Data can not be obtained.")
-                return False
-
-            df = data.full_matrix_real_imag[0] + complex(0, 1) * data.full_matrix_real_imag[1]
-            df.index.names = [*data.variations[0].keys(), *data.intrinsics.keys()]
-            df = df.reset_index(level=[*data.variations[0].keys()], drop=True)
-            df = unit_converter(
-                df, unit_system="Length", input_units=data.units_data[self.expression], output_units="meter"
-            )
-
-            df.rename(
-                columns={
-                    self.expression: self.column_name,
-                },
-                inplace=True,
-            )
-
-            try:
-                df.to_hdf(self.data_file, key="df", mode="w", format="table")
-            except ImportError as e:  # pragma: no cover
-                self.__app.logger.error(f"PyTables is not installed: {e}")
-                return False
-
-            if not self.data_file.is_file():
-                self.__app.logger.error("RCS data file not exported.")
-                return False
-        else:
-            self.__app.logger.info("Using existing RCS file.")
-
-        # Export geometry
-        if self.data_file.is_file():
+            # Export geometry
             geometry_path = export_path / "geometry"
-            if not geometry_path.exists():
+
+            if settings.remote_rpc_session:
+                settings.remote_rpc_session.filemanager.makedirs(geometry_path)
+            elif not geometry_path.exists():
                 geometry_path.mkdir()
+
             obj_list = self.__create_geometries(geometry_path)
             if obj_list:
                 self.__model_info["object_list"] = obj_list
+
+            if only_geometry:
+                file_name = None
+            else:
+                data = self.get_monostatic_rcs()
+                if not data or data.number_of_variations != 1:  # pragma: no cover
+                    raise AEDTRuntimeError("Data can not be obtained.")
+
+                df = data.full_matrix_real_imag[0] + complex(0, 1) * data.full_matrix_real_imag[1]
+                df.index.names = [*data.variations[0].keys(), *data.intrinsics.keys()]
+                df = df.reset_index(level=[*data.variations[0].keys()], drop=True)
+                df = unit_converter(
+                    df, unit_system="Length", input_units=data.units_data[self.expression], output_units="meter"
+                )
+                df.rename(
+                    columns={
+                        self.expression: self.column_name,
+                    },
+                    inplace=True,
+                )
+                try:
+                    df.to_hdf(self.data_file, key="df", mode="w", format="table")
+                except ImportError as e:  # pragma: no cover
+                    raise AEDTRuntimeError("PyTables is not installed") from e
+
+                if not self.data_file.is_file():
+                    raise AEDTRuntimeError("RCS data file not exported.")
+
+        else:
+            self.__app.logger.info("Using existing RCS file.")
 
         items = {
             "solution": self.solution,
@@ -245,11 +271,11 @@ class MonostaticRCSExporter:
             with pyaedt_metadata_file.open("w") as f:
                 json.dump(items, f, indent=2)
         except Exception as e:
-            self.__app.logger.error(f"An error occurred when writing metadata: {e}")
-            return False
+            raise AEDTRuntimeError(f"An error occurred when writing metadata") from e
 
         self.__metadata_file = pyaedt_metadata_file
-        self.__rcs_data = MonostaticRCSData(str(pyaedt_metadata_file))
+        if not only_geometry:
+            self.__rcs_data = MonostaticRCSData(str(pyaedt_metadata_file))
         return pyaedt_metadata_file
 
     @pyaedt_function_handler()

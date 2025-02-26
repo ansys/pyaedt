@@ -24,9 +24,7 @@
 
 """This module contains the ``CircuitNetlist`` class."""
 
-from __future__ import absolute_import  # noreorder
-
-import os
+from pathlib import Path
 import shutil
 
 from ansys.aedt.core.application.analysis_circuit_netlist import AnalysisCircuitNetlist
@@ -52,7 +50,7 @@ class CircuitNetlist(AnalysisCircuitNetlist, object):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is  used.
         This parameter is ignored when Script is launched within AEDT.
-        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
+        Examples of input values are ``251``, ``25.1``,``2025.1``,``"2025.1"``.
     non_graphical : bool, optional
         Whether to run AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -109,15 +107,15 @@ class CircuitNetlist(AnalysisCircuitNetlist, object):
 
     >>> aedtapp = CircuitNetlist("myfile.aedt")
 
-    Create an instance of Circuit using the 2023 R2 version and
+    Create an instance of Circuit using the 2025 R1 version and
     open the specified project, which is ``"myfile.aedt"``.
 
-    >>> aedtapp = CircuitNetlist(version=2023.2, project="myfile.aedt")
+    >>> aedtapp = CircuitNetlist(version=2025.1, project="myfile.aedt")
 
-    Create an instance of Circuit using the 2023 R2 student version and open
+    Create an instance of Circuit using the 2025 R1 student version and open
     the specified project, which is named ``"myfile.aedt"``.
 
-    >>> hfss = CircuitNetlist(version="2023.2", project="myfile.aedt", student_version=True)
+    >>> hfss = CircuitNetlist(version="2025.1", project="myfile.aedt", student_version=True)
 
     """
 
@@ -160,7 +158,7 @@ class CircuitNetlist(AnalysisCircuitNetlist, object):
 
         Parameters
         ----------
-        input_file : str, optional
+        input_file : str or :class:'pathlib.Path', optional
             File path to save the new log file to. The default is the ``pyaedt`` folder.
 
         Returns
@@ -168,30 +166,32 @@ class CircuitNetlist(AnalysisCircuitNetlist, object):
         str
             File Path.
         """
-        if input_file and not os.path.exists(os.path.normpath(input_file)):
+        if input_file and not Path(input_file).exists():
             self.logger.error("Path does not exist.")
             return None
         elif not input_file:
-            input_file = os.path.join(os.path.normpath(self.working_directory), "logfile")
-            if not os.path.exists(input_file):
-                os.mkdir(input_file)
+            input_file = Path(self.working_directory) / "logfile"
+            if not Path(input_file).exists():
+                Path(input_file).mkdir()
 
-        results_path = os.path.join(os.path.normpath(self.results_directory), self.design_name)
-        results_temp_path = os.path.join(results_path, "temp")
+        results_path = Path(self.results_directory) / self.design_name
+        results_temp_path = Path(results_path) / "temp"
 
         # Check if .log exist in temp folder
-        if os.path.exists(results_temp_path) and search_files(results_temp_path, "*.log"):
+        if Path(results_temp_path).exists() and search_files(str(results_temp_path), "*.log"):
             # Check the most recent
-            files = search_files(results_temp_path, "*.log")
-            latest_file = max(files, key=os.path.getctime)
-        elif os.path.exists(results_path) and search_files(results_path, "*.log"):
+            files = search_files(str(results_temp_path), "*.log")
+            files = [Path(f) for f in files]
+            latest_file = max(files, key=lambda f: str(f.stat().st_ctime))
+        elif Path(results_path).exists() and search_files(str(results_path), "*.log"):
             # Check the most recent
-            files = search_files(results_path, "*.log")
-            latest_file = max(files, key=os.path.getctime)
+            files = search_files(str(results_path), "*.log")
+            files = [Path(f) for f in files]
+            latest_file = max(files, key=lambda f: str(f.stat().st_ctime))
         else:
             self.logger.error("Design not solved")
             return None
 
         shutil.copy(latest_file, input_file)
-        filename = os.path.basename(latest_file)
-        return os.path.join(input_file, filename)
+        filename = Path(latest_file).name
+        return Path(input_file) / filename
