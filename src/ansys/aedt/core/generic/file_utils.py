@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 from pathlib import Path
+from typing import List
 from typing import Union
 
 from ansys.aedt.core.generic.general_methods import open_file
@@ -66,3 +67,35 @@ def read_component_file(input_file: Union[str, Path]) -> dict:
                 variables[line_list[1]] = line_list[-2]
 
     return variables
+
+
+def get_dxf_layers(input_file: Union[str, Path]) -> List[str]:
+    """Read a DXF file and return all layer names.
+
+    Parameters
+    ----------
+    input_file : str or :class:`pathlib.Path`
+        Full path to the DXF file.
+
+    Returns
+    -------
+    list
+        List of layers in the DXF file.
+    """
+    file_path = Path(input_file)
+
+    def find_indices(list_to_check, item_to_find):
+        return [element for element, value in enumerate(list_to_check) if value == item_to_find]
+
+    layer_names = []
+    with open_file(str(file_path), encoding="utf8") as f:
+        lines = f.readlines()
+        indices = find_indices(lines, "AcDbLayerTableRecord\n")
+        index_offset = 1
+        if not indices:
+            indices = find_indices(lines, "LAYER\n")
+            index_offset = 3
+        for idx in indices:
+            if "2" in lines[idx + index_offset]:
+                layer_names.append(lines[idx + index_offset + 1].replace("\n", ""))
+        return layer_names

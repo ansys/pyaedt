@@ -26,6 +26,7 @@ import csv
 import ntpath
 import os
 from pathlib import Path
+from typing import List
 from typing import Union
 import warnings
 
@@ -33,6 +34,7 @@ from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.generic.checks import min_aedt_version
 from ansys.aedt.core.generic.configurations import Configurations
 from ansys.aedt.core.generic.constants import unit_converter
+from ansys.aedt.core.generic.file_utils import get_dxf_layers
 from ansys.aedt.core.generic.file_utils import read_component_file
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import open_file
@@ -1221,14 +1223,13 @@ class FieldAnalysis3D(Analysis, object):
                     break
         return nets
 
-    @pyaedt_function_handler()
-    def get_dxf_layers(self, file_path):
-        # type: (str) -> list[str]
+    @pyaedt_function_handler(file_path="input_file")
+    def get_dxf_layers(self, input_file: Union[str, Path]) -> List[str]:
         """Read a DXF file and return all layer names.
 
         Parameters
         ----------
-        file_path : str
+        input_file : str or :class:`pathlib.Path`
             Full path to the DXF file.
 
         Returns
@@ -1236,41 +1237,29 @@ class FieldAnalysis3D(Analysis, object):
         list
             List of layers in the DXF file.
         """
-        layer_names = []
-        with open_file(file_path, encoding="utf8") as f:
-            lines = f.readlines()
-            indices = self._find_indices(lines, "AcDbLayerTableRecord\n")
-            index_offset = 1
-            if not indices:
-                indices = self._find_indices(lines, "LAYER\n")
-                index_offset = 3
-            for idx in indices:
-                if "2" in lines[idx + index_offset]:
-                    layer_names.append(lines[idx + index_offset + 1].replace("\n", ""))
-            return layer_names
+        return get_dxf_layers(input_file)
 
-    @pyaedt_function_handler(layers_list="layers")
+    @pyaedt_function_handler(layers_list="layers", file_path="input_file")
     def import_dxf(
         self,
-        file_path,
-        layers,
-        auto_detect_close=True,
-        self_stitch=True,
-        self_stitch_tolerance=0,
-        scale=0.001,
-        defeature_geometry=False,
-        defeature_distance=0,
-        round_coordinates=False,
-        round_num_digits=4,
-        write_poly_with_width_as_filled_poly=False,
-        import_method=1,
-    ):  # pragma: no cover
-        # type: (str, list, bool, bool, float, float, bool, float, bool, int, bool, int, bool) -> bool
+        input_file: str,
+        layers: List[str],
+        auto_detect_close: bool = True,
+        self_stitch: bool = True,
+        self_stitch_tolerance: float = 0.0,
+        scale: float = 0.001,
+        defeature_geometry: bool = False,
+        defeature_distance: float = 0.0,
+        round_coordinates: bool = False,
+        round_num_digits: int = 4,
+        write_poly_with_width_as_filled_poly: bool = False,
+        import_method: Union[int, bool] = 1,
+    ) -> bool:  # pragma: no cover
         """Import a DXF file.
 
         Parameters
         ----------
-        file_path : str
+        input_file : str
             Path to the DXF file.
         layers : list
             List of layer names to import. To get the dxf_layers in the DXF file,
@@ -1300,7 +1289,7 @@ class FieldAnalysis3D(Analysis, object):
             The default is ``4``.
         write_poly_with_width_as_filled_poly : bool, optional
             Imports wide polylines as polygons. The default is ``False``.
-        import_method : int, bool
+        import_method : int or bool, optional
             Whether the import method is ``Script`` or ``Acis``.
             The default is ``1``, which means that the ``Acis`` is used.
 
@@ -1317,7 +1306,7 @@ class FieldAnalysis3D(Analysis, object):
         if self.desktop_class.non_graphical and self.desktop_class.aedt_version_id < "2024.2":  # pragma: no cover
             self.logger.error("Method is supported only in graphical mode.")
             return False
-        dxf_layers = self.get_dxf_layers(file_path)
+        dxf_layers = self.get_dxf_layers(input_file)
         for layer in layers:
             if layer not in dxf_layers:
                 self.logger.error(f"{layer} does not exist in specified dxf.")
@@ -1329,7 +1318,7 @@ class FieldAnalysis3D(Analysis, object):
             sheet_bodies_2d = True
 
         vArg1 = ["NAME:options"]
-        vArg1.append("FileName:="), vArg1.append(file_path.replace(os.sep, "/"))
+        vArg1.append("FileName:="), vArg1.append(input_file.replace(os.sep, "/"))
         vArg1.append("Scale:="), vArg1.append(scale)
         vArg1.append("AutoDetectClosed:="), vArg1.append(auto_detect_close)
         vArg1.append("SelfStitch:="), vArg1.append(self_stitch)
@@ -1455,22 +1444,3 @@ class FieldAnalysis3D(Analysis, object):
         )
         self.logger.info("GDS layer imported with elevations and thickness.")
         return True
-
-    @pyaedt_function_handler()
-    def _find_indices(self, list_to_check, item_to_find):
-        # type: (list, str|int) -> list
-        """Given a list, returns the list of indices for all occurrences of a given element.
-
-        Parameters
-        ----------
-        list_to_check: list
-            List to check.
-        item_to_find: str, int
-            Element to search for in the list.
-
-        Returns
-        -------
-        list
-            Indices of the occurrences of a given element.
-        """
-        return [idx for idx, value in enumerate(list_to_check) if value == item_to_find]
