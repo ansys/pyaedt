@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+import warnings
 
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.generic.configurations import Configurations3DLayout
@@ -172,12 +173,34 @@ class FieldAnalysis3DLayout(Analysis):
 
     @property
     def excitations(self):
-        """Excitation names.
+        """Get all excitation names.
+
+        .. deprecated:: 0.15.0
+           Use :func:`excitation_names` property instead.
 
         Returns
         -------
         list
-            Excitation list. Excitations with multiple modes return one
+            List of excitation names. Excitations with multiple modes will return one
+            excitation for each mode.
+
+        References
+        ----------
+        >>> oModule.GetExcitations
+        """
+        mess = "The property `excitations` is deprecated.\n"
+        mess += " Use `app.excitation_names` directly."
+        warnings.warn(mess, DeprecationWarning)
+        return self.excitation_names
+
+    @property
+    def excitation_names(self):
+        """Get all excitation names.
+
+        Returns
+        -------
+        list
+            List of excitation names. Excitations with multiple modes will return one
             excitation for each mode.
 
         References
@@ -329,33 +352,6 @@ class FieldAnalysis3DLayout(Analysis):
         setup.auto_update = True
         setup.update()
         self._setups = tmp_setups + [setup]
-        return setup
-
-    @pyaedt_function_handler(setupname="name", setuptype="setup_type")
-    def get_setup(self, name, setup_type=None):
-        """Retrieve a setup.
-
-        Parameters
-        ----------
-        name : str
-            Name of the setup.
-        setup_type : SETUPS, optional
-            Type of the setup. The default is ``None``, in which case
-            the default type is applied.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.solve_setup.Setup3DLayout`
-            Setup object.
-
-        """
-        if setup_type is None:
-            setup_type = self.design_solutions.default_setup
-        for setup in self._setups:
-            if name == setup.name:
-                return setup
-        setup = Setup3DLayout(self, setup_type, name, is_new_setup=False)
-        self.active_setup = name
         return setup
 
     @pyaedt_function_handler(setupname="name")

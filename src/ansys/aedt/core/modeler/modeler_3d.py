@@ -314,10 +314,10 @@ class Modeler3D(Primitives3D):
                 arg2 += ["MeshRegions:=", mesh_regions]
         else:
             if excitations is None:
-                excitations = self._app.excitations
+                excitations = self._app.excitation_names
                 if self._app.design_type == "HFSS":
                     exc = self._app.get_oo_name(self._app.odesign, "Excitations")
-                    if exc and exc[0] not in self._app.excitations:
+                    if exc and exc[0] not in self._app.excitation_names:
                         excitations.extend(exc)
             excitations = list(set([i.split(":")[0] for i in excitations]))
             if excitations:
@@ -552,10 +552,10 @@ class Modeler3D(Primitives3D):
             if excitations:
                 excitations = excitations
             else:
-                excitations = self._app.excitations
+                excitations = self._app.excitation_names
                 if self._app.design_type == "HFSS":
                     exc = self._app.get_oo_name(self._app.odesign, "Excitations")
-                    if exc and exc[0] not in self._app.excitations:
+                    if exc and exc[0] not in self._app.excitation_names:
                         excitations.extend(exc)
             excitations = list(set([i.split(":")[0] for i in excitations]))
             if excitations:
