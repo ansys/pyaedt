@@ -1245,6 +1245,7 @@ class FieldAnalysis3D(Analysis, object):
             "Use `ansys.aedt.core.generic.file_utils.get_dxf_layers` method instead.",
             DeprecationWarning,
         )
+
         return get_dxf_layers(input_file)
 
     @pyaedt_function_handler(layers_list="layers", file_path="input_file")
