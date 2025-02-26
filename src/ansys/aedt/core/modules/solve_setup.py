@@ -179,7 +179,7 @@ class CommonSetup(PropsManager, BinaryTreeNode):
         return intrinsics
 
     def __repr__(self):
-        return "SetupName " + self.name + " with " + str(len(self.sweeps)) + " Sweeps"
+        return self.name + " with " + str(len(self.sweeps)) + " Sweeps"
 
     @pyaedt_function_handler(num_cores="cores", num_tasks="tasks", num_gpu="gpus")
     def analyze(

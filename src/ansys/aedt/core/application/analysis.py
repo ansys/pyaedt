@@ -63,6 +63,8 @@ from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
 from ansys.aedt.core.modules.design_xploration import OptimizationSetups
 from ansys.aedt.core.modules.design_xploration import ParametricSetups
 from ansys.aedt.core.modules.solve_setup import Setup
+from ansys.aedt.core.modules.solve_setup import Setup3DLayout
+from ansys.aedt.core.modules.solve_setup import SetupCircuit
 from ansys.aedt.core.modules.solve_setup import SetupHFSS
 from ansys.aedt.core.modules.solve_setup import SetupHFSSAuto
 from ansys.aedt.core.modules.solve_setup import SetupIcepak
@@ -178,6 +180,16 @@ class Analysis(Design, object):
             self._available_variations = self.available_variations
 
     @property
+    def design_setups(self):
+        """All design setups ordered by name.
+
+        Returns
+        -------
+        dict[str, :class:`ansys.aedt.core.modules.solve_setup.Setup`]
+        """
+        return {i.name: i for i in self.setups}
+
+    @property
     def native_components(self):
         """Native Component dictionary.
 
@@ -246,7 +258,7 @@ class Analysis(Design, object):
         """
         if not self._setups:
             if self.design_type not in ["Maxwell Circuit", "Circuit Netlist"]:
-                self._setups = [self.get_setup(setup_name) for setup_name in self.setup_names]
+                self._setups = [self._get_setup(setup_name) for setup_name in self.setup_names]
         return self._setups
 
     @property
@@ -1291,6 +1303,38 @@ class Analysis(Design, object):
         self.active_setup = name
         return setup
 
+    @pyaedt_function_handler()
+    def _get_setup(self, name):
+        setuptype = self.design_solutions.default_setup
+        if self.solution_type == "SBR+":
+            setuptype = 4
+        setup_by_type = {
+            "HFSS": SetupHFSS,
+            "SBR+": SetupSBR,
+            "Q3D Extractor": SetupQ3D,
+            "2D Extractor": SetupQ3D,
+            "Maxwell 2D": SetupMaxwell,
+            "Maxwell 3D": SetupMaxwell,
+            "Icepak": SetupIcepak,
+            "HFSS3DLayout": Setup3DLayout,
+            "HFSS 3D Layout Design": Setup3DLayout,
+            "Twin Builder": SetupCircuit,
+            "Circuit Design": SetupCircuit,
+            "Circuit Netlist": SetupCircuit,
+            "SetupCircuit": SetupCircuit,
+        }
+        if self.design_type in setup_by_type:
+            setup = setup_by_type[self.design_type](self, setuptype, name, is_new_setup=False)
+            if setup.properties:
+                if "Auto Solver Setting" in setup.properties:
+                    setup = SetupHFSSAuto(self, 0, name, is_new_setup=False)
+            elif setup.props and setup.props.get("SetupType", "") == "HfssDrivenAuto":
+                setup = SetupHFSSAuto(self, 0, name, is_new_setup=False)
+        else:
+            setup = Setup(self, setuptype, name, is_new_setup=False)
+        self.active_setup = name
+        return setup
+
     @pyaedt_function_handler(setupname="name")
     def get_setup(self, name):
         """Get the setup from the current design.
@@ -1305,26 +1349,7 @@ class Analysis(Design, object):
         :class:`ansys.aedt.core.modules.solve_setup.Setup`
 
         """
-        setuptype = self.design_solutions.default_setup
-
-        if self.solution_type == "SBR+":
-            setuptype = 4
-            setup = SetupSBR(self, setuptype, name, is_new_setup=False)
-        elif self.design_type == "HFSS":
-            setup = SetupHFSS(self, setuptype, name, is_new_setup=False)
-            if setup.properties:
-                if "Auto Solver Setting" in setup.properties:
-                    setup = SetupHFSSAuto(self, 0, name, is_new_setup=False)
-            elif setup.props and setup.props.get("SetupType", "") == "HfssDrivenAuto":
-                setup = SetupHFSSAuto(self, 0, name, is_new_setup=False)
-        elif self.design_type in ["Q3D Extractor", "2D Extractor"]:
-            setup = SetupQ3D(self, setuptype, name, is_new_setup=False)
-        elif self.design_type in ["Maxwell 2D", "Maxwell 3D"]:
-            setup = SetupMaxwell(self, setuptype, name, is_new_setup=False)
-        else:
-            setup = Setup(self, setuptype, name, is_new_setup=False)
-        self.active_setup = name
-        return setup
+        return self.design_setups[name]
 
     @pyaedt_function_handler()
     def create_output_variable(self, variable, expression, solution=None, context=None):
