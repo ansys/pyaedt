@@ -215,14 +215,6 @@ class FieldAnalysisCircuit(Analysis):
         return self.setup_names
 
     @property
-    def nominal_sweep(self):
-        """Nominal sweep."""
-        if self.setup_names:
-            return self.setup_names[0]
-        else:
-            return ""
-
-    @property
     def modeler(self):
         """Modeler object.
 

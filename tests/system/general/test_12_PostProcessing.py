@@ -332,6 +332,7 @@ class TestClass:
     def test_17_circuit(self, circuit_test):
 
         assert circuit_test.setups[0].is_solved
+        assert circuit_test.nominal_adaptive == circuit_test.nominal_sweep
         assert circuit_test.setups[0].create_report(["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"])
         new_report = circuit_test.post.reports_by_category.standard(
             ["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"], "LNA"
