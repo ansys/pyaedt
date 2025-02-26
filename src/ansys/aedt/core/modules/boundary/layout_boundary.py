@@ -217,12 +217,12 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode):
 
         """
         try:
-            names = [i for i in self._app.excitations]
+            names = [i for i in self._app.excitation_names]
         except GrpcApiError:  # pragma: no cover
             names = []
         self._name = self._app.modeler.oeditor.InsertNativeComponent(self._get_args())
         try:
-            a = [i for i in self._app.excitations if i not in names]
+            a = [i for i in self._app.excitation_names if i not in names]
             self.excitation_name = a[0].split(":")[0]
         except (GrpcApiError, IndexError):
             self.excitation_name = self._name

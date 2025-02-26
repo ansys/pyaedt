@@ -57,15 +57,15 @@ class Sources(object):
             if source_name != self._name:
                 original_name = self._name
                 self._name = source_name
-                for port in self._app.excitations:
-                    if original_name in self._app.excitation_objects[port].props["EnabledPorts"]:
-                        self._app.excitation_objects[port].props["EnabledPorts"] = [
+                for port in self._app.excitation_names:
+                    if original_name in self._app.design_excitations[port].props["EnabledPorts"]:
+                        self._app.design_excitations[port].props["EnabledPorts"] = [
                             w.replace(original_name, source_name)
-                            for w in self._app.excitation_objects[port].props["EnabledPorts"]
+                            for w in self._app.design_excitations[port].props["EnabledPorts"]
                         ]
-                    if original_name in self._app.excitation_objects[port].props["EnabledAnalyses"]:
-                        self._app.excitation_objects[port].props["EnabledAnalyses"][source_name] = (
-                            self._app.excitation_objects[port].props["EnabledAnalyses"].pop(original_name)
+                    if original_name in self._app.design_excitations[port].props["EnabledAnalyses"]:
+                        self._app.design_excitations[port].props["EnabledAnalyses"][source_name] = (
+                            self._app.design_excitations[port].props["EnabledAnalyses"].pop(original_name)
                         )
                 self.update(original_name)
         else:
@@ -241,9 +241,9 @@ class Sources(object):
         arg3 = ["NAME:EnabledPorts"]
         for source_name in self._app.sources:
             excitation_source = []
-            for port in self._app.excitations:
-                # self._app.excitation_objects[port]._props
-                if source_name in self._app.excitation_objects[port]._props["EnabledPorts"]:
+            for port in self._app.excitation_names:
+                # self._app.design_excitations[port]._props
+                if source_name in self._app.design_excitations[port]._props["EnabledPorts"]:
                     excitation_source.append(port)
             arg3.append(source_name + ":=")
             arg3.append(excitation_source)
@@ -264,10 +264,10 @@ class Sources(object):
         arg5 = ["NAME:EnabledAnalyses"]
         for source_name in self._app.sources:
             arg6 = ["NAME:" + source_name]
-            for port in self._app.excitations:
-                if source_name in self._app.excitation_objects[port]._props["EnabledAnalyses"]:
+            for port in self._app.excitation_names:
+                if source_name in self._app.design_excitations[port]._props["EnabledAnalyses"]:
                     arg6.append(port + ":=")
-                    arg6.append(self._app.excitation_objects[port]._props["EnabledAnalyses"][source_name])
+                    arg6.append(self._app.design_excitations[port]._props["EnabledAnalyses"][source_name])
                 else:
                     arg6.append(port + ":=")
                     arg6.append([])
@@ -275,7 +275,7 @@ class Sources(object):
 
         if new_source and new_source not in self._app.sources:
             arg6 = ["NAME:" + new_source]
-            for port in self._app.excitations:
+            for port in self._app.excitation_names:
                 arg6.append(port + ":=")
                 arg6.append([])
             arg5.append(arg6)
@@ -297,11 +297,11 @@ class Sources(object):
 
         """
         self._app.modeler._odesign.DeleteSource(self.name)
-        for port in self._app.excitations:
-            if self.name in self._app.excitation_objects[port].props["EnabledPorts"]:
-                self._app.excitation_objects[port].props["EnabledPorts"].remove(self.name)
-            if self.name in self._app.excitation_objects[port].props["EnabledAnalyses"]:
-                del self._app.excitation_objects[port].props["EnabledAnalyses"][self.name]
+        for port in self._app.excitation_names:
+            if self.name in self._app.design_excitations[port].props["EnabledPorts"]:
+                self._app.design_excitations[port].props["EnabledPorts"].remove(self.name)
+            if self.name in self._app.design_excitations[port].props["EnabledAnalyses"]:
+                del self._app.design_excitations[port].props["EnabledAnalyses"][self.name]
         return True
 
     @pyaedt_function_handler()
@@ -1324,7 +1324,7 @@ class Excitations(object):
 
     @name.setter
     def name(self, port_name):
-        if port_name not in self._app.excitations:
+        if port_name not in self._app.excitation_names:
             if port_name != self._name:
                 # Take previous properties
                 self._app.odesign.RenamePort(self._name, port_name)
