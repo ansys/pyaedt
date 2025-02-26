@@ -348,13 +348,17 @@ class FieldAnalysisCircuit(Analysis):
         return [p.replace("IPort@", "").split(";")[0] for p in self.modeler.oeditor.GetAllPorts() if "IPort@" in p]
 
     @property
-    def excitation_objects(self):
-        """List of port objects.
+    def design_excitations(self):
+        """Get all excitation.
 
         Returns
         -------
-        dict
-            List of port objects.
+        dict[str, :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`]
+           Excitation boundaries.
+
+        References
+        ----------
+        >>> oModule.GetExcitations
         """
         props = {}
         if not self._internal_excitations:
