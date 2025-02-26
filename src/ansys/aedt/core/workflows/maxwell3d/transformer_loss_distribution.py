@@ -62,17 +62,13 @@ def frontend():
 
     active_project = app.active_project()
     active_design = app.active_design()
-
-    if not active_project:
-        active_project_name = "No active project"
-    else:
-        active_project_name = active_project.GetName()
-        active_design_name = active_design.GetName()
-        design_type = active_design.GetDesignType()
-        if design_type == "Maxwell 2D":
-            maxwell = ansys.aedt.core.Maxwell2d(active_project_name, active_design_name)
-        elif design_type == "Maxwell 3D":
-            maxwell = ansys.aedt.core.Maxwell3d(active_project_name, active_design_name)
+    active_project_name = active_project.GetName()
+    active_design_name = active_design.GetName()
+    design_type = active_design.GetDesignType()
+    if design_type == "Maxwell 2D":
+        maxwell = ansys.aedt.core.Maxwell2d(active_project_name, active_design_name)
+    elif design_type == "Maxwell 3D":
+        maxwell = ansys.aedt.core.Maxwell3d(active_project_name, active_design_name)
 
     # Create UI
     master = tk.Tk()
@@ -106,42 +102,22 @@ def frontend():
     # Set background color of the window (optional)
     master.configure(bg=theme.light["widget_bg"])
 
-    # Project name info
-    project_name_label = ttk.Label(master, text="Project Name:", width=20, style="PyAEDT.TLabel")
-    project_name_label.grid(row=0, column=0, pady=10)
-    project_name_entry = tk.Text(master, width=40, height=1)
-    project_name_entry.insert(tk.INSERT, active_project_name)
-    project_name_entry.grid(row=0, column=1, pady=15, padx=10)
-    project_name_entry.configure(
-        bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font, state=tk.DISABLED
-    )
-
-    # Design name info
-    design_name_label = ttk.Label(master, text="Design Name:", width=20, style="PyAEDT.TLabel")
-    design_name_label.grid(row=1, column=0, pady=10)
-    design_name_entry = tk.Text(master, width=40, height=1)
-    design_name_entry.insert(tk.INSERT, active_design_name)
-    design_name_entry.grid(row=1, column=1, pady=15, padx=10)
-    design_name_entry.configure(
-        bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font, state=tk.DISABLED
-    )
-
     # Export options
     frame = tk.Frame(master)
-    frame.grid(row=2, column=0, pady=10, padx=10)
-    export_options_list = ["Ohmic loss", "Force"]
+    frame.grid(row=0, column=0, columnspan=2, pady=10, padx=10)
+    export_options_list = ["Ohmic loss", "AC Force Density"]
     export_options_label = ttk.Label(
         frame, text="Export options:", width=15, style="PyAEDT.TLabel", justify=tk.CENTER, anchor=tk.CENTER
     )
     export_options_label.pack(side=tk.TOP, fill=tk.BOTH)
     export_options_lb = tk.Listbox(frame, selectmode=tk.SINGLE, height=2, width=15, justify=tk.CENTER)
-    export_options_lb.pack(expand=True, fill=tk.BOTH)
+    export_options_lb.pack(expand=True, fill=tk.BOTH, side=tk.LEFT)
     for opt in export_options_list:
         export_options_lb.insert(tk.END, opt)
 
     # Objects list
     frame = tk.Frame(master)
-    frame.grid(row=2, column=1, pady=10, padx=10)
+    frame.grid(row=0, column=1, columnspan=3, pady=10, padx=10)
     objects_list = maxwell.modeler.objects_by_name
     objects_list_label = ttk.Label(
         frame, text="Objects list:", width=15, style="PyAEDT.TLabel", justify=tk.CENTER, anchor=tk.CENTER
@@ -150,7 +126,7 @@ def frontend():
     scroll_bar = tk.Scrollbar(frame, orient=tk.VERTICAL)
     scroll_bar.pack(side=tk.RIGHT, fill=tk.Y)
     objects_list_lb = tk.Listbox(frame, selectmode=tk.MULTIPLE, yscrollcommand=scroll_bar.set, justify=tk.CENTER)
-    objects_list_lb.pack(expand=True, fill=tk.BOTH)
+    objects_list_lb.pack(expand=True, fill=tk.BOTH, side=tk.RIGHT)
     for obj in objects_list:
         objects_list_lb.insert(tk.END, obj)
     objects_list_lb.config(height=6, width=30)
@@ -158,16 +134,16 @@ def frontend():
 
     # Sample points file
     sample_points_label = ttk.Label(master, text="Sample points file:", width=20, style="PyAEDT.TLabel")
-    sample_points_label.grid(row=3, column=0, pady=10)
+    sample_points_label.grid(row=2, column=0, pady=10)
     sample_points_entry = tk.Text(master, width=40, height=1)
-    sample_points_entry.grid(row=3, column=1, pady=15, padx=10)
+    sample_points_entry.grid(row=2, column=1, pady=15, padx=10)
     sample_points_entry.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
 
     # Export file
     export_file_label = ttk.Label(master, text="Output file location:", width=20, style="PyAEDT.TLabel")
-    export_file_label.grid(row=4, column=0, pady=10)
+    export_file_label.grid(row=3, column=0, pady=10)
     export_file_entry = tk.Text(master, width=40, height=1)
-    export_file_entry.grid(row=4, column=1, pady=15, padx=10)
+    export_file_entry.grid(row=3, column=1, pady=15, padx=10)
     export_file_entry.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
 
     def toggle_theme():
@@ -180,12 +156,6 @@ def frontend():
 
     def set_light_theme():
         master.configure(bg=theme.light["widget_bg"])
-        project_name_entry.configure(
-            background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
-        )
-        design_name_entry.configure(
-            background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
-        )
         export_options_lb.configure(
             background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
         )
@@ -199,20 +169,16 @@ def frontend():
         sample_points_entry.configure(
             background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
         )
-        text_area.configure(background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
         theme.apply_light_theme(style)
         # change_theme_button.config(text="\u263D")
 
     def set_dark_theme():
         master.configure(bg=theme.dark["widget_bg"])
-        project_name_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        design_name_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
         export_options_lb.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
         objects_list_lb.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
         scroll_bar.configure(bg=theme.dark["pane_bg"])
         export_file_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
         sample_points_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        text_area.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
         theme.apply_dark_theme(style)
         # change_theme_button.config(text="\u2600")
 
@@ -223,23 +189,13 @@ def frontend():
         master.export_option = [objects_list_lb.get(i) for i in selected_export]
         selected_objects = objects_list_lb.curselection()
         master.objects_list = [objects_list_lb.get(i) for i in selected_objects]
-        if master.points_file == "":
-            text_area.insert(
-                tk.INSERT,
-                "INFO: If a points file is not selected the export fields will be performed on mesh nodes." + "\n",
-            )
-        if not master.objects_list:
-            text_area.insert(
-                tk.INSERT,
-                "INFO: If no objects are selected all objects are taken into account for field export." + "\n",
-            )
-        # master.destroy()
+        master.destroy()
 
     def browse_files():
         filename = filedialog.askopenfilename(
             initialdir="/",
             title="Select an Electronics File",
-            filetypes=(("Points file", ".pst"), ("all files", "*.*")),
+            filetypes=(("Points file", ".pts"), ("all files", "*.*")),
         )
         sample_points_entry.insert(tk.END, filename)
         master.file_path = sample_points_entry.get("1.0", tk.END).strip()
@@ -247,7 +203,7 @@ def frontend():
 
     # Export points file button
     export_points_button = ttk.Button(master, text="...", command=browse_files, width=10, style="PyAEDT.TButton")
-    export_points_button.grid(row=3, column=2, pady=10, padx=15)
+    export_points_button.grid(row=2, column=2, pady=10, padx=15)
 
     def save_as_files():
         filename = filedialog.asksaveasfilename(
@@ -266,22 +222,15 @@ def frontend():
 
     # Create button to select output file location
     save_as_button = ttk.Button(master, text="Save as...", command=save_as_files, width=10, style="PyAEDT.TButton")
-    save_as_button.grid(row=4, column=2, pady=10, padx=15)
+    save_as_button.grid(row=3, column=2, pady=10, padx=15)
 
     # Create button to export fields data
-    # In command put the workflow to export the data
     export_button = ttk.Button(master, text="Export", command=callback, width=10, style="PyAEDT.TButton")
-    export_button.grid(row=5, column=1, pady=10, padx=15)
-
-    # Configure logging
-    text_area = tk.Text(master, wrap=tk.WORD, width=40, height=2)
-    text_area.grid(row=6, column=1, pady=10, sticky="nsew")
-    text_area.config(state=tk.DISABLED)
-    text_area.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
+    export_button.grid(row=4, column=1, pady=10, padx=15)
 
     # Create buttons to create sphere and change theme color
     change_theme_button = ttk.Button(master, text="\u263D", width=2, command=toggle_theme, style="PyAEDT.TButton")
-    change_theme_button.grid(row=7, column=2, pady=10)
+    change_theme_button.grid(row=5, column=2, pady=10)
 
     # Get objects list selection
     tk.mainloop()
@@ -326,13 +275,20 @@ def main(extension_args):
     objects_list = extension_args.get("objects_list", extension_arguments["objects_list"])
 
     # Your workflow
-    # Check notes
     if not points_file:
         points_file = None
     elif not objects_list:
         objects_list = "AllObjects"
+    elif isinstance(objects_list, list) and len(objects_list) > 1:
+        objects_list = aedtapp.modeler.create_object_list(objects_list, f"ObjectList{len(aedtapp.modeler.user_lists)}")
+
+    # CHECK NAMES OF QUANITITES
+    if export_option == "Ohmic loss":
+        quantity = "Ohmic-Loss"
+    else:
+        quantity = "SurfaceAcForceDensity"
     aedtapp.post.export_field_file(
-        quantity=export_option, output_file=export_file, sample_points=points_file, assignment=objects_list
+        quantity=quantity, output_file=export_file, sample_points_file=points_file, assignment=objects_list
     )
 
     if not extension_args["is_test"]:  # pragma: no cover
