@@ -179,7 +179,7 @@ class CommonSetup(PropsManager, BinaryTreeNode):
         return intrinsics
 
     def __repr__(self):
-        return "SetupName " + self.name + " with " + str(len(self.sweeps)) + " Sweeps"
+        return self.name + " with " + str(len(self.sweeps)) + " Sweeps"
 
     def __str__(self):
         if not self._app.design_solutions.default_adaptive:

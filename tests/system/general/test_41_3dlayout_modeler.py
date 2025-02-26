@@ -436,6 +436,7 @@ class TestClass:
         assert sweep.set_save_fields(False, False)
 
     def test_17_get_setup(self):
+        self.aedtapp.save_project()
         setup4 = self.aedtapp.get_setup(self.aedtapp.setup_names[0])
         setup4.props["PercentRefinementPerPass"] = 37
         setup4.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = 44
