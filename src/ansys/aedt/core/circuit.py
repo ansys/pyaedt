@@ -26,7 +26,6 @@
 
 import io
 import math
-import os
 from pathlib import Path
 import re
 import shutil
@@ -891,7 +890,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         if not design:
             design = self.design_name
         if not filename:
-            filename = os.path.join(self.working_directory, self.design_name + ".sp")
+            filename = Path(self.working_directory) / str(self.design_name + ".sp")
         if is_solution_file:
             setup = design
             design = ""
@@ -945,11 +944,11 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                 "SYZDataInAutoMode:=",
                 False,
                 "ExportDirectory:=",
-                os.path.dirname(filename) + "\\",
+                str(Path(filename).parent) + "\\",
                 "ExportSpiceFileName:=",
-                os.path.basename(filename),
+                Path(filename).name,
                 "FullwaveSpiceFileName:=",
-                os.path.basename(filename),
+                Path(filename).name,
                 "UseMultipleCores:=",
                 True,
                 "NumberOfCores:=",
@@ -1259,7 +1258,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         ----------
         >>> oDesign.UpdateSources
         """
-        if not os.path.exists(input_file) or os.path.splitext(input_file)[1] != ".fds":
+        if not Path(input_file).exists() or Path(input_file).suffix != ".fds":
             self.logger.error("Introduced file is not correct. Check path and format.")
             return False
 
@@ -1348,9 +1347,9 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         arg.append("Pair:=")
         arg.append(arg1)
 
-        tmpfile1 = os.path.join(self.working_directory, generate_unique_name("tmp"))
-        self.odesign.SaveDiffPairsToFile(tmpfile1)
-        with open_file(tmpfile1, "r") as fh:
+        tmpfile1 = Path(self.working_directory) / generate_unique_name("tmp")
+        self.odesign.SaveDiffPairsToFile(str(tmpfile1))
+        with open_file(str(tmpfile1), "r") as fh:
             lines = fh.read().splitlines()
 
         old_arg = []
@@ -1381,7 +1380,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             arg.append(arg2)
 
         try:
-            os.remove(tmpfile1)
+            Path(tmpfile1).unlink()
         except Exception:  # pragma: no cover
             self.logger.warning("ERROR: Cannot remove temp files.")
 
@@ -1412,19 +1411,19 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         ----------
         >>> oDesign.LoadDiffPairsFromFile
         """
-        if not os.path.isfile(input_file):  # pragma: no cover
+        if not Path(input_file).is_file():  # pragma: no cover
             raise ValueError(f"{input_file}: The specified file could not be found.")
 
         try:
-            new_file = os.path.join(os.path.dirname(input_file), generate_unique_name("temp") + ".txt")
+            new_file = Path(input_file).parent / str(generate_unique_name("temp") + ".txt")
             with open_file(input_file, "r") as file:
                 filedata = file.read().splitlines()
             with io.open(new_file, "w", newline="\n") as fh:
                 for line in filedata:
                     fh.write(line + "\n")
 
-            self.odesign.LoadDiffPairsFromFile(new_file)
-            os.remove(new_file)
+            self.odesign.LoadDiffPairsFromFile(str(new_file))
+            Path(new_file).unlink()
         except Exception:  # pragma: no cover
             return False
         return True
@@ -1451,7 +1450,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         """
         self.odesign.SaveDiffPairsToFile(output_file)
 
-        return os.path.isfile(output_file)
+        return Path(output_file).is_file()
 
     @pyaedt_function_handler(netlist_file="input_file", datablock_name="name")
     def add_netlist_datablock(self, input_file, name=None):
@@ -1469,7 +1468,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if not os.path.exists(input_file):
+        if not Path(input_file).exists():
             self.logger.error("Netlist File doesn't exists")
             return False
         if not name:
@@ -1495,33 +1494,35 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         str
             File Path.
         """
-        if input_file and not os.path.exists(os.path.normpath(input_file)):
+        if input_file and not Path(input_file).exists():
             self.logger.error("Path does not exist.")
             return None
         elif not input_file:
-            input_file = os.path.join(os.path.normpath(self.working_directory), "logfile")
-            if not os.path.exists(input_file):
-                os.mkdir(input_file)
+            input_file = Path(self.working_directory) / "logfile"
+            if not Path(input_file).exists():
+                Path(input_file).mkdir()
 
-        results_path = os.path.join(os.path.normpath(self.results_directory), self.design_name)
-        results_temp_path = os.path.join(results_path, "temp")
+        results_path = Path(self.results_directory) / self.design_name
+        results_temp_path = Path(results_path) / "temp"
 
         # Check if .log exist in temp folder
-        if os.path.exists(results_temp_path) and search_files(results_temp_path, "*.log"):
+        if Path(results_temp_path).exists() and search_files(str(results_temp_path), "*.log"):
             # Check the most recent
-            files = search_files(results_temp_path, "*.log")
-            latest_file = max(files, key=os.path.getctime)
-        elif os.path.exists(results_path) and search_files(results_path, "*.log"):
+            files = search_files(str(results_temp_path), "*.log")
+            files = [Path(f) for f in files]
+            latest_file = max(files, key=lambda f: str(f.stat().st_ctime))
+        elif Path(results_path).exists() and search_files(str(results_path), "*.log"):
             # Check the most recent
-            files = search_files(results_path, "*.log")
-            latest_file = max(files, key=os.path.getctime)
+            files = search_files(str(results_path), "*.log")
+            files = [Path(f) for f in files]
+            latest_file = max(files, key=lambda f: str(f.stat().st_ctime))
         else:
             self.logger.error("Design not solved")
             return None
 
         shutil.copy(latest_file, input_file)
-        filename = os.path.basename(latest_file)
-        return os.path.join(input_file, filename)
+        filename = Path(latest_file).name
+        return Path(input_file) / filename
 
     @pyaedt_function_handler()
     def connect_circuit_models_from_multi_zone_cutout(
@@ -2470,9 +2471,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                 self.modeler.schematic.create_interface_port(name=i[2], location=[i[0], i[1]])
 
         if not config_file:
-            configuration = read_configuration_file(
-                os.path.join(os.path.dirname(__file__), "misc", "asc_circuit_mapping.json")
-            )
+            configuration = read_configuration_file(str(Path(__file__).parent / "misc" / "asc_circuit_mapping.json"))
         else:
             configuration = read_configuration_file(config_file)
 
