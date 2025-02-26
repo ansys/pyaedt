@@ -25,11 +25,15 @@
 import csv
 import ntpath
 import os
+from pathlib import Path
+from typing import Union
+import warnings
 
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.generic.checks import min_aedt_version
 from ansys.aedt.core.generic.configurations import Configurations
 from ansys.aedt.core.generic.constants import unit_converter
+from ansys.aedt.core.generic.file_utils import read_component_file
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -325,9 +329,32 @@ class FieldAnalysis3D(Analysis, object):
         self.odesign.ExportMeshStats(setup, variations, output_file)
         return output_file
 
+    @pyaedt_function_handler()
+    def get_component_variables(self, name: Union[str, Path]) -> dict:
+        """Read component file and extract variables.
+
+        Parameters
+        ----------
+        name : str or :class:`pathlib.Path`
+            Name of the 3D component, which must be in the ``syslib`` or ``userlib`` directory.
+            Otherwise, you must specify the full absolute path to the component file.
+
+        Returns
+        -------
+        dict
+            Dictionary of variables in the component file.
+        """
+        if str(name) not in self.components3d:
+            return read_component_file(name)
+        else:
+            return read_component_file(self.components3d[name])
+
     @pyaedt_function_handler(component3dname="component_name")
     def get_components3d_vars(self, component_name):
         """Read the A3DCOMP file and check for variables.
+
+        .. deprecated:: 0.15.1
+            Use :func:`get_component_variables` method instead.
 
         Parameters
         ----------
@@ -340,43 +367,10 @@ class FieldAnalysis3D(Analysis, object):
         dict
             Dictionary of variables in the A3DCOMP file.
         """
-        vars = {}
-        if component_name not in self.components3d:
-            aedt_fh = open_file(component_name, "rb")
-            if aedt_fh:
-                temp = aedt_fh.read().splitlines()
-                _all_lines = []
-                for line in temp:
-                    try:
-                        _all_lines.append(line.decode("utf-8").lstrip("\t"))
-                    except UnicodeDecodeError:
-                        break
-                for line in _all_lines:
-                    if "VariableProp(" in line:
-                        line_list = line.split("'")
-                        if not [
-                            c for c in line_list[len(line_list) - 2] if c in ["+", "-", "*", "'" "," "/", "(", ")"]
-                        ]:
-                            self[line_list[1]] = line_list[len(line_list) - 2]
-                        else:
-                            vars[line_list[1]] = line_list[len(line_list) - 2]
-                aedt_fh.close()
-                return vars
-            else:
-                return False
-        with open_file(self.components3d[component_name], "rb") as aedt_fh:
-            temp = aedt_fh.read().splitlines()
-        _all_lines = []
-        for line in temp:
-            try:
-                _all_lines.append(line.decode("utf-8").lstrip("\t"))
-            except UnicodeDecodeError:
-                break
-        for line in _all_lines:
-            if "VariableProp(" in line:
-                line_list = line.split("'")
-                vars[line_list[1]] = line_list[len(line_list) - 2]
-        return vars
+        warnings.warn(
+            "`get_components3d_vars` is deprecated. Use `get_component_variables` method instead.", DeprecationWarning
+        )
+        return self.get_component_variables(component_name)
 
     @pyaedt_function_handler(objectname="assignment", property="property_name", type="property_type")
     def get_property_value(self, assignment, property_name, property_type=None):
