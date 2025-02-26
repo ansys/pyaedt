@@ -1419,7 +1419,10 @@ class PostProcessorCommon(object):
         report.report_type = plot_type
         result = report.create(plot_name)
         if result:
-            return report
+            if report.traces:
+                return report
+            else:
+                self.logger.error("Failed to create traces on the report. Check input parameters")
         return False
 
     @pyaedt_function_handler()
