@@ -34,11 +34,9 @@ import ast
 import os
 import random
 import string
-from typing import Dict
 from typing import Literal
 from typing import Optional
 from typing import Tuple
-from typing import Union
 import warnings
 
 from ansys.aedt.core.generic.constants import unit_converter
@@ -3916,7 +3914,7 @@ class PostProcessor3D(PostProcessorCommon):
         field: str,
         setup: Optional[str] = None,
         intrinsics: Optional[dict[str, str]] = None,
-    ) -> Dict[str, Union[Tuple[float, float, float], float]]:
+    ) -> Tuple[Tuple[float, float, float], float]:
         """
         Calculates the position and value of the field maximum or minimum.
 
@@ -3937,8 +3935,11 @@ class PostProcessor3D(PostProcessorCommon):
 
         Returns
         -------
-            A dictionary containing the position (tuple of coordinates) and value of the extremum.
-            Example: {"Position": (1.0, 2.0, 3.0), "Value": 350.0}
+            Tuple[Tuple[float, float, float], float]
+            A tuple containing:
+
+              - A tuple of three floats representing the (x, y, z) coordinates of the maximum point.
+              - A float representing the value associated with the maximum point.
         """
         if assignment not in self._app.modeler.object_names:
             raise ValueError(f"Object '{assignment}' does not exist.")
@@ -3986,4 +3987,4 @@ class PostProcessor3D(PostProcessorCommon):
             object_type=location.casefold(),
         )
 
-        return {"Position": position, "Value": value}
+        return position, value

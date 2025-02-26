@@ -1944,9 +1944,11 @@ class TestClass:
     def test081__get_max_temp_location(self, ipk):
         with pytest.raises(ValueError):
             ipk.post.get_temperature_extremum(assignment="Box2", max_min="Max", location="Surface")
-        max_temp_s = ipk.post.get_temperature_extremum(assignment="Box1", max_min="Max", location="Surface", time="1s")
-        assert max_temp_s["Position"]
-        assert max_temp_s["Value"]
-        max_temp_v = ipk.post.get_temperature_extremum(assignment="Box1", max_min="Min", location="Volume", time="1s")
-        assert max_temp_v["Position"]
-        assert max_temp_v["Value"]
+        max_temp = ipk.post.get_temperature_extremum(assignment="Box1", max_min="Max", location="Surface", time="1s")
+        assert isinstance(max_temp, tuple)
+        assert len(max_temp[0]) == 3
+        assert isinstance(max_temp[1], float)
+        min_temp = ipk.post.get_temperature_extremum(assignment="Box1", max_min="Min", location="Volume", time="1s")
+        assert isinstance(min_temp, tuple)
+        assert len(min_temp[0]) == 3
+        assert isinstance(min_temp[1], float)

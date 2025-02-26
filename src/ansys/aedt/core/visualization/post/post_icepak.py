@@ -31,11 +31,9 @@ It contains all advanced postprocessing functionalities that require Python 3.x 
 import csv
 import os
 import re
-from typing import Dict
 from typing import Literal
 from typing import Optional
 from typing import Tuple
-from typing import Union
 
 from ansys.aedt.core.generic.checks import min_aedt_version
 from ansys.aedt.core.generic.general_methods import generate_unique_name
@@ -407,7 +405,7 @@ class PostProcessorIcepak(PostProcessor3D):
         location: Literal["Surface", "Volume"],
         setup: Optional[str] = None,
         time: Optional[str] = None,
-    ) -> Dict[str, Union[Tuple[float, float, float], float]]:
+    ) -> Tuple[Tuple[float, float, float], float]:
         """
         Calculates the position and value of the temperature maximum or minimum.
 
@@ -426,7 +424,10 @@ class PostProcessorIcepak(PostProcessor3D):
 
         Returns
         -------
-            A dictionary containing the position (tuple of coordinates) and value of the extremum.
-            Example: {"Position": (1.0, 2.0, 3.0), "Value": 350.0}
+            Tuple[Tuple[float, float, float], float]
+            A tuple containing:
+
+              - A tuple of three floats representing the (x, y, z) coordinates of the maximum point.
+              - A float representing the value associated with the maximum point.
         """
         return self.get_field_extremum(assignment, max_min, location, "Temp", setup, {"Time": time})
