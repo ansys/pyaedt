@@ -158,7 +158,7 @@ class CircuitNetlist(AnalysisCircuitNetlist, object):
 
         Parameters
         ----------
-        input_file : str, class, optional
+        input_file : str or :class:'pathlib.Path', optional
             File path to save the new log file to. The default is the ``pyaedt`` folder.
 
         Returns
