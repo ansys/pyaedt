@@ -58,7 +58,7 @@ def read_component_file(input_file: Union[str, Path]) -> dict:
         try:
             _all_lines.append(line.decode("utf-8").lstrip("\t"))
         except UnicodeDecodeError:
-            break
+            continue
 
     for line in _all_lines:
         if "VariableProp(" in line:
