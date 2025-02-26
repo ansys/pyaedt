@@ -119,8 +119,8 @@ class TestClass:
         assert aedtapp.post.create_fieldplot_surface(aedtapp.modeler["outer"], "Mag_E", setup_name, intrinsic)
         assert aedtapp.post.create_fieldplot_surface(aedtapp.modeler["outer"].faces, "Mag_E", setup_name, intrinsic)
         assert not aedtapp.post.create_fieldplot_surface(123123123, "Mag_E", setup_name, intrinsic)
-        assert len(aedtapp.setups[0].sweeps[0].frequencies) > 0
-        assert isinstance(aedtapp.setups[0].sweeps[0].basis_frequencies, list)
+        assert len(aedtapp.design_setups["Setup1"].sweeps[0].frequencies) > 0
+        assert isinstance(aedtapp.design_setups["Setup1"].sweeps[0].basis_frequencies, list)
         mesh_file_path = aedtapp.post.export_mesh_obj(setup_name, intrinsic)
         assert os.path.exists(mesh_file_path)
         mesh_file_path2 = aedtapp.post.export_mesh_obj(

@@ -1486,13 +1486,12 @@ class PostProcessorCommon(object):
         expressions = [expressions] if isinstance(expressions, str) else expressions
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_sweep
+        setup_name = setup_sweep_name.split(":")[0].strip()
         if not domain:
             domain = "Sweep"
-            setup_name = setup_sweep_name.split(":")[0]
             if setup_name:
-                for setup in self._app.setups:
-                    if setup.name == setup_name and "Time" in setup.default_intrinsics:
-                        domain = "Time"
+                if "Time" in self._app.design_setups[setup_name].default_intrinsics:
+                    domain = "Time"
         if domain in ["Spectral", "Spectrum"]:
             report_category = "Spectrum"
         if not report_category and not self._app.design_solutions.report_type:
@@ -1518,14 +1517,15 @@ class PostProcessorCommon(object):
         report.domain = domain
         if primary_sweep_variable:
             report.primary_sweep = primary_sweep_variable
+        if not variations:
+            variations = {}
         if not variations and domain == "Sweep":
             variations = self._app.available_variations.get_independent_nominal_values()
-            if variations:
-                variations["Freq"] = "All"
-            else:
-                variations = {"Freq": ["All"]}
         elif not variations and domain != "Sweep":
             variations = self._app.available_variations.get_independent_nominal_values()
+        for v in self._app.design_setups[setup_name].default_intrinsics.keys():
+            if v not in variations:
+                variations[v] = "All"
         report.variations = variations
         report.sub_design_id = subdesign_id
         report.point_number = polyline_points
