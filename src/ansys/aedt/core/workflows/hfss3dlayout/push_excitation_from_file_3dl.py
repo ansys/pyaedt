@@ -81,7 +81,7 @@ def frontend():  # pragma: no cover
 
     hfss_3dl = Hfss3dLayout(project_name, design_name)
 
-    port_selection = hfss_3dl.excitations
+    port_selection = hfss_3dl.excitation_names
 
     if not port_selection:
         app.logger.error("No ports found.")

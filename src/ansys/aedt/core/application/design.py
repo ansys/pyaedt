@@ -470,7 +470,7 @@ class Design(AedtObjects):
         current_boundaries = bb[::2]
         current_types = bb[1::2]
         if hasattr(self, "excitations"):
-            check_boundaries = list(current_boundaries[:]) + list(self.ports[:]) + self.excitations[:]
+            check_boundaries = list(current_boundaries[:]) + list(self.ports[:]) + self.excitation_names[:]
             if "nets" in dir(self):
                 check_boundaries += self.nets
             for k in list(self._boundaries.keys())[:]:
