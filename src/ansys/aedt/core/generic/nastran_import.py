@@ -507,12 +507,10 @@ def _split_invalid_triangles(invalid_triangles):
     for edge, tri_indices in edge_to_triangles.items():
         if len(tri_indices) == 3:  # Triple connection detected
             unassigned = [t for t in tri_indices if t not in visited_triangles]
-
             if len(unassigned) == 3:
                 # First time encountering these triangles → Assign one to A, two to B
                 group_A.add(unassigned[0])
                 group_B.update(unassigned[1:])
-                visited_triangles.update(unassigned)
             elif len(unassigned) == 2:
                 # If one triangle has been already assigned, let's check where the already assigned triangle is
                 assigned_triangles = [t for t in tri_indices if t in group_A or t in group_B]
@@ -525,7 +523,6 @@ def _split_invalid_triangles(invalid_triangles):
                 else:
                     # Fallback: if for some reason nothing is assigned (shouldn't happen), default to the simple logic
                     group_B.update(unassigned)
-                visited_triangles.update(unassigned)
             elif len(unassigned) == 1:
                 # If two triangles are already assigned, we have to check where they are assigned.
                 assigned_triangles = [t for t in tri_indices if t in group_A or t in group_B]
@@ -535,14 +532,64 @@ def _split_invalid_triangles(invalid_triangles):
                     group_A.update(unassigned)  # Remaining go to Group A
                 else:  # assigned are one in Group A and one in Group B
                     group_B.update(unassigned)  # Remaining go to Group B
-                visited_triangles.update(unassigned)
+            visited_triangles.update(unassigned)
+        if len(tri_indices) == 4:  # Quad connection detected
+            unassigned = [t for t in tri_indices if t not in visited_triangles]
+            if len(unassigned) == 4:
+                # First time encountering these triangles → Assign two to A, two to B
+                group_A.update(unassigned[:2])
+                group_B.update(unassigned[2:])
+            elif len(unassigned) == 3:
+                # If one triangle has been already assigned, let's check where the already assigned triangle is
+                assigned_triangles = [t for t in tri_indices if t in group_A or t in group_B]
+                if assigned_triangles:
+                    already_assigned = assigned_triangles[0]  # Pick the assigned triangle
+                    if already_assigned in group_A:
+                        group_A.add(unassigned[0])
+                        group_B.update(unassigned[1:])
+                    else:
+                        group_B.add(unassigned[0])
+                        group_A.update(unassigned[1:])
+            elif len(unassigned) == 2:
+                # If two triangles are already assigned, we have to check where they are assigned.
+                assigned_triangles = [t for t in tri_indices if t in group_A or t in group_B]
+                if set(assigned_triangles) <= group_A:  # Assigned trg are both in Group A
+                    group_B.update(unassigned)  # Remaining go to Group B
+                elif set(assigned_triangles) <= group_B:  # Assigned trg are both in Group B
+                    group_A.update(unassigned)  # Remaining go to Group A
+                else:  # assigned are one in Group A and one in Group B
+                    group_A.add(unassigned[0])  # One remaining goes to Group A
+                    group_B.add(unassigned[1])  # The other remaining goes to Group B
+            elif len(unassigned) == 1:
+                assigned_triangles = [t for t in tri_indices if t in group_A or t in group_B]
+                count_A = sum(1 for num in assigned_triangles if num in group_A)
+                count_B = sum(1 for num in assigned_triangles if num in group_B)
+                if count_A == 1:
+                    # group_A has only one triangle
+                    group_A.add(unassigned[0])  # One remaining goes to Group A
+                elif count_B == 1:
+                    # group_B has only one triangle
+                    group_B.add(unassigned[0])  # One remaining goes to Group B
+                else:
+                    # unexpected case. trg assigned to group_B
+                    group_B.add(unassigned[0])
+            visited_triangles.update(unassigned)
+        if len(tri_indices) > 4:  # Multiple connection detected
+            # It doesn't really matter how the other are assigned.
+            # We have to split them in the middle, and assign half to group_A and half to group_B.
+            # They will be managed in later iterations of the algorithm.
+            unassigned = [t for t in tri_indices if t not in visited_triangles]
+            group_A.update(unassigned[: int(len(unassigned) / 2)])
+            group_B.update(unassigned[int(len(unassigned) / 2) :])
+            visited_triangles.update(unassigned)
 
     print(f"Step 2: {format_elapsed_time(time.time() - t0, seconds_decimals=3)}")
 
     # Step 3: Assign remaining triangles (those connected only by a node)
     t0 = time.time()
 
-    remaining_triangles = set(range(len(invalid_triangles))) - (group_A | group_B)
+    group_A_or_group_B = group_A | group_B
+    remaining_triangles = set(range(len(invalid_triangles))) - group_A_or_group_B
     node_to_triangles = defaultdict(set)
 
     for idx, tri in enumerate(invalid_triangles):
@@ -554,7 +601,7 @@ def _split_invalid_triangles(invalid_triangles):
     t0 = time.time()
     t1 = t2 = 0
     i1 = i2 = i3 = 0
-    group_A_or_group_B = group_A | group_B
+
     while remaining_triangles:
         for tri_idx in list(remaining_triangles):
             tt = time.time()
@@ -579,18 +626,19 @@ def _split_invalid_triangles(invalid_triangles):
                             group_B.add(tri_idx)
                             group_A_or_group_B.add(tri_idx)
                         is_set = True
-                        remaining_triangles.remove(tri_idx)
+                        # remaining_triangles.remove(tri_idx)
                         break
-                # If no adjacent triangle is present (shouldn't happen), assign based on the first in the list
-                # if not is_set:
-                #     i2 += 1
-                #     ref_triangle = list(assigned_neighbors)[0]  # next(iter(assigned_neighbors))
-                #     if ref_triangle in group_A:
-                #         group_B.add(tri_idx)
-                #     else:
-                #         group_A.add(tri_idx)
-                #
-                # remaining_triangles.remove(tri_idx)
+                # If no adjacent triangle is present -> is_set==False,
+                # Assign the group same as the first in the list (not optimal, but it should be assigned to something).
+                if not is_set:
+                    i2 += 1
+                    ref_triangle = list(assigned_neighbors)[0]  # next(iter(assigned_neighbors))
+                    if ref_triangle in group_A:
+                        group_A.add(tri_idx)
+                    else:
+                        group_B.add(tri_idx)
+
+                remaining_triangles.remove(tri_idx)
             else:
                 i3 += 1
 
@@ -615,9 +663,11 @@ def _total_len(lst):
 
 
 @pyaedt_function_handler()
-def _remove_multiple_constraints(dict_in):
+def _remove_multiple_constraints(dict_in, max_iterations=20, verbose=True):
     """Remove the triple constraints by creating separated bodies."""
     logger = logging.getLogger("Global")
+    if verbose:
+        logger.debug("Nastran import. Removing multiple constraints.")
     # get the data
     points = copy.deepcopy(dict_in["Points"])
     assemblies_trg = {}
@@ -634,6 +684,7 @@ def _remove_multiple_constraints(dict_in):
         """
         Recursively applies _detect_triple_connections_node and _split_invalid_triangles to all
         sub-lists until the stopping condition is met.
+        Returns 0 if completed successfully, returns 1 if exits reaching max_iterations.
         """
         ii += 1
         new_lists = []
@@ -646,25 +697,49 @@ def _remove_multiple_constraints(dict_in):
                 new_lists.append(group_A)
                 new_lists.append(group_B)
 
-        print(
-            f"Iteration {ii}, total valid: {_total_len(valid_list)}, total new lists: {len(new_lists)}, "
-            f"total elements in new_lists: {_total_len(new_lists)}"
-        )
+        if verbose:
+            logger.debug(
+                f"Iteration {ii}, total valid: {_total_len(valid_list)}, total new lists: {len(new_lists)}, "
+                f"total elements in new_lists: {_total_len(new_lists)}"
+            )
 
         # Stopping condition: check if new elements are divided in two groups (invalid trg are detected).
         if len(new_lists) == 0:
-            return valid_list
+            return 0
+
+        if ii > max_iterations:
+            # After max_iterations iterations it stops automatically to prevent infinite loops
+            logger.warning(f"Reached maximum iteration ({max_iterations})")
+            return 1
 
         return recursive_fix(new_lists, valid_list, ii)
 
     # remove the trg belonging to the triple constraints
+    total_triangles_before = 0
+    total_triangles_after = 0
     for assembly, bodies in assemblies_trg.items():
         for body, trg in bodies.items():
             ii = 0
+            total_triangles_before += len(trg)
             valid_triangles = []
-            aaa = recursive_fix([trg], valid_triangles, ii)
+            return_code = recursive_fix([trg], valid_triangles, ii)
+            total_triangles_after += _total_len(valid_triangles)
+            if return_code > 0:
+                logger.warning(
+                    "The fix for multiple connections might have skipped some triangles.\n"
+                    f"Num triangles before fix (iteration {ii}): {len(trg)}, "
+                    f"Num triangles after fix (iteration {ii}): {_total_len(valid_triangles)} "
+                )
+            # setting back the triangles in dict_in
+            for i, trg_list in enumerate(valid_triangles):
+                body_name = body if i == 0 else f"{body}_{i}"
+                dict_in["Assemblies"][assembly]["Triangles"][body_name] = trg_list
 
-    # mettere i risultati dendro dict_in
-    pass
+    logger.debug(
+        f"Removing multiple connections from Nastran.\n"
+        f"Number of assemblies bodies: {len(assemblies_trg)}, "
+        f"Total number of bodies: {sum([len(b) for a in assemblies_trg.values() for b in a.values()])} \n"
+        f"Total triangles before fix: {total_triangles_before}, total triangles after fix: {total_triangles_after}"
+    )
 
     return dict_in
