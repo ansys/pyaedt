@@ -899,7 +899,12 @@ class VirtualCompliance:
             self._desktop_class.logger.error(msg)
             return pass_fail_table
         for trace_name in trace_data.expressions:
-            trace_values = [(k[-1], v) for k, v in trace_data.full_matrix_real_imag[0][trace_name].items()]
+            trace_values = [
+                (float(sweep_value), v)
+                for sweep_value, (k, v) in zip(
+                    trace_data.primary_sweep_values, trace_data.full_matrix_real_imag[0][trace_name].items()
+                )
+            ]
             for limit_v in local_config["limitLines"].values():
                 yy = 0
                 zones = 0
