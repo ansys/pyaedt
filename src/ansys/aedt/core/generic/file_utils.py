@@ -24,9 +24,9 @@
 
 from pathlib import Path
 from typing import List
+from typing import TextIO
 from typing import Union
 
-from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
@@ -129,6 +129,59 @@ def check_and_download_folder(
         settings.remote_rpc_session.filemanager.download_folder(remote_path, local_path, overwrite=overwrite)
         return local_path
     return remote_path
+
+
+@pyaedt_function_handler()
+def open_file(
+    file_path: Union[str, Path], file_options: str = "r", encoding: str = None, override_existing: bool = True
+) -> Union[TextIO, None]:
+    """Open a file and return the object.
+
+    Parameters
+    ----------
+    file_path : str or :class:`pathlib.Path`
+        Full absolute path to the file (either local or remote).
+    file_options : str, optional
+        Options for opening the file.
+    encoding : str, optional
+        Name of the encoding used to decode or encode the file.
+        The default is ``None``, which means a platform-dependent encoding is used. You can
+        specify any encoding supported by Python.
+    override_existing : bool, optional
+        Whether to override an existing file if opening a file in write mode on a remote
+        machine. The default is ``True``.
+
+    Returns
+    -------
+    Union[TextIO, None]
+        Opened file object or ``None`` if the file or folder does not exist.
+    """
+
+    file_path = Path(file_path)
+    file_path = file_path.as_posix() if file_path.drive else file_path
+
+    dir_name = file_path.parent
+    if "r" in file_options:
+        if file_path.exists():
+            return open(file_path, file_options, encoding=encoding)
+        elif settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(
+            str(file_path)
+        ):  # pragma: no cover
+            local_file = Path(tempfile.gettempdir()) / file_path.name
+            settings.remote_rpc_session.filemanager.download_file(str(file_path), str(local_file))
+            return open(local_file, file_options, encoding=encoding)
+    elif dir_name.exists():
+        return open(file_path, file_options, encoding=encoding)
+    elif settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(str(dir_name)):
+        if "w" in file_options:
+            return settings.remote_rpc_session.create_file(
+                str(file_path), file_options, encoding=encoding, override=override_existing
+            )
+        else:
+            return settings.remote_rpc_session.open_file(str(file_path), file_options, encoding=encoding)
+    else:
+        settings.logger.error("The file or folder %s does not exist", dir_name)
+        return None
 
 
 @pyaedt_function_handler()

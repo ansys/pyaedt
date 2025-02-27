@@ -26,10 +26,10 @@ import os
 import re
 from warnings import warn
 
+from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import get_filename_without_extension
 from ansys.aedt.core.generic.general_methods import inside_desktop
-from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.cad.modeler import Modeler

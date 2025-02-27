@@ -42,10 +42,10 @@ from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import PLANE
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.errors import AEDTRuntimeError
+from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import _to_boolean
 from ansys.aedt.core.generic.general_methods import _uname
 from ansys.aedt.core.generic.general_methods import clamp
-from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import rgb_color_codes
 from ansys.aedt.core.generic.general_methods import settings

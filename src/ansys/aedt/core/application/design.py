@@ -66,12 +66,12 @@ from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import unit_system
 from ansys.aedt.core.generic.data_handlers import variation_string_to_dict
 from ansys.aedt.core.generic.errors import GrpcApiError
+from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import check_and_download_file
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import inner_project_settings
 from ansys.aedt.core.generic.general_methods import is_project_locked
 from ansys.aedt.core.generic.general_methods import is_windows
-from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import read_csv
 from ansys.aedt.core.generic.general_methods import read_tab

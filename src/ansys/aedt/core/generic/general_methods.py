@@ -294,56 +294,6 @@ def check_numeric_equivalence(a, b, relative_tolerance=1e-7):
 
 
 @pyaedt_function_handler()
-def open_file(file_path, file_options="r", encoding=None, override_existing=True):
-    """Open a file and return the object.
-
-    Parameters
-    ----------
-    file_path : str or Path
-        Full absolute path to the file (either local or remote).
-    file_options : str, optional
-        Options for opening the file.
-    encoding : str, optional
-        Name of the encoding used to decode or encode the file.
-        The default is ``None``, which means a platform-dependent encoding is used. You can
-        specify any encoding supported by Python.
-    override_existing : bool, optional
-        Whether to override an existing file if opening a file in write mode on a remote
-        machine. The default is ``True``.
-
-    Returns
-    -------
-    object
-        Opened file.
-    """
-
-    file_path = str(file_path)
-    file_path = file_path.replace("\\", "/") if file_path[0] != "\\" else file_path
-
-    dir_name = os.path.dirname(file_path)
-    if "r" in file_options:
-        if os.path.exists(file_path):
-            return open(file_path, file_options, encoding=encoding)
-        elif settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(
-            file_path
-        ):  # pragma: no cover
-            local_file = os.path.join(tempfile.gettempdir(), os.path.split(file_path)[-1])
-            settings.remote_rpc_session.filemanager.download_file(file_path, local_file)
-            return open(local_file, file_options, encoding=encoding)
-    elif os.path.exists(dir_name):
-        return open(file_path, file_options, encoding=encoding)
-    elif settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(dir_name):
-        if "w" in file_options:
-            return settings.remote_rpc_session.create_file(
-                file_path, file_options, encoding=encoding, override=override_existing
-            )
-        else:
-            return settings.remote_rpc_session.open_file(file_path, file_options, encoding=encoding)
-    else:
-        settings.logger.error("The file or folder %s does not exist", dir_name)
-
-
-@pyaedt_function_handler()
 def read_configuration_file(file_path):
     """Parse a file and return the information in a list or dictionary.
 
