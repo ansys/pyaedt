@@ -32,11 +32,11 @@ import ansys.aedt.core
 from ansys.aedt.core import __version__
 from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.errors import GrpcApiError
+from ansys.aedt.core.generic.file_utils import generate_unique_folder_name
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.file_utils import write_configuration_file
-from ansys.aedt.core.generic.general_methods import generate_unique_folder_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.generic.numbers import decompose_variable_value

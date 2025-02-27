@@ -238,8 +238,8 @@ def generate_unique_name(root_name: str, suffix: str = "", n: int = 6) -> str:
 
 
 @pyaedt_function_handler(rootname="root_name")
-def generate_unique_folder_name(root_name=None, folder_name=None):
-    """Generate a new AEDT folder name given a rootname.
+def generate_unique_folder_name(root_name: str = None, folder_name: str = None) -> str:
+    """Generate a new AEDT folder name given a root name.
 
     Parameters
     ----------
@@ -260,18 +260,19 @@ def generate_unique_folder_name(root_name=None, folder_name=None):
             root_name = tempfile.gettempdir()
     if folder_name is None:
         folder_name = generate_unique_name("pyaedt_prj", n=3)
-    temp_folder = os.path.join(root_name, folder_name)
-    if settings.remote_rpc_session and not settings.remote_rpc_session.filemanager.pathexists(temp_folder):
-        settings.remote_rpc_session.filemanager.makedirs(temp_folder)
-    elif not os.path.exists(temp_folder):
-        os.makedirs(temp_folder)
-
-    return temp_folder
+    temp_folder = Path(root_name) / folder_name
+    if settings.remote_rpc_session and not settings.remote_rpc_session.filemanager.pathexists(str(temp_folder)):
+        settings.remote_rpc_session.filemanager.makedirs(str(temp_folder))
+    elif not temp_folder.exists():
+        temp_folder.mkdir(parents=True)
+    return str(temp_folder)
 
 
 @pyaedt_function_handler(rootname="root_name")
-def generate_unique_project_name(root_name=None, folder_name=None, project_name=None, project_format="aedt"):
-    """Generate a new AEDT project name given a rootname.
+def generate_unique_project_name(
+    root_name: str = None, folder_name: str = None, project_name: str = None, project_format: str = "aedt"
+):
+    """Generate a new AEDT project name given a root name.
 
     Parameters
     ----------
@@ -295,11 +296,12 @@ def generate_unique_project_name(root_name=None, folder_name=None, project_name=
         project_name = generate_unique_name("Project", n=3)
     name_with_ext = project_name + "." + project_format
     folder_path = generate_unique_folder_name(root_name, folder_name=folder_name)
-    prj = os.path.join(folder_path, name_with_ext)
+    folder_path = Path(folder_path)
+    prj = folder_path / name_with_ext
     if check_if_path_exists(prj):
         name_with_ext = generate_unique_name(project_name, n=3) + "." + project_format
-        prj = os.path.join(folder_path, name_with_ext)
-    return prj
+        prj = folder_path / name_with_ext
+    return str(prj)
 
 
 @pyaedt_function_handler(startpath="path", filepattern="file_pattern")
