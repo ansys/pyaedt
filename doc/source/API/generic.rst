@@ -31,11 +31,9 @@ The following methods allows to read and parse files.
    write_csv
    read_tab
    read_xlsx
-
    get_dxf_layers
-
    read_component_file
    parse_excitation_file
-
+   tech_to_control_file
    read_configuration_file
    write_configuration_file

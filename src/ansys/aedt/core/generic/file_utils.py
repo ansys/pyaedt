@@ -33,6 +33,7 @@ from typing import List
 from typing import TextIO
 from typing import Union
 
+from ansys.aedt.core.generic.constants import CSS4_COLORS
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 
@@ -597,6 +598,63 @@ def parse_excitation_file(
         mag = list(mag)
         phase = list(df[df.keys()[2]].values)
     return freq, mag, phase
+
+
+@pyaedt_function_handler(file_path="input_file", unit="units", control_path="output_file")
+def tech_to_control_file(input_file: Union[str, Path], units: str = "nm", output_file: str = None):
+    """Convert a TECH file to an XML file for use in a GDS or DXF import.
+
+    Parameters
+    ----------
+    input_file : str or :class:`pathlib.Path`
+        Full path to the TECH file.
+    units : str, optional
+        Tech units. If specified in tech file this parameter will not be used. Default is ``"nm"``.
+    output_file : str, optional
+        Path for outputting the XML file.
+
+    Returns
+    -------
+    str
+        Output file path.
+    """
+    result = []
+    input_file = Path(input_file)
+    with open_file(input_file) as f:
+        vals = list(CSS4_COLORS.values())
+        id_layer = 0
+        for line in f:
+            line_split = line.split()
+            if len(line_split) == 5:
+                layerID, layer_name, _, elevation, layer_height = line.split()
+                x = (
+                    f'      <Layer Color="{vals[id_layer]}" '
+                    f'GDSIIVia="{"true" if layer_name.lower().startswith("v") else "false"}" '
+                    f'Name="{layerID}" TargetLayer="{layer_name}" Thickness="{layer_height}"'
+                )
+                x += ' Type="conductor"/>'
+                result.append(x)
+                id_layer += 1
+            elif len(line_split) > 1 and "UNIT" in line_split[0]:
+                units = line_split[1]
+    if not output_file:
+        output_file = os.path.splitext(file_path)[0] + ".xml"
+    with open_file(output_file, "w") as f:
+        f.write('<?xml version="1.0" encoding="UTF-8" standalone="no" ?>\n')
+        f.write('    <c:Control xmlns:c="http://www.ansys.com/control" schemaVersion="1.0">\n')
+        f.write("\n")
+        f.write('      <Stackup schemaVersion="1.0">\n')
+        f.write(f'        <Layers LengthUnit="{units}">\n')
+        for res in result:
+            f.write(res + "\n")
+
+        f.write("    </Layers>\n")
+        f.write("  </Stackup>\n")
+        f.write("\n")
+        f.write('  <ImportOptions Flatten="true" GDSIIConvertPolygonToCircles="false" ImportDummyNet="true"/>\n')
+        f.write("\n")
+        f.write("</c:Control>\n")
+    return output_file
 
 
 # CAD parsing
