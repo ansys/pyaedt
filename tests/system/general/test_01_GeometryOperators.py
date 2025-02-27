@@ -425,19 +425,31 @@ class TestClass:
         assert unit_converter(10, "Length", "metersi") == 10
         values = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         assert unit_converter(values, "Length", "meter", "mm") == [
-            0,
-            1000,
-            2000,
-            3000,
-            4000,
-            5000,
-            6000,
-            7000,
-            8000,
-            9000,
-            10000,
+            0.0,
+            1000.0,
+            2000.0,
+            3000.0,
+            4000.0,
+            5000.0,
+            6000.0,
+            7000.0,
+            8000.0,
+            9000.0,
+            10000.0,
         ]
-        assert unit_converter(values, "Length", "m", "mm") == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        assert unit_converter(values, "Length", "m", "mm") == [
+            0.0,
+            1000.0,
+            2000.0,
+            3000.0,
+            4000.0,
+            5000.0,
+            6000.0,
+            7000.0,
+            8000.0,
+            9000.0,
+            10000.0,
+        ]
         assert unit_converter(10, "Temperature", "cel", "fah") == 50
         assert unit_converter(10, "Power", "W", "dBm") == 40
         assert unit_converter(10, "Power", "W", "dBW") == 10

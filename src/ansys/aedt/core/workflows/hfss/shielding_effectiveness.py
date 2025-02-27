@@ -336,6 +336,7 @@ def main(extension_args):
     # Create sphere
 
     sphere = aedtapp.modeler.create_sphere(origin=center, radius=sphere_size, material="pec")
+    sphere.name = "dipole"
 
     # Assign incident wave
     is_electric = False
@@ -415,6 +416,10 @@ def main(extension_args):
 
     original_1meter = original.post.get_solution_data("Sphere1meter", report_category="Emission Test")
     original_3meters = original.post.get_solution_data("Sphere3meters", report_category="Emission Test")
+
+    if None in (free_space_1meter, free_space_3meters, original_1meter, original_3meters):  # pragma: no cover
+        aedtapp.logger.error("Data can not be obtained.")
+        return False
 
     frequencies = free_space_1meter.primary_sweep_values
     frequency_units = free_space_1meter.units_sweeps["Freq"]

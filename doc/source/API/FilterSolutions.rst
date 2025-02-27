@@ -57,6 +57,12 @@ The ``DistributedDesign`` module includes all the necessary classes for creating
 Distributed filters rely on transmission lines and resonators.
 
 * ``DistributedTopology`` to define attributes and parameters of filters implemented using a distributed topology.
+* ``DistributedSubstrate`` to define attributes and  parameters of the substrate used in distributed filters.
+* ``DistributedGeometry`` to define attributes and parameters of the substrate geometry used in distributed filters.
+* ``DistributedRadial`` to define attributes and parameters of the substrate radial used in distributed filters.
+* ``DistributedParasitics`` to define attributes and parameters of parasitic values associated with lumped elements.
+
+
 
 They are accessible through:
 
@@ -69,6 +75,10 @@ They are accessible through:
 
 
    distributed_topology.DistributedTopology
+   distributed_substrate.DistributedSubstrate
+   distributed_geometry.DistributedGeometry
+   distributed_radial.DistributedRadial
+   distributed_parasitics.DistributedParasitics
 
 ``Distributed Filter`` example:
 
@@ -86,6 +96,9 @@ They are accessible through:
     design.topology.load_resistance = "50"
     ...
 
+
+
+
 .. _BaseFilterDesign:
 
 Base filter design
@@ -93,7 +106,6 @@ Base filter design
 The ``FilterDesignBase`` module provides all the essential classes for creating and modifying the primary parameters applicable to all design types.
 
 * ``Attributes`` to define attributes and parameters of filters.
-* ``DllInterface`` to establish an interface with the FilterSolutions DLL.
 * ``GraphSetup`` to define the frequency and time graph parameters of the exported responses.
 * ``IdealResponse`` to return the data for the available ideal filter responses.
 * ``MultipleBandsTable`` to manage access to the entries in the multiple bands table.
@@ -112,7 +124,6 @@ They are accessible through:
 
 
    attributes.Attributes
-   dll_interface.DllInterface
    graph_setup.GraphSetup
    ideal_response.IdealResponse
    multiple_bands_table.MultipleBandsTable

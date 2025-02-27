@@ -126,7 +126,9 @@ class TestClass:
         assert len(self.aedtapp.get_all_return_loss_list(math_formula="abs")) == 2
         assert len(self.aedtapp.get_all_insertion_loss_list()) == 2
         assert len(self.aedtapp.get_all_insertion_loss_list(math_formula="abs")) == 2
-        assert len(self.aedtapp.get_all_insertion_loss_list(math_formula="abs", nets=self.aedtapp.excitations)) == 2
+        assert (
+            len(self.aedtapp.get_all_insertion_loss_list(math_formula="abs", nets=self.aedtapp.excitation_names)) == 2
+        )
         assert len(self.aedtapp.get_next_xtalk_list()) == 1
         assert len(self.aedtapp.get_next_xtalk_list(math_formula="abs")) == 1
         assert len(self.aedtapp.get_fext_xtalk_list()) == 2
@@ -179,7 +181,7 @@ class TestClass:
         myres = self.aedtapp.modeler.schematic.create_resistor("R100", 50)
         mycap = self.aedtapp.modeler.schematic.create_capacitor("C100", 1e-12)
         portname = self.aedtapp.modeler.schematic.create_interface_port("Port1")
-        assert len(self.aedtapp.excitations) > 0
+        assert len(self.aedtapp.excitation_names) > 0
         assert "Port1" in portname.name
         assert myind.pins[0].connect_to_component(portname.pins[0])
         assert myind.pins[1].connect_to_component(myres.pins[1], use_wire=True)
@@ -730,21 +732,21 @@ class TestClass:
         port.reference_node = "NoNet"
         port.reference_node = "Z"
 
-        assert c.excitation_objects
+        assert c.design_excitations
 
         setup = c.create_setup()
 
-        c.excitation_objects["Port3"].enabled_sources = ["PowerTest"]
-        assert len(c.excitation_objects["Port3"].enabled_sources) == 1
+        c.design_excitations["Port3"].enabled_sources = ["PowerTest"]
+        assert len(c.design_excitations["Port3"].enabled_sources) == 1
         setup1 = c.create_setup()
         setup2 = c.create_setup()
-        c.excitation_objects["Port3"].enabled_analyses = {"PowerTest": [setup.name, setup2.name]}
-        assert c.excitation_objects["Port3"].enabled_analyses["PowerTest"][0] == setup.name
+        c.design_excitations["Port3"].enabled_analyses = {"PowerTest": [setup.name, setup2.name]}
+        assert c.design_excitations["Port3"].enabled_analyses["PowerTest"][0] == setup.name
 
-        c.excitation_objects["Port3"].name = "PortTest"
-        assert "PortTest" in c.excitations
-        c.excitation_objects["PortTest"].delete()
-        assert len(c.excitation_objects) == 0
+        c.design_excitations["Port3"].name = "PortTest"
+        assert "PortTest" in c.excitation_names
+        c.design_excitations["PortTest"].delete()
+        assert len(c.design_excitations) == 0
         if not is_linux:
             self.aedtapp.save_project()
             c = add_app(application=Circuit, design_name="sources")
@@ -1011,3 +1013,30 @@ class TestClass:
 
         assert self.aedtapp.delete_imported_data(table)
         assert table not in self.aedtapp.existing_analysis_sweeps
+
+    def test_54_value_with_units(self):
+        assert self.aedtapp.value_with_units("10mm") == "10mm"
+        assert self.aedtapp.value_with_units("10") == "10mm"
+
+    def test_55_get_component_path_and_import_sss_files(self):
+        model = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "test.lib")
+        assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model)
+        assert len(self.aedtapp.modeler.schematic.components) == 1
+        assert list(self.aedtapp.modeler.components.components.values())[0].component_path
+        assert self.aedtapp.modeler.components.create_component(component_library="", component_name="RES_")
+        assert len(self.aedtapp.modeler.schematic.components) == 2
+        assert not list(self.aedtapp.modeler.components.components.values())[1].component_path
+        t1 = self.aedtapp.modeler.schematic.create_touchstone_component(self.touchstone_file)
+        assert len(self.aedtapp.modeler.schematic.components) == 3
+        assert t1.component_path
+        nexxim_state_space = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "neximspacefile.sss")
+        sss = self.aedtapp.modeler.schematic.create_nexxim_state_space_component(nexxim_state_space, 16)
+        assert len(self.aedtapp.modeler.schematic.components) == 4
+        assert sss.component_path
+        ibis_model = self.aedtapp.get_ibis_model_from_file(
+            os.path.join(TESTS_GENERAL_PATH, "example_models", "T15", "u26a_800_modified.ibs")
+        )
+        ibis_model.buffers["RDQS#_u26a_800_modified"].add()
+        buffer = ibis_model.buffers["RDQS#_u26a_800_modified"].insert(0.1016, 0.05334, 0.0)
+        assert len(self.aedtapp.modeler.schematic.components) == 5
+        assert buffer.component_path

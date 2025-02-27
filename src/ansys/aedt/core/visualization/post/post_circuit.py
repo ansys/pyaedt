@@ -22,8 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from __future__ import absolute_import
 
+import os
 import warnings
 
 from ansys.aedt.core.generic.constants import unit_converter
@@ -57,6 +57,52 @@ class PostProcessorCircuit(PostProcessorCommon):
 
     def __init__(self, app):
         PostProcessorCommon.__init__(self, app)
+
+    @pyaedt_function_handler()
+    def export_model_picture(
+        self,
+        output_file=None,
+        page=1,
+        width=1920,
+        height=1080,
+    ):
+        """Export a snapshot of the schematic to a ``JPG`` file.
+
+        Parameters
+        ----------
+        output_file : str, optional
+            Full Path for exporting the image file. The default is ``None``, in which case working_dir is used.
+        page : int, optional
+            Page number of the schematic. The default is ``1``.
+        width : int, optional
+            Export image picture width size in pixels. Default is 1920 which takes the desktop size.
+        height : int, optional
+            Export image picture height size in pixels. Default is 10800 which takes the desktop size.
+
+        Returns
+        -------
+        str
+            File path of the generated JPG file.
+
+        References
+        ----------
+        >>> oEditor.ExportImage
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> app = Circuit(non_graphical=False)
+        >>> output_file = app.post.export_model_picture(full_name=os.path.join(app.working_directory, "images1.jpg"))
+        """
+        if not output_file:
+            output_file = os.path.join(
+                self._app.working_directory, generate_unique_name(self._app.design_name) + ".jpg"
+            )
+        if page >= self.oeditor.GetNumPages():
+            self.logger.error("Page number out of range")
+            return ""
+        self.oeditor.ExportImage(output_file, page, width, height)
+        return output_file
 
     @pyaedt_function_handler(setupname="setup", plotname="plot_name")
     def create_ami_initial_response_plot(

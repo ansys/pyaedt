@@ -25,7 +25,6 @@
 import ast
 import logging
 from pathlib import Path
-from unittest.mock import MagicMock
 from unittest.mock import mock_open
 from unittest.mock import patch
 
@@ -38,47 +37,45 @@ JSON_CONTENT_HDF = (
     '{"solution": "Trihedral_RCS", "monostatic_file": "rcs_data.h5", "model_units": "mm", "frequency_units": "GHz"}'
 )
 CONTENT = ast.literal_eval(JSON_CONTENT_HDF)
-FREQUENCIES = ["100Hz", "200Hz", "300Hz"]
 COLUMNS = ["MyName", "Column2", "Column3"]
 VALUES = [12, 42]
 VALUE_LOG_ERROR = "Value not available."
 FREQUENCY_LOG_ERROR = "Frequency not available."
 WINDOW_LOG_ERROR = "Invalid value for `window`. " "The value must be 'Flat', 'Hamming', or 'Hann'."
 
-mock_df = MagicMock()
-mock_df.columns = COLUMNS
-mock_index = MagicMock()
-mock_df.index = mock_index
-mock_index.names = ["Freq", "OtherLevel"]
-mock_index.get_level_values.return_value = FREQUENCIES
+import pandas as pd
+
+mock_df = pd.DataFrame(
+    data=[[12, 42, 0], [34, 56, 1]],  # Example data
+    columns=COLUMNS,
+    index=pd.MultiIndex.from_tuples([("100Hz", "Level1"), ("200Hz", "Level2")], names=["Freq", "OtherLevel"]),
+)
 
 
 @pytest.fixture
 def rcs_setup():
-    """Fixture used to setup a MonostaticRCSData instance."""
-
     with patch("pandas.read_hdf") as mock_read_hdf, patch("pathlib.Path.is_file") as mock_is_file, patch(
         "pathlib.Path.open", new_callable=mock_open, read_data=JSON_CONTENT_HDF
     ) as mock_open_path:
 
         mock_is_file.return_value = True
-        mock_read_hdf.return_value = mock_df
+        mock_read_hdf.return_value = mock_df  # Usar un DataFrame real aquí
         yield {"read_hdf": mock_read_hdf, "is_file": mock_is_file, "open": mock_open_path}
 
 
 def test_success_with_existing_file(rcs_setup):
     mono_rcs_data = MonostaticRCSData(input_file=FILE_PATH)
 
-    assert mock_df == mono_rcs_data.raw_data
+    assert isinstance(mono_rcs_data.raw_data, pd.DataFrame)
     assert CONTENT == mono_rcs_data.metadata
     assert COLUMNS[0] == mono_rcs_data.name
     assert "Trihedral_RCS" == mono_rcs_data.solution
     assert Path(FILE_PATH) == mono_rcs_data.input_file
     assert "GHz" == mono_rcs_data.frequency_units
-    assert FREQUENCIES == mono_rcs_data.frequencies
-    assert None == mono_rcs_data.frequency
-    assert None == mono_rcs_data.available_incident_wave_theta
-    assert None == mono_rcs_data.available_incident_wave_phi
+    assert ["100Hz", "200Hz"] == mono_rcs_data.frequencies
+    assert mono_rcs_data.frequency is None
+    assert mono_rcs_data.available_incident_wave_theta is None
+    assert mono_rcs_data.available_incident_wave_phi is None
     assert "dB20" == mono_rcs_data.data_conversion_function
     assert "Flat" == mono_rcs_data.window
     assert 1024 == mono_rcs_data.window_size

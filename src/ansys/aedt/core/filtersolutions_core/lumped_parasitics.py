@@ -31,8 +31,9 @@ import ansys.aedt.core
 class LumpedParasitics:
     """Defines attributes of the lumped element parasitics.
 
-    This class lets you to construct all the necessary parasitic
-    attributes of lumped elements for the ``LumpedDesign`` class.
+
+    This class allows you to define and modify the parasitic
+    parameters of the lumped elements used in designed filter.
     """
 
     def __init__(self):

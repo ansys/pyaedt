@@ -26,7 +26,6 @@ import os
 import re
 from warnings import warn
 
-from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import get_filename_without_extension
 from ansys.aedt.core.generic.general_methods import inside_desktop
@@ -97,14 +96,41 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         return self._app.oeditor
 
     @property
-    def o_component_manager(self):
+    def ocomponent_manager(self):
         """Component manager object."""
-        return self._app.o_component_manager
+        return self._app.ocomponent_manager
 
     @property
-    def o_model_manager(self):
+    def o_component_manager(self):  # pragma: no cover
+        """Component manager object.
+
+        .. deprecated:: 0.15.1
+           Use :func:`ocomponent_manager` property instead.
+
+        """
+        warn(
+            "`o_component_manager` is deprecated. Use `ocomponent_manager` instead.",
+            DeprecationWarning,
+        )
+        return self._app.ocomponent_manager
+
+    @property
+    def omodel_manager(self):
         """Model manager object."""
-        return self._app.o_model_manager
+        return self._app.omodel_manager
+
+    @property
+    def o_model_manager(self):  # pragma: no cover
+        """Model manager object.
+
+        .. deprecated:: 0.15.1
+           Use :func:`omodel_manager` property instead.
+        """
+        warn(
+            "`o_model_manager` is deprecated. Use `omodel_manager` instead.",
+            DeprecationWarning,
+        )
+        return self.omodel_manager
 
     @property
     def _edb_folder(self):
@@ -170,16 +196,11 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         >>> oEditor.GetActiveUnits
         >>> oEditor.SetActiveUnits
         """
-        if not self._model_units:
-            self._model_units = self.oeditor.GetActiveUnits()
-        return self._model_units
+        return self._app.units.length
 
     @model_units.setter
     def model_units(self, units):
-        if not units in AEDT_UNITS["Length"]:
-            raise ValueError(f"Invalid units '{units}'")
-        self.oeditor.SetActiveUnits(units)
-        self._model_units = units
+        self._app.units.length = units
 
     @property
     def primitives(self):
@@ -217,30 +238,16 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         pur = bb.BBoxUR()
         return [pll.GetX(), pll.GetY(), pur.GetX(), pur.GetY()]
 
-    @pyaedt_function_handler()
-    def _arg_with_dim(self, value, units=None):
-        if units is None:
-            units = self.model_units
-        if isinstance(value, str):
-            try:
-                float(value)
-                val = f"{value}{units}"
-            except Exception:
-                val = value
-        else:
-            val = f"{value}{units}"
-        return val
-
     def _pos_with_arg(self, pos, units=None):
-        xpos = self._arg_with_dim(pos[0], units)
+        xpos = self._app.value_with_units(pos[0], units)
         if len(pos) < 2:
-            ypos = self._arg_with_dim(0, units)
+            ypos = self._app.value_with_units(0, units)
         else:
-            ypos = self._arg_with_dim(pos[1], units)
+            ypos = self._app.value_with_units(pos[1], units)
         if len(pos) < 3:
-            zpos = self._arg_with_dim(0, units)
+            zpos = self._app.value_with_units(0, units)
         else:
-            zpos = self._arg_with_dim(pos[2], units)
+            zpos = self._app.value_with_units(pos[2], units)
 
         return xpos, ypos, zpos
 
@@ -297,7 +304,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                 ]
             )
         elif isinstance(value, (float, int)):
-            xpos = self._arg_with_dim(value, self.model_units)
+            xpos = self._app.value_with_units(value, self.model_units)
             self.oeditor.ChangeProperty(
                 [
                     "NAME:AllTabs",
@@ -365,10 +372,10 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         self.components_3d[comp_name] = comp
         comp.is_3d_placement = True
         comp.local_origin = [0.0, 0.0, 0.0]
-        x = self._arg_with_dim(x)
-        y = self._arg_with_dim(y)
-        z = self._arg_with_dim(z)
-        rotation = self._arg_with_dim(rotation, "deg")
+        x = self._app.value_with_units(x)
+        y = self._app.value_with_units(y)
+        z = self._app.value_with_units(z)
+        rotation = self._app.value_with_units(rotation, "deg")
         comp.angle = rotation
         comp.location = [x, y, z]
         return comp
@@ -416,7 +423,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         ----------
         >>> oEditor.Heal
 
-
         Examples
         --------
         >>> from ansys.aedt.core import Hfss3dLayout
@@ -438,7 +444,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                 "Type:=",
                 "Colinear",
                 "Tol:=",
-                self.number_with_units(tolerance),
+                self._app.value_with_units(tolerance),
             ]
         )
 
@@ -489,7 +495,9 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         poly = self.oeditor.GetPolygonDef(assignment).GetPoints()
         pos = [poly[0].GetX(), poly[0].GetY()]
         geom_names = self.oeditor.FindObjectsByPoint(self.oeditor.Point().Set(pos[0], pos[1]), layer)
-        self.oeditor.Expand(self.number_with_units(size), expand_type, replace_original, ["NAME:elements", assignment])
+        self.oeditor.Expand(
+            self._app.value_with_units(size), expand_type, replace_original, ["NAME:elements", assignment]
+        )
         self.cleanup_objects()
         if not replace_original:
             new_geom_names = [
@@ -865,7 +873,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         """
         if not model_name:
             model_name = get_filename_without_extension(input_file)
-        if model_name not in list(self.o_model_manager.GetNames()):
+        if model_name not in list(self.omodel_manager.GetNames()):
             args = [
                 "NAME:" + model_name,
                 "Name:=",
@@ -891,7 +899,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                 "modelname:=",
                 model_name,
             ]
-            self.o_model_manager.Add(args)
+            self.omodel_manager.Add(args)
         if not subcircuit_name:
             subcircuit_name = model_name
         with open_file(input_file, "r") as f:
@@ -972,7 +980,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             model_name = os.path.splitext(os.path.basename(input_file))[0]
             if "." in model_name:
                 model_name = model_name.replace(".", "_")
-        if model_name in list(self.o_model_manager.GetNames()):
+        if model_name in list(self.omodel_manager.GetNames()):
             model_name = generate_unique_name(model_name, n=2)
         num_terminal = int(os.path.splitext(input_file)[1].lower().strip(".sp"))
 
@@ -1092,7 +1100,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             "NoiseModelOption:=",
             "External",
         ]
-        self.o_model_manager.Add(arg)
+        self.omodel_manager.Add(arg)
         arg = [
             "NAME:" + model_name,
             "Info:=",
@@ -1190,8 +1198,8 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             ]
         )
 
-        self.o_component_manager.Add(arg)
-        self.o_component_manager.AddSolverOnDemandModel(
+        self.ocomponent_manager.Add(arg)
+        self.ocomponent_manager.AddSolverOnDemandModel(
             self.components[assignment].part,
             [
                 "NAME:CosimDefinition",
