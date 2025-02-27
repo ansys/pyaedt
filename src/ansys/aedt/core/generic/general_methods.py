@@ -29,7 +29,6 @@ from functools import update_wrapper
 import inspect
 import itertools
 import logging
-import math
 import os
 import re
 import string
@@ -998,84 +997,6 @@ def conversion_function(data, function=None):  # pragma: no cover
 
     data = available_functions[function](data)
     return data
-
-
-@pyaedt_function_handler(file_name="input_file")
-def parse_excitation_file(
-    input_file,
-    is_time_domain=True,
-    x_scale=1,
-    y_scale=1,
-    impedance=50,
-    data_format="Power",
-    encoding="utf-8",
-    out_mag="Voltage",
-    window="hamming",
-):
-    """Parse a csv file and convert data in list that can be applied to Hfss and Hfss3dLayout sources.
-
-    Parameters
-    ----------
-    input_file : str
-        Full name of the input file.
-    is_time_domain : bool, optional
-        Either if the input data is Time based or Frequency Based. Frequency based data are Mag/Phase (deg).
-    x_scale : float, optional
-        Scaling factor for x axis.
-    y_scale : float, optional
-        Scaling factor for y axis.
-    data_format : str, optional
-        Either `"Power"`, `"Current"` or `"Voltage"`.
-    impedance : float, optional
-        Excitation impedance. Default is `50`.
-    encoding : str, optional
-        Csv file encoding.
-    out_mag : str, optional
-        Output magnitude format. It can be `"Voltage"` or `"Power"` depending on Hfss solution.
-    window : str, optional
-        Fft window. Options are ``"hamming"``, ``"hanning"``, ``"blackman"``, ``"bartlett"`` or ``None``.
-
-    Returns
-    -------
-    tuple
-        Frequency, magnitude and phase.
-    """
-    try:
-        import numpy as np
-    except ImportError:
-        pyaedt_logger.error("NumPy is not available. Install it.")
-        return False
-    df = read_csv_pandas(input_file, encoding=encoding)
-    if is_time_domain:
-        time = df[df.keys()[0]].values * x_scale
-        val = df[df.keys()[1]].values * y_scale
-        freq, fval = compute_fft(time, val, window)
-
-        if data_format.lower() == "current":
-            if out_mag == "Voltage":
-                fval = fval * impedance
-            else:
-                fval = fval * fval * impedance
-        elif data_format.lower() == "voltage":
-            if out_mag == "Power":
-                fval = fval * fval / impedance
-        else:
-            if out_mag == "Voltage":
-                fval = np.sqrt(fval * impedance)
-        mag = list(np.abs(fval))
-        phase = [math.atan2(j, i) * 180 / math.pi for i, j in zip(list(fval.real), list(fval.imag))]
-
-    else:
-        freq = list(df[df.keys()[0]].values * x_scale)
-        if data_format.lower() == "current":
-            mag = df[df.keys()[1]].values * df[df.keys()[1]].values * impedance * y_scale * y_scale
-        elif data_format.lower() == "voltage":
-            mag = df[df.keys()[1]].values * df[df.keys()[1]].values / impedance * y_scale * y_scale
-        else:
-            mag = df[df.keys()[1]].values * y_scale
-        mag = list(mag)
-        phase = list(df[df.keys()[2]].values)
-    return freq, mag, phase
 
 
 @pyaedt_function_handler(tech_path="file_path", unit="units", control_path="output_file")

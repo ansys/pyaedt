@@ -35,6 +35,7 @@ The following methods allows to read and parse files.
    get_dxf_layers
 
    read_component_file
+   parse_excitation_file
 
    read_configuration_file
    write_configuration_file
