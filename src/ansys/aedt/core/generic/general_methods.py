@@ -294,31 +294,6 @@ def check_numeric_equivalence(a, b, relative_tolerance=1e-7):
 
 
 @pyaedt_function_handler()
-def check_and_download_folder(local_path, remote_path, overwrite=True):
-    """Check if a folder is remote and either download it or return the path.
-
-    Parameters
-    ----------
-    local_path : str
-        Local path to save the folder to.
-    remote_path : str
-        Path to the remote folder.
-    overwrite : bool, optional
-        Whether to overwrite the folder if it already exists locally.
-        The default is ``True``.
-
-    Returns
-    -------
-    str
-    """
-    if settings.remote_rpc_session:
-        remote_path = remote_path.replace("\\", "/") if remote_path[0] != "\\" else remote_path
-        settings.remote_rpc_session.filemanager.download_folder(remote_path, local_path, overwrite=overwrite)
-        return local_path
-    return remote_path
-
-
-@pyaedt_function_handler()
 def open_file(file_path, file_options="r", encoding=None, override_existing=True):
     """Open a file and return the object.
 

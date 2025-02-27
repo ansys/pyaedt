@@ -20,3 +20,4 @@ The following methods allows to read and parse files.
    get_dxf_layers
    check_and_download_file
    check_if_path_exists
+   check_and_download_folder

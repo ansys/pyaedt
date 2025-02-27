@@ -92,12 +92,43 @@ def check_if_path_exists(path: Union[str, Path]) -> bool:
     Returns
     -------
     bool
-        ``True`` when successful, ``False`` when fails.
+        ``True`` when exist, ``False`` when fails.
     """
     path = Path(path)
     if settings.remote_rpc_session:
         return settings.remote_rpc_session.filemanager.pathexists(str(path))
     return path.exists()
+
+
+@pyaedt_function_handler()
+def check_and_download_folder(
+    local_path: Union[str, Path], remote_path: Union[str, Path], overwrite: bool = True
+) -> str:
+    """Check if a folder is remote and either download it or return the path.
+
+    Parameters
+    ----------
+    local_path : str or :class:`pathlib.Path`
+        Local path to save the folder to.
+    remote_path : str or :class:`pathlib.Path`
+        Path to the remote folder.
+    overwrite : bool, optional
+        Whether to overwrite the folder if it already exists locally.
+        The default is ``True``.
+
+    Returns
+    -------
+    str
+        Path to the local folder if downloaded, otherwise the remote path.
+    """
+    local_path = str(local_path)
+    remote_path = str(remote_path)
+
+    if settings.remote_rpc_session:
+        remote_path = remote_path.replace("\\", "/") if remote_path[0] != "\\" else remote_path
+        settings.remote_rpc_session.filemanager.download_folder(remote_path, local_path, overwrite=overwrite)
+        return local_path
+    return remote_path
 
 
 @pyaedt_function_handler()
