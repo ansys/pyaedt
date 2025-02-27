@@ -75,7 +75,7 @@ def frontend():  # pragma: no cover
 
     hfss = Hfss(project_name, design_name)
 
-    port_selection = hfss.excitations
+    port_selection = hfss.excitation_names
 
     if not port_selection:
         app.logger.error("No ports found.")

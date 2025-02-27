@@ -369,7 +369,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
     def _get_unique_source_name(self, source_name, root_name):
         if not source_name:
             source_name = generate_unique_name(root_name)
-        elif source_name in self.excitations or source_name + ":1" in self.excitations:
+        elif source_name in self.excitation_names or source_name + ":1" in self.excitation_names:
             source_name = generate_unique_name(source_name)
         return source_name
 
@@ -3775,7 +3775,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         >>> aedtapp.edit_sources(sources, eigenmode_stored_energy=False)
         """
         if self.solution_type != "Eigenmode":
-            data = {i: ("0W", "0deg", False) for i in self.excitations}
+            data = {i: ("0W", "0deg", False) for i in self.excitation_names}
             for key, value in assignment.items():
                 data[key] = value
             setting = []
@@ -4303,7 +4303,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         msg = "Excitations check:"
         val_list.append(msg)
         if self.solution_type != "Eigenmode":
-            detected_excitations = self.excitations
+            detected_excitations = self.excitation_names
             if ports:
                 if ports != len(detected_excitations):
                     msg = "** Port number error. Check the model. **"
@@ -4397,7 +4397,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         elif "Terminal" in self.solution_type:
             solution_data = "Terminal Solution Data"
         if not ports:
-            ports = self.excitations
+            ports = self.excitation_names
         if not ports_excited:
             ports_excited = ports
         traces = ["dB(S(" + p + "," + q + "))" for p, q in zip(list(ports), list(ports_excited))]
@@ -5642,7 +5642,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                             "3D component array is not present in design and not defined correctly in the JSON file."
                         )
 
-                    geometryparams = self.get_components3d_vars(json_dict[v["name"]])
+                    geometryparams = self.get_component_variables(json_dict[v["name"]])
 
                     self.modeler.insert_3d_component(json_dict[v["name"]], geometryparams)
                 cells_names[v["name"]] = [k1]
@@ -5893,6 +5893,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                 ]
 
         if frequencies is not None:
+            if not isinstance(frequencies, list):
+                frequencies = [frequencies]
             frequencies = _units_assignment(frequencies)
         else:  # pragma: no cover
             self.logger.info("Frequencies could not be obtained.")
