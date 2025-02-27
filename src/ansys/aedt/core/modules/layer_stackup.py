@@ -28,11 +28,10 @@ This module contains these classes: `Layer` and `Layers`.
 This module provides all layer stackup functionalities for the Circuit and HFSS 3D Layout tools.
 """
 
-from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.data_handlers import str_to_bool
-from ansys.aedt.core.generic.general_methods import _arg_with_dim
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers import Quantity
 from ansys.aedt.core.generic.numbers import decompose_variable_value
 
 
@@ -378,7 +377,7 @@ class Layer(object):
 
     @thickness.setter
     def thickness(self, val):
-        self._thickness = _arg_with_dim(val, self.thickness_units)
+        self._thickness = str(Quantity(val, self.thickness_units))
         self.update_stackup_layer()
         tck = decompose_variable_value(self._thickness)
         self._thickness = tck[0]
@@ -902,15 +901,15 @@ class Layer(object):
                     [
                         "NAME:Sublayer",
                         "Thickness:=",
-                        _arg_with_dim(self.thickness, self.thickness_units),
+                        str(Quantity(self.thickness, self.thickness_units)),
                         "LowerElevation:=",
-                        _arg_with_dim(self.lower_elevation, self.LengthUnit),
+                        str(Quantity(self.lower_elevation, self.LengthUnit)),
                         "Roughness:=",
-                        _arg_with_dim(self.roughness, self.LengthUnitRough),
+                        str(Quantity(self.roughness, self.LengthUnitRough)),
                         "BotRoughness:=",
-                        _arg_with_dim(self.bottom_roughness, self.LengthUnitRough),
+                        str(Quantity(self.bottom_roughness, self.LengthUnitRough)),
                         "SideRoughness:=",
-                        _arg_with_dim(self.top_roughness, self.LengthUnitRough),
+                        str(Quantity(self.top_roughness, self.LengthUnitRough)),
                         "Material:=",
                         self._layers._app.materials[self.material].name if self.material != "" else "",
                         "FillMaterial:=",
@@ -930,7 +929,7 @@ class Layer(object):
                         + " , dt="
                         + str(self.hfssSp["dt"])
                         + ", dtv='"
-                        + _arg_with_dim(self.hfssSp["dtv"], self.LengthUnit)
+                        + str(Quantity(self.hfssSp["dtv"], self.LengthUnit))
                         + "')",
                     ],
                     [
@@ -953,19 +952,19 @@ class Layer(object):
                     "RMdl:=",
                     self._RMdl,
                     "NR:=",
-                    _arg_with_dim(self._NR, self.LengthUnitRough),
+                    str(Quantity(self._NR, self.LengthUnitRough)),
                     "HRatio:=",
                     str(self._HRatio),
                     "BRMdl:=",
                     self._BRMdl,
                     "BNR:=",
-                    _arg_with_dim(self._BNR, self.LengthUnitRough),
+                    str(Quantity(self._BNR, self.LengthUnitRough)),
                     "BHRatio:=",
                     str(self._BHRatio),
                     "SRMdl:=",
                     self._SRMdl,
                     "SNR:=",
-                    _arg_with_dim(self._SNR, self.LengthUnitRough),
+                    str(Quantity(self._SNR, self.LengthUnitRough)),
                     "SHRatio:=",
                     str(self._SHRatio),
                 ]
@@ -994,9 +993,9 @@ class Layer(object):
                     [
                         "NAME:Sublayer",
                         "Thickness:=",
-                        _arg_with_dim(self.thickness, self.thickness_units),
+                        str(Quantity(self.thickness, self.thickness_units)),
                         "LowerElevation:=",
-                        _arg_with_dim(self.lower_elevation, self.LengthUnit),
+                        str(Quantity(self.lower_elevation, self.LengthUnit)),
                         "Roughness:=",
                         0,
                         "BotRoughness:=",
