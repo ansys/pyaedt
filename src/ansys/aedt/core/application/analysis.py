@@ -63,6 +63,8 @@ from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
 from ansys.aedt.core.modules.design_xploration import OptimizationSetups
 from ansys.aedt.core.modules.design_xploration import ParametricSetups
 from ansys.aedt.core.modules.solve_setup import Setup
+from ansys.aedt.core.modules.solve_setup import Setup3DLayout
+from ansys.aedt.core.modules.solve_setup import SetupCircuit
 from ansys.aedt.core.modules.solve_setup import SetupHFSS
 from ansys.aedt.core.modules.solve_setup import SetupHFSSAuto
 from ansys.aedt.core.modules.solve_setup import SetupIcepak
@@ -178,6 +180,16 @@ class Analysis(Design, object):
             self._available_variations = self.available_variations
 
     @property
+    def design_setups(self):
+        """All design setups ordered by name.
+
+        Returns
+        -------
+        dict[str, :class:`ansys.aedt.core.modules.solve_setup.Setup`]
+        """
+        return {i.name: i for i in self.setups}
+
+    @property
     def native_components(self):
         """Native Component dictionary.
 
@@ -246,7 +258,7 @@ class Analysis(Design, object):
         """
         if not self._setups:
             if self.design_type not in ["Maxwell Circuit", "Circuit Netlist"]:
-                self._setups = [self.get_setup(setup_name) for setup_name in self.setup_names]
+                self._setups = [self._get_setup(setup_name) for setup_name in self.setup_names]
         return self._setups
 
     @property
@@ -480,6 +492,28 @@ class Analysis(Design, object):
     def excitations(self):
         """Get all excitation names.
 
+        .. deprecated:: 0.15.0
+           Use :func:`excitation_names` property instead.
+
+        Returns
+        -------
+        list
+            List of excitation names. Excitations with multiple modes will return one
+            excitation for each mode.
+
+        References
+        ----------
+        >>> oModule.GetExcitations
+        """
+        mess = "The property `excitations` is deprecated.\n"
+        mess += " Use `app.excitation_names` directly."
+        warnings.warn(mess, DeprecationWarning)
+        return self.excitation_names
+
+    @property
+    def excitation_names(self):
+        """Get all excitation names.
+
         Returns
         -------
         list
@@ -499,6 +533,37 @@ class Analysis(Design, object):
             return []
 
     @property
+    def design_excitations(self):
+        """Get all excitation.
+
+        Returns
+        -------
+        dict[str, :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`]
+           Excitation boundaries.
+
+        References
+        ----------
+        >>> oModule.GetExcitations
+        """
+        exc_names = self.excitation_names[::]
+
+        for el in self.boundaries:
+            if el.name in exc_names:
+                self._excitation_objects[el.name] = el
+
+        # Delete objects that are not anymore available
+        keys_to_remove = [
+            internal_excitation
+            for internal_excitation in self._excitation_objects
+            if internal_excitation not in self.excitation_names
+        ]
+
+        for key in keys_to_remove:
+            del self._excitation_objects[key]
+
+        return self._excitation_objects
+
+    @property
     def excitations_by_type(self):
         """Design excitations by type.
 
@@ -508,7 +573,7 @@ class Analysis(Design, object):
             Dictionary of excitations.
         """
         _dict_out = {}
-        for bound in self.excitation_objects.values():
+        for bound in self.design_excitations.values():
             if bound.type in _dict_out:
                 _dict_out[bound.type].append(bound)
             else:
@@ -518,6 +583,9 @@ class Analysis(Design, object):
     @property
     def excitation_objects(self):
         """Get all excitation.
+
+        .. deprecated:: 0.15.0
+           Use :func:`design_excitations` property instead.
 
         Returns
         -------
@@ -529,23 +597,10 @@ class Analysis(Design, object):
         ----------
         >>> oModule.GetExcitations
         """
-        exc_names = self.excitations[::]
-
-        for el in self.boundaries:
-            if el.name in exc_names:
-                self._excitation_objects[el.name] = el
-
-        # Delete objects that are not anymore available
-        keys_to_remove = [
-            internal_excitation
-            for internal_excitation in self._excitation_objects
-            if internal_excitation not in self.excitations
-        ]
-
-        for key in keys_to_remove:
-            del self._excitation_objects[key]
-
-        return self._excitation_objects
+        mess = "The property `excitation_objects` is deprecated.\n"
+        mess += " Use `app.design_excitations` directly."
+        warnings.warn(mess, DeprecationWarning)
+        return self.design_excitations
 
     @pyaedt_function_handler()
     def get_traces_for_plot(
@@ -603,7 +658,7 @@ class Analysis(Design, object):
         if differential_pairs:
             excitations = differential_pairs
         else:
-            excitations = self.excitations
+            excitations = self.excitation_names
         if get_self_terms:
             for el in excitations:
                 value = f"{category}({el},{el}{end_str}"
@@ -748,7 +803,7 @@ class Analysis(Design, object):
         elif self.design_type == "Q3D Extractor":
             excitations = self.oboundary.GetNumExcitations("Source")
         elif self.design_type == "Circuit Design":
-            excitations = len(self.excitations)
+            excitations = len(self.excitation_names)
         else:
             excitations = len(self.osolution.GetAllSources())
         # reports
@@ -1153,7 +1208,7 @@ class Analysis(Design, object):
         if self.design_type == "HFSS":
             # Handle the situation when ports have not been defined.
 
-            if not self.excitations and "MaxDeltaS" in setup.props:
+            if not self.excitation_names and "MaxDeltaS" in setup.props:
                 new_dict = {}
                 setup.auto_update = False
                 for k, v in setup.props.items():
@@ -1291,6 +1346,38 @@ class Analysis(Design, object):
         self.active_setup = name
         return setup
 
+    @pyaedt_function_handler()
+    def _get_setup(self, name):
+        setuptype = self.design_solutions.default_setup
+        if self.solution_type == "SBR+":
+            setuptype = 4
+        setup_by_type = {
+            "HFSS": SetupHFSS,
+            "SBR+": SetupSBR,
+            "Q3D Extractor": SetupQ3D,
+            "2D Extractor": SetupQ3D,
+            "Maxwell 2D": SetupMaxwell,
+            "Maxwell 3D": SetupMaxwell,
+            "Icepak": SetupIcepak,
+            "HFSS3DLayout": Setup3DLayout,
+            "HFSS 3D Layout Design": Setup3DLayout,
+            "Twin Builder": SetupCircuit,
+            "Circuit Design": SetupCircuit,
+            "Circuit Netlist": SetupCircuit,
+            "SetupCircuit": SetupCircuit,
+        }
+        if self.design_type in setup_by_type:
+            setup = setup_by_type[self.design_type](self, setuptype, name, is_new_setup=False)
+            if setup.properties:
+                if "Auto Solver Setting" in setup.properties:
+                    setup = SetupHFSSAuto(self, 0, name, is_new_setup=False)
+            elif setup.props and setup.props.get("SetupType", "") == "HfssDrivenAuto":
+                setup = SetupHFSSAuto(self, 0, name, is_new_setup=False)
+        else:
+            setup = Setup(self, setuptype, name, is_new_setup=False)
+        self.active_setup = name
+        return setup
+
     @pyaedt_function_handler(setupname="name")
     def get_setup(self, name):
         """Get the setup from the current design.
@@ -1305,26 +1392,7 @@ class Analysis(Design, object):
         :class:`ansys.aedt.core.modules.solve_setup.Setup`
 
         """
-        setuptype = self.design_solutions.default_setup
-
-        if self.solution_type == "SBR+":
-            setuptype = 4
-            setup = SetupSBR(self, setuptype, name, is_new_setup=False)
-        elif self.design_type == "HFSS":
-            setup = SetupHFSS(self, setuptype, name, is_new_setup=False)
-            if setup.properties:
-                if "Auto Solver Setting" in setup.properties:
-                    setup = SetupHFSSAuto(self, 0, name, is_new_setup=False)
-            elif setup.props and setup.props.get("SetupType", "") == "HfssDrivenAuto":
-                setup = SetupHFSSAuto(self, 0, name, is_new_setup=False)
-        elif self.design_type in ["Q3D Extractor", "2D Extractor"]:
-            setup = SetupQ3D(self, setuptype, name, is_new_setup=False)
-        elif self.design_type in ["Maxwell 2D", "Maxwell 3D"]:
-            setup = SetupMaxwell(self, setuptype, name, is_new_setup=False)
-        else:
-            setup = Setup(self, setuptype, name, is_new_setup=False)
-        self.active_setup = name
-        return setup
+        return self.design_setups[name]
 
     @pyaedt_function_handler()
     def create_output_variable(self, variable, expression, solution=None, context=None):
@@ -1995,7 +2063,7 @@ class Analysis(Design, object):
         if self.design_type == "HFSS 3D Layout Design":
             n = str(len(self.port_list))
         else:
-            n = str(len(self.excitations))
+            n = str(len(self.excitation_names))
         # Normalize the save path
         if not file_name:
             appendix = ""
