@@ -72,7 +72,7 @@ from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 
-pathname = Path.cwd()
+pathname = Path(__file__)
 
 pyaedtversion = __version__
 
@@ -914,7 +914,7 @@ class Desktop(object):
     @staticmethod
     def _run_student():  # pragma: no cover
         DETACHED_PROCESS = 0x00000008
-        pid = subprocess.Popen([Path(settings.aedt_install_dir) / "ansysedtsv.exe"], creationflags=DETACHED_PROCESS).pid
+        _ = subprocess.Popen([Path(settings.aedt_install_dir) / "ansysedtsv.exe"], creationflags=DETACHED_PROCESS).pid
         time.sleep(5)
 
     def _dispatch_win32(self, version):  # pragma: no cover
@@ -1024,7 +1024,7 @@ class Desktop(object):
             sys.path.insert(0, base_path)
             sys.path.insert(0, str(Path(base_path) / "PythonFiles" / "DesktopPlugin"))
             if is_linux:
-                pyaedt_path = Path.cwd().parent
+                pyaedt_path = Path(__file__).parent
                 os.environ["PATH"] = str(pyaedt_path) + os.pathsep + os.environ["PATH"]
             os.environ["DesktopPluginPyAEDT"] = str(Path(settings.aedt_install_dir) / "PythonFiles" / "DesktopPlugin")
             launch_msg = f"AEDT installation Path {base_path}"
@@ -1474,7 +1474,7 @@ class Desktop(object):
             Full absolute path for the ``python`` directory.
 
         """
-        return Path.cwd()
+        return Path(__file__)
 
     @property
     def pyaedt_dir(self):
@@ -1486,7 +1486,7 @@ class Desktop(object):
            Full absolute path for the ``pyaedt`` directory.
 
         """
-        return Path.cwd().parent
+        return Path(__file__).parent
 
     def _exception(self, ex_value, tb_data):  # pragma: no cover
         """Write the trace stack to AEDT when a Python error occurs.
@@ -1904,7 +1904,7 @@ class Desktop(object):
             aedt_full_exe_path.replace("\\", "\\\\")
         if project_name in self.project_list():
             self.odesktop.CloseProject(project_name)
-        path_file = Path.cwd()
+        path_file = Path(__file__)
         destination_reg = Path(project_path) / "Job_settings.areg"
         if not setting_file:
             setting_file = Path(path_file) / "misc" / "Job_Settings.areg"
@@ -2009,7 +2009,7 @@ class Desktop(object):
             job_name = generate_unique_name(project_name)
         if project_name in self.project_list():
             self.odesktop.CloseProject(project_name)
-        path_file = Path.cwd()
+        path_file = Path(__file__)
         reg_name = generate_unique_name("ansys_cloud") + ".areg"
         destination_reg = Path(project_path) / reg_name
         if not setting_file:
