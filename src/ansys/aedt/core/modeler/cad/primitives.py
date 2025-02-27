@@ -9003,7 +9003,7 @@ class PrimitivesBuilder(object):
             elif file_format == ".csv":
                 import re
 
-                from ansys.aedt.core.generic.general_methods import read_csv_pandas
+                from ansys.aedt.core.generic.file_utils import read_csv_pandas
 
                 csv_data = read_csv_pandas(input_file=input_file)
                 primitive_type = csv_data.columns[0]

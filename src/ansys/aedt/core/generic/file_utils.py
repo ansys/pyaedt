@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import codecs
+import csv
 import json
 from pathlib import Path
 from typing import Dict
@@ -300,6 +302,59 @@ def read_toml(input_file: Union[str, Path]) -> dict:
 
     with open_file(input_file, "rb") as fb:
         return tomllib.load(fb)
+
+
+@pyaedt_function_handler(file_name="input_file")
+def read_csv(input_file: Union[str, Path], encoding: str = "utf-8") -> list:
+    """Read information from a CSV file and return a list.
+
+    Parameters
+    ----------
+    input_file : str or :class:`pathlib.Path`
+            Full path and name for the CSV file.
+    encoding : str, optional
+            File encoding for the CSV file. The default is ``"utf-8"``.
+
+    Returns
+    -------
+    list
+        Content of the CSV file.
+    """
+    file_name = check_and_download_file(input_file)
+
+    lines = []
+    with codecs.open(file_name, "rb", encoding) as csvfile:
+        reader = csv.reader(csvfile, delimiter=",")
+        for row in reader:
+            lines.append(row)
+    return lines
+
+
+@pyaedt_function_handler(filename="input_file")
+def read_csv_pandas(input_file: Union[str, Path], encoding: str = "utf-8"):
+    """Read information from a CSV file and return a list.
+
+    Parameters
+    ----------
+    input_file : str or :class:`pathlib.Path`
+            Full path and name for the CSV file.
+    encoding : str, optional
+            File encoding for the CSV file. The default is ``"utf-8"``.
+
+    Returns
+    -------
+    :class:`pandas.DataFrame`
+        CSV file content.
+    """
+    input_file = Path(input_file)
+    input_file = check_and_download_file(input_file)
+    try:
+        import pandas as pd
+
+        return pd.read_csv(str(input_file), encoding=encoding, header=0, na_values=".")
+    except ImportError:
+        pyaedt_logger.error("Pandas is not available. Install it.")
+        return None
 
 
 @pyaedt_function_handler()

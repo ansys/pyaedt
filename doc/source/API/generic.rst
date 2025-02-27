@@ -25,6 +25,8 @@ The following methods allows to read and parse files.
    open_file
    read_json
    read_toml
+   read_csv
+   read_csv_pandas
 
    get_dxf_layers
 

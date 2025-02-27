@@ -237,7 +237,7 @@ def check_missing(input_object, output_object, file_path):
         )
         output_object.modeler.import_3d_cad(os.path.join(input_object.working_directory, obj_name + ".x_t"))
         list_of_suppressed.append([output_object.design_name, obj_name, "History"])
-    from ansys.aedt.core.generic.general_methods import read_csv
+    from ansys.aedt.core.generic.file_utils import read_csv
     from ansys.aedt.core.generic.general_methods import write_csv
 
     if file_path.split(".")[1] == "a3dcomp":
