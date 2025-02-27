@@ -609,28 +609,6 @@ def time_fn(fn, *args, **kwargs):
 
 
 @pyaedt_function_handler()
-def is_project_locked(project_path):
-    """Check if an AEDT project lock file exists.
-
-    Parameters
-    ----------
-    project_path : str
-        Path for the AEDT project.
-
-    Returns
-    -------
-    bool
-        ``True`` when successful, ``False`` when failed.
-    """
-    if settings.remote_rpc_session:
-        if settings.remote_rpc_session.filemanager.pathexists(project_path + ".lock"):
-            return True
-        else:
-            return False
-    return check_if_path_exists(project_path + ".lock")
-
-
-@pyaedt_function_handler()
 def available_license_feature(
     feature="electronics_desktop", input_dir=None, port=1055, name="127.0.0.1"
 ):  # pragma: no cover

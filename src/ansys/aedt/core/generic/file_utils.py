@@ -74,6 +74,29 @@ def get_filename_without_extension(input_file: Union[str, Path]) -> str:
     return str(path.stem)
 
 
+@pyaedt_function_handler(project_path="input_file")
+def is_project_locked(input_file: Union[str, Path]) -> bool:
+    """Check if an AEDT project lock file exists.
+
+    Parameters
+    ----------
+    input_file : tr or :class:`pathlib.Path`
+        Path for the AEDT project.
+
+    Returns
+    -------
+    bool
+        ``True`` when successful, ``False`` when failed.
+    """
+    input_file = Path(input_file)
+    if settings.remote_rpc_session:
+        if settings.remote_rpc_session.filemanager.pathexists(str(input_file) + ".lock"):
+            return True
+        else:
+            return False
+    return check_if_path_exists(str(input_file) + ".lock")
+
+
 @pyaedt_function_handler()
 def check_and_download_file(remote_path: Union[str, Path], overwrite: bool = True) -> str:
     """Check if a file is remote and either download it or return the path.
