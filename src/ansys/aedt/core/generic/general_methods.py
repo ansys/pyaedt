@@ -23,7 +23,6 @@
 # SOFTWARE.
 
 
-import csv
 import datetime
 import difflib
 import fnmatch
@@ -727,45 +726,6 @@ def read_xlsx(file_name):
     except ImportError:
         lines = []
         return lines
-
-
-@pyaedt_function_handler(output="output_file", quotechar="quote_char")
-def write_csv(output_file, list_data, delimiter=",", quote_char="|", quoting=csv.QUOTE_MINIMAL):
-    """Write data to a CSV .
-
-    Parameters
-    ----------
-    output_file : str
-        Full path and name of the file to write the data to.
-    list_data : list
-        Data to be written to the specified output file.
-    delimiter : str
-        Delimiter. The default value is ``"|"``.
-    quote_char : str
-        Quote character. The default value is ``"|"``
-    quoting : int
-        Quoting character. The default value is ``"csv.QUOTE_MINIMAL"``.
-        It can take one any of the following module constants:
-
-        - ``"csv.QUOTE_MINIMAL"`` means only when required, for example, when a
-            field contains either the quote char or the delimiter
-        - ``"csv.QUOTE_ALL"`` means that quotes are always placed around fields.
-        - ``"csv.QUOTE_NONNUMERIC"`` means that quotes are always placed around
-            fields which do not parse as integers or floating point
-            numbers.
-        - ``"csv.QUOTE_NONE"`` means that quotes are never placed around fields.
-
-    Return
-    ------
-    bool
-        ``True`` when successful, ``False`` when failed.
-    """
-    f = open(output_file, "w", newline="")
-    writer = csv.writer(f, delimiter=delimiter, quotechar=quote_char, quoting=quoting)
-    for data in list_data:
-        writer.writerow(data)
-    f.close()
-    return True
 
 
 @pyaedt_function_handler(search_key1="search_key_1", search_key2="search_key_2")
