@@ -80,7 +80,7 @@ def is_project_locked(input_file: Union[str, Path]) -> bool:
 
     Parameters
     ----------
-    input_file : tr or :class:`pathlib.Path`
+    input_file : str or :class:`pathlib.Path`
         Path for the AEDT project.
 
     Returns
@@ -95,6 +95,33 @@ def is_project_locked(input_file: Union[str, Path]) -> bool:
         else:
             return False
     return check_if_path_exists(str(input_file) + ".lock")
+
+
+@pyaedt_function_handler(project_path="input_file")
+def remove_project_lock(input_file: Union[str, Path]) -> bool:
+    """Check if an AEDT project exists and try to remove the lock file.
+
+    .. note::
+       This operation is risky because the file could be opened in another AEDT instance.
+
+    Parameters
+    ----------
+    input_file : str or :class:`pathlib.Path`
+        Path for the AEDT project.
+
+    Returns
+    -------
+    bool
+        ``True`` when successful, ``False`` when failed.
+    """
+    input_file = Path(input_file)
+    input_file_locked = str(input_file) + ".lock"
+    if settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(input_file_locked):
+        settings.remote_rpc_session.filemanager.unlink(input_file_locked)
+        return True
+    if os.path.exists(input_file_locked):
+        os.remove(input_file_locked)
+    return True
 
 
 @pyaedt_function_handler()

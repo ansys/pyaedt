@@ -686,31 +686,6 @@ def available_license_feature(
     return available_licenses
 
 
-@pyaedt_function_handler()
-def remove_project_lock(project_path):
-    """Check if an AEDT project exists and try to remove the lock file.
-
-    .. note::
-       This operation is risky because the file could be opened in another AEDT instance.
-
-    Parameters
-    ----------
-    project_path : str
-        Path for the AEDT project.
-
-    Returns
-    -------
-    bool
-        ``True`` when successful, ``False`` when failed.
-    """
-    if settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(project_path + ".lock"):
-        settings.remote_rpc_session.filemanager.unlink(project_path + ".lock")
-        return True
-    if os.path.exists(project_path + ".lock"):
-        os.remove(project_path + ".lock")
-    return True
-
-
 @pyaedt_function_handler(filename="file_name")
 def read_csv(file_name, encoding="utf-8"):
     """Read information from a CSV file and return a list.
