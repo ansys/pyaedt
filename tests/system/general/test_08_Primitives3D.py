@@ -1218,6 +1218,8 @@ class TestClass:
         # By default, the new folder is created.
         assert self.aedtapp.modeler.create_3dcomponent(self.component3d_file)
         assert os.path.exists(self.component3d_file)
+        variables = self.aedtapp.get_component_variables(self.component3d_file)
+        assert isinstance(variables, dict)
         new_obj = self.aedtapp.modeler.duplicate_along_line("Solid", [100, 0, 0])
         rad = self.aedtapp.assign_radiation_boundary_to_objects("Solid")
         obj1 = self.aedtapp.modeler[new_obj[1][0]]
@@ -1275,7 +1277,7 @@ class TestClass:
         self.aedtapp.solution_type = "Modal"
         self.aedtapp["l_dipole"] = "13.5cm"
         compfile = self.aedtapp.components3d["Dipole_Antenna_DM"]
-        geometryparams = self.aedtapp.get_components3d_vars("Dipole_Antenna_DM")
+        geometryparams = self.aedtapp.get_component_variables("Dipole_Antenna_DM")
         geometryparams["dipole_length"] = "l_dipole"
         obj_3dcomp = self.aedtapp.modeler.insert_3d_component(compfile, geometryparams)
         assert isinstance(obj_3dcomp, UserDefinedComponent)
@@ -1291,7 +1293,7 @@ class TestClass:
         self.aedtapp["l_dipole"] = "13.5cm"
 
         compfile = self.aedtapp.components3d["Dipole_Antenna_DM"]
-        geometryparams = self.aedtapp.get_components3d_vars("Dipole_Antenna_DM")
+        geometryparams = self.aedtapp.get_component_variables("Dipole_Antenna_DM")
         geometryparams["dipole_length"] = "l_dipole"
         obj_3dcomp1 = self.aedtapp.modeler.insert_3d_component(compfile, geometryparams)
         obj_3dcomp2 = self.aedtapp.modeler.insert_3d_component(compfile, geometryparams)
@@ -1673,7 +1675,7 @@ class TestClass:
         self.aedtapp.solution_type = "Modal"
         self.aedtapp["l_dipole"] = "13.5cm"
         compfile = self.aedtapp.components3d["Dipole_Antenna_DM"]
-        geometryparams = self.aedtapp.get_components3d_vars("Dipole_Antenna_DM")
+        geometryparams = self.aedtapp.get_component_variables("Dipole_Antenna_DM")
         geometryparams["dipole_length"] = "l_dipole"
         obj_3dcomp = self.aedtapp.modeler.insert_3d_component(compfile, geometryparams)
         assert isinstance(obj_3dcomp, UserDefinedComponent)

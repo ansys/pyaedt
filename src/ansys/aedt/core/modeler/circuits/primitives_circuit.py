@@ -344,7 +344,7 @@ class CircuitComponents(object):
         if location is None:
             location = []
 
-        if name in self._app.excitations:
+        if name in self._app.excitation_names:
             self.logger.warning("Port name already assigned.")
             return False
 
@@ -359,7 +359,7 @@ class CircuitComponents(object):
         # return id, self.components[id].composed_name
         for el in self.components:
             if ("IPort@" + name + ";" + str(id)) in self.components[el].composed_name:
-                return self._app.excitation_objects[name]
+                return self._app.design_excitations[name]
         return False
 
     @pyaedt_function_handler()

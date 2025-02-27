@@ -25,11 +25,17 @@
 import csv
 import ntpath
 import os
+from pathlib import Path
+from typing import List
+from typing import Union
+import warnings
 
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.generic.checks import min_aedt_version
 from ansys.aedt.core.generic.configurations import Configurations
 from ansys.aedt.core.generic.constants import unit_converter
+from ansys.aedt.core.generic.file_utils import get_dxf_layers
+from ansys.aedt.core.generic.file_utils import read_component_file
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -297,8 +303,8 @@ class FieldAnalysis3D(Analysis, object):
             show_grid=show_grid,
         )
 
-    @pyaedt_function_handler(setup_name="setup", variation_string="variations")
-    def export_mesh_stats(self, setup, variations="", mesh_path=None):
+    @pyaedt_function_handler(setup_name="setup", variation_string="variations", mesh_path="output_file")
+    def export_mesh_stats(self, setup, variations="", output_file=None):
         """Export mesh statistics to a file.
 
         Parameters
@@ -307,7 +313,7 @@ class FieldAnalysis3D(Analysis, object):
             Setup name.
         variations : str, optional
             Variation list. The default is ``""``.
-        mesh_path : str, optional
+        output_file : str, optional
             Full path to the mesh statistics file. The default is ``None``, in which
             caswe the working directory is used.
 
@@ -320,14 +326,37 @@ class FieldAnalysis3D(Analysis, object):
         ----------
         >>> oDesign.ExportMeshStats
         """
-        if not mesh_path:
-            mesh_path = os.path.join(self.working_directory, "meshstats.ms")
-        self.odesign.ExportMeshStats(setup, variations, mesh_path)
-        return mesh_path
+        if not output_file:
+            output_file = str(Path(self.working_directory) / "meshstats.ms")
+        self.odesign.ExportMeshStats(setup, variations, output_file)
+        return output_file
+
+    @pyaedt_function_handler()
+    def get_component_variables(self, name: Union[str, Path]) -> dict:
+        """Read component file and extract variables.
+
+        Parameters
+        ----------
+        name : str or :class:`pathlib.Path`
+            Name of the 3D component, which must be in the ``syslib`` or ``userlib`` directory.
+            Otherwise, you must specify the full absolute path to the component file.
+
+        Returns
+        -------
+        dict
+            Dictionary of variables in the component file.
+        """
+        if str(name) not in self.components3d:
+            return read_component_file(name)
+        else:
+            return read_component_file(self.components3d[name])
 
     @pyaedt_function_handler(component3dname="component_name")
     def get_components3d_vars(self, component_name):
         """Read the A3DCOMP file and check for variables.
+
+        .. deprecated:: 0.15.1
+            Use :func:`get_component_variables` method instead.
 
         Parameters
         ----------
@@ -340,43 +369,10 @@ class FieldAnalysis3D(Analysis, object):
         dict
             Dictionary of variables in the A3DCOMP file.
         """
-        vars = {}
-        if component_name not in self.components3d:
-            aedt_fh = open_file(component_name, "rb")
-            if aedt_fh:
-                temp = aedt_fh.read().splitlines()
-                _all_lines = []
-                for line in temp:
-                    try:
-                        _all_lines.append(line.decode("utf-8").lstrip("\t"))
-                    except UnicodeDecodeError:
-                        break
-                for line in _all_lines:
-                    if "VariableProp(" in line:
-                        line_list = line.split("'")
-                        if not [
-                            c for c in line_list[len(line_list) - 2] if c in ["+", "-", "*", "'" "," "/", "(", ")"]
-                        ]:
-                            self[line_list[1]] = line_list[len(line_list) - 2]
-                        else:
-                            vars[line_list[1]] = line_list[len(line_list) - 2]
-                aedt_fh.close()
-                return vars
-            else:
-                return False
-        with open_file(self.components3d[component_name], "rb") as aedt_fh:
-            temp = aedt_fh.read().splitlines()
-        _all_lines = []
-        for line in temp:
-            try:
-                _all_lines.append(line.decode("utf-8").lstrip("\t"))
-            except UnicodeDecodeError:
-                break
-        for line in _all_lines:
-            if "VariableProp(" in line:
-                line_list = line.split("'")
-                vars[line_list[1]] = line_list[len(line_list) - 2]
-        return vars
+        warnings.warn(
+            "`get_components3d_vars` is deprecated. Use `get_component_variables` method instead.", DeprecationWarning
+        )
+        return self.get_component_variables(component_name)
 
     @pyaedt_function_handler(objectname="assignment", property="property_name", type="property_type")
     def get_property_value(self, assignment, property_name, property_type=None):
@@ -1227,14 +1223,16 @@ class FieldAnalysis3D(Analysis, object):
                     break
         return nets
 
-    @pyaedt_function_handler()
-    def get_dxf_layers(self, file_path):
-        # type: (str) -> list[str]
+    @pyaedt_function_handler(file_path="input_file")
+    def get_dxf_layers(self, input_file: Union[str, Path]) -> List[str]:
         """Read a DXF file and return all layer names.
+
+        .. deprecated:: 0.15.1
+            Use :func:`ansys.aedt.core.generic.file_utils.get_dxf_layers` method instead.
 
         Parameters
         ----------
-        file_path : str
+        input_file : str or :class:`pathlib.Path`
             Full path to the DXF file.
 
         Returns
@@ -1242,41 +1240,35 @@ class FieldAnalysis3D(Analysis, object):
         list
             List of layers in the DXF file.
         """
-        layer_names = []
-        with open_file(file_path, encoding="utf8") as f:
-            lines = f.readlines()
-            indices = self._find_indices(lines, "AcDbLayerTableRecord\n")
-            index_offset = 1
-            if not indices:
-                indices = self._find_indices(lines, "LAYER\n")
-                index_offset = 3
-            for idx in indices:
-                if "2" in lines[idx + index_offset]:
-                    layer_names.append(lines[idx + index_offset + 1].replace("\n", ""))
-            return layer_names
+        warnings.warn(
+            "`get_dxf_layers` is deprecated. "
+            "Use `ansys.aedt.core.generic.file_utils.get_dxf_layers` method instead.",
+            DeprecationWarning,
+        )
 
-    @pyaedt_function_handler(layers_list="layers")
+        return get_dxf_layers(input_file)
+
+    @pyaedt_function_handler(layers_list="layers", file_path="input_file")
     def import_dxf(
         self,
-        file_path,
-        layers,
-        auto_detect_close=True,
-        self_stitch=True,
-        self_stitch_tolerance=0,
-        scale=0.001,
-        defeature_geometry=False,
-        defeature_distance=0,
-        round_coordinates=False,
-        round_num_digits=4,
-        write_poly_with_width_as_filled_poly=False,
-        import_method=1,
-    ):  # pragma: no cover
-        # type: (str, list, bool, bool, float, float, bool, float, bool, int, bool, int, bool) -> bool
+        input_file: str,
+        layers: List[str],
+        auto_detect_close: bool = True,
+        self_stitch: bool = True,
+        self_stitch_tolerance: float = 0.0,
+        scale: float = 0.001,
+        defeature_geometry: bool = False,
+        defeature_distance: float = 0.0,
+        round_coordinates: bool = False,
+        round_num_digits: int = 4,
+        write_poly_with_width_as_filled_poly: bool = False,
+        import_method: Union[int, bool] = 1,
+    ) -> bool:  # pragma: no cover
         """Import a DXF file.
 
         Parameters
         ----------
-        file_path : str
+        input_file : str
             Path to the DXF file.
         layers : list
             List of layer names to import. To get the dxf_layers in the DXF file,
@@ -1306,7 +1298,7 @@ class FieldAnalysis3D(Analysis, object):
             The default is ``4``.
         write_poly_with_width_as_filled_poly : bool, optional
             Imports wide polylines as polygons. The default is ``False``.
-        import_method : int, bool
+        import_method : int or bool, optional
             Whether the import method is ``Script`` or ``Acis``.
             The default is ``1``, which means that the ``Acis`` is used.
 
@@ -1323,7 +1315,7 @@ class FieldAnalysis3D(Analysis, object):
         if self.desktop_class.non_graphical and self.desktop_class.aedt_version_id < "2024.2":  # pragma: no cover
             self.logger.error("Method is supported only in graphical mode.")
             return False
-        dxf_layers = self.get_dxf_layers(file_path)
+        dxf_layers = self.get_dxf_layers(input_file)
         for layer in layers:
             if layer not in dxf_layers:
                 self.logger.error(f"{layer} does not exist in specified dxf.")
@@ -1335,7 +1327,7 @@ class FieldAnalysis3D(Analysis, object):
             sheet_bodies_2d = True
 
         vArg1 = ["NAME:options"]
-        vArg1.append("FileName:="), vArg1.append(file_path.replace(os.sep, "/"))
+        vArg1.append("FileName:="), vArg1.append(input_file.replace(os.sep, "/"))
         vArg1.append("Scale:="), vArg1.append(scale)
         vArg1.append("AutoDetectClosed:="), vArg1.append(auto_detect_close)
         vArg1.append("SelfStitch:="), vArg1.append(self_stitch)
@@ -1461,22 +1453,3 @@ class FieldAnalysis3D(Analysis, object):
         )
         self.logger.info("GDS layer imported with elevations and thickness.")
         return True
-
-    @pyaedt_function_handler()
-    def _find_indices(self, list_to_check, item_to_find):
-        # type: (list, str|int) -> list
-        """Given a list, returns the list of indices for all occurrences of a given element.
-
-        Parameters
-        ----------
-        list_to_check: list
-            List to check.
-        item_to_find: str, int
-            Element to search for in the list.
-
-        Returns
-        -------
-        list
-            Indices of the occurrences of a given element.
-        """
-        return [idx for idx, value in enumerate(list_to_check) if value == item_to_find]

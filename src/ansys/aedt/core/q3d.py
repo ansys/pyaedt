@@ -229,8 +229,8 @@ class QExtractor(FieldAnalysis3D, object):
             category=category,
         )
 
-    @pyaedt_function_handler(setup_name="setup")
-    def export_mesh_stats(self, setup, variations="", mesh_path=None, setup_type="CG"):
+    @pyaedt_function_handler(setup_name="setup", mesh_path="output_file")
+    def export_mesh_stats(self, setup, variations="", output_file=None, setup_type="CG"):
         """Export mesh statistics to a file.
 
         Parameters
@@ -239,7 +239,7 @@ class QExtractor(FieldAnalysis3D, object):
             Setup name.
         variations : str, optional
             Variation list. The default is ``""``.
-        mesh_path : str, optional
+        output_file : str, optional
             Full path to the mesh statistics file. The default is ``None``, in which
             case the working directory is used.
         setup_type : str, optional
@@ -255,10 +255,10 @@ class QExtractor(FieldAnalysis3D, object):
         ----------
         >>> oDesign.ExportMeshStats
         """
-        if not mesh_path:
-            mesh_path = os.path.join(self.working_directory, "meshstats.ms")
-        self.odesign.ExportMeshStats(setup, variations, setup_type, mesh_path)
-        return mesh_path
+        if not output_file:
+            output_file = os.path.join(self.working_directory, "meshstats.ms")
+        self.odesign.ExportMeshStats(setup, variations, setup_type, output_file)
+        return output_file
 
     @pyaedt_function_handler()
     def edit_sources(
@@ -305,7 +305,7 @@ class QExtractor(FieldAnalysis3D, object):
         if cg:
             net_list = ["NAME:Source Names"]
 
-            excitation = self.excitations
+            excitation = self.excitation_names
 
             for key, value in cg.items():
                 if key not in excitation:
@@ -2133,9 +2133,9 @@ class Q3d(QExtractor, CreateBoundaryMixin):
             expression += source
             expression += ","
 
-            if "Sink" not in [self.excitation_objects[source].type, self.excitation_objects[sink].type]:
+            if "Sink" not in [self.design_excitations[source].type, self.design_excitations[sink].type]:
                 move_sink.append(sink)
-            elif self.excitation_objects[sink].type == "Source":
+            elif self.design_excitations[sink].type == "Source":
                 move_sink.append(sink)
 
             if "source_2" in net_props:
