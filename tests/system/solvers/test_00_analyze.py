@@ -482,7 +482,7 @@ class TestClass:
         insertions = [f"dB(S({i.name},{j.name}))" for i, j in zip(tx, rx)]
 
         if desktop_version < "2025.2":
-            assert circuit_app.post.create_report(
+            assert not circuit_app.post.create_report(
                 insertions,
                 circuit_app.nominal_adaptive,
                 report_category="Standard",
