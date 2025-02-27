@@ -1,7 +1,7 @@
 Generic
 =======
 
-PyAEDT has some generic features .
+PyAEDT has some generic features.
 
 
 File utils
@@ -28,6 +28,7 @@ The following methods allows to read and parse files.
    read_csv
    read_csv_pandas
    write_csv
+   read_tab
 
    get_dxf_layers
 

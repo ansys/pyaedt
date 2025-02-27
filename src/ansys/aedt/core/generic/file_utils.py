@@ -398,6 +398,25 @@ def write_csv(
     return True
 
 
+@pyaedt_function_handler(file_name="input_file")
+def read_tab(input_file: Union[str, Path]) -> list:
+    """Read information from a TAB file and return a list.
+
+    Parameters
+    ----------
+    input_file : str or :class:`pathlib.Path`
+        Full path and name for the TAB file.
+
+    Returns
+    -------
+    list
+        TAB file content.
+    """
+    with open_file(input_file) as my_file:
+        lines = my_file.readlines()
+    return lines
+
+
 @pyaedt_function_handler()
 def _check_path(path_to_check: Union[str, Path]) -> str:
     path_to_check = str(path_to_check)

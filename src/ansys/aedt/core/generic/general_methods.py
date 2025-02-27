@@ -685,25 +685,6 @@ def available_license_feature(
 
 
 @pyaedt_function_handler(filename="file_name")
-def read_tab(file_name):
-    """Read information from a TAB file and return a list.
-
-    Parameters
-    ----------
-    file_name : str
-            Full path and name for the TAB file.
-
-    Returns
-    -------
-    list
-        TAB file content.
-    """
-    with open_file(file_name) as my_file:
-        lines = my_file.readlines()
-    return lines
-
-
-@pyaedt_function_handler(filename="file_name")
 def read_xlsx(file_name):
     """Read information from an XLSX file and return a list.
 
