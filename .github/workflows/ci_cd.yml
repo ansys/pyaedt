@@ -28,7 +28,7 @@ jobs:
   pr-title:
     if: github.event_name == 'pull_request'
     name: Check the title of the pull request
-    runs-on: ubuntu-latest
+    runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Check the title of the pull request
         uses: ansys/actions/check-pr-title@feat/add-log-in-workflow-summary
