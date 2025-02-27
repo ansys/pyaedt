@@ -1152,7 +1152,7 @@ class PostProcessorCommon(object):
                     setup_sweep_name = f"{k} : {setup_sweep_name}"
                     break
         setup_name = setup_sweep_name.split(":")[0].strip()
-        if self._app.design_type is not "Twin Builder" and setup_name not in self._app.design_setups:
+        if self._app.design_type is not "Twin Builder" and setup_name not in self._app.get_all_setup_and_sweeps:
             raise KeyError(f"Setup {setup_name} not available in current design.")
         # Domain
         if not domain:
@@ -1213,9 +1213,14 @@ class PostProcessorCommon(object):
             variations = self._app.available_variations.get_independent_nominal_values()
         elif not variations and domain != "Sweep":
             variations = self._app.available_variations.get_independent_nominal_values()
-        for v in self._app.design_setups[setup_name].default_intrinsics.keys():
-            if v not in variations:
-                variations[v] = "All"
+        if setup_name in self._app.design_setups:
+            for v in self._app.design_setups[setup_name].default_intrinsics.keys():
+                if v not in variations:
+                    variations[v] = "All"
+        if primary_sweep_variable and primary_sweep_variable not in variations:
+            variations[primary_sweep_variable] = "All"
+        if secondary_sweep_variable and secondary_sweep_variable not in variations:
+            variations[secondary_sweep_variable] = "All"
         report.variations = variations
         report.sub_design_id = subdesign_id
         report.point_number = polyline_points

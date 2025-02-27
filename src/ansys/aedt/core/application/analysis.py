@@ -385,6 +385,8 @@ class Analysis(Design, object):
                         sweep_list[el]["Sweeps"].extend(list(self.oanalysis.GetSweeps(el)))
                     except Exception:
                         sweep_list[el]["Sweeps"] = []
+        for k in self.imported_solution_names:
+            sweep_list[k] = {"Nominal": "Table", "Sweeps": []}
         return sweep_list
 
     @property
@@ -491,6 +493,20 @@ class Analysis(Design, object):
         if self.oanalysis and "GetSetups" in self.oanalysis.__dir__():
             setup_names = self.oanalysis.GetSetups()
         return setup_names
+
+    @property
+    def imported_solution_names(self):
+        """Return the list of the imported solution names.
+
+        Returns
+        -------
+        list of str
+        """
+        try:
+            solution_list = list(self._app.oreportsetup.GetChildObject("Profile").GetChildNames())
+        except Exception:
+            solution_list = []
+        return [i for i in solution_list if i not in self.setup_names]
 
     @property
     def SimulationSetupTypes(self):
