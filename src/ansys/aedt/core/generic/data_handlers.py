@@ -34,6 +34,7 @@ from ansys.aedt.core.generic.general_methods import read_json
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
+from ansys.aedt.core.generic.numbers import Quantity
 
 json_to_dict = read_json
 
@@ -153,10 +154,11 @@ def _dict2arg(d, arg_out):
                 arg = ["NAME:" + k]
                 _dict2arg(el, arg)
                 arg_out.append(arg)
-
+ #       elif isinstance(v, Quantity):  # TODO: This code doesn't work with the debugger. Why?
+ #           arg_out.append(str(v))
         else:
             arg_out.append(k + ":=")
-            if type(v) is EdgePrimitive or type(v) is FacePrimitive or type(v) is VertexPrimitive:
+            if isinstance(v, (EdgePrimitive, FacePrimitive, VertexPrimitive)):
                 arg_out.append(v.id)
             else:
                 arg_out.append(v)

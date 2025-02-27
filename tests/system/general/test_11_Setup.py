@@ -28,6 +28,7 @@ from ansys.aedt.core import Circuit
 import pytest
 
 from tests.system.general.conftest import desktop_version
+from ansys.aedt.core.generic.numbers import Quantity
 
 test_subfolder = "T11"
 if desktop_version > "2022.2":
@@ -110,16 +111,22 @@ class TestClass:
 
     def test_01b_create_hfss_sweep(self):
         self.aedtapp.save_project()
-        setup1 = self.aedtapp.get_setup("My_HFSS_Setup")
-        assert self.aedtapp.get_setups()
-        sweep1 = setup1.add_sweep("MyFrequencySweep")
-        sweep1.props["RangeStart"] = "1Hz"
-        sweep1.props["RangeEnd"] = "2GHz"
+        setup_name = self.aedtapp.get_setups()[0]
+        assert setup_name
+        setup1 = self.aedtapp.get_setup(setup_name)
+        sweep_name = "MyFrequencySweep"
+        sweep1 = setup1.add_sweep(sweep_name)
+        f1 = Quantity("1Hz")
+        f2 = Quantity("2GHz")
+        sweep1.props["RangeStart"] = str(f1)
+        sweep1.props["RangeEnd"] = str(f2)
         assert sweep1.update()
+        assert sweep1.props["RangeStart"] == str(f1)
+        assert sweep1.props["RangeEnd"] == str(f2)
         sweep1.props["Type"] = "Fast"
         sweep1.props["SaveFields"] = True
         assert sweep1.update()
-        assert self.aedtapp.get_sweeps("My_HFSS_Setup")
+        assert self.aedtapp.get_sweeps(setup1.name)[0] == sweep_name
         sweep2 = setup1.add_sweep(name="test_sweeptype", sweep_type="invalid")
         assert sweep2.props["Type"] == "Interpolating"
         sweep3 = setup1.create_frequency_sweep(start_frequency=1, stop_frequency="500MHz")

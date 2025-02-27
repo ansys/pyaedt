@@ -199,6 +199,9 @@ class Quantity(float):
             return self.value == other.value and self.unit == other.unit
         elif isinstance(other, (int, float)):
             return self.value == other
+        elif isinstance(other, str):
+            this_quantity = self.__init__(other)
+            return this_quantity.value == self.value
         else:
             return False
 
@@ -261,7 +264,6 @@ class Quantity(float):
         import numpy as np
 
         return np.array(self.value, dtype=dtype)
-
 
 def decompose_variable_value(variable_value: str, full_variables: Dict[str, Any] = None) -> tuple:
     """Decompose a variable value.
