@@ -30,6 +30,30 @@ from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
+# Path processing
+@pyaedt_function_handler()
+def normalize_path(path_in: Union[str, Path], sep: str = None) -> str:
+    """Normalize path separators.
+
+    Parameters
+    ----------
+    path_in : str or :class:`pathlib.Path`
+        Path to normalize.
+    sep : str, optional
+        Separator.
+
+    Returns
+    -------
+    str
+        Path normalized to new separator.
+    """
+    path = Path(path_in)
+    if sep:
+        return str(path).replace(path.anchor, sep)
+    return str(path)
+
+
+# AEDT files parsing
 @pyaedt_function_handler()
 def read_component_file(input_file: Union[str, Path]) -> dict:
     """Read the component file and extract variables.
@@ -69,6 +93,8 @@ def read_component_file(input_file: Union[str, Path]) -> dict:
     return variables
 
 
+# CAD parsing
+@pyaedt_function_handler()
 def get_dxf_layers(input_file: Union[str, Path]) -> List[str]:
     """Read a DXF file and return all layer names.
 
