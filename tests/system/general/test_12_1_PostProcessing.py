@@ -31,22 +31,17 @@ from ansys.aedt.core.generic.general_methods import read_json
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.visualization.plot.pyvista import _parse_aedtplt
 from ansys.aedt.core.visualization.plot.pyvista import _parse_streamline
+from ansys.aedt.core.generic.errors import AEDTRuntimeError
 import pytest
 
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 
-test_field_name = "Potter_Horn_231"
 test_project_name = "coax_setup_solved_231"
-array = "array_simple_231"
-sbr_file = "poc_scat_small_solved"
-q3d_file = "via_gsg_231"
-m2d_file = "m2d_field_lines_test_231"
+m2d_trace_export_table = "m2d_trace_export_table"
 
 
 test_circuit_name = "Switching_Speed_FET_And_Diode"
-eye_diagram = "SimpleChannel"
-ami = "ami"
 test_subfolder = "T12"
 settings.enable_pandas_output = True
 
@@ -57,6 +52,11 @@ def aedtapp(add_app):
     yield app
     app.close_project(app.project_name)
 
+@pytest.fixture(scope="class")
+def m2d_app(add_app):
+    app = add_app(project_name=m2d_trace_export_table, subfolder=test_subfolder)
+    yield app
+    app.close_project(app.project_name)
 
 class TestClass:
 
@@ -797,3 +797,22 @@ class TestClass:
         setup_derivative_auto = aedtapp.setups[2]
         assert setup_derivative.set_tuning_offset({"inner_radius": 0.1})
         assert setup_derivative_auto.set_tuning_offset({"inner_radius": 0.1})
+
+    def test_trace_characteristics(self, m2d_app, local_scratch):
+        m2d_app.set_active_design("Design1")
+        assert m2d_app.post.plots[0].add_trace_characteristics("XAtYVal", arguments=["0"], solution_range=["Full"])
+
+    def test_trace_export_table(self, m2d_app, local_scratch):
+        m2d_app.set_active_design("Design2")
+        plot_name = m2d_app.post.plots[0].plot_name
+        output_file_path = os.path.join(local_scratch,"zeroes.tab")
+        assert m2d_app.post.plots[0].export_table_to_file(plot_name, output_file_path, "Legend")
+        assert os.path.exists(output_file_path)
+        with pytest.raises(AEDTRuntimeError):
+            m2d_app.post.plots[0].export_table_to_file("Invalid Name",output_file_path, "Legend")
+        with pytest.raises(AEDTRuntimeError):
+            m2d_app.post.plots[0].export_table_to_file(plot_name,"Invalid Path", "Legend")
+        with pytest.raises(AEDTRuntimeError):
+            m2d_app.post.plots[0].export_table_to_file(plot_name, output_file_path, "Invalid Export Type")
+
+

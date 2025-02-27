@@ -34,6 +34,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import write_configuration_file
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
+from ansys.aedt.core.generic.errors import AEDTRuntimeError
 
 
 class LimitLine(BinaryTreeNode):
@@ -2681,15 +2682,12 @@ class CommonReport(BinaryTreeNode):
         """
         plot_names = [plot.name for plot in self._post.plots]
         if plot_name not in plot_names:
-            self._post.logger.error("Please enter a plot name")
-            return False
+            raise AEDTRuntimeError("Please enter a plot name.")
         extension = os.path.splitext(output_file)[1]
         if extension not in [".tab", ".csv"]:
-            self._post.logger.error("Please enter a valid file extension: ``.tab``, ``.csv`` ")
-            return False
+            raise AEDTRuntimeError("Please enter a valid file extension: ``.tab``, ``.csv``.")
         if table_type not in ["Marker", "DeltaMarker", "Legend"]:
-            self._post.logger.error("Please enter a valid file extension: ``Marker``, ``DeltaMarker``, ``Legend`` ")
-            return False
+            raise AEDTRuntimeError("Please enter a valid file extension: ``Marker``, ``DeltaMarker``, ``Legend``.")
         self._post.oreportsetup.ExportTableToFile(plot_name, output_file, table_type)
         return True
 
