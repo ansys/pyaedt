@@ -3342,7 +3342,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
             "ObjectList": solid_ids,
             "LineList": self.modeler.vertex_data_of_lines(line_filter),
             "VarList": self.variable_manager.variable_names,
-            "Setups": self.existing_analysis_setups,
+            "Setups": self.setup_names,
             "MaterialProperties": self.get_object_material_properties(solid_bodies),
         }
 
