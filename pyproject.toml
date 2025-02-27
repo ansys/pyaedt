@@ -213,7 +213,7 @@ exclude = [
 ]
 
 [tool.towncrier]
-package = "ansys.<product>.<library>"
+package = "ansys.aedt.core"
 directory = "doc/changelog.d"
 filename = "CHANGELOG.md"
 start_string = "<!-- towncrier release notes start -->\n"
