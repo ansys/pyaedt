@@ -184,6 +184,7 @@ class TestClass:
         assert pins["L10-1"].object_units == "mm"
         assert pins["L10-1"].componentname == "L10"
         assert pins["L10-1"].is_pin
+        assert pins["L10-1"].angle
         assert pins["L10-1"].location[0] != 0
         assert pins["L10-1"].start_layer == "1_Top"
         assert pins["L10-1"].stop_layer == "1_Top"
