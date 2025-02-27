@@ -307,7 +307,10 @@ class TestClass:
 
     def test_20_get_3dComponents_properties(self):
         assert len(self.aedtapp.components3d) > 0
+        # Deprecated
         props = self.aedtapp.get_components3d_vars("Dipole_Antenna_DM")
+        assert len(props) == 3
+        props = self.aedtapp.get_component_variables("Dipole_Antenna_DM")
         assert len(props) == 3
 
     @pytest.mark.skipif(is_linux, reason="Not needed in Linux.")
