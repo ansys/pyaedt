@@ -1069,10 +1069,23 @@ class Analysis(Design, object):
             self.logger.debug("Failed to add native component object.")
         return boundaries
 
-    class AxisDir(object):
-        """Contains constants for the axis directions."""
+    @property
+    def AxisDir(self):
+        """Contains constants for the axis directions.
 
-        (XNeg, YNeg, ZNeg, XPos, YPos, ZPos) = range(0, 6)
+        .. deprecated:: 0.15.1
+            Use :func:`axis_dir` instead.
+        """
+        warnings.warn(
+            "Accessing AxisDir is deprecated and will be removed in future versions. " "Use axis_dir method instead.",
+            DeprecationWarning,
+        )
+        return self.GRAVITY
+
+    @property
+    def axis_dir(self):
+        """Contains constants for the axis directions."""
+        return self.GRAVITY
 
     @pyaedt_function_handler()
     def get_setups(self):
