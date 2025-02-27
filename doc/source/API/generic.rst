@@ -16,12 +16,15 @@ The following methods allows to read and parse files.
    :nosignatures:
 
    normalize_path
-   read_component_file
-   get_dxf_layers
    check_and_download_file
    check_if_path_exists
    check_and_download_folder
    open_file
-   read_configuration_file
    read_json
+
+   get_dxf_layers
+
+   read_component_file
+
+   read_configuration_file
    write_configuration_file

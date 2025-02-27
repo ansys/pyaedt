@@ -360,7 +360,7 @@ class Rmxprt(FieldAnalysisRMxprt):
         jsonalize(self.rotor.properties, new_dict)
         jsonalize(self.circuit.properties, new_dict)
         jsonalize(self.shaft.properties, new_dict)
-        from ansys.aedt.core.generic.general_methods import write_configuration_file
+        from ansys.aedt.core.generic.file_utils import write_configuration_file
 
         write_configuration_file(new_dict, output_file)
         return output_file

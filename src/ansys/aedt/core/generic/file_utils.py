@@ -212,18 +212,6 @@ def read_json(input_file: Union[str, Path]) -> dict:
 
 
 @pyaedt_function_handler()
-def _create_json_file(json_dict, full_json_path):
-    full_json_path = Path(full_json_path)
-    if not full_json_path.parent.exists():
-        full_json_path.parent.mkdir(parents=True)
-
-    with open_file(full_json_path, "w") as fp:
-        json.dump(json_dict, fp, indent=4)
-    settings.logger.info(f"{full_json_path} correctly created.")
-    return True
-
-
-@pyaedt_function_handler()
 def _check_path(path_to_check: Union[str, Path]) -> str:
     path_to_check = str(path_to_check)
     return path_to_check.replace("\\", "/") if path_to_check[0] != "\\" else path_to_check
@@ -353,3 +341,15 @@ def write_configuration_file(input_data: dict, output_file: Union[str, Path]) ->
         return _create_json_file(input_data, output_file)
     elif ext == ".toml":
         return _create_toml_file(input_data, output_file)
+
+
+@pyaedt_function_handler()
+def _create_json_file(json_dict, full_json_path):
+    full_json_path = Path(full_json_path)
+    if not full_json_path.parent.exists():
+        full_json_path.parent.mkdir(parents=True)
+
+    with open_file(full_json_path, "w") as fp:
+        json.dump(json_dict, fp, indent=4)
+    settings.logger.info(f"{full_json_path} correctly created.")
+    return True
