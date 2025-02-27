@@ -191,7 +191,7 @@ class TestClass:
         sink = aedtapp.sink("MyCylinder", direction=3, name="Sink1")
         assert source.name == "Source1"
         assert sink.name == "Sink1"
-        assert len(aedtapp.excitations) > 0
+        assert len(aedtapp.excitation_names) > 0
 
     def test_07b_create_source_to_sheet(self, aedtapp):
 

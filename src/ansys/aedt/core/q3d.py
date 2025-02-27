@@ -24,18 +24,16 @@
 
 """This module contains these classes: ``Q2d``, ``Q3d``, and ``QExtractor``."""
 
-from __future__ import absolute_import  # noreorder
-
 import os
 import re
 import warnings
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
-from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import MATRIXOPERATIONSQ2D
 from ansys.aedt.core.generic.constants import MATRIXOPERATIONSQ3D
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
@@ -231,8 +229,8 @@ class QExtractor(FieldAnalysis3D, object):
             category=category,
         )
 
-    @pyaedt_function_handler(setup_name="setup")
-    def export_mesh_stats(self, setup, variations="", mesh_path=None, setup_type="CG"):
+    @pyaedt_function_handler(setup_name="setup", mesh_path="output_file")
+    def export_mesh_stats(self, setup, variations="", output_file=None, setup_type="CG"):
         """Export mesh statistics to a file.
 
         Parameters
@@ -241,7 +239,7 @@ class QExtractor(FieldAnalysis3D, object):
             Setup name.
         variations : str, optional
             Variation list. The default is ``""``.
-        mesh_path : str, optional
+        output_file : str, optional
             Full path to the mesh statistics file. The default is ``None``, in which
             case the working directory is used.
         setup_type : str, optional
@@ -257,10 +255,10 @@ class QExtractor(FieldAnalysis3D, object):
         ----------
         >>> oDesign.ExportMeshStats
         """
-        if not mesh_path:
-            mesh_path = os.path.join(self.working_directory, "meshstats.ms")
-        self.odesign.ExportMeshStats(setup, variations, setup_type, mesh_path)
-        return mesh_path
+        if not output_file:
+            output_file = os.path.join(self.working_directory, "meshstats.ms")
+        self.odesign.ExportMeshStats(setup, variations, setup_type, output_file)
+        return output_file
 
     @pyaedt_function_handler()
     def edit_sources(
@@ -307,7 +305,7 @@ class QExtractor(FieldAnalysis3D, object):
         if cg:
             net_list = ["NAME:Source Names"]
 
-            excitation = self.excitations
+            excitation = self.excitation_names
 
             for key, value in cg.items():
                 if key not in excitation:
@@ -566,15 +564,13 @@ class QExtractor(FieldAnalysis3D, object):
                     return False
 
         if variations is None:
-            if not self.available_variations.nominal_w_values_dict:
+            nominal_values = self.available_variations.get_independent_nominal_values()
+            if not nominal_values:
                 variations = ""
             else:
                 variations_list = []
-                for x in range(0, len(self.available_variations.nominal_w_values_dict)):
-                    variation = (
-                        f"{list(self.available_variations.nominal_w_values_dict.keys())[x]}="
-                        f"'{list(self.available_variations.nominal_w_values_dict.values())[x]}'"
-                    )
+                for x in range(0, len(nominal_values)):
+                    variation = f"{list(nominal_values.keys())[x]}=" f"'{list(nominal_values.values())[x]}'"
                     variations_list.append(variation)
                 variations = ",".join(variations_list)
 
@@ -646,8 +642,8 @@ class QExtractor(FieldAnalysis3D, object):
                 .groups()[0]
             )
         else:
-            if freq_unit != self.odesktop.GetDefaultUnit("Frequency") and freq_unit is not None:
-                freq = go.parse_dim_arg(f"{freq}{freq_unit}", self.odesktop.GetDefaultUnit("Frequency"))
+            if freq_unit != self.units.frequency and freq_unit is not None:
+                freq = go.parse_dim_arg(f"{freq}{freq_unit}", self.units.frequency)
 
         if export_ac_dc_res is None:
             export_ac_dc_res = False
@@ -958,15 +954,14 @@ class QExtractor(FieldAnalysis3D, object):
         analysis_setup = setup + " : " + sweep.replace(" ", "")
 
         if variations is None:
-            if not self.available_variations.nominal_w_values_dict:
+            nominal_values = self.available_variations.get_independent_nominal_values()
+
+            if not nominal_values:
                 variations = ""
             else:
                 variations_list = []
-                for x in range(0, len(self.available_variations.nominal_w_values_dict)):
-                    variation = (
-                        f"{list(self.available_variations.nominal_w_values_dict.keys())[x]}="
-                        f"'{list(self.available_variations.nominal_w_values_dict.values())[x]}'"
-                    )
+                for x in range(0, len(nominal_values)):
+                    variation = f"{list(nominal_values.keys())[x]}=" f"'{list(nominal_values.values())[x]}'"
                     variations_list.append(variation)
                 variations = ",".join(variations_list)
         else:
@@ -2138,9 +2133,9 @@ class Q3d(QExtractor, CreateBoundaryMixin):
             expression += source
             expression += ","
 
-            if "Sink" not in [self.excitation_objects[source].type, self.excitation_objects[sink].type]:
+            if "Sink" not in [self.design_excitations[source].type, self.design_excitations[sink].type]:
                 move_sink.append(sink)
-            elif self.excitation_objects[sink].type == "Source":
+            elif self.design_excitations[sink].type == "Source":
                 move_sink.append(sink)
 
             if "source_2" in net_props:

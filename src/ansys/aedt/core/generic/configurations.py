@@ -30,7 +30,6 @@ import tempfile
 
 import ansys.aedt.core
 from ansys.aedt.core import __version__
-from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.errors import GrpcApiError
 from ansys.aedt.core.generic.general_methods import generate_unique_folder_name
@@ -40,6 +39,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import read_configuration_file
 from ansys.aedt.core.generic.general_methods import write_configuration_file
 from ansys.aedt.core.generic.load_aedt_file import load_keyword_in_aedt_file
+from ansys.aedt.core.generic.numbers import decompose_variable_value
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
@@ -789,11 +789,11 @@ class Configurations(object):
                             "BodyName:=",
                             mapping[str(face)][0],
                             "XPosition:=",
-                            self._app.modeler._arg_with_dim(mapping[str(face)][1][0], self._app.modeler.model_units),
+                            self._app.value_with_units(mapping[str(face)][1][0], self._app.modeler.model_units),
                             "YPosition:=",
-                            self._app.modeler._arg_with_dim(mapping[str(face)][1][1], self._app.modeler.model_units),
+                            self._app.value_with_units(mapping[str(face)][1][1], self._app.modeler.model_units),
                             "ZPosition:=",
-                            self._app.modeler._arg_with_dim(mapping[str(face)][1][2], self._app.modeler.model_units),
+                            self._app.value_with_units(mapping[str(face)][1][2], self._app.modeler.model_units),
                         ]
                     )
                     new_list.append(f_id)
@@ -900,12 +900,12 @@ class Configurations(object):
                     bound.auto_update = True
         if bound.props.get("CurrentLine", None) and bound.props["CurrentLine"].get("GeometryPosition", None):
             current = bound.props["CurrentLine"]["GeometryPosition"]
-            x1 = self._app.modeler._arg_with_dim(float(current[0]["XPosition"]), self._app.modeler.model_units)
-            y1 = self._app.modeler._arg_with_dim(float(current[0]["YPosition"]), self._app.modeler.model_units)
-            z1 = self._app.modeler._arg_with_dim(float(current[0]["ZPosition"]), self._app.modeler.model_units)
-            x2 = self._app.modeler._arg_with_dim(float(current[1]["XPosition"]), self._app.modeler.model_units)
-            y2 = self._app.modeler._arg_with_dim(float(current[1]["YPosition"]), self._app.modeler.model_units)
-            z2 = self._app.modeler._arg_with_dim(float(current[1]["ZPosition"]), self._app.modeler.model_units)
+            x1 = self._app.value_with_units(float(current[0]["XPosition"]), self._app.modeler.model_units)
+            y1 = self._app.value_with_units(float(current[0]["YPosition"]), self._app.modeler.model_units)
+            z1 = self._app.value_with_units(float(current[0]["ZPosition"]), self._app.modeler.model_units)
+            x2 = self._app.value_with_units(float(current[1]["XPosition"]), self._app.modeler.model_units)
+            y2 = self._app.value_with_units(float(current[1]["YPosition"]), self._app.modeler.model_units)
+            z2 = self._app.value_with_units(float(current[1]["ZPosition"]), self._app.modeler.model_units)
             p1 = {"Coordinate System": "Global", "Start": [x1, y1, z1], "End": [x2, y2, z2]}
             bound.auto_update = False
             bound.props["CurrentLine"] = BoundaryProps(bound, p1)
@@ -916,12 +916,12 @@ class Configurations(object):
                 p1 = {"ModeNum": v["ModeNum"], "UseIntLine": v["UseIntLine"]}
                 if v["UseIntLine"] and v["IntLine"].get("GeometryPosition", None):
                     current = v["IntLine"]["GeometryPosition"]
-                    x1 = self._app.modeler._arg_with_dim(float(current[0]["XPosition"]), self._app.modeler.model_units)
-                    y1 = self._app.modeler._arg_with_dim(float(current[0]["YPosition"]), self._app.modeler.model_units)
-                    z1 = self._app.modeler._arg_with_dim(float(current[0]["ZPosition"]), self._app.modeler.model_units)
-                    x2 = self._app.modeler._arg_with_dim(float(current[1]["XPosition"]), self._app.modeler.model_units)
-                    y2 = self._app.modeler._arg_with_dim(float(current[1]["YPosition"]), self._app.modeler.model_units)
-                    z2 = self._app.modeler._arg_with_dim(float(current[1]["ZPosition"]), self._app.modeler.model_units)
+                    x1 = self._app.value_with_units(float(current[0]["XPosition"]), self._app.modeler.model_units)
+                    y1 = self._app.value_with_units(float(current[0]["YPosition"]), self._app.modeler.model_units)
+                    z1 = self._app.value_with_units(float(current[0]["ZPosition"]), self._app.modeler.model_units)
+                    x2 = self._app.value_with_units(float(current[1]["XPosition"]), self._app.modeler.model_units)
+                    y2 = self._app.value_with_units(float(current[1]["YPosition"]), self._app.modeler.model_units)
+                    z2 = self._app.value_with_units(float(current[1]["ZPosition"]), self._app.modeler.model_units)
                     p1["IntLine"] = {"Coordinate System": "Global", "Start": [x1, y1, z1], "End": [x2, y2, z2]}
                 elif v["UseIntLine"]:
                     p1["IntLine"] = v["IntLine"]

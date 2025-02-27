@@ -147,3 +147,7 @@ Below is the content that can be updated through the YAML file.
         pyaedt_server_path: ''
         # Remote temp folder
         remote_rpc_session_temp_folder: ''
+        # Block figure plot during python script run
+        block_figure_plot: false
+        # Skip license check during Desktop initialization
+        skip_license_check: false

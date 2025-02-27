@@ -51,11 +51,22 @@ second_modelithics_resistor = "Vishay -> RES_VIS_0603_001 D11"
 @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
 class TestClass:
 
+    def test_lumped_export_to_aedt(self, lumped_design):
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.export_to_aedt.insert_circuit_design = True
+        assert info.value.args[0] == "This property is not applicable to lumped designs in the export page"
+
+    def test_distributed_export_to_aedt(self, distributed_design):
+        with pytest.raises(RuntimeError) as info:
+            distributed_design.export_to_aedt.part_libraries = PartLibraries.LUMPED
+        assert info.value.args[0] == "This property is not applicable to distributed designs in the export page"
+
     def test_modelithics_include_interconnect_enabled(self, lumped_design):
         assert lumped_design.export_to_aedt.modelithics_include_interconnect_enabled
         lumped_design.export_to_aedt.modelithics_include_interconnect_enabled = False
         assert lumped_design.export_to_aedt.modelithics_include_interconnect_enabled is False
 
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_inductor_list_count(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             assert lumped_design.export_to_aedt.modelithics_capacitor_list_count == 2
@@ -63,6 +74,7 @@ class TestClass:
         lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         assert lumped_design.export_to_aedt.modelithics_inductor_list_count == 116
 
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_inductor_list(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.modelithics_inductor_list(0)
@@ -74,6 +86,7 @@ class TestClass:
         lumped_design.export_to_aedt.modelithics_inductor_selection = first_modelithics_inductor
         assert lumped_design.export_to_aedt.modelithics_inductor_list(0) == first_modelithics_inductor
 
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_inductor_selection(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.modelithics_inductor_selection = first_modelithics_inductor
@@ -85,6 +98,7 @@ class TestClass:
         lumped_design.export_to_aedt.modelithics_inductor_selection = first_modelithics_inductor
         assert lumped_design.export_to_aedt.modelithics_inductor_selection == first_modelithics_inductor
 
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_inductor_family_list_count(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             assert lumped_design.export_to_aedt.modelithics_inductor_family_list_count == 2
@@ -96,6 +110,7 @@ class TestClass:
         lumped_design.export_to_aedt.modelithics_inductor_add_family(third_modelithics_inductor)
         assert lumped_design.export_to_aedt.modelithics_inductor_family_list_count == 2
 
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_inductor_family_list(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.modelithics_inductor_family_list(0)
@@ -109,6 +124,7 @@ class TestClass:
         assert lumped_design.export_to_aedt.modelithics_inductor_family_list(0) == second_modelithics_inductor
         assert lumped_design.export_to_aedt.modelithics_inductor_family_list(1) == third_modelithics_inductor
 
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_inductor_family_list_add_family(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.modelithics_inductor_add_family(second_modelithics_inductor)
@@ -122,6 +138,7 @@ class TestClass:
         assert lumped_design.export_to_aedt.modelithics_inductor_family_list(0) == second_modelithics_inductor
         assert lumped_design.export_to_aedt.modelithics_inductor_family_list(1) == third_modelithics_inductor
 
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_inductor_family_list_remove_family(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.modelithics_inductor_remove_family(second_modelithics_inductor)
@@ -135,6 +152,7 @@ class TestClass:
         lumped_design.export_to_aedt.modelithics_inductor_remove_family(third_modelithics_inductor)
         assert lumped_design.export_to_aedt.modelithics_inductor_family_list_count == 1
 
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_capacitor_list_count(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             assert lumped_design.export_to_aedt.modelithics_capacitor_list_count == first_modelithics_capacitor
@@ -142,6 +160,7 @@ class TestClass:
         lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         assert lumped_design.export_to_aedt.modelithics_capacitor_list_count == 143
 
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_capacitor_list(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.modelithics_capacitor_list(0)
@@ -153,6 +172,7 @@ class TestClass:
         lumped_design.export_to_aedt.modelithics_capacitor_selection = first_modelithics_capacitor
         assert lumped_design.export_to_aedt.modelithics_capacitor_list(0) == first_modelithics_capacitor
 
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_capacitor_selection(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.modelithics_capacitor_selection = first_modelithics_capacitor
@@ -164,6 +184,7 @@ class TestClass:
         lumped_design.export_to_aedt.modelithics_capacitor_selection = first_modelithics_capacitor
         assert lumped_design.export_to_aedt.modelithics_capacitor_selection == first_modelithics_capacitor
 
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_capacitor_family_list_count(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             assert lumped_design.export_to_aedt.modelithics_capacitor_family_list_count == 2
@@ -175,6 +196,7 @@ class TestClass:
         lumped_design.export_to_aedt.modelithics_capacitor_add_family(second_modelithics_capacitor)
         assert lumped_design.export_to_aedt.modelithics_capacitor_family_list_count == 2
 
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_capacitor_family_list(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.modelithics_capacitor_family_list(0)
@@ -188,6 +210,7 @@ class TestClass:
         assert lumped_design.export_to_aedt.modelithics_capacitor_family_list(0) == first_modelithics_capacitor
         assert lumped_design.export_to_aedt.modelithics_capacitor_family_list(1) == second_modelithics_capacitor
 
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_capacitor_family_list_add_family(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.modelithics_capacitor_add_family(first_modelithics_capacitor)
@@ -201,6 +224,7 @@ class TestClass:
         assert lumped_design.export_to_aedt.modelithics_capacitor_family_list(0) == first_modelithics_capacitor
         assert lumped_design.export_to_aedt.modelithics_capacitor_family_list(1) == second_modelithics_capacitor
 
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_capacitor_family_list_remove_family(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.modelithics_capacitor_remove_family(second_modelithics_capacitor)
@@ -215,6 +239,7 @@ class TestClass:
         lumped_design.export_to_aedt.modelithics_capacitor_remove_family(second_modelithics_capacitor)
         assert lumped_design.export_to_aedt.modelithics_capacitor_family_list_count == 1
 
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_resistor_list_count(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             assert lumped_design.export_to_aedt.modelithics_resistor_list_count == 2
@@ -222,6 +247,7 @@ class TestClass:
         lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         assert lumped_design.export_to_aedt.modelithics_resistor_list_count == 39
 
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_resistor_list(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.modelithics_resistor_list(0)
@@ -233,6 +259,7 @@ class TestClass:
         lumped_design.export_to_aedt.modelithics_resistor_selection = first_modelithics_resistor
         assert lumped_design.export_to_aedt.modelithics_resistor_list(0) == first_modelithics_resistor
 
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_resistor_selection(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.modelithics_resistor_selection = first_modelithics_resistor
@@ -244,6 +271,7 @@ class TestClass:
         lumped_design.export_to_aedt.modelithics_resistor_selection = first_modelithics_resistor
         assert lumped_design.export_to_aedt.modelithics_resistor_selection == first_modelithics_resistor
 
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_resistor_family_list_count(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             assert lumped_design.export_to_aedt.modelithics_resistor_family_list_count == 2
@@ -255,6 +283,7 @@ class TestClass:
         lumped_design.export_to_aedt.modelithics_resistor_add_family(second_modelithics_resistor)
         assert lumped_design.export_to_aedt.modelithics_resistor_family_list_count == 2
 
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_resistor_family_list(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.modelithics_resistor_family_list(0)
@@ -268,6 +297,7 @@ class TestClass:
         assert lumped_design.export_to_aedt.modelithics_resistor_family_list(0) == first_modelithics_resistor
         assert lumped_design.export_to_aedt.modelithics_resistor_family_list(1) == second_modelithics_resistor
 
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_resistor_family_list_add_family(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.modelithics_resistor_add_family(first_modelithics_resistor)
@@ -281,6 +311,7 @@ class TestClass:
         assert lumped_design.export_to_aedt.modelithics_resistor_family_list(0) == first_modelithics_resistor
         assert lumped_design.export_to_aedt.modelithics_resistor_family_list(1) == second_modelithics_resistor
 
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_resistor_family_list_remove_family(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.modelithics_resistor_remove_family(second_modelithics_resistor)
@@ -394,7 +425,7 @@ class TestClass:
 
     def test_load_library_parts_config(self, lumped_design):
         lumped_design.export_to_aedt.load_library_parts_config(resource_path("library_parts.cfg"))
-        lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
+        lumped_design.export_to_aedt.part_libraries = PartLibraries.INTERCONNECT
         assert lumped_design.export_to_aedt.substrate_er == SubstrateEr.ALUMINA
         assert lumped_design.export_to_aedt.substrate_resistivity == SubstrateResistivity.GOLD
         assert lumped_design.export_to_aedt.substrate_conductor_thickness == "2.54 um"
@@ -402,7 +433,7 @@ class TestClass:
         assert lumped_design.export_to_aedt.substrate_loss_tangent == SubstrateEr.ALUMINA
 
     def test_save_library_parts_config(self, lumped_design):
-        lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
+        lumped_design.export_to_aedt.part_libraries = PartLibraries.INTERCONNECT
         lumped_design.export_to_aedt.substrate_er = "2.25"
         lumped_design.export_to_aedt.substrate_resistivity = "4.2E+07 "
         lumped_design.export_to_aedt.substrate_conductor_thickness = "350 nm"
@@ -410,7 +441,7 @@ class TestClass:
         lumped_design.export_to_aedt.substrate_loss_tangent = "0.065 "
         lumped_design.export_to_aedt.save_library_parts_config(resource_path("library_parts_test.cfg"))
         lumped_design.export_to_aedt.load_library_parts_config(resource_path("library_parts_test.cfg"))
-        assert lumped_design.export_to_aedt.part_libraries == PartLibraries.MODELITHICS
+        assert lumped_design.export_to_aedt.part_libraries == PartLibraries.INTERCONNECT
         assert lumped_design.export_to_aedt.substrate_er == "2.25"
         assert lumped_design.export_to_aedt.substrate_resistivity == "4.2E+07 "
         assert lumped_design.export_to_aedt.substrate_conductor_thickness == "350 nm"
@@ -420,6 +451,7 @@ class TestClass:
     def test_import_tuned_variables(self, lumped_design):
         lumped_design.export_to_aedt.simulate_after_export_enabled = True
         lumped_design.export_to_aedt.optimize_after_export_enabled = True
+        lumped_design.export_to_aedt.part_libraries = PartLibraries.LUMPED
         lumped_design.export_to_aedt.export_design()
         assert lumped_design.export_to_aedt.import_tuned_variables().splitlines() == read_resource_file(
             "imported_netlist.ckt", "Lumped"
@@ -428,16 +460,8 @@ class TestClass:
     def test_part_libraries(self, lumped_design):
         assert lumped_design.export_to_aedt.part_libraries == PartLibraries.LUMPED
         assert len(PartLibraries) == 3
-        try:
-            lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
-        except RuntimeError as info:
-            assert (
-                "NOTICE!  Modelithics Must Be Installed to Use This Feature\r\n"
-                "Insure Modelithics is installed and try again." in str(info)
-            )
-        else:
-            lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
-            assert lumped_design.export_to_aedt.part_libraries == PartLibraries.MODELITHICS
+        lumped_design.export_to_aedt.part_libraries = PartLibraries.INTERCONNECT
+        assert lumped_design.export_to_aedt.part_libraries == PartLibraries.INTERCONNECT
 
     def test_interconnect_length_to_width_ratio(self, lumped_design):
         assert lumped_design.export_to_aedt.interconnect_length_to_width_ratio == "2"
@@ -500,13 +524,13 @@ class TestClass:
         assert lumped_design.export_to_aedt.interconnect_maximum_width_value == "3 mm"
 
     def test_interconnect_inductor_tolerance_value(self, lumped_design):
-        lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
+        lumped_design.export_to_aedt.part_libraries = PartLibraries.INTERCONNECT
         assert lumped_design.export_to_aedt.interconnect_inductor_tolerance_value == "1"
         lumped_design.export_to_aedt.interconnect_inductor_tolerance_value = "10"
         assert lumped_design.export_to_aedt.interconnect_inductor_tolerance_value == "10"
 
     def test_interconnect_capacitor_tolerance_value(self, lumped_design):
-        lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
+        lumped_design.export_to_aedt.part_libraries = PartLibraries.INTERCONNECT
         assert lumped_design.export_to_aedt.interconnect_capacitor_tolerance_value == "1"
         lumped_design.export_to_aedt.interconnect_capacitor_tolerance_value = "10"
         assert lumped_design.export_to_aedt.interconnect_capacitor_tolerance_value == "10"
@@ -590,6 +614,7 @@ class TestClass:
         lumped_design.export_to_aedt.substrate_cover_height = "2.5 mm"
         assert lumped_design.export_to_aedt.substrate_cover_height == "2.5 mm"
 
+    @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_load_modelithics_models(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.load_modelithics_models()
@@ -605,3 +630,48 @@ class TestClass:
         assert lumped_design.export_to_aedt.substrate_cover_height_enabled == False
         lumped_design.export_to_aedt.substrate_cover_height_enabled = True
         assert lumped_design.export_to_aedt.substrate_cover_height_enabled == True
+
+    def test_insert_circuit_design(self, distributed_design):
+        assert distributed_design.export_to_aedt.insert_circuit_design is False
+        distributed_design.export_to_aedt.insert_circuit_design = True
+        assert distributed_design.export_to_aedt.insert_circuit_design
+
+    def test_insert_hfss_design(self, distributed_design):
+        assert distributed_design.export_to_aedt.insert_hfss_design is False
+        distributed_design.export_to_aedt.insert_hfss_design = True
+        assert distributed_design.export_to_aedt.insert_hfss_design
+
+    def test_insert_hfss_3dl_design(self, distributed_design):
+        assert distributed_design.export_to_aedt.insert_hfss_3dl_design
+        distributed_design.export_to_aedt.insert_hfss_3dl_design = False
+        assert distributed_design.export_to_aedt.insert_hfss_3dl_design is False
+
+    def test_full_parametrization_enabled(self, distributed_design):
+        assert distributed_design.export_to_aedt.full_parametrization_enabled
+        distributed_design.export_to_aedt.full_parametrization_enabled = False
+        assert distributed_design.export_to_aedt.full_parametrization_enabled is False
+
+    def test_ports_always_on_sides_enabled(self, distributed_design):
+        assert distributed_design.export_to_aedt.ports_always_on_sides_enabled is False
+        distributed_design.export_to_aedt.ports_always_on_sides_enabled = True
+        assert distributed_design.export_to_aedt.ports_always_on_sides_enabled
+
+    def test_reverse_x_axis_enabled(self, distributed_design):
+        assert distributed_design.export_to_aedt.reverse_x_axis_enabled is False
+        distributed_design.export_to_aedt.reverse_x_axis_enabled = True
+        assert distributed_design.export_to_aedt.reverse_x_axis_enabled
+
+    def test_reverse_y_axis_enabled(self, distributed_design):
+        assert distributed_design.export_to_aedt.reverse_y_axis_enabled is False
+        distributed_design.export_to_aedt.reverse_y_axis_enabled = True
+        assert distributed_design.export_to_aedt.reverse_y_axis_enabled
+
+    def test_export_with_tuning_port_format_enabled(self, distributed_design):
+        assert distributed_design.export_to_aedt.export_with_tuning_port_format_enabled is False
+        distributed_design.export_to_aedt.export_with_tuning_port_format_enabled = True
+        assert distributed_design.export_to_aedt.export_with_tuning_port_format_enabled
+
+    def test_use_series_horizontal_ports_enabled(self, distributed_design):
+        assert distributed_design.export_to_aedt.use_series_horizontal_ports_enabled
+        distributed_design.export_to_aedt.use_series_horizontal_ports_enabled = False
+        assert distributed_design.export_to_aedt.use_series_horizontal_ports_enabled is False

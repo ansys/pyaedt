@@ -68,7 +68,7 @@ class MonostaticRCSExporter:
     Examples
     --------
     >>> import ansys.aedt.core
-    >>> app = ansys.aedt.core.Hfss(version="2023.2", design="Antenna")
+    >>> app = ansys.aedt.core.Hfss(version="2025.1", design="Antenna")
     >>> setup_name = "Setup1 : LastAdaptive"
     >>> frequencies = [77e9]
     >>> sphere = "3D"
@@ -93,7 +93,7 @@ class MonostaticRCSExporter:
             self.expression = "ComplexMonostaticRCSTheta"
 
         if not variations:
-            variations = app.available_variations.nominal_w_values_dict_w_dependent
+            variations = app.available_variations.get_independent_nominal_values()
         else:
             # Set variation to Nominal
             for var_name, var_value in variations.items():
@@ -113,7 +113,7 @@ class MonostaticRCSExporter:
         self.__model_info = {}
         self.__rcs_data = None
         self.__metadata_file = ""
-        self.__frequency_unit = self.__app.odesktop.GetDefaultUnit("Frequency")
+        self.__frequency_unit = self.__app.units.frequency
 
         self.__column_name = copy.deepcopy(self.expression)
 
