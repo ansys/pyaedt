@@ -684,31 +684,6 @@ def available_license_feature(
     return available_licenses
 
 
-@pyaedt_function_handler(filename="file_name")
-def read_xlsx(file_name):
-    """Read information from an XLSX file and return a list.
-
-    Parameters
-    ----------
-    file_name : str
-            Full path and name for the XLSX file.
-
-    Returns
-    -------
-    list
-        XLSX file content.
-    """
-    file_name = check_and_download_file(file_name)
-    try:
-        import pandas as pd
-
-        lines = pd.read_excel(file_name)
-        return lines
-    except ImportError:
-        lines = []
-        return lines
-
-
 @pyaedt_function_handler(search_key1="search_key_1", search_key2="search_key_2")
 def filter_tuple(value, search_key_1, search_key_2):
     """Filter a tuple of two elements with two search keywords."""

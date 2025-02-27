@@ -29,6 +29,7 @@ The following methods allows to read and parse files.
    read_csv_pandas
    write_csv
    read_tab
+   read_xlsx
 
    get_dxf_layers
 

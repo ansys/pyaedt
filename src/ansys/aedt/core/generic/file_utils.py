@@ -417,6 +417,31 @@ def read_tab(input_file: Union[str, Path]) -> list:
     return lines
 
 
+@pyaedt_function_handler(file_name="input_file")
+def read_xlsx(input_file: Union[str, Path]):
+    """Read information from an XLSX file and return a list.
+
+    Parameters
+    ----------
+    input_file : str or :class:`pathlib.Path`
+        Full path and name for the XLSX file.
+
+    Returns
+    -------
+    list
+        XLSX file content.
+    """
+    file_name = check_and_download_file(input_file)
+    try:
+        import pandas as pd
+
+        lines = pd.read_excel(file_name)
+        return lines
+    except ImportError:
+        lines = []
+        return lines
+
+
 @pyaedt_function_handler()
 def _check_path(path_to_check: Union[str, Path]) -> str:
     path_to_check = str(path_to_check)
