@@ -82,11 +82,6 @@ class SolutionData(object):
         else:
             self._primary_sweep = self._sweeps_names[0]
         self.active_variation = self.variations[0]
-        # for intrinsic in self.intrinsics:
-        #     try:
-        #         self.units_sweeps[intrinsic] = self.nominal_variation.GetSweepUnits(intrinsic)
-        #     except Exception:
-        #         self.units_sweeps[intrinsic] = None
         self.init_solutions_data()
         self._ifft = None
 
@@ -324,8 +319,6 @@ class SolutionData(object):
                     l = len(list(data.GetRealDataValues(expression, False)))
                     solution = [0] * l
                 values = []
-                # for el in list(self.intrinsics.keys()):
-                #     values.append(list(dict.fromkeys(data.GetSweepValues(el, False))))
                 for el, val in self.intrinsics.items():
                     values.append(val)
                 i = 0
