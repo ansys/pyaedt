@@ -29,7 +29,7 @@ import shutil
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.generic.constants import SOLUTIONS
 from ansys.aedt.core.generic.errors import AEDTRuntimeError
-from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 import pytest

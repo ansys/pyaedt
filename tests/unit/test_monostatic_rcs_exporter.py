@@ -70,7 +70,7 @@ def test_init_with_default_values():
     assert exporter.variations is not None
 
 
-@patch("ansys.aedt.core.generic.general_methods.check_and_download_folder", return_value=PATH)
+@patch("ansys.aedt.core.generic.file_utils.check_and_download_folder", return_value=PATH)
 @patch.object(MonostaticRCSExporter, "get_monostatic_rcs", return_value=mock_data_with_two_variations)
 @patch.object(Settings, "remote_rpc_session", new_callable=lambda: mock_settings)
 def test_export_rcs_with_no_monostatic_rcs(mock_settings, mock_monostatic_rcs, mock_download):
@@ -80,7 +80,7 @@ def test_export_rcs_with_no_monostatic_rcs(mock_settings, mock_monostatic_rcs, m
         exporter.export_rcs()
 
 
-@patch("ansys.aedt.core.generic.general_methods.check_and_download_folder", return_value=PATH)
+@patch("ansys.aedt.core.generic.file_utils.check_and_download_folder", return_value=PATH)
 @patch.object(MonostaticRCSExporter, "get_monostatic_rcs", return_value=mock_data_with_one_variations)
 @patch.object(Settings, "remote_rpc_session", new_callable=lambda: mock_settings)
 @patch("pathlib.Path.is_file", return_value=False)
@@ -91,7 +91,7 @@ def test_export_rcs_with_data_file_not_a_file(mock_is_file, mock_settings, mock_
         exporter.export_rcs()
 
 
-@patch("ansys.aedt.core.generic.general_methods.check_and_download_folder", return_value=PATH)
+@patch("ansys.aedt.core.generic.file_utils.check_and_download_folder", return_value=PATH)
 @patch.object(MonostaticRCSExporter, "get_monostatic_rcs", return_value=mock_data_with_one_variations)
 @patch.object(Settings, "remote_rpc_session", new_callable=lambda: mock_settings)
 @patch("pathlib.Path.is_file", return_value=False)

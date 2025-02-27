@@ -29,7 +29,7 @@ import time
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Q2d
 from ansys.aedt.core.generic.constants import AXIS
-from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.object_3d import Object3d
