@@ -16,6 +16,7 @@ The following methods allows to read and parse files.
    :nosignatures:
 
    normalize_path
+   get_filename_without_extension
    check_and_download_file
    check_if_path_exists
    check_and_download_folder

@@ -56,6 +56,24 @@ def normalize_path(path_in: Union[str, Path], sep: str = None) -> str:
     return str(path)
 
 
+@pyaedt_function_handler(path="input_file")
+def get_filename_without_extension(input_file: Union[str, Path]) -> str:
+    """Get the filename without its extension.
+
+    Parameters
+    ----------
+    input_file : str or :class:`pathlib.Path`
+        Path of the file.
+
+    Returns
+    -------
+    str
+       Name of the file without extension.
+    """
+    path = Path(input_file)
+    return str(path.stem)
+
+
 @pyaedt_function_handler()
 def check_and_download_file(remote_path: Union[str, Path], overwrite: bool = True) -> str:
     """Check if a file is remote and either download it or return the path.

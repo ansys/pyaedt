@@ -458,23 +458,6 @@ def env_value_student(input_version):
     return f"ANSYSEMSV_ROOT{get_version_and_release(input_version)[0]}{get_version_and_release(input_version)[1]}"
 
 
-@pyaedt_function_handler()
-def get_filename_without_extension(path):
-    """Get the filename without its extension.
-
-    Parameters
-    ----------
-    path : str
-        Path of the file.
-
-    Returns
-    -------
-    str
-       Name of the file without extension.
-    """
-    return os.path.splitext(os.path.split(path)[1])[0]
-
-
 @pyaedt_function_handler(rootname="root_name")
 def generate_unique_name(root_name, suffix="", n=6):
     """Generate a new name given a root name and optional suffix.
