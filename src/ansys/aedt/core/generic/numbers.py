@@ -33,7 +33,7 @@ from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.constants import unit_system
 
 
-class Quantity:
+class Quantity(float):
     """Stores a number with its unit.
 
     Parameters
@@ -43,6 +43,10 @@ class Quantity:
     unit : str
         Units for the value.
     """
+
+    def __new__(cls, expression, unit=None):
+        _value, _unit = decompose_variable_value(expression)
+        return float.__new__(cls, _value)
 
     def __init__(
         self,
@@ -226,6 +230,37 @@ class Quantity:
 
     def __int__(self):
         return int(self.value)
+
+    def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
+        import numpy as np
+
+        # Extract the Quantity objects and their values
+        args = []
+        first_unit = None
+        for input in inputs:
+            if isinstance(input, Quantity):
+                if not first_unit:
+                    first_unit = input.unit
+                else:
+                    input = input.to(first_unit)
+                args.append(input.value)
+            else:
+                args.append(input)
+
+        # Perform the ufunc operation
+        result = getattr(ufunc, method)(*args, **kwargs)
+
+        # If the result is a scalar, return a Quantity object
+        if np.isscalar(result):
+            return Quantity(result, self.unit)
+        else:
+            # If the result is an array, return an array of Quantity objects
+            return np.array([Quantity(val, self.unit) for val in result])
+
+    def __array__(self, dtype=None):
+        import numpy as np
+
+        return np.array(self.value, dtype=dtype)
 
 
 def decompose_variable_value(variable_value: str, full_variables: Dict[str, Any] = None) -> tuple:
