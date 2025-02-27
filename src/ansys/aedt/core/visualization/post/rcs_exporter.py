@@ -25,6 +25,7 @@
 import copy
 import json
 from pathlib import Path
+import re
 import shutil
 
 from ansys.aedt.core.generic.constants import unit_converter
@@ -33,6 +34,7 @@ from ansys.aedt.core.generic.general_methods import check_and_download_folder
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
+import pandas as pd
 
 DEFAULT_EXPRESSION = "ComplexMonostaticRCSTheta"
 
@@ -234,7 +236,16 @@ class MonostaticRCSExporter:
                     raise AEDTRuntimeError("Data can not be obtained.")
 
                 df = data.full_matrix_real_imag[0] + complex(0, 1) * data.full_matrix_real_imag[1]
-                df.index.names = [*data.variations[0].keys(), *data.intrinsics.keys()]
+                index_names = [*data.variations[0].keys(), *data.intrinsics.keys()]
+
+                def clean_index(idx):
+                    values = re.findall(r"[-+]?\d*\.?\d+", idx)
+                    return tuple(float(v) for v in values)
+
+                df.index = [clean_index(str(idx)) for idx in df.index]
+
+                df.index = pd.MultiIndex.from_tuples(df.index, names=index_names)
+
                 df = df.reset_index(level=[*data.variations[0].keys()], drop=True)
                 df = unit_converter(
                     df, unit_system="Length", input_units=data.units_data[self.expression], output_units="meter"
