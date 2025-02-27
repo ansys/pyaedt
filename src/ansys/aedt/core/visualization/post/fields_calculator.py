@@ -27,10 +27,10 @@ import warnings
 
 import ansys.aedt.core
 from ansys.aedt.core.generic.file_utils import open_file
+from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import generate_unique_project_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.general_methods import read_configuration_file
 from jsonschema import exceptions
 from jsonschema import validate
 

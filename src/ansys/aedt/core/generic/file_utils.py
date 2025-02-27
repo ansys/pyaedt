@@ -22,12 +22,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import json
 from pathlib import Path
+from typing import Dict
 from typing import List
 from typing import TextIO
 from typing import Union
 
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.settings import settings
 
 
 # Path processing
@@ -184,6 +187,42 @@ def open_file(
         return None
 
 
+@pyaedt_function_handler(fn="input_file")
+def read_json(input_file: Union[str, Path]) -> dict:
+    """Load a JSON file to a dictionary.
+
+    Parameters
+    ----------
+    input_file : str or :class:`pathlib.Path`
+        Full path to the JSON file.
+
+    Returns
+    -------
+    dict
+        Parsed JSON file as a dictionary.
+    """
+    json_data = {}
+    with open_file(input_file) as json_file:
+        try:
+            json_data = json.load(json_file)
+        except json.JSONDecodeError as e:  # pragma: no cover
+            error = f"Error reading json: {e.msg} at line {e.lineno}"
+            settings.logger.error(error)
+    return json_data
+
+
+@pyaedt_function_handler()
+def _create_json_file(json_dict, full_json_path):
+    full_json_path = Path(full_json_path)
+    if not full_json_path.parent.exists():
+        full_json_path.parent.mkdir(parents=True)
+
+    with open_file(full_json_path, "w") as fp:
+        json.dump(json_dict, fp, indent=4)
+    settings.logger.info(f"{full_json_path} correctly created.")
+    return True
+
+
 @pyaedt_function_handler()
 def _check_path(path_to_check: Union[str, Path]) -> str:
     path_to_check = str(path_to_check)
@@ -262,3 +301,55 @@ def get_dxf_layers(input_file: Union[str, Path]) -> List[str]:
             if "2" in lines[idx + index_offset]:
                 layer_names.append(lines[idx + index_offset + 1].replace("\n", ""))
         return layer_names
+
+
+# Configuration file
+@pyaedt_function_handler(file_path="input_file")
+def read_configuration_file(input_file: Union[str, Path]) -> Union[Dict, List]:
+    """Parse a file and return the information in a list or dictionary.
+
+    Parameters
+    ----------
+    input_file : str or :class:`pathlib.Path`
+        Full path to the file. Supported formats are ``"csv"``, ``"json"``, ``"tab"``, ``"toml"``, and ``"xlsx"``.
+
+    Returns
+    -------
+    Union[Dict, List]
+        Dictionary if configuration file is ``"toml"`` or ``"json"``, List is ``"csv"``, ``"tab"`` or ``"xlsx"``.
+    """
+    file_path = Path(input_file)
+    ext = Path(file_path).suffix
+    if ext == ".toml":
+        return read_toml(file_path)
+    elif ext == ".tab":
+        return read_tab(file_path)
+    elif ext == ".csv":
+        return read_csv(file_path)
+    elif ext == ".xlsx":
+        return read_xlsx(file_path)
+    else:
+        return read_json(file_path)
+
+
+@pyaedt_function_handler(dict_in="input_data", full_path="output_file")
+def write_configuration_file(input_data: dict, output_file: Union[str, Path]) -> bool:
+    """Create a configuration file in JSON or TOML format from a dictionary.
+
+    Parameters
+    ----------
+    input_data : dict
+        Dictionary to write the file to.
+    output_file : str or :class:`pathlib.Path`
+        Full path to the file, including its extension.
+
+    Returns
+    -------
+    bool
+        ``True`` when successful, ``False`` when failed.
+    """
+    ext = Path(output_file).suffix
+    if ext == ".json":
+        return _create_json_file(input_data, output_file)
+    elif ext == ".toml":
+        return _create_toml_file(input_data, output_file)

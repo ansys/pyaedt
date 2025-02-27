@@ -22,3 +22,6 @@ The following methods allows to read and parse files.
    check_if_path_exists
    check_and_download_folder
    open_file
+   read_configuration_file
+   read_json
+   write_configuration_file

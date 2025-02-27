@@ -31,7 +31,6 @@ import fnmatch
 from functools import update_wrapper
 import inspect
 import itertools
-import json
 import logging
 import math
 import os
@@ -291,57 +290,6 @@ def check_numeric_equivalence(a, b, relative_tolerance=1e-7):
     else:
         reldiff = abs(b)
     return True if reldiff < relative_tolerance else False
-
-
-@pyaedt_function_handler()
-def read_configuration_file(file_path):
-    """Parse a file and return the information in a list or dictionary.
-
-    Parameters
-    ----------
-    file_path : str
-        Full path to the file. Supported formats are ``"csv"``, ``"json"``, ``"tab"``, ``"toml"``, and ``"xlsx"``.
-
-    Returns
-    -------
-    dict or list
-        Dictionary if configuration file is ``"toml"`` or ``"json"``, List is ``"csv"``, ``"tab"`` or ``"xlsx"``.
-    """
-    ext = os.path.splitext(file_path)[1]
-    if ext == ".toml":
-        return read_toml(file_path)
-    elif ext == ".tab":
-        return read_tab(file_path)
-    elif ext == ".csv":
-        return read_csv(file_path)
-    elif ext == ".xlsx":
-        return read_xlsx(file_path)
-    else:
-        return read_json(file_path)
-
-
-@pyaedt_function_handler()
-def read_json(fn):
-    """Load a JSON file to a dictionary.
-
-    Parameters
-    ----------
-    fn : str
-        Full path to the JSON file.
-
-    Returns
-    -------
-    dict
-        Parsed JSON file as a dictionary.
-    """
-    json_data = {}
-    with open_file(fn) as json_file:
-        try:
-            json_data = json.load(json_file)
-        except json.JSONDecodeError as e:  # pragma: no cover
-            error = f"Error reading json: {e.msg} at line {e.lineno}"
-            settings.logger.error(error)
-    return json_data
 
 
 @pyaedt_function_handler()
@@ -1103,41 +1051,6 @@ def _create_toml_file(input_dict, full_toml_path):
         tomli_w.dump(new_dict, fp)
     settings.logger.info(f"{full_toml_path} correctly created.")
     return True
-
-
-@pyaedt_function_handler()
-def _create_json_file(json_dict, full_json_path):
-    if not os.path.exists(os.path.dirname(full_json_path)):
-        os.makedirs(os.path.dirname(full_json_path))
-
-    with open_file(full_json_path, "w") as fp:
-        json.dump(json_dict, fp, indent=4)
-    settings.logger.info(f"{full_json_path} correctly created.")
-
-    return True
-
-
-@pyaedt_function_handler(dict_in="input_data", full_path="output_file")
-def write_configuration_file(input_data, output_file):
-    """Create a configuration file in JSON or TOML format from a dictionary.
-
-    Parameters
-    ----------
-    input_data : dict
-        Dictionary to write the file to.
-    output_file : str
-        Full path to the file, including its extension.
-
-    Returns
-    -------
-    bool
-        ``True`` when successful, ``False`` when failed.
-    """
-    ext = os.path.splitext(output_file)[1]
-    if ext == ".json":
-        return _create_json_file(input_data, output_file)
-    elif ext == ".toml":
-        return _create_toml_file(input_data, output_file)
 
 
 @pyaedt_function_handler()

@@ -29,8 +29,8 @@ import secrets
 import string
 import unicodedata
 
+from ansys.aedt.core.generic.file_utils import read_json
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.general_methods import read_json
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive

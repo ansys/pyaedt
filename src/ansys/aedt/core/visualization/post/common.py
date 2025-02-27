@@ -33,9 +33,9 @@ import os
 import re
 
 from ansys.aedt.core.generic.data_handlers import _dict_items_to_list_items
+from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.general_methods import read_configuration_file
 from ansys.aedt.core.generic.numbers import _units_assignment
 from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 from ansys.aedt.core.visualization.post.solution_data import SolutionData
@@ -1634,7 +1634,7 @@ class PostProcessorCommon(object):
 
         Create report from dictionary.
         >>> from ansys.aedt.core import Hfss
-        >>> from ansys.aedt.core.generic.general_methods import read_json
+        >>> from ansys.aedt.core.generic.file_utils import read_json
         >>> hfss = Hfss()
         >>> dict_vals = read_json("Report_Simple.json")
         >>> hfss.post.create_report_from_configuration(report_settings=dict_vals)
