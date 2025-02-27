@@ -694,7 +694,6 @@ def get_filename_without_extension(path):
     return os.path.splitext(os.path.split(path)[1])[0]
 
 
-# FIXME: Remove usage of random module once IronPython compatibility is removed
 @pyaedt_function_handler(rootname="root_name")
 def generate_unique_name(root_name, suffix="", n=6):
     """Generate a new name given a root name and optional suffix.
@@ -1798,7 +1797,6 @@ rgb_color_codes = {
 }
 
 
-# FIXME: Remove usage of random module once IronPython compatibility is removed
 def _uname(name=None):
     """Append a 6-digit hash code to a specified name.
 

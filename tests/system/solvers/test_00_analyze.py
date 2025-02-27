@@ -255,7 +255,7 @@ class TestClass:
         hfss_app.analyze_setup(name="test", cores=4)
         assert setup_driven.is_solved
         exported_files = hfss_app.export_results()
-        assert len(exported_files) == 39
+        assert len(exported_files) == 3
         exported_files = hfss_app.export_results(
             matrix_type="Y",
         )

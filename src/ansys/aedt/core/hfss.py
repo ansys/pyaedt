@@ -5642,7 +5642,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                             "3D component array is not present in design and not defined correctly in the JSON file."
                         )
 
-                    geometryparams = self.get_components3d_vars(json_dict[v["name"]])
+                    geometryparams = self.get_component_variables(json_dict[v["name"]])
 
                     self.modeler.insert_3d_component(json_dict[v["name"]], geometryparams)
                 cells_names[v["name"]] = [k1]

@@ -1589,7 +1589,7 @@ class Primitives3D(GeometryModeler):
 
         sz_geo_params = ""
         if not geometry_parameters:
-            geometryparams = self._app.get_components3d_vars(input_file)
+            geometryparams = self._app.get_component_variables(input_file)
             if geometryparams:
                 geometry_parameters = geometryparams
 
