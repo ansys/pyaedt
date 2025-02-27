@@ -902,7 +902,7 @@ def available_license_feature(
             name = name_env[1]
 
     if not input_dir:
-        input_dir = list(aedt_versions.installed_versions.values())[0]
+        input_dir = aedt_versions.installed_versions[aedt_versions.current_version]
 
     if is_linux:
         ansysli_util_path = os.path.join(input_dir, "licensingclient", "linx64", "lmutil")
