@@ -1,0 +1,34 @@
+﻿Quantity
+========
+
+.. currentmodule:: ansys.aedt.core.generic.numbers
+
+.. autoclass:: Quantity
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      Quantity.to
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      Quantity.expression
+      Quantity.unit
+      Quantity.unit_system
+      Quantity.value
+   
+   
