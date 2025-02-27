@@ -32,6 +32,7 @@ from ansys.aedt.core.workflows.misc import get_arguments
 from ansys.aedt.core.workflows.misc import get_port
 from ansys.aedt.core.workflows.misc import get_process_id
 from ansys.aedt.core.workflows.misc import is_student
+import numpy as np
 
 port = get_port()
 version = get_aedt_version()
@@ -76,6 +77,8 @@ def frontend():
     # Configure the grid to expand with the window
     master.grid_rowconfigure(0, weight=1)
     master.grid_columnconfigure(0, weight=1)
+    master.grid_columnconfigure(1, weight=1)
+    master.grid_columnconfigure(2, weight=1)
 
     master.geometry()
 
@@ -104,13 +107,15 @@ def frontend():
 
     # Export options
     frame = tk.Frame(master)
-    frame.grid(row=0, column=0, columnspan=2, pady=10, padx=10)
+    frame.grid(row=0, column=0, columnspan=1, pady=10, padx=10)
     export_options_list = ["Ohmic loss", "AC Force Density"]
     export_options_label = ttk.Label(
         frame, text="Export options:", width=15, style="PyAEDT.TLabel", justify=tk.CENTER, anchor=tk.CENTER
     )
     export_options_label.pack(side=tk.TOP, fill=tk.BOTH)
-    export_options_lb = tk.Listbox(frame, selectmode=tk.SINGLE, height=2, width=15, justify=tk.CENTER)
+    export_options_lb = tk.Listbox(
+        frame, selectmode=tk.SINGLE, height=2, width=15, justify=tk.CENTER, exportselection=False
+    )
     export_options_lb.pack(expand=True, fill=tk.BOTH, side=tk.LEFT)
     for opt in export_options_list:
         export_options_lb.insert(tk.END, opt)
@@ -118,7 +123,7 @@ def frontend():
 
     # Objects list
     frame = tk.Frame(master)
-    frame.grid(row=0, column=1, columnspan=3, pady=10, padx=10)
+    frame.grid(row=0, column=1, pady=10, padx=10)
     objects_list = maxwell.modeler.objects_by_name
     objects_list_label = ttk.Label(
         frame, text="Objects list:", width=15, style="PyAEDT.TLabel", justify=tk.CENTER, anchor=tk.CENTER
@@ -126,7 +131,9 @@ def frontend():
     objects_list_label.pack(side=tk.TOP, fill=tk.BOTH)
     scroll_bar = tk.Scrollbar(frame, orient=tk.VERTICAL)
     scroll_bar.pack(side=tk.RIGHT, fill=tk.Y)
-    objects_list_lb = tk.Listbox(frame, selectmode=tk.MULTIPLE, yscrollcommand=scroll_bar.set, justify=tk.CENTER)
+    objects_list_lb = tk.Listbox(
+        frame, selectmode=tk.MULTIPLE, yscrollcommand=scroll_bar.set, justify=tk.CENTER, exportselection=False
+    )
     objects_list_lb.pack(expand=True, fill=tk.BOTH, side=tk.RIGHT)
     for obj in objects_list:
         objects_list_lb.insert(tk.END, obj)
@@ -187,7 +194,7 @@ def frontend():
         master.points_file = sample_points_entry.get("1.0", tk.END).strip()
         master.export_file = export_file_entry.get("1.0", tk.END).strip()
         selected_export = export_options_lb.curselection()
-        master.export_option = [objects_list_lb.get(i) for i in selected_export]
+        master.export_option = [export_options_lb.get(i) for i in selected_export]
         selected_objects = objects_list_lb.curselection()
         master.objects_list = [objects_list_lb.get(i) for i in selected_objects]
         master.destroy()
@@ -279,18 +286,53 @@ def main(extension_args):
     if not points_file:
         points_file = None
     elif not objects_list:
-        objects_list = "AllObjects"
+        assignment = "AllObjects"
     elif isinstance(objects_list, list) and len(objects_list) > 1:
-        objects_list = aedtapp.modeler.create_object_list(objects_list, f"ObjectList{len(aedtapp.modeler.user_lists)}")
+        if len(aedtapp.modeler.user_lists) == 0:
+            objects_list = aedtapp.modeler.create_object_list(objects_list, "ObjectList1")
+        else:
+            objects_list = aedtapp.modeler.create_object_list(
+                objects_list, f"ObjectList{len(aedtapp.modeler.user_lists)+1}"
+            )
+        assignment = objects_list.name
 
-    # CHECK NAMES OF QUANITITES
     if export_option == "Ohmic loss":
         quantity = "Ohmic-Loss"
     else:
         quantity = "SurfaceAcForceDensity"
+
     aedtapp.post.export_field_file(
-        quantity=quantity, output_file=export_file, sample_points_file=points_file, assignment=objects_list
+        quantity=quantity, output_file=export_file, sample_points_file=points_file, assignment=assignment
     )
+
+    # Populate PyVista object
+    plotter = ansys.aedt.core.visualization.plot.pyvista.ModelPlotter()
+    plotter.add_field_from_file(export_file)
+    plotter.populate_pyvista_object()
+
+    file_name = Path(export_file).stem
+    file_path = str(Path(export_file).parent)
+
+    field_coordinates = np.column_stack((np.array(plotter.pv.mesh.points), np.array(plotter.pv.mesh.active_scalars)))
+
+    if Path(export_file).suffix == ".npy":
+        np.save(Path(file_path).joinpath(f"{file_name}.npy"), field_coordinates)
+    elif Path(export_file).suffix == ".csv":
+        np.savetxt(
+            Path(file_path).joinpath(f"{file_name}.csv"),
+            field_coordinates,
+            delimiter=",",
+            header="x,y,z,field",
+            comments="",
+        )
+    elif Path(export_file).suffix == ".tab":
+        np.savetxt(
+            Path(file_path).joinpath(f"{file_name}.tab"),
+            field_coordinates,
+            delimiter=",",
+            header="x,y,z,field",
+            comments="",
+        )
 
     if not extension_args["is_test"]:  # pragma: no cover
         app.release_desktop(False, False)
