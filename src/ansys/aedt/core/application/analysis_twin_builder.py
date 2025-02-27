@@ -63,7 +63,7 @@ class AnalysisTwinBuilder(Analysis):
         References
         ----------
         >>> oModule.GetAllSolutionSetups"""
-        return list(self.oanalysis.GetAllSolutionSetups())
+        return [i.split(" : ")[0] for i in self.oanalysis.GetAllSolutionSetups()]
 
     def __init__(
         self,
@@ -104,18 +104,6 @@ class AnalysisTwinBuilder(Analysis):
         if not settings.lazy_load:
             self._modeler = self.modeler
             self._post = self.post
-
-    @property
-    def existing_analysis_sweeps(self):
-        """Get all existing analysis setups.
-
-        Returns
-        -------
-        list of str
-            List of all analysis setups in the design.
-
-        """
-        return self.setup_names
 
     @property
     def modeler(self):

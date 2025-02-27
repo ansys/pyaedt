@@ -186,15 +186,6 @@ class FieldAnalysisCircuit(Analysis):
         return self._post
 
     @property
-    def existing_analysis_sweeps(self):
-        """Analysis setups.
-
-        References
-        ----------
-        >>> oModule.GetAllSolutionSetups"""
-        return self.setup_names
-
-    @property
     def existing_analysis_setups(self):
         """Existing analysis setups.
 
@@ -238,7 +229,7 @@ class FieldAnalysisCircuit(Analysis):
         References
         ----------
         >>> oModule.GetAllSolutionSetups"""
-        return self.oanalysis.GetAllSolutionSetups()
+        return [i.split(" : ")[0] for i in self.oanalysis.GetAllSolutionSetups()]
 
     @property
     def source_names(self):

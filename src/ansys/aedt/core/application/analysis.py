@@ -352,7 +352,7 @@ class Analysis(Design, object):
             raise AttributeError("No setup is defined.")
 
     @property
-    def get_all_setup_and_sweeps(self):
+    def setup_sweeps_names(self):
         """Get all available setup names and sweeps.
         Returns
         -------
@@ -380,6 +380,17 @@ class Analysis(Design, object):
                 setuptype = self.design_solutions.default_adaptive
                 if setuptype:
                     sweep_list[el]["Nominal"] = setuptype
+                elif self.design_type in [
+                    "Circuit Design",
+                    "Circuit Netlist",
+                    "Twin Builder",
+                    "Maxwell Circuit",
+                ]:
+                    setups = self.oanalysis.GetAllSolutionSetups()
+                    for k in setups:
+                        val = k.split(" : ")
+                        if len(val) == 2 and val[0] == el:
+                            sweep_list[el]["Nominal"] = val[1]
                 if "GetSweeps" in dir(self.oanalysis):
                     try:
                         sweep_list[el]["Sweeps"].extend(list(self.oanalysis.GetSweeps(el)))
@@ -404,7 +415,7 @@ class Analysis(Design, object):
         >>> oModule.GetSweeps
         """
         sweep_list = []
-        for k, v in self.get_all_setup_and_sweeps.items():
+        for k, v in self.setup_sweeps_names.items():
             if v["Nominal"] is None:
                 sweep_list.append(k)
             else:
@@ -427,12 +438,12 @@ class Analysis(Design, object):
         >>> oModule.GelAllSolutionNames
         >>> oModule.GetSweeps
         """
-        if not self.active_setup or self.active_setup not in self.get_all_setup_and_sweeps:
+        if not self.active_setup or self.active_setup not in self.setup_sweeps_names:
             return ""
-        if self.get_all_setup_and_sweeps[self.active_setup]["Nominal"] is None:
+        if self.setup_sweeps_names[self.active_setup]["Nominal"] is None:
             return self.active_setup
         else:
-            return f'{self.active_setup} : {self.get_all_setup_and_sweeps[self.active_setup]["Nominal"]}'
+            return f'{self.active_setup} : {self.setup_sweeps_names[self.active_setup]["Nominal"]}'
 
     @property
     def nominal_sweep(self):
@@ -449,10 +460,10 @@ class Analysis(Design, object):
         >>> oModule.GelAllSolutionNames
         >>> oModule.GetSweeps
         """
-        if not self.active_setup or self.active_setup not in self.get_all_setup_and_sweeps:
+        if not self.active_setup or self.active_setup not in self.setup_sweeps_names:
             return ""
-        if self.get_all_setup_and_sweeps[self.active_setup]["Sweeps"]:
-            return f'{self.active_setup} : {self.get_all_setup_and_sweeps[self.active_setup]["Sweeps"][0]}'
+        if self.setup_sweeps_names[self.active_setup]["Sweeps"]:
+            return f'{self.active_setup} : {self.setup_sweeps_names[self.active_setup]["Sweeps"][0]}'
         else:
             return self.nominal_adaptive
 

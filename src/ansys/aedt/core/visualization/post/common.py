@@ -1136,7 +1136,7 @@ class PostProcessorCommon(object):
                 setup_sweep_name = self._app.nominal_adaptive  # Field report and no sweep name passed.
             else:
                 setup_sweep_name = self._app.nominal_sweep
-        elif setup_sweep_name in self._app.get_all_setup_and_sweeps:
+        elif setup_sweep_name in self._app.setup_sweeps_names:
             legacy_active = self._app.active_setup
             self._app.active_setup = setup_sweep_name
             if report_category == "Fields":
@@ -1147,12 +1147,12 @@ class PostProcessorCommon(object):
         elif setup_sweep_name in ["Last Adaptive", "Adaptive"]:
             setup_sweep_name = self._app.nominal_adaptive  # Field report and no sweep name passed.
         else:
-            for k, v in self._app.get_all_setup_and_sweeps.items():
+            for k, v in self._app.setup_sweeps_names.items():
                 if setup_sweep_name in v["Sweeps"]:
                     setup_sweep_name = f"{k} : {setup_sweep_name}"
                     break
         setup_name = setup_sweep_name.split(":")[0].strip()
-        if self._app.design_type is not "Twin Builder" and setup_name not in self._app.get_all_setup_and_sweeps:
+        if self._app.design_type is not "Twin Builder" and setup_name not in self._app.setup_sweeps_names:
             raise KeyError(f"Setup {setup_name} not available in current design.")
         # Domain
         if not domain:
