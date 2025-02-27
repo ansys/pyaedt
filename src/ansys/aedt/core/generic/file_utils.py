@@ -81,6 +81,26 @@ def check_and_download_file(remote_path: Union[str, Path], overwrite: bool = Tru
 
 
 @pyaedt_function_handler()
+def check_if_path_exists(path: Union[str, Path]) -> bool:
+    """Check whether a path exists or not local or remote machine (for remote sessions only).
+
+    Parameters
+    ----------
+    path : str or :class:`pathlib.Path`
+        Local or remote path to check.
+
+    Returns
+    -------
+    bool
+        ``True`` when successful, ``False`` when fails.
+    """
+    path = Path(path)
+    if settings.remote_rpc_session:
+        return settings.remote_rpc_session.filemanager.pathexists(str(path))
+    return path.exists()
+
+
+@pyaedt_function_handler()
 def _check_path(path_to_check: Union[str, Path]) -> str:
     path_to_check = str(path_to_check)
     return path_to_check.replace("\\", "/") if path_to_check[0] != "\\" else path_to_check

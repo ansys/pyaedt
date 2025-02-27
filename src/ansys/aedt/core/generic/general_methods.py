@@ -47,6 +47,7 @@ from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.constants import CSS4_COLORS
 from ansys.aedt.core.generic.errors import GrpcApiError
 from ansys.aedt.core.generic.errors import MethodNotSupportedError
+from ansys.aedt.core.generic.file_utils import check_if_path_exists
 from ansys.aedt.core.generic.numbers import _units_assignment
 from ansys.aedt.core.generic.settings import inner_project_settings  # noqa: F401
 from ansys.aedt.core.generic.settings import settings
@@ -290,25 +291,6 @@ def check_numeric_equivalence(a, b, relative_tolerance=1e-7):
     else:
         reldiff = abs(b)
     return True if reldiff < relative_tolerance else False
-
-
-@pyaedt_function_handler()
-def check_if_path_exists(path):
-    """Check whether a path exists or not local or remote machine (for remote sessions only).
-
-    Parameters
-    ----------
-    path : str
-        Local or remote path to check.
-
-    Returns
-    -------
-    bool
-        ``True`` when successful, ``False`` when fails.
-    """
-    if settings.remote_rpc_session:
-        return settings.remote_rpc_session.filemanager.pathexists(path)
-    return os.path.exists(path)
 
 
 @pyaedt_function_handler()
