@@ -5989,8 +5989,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             )
             if rcs_data and rcs_data.primary_sweep_values is not None:
                 frequencies = rcs_data.primary_sweep_values
-                frequency_units = self.units.frequency
-                frequencies = [str(freq) + frequency_units for freq in frequencies]
 
         if not frequencies:  # pragma: no cover
             self.logger.info("Frequencies could not be obtained.")
