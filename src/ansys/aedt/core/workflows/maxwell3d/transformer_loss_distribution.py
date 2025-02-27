@@ -114,6 +114,7 @@ def frontend():
     export_options_lb.pack(expand=True, fill=tk.BOTH, side=tk.LEFT)
     for opt in export_options_list:
         export_options_lb.insert(tk.END, opt)
+    export_options_lb.config(selectmode=tk.SINGLE)
 
     # Objects list
     frame = tk.Frame(master)
@@ -247,7 +248,7 @@ def frontend():
         "objects_list": objects_list,
     }
 
-    app.release_desktop(False, False)
+    # app.release_desktop(False, False)
 
     return output_dict
 
