@@ -914,7 +914,8 @@ class Desktop(object):
     @staticmethod
     def _run_student():  # pragma: no cover
         DETACHED_PROCESS = 0x00000008
-        _ = subprocess.Popen([Path(settings.aedt_install_dir) / "ansysedtsv.exe"], creationflags=DETACHED_PROCESS).pid
+        path = Path(Path(settings.aedt_install_dir) / "ansysedtsv.exe").resolve(strict=True)
+        _ = subprocess.Popen([path], creationflags=DETACHED_PROCESS).pid
         time.sleep(5)
 
     def _dispatch_win32(self, version):  # pragma: no cover
