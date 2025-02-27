@@ -27,8 +27,8 @@ import os
 # import sys
 import warnings
 
+from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import _uname
-from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.cad.primitives import default_materials
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators

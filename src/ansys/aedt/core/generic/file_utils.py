@@ -207,6 +207,101 @@ def check_and_download_folder(
     return remote_path
 
 
+@pyaedt_function_handler(rootname="root_name")
+def generate_unique_name(root_name: str, suffix: str = "", n: int = 6) -> str:
+    """Generate a new name given a root name and optional suffix.
+
+    Parameters
+    ----------
+    root_name : str
+        Root name to add random characters to.
+    suffix : string, optional
+        Suffix to add. The default is ``''``.
+    n : int, optional
+        Number of random characters to add to the name. The default value is ``6``.
+
+    Returns
+    -------
+    str
+        Newly generated name.
+    """
+    alphabet = string.ascii_uppercase + string.digits
+
+    import secrets
+
+    name = "".join(secrets.choice(alphabet) for _ in range(n))
+
+    unique_name = root_name + "_" + name
+    if suffix:
+        unique_name += "_" + suffix
+    return unique_name
+
+
+@pyaedt_function_handler(rootname="root_name")
+def generate_unique_folder_name(root_name=None, folder_name=None):
+    """Generate a new AEDT folder name given a rootname.
+
+    Parameters
+    ----------
+    root_name : str, optional
+        Root name for the new folder. The default is ``None``.
+    folder_name : str, optional
+        Name for the new AEDT folder if one must be created.
+
+    Returns
+    -------
+    str
+        Newly generated name.
+    """
+    if not root_name:
+        if settings.remote_rpc_session:
+            root_name = settings.remote_rpc_session_temp_folder
+        else:
+            root_name = tempfile.gettempdir()
+    if folder_name is None:
+        folder_name = generate_unique_name("pyaedt_prj", n=3)
+    temp_folder = os.path.join(root_name, folder_name)
+    if settings.remote_rpc_session and not settings.remote_rpc_session.filemanager.pathexists(temp_folder):
+        settings.remote_rpc_session.filemanager.makedirs(temp_folder)
+    elif not os.path.exists(temp_folder):
+        os.makedirs(temp_folder)
+
+    return temp_folder
+
+
+@pyaedt_function_handler(rootname="root_name")
+def generate_unique_project_name(root_name=None, folder_name=None, project_name=None, project_format="aedt"):
+    """Generate a new AEDT project name given a rootname.
+
+    Parameters
+    ----------
+    root_name : str, optional
+        Root name where the new project is to be created.
+    folder_name : str, optional
+        Name of the folder to create. The default is ``None``, in which case a random folder
+        is created. Use ``""`` if you do not want to create a subfolder.
+    project_name : str, optional
+        Name for the project. The default is ``None``, in which case a random project is
+        created. If a project with this name already exists, a new suffix is added.
+    project_format : str, optional
+        Project format. The default is ``"aedt"``. Options are ``"aedt"`` and ``"aedb"``.
+
+    Returns
+    -------
+    str
+        Newly generated name.
+    """
+    if not project_name:
+        project_name = generate_unique_name("Project", n=3)
+    name_with_ext = project_name + "." + project_format
+    folder_path = generate_unique_folder_name(root_name, folder_name=folder_name)
+    prj = os.path.join(folder_path, name_with_ext)
+    if check_if_path_exists(prj):
+        name_with_ext = generate_unique_name(project_name, n=3) + "." + project_format
+        prj = os.path.join(folder_path, name_with_ext)
+    return prj
+
+
 @pyaedt_function_handler(startpath="path", filepattern="file_pattern")
 def recursive_glob(path: Union[str, Path], file_pattern: str):
     """Get a list of files matching a pattern, searching recursively from a start path.

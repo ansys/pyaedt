@@ -34,8 +34,8 @@ from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core import Q3d
 from ansys.aedt.core.application.design_solutions import solutions_types
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
+from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.filesystem import search_files
-from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.settings import settings
 import ansys.aedt.core.workflows
 from ansys.aedt.core.workflows.misc import get_aedt_version

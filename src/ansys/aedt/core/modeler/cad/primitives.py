@@ -35,9 +35,9 @@ import warnings
 import ansys.aedt.core
 from ansys.aedt.core.application.variables import Variable
 from ansys.aedt.core.generic.data_handlers import json_to_dict
+from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import _uname
 from ansys.aedt.core.generic.general_methods import clamp
-from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings

@@ -20,6 +20,9 @@ The following methods allows to read and parse files.
    check_and_download_file
    check_if_path_exists
    check_and_download_folder
+   generate_unique_name
+   generate_unique_folder_name
+   generate_unique_project_name
    recursive_glob
    is_project_locked
    remove_project_lock
