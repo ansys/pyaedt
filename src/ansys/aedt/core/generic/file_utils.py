@@ -118,12 +118,12 @@ def remove_project_lock(input_file: Union[str, Path]) -> bool:
         ``True`` when successful, ``False`` when failed.
     """
     input_file = Path(input_file)
-    input_file_locked = str(input_file) + ".lock"
-    if settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(input_file_locked):
-        settings.remote_rpc_session.filemanager.unlink(input_file_locked)
+    input_file_locked = Path(str(input_file) + ".lock")
+    if settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(str(input_file_locked)):
+        settings.remote_rpc_session.filemanager.unlink(str(input_file_locked))
         return True
-    if os.path.exists(input_file_locked):
-        os.remove(input_file_locked)
+    if input_file_locked.exists():
+        input_file_locked.unlink()
     return True
 
 
@@ -614,4 +614,34 @@ def _create_json_file(json_dict, full_json_path):
     with open_file(full_json_path, "w") as fp:
         json.dump(json_dict, fp, indent=4)
     settings.logger.info(f"{full_json_path} correctly created.")
+    return True
+
+
+@pyaedt_function_handler()
+def _create_toml_file(input_dict, full_toml_path):
+    import tomli_w
+
+    full_toml_path = Path(full_toml_path)
+
+    if not full_toml_path.parent.exists():
+        full_toml_path.parent.mkdir(parents=True)
+
+    def _dict_toml(d):
+        new_dict_toml = {}
+        for k, v in d.items():
+            new_k = k
+            if not isinstance(k, str):
+                new_k = str(k)
+            new_v = v
+            if isinstance(v, dict):
+                new_v = _dict_toml(v)
+            elif isinstance(v, tuple):
+                new_v = list(v)
+            new_dict_toml[new_k] = new_v
+        return new_dict_toml
+
+    new_dict = _dict_toml(input_dict)
+    with open_file(full_toml_path, "wb") as fp:
+        tomli_w.dump(new_dict, fp)
+    settings.logger.info(f"{full_toml_path} correctly created.")
     return True

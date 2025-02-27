@@ -768,34 +768,6 @@ def number_aware_string_key(s):
 
 
 @pyaedt_function_handler()
-def _create_toml_file(input_dict, full_toml_path):
-    import tomli_w
-
-    if not os.path.exists(os.path.dirname(full_toml_path)):
-        os.makedirs(os.path.dirname(full_toml_path))
-
-    def _dict_toml(d):
-        new_dict = {}
-        for k, v in d.items():
-            new_k = k
-            if not isinstance(k, str):
-                new_k = str(k)
-            new_v = v
-            if isinstance(v, dict):
-                new_v = _dict_toml(v)
-            elif isinstance(v, tuple):
-                new_v = list(v)
-            new_dict[new_k] = new_v
-        return new_dict
-
-    new_dict = _dict_toml(input_dict)
-    with open_file(full_toml_path, "wb") as fp:
-        tomli_w.dump(new_dict, fp)
-    settings.logger.info(f"{full_toml_path} correctly created.")
-    return True
-
-
-@pyaedt_function_handler()
 def active_sessions(version=None, student_version=False, non_graphical=False):
     """Get information for the active AEDT sessions.
 
