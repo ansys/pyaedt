@@ -27,6 +27,7 @@ import math
 import os
 import warnings
 
+from ansys.aedt.core import Quantity
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import db10
 from ansys.aedt.core.generic.constants import db20
@@ -61,6 +62,7 @@ class SolutionData(object):
     """Contains information from the :func:`GetSolutionDataPerVariation` method."""
 
     def __init__(self, aedtdata):
+        self.units_sweeps = {}
         self._original_data = aedtdata
         self.number_of_variations = len(aedtdata)
         self._enable_pandas_output = True if settings.enable_pandas_output and pd else False
@@ -80,12 +82,6 @@ class SolutionData(object):
         else:
             self._primary_sweep = self._sweeps_names[0]
         self.active_variation = self.variations[0]
-        self.units_sweeps = {}
-        for intrinsic in self.intrinsics:
-            try:
-                self.units_sweeps[intrinsic] = self.nominal_variation.GetSweepUnits(intrinsic)
-            except Exception:
-                self.units_sweeps[intrinsic] = None
         self.init_solutions_data()
         self._ifft = None
 
@@ -137,7 +133,7 @@ class SolutionData(object):
         for data in self._original_data:
             variations = {}
             for v in data.GetDesignVariableNames():
-                variations[v] = data.GetDesignVariableValue(v)
+                variations[v] = Quantity(data.GetDesignVariableValue(v), data.GetDesignVariableUnits(v))
             variations_lists.append(variations)
         return variations_lists
 
@@ -172,8 +168,13 @@ class SolutionData(object):
             intrinsics = [i for i in self._sweeps_names if i not in self.nominal_variation.GetDesignVariableNames()]
             for el in intrinsics:
                 values = list(self.nominal_variation.GetSweepValues(el, False))
-                self._intrinsics[el] = [i for i in values]
-                self._intrinsics[el] = list(dict.fromkeys(self._intrinsics[el]))
+                try:
+                    self.units_sweeps[el] = self.nominal_variation.GetSweepUnits(el)
+                except Exception:
+                    self.units_sweeps[el] = None
+                values = list(dict.fromkeys(values))
+                self._intrinsics[el] = [Quantity(i, self.units_sweeps[el]) for i in values]
+
         return self._intrinsics
 
     @property
@@ -286,17 +287,17 @@ class SolutionData(object):
 
         for expression in self.expressions:
             solution_data = {}
-
             for data, comb in zip(self._original_data, self.variations):
                 solution = list(data.GetRealDataValues(expression, False))
                 values = []
-                for el in list(self.intrinsics.keys()):
-                    values.append(list(dict.fromkeys(data.GetSweepValues(el, False))))
-
+                # for el in list(self.intrinsics.keys()):
+                #     values.append(list(dict.fromkeys(data.GetSweepValues(el, False))))
+                for el, val in self.intrinsics.items():
+                    values.append(val)
                 i = 0
                 c = [comb[v] for v in list(comb.keys())]
                 for t in itertools.product(*values):
-                    solution_data[tuple(c + list(t))] = solution[i]
+                    solution_data[str(tuple(c + list(t)))] = solution[i]
                     i += 1
             sols_data[expression] = solution_data
         if self.enable_pandas_output:
@@ -318,12 +319,12 @@ class SolutionData(object):
                     l = len(list(data.GetRealDataValues(expression, False)))
                     solution = [0] * l
                 values = []
-                for el in list(self.intrinsics.keys()):
-                    values.append(list(dict.fromkeys(data.GetSweepValues(el, False))))
+                for el, val in self.intrinsics.items():
+                    values.append(val)
                 i = 0
                 c = [comb[v] for v in list(comb.keys())]
                 for t in itertools.product(*values):
-                    solution_data[tuple(c + list(t))] = solution[i]
+                    solution_data[str(tuple(c + list(t)))] = solution[i]
                     i += 1
             sols_data[expression] = solution_data
         if self.enable_pandas_output:
@@ -449,7 +450,7 @@ class SolutionData(object):
         for el in sw:
             temp[position] = el
             try:
-                sol.append(solution_data[tuple(temp)])
+                sol.append(solution_data[str(tuple(temp))])
             except KeyError:
                 sol.append(None)
         if convert_to_SI and self._quantity(self.units_data[expression]):
@@ -593,7 +594,7 @@ class SolutionData(object):
 
         for el in self.primary_sweep_values:
             temp[position] = el
-            if tuple(temp) in solution_data:
+            if str(tuple(temp)) in solution_data:
                 sol_dict = {}
                 i = 0
                 for sn in self._sweeps_names:
@@ -631,11 +632,11 @@ class SolutionData(object):
         solution_data = self._solutions_real[expression]
         sol = []
         position = list(self._sweeps_names).index(self.primary_sweep)
-
-        for el in self.primary_sweep_values:
+        sw = self.variation_values(self.primary_sweep)
+        for el in sw:
             temp[position] = el
             try:
-                sol.append(solution_data[tuple(temp)])
+                sol.append(solution_data[str(tuple(temp))])
             except KeyError:
                 sol.append(None)
 
@@ -672,10 +673,11 @@ class SolutionData(object):
         solution_data = self._solutions_imag[expression]
         sol = []
         position = list(self._sweeps_names).index(self.primary_sweep)
-        for el in self.primary_sweep_values:
+        sw = self.variation_values(self.primary_sweep)
+        for el in sw:
             temp[position] = el
             try:
-                sol.append(solution_data[tuple(temp)])
+                sol.append(solution_data[str(tuple(temp))])
             except KeyError:
                 sol.append(None)
         if convert_to_SI and self._quantity(self.units_data[expression]):
@@ -753,6 +755,7 @@ class SolutionData(object):
 
         list_full = [header]
         for e, v in self._solutions_real[self.active_expression].items():
+            e = [float(Quantity(i)) for i in e[1:-1].split(",")]
             list_full.append(list(e))
         for el in self.expressions:
             i = 1
@@ -1143,8 +1146,8 @@ class SolutionData(object):
         if not coord_system_center:
             coord_system_center = [0, 0, 0]
         t_matrix = self._ifft
-        x_c_list = self.variation_values(u_axis)
-        y_c_list = self.variation_values(v_axis)
+        x_c_list = [float(i) for i in self.variation_values(u_axis)]
+        y_c_list = [float(i) for i in self.variation_values(v_axis)]
 
         adj_x = coord_system_center[0]
         adj_y = coord_system_center[1]
