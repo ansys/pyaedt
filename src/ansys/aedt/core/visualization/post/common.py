@@ -505,7 +505,7 @@ class PostProcessorCommon(object):
                     if this_name:
                         sweep_names.append(this_name)
             if len(sweep_names) > 1:
-                warning_str = "More than one sweep with name '{setup_sweep_name}' found. "
+                warning_str = f"More than one sweep with name '{setup_sweep_name}' found. "
                 warning_str += f"Returning '{sweep_names[0]}'."
                 self.logger.warning(warning_str)
                 return sweep_names[0]
