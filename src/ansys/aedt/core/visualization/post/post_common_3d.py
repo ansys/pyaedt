@@ -34,6 +34,9 @@ import ast
 import os
 import random
 import string
+from typing import Literal
+from typing import Optional
+from typing import Tuple
 import warnings
 
 from ansys.aedt.core.generic.constants import unit_converter
@@ -3902,3 +3905,86 @@ class PostProcessor3D(PostProcessorCommon):
         scene.convert_fields_in_db = convert_fields_in_db
         scene.log_multiplier = log_multiplier
         scene.animate()
+
+    def get_field_extremum(
+        self,
+        assignment: str,
+        max_min: Literal["Max", "Min"],
+        location: Literal["Surface", "Volume"],
+        field: str,
+        setup: Optional[str] = None,
+        intrinsics: Optional[dict[str, str]] = None,
+    ) -> Tuple[Tuple[float, float, float], float]:
+        """
+        Calculates the position and value of the field maximum or minimum.
+
+        Parameters
+        ----------
+            assignment : str
+                The name of the object to calculate the extremum for.
+            max_min : Literal["Max", "Min"]
+                "Max" for maximum, "Min" for minimum.
+            location : Literal["Surface", "Volume"]
+                "Surface" for surface, "Volume" for volume.
+            field : str:
+                Name of the field.
+            intrinsics : Optional[dict[str, str]]
+                Time at which to retrieve results if setup is transient. Default is `None`.
+            setup : Optional[str]
+                The name of the setup to use. If `None`, the first available setup is used. Default is `None`.
+
+        Returns
+        -------
+            Tuple[Tuple[float, float, float], float]
+            A tuple containing:
+
+              - A tuple of three floats representing the (x, y, z) coordinates of the maximum point.
+              - A float representing the value associated with the maximum point.
+        """
+        if assignment not in self._app.modeler.object_names:
+            raise ValueError(f"Object '{assignment}' does not exist.")
+
+        max_min = max_min.capitalize()
+        location = location.capitalize()
+
+        position = []
+        for d in ["X", "Y", "Z"]:
+            xpr = self.fields_calculator.add_expression(
+                {
+                    "name": "MaxMinPos",
+                    "design_type": [self._app.design_type],
+                    "fields_type": ["Fields"],
+                    "primary_sweep": "",
+                    "assignment": assignment,
+                    "assignment_type": ["Sheet", "Solid"],
+                    "operations": [
+                        f"Fundamental_Quantity('{field}')"
+                        f"Enter{location}('{assignment}')"
+                        f"Operation('{location}Value')"
+                        f"Operation('{max_min}Pos')"
+                        f"Operation('Scalar{d}')"
+                    ],
+                },
+                assignment,
+            )
+            position.append(
+                unit_converter(
+                    float(self.fields_calculator.evaluate(xpr, setup, intrinsics)),
+                    unit_system="Length",
+                    input_units="meter",
+                    output_units=self._app.units.length,
+                )
+            )
+            self.fields_calculator.delete_expression(xpr)
+        position = tuple(position)
+
+        value = self.get_scalar_field_value(
+            field,
+            scalar_function=f"{max_min}imum",
+            solution=setup,
+            intrinsics=intrinsics,
+            object_name=assignment,
+            object_type=location.casefold(),
+        )
+
+        return position, value
