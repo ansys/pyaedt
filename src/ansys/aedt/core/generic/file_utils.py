@@ -24,6 +24,7 @@
 
 import codecs
 import csv
+import fnmatch
 import json
 from pathlib import Path
 from typing import Dict
@@ -202,6 +203,36 @@ def check_and_download_folder(
         settings.remote_rpc_session.filemanager.download_folder(remote_path, local_path, overwrite=overwrite)
         return local_path
     return remote_path
+
+
+@pyaedt_function_handler(startpath="path", filepattern="file_pattern")
+def recursive_glob(path: Union[str, Path], file_pattern: str):
+    """Get a list of files matching a pattern, searching recursively from a start path.
+
+    Parameters
+    ----------
+    path : str or :class:`pathlib.Path`
+        Starting path.
+    file_pattern : str
+        File pattern to match.
+
+    Returns
+    -------
+    list
+        List of files matching the given pattern.
+    """
+    path = Path(path)
+    if settings.remote_rpc_session:
+        files = []
+        for i in settings.remote_rpc_session.filemanager.listdir(str(path)):
+            input_file = path / i
+            if settings.remote_rpc_session.filemanager.isdir(str(input_file)):
+                files.extend(recursive_glob(input_file, file_pattern))
+            elif fnmatch.fnmatch(i, file_pattern):
+                files.append(str(input_file))
+        return files
+    else:
+        return [str(file) for file in Path(path).rglob("*") if fnmatch.fnmatch(file.name, file_pattern)]
 
 
 @pyaedt_function_handler()

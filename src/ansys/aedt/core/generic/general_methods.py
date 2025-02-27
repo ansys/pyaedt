@@ -25,7 +25,6 @@
 
 import datetime
 import difflib
-import fnmatch
 from functools import update_wrapper
 import inspect
 import itertools
@@ -728,39 +727,6 @@ def filter_string(value, search_key_1):
     if m:
         return True
     return False
-
-
-@pyaedt_function_handler(startpath="path", filepattern="file_pattern")
-def recursive_glob(path, file_pattern):
-    """Get a list of files matching a pattern, searching recursively from a start path.
-
-    Parameters
-    ----------
-    path : str
-        Starting path.
-    file_pattern : str
-        File pattern to match.
-
-    Returns
-    -------
-    list
-        List of files matching the given pattern.
-    """
-    if settings.remote_rpc_session:
-        files = []
-        for i in settings.remote_rpc_session.filemanager.listdir(path):
-            if settings.remote_rpc_session.filemanager.isdir(os.path.join(path, i)):
-                files.extend(recursive_glob(os.path.join(path, i), file_pattern))
-            elif fnmatch.fnmatch(i, file_pattern):
-                files.append(os.path.join(path, i))
-        return files
-    else:
-        return [
-            os.path.join(dirpath, filename)
-            for dirpath, _, filenames in os.walk(path)
-            for filename in filenames
-            if fnmatch.fnmatch(filename, file_pattern)
-        ]
 
 
 @pyaedt_function_handler()
