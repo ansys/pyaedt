@@ -903,11 +903,15 @@ def available_license_feature(
 
     if not input_dir:
         input_dir = list(aedt_versions.installed_versions.values())[0]
-
+        ansys_version = float(list(aedt_versions.installed_versions.keys())[0])
     if is_linux:
         ansysli_util_path = os.path.join(input_dir, "licensingclient", "linx64", "lmutil")
     else:
-        ansysli_util_path = os.path.join(input_dir, "licensingclient", "winx64", "lmutil")
+        if ansys_version >= 2025.2:
+            parent_dir = os.path.dirname(input_dir)
+            ansysli_util_path = os.path.join(parent_dir, "licensingclient", "winx64", "lmutil")
+        else:
+            ansysli_util_path = os.path.join(input_dir, "licensingclient", "winx64", "lmutil.exe")
 
     my_env = os.environ.copy()
 
