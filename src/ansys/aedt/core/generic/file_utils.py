@@ -53,6 +53,39 @@ def normalize_path(path_in: Union[str, Path], sep: str = None) -> str:
     return str(path)
 
 
+@pyaedt_function_handler()
+def check_and_download_file(remote_path: Union[str, Path], overwrite: bool = True) -> str:
+    """Check if a file is remote and either download it or return the path.
+
+    Parameters
+    ----------
+    remote_path : str or :class:`pathlib.Path`
+        Path to the remote file.
+    overwrite : bool, optional
+        Whether to overwrite the file if it already exists locally.
+        The default is ``True``.
+
+    Returns
+    -------
+    str
+        Path to the remote file.
+    """
+    remote_path = Path(remote_path)
+    if settings.remote_rpc_session:
+        remote_path = _check_path(remote_path)
+        local_path = Path(settings.remote_rpc_session_temp_folder) / Path(remote_path).name
+        if settings.remote_rpc_session.filemanager.pathexists(remote_path):
+            settings.remote_rpc_session.filemanager.download_file(str(remote_path), local_path, overwrite=overwrite)
+            return str(local_path)
+    return str(remote_path)
+
+
+@pyaedt_function_handler()
+def _check_path(path_to_check: Union[str, Path]) -> str:
+    path_to_check = str(path_to_check)
+    return path_to_check.replace("\\", "/") if path_to_check[0] != "\\" else path_to_check
+
+
 # AEDT files parsing
 @pyaedt_function_handler()
 def read_component_file(input_file: Union[str, Path]) -> dict:

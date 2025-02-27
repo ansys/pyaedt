@@ -293,37 +293,6 @@ def check_numeric_equivalence(a, b, relative_tolerance=1e-7):
 
 
 @pyaedt_function_handler()
-def _check_path(path_to_check):
-    return path_to_check.replace("\\", "/") if path_to_check[0] != "\\" else path_to_check
-
-
-@pyaedt_function_handler()
-def check_and_download_file(remote_path, overwrite=True):
-    """Check if a file is remote and either download it or return the path.
-
-    Parameters
-    ----------
-    remote_path : str
-        Path to the remote file.
-    overwrite : bool, optional
-        Whether to overwrite the file if it already exists locally.
-        The default is ``True``.
-
-    Returns
-    -------
-    str
-        Path to the remote file.
-    """
-    if settings.remote_rpc_session:
-        remote_path = _check_path(remote_path)
-        local_path = os.path.join(settings.remote_rpc_session_temp_folder, os.path.split(remote_path)[-1])
-        if settings.remote_rpc_session.filemanager.pathexists(remote_path):
-            settings.remote_rpc_session.filemanager.download_file(remote_path, local_path, overwrite=overwrite)
-            return local_path
-    return remote_path
-
-
-@pyaedt_function_handler()
 def check_if_path_exists(path):
     """Check whether a path exists or not local or remote machine (for remote sessions only).
 
