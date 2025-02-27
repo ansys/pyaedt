@@ -249,7 +249,7 @@ def test_settings_check_allowed_env_variables():
 
 def test_read_toml(tmp_path):
     """Test loading a TOML file."""
-    from ansys.aedt.core.generic.general_methods import read_toml
+    from ansys.aedt.core.generic.file_utils import read_toml
 
     file_path = tmp_path / "dummy.toml"
     content = """

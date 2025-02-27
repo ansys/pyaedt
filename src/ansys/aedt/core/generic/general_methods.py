@@ -292,29 +292,6 @@ def check_numeric_equivalence(a, b, relative_tolerance=1e-7):
     return True if reldiff < relative_tolerance else False
 
 
-@pyaedt_function_handler()
-def read_toml(file_path):  # pragma: no cover
-    """Read a TOML file and return as a dictionary.
-
-    Parameters
-    ----------
-    file_path : str
-        Full path to the TOML file.
-
-    Returns
-    -------
-    dict
-        Parsed TOML file as a dictionary.
-    """
-    try:
-        import tomllib
-    except (ImportError, ModuleNotFoundError):
-        import tomli as tomllib
-
-    with open_file(file_path, "rb") as fb:
-        return tomllib.load(fb)
-
-
 def _log_method(func, new_args, new_kwargs):
     if not settings.enable_debug_internal_methods_logger and str(func.__name__)[0] == "_":
         return

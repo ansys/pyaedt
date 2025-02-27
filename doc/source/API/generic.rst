@@ -21,6 +21,7 @@ The following methods allows to read and parse files.
    check_and_download_folder
    open_file
    read_json
+   read_toml
 
    get_dxf_layers
 

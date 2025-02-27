@@ -211,6 +211,29 @@ def read_json(input_file: Union[str, Path]) -> dict:
     return json_data
 
 
+@pyaedt_function_handler(file_path="input_file")
+def read_toml(input_file: Union[str, Path]) -> dict:
+    """Read a TOML file and return as a dictionary.
+
+    Parameters
+    ----------
+    input_file : str or :class:`pathlib.Path`
+        Full path to the TOML file.
+
+    Returns
+    -------
+    dict
+        Parsed TOML file as a dictionary.
+    """
+    try:
+        import tomllib
+    except (ImportError, ModuleNotFoundError):
+        import tomli as tomllib
+
+    with open_file(input_file, "rb") as fb:
+        return tomllib.load(fb)
+
+
 @pyaedt_function_handler()
 def _check_path(path_to_check: Union[str, Path]) -> str:
     path_to_check = str(path_to_check)
