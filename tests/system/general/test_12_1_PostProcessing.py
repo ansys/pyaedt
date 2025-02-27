@@ -27,12 +27,12 @@ import sys
 import uuid
 
 from ansys.aedt.core import Quantity
+from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import read_json
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.visualization.plot.pyvista import _parse_aedtplt
 from ansys.aedt.core.visualization.plot.pyvista import _parse_streamline
-from ansys.aedt.core.generic.errors import AEDTRuntimeError
 import pytest
 
 from tests import TESTS_GENERAL_PATH
@@ -53,11 +53,13 @@ def aedtapp(add_app):
     yield app
     app.close_project(app.project_name)
 
+
 @pytest.fixture(scope="class")
 def m2d_app(add_app):
     app = add_app(project_name=m2d_trace_export_table, subfolder=test_subfolder)
     yield app
     app.close_project(app.project_name)
+
 
 class TestClass:
 
@@ -810,14 +812,12 @@ class TestClass:
     def test_trace_export_table(self, m2d_app, local_scratch):
         m2d_app.set_active_design("Design2")
         plot_name = m2d_app.post.plots[0].plot_name
-        output_file_path = os.path.join(local_scratch,"zeroes.tab")
+        output_file_path = os.path.join(local_scratch, "zeroes.tab")
         assert m2d_app.post.plots[0].export_table_to_file(plot_name, output_file_path, "Legend")
         assert os.path.exists(output_file_path)
         with pytest.raises(AEDTRuntimeError):
-            m2d_app.post.plots[0].export_table_to_file("Invalid Name",output_file_path, "Legend")
+            m2d_app.post.plots[0].export_table_to_file("Invalid Name", output_file_path, "Legend")
         with pytest.raises(AEDTRuntimeError):
-            m2d_app.post.plots[0].export_table_to_file(plot_name,"Invalid Path", "Legend")
+            m2d_app.post.plots[0].export_table_to_file(plot_name, "Invalid Path", "Legend")
         with pytest.raises(AEDTRuntimeError):
             m2d_app.post.plots[0].export_table_to_file(plot_name, output_file_path, "Invalid Export Type")
-
-

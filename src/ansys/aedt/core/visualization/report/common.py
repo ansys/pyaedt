@@ -29,6 +29,7 @@ import os
 from ansys.aedt.core.generic.constants import LineStyle
 from ansys.aedt.core.generic.constants import SymbolStyle
 from ansys.aedt.core.generic.constants import TraceType
+from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import write_configuration_file
@@ -36,7 +37,6 @@ from ansys.aedt.core.generic.numbers import _units_assignment
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modeler.cad.elements_3d import HistoryProps
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
-from ansys.aedt.core.generic.errors import AEDTRuntimeError
 
 
 class LimitLine(BinaryTreeNode):
