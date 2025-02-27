@@ -418,14 +418,14 @@ def nastran_to_stl(
     decimation=0,
     enable_planar_merge="True",
     preview=False,
-    remove_multiple_constraints=False,
+    remove_multiple_connections=False,
 ):
     """Convert the Nastran file into stl."""
     logger = logging.getLogger("Global")
     nas_to_dict = _parse_nastran(input_file)
 
-    if remove_multiple_constraints:
-        _remove_multiple_constraints(nas_to_dict)
+    if remove_multiple_connections:
+        _remove_multiple_connections(nas_to_dict)
 
     empty = True
     for assembly in nas_to_dict["Assemblies"].values():
@@ -447,8 +447,8 @@ def nastran_to_stl(
     return output_stls, nas_to_dict, enable_stl_merge
 
 
-def _detect_triple_connections_node(triangles):
-    """Detects all triangles connected to a triple connection edge or its nodes."""
+def _detect_multiple_connections_node(triangles):
+    """Detects all triangles connected to a multiple connection edge or its nodes."""
 
     edge_to_triangles = defaultdict(list)
 
@@ -473,7 +473,6 @@ def _detect_triple_connections_node(triangles):
             invalid_trg_indices.add(i)
 
     # Convert to triangle triplets
-
     invalid_triangles = [triangles[i] for i in range(len(triangles)) if i in invalid_trg_indices]
     valid_triangles = [triangles[i] for i in range(len(triangles)) if i not in invalid_trg_indices]
 
@@ -482,7 +481,6 @@ def _detect_triple_connections_node(triangles):
 
 def _split_invalid_triangles(invalid_triangles):
     """Splits invalid triangles into two groups while handling triple connections on edges and nodes."""
-    t0 = time.time()
 
     invalid_triangles = np.array(invalid_triangles)
 
@@ -495,15 +493,13 @@ def _split_invalid_triangles(invalid_triangles):
         for edge in edges:
             edge_to_triangles[edge].append(i)
 
-    print(f"Step 1: {format_elapsed_time(time.time() - t0, seconds_decimals=3)}")
-
     # Step 2: Identify groups
-    t0 = time.time()
-
     group_A = set()  # Stores indices of triangles assigned to Group A
     group_B = set()  # Stores indices of triangles assigned to Group B
     visited_triangles = set()  # Tracks already assigned triangles
 
+    # Here triple and quad connections are solved directly.
+    # Higher order multiple connections are split in half and left to be solved to next iterations of the algorithm.
     for edge, tri_indices in edge_to_triangles.items():
         if len(tri_indices) == 3:  # Triple connection detected
             unassigned = [t for t in tri_indices if t not in visited_triangles]
@@ -583,11 +579,7 @@ def _split_invalid_triangles(invalid_triangles):
             group_B.update(unassigned[int(len(unassigned) / 2) :])
             visited_triangles.update(unassigned)
 
-    print(f"Step 2: {format_elapsed_time(time.time() - t0, seconds_decimals=3)}")
-
     # Step 3: Assign remaining triangles (those connected only by a node)
-    t0 = time.time()
-
     group_A_or_group_B = group_A | group_B
     remaining_triangles = set(range(len(invalid_triangles))) - group_A_or_group_B
     node_to_triangles = defaultdict(set)
@@ -596,21 +588,12 @@ def _split_invalid_triangles(invalid_triangles):
         for v in tri:
             node_to_triangles[v].add(idx)  # node index to trg index
 
-    print(f"Step 3.1: {format_elapsed_time(time.time() - t0, seconds_decimals=3)}")
-
-    t0 = time.time()
-    t1 = t2 = 0
-    i1 = i2 = i3 = 0
-
+    i3 = 0
     while remaining_triangles:
         for tri_idx in list(remaining_triangles):
-            tt = time.time()
             assigned_neighbors = set()
             for v in invalid_triangles[tri_idx]:
                 assigned_neighbors.update(node_to_triangles[v] & group_A_or_group_B)
-            t1 += time.time() - tt
-
-            tt = time.time()
 
             if assigned_neighbors:
                 is_set = False
@@ -618,7 +601,6 @@ def _split_invalid_triangles(invalid_triangles):
                 for ref_triangle in list(assigned_neighbors):  # iter(assigned_neighbors):
                     # Check if the triangles have two nodes in common, meaning that they are adjacent.
                     if len(set(invalid_triangles[ref_triangle]) & set(invalid_triangles[tri_idx])) == 2:
-                        i1 += 1
                         if ref_triangle in group_A:
                             group_A.add(tri_idx)
                             group_A_or_group_B.add(tri_idx)
@@ -626,12 +608,10 @@ def _split_invalid_triangles(invalid_triangles):
                             group_B.add(tri_idx)
                             group_A_or_group_B.add(tri_idx)
                         is_set = True
-                        # remaining_triangles.remove(tri_idx)
                         break
                 # If no adjacent triangle is present -> is_set==False,
                 # Assign the group same as the first in the list (not optimal, but it should be assigned to something).
                 if not is_set:
-                    i2 += 1
                     ref_triangle = list(assigned_neighbors)[0]  # next(iter(assigned_neighbors))
                     if ref_triangle in group_A:
                         group_A.add(tri_idx)
@@ -642,12 +622,7 @@ def _split_invalid_triangles(invalid_triangles):
             else:
                 i3 += 1
 
-            t2 += time.time() - tt
-
-    print(f"Step 3.2: {format_elapsed_time(time.time() - t0, seconds_decimals=3)}")
-    print(f"Step 3.2t1: {format_elapsed_time(t1, seconds_decimals=3)}")
-    print(f"Step 3.2t2: {format_elapsed_time(t2, seconds_decimals=3)}")
-    print(f"i1={i1}, i2={i2}, i3={i3}")
+    print(f"i3={i3}")
 
     # Convert sets to NumPy arrays to index them
     group_A_triangles = invalid_triangles[list(group_A)]
@@ -663,26 +638,21 @@ def _total_len(lst):
 
 
 @pyaedt_function_handler()
-def _remove_multiple_constraints(dict_in, max_iterations=20, verbose=True):
-    """Remove the triple constraints by creating separated bodies."""
+def _remove_multiple_connections(dict_in, max_iterations=20, verbose=True):
+    """Remove the triple connections by creating separated bodies."""
     logger = logging.getLogger("Global")
-    if verbose:
-        logger.debug("Nastran import. Removing multiple constraints.")
+    logger.debug("Nastran import. Removing multiple connection.")
+    t0 = time.time()
+
     # get the data
-    points = copy.deepcopy(dict_in["Points"])
     assemblies_trg = {}
     for a, v in dict_in["Assemblies"].items():
         if v["Triangles"]:
             assemblies_trg[a] = copy.deepcopy(v["Triangles"])
 
-    # get the total number of triangles
-    num_total_trg = {}
-    for a in assemblies_trg:
-        num_total_trg[a] = len(assemblies_trg[a])
-
     def recursive_fix(all_lists, valid_list, ii):
         """
-        Recursively applies _detect_triple_connections_node and _split_invalid_triangles to all
+        Recursively applies _detect_multiple_connections_node and _split_invalid_triangles to all
         sub-lists until the stopping condition is met.
         Returns 0 if completed successfully, returns 1 if exits reaching max_iterations.
         """
@@ -690,7 +660,7 @@ def _remove_multiple_constraints(dict_in, max_iterations=20, verbose=True):
         new_lists = []
 
         for lst in all_lists:
-            valid_trgs, invalid_trgs = _detect_triple_connections_node(lst)
+            valid_trgs, invalid_trgs = _detect_multiple_connections_node(lst)
             valid_list.append(valid_trgs)
             if invalid_trgs:
                 group_A, group_B = _split_invalid_triangles(invalid_trgs)
@@ -714,7 +684,7 @@ def _remove_multiple_constraints(dict_in, max_iterations=20, verbose=True):
 
         return recursive_fix(new_lists, valid_list, ii)
 
-    # remove the trg belonging to the triple constraints
+    # remove the trg belonging to the triple connection
     total_triangles_before = 0
     total_triangles_after = 0
     for assembly, bodies in assemblies_trg.items():
@@ -735,11 +705,14 @@ def _remove_multiple_constraints(dict_in, max_iterations=20, verbose=True):
                 body_name = body if i == 0 else f"{body}_{i}"
                 dict_in["Assemblies"][assembly]["Triangles"][body_name] = trg_list
 
+    logger.debug(f"Number of assemblies: {len(assemblies_trg)}")
     logger.debug(
-        f"Removing multiple connections from Nastran.\n"
-        f"Number of assemblies bodies: {len(assemblies_trg)}, "
-        f"Total number of bodies: {sum([len(b) for a in assemblies_trg.values() for b in a.values()])} \n"
-        f"Total triangles before fix: {total_triangles_before}, total triangles after fix: {total_triangles_after}"
+        f"Total number of bodies before fix: {sum([len(a) for a in assemblies_trg.values()])}, "
+        f"Total number of bodies after fix: {sum([len(a['Triangles']) for a in dict_in['Assemblies'].values()])}"
     )
+    logger.debug(
+        f"Total triangles before fix: {total_triangles_before}, " f"Total triangles after fix: {total_triangles_after}"
+    )
+    logger.debug(f"Time elapsed: {format_elapsed_time(time.time() - t0, seconds_decimals=3)}")
 
     return dict_in
