@@ -281,6 +281,10 @@ class SolutionData(object):
             return _solutions_mag
 
     @pyaedt_function_handler()
+    def __get_index(self, input):
+        return tuple([float(i) for i in input])
+
+    @pyaedt_function_handler()
     def _init_solution_data_real(self):
         """Initialize the real part of the solution data."""
         sols_data = {}
@@ -297,7 +301,7 @@ class SolutionData(object):
                 i = 0
                 c = [comb[v] for v in list(comb.keys())]
                 for t in itertools.product(*values):
-                    solution_data[str(tuple(c + list(t)))] = solution[i]
+                    solution_data[self.__get_index(tuple(c + list(t)))] = solution[i]
                     i += 1
             sols_data[expression] = solution_data
         if self.enable_pandas_output:
@@ -324,7 +328,7 @@ class SolutionData(object):
                 i = 0
                 c = [comb[v] for v in list(comb.keys())]
                 for t in itertools.product(*values):
-                    solution_data[str(tuple(c + list(t)))] = solution[i]
+                    solution_data[self.__get_index(c + list(t))] = solution[i]
                     i += 1
             sols_data[expression] = solution_data
         if self.enable_pandas_output:
@@ -450,7 +454,7 @@ class SolutionData(object):
         for el in sw:
             temp[position] = el
             try:
-                sol.append(solution_data[str(tuple(temp))])
+                sol.append(solution_data[self.__get_index(temp)])
             except KeyError:
                 sol.append(None)
         if convert_to_SI and self._quantity(self.units_data[expression]):
@@ -594,7 +598,7 @@ class SolutionData(object):
 
         for el in self.primary_sweep_values:
             temp[position] = el
-            if str(tuple(temp)) in solution_data:
+            if self.__get_index(temp) in solution_data:
                 sol_dict = {}
                 i = 0
                 for sn in self._sweeps_names:
@@ -636,7 +640,7 @@ class SolutionData(object):
         for el in sw:
             temp[position] = el
             try:
-                sol.append(solution_data[str(tuple(temp))])
+                sol.append(solution_data[self.__get_index(temp)])
             except KeyError:
                 sol.append(None)
 
@@ -677,7 +681,7 @@ class SolutionData(object):
         for el in sw:
             temp[position] = el
             try:
-                sol.append(solution_data[str(tuple(temp))])
+                sol.append(solution_data[self.__get_index(temp)])
             except KeyError:
                 sol.append(None)
         if convert_to_SI and self._quantity(self.units_data[expression]):
@@ -755,7 +759,7 @@ class SolutionData(object):
 
         list_full = [header]
         for e, v in self._solutions_real[self.active_expression].items():
-            e = [float(Quantity(i)) for i in e[1:-1].split(",")]
+            e = [float(i) for i in e]
             list_full.append(list(e))
         for el in self.expressions:
             i = 1
