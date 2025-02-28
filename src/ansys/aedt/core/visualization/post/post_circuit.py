@@ -124,8 +124,8 @@ class PostProcessorCircuit(PostProcessorCommon):
             Name of the setup.
         ami_name : str
             AMI probe name to use.
-        variation_list_w_value : list
-            List of variations with relative values.
+        variation_list_w_value : list or dict
+            List of variations with relative values. List is deprecated.
         plot_type : str
             String containing the report type. Default is ``"Rectangular Plot"``. It can be ``"Data Table"``,
             ``"Rectangular Stacked Plot"``or any of the other valid AEDT Report types.
@@ -149,18 +149,23 @@ class PostProcessorCircuit(PostProcessorCommon):
             plot_name = generate_unique_name("AMIAnalysis")
         variations = ["__InitialTime:=", ["All"]]
         i = 0
-        for a in variation_list_w_value:
-            if (i % 2) == 0:
-                if ":=" in a:
-                    variations.append(a)
+        if isinstance(variation_list_w_value, dict):
+            for k, v in variation_list_w_value.items():
+                variations.append(k + ":=")
+                variations.append([v])
+        else:  # pragma: no cover
+            for a in variation_list_w_value:
+                if (i % 2) == 0:
+                    if ":=" in a:
+                        variations.append(a)
+                    else:
+                        variations.append(a + ":=")
                 else:
-                    variations.append(a + ":=")
-            else:
-                if isinstance(a, list):
-                    variations.append(a)
-                else:
-                    variations.append([a])
-            i += 1
+                    if isinstance(a, list):
+                        variations.append(a)
+                    else:
+                        variations.append([a])
+                i += 1
         ycomponents = []
         if plot_initial_response:
             ycomponents.append(f"InitialImpulseResponse<{ami_name}.int_ami_rx>")
@@ -225,8 +230,8 @@ class PostProcessorCircuit(PostProcessorCommon):
             Name of the setup.
         ami_name : str
             AMI probe name to use.
-        variation_list_w_value : list
-            Variations with relative values.
+        variation_list_w_value : dict or list
+            Variations with relative values. List is deprecated.
         ami_plot_type : str, optional
             String containing the report AMI type. The default is ``"InitialEye"``.
             Options are ``"EyeAfterChannel"``, ``"EyeAfterProbe"````"EyeAfterSource"``,
@@ -253,18 +258,23 @@ class PostProcessorCircuit(PostProcessorCommon):
             ["All"],
         ]
         i = 0
-        for a in variation_list_w_value:
-            if (i % 2) == 0:
-                if ":=" in a:
-                    variations.append(a)
+        if isinstance(variation_list_w_value, dict):
+            for k, v in variation_list_w_value.items():
+                variations.append(k + ":=")
+                variations.append([v])
+        else:  # pragma: no cover
+            for a in variation_list_w_value:
+                if (i % 2) == 0:
+                    if ":=" in a:
+                        variations.append(a)
+                    else:
+                        variations.append(a + ":=")
                 else:
-                    variations.append(a + ":=")
-            else:
-                if isinstance(a, list):
-                    variations.append(a)
-                else:
-                    variations.append([a])
-            i += 1
+                    if isinstance(a, list):
+                        variations.append(a)
+                    else:
+                        variations.append([a])
+                i += 1
         ycomponents = []
         if ami_plot_type == "InitialEye" or ami_plot_type == "EyeAfterSource":
             ibs_type = "tx"
@@ -354,18 +364,23 @@ class PostProcessorCircuit(PostProcessorCommon):
             ["All"],
         ]
         i = 0
-        for a in variation_list_w_value:
-            if (i % 2) == 0:
-                if ":=" in a:
-                    variations.append(a)
+        if isinstance(variation_list_w_value, dict):
+            for k, v in variation_list_w_value.items():
+                variations.append(k + ":=")
+                variations.append([v])
+        else:  # pragma: no cover
+            for a in variation_list_w_value:
+                if (i % 2) == 0:
+                    if ":=" in a:
+                        variations.append(a)
+                    else:
+                        variations.append(a + ":=")
                 else:
-                    variations.append(a + ":=")
-            else:
-                if isinstance(a, list):
-                    variations.append(a)
-                else:
-                    variations.append([a])
-            i += 1
+                    if isinstance(a, list):
+                        variations.append(a)
+                    else:
+                        variations.append([a])
+                i += 1
         if isinstance(probe_names, list):
             ycomponents = probe_names
         else:

@@ -155,6 +155,7 @@ def _dict2arg(d, arg_out):
                 _dict2arg(el, arg)
                 arg_out.append(arg)
         elif isinstance(v, Quantity):
+            arg_out.append(k + ":=")
             arg_out.append(str(v))
         else:
             arg_out.append(k + ":=")
