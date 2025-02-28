@@ -220,11 +220,8 @@ class FieldAnalysis3D(Analysis, object):
 
         for lib in libs:
             if lib.exists():
-                listfiles = []
                 for file in lib.rglob("*.a3dcomp"):
-                    listfiles.append(file)
-                for el in listfiles:
-                    components_dict[el.stem] = str(el)
+                    components_dict[file.stem] = str(file)
         return components_dict
 
     @pyaedt_function_handler(objects="assignment", export_path="output_file")

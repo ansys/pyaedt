@@ -49,13 +49,13 @@ is_windows = not is_linux
 
 
 # Path processing
-@pyaedt_function_handler()
-def normalize_path(path_in: Union[str, Path], sep: str = None) -> str:
+@pyaedt_function_handler(path_in="input_dir")
+def normalize_path(input_dir: Union[str, Path], sep: str = None) -> str:
     """Normalize path separators.
 
     Parameters
     ----------
-    path_in : str or :class:`pathlib.Path`
+    input_dir : str or :class:`pathlib.Path`
         Path to normalize.
     sep : str, optional
         Separator.
@@ -65,7 +65,7 @@ def normalize_path(path_in: Union[str, Path], sep: str = None) -> str:
     str
         Path normalized to new separator.
     """
-    path = Path(path_in)
+    path = Path(input_dir)
     if sep:
         return str(path).replace(path.anchor, sep)
     return str(path)
@@ -91,7 +91,7 @@ def get_filename_without_extension(input_file: Union[str, Path]) -> str:
 
 @pyaedt_function_handler(project_path="input_file")
 def is_project_locked(input_file: Union[str, Path]) -> bool:
-    """Check if an AEDT project lock file exists.
+    """Check if the AEDT project lock file exists.
 
     Parameters
     ----------
@@ -114,7 +114,7 @@ def is_project_locked(input_file: Union[str, Path]) -> bool:
 
 @pyaedt_function_handler(project_path="input_file")
 def remove_project_lock(input_file: Union[str, Path]) -> bool:
-    """Check if an AEDT project exists and try to remove the lock file.
+    """Check if the AEDT project exists and try to remove the lock file.
 
     .. note::
        This operation is risky because the file could be opened in another AEDT instance.
@@ -141,7 +141,7 @@ def remove_project_lock(input_file: Union[str, Path]) -> bool:
 
 @pyaedt_function_handler()
 def check_and_download_file(remote_path: Union[str, Path], overwrite: bool = True) -> str:
-    """Check if a file is remote and either download it or return the path.
+    """Check if a file is remote. Download it or return the path.
 
     Parameters
     ----------
@@ -168,7 +168,7 @@ def check_and_download_file(remote_path: Union[str, Path], overwrite: bool = Tru
 
 @pyaedt_function_handler()
 def check_if_path_exists(path: Union[str, Path]) -> bool:
-    """Check whether a path exists or not local or remote machine (for remote sessions only).
+    """Check whether a path exists on a local or on a remote machine (for remote sessions only).
 
     Parameters
     ----------
@@ -190,7 +190,7 @@ def check_if_path_exists(path: Union[str, Path]) -> bool:
 def check_and_download_folder(
     local_path: Union[str, Path], remote_path: Union[str, Path], overwrite: bool = True
 ) -> str:
-    """Check if a folder is remote and either download it or return the path.
+    """Download remote folder.
 
     Parameters
     ----------
@@ -308,7 +308,7 @@ def generate_unique_project_name(
     folder_path = generate_unique_folder_name(root_name, folder_name=folder_name)
     folder_path = Path(folder_path)
     prj = folder_path / name_with_ext
-    if check_if_path_exists(prj):
+    while check_if_path_exists(prj):
         name_with_ext = generate_unique_name(project_name, n=3) + "." + project_format
         prj = folder_path / name_with_ext
     return str(prj)
@@ -578,10 +578,9 @@ def read_xlsx(input_file: Union[str, Path]):
         import pandas as pd
 
         lines = pd.read_excel(file_name)
-        return lines
     except ImportError:
         lines = []
-        return lines
+    return lines
 
 
 @pyaedt_function_handler()
