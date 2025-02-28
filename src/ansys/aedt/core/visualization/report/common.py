@@ -2694,7 +2694,7 @@ class CommonReport(BinaryTreeNode):
         ----------
         >>> oModule.ExportTableToFile
         """
-        plot_names = [plot.name for plot in self._post.plots]
+        plot_names = [plot.plot_name for plot in self._post.plots]
         if plot_name not in plot_names:
             raise AEDTRuntimeError("Please enter a plot name.")
         extension = os.path.splitext(output_file)[1]
