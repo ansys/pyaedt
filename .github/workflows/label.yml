@@ -60,8 +60,7 @@ jobs:
     - uses: actions-ecosystem/action-add-labels@v1
       if: startsWith(github.event.pull_request.head.ref, 'feat')
       with:
-        labels: |
-          enhancement
+        labels: enhancement
 
     - uses: actions-ecosystem/action-add-labels@v1
       if: |
@@ -106,3 +105,7 @@ changelog-fragment:
     - uses: ansys/actions/doc-changelog@v8
       with:
         token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
+        use-conventional-commits: true
+        use-default-towncrier-config: true
+        bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
+        bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
