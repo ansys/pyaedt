@@ -5988,7 +5988,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                 report_category="Monostatic RCS",
             )
             if rcs_data and rcs_data.primary_sweep_values is not None:
-                frequencies = [str(freq_str) for freq_str in rcs_data.primary_sweep_values]
+                frequencies = rcs_data.primary_sweep_values
         if not frequencies:  # pragma: no cover
             self.logger.info("Frequencies could not be obtained.")
             return False
