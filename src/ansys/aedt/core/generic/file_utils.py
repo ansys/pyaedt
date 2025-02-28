@@ -29,14 +29,17 @@ import json
 import math
 from pathlib import Path
 import string
+import tempfile
 from typing import Dict
 from typing import List
 from typing import TextIO
 from typing import Union
 
+from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.constants import CSS4_COLORS
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
+import pandas
 
 
 # Path processing
@@ -384,7 +387,7 @@ def open_file(
         else:
             return settings.remote_rpc_session.open_file(str(file_path), file_options, encoding=encoding)
     else:
-        settings.logger.error("The file or folder %s does not exist", dir_name)
+        pyaedt_logger.error("The file or folder %s does not exist", dir_name)
         return None
 
 
@@ -408,7 +411,7 @@ def read_json(input_file: Union[str, Path]) -> dict:
             json_data = json.load(json_file)
         except json.JSONDecodeError as e:  # pragma: no cover
             error = f"Error reading json: {e.msg} at line {e.lineno}"
-            settings.logger.error(error)
+            pyaedt_logger.error(error)
     return json_data
 
 
@@ -699,7 +702,7 @@ def parse_excitation_file(
 
 
 @pyaedt_function_handler(file_path="input_file", unit="units", control_path="output_file")
-def tech_to_control_file(input_file: Union[str, Path], units: str = "nm", output_file: str = None):
+def tech_to_control_file(input_file: Union[str, Path], units: str = "nm", output_file: Union[str, Path] = None):
     """Convert a TECH file to an XML file for use in a GDS or DXF import.
 
     Parameters
@@ -708,7 +711,7 @@ def tech_to_control_file(input_file: Union[str, Path], units: str = "nm", output
         Full path to the TECH file.
     units : str, optional
         Tech units. If specified in tech file this parameter will not be used. Default is ``"nm"``.
-    output_file : str, optional
+    output_file : str or :class:`pathlib.Path`, optional
         Path for outputting the XML file.
 
     Returns
@@ -724,7 +727,7 @@ def tech_to_control_file(input_file: Union[str, Path], units: str = "nm", output
         for line in f:
             line_split = line.split()
             if len(line_split) == 5:
-                layerID, layer_name, _, elevation, layer_height = line.split()
+                layerID, layer_name, _, _, layer_height = line.split()
                 x = (
                     f'      <Layer Color="{vals[id_layer]}" '
                     f'GDSIIVia="{"true" if layer_name.lower().startswith("v") else "false"}" '
@@ -736,7 +739,9 @@ def tech_to_control_file(input_file: Union[str, Path], units: str = "nm", output
             elif len(line_split) > 1 and "UNIT" in line_split[0]:
                 units = line_split[1]
     if not output_file:
-        output_file = os.path.splitext(file_path)[0] + ".xml"
+        output_file = input_file.with_suffix(".xml")
+    else:
+        output_file = Path(output_file)
     with open_file(output_file, "w") as f:
         f.write('<?xml version="1.0" encoding="UTF-8" standalone="no" ?>\n')
         f.write('    <c:Control xmlns:c="http://www.ansys.com/control" schemaVersion="1.0">\n')
@@ -752,7 +757,7 @@ def tech_to_control_file(input_file: Union[str, Path], units: str = "nm", output
         f.write('  <ImportOptions Flatten="true" GDSIIConvertPolygonToCircles="false" ImportDummyNet="true"/>\n')
         f.write("\n")
         f.write("</c:Control>\n")
-    return output_file
+    return str(output_file)
 
 
 # CAD parsing
@@ -841,6 +846,58 @@ def write_configuration_file(input_data: dict, output_file: Union[str, Path]) ->
         return _create_toml_file(input_data, output_file)
 
 
+# Operators
+@pyaedt_function_handler(time_vals="time_values", value="data_values")
+def compute_fft(
+    time_values: pandas.Series, data_values: pandas.Series, window=None
+) -> Union[tuple, bool]:  # pragma: no cover
+    """Compute FFT of input transient data.
+
+    Parameters
+    ----------
+    time_values : `pandas.Series`
+        Time points corresponding to the x-axis of the input transient data.
+    data_values : `pandas.Series`
+        Points corresponding to the y-axis.
+    window : str, optional
+        Fft window. Options are "hamming", "hanning", "blackman", "bartlett".
+
+    Returns
+    -------
+    tuple or bool
+        Frequency and values.
+    """
+    try:
+        import numpy as np
+    except ImportError:
+        pyaedt_logger.error("NumPy is not available. Install it.")
+        return False
+
+    deltaT = time_values[-1] - time_values[0]
+    num_points = len(time_values)
+    win = None
+    if window:
+
+        if window == "hamming":
+            win = np.hamming(num_points)
+        elif window == "hanning":
+            win = np.hanning(num_points)
+        elif window == "bartlett":
+            win = np.bartlett(num_points)
+        elif window == "blackman":
+            win = np.blackman(num_points)
+    if win is not None:
+        valueFFT = np.fft.fft(data_values * win, num_points)
+    else:
+        valueFFT = np.fft.fft(data_values, num_points)
+    Npoints = int(len(valueFFT) / 2)
+    valueFFT = valueFFT[:Npoints]
+    valueFFT = 2 * valueFFT / len(valueFFT)
+    n = np.arange(num_points)
+    freq = n / deltaT
+    return freq, valueFFT
+
+
 @pyaedt_function_handler()
 def _create_json_file(json_dict, full_json_path):
     full_json_path = Path(full_json_path)
@@ -849,7 +906,7 @@ def _create_json_file(json_dict, full_json_path):
 
     with open_file(full_json_path, "w") as fp:
         json.dump(json_dict, fp, indent=4)
-    settings.logger.info(f"{full_json_path} correctly created.")
+    pyaedt_logger.info(f"{full_json_path} correctly created.")
     return True
 
 
@@ -879,7 +936,7 @@ def _create_toml_file(input_dict, full_toml_path):
     new_dict = _dict_toml(input_dict)
     with open_file(full_toml_path, "wb") as fp:
         tomli_w.dump(new_dict, fp)
-    settings.logger.info(f"{full_toml_path} correctly created.")
+    pyaedt_logger.info(f"{full_toml_path} correctly created.")
     return True
 
 

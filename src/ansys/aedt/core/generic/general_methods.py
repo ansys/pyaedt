@@ -783,57 +783,6 @@ def grpc_active_sessions(version=None, student_version=False, non_graphical=Fals
     return return_list
 
 
-@pyaedt_function_handler(time_vals="time_values", value="data_values")
-def compute_fft(time_values, data_values, window=None):  # pragma: no cover
-    """Compute FFT of input transient data.
-
-    Parameters
-    ----------
-    time_values : `pandas.Series`
-        Time points corresponding to the x-axis of the input transient data.
-    data_values : `pandas.Series`
-        Points corresponding to the y-axis.
-    time_values : `pandas.Series`
-    data_values : `pandas.Series`
-    window : str, optional
-        Fft window. Options are "hamming", "hanning", "blackman", "bartlett".
-
-    Returns
-    -------
-    tuple
-        Frequency and Values.
-    """
-    try:
-        import numpy as np
-    except ImportError:
-        pyaedt_logger.error("NumPy is not available. Install it.")
-        return False
-
-    deltaT = time_values[-1] - time_values[0]
-    num_points = len(time_values)
-    win = None
-    if window:
-
-        if window == "hamming":
-            win = np.hamming(num_points)
-        elif window == "hanning":
-            win = np.hanning(num_points)
-        elif window == "bartlett":
-            win = np.bartlett(num_points)
-        elif window == "blackman":
-            win = np.blackman(num_points)
-    if win is not None:
-        valueFFT = np.fft.fft(data_values * win, num_points)
-    else:
-        valueFFT = np.fft.fft(data_values, num_points)
-    Npoints = int(len(valueFFT) / 2)
-    valueFFT = valueFFT[:Npoints]
-    valueFFT = 2 * valueFFT / len(valueFFT)
-    n = np.arange(num_points)
-    freq = n / deltaT
-    return freq, valueFFT
-
-
 @pyaedt_function_handler(function_str="function")
 def conversion_function(data, function=None):  # pragma: no cover
     """Convert input data based on a specified function string.
