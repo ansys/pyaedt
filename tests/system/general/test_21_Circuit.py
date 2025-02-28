@@ -246,7 +246,7 @@ class TestClass:
         solution_name = "Dom_LNA"
         sweep_name = None
         file_name = Path(self.local_scratch.path) / "new.s2p"
-        assert self.aedtapp.export_touchstone(solution_name, sweep_name, str(file_name))
+        assert self.aedtapp.export_touchstone(solution_name, sweep_name, file_name)
         assert Path(file_name).exists()
         assert self.aedtapp.existing_analysis_sweeps[0] == solution_name
         assert self.aedtapp.setup_names[0] == solution_name
@@ -352,18 +352,18 @@ class TestClass:
     def test_25_import_model(self):
         self.aedtapp.insert_design("Touch_import")
         touch = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / touchstone
-        t1 = self.aedtapp.modeler.schematic.create_touchstone_component(str(touch))
+        t1 = self.aedtapp.modeler.schematic.create_touchstone_component(touch)
         assert t1
         assert len(t1.pins) == 6
         assert t1.model_data
         t1.model_data.props["NexximCustomization"]["Passivity"] = 7
         assert t1.model_data.update()
-        t2 = self.aedtapp.modeler.schematic.create_touchstone_component(str(touch))
+        t2 = self.aedtapp.modeler.schematic.create_touchstone_component(touch)
         assert t2
         t2.model_data.props["NexximCustomization"]["Passivity"] = 0
         assert t2.model_data.update()
         touch = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "y4bm_rdl_dq_byte0.s26p"
-        t1 = self.aedtapp.modeler.schematic.create_touchstone_component(str(touch))
+        t1 = self.aedtapp.modeler.schematic.create_touchstone_component(touch)
         assert t1
         assert len(t1.pins) == 26
 
@@ -398,11 +398,11 @@ class TestClass:
         diff_def_file = (
             Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "differential_pairs_definition.txt"
         )
-        diff_file = self.local_scratch.copyfile(str(diff_def_file))
+        diff_file = self.local_scratch.copyfile(diff_def_file)
         assert self.circuitprj.load_diff_pairs_from_file(diff_file)
         diff_file2 = Path(self.local_scratch.path) / "diff_file2.txt"
-        assert self.circuitprj.save_diff_pairs_to_file(str(diff_file2))
-        with open(str(diff_file2), "r") as fh:
+        assert self.circuitprj.save_diff_pairs_to_file(diff_file2)
+        with open(diff_file2, "r") as fh:
             lines = fh.read().splitlines()
         assert len(lines) == 3
 
@@ -509,7 +509,7 @@ class TestClass:
             for i in range(10):
                 f.write(f"L{i} net_{i} net_{i+1} 1e-9\n")
                 f.write(f"C{i} net_{i+1} 0 5e-12\n")
-        assert self.aedtapp.add_netlist_datablock(str(Path(self.local_scratch.path) / "lc.net"))
+        assert self.aedtapp.add_netlist_datablock(Path(self.local_scratch.path) / "lc.net")
         self.aedtapp.modeler.components.create_interface_port("net_0", (0, 0))
         self.aedtapp.modeler.components.create_interface_port("net_10", (0.01, 0))
 
@@ -542,7 +542,7 @@ class TestClass:
         if not is_linux:
             self.aedtapp.save_project()
             assert self.aedtapp.browse_log_file()
-            assert not self.aedtapp.browse_log_file(str(Path(self.aedtapp.working_directory) / "logfiles"))
+            assert not self.aedtapp.browse_log_file(Path(self.aedtapp.working_directory) / "logfiles")
             assert self.aedtapp.browse_log_file(self.aedtapp.working_directory)
 
     def test_39_export_results_circuit(self):
@@ -594,7 +594,7 @@ class TestClass:
         c.sources[name].phase_delay = "100deg"
         c.sources[name].tone = "100Hz"
         c.sources[name].i_q_values = [["0s", "1V", "2V"], ["1s", "3V", "2V"]]
-        c.sources[name].file = str(filepath)
+        c.sources[name].file = filepath
 
         assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("Name") == name
         assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("FC") == "2GHz"
@@ -628,7 +628,7 @@ class TestClass:
         assert source_freq.vimag == [0.2, 0.1]
         source_freq.magnitude_angle = False
         assert not source_freq.magnitude_angle
-        source_freq.fds_filename = str(filepath)
+        source_freq.fds_filename = filepath
         assert source_freq.fds_filename == str(filepath)
         source_freq.fds_filename = None
 
@@ -883,7 +883,7 @@ class TestClass:
         touchstone_file = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / touchstone_custom
 
         status, diff_pairs, comm_pairs = self.aedtapp.create_lna_schematic_from_snp(
-            input_file=str(touchstone_file),
+            input_file=touchstone_file,
             start_frequency=0,
             stop_frequency=70,
             auto_assign_diff_pairs=True,
@@ -900,7 +900,7 @@ class TestClass:
         touchstone_file = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / touchstone_custom
 
         result, tdr_probe_name = self.aedtapp.create_tdr_schematic_from_snp(
-            input_file=str(touchstone_file),
+            input_file=touchstone_file,
             tx_schematic_pins=["A-MII-RXD1_30.SQFP28X28_208.P"],
             tx_schematic_differential_pins=["A-MII-RXD1_65.SQFP20X20_144.N"],
             termination_pins=["A-MII-RXD2_32.SQFP28X28_208.P", "A-MII-RXD2_66.SQFP20X20_144.N"],
@@ -917,8 +917,8 @@ class TestClass:
         touchstone_file = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / touchstone_custom
         ami_file = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "pcieg5_32gt.ibs"
         result, eye_curve_tx, eye_curve_rx = self.aedtapp.create_ami_schematic_from_snp(
-            input_file=str(touchstone_file),
-            ibis_tx_file=str(ami_file),
+            input_file=touchstone_file,
+            ibis_tx_file=ami_file,
             tx_buffer_name="1p",
             rx_buffer_name="2p",
             tx_schematic_pins=["A-MII-RXD1_30.SQFP28X28_208.P"],
@@ -940,8 +940,8 @@ class TestClass:
         touchstone_file = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / touchstone_custom
         ibis_file = Path(TESTS_GENERAL_PATH) / "example_models" / "T15" / "u26a_800_modified.ibs"
         result, eye_curve_tx, eye_curve_rx = self.aedtapp.create_ibis_schematic_from_snp(
-            input_file=str(touchstone_file),
-            ibis_tx_file=str(ibis_file),
+            input_file=touchstone_file,
+            ibis_tx_file=ibis_file,
             tx_buffer_name="DQ_FULL_800",
             rx_buffer_name="DQ_FULL_800",
             tx_schematic_pins=["A-MII-RXD1_30.SQFP28X28_208.P"],
@@ -988,7 +988,7 @@ class TestClass:
     def test_51_import_asc(self):
         self.aedtapp.insert_design("ASC")
         asc_file = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "butter.asc"
-        assert self.aedtapp.create_schematic_from_asc_file(str(asc_file))
+        assert self.aedtapp.create_schematic_from_asc_file(asc_file)
 
     def test_52_create_current_probe(self):
         iprobe = self.aedtapp.modeler.schematic.create_current_probe(name="test_probe", location=[0.4, 0.2])
@@ -1002,10 +1002,10 @@ class TestClass:
         file_header = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "table_header.csv"
         file_invented = "invented.csv"
 
-        assert not self.aedtapp.import_table(str(file_header), column_separator="dummy")
+        assert not self.aedtapp.import_table(file_header, column_separator="dummy")
         assert not self.aedtapp.import_table(file_invented)
 
-        table = self.aedtapp.import_table(str(file_header))
+        table = self.aedtapp.import_table(file_header)
         assert table in self.aedtapp.existing_analysis_sweeps
 
         assert not self.aedtapp.delete_imported_data("invented")
@@ -1018,7 +1018,7 @@ class TestClass:
         assert self.aedtapp.value_with_units("10") == "10mm"
 
     def test_55_get_component_path_and_import_sss_files(self):
-        model = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "test.lib")
+        model = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "test.lib"
         assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model)
         assert len(self.aedtapp.modeler.schematic.components) == 1
         assert list(self.aedtapp.modeler.components.components.values())[0].component_path
@@ -1028,12 +1028,12 @@ class TestClass:
         t1 = self.aedtapp.modeler.schematic.create_touchstone_component(self.touchstone_file)
         assert len(self.aedtapp.modeler.schematic.components) == 3
         assert t1.component_path
-        nexxim_state_space = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "neximspacefile.sss")
+        nexxim_state_space = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "neximspacefile.sss"
         sss = self.aedtapp.modeler.schematic.create_nexxim_state_space_component(nexxim_state_space, 16)
         assert len(self.aedtapp.modeler.schematic.components) == 4
         assert sss.component_path
         ibis_model = self.aedtapp.get_ibis_model_from_file(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", "T15", "u26a_800_modified.ibs")
+            Path(TESTS_GENERAL_PATH) / "example_models" / "T15" / "u26a_800_modified.ibs"
         )
         ibis_model.buffers["RDQS#_u26a_800_modified"].add()
         buffer = ibis_model.buffers["RDQS#_u26a_800_modified"].insert(0.1016, 0.05334, 0.0)

@@ -464,9 +464,9 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             IBIS object exposing all data from the IBIS file.
         """
         if is_ami:
-            reader = ibis_reader.AMIReader(input_file, self)
+            reader = ibis_reader.AMIReader(str(input_file), self)
         else:
-            reader = ibis_reader.IbisReader(input_file, self)
+            reader = ibis_reader.IbisReader(str(input_file), self)
         reader.parse_ibis_file()
         return reader.ibis_model
 
@@ -1448,7 +1448,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         ----------
         >>> oDesign.SaveDiffPairsToFile
         """
-        self.odesign.SaveDiffPairsToFile(output_file)
+        self.odesign.SaveDiffPairsToFile(str(output_file))
 
         return Path(output_file).is_file()
 
@@ -1476,7 +1476,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         tmp_oModule = self.odesign.GetModule("DataBlock")
         tmp_oModule.AddNetlistDataBlock(
-            ["NAME:DataBlock", "name:=", name, "filename:=", input_file, "filelocation:=", 0]
+            ["NAME:DataBlock", "name:=", name, "filename:=", str(input_file), "filelocation:=", 0]
         )
         return True
 
@@ -1695,7 +1695,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         if isinstance(input_file, type(Hfss3dLayout)):
             touchstone_path = input_file.export_touchstone()
         else:
-            touchstone_path = input_file
+            touchstone_path = str(input_file)
 
         sub = self.modeler.components.create_touchstone_component(touchstone_path)
         center_x = sub.location[0]
@@ -1835,7 +1835,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         if isinstance(input_file, type(Hfss3dLayout)):
             touchstone_path = input_file.export_touchstone()
         else:
-            touchstone_path = input_file
+            touchstone_path = str(input_file)
 
         sub = self.modeler.components.create_touchstone_component(touchstone_path)
 
@@ -2090,11 +2090,11 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         if isinstance(input_file, type(Hfss3dLayout)):
             touchstone_path = input_file.export_touchstone()
         else:
-            touchstone_path = input_file
+            touchstone_path = str(input_file)
 
         sub = self.modeler.components.create_touchstone_component(touchstone_path)
         return self.create_ibis_schematic_from_pins(
-            ibis_tx_file=ibis_tx_file,
+            ibis_tx_file=str(ibis_tx_file),
             ibis_rx_file=ibis_rx_file,
             tx_buffer_name=tx_buffer_name,
             rx_buffer_name=rx_buffer_name,
@@ -2456,7 +2456,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         scale = 2.54e-3 / (16 / factor)
 
-        flag, wire_xy, symbol = self._parse_asc_file(input_file=input_file, l_scale=scale, c_scale=scale)
+        flag, wire_xy, symbol = self._parse_asc_file(input_file=str(input_file), l_scale=scale, c_scale=scale)
         for i in flag:
             if i[2] == "0":
                 angle = 0

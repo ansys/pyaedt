@@ -24,6 +24,7 @@
 
 import math
 import os
+from pathlib import Path
 import secrets
 import warnings
 
@@ -966,18 +967,21 @@ class CircuitComponents(object):
         --------
 
         >>> from ansys.aedt.core import Circuit
+        >>> from pathlib import Path
         >>> cir = Circuit()
         >>> comps = cir.modeler.components
-        >>> s_parameter_path = os.path.join("your_path", "s_param_file_name.s4p")
+        >>> s_parameter_path = Path("your_path") / "s_param_file_name.s4p"
         >>> circuit_comp = comps.create_touchstone_component(s_parameter_path, location=[0.0, 0.0], show_bitmap=False)
         """
-        if not os.path.exists(model_name):
+        if not Path(model_name):
             raise FileNotFoundError("File not found.")
-        model_name = self.create_model_from_touchstone(model_name, show_bitmap=show_bitmap)
+        model_name = self.create_model_from_touchstone(str(model_name), show_bitmap=show_bitmap)
         if location is None:
             location = []
         xpos, ypos = self._get_location(location)
         id = self.create_unique_id()
+        if Path(model_name).exists():
+            model_name = self.create_model_from_touchstone(str(model_name), show_bitmap=show_bitmap)
         arg1 = ["NAME:ComponentProps", "Name:=", model_name, "Id:=", str(id)]
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         id = self.oeditor.CreateComponent(arg1, arg2)
@@ -997,7 +1001,7 @@ class CircuitComponents(object):
 
                 Parameters
                 ----------
-                model_name : str
+                model_name : str, Path
                     Name of the Touchstone model or full path to touchstone file.
                     If full touchstone is provided then, new model will be created.
                 num_terminal : int
@@ -1020,14 +1024,14 @@ class CircuitComponents(object):
                 >>> oEditor.CreateComponent
 
         """
-        if not os.path.exists(model_name):
+        if not Path(model_name):
             raise FileNotFoundError("File not found.")
-        model_name = self.create_model_from_nexxim_state_space(model_name, num_terminal)
+        model_name = self.create_model_from_nexxim_state_space(str(model_name), num_terminal)
         if location is None:
             location = []
         xpos, ypos = self._get_location(location)
         id = self.create_unique_id()
-        arg1 = ["NAME:ComponentProps", "Name:=", model_name, "Id:=", str(id)]
+        arg1 = ["NAME:ComponentProps", "Name:=", str(model_name), "Id:=", str(id)]
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         self.oeditor.CreateComponent(arg1, arg2)
         self.add_id_to_component(id)
