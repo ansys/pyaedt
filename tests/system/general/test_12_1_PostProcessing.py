@@ -26,6 +26,7 @@ import os
 import sys
 import uuid
 
+import ansys.aedt.core
 from ansys.aedt.core import Quantity
 from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.generic.general_methods import is_linux
@@ -56,7 +57,7 @@ def aedtapp(add_app):
 
 @pytest.fixture(scope="class")
 def m2d_app(add_app):
-    app = add_app(project_name=m2d_trace_export_table, subfolder=test_subfolder)
+    app = add_app(project_name=m2d_trace_export_table, subfolder=test_subfolder, application=ansys.aedt.core.Maxwell2d)
     yield app
     app.close_project(app.project_name)
 
@@ -813,7 +814,7 @@ class TestClass:
     def test_trace_export_table(self, m2d_app, local_scratch):
         m2d_app.set_active_design("Design2")
         plot_name = m2d_app.post.plots[0].plot_name
-        output_file_path = os.path.join(local_scratch, "zeroes.tab")
+        output_file_path = os.path.join(local_scratch.path, "zeroes.tab")
         assert m2d_app.post.plots[0].export_table_to_file(plot_name, output_file_path, "Legend")
         assert os.path.exists(output_file_path)
         with pytest.raises(AEDTRuntimeError):
