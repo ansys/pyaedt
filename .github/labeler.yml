@@ -20,8 +20,3 @@ testing:
     - "tests/system/conftest.py"
     - "tests/system/solvers/conftest.py"
     - "tests/system/general/conftest.py"
-
-examples:
-- changed-files:
-  - any-glob-to-any-file:
-    - "examples/**/*"
