@@ -83,7 +83,15 @@ def identify_setup(props):
     return False
 
 
-class SweepHFSS(object):
+class SweepCommon:
+    def __repr__(self):
+        return f"{self.setup_name} : {self.name}"
+
+    def __str__(self):
+        return f"{self.setup_name} : {self.name}"
+
+
+class SweepHFSS(SweepCommon):
     """Initializes, creates, and updates sweeps in HFSS.
 
     Parameters
@@ -353,7 +361,7 @@ class SweepHFSS(object):
         return arg
 
 
-class SweepHFSS3DLayout(object):
+class SweepHFSS3DLayout(SweepCommon):
     """Initializes, creates, and updates sweeps in HFSS 3D Layout.
 
     Parameters
@@ -606,7 +614,7 @@ class SweepHFSS3DLayout(object):
         return arg
 
 
-class SweepMatrix(object):
+class SweepMatrix(SweepCommon):
     """Initializes, creates, and updates sweeps in Q3D.
 
     Parameters
@@ -841,7 +849,7 @@ class SweepMatrix(object):
         return arg
 
 
-class SweepMaxwellEC(object):
+class SweepMaxwellEC(SweepCommon):
     """Initializes, creates, and updates sweeps in Maxwell Eddy Current.
 
     Parameters
