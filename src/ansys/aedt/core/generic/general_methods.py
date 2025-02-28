@@ -47,6 +47,7 @@ from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.constants import CSS4_COLORS
 from ansys.aedt.core.generic.errors import GrpcApiError
 from ansys.aedt.core.generic.errors import MethodNotSupportedError
+from ansys.aedt.core.generic.numbers import Quantity
 from ansys.aedt.core.generic.numbers import _units_assignment
 from ansys.aedt.core.generic.settings import inner_project_settings  # noqa: F401
 from ansys.aedt.core.generic.settings import settings
@@ -694,7 +695,6 @@ def get_filename_without_extension(path):
     return os.path.splitext(os.path.split(path)[1])[0]
 
 
-# FIXME: Remove usage of random module once IronPython compatibility is removed
 @pyaedt_function_handler(rootname="root_name")
 def generate_unique_name(root_name, suffix="", n=6):
     """Generate a new name given a root name and optional suffix.
@@ -1100,7 +1100,7 @@ def write_csv(output_file, list_data, delimiter=",", quote_char="|", quoting=csv
     f = open(output_file, "w", newline="")
     writer = csv.writer(f, delimiter=delimiter, quotechar=quote_char, quoting=quoting)
     for data in list_data:
-        writer.writerow(data)
+        writer.writerow([float(i) if isinstance(i, Quantity) else i for i in data])
     f.close()
     return True
 
@@ -1798,7 +1798,6 @@ rgb_color_codes = {
 }
 
 
-# FIXME: Remove usage of random module once IronPython compatibility is removed
 def _uname(name=None):
     """Append a 6-digit hash code to a specified name.
 

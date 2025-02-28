@@ -31,6 +31,9 @@ It contains all advanced postprocessing functionalities that require Python 3.x 
 import csv
 import os
 import re
+from typing import Literal
+from typing import Optional
+from typing import Tuple
 
 from ansys.aedt.core.generic.checks import min_aedt_version
 from ansys.aedt.core.generic.general_methods import generate_unique_name
@@ -394,3 +397,37 @@ class PostProcessorIcepak(PostProcessor3D):
             time=time,
         )
         return self._parse_field_summary_content(fs, setup_name, variations, quantity_name)
+
+    def get_temperature_extremum(
+        self,
+        assignment: str,
+        max_min: Literal["Max", "Min"],
+        location: Literal["Surface", "Volume"],
+        setup: Optional[str] = None,
+        time: Optional[str] = None,
+    ) -> Tuple[Tuple[float, float, float], float]:
+        """
+        Calculates the position and value of the temperature maximum or minimum.
+
+        Parameters
+        ----------
+            assignment : str
+                The name of the object to calculate the temperature extremum for.
+            max_min : Literal["Max", "Min"]
+                "Max" for maximum, "Min" for minimum.
+            location : Literal["Surface", "Volume"]
+                "Surface" for surface, "Volume" for volume.
+            time : Optional[str]
+                Time at which to retrieve results if setup is transient. Default is `None`.
+            setup : Optional[str]
+                The name of the setup to use. If `None`, the first available setup is used. Default is `None`.
+
+        Returns
+        -------
+            Tuple[Tuple[float, float, float], float]
+            A tuple containing:
+
+              - A tuple of three floats representing the (x, y, z) coordinates of the maximum point.
+              - A float representing the value associated with the maximum point.
+        """
+        return self.get_field_extremum(assignment, max_min, location, "Temp", setup, {"Time": time})

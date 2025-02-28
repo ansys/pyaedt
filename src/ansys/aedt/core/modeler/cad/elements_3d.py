@@ -1320,6 +1320,9 @@ class HistoryProps(dict):
     def _setitem_without_update(self, key, value):
         dict.__setitem__(self, key, value)
 
+    def pop(self, key, default=None):
+        dict.pop(self, key, default)
+
 
 class BinaryTreeNode:
     """Manages an object's history structure."""

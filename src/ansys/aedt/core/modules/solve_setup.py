@@ -161,25 +161,47 @@ class CommonSetup(PropsManager, BinaryTreeNode):
                     .adaptive_settings.adaptive_frequency_data_list[0]
                     .adaptive_frequency
                 )
-                intrinsics["Phase"] = "0deg"
+                intrinsics["Phase"] = "All"
                 return intrinsics
             except Exception:
                 settings.logger.debug("Failed to retrieve adaptive frequency.")
-
+        if self._app.design_type in ["Twin Builder"]:
+            if "Tend" in self.properties:
+                intrinsics["Time"] = "All"
+            elif "StartFrequency" in self.properties:
+                intrinsics["Freq"] = "All"
+            return intrinsics
+        elif self._app.design_type in ["Circuit Design"]:
+            if any(
+                i in self.props
+                for i in ["TransientData", "QuickEyeAnalysis", "AMIAnalysis", "HSPICETransientData", "SystemFDAnalysis"]
+            ):
+                intrinsics["Time"] = "All"
+            else:
+                intrinsics["Freq"] = "All"
+            return intrinsics
         for i in self._app.design_solutions.intrinsics:
             if i == "Freq":
                 if "Frequency" in self.props:
                     intrinsics[i] = self.props["Frequency"]
                 elif "Solution Freq" in self.properties:
                     intrinsics[i] = self.properties["Solution Freq"]
+                else:
+                    intrinsics[i] = "All"
             elif i == "Phase":
-                intrinsics[i] = "0deg"
+                intrinsics[i] = "All"
             elif i == "Time":
-                intrinsics[i] = "0s"
+                intrinsics[i] = "All"
         return intrinsics
 
     def __repr__(self):
         return self.name + " with " + str(len(self.sweeps)) + " Sweeps"
+
+    def __str__(self):
+        if not self._app.design_solutions.default_adaptive:
+            return self.name
+        else:
+            return f"{self.name} : {self._app.design_solutions.default_adaptive}"
 
     @pyaedt_function_handler(num_cores="cores", num_tasks="tasks", num_gpu="gpus")
     def analyze(
@@ -941,7 +963,7 @@ class Setup(CommonSetup):
             # solution name
             if solution is None:
                 meshlinks["Soln"] = self._app.nominal_adaptive
-            elif solution.split()[0] not in self._app.existing_analysis_setups:
+            elif solution.split()[0] not in self._app.setup_names:
                 raise ValueError("Setup does not exist in current design.")
             # parameters
             meshlinks["Params"] = {}
@@ -2442,7 +2464,7 @@ class Setup3DLayout(CommonSetup):
         self.props["AllDiagEntries"] = True if entry_selection == 1 and all_diagonal_entries else False
         self.props["AllOffDiagEntries"] = True if entry_selection == 1 and all_offdiagonal_entries else False
         self.props["MagMinThreshold"] = ignore_phase_when_mag_is_less_than
-        aa = self._app.excitations
+        aa = self._app.excitation_names
         if entry_selection < 2:
             val = []
             if entry_selection == 0 or (entry_selection == 1 and all_diagonal_entries):
@@ -3176,7 +3198,7 @@ class SetupHFSS(Setup, object):
                 conv_data["DiagonalMag"] = str(max_delta)
                 conv_data["DiagonalPhase"] = self._app.value_with_units(max_delta_phase, "deg")
                 conv_data["MagMinThreshold"] = ignore_phase_when_mag_is_less_than
-            if all_offdiagonal_entries and len(self._app.excitations) > 1:
+            if all_offdiagonal_entries and len(self._app.excitation_names) > 1:
                 conv_data["AllOffDiagEntries"] = True
                 conv_data["OffDiagonalMag"] = str(off_diagonal_mag)
                 conv_data["OffDiagonalPhase"] = self._app.value_with_units(off_diagonal_phase, "deg")
