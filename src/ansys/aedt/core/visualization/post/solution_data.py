@@ -281,8 +281,8 @@ class SolutionData(object):
             return _solutions_mag
 
     @pyaedt_function_handler()
-    def __get_index(self, input):
-        return tuple([float(i) for i in input])
+    def __get_index(self, input_data):
+        return tuple([float(i) for i in input_data])
 
     @pyaedt_function_handler()
     def _init_solution_data_real(self):
@@ -296,7 +296,7 @@ class SolutionData(object):
                 values = []
                 # for el in list(self.intrinsics.keys()):
                 #     values.append(list(dict.fromkeys(data.GetSweepValues(el, False))))
-                for el, val in self.intrinsics.items():
+                for _, val in self.intrinsics.items():
                     values.append(val)
                 i = 0
                 c = [comb[v] for v in list(comb.keys())]
