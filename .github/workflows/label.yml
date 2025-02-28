@@ -94,7 +94,7 @@ jobs:
           - [release](https://github.com/ansys/pyaedt/pulls?q=label%3Arelease+)
           - [testing](https://github.com/ansys/pyaedt/pulls?q=label%Atesting+)
 
-changelog-fragment:
+  changelog-fragment:
     name: "Create changelog fragment"
     needs: [labeler]
     permissions:
