@@ -496,6 +496,9 @@ def _split_invalid_triangles(invalid_triangles):
     # Step 2: Identify groups
     group_A = set()  # Stores indices of triangles assigned to Group A
     group_B = set()  # Stores indices of triangles assigned to Group B
+    group_C = set()  # Stores indices of triangles assigned to Group C
+    group_D = set()  # Stores indices of triangles assigned to Group D
+    group_E = set()  # Stores indices of triangles assigned to Group E
     visited_triangles = set()  # Tracks already assigned triangles
 
     # Here triple and quad connections are solved directly.
@@ -504,71 +507,133 @@ def _split_invalid_triangles(invalid_triangles):
         if len(tri_indices) == 3:  # Triple connection detected
             unassigned = [t for t in tri_indices if t not in visited_triangles]
             if len(unassigned) == 3:
-                # First time encountering these triangles → Assign one to A, two to B
+                # First time encountering these triangles → Assign one for each group A, B, and C
                 group_A.add(unassigned[0])
-                group_B.update(unassigned[1:])
+                group_B.add(unassigned[1])
+                group_C.add(unassigned[2])
             elif len(unassigned) == 2:
                 # If one triangle has been already assigned, let's check where the already assigned triangle is
-                assigned_triangles = [t for t in tri_indices if t in group_A or t in group_B]
+                assigned_triangles = [
+                    t
+                    for t in tri_indices
+                    if t in group_A or t in group_B or t in group_C or t in group_D or t in group_E
+                ]
                 if assigned_triangles:
                     already_assigned = assigned_triangles[0]  # Pick the assigned triangle
                     if already_assigned in group_A:
-                        group_B.update(unassigned)  # Remaining go to Group B
+                        group_B.add(unassigned[0])  # Remaining go to Group B
+                        group_C.add(unassigned[1])  # Remaining go to Group C
+                    elif already_assigned in group_B:
+                        group_A.add(unassigned[0])  # Remaining go to Group A
+                        group_C.add(unassigned[1])  # Remaining go to Group C
                     else:
-                        group_A.update(unassigned)  # Remaining go to Group A
+                        group_A.add(unassigned[0])  # Remaining go to Group A
+                        group_B.add(unassigned[1])  # Remaining go to Group B
                 else:
-                    # Fallback: if for some reason nothing is assigned (shouldn't happen), default to the simple logic
-                    group_B.update(unassigned)
+                    # Fallback: if for some reason, nothing is assigned (shouldn't happen)
+                    group_D.update(unassigned)
             elif len(unassigned) == 1:
                 # If two triangles are already assigned, we have to check where they are assigned.
-                assigned_triangles = [t for t in tri_indices if t in group_A or t in group_B]
-                if set(assigned_triangles) <= group_A:  # Assigned trg are both in Group A
-                    group_B.update(unassigned)  # Remaining go to Group B
-                elif set(assigned_triangles) <= group_B:  # Assigned trg are both in Group B
-                    group_A.update(unassigned)  # Remaining go to Group A
-                else:  # assigned are one in Group A and one in Group B
-                    group_B.update(unassigned)  # Remaining go to Group B
+                if unassigned[0] not in group_A:  # Assigned are not in Group A
+                    group_A.update(unassigned)
+                elif unassigned[0] not in group_B:  # Assigned are not in Group B
+                    group_B.update(unassigned)
+                elif unassigned[0] not in group_C:  # Assigned are not in Group C
+                    group_C.update(unassigned)
+                else:  # fallback (it shouldn't happen)
+                    group_D.update(unassigned)
             visited_triangles.update(unassigned)
         if len(tri_indices) == 4:  # Quad connection detected
             unassigned = [t for t in tri_indices if t not in visited_triangles]
             if len(unassigned) == 4:
-                # First time encountering these triangles → Assign two to A, two to B
-                group_A.update(unassigned[:2])
-                group_B.update(unassigned[2:])
+                # First time encountering these triangles → Assign one for each group A, B, C and D
+                group_A.add(unassigned[0])
+                group_B.add(unassigned[1])
+                group_C.add(unassigned[2])
+                group_D.add(unassigned[3])
             elif len(unassigned) == 3:
                 # If one triangle has been already assigned, let's check where the already assigned triangle is
-                assigned_triangles = [t for t in tri_indices if t in group_A or t in group_B]
+                assigned_triangles = [
+                    t
+                    for t in tri_indices
+                    if t in group_A or t in group_B or t in group_C or t in group_D or t in group_E
+                ]
                 if assigned_triangles:
                     already_assigned = assigned_triangles[0]  # Pick the assigned triangle
                     if already_assigned in group_A:
-                        group_A.add(unassigned[0])
-                        group_B.update(unassigned[1:])
+                        group_B.add(unassigned[0])  # Remaining go to Group B
+                        group_C.add(unassigned[1])  # Remaining go to Group C
+                        group_D.add(unassigned[2])  # Remaining go to Group D
+                    elif already_assigned in group_B:
+                        group_A.add(unassigned[0])  # Remaining go to Group A
+                        group_C.add(unassigned[1])  # Remaining go to Group C
+                        group_D.add(unassigned[2])  # Remaining go to Group D
+                    elif already_assigned in group_C:
+                        group_A.add(unassigned[0])  # Remaining go to Group A
+                        group_B.add(unassigned[1])  # Remaining go to Group B
+                        group_D.add(unassigned[2])  # Remaining go to Group D
                     else:
-                        group_B.add(unassigned[0])
-                        group_A.update(unassigned[1:])
+                        group_A.add(unassigned[0])  # Remaining go to Group A
+                        group_B.add(unassigned[1])  # Remaining go to Group B
+                        group_C.add(unassigned[2])  # Remaining go to Group C
+                else:
+                    # Fallback: if for some reason, nothing is assigned (shouldn't happen)
+                    group_E.update(unassigned)
             elif len(unassigned) == 2:
                 # If two triangles are already assigned, we have to check where they are assigned.
-                assigned_triangles = [t for t in tri_indices if t in group_A or t in group_B]
-                if set(assigned_triangles) <= group_A:  # Assigned trg are both in Group A
-                    group_B.update(unassigned)  # Remaining go to Group B
-                elif set(assigned_triangles) <= group_B:  # Assigned trg are both in Group B
-                    group_A.update(unassigned)  # Remaining go to Group A
-                else:  # assigned are one in Group A and one in Group B
-                    group_A.add(unassigned[0])  # One remaining goes to Group A
-                    group_B.add(unassigned[1])  # The other remaining goes to Group B
-            elif len(unassigned) == 1:
-                assigned_triangles = [t for t in tri_indices if t in group_A or t in group_B]
+                assigned_triangles = [
+                    t
+                    for t in tri_indices
+                    if t in group_A or t in group_B or t in group_C or t in group_D or t in group_E
+                ]
                 count_A = sum(1 for num in assigned_triangles if num in group_A)
                 count_B = sum(1 for num in assigned_triangles if num in group_B)
-                if count_A == 1:
-                    # group_A has only one triangle
+                count_C = sum(1 for num in assigned_triangles if num in group_C)
+                count_D = sum(1 for num in assigned_triangles if num in group_D)
+                # Triangles are assigned to groups that contains no previously assigned triangles.
+                i = 0
+                if count_A == 0:
+                    group_A.add(unassigned[i])
+                    i += 1
+                if count_B == 0:
+                    group_B.add(unassigned[i])
+                    i += 1
+                # It can happen that the trg are both in one group and so there are 3 groups with count=0.
+                # The check i<2 avoids that we try to assign the element unassigned[2] that doesn't exist.
+                if count_C == 0 and i < 2:
+                    group_C.add(unassigned[i])
+                    i += 1
+                if count_D == 0 and i < 2:
+                    group_D.add(unassigned[i])
+                    i += 1
+                if i < 2:
+                    # Fallback: if for some reason, something has not been assigned (shouldn't happen)
+                    group_E.update(unassigned[i:])
+            elif len(unassigned) == 1:
+                assigned_triangles = [
+                    t
+                    for t in tri_indices
+                    if t in group_A or t in group_B or t in group_C or t in group_D or t in group_E
+                ]
+                count_A = sum(1 for num in assigned_triangles if num in group_A)
+                count_B = sum(1 for num in assigned_triangles if num in group_B)
+                count_C = sum(1 for num in assigned_triangles if num in group_C)
+                count_D = sum(1 for num in assigned_triangles if num in group_D)
+                if count_A == 0:
+                    # group_A has no assigned triangles
                     group_A.add(unassigned[0])  # One remaining goes to Group A
-                elif count_B == 1:
-                    # group_B has only one triangle
+                elif count_B == 0:
+                    # group_B has no assigned triangles
                     group_B.add(unassigned[0])  # One remaining goes to Group B
+                elif count_C == 0:
+                    # group_C has no assigned triangles
+                    group_C.add(unassigned[0])  # One remaining goes to Group C
+                elif count_D == 0:
+                    # group_D has no assigned triangles
+                    group_D.add(unassigned[0])  # One remaining goes to Group D
                 else:
-                    # unexpected case. trg assigned to group_B
-                    group_B.add(unassigned[0])
+                    # Fallback (it shouldn't happen). Triangle assigned to group_E
+                    group_E.add(unassigned[0])
             visited_triangles.update(unassigned)
         if len(tri_indices) > 4:  # Multiple connection detected
             # It doesn't really matter how the other are assigned.
@@ -580,8 +645,8 @@ def _split_invalid_triangles(invalid_triangles):
             visited_triangles.update(unassigned)
 
     # Step 3: Assign remaining triangles (those connected only by a node)
-    group_A_or_group_B = group_A | group_B
-    remaining_triangles = set(range(len(invalid_triangles))) - group_A_or_group_B
+    groups_ABCDE = group_A | group_B | group_C | group_D | group_E
+    remaining_triangles = set(range(len(invalid_triangles))) - groups_ABCDE
     node_to_triangles = defaultdict(set)
 
     for idx, tri in enumerate(invalid_triangles):
@@ -593,42 +658,57 @@ def _split_invalid_triangles(invalid_triangles):
         for tri_idx in list(remaining_triangles):
             assigned_neighbors = set()
             for v in invalid_triangles[tri_idx]:
-                assigned_neighbors.update(node_to_triangles[v] & group_A_or_group_B)
+                assigned_neighbors.update(node_to_triangles[v] & groups_ABCDE)
 
             if assigned_neighbors:
                 is_set = False
                 # Assign based on any adjacent triangle's assignment
-                for ref_triangle in list(assigned_neighbors):  # iter(assigned_neighbors):
+                for ref_triangle in list(assigned_neighbors):
                     # Check if the triangles have two nodes in common, meaning that they are adjacent.
                     if len(set(invalid_triangles[ref_triangle]) & set(invalid_triangles[tri_idx])) == 2:
                         if ref_triangle in group_A:
                             group_A.add(tri_idx)
-                            group_A_or_group_B.add(tri_idx)
-                        else:
+                            groups_ABCDE.add(tri_idx)
+                        elif ref_triangle in group_B:
                             group_B.add(tri_idx)
-                            group_A_or_group_B.add(tri_idx)
+                            groups_ABCDE.add(tri_idx)
+                        elif ref_triangle in group_C:
+                            group_C.add(tri_idx)
+                            groups_ABCDE.add(tri_idx)
+                        elif ref_triangle in group_D:
+                            group_D.add(tri_idx)
+                            groups_ABCDE.add(tri_idx)
+                        else:
+                            group_E.add(tri_idx)
+                            groups_ABCDE.add(tri_idx)
                         is_set = True
                         break
                 # If no adjacent triangle is present -> is_set==False,
-                # Assign the group same as the first in the list (not optimal, but it should be assigned to something).
+                # Assign the trg to group_E (not optimal, but it should be assigned to something).
                 if not is_set:
-                    ref_triangle = list(assigned_neighbors)[0]  # next(iter(assigned_neighbors))
-                    if ref_triangle in group_A:
-                        group_A.add(tri_idx)
-                    else:
-                        group_B.add(tri_idx)
+                    group_E.add(tri_idx)
+                    groups_ABCDE.add(tri_idx)
 
                 remaining_triangles.remove(tri_idx)
             else:
+                # this counter serves only for debug purposes.
+                # i3 should remain 0, meaning that all triangles considered here should have an assigned neighbor.
                 i3 += 1
-
-    print(f"i3={i3}")
 
     # Convert sets to NumPy arrays to index them
     group_A_triangles = invalid_triangles[list(group_A)]
     group_B_triangles = invalid_triangles[list(group_B)]
+    group_C_triangles = invalid_triangles[list(group_C)]
+    group_D_triangles = invalid_triangles[list(group_D)]
+    group_E_triangles = invalid_triangles[list(group_E)]
 
-    return group_A_triangles.tolist(), group_B_triangles.tolist()
+    return (
+        group_A_triangles.tolist(),
+        group_B_triangles.tolist(),
+        group_C_triangles.tolist(),
+        group_D_triangles.tolist(),
+        group_E_triangles.tolist(),
+    )
 
 
 @pyaedt_function_handler()
@@ -663,9 +743,17 @@ def _remove_multiple_connections(dict_in, max_iterations=20, verbose=True):
             valid_trgs, invalid_trgs = _detect_multiple_connections_node(lst)
             valid_list.append(valid_trgs)
             if invalid_trgs:
-                group_A, group_B = _split_invalid_triangles(invalid_trgs)
-                new_lists.append(group_A)
-                new_lists.append(group_B)
+                group_A, group_B, group_C, group_D, group_E = _split_invalid_triangles(invalid_trgs)
+                if len(group_A) > 0:
+                    new_lists.append(group_A)
+                if len(group_B) > 0:
+                    new_lists.append(group_B)
+                if len(group_C) > 0:
+                    new_lists.append(group_C)
+                if len(group_D) > 0:
+                    new_lists.append(group_D)
+                if len(group_E) > 0:
+                    new_lists.append(group_E)
 
         if verbose:
             logger.debug(
