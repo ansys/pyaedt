@@ -224,7 +224,7 @@ class FieldAnalysis3D(Analysis, object):
                 for file in lib.rglob("*.a3dcomp"):
                     listfiles.append(file)
                 for el in listfiles:
-                    components_dict[el.stem[:-8]] = str(el)
+                    components_dict[el.stem] = str(el)
         return components_dict
 
     @pyaedt_function_handler(objects="assignment", export_path="output_file")
