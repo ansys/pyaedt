@@ -370,8 +370,10 @@ def open_file(
         Opened file object or ``None`` if the file or folder does not exist.
     """
 
+    file_path = str(file_path)
+    file_path = file_path.replace("\\", "/") if file_path[0] != "\\" else file_path
+
     file_path = Path(file_path)
-    file_path = Path(file_path.as_posix()) if file_path.drive else file_path
 
     dir_name = file_path.parent
     if "r" in file_options:
