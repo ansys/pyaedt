@@ -670,12 +670,19 @@ def parse_excitation_file(
     """
     try:
         import numpy as np
-    except ImportError:
+    except ImportError:  # pragma: no cover
         pyaedt_logger.error("NumPy is not available. Install it.")
         return False
+
+    try:
+        import pandas
+    except ImportError:  # pragma: no cover
+        pyaedt_logger.error("Pandas is not available. Install it.")
+        return False
+
     input_file = Path(input_file)
     df = read_csv_pandas(input_file, encoding=encoding)
-    if is_time_domain and df:
+    if is_time_domain and isinstance(df, pandas.DataFrame):
         time = df[df.keys()[0]].values * x_scale
         val = df[df.keys()[1]].values * y_scale
         freq, fval = compute_fft(time, val, window)
@@ -694,7 +701,7 @@ def parse_excitation_file(
         mag = list(np.abs(fval))
         phase = [math.atan2(j, i) * 180 / math.pi for i, j in zip(list(fval.real), list(fval.imag))]
 
-    elif df:
+    elif isinstance(df, pandas.DataFrame):
         freq = list(df[df.keys()[0]].values * x_scale)
         if data_format.lower() == "current":
             mag = df[df.keys()[1]].values * df[df.keys()[1]].values * impedance * y_scale * y_scale
