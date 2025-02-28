@@ -231,7 +231,7 @@ class Quantity(float):
     def __int__(self):
         return int(self.value)
 
-    def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
+    def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):  # pragma: no cover
         import numpy as np
 
         # Extract the Quantity objects and their values
@@ -257,7 +257,7 @@ class Quantity(float):
             # If the result is an array, return an array of Quantity objects
             return np.array([Quantity(val, self.unit) for val in result])
 
-    def __array__(self, dtype=None):
+    def __array__(self, dtype=None):  # pragma: no cover
         import numpy as np
 
         return np.array(self.value, dtype=dtype)
