@@ -83,7 +83,10 @@ class Quantity:
 
     @property
     def expression(self):
-        return f"{self._value}{self._unit}"
+        if is_number(self._value):
+            return f"{self._value}{self._unit}"
+        else:
+            return self._value
 
     @expression.setter
     def expression(self, value):
@@ -142,7 +145,10 @@ class Quantity:
         return "%.16g" % self.value + self.unit
 
     def __str__(self):
-        return "%.16g" % self.value + self.unit
+        if is_number(self.value):
+            return "%.16g" % self.value + self.unit
+        else:
+            return self.value
 
     def __add__(self, other):
         if isinstance(other, Quantity):
