@@ -323,7 +323,7 @@ class SolutionData(object):
                     l = len(list(data.GetRealDataValues(expression, False)))
                     solution = [0] * l
                 values = []
-                for el, val in self.intrinsics.items():
+                for _, val in self.intrinsics.items():
                     values.append(val)
                 i = 0
                 c = [comb[v] for v in list(comb.keys())]
