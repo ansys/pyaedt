@@ -84,7 +84,7 @@ def launch_aedt(full_path, non_graphical, port, student_version, first_run=True)
     """Launch AEDT in gRPC mode."""
 
     def launch_desktop_on_port():
-        command = [full_path, "-grpcsrv", str(port)]
+        command = [str(full_path), "-grpcsrv", str(port)]
         if non_graphical:
             command.append("-ng")
         if settings.wait_for_license:
