@@ -550,7 +550,7 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
         ----------
         >>> oModule.GetSetups
         """
-        setup_list = self.existing_analysis_setups
+        setup_list = self.setup_names
         sweep_list = []
         for el in setup_list:
             sweep_list.append(el + " : Solution")

@@ -611,7 +611,7 @@ class FieldsCalculator:
         if not setup:
             setup = self.__app.nominal_adaptive
         setup_name = setup.split(":")[0].strip(" ")
-        if setup_name not in self.__app.existing_analysis_setups:
+        if setup_name not in self.__app.setup_names:
             self.__app.logger.error("Invalid setup name.")
             return False
         self.ofieldsreporter.CalcStack("clear")

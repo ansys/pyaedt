@@ -38,8 +38,8 @@ from typing import Union
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.constants import CSS4_COLORS
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers import Quantity
 from ansys.aedt.core.generic.settings import settings
-import pandas
 
 
 # Path processing
@@ -527,7 +527,7 @@ def write_csv(
     f = open(output_file, "w", newline="")
     writer = csv.writer(f, delimiter=delimiter, quotechar=quote_char, quoting=quoting)
     for data in list_data:
-        writer.writerow(data)
+        writer.writerow([float(i) if isinstance(i, Quantity) else i for i in data])
     f.close()
     return True
 
@@ -669,7 +669,7 @@ def parse_excitation_file(
         return False
     input_file = Path(input_file)
     df = read_csv_pandas(input_file, encoding=encoding)
-    if is_time_domain:
+    if is_time_domain and df:
         time = df[df.keys()[0]].values * x_scale
         val = df[df.keys()[1]].values * y_scale
         freq, fval = compute_fft(time, val, window)
@@ -688,7 +688,7 @@ def parse_excitation_file(
         mag = list(np.abs(fval))
         phase = [math.atan2(j, i) * 180 / math.pi for i, j in zip(list(fval.real), list(fval.imag))]
 
-    else:
+    elif df:
         freq = list(df[df.keys()[0]].values * x_scale)
         if data_format.lower() == "current":
             mag = df[df.keys()[1]].values * df[df.keys()[1]].values * impedance * y_scale * y_scale
@@ -848,9 +848,7 @@ def write_configuration_file(input_data: dict, output_file: Union[str, Path]) ->
 
 # Operators
 @pyaedt_function_handler(time_vals="time_values", value="data_values")
-def compute_fft(
-    time_values: pandas.Series, data_values: pandas.Series, window=None
-) -> Union[tuple, bool]:  # pragma: no cover
+def compute_fft(time_values, data_values, window=None) -> Union[tuple, bool]:  # pragma: no cover
     """Compute FFT of input transient data.
 
     Parameters

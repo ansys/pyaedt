@@ -316,6 +316,7 @@ class Standard(CommonReport):
                 ],
             ]
             if self.sub_design_id:
+                # BUG in AEDT. Trace only created when the plot is manually created one time
                 ctxt_temp = ["NUMLEVELS", False, "1", "SUBDESIGNID", False, str(self.sub_design_id)]
                 for el in ctxt_temp:
                     ctxt[2].append(el)
