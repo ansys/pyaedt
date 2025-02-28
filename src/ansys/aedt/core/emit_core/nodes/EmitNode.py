@@ -134,6 +134,22 @@ class EmitNode:
         else:
             return val
     
+    def _string_to_value_units(self, value):
+        # see if we can split it based on a space between number 
+        # and units
+        vals = value.split(" ")
+        if len(vals) == 2:
+            dec_val = float(vals[0])
+            units = vals[1].strip()
+            return dec_val, units
+        # no space before units, so find the first letter
+        for i, char in enumerate(value):
+            if char.isalpha():
+                dec_val = float(value[:i])
+                units = value[i:]
+                return dec_val, units
+        raise ValueError(f"{value} are not valid units for this property.")
+            
     def _convert_to_default_units(self, value : float|str, unit_type : str) -> float:
         """Takes a value and converts to default EMIT units
         used for internally storing the values.
@@ -162,9 +178,7 @@ class EmitNode:
             units = selected_kv_pairs[0][1]
             units = EMIT_TO_AEDT_UNITS[units]
         else:
-            units = ''.join(char for char in value if not char.isdigit())
-            units = units.strip()
-            value = float(''.join(char for char in value if char.isdigit()))
+            value, units = self._string_to_value_units(value)
             # verify the units are valid for the specified type            
             if units not in EMIT_VALID_UNITS[unit_system]:
                 raise ValueError(f"{units} are not valid units for this property.")
