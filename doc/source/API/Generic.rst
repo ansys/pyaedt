@@ -40,3 +40,4 @@ The following methods allows to read and parse files.
    tech_to_control_file
    read_configuration_file
    write_configuration_file
+   compute_fft
