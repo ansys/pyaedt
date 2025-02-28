@@ -106,8 +106,8 @@ def frontend():
     master.configure(bg=theme.light["widget_bg"])
 
     # Export options
-    frame = tk.Frame(master)
-    frame.grid(row=0, column=0, columnspan=1, pady=10, padx=10)
+    frame = tk.Frame(master, width=20)
+    frame.grid(row=0, column=0, pady=10, padx=10, sticky="ew")
     export_options_list = ["Ohmic loss", "AC Force Density"]
     export_options_label = ttk.Label(
         frame, text="Export options:", width=15, style="PyAEDT.TLabel", justify=tk.CENTER, anchor=tk.CENTER
@@ -122,8 +122,8 @@ def frontend():
     export_options_lb.config(selectmode=tk.SINGLE)
 
     # Objects list
-    frame = tk.Frame(master)
-    frame.grid(row=0, column=1, pady=10, padx=10)
+    frame = tk.Frame(master, width=20)
+    frame.grid(row=1, column=0, pady=10, padx=10, sticky="ew")
     objects_list = maxwell.modeler.objects_by_name
     objects_list_label = ttk.Label(
         frame, text="Objects list:", width=15, style="PyAEDT.TLabel", justify=tk.CENTER, anchor=tk.CENTER
@@ -137,21 +137,21 @@ def frontend():
     objects_list_lb.pack(expand=True, fill=tk.BOTH, side=tk.RIGHT)
     for obj in objects_list:
         objects_list_lb.insert(tk.END, obj)
-    objects_list_lb.config(height=6, width=30)
+    objects_list_lb.config(height=6)
     scroll_bar.config(command=objects_list_lb.yview)
 
     # Sample points file
     sample_points_label = ttk.Label(master, text="Sample points file:", width=20, style="PyAEDT.TLabel")
     sample_points_label.grid(row=2, column=0, pady=10)
-    sample_points_entry = tk.Text(master, width=40, height=1)
-    sample_points_entry.grid(row=2, column=1, pady=15, padx=10)
+    sample_points_entry = tk.Text(master, height=1, width=40)
+    sample_points_entry.grid(row=3, column=0, pady=15, padx=10)
     sample_points_entry.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
 
     # Export file
     export_file_label = ttk.Label(master, text="Output file location:", width=20, style="PyAEDT.TLabel")
-    export_file_label.grid(row=3, column=0, pady=10)
+    export_file_label.grid(row=4, column=0, pady=10)
     export_file_entry = tk.Text(master, width=40, height=1)
-    export_file_entry.grid(row=3, column=1, pady=15, padx=10)
+    export_file_entry.grid(row=5, column=0, pady=15, padx=10)
     export_file_entry.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
 
     def toggle_theme():
@@ -211,7 +211,7 @@ def frontend():
 
     # Export points file button
     export_points_button = ttk.Button(master, text="...", command=browse_files, width=10, style="PyAEDT.TButton")
-    export_points_button.grid(row=2, column=2, pady=10, padx=15)
+    export_points_button.grid(row=3, column=1, pady=10, padx=15)
 
     def save_as_files():
         filename = filedialog.asksaveasfilename(
@@ -230,15 +230,15 @@ def frontend():
 
     # Create button to select output file location
     save_as_button = ttk.Button(master, text="Save as...", command=save_as_files, width=10, style="PyAEDT.TButton")
-    save_as_button.grid(row=3, column=2, pady=10, padx=15)
+    save_as_button.grid(row=5, column=1, pady=10, padx=15)
 
     # Create button to export fields data
     export_button = ttk.Button(master, text="Export", command=callback, width=10, style="PyAEDT.TButton")
-    export_button.grid(row=4, column=1, pady=10, padx=15)
+    export_button.grid(row=6, column=0, pady=10, padx=15)
 
     # Create buttons to create sphere and change theme color
     change_theme_button = ttk.Button(master, text="\u263D", width=2, command=toggle_theme, style="PyAEDT.TButton")
-    change_theme_button.grid(row=5, column=2, pady=10)
+    change_theme_button.grid(row=6, column=1, pady=10)
 
     # Get objects list selection
     tk.mainloop()
@@ -298,8 +298,10 @@ def main(extension_args):
 
     if export_option == "Ohmic loss":
         quantity = "Ohmic-Loss"
+        file_header = "x,y,z,field"
     else:
         quantity = "SurfaceAcForceDensity"
+        file_header = "r", "phi", "z", "fr_real", "fr_imag", "fphi_real", "fphi_imag", "fz_real", "fz_imag"
 
     aedtapp.post.export_field_file(
         quantity=quantity, output_file=export_file, sample_points_file=points_file, assignment=assignment
@@ -322,7 +324,7 @@ def main(extension_args):
             Path(file_path).joinpath(f"{file_name}.csv"),
             field_coordinates,
             delimiter=",",
-            header="x,y,z,field",
+            header=file_header,
             comments="",
         )
     elif Path(export_file).suffix == ".tab":
@@ -330,7 +332,7 @@ def main(extension_args):
             Path(file_path).joinpath(f"{file_name}.tab"),
             field_coordinates,
             delimiter=",",
-            header="x,y,z,field",
+            header=file_header,
             comments="",
         )
 
