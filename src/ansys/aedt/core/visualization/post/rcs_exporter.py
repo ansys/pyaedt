@@ -103,7 +103,7 @@ class MonostaticRCSExporter:
         self.variations = variations
         self.overwrite = overwrite
 
-        if frequencies and not isinstance(frequencies, list):
+        if frequencies is not None and not isinstance(frequencies, list):
             self.frequencies = [frequencies]
         else:
             self.frequencies = frequencies
