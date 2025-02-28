@@ -178,7 +178,7 @@ jobs:
           PYTHONMALLOC: malloc
         run: |
           .venv\Scripts\Activate.ps1
-          pytest ${{ env.PYTEST_ARGUMENTS }} -m solvers --deselect=tests/system/solvers/test_45_FilterSolutions
+          pytest ${{ env.PYTEST_ARGUMENTS }} -m solvers
 
       - uses: codecov/codecov-action@v5
         with:

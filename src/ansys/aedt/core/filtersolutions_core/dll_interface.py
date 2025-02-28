@@ -25,6 +25,7 @@
 import ctypes
 from enum import Enum
 import os
+import re
 import threading
 import time
 from typing import Callable
@@ -81,7 +82,7 @@ class DllInterface:
             status = self._dll.startApplication(False)
             self.raise_error(status)
 
-        print("DLL Loaded:", self.api_version())
+        print("DLL Loaded:", self.api_version()[0])
         print("API Ready")
         print("")
 
@@ -178,7 +179,10 @@ class DllInterface:
             API version.
         """
         version = self.get_string(self._dll.getVersion)
-        return version
+        match = re.search(r"Version (\d{4}) R(\d+)", version)
+        version_year = int(match.group(1))
+        version_release = int(match.group(2))
+        return version, float(f"{version_year}.{version_release}")
 
     def raise_error(self, error_status):
         """Raise an exception if the error status is not 0.
