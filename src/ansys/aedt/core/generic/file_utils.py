@@ -27,7 +27,9 @@ import csv
 import fnmatch
 import json
 import math
+import os
 from pathlib import Path
+import re
 import string
 import tempfile
 from typing import Dict
@@ -36,10 +38,14 @@ from typing import TextIO
 from typing import Union
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger
+from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.constants import CSS4_COLORS
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers import Quantity
 from ansys.aedt.core.generic.settings import settings
+
+is_linux = os.name == "posix"
+is_windows = not is_linux
 
 
 # Path processing
@@ -365,7 +371,7 @@ def open_file(
     """
 
     file_path = Path(file_path)
-    file_path = file_path.as_posix() if file_path.drive else file_path
+    file_path = Path(file_path.as_posix()) if file_path.drive else file_path
 
     dir_name = file_path.parent
     if "r" in file_options:
@@ -894,6 +900,118 @@ def compute_fft(time_values, data_values, window=None) -> Union[tuple, bool]:  #
     n = np.arange(num_points)
     freq = n / deltaT
     return freq, valueFFT
+
+
+# License
+
+
+@pyaedt_function_handler()
+def available_license_feature(
+    feature: str = "electronics_desktop", input_dir: Union[str, Path] = None, port: int = 1055, name: str = "127.0.0.1"
+) -> int:  # pragma: no cover
+    """Check available license feature.
+    The method retrieves the port and name values from the ``ANSYSLMD_LICENSE_FILE`` environment variable if available.
+    If not, the default values are applied.
+
+    Parameters
+    ----------
+    feature : str
+        Feature increment name. The default is the ``"electronics_desktop"``.
+    input_dir: str or :class:`pathlib.Path`, optional
+        AEDT installation path. The default is ``None``, in which case the first identified AEDT
+        installation from :func:`ansys.aedt.core.generic.aedt_versions.installed_versions`
+        method is taken.
+    port : int, optional
+        Server port number. The default is ``1055``.
+    name : str, optional
+        License server name. The default is ``"127.0.0.1"``.
+
+    Returns
+    -------
+    int
+        Number of available license features, ``False`` when license server is down.
+    """
+    import subprocess  # nosec B404
+
+    if os.getenv("ANSYSLMD_LICENSE_FILE", None):
+        name_env = os.getenv("ANSYSLMD_LICENSE_FILE")
+        name_env = name_env.split(",")[0].split("@")
+        if len(name_env) == 2:
+            port = name_env[0]
+            name = name_env[1]
+
+    if not input_dir:
+        input_dir = Path(aedt_versions.installed_versions[aedt_versions.current_version])
+    else:
+        input_dir = Path(input_dir)
+
+    if is_linux:
+        ansysli_util_path = input_dir / "licensingclient" / "linx64" / "lmutil"
+    else:
+        ansysli_util_path = input_dir / "licensingclient" / "winx64" / "lmutil"
+
+    my_env = os.environ.copy()
+
+    tempfile_checkout = tempfile.NamedTemporaryFile(suffix=".txt", delete=False).name
+    tempfile_checkout = Path(tempfile_checkout)
+
+    cmd = [str(ansysli_util_path), "lmstat", "-f", feature, "-c", str(port) + "@" + str(name)]
+
+    f = open(str(tempfile_checkout), "w")
+
+    subprocess.Popen(cmd, stdout=f, stderr=f, env=my_env).wait()  # nosec
+
+    f.close()
+
+    available_licenses = 0
+    pattern_license = r"Total of\s+(\d+)\s+licenses? issued;\s+Total of\s+(\d+)\s+licenses? in use"
+    pattern_error = r"Error getting status"
+    with open_file(tempfile_checkout, "r") as f:
+        for line in f:
+            line = line.strip()
+            match_license = re.search(pattern_license, line)
+            if match_license:
+                total_licenses_issued = int(match_license.group(1))
+                total_licenses_in_use = int(match_license.group(2))
+                available_licenses = total_licenses_issued - total_licenses_in_use
+                break
+            match_error = re.search(pattern_error, line)
+            if match_error:
+                pyaedt_logger.error(line)
+                return False
+
+    # Clean up temp file after processing
+    tempfile_checkout.unlink()
+
+    return available_licenses
+
+
+@pyaedt_function_handler()
+def _check_installed_version(install_path, long_version):
+    """Check installation folder to determine if it is for specified Ansys EM version.
+
+    Parameters
+    ----------
+    install_path: str
+        Installation folder to check.  For example, ``"C:\\Program Files\\AnsysEM\\v231\\Win64"``.
+    long_version: str
+        Long form of version number.  For example, ``"2023.1"``.
+
+    Returns
+    -------
+    bool
+    """
+    install_path = Path(install_path)
+    product_list_path = install_path / "config" / "ProductList.txt"
+    if product_list_path.is_file():
+        try:
+            with open_file(product_list_path, "r") as f:
+                install_version = f.readline().strip()[-6:]
+                if install_version == long_version:
+                    return True
+        except Exception:
+            pyaedt_logger.debug("An error occurred while parsing installation version")
+    return False
 
 
 @pyaedt_function_handler()

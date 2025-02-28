@@ -61,9 +61,9 @@ from ansys.aedt.core import __version__
 from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.desktop_sessions import _desktop_sessions
 from ansys.aedt.core.generic.desktop_sessions import _edb_sessions
+from ansys.aedt.core.generic.file_utils import available_license_feature
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import active_sessions
-from ansys.aedt.core.generic.general_methods import available_license_feature
 from ansys.aedt.core.generic.general_methods import com_active_sessions
 from ansys.aedt.core.generic.general_methods import get_string_version
 from ansys.aedt.core.generic.general_methods import grpc_active_sessions

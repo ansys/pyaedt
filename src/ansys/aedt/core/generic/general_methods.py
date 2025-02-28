@@ -32,12 +32,10 @@ import logging
 import os
 import re
 import sys
-import tempfile
 import time
 import traceback
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger
-from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.errors import GrpcApiError
 from ansys.aedt.core.generic.errors import MethodNotSupportedError
 from ansys.aedt.core.generic.numbers import _units_assignment
@@ -506,84 +504,6 @@ def time_fn(fn, *args, **kwargs):
     return results
 
 
-@pyaedt_function_handler()
-def available_license_feature(
-    feature="electronics_desktop", input_dir=None, port=1055, name="127.0.0.1"
-):  # pragma: no cover
-    """Check available license feature.
-    The method retrieves the port and name values from the ``ANSYSLMD_LICENSE_FILE`` environment variable if available.
-    If not, the default values are applied.
-
-    Parameters
-    ----------
-    feature : str
-        Feature increment name. The default is the ``"electronics_desktop"``.
-    input_dir : str, optional
-        AEDT installation path. The default is ``None``, in which case the first identified AEDT
-        installation from :func:`ansys.aedt.core.generic.aedt_versions.installed_versions`
-        method is taken.
-    port : int, optional
-        Server port number. The default is ``1055``.
-    name : str, optional
-        License server name. The default is ``"127.0.0.1"``.
-
-    Returns
-    -------
-    int
-        Number of available license features, ``False`` when license server is down.
-    """
-    import subprocess  # nosec B404
-
-    if os.getenv("ANSYSLMD_LICENSE_FILE", None):
-        name_env = os.getenv("ANSYSLMD_LICENSE_FILE")
-        name_env = name_env.split(",")[0].split("@")
-        if len(name_env) == 2:
-            port = name_env[0]
-            name = name_env[1]
-
-    if not input_dir:
-        input_dir = list(aedt_versions.installed_versions.values())[0]
-
-    if is_linux:
-        ansysli_util_path = os.path.join(input_dir, "licensingclient", "linx64", "lmutil")
-    else:
-        ansysli_util_path = os.path.join(input_dir, "licensingclient", "winx64", "lmutil")
-
-    my_env = os.environ.copy()
-
-    tempfile_checkout = tempfile.NamedTemporaryFile(suffix=".txt", delete=False).name
-
-    cmd = [ansysli_util_path, "lmstat", "-f", feature, "-c", str(port) + "@" + str(name)]
-
-    f = open(tempfile_checkout, "w")
-
-    subprocess.Popen(cmd, stdout=f, stderr=f, env=my_env).wait()  # nosec
-
-    f.close()
-
-    available_licenses = 0
-    pattern_license = r"Total of\s+(\d+)\s+licenses? issued;\s+Total of\s+(\d+)\s+licenses? in use"
-    pattern_error = r"Error getting status"
-    with open_file(tempfile_checkout, "r") as f:
-        for line in f:
-            line = line.strip()
-            match_license = re.search(pattern_license, line)
-            if match_license:
-                total_licenses_issued = int(match_license.group(1))
-                total_licenses_in_use = int(match_license.group(2))
-                available_licenses = total_licenses_issued - total_licenses_in_use
-                break
-            match_error = re.search(pattern_error, line)
-            if match_error:
-                pyaedt_logger.error(line)
-                return False
-
-    # Clean up temp file after processing
-    os.remove(tempfile_checkout)
-
-    return available_licenses
-
-
 @pyaedt_function_handler(search_key1="search_key_1", search_key2="search_key_2")
 def filter_tuple(value, search_key_1, search_key_2):
     """Filter a tuple of two elements with two search keywords."""
@@ -1048,34 +968,6 @@ def _arg_with_dim(value, units):
     else:
         val = f"{value}{units}"
     return val
-
-
-@pyaedt_function_handler()
-def _check_installed_version(install_path, long_version):
-    """Check installation folder to determine if it is for specified Ansys EM version.
-
-    Parameters
-    ----------
-    install_path: str
-        Installation folder to check.  For example, ``"C:\\Program Files\\AnsysEM\\v231\\Win64"``.
-    long_version: str
-        Long form of version number.  For example, ``"2023.1"``.
-
-    Returns
-    -------
-    bool
-
-    """
-    product_list_path = os.path.join(install_path, "config", "ProductList.txt")
-    if os.path.isfile(product_list_path):
-        try:
-            with open_file(product_list_path, "r") as f:
-                install_version = f.readline().strip()[-6:]
-                if install_version == long_version:
-                    return True
-        except Exception:
-            pyaedt_logger.debug("An error occurred while parsing installation version")
-    return False
 
 
 @pyaedt_function_handler()
