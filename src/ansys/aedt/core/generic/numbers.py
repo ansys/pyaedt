@@ -252,15 +252,15 @@ class Quantity(float):
         # Extract the Quantity objects and their values
         args = []
         first_unit = None
-        for input in inputs:
-            if isinstance(input, Quantity):
+        for input_quantity in inputs:
+            if isinstance(input_quantity, Quantity):
                 if not first_unit:
-                    first_unit = input.unit
+                    first_unit = input_quantity.unit
                 else:
-                    input = input.to(first_unit)
-                args.append(input.value)
+                    input_quantity = input_quantity.to(first_unit)
+                args.append(input_quantity.value)
             else:
-                args.append(input)
+                args.append(input_quantity)
 
         # Perform the ufunc operation
         result = getattr(ufunc, method)(*args, **kwargs)

@@ -44,7 +44,7 @@ def test_quantity_addition():
     q4 = Quantity(1)
     assert q4 + q1 == q1 + q4
     with pytest.raises(ValueError):
-        q3 + q1
+        _ = q3 + q1
 
 
 def test_quantity_subtraction():
@@ -55,7 +55,7 @@ def test_quantity_subtraction():
     assert q3.unit == "m"
     q3 = Quantity("1GHz")
     with pytest.raises(ValueError):
-        q3 - q1
+        _ = q3 - q1
 
 
 def test_quantity_multiplication():
@@ -65,7 +65,7 @@ def test_quantity_multiplication():
     assert q2.unit == "m"
     q3 = Quantity("1GHz")
     with pytest.raises(ValueError):
-        q3 * q
+        _ = q3 * q
 
 
 def test_quantity_division():
@@ -75,7 +75,7 @@ def test_quantity_division():
     assert q2.unit == "m"
     q3 = Quantity("1GHz")
     with pytest.raises(ValueError):
-        q3 / q
+        _ = q3 / q
 
 
 def test_quantity_conversion():
