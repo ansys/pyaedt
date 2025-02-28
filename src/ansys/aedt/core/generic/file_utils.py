@@ -28,6 +28,7 @@ import fnmatch
 import json
 import math
 from pathlib import Path
+import string
 from typing import Dict
 from typing import List
 from typing import TextIO
@@ -880,3 +881,29 @@ def _create_toml_file(input_dict, full_toml_path):
         tomli_w.dump(new_dict, fp)
     settings.logger.info(f"{full_toml_path} correctly created.")
     return True
+
+
+def _uname(name: str = None) -> str:
+    """Append a 6-digit hash code to a specified name.
+
+    Parameters
+    ----------
+    name : str
+        Name to append the hash code to. The default is ``"NewObject_"``.
+
+    Returns
+    -------
+    str
+
+    """
+    alphabet = string.ascii_uppercase + string.digits
+
+    import secrets
+
+    generator = secrets.SystemRandom()
+    unique_name = "".join(secrets.SystemRandom.sample(generator, alphabet, 6))
+
+    if name:
+        return name + unique_name
+    else:
+        return "NewObject_" + unique_name

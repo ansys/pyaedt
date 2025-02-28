@@ -31,7 +31,6 @@ import itertools
 import logging
 import os
 import re
-import string
 import sys
 import tempfile
 import time
@@ -1045,32 +1044,6 @@ rgb_color_codes = {
     "copper": (184, 115, 51),
     "stainless steel": (224, 223, 219),
 }
-
-
-def _uname(name=None):
-    """Append a 6-digit hash code to a specified name.
-
-    Parameters
-    ----------
-    name : str
-        Name to append the hash code to. The default is ``"NewObject_"``.
-
-    Returns
-    -------
-    str
-
-    """
-    alphabet = string.ascii_uppercase + string.digits
-
-    import secrets
-
-    generator = secrets.SystemRandom()
-    unique_name = "".join(secrets.SystemRandom.sample(generator, alphabet, 6))
-
-    if name:
-        return name + unique_name
-    else:
-        return "NewObject_" + unique_name
 
 
 @pyaedt_function_handler()
