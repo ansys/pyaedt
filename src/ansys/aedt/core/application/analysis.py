@@ -1077,13 +1077,14 @@ class Analysis(Design, object):
             Use :func:`axis_dir` instead.
         """
         warnings.warn(
-            "Accessing AxisDir is deprecated and will be removed in future versions. " "Use axis_dir method instead.",
+            "Accessing AxisDir is deprecated and will be removed in future versions. "
+            "Use axis_directions method instead.",
             DeprecationWarning,
         )
-        return self.GRAVITY
+        return self.axis_directions
 
     @property
-    def axis_dir(self):
+    def axis_directions(self):
         """Contains constants for the axis directions."""
         return self.GRAVITY
 
