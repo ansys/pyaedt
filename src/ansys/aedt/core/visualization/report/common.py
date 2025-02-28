@@ -1257,12 +1257,19 @@ class CommonReport(BinaryTreeNode):
             return
         if self.primary_sweep == "Freq" and domain == "Time":
             self.primary_sweep = "Time"
-            self.variations.pop("Freq", None)
-            self.variations["Time"] = ["All"]
+            if isinstance(self._legacy_props["context"]["variations"], dict):
+                self._legacy_props["context"]["variations"].pop("Freq", None)
+                self._legacy_props["context"]["variations"]["Time"] = ["All"]
+            else:  # pragma: no cover
+                self._legacy_props["context"]["variations"] = {"Time": "All"}
+
         elif self.primary_sweep == "Time" and domain == "Sweep":
             self.primary_sweep = "Freq"
-            self.variations.pop("Time", None)
-            self.variations["Freq"] = ["All"]
+            if isinstance(self._legacy_props["context"]["variations"], dict):
+                self._legacy_props["context"]["variations"].pop("Time", None)
+                self._legacy_props["context"]["variations"]["Freq"] = ["All"]
+            else:  # pragma: no cover
+                self._legacy_props["context"]["variations"] = {"Freq": "All"}
 
     @property
     def use_pulse_in_tdr(self):
