@@ -284,21 +284,23 @@ class FieldAnalysis3DLayout(Analysis):
 
     @property
     def existing_analysis_setups(self):
-        """Existing analysis setups in the design.
+        """Existing analysis setups.
+
+        .. deprecated:: 0.15.0
+            Use :func:`setup_names` from setup object instead.
 
         Returns
         -------
-        list
-            List of names of all analysis setups in the design.
+        list of str
+            List of all analysis setups in the design.
 
         References
         ----------
         >>> oModule.GetSetups
         """
-        setups = self.oanalysis.GetSetups()
-        if setups:
-            return list(setups)
-        return []
+        msg = "`existing_analysis_setups` is deprecated. " "Use `setup_names` method from setup object instead."
+        warnings.warn(msg, DeprecationWarning)
+        return self.setup_names
 
     @pyaedt_function_handler(setupname="name", setuptype="setup_type")
     def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
@@ -383,7 +385,7 @@ class FieldAnalysis3DLayout(Analysis):
         ...
         PyAEDT INFO: Sweep was deleted correctly.
         """
-        if name in self.existing_analysis_setups:
+        if name in self.setup_names:
             self.osolution.Delete(name)
             for s in self.setups:
                 if s.name == name:
