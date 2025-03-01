@@ -480,13 +480,24 @@ class TestClass:
         tx = ports
         rx = ports
         insertions = [f"dB(S({i.name},{j.name}))" for i, j in zip(tx, rx)]
-        assert circuit_app.post.create_report(
-            insertions,
-            circuit_app.nominal_adaptive,
-            report_category="Standard",
-            plot_type="Rectangular Plot",
-            subdesign_id=myedb.id,
-        )
+
+        if desktop_version < "2025.2":
+            assert not circuit_app.post.create_report(
+                insertions,
+                circuit_app.nominal_adaptive,
+                report_category="Standard",
+                plot_type="Rectangular Plot",
+                subdesign_id=myedb.id,
+            )
+        else:
+            # BUG in AEDT
+            assert circuit_app.post.create_report(
+                insertions,
+                circuit_app.nominal_adaptive,
+                report_category="Standard",
+                plot_type="Rectangular Plot",
+                subdesign_id=myedb.id,
+            )
         new_report = circuit_app.post.reports_by_category.standard(insertions)
         new_report.sub_design_id = myedb.id
         assert new_report.create()

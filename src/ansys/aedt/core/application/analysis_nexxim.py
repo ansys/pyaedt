@@ -113,7 +113,7 @@ class FieldAnalysisCircuit(Analysis):
         ----------
         >>> oModule.RemoveSimSetup
         """
-        if name in self.existing_analysis_setups:
+        if name in self.setup_names:
             self.oanalysis.RemoveSimSetup([name])
             for s in self.setups:
                 if s.name == name:
@@ -186,31 +186,24 @@ class FieldAnalysisCircuit(Analysis):
         return self._post
 
     @property
-    def existing_analysis_sweeps(self):
-        """Analysis setups.
-
-        References
-        ----------
-        >>> oModule.GetAllSolutionSetups"""
-        return self.existing_analysis_setups
-
-    @property
     def existing_analysis_setups(self):
-        """Analysis setups.
+        """Existing analysis setups.
+
+        .. deprecated:: 0.15.0
+            Use :func:`setup_names` from setup object instead.
+
+        Returns
+        -------
+        list of str
+            List of all analysis setups in the design.
 
         References
         ----------
-        >>> oModule.GetAllSolutionSetups"""
-        setups = self.oanalysis.GetAllSolutionSetups()
-        return setups
-
-    @property
-    def nominal_sweep(self):
-        """Nominal sweep."""
-        if self.existing_analysis_setups:
-            return self.existing_analysis_setups[0]
-        else:
-            return ""
+        >>> oModule.GetSetups
+        """
+        msg = "`existing_analysis_setups` is deprecated. " "Use `setup_names` method from setup object instead."
+        warnings.warn(msg, DeprecationWarning)
+        return self.setup_names
 
     @property
     def modeler(self):
@@ -236,7 +229,7 @@ class FieldAnalysisCircuit(Analysis):
         References
         ----------
         >>> oModule.GetAllSolutionSetups"""
-        return self.oanalysis.GetAllSolutionSetups()
+        return [i.split(" : ")[0] for i in self.oanalysis.GetAllSolutionSetups()]
 
     @property
     def source_names(self):
