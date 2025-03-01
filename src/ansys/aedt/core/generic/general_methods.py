@@ -905,6 +905,10 @@ def available_license_feature(
     if not input_dir:
         input_dir = list(aedt_versions.installed_versions.values())[0]
 
+    # The licensing client location has changed in the Windows 25R2 AEDT installation.
+    if not check_if_path_exists(os.path.join(input_dir, "licensingclient")):
+        input_dir = os.path.dirname(input_dir)
+
     if is_linux:
         ansysli_util_path = os.path.join(input_dir, "licensingclient", "linx64", "lmutil")
     else:
