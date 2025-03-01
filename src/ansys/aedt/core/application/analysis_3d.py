@@ -23,7 +23,6 @@
 # SOFTWARE.
 
 import csv
-import ntpath
 import os
 from pathlib import Path
 from typing import List
@@ -34,10 +33,11 @@ from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.generic.checks import min_aedt_version
 from ansys.aedt.core.generic.configurations import Configurations
 from ansys.aedt.core.generic.constants import unit_converter
+from ansys.aedt.core.generic.file_utils import check_if_path_exists
+from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import get_dxf_layers
+from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.file_utils import read_component_file
-from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 
@@ -214,20 +214,14 @@ class FieldAnalysis3D(Analysis, object):
         # libs = [syslib, userlib]
 
         libs = [
-            os.path.join(self.syslib, "3DComponents", self._design_type),
-            os.path.join(self.userlib, "3DComponents", self._design_type),
+            Path(self.syslib) / "3DComponents" / self._design_type,
+            Path(self.userlib) / "3DComponents" / self._design_type,
         ]
 
         for lib in libs:
-            if os.path.exists(lib):
-                listfiles = []
-                for root, _, files in os.walk(lib):
-                    for file in files:
-                        if file.endswith(".a3dcomp"):
-                            listfiles.append(os.path.join(root, file))
-                for el in listfiles:
-                    head, tail = ntpath.split(el)
-                    components_dict[tail[:-8]] = el
+            if lib.exists():
+                for file in lib.rglob("*.a3dcomp"):
+                    components_dict[file.stem] = str(file)
         return components_dict
 
     @pyaedt_function_handler(objects="assignment", export_path="output_file")
@@ -1251,7 +1245,7 @@ class FieldAnalysis3D(Analysis, object):
     @pyaedt_function_handler(layers_list="layers", file_path="input_file")
     def import_dxf(
         self,
-        input_file: str,
+        input_file: Union[str, Path],
         layers: List[str],
         auto_detect_close: bool = True,
         self_stitch: bool = True,
@@ -1268,7 +1262,7 @@ class FieldAnalysis3D(Analysis, object):
 
         Parameters
         ----------
-        input_file : str
+        input_file : str or :class:`pathlib.Path`
             Path to the DXF file.
         layers : list
             List of layer names to import. To get the dxf_layers in the DXF file,
@@ -1312,10 +1306,11 @@ class FieldAnalysis3D(Analysis, object):
         >>> oEditor.ImportDXF
 
         """
+        input_file = Path(input_file)
         if self.desktop_class.non_graphical and self.desktop_class.aedt_version_id < "2024.2":  # pragma: no cover
             self.logger.error("Method is supported only in graphical mode.")
             return False
-        dxf_layers = self.get_dxf_layers(input_file)
+        dxf_layers = get_dxf_layers(input_file)
         for layer in layers:
             if layer not in dxf_layers:
                 self.logger.error(f"{layer} does not exist in specified dxf.")
@@ -1327,7 +1322,7 @@ class FieldAnalysis3D(Analysis, object):
             sheet_bodies_2d = True
 
         vArg1 = ["NAME:options"]
-        vArg1.append("FileName:="), vArg1.append(input_file.replace(os.sep, "/"))
+        vArg1.append("FileName:="), vArg1.append(str(input_file.as_posix()))
         vArg1.append("Scale:="), vArg1.append(scale)
         vArg1.append("AutoDetectClosed:="), vArg1.append(auto_detect_close)
         vArg1.append("SelfStitch:="), vArg1.append(self_stitch)
@@ -1396,7 +1391,7 @@ class FieldAnalysis3D(Analysis, object):
         if self.desktop_class.non_graphical and self.desktop_class.aedt_version_id < "2024.1":  # pragma: no cover
             self.logger.error("Method is supported only in graphical mode.")
             return False
-        if not os.path.exists(input_file):
+        if not check_if_path_exists(input_file):
             self.logger.error("GDSII file does not exist. No layer is imported.")
             return False
         if len(mapping_layers) == 0:
