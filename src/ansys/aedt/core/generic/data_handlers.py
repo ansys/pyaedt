@@ -31,6 +31,7 @@ import unicodedata
 
 from ansys.aedt.core.generic.file_utils import read_json
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers import Quantity
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
@@ -153,7 +154,9 @@ def _dict2arg(d, arg_out):
                 arg = ["NAME:" + k]
                 _dict2arg(el, arg)
                 arg_out.append(arg)
-
+        elif isinstance(v, Quantity):
+            arg_out.append(k + ":=")
+            arg_out.append(str(v))
         else:
             arg_out.append(k + ":=")
             if type(v) is EdgePrimitive or type(v) is FacePrimitive or type(v) is VertexPrimitive:

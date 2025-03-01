@@ -97,12 +97,13 @@ class MonostaticRCSExporter:
         else:
             # Set variation to Nominal
             for var_name, var_value in variations.items():
-                app[var_name] = var_value
+                if var_name in app.variable_manager.independent_variable_names:
+                    app[var_name] = var_value
 
         self.variations = variations
         self.overwrite = overwrite
 
-        if frequencies and not isinstance(frequencies, list):
+        if frequencies is not None and not isinstance(frequencies, list):
             self.frequencies = [frequencies]
         else:
             self.frequencies = frequencies
@@ -154,7 +155,10 @@ class MonostaticRCSExporter:
         variations = self.variations
         variations["IWaveTheta"] = ["All"]
         variations["IWavePhi"] = ["All"]
-        variations["Freq"] = self.frequencies
+        frequencies = self.frequencies
+        if frequencies is not None:
+            frequencies = [str(freq) for freq in frequencies]
+        variations["Freq"] = frequencies
 
         solution_data = self.__app.post.get_solution_data(
             expressions=self.expression,
@@ -235,6 +239,7 @@ class MonostaticRCSExporter:
 
                 df = data.full_matrix_real_imag[0] + complex(0, 1) * data.full_matrix_real_imag[1]
                 df.index.names = [*data.variations[0].keys(), *data.intrinsics.keys()]
+
                 df = df.reset_index(level=[*data.variations[0].keys()], drop=True)
                 df = unit_converter(
                     df, unit_system="Length", input_units=data.units_data[self.expression], output_units="meter"
