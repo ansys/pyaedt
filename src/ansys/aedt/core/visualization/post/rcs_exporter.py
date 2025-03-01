@@ -155,7 +155,10 @@ class MonostaticRCSExporter:
         variations = self.variations
         variations["IWaveTheta"] = ["All"]
         variations["IWavePhi"] = ["All"]
-        variations["Freq"] = self.frequencies
+        frequencies = self.frequencies
+        if frequencies is not None:
+            frequencies = [str(freq) for freq in frequencies]
+        variations["Freq"] = frequencies
 
         solution_data = self.__app.post.get_solution_data(
             expressions=self.expression,
