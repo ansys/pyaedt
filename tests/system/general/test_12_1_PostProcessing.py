@@ -29,8 +29,8 @@ import uuid
 import ansys.aedt.core
 from ansys.aedt.core import Quantity
 from ansys.aedt.core.generic.errors import AEDTRuntimeError
+from ansys.aedt.core.generic.file_utils import read_json
 from ansys.aedt.core.generic.general_methods import is_linux
-from ansys.aedt.core.generic.general_methods import read_json
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.visualization.plot.pyvista import _parse_aedtplt
 from ansys.aedt.core.visualization.plot.pyvista import _parse_streamline
