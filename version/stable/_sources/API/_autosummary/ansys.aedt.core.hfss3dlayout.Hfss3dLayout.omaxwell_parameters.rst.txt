@@ -1,0 +1,6 @@
+omaxwell\_parameters
+====================
+
+.. currentmodule:: ansys.aedt.core.hfss3dlayout
+
+.. autoproperty:: Hfss3dLayout.omaxwell_parameters

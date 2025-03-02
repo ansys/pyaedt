@@ -1,0 +1,51 @@
+﻿Quantity
+========
+
+.. currentmodule:: ansys.aedt.core.generic.numbers
+
+.. autoclass:: Quantity
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      Quantity.as_integer_ratio
+      
+      
+      Quantity.conjugate
+      
+      
+      Quantity.fromhex
+      
+      
+      Quantity.hex
+      
+      
+      Quantity.is_integer
+      
+      
+      Quantity.to
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      Quantity.expression
+      Quantity.imag
+      Quantity.real
+      Quantity.unit
+      Quantity.unit_system
+      Quantity.value
+   
+   
