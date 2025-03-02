@@ -97,6 +97,7 @@ subcircuit
 [Tt]oolkit [Mm]anager
 Twin Builder
 Uncomment
+utils
 vias
 manual_settings
 boolean

@@ -23,8 +23,8 @@
 # SOFTWARE.
 
 from ansys.aedt.core.generic.constants import CATEGORIESQ3D
+from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import filter_tuple
-from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 

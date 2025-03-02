@@ -25,7 +25,7 @@ from pathlib import Path
 
 import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
-from ansys.aedt.core.generic.general_methods import write_csv
+from ansys.aedt.core.generic.file_utils import write_csv
 import ansys.aedt.core.workflows
 from ansys.aedt.core.workflows.misc import get_aedt_version
 from ansys.aedt.core.workflows.misc import get_arguments
