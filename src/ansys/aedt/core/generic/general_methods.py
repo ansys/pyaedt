@@ -503,10 +503,6 @@ def time_fn(fn, *args, **kwargs):
     print(fn_name + ": " + str(delta) + "s")
     return results
 
-    # The licensing client location has changed in the Windows 25R2 AEDT installation.
-    if not check_if_path_exists(os.path.join(input_dir, "licensingclient")):
-        input_dir = os.path.dirname(input_dir)
-
 
 @pyaedt_function_handler(search_key1="search_key_1", search_key2="search_key_2")
 def filter_tuple(value, search_key_1, search_key_2):
