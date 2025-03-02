@@ -404,9 +404,9 @@ class TestClass:
     def test_06e_delete_setup(self):
         setup_name = "SetupToDelete"
         setuptd = self.aedtapp.create_setup(name=setup_name)
-        assert setuptd.name in self.aedtapp.existing_analysis_setups
+        assert setuptd.name in self.aedtapp.setup_names
         assert self.aedtapp.delete_setup(setup_name)
-        assert setuptd.name not in self.aedtapp.existing_analysis_setups
+        assert setuptd.name not in self.aedtapp.setup_names
 
     def test_06f_sweep_add_subrange(self):
         self.aedtapp.modeler.create_box([0, 0, 20], [10, 10, 5], "box_sweep", "Copper")
@@ -1313,7 +1313,7 @@ class TestClass:
     )
     def test_51a_array(self):
         self.aedtapp.insert_design("Array_simple", "Modal")
-        from ansys.aedt.core.generic.general_methods import read_json
+        from ansys.aedt.core.generic.file_utils import read_json
 
         if config["desktopVersion"] > "2023.1":
             dict_in = read_json(

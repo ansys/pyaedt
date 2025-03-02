@@ -38,8 +38,8 @@ import warnings
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.errors import AEDTRuntimeError
+from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import PropsManager
-from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
@@ -161,25 +161,47 @@ class CommonSetup(PropsManager, BinaryTreeNode):
                     .adaptive_settings.adaptive_frequency_data_list[0]
                     .adaptive_frequency
                 )
-                intrinsics["Phase"] = "0deg"
+                intrinsics["Phase"] = "All"
                 return intrinsics
             except Exception:
                 settings.logger.debug("Failed to retrieve adaptive frequency.")
-
+        if self._app.design_type in ["Twin Builder"]:
+            if "Tend" in self.properties:
+                intrinsics["Time"] = "All"
+            elif "StartFrequency" in self.properties:
+                intrinsics["Freq"] = "All"
+            return intrinsics
+        elif self._app.design_type in ["Circuit Design"]:
+            if any(
+                i in self.props
+                for i in ["TransientData", "QuickEyeAnalysis", "AMIAnalysis", "HSPICETransientData", "SystemFDAnalysis"]
+            ):
+                intrinsics["Time"] = "All"
+            else:
+                intrinsics["Freq"] = "All"
+            return intrinsics
         for i in self._app.design_solutions.intrinsics:
             if i == "Freq":
                 if "Frequency" in self.props:
                     intrinsics[i] = self.props["Frequency"]
                 elif "Solution Freq" in self.properties:
                     intrinsics[i] = self.properties["Solution Freq"]
+                else:
+                    intrinsics[i] = "All"
             elif i == "Phase":
-                intrinsics[i] = "0deg"
+                intrinsics[i] = "All"
             elif i == "Time":
-                intrinsics[i] = "0s"
+                intrinsics[i] = "All"
         return intrinsics
 
     def __repr__(self):
         return self.name + " with " + str(len(self.sweeps)) + " Sweeps"
+
+    def __str__(self):
+        if not self._app.design_solutions.default_adaptive:
+            return self.name
+        else:
+            return f"{self.name} : {self._app.design_solutions.default_adaptive}"
 
     @pyaedt_function_handler(num_cores="cores", num_tasks="tasks", num_gpu="gpus")
     def analyze(
@@ -941,7 +963,7 @@ class Setup(CommonSetup):
             # solution name
             if solution is None:
                 meshlinks["Soln"] = self._app.nominal_adaptive
-            elif solution.split()[0] not in self._app.existing_analysis_setups:
+            elif solution.split()[0] not in self._app.setup_names:
                 raise ValueError("Setup does not exist in current design.")
             # parameters
             meshlinks["Params"] = {}
