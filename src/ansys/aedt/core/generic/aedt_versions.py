@@ -31,7 +31,7 @@ Ideally, it should be the same as ``conftest.default_version``"""
 import os
 import warnings
 
-CURRENT_STABLE_AEDT_VERSION = 2025.1
+CURRENT_STABLE_AEDT_VERSION = 2025.2
 
 
 class AedtVersions:

@@ -943,6 +943,10 @@ def available_license_feature(
 
     if os.getenv("ANSYSLMD_LICENSE_FILE", None):
         name_env = os.getenv("ANSYSLMD_LICENSE_FILE")
+    # Using the alternative environment variable name.
+    elif os.getenv("ANSOFT_LICENSE_FILE", None):
+        name_env = os.getenv("ANSOFT_LICENSE_FILE")
+    if name_env:
         name_env = name_env.split(",")[0].split("@")
         if len(name_env) == 2:
             port = name_env[0]
@@ -952,6 +956,10 @@ def available_license_feature(
         input_dir = Path(aedt_versions.installed_versions[aedt_versions.current_version])
     else:
         input_dir = Path(input_dir)
+
+    # The licensing client location has changed in the Windows 25R2 AEDT installation.
+    if not check_if_path_exists(os.path.join(input_dir, "licensingclient")):
+        input_dir = Path(os.path.dirname(Path(input_dir)))
 
     if is_linux:
         ansysli_util_path = input_dir / "licensingclient" / "linx64" / "lmutil"
