@@ -452,7 +452,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         Parameters
         ----------
-        input_file : str
+        input_file : str, Path
             Path of the IBIS file.
         is_ami : bool, optional
             Whether the file to import is an IBIS AMI file. The
@@ -861,7 +861,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             Name of the setup if it is a design. The default is ``None``.
         is_solution_file : bool, optional
             Whether it is an imported solution file. The default is ``False``.
-        filename : str, optional
+        filename : str, Path, optional
             Full path and name for exporting the HSpice file.
             The default is ``None``, in which case the file is exported to the working directory.
         passivity : bool, optional
@@ -890,13 +890,14 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         if not design:
             design = self.design_name
         if not filename:
-            filename = Path(self.working_directory) / str(self.design_name + ".sp")
+            filename = Path(self.working_directory) / f"{self.design_name}.sp"
         if is_solution_file:
             setup = design
             design = ""
         else:
             if not setup:
                 setup = self.nominal_sweep
+        file_path = Path(filename)
         self.onetwork_data_explorer.ExportFullWaveSpice(
             design,
             is_solution_file,
@@ -944,11 +945,11 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                 "SYZDataInAutoMode:=",
                 False,
                 "ExportDirectory:=",
-                str(Path(filename).parent) + "\\",
+                str(file_path.parent) + "\\",
                 "ExportSpiceFileName:=",
-                Path(filename).name,
+                file_path.name,
                 "FullwaveSpiceFileName:=",
-                Path(filename).name,
+                file_path.name,
                 "UseMultipleCores:=",
                 True,
                 "NumberOfCores:=",
@@ -1246,7 +1247,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         ----------
         ports : list
             List of circuit ports to assign to the frequency dependent excitation.
-        input_file : str
+        input_file : str, Path
             Path to the frequency dependent file.
 
         Returns
@@ -1399,7 +1400,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         Parameters
         ----------
-        input_file : str
+        input_file : str, Path
             Full qualified name of the file containing the differential pairs definition.
 
         Returns
@@ -1423,7 +1424,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                     fh.write(line + "\n")
 
             self.odesign.LoadDiffPairsFromFile(str(new_file))
-            Path(new_file).unlink()
+            new_file.unlink()
         except Exception:  # pragma: no cover
             return False
         return True
@@ -1436,7 +1437,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         Parameters
         ----------
-        output_file : str
+        output_file : str, Path
             Full qualified name of the file to save the differential pairs definition to.
 
         Returns
@@ -1458,7 +1459,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         Parameters
         ----------
-        input_file : str
+        input_file : str, Path
             Path to the netlist file.
         name : str, optional
             Name of the data block.
@@ -1486,7 +1487,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         Parameters
         ----------
-        input_file : str, optional
+        input_file : str, Path, optional
             File path to save the new log file to. The default is the ``pyaedt`` folder.
 
         Returns
@@ -2442,7 +2443,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         Parameters
         ----------
-        input_file : str
+        input_file : str, Path
             Path to asc file.
         config_file : str, optional
             Path to configuration file to map components. Default is None which uses internal mapping.
@@ -2617,7 +2618,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         Parameters
         ----------
-        input_file : str
+        input_file : str, Path
             Full path to the file.
         link : bool, optional
             Whether to link the file to the solution. The default is ``False``.
