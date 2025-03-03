@@ -46,6 +46,8 @@ class Quantity(float):
 
     def __new__(cls, expression, unit=None):
         _value, _unit = decompose_variable_value(expression)
+        if not is_number(_value):
+            return _value
         return float.__new__(cls, _value)
 
     def __init__(
