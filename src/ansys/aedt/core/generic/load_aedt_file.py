@@ -25,7 +25,7 @@
 import os.path
 import re
 
-from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import settings
 
 # --------------------------------------------------------------------

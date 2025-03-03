@@ -24,8 +24,8 @@
 
 import math
 
+from ansys.aedt.core.generic.file_utils import _uname
 from ansys.aedt.core.generic.general_methods import _to_boolean
-from ansys.aedt.core.generic.general_methods import _uname
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import time_fn
 from ansys.aedt.core.generic.numbers import isclose
