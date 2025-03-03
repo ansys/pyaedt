@@ -149,7 +149,8 @@ class Quantity(float):
         return "%.16g" % self.value + self.unit
 
     def __str__(self):
-        return "%.16g" % self.value + self.unit
+        # return "%.16g" % self.value + self.unit
+        return self.expression
 
     def __add__(self, other):
         if isinstance(other, Quantity):
