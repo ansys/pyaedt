@@ -441,8 +441,8 @@ AEDT_UNITS = {
         "kn_per_meter_sq": 1e3,
         "megn_per_meter_sq": 1e6,
         "gn_per_meter_sq": 1e9,
-        "lbf_per_ft2": 2.09e2,
-        "psi": 1.45e4,
+        "lbf_per_ft2": 2.09e-2,
+        "psi": 1.45e-4,
     },
     "B-field": {
         "ftesla": 1e-15,
