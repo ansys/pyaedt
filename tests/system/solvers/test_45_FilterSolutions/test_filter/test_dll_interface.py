@@ -45,7 +45,7 @@ class TestClass:
     def test_version(self):
         version_string = config["desktopVersion"].replace(".", " R")
         expected_version_string = f"FilterSolutions API Version {version_string} (Beta)"
-        assert ansys.aedt.core.filtersolutions_core.api_version() == expected_version_string
+        assert ansys.aedt.core.filtersolutions_core.api_version()[0] == expected_version_string
 
     def test_string_to_enum(self):
         assert (
