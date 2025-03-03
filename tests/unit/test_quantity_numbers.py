@@ -24,8 +24,8 @@
 
 """Test Quantity functions.
 """
-
 from ansys.aedt.core.generic.numbers import Quantity
+import pytest
 
 
 def test_quantity_initialization():
@@ -40,6 +40,11 @@ def test_quantity_addition():
     q3 = q1 + q2
     assert q3.value == 15.0
     assert q3.unit == "m"
+    q3 = Quantity("1GHz")
+    q4 = Quantity(1)
+    assert q4 + q1 == q1 + q4
+    with pytest.raises(ValueError):
+        _ = q3 + q1
 
 
 def test_quantity_subtraction():
@@ -48,6 +53,9 @@ def test_quantity_subtraction():
     q3 = q1 - q2
     assert q3.value == 5.0
     assert q3.unit == "m"
+    q3 = Quantity("1GHz")
+    with pytest.raises(ValueError):
+        _ = q3 - q1
 
 
 def test_quantity_multiplication():
@@ -55,6 +63,9 @@ def test_quantity_multiplication():
     q2 = q * 2
     assert q2.value == 20
     assert q2.unit == "m"
+    q3 = Quantity("1GHz")
+    with pytest.raises(ValueError):
+        _ = q3 * q
 
 
 def test_quantity_division():
@@ -62,6 +73,9 @@ def test_quantity_division():
     q2 = q / 2
     assert q2.value == 5
     assert q2.unit == "m"
+    q3 = Quantity("1GHz")
+    with pytest.raises(ValueError):
+        _ = q3 / q
 
 
 def test_quantity_conversion():
