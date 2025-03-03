@@ -46,8 +46,6 @@ class Quantity(float):
 
     def __new__(cls, expression, unit=None):
         _value, _unit = decompose_variable_value(expression)
-        if not is_number(_value):
-            return _value
         return float.__new__(cls, _value)
 
     def __init__(
@@ -92,10 +90,7 @@ class Quantity(float):
 
     @property
     def expression(self):
-        if is_number(self._value):
-            return f"{self._value}{self._unit}"
-        else:
-            return self._value
+        return f"{self._value}{self._unit}"
 
     @expression.setter
     def expression(self, value):
@@ -154,10 +149,7 @@ class Quantity(float):
         return "%.16g" % self.value + self.unit
 
     def __str__(self):
-        if is_number(self.value):
-            return "%.16g" % self.value + self.unit
-        else:
-            return self.value
+        return "%.16g" % self.value + self.unit
 
     def __add__(self, other):
         if isinstance(other, Quantity):

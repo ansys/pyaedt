@@ -2256,7 +2256,10 @@ class Analysis(Design, object):
                     self.logger.warning("Defined unit system is incorrect.")
                     units = ""
 
-        return str(Quantity(value, units))
+        if not is_number(value):
+            return value
+        else:
+            return str(Quantity(value, units))
 
     @pyaedt_function_handler()
     def change_property(self, aedt_object, tab_name, property_object, property_name, property_value):
