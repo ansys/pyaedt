@@ -57,6 +57,7 @@ from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers import Quantity
 from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.generic.numbers import is_number
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB

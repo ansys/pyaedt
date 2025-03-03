@@ -101,8 +101,3 @@ def test_quantity_comparison():
     assert q2 < q1
     assert q1 >= q2
     assert q2 <= q1
-
-
-def test_quantity_str():
-    q = Quantity("A + Bmm")
-    assert str(q) == "A + Bmm"

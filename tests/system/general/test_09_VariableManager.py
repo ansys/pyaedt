@@ -688,3 +688,4 @@ class TestClass:
         assert self.aedtapp.value_with_units("10") == "10mm"
         assert self.aedtapp.value_with_units("10", units_system="Angle") == "10deg"
         assert self.aedtapp.value_with_units("10", units_system="invalid") == "10"
+        assert self.aedtapp.value_with_units("A + Bmm") == "A + Bmm"
