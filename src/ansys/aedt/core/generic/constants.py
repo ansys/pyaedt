@@ -436,6 +436,14 @@ AEDT_UNITS = {
         "HP": 1.34102e-3,
         "erg_per_sec": 1e7,
     },
+    "Pressure": {
+        "n_per_meter_sq": 1.0,
+        "kn_per_meter_sq": 1e3,
+        "megn_per_meter_sq": 1e6,
+        "gn_per_meter_sq": 1e9,
+        "lbf_per_ft2": 2.09e2,
+        "psi": 1.45e4,
+    },
     "B-field": {
         "ftesla": 1e-15,
         "ptesla": 1e-12,
