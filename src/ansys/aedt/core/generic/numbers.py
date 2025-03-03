@@ -326,7 +326,7 @@ def decompose_variable_value(variable_value: str, full_variables: Dict[str, Any]
     return float_value, units
 
 
-def isclose(a: float, b: float, relative_tolerance: float = 1e-9, absolute_tolerance: float = 0.0) -> bool:
+def is_close(a: float, b: float, relative_tolerance: float = 1e-9, absolute_tolerance: float = 0.0) -> bool:
     """Whether two numbers are close to each other given relative and absolute tolerances.
 
     Parameters
