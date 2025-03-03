@@ -943,10 +943,13 @@ def available_license_feature(
 
     if os.getenv("ANSYSLMD_LICENSE_FILE", None):
         name_env = os.getenv("ANSYSLMD_LICENSE_FILE")
+        name_env = name_env.split(",")[0].split("@")
+        if len(name_env) == 2:
+            port = name_env[0]
+            name = name_env[1]
     # Using the alternative environment variable name.
     elif os.getenv("ANSOFT_LICENSE_FILE", None):
         name_env = os.getenv("ANSOFT_LICENSE_FILE")
-    if name_env:
         name_env = name_env.split(",")[0].split("@")
         if len(name_env) == 2:
             port = name_env[0]
