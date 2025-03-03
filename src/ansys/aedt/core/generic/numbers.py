@@ -85,6 +85,8 @@ class Quantity(float):
             self._unit_system = unit_system(unit)
             if unit.lower() in self._units_lower:
                 self._unit = list(AEDT_UNITS[self._unit_system].keys())[self._units_lower.index(unit.lower())]
+            elif not self._unit_system:
+                self._unit = unit
 
     @property
     def expression(self):
