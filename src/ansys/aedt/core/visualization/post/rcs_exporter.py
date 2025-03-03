@@ -27,6 +27,7 @@ import json
 from pathlib import Path
 import shutil
 
+from ansys.aedt.core import Quantity
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.generic.file_utils import check_and_download_folder
@@ -157,7 +158,7 @@ class MonostaticRCSExporter:
         variations["IWavePhi"] = ["All"]
         frequencies = self.frequencies
         if frequencies is not None:
-            frequencies = [str(freq) for freq in frequencies]
+            frequencies = [freq.expression if isinstance(freq, Quantity) else str(freq) for freq in frequencies]
         variations["Freq"] = frequencies
 
         solution_data = self.__app.post.get_solution_data(
