@@ -82,13 +82,21 @@ class TestClass:
                 assert not v[1]
 
     def test_get_coupling_in_range(self, local_scratch):
-        touchstone_file = os.path.join(test_T44_dir, "port_order_1234.s8p")
+        touchstone_file = os.path.join(test_T44_dir, "HSD_PCIE_UT_main_cutout.s16p")
         output_file = os.path.join(self.local_scratch.path, "test_44_gcir.log")
+        aedb_path = os.path.join(test_T44_dir, "HSD_PCIE_UT.aedb")
+        design_name = "main_cutout1"
         ts = TouchstoneData(touchstone_file=touchstone_file)
         res = ts.get_coupling_in_range(
-            start_frequency=1e9, high_loss=-60, low_loss=-40, frequency_sample=5, output_file=output_file
-        )
-
+            start_frequency=1e9, high_loss=-60, low_loss=-40, frequency_sample=5, output_file=output_file)
+        assert isinstance(res, list)
+        res = ts.get_coupling_in_range(
+            start_frequency=1e9, high_loss=-60, low_loss=-40, frequency_sample=5, output_file=output_file,
+            aedb_path=aedb_path, edb_version="2024.2")
+        assert isinstance(res, list)
+        res = ts.get_coupling_in_range(
+            start_frequency=1e9, high_loss=-60, low_loss=-40, frequency_sample=5, output_file=output_file,
+            aedb_path=aedb_path, design_name=design_name, edb_version="2024.2")
         assert isinstance(res, list)
 
 
