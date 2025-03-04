@@ -22,7 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
+from pathlib import Path
+import warnings
 
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.generic.configurations import Configurations3DLayout
@@ -172,12 +173,34 @@ class FieldAnalysis3DLayout(Analysis):
 
     @property
     def excitations(self):
-        """Excitation names.
+        """Get all excitation names.
+
+        .. deprecated:: 0.15.0
+           Use :func:`excitation_names` property instead.
 
         Returns
         -------
         list
-            Excitation list. Excitations with multiple modes return one
+            List of excitation names. Excitations with multiple modes will return one
+            excitation for each mode.
+
+        References
+        ----------
+        >>> oModule.GetExcitations
+        """
+        mess = "The property `excitations` is deprecated.\n"
+        mess += " Use `app.excitation_names` directly."
+        warnings.warn(mess, DeprecationWarning)
+        return self.excitation_names
+
+    @property
+    def excitation_names(self):
+        """Get all excitation names.
+
+        Returns
+        -------
+        list
+            List of excitation names. Excitations with multiple modes will return one
             excitation for each mode.
 
         References
@@ -206,8 +229,8 @@ class FieldAnalysis3DLayout(Analysis):
         self.odesign.DesignOptions(arg)
         return True
 
-    @pyaedt_function_handler(setup_name="setup", variation_string="variations")
-    def export_mesh_stats(self, setup, variations="", mesh_path=None):
+    @pyaedt_function_handler(setup_name="setup", variation_string="variations", mesh_path="output_file")
+    def export_mesh_stats(self, setup, variations="", output_file=None):
         """Export mesh statistics to a file.
 
         Parameters
@@ -216,7 +239,7 @@ class FieldAnalysis3DLayout(Analysis):
             Setup name.
         variations : str, optional
             Variation List.
-        mesh_path : str, optional
+        output_file : str, optional
             Full path to mesh statistics file. If `None` working_directory will be used.
 
         Returns
@@ -228,10 +251,10 @@ class FieldAnalysis3DLayout(Analysis):
         ----------
         >>> oModule.ExportMeshStats
         """
-        if not mesh_path:
-            mesh_path = os.path.join(self.working_directory, "meshstats.ms")
-        self.odesign.ExportMeshStats(setup, variations, mesh_path)
-        return mesh_path
+        if not output_file:
+            output_file = str(Path(self.working_directory) / "meshstats.ms")
+        self.odesign.ExportMeshStats(setup, variations, output_file)
+        return output_file
 
     @property
     def modeler(self):
@@ -261,21 +284,23 @@ class FieldAnalysis3DLayout(Analysis):
 
     @property
     def existing_analysis_setups(self):
-        """Existing analysis setups in the design.
+        """Existing analysis setups.
+
+        .. deprecated:: 0.15.0
+            Use :func:`setup_names` from setup object instead.
 
         Returns
         -------
-        list
-            List of names of all analysis setups in the design.
+        list of str
+            List of all analysis setups in the design.
 
         References
         ----------
         >>> oModule.GetSetups
         """
-        setups = self.oanalysis.GetSetups()
-        if setups:
-            return list(setups)
-        return []
+        msg = "`existing_analysis_setups` is deprecated. " "Use `setup_names` method from setup object instead."
+        warnings.warn(msg, DeprecationWarning)
+        return self.setup_names
 
     @pyaedt_function_handler(setupname="name", setuptype="setup_type")
     def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
@@ -360,7 +385,7 @@ class FieldAnalysis3DLayout(Analysis):
         ...
         PyAEDT INFO: Sweep was deleted correctly.
         """
-        if name in self.existing_analysis_setups:
+        if name in self.setup_names:
             self.osolution.Delete(name)
             for s in self.setups:
                 if s.name == name:

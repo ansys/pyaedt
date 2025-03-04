@@ -49,12 +49,12 @@ from ansys.aedt.core.generic.constants import PLANE
 from ansys.aedt.core.generic.constants import SETUPS
 from ansys.aedt.core.generic.constants import SOLUTIONS
 from ansys.aedt.core.generic.constants import VIEW
+from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import _arg_with_dim
 from ansys.aedt.core.generic.general_methods import filter_tuple
-from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
-from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
@@ -187,7 +187,7 @@ class Analysis(Design, object):
         -------
         dict[str, :class:`ansys.aedt.core.modules.solve_setup.Setup`]
         """
-        return {i.name: i for i in self.setups}
+        return {i.name.split(":")[0].strip(): i for i in self.setups}
 
     @property
     def native_components(self):
@@ -259,6 +259,8 @@ class Analysis(Design, object):
         if not self._setups:
             if self.design_type not in ["Maxwell Circuit", "Circuit Netlist"]:
                 self._setups = [self._get_setup(setup_name) for setup_name in self.setup_names]
+                if self._setups:
+                    self.active_setup = self._setups[0].name
         return self._setups
 
     @property
@@ -332,8 +334,8 @@ class Analysis(Design, object):
         """
         if self._setup:
             return self._setup
-        elif self.existing_analysis_setups:
-            return self.existing_analysis_setups[0]
+        elif self.setup_names:
+            return self.setup_names[0]
         else:
             self._setup = None
             return self._setup
@@ -341,13 +343,62 @@ class Analysis(Design, object):
     @active_setup.setter
     @pyaedt_function_handler(setup_name="name")
     def active_setup(self, name):
-        setup_list = self.existing_analysis_setups
+        setup_list = self.setup_names
         if setup_list:
             if name not in setup_list:
                 raise ValueError(f"Setup name {name} is invalid.")
             self._setup = name
         else:
             raise AttributeError("No setup is defined.")
+
+    @property
+    def setup_sweeps_names(self):
+        """Get all available setup names and sweeps.
+        Returns
+        -------
+        dict
+            A dictionary containing the nominal value for such setup and all available sweeps.
+        """
+        setup_list = self.setup_names
+        sweep_list = {}
+        if self.solution_type == "HFSS3DLayout" or self.solution_type == "HFSS 3D Layout Design":
+            solutions = self.oanalysis.GetAllSolutionNames()
+            solutions = [i for i in solutions if "Adaptive Pass" not in i]
+            solutions.reverse()
+            for k in solutions:
+                sol_sweep = k.split(" : ")
+                if sol_sweep[0] not in sweep_list:
+                    sweep_list[sol_sweep[0]] = {"Nominal": None, "Sweeps": []}
+                if len(sol_sweep) == 2:
+                    if "Last Adaptive" in sol_sweep[1]:
+                        sweep_list[sol_sweep[0]]["Nominal"] = sol_sweep[1]
+                    else:
+                        sweep_list[sol_sweep[0]]["Sweeps"].append(sol_sweep[1])
+        else:
+            for el in setup_list:
+                sweep_list[el] = {"Nominal": None, "Sweeps": []}
+                setuptype = self.design_solutions.default_adaptive
+                if setuptype:
+                    sweep_list[el]["Nominal"] = setuptype
+                elif self.design_type in [
+                    "Circuit Design",
+                    "Circuit Netlist",
+                    "Twin Builder",
+                    "Maxwell Circuit",
+                ]:
+                    setups = self.oanalysis.GetAllSolutionSetups()
+                    for k in setups:
+                        val = k.split(" : ")
+                        if len(val) == 2 and val[0] == el:
+                            sweep_list[el]["Nominal"] = val[1]
+                if "GetSweeps" in dir(self.oanalysis):
+                    try:
+                        sweep_list[el]["Sweeps"].extend(list(self.oanalysis.GetSweeps(el)))
+                    except Exception:
+                        sweep_list[el]["Sweeps"] = []
+        for k in self.imported_solution_names:
+            sweep_list[k] = {"Nominal": "Table", "Sweeps": []}
+        return sweep_list
 
     @property
     def existing_analysis_sweeps(self):
@@ -363,30 +414,14 @@ class Analysis(Design, object):
         >>> oModule.GelAllSolutionNames
         >>> oModule.GetSweeps
         """
-        setup_list = self.existing_analysis_setups
         sweep_list = []
-        if self.solution_type == "HFSS3DLayout" or self.solution_type == "HFSS 3D Layout Design":
-            sweep_list = self.oanalysis.GetAllSolutionNames()
-            sweep_list = [i for i in sweep_list if "Adaptive Pass" not in i]
-            sweep_list.reverse()
-        else:
-            for el in setup_list:
-                sweeps = []
-                setuptype = self.design_solutions.default_adaptive
-                if setuptype:
-                    sweep_list.append(el + " : " + setuptype)
-                else:
-                    sweep_list.append(el)
-                if self.design_type in ["HFSS 3D Layout Design"]:
-                    sweeps = self.oanalysis.GelAllSolutionNames()
-                elif self.solution_type not in ["Eigenmode"]:
-                    try:
-                        sweeps = list(self.oanalysis.GetSweeps(el))
-                    except Exception:
-                        sweeps = []
-                for sw in sweeps:
-                    if el + " : " + sw not in sweep_list:
-                        sweep_list.append(el + " : " + sw)
+        for k, v in self.setup_sweeps_names.items():
+            if v["Nominal"] is None:
+                sweep_list.append(k)
+            else:
+                sweep_list.append(f"{k} : {v['Nominal']}")
+            for sw in v["Sweeps"]:
+                sweep_list.append(f"{k} : {sw}")
         return sweep_list
 
     @property
@@ -403,10 +438,12 @@ class Analysis(Design, object):
         >>> oModule.GelAllSolutionNames
         >>> oModule.GetSweeps
         """
-        if len(self.existing_analysis_sweeps) > 0:
-            return self.existing_analysis_sweeps[0]
-        else:
+        if not self.active_setup or self.active_setup not in self.setup_sweeps_names:
             return ""
+        if self.setup_sweeps_names[self.active_setup]["Nominal"] is None:
+            return self.active_setup
+        else:
+            return f'{self.active_setup} : {self.setup_sweeps_names[self.active_setup]["Nominal"]}'
 
     @property
     def nominal_sweep(self):
@@ -423,14 +460,19 @@ class Analysis(Design, object):
         >>> oModule.GelAllSolutionNames
         >>> oModule.GetSweeps
         """
-        if len(self.existing_analysis_sweeps) > 1:
-            return self.existing_analysis_sweeps[1]
+        if not self.active_setup or self.active_setup not in self.setup_sweeps_names:
+            return ""
+        if self.setup_sweeps_names[self.active_setup]["Sweeps"]:
+            return f'{self.active_setup} : {self.setup_sweeps_names[self.active_setup]["Sweeps"][0]}'
         else:
             return self.nominal_adaptive
 
     @property
     def existing_analysis_setups(self):
         """Existing analysis setups.
+
+        .. deprecated:: 0.15.0
+            Use :func:`setup_names` from setup object instead.
 
         Returns
         -------
@@ -441,12 +483,9 @@ class Analysis(Design, object):
         ----------
         >>> oModule.GetSetups
         """
-        setups = []
-        if self.oanalysis and "GetSetups" in self.oanalysis.__dir__():
-            setups = self.oanalysis.GetSetups()
-        if setups:
-            return list(setups)
-        return []
+        msg = "`existing_analysis_setups` is deprecated. " "Use `setup_names` method from setup object instead."
+        warnings.warn(msg, DeprecationWarning)
+        return self.setup_names
 
     @property
     def setup_names(self):
@@ -465,6 +504,20 @@ class Analysis(Design, object):
         if self.oanalysis and "GetSetups" in self.oanalysis.__dir__():
             setup_names = self.oanalysis.GetSetups()
         return setup_names
+
+    @property
+    def imported_solution_names(self):
+        """Return the list of the imported solution names.
+
+        Returns
+        -------
+        list of str
+        """
+        try:
+            solution_list = list(self._app.oreportsetup.GetChildObject("Profile").GetChildNames())
+        except Exception:
+            solution_list = []
+        return [i for i in solution_list if i not in self.setup_names]
 
     @property
     def SimulationSetupTypes(self):
@@ -492,6 +545,28 @@ class Analysis(Design, object):
     def excitations(self):
         """Get all excitation names.
 
+        .. deprecated:: 0.15.0
+           Use :func:`excitation_names` property instead.
+
+        Returns
+        -------
+        list
+            List of excitation names. Excitations with multiple modes will return one
+            excitation for each mode.
+
+        References
+        ----------
+        >>> oModule.GetExcitations
+        """
+        mess = "The property `excitations` is deprecated.\n"
+        mess += " Use `app.excitation_names` directly."
+        warnings.warn(mess, DeprecationWarning)
+        return self.excitation_names
+
+    @property
+    def excitation_names(self):
+        """Get all excitation names.
+
         Returns
         -------
         list
@@ -511,6 +586,37 @@ class Analysis(Design, object):
             return []
 
     @property
+    def design_excitations(self):
+        """Get all excitation.
+
+        Returns
+        -------
+        dict[str, :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`]
+           Excitation boundaries.
+
+        References
+        ----------
+        >>> oModule.GetExcitations
+        """
+        exc_names = self.excitation_names[::]
+
+        for el in self.boundaries:
+            if el.name in exc_names:
+                self._excitation_objects[el.name] = el
+
+        # Delete objects that are not anymore available
+        keys_to_remove = [
+            internal_excitation
+            for internal_excitation in self._excitation_objects
+            if internal_excitation not in self.excitation_names
+        ]
+
+        for key in keys_to_remove:
+            del self._excitation_objects[key]
+
+        return self._excitation_objects
+
+    @property
     def excitations_by_type(self):
         """Design excitations by type.
 
@@ -520,7 +626,7 @@ class Analysis(Design, object):
             Dictionary of excitations.
         """
         _dict_out = {}
-        for bound in self.excitation_objects.values():
+        for bound in self.design_excitations.values():
             if bound.type in _dict_out:
                 _dict_out[bound.type].append(bound)
             else:
@@ -530,6 +636,9 @@ class Analysis(Design, object):
     @property
     def excitation_objects(self):
         """Get all excitation.
+
+        .. deprecated:: 0.15.0
+           Use :func:`design_excitations` property instead.
 
         Returns
         -------
@@ -541,23 +650,10 @@ class Analysis(Design, object):
         ----------
         >>> oModule.GetExcitations
         """
-        exc_names = self.excitations[::]
-
-        for el in self.boundaries:
-            if el.name in exc_names:
-                self._excitation_objects[el.name] = el
-
-        # Delete objects that are not anymore available
-        keys_to_remove = [
-            internal_excitation
-            for internal_excitation in self._excitation_objects
-            if internal_excitation not in self.excitations
-        ]
-
-        for key in keys_to_remove:
-            del self._excitation_objects[key]
-
-        return self._excitation_objects
+        mess = "The property `excitation_objects` is deprecated.\n"
+        mess += " Use `app.design_excitations` directly."
+        warnings.warn(mess, DeprecationWarning)
+        return self.design_excitations
 
     @pyaedt_function_handler()
     def get_traces_for_plot(
@@ -615,7 +711,7 @@ class Analysis(Design, object):
         if differential_pairs:
             excitations = differential_pairs
         else:
-            excitations = self.excitations
+            excitations = self.excitation_names
         if get_self_terms:
             for el in excitations:
                 value = f"{category}({el},{el}{end_str}"
@@ -760,7 +856,7 @@ class Analysis(Design, object):
         elif self.design_type == "Q3D Extractor":
             excitations = self.oboundary.GetNumExcitations("Source")
         elif self.design_type == "Circuit Design":
-            excitations = len(self.excitations)
+            excitations = len(self.excitation_names)
         else:
             excitations = len(self.osolution.GetAllSources())
         # reports
@@ -785,12 +881,9 @@ class Analysis(Design, object):
             self.logger.warning("Touchstone format not valid. ``MagPhase`` will be set as default")
             touchstone_format_value = 0
 
-        # setups
-        setups = self.setups
-
         nominal_variation = self.available_variations.get_independent_nominal_values()
 
-        for s in setups:
+        for s in self.setups:
             if self.design_type == "Circuit Design":
                 exported_files.append(self.browse_log_file(export_folder))
             else:
@@ -1136,7 +1229,7 @@ class Analysis(Design, object):
         if not name:
             name = "Setup"
         index = 2
-        while name in self.existing_analysis_setups:
+        while name in self.setup_names:
             name = name + f"_{index}"
             index += 1
         return name
@@ -1165,7 +1258,7 @@ class Analysis(Design, object):
         if self.design_type == "HFSS":
             # Handle the situation when ports have not been defined.
 
-            if not self.excitations and "MaxDeltaS" in setup.props:
+            if not self.excitation_names and "MaxDeltaS" in setup.props:
                 new_dict = {}
                 setup.auto_update = False
                 for k, v in setup.props.items():
@@ -1264,7 +1357,7 @@ class Analysis(Design, object):
         ...
         PyAEDT INFO: Sweep was deleted correctly.
         """
-        if name in self.existing_analysis_setups:
+        if name in self.setup_names:
             self.oanalysis.DeleteSetups([name])
             for s in self._setups:
                 if s.name == name:
@@ -1700,7 +1793,7 @@ class Analysis(Design, object):
                     self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
                 self.logger.error("Error in solving all setups (AnalyzeAll).")
                 return False
-        elif name in self.existing_analysis_setups:
+        elif name in self.setup_names:
             try:
                 if revert_to_initial_mesh:
                     self.oanalysis.RevertSetupToInitial(name)
@@ -2020,7 +2113,7 @@ class Analysis(Design, object):
         if self.design_type == "HFSS 3D Layout Design":
             n = str(len(self.port_list))
         else:
-            n = str(len(self.excitations))
+            n = str(len(self.excitation_names))
         # Normalize the save path
         if not file_name:
             appendix = ""

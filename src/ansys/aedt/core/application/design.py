@@ -66,19 +66,19 @@ from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import unit_system
 from ansys.aedt.core.generic.data_handlers import variation_string_to_dict
 from ansys.aedt.core.generic.errors import GrpcApiError
-from ansys.aedt.core.generic.general_methods import check_and_download_file
-from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.file_utils import check_and_download_file
+from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.file_utils import is_project_locked
+from ansys.aedt.core.generic.file_utils import open_file
+from ansys.aedt.core.generic.file_utils import read_csv
+from ansys.aedt.core.generic.file_utils import read_tab
+from ansys.aedt.core.generic.file_utils import read_xlsx
+from ansys.aedt.core.generic.file_utils import remove_project_lock
+from ansys.aedt.core.generic.file_utils import write_csv
 from ansys.aedt.core.generic.general_methods import inner_project_settings
-from ansys.aedt.core.generic.general_methods import is_project_locked
 from ansys.aedt.core.generic.general_methods import is_windows
-from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.general_methods import read_csv
-from ansys.aedt.core.generic.general_methods import read_tab
-from ansys.aedt.core.generic.general_methods import read_xlsx
-from ansys.aedt.core.generic.general_methods import remove_project_lock
 from ansys.aedt.core.generic.general_methods import settings
-from ansys.aedt.core.generic.general_methods import write_csv
 from ansys.aedt.core.generic.load_aedt_file import load_entire_aedt_file
 from ansys.aedt.core.generic.numbers import _units_assignment
 from ansys.aedt.core.generic.numbers import decompose_variable_value
@@ -470,7 +470,7 @@ class Design(AedtObjects):
         current_boundaries = bb[::2]
         current_types = bb[1::2]
         if hasattr(self, "excitations"):
-            check_boundaries = list(current_boundaries[:]) + list(self.ports[:]) + self.excitations[:]
+            check_boundaries = list(current_boundaries[:]) + list(self.ports[:]) + self.excitation_names[:]
             if "nets" in dir(self):
                 check_boundaries += self.nets
             for k in list(self._boundaries.keys())[:]:

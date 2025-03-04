@@ -30,8 +30,8 @@ import warnings
 
 from ansys.aedt.core.application.variables import generate_validation_errors
 from ansys.aedt.core.generic.errors import GrpcApiError
-from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
@@ -314,10 +314,10 @@ class Modeler3D(Primitives3D):
                 arg2 += ["MeshRegions:=", mesh_regions]
         else:
             if excitations is None:
-                excitations = self._app.excitations
+                excitations = self._app.excitation_names
                 if self._app.design_type == "HFSS":
                     exc = self._app.get_oo_name(self._app.odesign, "Excitations")
-                    if exc and exc[0] not in self._app.excitations:
+                    if exc and exc[0] not in self._app.excitation_names:
                         excitations.extend(exc)
             excitations = list(set([i.split(":")[0] for i in excitations]))
             if excitations:
@@ -552,10 +552,10 @@ class Modeler3D(Primitives3D):
             if excitations:
                 excitations = excitations
             else:
-                excitations = self._app.excitations
+                excitations = self._app.excitation_names
                 if self._app.design_type == "HFSS":
                     exc = self._app.get_oo_name(self._app.odesign, "Excitations")
-                    if exc and exc[0] not in self._app.excitations:
+                    if exc and exc[0] not in self._app.excitation_names:
                         excitations.extend(exc)
             excitations = list(set([i.split(":")[0] for i in excitations]))
             if excitations:
