@@ -231,16 +231,15 @@ class TwoToneTraceNode(EmitNode):
     def frequency_1(self) -> float:
         """Frequency 1
         "1st test tone frequency."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Frequency 1')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @frequency_1.setter
     def frequency_1(self, value : float|str):
-        value = self._convert_to_default_units(value, "Frequency Unit")
+        value = self._convert_to_default_units(value, "Freq Unit")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Frequency 1=' + f"{value}"])
 
     @property
@@ -263,32 +262,30 @@ class TwoToneTraceNode(EmitNode):
     def bandwidth_1(self) -> float:
         """Bandwidth 1
         "1st test tone bandwidth."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be greater than 1."
         """
         val = self._get_property('Bandwidth 1')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @bandwidth_1.setter
     def bandwidth_1(self, value : float|str):
-        value = self._convert_to_default_units(value, "Frequency Unit")
+        value = self._convert_to_default_units(value, "Freq Unit")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Bandwidth 1=' + f"{value}"])
 
     @property
     def frequency_2(self) -> float:
         """Frequency 2
         "2nd test tone frequency."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Frequency 2')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @frequency_2.setter
     def frequency_2(self, value : float|str):
-        value = self._convert_to_default_units(value, "Frequency Unit")
+        value = self._convert_to_default_units(value, "Freq Unit")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Frequency 2=' + f"{value}"])
 
     @property
@@ -311,16 +308,15 @@ class TwoToneTraceNode(EmitNode):
     def bandwidth_2(self) -> float:
         """Bandwidth 2
         "2nd test tone bandwidth."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be greater than 1."
         """
         val = self._get_property('Bandwidth 2')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @bandwidth_2.setter
     def bandwidth_2(self, value : float|str):
-        value = self._convert_to_default_units(value, "Frequency Unit")
+        value = self._convert_to_default_units(value, "Freq Unit")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Bandwidth 2=' + f"{value}"])
 
     @property

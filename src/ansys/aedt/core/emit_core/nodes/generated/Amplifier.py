@@ -89,32 +89,30 @@ class Amplifier(EmitNode):
     def center_frequency(self) -> float:
         """Center Frequency
         "Center frequency of amplifiers operational bandwidth."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Center Frequency')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @center_frequency.setter
     def center_frequency(self, value : float|str):
-        value = self._convert_to_default_units(value, "Frequency Unit")
+        value = self._convert_to_default_units(value, "Freq Unit")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Center Frequency=' + f"{value}"])
 
     @property
     def bandwidth(self) -> float:
         """Bandwidth
         "Frequency region where the gain applies."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Bandwidth')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @bandwidth.setter
     def bandwidth(self, value : float|str):
-        value = self._convert_to_default_units(value, "Frequency Unit")
+        value = self._convert_to_default_units(value, "Freq Unit")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Bandwidth=' + f"{value}"])
 
     @property

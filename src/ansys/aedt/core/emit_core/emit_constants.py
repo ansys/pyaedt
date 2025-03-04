@@ -80,7 +80,7 @@ EMIT_VALID_UNITS = {
     "Time": ["ps", "ns", "us", "ms", "s"],
     "Voltage": ["nV", "uV", "mV", "V", "kV", "MegV"],
     "Data Rate": ["bps", "kbps", "Mbps", "Gbps"],
-    "Resistance": ["uOhm", "mOhm", "Ohm", "kOhm", "megOhm", "GOhm"],
+    "Resistance": ["uOhm", "mOhm", "ohm", "kOhm", "megohm", "GOhm"],
 }
 """Valid units for each unit type."""
 

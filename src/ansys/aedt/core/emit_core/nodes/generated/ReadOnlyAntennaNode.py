@@ -209,11 +209,10 @@ class ReadOnlyAntennaNode(EmitNode):
     def resonant_frequency(self) -> float:
         """Resonant Frequency
         "Set first resonant frequency of wire dipole, monopole, or parametric antenna."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+13."
         """
         val = self._get_property('Resonant Frequency')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @property
@@ -547,20 +546,18 @@ class ReadOnlyAntennaNode(EmitNode):
     def waveguide_cutoff_frequency(self) -> float:
         """Waveguide Cutoff Frequency
         "Implied lowest operating frequency of pyramidal horn antenna."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "        """
         val = self._get_property('Waveguide Cutoff Frequency')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @property
     def aperture_cutoff_frequency(self) -> float:
         """Aperture Cutoff Frequency
         "Implied lowest operating frequency of conical horn antenna."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "        """
         val = self._get_property('Aperture Cutoff Frequency')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     class SWEModeTruncationOption(Enum):

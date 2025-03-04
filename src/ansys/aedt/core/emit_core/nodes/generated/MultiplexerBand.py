@@ -84,128 +84,120 @@ class MultiplexerBand(EmitNode):
     def max_pass_band(self) -> float:
         """Max Pass Band
         "Maximum pass band frequency."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Max Pass Band')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @max_pass_band.setter
     def max_pass_band(self, value : float|str):
-        value = self._convert_to_default_units(value, "Frequency Unit")
+        value = self._convert_to_default_units(value, "Freq Unit")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Max Pass Band=' + f"{value}"])
 
     @property
     def min_stop_band(self) -> float:
         """Min Stop Band
         "Minimum stop band frequency."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Min Stop Band')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @min_stop_band.setter
     def min_stop_band(self, value : float|str):
-        value = self._convert_to_default_units(value, "Frequency Unit")
+        value = self._convert_to_default_units(value, "Freq Unit")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Min Stop Band=' + f"{value}"])
 
     @property
     def max_stop_band(self) -> float:
         """Max Stop Band
         "Maximum stop band frequency."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Max Stop Band')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @max_stop_band.setter
     def max_stop_band(self, value : float|str):
-        value = self._convert_to_default_units(value, "Frequency Unit")
+        value = self._convert_to_default_units(value, "Freq Unit")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Max Stop Band=' + f"{value}"])
 
     @property
     def min_pass_band(self) -> float:
         """Min Pass Band
         "Minimum pass band frequency."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Min Pass Band')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @min_pass_band.setter
     def min_pass_band(self, value : float|str):
-        value = self._convert_to_default_units(value, "Frequency Unit")
+        value = self._convert_to_default_units(value, "Freq Unit")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Min Pass Band=' + f"{value}"])
 
     @property
     def lower_stop_band(self) -> float:
         """Lower Stop Band
         "Lower stop band frequency."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Lower Stop Band')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @lower_stop_band.setter
     def lower_stop_band(self, value : float|str):
-        value = self._convert_to_default_units(value, "Frequency Unit")
+        value = self._convert_to_default_units(value, "Freq Unit")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Lower Stop Band=' + f"{value}"])
 
     @property
     def lower_cutoff(self) -> float:
         """Lower Cutoff
         "Lower cutoff frequency."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Lower Cutoff')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @lower_cutoff.setter
     def lower_cutoff(self, value : float|str):
-        value = self._convert_to_default_units(value, "Frequency Unit")
+        value = self._convert_to_default_units(value, "Freq Unit")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Lower Cutoff=' + f"{value}"])
 
     @property
     def higher_cutoff(self) -> float:
         """Higher Cutoff
         "Higher cutoff frequency."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Higher Cutoff')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @higher_cutoff.setter
     def higher_cutoff(self, value : float|str):
-        value = self._convert_to_default_units(value, "Frequency Unit")
+        value = self._convert_to_default_units(value, "Freq Unit")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Higher Cutoff=' + f"{value}"])
 
     @property
     def higher_stop_band(self) -> float:
         """Higher Stop Band
         "Higher stop band frequency."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Higher Stop Band')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @higher_stop_band.setter
     def higher_stop_band(self, value : float|str):
-        value = self._convert_to_default_units(value, "Frequency Unit")
+        value = self._convert_to_default_units(value, "Freq Unit")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Higher Stop Band=' + f"{value}"])
 
     @property

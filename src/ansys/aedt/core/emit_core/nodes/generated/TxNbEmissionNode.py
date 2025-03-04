@@ -48,14 +48,13 @@ class TxNbEmissionNode(EmitNode):
     def measurement_frequency(self) -> float:
         """Measurement Frequency
         "Measurement frequency for the absolute freq/amp pairs.."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "        """
         val = self._get_property('Measurement Frequency')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @measurement_frequency.setter
     def measurement_frequency(self, value : float|str):
-        value = self._convert_to_default_units(value, "Frequency Unit")
+        value = self._convert_to_default_units(value, "Freq Unit")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Measurement Frequency=' + f"{value}"])
 

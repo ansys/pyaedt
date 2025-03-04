@@ -67,10 +67,9 @@ class BandTraceNode(EmitNode):
     def transmit_frequency(self) -> float:
         """Transmit Frequency
         "The actual transmit frequency (i.e., the Channel Frequency plus the Tx Offset)."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "        """
         val = self._get_property('Transmit Frequency')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @property

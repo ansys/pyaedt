@@ -46,22 +46,20 @@ class ReadOnlyRxMixerProductNode(EmitNode):
     def minimum_tuning_frequency(self) -> float:
         """Minimum Tuning Frequency
         "Minimum tuning frequency of Rx's local oscillator."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Minimum Tuning Frequency')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @property
     def maximum_tuning_frequency(self) -> float:
         """Maximum Tuning Frequency
         "Maximum tuning frequency of Rx's local oscillator."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Maximum Tuning Frequency')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @property
@@ -86,11 +84,10 @@ class ReadOnlyRxMixerProductNode(EmitNode):
     def _80_db_bandwidth(self) -> float:
         """80 dB Bandwidth
         "Bandwidth where Rx's susceptibility envelope is 80 dB above in-band susceptibility level."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be greater than 1."
         """
         val = self._get_property('80 dB Bandwidth')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @property
@@ -147,10 +144,9 @@ class ReadOnlyRxMixerProductNode(EmitNode):
     def rf_transition_frequency(self) -> float:
         """RF Transition Frequency
         "RF Frequency Transition point."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "        """
         val = self._get_property('RF Transition Frequency')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     class UseHighLOOption(Enum):

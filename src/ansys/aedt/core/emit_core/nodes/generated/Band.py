@@ -73,10 +73,9 @@ class Band(EmitNode):
     def emission_designator_ch_bw(self) -> float:
         """Emission Designator Ch. BW
         "Channel Bandwidth based off the emission designator."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "        """
         val = self._get_property('Emission Designator Ch. BW')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @property
@@ -104,16 +103,15 @@ class Band(EmitNode):
     def channel_bandwidth(self) -> float:
         """Channel Bandwidth
         "Channel Bandwidth."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be greater than 1."
         """
         val = self._get_property('Channel Bandwidth')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @channel_bandwidth.setter
     def channel_bandwidth(self, value : float|str):
-        value = self._convert_to_default_units(value, "Frequency Unit")
+        value = self._convert_to_default_units(value, "Freq Unit")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Channel Bandwidth=' + f"{value}"])
 
     class ModulationOption(Enum):
@@ -166,16 +164,15 @@ class Band(EmitNode):
     def max_modulating_freq(self) -> float:
         """Max Modulating Freq.
         "Maximum modulating frequency: helps determine spectral profile."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be greater than 1."
         """
         val = self._get_property('Max Modulating Freq.')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @max_modulating_freq.setter
     def max_modulating_freq(self, value : float|str):
-        value = self._convert_to_default_units(value, "Frequency Unit")
+        value = self._convert_to_default_units(value, "Freq Unit")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Max Modulating Freq.=' + f"{value}"])
 
     @property
@@ -195,16 +192,15 @@ class Band(EmitNode):
     def freq_deviation(self) -> float:
         """Freq. Deviation
         "Frequency deviation: helps determine spectral profile."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be greater than 1."
         """
         val = self._get_property('Freq. Deviation')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @freq_deviation.setter
     def freq_deviation(self, value : float|str):
-        value = self._convert_to_default_units(value, "Frequency Unit")
+        value = self._convert_to_default_units(value, "Freq Unit")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Freq. Deviation=' + f"{value}"])
 
     @property
@@ -240,16 +236,15 @@ class Band(EmitNode):
     def freq_deviation_(self) -> float:
         """Freq. Deviation 
         "FSK frequency deviation: helps determine spectral profile."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be greater than 1."
         """
         val = self._get_property('Freq. Deviation ')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @freq_deviation_.setter
     def freq_deviation_(self, value : float|str):
-        value = self._convert_to_default_units(value, "Frequency Unit")
+        value = self._convert_to_default_units(value, "Freq Unit")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Freq. Deviation =' + f"{value}"])
 
     class PSKTypeOption(Enum):
@@ -335,64 +330,60 @@ class Band(EmitNode):
     def start_frequency(self) -> float:
         """Start Frequency
         "First frequency for this band."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Start Frequency')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @start_frequency.setter
     def start_frequency(self, value : float|str):
-        value = self._convert_to_default_units(value, "Frequency Unit")
+        value = self._convert_to_default_units(value, "Freq Unit")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Start Frequency=' + f"{value}"])
 
     @property
     def stop_frequency(self) -> float:
         """Stop Frequency
         "Last frequency for this band."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Stop Frequency')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @stop_frequency.setter
     def stop_frequency(self, value : float|str):
-        value = self._convert_to_default_units(value, "Frequency Unit")
+        value = self._convert_to_default_units(value, "Freq Unit")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Stop Frequency=' + f"{value}"])
 
     @property
     def channel_spacing(self) -> float:
         """Channel Spacing
         "Spacing between channels within this band."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Channel Spacing')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @channel_spacing.setter
     def channel_spacing(self, value : float|str):
-        value = self._convert_to_default_units(value, "Frequency Unit")
+        value = self._convert_to_default_units(value, "Freq Unit")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Channel Spacing=' + f"{value}"])
 
     @property
     def tx_offset(self) -> float:
         """Tx Offset
         "Frequency offset between Tx and Rx channels."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be less than 1e+11."
         """
         val = self._get_property('Tx Offset')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @tx_offset.setter
     def tx_offset(self, value : float|str):
-        value = self._convert_to_default_units(value, "Frequency Unit")
+        value = self._convert_to_default_units(value, "Freq Unit")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Tx Offset=' + f"{value}"])
 
     @property
@@ -595,16 +586,15 @@ class Band(EmitNode):
     def max_frequency(self) -> float:
         """Max Frequency
         "Frequency cutoff of the imported time domain spectrum."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Max Frequency')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @max_frequency.setter
     def max_frequency(self, value : float|str):
-        value = self._convert_to_default_units(value, "Frequency Unit")
+        value = self._convert_to_default_units(value, "Freq Unit")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Max Frequency=' + f"{value}"])
 
     class WindowTypeOption(Enum):
@@ -778,32 +768,30 @@ class Band(EmitNode):
     def hop_range_min_freq(self) -> float:
         """Hop Range Min Freq
         "Sets the minimum frequency of the hopping range."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Hop Range Min Freq')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @hop_range_min_freq.setter
     def hop_range_min_freq(self, value : float|str):
-        value = self._convert_to_default_units(value, "Frequency Unit")
+        value = self._convert_to_default_units(value, "Freq Unit")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Hop Range Min Freq=' + f"{value}"])
 
     @property
     def hop_range_max_freq(self) -> float:
         """Hop Range Max Freq
         "Sets the maximum frequency of the hopping range."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Hop Range Max Freq')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @hop_range_max_freq.setter
     def hop_range_max_freq(self, value : float|str):
-        value = self._convert_to_default_units(value, "Frequency Unit")
+        value = self._convert_to_default_units(value, "Freq Unit")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Hop Range Max Freq=' + f"{value}"])
 
     @property
@@ -913,31 +901,29 @@ class Band(EmitNode):
     def fm_freq_deviation(self) -> float:
         """FM Freq Deviation
         "Total frequency deviation for the carrier frequency for the FM/CW radar."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('FM Freq Deviation')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @fm_freq_deviation.setter
     def fm_freq_deviation(self, value : float|str):
-        value = self._convert_to_default_units(value, "Frequency Unit")
+        value = self._convert_to_default_units(value, "Freq Unit")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['FM Freq Deviation=' + f"{value}"])
 
     @property
     def fm_freq_dev_bandwidth(self) -> float:
         """FM Freq Dev Bandwidth
         "Bandwidth of freq deviation for FM modulated pulsed waveform (total freq shift during pulse duration)."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('FM Freq Dev Bandwidth')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @fm_freq_dev_bandwidth.setter
     def fm_freq_dev_bandwidth(self, value : float|str):
-        value = self._convert_to_default_units(value, "Frequency Unit")
+        value = self._convert_to_default_units(value, "Freq Unit")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['FM Freq Dev Bandwidth=' + f"{value}"])
 

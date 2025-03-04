@@ -57,22 +57,20 @@ class ReadOnlyAmplifier(EmitNode):
     def center_frequency(self) -> float:
         """Center Frequency
         "Center frequency of amplifiers operational bandwidth."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Center Frequency')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @property
     def bandwidth(self) -> float:
         """Bandwidth
         "Frequency region where the gain applies."
-        "Units options: Hz, kHz, MHz, GHz, THz."
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Bandwidth')
-        val = self._convert_from_default_units(float(val), "Frequency Unit")
+        val = self._convert_from_default_units(float(val), "Freq Unit")
         return val
 
     @property
