@@ -122,7 +122,7 @@ class TouchstoneData(rf.Network):
         output_file=None,
         aedb_path=None,
         design_name=None,
-        edb_version=None
+        edb_version=None,
     ):
         """Get coupling losses, excluding return loss, that has at least one frequency point between a range of
         losses.
