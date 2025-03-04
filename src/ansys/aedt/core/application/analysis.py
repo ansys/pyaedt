@@ -778,7 +778,6 @@ class Analysis(Design, object):
     @pyaedt_function_handler()
     def export_results(
         self,
-        analyze=False,
         export_folder=None,
         matrix_name="Original",
         matrix_type="S",
@@ -789,6 +788,7 @@ class Analysis(Design, object):
         include_gamma_comment=True,
         support_non_standard_touchstone_extension=False,
         variations=None,
+        **kwargs,
     ):
         """Export all available reports to a file, including profile, and convergence and sNp when applicable.
 
@@ -844,6 +844,13 @@ class Analysis(Design, object):
         >>> aedtapp.analyze()
         >>> exported_files = aedtapp.export_results()
         """
+        if "analyze" in kwargs:
+            warnings.warn(
+                "The ``analyze`` argument will be deprecated in future versions." "Analyze before exporting results.",
+                DeprecationWarning,
+            )
+            analyze = kwargs["analyze"]
+
         exported_files = []
         if not export_folder:
             export_folder = self.working_directory
