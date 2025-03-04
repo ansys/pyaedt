@@ -149,6 +149,10 @@ class Quantity(float):
         return "%.16g" % self.value + self.unit
 
     def __str__(self):
+        if str(self.value).endswith("0"):
+            return "%.16g" % self.value + self.unit
+        else:
+            return self.expression
         return "%.16g" % self.value + self.unit
 
     def __add__(self, other):
