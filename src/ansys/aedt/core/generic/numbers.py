@@ -33,7 +33,7 @@ from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.constants import unit_system
 
 
-class Quantity:
+class Quantity(float):
     """Stores a number with its unit.
 
     Parameters
@@ -44,12 +44,17 @@ class Quantity:
         Units for the value.
     """
 
+    def __new__(cls, expression, unit=None):
+        _value, _unit = decompose_variable_value(expression)
+        return float.__new__(cls, _value)
+
     def __init__(
         self,
         expression,
         unit=None,
     ):
         self._unit = ""
+        self._unit_system = ""
         if unit in AEDT_UNITS:
             self._unit_system = unit
             self._unit = list(AEDT_UNITS[unit].keys())[0]
@@ -62,7 +67,7 @@ class Quantity:
 
     def to(self, unit):
         """Convert the actual number to new unit."""
-        if unit in AEDT_UNITS[self.unit_system]:
+        if self.unit_system and unit in AEDT_UNITS[self.unit_system]:
             new_value = unit_converter(
                 self.value, unit_system=self.unit_system, input_units=self._unit, output_units=unit
             )
@@ -146,11 +151,13 @@ class Quantity:
 
     def __add__(self, other):
         if isinstance(other, Quantity):
-            if self.unit == other.unit:
-                return Quantity(self.value + other.value, self.unit)
-            else:
+            if self.unit == other.unit or self.unit == "" or other.unit == "":
+                return Quantity(self.value + other.value, self.unit if self.unit else other.unit)
+            elif other.unit_system == self.unit_system:
                 new_other = other.to(self.unit)
                 return Quantity(self.value + new_other.value, self.unit)
+            else:
+                raise ValueError("Cannot add quantities with different units")
         elif isinstance(other, str):
             other = Quantity(other)
             if other.unit_system == self.unit_system:
@@ -163,29 +170,41 @@ class Quantity:
 
     def __sub__(self, other):
         if isinstance(other, Quantity):
-            if self.unit == other.unit:
-                return Quantity(self.value - other.value, self.unit)
-            else:
+            if self.unit == other.unit or self.unit == "" or other.unit == "":
+                return Quantity(self.value - other.value, self.unit if self.unit else other.unit)
+            elif self.unit == other.unit:
                 new_other = other.to(self.unit)
-                return Quantity(self.value + new_other.value, self.unit)
+                return Quantity(self.value - new_other.value, self.unit)
+            else:
+                raise ValueError("Cannot subtract quantities with different units")
         elif isinstance(other, str):
             other = Quantity(other)
             if other.unit_system == self.unit_system:
                 new_other = other.to(self.unit)
-                return Quantity(self.value + new_other.value, self.unit)
+                return Quantity(self.value - new_other.value, self.unit)
+            else:
+                raise ValueError("Cannot subtract quantities with different units")
         elif isinstance(other, (int, float)):
             return Quantity(self.value - other, self.unit)
         else:
             raise TypeError("Unsupported type for subtraction")
 
     def __mul__(self, other):
-        if isinstance(other, (int, float)):
+        if isinstance(other, Quantity) and (other.unit == "" or self.unit == ""):
+            return Quantity(self.value * other, self.unit if self.unit else other.unit)
+        elif isinstance(other, Quantity):
+            raise ValueError("Unsupported operation between two quantities with units.")
+        elif isinstance(other, (int, float)):
             return Quantity(self.value * other, self.unit)
         else:
             raise TypeError("Unsupported type for multiplication")
 
     def __truediv__(self, other):
-        if isinstance(other, (int, float)):
+        if isinstance(other, Quantity) and (other.unit == "" or self.unit == ""):
+            return Quantity(self.value * other, self.unit if self.unit else other.unit)
+        elif isinstance(other, Quantity):
+            raise ValueError("Unsupported operation between two quantities with units.")
+        elif isinstance(other, (int, float)):
             return Quantity(self.value / other, self.unit)
         else:
             raise TypeError("Unsupported type for division")
@@ -226,6 +245,37 @@ class Quantity:
 
     def __int__(self):
         return int(self.value)
+
+    def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):  # pragma: no cover
+        import numpy as np
+
+        # Extract the Quantity objects and their values
+        args = []
+        first_unit = None
+        for input_quantity in inputs:
+            if isinstance(input_quantity, Quantity):
+                if not first_unit:
+                    first_unit = input_quantity.unit
+                else:
+                    input_quantity = input_quantity.to(first_unit)
+                args.append(input_quantity.value)
+            else:
+                args.append(input_quantity)
+
+        # Perform the ufunc operation
+        result = getattr(ufunc, method)(*args, **kwargs)
+
+        # If the result is a scalar, return a Quantity object
+        if np.isscalar(result):
+            return Quantity(result, self.unit)
+        else:
+            # If the result is an array, return an array of Quantity objects
+            return np.array([Quantity(val, self.unit) for val in result])
+
+    def __array__(self, dtype=None):  # pragma: no cover
+        import numpy as np
+
+        return np.array(self.value, dtype=dtype)
 
 
 def decompose_variable_value(variable_value: str, full_variables: Dict[str, Any] = None) -> tuple:
