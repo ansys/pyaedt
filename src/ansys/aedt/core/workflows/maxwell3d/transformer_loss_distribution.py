@@ -21,8 +21,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Extension template to help get started
-
 from pathlib import Path
 
 import ansys.aedt.core
@@ -110,7 +108,7 @@ def frontend():
     frame.grid(row=0, column=0, pady=10, padx=10, sticky="ew")
     export_options_list = ["Ohmic loss", "AC Force Density"]
     export_options_label = ttk.Label(
-        frame, text="Export options:", width=15, style="PyAEDT.TLabel", justify=tk.CENTER, anchor=tk.CENTER
+        frame, text="Export options:", width=15, style="PyAEDT.TLabel", justify=tk.CENTER, anchor="w"
     )
     export_options_label.pack(side=tk.TOP, fill=tk.BOTH)
     export_options_lb = tk.Listbox(
@@ -126,7 +124,7 @@ def frontend():
     frame.grid(row=1, column=0, pady=10, padx=10, sticky="ew")
     objects_list = maxwell.modeler.objects_by_name
     objects_list_label = ttk.Label(
-        frame, text="Objects list:", width=15, style="PyAEDT.TLabel", justify=tk.CENTER, anchor=tk.CENTER
+        frame, text="Objects list:", width=15, style="PyAEDT.TLabel", justify=tk.CENTER, anchor="w"
     )
     objects_list_label.pack(side=tk.TOP, fill=tk.BOTH)
     scroll_bar = tk.Scrollbar(frame, orient=tk.VERTICAL)
@@ -141,17 +139,25 @@ def frontend():
     scroll_bar.config(command=objects_list_lb.yview)
 
     # Sample points file
-    sample_points_label = ttk.Label(master, text="Sample points file:", width=20, style="PyAEDT.TLabel")
-    sample_points_label.grid(row=2, column=0, pady=10)
-    sample_points_entry = tk.Text(master, height=1, width=40)
-    sample_points_entry.grid(row=3, column=0, pady=15, padx=10)
+    sample_points_frame = tk.Frame(master, width=20)
+    sample_points_frame.grid(row=2, column=0, pady=10, padx=10, sticky="ew")
+    sample_points_label = ttk.Label(
+        sample_points_frame, text="Sample points file:", width=15, style="PyAEDT.TLabel", justify=tk.CENTER, anchor="w"
+    )
+    sample_points_label.pack(side=tk.TOP, fill=tk.BOTH)
+    sample_points_entry = tk.Text(sample_points_frame, height=1, width=40)
+    sample_points_entry.pack(expand=True, fill=tk.BOTH, side=tk.LEFT)
     sample_points_entry.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
 
     # Export file
-    export_file_label = ttk.Label(master, text="Output file location:", width=20, style="PyAEDT.TLabel")
-    export_file_label.grid(row=4, column=0, pady=10)
-    export_file_entry = tk.Text(master, width=40, height=1)
-    export_file_entry.grid(row=5, column=0, pady=15, padx=10)
+    export_file_frame = tk.Frame(master, width=20)
+    export_file_frame.grid(row=3, column=0, pady=10, padx=10, sticky="ew")
+    export_file_label = ttk.Label(
+        export_file_frame, text="Output file location:", width=20, style="PyAEDT.TLabel", justify=tk.CENTER, anchor="w"
+    )
+    export_file_label.pack(side=tk.TOP, fill=tk.BOTH)
+    export_file_entry = tk.Text(export_file_frame, width=40, height=1)
+    export_file_entry.pack(expand=True, fill=tk.BOTH, side=tk.LEFT)
     export_file_entry.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
 
     def toggle_theme():
@@ -210,8 +216,10 @@ def frontend():
         master.destroy()
 
     # Export points file button
-    export_points_button = ttk.Button(master, text="...", command=browse_files, width=10, style="PyAEDT.TButton")
-    export_points_button.grid(row=3, column=1, pady=10, padx=15)
+    export_points_button = ttk.Button(
+        sample_points_frame, text="...", command=browse_files, width=10, style="PyAEDT.TButton"
+    )
+    export_points_button.pack(side=tk.RIGHT, padx=10)
 
     def save_as_files():
         filename = filedialog.asksaveasfilename(
@@ -229,8 +237,10 @@ def frontend():
         # master.destroy()
 
     # Create button to select output file location
-    save_as_button = ttk.Button(master, text="Save as...", command=save_as_files, width=10, style="PyAEDT.TButton")
-    save_as_button.grid(row=5, column=1, pady=10, padx=15)
+    save_as_button = ttk.Button(
+        export_file_frame, text="Save as...", command=save_as_files, width=10, style="PyAEDT.TButton"
+    )
+    save_as_button.pack(side=tk.RIGHT, padx=10)
 
     # Create button to export fields data
     export_button = ttk.Button(master, text="Export", command=callback, width=10, style="PyAEDT.TButton")
@@ -255,7 +265,7 @@ def frontend():
         "objects_list": objects_list,
     }
 
-    # app.release_desktop(False, False)
+    app.release_desktop(False, False)
 
     return output_dict
 
