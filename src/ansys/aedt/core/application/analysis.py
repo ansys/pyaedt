@@ -794,8 +794,6 @@ class Analysis(Design, object):
 
         Parameters
         ----------
-        analyze : bool
-            Whether to analyze before export. Solutions must be present for the design.
         export_folder : str, optional
             Full path to the project folder. The default is ``None``, in which case the
             working directory is used.
@@ -844,6 +842,7 @@ class Analysis(Design, object):
         >>> aedtapp.analyze()
         >>> exported_files = aedtapp.export_results()
         """
+        analyze = False
         if "analyze" in kwargs:
             warnings.warn(
                 "The ``analyze`` argument will be deprecated in future versions." "Analyze before exporting results.",
