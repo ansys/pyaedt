@@ -478,12 +478,8 @@ class PostProcessorCircuit(PostProcessorCommon):
         zipped_lists = zip(new_tic, [new_ui / 2] * len(new_tic))
         extraction_tic = [x + y for (x, y) in zipped_lists]
 
-        if pandas_enabled:
-            sweep_filtered = waveform_sweep.values
-            filtered_tic = list(filter(lambda num: num >= waveform_sweep.values[0], extraction_tic))
-        else:
-            sweep_filtered = waveform_sweep
-            filtered_tic = list(filter(lambda num: num >= waveform_sweep[0], extraction_tic))
+        sweep_filtered = waveform_sweep
+        filtered_tic = list(filter(lambda num: num >= waveform_sweep[0], extraction_tic))
 
         outputdata = []
         new_voltage = []
@@ -493,11 +489,13 @@ class PostProcessorCircuit(PostProcessorCommon):
                 sweep_filtered = list(filter(lambda num: num >= tic, sweep_filtered))
                 if sweep_filtered:
                     if pandas_enabled:
-                        waveform_index = waveform_sweep[waveform_sweep.values == sweep_filtered[0]].index.values
+                        import numpy as np
+
+                        waveform_index = np.where(waveform_sweep == sweep_filtered[0])
                     else:
                         waveform_index = waveform_sweep.index(sweep_filtered[0])
                     if not isinstance(waveform_data[waveform_index], float):
-                        voltage = waveform_data[waveform_index].values[0]
+                        voltage = waveform_data[waveform_index][0]
                     else:
                         voltage = waveform_data[waveform_index]
                     new_voltage.append(

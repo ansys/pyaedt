@@ -462,7 +462,7 @@ class SolutionData(object):
                 sol, self._quantity(self.units_data[expression]), self.units_data[expression]
             )
         if self.enable_pandas_output:
-            return pd.Series(sol, dtype=object)
+            return np.array(sol)
         return sol
 
     @staticmethod
@@ -576,7 +576,7 @@ class SolutionData(object):
             List of the primary sweep valid points for the expression.
         """
         if self.enable_pandas_output:
-            return pd.Series(self.variation_values(self.primary_sweep), dtype=object)
+            return np.array(self.variation_values(self.primary_sweep))
         return self.variation_values(self.primary_sweep)
 
     @property
@@ -608,7 +608,7 @@ class SolutionData(object):
             else:
                 sol.append(None)
         if self.enable_pandas_output:
-            return pd.Series(sol, dtype=object)
+            return np.array(sol)
         return sol
 
     @pyaedt_function_handler()
@@ -649,7 +649,7 @@ class SolutionData(object):
                 sol, self._quantity(self.units_data[expression]), self.units_data[expression]
             )
         if self.enable_pandas_output:
-            return pd.Series(sol, dtype=object)
+            return np.array(sol)
         return sol
 
     @pyaedt_function_handler()
@@ -689,7 +689,7 @@ class SolutionData(object):
                 sol, self._quantity(self.units_data[expression]), self.units_data[expression]
             )
         if self.enable_pandas_output:
-            return pd.Series(sol, dtype=object)
+            return np.array(sol)
         return sol
 
     @pyaedt_function_handler()
@@ -998,8 +998,8 @@ class SolutionData(object):
         max_r = -1e12
         if self.enable_pandas_output:
             for el in r:
-                min_r = min(min_r, el.values.min())
-                max_r = max(max_r, el.values.max())
+                min_r = min(min_r, el.min())
+                max_r = max(max_r, el.max())
         else:
             for el in r:
                 min_r = min(min_r, min(el))
