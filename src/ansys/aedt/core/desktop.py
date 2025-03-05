@@ -104,6 +104,7 @@ def launch_aedt(full_path, non_graphical, port, student_version, first_run=True)
                 stdin=subprocess.DEVNULL,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
+                creationflags=subprocess.DETACHED_PROCESS,
             )
 
     import threading

@@ -576,7 +576,7 @@ class SolutionData(object):
             List of the primary sweep valid points for the expression.
         """
         if self.enable_pandas_output:
-            return np.array(self.variation_values(self.primary_sweep))
+            return np.array(self.variation_values(self.primary_sweep), dtype=object)
         return self.variation_values(self.primary_sweep)
 
     @property
@@ -608,7 +608,7 @@ class SolutionData(object):
             else:
                 sol.append(None)
         if self.enable_pandas_output:
-            return np.array(sol)
+            return np.array(sol, dtype=object)
         return sol
 
     @pyaedt_function_handler()

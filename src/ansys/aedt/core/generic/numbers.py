@@ -286,6 +286,45 @@ class Quantity(float):
 
         return np.array(self.value, dtype=dtype)
 
+    def sqrt(self):
+        """Square root of the value."""
+        return Quantity(self.value**0.5, self.unit)
+
+    def log10(self):
+        """Square root of the value."""
+        import numpy as np
+
+        return Quantity(np.log10(self.value), self.unit)
+
+    def sin(self):
+        """Square root of the value."""
+        import numpy as np
+
+        return Quantity(np.sin(self.value), self.unit)
+
+    def cos(self):
+        """Square root of the value."""
+        import numpy as np
+
+        return Quantity(np.cos(self.value), self.unit)
+
+    def arcsin(self):
+        """Square root of the value."""
+        import numpy as np
+
+        return Quantity(np.arcsin(self.value), self.unit)
+
+    def arccos(self):
+        """Square root of the value."""
+        import numpy as np
+
+        return Quantity(np.arccos(self.value), self.unit)
+
+    def tan(self):
+        import numpy as np
+
+        return Quantity(np.tan(self.value), self.unit)
+
     def __reduce__(self):
         return self.__class__, (self.expression, self.unit)
 
