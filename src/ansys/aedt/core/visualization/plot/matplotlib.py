@@ -344,8 +344,8 @@ class Trace:
     def cartesian_data(self, val):
         self._cartesian_data = []
         for el in val:
-            if isinstance(el, (list, tuple)):
-                self._cartesian_data.append(np.array(el))
+            if not isinstance(el, (float, int, str)):
+                self._cartesian_data.append(np.array(el, dtype=float))
             else:
                 self._cartesian_data.append(el)
         if len(self._cartesian_data) == 2:
@@ -367,8 +367,8 @@ class Trace:
     def spherical_data(self, rthetaphi):
         self._spherical_data = []
         for el in rthetaphi:
-            if isinstance(el, (list, tuple)):
-                self._spherical_data.append(np.array(el))
+            if not isinstance(el, (float, int, str)):
+                self._spherical_data.append(np.array(el, dtype=float))
             else:
                 self._spherical_data.append(el)
         self.spherical2car()
@@ -391,6 +391,8 @@ class Trace:
         list, list
             R and theta.
         """
+        x = np.array(x, dtype=float)
+        y = np.array(y, dtype=float)
         rate = 1
         if not is_degree:
             rate = np.pi / 180
@@ -401,9 +403,9 @@ class Trace:
     @pyaedt_function_handler()
     def car2spherical(self):
         """Convert cartesian data to spherical and assigns to property spherical data."""
-        x = self._cartesian_data[0]
-        y = self._cartesian_data[1]
-        z = self._cartesian_data[2]
+        x = np.array(self._cartesian_data[0], dtype=float)
+        y = np.array(self._cartesian_data[1], dtype=float)
+        z = np.array(self._cartesian_data[2], dtype=float)
         r = np.sqrt(x * x + y * y + z * z)
         theta = np.arccos(z / r) * 180 / math.pi  # to degrees
         phi = np.arctan2(y, x) * 180 / math.pi
@@ -412,9 +414,9 @@ class Trace:
     @pyaedt_function_handler()
     def spherical2car(self):
         """Convert sherical data to cartesian data and assign to cartesian data property."""
-        r = self._spherical_data[0]
-        theta = self._spherical_data[1] * math.pi / 180  # to radian
-        phi = self._spherical_data[2] * math.pi / 180
+        r = np.array(self._cartesian_data[0], dtype=float)
+        theta = np.array(self._spherical_data[1] * math.pi / 180, dtype=float)  # to radian
+        phi = np.array(self._spherical_data[2] * math.pi / 180, dtype=float)
         x = r * np.sin(theta) * np.cos(phi)
         y = r * np.sin(theta) * np.sin(phi)
         z = r * np.cos(theta)
@@ -434,6 +436,8 @@ class Trace:
         list
             List of [x,y].
         """
+        r = np.array(r, dtype=float)
+        theta = np.array(theta, dtype=float)
         x = r * np.cos(np.radians(theta))
         y = r * np.sin(np.radians(theta))
         return [x, y]

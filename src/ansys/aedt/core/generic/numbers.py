@@ -197,7 +197,7 @@ class Quantity(float):
         if isinstance(other, Quantity) and (other.unit == "" or self.unit == ""):
             return Quantity(self.value * other, self.unit if self.unit else other.unit)
         elif isinstance(other, Quantity):
-            raise ValueError("Unsupported operation between two quantities with units.")
+            return Quantity(self.value * other.value, "")
         elif isinstance(other, (int, float)):
             return Quantity(self.value * other, self.unit)
         else:
@@ -205,9 +205,9 @@ class Quantity(float):
 
     def __truediv__(self, other):
         if isinstance(other, Quantity) and (other.unit == "" or self.unit == ""):
-            return Quantity(self.value * other, self.unit if self.unit else other.unit)
+            return Quantity(self.value / other, self.unit if self.unit else other.unit)
         elif isinstance(other, Quantity):
-            raise ValueError("Unsupported operation between two quantities with units.")
+            return Quantity(self.value / other.value, "")
         elif isinstance(other, (int, float)):
             return Quantity(self.value / other, self.unit)
         else:
@@ -252,6 +252,7 @@ class Quantity(float):
 
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):  # pragma: no cover
         import numpy as np
+        import pandas as pd
 
         # Extract the Quantity objects and their values
         args = []
@@ -263,6 +264,10 @@ class Quantity(float):
                 else:
                     input_quantity = input_quantity.to(first_unit)
                 args.append(input_quantity.value)
+            elif isinstance(input_quantity, pd.Series) and isinstance(input_quantity.iloc[0], Quantity):
+                if not first_unit:
+                    first_unit = input_quantity.iloc[0].unit
+                args.append(input_quantity.apply(lambda x: x.to(first_unit).value))
             else:
                 args.append(input_quantity)
 
