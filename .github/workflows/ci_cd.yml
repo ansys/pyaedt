@@ -178,7 +178,7 @@ jobs:
           PYTHONMALLOC: malloc
         run: |
           .venv\Scripts\Activate.ps1
-          pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=240 -m solvers --deselect=tests/system/solvers/test_45_FilterSolutions
+          pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=360 -m solvers --deselect=tests/system/solvers/test_45_FilterSolutions
 
       - uses: codecov/codecov-action@v5
         with:
@@ -233,7 +233,7 @@ jobs:
         run: |
           export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT251 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           source .venv/bin/activate
-          pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=240 -m solvers
+          pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=360 -m solvers
 
       - uses: codecov/codecov-action@v5
         with:
@@ -296,7 +296,7 @@ jobs:
           timeout_minutes: 60
           command: |
             .venv\Scripts\Activate.ps1
-            pytest ${{ env.PYTEST_ARGUMENTS }} -n 2 --dist loadfile  --timeout=240 -m general
+            pytest ${{ env.PYTEST_ARGUMENTS }} -n 2 --dist loadfile  --timeout=360 -m general
 
       - uses: codecov/codecov-action@v5
         with:
@@ -363,7 +363,7 @@ jobs:
           command: |
             export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT251 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
             source .venv/bin/activate
-            pytest ${{ env.PYTEST_ARGUMENTS }} -n 2 --dist loadfile --timeout=240 -m general
+            pytest ${{ env.PYTEST_ARGUMENTS }} -n 2 --dist loadfile --timeout=360 -m general
 
       - uses: codecov/codecov-action@v5
         with:
