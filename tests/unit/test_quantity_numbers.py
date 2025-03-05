@@ -64,6 +64,8 @@ def test_quantity_multiplication():
     assert q2.value == 20
     assert q2.unit == "m"
     q3 = Quantity("1GHz")
+    q4 = q3 * q
+    assert q4.unit == ""
 
 
 def test_quantity_division():
@@ -72,6 +74,8 @@ def test_quantity_division():
     assert q2.value == 5
     assert q2.unit == "m"
     q3 = Quantity("1GHz")
+    q4 = q3 / q
+    assert q4.unit == ""
 
 
 def test_quantity_conversion():
