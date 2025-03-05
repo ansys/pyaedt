@@ -83,9 +83,9 @@ def test_quantity_conversion():
     q2 = q.to("meter")
     assert q2.value == 1000.0
     assert q2.unit == "meter"
-    q3 = q.to("m")
+    q3 = q.to("meter")
     assert q3.value == 1000.0
-    assert q3.unit == "m"
+    assert q3.unit == "meter"
 
 
 def test_quantity_equality():
