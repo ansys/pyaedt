@@ -45,7 +45,8 @@ class TestClass:
         self.local_scratch = local_scratch
 
     def test_01_get_rcs(self, project_test):
-        rcs_data = project_test.get_rcs_data(variation_name="hh_solution")
+        freq = ["9.250518854999999GHz", "9.258846423277779GHz"]
+        rcs_data = project_test.get_rcs_data(variation_name="hh_solution", frequencies=freq)
         assert isinstance(rcs_data, MonostaticRCSExporter)
 
         assert isinstance(rcs_data.model_info, dict)
