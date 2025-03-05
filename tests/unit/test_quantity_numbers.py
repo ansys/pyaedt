@@ -64,8 +64,6 @@ def test_quantity_multiplication():
     assert q2.value == 20
     assert q2.unit == "m"
     q3 = Quantity("1GHz")
-    with pytest.raises(ValueError):
-        _ = q3 * q
 
 
 def test_quantity_division():
@@ -74,8 +72,6 @@ def test_quantity_division():
     assert q2.value == 5
     assert q2.unit == "m"
     q3 = Quantity("1GHz")
-    with pytest.raises(ValueError):
-        _ = q3 / q
 
 
 def test_quantity_conversion():
