@@ -462,7 +462,7 @@ class SolutionData(object):
                 sol, self._quantity(self.units_data[expression]), self.units_data[expression]
             )
         if self.enable_pandas_output:
-            return pd.Series(sol)
+            return pd.Series(sol, dtype=object)
         return sol
 
     @staticmethod
@@ -576,7 +576,7 @@ class SolutionData(object):
             List of the primary sweep valid points for the expression.
         """
         if self.enable_pandas_output:
-            return pd.Series(self.variation_values(self.primary_sweep))
+            return pd.Series(self.variation_values(self.primary_sweep), dtype=object)
         return self.variation_values(self.primary_sweep)
 
     @property
@@ -608,7 +608,7 @@ class SolutionData(object):
             else:
                 sol.append(None)
         if self.enable_pandas_output:
-            return pd.Series(sol)
+            return pd.Series(sol, dtype=object)
         return sol
 
     @pyaedt_function_handler()
@@ -649,7 +649,7 @@ class SolutionData(object):
                 sol, self._quantity(self.units_data[expression]), self.units_data[expression]
             )
         if self.enable_pandas_output:
-            return pd.Series(sol)
+            return pd.Series(sol, dtype=object)
         return sol
 
     @pyaedt_function_handler()
@@ -689,7 +689,7 @@ class SolutionData(object):
                 sol, self._quantity(self.units_data[expression]), self.units_data[expression]
             )
         if self.enable_pandas_output:
-            return pd.Series(sol)
+            return pd.Series(sol, dtype=object)
         return sol
 
     @pyaedt_function_handler()

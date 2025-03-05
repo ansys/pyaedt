@@ -277,6 +277,9 @@ class Quantity(float):
 
         return np.array(self.value, dtype=dtype)
 
+    def __reduce__(self):
+        return self.__class__, (self.expression, self.unit)
+
 
 def decompose_variable_value(variable_value: str, full_variables: Dict[str, Any] = None) -> tuple:
     """Decompose a variable value.
