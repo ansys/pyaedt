@@ -345,7 +345,6 @@ AEDT_UNITS = {
         "mm": 1e-3,
         "cm": 1e-2,
         "dm": 1e-1,
-        "m": 1.0,
         "meter": 1.0,
         "meters": 1.0,
         "km": 1e3,
