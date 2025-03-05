@@ -31,6 +31,7 @@ from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.generic.file_utils import check_and_download_folder
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers import Quantity
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
 
@@ -157,7 +158,9 @@ class MonostaticRCSExporter:
         variations["IWavePhi"] = ["All"]
         frequencies = self.frequencies
         if frequencies is not None:
-            frequencies = [str(freq) for freq in frequencies]
+            frequencies = [
+                f"{round(freq.value,4)}{freq.unit}" if isinstance(freq, Quantity) else str(freq) for freq in frequencies
+            ]
         variations["Freq"] = frequencies
 
         solution_data = self.__app.post.get_solution_data(
@@ -168,7 +171,6 @@ class MonostaticRCSExporter:
         )
 
         self.__frequency_unit = solution_data.units_sweeps["Freq"]
-        self.frequencies = [float(freq) for freq in solution_data.primary_sweep_values]
         solution_data.enable_pandas_output = True
         return solution_data
 
