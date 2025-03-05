@@ -163,10 +163,10 @@ class MonostaticRCSExporter:
 
             return True
 
-        variations = self.variations
+        variations = {i: k for i, k in self.variations.items()}
         variations["IWaveTheta"] = ["All"]
         variations["IWavePhi"] = ["All"]
-        frequencies = self.frequencies
+        frequencies = self.frequencies[::]
         if frequencies is not None:
             frequencies = [str(freq) for freq in frequencies]
         variations["Freq"] = frequencies
