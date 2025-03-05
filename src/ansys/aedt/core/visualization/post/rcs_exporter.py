@@ -168,6 +168,7 @@ class MonostaticRCSExporter:
         )
 
         self.__frequency_unit = solution_data.units_sweeps["Freq"]
+        self.frequencies = [float(freq) for freq in solution_data.primary_sweep_values]
         solution_data.enable_pandas_output = True
         return solution_data
 
