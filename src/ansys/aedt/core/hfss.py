@@ -5980,6 +5980,13 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         if not setup:
             setup = self.nominal_adaptive
 
+        _ = self.post.get_solution_data(
+            expressions=expression,
+            variations=variations,
+            setup_sweep_name=setup,
+            report_category="Monostatic RCS",
+        )
+
         if setup in self.existing_analysis_sweeps and not frequencies:
             rcs_data = self.post.get_solution_data(
                 expressions=expression,
