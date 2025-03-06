@@ -217,7 +217,7 @@ class Quantity(float):
 
     def __eq__(self, other):
         if isinstance(other, Quantity):
-            if self.unit == other.unit or self.unit_system is None or other.unit is None:
+            if self.unit == other.unit or self.unit_system is None or other.unit_system is None:
                 return self.value == other.value
             elif other.unit_system == self.unit_system:
                 new_other = other.to(self.unit)
@@ -232,7 +232,7 @@ class Quantity(float):
 
     def __lt__(self, other):
         if isinstance(other, Quantity):
-            if self.unit == other.unit or self.unit_system is None or other.unit is None:
+            if self.unit == other.unit or self.unit_system is None or other.unit_system is None:
                 return self.value < other.value
             elif other.unit_system == self.unit_system:
                 new_other = other.to(self.unit)
