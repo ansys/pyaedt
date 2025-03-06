@@ -38,7 +38,13 @@ aedt_process_id = get_process_id()
 is_student = is_student()
 
 # Extension batch arguments
-extension_arguments = {"points_file": "", "export_file": "", "export_option": "Ohmic loss", "objects_list": []}
+extension_arguments = {
+    "points_file": "",
+    "export_file": "",
+    "export_option": "Ohmic loss",
+    "objects_list": [],
+    "solution_option": "",
+}
 extension_description = "Export of transformer loss distribution"
 
 
@@ -104,15 +110,15 @@ def frontend():
     master.configure(bg=theme.light["widget_bg"])
 
     # Export options
-    frame = tk.Frame(master, width=20)
-    frame.grid(row=0, column=0, pady=10, padx=10, sticky="ew")
+    export_options_frame = tk.Frame(master, width=20)
+    export_options_frame.grid(row=0, column=0, pady=10, padx=10, sticky="ew")
     export_options_list = ["Ohmic loss", "AC Force Density"]
     export_options_label = ttk.Label(
-        frame, text="Export options:", width=15, style="PyAEDT.TLabel", justify=tk.CENTER, anchor="w"
+        export_options_frame, text="Export options:", width=15, style="PyAEDT.TLabel", justify=tk.CENTER, anchor="w"
     )
     export_options_label.pack(side=tk.TOP, fill=tk.BOTH)
     export_options_lb = tk.Listbox(
-        frame, selectmode=tk.SINGLE, height=2, width=15, justify=tk.CENTER, exportselection=False
+        export_options_frame, selectmode=tk.SINGLE, height=2, width=15, justify=tk.CENTER, exportselection=False
     )
     export_options_lb.pack(expand=True, fill=tk.BOTH, side=tk.LEFT)
     for opt in export_options_list:
@@ -120,27 +126,43 @@ def frontend():
     export_options_lb.config(selectmode=tk.SINGLE)
 
     # Objects list
-    frame = tk.Frame(master, width=20)
-    frame.grid(row=1, column=0, pady=10, padx=10, sticky="ew")
+    objects_list_frame = tk.Frame(master, width=20)
+    objects_list_frame.grid(row=1, column=0, pady=10, padx=10, sticky="ew")
     objects_list = maxwell.modeler.objects_by_name
+    # Determine the height of the ListBox
+    listbox_height = min(len(objects_list), 6)
     objects_list_label = ttk.Label(
-        frame, text="Objects list:", width=15, style="PyAEDT.TLabel", justify=tk.CENTER, anchor="w"
+        objects_list_frame, text="Objects list:", width=15, style="PyAEDT.TLabel", justify=tk.CENTER, anchor="w"
     )
     objects_list_label.pack(side=tk.TOP, fill=tk.BOTH)
-    scroll_bar = tk.Scrollbar(frame, orient=tk.VERTICAL)
-    scroll_bar.pack(side=tk.RIGHT, fill=tk.Y)
     objects_list_lb = tk.Listbox(
-        frame, selectmode=tk.MULTIPLE, yscrollcommand=scroll_bar.set, justify=tk.CENTER, exportselection=False
+        objects_list_frame, selectmode=tk.MULTIPLE, justify=tk.CENTER, exportselection=False, height=listbox_height
     )
-    objects_list_lb.pack(expand=True, fill=tk.BOTH, side=tk.RIGHT)
+    objects_list_lb.pack(expand=True, fill=tk.BOTH, side=tk.LEFT)
+    if len(objects_list) > 6:
+        scroll_bar = tk.Scrollbar(objects_list_frame, orient=tk.VERTICAL, command=objects_list_lb.yview)
+        scroll_bar.pack(side=tk.RIGHT, fill=tk.Y)
+        objects_list_lb.config(yscrollcommand=scroll_bar.set, height=listbox_height)
     for obj in objects_list:
         objects_list_lb.insert(tk.END, obj)
-    objects_list_lb.config(height=6)
-    scroll_bar.config(command=objects_list_lb.yview)
+
+    # Solution
+    solution_frame = tk.Frame(master, width=20)
+    solution_frame.grid(row=2, column=0, pady=10, padx=10, sticky="ew")
+    solution_frame.config(bg="white")
+    solution_label = ttk.Label(solution_frame, text="Solution:", style="PyAEDT.TLabel", justify=tk.CENTER, anchor="w")
+    solution_label.pack(side=tk.LEFT, fill=tk.BOTH)
+    selected_value = tk.StringVar(solution_frame)
+    selected_value.set(maxwell.existing_analysis_sweeps[0])
+    solution_options = maxwell.existing_analysis_sweeps
+    solution_dropdown = tk.OptionMenu(solution_frame, selected_value, *solution_options)
+    solution_dropdown.config(bg="white", fg="black")
+    solution_dropdown.pack(pady=20)
 
     # Sample points file
     sample_points_frame = tk.Frame(master, width=20)
-    sample_points_frame.grid(row=2, column=0, pady=10, padx=10, sticky="ew")
+    sample_points_frame.grid(row=3, column=0, pady=10, padx=10, sticky="ew")
+    sample_points_frame.config(bg="white")
     sample_points_label = ttk.Label(
         sample_points_frame, text="Sample points file:", width=15, style="PyAEDT.TLabel", justify=tk.CENTER, anchor="w"
     )
@@ -151,7 +173,8 @@ def frontend():
 
     # Export file
     export_file_frame = tk.Frame(master, width=20)
-    export_file_frame.grid(row=3, column=0, pady=10, padx=10, sticky="ew")
+    export_file_frame.grid(row=4, column=0, pady=10, padx=10, sticky="ew")
+    export_file_frame.config(bg="white")
     export_file_label = ttk.Label(
         export_file_frame, text="Output file location:", width=20, style="PyAEDT.TLabel", justify=tk.CENTER, anchor="w"
     )
@@ -170,6 +193,11 @@ def frontend():
 
     def set_light_theme():
         master.configure(bg=theme.light["widget_bg"])
+        export_options_frame.configure(bg=theme.light["widget_bg"])
+        objects_list_frame.configure(bg=theme.light["widget_bg"])
+        solution_frame.configure(bg=theme.light["widget_bg"])
+        sample_points_frame.configure(bg=theme.light["widget_bg"])
+        export_file_frame.configure(bg=theme.light["widget_bg"])
         export_options_lb.configure(
             background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
         )
@@ -177,6 +205,7 @@ def frontend():
             background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
         )
         scroll_bar.configure(background=theme.light["pane_bg"])
+        solution_dropdown.configure(background=theme.light["pane_bg"], foreground=theme.light["text"])
         export_file_entry.configure(
             background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
         )
@@ -188,15 +217,22 @@ def frontend():
 
     def set_dark_theme():
         master.configure(bg=theme.dark["widget_bg"])
+        export_options_frame.configure(bg=theme.dark["widget_bg"])
+        objects_list_frame.configure(bg=theme.dark["widget_bg"])
+        solution_frame.configure(bg=theme.dark["widget_bg"])
+        sample_points_frame.configure(bg=theme.dark["widget_bg"])
+        export_file_frame.configure(bg=theme.dark["widget_bg"])
         export_options_lb.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
         objects_list_lb.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
         scroll_bar.configure(bg=theme.dark["pane_bg"])
+        solution_dropdown.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"])
         export_file_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
         sample_points_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
         theme.apply_dark_theme(style)
         # change_theme_button.config(text="\u2600")
 
     def callback():
+        master.flag = True
         master.points_file = sample_points_entry.get("1.0", tk.END).strip()
         master.export_file = export_file_entry.get("1.0", tk.END).strip()
         selected_export = export_options_lb.curselection()
@@ -246,9 +282,9 @@ def frontend():
     export_button = ttk.Button(master, text="Export", command=callback, width=10, style="PyAEDT.TButton")
     export_button.grid(row=6, column=0, pady=10, padx=15)
 
-    # Create buttons to create sphere and change theme color
+    # Create buttons to change theme color
     change_theme_button = ttk.Button(master, text="\u263D", width=2, command=toggle_theme, style="PyAEDT.TButton")
-    change_theme_button.grid(row=6, column=1, pady=10)
+    change_theme_button.grid(row=6, column=1, pady=10, padx=15)
 
     # Get objects list selection
     tk.mainloop()
@@ -257,16 +293,19 @@ def frontend():
     export_file = getattr(master, "export_file", extension_arguments["export_file"])
     export_option = getattr(master, "export_option", extension_arguments["export_option"])
     objects_list = getattr(master, "objects_list", extension_arguments["objects_list"])
-
-    output_dict = {
-        "points_file": points_file,
-        "export_file": export_file,
-        "export_option": export_option,
-        "objects_list": objects_list,
-    }
+    solution_option = getattr(master, "solution_option", extension_arguments["solution_option"])
 
     app.release_desktop(False, False)
 
+    output_dict = {}
+    if master.flag:
+        output_dict = {
+            "points_file": points_file,
+            "export_file": export_file,
+            "export_option": export_option,
+            "objects_list": objects_list,
+            "solution_option": solution_option,
+        }
     return output_dict
 
 
@@ -289,13 +328,14 @@ def main(extension_args):
 
     points_file = extension_args.get("points_file", extension_arguments["points_file"])
     export_file = extension_args.get("export_file", extension_arguments["export_file"])
-    export_option = extension_args.get("export_option", extension_arguments["export_option"])
+    export_option = extension_args.get("export_option", extension_arguments["export_option"])[0]
     objects_list = extension_args.get("objects_list", extension_arguments["objects_list"])
+    solution_option = extension_args.get("solution_option", extension_arguments["solution_option"])
 
     # Your workflow
     if not points_file:
         points_file = None
-    elif not objects_list:
+    if not objects_list:
         assignment = "AllObjects"
     elif isinstance(objects_list, list) and len(objects_list) > 1:
         if len(aedtapp.modeler.user_lists) == 0:
@@ -305,6 +345,8 @@ def main(extension_args):
                 objects_list, f"ObjectList{len(aedtapp.modeler.user_lists)+1}"
             )
         assignment = objects_list.name
+    else:
+        assignment = objects_list[0]
 
     if export_option == "Ohmic loss":
         quantity = "Ohmic-Loss"
@@ -313,25 +355,31 @@ def main(extension_args):
         quantity = "SurfaceAcForceDensity"
         file_header = "r", "phi", "z", "fr_real", "fr_imag", "fphi_real", "fphi_imag", "fz_real", "fz_imag"
 
+    setup_name = aedtapp.existing_analysis_sweeps[0].split(":")[0].strip()
+    is_solved = [s.is_solved for s in aedtapp.setups if s.name == setup_name][0]
+    if not is_solved:
+        aedtapp.logger.error("The setup is not solved. Please solve the setup before exporting the field data.")
+    field_path = str(Path(export_file).with_suffix(".fld"))
     aedtapp.post.export_field_file(
-        quantity=quantity, output_file=export_file, sample_points_file=points_file, assignment=assignment
+        quantity=quantity,
+        solution=solution_option,
+        output_file=field_path,
+        sample_points_file=points_file,
+        assignment=assignment,
     )
 
     # Populate PyVista object
     plotter = ansys.aedt.core.visualization.plot.pyvista.ModelPlotter()
-    plotter.add_field_from_file(export_file)
+    plotter.add_field_from_file(field_path)
     plotter.populate_pyvista_object()
-
-    file_name = Path(export_file).stem
-    file_path = str(Path(export_file).parent)
 
     field_coordinates = np.column_stack((np.array(plotter.pv.mesh.points), np.array(plotter.pv.mesh.active_scalars)))
 
     if Path(export_file).suffix == ".npy":
-        np.save(Path(file_path).joinpath(f"{file_name}.npy"), field_coordinates)
+        np.save(export_file, field_coordinates)
     elif Path(export_file).suffix == ".csv":
         np.savetxt(
-            Path(file_path).joinpath(f"{file_name}.csv"),
+            export_file,
             field_coordinates,
             delimiter=",",
             header=file_header,
@@ -339,7 +387,7 @@ def main(extension_args):
         )
     elif Path(export_file).suffix == ".tab":
         np.savetxt(
-            Path(file_path).joinpath(f"{file_name}.tab"),
+            export_file,
             field_coordinates,
             delimiter=",",
             header=file_header,
