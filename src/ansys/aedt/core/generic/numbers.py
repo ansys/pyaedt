@@ -54,7 +54,7 @@ class Quantity(float):
         unit=None,
     ):
         self._unit = ""
-        self._unit_system = ""
+        self._unit_system = None
         if unit in AEDT_UNITS:
             self._unit_system = unit
             self._unit = list(AEDT_UNITS[unit].keys())[0]
@@ -83,6 +83,8 @@ class Quantity(float):
     def _parse_units(self, unit):
         if unit:
             self._unit_system = unit_system(unit)
+            if self._unit_system == "None":
+                self._unit_system = None
             if unit.lower() in self._units_lower:
                 self._unit = list(AEDT_UNITS[self._unit_system].keys())[self._units_lower.index(unit.lower())]
             elif not self._unit_system:
@@ -215,8 +217,11 @@ class Quantity(float):
 
     def __eq__(self, other):
         if isinstance(other, Quantity):
-            if self.unit == other.unit or self.unit == "" or other.unit == "":
+            if self.unit == other.unit or self.unit_system is None or other.unit is None:
                 return self.value == other.value
+            elif other.unit_system == self.unit_system:
+                new_other = other.to(self.unit)
+                return self.value == new_other.value
         elif isinstance(other, (int, float)):
             return self.value == other
         else:
@@ -227,8 +232,11 @@ class Quantity(float):
 
     def __lt__(self, other):
         if isinstance(other, Quantity):
-            if self.unit == other.unit or self.unit == "" or other.unit == "":
+            if self.unit == other.unit or self.unit_system is None or other.unit is None:
                 return self.value < other.value
+            elif other.unit_system == self.unit_system:
+                new_other = other.to(self.unit)
+                return self.value < new_other.value
             else:
                 raise ValueError("Cannot compare numbers with different units")
         elif isinstance(other, (int, float)):
