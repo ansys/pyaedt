@@ -172,10 +172,11 @@ class Quantity(float):
             if other.unit_system == self.unit_system:
                 new_other = other.to(self.unit)
                 return Quantity(self.value + new_other.value, self.unit)
-        elif isinstance(other, (int, float)):
-            return Quantity(self.value + other, self.unit)
         else:
-            raise TypeError("Unsupported type for addition")
+            try:
+                return Quantity(self.value + other, self.unit)
+            except Exception:
+                raise TypeError("Unsupported type for addition")
 
     def __sub__(self, other):
         if isinstance(other, Quantity):
@@ -193,30 +194,33 @@ class Quantity(float):
                 return Quantity(self.value - new_other.value, self.unit)
             else:
                 raise ValueError("Cannot subtract quantities with different units")
-        elif isinstance(other, (int, float)):
-            return Quantity(self.value - other, self.unit)
         else:
-            raise TypeError("Unsupported type for subtraction")
+            try:
+                return Quantity(self.value - other, self.unit)
+            except Exception:
+                raise TypeError("Unsupported type for subtraction")
 
     def __mul__(self, other):
         if isinstance(other, Quantity) and (other.unit == "" or self.unit == ""):
             return Quantity(self.value * other, self.unit if self.unit else other.unit)
         elif isinstance(other, Quantity):
             return Quantity(self.value * other.value, "")
-        elif isinstance(other, (int, float)):
-            return Quantity(self.value * other, self.unit)
         else:
-            raise TypeError("Unsupported type for multiplication")
+            try:
+                return Quantity(self.value * other, self.unit)
+            except Exception:
+                raise TypeError("Unsupported type for multiplication")
 
     def __truediv__(self, other):
         if isinstance(other, Quantity) and (other.unit == "" or self.unit == ""):
             return Quantity(self.value / other, self.unit if self.unit else other.unit)
         elif isinstance(other, Quantity):
             return Quantity(self.value / other.value, "")
-        elif isinstance(other, (int, float)):
-            return Quantity(self.value / other, self.unit)
         else:
-            raise TypeError("Unsupported type for division")
+            try:
+                return Quantity(self.value / other, self.unit)
+            except Exception:
+                raise TypeError("Unsupported type for division")
 
     def __eq__(self, other):
         if isinstance(other, Quantity):
