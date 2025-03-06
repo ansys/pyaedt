@@ -32,8 +32,8 @@ from typing import Optional
 from typing import Tuple
 
 from ansys.aedt.core.generic.constants import unit_converter
-from ansys.aedt.core.generic.general_methods import _arg_with_dim
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers import Quantity
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
@@ -2306,11 +2306,11 @@ class Padstack(object):
             sizes = [1]
         hole = self.PDSHole()
         hole.shape = hole_type
-        sizes = [_arg_with_dim(i, self.units) for i in sizes if isinstance(i, (int, float))]
+        sizes = [str(Quantity(i, self.units)) for i in sizes if isinstance(i, (int, float))]
         hole.sizes = sizes
-        hole.x = _arg_with_dim(x, self.units)
-        hole.y = _arg_with_dim(y, self.units)
-        hole.rot = _arg_with_dim(rotation, "deg")
+        hole.x = str(Quantity(x, self.units))
+        hole.y = str(Quantity(y, self.units))
+        hole.rot = str(Quantity(rotation, "deg"))
         return hole
 
     @pyaedt_function_handler()
