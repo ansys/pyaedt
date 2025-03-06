@@ -215,7 +215,8 @@ class Quantity(float):
 
     def __eq__(self, other):
         if isinstance(other, Quantity):
-            return self.value == other.value and self.unit == other.unit
+            if self.unit == other.unit or self.unit == "" or other.unit == "":
+                return self.value == other.value
         elif isinstance(other, (int, float)):
             return self.value == other
         else:
@@ -226,7 +227,7 @@ class Quantity(float):
 
     def __lt__(self, other):
         if isinstance(other, Quantity):
-            if self.unit == other.unit:
+            if self.unit == other.unit or self.unit == "" or other.unit == "":
                 return self.value < other.value
             else:
                 raise ValueError("Cannot compare numbers with different units")
@@ -324,6 +325,11 @@ class Quantity(float):
         import numpy as np
 
         return Quantity(np.tan(self.value), self.unit)
+
+    def arctan2(self, other):
+        import numpy as np
+
+        return Quantity(np.arctan2(self.value, other), self.unit)
 
     def __reduce__(self):
         return self.__class__, (self.expression, self.unit)

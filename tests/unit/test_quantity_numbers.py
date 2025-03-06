@@ -25,6 +25,8 @@
 """Test Quantity functions.
 """
 from ansys.aedt.core.generic.numbers import Quantity
+import numpy as np
+import pandas as pd
 import pytest
 
 
@@ -101,3 +103,31 @@ def test_quantity_comparison():
     assert q2 < q1
     assert q1 >= q2
     assert q2 <= q1
+
+
+# new math operations
+# add exp, log10
+
+
+def test_quantity_pandas():
+    q1 = Quantity(10, "m")
+    q2 = Quantity(5, "m")
+
+    q3_pd = pd.Series([q1, q2])
+    q4_pd = pd.Series([q1, q2])
+
+    q3_np = np.array([q1, q2], dtype=Quantity)
+    q4_np = np.array([q1, q2], dtype=Quantity)
+
+    q3_nb = pd.Series([1, 2], dtype=object)
+    q4_nb = np.array([Quantity(1), 2], dtype=Quantity)
+
+    q5_np = q3_np + q4_np
+    q5_pd = q3_pd + q4_pd
+
+    x = np.array(1)
+    np.sin(q3_pd)
+    q6_np_sqrt = np.sqrt(q3_np)
+    q6_pd_sqrt = np.sqrt(q3_pd)
+
+    q7 = np.arctan2(q3_np, q4_nb)

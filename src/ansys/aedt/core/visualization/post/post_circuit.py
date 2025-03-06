@@ -443,9 +443,9 @@ class PostProcessorCircuit(PostProcessorCommon):
 
         Parameters
         ----------
-        waveform_data : list
+        waveform_data : list or pandas.Series
             Waveform data.
-        waveform_sweep : list
+        waveform_sweep : list or pandas.Series
             Waveform sweep data.
         waveform_unit : str, optional
             Waveform units. The default values is ``V``.
@@ -478,26 +478,25 @@ class PostProcessorCircuit(PostProcessorCommon):
         zipped_lists = zip(new_tic, [new_ui / 2] * len(new_tic))
         extraction_tic = [x + y for (x, y) in zipped_lists]
 
+        if isinstance(waveform_sweep, pd.Series):
+            waveform_sweep = list(waveform_sweep)
+
+        if isinstance(waveform_data, pd.Series):
+            waveform_data = list(waveform_data)
+
         sweep_filtered = waveform_sweep
         filtered_tic = list(filter(lambda num: num >= waveform_sweep[0], extraction_tic))
 
         outputdata = []
         new_voltage = []
         tic_in_s = []
+
         for tic in filtered_tic:
             if tic >= sweep_filtered[0]:
                 sweep_filtered = list(filter(lambda num: num >= tic, sweep_filtered))
                 if sweep_filtered:
-                    if pandas_enabled:
-                        import numpy as np
-
-                        waveform_index = np.where(waveform_sweep == sweep_filtered[0])
-                    else:
-                        waveform_index = waveform_sweep.index(sweep_filtered[0])
-                    if not isinstance(waveform_data[waveform_index], float):
-                        voltage = waveform_data[waveform_index][0]
-                    else:
-                        voltage = waveform_data[waveform_index]
+                    waveform_index = waveform_sweep.index(sweep_filtered[0])
+                    voltage = waveform_data[waveform_index]
                     new_voltage.append(
                         unit_converter(voltage, unit_system="Voltage", input_units=waveform_unit, output_units="V")
                     )

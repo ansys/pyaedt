@@ -237,7 +237,9 @@ class MonostaticRCSExporter:
                 if not data or data.number_of_variations != 1:  # pragma: no cover
                     raise AEDTRuntimeError("Data can not be obtained.")
 
-                df = data.full_matrix_real_imag[0] + complex(0, 1) * data.full_matrix_real_imag[1]
+                df = data.full_matrix_real_imag[0].astype("float64") + complex(0, 1) * data.full_matrix_real_imag[
+                    1
+                ].astype("float64")
                 df.index.names = [*data.variations[0].keys(), *data.intrinsics.keys()]
 
                 df = df.reset_index(level=[*data.variations[0].keys()], drop=True)

@@ -24,7 +24,6 @@
 
 from pathlib import Path
 
-from ansys.aedt.core import settings
 from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
 from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
 from ansys.aedt.core.visualization.post.solution_data import SolutionData
@@ -46,7 +45,6 @@ class TestClass:
         self.local_scratch = local_scratch
 
     def test_01_get_rcs(self, project_test):
-        settings.enable_pandas_output = True
         rcs_data = project_test.get_rcs_data(variation_name="hh_solution")
         assert isinstance(rcs_data, MonostaticRCSExporter)
 
@@ -61,10 +59,8 @@ class TestClass:
 
         data = rcs_data.get_monostatic_rcs()
         assert isinstance(data, SolutionData)
-        settings.enable_pandas_output = False
 
     def test_02_get_rcs_geometry(self, project_test):
-        settings.enable_pandas_output = True
         rcs_exporter = MonostaticRCSExporter(
             project_test,
             setup_name=None,
@@ -77,4 +73,3 @@ class TestClass:
         assert Path(metadata_file).is_file()
         assert not rcs_exporter.rcs_data
         assert isinstance(rcs_exporter.model_info, dict)
-        settings.enable_pandas_output = False
