@@ -51,12 +51,14 @@ from ansys.aedt.core.generic.constants import SOLUTIONS
 from ansys.aedt.core.generic.constants import VIEW
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
-from ansys.aedt.core.generic.general_methods import _arg_with_dim
 from ansys.aedt.core.generic.general_methods import filter_tuple
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+
+# from ansys.aedt.core.generic.numbers import Quantity
 from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.generic.numbers import is_number
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
@@ -777,7 +779,6 @@ class Analysis(Design, object):
     @pyaedt_function_handler()
     def export_results(
         self,
-        analyze=False,
         export_folder=None,
         matrix_name="Original",
         matrix_type="S",
@@ -788,13 +789,12 @@ class Analysis(Design, object):
         include_gamma_comment=True,
         support_non_standard_touchstone_extension=False,
         variations=None,
+        **kwargs,
     ):
         """Export all available reports to a file, including profile, and convergence and sNp when applicable.
 
         Parameters
         ----------
-        analyze : bool
-            Whether to analyze before export. Solutions must be present for the design.
         export_folder : str, optional
             Full path to the project folder. The default is ``None``, in which case the
             working directory is used.
@@ -843,6 +843,14 @@ class Analysis(Design, object):
         >>> aedtapp.analyze()
         >>> exported_files = aedtapp.export_results()
         """
+        analyze = False
+        if "analyze" in kwargs:
+            warnings.warn(
+                "The ``analyze`` argument will be deprecated in future versions." "Analyze before exporting results.",
+                DeprecationWarning,
+            )
+            analyze = kwargs["analyze"]
+
         exported_files = []
         if not export_folder:
             export_folder = self.working_directory
@@ -1119,10 +1127,24 @@ class Analysis(Design, object):
             self.logger.debug("Failed to add native component object.")
         return boundaries
 
-    class AxisDir(object):
-        """Contains constants for the axis directions."""
+    @property
+    def AxisDir(self):
+        """Contains constants for the axis directions.
 
-        (XNeg, YNeg, ZNeg, XPos, YPos, ZPos) = range(0, 6)
+        .. deprecated:: 0.15.1
+            Use :func:`axis_dir` instead.
+        """
+        warnings.warn(
+            "Accessing AxisDir is deprecated and will be removed in future versions. "
+            "Use axis_directions method instead.",
+            DeprecationWarning,
+        )
+        return self.axis_directions
+
+    @property
+    def axis_directions(self):
+        """Contains constants for the axis directions."""
+        return self.GRAVITY
 
     @pyaedt_function_handler()
     def get_setups(self):
@@ -2242,7 +2264,10 @@ class Analysis(Design, object):
                     self.logger.warning("Defined unit system is incorrect.")
                     units = ""
 
-        return _arg_with_dim(value, units)
+        if not is_number(value):
+            return value
+        else:
+            return str(f"{value}{units}")
 
     @pyaedt_function_handler()
     def change_property(self, aedt_object, tab_name, property_object, property_name, property_value):
