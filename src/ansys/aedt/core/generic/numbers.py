@@ -55,15 +55,18 @@ class Quantity(float):
     ):
         self._unit = ""
         self._unit_system = None
-        if unit in AEDT_UNITS:
-            self._unit_system = unit
-            self._unit = list(AEDT_UNITS[unit].keys())[0]
+        if unit:
+            if unit in AEDT_UNITS:
+                self._unit_system = unit
+                self._unit = list(AEDT_UNITS[unit].keys())[0]
+            else:
+                self._parse_units(unit)
+        if is_number(expression):
+            self._value = expression
         else:
-            self._parse_units(unit)
-
-        self._value, _unit = decompose_variable_value(expression)
-        if _unit:
-            self._parse_units(_unit)
+            self._value, _unit = decompose_variable_value(expression)
+            if _unit:
+                self._parse_units(_unit)
 
     def to(self, unit):
         """Convert the actual number to new unit."""

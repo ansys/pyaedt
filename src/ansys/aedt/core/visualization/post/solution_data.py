@@ -277,8 +277,7 @@ class SolutionData(object):
                 for i in self._solutions_real[expr]:
                     _solutions_mag[expr][i] = abs(complex(self._solutions_real[expr][i], self._solutions_imag[expr][i]))
         if self.enable_pandas_output:
-            series_list = [pd.Series(value, name=key, dtype=object) for key, value in _solutions_mag.items()]
-            return pd.DataFrame(series_list, dtype=object).T
+            return pd.DataFrame.from_dict(_solutions_mag)
         else:
             return _solutions_mag
 
@@ -303,12 +302,13 @@ class SolutionData(object):
                 i = 0
                 c = [float(comb[v]) for v in list(comb.keys())]
                 for t in itertools.product(*values):
-                    solution_data[tuple(c + list(t))] = Quantity(solution[i])
+                    solution_data[tuple(c + list(t))] = solution[i]
                     i += 1
             sols_data[expression] = solution_data
         if self.enable_pandas_output:
-            series_list = [pd.Series(value, name=key, dtype=object) for key, value in sols_data.items()]
-            return pd.DataFrame(series_list, dtype=object).T
+            # series_list = [pd.Series(value, name=key) for key, value in sols_data.items()]
+            # return pd.DataFrame(series_list).T
+            return pd.DataFrame.from_dict(sols_data)
         else:
             return sols_data
 
@@ -331,12 +331,13 @@ class SolutionData(object):
                 i = 0
                 c = [float(comb[v]) for v in list(comb.keys())]
                 for t in itertools.product(*values):
-                    solution_data[tuple(c + list(t))] = Quantity(solution[i])
+                    solution_data[tuple(c + list(t))] = solution[i]
                     i += 1
             sols_data[expression] = solution_data
         if self.enable_pandas_output:
-            series_list = [pd.Series(value, name=key, dtype=object) for key, value in sols_data.items()]
-            return pd.DataFrame(series_list, dtype=object).T
+            # series_list = [pd.Series(value, name=key) for key, value in sols_data.items()]
+            # return pd.DataFrame(series_list).T
+            return pd.DataFrame.from_dict(sols_data)
         else:
             return sols_data
 
@@ -351,8 +352,9 @@ class SolutionData(object):
                 for i in self._solutions_real[expr]:
                     data_phase[expr][i] = math.atan2(self._solutions_imag[expr][i], self._solutions_real[expr][i])
         if self.enable_pandas_output:
-            series_list = [pd.Series(value, name=key, dtype=object) for key, value in data_phase.items()]
-            return pd.DataFrame(series_list, dtype=object).T
+            # series_list = [pd.Series(value, name=key) for key, value in data_phase.items()]
+            # return pd.DataFrame(series_list).T
+            return pd.DataFrame.from_dict(data_phase)
         else:
             return data_phase
 
@@ -467,7 +469,7 @@ class SolutionData(object):
                 sol, self._quantity(self.units_data[expression]), self.units_data[expression]
             )
         if self.enable_pandas_output:
-            return pd.Series(sol, dtype=object)
+            return pd.Series(sol)
         return sol
 
     @staticmethod
@@ -654,7 +656,7 @@ class SolutionData(object):
                 sol, self._quantity(self.units_data[expression]), self.units_data[expression]
             )
         if self.enable_pandas_output:
-            return pd.Series(sol, dtype=object)
+            return pd.Series(sol)
         return sol
 
     @pyaedt_function_handler()
@@ -694,7 +696,7 @@ class SolutionData(object):
                 sol, self._quantity(self.units_data[expression]), self.units_data[expression]
             )
         if self.enable_pandas_output:
-            return pd.Series(sol, dtype=object)
+            return pd.Series(sol)
         return sol
 
     @pyaedt_function_handler()
