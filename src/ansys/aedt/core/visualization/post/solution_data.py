@@ -102,6 +102,7 @@ class SolutionData(object):
     @enable_pandas_output.setter
     def enable_pandas_output(self, val):
         if val != self._enable_pandas_output and pd:
+            self._intrinsics = {}
             self._enable_pandas_output = val
             self.init_solutions_data()
 
@@ -276,7 +277,8 @@ class SolutionData(object):
                 for i in self._solutions_real[expr]:
                     _solutions_mag[expr][i] = abs(complex(self._solutions_real[expr][i], self._solutions_imag[expr][i]))
         if self.enable_pandas_output:
-            return pd.DataFrame.from_dict(_solutions_mag)
+            series_list = [pd.Series(value, name=key, dtype=object) for key, value in _solutions_mag.items()]
+            return pd.DataFrame(series_list, dtype=object).T
         else:
             return _solutions_mag
 
@@ -297,15 +299,16 @@ class SolutionData(object):
                 # for el in list(self.intrinsics.keys()):
                 #     values.append(list(dict.fromkeys(data.GetSweepValues(el, False))))
                 for _, val in self.intrinsics.items():
-                    values.append(val)
+                    values.append([float(i) for i in val])
                 i = 0
-                c = [comb[v] for v in list(comb.keys())]
+                c = [float(comb[v]) for v in list(comb.keys())]
                 for t in itertools.product(*values):
-                    solution_data[self.__get_index(tuple(c + list(t)))] = solution[i]
+                    solution_data[tuple(c + list(t))] = Quantity(solution[i])
                     i += 1
             sols_data[expression] = solution_data
         if self.enable_pandas_output:
-            return pd.DataFrame.from_dict(sols_data)
+            series_list = [pd.Series(value, name=key, dtype=object) for key, value in sols_data.items()]
+            return pd.DataFrame(series_list, dtype=object).T
         else:
             return sols_data
 
@@ -320,19 +323,20 @@ class SolutionData(object):
                 if data.IsDataComplex(expression):
                     solution = list(data.GetImagDataValues(expression, False))
                 else:
-                    l = len(list(data.GetRealDataValues(expression, False)))
-                    solution = [0] * l
+                    real_data_length = len(list(data.GetRealDataValues(expression, False)))
+                    solution = [0] * real_data_length
                 values = []
                 for _, val in self.intrinsics.items():
-                    values.append(val)
+                    values.append([float(i) for i in val])
                 i = 0
-                c = [comb[v] for v in list(comb.keys())]
+                c = [float(comb[v]) for v in list(comb.keys())]
                 for t in itertools.product(*values):
-                    solution_data[self.__get_index(c + list(t))] = solution[i]
+                    solution_data[tuple(c + list(t))] = Quantity(solution[i])
                     i += 1
             sols_data[expression] = solution_data
         if self.enable_pandas_output:
-            return pd.DataFrame.from_dict(sols_data)
+            series_list = [pd.Series(value, name=key, dtype=object) for key, value in sols_data.items()]
+            return pd.DataFrame(series_list, dtype=object).T
         else:
             return sols_data
 
@@ -347,7 +351,8 @@ class SolutionData(object):
                 for i in self._solutions_real[expr]:
                     data_phase[expr][i] = math.atan2(self._solutions_imag[expr][i], self._solutions_real[expr][i])
         if self.enable_pandas_output:
-            return pd.DataFrame.from_dict(data_phase)
+            series_list = [pd.Series(value, name=key, dtype=object) for key, value in data_phase.items()]
+            return pd.DataFrame(series_list, dtype=object).T
         else:
             return data_phase
 
@@ -462,7 +467,7 @@ class SolutionData(object):
                 sol, self._quantity(self.units_data[expression]), self.units_data[expression]
             )
         if self.enable_pandas_output:
-            return pd.Series(sol)
+            return pd.Series(sol, dtype=object)
         return sol
 
     @staticmethod
@@ -576,7 +581,7 @@ class SolutionData(object):
             List of the primary sweep valid points for the expression.
         """
         if self.enable_pandas_output:
-            return pd.Series(self.variation_values(self.primary_sweep))
+            return pd.Series(self.variation_values(self.primary_sweep), dtype=object)
         return self.variation_values(self.primary_sweep)
 
     @property
@@ -608,7 +613,7 @@ class SolutionData(object):
             else:
                 sol.append(None)
         if self.enable_pandas_output:
-            return pd.Series(sol)
+            return pd.Series(sol, dtype=object)
         return sol
 
     @pyaedt_function_handler()
@@ -649,7 +654,7 @@ class SolutionData(object):
                 sol, self._quantity(self.units_data[expression]), self.units_data[expression]
             )
         if self.enable_pandas_output:
-            return pd.Series(sol)
+            return pd.Series(sol, dtype=object)
         return sol
 
     @pyaedt_function_handler()
@@ -689,7 +694,7 @@ class SolutionData(object):
                 sol, self._quantity(self.units_data[expression]), self.units_data[expression]
             )
         if self.enable_pandas_output:
-            return pd.Series(sol)
+            return pd.Series(sol, dtype=object)
         return sol
 
     @pyaedt_function_handler()
@@ -998,8 +1003,8 @@ class SolutionData(object):
         max_r = -1e12
         if self.enable_pandas_output:
             for el in r:
-                min_r = min(min_r, el.values.min())
-                max_r = max(max_r, el.values.max())
+                min_r = min(min_r, el.min())
+                max_r = max(max_r, el.max())
         else:
             for el in r:
                 min_r = min(min_r, min(el))
@@ -1080,9 +1085,9 @@ class SolutionData(object):
             e_real_z = np.reshape(vals_e_real_z, (len(freq), len(v), len(u)))
             e_imag_z = np.reshape(vals_e_imag_z, (len(freq), len(v), len(u)))
 
-        temp_e_comp_x = e_real_x + 1j * e_imag_x  # Here is the complex FD data matrix, ready for transforming
-        temp_e_comp_y = e_real_y + 1j * e_imag_y
-        temp_e_comp_z = e_real_z + 1j * e_imag_z
+        temp_e_comp_x = e_real_x.astype("float64") + complex(0, 1) * e_imag_x.astype("float64")
+        temp_e_comp_y = e_real_y.astype("float64") + complex(0, 1) * e_imag_y.astype("float64")
+        temp_e_comp_z = e_real_z.astype("float64") + complex(0, 1) * e_imag_z.astype("float64")
 
         e_comp_x = np.zeros((len(freq), len(v), len(u)), dtype=np.complex128)
         e_comp_y = np.zeros((len(freq), len(v), len(u)), dtype=np.complex128)

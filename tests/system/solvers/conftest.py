@@ -62,6 +62,7 @@ settings.enable_desktop_logs = False
 settings.desktop_launch_timeout = 180
 settings.release_on_exception = False
 settings.wait_for_license = True
+settings.enable_pandas_output = True
 
 from ansys.aedt.core import Desktop
 from ansys.aedt.core import Edb
