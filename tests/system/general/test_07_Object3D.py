@@ -28,7 +28,7 @@ from ansys.aedt.core.generic.file_utils import _uname
 from ansys.aedt.core.generic.general_methods import _to_boolean
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import time_fn
-from ansys.aedt.core.generic.numbers import isclose
+from ansys.aedt.core.generic.numbers import is_close
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 import pytest
@@ -182,11 +182,11 @@ class TestClass:
         planar_face.move_with_offset(1)
         assert planar_face.center == [5.0, 5.0, 6.0]
         assert planar_face.normal == [0, 0, 1]
-        assert isclose(planar_face.area, 100)
+        assert is_close(planar_face.area, 100)
         non_planar_face = o_sphere.faces[0]
-        assert isclose(non_planar_face.area, 201.06192982974676)
+        assert is_close(non_planar_face.area, 201.06192982974676)
         assert non_planar_face.move_with_offset(1)
-        assert isclose(non_planar_face.area, 314.1592653589793)
+        assert is_close(non_planar_face.area, 314.1592653589793)
         assert not non_planar_face.normal
         o_box2 = self.aedtapp.modeler.create_box([300, 300, 300], [10, 10, 5], "BoxBounding", "Copper")
         for face in o_box2.faces:
@@ -393,7 +393,7 @@ class TestClass:
         sum_sq = 0
         for i in range(0, 3):
             sum_sq += (end_point.position[i] - start_point.position[i]) ** 2
-        assert isclose(math.sqrt(sum_sq), test_edge.length)
+        assert is_close(math.sqrt(sum_sq), test_edge.length)
         self.aedtapp.modeler.delete(
             initial_object,
         )
@@ -512,7 +512,7 @@ class TestClass:
         box2 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], material="MyMaterial")
         assert box2.mass == 0.0
         new_material.mass_density = 1
-        assert isclose(box2.mass, 1000.0)
+        assert is_close(box2.mass, 1000.0)
         box2.model = False
         assert box2.mass == 0.0
         rec = self.aedtapp.modeler.create_rectangle(0, [0, 0, 0], [5, 10])
@@ -520,7 +520,7 @@ class TestClass:
 
     def test_23_volume(self):
         box3 = self.aedtapp.modeler.create_box([10, 10, 10], [5, 10, 2], material="Copper")
-        assert isclose(box3.volume, 100)
+        assert is_close(box3.volume, 100)
         rec = self.aedtapp.modeler.create_rectangle(0, [0, 0, 0], [5, 10])
         assert rec.volume == 0.0
 

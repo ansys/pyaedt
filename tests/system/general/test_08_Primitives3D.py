@@ -2032,6 +2032,7 @@ class TestClass:
         assert all(isinstance(o, Object3d) for o in out_obj)
 
     @pytest.mark.skipif(config["desktopVersion"] < "2024.1", reason="Feature not available until 2024.1")
+    @pytest.mark.skipif(config["desktopVersion"] < "2027.1", reason="Very long test skipping it.")
     def test_93_import_discovery(self):
         self.aedtapp.insert_design("DiscoImport")
         assert not self.aedtapp.modeler.objects

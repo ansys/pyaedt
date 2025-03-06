@@ -81,6 +81,7 @@ tests = [
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.7",
     "scikit-rf>=0.30.0,<1.7",
+    "pytest-timeout>=2.3.0,<2.4",
 ]
 dotnet = [
     "ansys-pythonnet>=3.1.0rc3",

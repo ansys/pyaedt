@@ -63,7 +63,6 @@ if config["desktopVersion"] > "2024.2":
 else:
     ipk_post_proj = "for_icepak_post"
 test_subfolder = "T12"
-settings.enable_pandas_output = True
 
 
 @pytest.fixture()
@@ -696,6 +695,7 @@ class TestClass:
         )
         assert len(data2) == 4
         assert len(data2[0]) == 3
+        settings.enable_pandas_output = True
 
     def test_75_plot_field_line_traces(self, m2dtest):
         m2dtest.modeler.model_units = "mm"
