@@ -299,11 +299,11 @@ class SolutionData(object):
                 # for el in list(self.intrinsics.keys()):
                 #     values.append(list(dict.fromkeys(data.GetSweepValues(el, False))))
                 for _, val in self.intrinsics.items():
-                    values.append(val)
+                    values.append([float(i) for i in val])
                 i = 0
-                c = [comb[v] for v in list(comb.keys())]
+                c = [float(comb[v]) for v in list(comb.keys())]
                 for t in itertools.product(*values):
-                    solution_data[self.__get_index(tuple(c + list(t)))] = Quantity(solution[i])
+                    solution_data[tuple(c + list(t))] = Quantity(solution[i])
                     i += 1
             sols_data[expression] = solution_data
         if self.enable_pandas_output:
@@ -323,15 +323,15 @@ class SolutionData(object):
                 if data.IsDataComplex(expression):
                     solution = list(data.GetImagDataValues(expression, False))
                 else:
-                    l = len(list(data.GetRealDataValues(expression, False)))
-                    solution = [0] * l
+                    real_data_length = len(list(data.GetRealDataValues(expression, False)))
+                    solution = [0] * real_data_length
                 values = []
                 for _, val in self.intrinsics.items():
-                    values.append(val)
+                    values.append([float(i) for i in val])
                 i = 0
-                c = [comb[v] for v in list(comb.keys())]
+                c = [float(comb[v]) for v in list(comb.keys())]
                 for t in itertools.product(*values):
-                    solution_data[self.__get_index(c + list(t))] = Quantity(solution[i])
+                    solution_data[tuple(c + list(t))] = Quantity(solution[i])
                     i += 1
             sols_data[expression] = solution_data
         if self.enable_pandas_output:
