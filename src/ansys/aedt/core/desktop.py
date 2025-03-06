@@ -40,7 +40,6 @@ import shutil
 import socket
 import sys
 import tempfile
-import threading
 import time
 import traceback
 import warnings
@@ -106,12 +105,14 @@ def launch_aedt(full_path, non_graphical, port, student_version, first_run=True)
                 stdin=subprocess.DEVNULL,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
+                creationflags=subprocess.DETACHED_PROCESS,
             )
+
+    import threading
 
     _aedt_process_thread = threading.Thread(target=launch_desktop_on_port)
     _aedt_process_thread.daemon = True
     _aedt_process_thread.start()
-
     on_ci = os.getenv("ON_CI", "False")
     if not student_version and on_ci != "True" and not settings.skip_license_check:
         available_licenses = available_license_feature()
