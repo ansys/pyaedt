@@ -55,7 +55,8 @@ from ansys.aedt.core.generic.general_methods import filter_tuple
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import Quantity
+
+# from ansys.aedt.core.generic.numbers import Quantity
 from ansys.aedt.core.generic.numbers import decompose_variable_value
 from ansys.aedt.core.generic.numbers import is_number
 from ansys.aedt.core.generic.settings import settings
@@ -2266,7 +2267,7 @@ class Analysis(Design, object):
         if not is_number(value):
             return value
         else:
-            return str(Quantity(value, units))
+            return str(f"{value}{units}")
 
     @pyaedt_function_handler()
     def change_property(self, aedt_object, tab_name, property_object, property_name, property_value):
