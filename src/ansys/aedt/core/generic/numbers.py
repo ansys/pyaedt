@@ -62,7 +62,7 @@ class Quantity(float):
             else:
                 self._parse_units(unit)
         if is_number(expression):
-            self._value = expression
+            self._value = float(expression)
         else:
             self._value, _unit = decompose_variable_value(expression)
             if _unit:
