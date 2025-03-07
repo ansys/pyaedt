@@ -223,7 +223,7 @@ class NexximComponents(CircuitComponents):
             o = CircuitComponent(self, tabname=self.tab_name, custom_editor=oed)
             name = match[0].split(";")
             o.name = name[0]
-            o.schematic_id = name[2]
+            o.schematic_id = int(name[2])
             o.id = int(name[1])
             return o
         self.refresh_all_ids()
