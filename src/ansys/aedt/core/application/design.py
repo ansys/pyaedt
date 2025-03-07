@@ -1247,7 +1247,8 @@ class Design(AedtObjects):
                     path = os.path.dirname(proj_name)
                     self.odesktop.RestoreProjectArchive(proj_name, os.path.join(path, name), True, True)
                     time.sleep(0.5)
-                    self._oproject = self.desktop_class.active_project()
+                    proj_name = name[:-5]
+                    self._oproject = self.desktop_class.active_project(proj_name)
                     self._add_handler()
                     self.logger.info(f"Archive {proj_name} has been restored to project {self._oproject.GetName()}")
                 elif ".def" in proj_name or proj_name[-5:] == ".aedb":

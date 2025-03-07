@@ -30,8 +30,8 @@ from ansys.aedt.core.generic.settings import is_linux
 import pytest
 
 from tests.system.general.conftest import local_path
+from tests.system.solvers.conftest import local_path as solvers_local_path
 from tests.system.visualization.conftest import desktop_version
-from tests.system.visualization.conftest import local_path as solvers_local_path
 from tests.system.visualization.conftest import local_path as visualization_local_path
 
 push_project = "push_excitation"
