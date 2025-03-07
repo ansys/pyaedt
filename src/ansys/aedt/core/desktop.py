@@ -781,7 +781,14 @@ class Desktop(object):
         if not project_object:
             project_object = self.active_project()
         if not name:
-            active_design = project_object.GetActiveDesign()
+            active_design = None
+            try:
+                active_design = project_object.GetActiveDesign()
+            except Exception:
+                active_design = project_object.SetActiveDesign(self.design_list()[0])
+            finally:
+                if not active_design and self.design_list():
+                    active_design = project_object.SetActiveDesign(self.design_list()[0])
         else:
             active_design = project_object.SetActiveDesign(name)
         if is_linux and settings.aedt_version == "2024.1" and design_type == "Circuit Design":  # pragma: no cover
@@ -808,6 +815,8 @@ class Desktop(object):
         """
         if not name:
             active_project = self.odesktop.GetActiveProject()
+            if not active_project and self.project_list():
+                active_project = self.odesktop.SetActiveProject(self.project_list()[0])
         else:
             active_project = self.odesktop.SetActiveProject(name)
         if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
