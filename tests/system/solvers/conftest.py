@@ -62,6 +62,7 @@ settings.enable_desktop_logs = False
 settings.desktop_launch_timeout = 180
 settings.release_on_exception = False
 settings.wait_for_license = True
+settings.enable_pandas_output = True
 
 from ansys.aedt.core import Desktop
 from ansys.aedt.core import Edb
@@ -69,8 +70,8 @@ from ansys.aedt.core import Hfss
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.filtersolutions import DistributedDesign
 from ansys.aedt.core.filtersolutions import LumpedDesign
+from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.filesystem import Scratch
-from ansys.aedt.core.generic.general_methods import generate_unique_name
 
 local_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(local_path)

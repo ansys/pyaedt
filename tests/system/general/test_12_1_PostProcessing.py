@@ -27,9 +27,8 @@ import sys
 import uuid
 
 from ansys.aedt.core import Quantity
+from ansys.aedt.core.generic.file_utils import read_json
 from ansys.aedt.core.generic.general_methods import is_linux
-from ansys.aedt.core.generic.general_methods import read_json
-from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.visualization.plot.pyvista import _parse_aedtplt
 from ansys.aedt.core.visualization.plot.pyvista import _parse_streamline
 import pytest
@@ -49,7 +48,6 @@ test_circuit_name = "Switching_Speed_FET_And_Diode"
 eye_diagram = "SimpleChannel"
 ami = "ami"
 test_subfolder = "T12"
-settings.enable_pandas_output = True
 
 
 @pytest.fixture(scope="class")
@@ -205,6 +203,17 @@ class TestClass:
         assert len(my_data.data_magnitude(trace_names[0])) > 0
         assert my_data.export_data_to_csv(os.path.join(local_scratch.path, "output.csv"))
         assert os.path.exists(os.path.join(local_scratch.path, "output.csv"))
+        assert aedtapp.get_touchstone_data("Setup1")
+
+        my_data.enable_pandas_output = False
+        assert my_data
+        assert my_data.expressions
+        assert len(my_data.data_db10(trace_names[0])) > 0
+        assert len(my_data.data_imag(trace_names[0])) > 0
+        assert len(my_data.data_real(trace_names[0])) > 0
+        assert len(my_data.data_magnitude(trace_names[0])) > 0
+        assert my_data.export_data_to_csv(os.path.join(local_scratch.path, "output2.csv"))
+        assert os.path.exists(os.path.join(local_scratch.path, "output2.csv"))
         assert aedtapp.get_touchstone_data("Setup1")
 
     def test_04_export_touchstone(self, aedtapp, local_scratch):

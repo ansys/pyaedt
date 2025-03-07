@@ -27,7 +27,7 @@ import warnings
 
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.errors import GrpcApiError
-from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers import _units_assignment
 from ansys.aedt.core.generic.settings import settings
