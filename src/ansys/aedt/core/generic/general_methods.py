@@ -944,33 +944,6 @@ def _to_boolean(val):
 
 
 @pyaedt_function_handler()
-def _arg_with_dim(value, units):
-    """Concatenate a specified units string to a numerical input.
-
-    Parameters
-    ----------
-    value : str or number
-        Valid expression string in the AEDT modeler. For example, ``"5mm"``.
-    units : str
-        Valid units string in the AEDT modeler. For example, ``"mm"``.
-
-    Returns
-    -------
-    str
-        Concatenated string with value and units.
-    """
-    if isinstance(value, str):
-        try:
-            float(value)
-            val = f"{value}{units}"
-        except Exception:
-            val = value
-    else:
-        val = f"{value}{units}"
-    return val
-
-
-@pyaedt_function_handler()
 def install_with_pip(package_name, package_path=None, upgrade=False, uninstall=False):  # pragma: no cover
     """Install a new package using pip.
 
