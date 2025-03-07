@@ -29,7 +29,7 @@ from pathlib import Path
 import re
 import shutil
 
-from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 

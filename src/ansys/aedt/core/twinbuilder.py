@@ -30,8 +30,8 @@ from pathlib import Path
 from ansys.aedt.core.application.analysis_twin_builder import AnalysisTwinBuilder
 from ansys.aedt.core.application.variables import Variable
 from ansys.aedt.core.generic.constants import unit_converter
-from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers import decompose_variable_value
 from ansys.aedt.core.generic.numbers import is_number
@@ -513,7 +513,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             if not is_number(value) and not unit:
                 raise TypeError("Model depth must be provided as a string with value and unit.")
             design_type = "Q2D"
-            signal_list = [k for k, v in app.excitation_objects.items() if v.type == "SignalLine"]
+            signal_list = [k for k, v in app.design_excitations.items() if v.type == "SignalLine"]
             for signal in signal_list:
                 port_info_list_A.append("OnePortInfo:=")
                 port_info_list_B.append("OnePortInfo:=")
@@ -577,7 +577,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
                 "filename:=",
                 str(project_path),
                 "numberofports:=",
-                2 * len(app.excitations),
+                2 * len(app.excitation_names),
                 "Is3D:=",
                 is_3d,
                 "IsWBLink:=",

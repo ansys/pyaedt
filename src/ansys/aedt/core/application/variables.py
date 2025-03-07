@@ -48,8 +48,8 @@ from ansys.aedt.core.generic.constants import SI_UNITS
 from ansys.aedt.core.generic.constants import _resolve_unit_system
 from ansys.aedt.core.generic.constants import unit_system
 from ansys.aedt.core.generic.errors import GrpcApiError
+from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import check_numeric_equivalence
-from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers import Quantity
 from ansys.aedt.core.generic.numbers import decompose_variable_value

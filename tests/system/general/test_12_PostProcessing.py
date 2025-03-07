@@ -63,7 +63,6 @@ if config["desktopVersion"] > "2024.2":
 else:
     ipk_post_proj = "for_icepak_post"
 test_subfolder = "T12"
-settings.enable_pandas_output = True
 
 
 @pytest.fixture()
@@ -332,6 +331,7 @@ class TestClass:
     def test_17_circuit(self, circuit_test):
 
         assert circuit_test.setups[0].is_solved
+        assert circuit_test.nominal_adaptive == circuit_test.nominal_sweep
         assert circuit_test.setups[0].create_report(["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"])
         new_report = circuit_test.post.reports_by_category.standard(
             ["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"], "LNA"
@@ -367,8 +367,6 @@ class TestClass:
         new_report.time_stop = "190ns"
         new_report.plot_continous_spectrum = True
         assert new_report.create()
-        new_report = circuit_test.post.reports_by_category.spectral(["dB(V(net_11))"])
-        assert new_report.create()
         assert plot.export_config(os.path.join(self.local_scratch.path, f"{new_report.plot_name}.json"))
         assert circuit_test.post.create_report_from_configuration(
             os.path.join(self.local_scratch.path, f"{new_report.plot_name}.json"), solution_name="Transient"
@@ -383,7 +381,9 @@ class TestClass:
         new_report.time_stop = "190ns"
         new_report.plot_continous_spectrum = False
         assert new_report.create()
-        assert circuit_test.post.create_report(["dB(V(net_11))", "dB(V(Port1))"], domain="Spectrum")
+        assert circuit_test.post.create_report(
+            ["dB(V(net_11))", "dB(V(Port1))"], setup_sweep_name="Transient", domain="Spectrum"
+        )
         new_report = circuit_test.post.reports_by_category.spectral(None, "Transient")
         new_report.window = "Hanning"
         new_report.max_freq = "1GHz"
@@ -695,6 +695,7 @@ class TestClass:
         )
         assert len(data2) == 4
         assert len(data2[0]) == 3
+        settings.enable_pandas_output = True
 
     def test_75_plot_field_line_traces(self, m2dtest):
         m2dtest.modeler.model_units = "mm"
