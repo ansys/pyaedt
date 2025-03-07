@@ -861,7 +861,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             Name of the setup if it is a design. The default is ``None``.
         is_solution_file : bool, optional
             Whether it is an imported solution file. The default is ``False``.
-        filename : str, Path, optional
+        filename : str or :class:`pathlib.Path`, optional
             Full path and name for exporting the HSpice file.
             The default is ``None``, in which case the file is exported to the working directory.
         passivity : bool, optional
@@ -1247,7 +1247,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         ----------
         ports : list
             List of circuit ports to assign to the frequency dependent excitation.
-        input_file : str, Path
+        input_file : str or :class:`pathlib.Path`
             Path to the frequency dependent file.
 
         Returns
@@ -1400,7 +1400,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         Parameters
         ----------
-        input_file : str, Path
+        input_file : str or :class:`pathlib.Path`
             Full qualified name of the file containing the differential pairs definition.
 
         Returns
@@ -1437,7 +1437,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         Parameters
         ----------
-        output_file : str, Path
+        output_file : str or :class:`pathlib.Path`
             Full qualified name of the file to save the differential pairs definition to.
 
         Returns
@@ -1459,7 +1459,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         Parameters
         ----------
-        input_file : str, Path
+        input_file : str or :class:`pathlib.Path`
             Path to the netlist file.
         name : str, optional
             Name of the data block.
@@ -1487,7 +1487,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         Parameters
         ----------
-        input_file : str, Path, optional
+        input_file : str or :class:`pathlib.Path`, optional
             File path to save the new log file to. The default is the ``pyaedt`` folder.
 
         Returns
@@ -2443,7 +2443,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         Parameters
         ----------
-        input_file : str, Path
+        input_file : str or :class:`pathlib.Path`
             Path to asc file.
         config_file : str, optional
             Path to configuration file to map components. Default is None which uses internal mapping.
@@ -2618,7 +2618,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         Parameters
         ----------
-        input_file : str, Path
+        input_file : str or :class:`pathlib.Path`
             Full path to the file.
         link : bool, optional
             Whether to link the file to the solution. The default is ``False``.
