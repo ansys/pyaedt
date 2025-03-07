@@ -1330,7 +1330,7 @@ class CircuitComponents(object):
                     else:
                         o.id = int(name[1])
                         o.schematic_id = name[2]
-                        objID = o.id
+                        objID = o.schematic_id
                     self.components[objID] = o
         return len(self.components)
 
