@@ -122,7 +122,6 @@ class TouchstoneData(rf.Network):
         output_file=None,
         aedb_path=None,
         design_name=None,
-        edb_version=None,
     ):
         """Get coupling losses, excluding return loss, that has at least one frequency point between a range of
         losses.
@@ -140,11 +139,9 @@ class TouchstoneData(rf.Network):
         output_file : path, optional
             Output file path to save where identified coupling will be listed. The default is ``None``.
         aedb_path : path, optional
-            aedb folder path of the project where to identify ports location. The default is ``None``.
+            Full path to the ``aedb`` folder. This project is used to identify ports location. The default is ``None``.
         design_name : string, optional
             Design name from the project where to identify ports location. The default is ``None``.
-        edb_version : string, optional
-            Version of edb file where to identify ports locations. The default is ``None``.
 
         Returns
         -------
@@ -168,10 +165,8 @@ class TouchstoneData(rf.Network):
         s_db = self.s_db[:, :, :]
         temp_list = []
         temp_file = []
-        # This if statement is mandatory in case the user just wants to use this function on S parameter which does not
-        # have a corresponding projetc. Additionaly it ensures backward compatibility
         if aedb_path is not None:
-            edbapp = Edb(edbpath=aedb_path, cellname=design_name, edbversion=edb_version)
+            edbapp = Edb(edbpath=aedb_path, cellname=design_name, edbversion=aedt_versions.latest_version)
             for i in range(self.number_of_ports):
                 for j in range(i, self.number_of_ports):
                     if i == j:

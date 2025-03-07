@@ -98,7 +98,6 @@ class TestClass:
             frequency_sample=5,
             output_file=output_file,
             aedb_path=aedb_path,
-            edb_version="2024.2",
         )
         assert isinstance(res, list)
         res = ts.get_coupling_in_range(
@@ -109,7 +108,6 @@ class TestClass:
             output_file=output_file,
             aedb_path=aedb_path,
             design_name=design_name,
-            edb_version="2024.2",
         )
         assert isinstance(res, list)
 
