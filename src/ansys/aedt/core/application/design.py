@@ -176,7 +176,8 @@ class Design(AedtObjects):
         self._project_path: Optional[str] = None
         self.__t: Optional[threading.Thread] = None
         if (
-            project_name
+            is_windows
+            and project_name
             and os.path.exists(project_name)
             and (os.path.splitext(project_name)[1] == ".aedt" or os.path.splitext(project_name)[1] == ".a3dcomp")
         ):
@@ -238,7 +239,7 @@ class Design(AedtObjects):
         self._logger.odesign = self.odesign
         AedtObjects.__init__(self, self._desktop_class, self.oproject, self.odesign, is_inherithed=True)
         self.logger.info("Aedt Objects correctly read")
-        if not self.__t and not settings.lazy_load and os.path.exists(self.project_file):
+        if is_windows and not self.__t and not settings.lazy_load and os.path.exists(self.project_file):
             self.__t = threading.Thread(target=load_aedt_thread, args=(self.project_file,), daemon=True)
             self.__t.start()
 
