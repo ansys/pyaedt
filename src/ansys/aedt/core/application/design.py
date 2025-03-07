@@ -1126,8 +1126,11 @@ class Design(AedtObjects):
                     elif self._temp_solution_type in des.GetSolutionType():
                         valids.append(name)
             if len(valids) > 1:
-                des_name = self.oproject.GetActiveDesign().GetName()
-                if des_name in valids:
+                try:
+                    des_name = self.oproject.GetActiveDesign().GetName()
+                except Exception:
+                    des_name = None
+                if des_name and des_name in valids:
                     activedes = self.oproject.GetActiveDesign().GetName()
                 else:
                     activedes = valids[0]
