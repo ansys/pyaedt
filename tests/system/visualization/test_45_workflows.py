@@ -59,7 +59,12 @@ class TestClass:
         assert main({"is_test": True, "origin_x": 2})
         assert len(aedtapp.modeler.object_list) == 1
 
-        file_path = os.path.join(solvers_local_path, "example_models", "T00", "test_solve.aedt")
+        aedtapp2 = add_app(application=ansys.aedt.core.Hfss, project_name="workflow_test2")
+        aedtapp2.save_project()
+        file_path = aedtapp2.project_file
+        aedtapp2.close_project()
+        del aedtapp2
+
         assert main({"is_test": True, "file_path": file_path})
         assert len(aedtapp.project_list) == 2
 

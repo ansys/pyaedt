@@ -93,7 +93,7 @@ Set oEditor = PropHost.GetEditor("SchematicEditor")
 ' first, get the value
 curval = PropHost.GetText("CH")
 newval = curval
-' and then split the value into what should be two parts
+' and then split the value into what should be two parts 
 valarray = Split(curval, ".", -1, 1)
 num = UBound(valarray)
 
@@ -245,7 +245,7 @@ if UBound(eltarray) = 0 then
 					exit do
 				end if
 			loop while IsNumeric(Left(newval, 1))
-		end if
+		end if        
 
 
 
