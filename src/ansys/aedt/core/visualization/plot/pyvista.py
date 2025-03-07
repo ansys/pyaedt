@@ -1093,6 +1093,7 @@ class ModelPlotter(CommonPlotter):
                             conv = 1
                         vertices = np.array(nodes) * conv
                         filedata = pv.PolyData(vertices)
+                        field._cached_polydata = filedata
                         if is_vector:
                             vector_scale = (max(filedata.bounds) - min(filedata.bounds)) / (
                                 20 * (np.vstack(values).max() - np.vstack(values).min())
@@ -1106,7 +1107,7 @@ class ModelPlotter(CommonPlotter):
                             filedata = filedata.delaunay_2d(tol=field.surface_mapping_tolerance)
                             filedata.point_data[field.label] = np.array(values)
                             field.scalar_name = filedata.point_data.active_scalars_name
-                        field._cached_polydata = filedata
+                        # field._cached_polydata = filedata
 
     @pyaedt_function_handler()
     def _add_buttons(self):

@@ -239,6 +239,7 @@ def frontend():
         master.export_option = [export_options_lb.get(i) for i in selected_export]
         selected_objects = objects_list_lb.curselection()
         master.objects_list = [objects_list_lb.get(i) for i in selected_objects]
+        master.solution_option = selected_value.get()
         master.destroy()
 
     def browse_files():
@@ -389,7 +390,7 @@ def main(extension_args):
         np.savetxt(
             export_file,
             field_coordinates,
-            delimiter=",",
+            delimiter="\t",
             header=file_header,
             comments="",
         )
