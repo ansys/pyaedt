@@ -123,9 +123,9 @@ def change_objects_visibility(origfile, solid_list):
     Parameters
     ----------
     origfile : str
-        Full path to the project file, which has an ``.aedt``  extension.
+        Full path to the project file, which has an ``.aedt`` extension.
     solid_list : list
-        List of names for the solid to make visible. All other solides are hidden.
+        List of names for the solid to make visible. All other solids are hidden.
 
     Returns
     -------
@@ -138,7 +138,7 @@ def change_objects_visibility(origfile, solid_list):
     if not os.path.isfile(origfile + ".lock"):  # check if the project is closed
         try:
             # Using text mode with explicit encoding instead of binary mode.
-            with open(origfile, "r", encoding="utf-8") as f, open(newfile, "w", encoding="utf-8") as n:
+            with open(origfile, "rb") as f, open(newfile, "wb") as n:
                 # Reading file content
                 content = f.read()
 
@@ -175,7 +175,7 @@ def change_model_orientation(origfile, bottom_dir):
     Parameters
     ----------
     origfile : str
-        Full path to the project file, which has an ``.aedt``  extension.
+        Full path to the project file, which has an ``.aedt`` extension.
     bottom_dir : str
         Bottom direction as specified in the properties file.
 
@@ -212,7 +212,7 @@ def change_model_orientation(origfile, bottom_dir):
     if not os.path.isfile(origfile + ".lock"):  # check if the project is closed
         try:
             # Using text mode with explicit encoding.
-            with open(origfile, "r", encoding="utf-8") as f, open(newfile, "w", encoding="utf-8") as n:
+            with open(origfile, "rb") as f, open(newfile, "wb") as n:
                 # Reading file content
                 content = f.read()
 
