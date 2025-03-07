@@ -41,7 +41,7 @@ import pandas as pd
 import pytest
 
 from tests import TESTS_VISUALIZATION_PATH
-from tests.system.general.conftest import config
+from tests.system.visualization.conftest import config
 
 test_field_name = "Potter_Horn_242"
 test_project_name = "coax_setup_solved_231"
