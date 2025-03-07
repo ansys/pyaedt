@@ -787,7 +787,7 @@ class Desktop(object):
             try:
                 active_design = project_object.GetActiveDesign()
             except Exception:
-                active_design = project_object.SetActiveDesign(self.design_list()[0])
+                active_design = project_object.SetActiveDesign(self.design_list(project_object.GetName())[0])
             finally:
                 if not active_design and self.design_list(project_object.GetName()):
                     active_design = project_object.SetActiveDesign(self.design_list(project_object.GetName())[0])
