@@ -452,7 +452,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         Parameters
         ----------
-        input_file : str, Path
+        input_file : str or :class:`pathlib.Path`
             Path of the IBIS file.
         is_ami : bool, optional
             Whether the file to import is an IBIS AMI file. The
