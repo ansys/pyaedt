@@ -383,7 +383,7 @@ class ScatteringMethods(object):
         return self._app._export_touchstone(
             setup_name=setup,
             sweep_name=sweep,
-            file_name=str(output_file),
+            file_name=output_file,
             variations=variations,
             variations_value=variations_value,
             renormalization=renormalization,
