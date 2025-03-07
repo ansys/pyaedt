@@ -223,7 +223,7 @@ class NexximComponents(CircuitComponents):
             o = CircuitComponent(self, tabname=self.tab_name, custom_editor=oed)
             name = match[0].split(";")
             o.name = name[0]
-            o.schematic_id = name[2]
+            o.schematic_id = int(name[2])
             o.id = int(name[1])
             return o
         self.refresh_all_ids()
@@ -1618,14 +1618,14 @@ class NexximComponents(CircuitComponents):
             Name of the subcircuit HFSS link.
         pin_names : list
             List of the pin names.
-        source_project_path : str or Path
+        source_project_path : str or :class:`pathlib.Path`
             Path to the source project.
         source_design_name : str
             Name of the design.
         solution_name : str, optional
             Name of the solution and sweep. The
             default is ``"Setup1 : Sweep"``.
-        image_subcircuit_path : str or Path or None
+        image_subcircuit_path : str, :class:`pathlib.Path` or None
             Path of the Picture used in Circuit.
             Default is an HFSS Picture exported automatically.
         model_type : str, optional
@@ -2026,7 +2026,7 @@ class NexximComponents(CircuitComponents):
 
         Parameters
         ----------
-        input_file : str or Path
+        input_file : str or :class:`pathlib.Path`
             Path to .lib file.
         model : str, optional
             Model name to import. If `None` the first subckt in the lib file will be placed.
@@ -2086,7 +2086,7 @@ class NexximComponents(CircuitComponents):
 
         Parameters
         ----------
-        input_file : str or Path
+        input_file : str or :class:`pathlib.Path`
             Full path to the .siw file.
         solution : str, optional
             Solution name.

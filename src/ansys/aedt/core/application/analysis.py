@@ -629,10 +629,14 @@ class Analysis(Design, object):
         """
         _dict_out = {}
         for bound in self.design_excitations.values():
-            if bound.type in _dict_out:
-                _dict_out[bound.type].append(bound)
+            if self.design_type == "Circuit Design":
+                bound_type = "InterfacePort"
             else:
-                _dict_out[bound.type] = [bound]
+                bound_type = bound.type
+            if bound_type in _dict_out:
+                _dict_out[bound_type].append(bound)
+            else:
+                _dict_out[bound_type] = [bound]
         return _dict_out
 
     @property
