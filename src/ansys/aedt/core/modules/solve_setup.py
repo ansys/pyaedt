@@ -189,7 +189,7 @@ class CommonSetup(PropsManager, BinaryTreeNode):
                 else:
                     intrinsics[i] = "All"
             elif i == "Phase":
-                intrinsics[i] = "All"
+                intrinsics[i] = "0deg"
             elif i == "Time":
                 intrinsics[i] = "All"
         return intrinsics
