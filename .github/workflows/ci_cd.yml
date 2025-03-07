@@ -385,7 +385,7 @@ jobs:
 
       - uses: codecov/codecov-action@v5
         with:
-          name: codecov-system-general-tests
+          name: codecov-system-general-tests-linux
           files: ./coverage.xml
           flags: linux_system_general
 
@@ -516,7 +516,7 @@ jobs:
 
       - uses: codecov/codecov-action@v5
         with:
-          name: codecov-system-visualization-tests
+          name: codecov-system-visualization-tests-linux
           files: ./coverage.xml
           flags: linux_system_visualization
 
