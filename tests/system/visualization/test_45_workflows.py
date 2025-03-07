@@ -62,7 +62,6 @@ class TestClass:
         aedtapp2 = add_app(application=ansys.aedt.core.Hfss, project_name="workflow_test2")
         aedtapp2.save_project()
         file_path = aedtapp2.project_file
-        project_name = aedtapp2.project_name
         aedtapp2.close_project()
         del aedtapp2
 
@@ -70,7 +69,6 @@ class TestClass:
         assert len(aedtapp.project_list) == 2
 
         aedtapp.close_project(aedtapp.project_name)
-        aedtapp.close_project(project_name)
 
     def test_02_hfss_push(self, add_app):
         aedtapp = add_app(project_name=push_project, subfolder=test_subfolder)
