@@ -733,6 +733,7 @@ class TestClass:
         port.reference_node = "Z"
 
         assert c.design_excitations
+        assert c.excitations_by_type
 
         setup = c.create_setup()
 
