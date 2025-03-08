@@ -24,6 +24,7 @@
 
 import logging
 import os
+import shutil
 
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
@@ -60,20 +61,26 @@ class TestClass:
         assert ts_data.get_next_xtalk_index()
         assert ts_data.get_fext_xtalk_index_from_prefix("diff1", "diff2")
 
-    def test_02_read_ts_file(self):
+    def test_02_read_ts_file(self, local_scratch):
 
-        ts1 = TouchstoneData(touchstone_file=os.path.join(test_T44_dir, "port_order_1234.s8p"))
+        sp = os.path.join(local_scratch.path, "port_order_1234.s8p")
+        shutil.copy(os.path.join(test_T44_dir, "port_order_1234.s8p"), sp)
+
+        ts1 = TouchstoneData(touchstone_file=sp)
         assert ts1.get_mixed_mode_touchstone_data()
-        ts2 = TouchstoneData(touchstone_file=os.path.join(test_T44_dir, "port_order_1324.s8p"))
+        ts2 = TouchstoneData(touchstone_file=sp)
         assert ts2.get_mixed_mode_touchstone_data(port_ordering="1324")
 
         assert ts1.plot_insertion_losses(plot=False)
         assert ts1.get_worst_curve(curve_list=ts1.get_return_loss_index(), plot=False)
 
-    def test_03_check_touchstone_file(self):
+    def test_03_check_touchstone_file(self, local_scratch):
         from ansys.aedt.core.visualization.advanced.touchstone_parser import check_touchstone_files
 
-        check = check_touchstone_files(input_dir=test_T44_dir)
+        input_dir = os.path.join(local_scratch.path, "touchstone_files")
+        local_scratch.copyfolder(test_T44_dir, input_dir)
+
+        check = check_touchstone_files(input_dir=input_dir)
         assert check
         for k, v in check.items():
             if v and v[0] == "passivity":
@@ -82,13 +89,35 @@ class TestClass:
                 assert not v[1]
 
     def test_get_coupling_in_range(self, local_scratch):
-        touchstone_file = os.path.join(test_T44_dir, "port_order_1234.s8p")
+        touchstone_file = os.path.join(test_T44_dir, "HSD_PCIE_UT_main_cutout.s16p")
         output_file = os.path.join(self.local_scratch.path, "test_44_gcir.log")
+        aedb_path = os.path.join(test_T44_dir, "HSD_PCIE_UT.aedb")
+        file_path = os.path.join(local_scratch.path, "HSD_PCIE_UT.aedb")
+        local_scratch.copyfolder(aedb_path, file_path)
+        design_name = "main_cutout1"
         ts = TouchstoneData(touchstone_file=touchstone_file)
         res = ts.get_coupling_in_range(
             start_frequency=1e9, high_loss=-60, low_loss=-40, frequency_sample=5, output_file=output_file
         )
-
+        assert isinstance(res, list)
+        res = ts.get_coupling_in_range(
+            start_frequency=1e9,
+            high_loss=-60,
+            low_loss=-40,
+            frequency_sample=5,
+            output_file=output_file,
+            aedb_path=file_path,
+        )
+        assert isinstance(res, list)
+        res = ts.get_coupling_in_range(
+            start_frequency=1e9,
+            high_loss=-60,
+            low_loss=-40,
+            frequency_sample=5,
+            output_file=output_file,
+            aedb_path=file_path,
+            design_name=design_name,
+        )
         assert isinstance(res, list)
 
 
