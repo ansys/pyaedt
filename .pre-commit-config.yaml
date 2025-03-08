@@ -19,6 +19,7 @@ exclude: |
         ^src/ansys/aedt/core/sbrplus/matlab/|
         ^src/ansys/aedt/core/workflows/installer|
         tests/system/general/example_models/|
+        tests/system/visualization/example_models/|
         tests/system/solvers/example_models/
     )
 

@@ -348,7 +348,11 @@ def main(extension_args):
         design_name = active_design.GetName()
 
     if not hfss:  # pragma: no cover
-        hfss = Hfss(project_name, design_name)
+        if app.design_type(project_name, design_name) == "HFSS":
+            hfss = Hfss(project_name, design_name)
+        else:
+            hfss = Hfss()
+            hfss.save_project()
 
     hfss.solution_type = "Terminal"
 

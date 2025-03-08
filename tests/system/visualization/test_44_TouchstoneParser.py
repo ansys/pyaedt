@@ -31,10 +31,10 @@ from ansys.aedt.core.visualization.advanced.touchstone_parser import find_touchs
 from mock import patch
 import pytest
 
-from tests import TESTS_GENERAL_PATH
+from tests import TESTS_VISUALIZATION_PATH
 
 test_subfolder = "T44"
-test_T44_dir = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder)
+test_T44_dir = os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder)
 
 test_project_name = "hfss_design"
 aedt_proj_name = "differential_microstrip"
