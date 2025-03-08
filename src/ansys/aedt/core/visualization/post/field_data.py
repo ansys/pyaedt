@@ -45,8 +45,9 @@ try:
     import pandas as pd
 except ImportError:  # pragma: no cover
     warnings.warn(
-        "The Matplotlib module is required to run functionalities of ansys.aedt.core.visualization.post.field_data.\n"
-        "Install with \n\npip install matplotlib"
+        "The Pandas module is required to run functionalities of ansys.aedt.core.visualization.post.field_data.\n"
+        "Install with \n"
+        """>> pip install pandas"""
     )
     pd = None
 
