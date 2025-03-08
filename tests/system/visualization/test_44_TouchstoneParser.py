@@ -24,6 +24,7 @@
 
 import logging
 import os
+import shutil
 
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
@@ -60,20 +61,26 @@ class TestClass:
         assert ts_data.get_next_xtalk_index()
         assert ts_data.get_fext_xtalk_index_from_prefix("diff1", "diff2")
 
-    def test_02_read_ts_file(self):
+    def test_02_read_ts_file(self, local_scratch):
 
-        ts1 = TouchstoneData(touchstone_file=os.path.join(test_T44_dir, "port_order_1234.s8p"))
+        sp = os.path.join(local_scratch.path, "port_order_1234.s8p")
+        shutil.copy(os.path.join(test_T44_dir, "port_order_1234.s8p"), sp)
+
+        ts1 = TouchstoneData(touchstone_file=sp)
         assert ts1.get_mixed_mode_touchstone_data()
-        ts2 = TouchstoneData(touchstone_file=os.path.join(test_T44_dir, "port_order_1324.s8p"))
+        ts2 = TouchstoneData(touchstone_file=sp)
         assert ts2.get_mixed_mode_touchstone_data(port_ordering="1324")
 
         assert ts1.plot_insertion_losses(plot=False)
         assert ts1.get_worst_curve(curve_list=ts1.get_return_loss_index(), plot=False)
 
-    def test_03_check_touchstone_file(self):
+    def test_03_check_touchstone_file(self, local_scratch):
         from ansys.aedt.core.visualization.advanced.touchstone_parser import check_touchstone_files
 
-        check = check_touchstone_files(input_dir=test_T44_dir)
+        input_dir = os.path.join(local_scratch.path, "touchstone_files")
+        local_scratch.copyfolder(test_T44_dir, input_dir)
+
+        check = check_touchstone_files(input_dir=input_dir)
         assert check
         for k, v in check.items():
             if v and v[0] == "passivity":
