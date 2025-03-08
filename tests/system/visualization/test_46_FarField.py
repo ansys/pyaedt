@@ -29,7 +29,7 @@ from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSol
 from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 import pytest
 
-from tests import TESTS_GENERAL_PATH
+from tests import TESTS_VISUALIZATION_PATH
 
 array = "array_simple_231"
 test_subfolder = "T46"
@@ -47,7 +47,7 @@ class TestClass:
         self.local_scratch = local_scratch
 
     def test_01_far_field_data_txt(self, local_scratch):
-        eep_dir_original = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "eep")
+        eep_dir_original = os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "eep")
         eep_dir = os.path.join(local_scratch.path, "eep")
         shutil.copytree(eep_dir_original, eep_dir)
         eep_file1 = os.path.join(eep_dir, "eep.txt")
@@ -67,7 +67,7 @@ class TestClass:
 
     def test_02_far_field_data_json(self, local_scratch):
         pyaedt_metadata_dir_original = os.path.join(
-            TESTS_GENERAL_PATH, "example_models", test_subfolder, "pyaedt_metadata"
+            TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "pyaedt_metadata"
         )
         pyaedt_metadata_dir = os.path.join(local_scratch.path, "pyaedt_metadata")
         shutil.copytree(pyaedt_metadata_dir_original, pyaedt_metadata_dir)
@@ -79,7 +79,7 @@ class TestClass:
         assert ffdata.incident_power == 40.0
 
     def test_03_far_field_data_xml(self, local_scratch):
-        metadata_dir_original = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "metadata")
+        metadata_dir_original = os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "metadata")
         metadata_dir = os.path.join(local_scratch.path, "metadata")
         shutil.copytree(metadata_dir_original, metadata_dir)
         metadata_file = os.path.join(metadata_dir, "hfss_metadata.xml")
@@ -94,7 +94,7 @@ class TestClass:
         from pyvista.plotting.plotter import Plotter
 
         pyaedt_metadata_dir_original = os.path.join(
-            TESTS_GENERAL_PATH, "example_models", test_subfolder, "pyaedt_metadata"
+            TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "pyaedt_metadata"
         )
         pyaedt_metadata_dir = os.path.join(local_scratch.path, "pyaedt_metadata_post")
         shutil.copytree(pyaedt_metadata_dir_original, pyaedt_metadata_dir)

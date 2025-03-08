@@ -33,8 +33,8 @@ from ansys.aedt.core.visualization.plot.pyvista import _parse_aedtplt
 from ansys.aedt.core.visualization.plot.pyvista import _parse_streamline
 import pytest
 
-from tests import TESTS_GENERAL_PATH
-from tests.system.general.conftest import config
+from tests import TESTS_VISUALIZATION_PATH
+from tests.system.visualization.conftest import config
 
 test_field_name = "Potter_Horn_231"
 test_project_name = "coax_setup_solved_231"
@@ -766,18 +766,20 @@ class TestClass:
         assert aedtapp.post.reports_by_category.eigenmode()
 
     def test_59_test_parse_vector(self):
-        out = _parse_aedtplt(os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "test_vector.aedtplt"))
+        out = _parse_aedtplt(
+            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "test_vector.aedtplt")
+        )
         assert isinstance(out[0], list)
         assert isinstance(out[1], list)
         assert isinstance(out[2], list)
         assert isinstance(out[3], bool)
         assert _parse_aedtplt(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "test_vector_no_solutions.aedtplt")
+            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "test_vector_no_solutions.aedtplt")
         )
 
     def test_60_test_parse_vector(self):
         out = _parse_streamline(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "test_streamline.fldplt")
+            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "test_streamline.fldplt")
         )
         assert isinstance(out, list)
 
@@ -786,7 +788,7 @@ class TestClass:
 
     def test_67_sweep_from_json(self, aedtapp):
         dict_vals = read_json(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", "report_json", "Modal_Report_Simple.json")
+            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", "report_json", "Modal_Report_Simple.json")
         )
         assert aedtapp.post.create_report_from_configuration(report_settings=dict_vals)
         assert aedtapp.post.create_report_from_configuration(report_settings=dict_vals, matplotlib=True)
@@ -796,10 +798,11 @@ class TestClass:
     )
     def test_70_sweep_from_json(self, aedtapp):
         assert aedtapp.post.create_report_from_configuration(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", "report_json", "Modal_Report.json")
+            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", "report_json", "Modal_Report.json")
         )
         assert aedtapp.post.create_report_from_configuration(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", "report_json", "Modal_Report.json"), matplotlib=True
+            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", "report_json", "Modal_Report.json"),
+            matplotlib=True,
         )
 
     def test_74_dynamic_update(self, aedtapp):
