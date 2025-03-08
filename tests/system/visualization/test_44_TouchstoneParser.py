@@ -85,6 +85,8 @@ class TestClass:
         touchstone_file = os.path.join(test_T44_dir, "HSD_PCIE_UT_main_cutout.s16p")
         output_file = os.path.join(self.local_scratch.path, "test_44_gcir.log")
         aedb_path = os.path.join(test_T44_dir, "HSD_PCIE_UT.aedb")
+        file_path = os.path.join(local_scratch.path, "HSD_PCIE_UT.aedb")
+        local_scratch.copyfolder(aedb_path, file_path)
         design_name = "main_cutout1"
         ts = TouchstoneData(touchstone_file=touchstone_file)
         res = ts.get_coupling_in_range(
@@ -97,7 +99,7 @@ class TestClass:
             low_loss=-40,
             frequency_sample=5,
             output_file=output_file,
-            aedb_path=aedb_path,
+            aedb_path=file_path,
         )
         assert isinstance(res, list)
         res = ts.get_coupling_in_range(
@@ -106,7 +108,7 @@ class TestClass:
             low_loss=-40,
             frequency_sample=5,
             output_file=output_file,
-            aedb_path=aedb_path,
+            aedb_path=file_path,
             design_name=design_name,
         )
         assert isinstance(res, list)
