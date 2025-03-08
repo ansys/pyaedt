@@ -64,7 +64,7 @@ integration-tests = [
     "pytest-cov>=4.0.0,<6.1",
 ]
 tests = [
-    "ipython>=7.30.0,<8.34",
+    "ipython>=7.30.0,<9.1",
     "joblib>=1.0.0,<1.5",
     "matplotlib>=3.5.0,<3.11",
     "mock>=5.1.0,<5.3",
@@ -132,7 +132,7 @@ installer = [
     "scikit-learn>=1.0.0,<1.7",
     "scikit-rf>=0.30.0,<1.7",
     "jupyterlab>=3.6.0,<4.4",
-    "ipython>=7.30.0,<8.34",
+    "ipython>=7.30.0,<9.1",
     "ipyvtklink>=0.2.0,<0.2.4",
 ]
 
