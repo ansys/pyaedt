@@ -2132,7 +2132,7 @@ class Analysis(Design, object):
         else:
             if sweep_name is None:
                 for sol in self.existing_analysis_sweeps:
-                    if setup_name == sol.split(":")[0].strip():
+                    if setup_name == sol.split(":")[0].strip() and ":" in sol:
                         sweep_name = sol.split(":")[1].strip()
                         break
 
