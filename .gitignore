@@ -402,3 +402,5 @@ model.index\+
 
 # test coverage output
 /.cov/
+/tests/system/visualization/local_config.json
+/tests/system/general/pyaedt_settings.yaml

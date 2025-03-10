@@ -870,7 +870,13 @@ class SOLUTIONS(object):
     class Mechanical(object):
         """Provides Mechanical solution types."""
 
-        (Thermal, Structural, Modal, SteadyStateThermal) = ("Thermal", "Structural", "Modal", "Steady-State Thermal")
+        (Thermal, Structural, Modal, SteadyStateThermal, TransientThermal) = (
+            "Thermal",
+            "Structural",
+            "Modal",
+            "Steady-State Thermal",
+            "Transient Thermal",
+        )
 
 
 class SETUPS(object):
