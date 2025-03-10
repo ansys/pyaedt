@@ -2556,9 +2556,11 @@ class Primitives3D(GeometryModeler):
             success = list_object[0].set_crosssection_properties(section=section, width=w_dia, num_seg=segment_number)
             returned_list.append(list_object)
 
+        number_duplication = 1
         for key in values["Number of Windings"].keys():
             if values["Number of Windings"][key]:
                 number_duplication = int(key)
+
         if number_duplication >= 2:
             if values["Mode"]["Common"] and number_duplication == 2:
                 if isinstance(list_object[0], list):
