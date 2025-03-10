@@ -1050,11 +1050,12 @@ class ModelPlotter(CommonPlotter):
                         field.scalar_name = field._cached_polydata.point_data.active_scalars_name
                         field.is_vector = False
                     field.log = log1
-                else:
+                else:  # Read field data from a file
                     nodes = []
                     values = []
                     is_vector = False
                     with open_file(field.path, "r") as f:
+                        line_no = 1
                         try:
                             lines = f.read().splitlines()[field.header_lines :]
                             if ".csv" in field.path:
@@ -1068,19 +1069,34 @@ class ModelPlotter(CommonPlotter):
                                 # del lines[decimate - 1 :: decimate]
                         except Exception:
                             lines = []
+                            message = "Unable to update mesh because it is\n"
+                            message += "already defined."
+                            pyaedt_logger.warning(message)
+                        line_no = 1
                         for line in lines:
                             tmp = line.strip().split(delimiter)
-                            if len(tmp) < 4:
-                                continue
-                            nodes.append([float(tmp[0]), float(tmp[1]), float(tmp[2])])
-                            if len(tmp) == 6:
+                            if len(tmp) >= 3:
+                                nodes.append([float(tmp[0]), float(tmp[1]), float(tmp[2])])
+                            if len(tmp) == 6:  # Real vector
                                 values.append([float(tmp[3]), float(tmp[4]), float(tmp[5])])
-                                is_vector = True
-                            elif len(tmp) == 9:
-                                values.append([float(tmp[3]), float(tmp[5]), float(tmp[7])])
-                                is_vector = True
-                            else:
+                                is_vector = field.is_vector = True
+                            elif len(tmp) == 9:  # Complex vector as Re_x, Im_x, Re_y, Im_y, Re_z, Im_z
+                                values.append(
+                                    [
+                                        complex(float(tmp[3]), float(tmp[4])),
+                                        complex(float(tmp[5]), float(tmp[6])),
+                                        complex(float(tmp[7]), float(tmp[8])),
+                                    ]
+                                )
+                                is_vector = field.is_vector = True
+                            elif len(tmp) == 4:
                                 values.append(float(tmp[3]))
+                            else:
+                                warning_message = (
+                                    f"Unable to read data on line {line_no} of file '{os.path.basename(field.path)}'."
+                                )
+                                pyaedt_logger.message(warning_message)
+                            line_no += 1
                     if self.convert_fields_in_db:
                         if not isinstance(values[0], list):
                             values = [self.log_multiplier * math.log10(abs(i)) for i in values]
@@ -1094,19 +1110,31 @@ class ModelPlotter(CommonPlotter):
                         vertices = np.array(nodes) * conv
                         filedata = pv.PolyData(vertices)
                         if is_vector:
-                            vector_scale = (max(filedata.bounds) - min(filedata.bounds)) / (
-                                20 * (np.vstack(values).max() - np.vstack(values).min())
+                            field.vector_scale = np.abs(
+                                (max(filedata.bounds) - min(filedata.bounds))
+                                / (20 * (np.vstack(values).max() - np.vstack(values).min()))
                             )
-                            filedata["vectors"] = np.vstack(values) * vector_scale
-                            field.label = "Vector " + field.label
-                            filedata.point_data[field.label] = np.array([np.linalg.norm(x) for x in np.vstack(values)])
-                            field.scalar_name = field._cached_polydata.point_data.active_scalars_name
-                            field.is_vector = True
+                            if type(values[0][0]) == complex:
+                                values_np = np.array(values, dtype=np.complex128)
+                                filedata["real_vector"] = values_np.real
+                                filedata["imag_vector"] = values_np.imag
+                                filedata["vector_mag"] = (
+                                    np.linalg.norm(values_np.real**2 + values_np.imag**2, axis=1) ** 0.5
+                                )
+                                field.scalar_name = "real_vector"
+                            else:
+                                values_np = np.array(values, dtype=np.float64)
+                                filedata["vector_mag"] = values_np
+                                field.scalar_name = "vector_mag"
+                            # vector_scale = (max(filedata.bounds) - min(filedata.bounds)) / (
+                            #    20 * (np.vstack(values).max() - np.vstack(values).min())
+                            # )
+
                         else:
                             filedata = filedata.delaunay_2d(tol=field.surface_mapping_tolerance)
-                            filedata.point_data[field.label] = np.array(values)
-                            field.scalar_name = filedata.point_data.active_scalars_name
-                        field._cached_polydata = filedata
+                            filedata.point_data["magnitude"] = np.array(values)
+                            field.scalar_name = "magnitude"
+                        field._cached_polydata = filedata  # Update field data
 
     @pyaedt_function_handler()
     def _add_buttons(self):
@@ -1245,16 +1273,20 @@ class ModelPlotter(CommonPlotter):
         for field in self._fields:
             sargs["title"] = field.label
             if field.is_vector:
-                field._cached_polydata.set_active_vectors("vectors")
-                field._cached_polydata["vectors"] = field._cached_polydata["vectors"] * field.vector_scale
+                # field._cached_polydata.set_active_vectors(field.scalar_name)  # For complex vectors, real part only.
+                field._cached_polydata[field.scalar_name] *= field.vector_scale
+                field.arrows = field._cached_polydata.glyph(
+                    orient=field.scalar_name, scale=field.scalar_name, factor=0.1
+                )
                 self.pv.add_mesh(
-                    field._cached_polydata.arrows,
-                    scalars=field.scalar_name,
-                    log_scale=False if self.convert_fields_in_db else field.log_scale,
-                    scalar_bar_args=sargs,
+                    field.arrows,  # TODO: There is no "arrows" property for PyVista PolyData
+                    #  scalars=field.scalar_name,
+                    #  log_scale=False if self.convert_fields_in_db else field.log_scale,
+                    #  scalar_bar_args=sargs,
                     cmap=field.color_map,
                 )
-                field._cached_polydata["vectors"] = field._cached_polydata["vectors"] / field.vector_scale
+                field.label = field.scalar_name
+                field._cached_polydata[field.label] = field._cached_polydata[field.label] / field.vector_scale
             elif self.range_max is not None and self.range_min is not None:
                 field._cached_mesh = self.pv.add_mesh(
                     field._cached_polydata,
