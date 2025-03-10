@@ -215,7 +215,11 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
         ----------
         >>> oModule.AssignEMLoss
         """
-        if self.solution_type not in (SOLUTIONS.Mechanical.Thermal, SOLUTIONS.Mechanical.SteadyStateThermal):
+        if self.solution_type not in (
+            SOLUTIONS.Mechanical.Thermal,
+            SOLUTIONS.Mechanical.SteadyStateThermal,
+            SOLUTIONS.Mechanical.TransientThermal,
+        ):
             raise AEDTRuntimeError("This method works only in a Mechanical Thermal analysis.")
 
         if surface_objects is None:
@@ -398,7 +402,11 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
         ----------
         >>> oModule.AssignConvection
         """
-        if self.solution_type not in (SOLUTIONS.Mechanical.Thermal, SOLUTIONS.Mechanical.SteadyStateThermal):
+        if self.solution_type not in (
+            SOLUTIONS.Mechanical.Thermal,
+            SOLUTIONS.Mechanical.SteadyStateThermal,
+            SOLUTIONS.Mechanical.TransientThermal,
+        ):
             raise AEDTRuntimeError("This method works only in a Mechanical Thermal analysis.")
 
         props = {}
@@ -443,7 +451,11 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
         ----------
         >>> oModule.AssignTemperature
         """
-        if self.solution_type not in (SOLUTIONS.Mechanical.Thermal, SOLUTIONS.Mechanical.SteadyStateThermal):
+        if self.solution_type not in (
+            SOLUTIONS.Mechanical.Thermal,
+            SOLUTIONS.Mechanical.SteadyStateThermal,
+            SOLUTIONS.Mechanical.TransientThermal,
+        ):
             raise AEDTRuntimeError("This method works only in a Mechanical Thermal analysis.")
 
         props = {}
@@ -581,7 +593,11 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
         ----------
         >>> oModule.AssignHeatFlux
         """
-        if self.solution_type not in (SOLUTIONS.Mechanical.Thermal, SOLUTIONS.Mechanical.SteadyStateThermal):
+        if self.solution_type not in (
+            SOLUTIONS.Mechanical.Thermal,
+            SOLUTIONS.Mechanical.SteadyStateThermal,
+            SOLUTIONS.Mechanical.TransientThermal,
+        ):
             raise AEDTRuntimeError("This method works only in a Mechanical Thermal analysis.")
 
         props = {}
@@ -624,7 +640,11 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
         ----------
         >>> oModule.AssignHeatGeneration
         """
-        if self.solution_type not in (SOLUTIONS.Mechanical.Thermal, SOLUTIONS.Mechanical.SteadyStateThermal):
+        if self.solution_type not in (
+            SOLUTIONS.Mechanical.Thermal,
+            SOLUTIONS.Mechanical.SteadyStateThermal,
+            SOLUTIONS.Mechanical.TransientThermal,
+        ):
             raise AEDTRuntimeError("This method works only in a Mechanical Thermal analysis.")
 
         props = {}
