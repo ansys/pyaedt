@@ -800,7 +800,7 @@ class Primitives3D(GeometryModeler):
             :class:`ansys.aedt.core.constants.PLANE` Enumerator can be used as input.
         origin : list
             List of ``[x, y, z]`` coordinates for the center point of the circle.
-        radius : float
+        radius : float or str
             Radius of the circle.
         num_sides : int, optional
             Number of sides. The default is ``0``, which is correct for a circle.
@@ -2553,12 +2553,14 @@ class Primitives3D(GeometryModeler):
                                                                         num_seg=segment_number)
             returned_list = returned_list + list_object
         else:
-            success = list_object[0].set_crosssection_properties(type=section, width=w_dia, num_seg=segment_number)
+            success = list_object[0].set_crosssection_properties(section=section, width=w_dia, num_seg=segment_number)
             returned_list.append(list_object)
 
+        number_duplication = 1
         for key in values["Number of Windings"].keys():
             if values["Number of Windings"][key]:
                 number_duplication = int(key)
+
         if number_duplication >= 2:
             if values["Mode"]["Common"] and number_duplication == 2:
                 if isinstance(list_object[0], list):

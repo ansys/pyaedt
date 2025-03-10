@@ -393,7 +393,7 @@ class Analysis(Design, object):
                         val = k.split(" : ")
                         if len(val) == 2 and val[0] == el:
                             sweep_list[el]["Nominal"] = val[1]
-                if "GetSweeps" in dir(self.oanalysis):
+                if self.solution_type != "Eigenmode" and "GetSweeps" in dir(self.oanalysis):
                     try:
                         sweep_list[el]["Sweeps"].extend(list(self.oanalysis.GetSweeps(el)))
                     except Exception:
@@ -2132,7 +2132,7 @@ class Analysis(Design, object):
         else:
             if sweep_name is None:
                 for sol in self.existing_analysis_sweeps:
-                    if setup_name == sol.split(":")[0].strip():
+                    if setup_name == sol.split(":")[0].strip() and ":" in sol:
                         sweep_name = sol.split(":")[1].strip()
                         break
 
