@@ -2553,7 +2553,7 @@ class Primitives3D(GeometryModeler):
                                                                         num_seg=segment_number)
             returned_list = returned_list + list_object
         else:
-            success = list_object[0].set_crosssection_properties(type=section, width=w_dia, num_seg=segment_number)
+            success = list_object[0].set_crosssection_properties(section=section, width=w_dia, num_seg=segment_number)
             returned_list.append(list_object)
 
         for key in values["Number of Windings"].keys():
