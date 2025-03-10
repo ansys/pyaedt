@@ -85,15 +85,21 @@ jobs:
         python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
         target: ['all', 'installer']
     steps:
+      - name: Determine check-licenses flag
+        shell: bash
+        run: echo "CHECK_LICENSES=$([[ '${{ matrix.python-version }}' == '3.8' || '${{ matrix.python-version }}' == '3.9' ]] && echo 'false' || echo 'true')" >> $GITHUB_ENV
+
       - name: Build wheelhouse and perform smoke test
-        uses: ansys/actions/build-wheelhouse@v8
+        uses: ansys/actions/build-wheelhouse@fix/check-licenses-metadata-issue
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
           target: ${{ matrix.target }}
+          check-licenses: ${{ env.CHECK_LICENSES }}
 
       - name: Import python package
+        shell: bash
         run: |
           python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
 
