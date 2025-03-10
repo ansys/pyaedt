@@ -28,9 +28,27 @@ This module contains these classes: `AntennaParameters`, `Fields`, `NearField`, 
 This module provides all functionalities for creating and editing reports.
 
 """
+import warnings
+import csv
+import math
+import os
+
+from ansys.aedt.core.aedt_logger import pyaedt_logger
+from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.visualization.report.common import CommonReport
 from ansys.aedt.core.visualization.report.standard import Standard
+from ansys.aedt.core.generic.file_utils import open_file
+
+try:
+    import pyvista as pv
+
+    pyvista_available = True
+except ImportError:
+    warnings.warn(
+        "The PyVista module is required to run some functionalities of PostProcess.\n"
+        "Install with \n\npip install pyvista"
+    )
 
 
 class AntennaParameters(Standard):
@@ -70,6 +88,7 @@ class AntennaParameters(Standard):
 class Fields(CommonReport):
     """Handler to manage fields."""
 
+    # TODO: Allow Fields instance to be initiated by passing a file name with field data.
     @pyaedt_function_handler(
         app="post_app",
     )
@@ -77,6 +96,8 @@ class Fields(CommonReport):
         CommonReport.__init__(self, post_app, report_category, setup_name, expressions)
         self.domain = "Sweep"
         self.primary_sweep = "Distance"
+        self._polydata = pv.PolyData()  # Use the PyVista PolyData class to save field data.
+        self.path = None
 
     @property
     def point_number(self):
@@ -99,6 +120,110 @@ class Fields(CommonReport):
         if self.polyline:
             ctxt = ["Context:=", self.polyline, "PointCount:=", self.point_number]
         return ctxt
+
+    @pyaedt_function_handler()
+    def read_file(self, filename):  # TODO: Improve checking for file type and validity.
+        if not self.path:
+            self.path = filename
+        else:
+            warnings.warn("Path already defined for this field quantity.")
+        if ".case" in filename:
+            reader = pv.get_reader(os.path.abspath(self.path)).read()
+            self._polydata = reader[reader.keys()[0]].extract_surface()
+
+            if (
+                hasattr(self._polydata.point_data, "active_vectors")
+                and self._polydata.point_data.active_vectors_name
+            ):
+                self.scalar_name = self._polydata.point_data.active_scalars_name
+                vector_scale = (max(self._polydata.bounds) - min(self._polydata.bounds)) / (
+                    10
+                    * (
+                        np.vstack(self._polydata.active_vectors).max()
+                        - np.vstack(self._polydata.active_vectors).min()
+                    )
+                )
+                self._polydata["vectors"] = self._polydata.active_vectors * vector_scale
+
+                self.is_vector = True
+            else:
+                self.scalar_name = self._polydata.point_data.active_scalars_name
+        elif ".aedtplt" in self.path:  # pragma no cover
+            vertices, faces, scalars, log1 = _parse_aedtplt(self.path)
+            if self.convert_fields_in_db:
+                scalars = [np.multiply(np.log10(i), self.log_multiplier) for i in scalars]
+            fields_vals = pv.PolyData(vertices[0], faces[0])
+            self._polydata = fields_vals
+            if isinstance(scalars[0], list):
+                vector_scale = (max(fields_vals.bounds) - min(fields_vals.bounds)) / (
+                    50 * (np.vstack(scalars[0]).max() - np.vstack(scalars[0]).min())
+                )
+
+                self._polydata["vectors"] = np.vstack(scalars).T * vector_scale
+                self.label = "Vector " + self.label
+                self._polydata.point_data[self.label] = np.array(
+                    [np.linalg.norm(x) for x in np.vstack(scalars[0]).T]
+                )
+                try:
+                    self.scalar_name = self._polydata.point_data.active_scalars_name + " Magnitude"
+                    self.is_vector = True
+                except Exception:
+                    self.is_vector = False
+            else:
+                self._polydata.point_data[self.label] = scalars[0]
+                self.scalar_name = self._polydata.point_data.active_scalars_name
+                self.is_vector = False
+            self.log = log1
+        else:
+            nodes = []
+            values = []
+            is_vector = False
+            with open_file(self.path, "r") as f:
+                try:
+                    lines = f.read().splitlines()[self.header_lines :]
+                    if ".csv" in self.path:
+                        sniffer = csv.Sniffer()
+                        delimiter = sniffer.sniff(lines[0]).delimiter
+                    else:
+                        delimiter = " "
+                    if len(lines) > 2000 and not self._is_frame:
+                        lines = list(dict.fromkeys(lines))
+                except Exception:
+                    lines = []
+                for line in lines:
+                    tmp = line.strip().split(delimiter)
+                    if len(tmp) < 4:
+                        continue
+                    nodes.append([float(tmp[0]), float(tmp[1]), float(tmp[2])])
+                    if len(tmp) == 6:
+                        values.append([float(tmp[3]), float(tmp[4]), float(tmp[5])])
+                        is_vector = True
+                    elif len(tmp) == 9:
+                        values.append([float(tmp[3]), float(tmp[5]), float(tmp[7])])
+                        is_vector = True
+                    else:
+                        values.append(float(tmp[3]))
+            if nodes:
+                try:
+                    conv = 1 / AEDT_UNITS["Length"][self.units]
+                except Exception:
+                    conv = 1
+                vertices = np.array(nodes) * conv
+                filedata = pv.PolyData(vertices)
+                if is_vector:
+                    vector_scale = (max(filedata.bounds) - min(filedata.bounds)) / (
+                        20 * (np.vstack(values).max() - np.vstack(values).min())
+                    )
+                    filedata["vectors"] = np.vstack(values) * vector_scale
+                    self.label = "Vector " + self.label
+                    filedata.point_data[self.label] = np.array([np.linalg.norm(x) for x in np.vstack(values)])
+                    self.scalar_name = self._polydata.point_data.active_scalars_name
+                    self.is_vector = True
+                else:
+                    filedata = filedata.delaunay_2d(tol=self.surface_mapping_tolerance)
+                    filedata.point_data[self.label] = np.array(values)
+                    self.scalar_name = filedata.point_data.active_scalars_name
+                self._polydata = filedata
 
 
 class NearField(CommonReport):
