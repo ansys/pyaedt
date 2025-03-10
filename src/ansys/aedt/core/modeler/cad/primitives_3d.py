@@ -800,7 +800,7 @@ class Primitives3D(GeometryModeler):
             :class:`ansys.aedt.core.constants.PLANE` Enumerator can be used as input.
         origin : list
             List of ``[x, y, z]`` coordinates for the center point of the circle.
-        radius : float
+        radius : float or str
             Radius of the circle.
         num_sides : int, optional
             Number of sides. The default is ``0``, which is correct for a circle.
