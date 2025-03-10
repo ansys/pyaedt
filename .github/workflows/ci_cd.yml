@@ -17,8 +17,6 @@ env:
   PACKAGE_NAME: 'PyAEDT'
   DOCUMENTATION_CNAME: 'aedt.docs.pyansys.com'
   ON_CI: True
-  http_proxy: ''
-  no_proxy: 'localhost,127.0.0.1'
   PYTEST_ARGUMENTS: '-vvv --color=yes -ra --durations=25 --maxfail=10 --cov=ansys.aedt.core --cov-report=html --cov-report=xml --junitxml=junit/test-results.xml'
 
 concurrency:
