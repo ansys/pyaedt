@@ -36,8 +36,8 @@ from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.data_handlers import random_string
 from ansys.aedt.core.generic.errors import AEDTRuntimeError
-from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.generic.settings import settings
@@ -225,7 +225,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
             List of all analysis setups in the design.
 
         """
-        setup_list = self.existing_analysis_setups
+        setup_list = self.setup_names
         sweep_list = []
         s_type = self.solution_type
         for el in setup_list:
@@ -306,7 +306,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Parameters
         ----------
-        air_faces : list
+        air_faces : list or :class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`
             List of face names.
 
         Returns

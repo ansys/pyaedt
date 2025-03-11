@@ -33,7 +33,7 @@ from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.constants import unit_system
 
 
-class Quantity:
+class Quantity(float):
     """Stores a number with its unit.
 
     Parameters
@@ -44,25 +44,33 @@ class Quantity:
         Units for the value.
     """
 
+    def __new__(cls, expression, unit=None):
+        _value, _unit = decompose_variable_value(expression)
+        return float.__new__(cls, _value)
+
     def __init__(
         self,
         expression,
         unit=None,
     ):
         self._unit = ""
-        if unit in AEDT_UNITS:
-            self._unit_system = unit
-            self._unit = list(AEDT_UNITS[unit].keys())[0]
+        self._unit_system = None
+        if unit:
+            if unit in AEDT_UNITS:
+                self._unit_system = unit
+                self._unit = list(AEDT_UNITS[unit].keys())[0]
+            else:
+                self._parse_units(unit)
+        if is_number(expression):
+            self._value = float(expression)
         else:
-            self._parse_units(unit)
-
-        self._value, _unit = decompose_variable_value(expression)
-        if _unit:
-            self._parse_units(_unit)
+            self._value, _unit = decompose_variable_value(expression)
+            if _unit:
+                self._parse_units(_unit)
 
     def to(self, unit):
         """Convert the actual number to new unit."""
-        if unit in AEDT_UNITS[self.unit_system]:
+        if self.unit_system and unit in AEDT_UNITS[self.unit_system]:
             new_value = unit_converter(
                 self.value, unit_system=self.unit_system, input_units=self._unit, output_units=unit
             )
@@ -78,8 +86,12 @@ class Quantity:
     def _parse_units(self, unit):
         if unit:
             self._unit_system = unit_system(unit)
+            if self._unit_system == "None":
+                self._unit_system = None
             if unit.lower() in self._units_lower:
                 self._unit = list(AEDT_UNITS[self._unit_system].keys())[self._units_lower.index(unit.lower())]
+            elif not self._unit_system:
+                self._unit = unit
 
     @property
     def expression(self):
@@ -142,57 +154,81 @@ class Quantity:
         return "%.16g" % self.value + self.unit
 
     def __str__(self):
-        return "%.16g" % self.value + self.unit
+        if self.value == int(self.value):
+            return "%.16g" % self.value + self.unit
+        return self.expression
 
     def __add__(self, other):
         if isinstance(other, Quantity):
-            if self.unit == other.unit:
-                return Quantity(self.value + other.value, self.unit)
-            else:
+            if self.unit == other.unit or self.unit == "" or other.unit == "":
+                return Quantity(self.value + other.value, self.unit if self.unit else other.unit)
+            elif other.unit_system == self.unit_system:
                 new_other = other.to(self.unit)
                 return Quantity(self.value + new_other.value, self.unit)
+            else:
+                raise ValueError("Cannot add quantities with different units")
         elif isinstance(other, str):
             other = Quantity(other)
             if other.unit_system == self.unit_system:
                 new_other = other.to(self.unit)
                 return Quantity(self.value + new_other.value, self.unit)
-        elif isinstance(other, (int, float)):
-            return Quantity(self.value + other, self.unit)
         else:
-            raise TypeError("Unsupported type for addition")
+            try:
+                return Quantity(self.value + other, self.unit)
+            except Exception:
+                raise TypeError("Unsupported type for addition")
 
     def __sub__(self, other):
         if isinstance(other, Quantity):
-            if self.unit == other.unit:
-                return Quantity(self.value - other.value, self.unit)
-            else:
+            if self.unit == other.unit or self.unit == "" or other.unit == "":
+                return Quantity(self.value - other.value, self.unit if self.unit else other.unit)
+            elif self.unit == other.unit:
                 new_other = other.to(self.unit)
-                return Quantity(self.value + new_other.value, self.unit)
+                return Quantity(self.value - new_other.value, self.unit)
+            else:
+                raise ValueError("Cannot subtract quantities with different units")
         elif isinstance(other, str):
             other = Quantity(other)
             if other.unit_system == self.unit_system:
                 new_other = other.to(self.unit)
-                return Quantity(self.value + new_other.value, self.unit)
-        elif isinstance(other, (int, float)):
-            return Quantity(self.value - other, self.unit)
+                return Quantity(self.value - new_other.value, self.unit)
+            else:
+                raise ValueError("Cannot subtract quantities with different units")
         else:
-            raise TypeError("Unsupported type for subtraction")
+            try:
+                return Quantity(self.value - other, self.unit)
+            except Exception:
+                raise TypeError("Unsupported type for subtraction")
 
     def __mul__(self, other):
-        if isinstance(other, (int, float)):
-            return Quantity(self.value * other, self.unit)
+        if isinstance(other, Quantity) and (other.unit == "" or self.unit == ""):
+            return Quantity(self.value * other, self.unit if self.unit else other.unit)
+        elif isinstance(other, Quantity):
+            return Quantity(self.value * other.value, "")
         else:
-            raise TypeError("Unsupported type for multiplication")
+            try:
+                return Quantity(self.value * other, self.unit)
+            except Exception:
+                raise TypeError("Unsupported type for multiplication")
 
     def __truediv__(self, other):
-        if isinstance(other, (int, float)):
-            return Quantity(self.value / other, self.unit)
+        if isinstance(other, Quantity) and (other.unit == "" or self.unit == ""):
+            return Quantity(self.value / other, self.unit if self.unit else other.unit)
+        elif isinstance(other, Quantity):
+            return Quantity(self.value / other.value, "")
         else:
-            raise TypeError("Unsupported type for division")
+            try:
+                return Quantity(self.value / other, self.unit)
+            except Exception:
+                raise TypeError("Unsupported type for division")
 
     def __eq__(self, other):
         if isinstance(other, Quantity):
-            return self.value == other.value and self.unit == other.unit
+            if self.unit == other.unit or self.unit_system is None or other.unit_system is None:
+                return self.value == other.value
+            elif other.unit_system == self.unit_system:
+                new_other = other.to(self.unit)
+                return self.value == new_other.value
         elif isinstance(other, (int, float)):
             return self.value == other
         else:
@@ -203,8 +239,11 @@ class Quantity:
 
     def __lt__(self, other):
         if isinstance(other, Quantity):
-            if self.unit == other.unit:
+            if self.unit == other.unit or self.unit_system is None or other.unit_system is None:
                 return self.value < other.value
+            elif other.unit_system == self.unit_system:
+                new_other = other.to(self.unit)
+                return self.value < new_other.value
             else:
                 raise ValueError("Cannot compare numbers with different units")
         elif isinstance(other, (int, float)):
@@ -226,6 +265,89 @@ class Quantity:
 
     def __int__(self):
         return int(self.value)
+
+    def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):  # pragma: no cover
+        import numpy as np
+        import pandas as pd
+
+        # Extract the Quantity objects and their values
+        args = []
+        first_unit = None
+        for input_quantity in inputs:
+            if isinstance(input_quantity, Quantity):
+                if not first_unit:
+                    first_unit = input_quantity.unit
+                else:
+                    input_quantity = input_quantity.to(first_unit)
+                args.append(input_quantity.value)
+            elif isinstance(input_quantity, pd.Series) and isinstance(input_quantity.iloc[0], Quantity):
+                if not first_unit:
+                    first_unit = input_quantity.iloc[0].unit
+                args.append(input_quantity.apply(lambda x: x.to(first_unit).value))
+            else:
+                args.append(input_quantity)
+
+        # Perform the ufunc operation
+        result = getattr(ufunc, method)(*args, **kwargs)
+
+        # If the result is a scalar, return a Quantity object
+        if np.isscalar(result):
+            return Quantity(result, self.unit)
+        else:
+            # If the result is an array, return an array of Quantity objects
+            return np.array([Quantity(val, self.unit) for val in result])
+
+    def __array__(self, dtype=None):  # pragma: no cover
+        import numpy as np
+
+        return np.array(self.value, dtype=dtype)
+
+    def sqrt(self):
+        """Square root of the value."""
+        return Quantity(self.value**0.5, self.unit)
+
+    def log10(self):
+        """Square root of the value."""
+        import numpy as np
+
+        return Quantity(np.log10(self.value), self.unit)
+
+    def sin(self):
+        """Square root of the value."""
+        import numpy as np
+
+        return Quantity(np.sin(self.value), self.unit)
+
+    def cos(self):
+        """Square root of the value."""
+        import numpy as np
+
+        return Quantity(np.cos(self.value), self.unit)
+
+    def arcsin(self):
+        """Square root of the value."""
+        import numpy as np
+
+        return Quantity(np.arcsin(self.value), self.unit)
+
+    def arccos(self):
+        """Square root of the value."""
+        import numpy as np
+
+        return Quantity(np.arccos(self.value), self.unit)
+
+    def tan(self):
+        import numpy as np
+
+        return Quantity(np.tan(self.value), self.unit)
+
+    def arctan2(self, other):
+        import numpy as np
+
+        return Quantity(np.arctan2(self.value, other), self.unit)
+
+    def __reduce__(self):
+        return self.__class__, (self.expression, self.unit)
 
 
 def decompose_variable_value(variable_value: str, full_variables: Dict[str, Any] = None) -> tuple:
@@ -274,7 +396,7 @@ def decompose_variable_value(variable_value: str, full_variables: Dict[str, Any]
     return float_value, units
 
 
-def isclose(a: float, b: float, relative_tolerance: float = 1e-9, absolute_tolerance: float = 0.0) -> bool:
+def is_close(a: float, b: float, relative_tolerance: float = 1e-9, absolute_tolerance: float = 0.0) -> bool:
     """Whether two numbers are close to each other given relative and absolute tolerances.
 
     Parameters

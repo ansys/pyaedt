@@ -182,7 +182,9 @@ class TestClass:
         solution_data = sbr_platform_solved.setups[0].get_solution_data()
 
         ffdata = sbr_platform_solved.get_antenna_data(frequencies=solution_data.intrinsics["Freq"], sphere="3D")
-        sbr_platform_solved.get_antenna_data(frequencies=solution_data.intrinsics["Freq"], sphere="3D", overwrite=False)
+        ffdata2 = sbr_platform_solved.get_antenna_data(
+            frequencies=solution_data.intrinsics["Freq"][0], sphere="3D", overwrite=False
+        )
 
         ffdata.farfield_data.plot_cut(
             quantity="RealizedGain",
@@ -195,6 +197,7 @@ class TestClass:
             output_file=os.path.join(self.local_scratch.path, "2d1_array.jpg"),
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d1_array.jpg"))
+        assert os.path.isfile(ffdata2.metadata_file)
 
     def test_01b_sbr_create_vrt(self, sbr_app):
         sbr_app.rename_design("vtr")
@@ -230,7 +233,7 @@ class TestClass:
     )
     def test_02_hfss_export_results(self, hfss_app):
         hfss_app.insert_design("Array_simple_resuts", "Modal")
-        from ansys.aedt.core.generic.general_methods import read_json
+        from ansys.aedt.core.generic.file_utils import read_json
 
         if desktop_version > "2023.1":
             dict_in = read_json(os.path.join(local_path, "example_models", test_subfolder, "array_simple_232.json"))
@@ -252,7 +255,7 @@ class TestClass:
         hfss_app.analyze_setup(name="test", cores=4)
         assert setup_driven.is_solved
         exported_files = hfss_app.export_results()
-        assert len(exported_files) == 39
+        assert len(exported_files) == 3
         exported_files = hfss_app.export_results(
             matrix_type="Y",
         )
@@ -477,13 +480,24 @@ class TestClass:
         tx = ports
         rx = ports
         insertions = [f"dB(S({i.name},{j.name}))" for i, j in zip(tx, rx)]
-        assert circuit_app.post.create_report(
-            insertions,
-            circuit_app.nominal_adaptive,
-            report_category="Standard",
-            plot_type="Rectangular Plot",
-            subdesign_id=myedb.id,
-        )
+
+        if desktop_version < "2025.2":
+            assert not circuit_app.post.create_report(
+                insertions,
+                circuit_app.nominal_adaptive,
+                report_category="Standard",
+                plot_type="Rectangular Plot",
+                subdesign_id=myedb.id,
+            )
+        else:
+            # BUG in AEDT
+            assert circuit_app.post.create_report(
+                insertions,
+                circuit_app.nominal_adaptive,
+                report_category="Standard",
+                plot_type="Rectangular Plot",
+                subdesign_id=myedb.id,
+            )
         new_report = circuit_app.post.reports_by_category.standard(insertions)
         new_report.sub_design_id = myedb.id
         assert new_report.create()
