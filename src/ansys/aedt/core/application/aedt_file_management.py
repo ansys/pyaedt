@@ -119,15 +119,15 @@ def create_output_folder(input_dir: Union[str, Path]) -> tuple:
     return str(picture_path), str(results_path)
 
 
-@pyaedt_function_handler()
-def change_objects_visibility(origfile, solid_list):
+@pyaedt_function_handler(origfile="input_file", solid_list="assignment")
+def change_objects_visibility(input_file: Union[str, Path], assignment: list) -> bool:
     """Edit the project file to make only the solids that are specified visible.
 
     Parameters
     ----------
-    origfile : str
+    input_file : str or :class:`pathlib.Path`
         Full path to the project file, which has an ``.aedt`` extension.
-    solid_list : list
+    assignment : list
         List of names for the solid to make visible. All other solids are hidden.
 
     Returns
@@ -135,13 +135,13 @@ def change_objects_visibility(origfile, solid_list):
     bool
         ``True`` when successful, ``False`` when failed.
     """
-    path, filename = os.path.split(origfile)
-    newfile = os.path.join(path, "aedttmp.tmp")
+    path = Path(input_file).parent
+    newfile = path / "aedttmp.tmp"
 
-    if not os.path.isfile(origfile + ".lock"):  # check if the project is closed
+    if not (Path(input_file).with_suffix(".lock")).is_file():  # check if the project is closed
         try:
             # Using text mode with explicit encoding instead of binary mode.
-            with open(origfile, "rb") as f, open(newfile, "wb") as n:
+            with open(input_file, "rb") as f, open(newfile, "wb") as n:
                 # Reading file content
                 content = f.read()
 
@@ -151,23 +151,23 @@ def change_objects_visibility(origfile, solid_list):
                 )
                 # Replacing string
                 # fmt: off
-                view_str = u"Drawings[" + str(len(solid_list)) + u": " + str(solid_list).strip("[")
+                view_str = u"Drawings[" + str(len(assignment)) + u": " + str(assignment).strip("[")
                 s = pattern.sub(r"\1" + view_str + r"\3", content)
                 # fmt: on
                 # Writing file content
                 n.write(s)
             # Renaming files and deleting temporary file
-            os.remove(origfile)
-            os.rename(newfile, origfile)
+            Path(input_file).unlink()
+            newfile.rename(input_file)
             return True
         except Exception as e:
             # Cleanup temporary file if exists.
-            if os.path.exists(newfile):
-                os.remove(newfile)
+            if newfile.exists():
+                newfile.unlink()
             logging.error("change_objects_visibility: Error encountered - %s", e)
             return False
     else:  # project is locked
-        logging.error("change_objects_visibility: Project %s is still locked.", origfile)
+        logging.error("change_objects_visibility: Project %s is still locked.", str(input_file))
         return False
 
 
