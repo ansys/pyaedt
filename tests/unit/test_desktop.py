@@ -85,16 +85,14 @@ def test_get_available_toolkits():
 def test_desktop_odesktop_retries(mock_settings, mock_sleep, mock_desktop):
     """Test Desktop.odesktop property retries to get the odesktop object."""
     desktop = Desktop()
-    aedt_app = MagicMock()
     desktop.grpc_plugin = MagicMock()
+    aedt_app = MagicMock()
     mock_odesktop = PropertyMock(name="oui", side_effect=[Exception("Failure"), aedt_app])
     # NOTE: Use of type(...) is required for odesktop to be defined as a property and
     # not an attribute. Without it, the side effect does not work.
     type(desktop.grpc_plugin).odesktop = mock_odesktop
 
-    res = desktop.odesktop
-
-    assert aedt_app == res
+    assert aedt_app == desktop.odesktop
     assert mock_odesktop.call_count == 2
 
 
