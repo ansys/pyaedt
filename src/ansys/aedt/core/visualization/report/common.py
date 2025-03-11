@@ -641,7 +641,7 @@ class CommonReport(BinaryTreeNode):
         except Exception:
             return _traces
         for el in oo_names:
-            if "Families" not in oo.GetChildObject(el).GetPropNames():
+            if {"Families", "Source"}.isdisjoint(set(oo.GetChildObject(el).GetPropNames())):
                 continue
             try:
                 oo1 = oo.GetChildObject(el)

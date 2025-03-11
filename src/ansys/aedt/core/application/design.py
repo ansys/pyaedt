@@ -34,6 +34,7 @@ from abc import abstractmethod
 import gc
 import json
 import os
+from pathlib import Path
 import random
 import re
 import shutil
@@ -3189,7 +3190,7 @@ class Design(AedtObjects):
 
         Parameters
         ----------
-        directory : str, optionl
+        directory : str or :class:`pathlib.Path`, optional
             Name of the directory. The default is ``None``, in which case the active project is
             deleted from the ``aedtresults`` directory.
         name : str, optional
@@ -3202,15 +3203,17 @@ class Design(AedtObjects):
             ``True`` when successful, ``False`` when failed.
 
         """
-        if not name:
+        if name is None:
             name = self.project_name
-        if not directory:
+        if directory is None:
             directory = self.results_directory
         self.logger.info("Cleanup folder %s from project %s", directory, name)
-        if os.path.exists(directory):
-            shutil.rmtree(directory, True)
-            if not os.path.exists(directory):
-                os.makedirs(directory)
+
+        input_dir_path = Path(directory)
+        if input_dir_path.exists():
+            shutil.rmtree(input_dir_path, True)
+            if not input_dir_path.exists():
+                input_dir_path.mkdir()
         self.logger.info("Project Directory cleaned")
         return True
 
