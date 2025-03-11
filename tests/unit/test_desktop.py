@@ -35,12 +35,11 @@ from ansys.aedt.core.generic.settings import Settings
 import pytest
 
 
-@pytest.fixture
+@pytest.fixture(scope="module", autouse=True)
 def mock_desktop():
     """Fixture used to mock the creation of a Desktop instance."""
     with patch("ansys.aedt.core.desktop.Desktop.__init__", lambda x: None):
-        mock_instance = MagicMock(spec=Desktop)
-        yield mock_instance
+        yield
 
 
 # Test _is_port_occupied
@@ -82,7 +81,7 @@ def test_get_available_toolkits():
 
 @patch.object(Settings, "use_grpc_api", new_callable=lambda: True)
 @patch("time.sleep", return_value=None)
-def test_desktop_odesktop_retries(mock_settings, mock_sleep, mock_desktop):
+def test_desktop_odesktop_retries(mock_settings, mock_sleep):
     """Test Desktop.odesktop property retries to get the odesktop object."""
     desktop = Desktop()
     desktop.grpc_plugin = MagicMock()
@@ -96,7 +95,7 @@ def test_desktop_odesktop_retries(mock_settings, mock_sleep, mock_desktop):
     assert mock_odesktop.call_count == 2
 
 
-def test_desktop_odesktop_setter(mock_desktop):
+def test_desktop_odesktop_setter():
     """Test Desktop.odesktop property retries to get the odesktop object."""
     desktop = Desktop()
     aedt_app = MagicMock()
