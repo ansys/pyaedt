@@ -32,8 +32,10 @@ from ansys.aedt.core.desktop import _find_free_port
 from ansys.aedt.core.desktop import _is_port_occupied
 from ansys.aedt.core.desktop import run_process
 from ansys.aedt.core.generic.settings import Settings
+import pytest
 
 
+@pytest.fixture
 def mock_desktop():
     """Fixture used to mock the creation of a Desktop instance."""
     with patch("ansys.aedt.core.desktop.Desktop.__init__", lambda x: None):
