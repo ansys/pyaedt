@@ -263,8 +263,12 @@ class TestClass:
             is_vector=True,
             intrinsics="5GHz",
         )
-        assert os.path.exists(file_path)
+        from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 
+        assert os.path.exists(file_path)
+        model_pv = ModelPlotter()
+        model_pv.add_field_from_file(file_path)
+        assert model_pv.plot(show=True)
         file_path = aedtapp.post.export_field_file_on_grid(
             "E",
             "Setup1 : LastAdaptive",

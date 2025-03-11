@@ -1075,8 +1075,10 @@ class ModelPlotter(CommonPlotter):
                         line_no = 1
                         for line in lines:
                             tmp = line.strip().split(delimiter)
-                            if len(tmp) >= 3:
-                                nodes.append([float(tmp[0]), float(tmp[1]), float(tmp[2])])
+                            tmp = [i for i in tmp if i and i.lower() != "nan"]
+                            if len(tmp) not in [6, 9, 4]:
+                                continue
+                            nodes.append([float(tmp[0]), float(tmp[1]), float(tmp[2])])
                             if len(tmp) == 6:  # Real vector
                                 values.append([float(tmp[3]), float(tmp[4]), float(tmp[5])])
                                 is_vector = field.is_vector = True
@@ -1095,7 +1097,7 @@ class ModelPlotter(CommonPlotter):
                                 warning_message = (
                                     f"Unable to read data on line {line_no} of file '{os.path.basename(field.path)}'."
                                 )
-                                pyaedt_logger.message(warning_message)
+                                pyaedt_logger.warning(warning_message)
                             line_no += 1
                     if self.convert_fields_in_db:
                         if not isinstance(values[0], list):
@@ -1275,14 +1277,14 @@ class ModelPlotter(CommonPlotter):
             if field.is_vector:
                 # field._cached_polydata.set_active_vectors(field.scalar_name)  # For complex vectors, real part only.
                 field._cached_polydata[field.scalar_name] *= field.vector_scale
-                field.arrows = field._cached_polydata.glyph(
-                    orient=field.scalar_name, scale=field.scalar_name, factor=0.1
-                )
+                if not field._cached_polydata.arrows:
+                    field.arrows = field._cached_polydata.glyph(
+                        orient=field.scalar_name, scale=field.scalar_name, factor=1
+                    )
+                else:
+                    field.arrows = field._cached_polydata.arrows
                 self.pv.add_mesh(
-                    field.arrows,  # TODO: There is no "arrows" property for PyVista PolyData
-                    #  scalars=field.scalar_name,
-                    #  log_scale=False if self.convert_fields_in_db else field.log_scale,
-                    #  scalar_bar_args=sargs,
+                    field.arrows,
                     cmap=field.color_map,
                 )
                 field.label = field.scalar_name
