@@ -176,7 +176,8 @@ class Design(AedtObjects):
         self._project_path: Optional[str] = None
         self.__t: Optional[threading.Thread] = None
         if (
-            project_name
+            is_windows
+            and project_name
             and os.path.exists(project_name)
             and (os.path.splitext(project_name)[1] == ".aedt" or os.path.splitext(project_name)[1] == ".a3dcomp")
         ):
@@ -238,7 +239,7 @@ class Design(AedtObjects):
         self._logger.odesign = self.odesign
         AedtObjects.__init__(self, self._desktop_class, self.oproject, self.odesign, is_inherithed=True)
         self.logger.info("Aedt Objects correctly read")
-        if not self.__t and not settings.lazy_load and os.path.exists(self.project_file):
+        if is_windows and not self.__t and not settings.lazy_load and os.path.exists(self.project_file):
             self.__t = threading.Thread(target=load_aedt_thread, args=(self.project_file,), daemon=True)
             self.__t.start()
 
@@ -1125,8 +1126,11 @@ class Design(AedtObjects):
                     elif self._temp_solution_type in des.GetSolutionType():
                         valids.append(name)
             if len(valids) > 1:
-                des_name = self.oproject.GetActiveDesign().GetName()
-                if des_name in valids:
+                try:
+                    des_name = self.oproject.GetActiveDesign().GetName()
+                except Exception:
+                    des_name = None
+                if des_name and des_name in valids:
                     activedes = self.oproject.GetActiveDesign().GetName()
                 else:
                     activedes = valids[0]
@@ -1243,7 +1247,8 @@ class Design(AedtObjects):
                     path = os.path.dirname(proj_name)
                     self.odesktop.RestoreProjectArchive(proj_name, os.path.join(path, name), True, True)
                     time.sleep(0.5)
-                    self._oproject = self.desktop_class.active_project()
+                    proj_name = name[:-5]
+                    self._oproject = self.desktop_class.active_project(proj_name)
                     self._add_handler()
                     self.logger.info(f"Archive {proj_name} has been restored to project {self._oproject.GetName()}")
                 elif ".def" in proj_name or proj_name[-5:] == ".aedb":
