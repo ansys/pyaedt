@@ -948,14 +948,15 @@ def available_license_feature(
             port = name_env[0]
             name = name_env[1]
 
-    if not input_dir and aedt_versions.latest_version:
-        input_dir = Path(aedt_versions.installed_versions[aedt_versions.latest_version])
-    elif not input_dir:
+    if not input_dir and aedt_versions.current_version:
         input_dir = Path(aedt_versions.installed_versions[aedt_versions.current_version])
+    elif not input_dir:
+        input_dir = Path(aedt_versions.installed_versions[aedt_versions.latest_version])
     else:
         input_dir = Path(input_dir)
 
-    # The licensing client location has changed in the Windows 25R2 AEDT installation.
+    # Checks if the licensingclient folder exists in input_dir. In V252, the folder was moved up one level,
+    # so input_dir is updated accordingly before generating ansys_util_path.
     if not check_if_path_exists(os.path.join(input_dir, "licensingclient")):
         input_dir = Path(os.path.dirname(input_dir))
 
