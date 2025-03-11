@@ -4230,7 +4230,8 @@ class Design(AedtObjects):
         self.odesign.EditNotes(text)
         return True
 
-    def __init_desktop_from_design(*args, **kwargs):
+    @classmethod
+    def __init_desktop_from_design(cls, *args, **kwargs):
         """Internal instantiation of the ``Desktop`` class."""
         Desktop._invoked_from_design = True
         return Desktop(*args, **kwargs)
