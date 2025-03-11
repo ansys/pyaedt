@@ -30,6 +30,7 @@ import shutil
 from typing import Union
 import warnings
 
+from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.generic.file_utils import read_csv
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
@@ -141,31 +142,32 @@ def change_objects_visibility(input_file: Union[str, Path], assignment: list) ->
     if not (Path(input_file).with_suffix(".lock")).is_file():  # check if the project is closed
         try:
             # Using text mode with explicit encoding instead of binary mode.
-            with open(input_file, "rb") as f, open(newfile, "wb") as n:
+            with open(str(input_file), "rb") as f, open(str(newfile), "wb") as n:
                 # Reading file content
                 content = f.read()
 
                 # Searching file content for pattern
                 pattern = re.compile(
-                    r"(\$begin 'EditorWindow'\n.+)(Drawings\[.+\])(.+\n\s*\$end 'EditorWindow')", re.UNICODE | re.DOTALL
+                    r"(\$begin 'EditorWindow'\n.+)(Drawings\[.+\])(.+\n\s*\$end 'EditorWindow')", re.UNICODE
                 )
                 # Replacing string
                 # fmt: off
                 view_str = u"Drawings[" + str(len(assignment)) + u": " + str(assignment).strip("[")
                 s = pattern.sub(r"\1" + view_str + r"\3", content)
                 # fmt: on
-                # Writing file content
-                n.write(s)
+                # writing file content
+                n.write(str(s))
+
             # Renaming files and deleting temporary file
             Path(input_file).unlink()
             newfile.rename(input_file)
             return True
-        except Exception as e:
+        except Exception:
             # Cleanup temporary file if exists.
             if newfile.exists():
                 newfile.unlink()
-            logging.error("change_objects_visibility: Error encountered - %s", e)
-            return False
+            raise AEDTRuntimeError("Failed to restrict visibility to specified solids.")
+
     else:  # project is locked
         logging.error("change_objects_visibility: Project %s is still locked.", str(input_file))
         return False
