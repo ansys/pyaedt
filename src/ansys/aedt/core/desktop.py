@@ -694,6 +694,11 @@ class Desktop(object):
             return self.installed_versions[version_key + "CL"]
 
     @property
+    def logger(self):
+        """AEDT logger."""
+        return self._logger
+
+    @property
     def odesktop(self):
         """AEDT instance containing all projects and designs.
 
@@ -719,6 +724,71 @@ class Desktop(object):
     @odesktop.setter
     def odesktop(self, val):
         self._odesktop = val
+
+    @property
+    def messenger(self):
+        """Messenger manager for the AEDT logger."""
+        return pyaedt_logger
+
+    @property
+    def personallib(self):
+        """PersonalLib directory.
+
+        Returns
+        -------
+        str
+            Full absolute path for the ``PersonalLib`` directory.
+
+        """
+        return self.odesktop.GetPersonalLibDirectory()
+
+    @property
+    def src_dir(self):
+        """Python source directory.
+
+        Returns
+        -------
+        str
+            Full absolute path for the ``python`` directory.
+
+        """
+        return Path(__file__)
+
+    @property
+    def syslib(self):
+        """SysLib directory.
+
+        Returns
+        -------
+        str
+            Full absolute path for the ``SysLib`` directory.
+
+        """
+        return self.odesktop.GetLibraryDirectory()
+
+    @property
+    def pyaedt_dir(self):
+        """PyAEDT directory.
+
+        Returns
+        -------
+        str
+           Full absolute path for the ``pyaedt`` directory.
+
+        """
+        return Path(__file__).parent
+
+    @property
+    def userlib(self):
+        """UserLib directory.
+
+        Returns
+        -------
+        str
+            Full absolute path for the ``UserLib`` directory.
+
+        """
+        return self.odesktop.GetUserLibDirectory()
 
     # ############################################ #
     #                Public methods                #
