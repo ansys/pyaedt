@@ -21,6 +21,9 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
+import re
+
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
@@ -50,6 +53,9 @@ def _get_data_model(child_object, level=-1):
                 p_out[p] = val
 
     input_str = child_object.GetDataModel(level, 1, 1)
+    if input_str:
+        input_str = re.sub(r'("value":\s*)(-?inf)(?=[,}])', r"\1null", input_str)
+
     props_list = json.loads(input_str)
     props = {}
     _fix_dict(props_list, props)
