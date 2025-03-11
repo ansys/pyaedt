@@ -25,8 +25,6 @@
 from ansys.aedt.core.application.aedt_file_management import change_model_orientation
 from ansys.aedt.core.application.aedt_file_management import change_objects_visibility
 from ansys.aedt.core.application.aedt_file_management import create_output_folder
-from ansys.aedt.core.generic.errors import AEDTRuntimeError
-import pytest
 
 
 def test_create_output_folder(tmp_path):
@@ -50,9 +48,7 @@ def test_create_output_folder(tmp_path):
     assert expected_results.is_dir()
 
 
-def test_change_objects_visibility_failure(tmp_path):
-    # Create a temporary AEDT file with content that matches the expected format.
-    # (This test expects failure due to the bytes/string mismatch in regex substitution.)
+def test_change_objects_visibility(tmp_path):
     content = (
         "$begin 'EditorWindow'\n"
         "Header info\n"
@@ -63,16 +59,14 @@ def test_change_objects_visibility_failure(tmp_path):
     origfile = tmp_path / "project.aedt"
     origfile.write_text(content, encoding="utf-8")
 
-    # Ensure that no lock file exists.
-    lock_file = tmp_path / "project.aedt.lock"
-    if lock_file.exists():
-        lock_file.unlink()
+    solid_list = ["Polyline1"]
+    result = change_objects_visibility(origfile, solid_list)
 
-    solid_list = ["solid1", "solid2"]
-    with pytest.raises(AEDTRuntimeError, match="Failed to restrict visibility to specified solids."):
-        change_objects_visibility(origfile, solid_list)
-    # Since the regex is applied on bytes, an error occurs and the function returns False.
-    assert result is False
+    assert result is True
+
+    updated_content = origfile.read_text(encoding="utf-8")
+    expected_pattern = r"Drawings\[1: 'Polyline1'\]"
+    assert re.search(expected_pattern, updated_content) is not None
 
 
 def test_change_model_orientation_failure(tmp_path):

@@ -145,30 +145,25 @@ def change_objects_visibility(input_file: Union[str, Path], assignment: list) ->
             with open(str(input_file), "rb") as f, open(str(newfile), "wb") as n:
                 # Reading file content
                 content = f.read()
-
                 # Searching file content for pattern
-                pattern = re.compile(
-                    r"(\$begin 'EditorWindow'\n.+)(Drawings\[.+\])(.+\n\s*\$end 'EditorWindow')", re.UNICODE
-                )
+                search_str = r"(\$begin 'EditorWindow'\n.+)(Drawings\[.+\])(.+\n\s*\$end 'EditorWindow')"
                 # Replacing string
-                # fmt: off
-                view_str = u"Drawings[" + str(len(assignment)) + u": " + str(assignment).strip("[")
-                s = pattern.sub(r"\1" + view_str + r"\3", content)
-                # fmt: on
-                # writing file content
-                n.write(str(s))
-
+                view_str = "Drawings[" + str(len(assignment)) + ": " + str(assignment).strip("[")
+                sub_str = r"\1" + view_str + r"\3"
+                s = re.sub(search_str.encode("utf-8"), sub_str.encode("utf-8"), content)
+                # Writing file content
+                n.write(s)
             # Renaming files and deleting temporary file
             Path(input_file).unlink()
             newfile.rename(input_file)
             return True
         except Exception:
             # Cleanup temporary file if exists.
-            if newfile.exists():
+            if newfile.exists():  # pragma: no cover
                 newfile.unlink()
             raise AEDTRuntimeError("Failed to restrict visibility to specified solids.")
 
-    else:  # project is locked
+    else:  # pragma: no cover
         logging.error("change_objects_visibility: Project %s is still locked.", str(input_file))
         return False
 
@@ -179,7 +174,7 @@ def change_model_orientation(origfile, bottom_dir):
 
     Parameters
     ----------
-    origfile : str
+    origfile : str or :class:`pathlib.Path`
         Full path to the project file, which has an ``.aedt`` extension.
     bottom_dir : str
         Bottom direction as specified in the properties file.
