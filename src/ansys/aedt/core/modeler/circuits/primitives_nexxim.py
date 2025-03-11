@@ -1618,14 +1618,14 @@ class NexximComponents(CircuitComponents):
             Name of the subcircuit HFSS link.
         pin_names : list
             List of the pin names.
-        source_project_path : str or Path
+        source_project_path : str or :class:`pathlib.Path`
             Path to the source project.
         source_design_name : str
             Name of the design.
         solution_name : str, optional
             Name of the solution and sweep. The
             default is ``"Setup1 : Sweep"``.
-        image_subcircuit_path : str or Path or None
+        image_subcircuit_path : str, :class:`pathlib.Path` or None
             Path of the Picture used in Circuit.
             Default is an HFSS Picture exported automatically.
         model_type : str, optional
@@ -1902,7 +1902,7 @@ class NexximComponents(CircuitComponents):
 
         Parameters
         ----------
-        component : str
+        component : str or :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Address of the component instance. For example, ``"Inst@layout_cutout;87;1"``.
         option : str
             Set the simulation strategy. Options are ``"simulate"`` and ``"interpolate"``. The default
@@ -2026,7 +2026,7 @@ class NexximComponents(CircuitComponents):
 
         Parameters
         ----------
-        input_file : str or Path
+        input_file : str or :class:`pathlib.Path`
             Path to .lib file.
         model : str, optional
             Model name to import. If `None` the first subckt in the lib file will be placed.
@@ -2086,7 +2086,7 @@ class NexximComponents(CircuitComponents):
 
         Parameters
         ----------
-        input_file : str or Path
+        input_file : str or :class:`pathlib.Path`
             Full path to the .siw file.
         solution : str, optional
             Solution name.

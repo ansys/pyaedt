@@ -29,6 +29,7 @@ import tempfile
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Maxwell2d
+from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core import Q2d
 from ansys.aedt.core import Q3d
 from ansys.aedt.core.generic.general_methods import is_linux
@@ -39,8 +40,8 @@ from ansys.aedt.core.visualization.plot.pyvista import _parse_streamline
 import pandas as pd
 import pytest
 
-from tests import TESTS_GENERAL_PATH
-from tests.system.general.conftest import config
+from tests import TESTS_VISUALIZATION_PATH
+from tests.system.visualization.conftest import config
 
 test_field_name = "Potter_Horn_242"
 test_project_name = "coax_setup_solved_231"
@@ -142,6 +143,13 @@ def m2dtest(add_app, q3dtest):
     app.close_project(save=False)
 
 
+@pytest.fixture()
+def m3d_app(add_app):
+    app = add_app(application=Maxwell3d)
+    yield app
+    app.close_project(app.project_name)
+
+
 class TestClass:
     @pytest.fixture(autouse=True)
     def init(self, local_scratch):
@@ -216,12 +224,14 @@ class TestClass:
         new_report4.report_type = "Data Table"
         assert new_report4.create()
 
-        template = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "template.rpt")
+        template = os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "template.rpt")
         if not config["NonGraphical"]:
             assert new_report4.apply_report_template(template)
-            template2 = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "template_invented.rpt")
+            template2 = os.path.join(
+                TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "template_invented.rpt"
+            )
             assert not new_report4.apply_report_template(template2)
-            template3 = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "template.csv")
+            template3 = os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "template.csv")
             assert not new_report4.apply_report_template(template3)
             assert not new_report4.apply_report_template(template3, property_type="Dummy")
 
@@ -530,18 +540,20 @@ class TestClass:
         assert not q2dtest.post.reports_by_category.eigenmode()
 
     def test_59_test_parse_vector(self):
-        out = _parse_aedtplt(os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "test_vector.aedtplt"))
+        out = _parse_aedtplt(
+            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "test_vector.aedtplt")
+        )
         assert isinstance(out[0], list)
         assert isinstance(out[1], list)
         assert isinstance(out[2], list)
         assert isinstance(out[3], bool)
         assert _parse_aedtplt(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "test_vector_no_solutions.aedtplt")
+            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "test_vector_no_solutions.aedtplt")
         )
 
     def test_60_test_parse_vector(self):
         out = _parse_streamline(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "test_streamline.fldplt")
+            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "test_streamline.fldplt")
         )
         assert isinstance(out, list)
 
@@ -589,14 +601,14 @@ class TestClass:
 
     def test_65_eye_from_json(self, eye_test):
         assert eye_test.post.create_report_from_configuration(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", "report_json", "EyeDiagram_Report_simple.json"),
+            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", "report_json", "EyeDiagram_Report_simple.json"),
             solution_name="QuickEyeAnalysis",
         )
 
     def test_66_spectral_from_json(self, circuit_test):
 
         assert circuit_test.post.create_report_from_configuration(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", "report_json", "Spectral_Report_Simple.json"),
+            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", "report_json", "Spectral_Report_Simple.json"),
             solution_name="Transient",
         )
 
@@ -605,7 +617,7 @@ class TestClass:
     )
     def test_68_eye_from_json(self, eye_test):
         assert eye_test.post.create_report_from_configuration(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", "report_json", "EyeDiagram_Report.toml"),
+            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", "report_json", "EyeDiagram_Report.toml"),
             solution_name="QuickEyeAnalysis",
         )
 
@@ -614,7 +626,7 @@ class TestClass:
     )
     def test_69_spectral_from_json(self, circuit_test):
         assert circuit_test.post.create_report_from_configuration(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", "report_json", "Spectral_Report.json"),
+            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", "report_json", "Spectral_Report.json"),
             solution_name="Transient",
         )
 
@@ -907,3 +919,42 @@ class TestClass:
         d4 = p4.get_points_value(f4.center, filename=temp_file.name)
         assert isinstance(d4, pd.DataFrame)
         os.path.exists(temp_file.name)
+
+    @pytest.mark.skipif(is_linux, reason="Failing in Ubuntu 22.")
+    def test_get_solution_data(self, m3d_app):
+        from ansys.aedt.core.generic.constants import SOLUTIONS
+
+        m3d_app.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
+
+        m3d_app.modeler.create_box([0, 1.5, 0], [1, 2.5, 5], name="Coil_1", material="aluminum")
+        m3d_app.modeler.create_box([8.5, 1.5, 0], [1, 2.5, 5], name="Coil_2", material="aluminum")
+        m3d_app.modeler.create_box([16, 1.5, 0], [1, 2.5, 5], name="Coil_3", material="aluminum")
+        m3d_app.modeler.create_box([32, 1.5, 0], [1, 2.5, 5], name="Coil_4", material="aluminum")
+
+        rectangle1 = m3d_app.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
+        rectangle2 = m3d_app.modeler.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
+        rectangle3 = m3d_app.modeler.create_rectangle(0, [16.5, 1.5, 0], [2.5, 5], name="Sheet3")
+
+        m3d_app.assign_current(rectangle1.faces[0], amplitude=1, name="Cur1")
+        m3d_app.assign_current(rectangle2.faces[0], amplitude=1, name="Cur2")
+        m3d_app.assign_current(rectangle3.faces[0], amplitude=1, name="Cur3")
+
+        matrix = m3d_app.assign_matrix(assignment=["Cur1", "Cur2", "Cur3"], matrix_name="Matrix1")
+        matrix.join_series(sources=["Cur1", "Cur2"], matrix_name="ReducedMatrix1")
+
+        setup = m3d_app.create_setup(MaximumPasses=2)
+        m3d_app.analyze(setup=setup.name)
+
+        expressions = m3d_app.post.available_report_quantities(
+            report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
+        )
+        data = m3d_app.post.get_solution_data(expressions=expressions, context={"Matrix1": "ReducedMatrix1"})
+        assert data
+
+        expressions = m3d_app.post.available_report_quantities(report_category="EddyCurrent", display_type="Data Table")
+        assert isinstance(expressions, list)
+        expressions = m3d_app.post.available_report_quantities(
+            report_category="EddyCurrent", display_type="Data Table", context="Matrix1"
+        )
+        data = m3d_app.post.get_solution_data(expressions=expressions, context="Matrix1")
+        assert data
