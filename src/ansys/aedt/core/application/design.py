@@ -3208,7 +3208,7 @@ class Design(AedtObjects):
         input_dir_path = Path(directory)
         if input_dir_path.exists():
             shutil.rmtree(input_dir_path, True)
-            if not os.path.exists(input_dir_path):
+            if not input_dir_path.exists():
                 input_dir_path.mkdir()
         self.logger.info("Project Directory cleaned")
         return True
