@@ -3168,7 +3168,7 @@ class GeometryModeler(Modeler):
         ----------
         assignment : list, str, int, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Name or ID of the object.
-        sweep_vector : float
+        sweep_vector : list
             List of ``[x1, y1, z1]`` coordinates or Application.Position object for
             the vector.
         draft_angle : float, optional

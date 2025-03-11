@@ -1160,7 +1160,7 @@ class ParametricSetups(object):
         ----------
         variable : str
             Name of the variable.
-        start_point : float or int
+        start_point : float, int or str
             Variation Start Point if a variation is defined or Single Value.
         end_point : float or int, optional
             Variation End Point. This parameter is optional if a Single Value is defined.

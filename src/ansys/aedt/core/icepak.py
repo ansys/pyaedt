@@ -306,7 +306,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Parameters
         ----------
-        air_faces : list
+        air_faces : list or :class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`
             List of face names.
 
         Returns

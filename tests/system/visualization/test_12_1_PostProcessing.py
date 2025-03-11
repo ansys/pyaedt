@@ -377,6 +377,9 @@ class TestClass:
 
         # test import with correct inputs from csv
         assert new_report.import_traces(csv_file_path, plot_name)
+
+        assert len(new_report.traces) == 4
+
         # test import with correct inputs from rdat
         assert new_report.import_traces(rdat_file_path, plot_name)
         # test import with not existing plot_name
