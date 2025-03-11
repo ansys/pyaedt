@@ -24,8 +24,6 @@
 
 """This module contains these classes: ``RMXprtModule`` and ``Rmxprt``."""
 
-from __future__ import absolute_import  # noreorder
-
 from ansys.aedt.core.application.analysis_r_m_xprt import FieldAnalysisRMxprt
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
@@ -55,7 +53,7 @@ class RMXprtModule(object):
             child_object = self._app.odesign.GetChildObject("Machine")
             if self.component:
                 child_object = child_object.GetChildObject(self.component)
-            parent = BinaryTreeNode(self.component if self.component else "Machine", child_object, False)
+            parent = BinaryTreeNode(self.component if self.component else "Machine", child_object, False, app=self._app)
             return parent
         except Exception:
             return False
@@ -362,7 +360,7 @@ class Rmxprt(FieldAnalysisRMxprt):
         jsonalize(self.rotor.properties, new_dict)
         jsonalize(self.circuit.properties, new_dict)
         jsonalize(self.shaft.properties, new_dict)
-        from ansys.aedt.core.generic.general_methods import write_configuration_file
+        from ansys.aedt.core.generic.file_utils import write_configuration_file
 
         write_configuration_file(new_dict, output_file)
         return output_file
@@ -382,7 +380,7 @@ class Rmxprt(FieldAnalysisRMxprt):
             ``True`` when successful, ``False`` when failed.
         """
 
-        from ansys.aedt.core.generic.general_methods import read_configuration_file
+        from ansys.aedt.core.generic.file_utils import read_configuration_file
 
         new_dict = read_configuration_file(input_file)
         for k, v in new_dict.items():

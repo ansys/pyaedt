@@ -24,8 +24,6 @@
 
 """This module contains the ``Hfss3dLayout`` class."""
 
-from __future__ import absolute_import  # noreorder
-
 import fnmatch
 import io
 import os
@@ -35,11 +33,11 @@ import re
 from ansys.aedt.core.application.analysis_3d_layout import FieldAnalysis3DLayout
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.generic.checks import min_aedt_version
-from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import open_file
-from ansys.aedt.core.generic.general_methods import parse_excitation_file
+from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.file_utils import open_file
+from ansys.aedt.core.generic.file_utils import parse_excitation_file
+from ansys.aedt.core.generic.file_utils import tech_to_control_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.general_methods import tech_to_control_file
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.pcb.object_3d_layout import Line3dLayout  # noqa: F401
 from ansys.aedt.core.modules.boundary.layout_boundary import BoundaryObject3dLayout
@@ -819,7 +817,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             msg = "Excitation Messages:"
             validation.writelines(msg + "\n")
             val_list.append(msg)
-            numportsdefined = int(len(self.excitations))
+            numportsdefined = int(len(self.excitation_names))
             if ports is not None and ports != numportsdefined:
                 msg = "**** Port Number Error! - Please check model"
                 self.logger.error(msg)
@@ -837,7 +835,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
                 validation.writelines(msg2 + "\n")
                 val_list.append(msg2)
 
-            excitation_names = self.excitations
+            excitation_names = self.excitation_names
             for excitation in excitation_names:
                 msg = "Excitation name: " + str(excitation)
                 self.logger.info(msg)
@@ -880,7 +878,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         elif "Terminal" in self.solution_type:
             solution_data = "Terminal Solution Data"
         if not port_names:
-            port_names = self.excitations
+            port_names = self.excitation_names
         if not port_excited:
             port_excited = port_names
         traces = ["dB(S(" + p + "," + q + "))" for p, q in zip(list(port_names), list(port_excited))]
@@ -1901,7 +1899,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         """
 
         list_output = []
-        if len(self.excitations) != 0:
+        if len(self.excitation_names) != 0:
             tmpfile1 = os.path.join(self.working_directory, generate_unique_name("tmp"))
             file_flag = self.save_diff_pairs_to_file(tmpfile1)
             if file_flag and os.stat(tmpfile1).st_size != 0:

@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from __future__ import absolute_import
 
 from enum import IntEnum
 from enum import auto
@@ -136,7 +137,7 @@ def unit_system(units):
     """
 
     for unit_type, unit_dict in AEDT_UNITS.items():
-        if units in unit_dict:
+        if units.lower() in [i.lower() for i in unit_dict.keys()]:
             return unit_type
 
     return False
@@ -334,6 +335,7 @@ AEDT_UNITS = {
         "PoundsForce": 4.44822,
     },
     "Freq": {"Hz": 1.0, "kHz": 1e3, "MHz": 1e6, "GHz": 1e9, "THz": 1e12, "rps": 1.0, "per_sec": 1.0},
+    "Frequency": {"Hz": 1.0, "kHz": 1e3, "MHz": 1e6, "GHz": 1e9, "THz": 1e12, "rps": 1.0, "per_sec": 1.0},
     "Inductance": {"fH": 1e-15, "pH": 1e-12, "nH": 1e-9, "uH": 1e-6, "mH": 1e-3, "H": 1.0},
     "Length": {
         "fm": 1e-15,
@@ -344,7 +346,6 @@ AEDT_UNITS = {
         "cm": 1e-2,
         "dm": 1e-1,
         "meter": 1.0,
-        "meters": 1.0,
         "km": 1e3,
         "uin": METER2IN * 1e-6,
         "mil": METER2IN * 1e-3,
@@ -432,6 +433,14 @@ AEDT_UNITS = {
         "dBW": dbw,
         "HP": 1.34102e-3,
         "erg_per_sec": 1e7,
+    },
+    "Pressure": {
+        "n_per_meter_sq": 1.0,
+        "kn_per_meter_sq": 1e3,
+        "megn_per_meter_sq": 1e6,
+        "gn_per_meter_sq": 1e9,
+        "lbf_per_ft2": 2.09e-2,
+        "psi": 1.45e-4,
     },
     "B-field": {
         "ftesla": 1e-15,

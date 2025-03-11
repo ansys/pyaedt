@@ -22,16 +22,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from __future__ import absolute_import
 
 import os
 import re
 
 from ansys.aedt.core.generic.checks import min_aedt_version
 from ansys.aedt.core.generic.constants import AEDT_UNITS
-from ansys.aedt.core.generic.general_methods import _uname
+from ansys.aedt.core.generic.file_utils import _uname
+from ansys.aedt.core.generic.file_utils import read_csv
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.general_methods import read_csv
 
 
 class ComponentArray(object):

@@ -24,8 +24,6 @@
 
 """This module contains the ``Hfss`` class."""
 
-from __future__ import absolute_import  # noreorder
-
 import ast
 import math
 import os
@@ -40,13 +38,16 @@ from ansys.aedt.core.generic.constants import SOLUTIONS
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.data_handlers import str_to_bool
 from ansys.aedt.core.generic.errors import AEDTRuntimeError
-from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import is_number
-from ansys.aedt.core.generic.general_methods import open_file
-from ansys.aedt.core.generic.general_methods import parse_excitation_file
+from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.file_utils import open_file
+from ansys.aedt.core.generic.file_utils import parse_excitation_file
+from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.general_methods import read_configuration_file
+from ansys.aedt.core.generic.numbers import Quantity
+from ansys.aedt.core.generic.numbers import _units_assignment
+from ansys.aedt.core.generic.numbers import is_number
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modeler import cad
 from ansys.aedt.core.modeler.cad.component_array import ComponentArray
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
@@ -58,7 +59,7 @@ from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObje
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 
 
-class Hfss(FieldAnalysis3D, ScatteringMethods):
+class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
     """Provides the HFSS application interface.
 
     This class allows you to create an interactive instance of HFSS and
@@ -185,14 +186,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
     """
 
-    # def __repr__(self):
-    #     try:
-    #         return "HFSS {} {}. ProjectName:{} DesignName:{} ".format(
-    #             self._aedt_version, self.solution_type, self.project_name, self.design_name
-    #         )
-    #     except Exception:
-    #         return "HFSS Module"
-
     @pyaedt_function_handler(
         designname="design",
         projectname="project",
@@ -274,7 +267,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         """
         return self.odesign.GetChildObject("Radiation").GetChildNames()
 
-    class BoundaryType(object):
+    class BoundaryType(CreateBoundaryMixin):
         """Creates and manages boundaries."""
 
         (
@@ -376,37 +369,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
     def _get_unique_source_name(self, source_name, root_name):
         if not source_name:
             source_name = generate_unique_name(root_name)
-        elif source_name in self.excitations or source_name + ":1" in self.excitations:
+        elif source_name in self.excitation_names or source_name + ":1" in self.excitation_names:
             source_name = generate_unique_name(source_name)
         return source_name
-
-    @pyaedt_function_handler()
-    def _create_boundary(self, name, props, boundary_type):
-        """Create a boundary.
-
-        Parameters
-        ----------
-        name : str
-            Name of the boundary.
-        props : list or dict
-            List of properties for the boundary.
-        boundary_type :
-            Type of the boundary.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
-            Boundary object.
-
-        """
-
-        bound = BoundaryObject(self, name, props, boundary_type)
-        result = bound.create()
-        if result:
-            self._boundaries[bound.name] = bound
-            self.logger.info(f"Boundary {boundary_type} {name} has been correctly created.")
-            return bound
-        raise AEDTRuntimeError(f"Failed to create boundary {boundary_type} {name}")
 
     @pyaedt_function_handler(objectname="assignment", portname="port_name")
     def _create_lumped_driven(self, assignment, int_line_start, int_line_stop, impedance, port_name, renorm, deemb):
@@ -538,11 +503,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             if deembed is None:
                 props["DoDeembed"] = False
                 if iswaveport:
-                    props["DeembedDist"] = self.modeler._arg_with_dim(0)
+                    props["DeembedDist"] = self.value_with_units(0)
             else:
                 props["DoDeembed"] = True
                 if iswaveport:
-                    props["DeembedDist"] = self.modeler._arg_with_dim(deembed)
+                    props["DeembedDist"] = self.value_with_units(deembed)
             props["RenormalizeAllTerminals"] = renorm
             props["ShowReporterFilter"] = False
             props["UseAnalyticAlignment"] = False
@@ -610,7 +575,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         if deemb_distance != 0:
             props["DoDeembed"] = True
-            props["DeembedDist"] = self.modeler._arg_with_dim(deemb_distance)
+            props["DeembedDist"] = self.value_with_units(deemb_distance)
         else:
             props["DoDeembed"] = False
         props["RenormalizeAllTerminals"] = renorm
@@ -1755,7 +1720,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         if not setup:
             setup = assignment.nominal_adaptive
         params = {}
-        pars = assignment.available_variations.nominal_w_values_dict
+        pars = assignment.available_variations.get_independent_nominal_values()
+
         for el in pars:
             params[el] = pars[el]
         native_props = dict(
@@ -2382,7 +2348,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         props["NumModes"] = modes
         if deembed_distance:
             props["DoDeembed"] = True
-            props["DeembedDist"] = self.modeler._arg_with_dim(deembed_distance)
+            props["DeembedDist"] = self.value_with_units(deembed_distance)
         else:
             props["DoDeembed"] = False
             props["DeembedDist"] = "0mm"
@@ -2887,7 +2853,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Parameters
         ----------
-        frequency : str, optional
+        frequency : int, float, str optional
             Frequency with units. The default is ``"1GHz"``.
         boundary : str, optional
             Type of the boundary. The default is ``"Radiation"``.
@@ -2905,6 +2871,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         ----------
         >>> oModule.CreateOpenRegion
         """
+        frequency = _units_assignment(frequency)
         vars = [
             "NAME:Settings",
             "OpFreq:=",
@@ -3808,7 +3775,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> aedtapp.edit_sources(sources, eigenmode_stored_energy=False)
         """
         if self.solution_type != "Eigenmode":
-            data = {i: ("0W", "0deg", False) for i in self.excitations}
+            data = {i: ("0W", "0deg", False) for i in self.excitation_names}
             for key, value in assignment.items():
                 data[key] = value
             setting = []
@@ -4336,7 +4303,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         msg = "Excitations check:"
         val_list.append(msg)
         if self.solution_type != "Eigenmode":
-            detected_excitations = self.excitations
+            detected_excitations = self.excitation_names
             if ports:
                 if ports != len(detected_excitations):
                     msg = "** Port number error. Check the model. **"
@@ -4430,10 +4397,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         elif "Terminal" in self.solution_type:
             solution_data = "Terminal Solution Data"
         if not ports:
-            ports = self.excitations
+            ports = self.excitation_names
         if not ports_excited:
             ports_excited = ports
         traces = ["dB(S(" + p + "," + q + "))" for p, q in zip(list(ports), list(ports_excited))]
+        if sweep is None:
+            sweep = self.nominal_sweep
         return self.post.create_report(
             traces, sweep, variations=variations, report_category=solution_data, plot_name=plot
         )
@@ -4673,24 +4642,24 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         else:
             setup1.props["SbrRangeDopplerWaveformType"] = setup_type
         setup1.props["SbrRangeDopplerTimeVariable"] = time_var
-        setup1.props["SbrRangeDopplerCenterFreq"] = self.modeler._arg_with_dim(center_freq, "GHz")
-        setup1.props["SbrRangeDopplerRangeResolution"] = self.modeler._arg_with_dim(resolution, "meter")
-        setup1.props["SbrRangeDopplerRangePeriod"] = self.modeler._arg_with_dim(period, "meter")
-        setup1.props["SbrRangeDopplerVelocityResolution"] = self.modeler._arg_with_dim(velocity_resolution, "m_per_sec")
-        setup1.props["SbrRangeDopplerVelocityMin"] = self.modeler._arg_with_dim(min_velocity, "m_per_sec")
-        setup1.props["SbrRangeDopplerVelocityMax"] = self.modeler._arg_with_dim(max_velocity, "m_per_sec")
+        setup1.props["SbrRangeDopplerCenterFreq"] = self.value_with_units(center_freq, "GHz")
+        setup1.props["SbrRangeDopplerRangeResolution"] = self.value_with_units(resolution, "meter")
+        setup1.props["SbrRangeDopplerRangePeriod"] = self.value_with_units(period, "meter")
+        setup1.props["SbrRangeDopplerVelocityResolution"] = self.value_with_units(velocity_resolution, "m_per_sec")
+        setup1.props["SbrRangeDopplerVelocityMin"] = self.value_with_units(min_velocity, "m_per_sec")
+        setup1.props["SbrRangeDopplerVelocityMax"] = self.value_with_units(max_velocity, "m_per_sec")
         setup1.props["DopplerRayDensityPerWavelength"] = ray_density_per_wavelength
         setup1.props["MaxNumberOfBounces"] = max_bounces
         if setup_type != "PulseDoppler":
             setup1.props["IncludeRangeVelocityCouplingEffect"] = include_coupling_effects
-            setup1.props["SbrRangeDopplerA/DSamplingRate"] = self.modeler._arg_with_dim(doppler_ad_sampling_rate, "MHz")
+            setup1.props["SbrRangeDopplerA/DSamplingRate"] = self.value_with_units(doppler_ad_sampling_rate, "MHz")
         setup1.update()
         setup1.auto_update = True
         return setup1
 
     @pyaedt_function_handler(setupname="setup")
     def _create_sbr_doppler_sweep(self, setup, time_var, tstart, tstop, tsweep, parametric_name):
-        time_stop = self.modeler._arg_with_dim(tstop, "s")
+        time_stop = self.value_with_units(tstop, "s")
         return self.parametrics.add(time_var, tstart, time_stop, tsweep, "LinearStep", setup, name=parametric_name)
 
     @pyaedt_function_handler(time_var="time_variable", setup_name="setup")
@@ -5154,7 +5123,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             props["Polarization"] = "Slant"
         else:
             props["Polarization"] = "Linear"
-        props["SlantAngle"] = self.modeler._arg_with_dim(polarization_angle, units)
+        props["SlantAngle"] = self.value_with_units(polarization_angle, units)
 
         if definition == "Theta-Phi":
             defs = ["ThetaStart", "ThetaStop", "ThetaStep", "PhiStart", "PhiStop", "PhiStep"]
@@ -5162,12 +5131,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             defs = ["AzimuthStart", "AzimuthStop", "AzimuthStep", "ElevationStart", "ElevationStop", "ElevationStep"]
         else:
             defs = ["ElevationStart", "ElevationStop", "ElevationStep", "AzimuthStart", "AzimuthStop", "AzimuthStep"]
-        props[defs[0]] = self.modeler._arg_with_dim(x_start, units)
-        props[defs[1]] = self.modeler._arg_with_dim(x_stop, units)
-        props[defs[2]] = self.modeler._arg_with_dim(x_step, units)
-        props[defs[3]] = self.modeler._arg_with_dim(y_start, units)
-        props[defs[4]] = self.modeler._arg_with_dim(y_stop, units)
-        props[defs[5]] = self.modeler._arg_with_dim(y_step, units)
+        props[defs[0]] = self.value_with_units(x_start, units)
+        props[defs[1]] = self.value_with_units(x_stop, units)
+        props[defs[2]] = self.value_with_units(x_step, units)
+        props[defs[3]] = self.value_with_units(y_start, units)
+        props[defs[4]] = self.value_with_units(y_stop, units)
+        props[defs[5]] = self.value_with_units(y_step, units)
         props["UseLocalCS"] = custom_coordinate_system is not None
         if custom_coordinate_system:
             props["CoordSystem"] = custom_coordinate_system
@@ -5242,15 +5211,15 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         else:
             props["CustomRadiationSurface"] = ""
 
-        props["Radius"] = self.modeler._arg_with_dim(radius, radius_units)
+        props["Radius"] = self.value_with_units(radius, radius_units)
 
         defs = ["ThetaStart", "ThetaStop", "ThetaStep", "PhiStart", "PhiStop", "PhiStep"]
-        props[defs[0]] = self.modeler._arg_with_dim(x_start, angle_units)
-        props[defs[1]] = self.modeler._arg_with_dim(x_stop, angle_units)
-        props[defs[2]] = self.modeler._arg_with_dim(x_step, angle_units)
-        props[defs[3]] = self.modeler._arg_with_dim(y_start, angle_units)
-        props[defs[4]] = self.modeler._arg_with_dim(y_stop, angle_units)
-        props[defs[5]] = self.modeler._arg_with_dim(y_step, angle_units)
+        props[defs[0]] = self.value_with_units(x_start, angle_units)
+        props[defs[1]] = self.value_with_units(x_stop, angle_units)
+        props[defs[2]] = self.value_with_units(x_step, angle_units)
+        props[defs[3]] = self.value_with_units(y_start, angle_units)
+        props[defs[4]] = self.value_with_units(y_stop, angle_units)
+        props[defs[5]] = self.value_with_units(y_step, angle_units)
         props["UseLocalCS"] = custom_coordinate_system is not None
         if custom_coordinate_system:
             props["CoordSystem"] = custom_coordinate_system
@@ -5320,12 +5289,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             props["CustomRadiationSurface"] = ""
 
         defs = ["U Size", "V Size", "W Size", "U Samples", "V Samples", "W Samples"]
-        props[defs[0]] = self.modeler._arg_with_dim(u_length, units)
-        props[defs[1]] = self.modeler._arg_with_dim(v_length, units)
-        props[defs[2]] = self.modeler._arg_with_dim(w_length, units)
-        props[defs[3]] = self.modeler._arg_with_dim(u_samples, units)
-        props[defs[4]] = self.modeler._arg_with_dim(v_samples, units)
-        props[defs[5]] = self.modeler._arg_with_dim(w_samples, units)
+        props[defs[0]] = self.value_with_units(u_length, units)
+        props[defs[1]] = self.value_with_units(v_length, units)
+        props[defs[2]] = self.value_with_units(w_length, units)
+        props[defs[3]] = self.value_with_units(u_samples, units)
+        props[defs[4]] = self.value_with_units(v_samples, units)
+        props[defs[5]] = self.value_with_units(w_samples, units)
 
         if custom_coordinate_system:
             props["CoordSystem"] = custom_coordinate_system
@@ -5389,8 +5358,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             props["CustomRadiationSurface"] = ""
 
         defs = ["Length", "Width", "LengthSamples", "WidthSamples"]
-        props[defs[0]] = self.modeler._arg_with_dim(u_length, units)
-        props[defs[1]] = self.modeler._arg_with_dim(v_length, units)
+        props[defs[0]] = self.value_with_units(u_length, units)
+        props[defs[1]] = self.value_with_units(v_length, units)
         props[defs[2]] = u_samples
         props[defs[3]] = v_samples
 
@@ -5638,7 +5607,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> }
 
         >>> from ansys.aedt.core import Hfss
-        >>> from ansys.aedt.core.generic.general_methods import read_configuration_file
+        >>> from ansys.aedt.core.generic.file_utils import read_configuration_file
         >>> hfss_app = Hfss()
         >>> dict_in = read_configuration_file(r"path\\to\\json_file")
         >>> component_array = hfss_app.add_3d_component_array_from_json(dict_in)
@@ -5673,7 +5642,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                             "3D component array is not present in design and not defined correctly in the JSON file."
                         )
 
-                    geometryparams = self.get_components3d_vars(json_dict[v["name"]])
+                    geometryparams = self.get_component_variables(json_dict[v["name"]])
 
                     self.modeler.insert_3d_component(json_dict[v["name"]], geometryparams)
                 cells_names[v["name"]] = [k1]
@@ -5886,7 +5855,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
 
         if not variations:
-            variations = self.available_variations.nominal_w_values_dict_w_dependent
+            variations = self.available_variations.get_independent_nominal_values()
+
+        variations = {i: _units_assignment(k) for i, k in variations.items()}
         if not setup:
             setup = self.nominal_adaptive
 
@@ -5910,21 +5881,28 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             )
             self.logger.info("Far field sphere %s is created.", setup)
 
-        frequency_units = self.odesktop.GetDefaultUnit("Frequency")
+        # Prepend analysis name if only the sweep name is passed for the analysis.
+        setup = self.nominal_adaptive.split(":")[0] + ": " + setup if not ":" in setup else setup
+
         if setup in self.existing_analysis_sweeps and frequencies is None:
             trace_name = "mag(rETheta)"
             farfield_data = self.post.get_far_field_data(expressions=trace_name, setup_sweep_name=setup, domain=sphere)
             if farfield_data and getattr(farfield_data, "primary_sweep_values", None) is not None:
-                frequencies = farfield_data.primary_sweep_values
+                frequencies = [
+                    Quantity(i, farfield_data.units_sweeps["Freq"]) for i in farfield_data.primary_sweep_values
+                ]
 
         if frequencies is not None:
-            if type(frequencies) in [float, int, str]:
+            if not isinstance(frequencies, list):
                 frequencies = [frequencies]
-            frequencies = [str(freq) + frequency_units for freq in frequencies if is_number(freq)]
+            frequencies = _units_assignment(frequencies)
         else:  # pragma: no cover
             self.logger.info("Frequencies could not be obtained.")
             return False
-
+        frequencies = [
+            self.value_with_units(i, self.units.frequency, "Freq") if not isinstance(i, Quantity) else str(i)
+            for i in frequencies
+        ]
         ffd = FfdSolutionDataExporter(
             self,
             sphere_name=sphere,
@@ -6001,7 +5979,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
 
         if not variations:
-            variations = self.available_variations.nominal_w_values_dict_w_dependent
+            variations = self.available_variations.get_independent_nominal_values()
         if not setup:
             setup = self.nominal_adaptive
 
@@ -6014,10 +5992,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             )
             if rcs_data and rcs_data.primary_sweep_values is not None:
                 frequencies = rcs_data.primary_sweep_values
-                frequency_units = self.odesktop.GetDefaultUnit("Frequency")
-                frequencies = [str(freq) + frequency_units for freq in frequencies]
-
-        if not frequencies:  # pragma: no cover
+        if len(frequencies) == 0:  # pragma: no cover
             self.logger.info("Frequencies could not be obtained.")
             return False
 
@@ -6841,7 +6816,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         is_electric=True,
         radius="10mm",
         name=None,
-    ) -> BoundaryObject:
+    ) -> "BoundaryObject":
         """Create a hertzian dipole wave excitation.
 
         The excitation is assigned in the assigned sphere. Inside this sphere, the field magnitude
@@ -7062,12 +7037,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> oModule.ExportElementPatternToFile
         """
         self.logger.info("Exporting embedded element patterns...")
-        var = []
-        if variations:
-            for k, v in variations.items():
-                var.append(f"{k}='{v}'")
-        variation = " ".join(var)
 
+        variation = self.available_variations.variation_string(variations)
         command = [
             "ExportFileName:=",
             os.path.join(output_dir, element_name + ".ffd"),
@@ -7140,11 +7111,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> oModule.ExportMetadata
         """
         self.logger.info("Exporting antenna metadata...")
-        var = []
-        if variations:
-            for k, v in variations.items():
-                var.append(f"{k}='{v}'")
-        variation = " ".join(var)
+
+        variation = self.available_variations.variation_string(variations)
 
         command = [
             "SolutionName:=",

@@ -53,21 +53,21 @@ dependencies = [
 unit-tests = [
     "pytest>=7.4.0,<8.4",
     "pytest-cov>=4.0.0,<6.1",
-    "mock>=5.1.0,<5.2",
+    "mock>=5.1.0,<5.3",
 ]
 integration-tests = [
     "matplotlib>=3.5.0,<3.11",
-    "mock>=5.1.0,<5.2",
+    "mock>=5.1.0,<5.3",
     "numpy>=1.20.0,<2.3",
     "pandas>=1.1.0,<2.3",
     "pytest>=7.4.0,<8.4",
     "pytest-cov>=4.0.0,<6.1",
 ]
 tests = [
-    "ipython>=7.30.0,<8.33",
+    "ipython>=7.30.0,<9.1",
     "joblib>=1.0.0,<1.5",
     "matplotlib>=3.5.0,<3.11",
-    "mock>=5.1.0,<5.2",
+    "mock>=5.1.0,<5.3",
     "numpy>=1.20.0,<2.3",
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<2.1",
@@ -80,7 +80,8 @@ tests = [
     "tables; python_version >= '3.10'",
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.7",
-    "scikit-rf>=0.30.0,<1.6",
+    "scikit-rf>=0.30.0,<1.7",
+    "pytest-timeout>=2.3.0,<2.4",
 ]
 dotnet = [
     "ansys-pythonnet>=3.1.0rc3",
@@ -94,14 +95,15 @@ doc = [
     "jupyter",
     "numpydoc>=1.5.0,<1.9",
     "recommonmark",
-    "Sphinx>=7.1.0,<8.2",
+    "Sphinx>=7.1.0,<8.3",
     # NOTE: latest compatible version for Python 3.8 is 2021.3.14
     "sphinx-autobuild==2021.3.14; python_version == '3.8'",
     "sphinx-autobuild==2024.10.3; python_version > '3.8'",
     "sphinx-copybutton>=0.5.0,<0.6",
-    "sphinx-gallery>=0.14.0,<0.18",
+    "sphinx-gallery>=0.14.0,<0.20",
     "sphinx_design>=0.4.0,<0.7",
     "pyvista[io]>=0.38.0,<0.45",
+    "ansys-tools-visualization-interface; python_version >= '3.10'",
 ]
 all = [
     "matplotlib>=3.5.0,<3.11",
@@ -115,7 +117,7 @@ all = [
     "tables; python_version >= '3.10'",
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.7",
-    "scikit-rf>=0.30.0,<1.6",
+    "scikit-rf>=0.30.0,<1.7",
 ]
 installer = [
     "matplotlib>=3.5.0,<3.11",
@@ -128,9 +130,9 @@ installer = [
     "ansys-tools-visualization-interface; python_version >= '3.10'",
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.7",
-    "scikit-rf>=0.30.0,<1.6",
+    "scikit-rf>=0.30.0,<1.7",
     "jupyterlab>=3.6.0,<4.4",
-    "ipython>=7.30.0,<8.33",
+    "ipython>=7.30.0,<9.1",
     "ipyvtklink>=0.2.0,<0.2.4",
 ]
 
@@ -211,3 +213,48 @@ exclude = [
     '\.tests',  # missing docstring for tests
     'HistoryProps.',  # bad RT05 because of the base class named OrderedDict
 ]
+
+[tool.towncrier]
+package = "ansys.aedt.core"
+directory = "doc/changelog.d"
+filename = "CHANGELOG.md"
+start_string = "<!-- towncrier release notes start -->\n"
+underlines = ["", "", ""]
+template = "doc/changelog.d/changelog_template.jinja"
+title_format = "## [{version}](https://github.com/ansys/pyaedt/releases/tag/v{version}) - {project_date}"
+issue_format = "[#{issue}](https://github.com/ansys/pyaedt/pull/{issue})"
+
+[[tool.towncrier.type]]
+directory = "added"
+name = "Added"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "dependencies"
+name = "Dependencies"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "documentation"
+name = "Documentation"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "fixed"
+name = "Fixed"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "maintenance"
+name = "Maintenance"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "miscellaneous"
+name = "Miscellaneous"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "test"
+name = "Test"
+showcontent = true

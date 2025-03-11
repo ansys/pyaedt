@@ -29,6 +29,7 @@ import tempfile
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Maxwell2d
+from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core import Q2d
 from ansys.aedt.core import Q3d
 from ansys.aedt.core.generic.general_methods import is_linux
@@ -39,8 +40,8 @@ from ansys.aedt.core.visualization.plot.pyvista import _parse_streamline
 import pandas as pd
 import pytest
 
-from tests import TESTS_GENERAL_PATH
-from tests.system.general.conftest import config
+from tests import TESTS_VISUALIZATION_PATH
+from tests.system.visualization.conftest import config
 
 test_field_name = "Potter_Horn_242"
 test_project_name = "coax_setup_solved_231"
@@ -63,7 +64,6 @@ if config["desktopVersion"] > "2024.2":
 else:
     ipk_post_proj = "for_icepak_post"
 test_subfolder = "T12"
-settings.enable_pandas_output = True
 
 
 @pytest.fixture()
@@ -143,13 +143,20 @@ def m2dtest(add_app, q3dtest):
     app.close_project(save=False)
 
 
+@pytest.fixture()
+def m3d_app(add_app):
+    app = add_app(application=Maxwell3d)
+    yield app
+    app.close_project(app.project_name)
+
+
 class TestClass:
     @pytest.fixture(autouse=True)
     def init(self, local_scratch):
         self.local_scratch = local_scratch
 
     def test_09_manipulate_report(self, field_test):
-        variations = field_test.available_variations.nominal_w_values_dict
+        variations = field_test.available_variations.get_independent_nominal_values()
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
         variations["Freq"] = ["30GHz"]
@@ -188,7 +195,7 @@ class TestClass:
         assert report.add_project_info(field_test)
 
     def test_09_manipulate_report_B(self, field_test):
-        variations = field_test.available_variations.nominal_w_values_dict
+        variations = field_test.available_variations.get_independent_nominal_values()
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
         variations["Freq"] = ["30GHz"]
@@ -217,19 +224,21 @@ class TestClass:
         new_report4.report_type = "Data Table"
         assert new_report4.create()
 
-        template = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "template.rpt")
+        template = os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "template.rpt")
         if not config["NonGraphical"]:
             assert new_report4.apply_report_template(template)
-            template2 = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "template_invented.rpt")
+            template2 = os.path.join(
+                TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "template_invented.rpt"
+            )
             assert not new_report4.apply_report_template(template2)
-            template3 = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "template.csv")
+            template3 = os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "template.csv")
             assert not new_report4.apply_report_template(template3)
             assert not new_report4.apply_report_template(template3, property_type="Dummy")
 
         assert field_test.post.create_report_from_configuration(template)
 
     def test_09_manipulate_report_C(self, field_test):
-        variations = field_test.available_variations.nominal_w_values_dict
+        variations = field_test.available_variations.get_independent_nominal_values()
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
         variations["Freq"] = ["30GHz"]
@@ -250,7 +259,7 @@ class TestClass:
         )
 
     def test_09_manipulate_report_D(self, field_test):
-        variations = field_test.available_variations.nominal_w_values_dict
+        variations = field_test.available_variations.get_independent_nominal_values()
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
         variations["Freq"] = ["30GHz"]
@@ -275,7 +284,7 @@ class TestClass:
 
     def test_09_manipulate_report_E(self, field_test):
         field_test.modeler.create_polyline([[0, 0, 0], [0, 5, 30]], name="Poly1", non_model=True)
-        variations2 = field_test.available_variations.nominal_w_values_dict
+        variations2 = field_test.available_variations.get_independent_nominal_values()
 
         assert field_test.setups[0].create_report(
             "Mag_E", primary_sweep_variable="Distance", report_category="Fields", context="Poly1"
@@ -332,6 +341,7 @@ class TestClass:
     def test_17_circuit(self, circuit_test):
 
         assert circuit_test.setups[0].is_solved
+        assert circuit_test.nominal_adaptive == circuit_test.nominal_sweep
         assert circuit_test.setups[0].create_report(["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"])
         new_report = circuit_test.post.reports_by_category.standard(
             ["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"], "LNA"
@@ -358,7 +368,7 @@ class TestClass:
         assert len(data2.data_magnitude()) > 0
         context = {"algorithm": "FFT", "max_frequency": "100MHz", "time_stop": "200ns", "test": ""}
         data3 = circuit_test.post.get_solution_data(["V(net_11)"], "Transient", "Spectral", context=context)
-        assert data3.units_sweeps["Spectrum"] == circuit_test.odesktop.GetDefaultUnit("Frequency")
+        assert data3.units_sweeps["Spectrum"] == circuit_test.units.frequency
         assert len(data3.data_real()) > 0
         new_report = circuit_test.post.reports_by_category.spectral(["dB(V(net_11))"], "Transient")
         new_report.window = "Hanning"
@@ -366,8 +376,6 @@ class TestClass:
         new_report.time_start = "1ns"
         new_report.time_stop = "190ns"
         new_report.plot_continous_spectrum = True
-        assert new_report.create()
-        new_report = circuit_test.post.reports_by_category.spectral(["dB(V(net_11))"])
         assert new_report.create()
         assert plot.export_config(os.path.join(self.local_scratch.path, f"{new_report.plot_name}.json"))
         assert circuit_test.post.create_report_from_configuration(
@@ -383,7 +391,9 @@ class TestClass:
         new_report.time_stop = "190ns"
         new_report.plot_continous_spectrum = False
         assert new_report.create()
-        assert circuit_test.post.create_report(["dB(V(net_11))", "dB(V(Port1))"], domain="Spectrum")
+        assert circuit_test.post.create_report(
+            ["dB(V(net_11))", "dB(V(Port1))"], setup_sweep_name="Transient", domain="Spectrum"
+        )
         new_report = circuit_test.post.reports_by_category.spectral(None, "Transient")
         new_report.window = "Hanning"
         new_report.max_freq = "1GHz"
@@ -401,7 +411,9 @@ class TestClass:
         assert len(diff_test.post.available_report_quantities()) > 0
         assert len(diff_test.post.available_report_solutions()) > 0
         assert diff_test.setups[0].is_solved
-        variations = diff_test.available_variations.nominal_w_values_dict
+
+        variations = diff_test.available_variations.get_independent_nominal_values()
+
         variations["Freq"] = ["All"]
         variations["l1"] = ["All"]
         assert diff_test.post.create_report(
@@ -528,18 +540,20 @@ class TestClass:
         assert not q2dtest.post.reports_by_category.eigenmode()
 
     def test_59_test_parse_vector(self):
-        out = _parse_aedtplt(os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "test_vector.aedtplt"))
+        out = _parse_aedtplt(
+            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "test_vector.aedtplt")
+        )
         assert isinstance(out[0], list)
         assert isinstance(out[1], list)
         assert isinstance(out[2], list)
         assert isinstance(out[3], bool)
         assert _parse_aedtplt(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "test_vector_no_solutions.aedtplt")
+            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "test_vector_no_solutions.aedtplt")
         )
 
     def test_60_test_parse_vector(self):
         out = _parse_streamline(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "test_streamline.fldplt")
+            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "test_streamline.fldplt")
         )
         assert isinstance(out, list)
 
@@ -587,14 +601,14 @@ class TestClass:
 
     def test_65_eye_from_json(self, eye_test):
         assert eye_test.post.create_report_from_configuration(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", "report_json", "EyeDiagram_Report_simple.json"),
+            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", "report_json", "EyeDiagram_Report_simple.json"),
             solution_name="QuickEyeAnalysis",
         )
 
     def test_66_spectral_from_json(self, circuit_test):
 
         assert circuit_test.post.create_report_from_configuration(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", "report_json", "Spectral_Report_Simple.json"),
+            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", "report_json", "Spectral_Report_Simple.json"),
             solution_name="Transient",
         )
 
@@ -603,7 +617,7 @@ class TestClass:
     )
     def test_68_eye_from_json(self, eye_test):
         assert eye_test.post.create_report_from_configuration(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", "report_json", "EyeDiagram_Report.toml"),
+            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", "report_json", "EyeDiagram_Report.toml"),
             solution_name="QuickEyeAnalysis",
         )
 
@@ -612,7 +626,7 @@ class TestClass:
     )
     def test_69_spectral_from_json(self, circuit_test):
         assert circuit_test.post.create_report_from_configuration(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", "report_json", "Spectral_Report.json"),
+            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", "report_json", "Spectral_Report.json"),
             solution_name="Transient",
         )
 
@@ -693,6 +707,7 @@ class TestClass:
         )
         assert len(data2) == 4
         assert len(data2[0]) == 3
+        settings.enable_pandas_output = True
 
     def test_75_plot_field_line_traces(self, m2dtest):
         m2dtest.modeler.model_units = "mm"
@@ -772,12 +787,11 @@ class TestClass:
         assert new_report2.create()
 
     def test_98_get_variations(self, field_test):
-        vars = field_test.available_variations.get_variation_strings()
-        assert vars
-        variations = field_test.available_variations.variations()
+        setup = field_test.existing_analysis_sweeps[0]
+        variations = field_test.available_variations.variations(setup)
         assert isinstance(variations, list)
         assert isinstance(variations[0], list)
-        vars_dict = field_test.available_variations.variations(output_as_dict=True)
+        vars_dict = field_test.available_variations.variations(setup_sweep=setup, output_as_dict=True)
         assert isinstance(vars_dict, list)
         assert isinstance(vars_dict[0], dict)
 
@@ -785,9 +799,10 @@ class TestClass:
         assert q3dtest.cleanup_solution()
 
     def test_z99_delete_variations_B(self, field_test):
-        vars = field_test.available_variations.get_variation_strings()
-        assert field_test.cleanup_solution(vars, entire_solution=False)
-        assert field_test.cleanup_solution(vars, entire_solution=True)
+        setup = field_test.existing_analysis_sweeps
+        variations = field_test.available_variations._get_variation_strings(setup[0])
+        assert field_test.cleanup_solution(variations, entire_solution=False)
+        assert field_test.cleanup_solution(variations, entire_solution=True)
 
     def test_100_ipk_get_scalar_field_value(self, icepak_post):
         assert icepak_post.post.get_scalar_field_value(
@@ -904,3 +919,42 @@ class TestClass:
         d4 = p4.get_points_value(f4.center, filename=temp_file.name)
         assert isinstance(d4, pd.DataFrame)
         os.path.exists(temp_file.name)
+
+    @pytest.mark.skipif(is_linux, reason="Failing in Ubuntu 22.")
+    def test_get_solution_data(self, m3d_app):
+        from ansys.aedt.core.generic.constants import SOLUTIONS
+
+        m3d_app.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
+
+        m3d_app.modeler.create_box([0, 1.5, 0], [1, 2.5, 5], name="Coil_1", material="aluminum")
+        m3d_app.modeler.create_box([8.5, 1.5, 0], [1, 2.5, 5], name="Coil_2", material="aluminum")
+        m3d_app.modeler.create_box([16, 1.5, 0], [1, 2.5, 5], name="Coil_3", material="aluminum")
+        m3d_app.modeler.create_box([32, 1.5, 0], [1, 2.5, 5], name="Coil_4", material="aluminum")
+
+        rectangle1 = m3d_app.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
+        rectangle2 = m3d_app.modeler.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
+        rectangle3 = m3d_app.modeler.create_rectangle(0, [16.5, 1.5, 0], [2.5, 5], name="Sheet3")
+
+        m3d_app.assign_current(rectangle1.faces[0], amplitude=1, name="Cur1")
+        m3d_app.assign_current(rectangle2.faces[0], amplitude=1, name="Cur2")
+        m3d_app.assign_current(rectangle3.faces[0], amplitude=1, name="Cur3")
+
+        matrix = m3d_app.assign_matrix(assignment=["Cur1", "Cur2", "Cur3"], matrix_name="Matrix1")
+        matrix.join_series(sources=["Cur1", "Cur2"], matrix_name="ReducedMatrix1")
+
+        setup = m3d_app.create_setup(MaximumPasses=2)
+        m3d_app.analyze(setup=setup.name)
+
+        expressions = m3d_app.post.available_report_quantities(
+            report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
+        )
+        data = m3d_app.post.get_solution_data(expressions=expressions, context={"Matrix1": "ReducedMatrix1"})
+        assert data
+
+        expressions = m3d_app.post.available_report_quantities(report_category="EddyCurrent", display_type="Data Table")
+        assert isinstance(expressions, list)
+        expressions = m3d_app.post.available_report_quantities(
+            report_category="EddyCurrent", display_type="Data Table", context="Matrix1"
+        )
+        data = m3d_app.post.get_solution_data(expressions=expressions, context="Matrix1")
+        assert data

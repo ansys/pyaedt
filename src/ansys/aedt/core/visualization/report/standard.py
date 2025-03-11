@@ -30,7 +30,7 @@ This module provides all functionalities for creating and editing reports.
 """
 import re
 
-from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.visualization.report.common import CommonReport
@@ -316,6 +316,7 @@ class Standard(CommonReport):
                 ],
             ]
             if self.sub_design_id:
+                # BUG in AEDT. Trace only created when the plot is manually created one time
                 ctxt_temp = ["NUMLEVELS", False, "1", "SUBDESIGNID", False, str(self.sub_design_id)]
                 for el in ctxt_temp:
                     ctxt[2].append(el)
@@ -687,5 +688,5 @@ class Spectral(CommonReport):
         self._is_created = True
         oo = self._post.oreportsetup.GetChildObject(self._legacy_props["plot_name"])
         if oo:
-            BinaryTreeNode.__init__(self, self.plot_name, oo, False)
+            BinaryTreeNode.__init__(self, self.plot_name, oo, False, app=self._app)
         return True

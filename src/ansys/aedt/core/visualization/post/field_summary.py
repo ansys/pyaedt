@@ -28,7 +28,7 @@ This module contains these classes: `FieldPlot`, `PostProcessor`, and `SolutionD
 This module provides all functionalities for creating and editing plots in the 3D tools.
 
 """
-from __future__ import absolute_import
+
 
 from collections import defaultdict
 import csv
@@ -36,7 +36,7 @@ import os
 import tempfile
 import warnings
 
-from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 try:

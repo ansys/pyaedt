@@ -101,6 +101,7 @@ ALLOWED_GENERAL_SETTINGS = [
     "pyaedt_server_path",
     "remote_rpc_session_temp_folder",
     "block_figure_plot",
+    "skip_license_check",
 ]
 ALLOWED_AEDT_ENV_VAR_SETTINGS = [
     "ANSYSEM_FEATURE_F335896_MECHANICAL_STRUCTURAL_SOLN_TYPE_ENABLE",
@@ -203,6 +204,7 @@ class Settings(object):
         self.__wait_for_license: bool = False
         self.__lazy_load: bool = True
         self.__objects_lazy_load: bool = True
+        self.__skip_license_check: bool = False
         # Previously 'public' attributes
         self.__formatter: Optional[logging.Formatter] = None
         self.__remote_rpc_session: Any = None
@@ -772,6 +774,16 @@ class Settings(object):
     def pyaedt_server_path(self, val):
         os.environ["PYAEDT_SERVER_AEDT_PATH"] = str(val)
         self.__pyaedt_server_path = os.environ["PYAEDT_SERVER_AEDT_PATH"]
+
+    @property
+    def skip_license_check(self):
+        """Flag indicating whether to check for license availability when launching the Desktop."""
+
+        return self.__skip_license_check
+
+    @skip_license_check.setter
+    def skip_license_check(self, value):
+        self.__skip_license_check = value
 
     def load_yaml_configuration(self, path: str, raise_on_wrong_key: bool = False):
         """Update default settings from a YAML configuration file."""

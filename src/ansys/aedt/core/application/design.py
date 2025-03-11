@@ -30,8 +30,6 @@ These classes are inherited in the main tool class.
 
 """
 
-from __future__ import absolute_import  # noreorder
-
 from abc import abstractmethod
 import gc
 import json
@@ -61,7 +59,6 @@ from ansys.aedt.core.application.design_solutions import model_names
 from ansys.aedt.core.application.design_solutions import solutions_defaults
 from ansys.aedt.core.application.variables import DataSet
 from ansys.aedt.core.application.variables import VariableManager
-from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.desktop import _init_desktop_from_design
 from ansys.aedt.core.desktop import exception_to_desktop
 from ansys.aedt.core.generic.aedt_versions import aedt_versions
@@ -69,20 +66,22 @@ from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import unit_system
 from ansys.aedt.core.generic.data_handlers import variation_string_to_dict
 from ansys.aedt.core.generic.errors import GrpcApiError
-from ansys.aedt.core.generic.general_methods import check_and_download_file
-from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.file_utils import check_and_download_file
+from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.file_utils import is_project_locked
+from ansys.aedt.core.generic.file_utils import open_file
+from ansys.aedt.core.generic.file_utils import read_csv
+from ansys.aedt.core.generic.file_utils import read_tab
+from ansys.aedt.core.generic.file_utils import read_xlsx
+from ansys.aedt.core.generic.file_utils import remove_project_lock
+from ansys.aedt.core.generic.file_utils import write_csv
 from ansys.aedt.core.generic.general_methods import inner_project_settings
-from ansys.aedt.core.generic.general_methods import is_project_locked
 from ansys.aedt.core.generic.general_methods import is_windows
-from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.general_methods import read_csv
-from ansys.aedt.core.generic.general_methods import read_tab
-from ansys.aedt.core.generic.general_methods import read_xlsx
-from ansys.aedt.core.generic.general_methods import remove_project_lock
 from ansys.aedt.core.generic.general_methods import settings
-from ansys.aedt.core.generic.general_methods import write_csv
 from ansys.aedt.core.generic.load_aedt_file import load_entire_aedt_file
+from ansys.aedt.core.generic.numbers import _units_assignment
+from ansys.aedt.core.generic.numbers import decompose_variable_value
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
 from ansys.aedt.core.modules.boundary.layout_boundary import BoundaryObject3dLayout
@@ -177,7 +176,8 @@ class Design(AedtObjects):
         self._project_path: Optional[str] = None
         self.__t: Optional[threading.Thread] = None
         if (
-            project_name
+            is_windows
+            and project_name
             and os.path.exists(project_name)
             and (os.path.splitext(project_name)[1] == ".aedt" or os.path.splitext(project_name)[1] == ".a3dcomp")
         ):
@@ -239,7 +239,7 @@ class Design(AedtObjects):
         self._logger.odesign = self.odesign
         AedtObjects.__init__(self, self._desktop_class, self.oproject, self.odesign, is_inherithed=True)
         self.logger.info("Aedt Objects correctly read")
-        if not self.__t and not settings.lazy_load and os.path.exists(self.project_file):
+        if is_windows and not self.__t and not settings.lazy_load and os.path.exists(self.project_file):
             self.__t = threading.Thread(target=load_aedt_thread, args=(self.project_file,), daemon=True)
             self.__t.start()
 
@@ -306,6 +306,7 @@ class Design(AedtObjects):
 
     @pyaedt_function_handler()
     def __setitem__(self, variable_name: str, variable_value: Optional[Union[str, int, float]]) -> bool:
+        variable_value = _units_assignment(variable_value)
         self.variable_manager[variable_name] = variable_value
         return True
 
@@ -470,7 +471,7 @@ class Design(AedtObjects):
         current_boundaries = bb[::2]
         current_types = bb[1::2]
         if hasattr(self, "excitations"):
-            check_boundaries = list(current_boundaries[:]) + list(self.ports[:]) + self.excitations[:]
+            check_boundaries = list(current_boundaries[:]) + list(self.ports[:]) + self.excitation_names[:]
             if "nets" in dir(self):
                 check_boundaries += self.nets
             for k in list(self._boundaries.keys())[:]:
@@ -1125,8 +1126,11 @@ class Design(AedtObjects):
                     elif self._temp_solution_type in des.GetSolutionType():
                         valids.append(name)
             if len(valids) > 1:
-                des_name = self.oproject.GetActiveDesign().GetName()
-                if des_name in valids:
+                try:
+                    des_name = self.oproject.GetActiveDesign().GetName()
+                except Exception:
+                    des_name = None
+                if des_name and des_name in valids:
                     activedes = self.oproject.GetActiveDesign().GetName()
                 else:
                     activedes = valids[0]
@@ -1243,7 +1247,8 @@ class Design(AedtObjects):
                     path = os.path.dirname(proj_name)
                     self.odesktop.RestoreProjectArchive(proj_name, os.path.join(path, name), True, True)
                     time.sleep(0.5)
-                    self._oproject = self.desktop_class.active_project()
+                    proj_name = name[:-5]
+                    self._oproject = self.desktop_class.active_project(proj_name)
                     self._add_handler()
                     self.logger.info(f"Archive {proj_name} has been restored to project {self._oproject.GetName()}")
                 elif ".def" in proj_name or proj_name[-5:] == ".aedb":
@@ -1398,7 +1403,7 @@ class Design(AedtObjects):
                         profile_setup_obj = self.get_oo_object(profile_setups_obj, profile_setup_name)
                         if profile_setup_obj and self.get_oo_name(profile_setup_obj):
                             try:
-                                profile_tree = BinaryTreeNode("profile", profile_setup_obj)
+                                profile_tree = BinaryTreeNode("profile", profile_setup_obj, app=self._app)
                                 profile_objs[profile_setup_name] = profile_tree
                             except Exception:  # pragma: no cover
                                 self.logger.error(f"{profile_setup_name} profile could not be obtained.")
@@ -1551,7 +1556,8 @@ class Design(AedtObjects):
             output_file = os.path.join(self.working_directory, generate_unique_name("Profile") + ".prof")
         if not variation:
             val_str = []
-            for el, val in self.available_variations.nominal_w_values_dict.items():
+            nominal_variation = self.available_variations.get_independent_nominal_values()
+            for el, val in nominal_variation.items():
                 val_str.append(f"{el}={val}")
             if self.design_type == "HFSS 3D Layout Design":
                 variation = " ".join(val_str)
@@ -4259,6 +4265,7 @@ class DesignSettings:
         return "\n".join(lines)
 
     def __setitem__(self, key: str, value: Any) -> Union[bool, None]:
+        value = _units_assignment(value)
         if key in self.available_properties:
             if self.manipulate_inputs is not None:
                 value = self.manipulate_inputs.execute(key, value)

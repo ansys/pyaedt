@@ -41,12 +41,12 @@ This module contains these data classes for creating a material library:
 import copy
 import warnings
 
-from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import CSS4_COLORS
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.data_handlers import _dict2arg
-from ansys.aedt.core.generic.general_methods import is_number
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.generic.numbers import is_number
 
 
 class MatProperties(object):
@@ -949,7 +949,7 @@ class MatProperty(object):
         Examples
         --------
         >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss(version="2023.2")
+        >>> hfss = Hfss(version="2025.1")
         >>> B_value = [0.0, 0.1, 0.3, 0.4, 0.48, 0.55, 0.6, 0.61, 0.65]
         >>> H_value = [0.0, 500.0, 1000.0, 1500.0, 2000.0, 2500.0, 3500.0, 5000.0, 10000.0]
         >>> mat = hfss.materials.add_material("newMat")

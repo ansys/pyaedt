@@ -27,7 +27,7 @@ import re
 from ansys.aedt.core.generic.constants import SI_UNITS
 from ansys.aedt.core.generic.constants import unit_system
 from ansys.aedt.core.generic.data_handlers import _dict2arg
-from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 quantities_dict_1 = {  # pragma: no cover
@@ -322,11 +322,11 @@ class Monitor:
                     [
                         "NAME:PointParameters",
                         "PointX:=",
-                        self._app.modeler._arg_with_dim(p_p[0]),
+                        self._app.value_with_units(p_p[0]),
                         "PointY:=",
-                        self._app.modeler._arg_with_dim(p_p[1]),
+                        self._app.value_with_units(p_p[1]),
                         "PointZ:=",
-                        self._app.modeler._arg_with_dim(p_p[2]),
+                        self._app.value_with_units(p_p[2]),
                     ],
                     ["NAME:Attributes", "Name:=", point_name, "Color:=", "(143 175 143)"],
                 )

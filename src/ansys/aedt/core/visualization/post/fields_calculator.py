@@ -26,11 +26,11 @@ import os
 import warnings
 
 import ansys.aedt.core
-from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import generate_unique_project_name
-from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.file_utils import generate_unique_project_name
+from ansys.aedt.core.generic.file_utils import open_file
+from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.general_methods import read_configuration_file
 from jsonschema import exceptions
 from jsonschema import validate
 
@@ -611,7 +611,7 @@ class FieldsCalculator:
         if not setup:
             setup = self.__app.nominal_adaptive
         setup_name = setup.split(":")[0].strip(" ")
-        if setup_name not in self.__app.existing_analysis_setups:
+        if setup_name not in self.__app.setup_names:
             self.__app.logger.error("Invalid setup name.")
             return False
         self.ofieldsreporter.CalcStack("clear")

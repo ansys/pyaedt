@@ -24,13 +24,10 @@
 
 import random
 import sys
-import time
 import warnings
 
 from ansys.aedt.core.generic.constants import AEDT_UNITS
-from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.cad.modeler import Modeler
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import Wire
@@ -92,14 +89,41 @@ class ModelerCircuit(Modeler):
             self.logger.error("The unit %s is not supported.", value)
 
     @property
-    def o_component_manager(self):
+    def ocomponent_manager(self):
         """Component manager object."""
-        return self._app.o_component_manager
+        return self._app.ocomponent_manager
 
     @property
-    def o_model_manager(self):
+    def o_component_manager(self):  # pragma: no cover
+        """Component manager object.
+
+        .. deprecated:: 0.15.0
+           Use :func:`ocomponent_manager` property instead.
+
+        """
+        warnings.warn(
+            "`o_component_manager` is deprecated. Use `ocomponent_manager` instead.",
+            DeprecationWarning,
+        )
+        return self.ocomponent_manager
+
+    @property
+    def omodel_manager(self):
         """Model manager object."""
-        return self._app.o_model_manager
+        return self._app.omodel_manager
+
+    @property
+    def o_model_manager(self):  # pragma: no cover
+        """Model manager object.
+
+        .. deprecated:: 0.15.0
+           Use :func:`omodel_manager` property instead.
+        """
+        warnings.warn(
+            "`o_model_manager` is deprecated. Use `omodel_manager` instead.",
+            DeprecationWarning,
+        )
+        return self.omodel_manager
 
     @property
     def oeditor(self):
@@ -334,12 +358,12 @@ class ModelerCircuit(Modeler):
                 g3 = (rect_border_color >> 8) & 0xFF
                 b3 = (rect_border_color >> 0) & 0xFF
             self.change_text_property(str(text_id), "Color", [r, g, b])
-            self.change_text_property(str(text_id), "Angle", self._arg_with_dim(text_angle, "deg"))
+            self.change_text_property(str(text_id), "Angle", self._app.value_with_units(text_angle, "deg"))
             self.change_text_property(str(text_id), "DisplayRectangle", show_rect)
             if show_rect:
                 self.change_text_property(str(text_id), "Rectangle Color", [r2, g2, b2])
                 self.change_text_property(
-                    str(text_id), "Rectangle BorderWidth", self._arg_with_dim(rect_line_width, "mil")
+                    str(text_id), "Rectangle BorderWidth", self._app.value_with_units(rect_line_width, "mil")
                 )
                 self.change_text_property(str(text_id), "Rectangle BorderColor", [r3, g3, b3])
                 self.change_text_property(str(text_id), "Rectangle FillStyle", fill[rect_fill])
@@ -400,8 +424,8 @@ class ModelerCircuit(Modeler):
                 ]
             )
         elif isinstance(value, list) and len(value) == 2:
-            xpos = self._arg_with_dim(value[0])
-            ypos = self._arg_with_dim(value[1])
+            xpos = self._app.value_with_units(value[0])
+            ypos = self._app.value_with_units(value[1])
             self.oeditor.ChangeProperty(
                 [
                     "NAME:AllTabs",
@@ -458,20 +482,6 @@ class ModelerCircuit(Modeler):
             return ", ".join(sels)
         return sels
 
-    @pyaedt_function_handler()
-    def _arg_with_dim(self, value, units=None):
-        if units is None:
-            units = self.schematic_units
-        if isinstance(value, str):
-            try:
-                float(value)
-                val = f"{value}{units}"
-            except Exception:
-                val = value
-        else:
-            val = f"{value}{units}"
-        return val
-
 
 class ModelerNexxim(ModelerCircuit):
     """ModelerNexxim class.
@@ -525,6 +535,16 @@ class ModelerNexxim(ModelerCircuit):
         return self._schematic
 
     @property
+    def pages(self):
+        """Return the number of pages of the current schematic.
+
+        Returns
+        -------
+        int
+        """
+        return self.oeditor.GetNumPages()
+
+    @property
     def edb(self):
         """EDB.
 
@@ -546,11 +566,7 @@ class ModelerNexxim(ModelerCircuit):
         >>> oEditor.GetActiveUnits
         >>> oEditor.SetActiveUnits
         """
-        active_units = self.layouteditor.GetActiveUnits()
-        if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
-            time.sleep(1)
-            self._app.desktop_class.close_windows()
-        return active_units
+        return self._app.units.length
 
     @property
     def layout(self):
@@ -582,9 +598,7 @@ class ModelerNexxim(ModelerCircuit):
     @model_units.setter
     def model_units(self, units):
         """Set the model units as a string e.g. "mm"."""
-        if units not in AEDT_UNITS["Length"]:
-            raise RuntimeError(f"Invalid units string {units}.")
-        self.oeditor.SetActivelUnits(["NAME:Units Parameter", "Units:=", units, "Rescale:=", False])
+        self._app.units.length = units
 
     @pyaedt_function_handler(selections="assignment", pos="offset")
     def move(self, assignment, offset, units=None):

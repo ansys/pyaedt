@@ -30,7 +30,7 @@ This module provides all functionalities for creating and editing reports.
 """
 import os
 
-from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.visualization.report.common import CommonReport
@@ -310,7 +310,7 @@ class AMIConturEyeDiagram(CommonReport):
         self._is_created = True
         oo = self._post.oreportsetup.GetChildObject(self._legacy_props["plot_name"])
         if oo:
-            BinaryTreeNode.__init__(self, self.plot_name, oo, False)
+            BinaryTreeNode.__init__(self, self.plot_name, oo, False, app=self._app)
         return True
 
     @pyaedt_function_handler(xunits="x_units", yunits="y_units", xoffset="x_offset", yoffset="y_offset")
@@ -905,7 +905,7 @@ class AMIEyeDiagram(CommonReport):
         self._is_created = True
         oo = self._post.oreportsetup.GetChildObject(self._legacy_props["plot_name"])
         if oo:
-            BinaryTreeNode.__init__(self, self.plot_name, oo, False)
+            BinaryTreeNode.__init__(self, self.plot_name, oo, False, app=self._app)
         return True
 
     @pyaedt_function_handler(xunits="x_units", yunits="y_units", xoffset="x_offset", yoffset="y_offset")

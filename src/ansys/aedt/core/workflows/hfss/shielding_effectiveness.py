@@ -25,7 +25,7 @@ from pathlib import Path
 
 import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
-from ansys.aedt.core.generic.general_methods import write_csv
+from ansys.aedt.core.generic.file_utils import write_csv
 import ansys.aedt.core.workflows
 from ansys.aedt.core.workflows.misc import get_aedt_version
 from ansys.aedt.core.workflows.misc import get_arguments
@@ -336,6 +336,7 @@ def main(extension_args):
     # Create sphere
 
     sphere = aedtapp.modeler.create_sphere(origin=center, radius=sphere_size, material="pec")
+    sphere.name = "dipole"
 
     # Assign incident wave
     is_electric = False
@@ -415,6 +416,10 @@ def main(extension_args):
 
     original_1meter = original.post.get_solution_data("Sphere1meter", report_category="Emission Test")
     original_3meters = original.post.get_solution_data("Sphere3meters", report_category="Emission Test")
+
+    if None in (free_space_1meter, free_space_3meters, original_1meter, original_3meters):  # pragma: no cover
+        aedtapp.logger.error("Data can not be obtained.")
+        return False
 
     frequencies = free_space_1meter.primary_sweep_values
     frequency_units = free_space_1meter.units_sweeps["Freq"]
