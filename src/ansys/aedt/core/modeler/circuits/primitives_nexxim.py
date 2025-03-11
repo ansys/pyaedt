@@ -1902,7 +1902,7 @@ class NexximComponents(CircuitComponents):
 
         Parameters
         ----------
-        component : str
+        component : str or :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Address of the component instance. For example, ``"Inst@layout_cutout;87;1"``.
         option : str
             Set the simulation strategy. Options are ``"simulate"`` and ``"interpolate"``. The default
