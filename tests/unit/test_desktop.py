@@ -32,28 +32,13 @@ from ansys.aedt.core.desktop import _find_free_port
 from ansys.aedt.core.desktop import _is_port_occupied
 from ansys.aedt.core.desktop import run_process
 from ansys.aedt.core.generic.settings import Settings
-import pytest
-
-# @pytest.fixture(scope="module", autouse=True)
-# def desktop():
-#     """Override the desktop fixture to DO NOT open the Desktop when running this test class"""
-#     return
 
 
-@pytest.fixture(scope="module", autouse=True)
 def mock_desktop():
     """Fixture used to mock the creation of a Desktop instance."""
     with patch("ansys.aedt.core.desktop.Desktop.__init__", lambda x: None):
         mock_instance = MagicMock(spec=Desktop)
         yield mock_instance
-
-
-# @pytest.fixture
-# def desktop():
-#     """Fixture used to mock the creation of a Maxwell instance."""
-#     with patch("ansys.aedt.core.desktop.Desktop.__init__", lambda x: None):
-#         mock_instance = MagicMock(spec=Desktop)
-#         yield mock_instance
 
 
 # Test _is_port_occupied
@@ -101,8 +86,8 @@ def test_desktop_odesktop_retries(mock_settings, mock_sleep, mock_desktop):
     aedt_app = MagicMock()
     desktop.grpc_plugin = MagicMock()
     mock_odesktop = PropertyMock(name="oui", side_effect=[Exception("Failure"), aedt_app])
-    # NOTE: Without type(...) is required for odesktop to be defined as a property and not an attribute.
-    # Without it, the side effect does not work.
+    # NOTE: Use of type(...) is required for odesktop to be defined as a property and
+    # not an attribute. Without it, the side effect does not work.
     type(desktop.grpc_plugin).odesktop = mock_odesktop
 
     res = desktop.odesktop
