@@ -162,8 +162,7 @@ def change_objects_visibility(input_file: Union[str, Path], assignment: list) ->
             return True
         except Exception:  # pragma: no cover
             # Cleanup temporary file if exists.
-            if newfile.exists():
-                newfile.unlink()
+            newfile.unlink(missing_ok=True)
             raise AEDTRuntimeError("Failed to restrict visibility to specified solids.")
 
     else:  # pragma: no cover
@@ -231,6 +230,5 @@ def change_model_orientation(input_file: Union[str, Path], bottom_dir: str) -> b
         newfile.rename(input_path)
         return True
     except Exception as e:  # pragma: no cover
-        if newfile.exists():
-            newfile.unlink()
+        newfile.unlink(missing_ok=True)
         raise AEDTRuntimeError(f"change_model_orientation: Error encountered - {e}")
