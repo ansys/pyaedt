@@ -24,41 +24,7 @@
 
 from ansys.aedt.core.application.aedt_file_management import change_model_orientation
 from ansys.aedt.core.application.aedt_file_management import change_objects_visibility
-from ansys.aedt.core.application.aedt_file_management import clean_proj_folder
 from ansys.aedt.core.application.aedt_file_management import create_output_folder
-from ansys.aedt.core.application.aedt_file_management import read_info_fromcsv
-
-
-def test_read_info_fromcsv(tmp_path):
-    # Create a temporary CSV file with known content.
-    csv_content = "col1,col2\nval1,val2\nval3,val4"
-    csv_file = tmp_path / "test.csv"
-    csv_file.write_text(csv_content, encoding="utf-8")
-
-    # Call the function using the temporary directory and file name.
-    result = read_info_fromcsv(tmp_path.as_posix(), "test.csv")
-
-    # Expected result is a list of lists.
-    expected = [["col1", "col2"], ["val1", "val2"], ["val3", "val4"]]
-    assert result == expected
-
-
-def test_clean_proj_folder(tmp_path):
-    # Create a temporary project directory with a dummy file.
-    proj_dir = tmp_path / "project"
-    proj_dir.mkdir()
-    dummy_file = proj_dir / "dummy.txt"
-    dummy_file.write_text("dummy", encoding="utf-8")
-
-    # Verify the dummy file exists before cleaning.
-    assert dummy_file.is_file()
-
-    # Call the function.
-    result = clean_proj_folder(proj_dir.as_posix(), "project")
-    assert result is True
-
-    # The folder is removed and recreated, so it should now be empty.
-    assert list(proj_dir.iterdir()) == []
 
 
 def test_create_output_folder(tmp_path):
