@@ -158,8 +158,7 @@ def change_objects_visibility(input_file: Union[str, Path], assignment: list) ->
             return True
         except Exception:  # pragma: no cover
             # Cleanup temporary file if exists.
-            if newfile.exists():
-                newfile.unlink()
+            newfile.unlink(missing_ok=True)
             raise AEDTRuntimeError("Failed to restrict visibility to specified solids.")
 
     else:  # pragma: no cover
