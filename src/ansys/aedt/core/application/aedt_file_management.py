@@ -105,6 +105,10 @@ def create_output_folder(input_dir: Union[str, Path]) -> tuple:
         Picture path, Results path
 
     """
+    warnings.warn(
+        "`create_output_folder` is deprecated.",
+        DeprecationWarning,
+    )
     npath = Path(input_dir)
     base = npath.name
 
