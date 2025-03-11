@@ -1010,7 +1010,7 @@ class ModelPlotter(CommonPlotter):
                         hasattr(field._cached_polydata.point_data, "active_vectors")
                         and field._cached_polydata.point_data.active_vectors_name
                     ):
-                        field.scalar_name = field._cached_polydata.point_data.active_scalars_name
+                        field.scalar_name = field._cached_polydata.point_data.active_vectors_name
                         vector_scale = (max(field._cached_polydata.bounds) - min(field._cached_polydata.bounds)) / (
                             10
                             * (
@@ -1041,7 +1041,7 @@ class ModelPlotter(CommonPlotter):
                             [np.linalg.norm(x) for x in np.vstack(scalars[0]).T]
                         )
                         try:
-                            field.scalar_name = field._cached_polydata.point_data.active_scalars_name + " Magnitude"
+                            field.scalar_name = field._cached_polydata.point_data.active_scalars_name
                             field.is_vector = True
                         except Exception:
                             field.is_vector = False
