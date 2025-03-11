@@ -1357,7 +1357,6 @@ class PostProcessorCommon(object):
         :class:`ansys.aedt.core.modules.report_templates.Standard`
             ``True`` when successful, ``False`` when failed.
 
-
         References
         ----------
         >>> oModule.CreateReport
