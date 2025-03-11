@@ -23,7 +23,6 @@
 # SOFTWARE.
 
 import logging
-import os
 from pathlib import Path
 import re
 import shutil
@@ -157,9 +156,9 @@ def change_objects_visibility(input_file: Union[str, Path], assignment: list) ->
             Path(input_file).unlink()
             newfile.rename(input_file)
             return True
-        except Exception:
+        except Exception:  # pragma: no cover
             # Cleanup temporary file if exists.
-            if newfile.exists():  # pragma: no cover
+            if newfile.exists():
                 newfile.unlink()
             raise AEDTRuntimeError("Failed to restrict visibility to specified solids.")
 
@@ -168,13 +167,13 @@ def change_objects_visibility(input_file: Union[str, Path], assignment: list) ->
         return False
 
 
-@pyaedt_function_handler()
-def change_model_orientation(origfile, bottom_dir):
+@pyaedt_function_handler(origfile="input_file")
+def change_model_orientation(input_file: Union[str, Path], bottom_dir: str) -> bool:
     """Edit the project file to change the model orientation.
 
     Parameters
     ----------
-    origfile : str or :class:`pathlib.Path`
+    input_file : str or :class:`pathlib.Path`
         Full path to the project file, which has an ``.aedt`` extension.
     bottom_dir : str
         Bottom direction as specified in the properties file.
@@ -184,10 +183,11 @@ def change_model_orientation(origfile, bottom_dir):
     bool
         ``True`` when successful, ``False`` when failed.
     """
-    path, filename = os.path.split(origfile)
-    newfile = os.path.join(path, "aedttmp.tmp")
+    input_path = Path(input_file)
+    newfile = input_path.parent / "aedttmp.tmp"
+    lock_file = input_path.with_suffix(".aedt.lock")
 
-    # directory of u, v vectors for view orientation
+    # Directory of u, v vectors for view orientation
     orientation = {
         "+X": "OrientationMatrix(0, -0.816496610641479, -0.577350318431854, 0, 0.70710676908493, -0.40824830532074, "
         "0.577350318431854, 0, -0.70710676908493, -0.40824830532074, 0.577350318431854, 0, 0, 0, 0, 1, 0, -100, "
@@ -209,33 +209,24 @@ def change_model_orientation(origfile, bottom_dir):
         "-100, 100, -100, 100, -100, 100) ",
     }
 
-    if not os.path.isfile(origfile + ".lock"):  # check if the project is closed
-        try:
-            # Using text mode with explicit encoding.
-            with open(origfile, "rb") as f, open(newfile, "wb") as n:
-                # Reading file content
-                content = f.read()
-
-                # Searching file content for pattern
-                pattern = re.compile(
-                    r"(\$begin 'EditorWindow'\n.+?)(OrientationMatrix\(.+?\))(.+\n\s*\$end 'EditorWindow')",
-                    re.UNICODE | re.DOTALL,
-                )
-                # Replacing string
-                orientation_str = orientation.get(bottom_dir, "")
-                s = pattern.sub(r"\1" + orientation_str + r"\3", content)
-
-                # Writing file content
-                n.write(s)
-            # Renaming files and deleting temporary file
-            os.remove(origfile)
-            os.rename(newfile, origfile)
-            return True
-        except Exception as e:
-            if os.path.exists(newfile):
-                os.remove(newfile)
-            logging.error("change_model_orientation: Error encountered - %s", e)
-            return False
-    else:  # Project is locked
-        logging.error("change_model_orientation: Project %s is still locked.", origfile)
+    if lock_file.exists():  # pragma: no cover
+        logging.error(f"change_model_orientation: Project {input_file} is still locked.")
         return False
+
+    try:
+        with input_path.open("rb") as f, newfile.open("wb") as n:
+            content = f.read()
+            search_str = r"(\\$begin 'EditorWindow'\\n.+?)(OrientationMatrix\\(.+?\\))(.+\\n\\s*\\$end 'EditorWindow')"
+            # Replacing string
+            orientation_str = orientation[bottom_dir]
+            sub_str = r"\1" + orientation_str + r"\3"
+            s = re.sub(search_str.encode("utf-8"), sub_str.encode("utf-8"), content)
+            # Writing file content
+            n.write(s)
+        input_path.unlink()
+        newfile.rename(input_path)
+        return True
+    except Exception as e:  # pragma: no cover
+        if newfile.exists():
+            newfile.unlink()
+        raise AEDTRuntimeError(f"change_model_orientation: Error encountered - {e}")
