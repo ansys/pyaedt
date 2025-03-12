@@ -41,12 +41,12 @@ class LumpedTopology:
         self._dll = ansys.aedt.core.filtersolutions_core._dll_interface()._dll
         self._dll_interface = ansys.aedt.core.filtersolutions_core._dll_interface()
         self._define_topology_dll_functions()
-        if self._dll_interface.api_version()[1] >= 2025.2:
+        if self._dll_interface.api_version() >= "2025.2":
             self._set_lump_implementation()
 
     def _define_topology_dll_functions(self):
         """Define C++ API DLL functions."""
-        if self._dll_interface.api_version()[1] >= 2025.2:
+        if self._dll_interface.api_version() >= "2025.2":
             self._dll.setLumpedSourceResistance.argtype = c_char_p
             self._dll.setLumpedSourceResistance.restype = c_int
             self._dll.getLumpedSourceResistance.argtypes = [c_char_p, c_int]
@@ -162,7 +162,7 @@ class LumpedTopology:
         self._dll.getLumpedComplexElementTuneEnabled.argtype = POINTER(c_bool)
         self._dll.getLumpedComplexElementTuneEnabled.restype = c_int
 
-        if self._dll_interface.api_version()[1] >= 2025.2:
+        if self._dll_interface.api_version() >= "2025.2":
             self._dll.getLumpedNetlistSize.argtype = POINTER(c_int)
             self._dll.getLumpedNetlistSize.restype = c_int
             self._dll.getLumpedNetlist.argtypes = [c_char_p, c_int]
@@ -186,7 +186,7 @@ class LumpedTopology:
         -------
         str
         """
-        if self._dll_interface.api_version()[1] >= 2025.2:
+        if self._dll_interface.api_version() >= "2025.2":
             source_resistance_string = self._dll_interface.get_string(self._dll.getLumpedSourceResistance)
         else:
             source_resistance_string = self._dll_interface.get_string(self._dll.getLumpedGeneratorResistor)
@@ -194,7 +194,7 @@ class LumpedTopology:
 
     @source_resistance.setter
     def source_resistance(self, source_resistance_string):
-        if self._dll_interface.api_version()[1] >= 2025.2:
+        if self._dll_interface.api_version() >= "2025.2":
             self._dll_interface.set_string(self._dll.setLumpedSourceResistance, source_resistance_string)
         else:
             self._dll_interface.set_string(self._dll.setLumpedGeneratorResistor, source_resistance_string)
@@ -207,7 +207,7 @@ class LumpedTopology:
         -------
         str
         """
-        if self._dll_interface.api_version()[1] >= 2025.2:
+        if self._dll_interface.api_version() >= "2025.2":
             load_resistance_string = self._dll_interface.get_string(self._dll.getLumpedLoadResistance)
         else:
             load_resistance_string = self._dll_interface.get_string(self._dll.getLumpedLoadResistor)
@@ -215,7 +215,7 @@ class LumpedTopology:
 
     @load_resistance.setter
     def load_resistance(self, load_resistance_string):
-        if self._dll_interface.api_version()[1] >= 2025.2:
+        if self._dll_interface.api_version() >= "2025.2":
             self._dll_interface.set_string(self._dll.setLumpedLoadResistance, load_resistance_string)
         else:
             self._dll_interface.set_string(self._dll.setLumpedLoadResistor, load_resistance_string)
@@ -568,12 +568,12 @@ class LumpedTopology:
     def netlist(self):
         """Execute real filter synthesis"""
         size = c_int()
-        if self._dll_interface.api_version()[1] >= 2025.2:
+        if self._dll_interface.api_version() >= "2025.2":
             status = self._dll.getLumpedNetlistSize(byref(size))
         else:
             status = self._dll.getLumpedCircuitResponseSize(byref(size))
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
-        if self._dll_interface.api_version()[1] >= 2025.2:
+        if self._dll_interface.api_version() >= "2025.2":
             netlist_string = self._dll_interface.get_string(self._dll.getLumpedNetlist, max_size=size.value)
         else:
             netlist_string = self._dll_interface.get_string(self._dll.getLumpedCircuitResponse, max_size=size.value)
