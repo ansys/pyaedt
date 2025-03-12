@@ -955,8 +955,8 @@ def available_license_feature(
     else:
         input_dir = Path(input_dir)
 
-    # Checks if the licensingclient folder exists in input_dir. In V252, the folder was moved up one level,
-    # so input_dir is updated accordingly before generating ansys_util_path.
+    # Starting with 25R2, the licensingclient directory is located one level higher in the installation
+    # path. If the folder isn't found in the legacy location, use the parent directory.
     if not check_if_path_exists(os.path.join(input_dir, "licensingclient")):
         input_dir = Path(os.path.dirname(input_dir))
 
