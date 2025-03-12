@@ -35,9 +35,9 @@ import warnings
 import ansys.aedt.core
 from ansys.aedt.core.application.variables import Variable
 from ansys.aedt.core.generic.data_handlers import json_to_dict
-from ansys.aedt.core.generic.general_methods import _uname
+from ansys.aedt.core.generic.file_utils import _uname
+from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import clamp
-from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
@@ -3168,7 +3168,7 @@ class GeometryModeler(Modeler):
         ----------
         assignment : list, str, int, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Name or ID of the object.
-        sweep_vector : float
+        sweep_vector : list
             List of ``[x1, y1, z1]`` coordinates or Application.Position object for
             the vector.
         draft_angle : float, optional
@@ -9003,7 +9003,7 @@ class PrimitivesBuilder(object):
             elif file_format == ".csv":
                 import re
 
-                from ansys.aedt.core.generic.general_methods import read_csv_pandas
+                from ansys.aedt.core.generic.file_utils import read_csv_pandas
 
                 csv_data = read_csv_pandas(input_file=input_file)
                 primitive_type = csv_data.columns[0]

@@ -27,8 +27,8 @@ import tempfile
 
 import ansys.aedt.core
 from ansys.aedt.core import Hfss
-from ansys.aedt.core.generic.general_methods import read_json
-from ansys.aedt.core.generic.general_methods import write_configuration_file
+from ansys.aedt.core.generic.file_utils import read_json
+from ansys.aedt.core.generic.file_utils import write_configuration_file
 import ansys.aedt.core.workflows
 from ansys.aedt.core.workflows.misc import get_aedt_version
 from ansys.aedt.core.workflows.misc import get_arguments
@@ -348,7 +348,11 @@ def main(extension_args):
         design_name = active_design.GetName()
 
     if not hfss:  # pragma: no cover
-        hfss = Hfss(project_name, design_name)
+        if app.design_type(project_name, design_name) == "HFSS":
+            hfss = Hfss(project_name, design_name)
+        else:
+            hfss = Hfss()
+            hfss.save_project()
 
     hfss.solution_type = "Terminal"
 

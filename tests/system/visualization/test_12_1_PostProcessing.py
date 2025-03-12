@@ -27,15 +27,14 @@ import sys
 import uuid
 
 from ansys.aedt.core import Quantity
+from ansys.aedt.core.generic.file_utils import read_json
 from ansys.aedt.core.generic.general_methods import is_linux
-from ansys.aedt.core.generic.general_methods import read_json
-from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.visualization.plot.pyvista import _parse_aedtplt
 from ansys.aedt.core.visualization.plot.pyvista import _parse_streamline
 import pytest
 
-from tests import TESTS_GENERAL_PATH
-from tests.system.general.conftest import config
+from tests import TESTS_VISUALIZATION_PATH
+from tests.system.visualization.conftest import config
 
 test_field_name = "Potter_Horn_231"
 test_project_name = "coax_setup_solved_231"
@@ -49,7 +48,6 @@ test_circuit_name = "Switching_Speed_FET_And_Diode"
 eye_diagram = "SimpleChannel"
 ami = "ami"
 test_subfolder = "T12"
-settings.enable_pandas_output = True
 
 
 @pytest.fixture(scope="class")
@@ -119,8 +117,8 @@ class TestClass:
         assert aedtapp.post.create_fieldplot_surface(aedtapp.modeler["outer"], "Mag_E", setup_name, intrinsic)
         assert aedtapp.post.create_fieldplot_surface(aedtapp.modeler["outer"].faces, "Mag_E", setup_name, intrinsic)
         assert not aedtapp.post.create_fieldplot_surface(123123123, "Mag_E", setup_name, intrinsic)
-        assert len(aedtapp.setups[0].sweeps[0].frequencies) > 0
-        assert isinstance(aedtapp.setups[0].sweeps[0].basis_frequencies, list)
+        assert len(aedtapp.design_setups["Setup1"].sweeps[0].frequencies) > 0
+        assert isinstance(aedtapp.design_setups["Setup1"].sweeps[0].basis_frequencies, list)
         mesh_file_path = aedtapp.post.export_mesh_obj(setup_name, intrinsic)
         assert os.path.exists(mesh_file_path)
         mesh_file_path2 = aedtapp.post.export_mesh_obj(
@@ -182,7 +180,8 @@ class TestClass:
         portnames = ["1", "2"]
         assert aedtapp.create_scattering("MyTestScattering")
         setup_name = "Setup2 : Sweep"
-        assert not aedtapp.create_scattering("MyTestScattering2", setup_name, portnames, portnames)
+        with pytest.raises(KeyError):
+            aedtapp.create_scattering("MyTestScattering2", setup_name, portnames, portnames)
 
     def test_03_get_solution_data(self, aedtapp, local_scratch):
         trace_names = []
@@ -204,6 +203,17 @@ class TestClass:
         assert len(my_data.data_magnitude(trace_names[0])) > 0
         assert my_data.export_data_to_csv(os.path.join(local_scratch.path, "output.csv"))
         assert os.path.exists(os.path.join(local_scratch.path, "output.csv"))
+        assert aedtapp.get_touchstone_data("Setup1")
+
+        my_data.enable_pandas_output = False
+        assert my_data
+        assert my_data.expressions
+        assert len(my_data.data_db10(trace_names[0])) > 0
+        assert len(my_data.data_imag(trace_names[0])) > 0
+        assert len(my_data.data_real(trace_names[0])) > 0
+        assert len(my_data.data_magnitude(trace_names[0])) > 0
+        assert my_data.export_data_to_csv(os.path.join(local_scratch.path, "output2.csv"))
+        assert os.path.exists(os.path.join(local_scratch.path, "output2.csv"))
         assert aedtapp.get_touchstone_data("Setup1")
 
     def test_04_export_touchstone(self, aedtapp, local_scratch):
@@ -363,6 +373,9 @@ class TestClass:
 
         # test import with correct inputs from csv
         assert new_report.import_traces(csv_file_path, plot_name)
+
+        assert len(new_report.traces) == 4
+
         # test import with correct inputs from rdat
         assert new_report.import_traces(rdat_file_path, plot_name)
         # test import with not existing plot_name
@@ -756,18 +769,20 @@ class TestClass:
         assert aedtapp.post.reports_by_category.eigenmode()
 
     def test_59_test_parse_vector(self):
-        out = _parse_aedtplt(os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "test_vector.aedtplt"))
+        out = _parse_aedtplt(
+            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "test_vector.aedtplt")
+        )
         assert isinstance(out[0], list)
         assert isinstance(out[1], list)
         assert isinstance(out[2], list)
         assert isinstance(out[3], bool)
         assert _parse_aedtplt(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "test_vector_no_solutions.aedtplt")
+            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "test_vector_no_solutions.aedtplt")
         )
 
     def test_60_test_parse_vector(self):
         out = _parse_streamline(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "test_streamline.fldplt")
+            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "test_streamline.fldplt")
         )
         assert isinstance(out, list)
 
@@ -776,7 +791,7 @@ class TestClass:
 
     def test_67_sweep_from_json(self, aedtapp):
         dict_vals = read_json(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", "report_json", "Modal_Report_Simple.json")
+            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", "report_json", "Modal_Report_Simple.json")
         )
         assert aedtapp.post.create_report_from_configuration(report_settings=dict_vals)
         assert aedtapp.post.create_report_from_configuration(report_settings=dict_vals, matplotlib=True)
@@ -786,10 +801,11 @@ class TestClass:
     )
     def test_70_sweep_from_json(self, aedtapp):
         assert aedtapp.post.create_report_from_configuration(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", "report_json", "Modal_Report.json")
+            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", "report_json", "Modal_Report.json")
         )
         assert aedtapp.post.create_report_from_configuration(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", "report_json", "Modal_Report.json"), matplotlib=True
+            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", "report_json", "Modal_Report.json"),
+            matplotlib=True,
         )
 
     def test_74_dynamic_update(self, aedtapp):

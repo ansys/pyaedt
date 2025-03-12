@@ -437,19 +437,7 @@ class TestClass:
             9000.0,
             10000.0,
         ]
-        assert unit_converter(values, "Length", "m", "mm") == [
-            0.0,
-            1000.0,
-            2000.0,
-            3000.0,
-            4000.0,
-            5000.0,
-            6000.0,
-            7000.0,
-            8000.0,
-            9000.0,
-            10000.0,
-        ]
+
         assert unit_converter(10, "Temperature", "cel", "fah") == 50
         assert unit_converter(10, "Power", "W", "dBm") == 40
         assert unit_converter(10, "Power", "W", "dBW") == 10
