@@ -994,13 +994,7 @@ class ModelPlotter(CommonPlotter):
             and field._cached_polydata.point_data.active_vectors_name
         ):
             field.scalar_name = field._cached_polydata.point_data.active_vectors_name
-            vector_scale = (max(field._cached_polydata.bounds) - min(field._cached_polydata.bounds)) / (
-                10
-                * (
-                    np.vstack(field._cached_polydata.active_vectors).max()
-                    - np.vstack(field._cached_polydata.active_vectors).min()
-                )
-            )
+            # vector_scale = 1
             field._cached_polydata["vectors"] = field._cached_polydata.active_vectors * vector_scale
 
             field.is_vector = True
@@ -1015,20 +1009,10 @@ class ModelPlotter(CommonPlotter):
         fields_vals = pv.PolyData(vertices[0], faces[0])
         field._cached_polydata = fields_vals
         if isinstance(scalars[0], list):
-            vector_scale = (max(fields_vals.bounds) - min(fields_vals.bounds)) / (
-                50 * (np.vstack(scalars[0]).max() - np.vstack(scalars[0]).min())
-            )
-
+            # vector_scale = 1
+            field.scalar_name = "vectors"
             field._cached_polydata["vectors"] = np.vstack(scalars).T * vector_scale
-            field.label = "Vector " + field.label
-            field._cached_polydata.point_data[field.label] = np.array(
-                [np.linalg.norm(x) for x in np.vstack(scalars[0]).T]
-            )
-            try:
-                field.scalar_name = field._cached_polydata.point_data.active_scalars_name
-                field.is_vector = True
-            except Exception:
-                field.is_vector = False
+            field.is_vector = True
         else:
             field._cached_polydata.point_data[field.label] = scalars[0]
             field.scalar_name = field._cached_polydata.point_data.active_scalars_name
@@ -1095,10 +1079,6 @@ class ModelPlotter(CommonPlotter):
             vertices = np.array(nodes) * conv
             filedata = pv.PolyData(vertices)
             if is_vector:
-                field.vector_scale = np.abs(
-                    (max(filedata.bounds) - min(filedata.bounds))
-                    / (20 * (np.vstack(values).max() - np.vstack(values).min()))
-                )
                 if type(values[0][0]) == complex:
                     values_np = np.array(values, dtype=np.complex128)
                     filedata["real_vector"] = values_np.real
@@ -1109,9 +1089,6 @@ class ModelPlotter(CommonPlotter):
                     values_np = np.array(values, dtype=np.float64)
                     filedata["vector_mag"] = values_np
                     field.scalar_name = "vector_mag"
-                # vector_scale = (max(filedata.bounds) - min(filedata.bounds)) / (
-                #    20 * (np.vstack(values).max() - np.vstack(values).min())
-                # )
 
             else:
                 filedata = filedata.delaunay_2d(tol=field.surface_mapping_tolerance)
@@ -1280,9 +1257,7 @@ class ModelPlotter(CommonPlotter):
                 # field._cached_polydata.set_active_vectors(field.scalar_name)  # For complex vectors, real part only.
                 field._cached_polydata[field.scalar_name] *= field.vector_scale
                 if not field._cached_polydata.arrows:
-                    field.arrows = field._cached_polydata.glyph(
-                        orient=field.scalar_name, scale=field.scalar_name, factor=1
-                    )
+                    field.arrows = field._cached_polydata.glyph(factor=100)
                 else:
                     field.arrows = field._cached_polydata.arrows
                 self.pv.add_mesh(
