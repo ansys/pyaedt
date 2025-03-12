@@ -194,6 +194,15 @@ class TestClass:
         report.create()
         assert report.add_project_info(field_test)
 
+        assert field_test.post.create_report(
+            "Time",
+            field_test.existing_analysis_sweeps[1],
+            plot_name="Time Domain Report",
+            domain="Time",
+            primary_sweep_variable="Time",
+            report_category="Modal Solution Data",
+        )
+
     def test_09_manipulate_report_B(self, field_test):
         variations = field_test.available_variations.get_independent_nominal_values()
         variations["Theta"] = ["All"]

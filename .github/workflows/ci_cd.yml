@@ -38,6 +38,7 @@ jobs:
           token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
           bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
           bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
+          use-upper-case: true
 
   pr-title:
     name: Check the title of the PR (if needed)
@@ -568,6 +569,7 @@ jobs:
         uses: ansys/actions/release-github@v8
         with:
           library-name: ${{ env.PACKAGE_NAME }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   upload-release-doc:
     name: Upload release documentation
