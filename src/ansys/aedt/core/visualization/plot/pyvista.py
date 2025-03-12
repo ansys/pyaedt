@@ -440,6 +440,21 @@ class CommonPlotter(object):
         self._z_scale = 1.0
         self._convert_fields_in_db = False
         self._log_multiplier = 10.0
+        self._field_scale = 1
+
+    @property
+    def vector_field_scale(self):
+        """Field scale.
+
+        Returns
+        -------
+        float
+        """
+        return self._field_scale
+
+    @vector_field_scale.setter
+    def vector_field_scale(self, value):
+        self._field_scale = value
 
     @property
     def convert_fields_in_db(self):
@@ -994,8 +1009,14 @@ class ModelPlotter(CommonPlotter):
             and field._cached_polydata.point_data.active_vectors_name
         ):
             field.scalar_name = field._cached_polydata.point_data.active_vectors_name
-            # vector_scale = 1
-            field._cached_polydata["vectors"] = field._cached_polydata.active_vectors * vector_scale
+            field.vector_scale = (max(field._cached_polydata.bounds) - min(field._cached_polydata.bounds)) / (
+                50
+                * (
+                    np.vstack(field._cached_polydata.active_vectors).max()
+                    - np.vstack(field._cached_polydata.active_vectors).min()
+                )
+            )
+            field._cached_polydata["vectors"] = field._cached_polydata.active_vectors
 
             field.is_vector = True
         else:
@@ -1009,10 +1030,19 @@ class ModelPlotter(CommonPlotter):
         fields_vals = pv.PolyData(vertices[0], faces[0])
         field._cached_polydata = fields_vals
         if isinstance(scalars[0], list):
-            # vector_scale = 1
-            field.scalar_name = "vectors"
-            field._cached_polydata["vectors"] = np.vstack(scalars).T * vector_scale
-            field.is_vector = True
+            field.vector_scale = (max(fields_vals.bounds) - min(fields_vals.bounds)) / (
+                50 * (np.vstack(scalars[0]).max() - np.vstack(scalars[0]).min())
+            )
+            field._cached_polydata["vectors"] = np.vstack(scalars).T
+            field.label = "Vector " + field.label
+            field._cached_polydata.point_data[field.label] = np.array(
+                [np.linalg.norm(x) for x in np.vstack(scalars[0]).T]
+            )
+            try:
+                field.scalar_name = field._cached_polydata.point_data.active_scalars_name
+                field.is_vector = True
+            except Exception:
+                field.is_vector = False
         else:
             field._cached_polydata.point_data[field.label] = scalars[0]
             field.scalar_name = field._cached_polydata.point_data.active_scalars_name
@@ -1079,6 +1109,10 @@ class ModelPlotter(CommonPlotter):
             vertices = np.array(nodes) * conv
             filedata = pv.PolyData(vertices)
             if is_vector:
+                field.vector_scale = np.abs(
+                    (max(filedata.bounds) - min(filedata.bounds))
+                    / (50 * (np.vstack(values).max() - np.vstack(values).min()))
+                )
                 if type(values[0][0]) == complex:
                     values_np = np.array(values, dtype=np.complex128)
                     filedata["real_vector"] = values_np.real
@@ -1255,17 +1289,21 @@ class ModelPlotter(CommonPlotter):
             sargs["title"] = field.label
             if field.is_vector:
                 # field._cached_polydata.set_active_vectors(field.scalar_name)  # For complex vectors, real part only.
-                field._cached_polydata[field.scalar_name] *= field.vector_scale
+                field._cached_polydata[field.scalar_name] *= self.vector_field_scale * field.vector_scale
                 if not field._cached_polydata.arrows:
-                    field.arrows = field._cached_polydata.glyph(factor=100)
+                    arrows = field._cached_polydata.glyph(orient=field.scalar_name, scale=field.scalar_name, factor=1)
                 else:
-                    field.arrows = field._cached_polydata.arrows
+                    arrows = field._cached_polydata.arrows
+                field._cached_polydata[field.scalar_name] = field._cached_polydata[field.scalar_name] / (
+                    self.vector_field_scale * field.vector_scale
+                )
+                scalars = arrows[arrows.active_scalars_name] / (self.vector_field_scale * field.vector_scale)
                 self.pv.add_mesh(
-                    field.arrows,
+                    arrows,
+                    scalars=scalars,
                     cmap=field.color_map,
                 )
                 field.label = field.scalar_name
-                field._cached_polydata[field.label] = field._cached_polydata[field.label] / field.vector_scale
             elif self.range_max is not None and self.range_min is not None:
                 field._cached_mesh = self.pv.add_mesh(
                     field._cached_polydata,
