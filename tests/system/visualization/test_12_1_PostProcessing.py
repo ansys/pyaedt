@@ -268,7 +268,7 @@ class TestClass:
         assert os.path.exists(file_path)
         model_pv = ModelPlotter()
         model_pv.add_field_from_file(file_path)
-        assert model_pv.plot(show=True)
+        assert model_pv.plot(show=False)
         file_path = aedtapp.post.export_field_file_on_grid(
             "E",
             "Setup1 : LastAdaptive",

@@ -985,6 +985,141 @@ class ModelPlotter(CommonPlotter):
         self.fields[-1]._cached_polydata = filedata
 
     @pyaedt_function_handler()
+    def _read_case(self, field):
+        reader = pv.get_reader(os.path.abspath(field.path)).read()
+        field._cached_polydata = reader[reader.keys()[0]].extract_surface()
+
+        if (
+            hasattr(field._cached_polydata.point_data, "active_vectors")
+            and field._cached_polydata.point_data.active_vectors_name
+        ):
+            field.scalar_name = field._cached_polydata.point_data.active_vectors_name
+            vector_scale = (max(field._cached_polydata.bounds) - min(field._cached_polydata.bounds)) / (
+                10
+                * (
+                    np.vstack(field._cached_polydata.active_vectors).max()
+                    - np.vstack(field._cached_polydata.active_vectors).min()
+                )
+            )
+            field._cached_polydata["vectors"] = field._cached_polydata.active_vectors * vector_scale
+
+            field.is_vector = True
+        else:
+            field.scalar_name = field._cached_polydata.point_data.active_scalars_name
+
+    @pyaedt_function_handler()
+    def _read_aedtplt(self, field):
+        vertices, faces, scalars, log1 = _parse_aedtplt(field.path)
+        if self.convert_fields_in_db:
+            scalars = [np.multiply(np.log10(i), self.log_multiplier) for i in scalars]
+        fields_vals = pv.PolyData(vertices[0], faces[0])
+        field._cached_polydata = fields_vals
+        if isinstance(scalars[0], list):
+            vector_scale = (max(fields_vals.bounds) - min(fields_vals.bounds)) / (
+                50 * (np.vstack(scalars[0]).max() - np.vstack(scalars[0]).min())
+            )
+
+            field._cached_polydata["vectors"] = np.vstack(scalars).T * vector_scale
+            field.label = "Vector " + field.label
+            field._cached_polydata.point_data[field.label] = np.array(
+                [np.linalg.norm(x) for x in np.vstack(scalars[0]).T]
+            )
+            try:
+                field.scalar_name = field._cached_polydata.point_data.active_scalars_name
+                field.is_vector = True
+            except Exception:
+                field.is_vector = False
+        else:
+            field._cached_polydata.point_data[field.label] = scalars[0]
+            field.scalar_name = field._cached_polydata.point_data.active_scalars_name
+            field.is_vector = False
+        field.log = log1
+
+    @pyaedt_function_handler()
+    def _read_fld(self, field):
+        nodes = []
+        values = []
+        is_vector = False
+        with open_file(field.path, "r") as f:
+            try:
+                lines = f.read().splitlines()[field.header_lines :]
+                if ".csv" in field.path:
+                    sniffer = csv.Sniffer()
+                    delimiter = sniffer.sniff(lines[0]).delimiter
+                else:
+                    delimiter = " "
+                if len(lines) > 2000 and not field._is_frame:
+                    lines = list(dict.fromkeys(lines))
+                    # decimate = 2
+                    # del lines[decimate - 1 :: decimate]
+            except Exception:
+                lines = []
+                message = "Unable to update mesh because it is\n"
+                message += "already defined."
+                pyaedt_logger.warning(message)
+            line_no = 1
+            for line in lines:
+                tmp = line.strip().split(delimiter)
+                tmp = [i for i in tmp if i and i.lower() != "nan"]
+                if len(tmp) not in [6, 9, 4]:
+                    continue
+                nodes.append([float(tmp[0]), float(tmp[1]), float(tmp[2])])
+                if len(tmp) == 6:  # Real vector
+                    values.append([float(tmp[3]), float(tmp[4]), float(tmp[5])])
+                    is_vector = field.is_vector = True
+                elif len(tmp) == 9:  # Complex vector as Re_x, Im_x, Re_y, Im_y, Re_z, Im_z
+                    values.append(
+                        [
+                            complex(float(tmp[3]), float(tmp[4])),
+                            complex(float(tmp[5]), float(tmp[6])),
+                            complex(float(tmp[7]), float(tmp[8])),
+                        ]
+                    )
+                    is_vector = field.is_vector = True
+                elif len(tmp) == 4:
+                    values.append(float(tmp[3]))
+                else:
+                    warning_message = f"Unable to read data on line {line_no} of file '{os.path.basename(field.path)}'."
+                    pyaedt_logger.warning(warning_message)
+                line_no += 1
+        if self.convert_fields_in_db:
+            if not isinstance(values[0], list):
+                values = [self.log_multiplier * math.log10(abs(i)) for i in values]
+            else:
+                values = [[self.log_multiplier * math.log10(abs(i)) for i in value] for value in values]
+        if nodes:
+            try:
+                conv = 1 / AEDT_UNITS["Length"][self.units]
+            except Exception:
+                conv = 1
+            vertices = np.array(nodes) * conv
+            filedata = pv.PolyData(vertices)
+            if is_vector:
+                field.vector_scale = np.abs(
+                    (max(filedata.bounds) - min(filedata.bounds))
+                    / (20 * (np.vstack(values).max() - np.vstack(values).min()))
+                )
+                if type(values[0][0]) == complex:
+                    values_np = np.array(values, dtype=np.complex128)
+                    filedata["real_vector"] = values_np.real
+                    filedata["imag_vector"] = values_np.imag
+                    filedata["vector_mag"] = np.linalg.norm(values_np.real**2 + values_np.imag**2, axis=1) ** 0.5
+                    field.scalar_name = "real_vector"
+                else:
+                    values_np = np.array(values, dtype=np.float64)
+                    filedata["vector_mag"] = values_np
+                    field.scalar_name = "vector_mag"
+                # vector_scale = (max(filedata.bounds) - min(filedata.bounds)) / (
+                #    20 * (np.vstack(values).max() - np.vstack(values).min())
+                # )
+
+            else:
+                filedata = filedata.delaunay_2d(tol=field.surface_mapping_tolerance)
+                filedata.point_data["magnitude"] = np.array(values)
+                field.scalar_name = "magnitude"
+            field._cached_polydata = filedata  # Update field data
+
+    @pyaedt_function_handler()
     def _read_mesh_files(self, read_frames=False):
         for cad in self.objects:
             if not cad._cached_polydata:
@@ -992,10 +1127,6 @@ class ModelPlotter(CommonPlotter):
                 cad._cached_polydata = filedata
             color_cad = [i / 255 for i in cad.color]
             cad._cached_mesh = self.pv.add_mesh(cad._cached_polydata, color=color_cad, opacity=cad.opacity)
-            # if self.meshes:
-            #     self.meshes += cad._cached_polydata
-            # else:
-            #     self.meshes = cad._cached_polydata
         obj_to_iterate = [i for i in self._fields]
         if read_frames:
             for i in self.frames:
@@ -1003,140 +1134,11 @@ class ModelPlotter(CommonPlotter):
         for field in obj_to_iterate:
             if field.path and not field._cached_polydata:
                 if ".case" in field.path:
-                    reader = pv.get_reader(os.path.abspath(field.path)).read()
-                    field._cached_polydata = reader[reader.keys()[0]].extract_surface()
-
-                    if (
-                        hasattr(field._cached_polydata.point_data, "active_vectors")
-                        and field._cached_polydata.point_data.active_vectors_name
-                    ):
-                        field.scalar_name = field._cached_polydata.point_data.active_vectors_name
-                        vector_scale = (max(field._cached_polydata.bounds) - min(field._cached_polydata.bounds)) / (
-                            10
-                            * (
-                                np.vstack(field._cached_polydata.active_vectors).max()
-                                - np.vstack(field._cached_polydata.active_vectors).min()
-                            )
-                        )
-                        field._cached_polydata["vectors"] = field._cached_polydata.active_vectors * vector_scale
-
-                        field.is_vector = True
-                    else:
-                        field.scalar_name = field._cached_polydata.point_data.active_scalars_name
-
+                    self._read_case(field)
                 elif ".aedtplt" in field.path:  # pragma no cover
-                    vertices, faces, scalars, log1 = _parse_aedtplt(field.path)
-                    if self.convert_fields_in_db:
-                        scalars = [np.multiply(np.log10(i), self.log_multiplier) for i in scalars]
-                    fields_vals = pv.PolyData(vertices[0], faces[0])
-                    field._cached_polydata = fields_vals
-                    if isinstance(scalars[0], list):
-                        vector_scale = (max(fields_vals.bounds) - min(fields_vals.bounds)) / (
-                            50 * (np.vstack(scalars[0]).max() - np.vstack(scalars[0]).min())
-                        )
-
-                        field._cached_polydata["vectors"] = np.vstack(scalars).T * vector_scale
-                        field.label = "Vector " + field.label
-                        field._cached_polydata.point_data[field.label] = np.array(
-                            [np.linalg.norm(x) for x in np.vstack(scalars[0]).T]
-                        )
-                        try:
-                            field.scalar_name = field._cached_polydata.point_data.active_scalars_name
-                            field.is_vector = True
-                        except Exception:
-                            field.is_vector = False
-                    else:
-                        field._cached_polydata.point_data[field.label] = scalars[0]
-                        field.scalar_name = field._cached_polydata.point_data.active_scalars_name
-                        field.is_vector = False
-                    field.log = log1
+                    self._read_aedtplt(field)
                 else:  # Read field data from a file
-                    nodes = []
-                    values = []
-                    is_vector = False
-                    with open_file(field.path, "r") as f:
-                        line_no = 1
-                        try:
-                            lines = f.read().splitlines()[field.header_lines :]
-                            if ".csv" in field.path:
-                                sniffer = csv.Sniffer()
-                                delimiter = sniffer.sniff(lines[0]).delimiter
-                            else:
-                                delimiter = " "
-                            if len(lines) > 2000 and not field._is_frame:
-                                lines = list(dict.fromkeys(lines))
-                                # decimate = 2
-                                # del lines[decimate - 1 :: decimate]
-                        except Exception:
-                            lines = []
-                            message = "Unable to update mesh because it is\n"
-                            message += "already defined."
-                            pyaedt_logger.warning(message)
-                        line_no = 1
-                        for line in lines:
-                            tmp = line.strip().split(delimiter)
-                            tmp = [i for i in tmp if i and i.lower() != "nan"]
-                            if len(tmp) not in [6, 9, 4]:
-                                continue
-                            nodes.append([float(tmp[0]), float(tmp[1]), float(tmp[2])])
-                            if len(tmp) == 6:  # Real vector
-                                values.append([float(tmp[3]), float(tmp[4]), float(tmp[5])])
-                                is_vector = field.is_vector = True
-                            elif len(tmp) == 9:  # Complex vector as Re_x, Im_x, Re_y, Im_y, Re_z, Im_z
-                                values.append(
-                                    [
-                                        complex(float(tmp[3]), float(tmp[4])),
-                                        complex(float(tmp[5]), float(tmp[6])),
-                                        complex(float(tmp[7]), float(tmp[8])),
-                                    ]
-                                )
-                                is_vector = field.is_vector = True
-                            elif len(tmp) == 4:
-                                values.append(float(tmp[3]))
-                            else:
-                                warning_message = (
-                                    f"Unable to read data on line {line_no} of file '{os.path.basename(field.path)}'."
-                                )
-                                pyaedt_logger.warning(warning_message)
-                            line_no += 1
-                    if self.convert_fields_in_db:
-                        if not isinstance(values[0], list):
-                            values = [self.log_multiplier * math.log10(abs(i)) for i in values]
-                        else:
-                            values = [[self.log_multiplier * math.log10(abs(i)) for i in value] for value in values]
-                    if nodes:
-                        try:
-                            conv = 1 / AEDT_UNITS["Length"][self.units]
-                        except Exception:
-                            conv = 1
-                        vertices = np.array(nodes) * conv
-                        filedata = pv.PolyData(vertices)
-                        if is_vector:
-                            field.vector_scale = np.abs(
-                                (max(filedata.bounds) - min(filedata.bounds))
-                                / (20 * (np.vstack(values).max() - np.vstack(values).min()))
-                            )
-                            if type(values[0][0]) == complex:
-                                values_np = np.array(values, dtype=np.complex128)
-                                filedata["real_vector"] = values_np.real
-                                filedata["imag_vector"] = values_np.imag
-                                filedata["vector_mag"] = (
-                                    np.linalg.norm(values_np.real**2 + values_np.imag**2, axis=1) ** 0.5
-                                )
-                                field.scalar_name = "real_vector"
-                            else:
-                                values_np = np.array(values, dtype=np.float64)
-                                filedata["vector_mag"] = values_np
-                                field.scalar_name = "vector_mag"
-                            # vector_scale = (max(filedata.bounds) - min(filedata.bounds)) / (
-                            #    20 * (np.vstack(values).max() - np.vstack(values).min())
-                            # )
-
-                        else:
-                            filedata = filedata.delaunay_2d(tol=field.surface_mapping_tolerance)
-                            filedata.point_data["magnitude"] = np.array(values)
-                            field.scalar_name = "magnitude"
-                        field._cached_polydata = filedata  # Update field data
+                    self._read_fld(field)
 
     @pyaedt_function_handler()
     def _add_buttons(self):
