@@ -1,3 +1,6 @@
+## [0.15.1](https://github.com/ansys/pyaedt/releases/tag/v0.15.1) - March 12, 2025
+
+No significant changes.
 ## [0.15.1](https://github.com/ansys/pyaedt/releases/tag/v0.15.1) - March 11, 2025
 
 
