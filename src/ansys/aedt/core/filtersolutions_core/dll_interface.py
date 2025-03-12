@@ -185,8 +185,8 @@ class DllInterface:
         """
         api_version = self.get_string(self._dll.getVersion)
         match = re.search(r"Version (\d{4}) R(\d+)", api_version)
-        api_version_year = int(match.group(1))
-        api_version_release = int(match.group(2))
+        api_version_year = match.group(1)
+        api_version_release = match.group(2)
         api_version = f"{api_version_year}.{api_version_release}"
         return api_version
 
