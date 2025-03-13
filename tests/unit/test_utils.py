@@ -67,7 +67,7 @@ def foo(trigger_exception=True):
 
 
 @patch.object(Settings, "logger", new_callable=PropertyMock)
-@patch("ansys.aedt.core.generic.desktop_sessions._desktop_sessions")
+@patch("ansys.aedt.core.internal.desktop_sessions._desktop_sessions")
 def test_handler_release_on_exception_called(mock_sessions, mock_logger):
     """Test handler while activating error handler."""
     mock_session = MagicMock()
@@ -85,7 +85,7 @@ def test_handler_release_on_exception_called(mock_sessions, mock_logger):
 
 
 @patch.object(Settings, "logger", new_callable=PropertyMock)
-@patch("ansys.aedt.core.generic.desktop_sessions._desktop_sessions")
+@patch("ansys.aedt.core.internal.desktop_sessions._desktop_sessions")
 def test_handler_release_on_exception_not_called(mock_sessions, mock_logger):
     """Test handler while deactivating error handler."""
     mock_session = MagicMock()

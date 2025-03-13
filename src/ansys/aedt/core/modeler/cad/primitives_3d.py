@@ -37,12 +37,12 @@ import os
 
 from ansys.aedt.core import Edb
 from ansys.aedt.core.generic import load_aedt_file
-from ansys.aedt.core.generic.desktop_sessions import _edb_sessions
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import generate_unique_project_name
 from ansys.aedt.core.generic.file_utils import normalize_path
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.internal.desktop_sessions import _edb_sessions
 from ansys.aedt.core.modeler.advanced_cad.actors import Bird
 from ansys.aedt.core.modeler.advanced_cad.actors import Person
 from ansys.aedt.core.modeler.advanced_cad.actors import Vehicle

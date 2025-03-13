@@ -960,7 +960,7 @@ class GlobalService(rpyc.Service):
         -------
         int
         """
-        from ansys.aedt.core.generic.desktop_sessions import _desktop_sessions
+        from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
         if _desktop_sessions:
             return list(_desktop_sessions.values())[0].port
         return 0
@@ -973,7 +973,7 @@ class GlobalService(rpyc.Service):
         -------
         str
         """
-        from ansys.aedt.core.generic.desktop_sessions import _desktop_sessions
+        from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
         if _desktop_sessions:
             return list(_desktop_sessions.values())[0].aedt_version_id
         return ""
@@ -986,7 +986,7 @@ class GlobalService(rpyc.Service):
         -------
         bool
         """
-        from ansys.aedt.core.generic.desktop_sessions import _desktop_sessions
+        from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
         if _desktop_sessions:
             return list(_desktop_sessions.values())[0].student_version
         return False
