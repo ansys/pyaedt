@@ -33,7 +33,7 @@ from ansys.tools.visualization_interface import Plotter
 import pandas as pd
 import pytest
 
-from tests import TESTS_GENERAL_PATH
+from tests import TESTS_VISUALIZATION_PATH
 
 test_subfolder = "T49"
 
@@ -47,7 +47,7 @@ def desktop():
 @pytest.fixture(scope="class")
 def setup_test_data(request, local_scratch):
     """Fixture to set up the test data directory and file before running the test class."""
-    dir_original = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder
+    dir_original = Path(TESTS_VISUALIZATION_PATH) / "example_models" / test_subfolder
     data_dir = Path(local_scratch.path) / "rcs_files"
     shutil.copytree(dir_original, data_dir)
 

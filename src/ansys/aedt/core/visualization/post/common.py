@@ -1153,7 +1153,7 @@ class PostProcessorCommon(object):
                     setup_sweep_name = f"{k} : {setup_sweep_name}"
                     break
         setup_name = setup_sweep_name.split(":")[0].strip()
-        if self._app.design_type is not "Twin Builder" and setup_name not in self._app.setup_sweeps_names:
+        if self._app.design_type != "Twin Builder" and setup_name not in self._app.setup_sweeps_names:
             raise KeyError(f"Setup {setup_name} not available in current design.")
         # Domain
         if not domain:
@@ -1356,7 +1356,6 @@ class PostProcessorCommon(object):
         -------
         :class:`ansys.aedt.core.modules.report_templates.Standard`
             ``True`` when successful, ``False`` when failed.
-
 
         References
         ----------
