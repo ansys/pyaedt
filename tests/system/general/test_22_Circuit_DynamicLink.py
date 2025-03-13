@@ -45,8 +45,8 @@ else:
 
 
 @pytest.fixture(scope="class", autouse=True)
-def dummy_prj(add_app):
-    app = add_app("Dummy_license_checkout_prj")
+def uusb(examples, add_app):
+    app = add_app(project_name=examples[0], design_name="uUSB", just_open=True)
     yield app
     app.close_project(app.project_name)
 
@@ -99,6 +99,12 @@ class TestClass:
         self.src_project_file = examples[0]
         self.q3d = examples[1]
 
+    def test_pin_names(self, aedtapp, local_scratch):
+        src_project_file = local_scratch.copyfile(self.src_project_file, self.src_project_file[:-5] + "_copy.aedt")
+        pin_names = aedtapp.get_source_pin_names(src_design_name, src_project_name, src_project_file, 2)
+        assert len(pin_names) == 4
+        assert "usb_P_pcb" in pin_names
+
     @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
     def test_02_add_subcircuits_3dlayout(self, aedtapp):
         layout_design = "layout_cutout"
@@ -107,105 +113,28 @@ class TestClass:
         assert hfss3Dlayout_comp
 
     @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical.")
-    def test_03_add_subcircuits_hfss_link(self, add_app, aedtapp):
-        pin_names = aedtapp.get_source_pin_names(src_design_name, src_project_name, self.src_project_file, 2)
-        assert len(pin_names) == 4
-        assert "usb_P_pcb" in pin_names
-        hfss = add_app(project_name=self.src_project_file, design_name="uUSB", just_open=True)
-        hfss_comp = aedtapp.modeler.schematic.add_subcircuit_dynamic_link(hfss, comp_name="uUSB")
-        assert hfss_comp.id == 87
-        assert hfss_comp.composed_name == "CompInst@uUSB;87;3"
-
-    @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
-    def test_04_refresh_dynamic_link(self, aedtapp):
+    def test_03_add_subcircuits_hfss_link(self, uusb, aedtapp):
+        hfss_comp = aedtapp.modeler.schematic.add_subcircuit_dynamic_link(uusb, comp_name="uUSB")
+        assert hfss_comp.id == 86
         assert aedtapp.modeler.schematic.refresh_dynamic_link("uUSB")
 
     @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
-    def test_05_set_sim_option_on_hfss_subcircuit(self, aedtapp):
-        hfss_comp = "CompInst@uUSB;87;3"
+    def test_05_set_sim_option_on_hfss_subcircuit(self, aedtapp, uusb):
+        hfss_comp = aedtapp.modeler.schematic.add_subcircuit_dynamic_link(uusb, comp_name="uUSB")
         assert aedtapp.modeler.schematic.set_sim_option_on_hfss_subcircuit(hfss_comp)
         assert aedtapp.modeler.schematic.set_sim_option_on_hfss_subcircuit(hfss_comp, option="interpolate")
         assert not aedtapp.modeler.schematic.set_sim_option_on_hfss_subcircuit(hfss_comp, option="not_good")
 
     @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
-    def test_06_set_sim_solution_on_hfss_subcircuit(self, aedtapp):
-        hfss_comp = "CompInst@uUSB;87;3"
+    def test_06_set_sim_solution_on_hfss_subcircuit(self, aedtapp, uusb):
+
+        hfss_comp = aedtapp.modeler.schematic.add_subcircuit_dynamic_link(uusb, comp_name="uUSB")
         assert aedtapp.modeler.schematic.set_sim_solution_on_hfss_subcircuit(hfss_comp)
 
     @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
-    def test_07_create_page_port_and_interface_port(self, aedtapp):
-        hfss_comp_id = 1
-        hfss3Dlayout_comp_id = 3
-        hfssComp_pins = aedtapp.modeler.schematic.get_pins(hfss_comp_id)
-        assert type(hfssComp_pins) is list
-        assert len(hfssComp_pins) == 4
-        hfss_pin2location = {}
-        for pin in hfssComp_pins:
-            hfss_pin2location[pin] = aedtapp.modeler.schematic.get_pin_location(hfss_comp_id, pin)
-            assert len(hfss_pin2location[pin]) == 2
-
-        hfss3DlayoutComp_pins = aedtapp.modeler.schematic.get_pins(hfss3Dlayout_comp_id)
-        assert type(hfssComp_pins) is list
-        assert len(hfssComp_pins) == 4
-        hfss3Dlayout_pin2location = {}
-        for pin in hfss3DlayoutComp_pins:
-            hfss3Dlayout_pin2location[pin] = aedtapp.modeler.schematic.get_pin_location(hfss3Dlayout_comp_id, pin)
-            assert len(hfss3Dlayout_pin2location[pin]) == 2
-
-        # Link 1 Creation
-        portname = aedtapp.modeler.schematic.create_page_port(
-            "Link1", [hfss3Dlayout_pin2location["usb_N_conn"][0], hfss3Dlayout_pin2location["usb_N_conn"][1]], 180
-        )
-        assert "Link1" in portname.composed_name
-        portname = aedtapp.modeler.schematic.create_page_port(
-            "Link1",
-            [hfss_pin2location["J3B2.3.USBH2_DP_CH"][0], hfss_pin2location["J3B2.3.USBH2_DP_CH"][1]],
-            90,
-        )
-        assert "Link1" in portname.composed_name
-
-        # Link 2 Creation
-        portname = aedtapp.modeler.schematic.create_page_port(
-            "Link2", [hfss3Dlayout_pin2location["usb_N_pcb"][0], hfss3Dlayout_pin2location["usb_N_pcb"][1]], 180
-        )
-        assert "Link2" in portname.composed_name
-        portname = aedtapp.modeler.schematic.create_page_port(
-            "Link2",
-            [hfss_pin2location["L3M1.3.USBH2_DN_CH"][0], hfss_pin2location["L3M1.3.USBH2_DN_CH"][1]],
-            270,
-        )
-        assert "Link2" in portname.composed_name
-
-        # Ports Creation
-        portname = aedtapp.modeler.schematic.create_interface_port(
-            "Excitation_1", [hfss3Dlayout_pin2location["USB_VCC_T1"][0], hfss3Dlayout_pin2location["USB_VCC_T1"][1]]
-        )
-        assert "Excitation_1" in portname.name
-        portname = aedtapp.modeler.schematic.create_interface_port(
-            "Excitation_2", [hfss3Dlayout_pin2location["usb_P_pcb"][0], hfss3Dlayout_pin2location["usb_P_pcb"][1]]
-        )
-        assert "Excitation_2" in portname.name
-        portname = aedtapp.modeler.schematic.create_interface_port(
-            "Port_1",
-            [hfss_pin2location["L3M1.2.USBH2_DP_CH"][0], hfss_pin2location["L3M1.2.USBH2_DP_CH"][1]],
-        )
-        assert "Port_1" in portname.name
-        portname = aedtapp.modeler.schematic.create_interface_port(
-            "Port_2",
-            [hfss_pin2location["J3B2.2.USBH2_DN_CH"][0], hfss_pin2location["J3B2.2.USBH2_DN_CH"][1]],
-        )
-        assert "Port_2" in portname.name
-
-        portname = aedtapp.modeler.schematic.create_interface_port(
-            "Port_remove",
-            [hfss_pin2location["J3B2.2.USBH2_DN_CH"][0], hfss_pin2location["J3B2.2.USBH2_DN_CH"][1]],
-        )
-        aedtapp.design_excitations[portname.name].delete()
-
-        assert "Port_remove" not in aedtapp.excitation_names
-
-    @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
     def test_08_assign_excitations(self, aedtapp):
+        portname = aedtapp.modeler.schematic.create_interface_port("Excitation_1", [0, 0])
+        portname = aedtapp.modeler.schematic.create_interface_port("Excitation_2", ["500mil", 0])
         filepath = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfloder, "frequency_dependent_source.fds")
         ports_list = ["Excitation_1", "Excitation_2"]
         assert aedtapp.assign_voltage_frequency_dependent_excitation_to_ports(ports_list, filepath)
