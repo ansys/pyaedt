@@ -223,7 +223,7 @@ class TestClass:
         assert os.path.exists(obj2.image_file)
         obj3 = self.aedtapp.plot(show=False, output_file=os.path.join(self.local_scratch.path, "image.jpg"), view="xy1")
         assert filecmp.cmp(obj.image_file, obj3.image_file)
-        assert isinstance(obj.point_cloud(), list)
+        assert isinstance(obj.point_cloud(), dict)
 
     def test_10_edit_menu_commands(self):
         rect1 = self.aedtapp.modeler.create_rectangle([1, 0, -2], [8, 3])
