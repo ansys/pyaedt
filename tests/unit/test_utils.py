@@ -32,8 +32,6 @@ from unittest.mock import MagicMock
 from unittest.mock import PropertyMock
 from unittest.mock import patch
 
-from ansys.aedt.core.generic.checks import AEDTRuntimeError
-from ansys.aedt.core.generic.checks import min_aedt_version
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import ALLOWED_AEDT_ENV_VAR_SETTINGS
 from ansys.aedt.core.generic.settings import ALLOWED_GENERAL_SETTINGS
@@ -41,6 +39,8 @@ from ansys.aedt.core.generic.settings import ALLOWED_LOG_SETTINGS
 from ansys.aedt.core.generic.settings import ALLOWED_LSF_SETTINGS
 from ansys.aedt.core.generic.settings import Settings
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.checks import AEDTRuntimeError
+from ansys.aedt.core.internal.checks import min_aedt_version
 import pytest
 
 SETTINGS_RELEASE_ON_EXCEPTION = settings.release_on_exception

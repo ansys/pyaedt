@@ -35,10 +35,10 @@ from typing import Literal
 from typing import Optional
 from typing import Tuple
 
-from ansys.aedt.core.generic.checks import min_aedt_version
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.visualization.post.field_summary import FieldSummary
 from ansys.aedt.core.visualization.post.field_summary import TOTAL_QUANTITIES
 from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
