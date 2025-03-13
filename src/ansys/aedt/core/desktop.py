@@ -937,7 +937,7 @@ class Desktop(object):
         time.sleep(5)
 
     def _dispatch_win32(self, version):  # pragma: no cover
-        from ansys.aedt.core.generic.clr_module import win32_client
+        from ansys.aedt.core.internal.clr_module import win32_client
 
         o_ansoft_app = win32_client.Dispatch(version)
         self.odesktop = o_ansoft_app.GetAppDesktop()
@@ -997,7 +997,7 @@ class Desktop(object):
                 if m:
                     obj = running_coms.GetObject(monikier)
                     self.isoutsideDesktop = True
-                    from ansys.aedt.core.generic.clr_module import win32_client
+                    from ansys.aedt.core.internal.clr_module import win32_client
 
                     self.odesktop = win32_client.Dispatch(obj.QueryInterface(pythoncom.IID_IDispatch))
                     if student_version:
@@ -1025,7 +1025,7 @@ class Desktop(object):
         is_grpc=True,
     ):
         if not is_grpc:  # pragma: no cover
-            from ansys.aedt.core.generic.clr_module import _clr
+            from ansys.aedt.core.internal.clr_module import _clr
 
             _clr.AddReference("Ansys.Ansoft.CoreCOMScripting")
             AnsoftCOMUtil = __import__("Ansys.Ansoft.CoreCOMScripting")
