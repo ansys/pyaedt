@@ -270,7 +270,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                 mycomp = None
                 fields = line.split(" ")
                 name = fields[0].replace(".", "")
-
+                if len(fields) < 4:
+                    continue
                 if fields[0][0] == "R":
                     if "{" in fields[3][0]:
                         value = fields[3].strip()[1:-1]
