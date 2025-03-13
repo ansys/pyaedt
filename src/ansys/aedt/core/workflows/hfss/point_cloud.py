@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,24 +21,19 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import csv
-import os.path
-import random
-import string
-import tkinter as tk
-from tkinter import filedialog
-from tkinter import messagebox
-from tkinter import ttk
+# Extension template to help get started
 
-from PIL import Image
-from PIL import ImageTk
+from pathlib import Path
+from tkinter import messagebox
+
 import ansys.aedt.core
-from ansys.aedt.core import Hfss
+from ansys.aedt.core import get_pyaedt_app
+from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 from ansys.aedt.core.workflows.misc import get_aedt_version
+from ansys.aedt.core.workflows.misc import get_arguments
 from ansys.aedt.core.workflows.misc import get_port
 from ansys.aedt.core.workflows.misc import get_process_id
 from ansys.aedt.core.workflows.misc import is_student
-import numpy as np
 import pyvista as pv
 
 port = get_port()
@@ -46,218 +41,283 @@ version = get_aedt_version()
 aedt_process_id = get_process_id()
 is_student = is_student()
 
-
-# Function to save the point cloud to a CSV file
-def save_point_cloud_to_csv(pcd, csv_file):
-    points = np.asarray(pcd.points)
-    with open(csv_file, "w", newline="") as file:
-        writer = csv.writer(file, delimiter="\t")
-        for point in points:
-            writer.writerow(point / 1000)
+# Extension batch arguments
+extension_arguments = {"choice": "", "points": 1000}
+extension_description = "Point cloud generator"
 
 
-def CAD_to_point_cloud(obj_file, num_points=10):
-    # Load the mesh
-    mesh = pv.read(obj_file)
+def frontend():
+    import tkinter
+    import tkinter.ttk as ttk
 
-    # Ensure the mesh is triangulated
-    mesh = mesh.triangulate()
+    import PIL.Image
+    import PIL.ImageTk
+    from ansys.aedt.core.workflows.misc import ExtensionTheme
 
-    # Get the areas of each triangle
-    triangle_areas = mesh.compute_cell_sizes()["Area"]
+    app = ansys.aedt.core.Desktop(
+        new_desktop=False,
+        version=version,
+        port=port,
+        aedt_process_id=aedt_process_id,
+        student_version=is_student,
+    )
 
-    # Normalize the areas to get probabilities
-    probabilities = triangle_areas / triangle_areas.sum()
+    active_project = app.active_project()
 
-    # Randomly sample triangles based on area
-    sampled_triangle_indices = np.random.choice(len(probabilities), size=num_points, p=probabilities)
+    if not active_project:  # pragma: no cover
+        app.logger.error("No active project.")
 
-    # Get the vertices of the sampled triangles
-    sampled_points = []
-    for idx in sampled_triangle_indices:
-        triangle = mesh.extract_cells(idx)
-        vertices = triangle.points
-        # Sample a random point inside the triangle using barycentric coordinates
-        r1, r2 = np.random.rand(2)
-        sqrt_r1 = np.sqrt(r1)
-        u = 1 - sqrt_r1
-        v = r2 * sqrt_r1
-        w = 1 - u - v
-        random_point = u * vertices[0] + v * vertices[1] + w * vertices[2]
-        sampled_points.append(random_point)
+    active_design = app.active_design()
 
-    # Create a point cloud from the sampled points
-    point_cloud = pv.PolyData(np.array(sampled_points))
-    return point_cloud
+    if not active_design:  # pragma: no cover
+        app.logger.error("No active design.")
 
+    project_name = active_project.GetName()
+    design_name = active_design.GetName()
 
-# Function to visualize the point cloud
-def visualize_point_cloud(point_cloud):
-    plotter = pv.Plotter()
-    plotter.add_mesh(point_cloud, color="white", point_size=5, render_points_as_spheres=True)
-    plotter.show()
+    hfss = get_pyaedt_app(project_name, design_name)
 
+    if aedtapp.design_type != "HFSS":  # pragma: no cover
+        app.logger.error("Active design is not HFSS.")
+        hfss.release_desktop(False, False)
+        output_dict = {"choice": "", "file_path": ""}
+        return output_dict
 
-# Function to generate a random alphanumeric sequence
-def generate_random_sequence():
-    characters = string.ascii_letters + string.digits
-    sequence = "".join(random.choices(characters, k=5))
-    return sequence
+    # Create UI
+    master = tkinter.Tk()
 
+    master.geometry()
 
-class PointCloudApp:
+    master.title(extension_description)
 
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Point Cloud Generator")
-        self.root.geometry("400x300")
-        self.root.configure(bg="#505050")
+    # Detect if user close the UI
+    master.flag = False
 
-        # Set window icon
-        icon_path = os.path.join(ansys.aedt.core.workflows.__path__[0], "hfss", "images", "large", "cloud.png")
-        self.icon_img = Image.open(icon_path)
-        self.icon_img = ImageTk.PhotoImage(self.icon_img)
-        self.root.iconphoto(False, self.icon_img)
+    # Load the logo for the main window
+    icon_path = Path(ansys.aedt.core.workflows.__path__[0]) / "images" / "large" / "logo.png"
+    im = PIL.Image.open(icon_path)
+    photo = PIL.ImageTk.PhotoImage(im)
 
-        # self.init_hfss()
-        # self.create_ui()
+    # Set the icon for the main window
+    master.iconphoto(True, photo)
 
-    def init_hfss(self):
+    # Configure style for ttk buttons
+    style = ttk.Style()
+    theme = ExtensionTheme()
 
-        self.aedt = Hfss(version=version, new_desktop=False, student_version=is_student)
-        self.aedt.oproject.GetActiveDesign()
-        self.aedt.modeler.model_units = "mm"
-        self.cs = "Global"
-        self.aedt.modeler.set_working_coordinate_system(name=self.cs)
-        self.aedt_solids = self.aedt.modeler.get_objects_in_group("Solids")
-        self.aedt_sheets = self.aedt.modeler.get_objects_in_group("Sheets")
+    theme.apply_light_theme(style)
+    master.theme = "light"
 
-        bounds = self.aedt.oboundary.GetNumBoundariesOfType("Radiation")
-        bounds = bounds + self.aedt.oboundary.GetNumBoundariesOfType("FE-BI")
-        bounds = bounds + self.aedt.oboundary.GetNumHybridRegionsOfType("FE-BI")
+    # Set background color of the window (optional)
+    master.configure(bg=theme.light["widget_bg"])
 
-        if self.aedt.solution_type != "SBR+" and bounds == 0:
-            messagebox.showerror(
-                "Error", "Please change solution type to SBR+ or insert a radiation boundary and run the script again!"
-            )
-            raise ValueError(
-                "Please change solution type to SBR+ or insert a radiation boundary and run the script again!"
-            )
+    hfss.modeler.model_units = "mm"
+    hfss.modeler.set_working_coordinate_system(name="Global")
 
-        if not self.aedt_solids and not self.aedt_sheets:
-            messagebox.showerror(
-                "Error", "No solids or sheets are defined in this design. Please add them and run the script again!"
-            )
-            raise ValueError(
-                "No solids or sheets are defined in this design. Please add them and run the script again!"
-            )
+    aedt_solids = hfss.modeler.get_objects_in_group("Solids")
+    aedt_sheets = hfss.modeler.get_objects_in_group("Sheets")
 
-        return True
+    if not aedt_solids and aedt_sheets:
+        msg = "No solids or sheets are defined in this design."
+        messagebox.showerror("Error", msg)
+        app.logger.error(msg)
+        hfss.release_desktop(False, False)
+        output_dict = {}
+        return output_dict
 
-    def create_ui(self):
-        # Dropdown label
-        label = tk.Label(self.root, text="Select Object or Surface:", bg="#505050", fg="white")
-        label.pack(pady=(10, 5))
+    # Dropdown label
+    label = ttk.Label(master, text="Select Object or Surface:", width=20, style="PyAEDT.TLabel")
+    label.grid(row=0, column=0, pady=10)
 
-        # Dropdown menu for objects and surfaces
-        self.dropdown = ttk.Combobox(self.root, state="readonly")
-        self.dropdown["values"] = self.populate_dropdown_values()
-        self.dropdown.pack(pady=5)
+    # Dropdown menu for objects and surfaces
+    combo = ttk.Combobox(master, width=30, style="PyAEDT.TCombobox")
 
-        # Points input
-        points_label = tk.Label(self.root, text="Number of Points:", bg="#505050", fg="white")
-        points_label.pack(pady=(10, 5))
+    values = ["--- Objects ---"]
+    if aedt_solids:
+        values.extend(aedt_solids)
 
-        self.points_input = tk.Entry(self.root, bg="#606060", fg="white")
-        self.points_input.pack(pady=5)
+    values.append("--- Surfaces ---")
+    if aedt_sheets:
+        values.extend(aedt_sheets)
+    combo["values"] = values
 
-        # Preview button
-        preview_button = tk.Button(
-            self.root, text="Preview", bg="#707070", fg="white", command=self.preview_point_cloud
+    combo.current(1)
+    combo.grid(row=0, column=1, pady=10, padx=5)
+    combo.focus_set()
+
+    # Points entry
+    points_label = ttk.Label(master, text="Number of Points:", width=20, style="PyAEDT.TLabel")
+    points_label.grid(row=1, column=0, padx=15, pady=10)
+    points_entry = tkinter.Text(master, width=40, height=1)
+    points_entry.insert(tkinter.END, "1000")
+    points_entry.grid(row=1, column=1, pady=15, padx=10)
+    points_entry.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
+
+    def toggle_theme():
+        if master.theme == "light":
+            set_dark_theme()
+            master.theme = "dark"
+        else:
+            set_light_theme()
+            master.theme = "light"
+
+    def set_light_theme():
+        master.configure(bg=theme.light["widget_bg"])
+        points_entry.configure(
+            background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
         )
-        preview_button.pack(pady=(10, 5))
+        theme.apply_light_theme(style)
+        change_theme_button.config(text="\u263D")
 
-        # Generate button
-        generate_button = tk.Button(
-            self.root, text="Generate Point Cloud", bg="#707070", fg="white", command=self.generate_point_cloud
-        )
-        generate_button.pack(pady=(5, 10))
+    def set_dark_theme():
+        master.configure(bg=theme.dark["widget_bg"])
+        points_entry.configure(background=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
+        theme.apply_dark_theme(style)
+        change_theme_button.config(text="\u2600")
 
-    def populate_dropdown_values(self):
+    # Create a frame for the toggle button to position it correctly
+    button_frame = ttk.Frame(master, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2)
+    button_frame.grid(row=3, column=2, pady=10, padx=10)
 
-        values = ["--- Objects ---"]
-        if self.aedt_solids:
-            values.extend(self.aedt_solids)
+    # Add the toggle theme button inside the frame
+    change_theme_button = ttk.Button(
+        button_frame, width=20, text="\u263D", command=toggle_theme, style="PyAEDT.TButton"
+    )
 
-        values.append("--- Surfaces ---")
-        if self.aedt_sheets:
-            values.extend(self.aedt_sheets)
+    change_theme_button.grid(row=0, column=0, padx=0)
 
-        return values
+    def callback():
+        master.flag = True
+        selected_item = combo.get()
+        if selected_item in ["--- Objects ---", "--- Surfaces ---", ""]:
+            messagebox.showerror("Error", "Please select a valid object or surface.")
+            master.flag = False
 
-    def preview_point_cloud(self):
+        points = points_entry.get("1.0", tkinter.END).strip()
+        num_points = int(points)
+        if num_points <= 0:
+            master.flag = False
+            messagebox.showerror("Error", "Number of points must be greater than zero.")
+
+        master.assignment = selected_item
+        master.points = points
+
+        master.destroy()
+
+    def preview():
         try:
-            selected_item = self.dropdown.get()
+            selected_item = combo.get()
             if selected_item in ["--- Objects ---", "--- Surfaces ---", ""]:
-                raise ValueError("Please select a valid object or surface.")
-            num_points = int(self.points_input.get())
+                messagebox.showerror("Error", "Please select a valid object or surface.")
+                return None
+            points = points_entry.get("1.0", tkinter.END).strip()
+            num_points = int(points)
             if num_points <= 0:
-                raise ValueError("Number of points must be greater than zero.")
-
-            obj_file = os.path.join(self.aedt.project_path, str(selected_item) + ".obj")
+                messagebox.showerror("Error", "Number of points must be greater than zero.")
+                return None
 
             # Export the mesh and generate point cloud
-            self.aedt.modeler.oeditor.ExportModelMeshToFile(obj_file, [selected_item])
+            output_file = hfss.post.export_model_obj(assignment=selected_item)
+
+            if not output_file or not Path(output_file[0][0]).is_file():
+                messagebox.showerror("Error", "Object could not be exported.")
+                hfss.release_desktop(False, False)
+                output_dict = {"choice": "", "file_path": ""}
+                return output_dict
+
+            goemetry_file = output_file[0][0]
 
             # Generate and visualize the point cloud
-            pcd = CAD_to_point_cloud(obj_file, num_points=num_points)
-            visualize_point_cloud(pcd)
+            model_plotter = ModelPlotter()
+            model_plotter.add_object(goemetry_file)
+            point_cloud = model_plotter.point_cloud(points=num_points)
+
+            plotter = pv.Plotter()
+            for _, actor in point_cloud.values():
+                plotter.add_mesh(actor, color="white", point_size=5, render_points_as_spheres=True)
+            plotter.show()
 
         except Exception as e:
             messagebox.showerror("Error", str(e))
+            hfss.release_desktop(False, False)
+            output_dict = {}
+            return output_dict
 
-    def generate_point_cloud(self):
-        try:
-            selected_item = self.dropdown.get()
-            if selected_item in ["--- Objects ---", "--- Surfaces ---", ""]:
-                raise ValueError("Please select a valid object or surface.")
-            num_points = int(self.points_input.get())
-            if num_points <= 0:
-                raise ValueError("Number of points must be greater than zero.")
+    b2 = ttk.Button(master, text="Preview", width=40, command=preview, style="PyAEDT.TButton")
+    b2.grid(row=3, column=0, pady=10, padx=10)
 
-            obj_file = os.path.join(self.aedt.project_path, str(selected_item) + ".obj")  # path to OBJ file
+    b3 = ttk.Button(master, text="Generate", width=40, command=callback, style="PyAEDT.TButton")
+    b3.grid(row=3, column=1, pady=10, padx=10)
 
-            # Export the mesh and generate point cloud
-            self.aedt.modeler.oeditor.ExportModelMeshToFile(obj_file, [selected_item])
-            pcd = CAD_to_point_cloud(obj_file, num_points=num_points)
+    tkinter.mainloop()
 
-            # Save point cloud to file
-            pts_file = str(self.aedt.project_path) + "point_cloud.pts"
-            save_point_cloud_to_csv(pcd, pts_file)
+    assignment = getattr(master, "assignment", extension_arguments["choice"])
+    points = getattr(master, "points", extension_arguments["points"])
 
-            # Insert point list setup in HFSS
-            unique_name = generate_random_sequence()
-            self.aedt.oradfield.InsertPointListSetup(
-                [
-                    "NAME:" + str(unique_name),
-                    "UseCustomRadiationSurface:=",
-                    False,
-                    "CoordSystem:=",
-                    self.cs,
-                    "PointListFile:=",
-                    pts_file,
-                ]
-            )
+    hfss.release_desktop(False, False)
+    output_dict = {}
+    if master.flag:
+        output_dict = {"choice": assignment, "points": points}
+    return output_dict
 
-            messagebox.showinfo("Success", "Point cloud generated and added to HFSS.")
-            return True
-        except Exception as e:
-            messagebox.showerror("Error", str(e))
+
+def main(extension_args):
+    app = ansys.aedt.core.Desktop(
+        new_desktop=False,
+        version=version,
+        port=port,
+        aedt_process_id=aedt_process_id,
+        student_version=is_student,
+    )
+
+    active_project = app.active_project()
+    active_design = app.active_design()
+
+    project_name = active_project.GetName()
+    if active_design.GetDesignType() == "HFSS 3D Layout Design":
+        design_name = active_design.GetDesignName()
+    else:
+        design_name = active_design.GetName()
+
+    hfss = get_pyaedt_app(project_name, design_name)
+
+    if hfss.design_type != "HFSS":  # pragma: no cover
+        app.logger.error("Active design is not HFSS.")
+        if not extension_args["is_test"]:
+            app.release_desktop(False, False)
+        return False
+
+    assignment = extension_args.get("choice", extension_arguments["choice"])
+    points = extension_args.get("points", extension_arguments["points"])
+
+    # Export the mesh and generate point cloud
+    output_file = hfss.post.export_model_obj(assignment=assignment)
+
+    goemetry_file = output_file[0][0]
+
+    # Generate and visualize the point cloud
+    model_plotter = ModelPlotter()
+    model_plotter.add_object(goemetry_file)
+    point_values = model_plotter.point_cloud(points=int(points))
+
+    for input_file, _ in point_values.values():
+        _ = hfss.insert_near_field_points(input_file=input_file)
+
+    if not extension_args["is_test"]:  # pragma: no cover
+        app.release_desktop(False, False)
+    return True
 
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    app = PointCloudApp(root)
-    app.init_hfss()
-    app.create_ui()
-    root.mainloop()
+    args = get_arguments(extension_arguments, extension_description)
+
+    # Open UI
+    if not args["is_batch"]:  # pragma: no cover
+        output = frontend()
+        if output:
+            for output_name, output_value in output.items():
+                if output_name in extension_arguments:
+                    args[output_name] = output_value
+            main(args)
+    else:
+        main(args)
