@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -27,7 +27,7 @@ import re
 from ansys.aedt.core.generic.constants import SI_UNITS
 from ansys.aedt.core.generic.constants import unit_system
 from ansys.aedt.core.generic.data_handlers import _dict2arg
-from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 quantities_dict_1 = {  # pragma: no cover
@@ -322,11 +322,11 @@ class Monitor:
                     [
                         "NAME:PointParameters",
                         "PointX:=",
-                        self._app.modeler._arg_with_dim(p_p[0]),
+                        self._app.value_with_units(p_p[0]),
                         "PointY:=",
-                        self._app.modeler._arg_with_dim(p_p[1]),
+                        self._app.value_with_units(p_p[1]),
                         "PointZ:=",
-                        self._app.modeler._arg_with_dim(p_p[2]),
+                        self._app.value_with_units(p_p[2]),
                     ],
                     ["NAME:Attributes", "Name:=", point_name, "Color:=", "(143 175 143)"],
                 )
@@ -370,7 +370,6 @@ class Monitor:
 
         References
         ----------
-
         >>> oModule.AssignPointMonitor
 
         """
@@ -417,12 +416,10 @@ class Monitor:
 
         References
         ----------
-
         >>> oModule.AssignFaceMonitor
 
         Examples
         --------
-
         Create a rectangle named ``"Surface1"`` and assign a temperature monitor to that surface.
 
         >>> surface = icepak.modeler.create_rectangle(icepak.PLANE.XY,[0, 0, 0],[10, 20],name="Surface1")
@@ -473,7 +470,6 @@ class Monitor:
 
         References
         ----------
-
         >>> oModule.AssignFaceMonitor
         """
         if isinstance(face_id, int):
@@ -520,12 +516,10 @@ class Monitor:
 
         References
         ----------
-
         >>> oModule.AssignPointMonitor
 
         Examples
         --------
-
         Create a box named ``"BlockBox1"`` and assign a temperature monitor point to that object.
 
         >>> box = icepak.modeler.create_box([1, 1, 1],[3, 3, 3],"BlockBox1","copper")
@@ -582,7 +576,6 @@ class Monitor:
 
         References
         ----------
-
         >>> oModule.DeleteMonitors
 
         """
@@ -782,9 +775,9 @@ class ObjectMonitor:
 
     @pyaedt_function_handler(setup_name="setup")
     def value(self, quantity=None, setup=None, design_variation_dict=None, si_out=True):
-        """
-        Get a list of values obtained from the monitor object. If the simulation is steady state,
-        the list will contain just one element.
+        """Get a list of values obtained from the monitor object.
+
+        If the simulation is steady state, the list will contain just one element.
 
         Parameters
         ----------

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -24,11 +24,8 @@
 
 """This module contains the ``Circuit`` class."""
 
-from __future__ import absolute_import  # noreorder
-
 import io
 import math
-import os
 from pathlib import Path
 import re
 import shutil
@@ -39,21 +36,21 @@ from ansys.aedt.core.application.analysis_nexxim import FieldAnalysisCircuit
 from ansys.aedt.core.generic import ibis_reader
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.data_handlers import from_rkm_to_aedt
+from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.file_utils import open_file
+from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.filesystem import search_files
-from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
-from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.general_methods import read_configuration_file
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
-from ansys.aedt.core.modules.boundary import CurrentSinSource
-from ansys.aedt.core.modules.boundary import PowerIQSource
-from ansys.aedt.core.modules.boundary import PowerSinSource
-from ansys.aedt.core.modules.boundary import Sources
-from ansys.aedt.core.modules.boundary import VoltageDCSource
-from ansys.aedt.core.modules.boundary import VoltageFrequencyDependentSource
-from ansys.aedt.core.modules.boundary import VoltageSinSource
+from ansys.aedt.core.modules.boundary.circuit_boundary import CurrentSinSource
+from ansys.aedt.core.modules.boundary.circuit_boundary import PowerIQSource
+from ansys.aedt.core.modules.boundary.circuit_boundary import PowerSinSource
+from ansys.aedt.core.modules.boundary.circuit_boundary import Sources
+from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageDCSource
+from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageFrequencyDependentSource
+from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageSinSource
 from ansys.aedt.core.modules.circuit_templates import SourceKeys
 
 
@@ -82,7 +79,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is  used.
         This parameter is ignored when Script is launched within AEDT.
-        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
+        Examples of input values are ``251``, ``25.1``,``2025.1``,``"2025.1"``.
     non_graphical : bool, optional
         Whether to run AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -139,15 +136,12 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
     >>> aedtapp = Circuit("myfile.aedt")
 
-    Create an instance of Circuit using the 2023 R2 version and
-    open the specified project, which is ``"myfile.aedt"``.
+    Create an instance of Circuit using the 20255.1, project="myfile.aedt")
 
-    >>> aedtapp = Circuit(version=2023.2, project="myfile.aedt")
-
-    Create an instance of Circuit using the 2023 R2 student version and open
+    Create an instance of Circuit using the 2025 R1 student version and open
     the specified project, which is named ``"myfile.aedt"``.
 
-    >>> aedtapp = Circuit(version="2023.2", project="myfile.aedt", student_version=True)
+    >>> aedtapp = Circuit(version="2025.1", project="myfile.aedt", student_version=True)
 
     """
 
@@ -192,7 +186,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             remove_lock=remove_lock,
         )
         ScatteringMethods.__init__(self, self)
-        self.onetwork_data_explorer = self._desktop.GetTool("NdExplorer")
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
@@ -459,7 +452,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         Parameters
         ----------
-        input_file : str
+        input_file : str or :class:`pathlib.Path`
             Path of the IBIS file.
         is_ami : bool, optional
             Whether the file to import is an IBIS AMI file. The
@@ -471,9 +464,9 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             IBIS object exposing all data from the IBIS file.
         """
         if is_ami:
-            reader = ibis_reader.AMIReader(input_file, self)
+            reader = ibis_reader.AMIReader(str(input_file), self)
         else:
-            reader = ibis_reader.IbisReader(input_file, self)
+            reader = ibis_reader.IbisReader(str(input_file), self)
         reader.parse_ibis_file()
         return reader.ibis_model
 
@@ -671,7 +664,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.GetExcitationsOfType
         """
         if source_project_name and self.project_name != source_project_name and not source_project_path:
@@ -723,7 +715,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         References
         ----------
-
         >>> oDesign.ImportData
         """
         if input_file[-2:] == "ts":
@@ -870,7 +861,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             Name of the setup if it is a design. The default is ``None``.
         is_solution_file : bool, optional
             Whether it is an imported solution file. The default is ``False``.
-        filename : str, optional
+        filename : str or :class:`pathlib.Path`, optional
             Full path and name for exporting the HSpice file.
             The default is ``None``, in which case the file is exported to the working directory.
         passivity : bool, optional
@@ -894,19 +885,19 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         References
         ----------
-
         >>> oDesign.ExportFullWaveSpice
         """
         if not design:
             design = self.design_name
         if not filename:
-            filename = os.path.join(self.working_directory, self.design_name + ".sp")
+            filename = Path(self.working_directory) / f"{self.design_name}.sp"
         if is_solution_file:
             setup = design
             design = ""
         else:
             if not setup:
                 setup = self.nominal_sweep
+        file_path = Path(filename)
         self.onetwork_data_explorer.ExportFullWaveSpice(
             design,
             is_solution_file,
@@ -954,11 +945,11 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                 "SYZDataInAutoMode:=",
                 False,
                 "ExportDirectory:=",
-                os.path.dirname(filename) + "\\",
+                str(file_path.parent) + "\\",
                 "ExportSpiceFileName:=",
-                os.path.basename(filename),
+                file_path.name,
                 "FullwaveSpiceFileName:=",
-                os.path.basename(filename),
+                file_path.name,
                 "UseMultipleCores:=",
                 True,
                 "NumberOfCores:=",
@@ -981,8 +972,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         differential_pairs=False,
         subdesign_id=None,
     ):
-        """
-        Create a Touchstone plot.
+        """Create a Touchstone plot.
 
         Parameters
         ----------
@@ -998,6 +988,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             Whether the plot is on differential pairs traces. The default is ``False``.
         subdesign_id : int, optional
             Specify a subdesign ID to export a Touchstone file of this subdesign. The default value is ``None``.
+
         Returns
         -------
         bool
@@ -1005,7 +996,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         References
         ----------
-
         >>> oModule.CreateReport
         """
         if not solution:
@@ -1041,7 +1031,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         References
         ----------
-
         >>> oEditor.PushExcitations
         """
         arg = ["NAME:options", "CalcThevenin:=", thevenin_calculation, "Sol:=", setup]
@@ -1093,7 +1082,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         References
         ----------
-
         >>> oEditor.PushExcitations
         """
         arg = [
@@ -1147,7 +1135,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         References
         ----------
-
         >>> oDesign.UpdateSources
         """
         if not name:
@@ -1195,14 +1182,13 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         References
         ----------
-
         >>> oDesign.UpdateSources
         """
 
         source_v = self.create_source(source_type="VoltageSin")
         for port in ports:
-            self.excitation_objects[port].enabled_sources.append(source_v.name)
-            self.excitation_objects[port].update()
+            self.design_excitations[port].enabled_sources.append(source_v.name)
+            self.design_excitations[port].update()
         return source_v
 
     @pyaedt_function_handler()
@@ -1221,13 +1207,12 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         References
         ----------
-
         >>> oDesign.UpdateSources
         """
         source_i = self.create_source(source_type="CurrentSin")
         for port in ports:
-            self.excitation_objects[port].enabled_sources.append(source_i.name)
-            self.excitation_objects[port].update()
+            self.design_excitations[port].enabled_sources.append(source_i.name)
+            self.design_excitations[port].update()
         return source_i
 
     @pyaedt_function_handler()
@@ -1246,13 +1231,12 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         References
         ----------
-
         >>> oDesign.UpdateSources
         """
         source_p = self.create_source(source_type="PowerSin")
         for port in ports:
-            self.excitation_objects[port].enabled_sources.append(source_p.name)
-            self.excitation_objects[port].update()
+            self.design_excitations[port].enabled_sources.append(source_p.name)
+            self.design_excitations[port].update()
         return source_p
 
     @pyaedt_function_handler(filepath="input_file")
@@ -1263,7 +1247,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         ----------
         ports : list
             List of circuit ports to assign to the frequency dependent excitation.
-        input_file : str
+        input_file : str or :class:`pathlib.Path`
             Path to the frequency dependent file.
 
         Returns
@@ -1273,22 +1257,21 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         References
         ----------
-
         >>> oDesign.UpdateSources
         """
-        if not os.path.exists(input_file) or os.path.splitext(input_file)[1] != ".fds":
+        if not Path(input_file).exists() or Path(input_file).suffix != ".fds":
             self.logger.error("Introduced file is not correct. Check path and format.")
             return False
 
-        if not all(elem in self.excitations for elem in ports):
+        if not all(elem in self.excitation_names for elem in ports):
             self.logger.error("Defined ports do not exist")
             return False
 
         source_freq = self.create_source(source_type="VoltageFrequencyDependent")
         source_freq.fds_filename = input_file
         for port in ports:
-            self.excitation_objects[port].enabled_sources.append(source_freq.name)
-            self.excitation_objects[port].update()
+            self.design_excitations[port].enabled_sources.append(source_freq.name)
+            self.design_excitations[port].update()
         return source_freq
 
     @pyaedt_function_handler(
@@ -1365,9 +1348,9 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         arg.append("Pair:=")
         arg.append(arg1)
 
-        tmpfile1 = os.path.join(self.working_directory, generate_unique_name("tmp"))
-        self.odesign.SaveDiffPairsToFile(tmpfile1)
-        with open_file(tmpfile1, "r") as fh:
+        tmpfile1 = Path(self.working_directory) / generate_unique_name("tmp")
+        self.odesign.SaveDiffPairsToFile(str(tmpfile1))
+        with open_file(str(tmpfile1), "r") as fh:
             lines = fh.read().splitlines()
 
         old_arg = []
@@ -1398,7 +1381,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             arg.append(arg2)
 
         try:
-            os.remove(tmpfile1)
+            Path(tmpfile1).unlink()
         except Exception:  # pragma: no cover
             self.logger.warning("ERROR: Cannot remove temp files.")
 
@@ -1417,7 +1400,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         Parameters
         ----------
-        input_file : str
+        input_file : str or :class:`pathlib.Path`
             Full qualified name of the file containing the differential pairs definition.
 
         Returns
@@ -1429,19 +1412,19 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         ----------
         >>> oDesign.LoadDiffPairsFromFile
         """
-        if not os.path.isfile(input_file):  # pragma: no cover
+        if not Path(input_file).is_file():  # pragma: no cover
             raise ValueError(f"{input_file}: The specified file could not be found.")
 
         try:
-            new_file = os.path.join(os.path.dirname(input_file), generate_unique_name("temp") + ".txt")
+            new_file = Path(input_file).parent / str(generate_unique_name("temp") + ".txt")
             with open_file(input_file, "r") as file:
                 filedata = file.read().splitlines()
             with io.open(new_file, "w", newline="\n") as fh:
                 for line in filedata:
                     fh.write(line + "\n")
 
-            self.odesign.LoadDiffPairsFromFile(new_file)
-            os.remove(new_file)
+            self.odesign.LoadDiffPairsFromFile(str(new_file))
+            new_file.unlink()
         except Exception:  # pragma: no cover
             return False
         return True
@@ -1454,7 +1437,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         Parameters
         ----------
-        output_file : str
+        output_file : str or :class:`pathlib.Path`
             Full qualified name of the file to save the differential pairs definition to.
 
         Returns
@@ -1466,9 +1449,9 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         ----------
         >>> oDesign.SaveDiffPairsToFile
         """
-        self.odesign.SaveDiffPairsToFile(output_file)
+        self.odesign.SaveDiffPairsToFile(str(output_file))
 
-        return os.path.isfile(output_file)
+        return Path(output_file).is_file()
 
     @pyaedt_function_handler(netlist_file="input_file", datablock_name="name")
     def add_netlist_datablock(self, input_file, name=None):
@@ -1476,7 +1459,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         Parameters
         ----------
-        input_file : str
+        input_file : str or :class:`pathlib.Path`
             Path to the netlist file.
         name : str, optional
             Name of the data block.
@@ -1486,7 +1469,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if not os.path.exists(input_file):
+        if not Path(input_file).exists():
             self.logger.error("Netlist File doesn't exists")
             return False
         if not name:
@@ -1494,7 +1477,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         tmp_oModule = self.odesign.GetModule("DataBlock")
         tmp_oModule.AddNetlistDataBlock(
-            ["NAME:DataBlock", "name:=", name, "filename:=", input_file, "filelocation:=", 0]
+            ["NAME:DataBlock", "name:=", name, "filename:=", str(input_file), "filelocation:=", 0]
         )
         return True
 
@@ -1504,7 +1487,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         Parameters
         ----------
-        input_file : str, optional
+        input_file : str or :class:`pathlib.Path`, optional
             File path to save the new log file to. The default is the ``pyaedt`` folder.
 
         Returns
@@ -1512,33 +1495,35 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         str
             File Path.
         """
-        if input_file and not os.path.exists(os.path.normpath(input_file)):
+        if input_file and not Path(input_file).exists():
             self.logger.error("Path does not exist.")
             return None
         elif not input_file:
-            input_file = os.path.join(os.path.normpath(self.working_directory), "logfile")
-            if not os.path.exists(input_file):
-                os.mkdir(input_file)
+            input_file = Path(self.working_directory) / "logfile"
+            if not Path(input_file).exists():
+                Path(input_file).mkdir()
 
-        results_path = os.path.join(os.path.normpath(self.results_directory), self.design_name)
-        results_temp_path = os.path.join(results_path, "temp")
+        results_path = Path(self.results_directory) / self.design_name
+        results_temp_path = Path(results_path) / "temp"
 
         # Check if .log exist in temp folder
-        if os.path.exists(results_temp_path) and search_files(results_temp_path, "*.log"):
+        if Path(results_temp_path).exists() and search_files(str(results_temp_path), "*.log"):
             # Check the most recent
-            files = search_files(results_temp_path, "*.log")
-            latest_file = max(files, key=os.path.getctime)
-        elif os.path.exists(results_path) and search_files(results_path, "*.log"):
+            files = search_files(str(results_temp_path), "*.log")
+            files = [Path(f) for f in files]
+            latest_file = max(files, key=lambda f: str(f.stat().st_ctime))
+        elif Path(results_path).exists() and search_files(str(results_path), "*.log"):
             # Check the most recent
-            files = search_files(results_path, "*.log")
-            latest_file = max(files, key=os.path.getctime)
+            files = search_files(str(results_path), "*.log")
+            files = [Path(f) for f in files]
+            latest_file = max(files, key=lambda f: str(f.stat().st_ctime))
         else:
             self.logger.error("Design not solved")
             return None
 
         shutil.copy(latest_file, input_file)
-        filename = os.path.basename(latest_file)
-        return os.path.join(input_file, filename)
+        filename = Path(latest_file).name
+        return Path(input_file) / filename
 
     @pyaedt_function_handler()
     def connect_circuit_models_from_multi_zone_cutout(
@@ -1711,18 +1696,22 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         if isinstance(input_file, type(Hfss3dLayout)):
             touchstone_path = input_file.export_touchstone()
         else:
-            touchstone_path = input_file
+            touchstone_path = str(input_file)
 
         sub = self.modeler.components.create_touchstone_component(touchstone_path)
         center_x = sub.location[0]
         center_y = sub.location[1]
         left = 0
         delta_y = -1 * sub.location[1] - 2000 - 50 * len(tx_schematic_pins)
+
         if differential:
             tdr_probe = self.modeler.components.components_catalog["TDR_Differential_Ended"]
         else:
             tdr_probe = self.modeler.components.components_catalog["TDR_Single_Ended"]
+
         tdr_probe_names = []
+        n_pin = None
+
         for i, probe_pin in enumerate(tx_schematic_pins):
             pos_y = unit_converter(delta_y - left * 1000, input_units="mil", output_units=self.modeler.schematic_units)
             left += 1
@@ -1847,7 +1836,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         if isinstance(input_file, type(Hfss3dLayout)):
             touchstone_path = input_file.export_touchstone()
         else:
-            touchstone_path = input_file
+            touchstone_path = str(input_file)
 
         sub = self.modeler.components.create_touchstone_component(touchstone_path)
 
@@ -2102,11 +2091,11 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         if isinstance(input_file, type(Hfss3dLayout)):
             touchstone_path = input_file.export_touchstone()
         else:
-            touchstone_path = input_file
+            touchstone_path = str(input_file)
 
         sub = self.modeler.components.create_touchstone_component(touchstone_path)
         return self.create_ibis_schematic_from_pins(
-            ibis_tx_file=ibis_tx_file,
+            ibis_tx_file=str(ibis_tx_file),
             ibis_rx_file=ibis_rx_file,
             tx_buffer_name=tx_buffer_name,
             rx_buffer_name=rx_buffer_name,
@@ -2155,7 +2144,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         Parameters
         ----------
-
         ibis_tx_file : str
             Full path to the IBIS file for transmitters.
         ibis_rx_file : str
@@ -2455,7 +2443,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         Parameters
         ----------
-        input_file : str
+        input_file : str or :class:`pathlib.Path`
             Path to asc file.
         config_file : str, optional
             Path to configuration file to map components. Default is None which uses internal mapping.
@@ -2469,7 +2457,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         scale = 2.54e-3 / (16 / factor)
 
-        flag, wire_xy, symbol = self._parse_asc_file(input_file=input_file, l_scale=scale, c_scale=scale)
+        flag, wire_xy, symbol = self._parse_asc_file(input_file=str(input_file), l_scale=scale, c_scale=scale)
         for i in flag:
             if i[2] == "0":
                 angle = 0
@@ -2484,9 +2472,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                 self.modeler.schematic.create_interface_port(name=i[2], location=[i[0], i[1]])
 
         if not config_file:
-            configuration = read_configuration_file(
-                os.path.join(os.path.dirname(__file__), "misc", "asc_circuit_mapping.json")
-            )
+            configuration = read_configuration_file(str(Path(__file__).parent / "misc" / "asc_circuit_mapping.json"))
         else:
             configuration = read_configuration_file(config_file)
 
@@ -2632,7 +2618,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         Parameters
         ----------
-        input_file : str
+        input_file : str or :class:`pathlib.Path`
             Full path to the file.
         link : bool, optional
             Whether to link the file to the solution. The default is ``False``.

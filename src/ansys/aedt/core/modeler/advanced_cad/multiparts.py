@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -24,9 +24,9 @@
 
 import os
 
+from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.filesystem import get_json_files
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.general_methods import read_configuration_file
 from ansys.aedt.core.modeler.advanced_cad.parts import Antenna
 from ansys.aedt.core.modeler.advanced_cad.parts import Part
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators

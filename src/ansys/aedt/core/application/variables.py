@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -37,9 +37,6 @@ Examples
 
 """
 
-from __future__ import absolute_import  # noreorder
-from __future__ import division
-
 import ast
 import os
 import re
@@ -50,12 +47,14 @@ from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import SI_UNITS
 from ansys.aedt.core.generic.constants import _resolve_unit_system
 from ansys.aedt.core.generic.constants import unit_system
-from ansys.aedt.core.generic.general_methods import GrpcApiError
+from ansys.aedt.core.generic.errors import GrpcApiError
+from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import check_numeric_equivalence
-from ansys.aedt.core.generic.general_methods import is_array
-from ansys.aedt.core.generic.general_methods import is_number
-from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers import Quantity
+from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.generic.numbers import is_array
+from ansys.aedt.core.generic.numbers import is_number
 
 
 class CSVDataset:
@@ -261,68 +260,6 @@ class CSVDataset:
 
 
 @pyaedt_function_handler()
-def _find_units_in_dependent_variables(variable_value, full_variables={}):
-    m2 = re.findall(r"[0-9.]+ *([a-z_A-Z]+)", variable_value)
-    if len(m2) > 0:
-        if len(set(m2)) <= 1:
-            return m2[0]
-        else:
-            if unit_system(m2[0]):
-                return SI_UNITS[unit_system(m2[0])]
-    else:
-        m1 = re.findall(r"(?<=[/+-/*//^/(/[])([a-z_A-Z/$]\w*)", variable_value.replace(" ", ""))
-        m2 = re.findall(r"^([a-z_A-Z/$]\w*)", variable_value.replace(" ", ""))
-        m = list(set(m1).union(m2))
-        for i, v in full_variables.items():
-            if i in m and _find_units_in_dependent_variables(v):
-                return _find_units_in_dependent_variables(v)
-    return ""
-
-
-@pyaedt_function_handler()
-def decompose_variable_value(variable_value, full_variables={}):
-    """Decompose a variable value.
-
-    Parameters
-    ----------
-    variable_value : str
-    full_variables : dict
-
-    Returns
-    -------
-    tuples
-        Tuples made of the float value of the variable and the units exposed as a string.
-    """
-    # set default return values - then check for valid units
-    float_value = variable_value
-    units = ""
-
-    if is_number(variable_value):
-        float_value = float(variable_value)
-    elif isinstance(variable_value, str) and variable_value != "nan":
-        try:
-            # Handle a numerical value in string form
-            float_value = float(variable_value)
-        except ValueError:
-            # search for a valid units string at the end of the variable_value
-            loc = re.search(r"[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?", variable_value)
-            units = _find_units_in_dependent_variables(variable_value, full_variables)
-            if loc:
-                loc_units = loc.span()[1]
-                extract_units = variable_value[loc_units:]
-                chars = set("+*/()[]")
-                if any((c in chars) for c in extract_units):
-                    return variable_value, units
-                try:
-                    float_value = float(variable_value[0:loc_units])
-                    units = extract_units
-                except ValueError:
-                    float_value = variable_value
-
-    return float_value, units
-
-
-@pyaedt_function_handler()
 def _generate_property_validation_errors(property_name, expected, actual):
     expected_value, expected_unit = decompose_variable_value(expected)
     actual_value, actual_unit = decompose_variable_value(actual)
@@ -340,6 +277,7 @@ def _generate_property_validation_errors(property_name, expected, actual):
 @pyaedt_function_handler()
 def generate_validation_errors(property_names, expected_settings, actual_settings):
     """From the given property names, expected settings and actual settings, return a list of validation errors.
+
     If no errors are found, an empty list is returned. The validation of values such as "10mm"
     ensures that they are close to within a relative tolerance.
     For example an expected setting of "10mm", and actual of "10.000000001mm" will not yield a validation error.
@@ -468,13 +406,14 @@ class VariableManager(object):
 
         Returns
         -------
-        dict
+
+        dict[str, :class:`ansys.aedt.core.application.variables.Variable`]
             Dictionary of the `Variable` objects for each project variable and each
             design property in the active design.
 
+
         References
         ----------
-
         >>> oProject.GetVariables
         >>> oDesign.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
@@ -526,7 +465,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oDesign.GetVariables
         >>> oDesign.GetChildObject("Variables").GetChildNames
         """
@@ -543,7 +481,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
         """
@@ -561,7 +498,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariables
         >>> oDesign.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
@@ -590,7 +526,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariables
         >>> oDesign.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
@@ -609,7 +544,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
         """
@@ -627,7 +561,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oDesign.GetVariables
         >>> oDesign.GetChildObject("Variables").GetChildNames
         """
@@ -645,7 +578,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariables
         >>> oDesign.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
@@ -664,7 +596,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
         """
@@ -682,7 +613,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oDesign.GetVariables
         >>> oDesign.GetChildObject("Variables").GetChildNames
         """
@@ -699,7 +629,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
         """
@@ -711,7 +640,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oDesign.GetVariables
         >>> oDesign.GetChildObject("Variables").GetChildNames"""
         return [var_name for var_name in self.design_variables]
@@ -722,7 +650,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
         """
@@ -734,7 +661,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oDesign.GetVariables
         >>> oDesign.GetChildObject("Variables").GetChildNames"""
         return [var_name for var_name in self.independent_design_variables]
@@ -745,7 +671,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariables
         >>> oDesign.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
@@ -758,7 +683,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
         """
@@ -770,7 +694,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oDesign.GetVariables
         >>> oDesign.GetChildObject("Variables").GetChildNames"""
         return [var_name for var_name in self.dependent_design_variables]
@@ -781,7 +704,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariables
         >>> oDesign.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
@@ -928,7 +850,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.GetVariableValue
         >>> oDesign.GetVariableValue
         """
@@ -1004,6 +925,7 @@ class VariableManager(object):
         circuit_parameter : bool, optional
             Whether to define a parameter in a circuit design or a local parameter.
              The default is ``True``, in which case a circuit variable is created as a parameter default.
+
         Returns
         -------
         bool
@@ -1011,14 +933,13 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.ChangeProperty
         >>> oDesign.ChangeProperty
 
         Examples
         --------
         >>> from ansys.aedt.core import Maxwell3d
-        >>> aedtapp = Maxwell3d(specified_version="2024.2")
+        >>> aedtapp = Maxwell3d(specified_version="2025.1")
 
         Set the value of design property ``p1`` to ``"10mm"``,
         creating the property if it does not already eixst.
@@ -1044,7 +965,6 @@ class VariableManager(object):
         creating the variable if it does not exist.
 
         >>> aedtapp.variable_manager.set_variable["$p1"] == "30mm"
-
         """
         if name in self._independent_variables:
             del self._independent_variables[name]
@@ -1087,6 +1007,8 @@ class VariableManager(object):
         elif isinstance(expression, Variable):
             # Handle input type variable
             variable = expression.evaluated_value
+        elif isinstance(expression, Quantity):
+            variable = str(expression)
         elif is_number(expression):
             # Handle input type int/float, etc (including numeric 0)
             variable = str(expression)
@@ -1216,7 +1138,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.ChangeProperty
         >>> oDesign.ChangeProperty
         """
@@ -1257,7 +1178,6 @@ class VariableManager(object):
 
         References
         ----------
-
         >>> oProject.ChangeProperty
         >>> oDesign.ChangeProperty
         """
@@ -1354,7 +1274,7 @@ class VariableManager(object):
 
         """
         used = False
-        for _, v in history.props.items():
+        for _, v in history.properties.items():
             if isinstance(v, str) and var_name in re.findall("[a-zA-Z0-9_]+", v):
                 return True
         for el in history.children.values():
@@ -2278,7 +2198,6 @@ class DataSet(object):
 
         References
         ----------
-
         >>> oProject.AddDataset
         >>> oDesign.AddDataset
         """
@@ -2310,7 +2229,6 @@ class DataSet(object):
 
         References
         ----------
-
         >>> oProject.EditDataset
         >>> oDesign.EditDataset
         """
@@ -2337,7 +2255,6 @@ class DataSet(object):
 
         References
         ----------
-
         >>> oProject.EditDataset
         >>> oDesign.EditDataset
         """
@@ -2363,7 +2280,6 @@ class DataSet(object):
 
         References
         ----------
-
         >>> oProject.EditDataset
         >>> oDesign.EditDataset
         """
@@ -2388,7 +2304,6 @@ class DataSet(object):
 
         References
         ----------
-
         >>> oProject.EditDataset
         >>> oDesign.EditDataset
         """
@@ -2412,7 +2327,6 @@ class DataSet(object):
 
         References
         ----------
-
         >>> oProject.DeleteDataset
         >>> oDesign.DeleteDataset
         """
@@ -2441,7 +2355,6 @@ class DataSet(object):
 
         References
         ----------
-
         >>> oProject.ExportDataset
         >>> oDesign.ExportDataset
         """

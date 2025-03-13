@@ -27,7 +27,7 @@ import logging
 import os
 import shutil
 
-from ansys.aedt.core.generic.general_methods import read_toml
+from ansys.aedt.core.generic.file_utils import read_toml
 from ansys.aedt.core.workflows import customize_automation_tab
 import ansys.aedt.core.workflows.templates
 
@@ -45,7 +45,6 @@ def add_pyaedt_to_aedt(
     personal_lib : str
         AEDT personal library folder.
     """
-
     logger = logging.getLogger("Global")
     if not personal_lib or not aedt_version:
         from ansys.aedt.core.generic.desktop_sessions import _desktop_sessions
@@ -70,7 +69,6 @@ def add_pyaedt_to_aedt(
 
 def __add_pyaedt_tabs(personal_lib, aedt_version):
     """Add PyAEDT tabs in AEDT."""
-
     pyaedt_tabs = ["Console", "Jupyter", "Run_Script", "ExtensionManager"]
 
     extensions_catalog = read_toml(os.path.join(os.path.dirname(__file__), "extensions_catalog.toml"))

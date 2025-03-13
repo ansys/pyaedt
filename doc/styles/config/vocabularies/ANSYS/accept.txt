@@ -24,7 +24,7 @@ DesignXploration
 docstring
 [Dd]ocstrings
 doppler
-dotnet
+[Dd]otnet
 EDB
 EDT
 efields
@@ -33,6 +33,7 @@ FEBI
 FE-BI
 file_path
 getters
+Github
 globals
 [Gg]RPC
 HDM
@@ -56,8 +57,9 @@ namespaces
 Nastran
 netlist
 Nexxim
-numpy
+[Nn]umpy
 numpydoc
+openssl
 [Oo]ptimetrics
 padstack
 padstacks
@@ -95,6 +97,7 @@ subcircuit
 [Tt]oolkit [Mm]anager
 Twin Builder
 Uncomment
+utils
 vias
 manual_settings
 boolean

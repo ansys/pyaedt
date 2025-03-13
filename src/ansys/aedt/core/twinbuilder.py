@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -24,19 +24,17 @@
 
 """This module contains the ``TwinBuilder`` class."""
 
-from __future__ import absolute_import  # noreorder
-
 import math
-import os.path
+from pathlib import Path
 
 from ansys.aedt.core.application.analysis_twin_builder import AnalysisTwinBuilder
 from ansys.aedt.core.application.variables import Variable
-from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import unit_converter
-from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import is_number
-from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.generic.numbers import is_number
 
 
 class TwinBuilder(AnalysisTwinBuilder, object):
@@ -64,7 +62,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         Version of AEDT to use. The default is ``None``, in which
         case the active setup or latest installed version is
         used.
-        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
+        Examples of input values are ``251``, ``25.1``, ``2025.1``, ``"2025.1"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -259,7 +257,6 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
         """
         self.set_sim_setup_parameter("Tend", expression)
@@ -281,7 +278,6 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
         """
         self.set_sim_setup_parameter("Hmin", expression)
@@ -303,7 +299,6 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
         """
         self.set_sim_setup_parameter("Hmax", expression)
@@ -329,7 +324,6 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
         """
         if isinstance(expression, Variable):
@@ -354,8 +348,10 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
     @pyaedt_function_handler()
     def create_subsheet(self, name, design_name):
-        """Create a subsheet from a parent design. If the parent design does not exist, it will add at top level. Nested
-        subsheets are currently not supported.
+        """Create a subsheet from a parent design.
+
+        If the parent design does not exist, it will add at top level.
+        Nested subsheets are currently not supported.
 
         Parameters
         ----------
@@ -445,12 +441,11 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent` or bool
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent` or bool
             Circuit component object if successful or ``False`` if fails.
 
         References
         ----------
-
         >>> oComponentManager.AddDynamicNPortData
 
         Examples
@@ -469,9 +464,9 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         """
         dkp = self.desktop_class
         is_loaded = False
-        if os.path.isfile(source_project):
+        if Path(source_project).is_file():
             project_path = source_project
-            project_name = os.path.splitext(os.path.basename(source_project))[0]
+            project_name = Path(source_project).stem
             if project_name in dkp.project_list():
                 app = dkp[[project_name, source_design_name]]
             else:
@@ -479,7 +474,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
                 is_loaded = True
         elif source_project in self.project_list:
             project_name = source_project
-            project_path = os.path.join(self.project_path, project_name + ".aedt")
+            project_path = Path(self.project_path) / str(project_name + ".aedt")
             app = dkp[[source_project, source_design_name]]
         else:
             raise ValueError("Invalid project name or path provided.")
@@ -499,7 +494,9 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             raise ValueError("Invalid matrix name.")
         if not component_name:
             component_name = generate_unique_name("SimpQ3DData")
-        var = app.available_variations.nominal_w_values_dict
+
+        var = app.available_variations.get_independent_nominal_values()
+
         props = ["NAME:Properties"]
         for k, v in var.items():
             props.append("paramProp:=")
@@ -516,7 +513,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             if not is_number(value) and not unit:
                 raise TypeError("Model depth must be provided as a string with value and unit.")
             design_type = "Q2D"
-            signal_list = [k for k, v in app.excitation_objects.items() if v.type == "SignalLine"]
+            signal_list = [k for k, v in app.design_excitations.items() if v.type == "SignalLine"]
             for signal in signal_list:
                 port_info_list_A.append("OnePortInfo:=")
                 port_info_list_B.append("OnePortInfo:=")
@@ -570,7 +567,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             enforce_passivity = True
         else:
             raise TypeError("Link type is not valid.")
-        self.o_component_manager.AddDynamicNPortData(
+        self.ocomponent_manager.AddDynamicNPortData(
             [
                 "NAME:ComponentData",
                 "ComponentDataType:=",
@@ -578,9 +575,9 @@ class TwinBuilder(AnalysisTwinBuilder, object):
                 "name:=",
                 component_name,
                 "filename:=",
-                project_path,
+                str(project_path),
                 "numberofports:=",
-                2 * len(app.excitations),
+                2 * len(app.excitation_names),
                 "Is3D:=",
                 is_3d,
                 "IsWBLink:=",
@@ -658,10 +655,10 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         export_uniform_points=False,
         export_uniform_points_step=1e-5,
         excitations=None,
-    ):  # pragma: no cover
-        """
-        Use the excitation component to assign output quantities in a Twin Builder design to a windings
-        in a Maxwell design.
+    ):
+        """Use the excitation component to assign output quantities
+
+        This works in a Twin Builder design to a windings in a Maxwell design.
         This method works only with AEDT 2025 R1 and later.
 
         Parameters
@@ -731,9 +728,9 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             return False
 
         project_selection = 0
-        if os.path.isfile(project):
+        if Path(project).is_file():
             project_path = project
-            project_name = os.path.splitext(os.path.basename(project))[0]
+            project_name = Path(project).stem
             if project_name in dkp.project_list():
                 maxwell_app = dkp[[project_name, design]]
             else:
@@ -823,7 +820,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
                 grid_data.append("{}:=".format(e.name))
                 grid_data.append(maxwell_excitations[e.name])
 
-        comp_name = self.o_component_manager.AddExcitationModel([settings, excitations_data, grid_data])
+        comp_name = self.ocomponent_manager.AddExcitationModel([settings, excitations_data, grid_data])
         comp = self.modeler.schematic.create_component(component_library="", component_name=comp_name)
 
         return comp

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -26,7 +26,7 @@ import os
 import sys
 
 import ansys.aedt.core
-from ansys.aedt.core.generic.general_methods import read_toml
+from ansys.aedt.core.generic.file_utils import read_toml
 from ansys.aedt.core.generic.settings import is_linux
 import ansys.aedt.core.workflows
 from ansys.aedt.core.workflows.misc import get_aedt_version

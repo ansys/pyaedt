@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -23,8 +23,6 @@
 # SOFTWARE.
 
 """This module contains these classes: ``RMXprtModule`` and ``Rmxprt``."""
-
-from __future__ import absolute_import  # noreorder
 
 from ansys.aedt.core.application.analysis_r_m_xprt import FieldAnalysisRMxprt
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -55,7 +53,7 @@ class RMXprtModule(object):
             child_object = self._app.odesign.GetChildObject("Machine")
             if self.component:
                 child_object = child_object.GetChildObject(self.component)
-            parent = BinaryTreeNode(self.component if self.component else "Machine", child_object, False)
+            parent = BinaryTreeNode(self.component if self.component else "Machine", child_object, False, app=self._app)
             return parent
         except Exception:
             return False
@@ -63,16 +61,20 @@ class RMXprtModule(object):
     @pyaedt_function_handler()
     def __setitem__(self, parameter_name, value):
         def _apply_val(dict_in, name, value):
-            if name in dict_in.props:
+            if name in dict_in.properties:
                 if (
-                    isinstance(dict_in.props[name], list)
-                    and ":=" in dict_in.props[name][0]
+                    isinstance(dict_in.properties[name], list)
+                    and isinstance(dict_in.properties[name][0], str)
+                    and ":=" in dict_in.properties[name][0]
                     and not isinstance(value, list)
                 ):
-                    prps = dict_in.props[name][::]
+                    prps = dict_in.properties[name][::]
                     prps[1] = value
                     value = prps
-                dict_in.props[name] = value
+                try:
+                    dict_in.properties[name] = value
+                except KeyError:
+                    self._app.logger.error(f"{name} is read only.")
                 return True
             else:
                 for _, child in dict_in.children.items():
@@ -88,8 +90,8 @@ class RMXprtModule(object):
     @pyaedt_function_handler()
     def __getitem__(self, parameter_name):
         def _get_val(dict_in, name):
-            if name in dict_in.props:
-                return dict_in.props[name]
+            if name in dict_in.properties:
+                return dict_in.properties[name]
             else:
                 for _, child in dict_in.children.items():
                     return _get_val(child, name)
@@ -157,7 +159,7 @@ class Rmxprt(FieldAnalysisRMxprt):
         Version of AEDT to use. The default is ``None``, in which case
         the active setup is used or the latest installed version is
         used.
-        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
+        Examples of input values are ``251``, ``25.1``, ``2025.1``, ``"2025.1"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -303,7 +305,6 @@ class Rmxprt(FieldAnalysisRMxprt):
 
         References
         ----------
-
         >>> oModule.InsertSetup
 
         Examples
@@ -346,10 +347,10 @@ class Rmxprt(FieldAnalysisRMxprt):
         """
 
         def jsonalize(dict_in, dict_out):
-            dict_out[dict_in.node] = {}
-            for k, v in dict_in.props.items():
+            dict_out[dict_in._node] = {}
+            for k, v in dict_in.properties.items():
                 if not k.endswith("/Choices"):
-                    dict_out[dict_in.node][k] = v
+                    dict_out[dict_in._node][k] = v
             for _, c in dict_in.children.items():
                 jsonalize(c, dict_out)
 
@@ -359,7 +360,7 @@ class Rmxprt(FieldAnalysisRMxprt):
         jsonalize(self.rotor.properties, new_dict)
         jsonalize(self.circuit.properties, new_dict)
         jsonalize(self.shaft.properties, new_dict)
-        from ansys.aedt.core.generic.general_methods import write_configuration_file
+        from ansys.aedt.core.generic.file_utils import write_configuration_file
 
         write_configuration_file(new_dict, output_file)
         return output_file
@@ -379,7 +380,7 @@ class Rmxprt(FieldAnalysisRMxprt):
             ``True`` when successful, ``False`` when failed.
         """
 
-        from ansys.aedt.core.generic.general_methods import read_configuration_file
+        from ansys.aedt.core.generic.file_utils import read_configuration_file
 
         new_dict = read_configuration_file(input_file)
         for k, v in new_dict.items():

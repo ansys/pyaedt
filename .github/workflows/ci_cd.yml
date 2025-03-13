@@ -25,20 +25,40 @@ concurrency:
 
 jobs:
 
+  update-changelog:
+    name: "Update CHANGELOG (on release)"
+    if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: ansys/actions/doc-deploy-changelog@v8
+        with:
+          token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
+          bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
+          bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
+          use-upper-case: true
+
   pr-title:
-    if: github.event_name == 'pull_request'
-    name: Check the title of the pull request
+    name: Check the title of the PR (if needed)
     runs-on: ubuntu-latest
     steps:
       - name: Check the title of the pull request
+        if: github.event_name == 'pull_request'
         uses: ansys/actions/check-pr-title@v8
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           use-upper-case: true
+      - name: Check the title of the pull request
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: echo "::notice::Skipping PR title check for non-PR events"
 
   doc-style:
     name: Documentation style check
     runs-on: ubuntu-latest
+    needs: [pr-title]
     steps:
       - name: Check documentation style
         uses: ansys/actions/doc-style@v8
@@ -62,6 +82,7 @@ jobs:
   smoke-tests:
     name: Build wheelhouse and smoke tests
     runs-on: ${{ matrix.os }}
+    needs: [pr-title]
     strategy:
       fail-fast: false
       matrix:
@@ -95,11 +116,10 @@ jobs:
           optional-dependencies-name: unit-tests
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-unit-tests
-          file: ./coverage.xml
+          files: ./coverage.xml
           flags: linux_unit
 
       - name: Upload pytest test results
@@ -123,11 +143,10 @@ jobs:
           optional-dependencies-name: integration-tests
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-integration-tests
-          file: ./coverage.xml
+          files: ./coverage.xml
           flags: linux_integration
 
       - name: Upload pytest test results
@@ -180,13 +199,12 @@ jobs:
           PYTHONMALLOC: malloc
         run: |
           .venv\Scripts\Activate.ps1
-          pytest ${{ env.PYTEST_ARGUMENTS }} -m solvers
+          pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m solvers --deselect=tests/system/solvers/test_45_FilterSolutions
 
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-system-solvers-tests-windows
-          file: ./coverage.xml
+          files: ./coverage.xml
           flags: windows_system_solvers
 
       - name: Upload pytest test results
@@ -206,7 +224,7 @@ jobs:
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
-      ANSYSEM_ROOT242: '/opt/AnsysEM/v242/Linux64'
+      ANSYSEM_ROOT251: '/opt/AnsysEM/v251/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
@@ -219,7 +237,7 @@ jobs:
 
       - name: Create virtual environment
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT251 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           python -m venv .venv
           source .venv/bin/activate
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
@@ -228,21 +246,20 @@ jobs:
 
       - name: Install pyaedt and tests dependencies
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT251 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           source .venv/bin/activate
           pip install .[tests]
 
       - name: Run tests marked with 'solvers'
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT251 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           source .venv/bin/activate
-          pytest ${{ env.PYTEST_ARGUMENTS }} -m solvers
+          pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m solvers
 
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-system-solvers-tests-linux
-          file: ./coverage.xml
+          files: ./coverage.xml
           flags: linux_system_solvers
 
       - name: Upload pytest test results
@@ -297,16 +314,15 @@ jobs:
         with:
           max_attempts: 2
           retry_on: error
-          timeout_minutes: 50
+          timeout_minutes: 120
           command: |
             .venv\Scripts\Activate.ps1
-            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile -m general
+            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m general
 
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-system-general-tests-windows
-          file: ./coverage.xml
+          files: ./coverage.xml
           flags: windows_system_general
 
       - name: Upload pytest test results
@@ -326,7 +342,7 @@ jobs:
     needs: [integration-tests]
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
-      ANSYSEM_ROOT242: '/opt/AnsysEM/v242/Linux64'
+      ANSYSEM_ROOT251: '/opt/AnsysEM/v251/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
@@ -339,7 +355,7 @@ jobs:
 
       - name: Create virtual environment
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT251 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           python -m venv .venv
           source .venv/bin/activate
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
@@ -348,7 +364,7 @@ jobs:
 
       - name: Install pyaedt and tests dependencies
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT251 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           source .venv/bin/activate
           pip install .[tests]
 
@@ -364,17 +380,16 @@ jobs:
         with:
           max_attempts: 2
           retry_on: error
-          timeout_minutes: 50
+          timeout_minutes: 120
           command: |
-            export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+            export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT251 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
             source .venv/bin/activate
-            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile -m general
+            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m general
 
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          name: codecov-system-general-tests
-          file: ./coverage.xml
+          name: codecov-system-general-tests-linux
+          files: ./coverage.xml
           flags: linux_system_general
 
       - name: Upload pytest test results
@@ -384,9 +399,146 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
+
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
+
+  system-tests-visualization-windows:
+    name: Testing and coverage Visualization (Windows)
+    needs: [integration-tests]
+    if: github.event.pull_request.draft == false
+    runs-on: [ self-hosted, Windows, pyaedt ]
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+      - name: Create virtual environment
+        run: |
+          python -m venv .venv
+          .venv\Scripts\Activate.ps1
+          python -m pip install pip -U
+          python -m pip install wheel setuptools -U
+          python -c "import sys; print(sys.executable)"
+
+      - name: Install pyaedt and tests dependencies
+        run: |
+          .venv\Scripts\Activate.ps1
+          pip install .[tests]
+
+      - name: Install CI dependencies (e.g. vtk-osmesa)
+        run: |
+          .venv\Scripts\Activate.ps1
+          # Uninstall conflicting dependencies
+          pip uninstall --yes vtk
+          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa
+
+      - name: Run tests marked with 'visualization'
+        uses: nick-fields/retry@v3
+        env:
+          PYTHONMALLOC: malloc
+        with:
+          max_attempts: 2
+          retry_on: error
+          timeout_minutes: 120
+          command: |
+            .venv\Scripts\Activate.ps1
+            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m visualization
+
+      - uses: codecov/codecov-action@v5
+        with:
+          name: codecov-system-visualization-tests-windows
+          files: ./coverage.xml
+          flags: windows_system_visualization
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-visualization-windows
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
+
+  system-tests-visualization-linux:
+    name: Testing and coverage visualization(Linux)
+    if: github.event.pull_request.draft == false
+    needs: [integration-tests]
+    runs-on: [ self-hosted, Linux, pyaedt ]
+    env:
+      ANSYSEM_ROOT251: '/opt/AnsysEM/v251/AnsysEM'
+      ANS_NODEPCHECK: '1'
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+      - name: Create virtual environment
+        run: |
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT251 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          python -m venv .venv
+          source .venv/bin/activate
+          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
+          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org wheel setuptools -U
+          python -c "import sys; print(sys.executable)"
+
+      - name: Install pyaedt and tests dependencies
+        run: |
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT251 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          source .venv/bin/activate
+          pip install .[tests]
+
+      - name: Install CI dependencies (e.g. vtk-osmesa)
+        run: |
+          source .venv/bin/activate
+          # Uninstall conflicting dependencies
+          pip uninstall --yes vtk
+          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa
+
+      - name: Run tests marked with 'visualization'
+        uses: nick-fields/retry@v3
+        with:
+          max_attempts: 2
+          retry_on: error
+          timeout_minutes: 120
+          command: |
+            export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT251 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+            source .venv/bin/activate
+            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m visualization
+
+      - uses: codecov/codecov-action@v5
+        with:
+          name: codecov-system-visualization-tests-linux
+          files: ./coverage.xml
+          flags: linux_system_visualization
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-visualization-linux
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
   package:
     name: Package library
-    needs: [system-tests-general-windows, system-tests-general-linux, system-tests-solvers-windows, system-tests-solvers-linux, doc-build]
+    needs: [system-tests-general-windows,
+            system-tests-general-linux,
+            system-tests-solvers-windows,
+            system-tests-solvers-linux,
+            system-tests-visualization-windows,
+            system-tests-visualization-linux,
+            doc-build]
     runs-on: ubuntu-latest
     steps:
       - name: Build library source and wheel artifacts
@@ -401,18 +553,23 @@ jobs:
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
     needs: [package, doc-build]
     runs-on: ubuntu-latest
+    # Specifying a GitHub environment is optional, but strongly encouraged
+    environment: release
+    permissions:
+      id-token: write
+      contents: write
     steps:
       - name: Release to the public PyPI repository
         uses: ansys/actions/release-pypi-public@v8
         with:
           library-name: ${{ env.PACKAGE_NAME }}
-          twine-username: "__token__"
-          twine-token: ${{ secrets.PYPI_TOKEN }}
+          use-trusted-publisher: true
 
       - name: Release to GitHub
         uses: ansys/actions/release-github@v8
         with:
           library-name: ${{ env.PACKAGE_NAME }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   upload-release-doc:
     name: Upload release documentation

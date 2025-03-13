@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
+from pathlib import Path
 
 from ansys.aedt.core import CircuitNetlist
 from ansys.aedt.core.generic.general_methods import is_linux
@@ -57,5 +57,5 @@ class TestClass:
         assert netlist_test.browse_log_file()
         if not is_linux:
             netlist_test.save_project()
-            assert not netlist_test.browse_log_file(os.path.join(netlist_test.working_directory, "logfiles"))
+            assert not netlist_test.browse_log_file(Path(netlist_test.working_directory) / "logfiles")
             assert netlist_test.browse_log_file(netlist_test.working_directory)

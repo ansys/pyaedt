@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,7 +21,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os.path
+from pathlib import Path
 
 import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
@@ -51,15 +51,16 @@ def frontend():  # pragma: no cover
 
     import PIL.Image
     import PIL.ImageTk
+    from ansys.aedt.core.workflows.misc import ExtensionTheme
 
     master = tkinter.Tk()
-
-    master.geometry("750x250")
-
     master.title("Import Nastran or STL file")
 
+    # Detect if user closes the UI
+    master.flag = False
+
     # Load the logo for the main window
-    icon_path = os.path.join(ansys.aedt.core.workflows.__path__[0], "images", "large", "logo.png")
+    icon_path = Path(ansys.aedt.core.workflows.__path__[0]) / "images" / "large" / "logo.png"
     im = PIL.Image.open(icon_path)
     photo = PIL.ImageTk.PhotoImage(im)
 
@@ -68,13 +69,20 @@ def frontend():  # pragma: no cover
 
     # Configure style for ttk buttons
     style = ttk.Style()
-    style.configure("Toolbutton.TButton", padding=6, font=("Helvetica", 8))
+    theme = ExtensionTheme()
 
-    var2 = tkinter.StringVar()
-    label2 = tkinter.Label(master, textvariable=var2)
-    var2.set("Browse file:")
+    # Apply light theme initially
+    theme.apply_light_theme(style)
+    master.theme = "light"
+
+    # Set background color of the window (optional)
+    master.configure(bg=theme.light["widget_bg"])
+
+    label2 = ttk.Label(master, text="Browse file:", style="PyAEDT.TLabel")
+
     label2.grid(row=0, column=0, pady=10)
     text = tkinter.Text(master, width=40, height=1)
+    text.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
     text.grid(row=0, column=1, pady=10, padx=5)
 
     def browseFiles():
@@ -85,34 +93,64 @@ def frontend():  # pragma: no cover
         )
         text.insert(tkinter.END, filename)
 
-    b1 = tkinter.Button(master, text="...", width=10, command=browseFiles)
+    b1 = ttk.Button(master, text="...", width=10, command=browseFiles, style="PyAEDT.TButton")
     b1.grid(row=0, column=2, pady=10)
 
-    var = tkinter.StringVar()
-    label = tkinter.Label(master, textvariable=var)
-    var.set("Decimation factor (0-0.9). It may affect results:")
+    label = ttk.Label(master, text="Decimation factor (0-0.9). It may affect results:", style="PyAEDT.TLabel")
     label.grid(row=1, column=0, pady=10)
+
     check = tkinter.Text(master, width=20, height=1)
+    check.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
     check.insert(tkinter.END, "0.0")
     check.grid(row=1, column=1, pady=10, padx=5)
 
-    var = tkinter.StringVar()
-    label = tkinter.Label(master, textvariable=var)
-    var.set("Import as lightweight (only HFSS):")
+    label = ttk.Label(master, text="Import as lightweight (only HFSS):", style="PyAEDT.TLabel")
     label.grid(row=2, column=0, pady=10)
     light = tkinter.IntVar()
-    check2 = tkinter.Checkbutton(master, width=30, variable=light)
+    check2 = ttk.Checkbutton(master, variable=light, style="PyAEDT.TCheckbutton")
     check2.grid(row=2, column=1, pady=10, padx=5)
 
-    var = tkinter.StringVar()
-    label = tkinter.Label(master, textvariable=var)
-    var.set("Enable planar merge:")
+    label = ttk.Label(master, text="Enable planar merge:", style="PyAEDT.TLabel")
     label.grid(row=3, column=0, pady=10)
     planar = tkinter.IntVar(value=1)
-    check3 = tkinter.Checkbutton(master, width=30, variable=planar)
+    check3 = ttk.Checkbutton(master, variable=planar, style="PyAEDT.TCheckbutton")
     check3.grid(row=3, column=1, pady=10, padx=5)
 
+    def toggle_theme():
+        if master.theme == "light":
+            set_dark_theme()
+            master.theme = "dark"
+        else:
+            set_light_theme()
+            master.theme = "light"
+
+    def set_light_theme():
+        master.configure(bg=theme.light["widget_bg"])
+        text.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
+        check.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
+        theme.apply_light_theme(style)
+        change_theme_button.config(text="\u263D")  # Sun icon for light theme
+
+    def set_dark_theme():
+        master.configure(bg=theme.dark["widget_bg"])
+        text.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
+        check.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
+        theme.apply_dark_theme(style)
+        change_theme_button.config(text="\u2600")  # Moon icon for dark theme
+
+    # Create a frame for the toggle button to position it correctly
+    button_frame = ttk.Frame(master, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2)
+    button_frame.grid(row=5, column=2, pady=10, padx=10)
+
+    # Add the toggle theme button inside the frame
+    change_theme_button = ttk.Button(
+        button_frame, width=20, text="\u263D", command=toggle_theme, style="PyAEDT.TButton"
+    )
+
+    change_theme_button.grid(row=0, column=0, padx=0)
+
     def callback():
+        master.flag = True
         master.decimate_ui = float(check.get("1.0", tkinter.END).strip())
         master.lightweight_ui = True if light.get() == 1 else False
         master.planar_ui = True if planar.get() == 1 else False
@@ -132,10 +170,10 @@ def frontend():  # pragma: no cover
 
             simplify_stl(master.file_path_ui, decimation=master.decimate_ui, preview=True)
 
-    b2 = tkinter.Button(master, text="Preview", width=40, command=preview)
+    b2 = ttk.Button(master, text="Preview", width=40, command=preview, style="PyAEDT.TButton")
     b2.grid(row=5, column=0, pady=10, padx=10)
 
-    b3 = tkinter.Button(master, text="Ok", width=40, command=callback)
+    b3 = ttk.Button(master, text="Ok", width=40, command=callback, style="PyAEDT.TButton")
     b3.grid(row=5, column=1, pady=10, padx=10)
 
     tkinter.mainloop()
@@ -145,22 +183,24 @@ def frontend():  # pragma: no cover
     planar_ui = getattr(master, "planar_ui", extension_arguments["planar"])
     file_path_ui = getattr(master, "file_path_ui", extension_arguments["file_path"])
 
-    output_dict = {
-        "decimate": decimate_ui,
-        "lightweight": lightweight_ui,
-        "planar": planar_ui,
-        "file_path": file_path_ui,
-    }
+    output_dict = {}
+    if master.flag:
+        output_dict = {
+            "decimate": decimate_ui,
+            "lightweight": lightweight_ui,
+            "planar": planar_ui,
+            "file_path": file_path_ui,
+        }
     return output_dict
 
 
 def main(extension_args):
-    file_path = extension_args["file_path"]
+    file_path = Path(extension_args["file_path"])
     lightweight = extension_args["lightweight"]
     decimate = extension_args["decimate"]
     planar = extension_args["planar"]
 
-    if os.path.exists(file_path):
+    if file_path.is_file():
         app = ansys.aedt.core.Desktop(
             new_desktop=False,
             version=version,
@@ -177,14 +217,14 @@ def main(extension_args):
 
         aedtapp = get_pyaedt_app(project_name, design_name)
 
-        if file_path.endswith(".nas"):
+        if file_path.suffix == ".nas":
             aedtapp.modeler.import_nastran(
-                file_path, import_as_light_weight=lightweight, decimation=decimate, enable_planar_merge=str(planar)
+                str(file_path), import_as_light_weight=lightweight, decimation=decimate, enable_planar_merge=str(planar)
             )
         else:
             from ansys.aedt.core.visualization.advanced.misc import simplify_stl
 
-            outfile = simplify_stl(file_path, decimation=decimate)
+            outfile = simplify_stl(str(file_path), decimation=decimate)
             aedtapp.modeler.import_3d_cad(
                 outfile, healing=False, create_lightweigth_part=lightweight, merge_planar_faces=planar
             )
@@ -214,4 +254,6 @@ if __name__ == "__main__":  # pragma: no cover
             for output_name, output_value in output.items():
                 if output_name in extension_arguments:
                     args[output_name] = output_value
-    main(args)
+            main(args)
+    else:
+        main(args)

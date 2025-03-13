@@ -33,3 +33,7 @@
 - name: examples
   description: Anything related to the examples
   color: 3C2E5F
+
+- name: security
+  description: Anything related to security advisories
+  color: FF0000

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -102,6 +102,11 @@ class TestClass:
             max_delta_phase=8,
             custom_entries=[["1", "2", 0.03, 4]],
         )
+        setup2 = self.aedtapp.create_setup(
+            "MulitFreqSetup", MultipleAdaptiveFreqsSetup=["1GHz", "2GHz"], MaximumPasses=3
+        )
+        assert setup2.props["SolveType"] == "MultiFrequency"
+        assert setup2.props["MaximumPasses"] == 3
 
     def test_01b_create_hfss_sweep(self):
         self.aedtapp.save_project()
@@ -121,6 +126,21 @@ class TestClass:
         assert sweep3.props["Type"] == "Discrete"
         sweep4 = setup1.create_frequency_sweep("GHz", 23, 25, 401, sweep_type="Fast")
         assert sweep4.props["Type"] == "Fast"
+        range_start = "1GHz"
+        range_end = "2GHz"
+        range_step = "0.5GHz"
+        sweep5 = setup1.add_sweep(
+            "DiscSweep5",
+            sweep_type="Discrete",
+            RangeStart=range_start,
+            RangeEnd=range_end,
+            RangeStep=range_step,
+            SaveFields=True,
+        )
+        assert sweep5.props["Type"] == "Discrete"
+        assert sweep5.props["RangeStart"] == range_start
+        assert sweep5.props["RangeEnd"] == range_end
+        assert sweep5.props["RangeStep"] == range_step
 
     def test_01c_create_hfss_setup_auto_open(self):
         self.aedtapp.duplicate_design("auto_open")
@@ -275,7 +295,30 @@ class TestClass:
             if "NAME:Ranges" in el:
                 break
         assert "rd" in el[2]
+
+        assert setup2.props["Goals"]["Goal"][0]["Ranges"]["Range"][0]["DiscreteValues"] == "2.5GHz"
+
+        setup2.props["Goals"]["Goal"][0]["Ranges"]["Range"][0]["DiscreteValues"] = "2.7GHz"
+
+        oo = self.aedtapp.get_oo_object(self.aedtapp.odesign, f"Optimetrics\\{setup2.name}")
+        oo_calculation = oo.GetCalculationInfo()[0]
+        for el in oo_calculation:
+            if "NAME:Ranges" in el:
+                break
+        assert el[2][5] == "2.7GHz"
+
         assert self.aedtapp.optimizations.delete(setup2.name)
+
+        assert not self.aedtapp.get_oo_object(self.aedtapp.odesign, f"Optimetrics\\{setup2.name}")
+
+        setup3 = self.aedtapp.optimizations.add(
+            calculation, ranges={"Freq": "2.5GHz"}, solution=f"{new_setup.name} : {sweep.name}"
+        )
+
+        setup3.props["Optimizer"] = "Screening"
+        setup3.add_variation("w1", 0.1, 10, 5, min_step=0.5, max_step=1, use_manufacturable=True, levels=[1, 20])
+        assert setup3.props["Variables"]["w1"][19] == "[1, 20] mm"
+        assert self.aedtapp.optimizations.delete(setup3.name)
 
     def test_27_create_doe(self):
         calculation = "db(S(1,1))"

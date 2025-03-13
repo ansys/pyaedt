@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -25,7 +25,7 @@
 import secrets
 from sys import float_info
 
-from ansys.aedt.core.application.variables import decompose_variable_value
+from ansys.aedt.core.generic.numbers import decompose_variable_value
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.modeler import FaceCoordinateSystem
 from ansys.aedt.core.modeler.cad.object_3d import Object3d

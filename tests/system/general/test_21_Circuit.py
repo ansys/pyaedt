@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
+from pathlib import Path
 import time
 
 from ansys.aedt.core import Circuit
@@ -61,10 +61,10 @@ def circuitprj(add_app):
 
 @pytest.fixture(scope="class", autouse=True)
 def examples(local_scratch):
-    netlist_file1 = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, netlist1)
-    netlist_file2 = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, netlist2)
-    touchstone_file = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, touchstone)
-    touchstone_file2 = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, touchstone2)
+    netlist_file1 = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / netlist1
+    netlist_file2 = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / netlist2
+    touchstone_file = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / touchstone
+    touchstone_file2 = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / touchstone2
     netlist_file1 = local_scratch.copyfile(netlist_file1)
     netlist_file2 = local_scratch.copyfile(netlist_file2)
     touchstone_file = local_scratch.copyfile(touchstone_file)
@@ -126,7 +126,9 @@ class TestClass:
         assert len(self.aedtapp.get_all_return_loss_list(math_formula="abs")) == 2
         assert len(self.aedtapp.get_all_insertion_loss_list()) == 2
         assert len(self.aedtapp.get_all_insertion_loss_list(math_formula="abs")) == 2
-        assert len(self.aedtapp.get_all_insertion_loss_list(math_formula="abs", nets=self.aedtapp.excitations)) == 2
+        assert (
+            len(self.aedtapp.get_all_insertion_loss_list(math_formula="abs", nets=self.aedtapp.excitation_names)) == 2
+        )
         assert len(self.aedtapp.get_next_xtalk_list()) == 1
         assert len(self.aedtapp.get_next_xtalk_list(math_formula="abs")) == 1
         assert len(self.aedtapp.get_fext_xtalk_list()) == 2
@@ -179,7 +181,7 @@ class TestClass:
         myres = self.aedtapp.modeler.schematic.create_resistor("R100", 50)
         mycap = self.aedtapp.modeler.schematic.create_capacitor("C100", 1e-12)
         portname = self.aedtapp.modeler.schematic.create_interface_port("Port1")
-        assert len(self.aedtapp.excitations) > 0
+        assert len(self.aedtapp.excitation_names) > 0
         assert "Port1" in portname.name
         assert myind.pins[0].connect_to_component(portname.pins[0])
         assert myind.pins[1].connect_to_component(myres.pins[1], use_wire=True)
@@ -243,9 +245,9 @@ class TestClass:
         time.sleep(2)
         solution_name = "Dom_LNA"
         sweep_name = None
-        file_name = os.path.join(self.local_scratch.path, "new.s2p")
+        file_name = Path(self.local_scratch.path) / "new.s2p"
         assert self.aedtapp.export_touchstone(solution_name, sweep_name, file_name)
-        assert os.path.exists(file_name)
+        assert Path(file_name).exists()
         assert self.aedtapp.existing_analysis_sweeps[0] == solution_name
         assert self.aedtapp.setup_names[0] == solution_name
         assert self.aedtapp.export_touchstone(solution_name, sweep_name)
@@ -349,7 +351,7 @@ class TestClass:
 
     def test_25_import_model(self):
         self.aedtapp.insert_design("Touch_import")
-        touch = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, touchstone)
+        touch = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / touchstone
         t1 = self.aedtapp.modeler.schematic.create_touchstone_component(touch)
         assert t1
         assert len(t1.pins) == 6
@@ -360,7 +362,7 @@ class TestClass:
         assert t2
         t2.model_data.props["NexximCustomization"]["Passivity"] = 0
         assert t2.model_data.update()
-        touch = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "y4bm_rdl_dq_byte0.s26p")
+        touch = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "y4bm_rdl_dq_byte0.s26p"
         t1 = self.aedtapp.modeler.schematic.create_touchstone_component(touch)
         assert t1
         assert len(t1.pins) == 26
@@ -393,26 +395,25 @@ class TestClass:
         assert self.circuitprj.set_differential_pair(assignment="Port3", reference="Port5")
 
     def test_28_load_and_save_diff_pair_file(self):
-        diff_def_file = os.path.join(
-            TESTS_GENERAL_PATH, "example_models", test_subfolder, "differential_pairs_definition.txt"
+        diff_def_file = (
+            Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "differential_pairs_definition.txt"
         )
         diff_file = self.local_scratch.copyfile(diff_def_file)
         assert self.circuitprj.load_diff_pairs_from_file(diff_file)
-
-        diff_file2 = os.path.join(self.local_scratch.path, "diff_file2.txt")
+        diff_file2 = Path(self.local_scratch.path) / "diff_file2.txt"
         assert self.circuitprj.save_diff_pairs_to_file(diff_file2)
         with open(diff_file2, "r") as fh:
             lines = fh.read().splitlines()
         assert len(lines) == 3
 
     def test_29_create_circuit_from_spice(self):
-        model = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "test.lib")
+        model = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "test.lib"
         assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model)
         assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2345", False)
         assert not self.aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2346")
 
     def test_29a_create_circuit_from_spice_edit_symbol(self):
-        model = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "test.lib")
+        model = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "test.lib"
         assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(
             input_file=model, model="GRM5678", symbol="nexx_cap"
         )
@@ -504,11 +505,11 @@ class TestClass:
 
     def test_35_netlist_data_block(self):
         self.aedtapp.insert_design("data_block")
-        with open(os.path.join(self.local_scratch.path, "lc.net"), "w") as f:
+        with open(Path(self.local_scratch.path) / "lc.net", "w") as f:
             for i in range(10):
                 f.write(f"L{i} net_{i} net_{i+1} 1e-9\n")
                 f.write(f"C{i} net_{i+1} 0 5e-12\n")
-        assert self.aedtapp.add_netlist_datablock(os.path.join(self.local_scratch.path, "lc.net"))
+        assert self.aedtapp.add_netlist_datablock(Path(self.local_scratch.path) / "lc.net")
         self.aedtapp.modeler.components.create_interface_port("net_0", (0, 0))
         self.aedtapp.modeler.components.create_interface_port("net_10", (0.01, 0))
 
@@ -526,7 +527,7 @@ class TestClass:
 
     def test_38_browse_log_file(self):
         self.aedtapp.insert_design("data_block1")
-        with open(os.path.join(self.local_scratch.path, "lc.net"), "w") as f:
+        with open(Path(self.local_scratch.path) / "lc.net", "w") as f:
             for i in range(10):
                 f.write(f"L{i} net_{i} net_{i+1} 1e-9\n")
                 f.write(f"C{i} net_{i+1} 0 5e-12\n")
@@ -541,7 +542,7 @@ class TestClass:
         if not is_linux:
             self.aedtapp.save_project()
             assert self.aedtapp.browse_log_file()
-            assert not self.aedtapp.browse_log_file(os.path.join(self.aedtapp.working_directory, "logfiles"))
+            assert not self.aedtapp.browse_log_file(Path(self.aedtapp.working_directory) / "logfiles")
             assert self.aedtapp.browse_log_file(self.aedtapp.working_directory)
 
     def test_39_export_results_circuit(self):
@@ -551,7 +552,7 @@ class TestClass:
     def test_40_assign_sources(self):
         self.aedtapp.insert_design("sources")
         c = self.aedtapp
-        filepath = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "frequency_dependent_source.fds")
+        filepath = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "frequency_dependent_source.fds"
         name = "PowerSinusoidal3"
         assert c.create_source(source_type="PowerSin", name=name)
         c.sources[name].ac_magnitude = "2V"
@@ -628,7 +629,7 @@ class TestClass:
         source_freq.magnitude_angle = False
         assert not source_freq.magnitude_angle
         source_freq.fds_filename = filepath
-        assert source_freq.fds_filename == filepath
+        assert source_freq.fds_filename == str(filepath)
         source_freq.fds_filename = None
 
         assert c.create_source(source_type="VoltageDC", name="dc_pyaedt")
@@ -730,21 +731,22 @@ class TestClass:
         port.reference_node = "NoNet"
         port.reference_node = "Z"
 
-        assert c.excitation_objects
+        assert c.design_excitations
+        assert c.excitations_by_type
 
         setup = c.create_setup()
 
-        c.excitation_objects["Port3"].enabled_sources = ["PowerTest"]
-        assert len(c.excitation_objects["Port3"].enabled_sources) == 1
+        c.design_excitations["Port3"].enabled_sources = ["PowerTest"]
+        assert len(c.design_excitations["Port3"].enabled_sources) == 1
         setup1 = c.create_setup()
         setup2 = c.create_setup()
-        c.excitation_objects["Port3"].enabled_analyses = {"PowerTest": [setup.name, setup2.name]}
-        assert c.excitation_objects["Port3"].enabled_analyses["PowerTest"][0] == setup.name
+        c.design_excitations["Port3"].enabled_analyses = {"PowerTest": [setup.name, setup2.name]}
+        assert c.design_excitations["Port3"].enabled_analyses["PowerTest"][0] == setup.name
 
-        c.excitation_objects["Port3"].name = "PortTest"
-        assert "PortTest" in c.excitations
-        c.excitation_objects["PortTest"].delete()
-        assert len(c.excitation_objects) == 0
+        c.design_excitations["Port3"].name = "PortTest"
+        assert "PortTest" in c.excitation_names
+        c.design_excitations["PortTest"].delete()
+        assert len(c.design_excitations) == 0
         if not is_linux:
             self.aedtapp.save_project()
             c = add_app(application=Circuit, design_name="sources")
@@ -879,7 +881,7 @@ class TestClass:
         assert myres is False
 
     def test_47_automatic_lna(self):
-        touchstone_file = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, touchstone_custom)
+        touchstone_file = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / touchstone_custom
 
         status, diff_pairs, comm_pairs = self.aedtapp.create_lna_schematic_from_snp(
             input_file=touchstone_file,
@@ -896,7 +898,7 @@ class TestClass:
         config["NonGraphical"] and is_linux, reason="Method is not working in Linux and non-graphical mode."
     )
     def test_48_automatic_tdr(self):
-        touchstone_file = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, touchstone_custom)
+        touchstone_file = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / touchstone_custom
 
         result, tdr_probe_name = self.aedtapp.create_tdr_schematic_from_snp(
             input_file=touchstone_file,
@@ -913,8 +915,8 @@ class TestClass:
 
     @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical.")
     def test_49_automatic_ami(self):
-        touchstone_file = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, touchstone_custom)
-        ami_file = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "pcieg5_32gt.ibs")
+        touchstone_file = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / touchstone_custom
+        ami_file = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "pcieg5_32gt.ibs"
         result, eye_curve_tx, eye_curve_rx = self.aedtapp.create_ami_schematic_from_snp(
             input_file=touchstone_file,
             ibis_tx_file=ami_file,
@@ -936,8 +938,8 @@ class TestClass:
 
     @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical.")
     def test_49_automatic_ibis(self):
-        touchstone_file = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, touchstone_custom)
-        ibis_file = os.path.join(TESTS_GENERAL_PATH, "example_models", "T15", "u26a_800_modified.ibs")
+        touchstone_file = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / touchstone_custom
+        ibis_file = Path(TESTS_GENERAL_PATH) / "example_models" / "T15" / "u26a_800_modified.ibs"
         result, eye_curve_tx, eye_curve_rx = self.aedtapp.create_ibis_schematic_from_snp(
             input_file=touchstone_file,
             ibis_tx_file=ibis_file,
@@ -986,7 +988,7 @@ class TestClass:
 
     def test_51_import_asc(self):
         self.aedtapp.insert_design("ASC")
-        asc_file = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "butter.asc")
+        asc_file = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "butter.asc"
         assert self.aedtapp.create_schematic_from_asc_file(asc_file)
 
     def test_52_create_current_probe(self):
@@ -998,7 +1000,7 @@ class TestClass:
 
     def test_53_import_table(self):
         self.aedtapp.insert_design("import_table")
-        file_header = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "table_header.csv")
+        file_header = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "table_header.csv"
         file_invented = "invented.csv"
 
         assert not self.aedtapp.import_table(file_header, column_separator="dummy")
@@ -1011,3 +1013,30 @@ class TestClass:
 
         assert self.aedtapp.delete_imported_data(table)
         assert table not in self.aedtapp.existing_analysis_sweeps
+
+    def test_54_value_with_units(self):
+        assert self.aedtapp.value_with_units("10mm") == "10mm"
+        assert self.aedtapp.value_with_units("10") == "10mm"
+
+    def test_55_get_component_path_and_import_sss_files(self):
+        model = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "test.lib"
+        assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model)
+        assert len(self.aedtapp.modeler.schematic.components) == 1
+        assert list(self.aedtapp.modeler.components.components.values())[0].component_path
+        assert self.aedtapp.modeler.components.create_component(component_library="", component_name="RES_")
+        assert len(self.aedtapp.modeler.schematic.components) == 2
+        assert not list(self.aedtapp.modeler.components.components.values())[1].component_path
+        t1 = self.aedtapp.modeler.schematic.create_touchstone_component(self.touchstone_file)
+        assert len(self.aedtapp.modeler.schematic.components) == 3
+        assert t1.component_path
+        nexxim_state_space = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "neximspacefile.sss"
+        sss = self.aedtapp.modeler.schematic.create_nexxim_state_space_component(nexxim_state_space, 16)
+        assert len(self.aedtapp.modeler.schematic.components) == 4
+        assert sss.component_path
+        ibis_model = self.aedtapp.get_ibis_model_from_file(
+            Path(TESTS_GENERAL_PATH) / "example_models" / "T15" / "u26a_800_modified.ibs"
+        )
+        ibis_model.buffers["RDQS#_u26a_800_modified"].add()
+        buffer = ibis_model.buffers["RDQS#_u26a_800_modified"].insert(0.1016, 0.05334, 0.0)
+        assert len(self.aedtapp.modeler.schematic.components) == 5
+        assert buffer.component_path

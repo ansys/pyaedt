@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import math as mathlib
 import os
 import warnings
 
@@ -47,14 +48,11 @@ except ImportError:  # pragma: no cover
 
 try:
     import osmnx as ox
-    import srtm
-    import utm
 
 except ImportError:  # pragma: no cover
-    warnings.warn(
-        "OpenStreetMap Reader requires utm, osmnx and srtm extra packages.\n"
-        "Install with \n\npip install utm osmnx srtm"
-    )
+    warnings.warn("OpenStreetMap Reader requires osmnx extra package.\n" "Install with \n\npip install osmnx")
+
+ZONE_LETTERS = "CDEFGHJKLMNPQRSTUVWXX"
 
 
 class BuildingsPrep(object):
@@ -67,6 +65,7 @@ class BuildingsPrep(object):
     @pyaedt_function_handler()
     def create_building_roof(all_pos):
         """Generate a filled in polygon from outline.
+
         Includes concave and convex shapes.
 
         Parameters
@@ -134,7 +133,8 @@ class BuildingsPrep(object):
         # NOTE: Handle breaking changes introduced in osmn>=v2.0
         except AttributeError:
             gdf = ox.features.features_from_point(center_lat_lon, tags={"building": True}, dist=max_radius)
-        utm_center = utm.from_latlon(center_lat_lon[0], center_lat_lon[1])
+
+        utm_center = convert_latlon_to_utm(center_lat_lon[0], center_lat_lon[1])
         center_offset_x = utm_center[0]
         center_offset_y = utm_center[1]
 
@@ -298,7 +298,7 @@ class RoadPrep(object):
 
         g_projected = ox.project_graph(graph)
 
-        utm_center = utm.from_latlon(center_lat_lon[0], center_lat_lon[1])
+        utm_center = convert_latlon_to_utm(center_lat_lon[0], center_lat_lon[1])
         center_offset_x = utm_center[0]
         center_offset_y = utm_center[1]
 
@@ -404,7 +404,7 @@ class TerrainPrep(object):
             Info of generated stl file.
         """
 
-        utm_center = utm.from_latlon(center_lat_lon[0], center_lat_lon[1])
+        utm_center = convert_latlon_to_utm(center_lat_lon[0], center_lat_lon[1])
         logger.info("Generating Terrain")
         max_radius = max_radius * (buffer_percent + 1)
         all_data, _, all_utm = self.get_elevation(
@@ -421,18 +421,14 @@ class TerrainPrep(object):
                 latlat_utm_centered = all_utm[lat_idx][lon_idx][0] - utm_center[0]
                 lonlon_utm_centered = all_utm[lat_idx][lon_idx][1] - utm_center[1]
 
-                if (
-                    all_data[lat_idx][lon_idx] != -32768
-                ):  # this is missing data from srtm, don't add if it doesn't exist
+                if all_data[lat_idx][lon_idx] != -32768:  # this is missing data, don't add if it doesn't exist
                     xyz.append([latlat_utm_centered, lonlon_utm_centered, all_data[lat_idx][lon_idx]])
         xyz = np.array(xyz)
 
         file_out = self.cad_path + "/terrain.stl"
         logger.info("saving STL as " + file_out)
         terrain_mesh = pv.PolyData(xyz)
-        terrain_mesh = terrain_mesh.delaunay_2d(
-            tol=10 / (2 * max_radius) / 2
-        )  # tolerance, srtm is 30meter, so as a fraction of total size this would be 30/2/radius
+        terrain_mesh = terrain_mesh.delaunay_2d(tol=10 / (2 * max_radius) / 2)
         terrain_mesh = terrain_mesh.smooth(n_iter=100, relaxation_factor=0.04)
 
         el = terrain_mesh.points[:, 2]
@@ -464,14 +460,11 @@ class TerrainPrep(object):
         -------
         tuple
         """
+        latitude = center_lat_lon[0]
+        longitude = center_lat_lon[1]
 
-        utm_center = utm.from_latlon(center_lat_lon[0], center_lat_lon[1])
-        # assume never at boundary of zone number or letter
-        zone_letter = utm.latitude_to_zone_letter(center_lat_lon[0])
-        zone_number = utm.latlon_to_zone_number(center_lat_lon[0], center_lat_lon[1])
-        logger.info(zone_letter)
-        logger.info(zone_number)
-        logger.info(utm_center)
+        utm_center = convert_latlon_to_utm(center_lat_lon[0], center_lat_lon[1])
+
         utm_x_min = utm_center[0] - max_radius
         utm_x_max = utm_center[0] + max_radius
 
@@ -482,7 +475,6 @@ class TerrainPrep(object):
         num_samples = int(np.ceil(max_radius * 2 / sample_grid_size))
         x_samples = np.linspace(utm_x_min, utm_x_max, int(num_samples))
         y_samples = np.linspace(utm_y_min, utm_y_max, int(num_samples))
-        elevation_data = srtm.get_data()
 
         all_data = np.zeros((num_samples, num_samples))
         all_utm = np.zeros((num_samples, num_samples, 2))
@@ -491,8 +483,8 @@ class TerrainPrep(object):
         last_displayed = -1
         for n, x in enumerate(x_samples):
             for m, y in enumerate(y_samples):
-                num_percent_bins = 40
 
+                num_percent_bins = 40
                 percent_complete = int((n * num_samples + m) / (num_samples * num_samples) * 100)
                 if percent_complete % 10 == 0 and percent_complete != last_displayed:
                     last_displayed = percent_complete
@@ -502,11 +494,265 @@ class TerrainPrep(object):
                     percent_symbol2 = "#" * perc_done
                     i = percent_symbol2 + percent_symbol1 + " " + str(percent_complete) + "% "
                     logger.info(f"\rPercent Complete:{i}")
-                zone_letter = utm.latitude_to_zone_letter(center_lat_lon[0])
-                zone_number = utm.latlon_to_zone_number(center_lat_lon[0], center_lat_lon[1])
-                current_lat_lon = utm.to_latlon(x, y, zone_number, zone_letter)
-                all_data[n, m] = elevation_data.get_elevation(current_lat_lon[0], current_lat_lon[1])
+
+                zone_letter = None
+                if -80 <= latitude <= 84:
+                    zone_letter = ZONE_LETTERS[int(latitude + 80) >> 3]
+
+                zone_number = int((longitude + 180) / 6) + 1
+                if 56 <= latitude < 64 and 3 <= longitude < 12:
+                    zone_number = 32
+
+                if 72 <= latitude <= 84 and longitude >= 0:
+                    if longitude < 9:
+                        zone_number = 31
+                    elif longitude < 21:
+                        zone_number = 33
+                    elif longitude < 33:
+                        zone_number = 35
+                    elif longitude < 42:
+                        zone_number = 37
+                current_lat_lon = convert_utm_to_latlon(int(x), int(y), zone_number, zone_letter)
                 all_lat_lon[n, m] = current_lat_lon
                 all_utm[n, m] = [x, y]
         logger.info(str(100) + "% - Done")
         return all_data, all_lat_lon, all_utm
+
+
+@pyaedt_function_handler()
+def convert_latlon_to_utm(latitude: float, longitude: float, zone_letter: str = None, zone_number: int = None) -> tuple:
+    """Convert latitude and longitude to UTM (Universal Transverse Mercator) coordinates.
+
+    Parameters
+    ----------
+    latitude : float
+        Latitude value in decimal degrees.
+    longitude : float
+        Longitude value in decimal degrees.
+    zone_letter: str, optional
+        UTM zone designators. The default is ``None``. The valid zone letters are ``"CDEFGHJKLMNPQRSTUVWXX"``
+    zone_number: int, optional
+        Global map numbers of a UTM zone numbers map. The default is ``None``.
+
+    Notes
+    -----
+    .. [1] https://mapref.org/UTM-ProjectionSystem.html
+
+    Returns
+    -------
+    tuple
+        Tuple containing UTM East coordinate, North coordinate, zone letter, and zone number.
+    """
+    if latitude < -80.0 or latitude > 84.0:
+        raise ValueError("Latitude out of range: must be between -80 degrees and 84 degrees.")
+    if longitude < -180.0 or longitude > 180.0:
+        raise ValueError("Longitude out of range: must be between -180 degrees and 180 degrees.")
+    if zone_letter is not None and zone_letter.upper() not in ZONE_LETTERS:
+        raise ValueError("Zone letter out of range.")
+
+    # Constant values
+    # Scale factor for UTM (Universal Transverse Mercator) projection
+    K0 = 0.9996
+
+    # Eccentricity of the Earth's ellipsoid
+    E = 0.00669438
+    E2 = E * E
+    E3 = E2 * E
+    E_P2 = E / (1.0 - E)
+
+    SQRT_E = mathlib.sqrt(1 - E)
+    _E = (1 - SQRT_E) / (1 + SQRT_E)
+    _E2 = _E * _E
+    _E3 = _E2 * _E
+
+    # Meridional arc constants for UTM projection
+    M1 = 1 - E / 4 - 3 * E2 / 64 - 5 * E3 / 256
+    M2 = 3 * E / 8 + 3 * E2 / 32 + 45 * E3 / 1024
+    M3 = 15 * E2 / 256 + 45 * E3 / 1024
+    M4 = 35 * E3 / 3072
+
+    # Radius of the Earth in meters
+    R = 6378137
+
+    lat_rad = mathlib.radians(latitude)
+    lon_rad = mathlib.radians(longitude)
+
+    lat_sin = mathlib.sin(lat_rad)
+    lat_cos = mathlib.cos(lat_rad)
+
+    lat_tan = lat_sin / lat_cos
+    lat_tan2 = lat_tan**2
+    lat_tan4 = lat_tan2**2
+
+    if zone_number is None:
+        zone_number = int((longitude + 180) / 6) + 1
+        if 56 <= latitude < 64 and 3 <= longitude < 12:
+            zone_number = 32
+
+        if 72 <= latitude <= 84 and longitude >= 0:
+            if longitude < 9:
+                zone_number = 31
+            elif longitude < 21:
+                zone_number = 33
+            elif longitude < 33:
+                zone_number = 35
+            elif longitude < 42:
+                zone_number = 37
+
+    if zone_letter is None and -80 <= latitude <= 84:
+        zone_letter = ZONE_LETTERS[int(latitude + 80) >> 3]
+
+    central_lon_rad = mathlib.radians((zone_number - 1) * 6 - 180 + 3)
+
+    n = R / mathlib.sqrt(1 - E * lat_sin**2)
+    c = E_P2 * lat_cos**2
+
+    a = lat_cos * ((lon_rad - central_lon_rad + mathlib.pi) % (2 * mathlib.pi) - mathlib.pi)
+    a2, a3, a4, a5, a6 = a**2, a**3, a**4, a**5, a**6
+
+    m = R * (
+        M1 * lat_rad - M2 * mathlib.sin(2 * lat_rad) + M3 * mathlib.sin(4 * lat_rad) - M4 * mathlib.sin(6 * lat_rad)
+    )
+
+    easting = (
+        K0 * n * (a + (a3 / 6) * (1 - lat_tan2 + c) + (a5 / 120) * (5 - 18 * lat_tan2 + lat_tan4 + 72 * c - 58 * E_P2))
+        + 500000
+    )
+
+    northing = K0 * (
+        m
+        + n
+        * lat_tan
+        * (
+            a2 / 2
+            + (a4 / 24) * (5 - lat_tan2 + 9 * c + 4 * c**2)
+            + (a6 / 720) * (61 - 58 * lat_tan2 + lat_tan4 + 600 * c - 330 * E_P2)
+        )
+    )
+
+    if latitude < 0:
+        # Southern hemisphere adjustment
+        northing += 10000000
+
+    return easting, northing, zone_letter, zone_number
+
+
+@pyaedt_function_handler()
+def convert_utm_to_latlon(
+    east: int, north: float, zone_number: int, zone_letter: str = None, northern: bool = None
+) -> tuple:
+    """Convert UTM (Universal Transverse Mercator) coordinates to latitude and longitude.
+
+    Parameters
+    ----------
+    east : int
+        East value of UTM coordinates.
+    north : int
+        North value of UTM coordinates.
+    zone_number: int, optional
+        Global map numbers of a UTM zone numbers map.
+    zone_letter: str, optional
+        UTM zone designators. The default is ``None``. The valid zone letters are ``"CDEFGHJKLMNPQRSTUVWXX"``
+    northern: bool, optional
+        Indicates whether the UTM coordinates are in the Northern Hemisphere. If ``True``, the coordinates
+        are treated as being north of the equator, if ``False``, they are treated as being south of the equator.
+        The default is ``None`` in which case the method determines the hemisphere using ``zone_letter``.
+
+    Notes
+    -----
+    .. [1] https://mapref.org/UTM-ProjectionSystem.html
+
+    Returns
+    -------
+    tuple
+        Tuple containing latitude and longitude.
+    """
+    if not zone_letter and northern is None:
+        raise ValueError("Set either zone_letter or northern.")
+
+    if zone_letter and northern is not None:
+        raise ValueError("Set either zone_letter or north, but not both.")
+
+    if zone_letter:
+        zone_letter = zone_letter.upper()
+        northern = zone_letter >= "N"
+
+    x = east - 500000
+    y = north
+
+    if not northern:
+        y -= 10000000
+
+    # Constant values
+    # Scale factor for UTM (Universal Transverse Mercator) projection
+    K0 = 0.9996
+    # Radius of the Earth in meters
+    R = 6378137
+
+    # Eccentricity of the Earth's ellipsoid
+    E = 0.00669438
+    E2 = E * E
+    E3 = E2 * E
+    E_P2 = E / (1.0 - E)
+
+    SQRT_E = mathlib.sqrt(1 - E)
+    _E = (1 - SQRT_E) / (1 + SQRT_E)
+    _E2 = _E * _E
+    _E3 = _E2 * _E
+    _E4 = _E3 * _E
+    _E5 = _E4 * _E
+
+    # Meridional arc constants for UTM projection
+    M1 = 1 - E / 4 - 3 * E2 / 64 - 5 * E3 / 256
+
+    P2 = 3.0 / 2 * _E - 27.0 / 32 * _E3 + 269.0 / 512 * _E5
+    P3 = 21.0 / 16 * _E2 - 55.0 / 32 * _E4
+    P4 = 151.0 / 96 * _E3 - 417.0 / 128 * _E5
+    P5 = 1097.0 / 512 * _E4
+
+    m = y / K0
+    mu = m / (R * M1)
+
+    p_rad = (
+        mu + P2 * mathlib.sin(2 * mu) + P3 * mathlib.sin(4 * mu) + P4 * mathlib.sin(6 * mu) + P5 * mathlib.sin(8 * mu)
+    )
+
+    p_sin = mathlib.sin(p_rad)
+    p_sin2 = p_sin * p_sin
+
+    p_cos = mathlib.cos(p_rad)
+
+    p_tan = p_sin / p_cos
+    p_tan2 = p_tan * p_tan
+    p_tan4 = p_tan2 * p_tan2
+
+    ep_sin = 1 - E * p_sin2
+    ep_sin_sqrt = mathlib.sqrt(1 - E * p_sin2)
+
+    n = R / ep_sin_sqrt
+    r = (1 - E) / ep_sin
+
+    c = E_P2 * p_cos**2
+    c2 = c * c
+
+    d = x / (n * K0)
+    d2 = d * d
+    d3 = d2 * d
+    d4 = d3 * d
+    d5 = d4 * d
+    d6 = d5 * d
+
+    latitude = (
+        p_rad
+        - (p_tan / r) * (d2 / 2 - d4 / 24 * (5 + 3 * p_tan2 + 10 * c - 4 * c2 - 9 * E_P2))
+        + d6 / 720 * (61 + 90 * p_tan2 + 298 * c + 45 * p_tan4 - 252 * E_P2 - 3 * c2)
+    )
+
+    longitude = (
+        d - d3 / 6 * (1 + 2 * p_tan2 + c) + d5 / 120 * (5 - 2 * c + 28 * p_tan2 - 3 * c2 + 8 * E_P2 + 24 * p_tan4)
+    ) / p_cos
+
+    longitude_temp = longitude + mathlib.radians((zone_number - 1) * 6 - 180 + 3)
+    longitude = (longitude_temp + mathlib.pi) % (2 * mathlib.pi) - mathlib.pi
+
+    return mathlib.degrees(latitude), mathlib.degrees(longitude)

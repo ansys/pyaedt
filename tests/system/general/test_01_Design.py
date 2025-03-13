@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -184,10 +184,10 @@ class TestClass:
         self.aedtapp.insert_design("NewDesign")
 
     def test_14_get_nominal_variation(self):
-        assert self.aedtapp.get_nominal_variation() != [] or self.aedtapp.get_nominal_variation() is not None
-        assert isinstance(self.aedtapp.get_nominal_variation(), list)
-        assert isinstance(self.aedtapp.get_nominal_variation(with_values=True), list)
-        assert self.aedtapp.get_nominal_variation(with_values=True) != []
+        assert self.aedtapp.get_nominal_variation() != {} or self.aedtapp.get_nominal_variation() is not None
+        assert isinstance(self.aedtapp.get_nominal_variation(), dict)
+        assert isinstance(self.aedtapp.get_nominal_variation(with_values=True), dict)
+        assert self.aedtapp.get_nominal_variation(with_values=True) != {}
 
     def test_15a_duplicate_design(self):
         self.aedtapp.duplicate_design("non_valid1", False)
@@ -307,7 +307,10 @@ class TestClass:
 
     def test_20_get_3dComponents_properties(self):
         assert len(self.aedtapp.components3d) > 0
+        # Deprecated
         props = self.aedtapp.get_components3d_vars("Dipole_Antenna_DM")
+        assert len(props) == 3
+        props = self.aedtapp.get_component_variables("Dipole_Antenna_DM")
         assert len(props) == 3
 
     @pytest.mark.skipif(is_linux, reason="Not needed in Linux.")

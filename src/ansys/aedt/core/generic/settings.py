@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -100,6 +100,8 @@ ALLOWED_GENERAL_SETTINGS = [
     "remote_rpc_service_manager_port",
     "pyaedt_server_path",
     "remote_rpc_session_temp_folder",
+    "block_figure_plot",
+    "skip_license_check",
 ]
 ALLOWED_AEDT_ENV_VAR_SETTINGS = [
     "ANSYSEM_FEATURE_F335896_MECHANICAL_STRUCTURAL_SOLN_TYPE_ENABLE",
@@ -112,6 +114,7 @@ ALLOWED_AEDT_ENV_VAR_SETTINGS = [
     "ANSYSEM_FEATURE_SF222134_CABLE_MODELING_ENHANCEMENTS_ENABLE",
     "ANSYSEM_FEATURE_SF6694_NON_GRAPHICAL_COMMAND_EXECUTION_ENABLE",
     "ANS_MESHER_PROC_DUMP_PREPOST_BEND_SM3",
+    "ANS_NODEPCHECK",
 ]
 
 
@@ -133,7 +136,7 @@ class _InnerProjectSettings:  # pragma: no cover
     time_stamp: Union[int, float] = 0
 
 
-class Settings(object):  # pragma: no cover
+class Settings(object):
     """Manages all PyAEDT environment variables and global settings."""
 
     def __init__(self):
@@ -201,6 +204,7 @@ class Settings(object):  # pragma: no cover
         self.__wait_for_license: bool = False
         self.__lazy_load: bool = True
         self.__objects_lazy_load: bool = True
+        self.__skip_license_check: bool = True
         # Previously 'public' attributes
         self.__formatter: Optional[logging.Formatter] = None
         self.__remote_rpc_session: Any = None
@@ -209,6 +213,7 @@ class Settings(object):  # pragma: no cover
         self.__remote_api: bool = False
         self.__time_tick = time.time()
         self.__pyaedt_server_path = ""
+        self.__block_figure_plot = False
 
         # Load local settings if YAML configuration file exists.
         pyaedt_settings_path = os.environ.get("PYAEDT_LOCAL_SETTINGS_PATH", "")
@@ -218,7 +223,6 @@ class Settings(object):  # pragma: no cover
             else:
                 pyaedt_settings_path = os.path.join(os.environ["APPDATA"], "pyaedt_settings.yaml")
         self.load_yaml_configuration(pyaedt_settings_path)
-        self.__block_figure_plot = False
 
     # ########################## Logging properties ##########################
 
@@ -234,6 +238,7 @@ class Settings(object):  # pragma: no cover
     @property
     def block_figure_plot(self):
         """Block matplotlib figure plot during python script run until the user close it manually.
+
         Default is ``False``."""
         return self.__block_figure_plot
 
@@ -262,6 +267,7 @@ class Settings(object):  # pragma: no cover
     @property
     def enable_global_log_file(self):
         """Enable or disable the global PyAEDT log file located in the global temp folder.
+
         The default is ``True``."""
         return self.__enable_global_log_file
 
@@ -272,6 +278,7 @@ class Settings(object):  # pragma: no cover
     @property
     def enable_local_log_file(self):
         """Enable or disable the local PyAEDT log file located in the ``projectname.pyaedt`` project folder.
+
         The default is ``True``."""
         return self.__enable_local_log_file
 
@@ -286,11 +293,13 @@ class Settings(object):  # pragma: no cover
 
     @global_log_file_name.setter
     def global_log_file_name(self, value):
-        self.__global_log_file_name = value
+        if value is not None:
+            self.__global_log_file_name = value
 
     @property
     def enable_debug_methods_argument_logger(self):
         """Flag for whether to write out the method's arguments in the debug logger.
+
         The default is ``False``."""
         return self.__enable_debug_methods_argument_logger
 
@@ -337,7 +346,8 @@ class Settings(object):  # pragma: no cover
     @property
     def logger_formatter(self):
         """Message format of the log entries.
-        The default is ``'%(asctime)s:%(destination)s:%(extra)s%(levelname)-8s:%(message)s'``"""
+
+        The default is ``'%(asctime)s:%(destination)s:%(extra)s%(levelname)-8s:%(message)s'``."""
         return self.__logger_formatter
 
     @logger_formatter.setter
@@ -347,6 +357,7 @@ class Settings(object):  # pragma: no cover
     @property
     def logger_datefmt(self):
         """Date format of the log entries.
+
         The default is ``'%Y/%m/%d %H.%M.%S'``"""
         return self.__logger_datefmt
 
@@ -375,7 +386,9 @@ class Settings(object):  # pragma: no cover
     @property
     def enable_debug_geometry_operator_logger(self):
         """Enable or disable the logging for the geometry operators.
-        This setting is useful for debug purposes."""
+
+        This setting is useful for debug purposes.
+        """
         return self.__enable_debug_geometry_operator_logger
 
     @enable_debug_geometry_operator_logger.setter
@@ -385,7 +398,9 @@ class Settings(object):  # pragma: no cover
     @property
     def enable_debug_internal_methods_logger(self):
         """Enable or disable the logging for internal methods.
-        This setting is useful for debug purposes."""
+
+        This setting is useful for debug purposes.
+        """
         return self.__enable_debug_internal_methods_logger
 
     @enable_debug_internal_methods_logger.setter
@@ -417,8 +432,9 @@ class Settings(object):  # pragma: no cover
 
     @property
     def lsf_queue(self):
-        """LSF queue name. This attribute is valid only on Linux
-        systems running LSF Scheduler."""
+        """LSF queue name.
+
+        This attribute is valid only on Linux systems running LSF Scheduler."""
         return self.__lsf_queue
 
     @lsf_queue.setter
@@ -427,8 +443,9 @@ class Settings(object):  # pragma: no cover
 
     @property
     def use_lsf_scheduler(self):
-        """Whether to use LSF Scheduler. This attribute is valid only on Linux
-        systems running LSF Scheduler."""
+        """Whether to use LSF Scheduler.
+
+        This attribute is valid only on Linux systems running LSF Scheduler."""
         return self.__use_lsf_scheduler
 
     @use_lsf_scheduler.setter
@@ -437,7 +454,9 @@ class Settings(object):  # pragma: no cover
 
     @property
     def lsf_aedt_command(self):
-        """Command to launch the task in the LSF Scheduler. The default is ``"ansysedt"``.
+        """Command to launch the task in the LSF Scheduler.
+
+        The default is ``"ansysedt"``.
         This attribute is valid only on Linux systems running LSF Scheduler."""
         return self.__lsf_aedt_command
 
@@ -447,8 +466,9 @@ class Settings(object):  # pragma: no cover
 
     @property
     def lsf_num_cores(self):
-        """Number of LSF cores. This attribute is valid only
-        on Linux systems running LSF Scheduler."""
+        """Number of LSF cores.
+
+        This attribute is valid only on Linux systems running LSF Scheduler."""
         return self.__lsf_num_cores
 
     @lsf_num_cores.setter
@@ -457,8 +477,9 @@ class Settings(object):  # pragma: no cover
 
     @property
     def lsf_ram(self):
-        """RAM allocated for the LSF job. This attribute is valid
-        only on Linux systems running LSF Scheduler."""
+        """RAM allocated for the LSF job.
+
+        This attribute is valid only on Linux systems running LSF Scheduler."""
         return self.__lsf_ram
 
     @lsf_ram.setter
@@ -472,7 +493,8 @@ class Settings(object):  # pragma: no cover
 
     @lsf_ui.setter
     def lsf_ui(self, value):
-        self.__lsf_ui = int(value)
+        if value is not None:
+            self.__lsf_ui = int(value)
 
     @property
     def lsf_timeout(self):
@@ -513,7 +535,7 @@ class Settings(object):  # pragma: no cover
 
     @aedt_environment_variables.setter
     def aedt_environment_variables(self, value):
-        self._aedt_environment_variables = value
+        self.__aedt_environment_variables = value
 
     # ##################################### General properties ####################################
 
@@ -601,6 +623,7 @@ class Settings(object):  # pragma: no cover
     @property
     def wait_for_license(self):
         """Enable or disable the use of the flag `-waitforlicense` when launching Electronic Desktop.
+
         The default value is ``False``."""
         return self.__wait_for_license
 
@@ -637,15 +660,17 @@ class Settings(object):  # pragma: no cover
 
     @property
     def aedt_version(self):
-        """AEDT version in the form ``"2023.x"``. In AEDT 2022 R2 and later,
-        evaluating a bounding box by exporting a SAT file is disabled."""
+        """AEDT version in the form ``"2023.x"``.
+
+        In AEDT 2022 R2 and later, evaluating a bounding box by exporting a SAT file is disabled."""
         return self.__aedt_version
 
     @aedt_version.setter
     def aedt_version(self, value):
-        self.__aedt_version = value
-        if self.__aedt_version >= "2023.1":
-            self.disable_bounding_box_sat = True
+        if value is not None:
+            self.__aedt_version = value
+            if self.__aedt_version >= "2023.1":
+                self.disable_bounding_box_sat = True
 
     @property
     def aedt_install_dir(self):
@@ -659,8 +684,8 @@ class Settings(object):  # pragma: no cover
     @property
     def use_multi_desktop(self):
         """Flag indicating if multiple desktop sessions are enabled in the same Python script.
-        Current limitations follow:
 
+        Current limitations follow:
         - Release without closing the desktop is not possible,
         - The first desktop created must be the last to be closed.
 
@@ -679,14 +704,18 @@ class Settings(object):  # pragma: no cover
 
     @edb_dll_path.setter
     def edb_dll_path(self, value):
-        if os.path.exists(value):
-            self.__edb_dll_path = value
+        if value is not None:
+            if os.path.exists(value):
+                self.__edb_dll_path = value
 
     @property
     def enable_pandas_output(self):
-        """Flag for whether Pandas is being used to export dictionaries and lists. This attribute
-        applies to Solution data output.  The default is ``False``. If ``True``, the property or
-        method returns a Pandas object. This property is valid only in the CPython environment."""
+        """Flag for whether Pandas is being used to export dictionaries and lists.
+
+        This attribute applies to Solution data output.
+        The default is ``False``. If ``True``, the property or method returns a Pandas object.
+        This property is valid only in the CPython environment.
+        """
         return self.__enable_pandas_output
 
     @enable_pandas_output.setter
@@ -695,9 +724,12 @@ class Settings(object):  # pragma: no cover
 
     @property
     def force_error_on_missing_project(self):
-        """Flag for whether to check the project path. The default is ``False``. If
-        ``True``, when passing a project path, the project has to exist. Otherwise, an
-        error is raised."""
+        """Flag for whether to check the project path.
+
+        The default is ``False``.
+        If ``True``, when passing a project path, the project has to exist.
+        Otherwise, an error is raised.
+        """
         return self.__force_error_on_missing_project
 
     @force_error_on_missing_project.setter
@@ -743,6 +775,16 @@ class Settings(object):  # pragma: no cover
         os.environ["PYAEDT_SERVER_AEDT_PATH"] = str(val)
         self.__pyaedt_server_path = os.environ["PYAEDT_SERVER_AEDT_PATH"]
 
+    @property
+    def skip_license_check(self):
+        """Flag indicating whether to check for license availability when launching the Desktop."""
+
+        return self.__skip_license_check
+
+    @skip_license_check.setter
+    def skip_license_check(self, value):
+        self.__skip_license_check = value
+
     def load_yaml_configuration(self, path: str, raise_on_wrong_key: bool = False):
         """Update default settings from a YAML configuration file."""
         import yaml
@@ -764,24 +806,37 @@ class Settings(object):  # pragma: no cover
             pairs = [
                 ("log", ALLOWED_LOG_SETTINGS),
                 ("lsf", ALLOWED_LSF_SETTINGS),
-                ("aedt_env_var", ALLOWED_AEDT_ENV_VAR_SETTINGS),
                 ("general", ALLOWED_GENERAL_SETTINGS),
             ]
             for setting_type, allowed_settings_key in pairs:
                 settings = local_settings.get(setting_type, {})
+                print(setting_type, allowed_settings_key)
                 if raise_on_wrong_key:
                     for key, value in filter_settings_with_raise(settings, allowed_settings_key):
                         setattr(self, key, value)
                 else:
                     for key, value in filter_settings(settings, allowed_settings_key):
                         setattr(self, key, value)
+            # NOTE: Handle env var differently as they are loaded at once
+            setting_type = "aedt_env_var"
+            settings = local_settings.get(setting_type, {})
+            if settings:
+                if raise_on_wrong_key and any(key not in ALLOWED_AEDT_ENV_VAR_SETTINGS for key in settings.keys()):
+                    raise KeyError("An environment variable key is not part of the allowed keys.")
+                self.aedt_environment_variables = settings
 
     def writte_yaml_configuration(self, path: str):
         """Write the current settings into a YAML configuration file."""
         import yaml
 
-        if os.path.exists(path):
-            yaml.safe_dump(settings, path)
+        data = {}
+        data["log"] = {key: getattr(self, key) for key in ALLOWED_LOG_SETTINGS}
+        data["lsf"] = {key: getattr(self, key) for key in ALLOWED_LSF_SETTINGS}
+        data["aedt_env_var"] = getattr(self, "aedt_environment_variables")
+        data["general"] = {key: getattr(self, key) for key in ALLOWED_GENERAL_SETTINGS}
+
+        with open(path, "w") as file:
+            yaml.safe_dump(data, file, sort_keys=False)
 
 
 settings = Settings()

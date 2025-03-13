@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,11 +29,11 @@ import re
 from struct import unpack
 import subprocess  # nosec
 
-from ansys.aedt.core import generate_unique_name
 from ansys.aedt.core.generic.aedt_versions import aedt_versions
+from ansys.aedt.core.generic.file_utils import generate_unique_folder_name
+from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import env_value
-from ansys.aedt.core.generic.general_methods import generate_unique_folder_name
-from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.generic.settings import settings
@@ -73,54 +73,42 @@ class SpiSim:
         self._working_directory = val
 
     @pyaedt_function_handler()
-    def _compute_spisim(self, parameter, out_file="", touchstone_file="", config_file=""):
+    def __compute_spisim(self, parameter, config_file, out_file=""):
         exec_name = "SPISimJNI_LX64.exe" if is_linux else "SPISimJNI_WIN64.exe"
-        spisimExe = os.path.join(self.desktop_install_dir, "spisim", "SPISim", "modules", "ext", exec_name)
+        spisim_exe = os.path.join(self.desktop_install_dir, "spisim", "SPISim", "modules", "ext", exec_name)
+        command = [spisim_exe, parameter]
 
-        cfgCmmd = ""
-        if touchstone_file != "":
-            cfgCmmd = cfgCmmd + '-i "%s"' % touchstone_file
         if config_file != "":
-            if is_linux:
-                cfgCmmd = "-v CFGFILE=%s" % config_file
-            else:
-                cfgCmmd = '-v CFGFILE="%s"' % config_file
+            command += ["-v", f"CFGFILE={config_file}"]
         if out_file:
-            cfgCmmd += ', -o "%s"' % out_file
-        command = [spisimExe, parameter, cfgCmmd]
-        # Debug('%s %s' % (cmdList[0], ' '.join(arguments)))
-        # try up to three times to be sure
-        if out_file:
+            command += [",", "-o", f"{out_file}"]
             out_processing = os.path.join(out_file, generate_unique_name("spsim_out") + ".txt")
         else:
             out_processing = os.path.join(generate_unique_folder_name(), generate_unique_name("spsim_out") + ".txt")
 
         my_env = os.environ.copy()
         my_env.update(settings.aedt_environment_variables)
-
         if is_linux:  # pragma: no cover
             if "ANSYSEM_ROOT_PATH" not in my_env:  # pragma: no cover
                 my_env["ANSYSEM_ROOT_PATH"] = self.desktop_install_dir
             if "SPISIM_OUTPUT_LOG" not in my_env:  # pragma: no cover
                 my_env["SPISIM_OUTPUT_LOG"] = os.path.join(out_file, generate_unique_name("spsim_out") + ".log")
-            with open_file(out_processing, "w") as outfile:
-                subprocess.Popen(command, env=my_env, stdout=outfile, stderr=outfile).wait()  # nosec
-        else:
-            with open_file(out_processing, "w") as outfile:
-                subprocess.Popen(" ".join(command), env=my_env, stdout=outfile, stderr=outfile).wait()  # nosec
+
+        with open_file(out_processing, "w") as outfile:
+            subprocess.run(command, env=my_env, stdout=outfile, stderr=outfile, check=True)  # nosec
         return out_processing
 
     @pyaedt_function_handler()
-    def _get_output_parameter_from_result(self, out_file, parameter_name):
+    def __get_output_parameter_from_result(self, out_file, parameter_name):
         if parameter_name == "ERL":
             try:
                 with open_file(out_file, "r") as infile:
                     lines = infile.read()
-                    parmDat = lines.split("[ParmDat]:", 1)[1]
-                    for keyValu in parmDat.split(","):
-                        dataAry = keyValu.split("=")
-                        if dataAry[0].strip().lower() == parameter_name.lower():
-                            return float(dataAry[1].strip().split()[0])
+                    parm_dat = lines.split("[ParmDat]:", 1)[1]
+                    for key_value in parm_dat.split(","):
+                        data_arr = key_value.split("=")
+                        if data_arr[0].strip().lower() == parameter_name.lower():
+                            return float(data_arr[1].strip().split()[0])
                 self.logger.error(
                     f"Failed to compute {parameter_name}. Check input parameters and retry"
                 )  # pragma: no cover
@@ -212,7 +200,6 @@ class SpiSim:
         bool or float
             Effective return loss from the spisimExe command, ``False`` when failed.
         """
-
         cfg_dict = {
             "INPARRY": "",
             "MIXMODE": "",
@@ -268,27 +255,22 @@ class SpiSim:
         cfg_dict["REFLRHO"] = permitted_reflection if permitted_reflection is not None else cfg_dict["REFLRHO"]
         cfg_dict["NCYCLES"] = reflections_length if reflections_length is not None else cfg_dict["NCYCLES"]
 
-        new_cfg_file = os.path.join(self.working_directory, "spisim_erl.cfg").replace("\\", "/")
-        with open_file(new_cfg_file, "w") as fp:
+        config_file = os.path.join(self.working_directory, "spisim_erl.cfg").replace("\\", "/")
+        with open_file(config_file, "w") as fp:
             for k, v in cfg_dict.items():
                 fp.write(f"# {k}: {k}\n")
                 fp.write(f"{k} = {v}\n")
         retries = 3
         if "PYTEST_CURRENT_TEST" in os.environ:
             retries = 10
-        trynumb = 0
-        while trynumb < retries:
-            out_processing = self._compute_spisim(
-                "CalcERL",
-                touchstone_file=self.touchstone_file,
-                config_file=new_cfg_file,
-                out_file=self.working_directory,
-            )
-            results = self._get_output_parameter_from_result(out_processing, "ERL")
+        nb_retry = 0
+        while nb_retry < retries:
+            out_processing = self.__compute_spisim("CalcERL", config_file, out_file=self.working_directory)
+            results = self.__get_output_parameter_from_result(out_processing, "ERL")
             if results:
                 return results
             self.logger.warning("Failing to compute ERL, retrying...")
-            trynumb += 1
+            nb_retry += 1
         self.logger.error("Failed to compute ERL.")
         return False
 
@@ -329,9 +311,7 @@ class SpiSim:
 
         Returns
         -------
-
         """
-
         com_param = COMParametersVer3p4()
         if standard == 0:
             if os.path.splitext(config_file)[-1] == ".cfg":
@@ -348,14 +328,14 @@ class SpiSim:
         com_param.set_parameter("Port Order", "[1 3 2 4]" if port_order == "EvenOdd" else "[1 2 3 4]")
 
         com_param.set_parameter("RESULT_DIR", out_folder if out_folder else self.working_directory)
-        return self._compute_com(com_param)
+        return self.__compute_com(com_param)
 
     @pyaedt_function_handler
-    def _compute_com(
+    def __compute_com(
         self,
         com_parameter,
     ):
-        """Compute Channel Operating Margin.
+        """Compute Channel Operating Margin (COM).
 
         Parameters
         ----------
@@ -364,7 +344,7 @@ class SpiSim:
 
         Returns
         -------
-
+        float or list
         """
         thru_snp = com_parameter.parameters["THRUSNP"].replace("\\", "/")
         fext_snp = com_parameter.parameters["FEXTARY"].replace("\\", "/")
@@ -379,8 +359,8 @@ class SpiSim:
         cfg_file = os.path.join(com_parameter.parameters["RESULT_DIR"], "com_parameters.cfg")
         com_parameter.export_spisim_cfg(cfg_file)
 
-        out_processing = self._compute_spisim(parameter="COM", config_file=cfg_file)
-        return self._get_output_parameter_from_result(out_processing, "COM")
+        out_processing = self.__compute_spisim("COM", cfg_file)
+        return self.__get_output_parameter_from_result(out_processing, "COM")
 
     @pyaedt_function_handler
     def export_com_configure_file(self, file_path, standard=1):
@@ -392,6 +372,7 @@ class SpiSim:
             Full path to configuration file to create.
         standard : int
             Index of the standard.
+
         Returns
         -------
         bool
@@ -424,9 +405,8 @@ def detect_encoding(file_path, expected_pattern="", re_flags=0):
 
 
 class DataSet(object):
-    """
-    This is the base class for storing all traces of a RAW file. Returned by the get_trace() or by the get_axis()
-    methods.
+    """Base class for storing all traces of a RAW file. Returned by the get_trace() or by the get_axis() methods.
+
     Normally the user doesn't have to be aware of this class. It is only used internally to encapsulate the different
     implementations of the wave population.
     Data can be retrieved directly by using the [] operator.
@@ -442,7 +422,9 @@ class DataSet(object):
         datalen,
     ):
         """Base Class for both Axis and Trace Classes.
-        Defines the common operations between both."""
+
+        Defines the common operations between both.
+        """
         self.name = name
         self.whattype = whattype
         self.data = zeros(datalen, dtype=float64)
@@ -470,6 +452,7 @@ class DataSet(object):
 
 class Trace(DataSet):
     """This class is used to represent a trace.
+
     This class is constructed by the get_trace() command.
     If numpy is available the get_wave() method will return a numpy array.
     """
@@ -485,8 +468,7 @@ class Trace(DataSet):
         self.axis = axis
 
     def __len__(self):
-        """
-        Returns the length of the axis.
+        """Return the length of the axis.
 
         Returns
         -------
@@ -497,7 +479,7 @@ class Trace(DataSet):
 
 
 class SpiSimRawException(Exception):
-    """Custom class for exception handling"""
+    """Custom class for exception handling."""
 
     ...
 
@@ -617,8 +599,7 @@ class SpiSimRawRead(object):
 
     @property
     def trace_names(self):
-        """
-        Returns a list of exiting trace names of the RAW file.
+        """Returns a list of exiting trace names of the RAW file.
 
         Returns
         -------
@@ -628,7 +609,7 @@ class SpiSimRawRead(object):
         return [trace.name for trace in self._traces]
 
     def get_trace(self, trace_ref):
-        """Retrieves the trace with the requested name (trace_ref).
+        """Retrieve the trace with the requested name (trace_ref).
 
         Parameters
         ----------
@@ -648,7 +629,7 @@ class SpiSimRawRead(object):
             return self._traces[trace_ref]
 
     def get_wave(self, trace_ref):
-        """Retrieves the trace data with the requested name (trace_ref).
+        """Retrieve the wave data with the requested name (trace_ref).
 
         Parameters
         ----------
@@ -663,7 +644,7 @@ class SpiSimRawRead(object):
         return self.get_trace(trace_ref).wave
 
     def get_axis(self):
-        """This function is equivalent to get_trace(0).wave instruction.
+        """Function equivalent to get_trace(0).wave instruction.
 
         Returns
         -------

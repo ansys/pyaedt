@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,7 +21,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
+from pathlib import Path
 import time
 from tkinter import filedialog
 from tkinter import messagebox
@@ -52,18 +52,19 @@ def frontend():  # pragma: no cover
 
     import PIL.Image
     import PIL.ImageTk
+    from ansys.aedt.core.workflows.misc import ExtensionTheme
 
     master = tkinter.Tk()
+    master.minsize(1000, 220)
+    master.maxsize(1000, 220)
 
-    master.geometry("680x220")
+    master.title(extension_description)
 
-    master.minsize(680, 220)
-    master.maxsize(680, 220)
-
-    master.title("Arbitrary wave-port generator")
+    # Detect if user closes the UI
+    master.flag = False
 
     # Load the logo for the main window
-    icon_path = os.path.join(os.path.dirname(ansys.aedt.core.workflows.__file__), "images", "large", "logo.png")
+    icon_path = Path(ansys.aedt.core.workflows.__path__[0]) / "images" / "large" / "logo.png"
     im = PIL.Image.open(icon_path)
     photo = PIL.ImageTk.PhotoImage(im)
 
@@ -72,13 +73,19 @@ def frontend():  # pragma: no cover
 
     # Configure style for ttk buttons
     style = ttk.Style()
-    style.configure("Toolbutton.TButton", padding=6, font=("Helvetica", 10))
+    theme = ExtensionTheme()
+
+    # Apply light theme initially
+    theme.apply_light_theme(style)
+    master.theme = "light"
+
+    # Set background color of the window (optional)
+    master.configure(bg=theme.light["widget_bg"])
 
     work_dir_path = tkinter.StringVar()
     source_file_path = tkinter.StringVar()
     mounting_side_variable = tkinter.StringVar()
     import_edb_variable = tkinter.BooleanVar()
-    # import_3d_component_variable = tkinter.BooleanVar()
 
     def browse_workdir_call_back():
         work_dir_path.set(filedialog.askdirectory())
@@ -97,33 +104,36 @@ def frontend():  # pragma: no cover
         source_file.insert("end", source_file_path.get())
 
     # Working directory
-    var1 = tkinter.StringVar()
-    label_work_dir = tkinter.Label(master, textvariable=var1)
-    var1.set("Working directory")
+    label_work_dir = ttk.Label(master, text="Working directory", style="PyAEDT.TLabel")
     label_work_dir.grid(row=0, column=0, pady=10)
+
     work_dir = tkinter.Text(master, width=60, height=1)
+    work_dir.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
+
     # work_dir.setvar(work_dir_path, "")
     work_dir.grid(row=0, column=1, pady=10, padx=5)
-    work_dir_button = tkinter.Button(master, text="Browse", command=browse_workdir_call_back)
+    work_dir_button = ttk.Button(master, text="Browse", command=browse_workdir_call_back, style="PyAEDT.TButton")
     work_dir_button.grid(row=0, column=2, sticky="E")
 
     # source layout
-    var2 = tkinter.StringVar()
-    label_source = tkinter.Label(master, textvariable=var2)
-    var2.set("Source layout")
+    label_source = ttk.Label(master, text="Source layout", style="PyAEDT.TLabel")
     label_source.grid(row=1, column=0, pady=10)
+
     source_file = tkinter.Text(master, width=60, height=1)
+    source_file.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
     source_file.setvar(source_file_path.get(), "")
     source_file.grid(row=1, column=1, pady=10, padx=5)
-    source_file_button = tkinter.Button(master, text="Browse", command=browse_source_file_call_back)
+
+    source_file_button = ttk.Button(master, text="Browse", command=browse_source_file_call_back, style="PyAEDT.TButton")
     source_file_button.grid(row=1, column=2, sticky="E")
 
     # mounting side
-    var3 = tkinter.StringVar()
-    label_combobox = tkinter.Label(master, textvariable=var3)
-    var3.set("Mounting side")
+    label_combobox = ttk.Label(master, text="Mounting side", style="PyAEDT.TLabel")
     label_combobox.grid(row=2, column=0)
-    mounting_side_combo_box = ttk.Combobox(master=master, width=10, textvariable=mounting_side_variable)
+
+    mounting_side_combo_box = ttk.Combobox(
+        master=master, width=10, textvariable=mounting_side_variable, style="PyAEDT.TCombobox"
+    )
     mounting_side_combo_box["values"] = ("top", "bottom")
     mounting_side_combo_box.grid(row=3, column=0, padx=5, pady=10)
     mounting_side_combo_box.set("top")
@@ -131,11 +141,45 @@ def frontend():  # pragma: no cover
 
     # checkbox import EDB
     import_edb_variable.set(True)
-    ttk.Checkbutton(master=master, text="Import EDB", variable=import_edb_variable).grid(
+    ttk.Checkbutton(master=master, text="Import EDB", variable=import_edb_variable, style="PyAEDT.TCheckbutton").grid(
         row=3, column=1, padx=5, pady=10
     )
 
+    def toggle_theme():
+        if master.theme == "light":
+            set_dark_theme()
+            master.theme = "dark"
+        else:
+            set_light_theme()
+            master.theme = "light"
+
+    def set_light_theme():
+        master.configure(bg=theme.light["widget_bg"])
+        source_file.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
+        work_dir.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
+        theme.apply_light_theme(style)
+        change_theme_button.config(text="\u263D")  # Sun icon for light theme
+
+    def set_dark_theme():
+        master.configure(bg=theme.dark["widget_bg"])
+        source_file.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
+        work_dir.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
+        theme.apply_dark_theme(style)
+        change_theme_button.config(text="\u2600")  # Moon icon for dark theme
+
+    # Create a frame for the toggle button to position it correctly
+    button_frame = ttk.Frame(master, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2)
+    button_frame.grid(row=4, column=2, pady=10, padx=10)
+
+    # Add the toggle theme button inside the frame
+    change_theme_button = ttk.Button(
+        button_frame, width=20, text="\u263D", command=toggle_theme, style="PyAEDT.TButton"
+    )
+
+    change_theme_button.grid(row=0, column=0, padx=0)
+
     def callback():
+        master.flag = True
         master.working_path_ui = work_dir.get("1.0", tkinter.END).strip()
         master.source_path_ui = source_file.get("1.0", tkinter.END).strip()
         master.mounting_side_ui = mounting_side_combo_box.get()
@@ -143,8 +187,8 @@ def frontend():  # pragma: no cover
         master.destroy()
 
     # execute button
-    execute_button = tkinter.Button(master=master, text="Generate", command=callback)
-    execute_button.grid(row=4, column=0, padx=5, pady=10)
+    execute_button = ttk.Button(master=master, text="Generate", command=callback, width=20, style="PyAEDT.TButton")
+    execute_button.grid(row=4, column=0, padx=10, pady=10)
 
     tkinter.mainloop()
 
@@ -152,25 +196,28 @@ def frontend():  # pragma: no cover
     source_path_ui = getattr(master, "source_path_ui", extension_arguments["source_path"])
     mounting_side_ui = getattr(master, "mounting_side_ui", extension_arguments["mounting_side"])
 
-    output_dict = {
-        "working_path": working_path_ui,
-        "source_path": source_path_ui,
-        "mounting_side": mounting_side_ui,
-    }
+    output_dict = {}
+    if master.flag:
+        output_dict = {
+            "working_path": working_path_ui,
+            "source_path": source_path_ui,
+            "mounting_side": mounting_side_ui,
+        }
 
     return output_dict
 
 
 def main(extension_args):
-    working_dir = extension_args["working_path"]
-    edb_file = extension_args["source_path"]
+    working_dir = Path(extension_args["working_path"])
+    edb_file = Path(extension_args["source_path"])
     mounting_side_variable = extension_args["mounting_side"]
 
-    edb_project = os.path.join(working_dir, "arbitrary_wave_port.aedb")
-    out_3d_project = os.path.join(working_dir, "output_3d.aedt")
-    component_3d_file = os.path.join(working_dir, "wave_port.a3dcomp")
-    if os.path.exists(working_dir):
-        if len(os.listdir(working_dir)) > 0:  # pragma: no cover
+    edb_project = working_dir / "arbitrary_wave_port.aedb"
+    out_3d_project = working_dir / "output_3d.aedt"
+    component_3d_file = working_dir / "wave_port.a3dcomp"
+
+    if working_dir.exists():
+        if len(list(working_dir.iterdir())) > 0:  # pragma: no cover
             res = messagebox.askyesno(
                 title="Warning",
                 message="The selected working directory is not empty, "
@@ -182,7 +229,7 @@ def main(extension_args):
 
     edb = Edb(edbpath=rf"{edb_file}", edbversion=version)
     if not edb.create_model_for_arbitrary_wave_ports(
-        temp_directory=working_dir, mounting_side=mounting_side_variable, output_edb=edb_project
+        temp_directory=str(working_dir), mounting_side=mounting_side_variable, output_edb=str(edb_project)
     ):
         messagebox.showerror(
             "EDB model failure",
@@ -190,7 +237,6 @@ def main(extension_args):
             "selected the correct mounting side. The selected side must "
             "must contain explicit voids with pad-stack instances inside.",
         )
-    signal_nets = list(edb.nets.signal.keys())
     edb.close()
     time.sleep(1)
 
@@ -202,39 +248,28 @@ def main(extension_args):
         student_version=is_student,
     )
 
-    hfss3d = Hfss3dLayout(project=edb_project, version=version)
+    hfss3d = Hfss3dLayout(project=str(edb_project), version=version)
     setup = hfss3d.create_setup("wave_ports")
-    setup.export_to_hfss(file_fullname=out_3d_project, keep_net_name=True)
+    setup.export_to_hfss(file_fullname=str(out_3d_project), keep_net_name=True)
     time.sleep(1)
     hfss3d.close_project()
 
-    hfss = Hfss(projectname=out_3d_project, specified_version=version, new_desktop_session=False)
-    hfss.solution_type = "Modal"
+    hfss = Hfss(projectname=str(out_3d_project), specified_version=version, new_desktop_session=False)
+    hfss.solution_type = "Terminal"
 
     # Deleting dielectric objects
-    [obj.delete() for obj in hfss.modeler.solid_objects if obj.material_name in hfss.modeler.materials.dielectrics]
+    for solid_obj in [
+        obj for obj in hfss.modeler.solid_objects if obj.material_name in hfss.modeler.materials.dielectrics
+    ]:
+        solid_obj.delete()
 
     # creating ports
-    sheets_for_ports = hfss.modeler.sheet_objects
-    terminal_faces = []
-    terminal_objects = [obj for obj in hfss.modeler.object_list if obj.name in signal_nets]
-    for obj in terminal_objects:
-        if mounting_side_variable == "bottom":
-            face = obj.bottom_face_z
-        else:
-            face = obj.top_face_z
-        terminal_face = hfss.modeler.create_object_from_face(face.id, non_model=False)
-        hfss.assign_perfecte_to_sheets(terminal_face.name)
-        name = obj.name
-        terminal_faces.append(terminal_face)
-        obj.delete()
-        terminal_face.name = name
-    for sheet in sheets_for_ports:
+    for sheet in hfss.modeler.sheet_objects:
         hfss.wave_port(assignment=sheet.id, reference="GND", terminals_rename=False)
 
     # create 3D component
-    hfss.save_project(file_name=out_3d_project)
-    hfss.modeler.create_3dcomponent(input_file=component_3d_file)
+    hfss.save_project(file_name=str(out_3d_project))
+    hfss.modeler.create_3dcomponent(input_file=str(component_3d_file))
     hfss.logger.info(
         f"3D component with arbitrary wave ports has been generated. "
         f"You can import the file located in working directory {working_dir}"
@@ -256,4 +291,6 @@ if __name__ == "__main__":  # pragma: no cover
             for output_name, output_value in output.items():
                 if output_name in extension_arguments:
                     args[output_name] = output_value
-    main(args)
+            main(args)
+    else:
+        main(args)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,12 +22,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-This module contains these classes: `CouplingsEmit`.
+"""This module contains these classes: `CouplingsEmit`.
+
 This module provides for interacting with EMIT Analysis and Results windows.
 """
 
-import warnings
+from ansys.aedt.core.generic.checks import min_aedt_version
 
 
 class CouplingsEmit(object):
@@ -134,9 +134,9 @@ class CouplingsEmit(object):
         self._odesign.DeleteLink(coupling_link_name)
 
     def update_link(self, coupling_name):
-        """Update the link if it's a valid link. Check if anything
-        in the linked design has changed and retrieve updated
-        data if it has.
+        """Update the link if it's a valid link.
+
+        Check if anything in the linked design has changed and retrieve updated data if it has.
 
         Parameters
         ----------
@@ -156,8 +156,11 @@ class CouplingsEmit(object):
             self._odesign.UpdateLink(coupling_name)
 
     @property
+    @min_aedt_version("2022.2")
     def linkable_design_names(self):
         """List the available link names.
+
+        This property is only available in AEDT version 2022.2 or higher.
 
         Parameters
         ----------
@@ -174,12 +177,7 @@ class CouplingsEmit(object):
         >>> app = Emit("Apache with multiple links")
         >>> links = app.couplings.linkable_design_names
         """
-        desktop_version = self._desktop.GetVersion()[0:6]
-        if desktop_version >= "2022.2":
-            return self._odesign.GetAvailableLinkNames()
-        else:
-            warnings.warn("The function linkable_design_names() requires AEDT 2022 R2 or later.")
-            return []
+        return self._odesign.GetAvailableLinkNames()
 
     @property
     def cad_nodes(self):

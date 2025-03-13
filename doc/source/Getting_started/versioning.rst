@@ -36,7 +36,7 @@ This interface works only on Windows and uses .NET COM objects.
 .. code:: python
 
 
-    from ansys.aedt.core import settings
+    from ansys.aedt.core.generic.settings import settings
 
     settings.use_grpc_api = False
 
@@ -57,6 +57,10 @@ The following table shows the supported versions of Ansys EDT and the recommende
 |                           |                        +-----------------------+-----------------------+
 |                           |                        | gRPC                  | COM                   |
 +===========================+========================+=======================+=======================+
+| AnsysEM 2025 R1           | gRPC                   |        YES            |        NO*            |
++---------------------------+------------------------+-----------------------+-----------------------+
+| AnsysEM 2024 R2           | gRPC                   |        YES            |        NO*            |
++---------------------------+------------------------+-----------------------+-----------------------+
 | AnsysEM 2024 R1           | gRPC                   |        YES            |        NO*            |
 +---------------------------+------------------------+-----------------------+-----------------------+
 | AnsysEM 2023 R2           | gRPC                   |        YES            |        YES*           |

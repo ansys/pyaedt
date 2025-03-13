@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -65,6 +65,7 @@ settings.enable_desktop_logs = False
 settings.desktop_launch_timeout = 180
 settings.release_on_exception = False
 settings.wait_for_license = True
+settings.enable_pandas_output = True
 
 from ansys.aedt.core import Edb
 from ansys.aedt.core import Hfss
@@ -72,19 +73,15 @@ from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.desktop import Desktop
 from ansys.aedt.core.desktop import _delete_objects
 from ansys.aedt.core.generic.desktop_sessions import _desktop_sessions
+from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.filesystem import Scratch
-from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import inside_desktop
 
 local_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(local_path)
 
 # Initialize default desktop configuration
-default_version = "2024.2"
+default_version = "2025.1"
 
-
-if inside_desktop and "oDesktop" in dir(sys.modules["__main__"]):
-    default_version = sys.modules["__main__"].oDesktop.GetVersion()[0:6]
 config = {
     "desktopVersion": default_version,
     "NonGraphical": True,
@@ -168,8 +165,13 @@ def desktop():
         d.odesktop.SetDesktopConfiguration("All")
         d.odesktop.SetSchematicEnvironment(0)
     yield d
+    pid = d.aedt_process_id
     d.release_desktop(True, True)
     time.sleep(1)
+    try:
+        os.kill(pid, 9)
+    except OSError:
+        pass
 
 
 @pytest.fixture(scope="module")

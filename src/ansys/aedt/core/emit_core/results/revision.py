@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -307,9 +307,7 @@ class Revision:
 
     @pyaedt_function_handler()
     def get_band_names(self, radio_name, tx_rx_mode=None):
-        """
-        Get a list of all ``tx`` or ``rx`` bands (or waveforms) in
-        a given radio/emitter.
+        """Get a list of all ``tx`` or ``rx`` bands (or waveforms) in a given radio/emitter.
 
         Parameters
         ----------
@@ -431,8 +429,7 @@ class Revision:
 
     @pyaedt_function_handler()
     def interference_type_classification(self, domain, use_filter=False, filter_list=None):  # pragma: no cover
-        """
-        Classify interference type as according to inband/inband,
+        """Classify interference type as according to inband/inband,
         out of band/in band, inband/out of band, and out of band/out of band.
 
         Parameters

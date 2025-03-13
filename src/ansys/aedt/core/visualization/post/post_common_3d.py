@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -23,26 +23,29 @@
 # SOFTWARE.
 
 """
-This module contains this class: `PostProcessor3D`.
+Module containing the class: `PostProcessor3D`.
 
 This module provides all functionalities for creating and editing plots in the 3D tools.
 
 """
-from __future__ import absolute_import
+
 
 import ast
 import os
 import random
 import string
+from typing import Literal
+from typing import Optional
+from typing import Tuple
 import warnings
 
-from ansys.aedt.core import generate_unique_name
-from ansys.aedt.core import pyaedt_function_handler
-from ansys.aedt.core import settings
-from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import unit_converter
-from ansys.aedt.core.generic.general_methods import check_and_download_file
-from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.file_utils import check_and_download_file
+from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.file_utils import open_file
+from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 from ansys.aedt.core.visualization.post.common import PostProcessorCommon
@@ -119,10 +122,7 @@ class PostProcessor3D(PostProcessorCommon):
         str
            Model units, such as ``"mm"``.
         """
-        model_units = None
-        if self.oeditor and "GetModelUnits" in self.oeditor.__dir__():
-            model_units = self.oeditor.GetModelUnits()
-        return model_units
+        return self._app.units.length
 
     @property
     def post_osolution(self):
@@ -145,7 +145,6 @@ class PostProcessor3D(PostProcessorCommon):
 
         References
         ----------
-
         >>> oDesign.GetModule("FieldsReporter")
         """
         return self._app.ofieldsreporter
@@ -204,6 +203,51 @@ class PostProcessor3D(PostProcessorCommon):
                 if isinstance(intr, list) and len(intr) == 2:
                     intr_dict[intr[0]] = intr[1].replace("\\", "").replace("'", "")
         return intr_dict  # pragma: no cover
+
+    @pyaedt_function_handler()
+    def _check_intrinsics(self, input_data, input_phase=None, setup=None, return_list=False):
+        intrinsics = {}
+        if input_data is None:
+            if setup is None:
+                try:
+                    setup = self._app.existing_analysis_sweeps[0].split(":")[0].strip()
+                except Exception:
+                    setup = None
+            else:
+                setup = setup.split(":")[0].strip()
+            for set_obj in self._app.setups:
+                if set_obj.name == setup:
+                    intrinsics = set_obj.default_intrinsics
+                    break
+
+        elif isinstance(input_data, str):
+            if "Freq" in self._app.design_solutions.intrinsics:
+                intrinsics["Freq"] = input_data
+                if "Phase" in self._app.design_solutions.intrinsics:
+                    intrinsics["Phase"] = input_phase if input_phase else "0deg"
+            elif "Time" in self._app.design_solutions.intrinsics:
+                intrinsics["Time"] = input_data
+        elif isinstance(input_data, dict):
+            for k, v in input_data.items():
+                if k in ["Freq", "freq", "frequency", "Frequency"]:
+                    intrinsics["Freq"] = v
+                elif k in ["Phase", "phase"]:
+                    intrinsics["Phase"] = v
+                elif k in ["Time", "time"]:
+                    intrinsics["Time"] = v
+                if input_phase:
+                    intrinsics["Phase"] = input_phase
+                if "Phase" in self._app.design_solutions.intrinsics and "Phase" not in intrinsics:
+                    intrinsics["Phase"] = "0deg"
+        else:
+            raise TypeError("Invalid input_data type. It should be of type None, string or dictionary.")
+        if return_list:
+            intrinsics_list = []
+            for k, v in intrinsics.items():
+                intrinsics_list.append(f"{k}:=")
+                intrinsics_list.append(v)
+            return intrinsics_list
+        return intrinsics
 
     @pyaedt_function_handler(list_objs="assignment")
     def _get_volume_objects(self, assignment):
@@ -330,7 +374,6 @@ class PostProcessor3D(PostProcessorCommon):
 
         References
         ----------
-
         >>> oModule.EnterQty
         >>> oModule.EnterVol
         >>> oModule.CalcOp
@@ -364,7 +407,6 @@ class PostProcessor3D(PostProcessorCommon):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
         """
         self._odesign.ChangeProperty(
@@ -440,7 +482,6 @@ class PostProcessor3D(PostProcessorCommon):
 
         References
         ----------
-
         >>> oModule.EnterQty
         >>> oModule.CopyNamedExprToStack
         >>> oModule.CalcOp
@@ -468,7 +509,7 @@ class PostProcessor3D(PostProcessorCommon):
         >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name)
         >>> plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name)
         """
-        intrinsics = self._app._check_intrinsics(intrinsics, phase, solution, return_list=True)
+        intrinsics = self._check_intrinsics(intrinsics, phase, solution, return_list=True)
         self.logger.info(f"Exporting {quantity} field. Be patient")
         if not solution:
             solution = self._app.existing_analysis_sweeps[0]
@@ -502,7 +543,7 @@ class PostProcessor3D(PostProcessorCommon):
             self.ofieldsreporter.CalcOp(scalar_function)
 
         if not variations:
-            variations = self._app.available_variations.nominal_w_values_dict
+            variations = self._app.available_variations.get_independent_nominal_values()
 
         variation = []
         for el, value in variations.items():
@@ -614,7 +655,6 @@ class PostProcessor3D(PostProcessorCommon):
 
         References
         ----------
-
         >>> oModule.EnterQty
         >>> oModule.CopyNamedExprToStack
         >>> oModule.CalcOp
@@ -626,12 +666,12 @@ class PostProcessor3D(PostProcessorCommon):
         --------
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
-        >>> var = hfss.available_variations.nominal_w_values
+        >>> var = hfss.available_variations.nominal_values
         >>> setup = "Setup1 : LastAdaptive"
         >>> path = "Field.fld"
         >>> hfss.post.export_field_file_on_grid("E",setup,var,path,'Cartesian',[0, 0, 0],intrinsics="8GHz")
         """
-        intrinsics = self._app._check_intrinsics(intrinsics, phase, solution, return_list=True)
+        intrinsics = self._check_intrinsics(intrinsics, phase, solution, return_list=True)
         self.logger.info("Exporting %s field. Be patient", quantity)
         if grid_step is None:
             grid_step = [0, 0, 0]
@@ -659,7 +699,7 @@ class PostProcessor3D(PostProcessorCommon):
                 self.ofieldsreporter.EnterScalar(0)
                 self.ofieldsreporter.CalcOp("AtPhase")
                 self.ofieldsreporter.CalcOp("Mag")
-        units = self.modeler.model_units
+        units = self._app.modeler.model_units
         ang_units = "deg"
         if grid_type == "Cartesian":
             grid_center = ["0mm", "0mm", "0mm"]
@@ -681,7 +721,7 @@ class PostProcessor3D(PostProcessorCommon):
             return False
 
         if not variations:
-            variations = self._app.available_variations.nominal_w_values_dict
+            variations = self._app.available_variations.get_independent_nominal_values()
 
         variation = []
         for el, value in variations.items():
@@ -801,7 +841,6 @@ class PostProcessor3D(PostProcessorCommon):
 
         References
         ----------
-
         >>> oModule.EnterQty
         >>> oModule.CopyNamedExprToStack
         >>> oModule.CalcOp
@@ -830,7 +869,7 @@ class PostProcessor3D(PostProcessorCommon):
         >>>  hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
         >>>                                     )
         """
-        intrinsics = self._app._check_intrinsics(intrinsics, phase, solution, return_list=True)
+        intrinsics = self._check_intrinsics(intrinsics, phase, solution, return_list=True)
         self.logger.info("Exporting %s field. Be patient", quantity)
         if not solution:
             if not self._app.existing_analysis_sweeps:
@@ -850,7 +889,7 @@ class PostProcessor3D(PostProcessorCommon):
             self.ofieldsreporter.CopyNamedExprToStack(quantity)
 
         if not variations:
-            variations = self._app.available_variations.nominal_w_values_dict
+            variations = self._app.available_variations.get_independent_nominal_values()
 
         variation = []
         for el, value in variations.items():
@@ -995,7 +1034,6 @@ class PostProcessor3D(PostProcessorCommon):
 
         References
         ----------
-
         >>> oModule.SetPlotFolderSettings
         """
         args = ["NAME:FieldsPlotSettings", "Real Time mode:=", True]
@@ -1044,7 +1082,7 @@ class PostProcessor3D(PostProcessorCommon):
         field_type=None,
         create_plot=True,
     ):
-        intrinsics = self._app._check_intrinsics(intrinsics, None, setup)
+        intrinsics = self._check_intrinsics(intrinsics, None, setup)
         if not list_type.startswith("Layer") and self._app.design_type != "HFSS 3D Layout Design":
             assignment = self._app.modeler.convert_to_selections(assignment, True)
         if not setup:
@@ -1112,7 +1150,7 @@ class PostProcessor3D(PostProcessorCommon):
                     intrinsics = i.default_intrinsics
         self._app.desktop_class.close_windows()
         try:
-            self._app._modeler.fit_all()
+            self._app.modeler.fit_all()
         except Exception:
             self.logger.debug(
                 "Something went wrong with `fit_all` while creating field plot with line traces."
@@ -1206,7 +1244,7 @@ class PostProcessor3D(PostProcessorCommon):
         >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name)
         >>> plot1 = aedtapp.post.create_fieldplot_line("Polyline1", quantity_name, setup_name)
         """
-        intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
+        intrinsics = self._check_intrinsics(intrinsics, setup=setup)
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info(f"Plot {plot_name} exists. returning the object.")
             return self.field_plots[plot_name]
@@ -1279,7 +1317,7 @@ class PostProcessor3D(PostProcessorCommon):
         >>>                                                   plot_name="LineTracesTest",
         >>>                                                   intrinsics="200Hz")
         """
-        intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
+        intrinsics = self._check_intrinsics(intrinsics, setup=setup)
         if self._app.solution_type != "Electrostatic":
             self.logger.error("Field line traces is valid only for electrostatic solution")
             return False
@@ -1416,6 +1454,7 @@ class PostProcessor3D(PostProcessorCommon):
     ):
         # type: (list, str, str, list, bool, dict, str) -> FieldPlot
         """Create a field plot of stacked layer plot.
+
         This plot is valid from AEDT 2023 R2 and later in HFSS 3D Layout. Nets can be used as a filter.
         Dielectrics will be included into the plot.
         It works when a layout components in 3d modeler is used.
@@ -1462,7 +1501,7 @@ class PostProcessor3D(PostProcessorCommon):
         ----------
         >>> oModule.CreateFieldPlot
         """
-        intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
+        intrinsics = self._check_intrinsics(intrinsics, setup=setup)
         if not setup:
             setup = self._app.existing_analysis_sweeps[0]
         if nets is None:
@@ -1513,7 +1552,9 @@ class PostProcessor3D(PostProcessorCommon):
         self, nets, quantity, setup=None, layers=None, plot_on_surface=True, intrinsics=None, name=None
     ):
         # type: (list, str, str, list, bool, dict, str) -> FieldPlot
-        """Create a field plot of stacked layer plot based on a net selections. Layers can be used as a filter.
+        """Create a field plot of stacked layer plot based on a net selections.
+
+        Layers can be used as a filter.
         Dielectrics will be excluded from the plot.
         This plot is valid from AEDT 2023 R2 and later in HFSS 3D Layout.
         It works when a layout components in 3d modeler is used.
@@ -1560,7 +1601,7 @@ class PostProcessor3D(PostProcessorCommon):
         ----------
         >>> oModule.CreateFieldPlot
         """
-        intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
+        intrinsics = self._check_intrinsics(intrinsics, setup=setup)
         if not setup:
             setup = self._app.existing_analysis_sweeps[0]
         if nets is None:
@@ -1591,6 +1632,7 @@ class PostProcessor3D(PostProcessorCommon):
     ):
         # type: (list, str, str, dict, bool, str) -> FieldPlot
         """Create a field plot of stacked layer plot on specified matrix of layers and nets.
+
         This plot is valid from AEDT 2023 R2 and later in HFSS 3D Layout
         and any modeler where a layout component is used.
 
@@ -1635,7 +1677,7 @@ class PostProcessor3D(PostProcessorCommon):
         ----------
         >>> oModule.CreateFieldPlot
         """
-        intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
+        intrinsics = self._check_intrinsics(intrinsics, setup=setup)
         if not (
             "APhi" in self.post_solution_type and settings.aedt_version >= "2023.2"
         ) and not self._app.design_type in ["HFSS", "HFSS 3D Layout Design"]:
@@ -1880,27 +1922,26 @@ class PostProcessor3D(PostProcessorCommon):
 
         References
         ----------
-
         >>> oModule.CreateFieldPlot
         """
-        assignment = self.modeler.convert_to_selections(assignment, True)
+        assignment = self._app.modeler.convert_to_selections(assignment, True)
 
         list_type = "ObjList"
         obj_list = []
         for element in assignment:
-            if element not in list(self.modeler.objects_by_name.keys()):
+            if element not in list(self._app.modeler.objects_by_name.keys()):
                 self.logger.error(f"{element} does not exist in current design")
                 return False
             elif (
-                self.modeler.objects_by_name[element].is_conductor
-                and not self.modeler.objects_by_name[element].solve_inside
+                self._app.modeler.objects_by_name[element].is_conductor
+                and not self._app.modeler.objects_by_name[element].solve_inside
             ):
                 self.logger.warning(f"Solve inside is unchecked for {element} object. Creating a surface plot instead.")
                 list_type = "FacesList"
                 obj_list.extend([face for face in self._app.modeler[element].faces if face.id not in obj_list])
             else:
                 obj_list.append(element)
-        intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
+        intrinsics = self._check_intrinsics(intrinsics, setup=setup)
 
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info(f"Plot {plot_name} exists. returning the object.")
@@ -1966,7 +2007,6 @@ class PostProcessor3D(PostProcessorCommon):
 
         References
         ----------
-
         >>> oModule.ExportPlotImageToFile
         >>> oModule.ExportModelImageToFile
         """
@@ -1979,14 +2019,14 @@ class PostProcessor3D(PostProcessorCommon):
                         wireframes.append(el)
                         self._primitives[el].display_wireframe = True
             if self._app._aedt_version < "2021.2":
-                bound = self.modeler.get_model_bounding_box()
+                bound = self._app.modeler.get_model_bounding_box()
                 center = [
                     (float(bound[0]) + float(bound[3])) / 2,
                     (float(bound[1]) + float(bound[4])) / 2,
                     (float(bound[2]) + float(bound[5])) / 2,
                 ]
                 view = ORIENTATION_TO_VIEW.get(orientation, "iso")
-                cs = self.modeler.create_coordinate_system(origin=center, mode="view", view=view)
+                cs = self._app.modeler.create_coordinate_system(origin=center, mode="view", view=view)
                 self.ofieldsreporter.ExportPlotImageToFile(file_name, folder_name, plot_name, cs.name)
                 cs.delete()
             else:
@@ -2027,7 +2067,6 @@ class PostProcessor3D(PostProcessorCommon):
 
         References
         ----------
-
         >>> oModule.DeleteFieldPlot
         """
         self.ofieldsreporter.DeleteFieldPlot([name])
@@ -2085,7 +2124,6 @@ class PostProcessor3D(PostProcessorCommon):
 
         References
         ----------
-
         >>> oEditor.ExportModelImageToFile
 
         Examples
@@ -2095,7 +2133,7 @@ class PostProcessor3D(PostProcessorCommon):
         >>> output_file = q3d.post.export_model_picture(full_name=os.path.join(q3d.working_directory, "images1.jpg"))
         """
         if selections:
-            selections = self.modeler.convert_to_selections(selections, False)
+            selections = self._app.modeler.convert_to_selections(selections, False)
         else:
             selections = ""
         if not full_name:
@@ -2111,7 +2149,7 @@ class PostProcessor3D(PostProcessorCommon):
             ]:
                 self.oeditor.ShowWindow()
                 self.steal_focus_oneditor()
-            self.modeler.fit_all()
+            self._app.modeler.fit_all()
         # export the image
         if field_selections:
             if isinstance(field_selections, str):
@@ -2180,7 +2218,6 @@ class PostProcessor3D(PostProcessorCommon):
 
         References
         ----------
-
         >>> oModule.GetSolutionDataPerVariation
         """
         if not isinstance(expressions, list):
@@ -2269,6 +2306,7 @@ class PostProcessor3D(PostProcessorCommon):
     @pyaedt_function_handler(setup_name="setup")
     def export_mesh_obj(self, setup=None, intrinsics=None, export_air_objects=False, on_surfaces=True):
         """Export the mesh in AEDTPLT format.
+
         The mesh has to be available in the selected setup.
         If a parametric model is provided, you can choose the mesh to export by providing a specific set of variations.
         This method applies only to ``Hfss``, ``Q3d``, ``Q2D``, ``Maxwell3d``, ``Maxwell2d``, ``Icepak``
@@ -2317,7 +2355,7 @@ class PostProcessor3D(PostProcessorCommon):
 
         if not setup:
             setup = self._app.nominal_adaptive
-        intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
+        intrinsics = self._check_intrinsics(intrinsics, setup=setup)
 
         mesh_list = []
         obj_list = self._app.modeler.object_names
@@ -2363,7 +2401,6 @@ class PostProcessor3D(PostProcessorCommon):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
         """
         available_bcs = self._app.boundaries
@@ -2446,7 +2483,7 @@ class PostProcessor3D(PostProcessorCommon):
                     mult = multiplier_from_dataset(exp, temperature)
 
                 for objs in bc_obj.props["Objects"]:
-                    obj_name = self.modeler[objs].name
+                    obj_name = self._app.modeler[objs].name
                     power_dict_obj[obj_name] = power_value * mult
 
                 power_dict[bc_obj.name] = power_value * n * mult
@@ -2471,12 +2508,12 @@ class PostProcessor3D(PostProcessorCommon):
 
                     if "Objects" in bc_obj.props:
                         for objs in bc_obj.props["Objects"]:
-                            obj_name = self.modeler[objs].name
+                            obj_name = self._app.modeler[objs].name
                             power_dict_obj[obj_name] = power_value * mult
 
                     elif "Faces" in bc_obj.props:
                         for facs in bc_obj.props["Faces"]:
-                            obj_name = self.modeler.oeditor.GetObjectNameByFaceID(facs) + "_FaceID" + str(facs)
+                            obj_name = self._app.modeler.oeditor.GetObjectNameByFaceID(facs) + "_FaceID" + str(facs)
                             power_dict_obj[obj_name] = power_value * mult
 
                     power_dict[bc_obj.name] = power_value * n * mult
@@ -2505,22 +2542,22 @@ class PostProcessor3D(PostProcessorCommon):
                     power_value = 0.0
                     if "Faces" in bc_obj.props:
                         for component in bc_obj.props["Faces"]:
-                            area = self.modeler.get_face_area(component)
+                            area = self._app.modeler.get_face_area(component)
                             area = unit_converter(
                                 area,
                                 unit_system="Area",
-                                input_units=self.modeler.model_units + "2",
+                                input_units=self._app.modeler.model_units + "2",
                                 output_units="m2",
                             )
                             power_value += heat_value * area * mult
                     elif "Objects" in bc_obj.props:
                         for component in bc_obj.props["Objects"]:
-                            object_assigned = self.modeler[component]
+                            object_assigned = self._app.modeler[component]
                             for f in object_assigned.faces:
                                 area = unit_converter(
                                     f.area,
                                     unit_system="Area",
-                                    input_units=self.modeler.model_units + "2",
+                                    input_units=self._app.modeler.model_units + "2",
                                     output_units="m2",
                                 )
                                 power_value += heat_value * area * mult
@@ -2529,12 +2566,12 @@ class PostProcessor3D(PostProcessorCommon):
 
                     if "Objects" in bc_obj.props:
                         for objs in bc_obj.props["Objects"]:
-                            obj_name = self.modeler[objs].name
+                            obj_name = self._app.modeler[objs].name
                             power_dict_obj[obj_name] = power_value
 
                     elif "Faces" in bc_obj.props:
                         for facs in bc_obj.props["Faces"]:
-                            obj_name = self.modeler.oeditor.GetObjectNameByFaceID(facs) + "_FaceID" + str(facs)
+                            obj_name = self._app.modeler.oeditor.GetObjectNameByFaceID(facs) + "_FaceID" + str(facs)
                             power_dict_obj[obj_name] = power_value
 
                     power_dict[bc_obj.name] = power_value
@@ -2549,7 +2586,7 @@ class PostProcessor3D(PostProcessorCommon):
                         value = unit_converter(value[0], unit_system="Power", input_units=value[1], output_units=units)
                         power_value += value
 
-                obj_name = self.modeler.oeditor.GetObjectNameByFaceID(bc_obj.props["Faces"][0])
+                obj_name = self._app.modeler.oeditor.GetObjectNameByFaceID(bc_obj.props["Faces"][0])
                 for facs in bc_obj.props["Faces"]:
                     obj_name += "_FaceID" + str(facs)
                 power_dict_obj[obj_name] = power_value
@@ -2576,12 +2613,12 @@ class PostProcessor3D(PostProcessorCommon):
 
                 if "Objects" in bc_obj.props:
                     for objs in bc_obj.props["Objects"]:
-                        obj_name = self.modeler[objs].name
+                        obj_name = self._app.modeler[objs].name
                         power_dict_obj[obj_name] = power_value * mult
 
                 elif "Faces" in bc_obj.props:
                     for facs in bc_obj.props["Faces"]:
-                        obj_name = self.modeler.oeditor.GetObjectNameByFaceID(facs) + "_FaceID" + str(facs)
+                        obj_name = self._app.modeler.oeditor.GetObjectNameByFaceID(facs) + "_FaceID" + str(facs)
                         power_dict_obj[obj_name] = power_value * mult
 
                 power_dict[bc_obj.name] = power_value * n * mult
@@ -2600,22 +2637,22 @@ class PostProcessor3D(PostProcessorCommon):
                     power_value = 0.0
                     if "Faces" in bc_obj.props:
                         for component in bc_obj.props["Faces"]:
-                            area = self.modeler.get_face_area(component)
+                            area = self._app.modeler.get_face_area(component)
                             area = unit_converter(
                                 area,
                                 unit_system="Area",
-                                input_units=self.modeler.model_units + "2",
+                                input_units=self._app.modeler.model_units + "2",
                                 output_units="m2",
                             )
                             power_value += heat_value * area * mult
                     if "Objects" in bc_obj.props:
                         for component in bc_obj.props["Objects"]:
-                            object_assigned = self.modeler[component]
+                            object_assigned = self._app.modeler[component]
                             for f in object_assigned.faces:
                                 area = unit_converter(
                                     f.area,
                                     unit_system="Area",
-                                    input_units=self.modeler.model_units + "2",
+                                    input_units=self._app.modeler.model_units + "2",
                                     output_units="m2",
                                 )
                                 power_value += heat_value * area * mult
@@ -2624,12 +2661,12 @@ class PostProcessor3D(PostProcessorCommon):
 
                     if "Objects" in bc_obj.props:
                         for objs in bc_obj.props["Objects"]:
-                            obj_name = self.modeler[objs].name
+                            obj_name = self._app.modeler[objs].name
                             power_dict_obj[obj_name] = power_value
 
                     elif "Faces" in bc_obj.props:
                         for facs in bc_obj.props["Faces"]:
-                            obj_name = self.modeler.oeditor.GetObjectNameByFaceID(facs) + "_FaceID" + str(facs)
+                            obj_name = self._app.modeler.oeditor.GetObjectNameByFaceID(facs) + "_FaceID" + str(facs)
                             power_dict_obj[obj_name] = power_value
 
                     power_dict[bc_obj.name] = power_value
@@ -2643,7 +2680,7 @@ class PostProcessor3D(PostProcessorCommon):
                 )
 
                 for objs in bc_obj.props["Objects"]:
-                    obj_name = self.modeler[objs].name
+                    obj_name = self._app.modeler[objs].name
                     power_dict_obj[obj_name] = power_value * mult
 
                 power_dict[bc_obj.name] = power_value * n * mult
@@ -2659,13 +2696,13 @@ class PostProcessor3D(PostProcessorCommon):
 
                 power_dict[bc_obj.name] = power_value
 
-        for native_comps in self.modeler.user_defined_components.keys():
-            if hasattr(self.modeler.user_defined_components[native_comps], "native_properties"):
+        for native_comps in self._app.modeler.user_defined_components.keys():
+            if hasattr(self._app.modeler.user_defined_components[native_comps], "native_properties"):
                 native_key = "NativeComponentDefinitionProvider"
-                if native_key in self.modeler.user_defined_components[native_comps].native_properties:
-                    power_key = self.modeler.user_defined_components[native_comps].native_properties[native_key]
+                if native_key in self._app.modeler.user_defined_components[native_comps].native_properties:
+                    power_key = self._app.modeler.user_defined_components[native_comps].native_properties[native_key]
                 else:
-                    power_key = self.modeler.user_defined_components[native_comps].native_properties
+                    power_key = self._app.modeler.user_defined_components[native_comps].native_properties
                 power_value = None
                 if "Power" in power_key:
                     power_value = list(decompose_variable_value(power_key["Power"]))
@@ -2901,7 +2938,6 @@ class PostProcessor3D(PostProcessorCommon):
 
         Parameters
         ----------
-
         max_frequency : str, optional
             Maximum Frequency. Default is ``1GHz``.
         ray_density : int, optional
@@ -2979,20 +3015,19 @@ class PostProcessor3D(PostProcessorCommon):
           .. note::
               .assign_curvature_extraction Jupyter Notebook is not supported by IronPython.
 
-         Parameters
-         ----------
-         show_axis : bool, optional
-             Whether to show the axes. The default is ``True``.
-         show_grid : bool, optional
-             Whether to show the grid. The default is ``True``.
-         show_ruler : bool, optional
-             Whether to show the ruler. The default is ``True``.
+        Parameters
+        ----------
+        show_axis : bool, optional
+            Whether to show the axes. The default is ``True``.
+        show_grid : bool, optional
+            Whether to show the grid. The default is ``True``.
+        show_ruler : bool, optional
+            Whether to show the ruler. The default is ``True``.
 
         Returns
         -------
         :class:`IPython.core.display.Image`
             Jupyter notebook image.
-
         """
         try:
             from IPython.display import Image
@@ -3117,7 +3152,6 @@ class PostProcessor3D(PostProcessorCommon):
         :class:`ansys.aedt.core.generic.plot.ModelPlotter`
             Model Object.
         """
-
         if self._app._aedt_version < "2021.2":
             raise RuntimeError("Object is supported from AEDT 2021 R2.")  # pragma: no cover
 
@@ -3129,7 +3163,7 @@ class PostProcessor3D(PostProcessorCommon):
 
         model = ModelPlotter()
         model.off_screen = True
-        units = self.modeler.model_units
+        units = self._app.modeler.model_units
         for file in files:
             if force_opacity_value:
                 model.add_object(file[0], file[1], force_opacity_value, units)
@@ -3326,7 +3360,7 @@ class PostProcessor3D(PostProcessorCommon):
         if file_to_add:
             model.add_field_from_file(
                 file_to_add,
-                coordinate_units=self.modeler.model_units,
+                coordinate_units=self._app.modeler.model_units,
                 show_edges=mesh_plot,
                 log_scale=log_scale,
             )
@@ -3448,10 +3482,10 @@ class PostProcessor3D(PostProcessorCommon):
 
         Returns
         -------
-        :class:`ansys.aedt.core.generic.plot.ModelPlotter`
+        :class:`ansys.aedt.core.visualization.plot.pyvista.ModelPlotter`
             Model Object.
         """
-        intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
+        intrinsics = self._check_intrinsics(intrinsics, setup=setup)
         if filter_objects is None:
             filter_objects = []
         if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t"):  # pragma: no cover
@@ -3589,7 +3623,7 @@ class PostProcessor3D(PostProcessorCommon):
         :class:`ansys.aedt.core.generic.plot.ModelPlotter`
             Model Object.
         """
-        intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
+        intrinsics = self._check_intrinsics(intrinsics, setup=setup)
         if variations is None:
             variations = ["0deg"]
         if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t"):  # pragma: no cover
@@ -3804,7 +3838,6 @@ class PostProcessor3D(PostProcessorCommon):
     ):
         """Plot the current model 3D scene with overlapping animation coming from a file list and save the gif.
 
-
         Parameters
         ----------
         frames : list or str
@@ -3834,7 +3867,6 @@ class PostProcessor3D(PostProcessorCommon):
 
         Returns
         -------
-
         """
         if isinstance(frames, str) and os.path.exists(frames):
             with open_file(frames, "r") as f:
@@ -3873,3 +3905,86 @@ class PostProcessor3D(PostProcessorCommon):
         scene.convert_fields_in_db = convert_fields_in_db
         scene.log_multiplier = log_multiplier
         scene.animate()
+
+    def get_field_extremum(
+        self,
+        assignment: str,
+        max_min: Literal["Max", "Min"],
+        location: Literal["Surface", "Volume"],
+        field: str,
+        setup: Optional[str] = None,
+        intrinsics: Optional[dict[str, str]] = None,
+    ) -> Tuple[Tuple[float, float, float], float]:
+        """
+        Calculates the position and value of the field maximum or minimum.
+
+        Parameters
+        ----------
+            assignment : str
+                The name of the object to calculate the extremum for.
+            max_min : Literal["Max", "Min"]
+                "Max" for maximum, "Min" for minimum.
+            location : Literal["Surface", "Volume"]
+                "Surface" for surface, "Volume" for volume.
+            field : str:
+                Name of the field.
+            intrinsics : Optional[dict[str, str]]
+                Time at which to retrieve results if setup is transient. Default is `None`.
+            setup : Optional[str]
+                The name of the setup to use. If `None`, the first available setup is used. Default is `None`.
+
+        Returns
+        -------
+            Tuple[Tuple[float, float, float], float]
+            A tuple containing:
+
+              - A tuple of three floats representing the (x, y, z) coordinates of the maximum point.
+              - A float representing the value associated with the maximum point.
+        """
+        if assignment not in self._app.modeler.object_names:
+            raise ValueError(f"Object '{assignment}' does not exist.")
+
+        max_min = max_min.capitalize()
+        location = location.capitalize()
+
+        position = []
+        for d in ["X", "Y", "Z"]:
+            xpr = self.fields_calculator.add_expression(
+                {
+                    "name": "MaxMinPos",
+                    "design_type": [self._app.design_type],
+                    "fields_type": ["Fields"],
+                    "primary_sweep": "",
+                    "assignment": assignment,
+                    "assignment_type": ["Sheet", "Solid"],
+                    "operations": [
+                        f"Fundamental_Quantity('{field}')"
+                        f"Enter{location}('{assignment}')"
+                        f"Operation('{location}Value')"
+                        f"Operation('{max_min}Pos')"
+                        f"Operation('Scalar{d}')"
+                    ],
+                },
+                assignment,
+            )
+            position.append(
+                unit_converter(
+                    float(self.fields_calculator.evaluate(xpr, setup, intrinsics)),
+                    unit_system="Length",
+                    input_units="meter",
+                    output_units=self._app.units.length,
+                )
+            )
+            self.fields_calculator.delete_expression(xpr)
+        position = tuple(position)
+
+        value = self.get_scalar_field_value(
+            field,
+            scalar_function=f"{max_min}imum",
+            solution=setup,
+            intrinsics=intrinsics,
+            object_name=assignment,
+            object_type=location.casefold(),
+        )
+
+        return position, value

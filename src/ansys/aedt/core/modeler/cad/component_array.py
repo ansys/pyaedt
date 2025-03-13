@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,15 +22,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from __future__ import absolute_import
 
 import os
 import re
 
+from ansys.aedt.core.generic.checks import min_aedt_version
 from ansys.aedt.core.generic.constants import AEDT_UNITS
-from ansys.aedt.core.generic.general_methods import _uname
+from ansys.aedt.core.generic.file_utils import _uname
+from ansys.aedt.core.generic.file_utils import read_csv
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.general_methods import read_csv
 
 
 class ComponentArray(object):
@@ -360,7 +360,6 @@ class ComponentArray(object):
 
         References
         ----------
-
         >>> oModule.DeleteArray
 
         """
@@ -369,6 +368,7 @@ class ComponentArray(object):
         self.__app.component_array_names = list(self.__app.get_oo_name(self.__app.odesign, "Model"))
 
     @pyaedt_function_handler(array_path="output_file")
+    @min_aedt_version("2024.1")
     def export_array_info(self, output_file=None):  # pragma: no cover
         """Export array information to a CSV file.
 
@@ -379,14 +379,8 @@ class ComponentArray(object):
 
         References
         ----------
-
         >>> oModule.ExportArray
-
         """
-        if self.__app.settings.aedt_version < "2024.1":  # pragma: no cover
-            self.logger.warning(f"This feature is not available in {str(self.__app.settings.aedt_version)}.")
-            return False
-
         if not output_file:  # pragma: no cover
             output_file = os.path.join(self.__app.toolkit_directory, "array_info.csv")
         self.__app.omodelsetup.ExportArray(self.name, output_file)
@@ -505,7 +499,6 @@ class ComponentArray(object):
 
         References
         ----------
-
         >>> oModule.EditArray
         """
 

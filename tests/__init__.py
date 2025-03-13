@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,3 +29,4 @@ TESTS_SYSTEM_PATH = TESTS_PATH / "system"
 TESTS_UNIT_PATH = TESTS_PATH / "unit"
 TESTS_GENERAL_PATH = TESTS_SYSTEM_PATH / "general"
 TESTS_SOLVERS_PATH = TESTS_SYSTEM_PATH / "solvers"
+TESTS_VISUALIZATION_PATH = TESTS_SYSTEM_PATH / "visualization"

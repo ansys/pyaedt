@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,10 +29,10 @@ import traceback
 
 import ansys.aedt.core  # noqa: F401
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
-from ansys.aedt.core.generic.general_methods import check_and_download_file
-from ansys.aedt.core.generic.general_methods import check_if_path_exists
-from ansys.aedt.core.generic.general_methods import get_filename_without_extension
-from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.file_utils import check_and_download_file
+from ansys.aedt.core.generic.file_utils import check_if_path_exists
+from ansys.aedt.core.generic.file_utils import get_filename_without_extension
+from ansys.aedt.core.generic.file_utils import open_file
 
 
 class Component:
@@ -258,7 +258,7 @@ class Pin:
     def add(self):
         """Add a pin to the list of components in the Project Manager."""
         try:
-            return self._circuit.modeler.schematic.o_component_manager.AddSolverOnDemandModel(
+            return self._circuit.modeler.schematic.ocomponent_manager.AddSolverOnDemandModel(
                 self.buffer_name,
                 [
                     "NAME:CosimDefinition",
@@ -294,7 +294,7 @@ class Pin:
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.Object3d.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Circuit Component Object.
 
         """
@@ -419,7 +419,7 @@ class DifferentialPin:
     def add(self):
         """Add a pin to the list of components in the Project Manager."""
         try:
-            return self._circuit.modeler.schematic.o_component_manager.AddSolverOnDemandModel(
+            return self._circuit.modeler.schematic.ocomponent_manager.AddSolverOnDemandModel(
                 self.buffer_name,
                 [
                     "NAME:CosimDefinition",
@@ -455,7 +455,7 @@ class DifferentialPin:
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.Object3d.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Circuit Component Object.
 
         """
@@ -483,7 +483,7 @@ class Buffer:
 
     def add(self):
         """Add a buffer to the list of components in the Project Manager."""
-        self._circuit.modeler.schematic.o_component_manager.AddSolverOnDemandModel(
+        self._circuit.modeler.schematic.ocomponent_manager.AddSolverOnDemandModel(
             self.name,
             [
                 "NAME:CosimDefinition",
@@ -516,7 +516,7 @@ class Buffer:
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.Object3d.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Circuit Component Object.
 
         """
@@ -762,6 +762,7 @@ class AMI:
 
 class IbisReader(object):
     """Reads *.ibis file content.
+
     Setup an Ibis object exposing all the extracted data.
 
     Parameters
@@ -783,7 +784,7 @@ class IbisReader(object):
         return self._ibis_model
 
     def parse_ibis_file(self):
-        """Reads \\*.ibis file content.
+        """Read \\*.ibis file content.
 
         Parameters
         ----------
@@ -844,7 +845,7 @@ class IbisReader(object):
         ibis.buffers = buffers
         self._ibis_model = ibis
 
-        available_names = self._circuit.modeler.schematic.o_component_manager.GetNames()
+        available_names = self._circuit.modeler.schematic.ocomponent_manager.GetNames()
         already_present = [i for i in buffers.keys() if i in available_names]
         if len(already_present) == len(buffers):
             return ibis_info
@@ -879,13 +880,13 @@ class IbisReader(object):
             args.append(arg_buffers)
             args.append(arg_components)
 
-            self._circuit.modeler.schematic.o_component_manager.ImportModelsFromFile(self._filename, args)
+            self._circuit.modeler.schematic.ocomponent_manager.ImportModelsFromFile(self._filename, args)
 
         return ibis_info
 
     # Model
     def read_model(self, ibis, model_list):
-        """Extracts model's info.
+        """Extract model's info.
 
         Parameters
         ----------
@@ -929,7 +930,7 @@ class IbisReader(object):
 
     # Model Selector
     def read_model_selector(self, ibis, model_selector_list):
-        """Extracts model selector's info.
+        """Extract model selector's info.
 
         Parameters
         ----------
@@ -957,7 +958,7 @@ class IbisReader(object):
 
     @classmethod
     def make_model(cls, current_line):
-        """Creates model object.
+        """Create model object.
 
         Parameters
         ----------
@@ -1015,7 +1016,7 @@ class IbisReader(object):
 
     @classmethod
     def fill_package_info(cls, component, pkg_info):
-        """Extracts model's info.
+        """Extract model's info.
 
         Parameters
         ----------
@@ -1038,7 +1039,7 @@ class IbisReader(object):
 
     @classmethod
     def get_component_name(cls, line):
-        """Gets the name of the component.
+        """Get the name of the component.
 
         Parameters
         ----------
@@ -1109,7 +1110,7 @@ class IbisReader(object):
         return
 
     def make_pin_object(self, line, component_name, ibis):
-        """Extracts model's info.
+        """Extract model's info.
 
         Parameters
         ----------
@@ -1164,7 +1165,7 @@ class IbisReader(object):
 
     @classmethod
     def get_first_parameter(cls, line):
-        """Gets first parameter string value.
+        """Get first parameter string value.
 
         Parameters
         ----------
@@ -1175,9 +1176,7 @@ class IbisReader(object):
         -------
         str
             First info extracted from the current line.
-
         """
-
         if line == "":
             return ""
 
@@ -1300,14 +1299,14 @@ class AMIReader(IbisReader):
             args.append(arg_buffers)
             args.append(arg_components)
 
-            self._circuit.modeler.schematic.o_component_manager.ImportModelsFromFile(self._filename, args)
+            self._circuit.modeler.schematic.ocomponent_manager.ImportModelsFromFile(self._filename, args)
 
         self._ibis_model = ibis
         return ibis_info
 
 
 def is_started_with(src, find, ignore_case=True):
-    """Verifies if a string content starts with a specific string or not.
+    """Verify if a string content starts with a specific string or not.
 
     This is identical to ``str.startswith``, except that it includes
     the ``ignore_case`` parameter.
@@ -1325,9 +1324,7 @@ def is_started_with(src, find, ignore_case=True):
     -------
     bool
         ``True`` if the src string starts with the pattern.
-
     """
-
     if ignore_case:
         return src.lower().startswith(find.lower())
     return src.startswith(find)

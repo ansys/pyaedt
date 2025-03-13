@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+import re
 
 import pytest
 
@@ -31,6 +32,7 @@ try:
 except ImportError:
     osmnx = None
 
+from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.generic.settings import is_linux
 
 from tests import TESTS_GENERAL_PATH
@@ -161,7 +163,7 @@ class TestClass:
         array.native_properties["Array Length In Wavelength"] = "10"
         assert array.update()
 
-        assert array.object_properties.props["Name"] == array.name
+        assert array.properties["Name"] == array.name
 
         native_components = len(self.aedtapp.native_component_names)
         array.name = "new_name"
@@ -256,9 +258,10 @@ class TestClass:
         hfss_terminal = add_app(solution_type="Terminal")
 
         # sbr file based antenna should only work for SBR+ solution.
-        assert not hfss_terminal.create_sbr_file_based_antenna(
-            far_field_data=os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "test.ffd")
-        )
+        with pytest.raises(AEDTRuntimeError, match=re.escape("This native component only applies to a SBR+ solution.")):
+            hfss_terminal.create_sbr_file_based_antenna(
+                far_field_data=os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "test.ffd")
+            )
 
     @pytest.mark.skipif(is_linux, reason="Not supported.")
     def test_12_import_map(self):

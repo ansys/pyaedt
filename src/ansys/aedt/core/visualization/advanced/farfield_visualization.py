@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -30,12 +30,12 @@ import sys
 import warnings
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
-from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import unit_converter
+from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import conversion_function
-from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers import decompose_variable_value
 from ansys.aedt.core.visualization.advanced.touchstone_parser import read_touchstone
 from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 from ansys.aedt.core.visualization.plot.matplotlib import is_notebook
@@ -92,10 +92,9 @@ class FfdSolutionData(object):
 
     Examples
     --------
-
-    >>> from ansys.aedt.core
+    >>> from ansys.aedt.core import Hfss
     >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
-    >>> app = ansys.aedt.core.Hfss(version="2023.2", design="Antenna")
+    >>> app = ansys.aedt.core.Hfss(version="2025.1", design="Antenna")
     >>> data = app.get_antenna_data()
     >>> metadata_file = data.metadata_file
     >>> app.release_desktop()
@@ -843,7 +842,7 @@ class FfdSolutionData(object):
         Examples
         --------
         >>> from ansys.aedt.core
-        >>> app = ansys.aedt.core.Hfss(version="2024.2", design="Antenna")
+        >>> app = ansys.aedt.core.Hfss(version="2025.1", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
@@ -946,7 +945,7 @@ class FfdSolutionData(object):
         Examples
         --------
         >>> from ansys.aedt.core
-        >>> app = ansys.aedt.core.Hfss(version="2023.2", design="Antenna")
+        >>> app = ansys.aedt.core.Hfss(version="2025.1", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
@@ -968,8 +967,6 @@ class FfdSolutionData(object):
             y_key, x_key = "Phi", "Theta"
             temp = data_to_plot.T
         x = data[x_key]
-        if is_polar:
-            x = [i * 2 * math.pi / 360 for i in x]
         if secondary_sweep_value == "all":
             for el in data[y_key]:
                 idx = self.__find_nearest(data[y_key], el)
@@ -1054,7 +1051,7 @@ class FfdSolutionData(object):
         Examples
         --------
         >>> from ansys.aedt.core
-        >>> app = ansys.aedt.core.Hfss(version="2023.2", design="Antenna")
+        >>> app = ansys.aedt.core.Hfss(version="2025.1", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
@@ -1149,7 +1146,7 @@ class FfdSolutionData(object):
         Examples
         --------
         >>> from ansys.aedt.core
-        >>> app = ansys.aedt.core.Hfss(version="2023.2", design="Antenna")
+        >>> app = ansys.aedt.core.Hfss(version="2025.1", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
@@ -1329,7 +1326,6 @@ class FfdSolutionData(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-
         for element, element_data in element_info.items():
             self.__raw_data[element] = {}
             self.__frequencies = []

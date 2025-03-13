@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,11 +21,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
+from pathlib import Path
 
 import ansys.aedt.core
 from ansys.aedt.core import Hfss3dLayout
-from ansys.aedt.core import generate_unique_name
+from ansys.aedt.core.generic.file_utils import generate_unique_name
 import ansys.aedt.core.workflows.hfss3dlayout
 from ansys.aedt.core.workflows.misc import get_aedt_version
 from ansys.aedt.core.workflows.misc import get_arguments
@@ -75,26 +75,27 @@ def frontend():  # pragma: no cover
     active_project = app.active_project()
     active_project_path = active_project.GetPath()
     active_project_name = active_project.GetName()
-    aedb_path = os.path.join(active_project_path, active_project_name + ".aedb")
+    aedb_path = Path(active_project_path) / (active_project_name + ".aedb")
     active_design_name = app.active_design().GetName().split(";")[1]
 
     app.release_desktop(False, False)
-    edb = Edb(aedb_path, active_design_name, edbversion=version)
+    edb = Edb(str(aedb_path), active_design_name, edbversion=version)
 
     import tkinter
     from tkinter import ttk
 
     import PIL.Image
     import PIL.ImageTk
+    from ansys.aedt.core.workflows.misc import ExtensionTheme
 
     master = tkinter.Tk()
+    master.title(extension_description)
 
-    master.geometry("900x600")
-
-    master.title("Parametrize Layout")
+    # Detect if user closes the UI
+    master.flag = False
 
     # Load the logo for the main window
-    icon_path = os.path.join(os.path.dirname(ansys.aedt.core.workflows.__file__), "images", "large", "logo.png")
+    icon_path = Path(ansys.aedt.core.workflows.__path__[0]) / "images" / "large" / "logo.png"
     im = PIL.Image.open(icon_path)
     photo = PIL.ImageTk.PhotoImage(im)
 
@@ -103,82 +104,83 @@ def frontend():  # pragma: no cover
 
     # Configure style for ttk buttons
     style = ttk.Style()
-    style.configure("Toolbutton.TButton", padding=6, font=("Helvetica", 10))
+    theme = ExtensionTheme()
 
-    var9 = tkinter.StringVar()
-    label9 = tkinter.Label(master, textvariable=var9)
-    var9.set("New project name: ")
+    # Apply light theme initially
+    theme.apply_light_theme(style)
+    master.theme = "light"
+
+    # Set background color of the window (optional)
+    master.configure(bg=theme.light["widget_bg"])
+
+    label9 = ttk.Label(master, text="New project name: ", style="PyAEDT.TLabel")
     label9.grid(row=0, column=0, pady=10)
+
     project_name = tkinter.Entry(master, width=30)
+    project_name.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
     project_name.insert(tkinter.END, generate_unique_name(active_project_name, n=2))
     project_name.grid(row=0, column=1, pady=10, padx=5)
 
-    var10 = tkinter.StringVar()
-    label10 = tkinter.Label(master, textvariable=var10)
-    var10.set("Use relative parameters: ")
+    label10 = ttk.Label(master, text="Use relative parameters: ", style="PyAEDT.TLabel")
     label10.grid(row=0, column=2, pady=10)
+
     relative = tkinter.IntVar()
-    check5 = tkinter.Checkbutton(master, width=30, variable=relative)
+    check5 = ttk.Checkbutton(master, variable=relative, style="PyAEDT.TCheckbutton")
     check5.grid(row=0, column=3, pady=10, padx=5)
     relative.set(default_values["relative"])
 
-    var1 = tkinter.StringVar()
-    label1 = tkinter.Label(master, textvariable=var1)
-    var1.set("Parametrize Layers:")
+    label1 = ttk.Label(master, text="Parametrize Layers:", style="PyAEDT.TLabel")
     label1.grid(row=1, column=0, pady=10)
+
     layers = tkinter.IntVar()
-    check1 = tkinter.Checkbutton(master, width=30, variable=layers)
+    check1 = ttk.Checkbutton(master, variable=layers, style="PyAEDT.TCheckbutton")
     check1.grid(row=1, column=1, pady=10, padx=5)
     layers.set(default_values["layer"])
 
-    var2 = tkinter.StringVar()
-    label2 = tkinter.Label(master, textvariable=var2)
-    var2.set("Parametrize Materials:")
+    label2 = ttk.Label(master, text="Parametrize Materials:", style="PyAEDT.TLabel")
     label2.grid(row=1, column=2, pady=10)
+
     materials = tkinter.IntVar()
-    check2 = tkinter.Checkbutton(master, width=30, variable=materials)
+    check2 = ttk.Checkbutton(master, variable=materials, style="PyAEDT.TCheckbutton")
     check2.grid(row=1, column=3, pady=10, padx=5)
     materials.set(default_values["material"])
 
-    var3 = tkinter.StringVar()
-    label3 = tkinter.Label(master, textvariable=var3)
-    var3.set("Parametrize Padstacks:")
+    label3 = ttk.Label(master, text="Parametrize Padstacks:", style="PyAEDT.TLabel")
     label3.grid(row=2, column=0, pady=10)
+
     padstacks = tkinter.IntVar()
-    check3 = tkinter.Checkbutton(master, width=30, variable=padstacks)
+    check3 = ttk.Checkbutton(master, variable=padstacks, style="PyAEDT.TCheckbutton")
     check3.grid(row=2, column=1, pady=10, padx=5)
     padstacks.set(default_values["padstacks"])
 
-    var5 = tkinter.StringVar()
-    label5 = tkinter.Label(master, textvariable=var5)
-    var5.set("Extend Polygons (mm): ")
+    label5 = ttk.Label(master, text="Extend Polygons (mm): ", style="PyAEDT.TLabel")
     label5.grid(row=3, column=0, pady=10)
+
     polygons = tkinter.Entry(master, width=30)
+    polygons.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
     polygons.insert(tkinter.END, "0")
     polygons.grid(row=3, column=1, pady=10, padx=5)
 
-    var6 = tkinter.StringVar()
-    label6 = tkinter.Label(master, textvariable=var6)
-    var6.set("Extend Voids (mm): ")
+    label6 = ttk.Label(master, text="Extend Voids (mm): ", style="PyAEDT.TLabel")
     label6.grid(row=3, column=2, pady=10)
     voids = tkinter.Entry(master, width=30)
+    voids.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
     voids.insert(tkinter.END, "0")
     voids.grid(row=3, column=3, pady=10, padx=5)
 
-    var7 = tkinter.StringVar()
-    label7 = tkinter.Label(master, textvariable=var7)
-    var7.set("Parametrize Nets:")
+    label7 = ttk.Label(master, text="Parametrize Nets:", style="PyAEDT.TLabel")
     label7.grid(row=4, column=0, pady=10)
+
     nets = tkinter.IntVar()
-    check4 = tkinter.Checkbutton(master, width=30, variable=nets)
+    check4 = ttk.Checkbutton(master, variable=nets, style="PyAEDT.TCheckbutton")
     check4.grid(row=4, column=1, pady=10, padx=5)
     nets.set(default_values["nets"])
 
-    var8 = tkinter.StringVar()
-    label8 = tkinter.Label(master, textvariable=var8)
-    var8.set("Select Nets(None for all):")
+    label8 = ttk.Label(master, text="Select Nets(None for all):", style="PyAEDT.TLabel")
     label8.grid(row=4, column=2, pady=10)
+
     net_list = tkinter.Listbox(master, height=20, width=30, selectmode=tkinter.MULTIPLE)
+    net_list.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
     net_list.grid(row=4, column=3, pady=5)
 
     idx = 1
@@ -186,7 +188,41 @@ def frontend():  # pragma: no cover
         net_list.insert(idx, net)
         idx += 1
 
-    master.flag = False
+    def toggle_theme():
+        if master.theme == "light":
+            set_dark_theme()
+            master.theme = "dark"
+        else:
+            set_light_theme()
+            master.theme = "light"
+
+    def set_light_theme():
+        master.configure(bg=theme.light["widget_bg"])
+        polygons.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
+        project_name.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
+        voids.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
+        net_list.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
+        theme.apply_light_theme(style)
+        change_theme_button.config(text="\u263D")  # Sun icon for light theme
+
+    def set_dark_theme():
+        master.configure(bg=theme.dark["widget_bg"])
+        polygons.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
+        project_name.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
+        voids.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
+        net_list.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
+        theme.apply_dark_theme(style)
+        change_theme_button.config(text="\u2600")  # Moon icon for dark theme
+
+    button_frame = ttk.Frame(master, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2)
+    button_frame.grid(row=5, column=2, pady=10, padx=10)
+
+    # Add the toggle theme button inside the frame
+    change_theme_button = ttk.Button(
+        button_frame, width=20, text="\u263D", command=toggle_theme, style="PyAEDT.TButton"
+    )
+
+    change_theme_button.grid(row=0, column=0, padx=0)
 
     def callback():
         master.flag = True
@@ -203,7 +239,7 @@ def frontend():  # pragma: no cover
             master.net_list_ui.append(net_list.get(i))
         master.destroy()
 
-    b = tkinter.Button(master, text="Create Parametric Model", width=40, command=callback)
+    b = ttk.Button(master, text="Create Parametric Model", width=40, command=callback, style="PyAEDT.TButton")
     b.grid(row=5, column=1, pady=10)
 
     edb.close_edb()
@@ -221,7 +257,7 @@ def frontend():  # pragma: no cover
         relative_ui = getattr(master, "relative_ui", extension_arguments["relative_parametric"])
 
         output_dict = {
-            "aedb_path": os.path.join(active_project_path, active_project_name + ".aedb"),
+            "aedb_path": str(Path(active_project_path) / (active_project_name + ".aedb")),
             "design_name": active_design_name,
             "parametrize_layers": layers_ui,
             "parametrize_materials": materials_ui,
@@ -251,6 +287,7 @@ def main(extension_arguments):
     relative_ui = extension_arguments.get("relative_parametric", True)
     design_name_ui = extension_arguments.get("design_name", "")
     aedb_path_ui = extension_arguments.get("aedb_path", "")
+
     if not aedb_path_ui:
         app = ansys.aedt.core.Desktop(
             new_desktop=False,
@@ -261,19 +298,19 @@ def main(extension_arguments):
         )
         active_project = app.active_project()
         active_design = app.active_design()
-        aedb_path_ui = os.path.join(active_project.GetPath(), active_project.GetName() + ".aedb")
+        aedb_path_ui = Path(active_project.GetPath()) / (active_project.GetName() + ".aedb")
         design_name_ui = active_design.GetName().split(";")[1]
-    edb = Edb(aedb_path_ui, design_name_ui, edbversion=version)
+    edb = Edb(str(aedb_path_ui), design_name_ui, edbversion=version)
 
     try:
         poly_ui = float(poly_ui) * 0.001
-    except:
+    except Exception:  # pragma: no cover
         poly_ui = None
     try:
         voids_ui = float(voids_ui) * 0.001
-    except:
+    except Exception:  # pragma: no cover
         voids_ui = None
-    new_project_aedb = os.path.join(os.path.dirname(aedb_path_ui), project_name_ui + ".aedb")
+    new_project_aedb = Path(aedb_path_ui).parent / (project_name_ui + ".aedb")
     edb.auto_parametrize_design(
         layers=layers_ui,
         materials=materials_ui,
@@ -287,14 +324,14 @@ def main(extension_arguments):
         trace_net_filter=nets_filter_ui,
         use_single_variable_for_padstack_definitions=True,
         use_relative_variables=relative_ui,
-        output_aedb_path=new_project_aedb,
+        output_aedb_path=str(new_project_aedb),
         open_aedb_at_end=False,
         expand_polygons_size=poly_ui,
         expand_voids_size=voids_ui,
     )
     edb.close_edb()
     if not extension_arguments["is_test"]:  # pragma: no cover
-        h3d = Hfss3dLayout(new_project_aedb)
+        h3d = Hfss3dLayout(str(new_project_aedb))
         h3d.logger.info("Project generated correctly.")
         h3d.release_desktop(False, False)
     return True

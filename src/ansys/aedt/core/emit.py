@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,8 +21,6 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
-from __future__ import absolute_import
 
 import warnings
 
@@ -57,7 +55,7 @@ class Emit(Design, object):
         Version of AEDT to use. The default is ``None``, in which case
         the active setup is used or the latest installed version is
         used.
-        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
+        Examples of input values are ``251``, ``25.1``, ``2025.1``, ``"2025.1"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -97,7 +95,7 @@ class Emit(Design, object):
 
     Typically, it is desirable to specify a project name, design name, and other parameters.
 
-    >>> aedtapp = Emit(projectname, designame, version=232)
+    >>> aedtapp = Emit(projectname, designame, version=251)
 
     Once an ``Emit`` instance is initialized, you can edit the schematic:
 
@@ -202,8 +200,8 @@ class Emit(Design, object):
 
         Returns
         -------
-        ansys.aedt.core.modeler.schematic.ModelerEmit
-            Design oModeler
+        :class:`ansys.aedt.core.modeler.schematic.ModelerEmit`
+            Design oModeler.
         """
         return self._modeler
 

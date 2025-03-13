@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -28,16 +28,17 @@ This module contains the `PostProcessor` class.
 It contains all advanced postprocessing functionalities that require Python 3.x packages like NumPy and Matplotlib.
 """
 
-from __future__ import absolute_import  # noreorder
-
 import csv
 import os
 import re
+from typing import Literal
+from typing import Optional
+from typing import Tuple
 
-from ansys.aedt.core import generate_unique_name
-from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.checks import min_aedt_version
+from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.visualization.post.field_summary import FieldSummary
 from ansys.aedt.core.visualization.post.field_summary import TOTAL_QUANTITIES
 from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
@@ -74,8 +75,7 @@ class PostProcessorIcepak(PostProcessor3D):
 
     @pyaedt_function_handler(timestep="time_step", design_variation="variation")
     def get_fans_operating_point(self, export_file=None, setup_name=None, time_step=None, variation=None):
-        """
-        Get the operating point of the fans in the design.
+        """Get the operating point of the fans in the design.
 
         Parameters
         ----------
@@ -104,7 +104,6 @@ class PostProcessorIcepak(PostProcessor3D):
 
         References
         ----------
-
         >>> oModule.ExportFanOperatingPoint
 
         Examples
@@ -114,7 +113,6 @@ class PostProcessorIcepak(PostProcessor3D):
         >>> ipk.create_fan()
         >>> filename, vol_flow_name, p_rise_name, op_dict= ipk.get_fans_operating_point()
         """
-
         if export_file is None:
             path = self._app.temp_directory
             base_name = f"{self._app.project_name}_{self._app.design_name}_FanOpPoint"
@@ -208,7 +206,6 @@ class PostProcessorIcepak(PostProcessor3D):
 
         References
         ----------
-
         >>> oModule.ExportFieldsSummary
         """
         if variations is None:
@@ -270,7 +267,6 @@ class PostProcessorIcepak(PostProcessor3D):
 
         References
         ----------
-
         >>> oModule.ExportFieldsSummary
         """
         if variations is None:
@@ -288,6 +284,7 @@ class PostProcessorIcepak(PostProcessor3D):
         return self._parse_field_summary_content(fs, setup_name, variations, quantity)
 
     @pyaedt_function_handler(monitor_name="monitor", quantity_name="quantity", design_variation="variations")
+    @min_aedt_version("2024.1")
     def evaluate_monitor_quantity(
         self, monitor, quantity, side="Default", setup_name=None, variations=None, ref_temperature="", time="0s"
     ):
@@ -323,25 +320,21 @@ class PostProcessorIcepak(PostProcessor3D):
 
         References
         ----------
-
         >>> oModule.ExportFieldsSummary
         """
         if variations is None:
             variations = {}
-        if settings.aedt_version < "2024.1":
-            raise NotImplementedError("Monitors are not supported in field summary in versions earlier than 2024 R1.")
-        else:  # pragma: no cover
-            if self._app.monitor.face_monitors.get(monitor, None):
-                field_type = "Surface"
-            elif self._app.monitor.point_monitors.get(monitor, None):
-                field_type = "Volume"
-            else:
-                raise AttributeError(f"Monitor {monitor} is not found in the design.")
-            fs = self.create_field_summary()
-            fs.add_calculation(
-                "Monitor", field_type, monitor, quantity, side=side, ref_temperature=ref_temperature, time=time
-            )
-            return self._parse_field_summary_content(fs, setup_name, variations, quantity)
+        if self._app.monitor.face_monitors.get(monitor, None):
+            field_type = "Surface"
+        elif self._app.monitor.point_monitors.get(monitor, None):
+            field_type = "Volume"
+        else:
+            raise AttributeError(f"Monitor {monitor} is not found in the design.")
+        fs = self.create_field_summary()
+        fs.add_calculation(
+            "Monitor", field_type, monitor, quantity, side=side, ref_temperature=ref_temperature, time=time
+        )
+        return self._parse_field_summary_content(fs, setup_name, variations, quantity)
 
     @pyaedt_function_handler(design_variation="variations")
     def evaluate_object_quantity(
@@ -389,7 +382,6 @@ class PostProcessorIcepak(PostProcessor3D):
 
         References
         ----------
-
         >>> oModule.ExportFieldsSummary
         """
         if variations is None:
@@ -405,3 +397,37 @@ class PostProcessorIcepak(PostProcessor3D):
             time=time,
         )
         return self._parse_field_summary_content(fs, setup_name, variations, quantity_name)
+
+    def get_temperature_extremum(
+        self,
+        assignment: str,
+        max_min: Literal["Max", "Min"],
+        location: Literal["Surface", "Volume"],
+        setup: Optional[str] = None,
+        time: Optional[str] = None,
+    ) -> Tuple[Tuple[float, float, float], float]:
+        """
+        Calculates the position and value of the temperature maximum or minimum.
+
+        Parameters
+        ----------
+            assignment : str
+                The name of the object to calculate the temperature extremum for.
+            max_min : Literal["Max", "Min"]
+                "Max" for maximum, "Min" for minimum.
+            location : Literal["Surface", "Volume"]
+                "Surface" for surface, "Volume" for volume.
+            time : Optional[str]
+                Time at which to retrieve results if setup is transient. Default is `None`.
+            setup : Optional[str]
+                The name of the setup to use. If `None`, the first available setup is used. Default is `None`.
+
+        Returns
+        -------
+            Tuple[Tuple[float, float, float], float]
+            A tuple containing:
+
+              - A tuple of three floats representing the (x, y, z) coordinates of the maximum point.
+              - A float representing the value associated with the maximum point.
+        """
+        return self.get_field_extremum(assignment, max_min, location, "Temp", setup, {"Time": time})

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -40,12 +40,14 @@ is_linux = os.name == "posix"
 
 
 def set_ansys_em_environment(oDesktop):
+    """Set the ANSYS_EM_ROOT environment variable."""
     variable = "ANSYSEM_ROOT{}".format(oDesktop.GetVersion()[2:6].replace(".", ""))
     if variable not in os.environ:
         os.environ[variable] = oDesktop.GetExeDir()
 
 
 def sanitize_interpreter_path(interpreter_path, version):
+    """Sanitize the interpreter path."""
     python_version = "3_10" if version > "231" else "3_7"
     if version > "231" and python_version not in interpreter_path:
         interpreter_path = interpreter_path.replace("3_7", "3_10")
@@ -55,6 +57,7 @@ def sanitize_interpreter_path(interpreter_path, version):
 
 
 def check_file(file_path, oDesktop):
+    """Check if a file exists."""
     if not os.path.isfile(file_path):
         show_error(
             '"{}" does not exist. Install PyAEDT using the Python script installer from the PyAEDT '
@@ -66,6 +69,7 @@ def check_file(file_path, oDesktop):
 
 
 def get_linux_terminal():
+    """Get a Linux terminal."""
     for terminal in ["x-terminal-emulator", "xterm", "gnome-terminal", "lxterminal", "mlterm"]:
         term = which(terminal)
         if term:
@@ -92,12 +96,14 @@ def which(program):
 
 
 def show_error(msg, oDesktop):
+    """Display an error message in the AEDT console and a dialog box."""
     oDesktop.AddMessage("", "", 2, str(msg))
     MessageBox.Show(str(msg), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
     sys.exit()
 
 
 def environment_variables(oDesktop):
+    """Set environment variables for the AEDT process."""
     os.environ["PYAEDT_SCRIPT_PROCESS_ID"] = str(oDesktop.GetProcessID())
     version = str(oDesktop.GetVersion()[:6])
     os.environ["PYAEDT_SCRIPT_VERSION"] = version

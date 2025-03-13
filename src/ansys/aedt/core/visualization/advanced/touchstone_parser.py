@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -26,11 +26,13 @@ from copy import copy
 import itertools
 import os
 import re
-import subprocess
+import subprocess  # nosec
 import warnings
 
+from ansys.aedt.core import Edb
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.aedt_versions import aedt_versions
+from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 try:
@@ -59,7 +61,6 @@ except ImportError:  # pragma: no cover
         "Install with \n\npip install scikit-rf"
     )
     rf = None
-
 
 REAL_IMAG = "RI"
 MAG_ANGLE = "MA"
@@ -112,19 +113,132 @@ class TouchstoneData(rf.Network):
         self.log_x = True
 
     @pyaedt_function_handler()
-    def get_insertion_loss_index(self, threshold=-3):
-        """Get all insertion losses. The first frequency point is used to determine whether two
-        ports are shorted.
+    def get_coupling_in_range(
+        self,
+        start_frequency=1e9,
+        low_loss=-40,
+        high_loss=-60,
+        frequency_sample=5,
+        output_file=None,
+        aedb_path=None,
+        design_name=None,
+    ):
+        """Get coupling losses, excluding return loss, that has at least one frequency point between a range of
+        losses.
 
         Parameters
         ----------
-        threshold : float, int, optional
-            Threshold to determine shorted ports in dB.
+        start_frequency : float, optional
+            Specify frequency value below which not check will be done. The default is ``1e9``.
+        low_loss: float, optional
+            Specify range lower loss. The default is ``-40``.
+        high_loss: float, optional
+            Specify range higher loss. The default is ``-60``.
+        frequency_sample : integer, optional
+            Specify frequency sample at which coupling check will be done. The default is ``5``.
+        output_file : path, optional
+            Output file path to save where identified coupling will be listed. The default is ``None``.
+        aedb_path : path, optional
+            Full path to the ``aedb`` folder. This project is used to identify ports location. The default is ``None``.
+        design_name : string, optional
+            Design name from the project where to identify ports location. The default is ``None``.
 
         Returns
         -------
          list
-            List of index couples representing Insertion Losses of excitations.
+            List of S parameters in the range [high_loss, low_loss] to plot.
+
+        """
+
+        nb_freq = self.frequency.npoints
+        k = 0
+        k_start = 0
+
+        # identify frequency index at which to start the check
+        while k < nb_freq:
+            if self.frequency.f[k] >= start_frequency:
+                k_start = k
+                break
+            else:
+                k = k + 1
+
+        s_db = self.s_db[:, :, :]
+        temp_list = []
+        temp_file = []
+        if aedb_path is not None:
+            edbapp = Edb(edbpath=aedb_path, cellname=design_name, edbversion=aedt_versions.latest_version)
+            for i in range(self.number_of_ports):
+                for j in range(i, self.number_of_ports):
+                    if i == j:
+                        continue
+                    for k in range(k_start, nb_freq, frequency_sample):
+                        loss = s_db[k, i, j]
+                        if high_loss < loss < low_loss:
+                            temp_list.append((i, j))
+                            port1 = self.port_names[i]
+                            port2 = self.port_names[j]
+                            # This if statement is mandatory as the codeword to use is different with regard to
+                            # port type: Circuit(.location) or Gap(.position)
+                            if edbapp.ports[port1].hfss_type == "Circuit":
+                                loc_port_1 = edbapp.ports[port1].location
+                            else:
+                                loc_port_1 = edbapp.ports[port1].position
+                            if edbapp.ports[port2].hfss_type == "Circuit":
+                                loc_port_2 = edbapp.ports[port2].location
+                            else:
+                                loc_port_2 = edbapp.ports[port2].position
+                            # This if statement is mandatory as some port return None for port location which will
+                            # issue error on the formatting
+                            if loc_port_1 is not None:
+                                loc_port_1[0] = f"{loc_port_1[0]:.4f}"
+                                loc_port_1[1] = f"{loc_port_1[1]:.4f}"
+                            if loc_port_2 is not None:
+                                loc_port_2[0] = f"{loc_port_2[0]:.4f}"
+                                loc_port_2[1] = f"{loc_port_2[1]:.4f}"
+                            sxy = f"S({port1},{port2})"
+                            ports_location = f"{port1}: {loc_port_1}, {port2}: {loc_port_2}"
+                            line = f"{sxy} Loss= {loss:.2f}dB Freq= {(self.f[k] * 1e-9):.3f}GHz, {ports_location}\n"
+                            temp_file.append(line)
+                            break
+            edbapp.close()
+        else:
+            for i in range(self.number_of_ports):
+                for j in range(i, self.number_of_ports):
+                    if i == j:
+                        continue
+                    for k in range(k_start, nb_freq, frequency_sample):
+                        loss = s_db[k, i, j]
+                        if high_loss < loss < low_loss:
+                            temp_list.append((i, j))
+                            sxy = f"S({self.port_names[i]},{self.port_names[j]})"
+                            line = f"{sxy} Loss= {loss:.2f}dB Freq= {(self.f[k] * 1e-9):.3f}GHz\n"
+                            temp_file.append(line)
+                            break
+        if output_file is not None:
+            if os.path.exists(output_file):
+                logger.info("File " + output_file + " exist and we be replace by new one.")
+            with open_file(output_file, "w") as f:
+                for s in temp_file:
+                    f.write(s)
+            logger.info("File " + output_file + " created.")
+            f.close()
+        return temp_list
+
+    @pyaedt_function_handler()
+    def get_insertion_loss_index(self, threshold=-3):
+        """Get all insertion losses.
+
+        The first frequency point is used to determine whether two ports are shorted.
+
+        Parameters
+        ----------
+        threshold : float, int, optional
+            Threshold to determine shorted ports in dB. The default value is ``-3``.
+
+        Returns
+        -------
+         list
+            List of index couples representing insertion losses of excitations.
 
         """
         temp_list = []
@@ -141,13 +255,14 @@ class TouchstoneData(rf.Network):
         return temp_list
 
     def plot_insertion_losses(self, threshold=-3, plot=True):
-        """Plot all insertion losses. The first frequency point is used to determine whether two
-        ports are shorted.
+        """Plot all insertion losses.
+
+        The first frequency point is used to determine whether two ports are shorted.
 
         Parameters
         ----------
         threshold : float, int, optional
-            Threshold to determine shorted ports in dB.
+            Threshold to determine shorted ports in dB. The default value is ``-3``.
         plot : bool, optional
             Whether to plot. The default is ``True``.
 
@@ -169,15 +284,14 @@ class TouchstoneData(rf.Network):
         Parameters
         ----------
         index_couples : list, optional
-            List of indexes couple to plot. Default is ``None`` to plot all ``port_tuples``.
+            List of indexes couple to plot. The default value is ``None`` to plot all ``port_tuples``.
         show : bool
-            Whether to plot. Default is ``True``.
+            Whether to plot. The default value is ``True``.
 
         Returns
         -------
         :class:`matplotlib.plt`
         """
-
         if not index_couples:
             index_couples = self.port_tuples[:]
 
@@ -249,7 +363,7 @@ class TouchstoneData(rf.Network):
 
     @pyaedt_function_handler()
     def get_return_loss_index(self, excitation_name_prefix=""):
-        """Get the list of all the Returnloss from a list of exctitations.
+        """Get the list of all the return loss from a list of excitations.
 
         If no excitation is provided it will provide a full list of return losses.
 
@@ -258,9 +372,8 @@ class TouchstoneData(rf.Network):
 
         Parameters
         ----------
-
-        excitation_name_prefix :
-             (Default value = '')
+        excitation_name_prefix :str, optional
+            Prefix of the excitation. The default value is ``""``.
 
         Returns
         -------
@@ -279,7 +392,7 @@ class TouchstoneData(rf.Network):
 
     @pyaedt_function_handler()
     def get_insertion_loss_index_from_prefix(self, tx_prefix, rx_prefix):
-        """Get the list of all the Insertion Losses from prefix.
+        """Get the list of all the insertion losses from prefix.
 
         Parameters
         ----------
@@ -306,20 +419,20 @@ class TouchstoneData(rf.Network):
 
     @pyaedt_function_handler()
     def get_next_xtalk_index(self, tx_prefix=""):
-        """Get the list of all the Near End XTalk a list of excitation. Optionally prefix can
-        be used to retrieve driver names.
+        """Get the list of all the Near End XTalk a list of excitation.
+
+        Optionally prefix can be used to retrieve driver names.
         Example: excitation_names ["1", "2", "3"] output ["S(1,2)", "S(1,3)", "S(2,3)"].
 
         Parameters
         ----------
-        tx_prefix :
-            prefix for TX (eg. "DIE") (Default value = "")
+        tx_prefix :str, optional
+            Prefix for TX (eg. "DIE"). The default value is ``""``.
 
         Returns
         -------
         list
             List of index couples representing Near End XTalks.
-
         """
         if tx_prefix:
             trlist = [i for i in self.port_names if tx_prefix in i]
@@ -335,7 +448,7 @@ class TouchstoneData(rf.Network):
 
     @pyaedt_function_handler()
     def get_fext_xtalk_index_from_prefix(self, tx_prefix, rx_prefix, skip_same_index_couples=True):
-        """Get the list of all the Far End XTalk from a list of exctitations and a prefix that will
+        """Get the list of all the Far End XTalk from a list of excitations and a prefix that will
         be used to retrieve driver and receivers names.
         If skip_same_index_couples is true, the tx and rx with same index
         position will be considered insertion losses and excluded from the list.
@@ -353,7 +466,6 @@ class TouchstoneData(rf.Network):
         -------
         list
             List of index couples representing Far End XTalks.
-
         """
         trlist = [i for i in self.port_names if tx_prefix in i]
         reclist = [i for i in self.port_names if rx_prefix in i]
@@ -369,6 +481,9 @@ class TouchstoneData(rf.Network):
 
         Parameters
         ----------
+        tx_prefix: str, optional
+            Prefix for TX. The default value is ``""``.
+
         Returns
         -------
         bool
@@ -386,10 +501,10 @@ class TouchstoneData(rf.Network):
         Parameters
         ----------
         tx_prefix : str
-            prefix for TX (eg. "DIE")
+            Prefix for TX (eg. "DIE").
         rx_prefix : str
-            prefix for RX (eg. "BGA")
-        skip_same_index_couples : bool
+            Prefix for RX (eg. "BGA").
+        skip_same_index_couples : bool, optional
             Boolean ignore TX and RX couple with same index. The default value is ``True``.
 
         Returns
@@ -407,28 +522,28 @@ class TouchstoneData(rf.Network):
     @pyaedt_function_handler()
     def get_worst_curve(self, freq_min=None, freq_max=None, worst_is_higher=True, curve_list=None, plot=True):
         """Analyze a solution data object with multiple curves and find the worst curve.
+
         Take the mean of the magnitude over the frequency range.
 
         Parameters
         ----------
         freq_min : float, optional
-            Minimum frequency to analyze in GHz (None to 0). Default value is ``None``.
+            Minimum frequency to analyze in GHz (None to 0). The default value is ``None``.
         freq_max : float, optional
-            Maximum frequency to analyze in GHz (None to max freq). Default value is ``None``.
+            Maximum frequency to analyze in GHz (None to max freq). The default value is ``None``.
         worst_is_higher : bool
-            Worst curve is the one with higher mean value. Default value is ``True``.
+            Worst curve is the one with higher mean value. The default value is ``True``.
         curve_list : list
-            List of [m,n] index of curves on which to search. None to search on all curves. Default value is ``None``.
+            List of [m,n] index of curves on which to search. None to search on all curves.
+            The default value is ``None``.
         plot : bool, optional
-            Whether to plot or not the chart.
+            Whether to plot or not the chart. The default value is ``True``.
 
         Returns
         -------
         tuple
             Worst element, dictionary of ordered expression.
-
         """
-
         return_loss_freq = [float(i.center) for i in list(self.frequency)]
         if not freq_min:
             lower_id = 0
@@ -492,7 +607,7 @@ def check_touchstone_files(input_dir="", passivity=True, causality=True):
         Whether the causality check is enabled. The default is ``True``.
 
     Returns
-    ----------
+    -------
     dict
         Dictionary with the SNP file name as the key and a list if the passivity and/or causality checks are enabled.
         The first element in the list is a str with ``"passivity"`` or ``"causality"`` as a value. The second element
@@ -501,12 +616,12 @@ def check_touchstone_files(input_dir="", passivity=True, causality=True):
 
     """
     out = {}
-    sNpFiles = find_touchstone_files(input_dir)
-    if not sNpFiles:
+    snp_files = find_touchstone_files(input_dir)
+    if not snp_files:
         return out
     aedt_install_folder = list(aedt_versions.installed_versions.values())[0]
-    for snpf in sNpFiles:
-        out[snpf] = []
+    for file_name, path in snp_files.items():
+        out[file_name] = []
         if os.name == "nt":
             genequiv_path = os.path.join(aedt_install_folder, "genequiv.exe")
         else:
@@ -517,22 +632,20 @@ def check_touchstone_files(input_dir="", passivity=True, causality=True):
         if causality:
             cmd.append("-checkcausality")
 
-        cmd.append(sNpFiles[snpf])
+        cmd.append(path)
         my_env = os.environ.copy()
-        p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env)  # nosec
-        output = p.communicate()
-        output_str = str(output[0])
-        output_lst = output_str.split("\\r\\n")
+        result = subprocess.run(
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env, text=True, check=True
+        )  # nosec
+        output_lst = result.stdout.splitlines()
 
-        if len(output_lst) == 1:
-            output_lst = output_str.splitlines()
         for line in output_lst:
             if "Input data" in line and passivity:
                 msg_log = line[17:]
                 is_passive = True
                 if "non-passive" in msg_log:
                     is_passive = False
-                out[snpf].append(["passivity", is_passive, msg_log])
+                out[file_name].append(["passivity", is_passive, msg_log])
             if "Maximum causality" in line and causality:
                 msg_log = line[17:]
                 is_causal = True
@@ -543,10 +656,10 @@ def check_touchstone_files(input_dir="", passivity=True, causality=True):
                 except Exception:
                     is_causal = False
                     raise Exception("Failed evaluating causality value.")
-                out[snpf].append(["causality", is_causal, msg_log])
+                out[file_name].append(["causality", is_causal, msg_log])
             if "Causality check is inconclusive" in line and causality:
                 is_causal = False
-                out[snpf].append(["causality", is_causal, line[17:]])
+                out[file_name].append(["causality", is_causal, line[17:]])
     return out
 
 
@@ -560,7 +673,7 @@ def find_touchstone_files(input_dir):
         Folder path. The default is ``""``.
 
     Returns
-    ----------
+    -------
     dict
         Dictionary with the SNP file names as the key and the absolute path as the value.
     """

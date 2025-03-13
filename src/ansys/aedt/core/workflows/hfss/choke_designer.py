@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -27,8 +27,8 @@ import tempfile
 
 import ansys.aedt.core
 from ansys.aedt.core import Hfss
-from ansys.aedt.core.generic.general_methods import read_json
-from ansys.aedt.core.generic.general_methods import write_configuration_file
+from ansys.aedt.core.generic.file_utils import read_json
+from ansys.aedt.core.generic.file_utils import write_configuration_file
 import ansys.aedt.core.workflows
 from ansys.aedt.core.workflows.misc import get_aedt_version
 from ansys.aedt.core.workflows.misc import get_arguments
@@ -83,7 +83,7 @@ default_config = {
 
 # Extension batch arguments
 extension_arguments = {"choke_config": {}}
-extension_description = "Choke Designer in HFSS"
+extension_description = "Choke Designer"
 
 
 def frontend():  # pragma: no cover
@@ -99,10 +99,7 @@ def frontend():  # pragma: no cover
 
     # Create UI
     master = tkinter.Tk()
-
-    master.geometry("900x800")
-
-    master.title("Choke Designer")
+    master.title(extension_description)
 
     # Detect if user close the UI
     master.flag = False
@@ -172,9 +169,7 @@ def frontend():  # pragma: no cover
 
     def create_parameter_inputs(parent, config, category):
         def update_config(cat, field, entry_widget):
-            """
-            Update config_dict when the user changes an input.
-            """
+            """Update config_dict when the user changes an input."""
             try:
                 # Save numeric values as floats, others as strings
                 new_value = (
@@ -269,10 +264,12 @@ def frontend():  # pragma: no cover
             master.theme = "light"
 
     def set_light_theme():
+        master.configure(bg=theme.light["widget_bg"])
         theme.apply_light_theme(style)
         change_theme_button.config(text="\u263D")
 
     def set_dark_theme():
+        master.configure(bg=theme.dark["widget_bg"])
         theme.apply_dark_theme(style)
         change_theme_button.config(text="\u2600")
 
@@ -351,7 +348,11 @@ def main(extension_args):
         design_name = active_design.GetName()
 
     if not hfss:  # pragma: no cover
-        hfss = Hfss(project_name, design_name)
+        if app.design_type(project_name, design_name) == "HFSS":
+            hfss = Hfss(project_name, design_name)
+        else:
+            hfss = Hfss()
+            hfss.save_project()
 
     hfss.solution_type = "Terminal"
 
@@ -409,7 +410,7 @@ def main(extension_args):
     ]
 
     # Add second winding ports if it exists
-    if second_winding_list:
+    if second_winding_list:  # pragma: no cover
         port_position_list.extend(
             [
                 # Second winding start position
@@ -462,7 +463,7 @@ def main(extension_args):
     hfss.modeler.create_region(pad_percent=1000)
 
     # Create setup
-    setup = hfss.create_setup("Setup1")
+    setup = hfss.create_setup("Setup1", setup_type="HFSSDriven")
     setup.props["Frequency"] = "50MHz"
     setup.props["MaximumPasses"] = 10
 

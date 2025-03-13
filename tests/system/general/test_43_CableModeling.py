@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -24,7 +24,7 @@
 
 import os
 
-from ansys.aedt.core.generic.general_methods import read_json
+from ansys.aedt.core.generic.file_utils import read_json
 from ansys.aedt.core.modules.cable_modeling import Cable
 import pytest
 

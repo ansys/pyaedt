@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -64,7 +64,6 @@ def is_student():
 
 def get_arguments(args=None, description=""):  # pragma: no cover
     """Get extension arguments."""
-
     output_args = {"is_batch": False, "is_test": False}
 
     if len(sys.argv) != 1:  # pragma: no cover
@@ -103,7 +102,15 @@ class ExtensionTheme:  # pragma: no cover
             "radiobutton_selected": "#E0E0E0",  # Color when selected
             "radiobutton_unselected": "#FFFFFF",  # Color when unselected
             "pane_bg": "#F0F0F0",  # Background for PanedWindow
-            "sash_color": "#C0C0C0",  # Color for sash (separator) in PanedWindo
+            "sash_color": "#C0C0C0",  # Color for sash (separator) in PanedWindow
+            "combobox_bg": "#FFFFFF",  # Matches widget_bg
+            "combobox_arrow_bg": "#E6E6E6",  # Matches button_bg
+            "combobox_arrow_fg": "#000000",  # Matches text
+            "combobox_readonly_bg": "#F0F0F0",  # Matches tab_bg_inactive
+            "checkbutton_bg": "#FFFFFF",  # Matches widget_bg
+            "checkbutton_fg": "#000000",  # Matches text
+            "checkbutton_indicator_bg": "#D9D9D9",  # Matches button_hover_bg
+            "checkbutton_active_bg": "#B8B8B8",  # Matches button_active_bg
         }
 
         self.dark = {
@@ -126,15 +133,25 @@ class ExtensionTheme:  # pragma: no cover
             "radiobutton_selected": "#45494A",  # Color when selected
             "radiobutton_unselected": "#313335",  # Color when unselected
             "pane_bg": "#2E2E2E",  # Background for PanedWindow
+            "combobox_bg": "#313335",  # Matches widget_bg
+            "combobox_arrow_bg": "#606060",  # Matches button_hover_bg
+            "combobox_arrow_fg": "#FFFFFF",  # Matches text
+            "combobox_readonly_bg": "#2E2E2E",  # Matches pane_bg
+            "checkbutton_bg": "#313335",  # Matches widget_bg
+            "checkbutton_fg": "#FFFFFF",  # Matches text
+            "checkbutton_indicator_bg": "#2E2E2E",  # Matches pane_bg
+            "checkbutton_active_bg": "#45494A",  # Matches radiobutton_selected
         }
 
         # Set default font
         self.default_font = ("Arial", 12)
 
     def apply_light_theme(self, style):
+        """Apply light theme."""
         self._apply_theme(style, self.light)
 
     def apply_dark_theme(self, style):
+        """Apply dark theme."""
         self._apply_theme(style, self.dark)
 
     def _apply_theme(self, style, colors):
@@ -198,6 +215,36 @@ class ExtensionTheme:  # pragma: no cover
         style.map(
             "TRadiobutton",
             background=[("selected", colors["radiobutton_selected"]), ("!selected", colors["radiobutton_unselected"])],
+        )
+
+        # Apply the colors and font to the style for Combobox
+        style.configure(
+            "PyAEDT.TCombobox",
+            fieldbackground=colors["combobox_bg"],
+            background=colors["combobox_arrow_bg"],
+            foreground=colors["text"],
+            font=self.default_font,
+            arrowcolor=colors["combobox_arrow_fg"],
+        )
+        style.map(
+            "PyAEDT.TCombobox",
+            fieldbackground=[("readonly", colors["combobox_readonly_bg"])],
+            foreground=[("readonly", colors["text"])],
+        )
+
+        # Style for Checkbutton
+        style.configure(
+            "PyAEDT.TCheckbutton",
+            background=colors["checkbutton_bg"],
+            foreground=colors["checkbutton_fg"],
+            font=self.default_font,
+            indicatorcolor=colors["checkbutton_indicator_bg"],
+            focuscolor=colors["checkbutton_active_bg"],  # For focus/active state
+        )
+        style.map(
+            "PyAEDT.TCheckbutton",
+            background=[("active", colors["checkbutton_active_bg"])],
+            indicatorcolor=[("selected", colors["checkbutton_indicator_bg"])],
         )
 
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -49,7 +49,6 @@ class ModelerRMxprt(Modeler):
 
         References
         ----------
-
         >>> oEditor = oDesign.SetActiveEditor("Machine")"""
         return self._app.oeditor
 
@@ -178,7 +177,7 @@ class Modeler2D(Primitives2D):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object_3d`
+        list[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
         """
         if len(bounding_box) != 4 and len(bounding_box) != 6:
             raise ValueError("Bounding box must be a list of 4 or 6 elements.")

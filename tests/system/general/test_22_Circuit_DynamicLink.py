@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -130,8 +130,8 @@ class TestClass:
 
     @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
     def test_07_create_page_port_and_interface_port(self):
-        hfss_comp_id = 87
-        hfss3Dlayout_comp_id = 86
+        hfss_comp_id = 1
+        hfss3Dlayout_comp_id = 3
         hfssComp_pins = self.aedtapp.modeler.schematic.get_pins(hfss_comp_id)
         assert type(hfssComp_pins) is list
         assert len(hfssComp_pins) == 4
@@ -150,55 +150,55 @@ class TestClass:
 
         # Link 1 Creation
         portname = self.aedtapp.modeler.schematic.create_page_port(
-            "Link1", [hfss_pin2location["usb_N_conn"][0], hfss_pin2location["usb_N_conn"][1]], 180
+            "Link1", [hfss3Dlayout_pin2location["usb_N_conn"][0], hfss3Dlayout_pin2location["usb_N_conn"][1]], 180
         )
         assert "Link1" in portname.composed_name
         portname = self.aedtapp.modeler.schematic.create_page_port(
             "Link1",
-            [hfss3Dlayout_pin2location["J3B2.3.USBH2_DP_CH"][0], hfss3Dlayout_pin2location["J3B2.3.USBH2_DP_CH"][1]],
+            [hfss_pin2location["J3B2.3.USBH2_DP_CH"][0], hfss_pin2location["J3B2.3.USBH2_DP_CH"][1]],
             180,
         )
         assert "Link1" in portname.composed_name
 
         # Link 2 Creation
         portname = self.aedtapp.modeler.schematic.create_page_port(
-            "Link2", [hfss_pin2location["usb_N_pcb"][0], hfss_pin2location["usb_N_pcb"][1]], 180
+            "Link2", [hfss3Dlayout_pin2location["usb_N_pcb"][0], hfss3Dlayout_pin2location["usb_N_pcb"][1]], 180
         )
         assert "Link2" in portname.composed_name
         portname = self.aedtapp.modeler.schematic.create_page_port(
             "Link2",
-            [hfss3Dlayout_pin2location["L3M1.3.USBH2_DN_CH"][0], hfss3Dlayout_pin2location["L3M1.3.USBH2_DN_CH"][1]],
+            [hfss_pin2location["L3M1.3.USBH2_DN_CH"][0], hfss_pin2location["L3M1.3.USBH2_DN_CH"][1]],
             180,
         )
         assert "Link2" in portname.composed_name
 
         # Ports Creation
         portname = self.aedtapp.modeler.schematic.create_interface_port(
-            "Excitation_1", [hfss_pin2location["USB_VCC_T1"][0], hfss_pin2location["USB_VCC_T1"][1]]
+            "Excitation_1", [hfss3Dlayout_pin2location["USB_VCC_T1"][0], hfss3Dlayout_pin2location["USB_VCC_T1"][1]]
         )
         assert "Excitation_1" in portname.name
         portname = self.aedtapp.modeler.schematic.create_interface_port(
-            "Excitation_2", [hfss_pin2location["usb_P_pcb"][0], hfss_pin2location["usb_P_pcb"][1]]
+            "Excitation_2", [hfss3Dlayout_pin2location["usb_P_pcb"][0], hfss3Dlayout_pin2location["usb_P_pcb"][1]]
         )
         assert "Excitation_2" in portname.name
         portname = self.aedtapp.modeler.schematic.create_interface_port(
             "Port_1",
-            [hfss3Dlayout_pin2location["L3M1.2.USBH2_DP_CH"][0], hfss3Dlayout_pin2location["L3M1.2.USBH2_DP_CH"][1]],
+            [hfss_pin2location["L3M1.2.USBH2_DP_CH"][0], hfss_pin2location["L3M1.2.USBH2_DP_CH"][1]],
         )
         assert "Port_1" in portname.name
         portname = self.aedtapp.modeler.schematic.create_interface_port(
             "Port_2",
-            [hfss3Dlayout_pin2location["J3B2.2.USBH2_DN_CH"][0], hfss3Dlayout_pin2location["J3B2.2.USBH2_DN_CH"][1]],
+            [hfss_pin2location["J3B2.2.USBH2_DN_CH"][0], hfss_pin2location["J3B2.2.USBH2_DN_CH"][1]],
         )
         assert "Port_2" in portname.name
 
         portname = self.aedtapp.modeler.schematic.create_interface_port(
             "Port_remove",
-            [hfss3Dlayout_pin2location["J3B2.2.USBH2_DN_CH"][0], hfss3Dlayout_pin2location["J3B2.2.USBH2_DN_CH"][1]],
+            [hfss_pin2location["J3B2.2.USBH2_DN_CH"][0], hfss_pin2location["J3B2.2.USBH2_DN_CH"][1]],
         )
-        self.aedtapp.excitation_objects[portname.name].delete()
+        self.aedtapp.design_excitations[portname.name].delete()
 
-        assert "Port_remove" not in self.aedtapp.excitations
+        assert "Port_remove" not in self.aedtapp.excitation_names
 
     @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
     def test_08_assign_excitations(self):

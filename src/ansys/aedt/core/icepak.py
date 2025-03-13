@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -24,47 +24,42 @@
 
 """This module contains the ``Icepak`` class."""
 
-from __future__ import absolute_import  # noreorder
-
 import csv
 import os
 import re
 import warnings
 
 import ansys.aedt.core
-from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
-from ansys.aedt.core.application.design import DesignSettingsManipulation
-from ansys.aedt.core.generic.configurations import ConfigurationsIcepak
+from ansys.aedt.core.application.analysis_icepak import FieldAnalysisIcepak
+from ansys.aedt.core.generic.constants import SOLUTIONS
 from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.data_handlers import random_string
-from ansys.aedt.core.generic.general_methods import GrpcApiError
-from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.errors import AEDTRuntimeError
+from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
-from ansys.aedt.core.modules.boundary import BoundaryDictionary
-from ansys.aedt.core.modules.boundary import BoundaryObject
-from ansys.aedt.core.modules.boundary import ExponentialDictionary
-from ansys.aedt.core.modules.boundary import LinearDictionary
-from ansys.aedt.core.modules.boundary import NativeComponentObject
-from ansys.aedt.core.modules.boundary import NativeComponentPCB
-from ansys.aedt.core.modules.boundary import NetworkObject
-from ansys.aedt.core.modules.boundary import PieceWiseLinearDictionary
-from ansys.aedt.core.modules.boundary import PowerLawDictionary
-from ansys.aedt.core.modules.boundary import SinusoidalDictionary
-from ansys.aedt.core.modules.boundary import SquareWaveDictionary
-from ansys.aedt.core.modules.boundary import _create_boundary
+from ansys.aedt.core.modules.boundary.icepak_boundary import BoundaryDictionary
+from ansys.aedt.core.modules.boundary.icepak_boundary import ExponentialDictionary
+from ansys.aedt.core.modules.boundary.icepak_boundary import LinearDictionary
+from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
+from ansys.aedt.core.modules.boundary.icepak_boundary import PieceWiseLinearDictionary
+from ansys.aedt.core.modules.boundary.icepak_boundary import PowerLawDictionary
+from ansys.aedt.core.modules.boundary.icepak_boundary import SinusoidalDictionary
+from ansys.aedt.core.modules.boundary.icepak_boundary import SquareWaveDictionary
+from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
+from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
 from ansys.aedt.core.modules.setup_templates import SetupKeys
-from ansys.aedt.core.visualization.post.monitor_icepak import Monitor
 
 
-class Icepak(FieldAnalysis3D):
+class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
     """Provides the Icepak application interface.
 
     This class allows you to connect to an existing Icepak design or create a
@@ -92,7 +87,7 @@ class Icepak(FieldAnalysis3D):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is  used.
         This parameter is ignored when Script is launched within AEDT.
-        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
+        Examples of input values are ``251``, ``25.1``, ``2025.1``, ``"2025.1"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -155,10 +150,10 @@ class Icepak(FieldAnalysis3D):
     PyAEDT INFO: No design is present. Inserting a new design.
     PyAEDT INFO: Added design ...
 
-    Create an instance of Icepak using the 2023 R2 release and
+    Create an instance of Icepak using the 2025 R1 release and
     open the specified project, which is ``myipk2.aedt``.
 
-    >>> icepak = Icepak(version=2023.2, project="myipk2.aedt")
+    >>> icepak = Icepak(version=2025.1, project="myipk2.aedt")
     PyAEDT INFO: Project...
     PyAEDT INFO: No design is present. Inserting a new design.
     PyAEDT INFO: Added design...
@@ -187,7 +182,7 @@ class Icepak(FieldAnalysis3D):
         aedt_process_id=None,
         remove_lock=False,
     ):
-        FieldAnalysis3D.__init__(
+        FieldAnalysisIcepak.__init__(
             self,
             "Icepak",
             project,
@@ -204,17 +199,15 @@ class Icepak(FieldAnalysis3D):
             aedt_process_id,
             remove_lock=remove_lock,
         )
-        self._monitor = Monitor(self)
-        self._configurations = ConfigurationsIcepak(self)
-        self.design_settings.manipulate_inputs = IcepakDesignSettingsManipulation(self)
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
 
     @property
     def problem_type(self):
-        """Problem type of the Icepak design. Options are ``"TemperatureAndFlow"``, ``"TemperatureOnly"``,
-        and ``"FlowOnly"``.
+        """Problem type of the Icepak design.
+
+        Options are ``"TemperatureAndFlow"``, ``"TemperatureOnly"``, and ``"FlowOnly"``.
         """
         return self.design_solutions.problem_type
 
@@ -232,23 +225,12 @@ class Icepak(FieldAnalysis3D):
             List of all analysis setups in the design.
 
         """
-        setup_list = self.existing_analysis_setups
+        setup_list = self.setup_names
         sweep_list = []
         s_type = self.solution_type
         for el in setup_list:
             sweep_list.append(el + " : " + s_type)
         return sweep_list
-
-    @property
-    def monitor(self):
-        """Property to handle monitor objects.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.monitor_icepak.Monitor`
-        """
-        self._monitor._delete_removed_monitors()  # force update. some operations may delete monitors
-        return self._monitor
 
     @pyaedt_function_handler()
     def assign_grille(
@@ -287,12 +269,11 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
         ----------
-
         >>> oModule.AssignGrilleBoundary
         """
         if boundary_name is None:
@@ -316,12 +297,8 @@ class Icepak(FieldAnalysis3D):
 
         props["X"] = x_curve
         props["Y"] = y_curve
-        bound = BoundaryObject(self, boundary_name, props, "Grille")
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            self.logger.info("Grille Assigned")
-            return bound
-        return None
+        bound = self._create_boundary(boundary_name, props, "Grille")
+        return bound
 
     @pyaedt_function_handler()
     def assign_openings(self, air_faces):
@@ -329,17 +306,16 @@ class Icepak(FieldAnalysis3D):
 
         Parameters
         ----------
-        air_faces : list
+        air_faces : list or :class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`
             List of face names.
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
         ----------
-
         >>> oModule.AssignOpeningBoundary
 
         Examples
@@ -363,12 +339,8 @@ class Icepak(FieldAnalysis3D):
         props["External Rad. Temperature"] = "AmbientRadTemp"
         props["Inlet Type"] = "Pressure"
         props["Total Pressure"] = "AmbientPressure"
-        bound = BoundaryObject(self, boundary_name, props, "Opening")
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            self.logger.info("Opening Assigned")
-            return bound
-        return None
+        bound = self._create_boundary(boundary_name, props, "Opening")
+        return bound
 
     @pyaedt_function_handler(setup_name="setup")
     def assign_2way_coupling(
@@ -394,7 +366,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.AddTwoWayCoupling
 
         Examples
@@ -405,11 +376,10 @@ class Icepak(FieldAnalysis3D):
 
         """
         if not setup:
-            if self.setups:
-                setup = self.setups[0].name
-            else:
-                self.logger.error("No setup is defined.")
-                return False
+            if not self.setups:
+                raise AEDTRuntimeError("No setup is defined.")
+            setup = self.setups[0].name
+
         self.oanalysis.AddTwoWayCoupling(
             setup,
             [
@@ -444,12 +414,11 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        list[:class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`]
             List of boundaries inserted.
 
         References
         ----------
-
         >>> oModule.AssignBlockBoundary
 
         Examples
@@ -510,12 +479,11 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
         ----------
-
         >>> oModule.AssignBlockBoundary
 
         Examples
@@ -548,12 +516,8 @@ class Icepak(FieldAnalysis3D):
         else:
             boundary_name = generate_unique_name("Block")
 
-        bound = BoundaryObject(self, boundary_name, props, "Block")
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            self.logger.info(f"Block on {object_name} with {input_power} power created correctly.")
-            return bound
-        return None
+        bound = self._create_boundary(boundary_name, props, "Block")
+        return bound
 
     @pyaedt_function_handler()
     def create_conduting_plate(
@@ -619,7 +583,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         """
@@ -667,8 +631,8 @@ class Icepak(FieldAnalysis3D):
             }
 
         props["Shell Conduction"] = shell_conduction
-        bound = BoundaryObject(self, bc_name, props, "Conducting Plate")
-        return _create_boundary(bound)
+        bound = self._create_boundary(bc_name, props, "Conducting Plate")
+        return bound
 
     @pyaedt_function_handler()
     def create_source_power(
@@ -708,12 +672,11 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
         ----------
-
         >>> oModule.AssignSourceBoundary
 
         Examples
@@ -755,8 +718,8 @@ class Icepak(FieldAnalysis3D):
         props["Surface Heat"] = surface_heat
         props["Temperature"] = temperature
         props["Radiation"] = {"Radiate": radiate}
-        bound = BoundaryObject(self, source_name, props, "SourceIcepak")
-        return _create_boundary(bound)
+        bound = self._create_boundary(source_name, props, "SourceIcepak")
+        return bound
 
     @pyaedt_function_handler()
     def create_network_block(
@@ -801,12 +764,11 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         References
         ----------
-
         >>> oModule.AssignNetworkBoundary
 
         Examples
@@ -862,12 +824,8 @@ class Icepak(FieldAnalysis3D):
                 "Link2": ["Face" + str(fcrjb), "Internal", "R", str(rjb) + "cel_per_w"],
             }
             props["SchematicData"] = {}
-            bound = BoundaryObject(self, boundary_name, props, "Network")
-            if bound.create():
-                self._boundaries[bound.name] = bound
-                self.modeler[object_name].solve_inside = False
-                return bound
-            return None
+            bound = self._create_boundary(boundary_name, props, "Network")
+            return bound
 
     @pyaedt_function_handler()
     def create_network_blocks(
@@ -895,12 +853,11 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        list[:class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`]
             List of boundary objects created.
 
         References
         ----------
-
         >>> oModule.AssignNetworkBoundary
 
         Examples
@@ -966,7 +923,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.AssignFaceMonitor
 
         Examples
@@ -978,7 +934,7 @@ class Icepak(FieldAnalysis3D):
         >>> icepak.assign_surface_monitor("Surface1", monitor_name="monitor")
         'monitor'
         """
-        return self._monitor.assign_surface_monitor(face_name, monitor_quantity=monitor_type, monitor_name=monitor_name)
+        return self.monitor.assign_surface_monitor(face_name, monitor_quantity=monitor_type, monitor_name=monitor_name)
 
     @pyaedt_function_handler()
     def assign_point_monitor(self, point_position, monitor_type="Temperature", monitor_name=None):
@@ -1011,7 +967,7 @@ class Icepak(FieldAnalysis3D):
         'monitor1'
 
         """
-        return self._monitor.assign_point_monitor(
+        return self.monitor.assign_point_monitor(
             point_position, monitor_quantity=monitor_type, monitor_name=monitor_name
         )
 
@@ -1036,7 +992,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.AssignPointMonitor
 
         Examples
@@ -1048,7 +1003,7 @@ class Icepak(FieldAnalysis3D):
         >>> icepak.assign_point_monitor(box.name, monitor_name="monitor2")
         "'monitor2'
         """
-        return self._monitor.assign_point_monitor_in_object(
+        return self.monitor.assign_point_monitor_in_object(
             name, monitor_quantity=monitor_type, monitor_name=monitor_name
         )
 
@@ -1068,7 +1023,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.AssignBlockBoundary
         """
         with open_file(csv_name) as csvfile:
@@ -1080,35 +1034,25 @@ class Icepak(FieldAnalysis3D):
             for el in component_header:
                 component_data[el] = [i[k] for i in data]
                 k += 1
+
         total_power = 0
-        i = 0
         all_objects = self.modeler.object_names
-        for power in component_data["Applied Power (W)"]:
+        for i, power in enumerate(component_data["Applied Power (W)"]):
             try:
-                float(power)
                 if "COMP_" + component_data["Ref Des"][i] in all_objects:
-                    status = self.create_source_block(
-                        "COMP_" + component_data["Ref Des"][i], str(power) + "W", assign_material=False
+                    object_name = "COMP_" + component_data["Ref Des"][i]
+                else:
+                    object_name = component_data["Ref Des"][i]
+                status = self.create_source_block(object_name, str(power) + "W", assign_material=False)
+
+                if not status:
+                    self.logger.warning(
+                        "Warning. Block %s skipped with %sW power.", component_data["Ref Des"][i], power
                     )
-                    if not status:
-                        self.logger.warning(
-                            "Warning. Block %s skipped with %sW power.", component_data["Ref Des"][i], power
-                        )
-                    else:
-                        total_power += float(power)
-                elif component_data["Ref Des"][i] in all_objects:
-                    status = self.create_source_block(
-                        component_data["Ref Des"][i], str(power) + "W", assign_material=False
-                    )
-                    if not status:
-                        self.logger.warning(
-                            "Warning. Block %s skipped with %sW power.", component_data["Ref Des"][i], power
-                        )
-                    else:
-                        total_power += float(power)
+                else:
+                    total_power += float(power)
             except Exception:
-                pass
-            i += 1
+                self.logger.debug(f"Failed to handle component data from Ref Des {i}")
         self.logger.info("Blocks inserted with total power %sW.", total_power)
         return total_power
 
@@ -1130,7 +1074,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oEditor.UpdatePriorityList
         """
         temp_log = os.path.join(self.working_directory, "validation.log")
@@ -1157,13 +1100,13 @@ class Icepak(FieldAnalysis3D):
                 i += 1
         return True
 
-    @pyaedt_function_handler()
-    def find_top(self, gravityDir):
+    @pyaedt_function_handler(gravityDir="gravity_dir")
+    def find_top(self, gravity_dir):
         """Find the top location of the layout given a gravity.
 
         Parameters
         ----------
-        gravityDir :
+        gravity_dir :
             Gravity direction from -X to +Z. Options are ``0`` to ``5``.
 
         Returns
@@ -1173,7 +1116,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oEditor.GetModelBoundingBox
         """
         dirs = ["-X", "+X", "-Y", "+Y", "-Z", "+Z"]
@@ -1189,10 +1131,10 @@ class Icepak(FieldAnalysis3D):
             ]
             self.modeler.oeditor.ChangeProperty(args)
         oBoundingBox = self.modeler.get_model_bounding_box()
-        if gravityDir < 3:
-            return oBoundingBox[gravityDir + 3]
+        if gravity_dir < 3:
+            return oBoundingBox[gravity_dir + 3]
         else:
-            return oBoundingBox[gravityDir - 3]
+            return oBoundingBox[gravity_dir - 3]
 
     @pyaedt_function_handler(matname="material")
     def create_parametric_fin_heat_sink(
@@ -1424,8 +1366,8 @@ class Icepak(FieldAnalysis3D):
             "_num": "_num_" + hs_code,
         }
 
-        self[name_map["HSHeight"]] = self.modeler._arg_with_dim(hs_height)
-        self[name_map["HSWidth"]] = self.modeler._arg_with_dim(hs_width)
+        self[name_map["HSHeight"]] = self.value_with_units(hs_height)
+        self[name_map["HSWidth"]] = self.value_with_units(hs_width)
         self[name_map["DraftAngle"]] = draft_angle
         self[name_map["PatternAngle"]] = pattern_angle
 
@@ -1441,7 +1383,7 @@ class Icepak(FieldAnalysis3D):
                     name_map[var_name + "_Factor"] + "*" + [name_map["HSHeight"], name_map["HSWidth"]][width_or_height]
                 )
             else:
-                self[name_map[var_name]] = self.modeler._arg_with_dim(var)
+                self[name_map[var_name]] = self.value_with_units(var)
 
         self[name_map["NumColumnsPerSide"]] = numcolumn_perside
         if symmetric:
@@ -1449,7 +1391,7 @@ class Icepak(FieldAnalysis3D):
                 self[name_map["SymSeparation_Factor"]] = symmetric_separation
                 self[name_map["SymSeparation"]] = name_map["SymSeparation_Factor"] + "*" + name_map["HSHeight"]
             else:
-                self[name_map["SymSeparation"]] = self.modeler._arg_with_dim(symmetric_separation)
+                self[name_map["SymSeparation"]] = self.value_with_units(symmetric_separation)
 
         hs_base = self.modeler.create_box(
             ["-" + name_map["HSWidth"] + "/2", "-" + name_map["HSHeight"] + "/2", "0"],
@@ -1699,6 +1641,7 @@ class Icepak(FieldAnalysis3D):
         skip_intersection_checks : bool, optional
             Whether to skip intersection checks during validation check.
             The default value is ``False``.
+
         Returns
         -------
         bool
@@ -1706,7 +1649,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oDesign.SetDesignSettings
         """
         #
@@ -1822,7 +1764,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.AssignEMLoss
         """
         if surface_objects is None:
@@ -1853,8 +1794,9 @@ class Icepak(FieldAnalysis3D):
             intr = []
 
         argparam = {}
-        for el in self.available_variations.nominal_w_values_dict:
-            argparam[el] = self.available_variations.nominal_w_values_dict[el]
+        nominal_variation = self.available_variations.get_independent_nominal_values()
+        for key, value in nominal_variation.items():
+            argparam[key] = value
 
         if parameters and isinstance(parameters, list):
             for el in parameters:
@@ -1873,18 +1815,13 @@ class Icepak(FieldAnalysis3D):
             "ForceSourceToSolve": True,
             "PreservePartnerSoln": True,
             "PathRelativeTo": "TargetProject",
+            "Intrinsics": intr,
+            "SurfaceOnly": surfaces,
         }
 
-        props["Intrinsics"] = intr
-        props["SurfaceOnly"] = surfaces
-
         name = generate_unique_name("EMLoss")
-        bound = BoundaryObject(self, name, props, "EMLoss")
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            self.logger.info("EM losses mapped from design: %s.", design)
-            return bound
-        return False
+        bound = self._create_boundary(name, props, "EMLoss")
+        return bound
 
     @pyaedt_function_handler()
     def eval_surface_quantity_from_field_summary(
@@ -1925,7 +1862,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.ExportFieldsSummary
         """
         name = generate_unique_name(quantity_name)
@@ -1998,7 +1934,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.ExportFieldsSummary
         """
         if not savedir:
@@ -2074,10 +2009,11 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.EditFieldsSummarySetting
         >>> oModule.ExportFieldsSummary
         """
+        if type not in ("Object", "Boundary"):
+            raise ValueError(("Entity type " + type + " not supported."))
 
         if variation_list is None:
             variation_list = []
@@ -2090,9 +2026,7 @@ class Icepak(FieldAnalysis3D):
         elif type == "Boundary":
             all_elements = [b.name for b in self.boundaries]
             self.logger.info("Boundary lists " + str(all_elements))
-        else:
-            self.logger.error("Entity type " + type + " not supported.")
-            return False
+
         arg = []
         for el in all_elements:
             try:
@@ -2261,12 +2195,11 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.NativeComponentObject`
+        :class:`ansys.aedt.core.modules.boundary.layout_boundary.NativeComponentObject`
             NativeComponentObject object.
 
         References
         ----------
-
         >>> oModule.InsertNativeComponent
         """
         if not name:
@@ -2404,12 +2337,11 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.NativeComponentPCB`
+        :class:`ansys.aedt.core.modules.boundary.layout_boundary.NativeComponentPCB`
             NativeComponentObject object.
 
         References
         ----------
-
         >>> oModule.InsertNativeComponent
         """
         if "extenttype" in kwargs:
@@ -2569,7 +2501,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.InsertNativeComponent
         """
         if "extenttype" in kwargs:
@@ -2598,7 +2529,7 @@ class Icepak(FieldAnalysis3D):
             outline_polygon=outline_polygon,
             custom_x_resolution=custom_x_resolution,
             custom_y_resolution=custom_y_resolution,
-            powerin=self.modeler._arg_with_dim(power_in, "W"),
+            powerin=self.value_with_units(power_in, "W"),
         )
 
         if close_linked_project_after_import and ".aedt" in project_name:
@@ -2629,10 +2560,10 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oEditor.Copy
         >>> oeditor.Paste
         """
+        pj_names = self.project_list
         if "groupName" in kwargs:
             warnings.warn(
                 "The ``groupName`` parameter was deprecated in 0.6.43. Use the ``group_name`` parameter instead.",
@@ -2676,6 +2607,8 @@ class Icepak(FieldAnalysis3D):
         self.modeler.oeditor.Paste()
         self.modeler.refresh_all_ids()
         self.materials._load_from_project()
+        if not (source_project_name in pj_names or source_project_name is None):
+            active_project.close()
         return True
 
     @pyaedt_function_handler()
@@ -2719,7 +2652,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.EditGlobalMeshRegion
         """
         bounding_box = self.modeler.oeditor.GetModelBoundingBox()
@@ -2800,7 +2732,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oeditor.ChangeProperty
         """
         warnings.warn(
@@ -2864,7 +2795,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.DeleteBoundaries
         """
         self.oboundary.DeleteBoundaries([bound_name])
@@ -2886,7 +2816,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oEditor.Delete
         """
         arg = ["NAME:Selections", "Selections:=", comp_name]
@@ -2943,9 +2872,9 @@ class Icepak(FieldAnalysis3D):
         meshtype : str, optional
             Mesh type. Options are ``"tethraedral"`` or ``"hexcore"``.
         min_size : float, optional
-            Minimum mesh size. Default is smallest edge of objects/20.
+            Minimum mesh size. Default is the smallest edge of objects/20.
         max_size : float, optional
-            Maximum mesh size. Default is smallest edge of objects/5.
+            Maximum mesh size. Default is the smallest edge of objects/5.
         inflation_layer_number : int, optional
             Inflation layer number. Default is ``3``.
         inflation_growth_rate : float, optional
@@ -2961,19 +2890,19 @@ class Icepak(FieldAnalysis3D):
         ansys_install_dir = os.environ.get(f"ANSYS{version}_DIR", "")
         if not ansys_install_dir:
             ansys_install_dir = os.environ.get(f"AWP_ROOT{version}", "")
-        assert (
-            ansys_install_dir
-        ), f"Fluent {version} has to be installed to generate mesh. Please set ANSYS{version}_DIR"
+
+        if not ansys_install_dir:
+            raise AEDTRuntimeError(
+                f"Fluent {version} has to be installed to generate mesh. Please set ANSYS{version}_DIR"
+            )
         if not os.getenv(f"ANSYS{version}_DIR"):
             os.environ[f"ANSYS{version}_DIR"] = ansys_install_dir
         if not object_lists:
             object_lists = self.get_liquid_objects()
-            assert object_lists, "No Fluids objects found."
+        if not object_lists:
+            raise AEDTRuntimeError("No Fluids objects found.")
         if not min_size or not max_size:
             dims = []
-            # try:
-            #     dim = self.modeler["Region"].shortest_edge()[0].length
-            # except (AttributeError, KeyError, IndexError):
             for obj in object_lists:
                 bb = self.modeler[obj].bounding_box
                 dd = [abs(bb[3] - bb[0]), abs(bb[4] - bb[1]), abs(bb[5] - bb[2])]
@@ -2998,7 +2927,10 @@ class Icepak(FieldAnalysis3D):
             os.remove(fl_uscript_file_pointer)
         if os.path.exists(mesh_file_pointer + ".trn"):
             os.remove(mesh_file_pointer + ".trn")
-        assert self.export_3d_model(file_name, self.working_directory, ".sab", object_lists), "Failed to export .sab"
+
+        export_success = self.export_3d_model(file_name, self.working_directory, ".sab", object_lists)
+        if not export_success:
+            raise AEDTRuntimeError("Failed to export SAB file")
 
         # Building Fluent journal script file *.jou
         fluent_script = open(fl_uscript_file_pointer, "w")
@@ -3084,9 +3016,8 @@ class Icepak(FieldAnalysis3D):
         if os.path.exists(mesh_file_pointer):
             self.logger.info("'" + mesh_file_pointer + "' has been created.")
             return self.mesh.assign_mesh_from_file(object_lists, mesh_file_pointer)
-        self.logger.error("Failed to create msh file")
 
-        return False
+        raise AEDTRuntimeError("Failed to create mesh file")
 
     @pyaedt_function_handler()
     def apply_icepak_settings(
@@ -3127,7 +3058,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oDesign.SetDesignSettings
         """
 
@@ -3159,7 +3089,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
         """
         objs = ["NAME:PropServers"]
@@ -3175,9 +3104,8 @@ class Icepak(FieldAnalysis3D):
                     ],
                 ]
             )
-        except Exception:
-            self.logger.warning("Warning. The material is not the database. Use add_surface_material.")
-            return False
+        except Exception as e:
+            raise AEDTRuntimeError(f"Failed to assign material {mat} to the provided object(s).") from e
         if mat.lower() not in self.materials.surface_material_keys:
             oo = self.get_oo_object(self.oproject, f"Surface Materials/{mat}")
             if oo:
@@ -3293,7 +3221,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oDesign.ImportIDF
         """
         active_design_name = self.desktop_class.active_design(self.oproject).GetName()
@@ -3411,12 +3338,11 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         References
         ----------
-
         >>> oModule.AssignNetworkBoundary
 
         Examples
@@ -3494,12 +3420,8 @@ class Icepak(FieldAnalysis3D):
         }
 
         self.modeler.primitives[object_name].material_name = "Ceramic_material"
-        boundary = BoundaryObject(self, object_name, props, "Network")
-        if boundary.create():
-            self._boundaries[boundary.name] = boundary
-            self.modeler.primitives[object_name].solve_inside = False
-            return boundary
-        return None
+        bound = self._create_boundary(object_name, props, "Network")
+        return bound
 
     @pyaedt_function_handler(htc_dataset="htc")
     def assign_stationary_wall(
@@ -3638,12 +3560,11 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
         ----------
-
         >>> oModule.AssignStationaryWallBoundary
         """
         if not name:
@@ -3729,8 +3650,8 @@ class Icepak(FieldAnalysis3D):
         props["External Surface Radiation"] = ext_surf_rad
         props["External Material"] = ext_surf_rad_material
         props["External Radiation View Factor"] = ext_surf_rad_view_factor
-        bound = BoundaryObject(self, name, props, "Stationary Wall")
-        return _create_boundary(bound)
+        bound = self._create_boundary(name, props, "Stationary Wall")
+        return bound
 
     @pyaedt_function_handler()
     def assign_stationary_wall_with_heat_flux(
@@ -3774,12 +3695,11 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         References
         ----------
-
         >>> oModule.AssignStationaryWallBoundary
         """
         return self.assign_stationary_wall(
@@ -3837,12 +3757,11 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         References
         ----------
-
         >>> oModule.AssignStationaryWallBoundary
         """
         return self.assign_stationary_wall(
@@ -3973,12 +3892,11 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object.
 
         References
         ----------
-
         >>> oModule.AssignStationaryWallBoundary
         """
         return self.assign_stationary_wall(
@@ -4037,7 +3955,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.InsertSetup
 
         Examples
@@ -4045,7 +3962,7 @@ class Icepak(FieldAnalysis3D):
 
         >>> from ansys.aedt.core import Icepak
         >>> app = Icepak()
-        >>> app.create_setup(setup_type="TransientTemperatureOnly",name="Setup1",MaxIterations=20)
+        >>> app.create_setup(setup_type="Transient",name="Setup1",MaxIterations=20)
 
         """
         if setup_type is None:
@@ -4066,12 +3983,11 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def _parse_variation_data(self, quantity, variation_type, variation_value, function):
-        if variation_type == "Transient" and self.solution_type == "SteadyState":
-            self.logger.error("A transient boundary condition cannot be assigned for a non-transient simulation.")
-            return None
+        if variation_type == "Transient" and self.solution_type == SOLUTIONS.Icepak.SteadyState:
+            raise AEDTRuntimeError("A transient boundary condition cannot be assigned for a non-transient simulation.")
         if variation_type == "Temp Dep" and function != "Piecewise Linear":
-            self.logger.error("Temperature dependent assignment support only piecewise linear function.")
-            return None
+            raise AEDTRuntimeError("Temperature dependent assignment support only piecewise linear function.")
+
         out_dict = {"Variation Type": variation_type, "Variation Function": function}
         if function == "Piecewise Linear":
             if not isinstance(variation_value, list):
@@ -4130,12 +4046,11 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
         ----------
-
         >>> oModule.AssignSourceBoundary
 
         Examples
@@ -4185,8 +4100,7 @@ class Icepak(FieldAnalysis3D):
             if voltage_current_choice == quantity:
                 if isinstance(voltage_current_value, (dict, BoundaryDictionary)):
                     if voltage_current_value["Type"] == "Temp Dep":
-                        self.logger.error("Voltage or Current assignment does not support temperature dependence.")
-                        return None
+                        raise AEDTRuntimeError("Voltage and Current assignment do not support temperature dependence.")
                     voltage_current_value = self._parse_variation_data(
                         quantity,
                         voltage_current_value["Type"],
@@ -4201,12 +4115,8 @@ class Icepak(FieldAnalysis3D):
             else:
                 props[quantity] = value
 
-        bound = BoundaryObject(self, boundary_name, props, "SourceIcepak")
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            return bound
-        else:
-            return None
+        bound = self._create_boundary(boundary_name, props, "SourceIcepak")
+        return bound
 
     @pyaedt_function_handler()
     def create_network_object(self, name=None, props=None, create=False):
@@ -4227,12 +4137,11 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryNetwork`
+        :class:`ansys.aedt.core.modules.boundary.icepak_boundary.NetworkObject`
             Boundary network object when successful or ``None`` when failed.
 
         References
         ----------
-
         >>> oModule.AssignNetworkBoundary
 
         Examples
@@ -4280,7 +4189,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.AssignNetworkBoundary
 
         Examples
@@ -4358,12 +4266,11 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
         ----------
-
         >>> oModule.AssignBlockBoundary
 
         Examples
@@ -4432,8 +4339,8 @@ class Icepak(FieldAnalysis3D):
         if not boundary_name:
             boundary_name = generate_unique_name("Block")
 
-        bound = BoundaryObject(self, boundary_name, props, "Block")
-        return _create_boundary(bound)
+        bound = self._create_boundary(boundary_name, props, "Block")
+        return bound
 
     @pyaedt_function_handler
     def assign_hollow_block(
@@ -4468,12 +4375,11 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
         ----------
-
         >>> oModule.AssignBlockBoundary
 
         Examples
@@ -4552,8 +4458,8 @@ class Icepak(FieldAnalysis3D):
         if not boundary_name:
             boundary_name = generate_unique_name("Block")
 
-        bound = BoundaryObject(self, boundary_name, props, "Block")
-        return _create_boundary(bound)
+        bound = self._create_boundary(boundary_name, props, "Block")
+        return bound
 
     @pyaedt_function_handler(timestep="time_step")
     def get_fans_operating_point(self, export_file=None, setup_name=None, time_step=None, design_variation=None):
@@ -4587,7 +4493,6 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.ExportFanOperatingPoint
 
         Examples
@@ -4615,8 +4520,7 @@ class Icepak(FieldAnalysis3D):
         inflow=True,
         direction_vector=None,
     ):
-        """
-        Assign free opening boundary condition.
+        """Assign free opening boundary condition.
 
         Parameters
         ----------
@@ -4671,7 +4575,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -4741,9 +4645,9 @@ class Icepak(FieldAnalysis3D):
             ]
         for quantity, assignment in possible_transient_properties:
             if isinstance(assignment, (dict, BoundaryDictionary)):
-                if not self.solution_type == "Transient":
-                    self.logger.error("Transient assignment is supported only in transient designs.")
-                    return None
+                if self.solution_type != SOLUTIONS.Icepak.Transient:
+                    raise AEDTRuntimeError("Transient assignment is supported only in transient designs.")
+
                 assignment = self._parse_variation_data(
                     quantity,
                     "Transient",
@@ -4758,13 +4662,8 @@ class Icepak(FieldAnalysis3D):
 
         if not boundary_name:
             boundary_name = generate_unique_name("Opening")
-
-        bound = BoundaryObject(self, boundary_name, props, "Opening")
-        if bound.create():
-            self._boundaries[bound.name] = bound
-            return bound
-        else:
-            return None
+        bound = self._create_boundary(boundary_name, props, "Opening")
+        return bound
 
     @pyaedt_function_handler()
     def assign_pressure_free_opening(
@@ -4810,7 +4709,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -4883,7 +4782,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -4966,7 +4865,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -5006,12 +4905,11 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
         ----------
-
         >>> oModule.AssignSymmetryWallBoundary
         """
         if not boundary_name:
@@ -5025,8 +4923,8 @@ class Icepak(FieldAnalysis3D):
         else:
             props["Objects"] = geometry
 
-        bound = BoundaryObject(self, boundary_name, props, "Symmetry Wall")
-        return _create_boundary(bound)
+        bound = self._create_boundary(boundary_name, props, "Symmetry Wall")
+        return bound
 
     @pyaedt_function_handler()
     def assign_adiabatic_plate(self, assignment, high_radiation_dict=None, low_radiation_dict=None, boundary_name=None):
@@ -5054,12 +4952,11 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
         ----------
-
         >>> oModule.AssignAdiabaticPlateBoundary
 
         Examples
@@ -5095,16 +4992,8 @@ class Icepak(FieldAnalysis3D):
 
         if not boundary_name:
             boundary_name = generate_unique_name("AdiabaticPlate")
-
-        bound = BoundaryObject(self, boundary_name, props, "Adiabatic Plate")
-        try:
-            if bound.create():
-                self._boundaries[bound.name] = bound
-                return bound
-            else:  # pragma: no cover
-                raise SystemExit
-        except (GrpcApiError, SystemExit):  # pragma: no cover
-            return None
+        bound = self._create_boundary(boundary_name, props, "Adiabatic Plate")
+        return bound
 
     @pyaedt_function_handler()
     def assign_resistance(
@@ -5205,12 +5094,11 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
         ----------
-
         >>> oModule.AssignResistanceBoundary
 
         Examples
@@ -5259,9 +5147,9 @@ class Icepak(FieldAnalysis3D):
                 }
 
         if isinstance(total_power, (dict, BoundaryDictionary)):
-            if not self.solution_type == "Transient":
-                self.logger.error("Transient assignment is supported only in transient designs.")
-                return None
+            if self.solution_type != SOLUTIONS.Icepak.Transient:
+                raise AEDTRuntimeError("Transient assignment is supported only in transient designs.")
+
             assignment = self._parse_variation_data(
                 "Thermal Power",
                 "Transient",
@@ -5274,16 +5162,8 @@ class Icepak(FieldAnalysis3D):
 
         if not boundary_name:
             boundary_name = generate_unique_name("Resistance")
-
-        bound = BoundaryObject(self, boundary_name, props, "Resistance")
-        try:
-            if bound.create():
-                self._boundaries[bound.name] = bound
-                return bound
-            else:  # pragma: no cover
-                raise SystemExit
-        except (GrpcApiError, SystemExit):  # pragma: no cover
-            return None
+        bound = self._create_boundary(boundary_name, props, "Resistance")
+        return bound
 
     @pyaedt_function_handler()
     def assign_power_law_resistance(
@@ -5330,12 +5210,11 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
         ----------
-
         >>> oModule.AssignResistanceBoundary
 
         Examples
@@ -5418,12 +5297,11 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
         ----------
-
         >>> oModule.AssignResistanceBoundary
 
         Examples
@@ -5502,12 +5380,11 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
         ----------
-
         >>> oModule.AssignResistanceBoundary
 
         Examples
@@ -5587,12 +5464,11 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
         ----------
-
         >>> oModule.AssignRecircBoundary
 
         Examples
@@ -5606,9 +5482,9 @@ class Icepak(FieldAnalysis3D):
         >>>                                          flow_assignment="10kg_per_s_m2")
 
         """
-        if not len(face_list) == 2:
-            self.logger.error("Recirculation boundary condition must be assigned to two faces.")
-            return False
+        if len(face_list) != 2:
+            raise ValueError("Recirculation boundary condition must be assigned to two faces.")
+
         if conductance_external_temperature is not None and thermal_specification != "Conductance":
             self.logger.warning(
                 "``conductance_external_temperature`` does not have any effect unless the ``thermal_specification`` "
@@ -5619,9 +5495,9 @@ class Icepak(FieldAnalysis3D):
                 "``conductance_external_temperature`` must be specified when ``thermal_specification`` "
                 'is ``"Conductance"``. Setting ``conductance_external_temperature`` to ``"AmbientTemp"``.'
             )
-        if (start_time is not None or end_time is not None) and not self.solution_type == "Transient":
+        if (start_time is not None or end_time is not None) and self.solution_type != SOLUTIONS.Icepak.Transient:
             self.logger.warning("``start_time`` and ``end_time`` only effect steady-state simulations.")
-        elif self.solution_type == "Transient" and not (start_time is not None and end_time is not None):
+        elif self.solution_type == SOLUTIONS.Icepak.Transient and not (start_time is not None and end_time is not None):
             self.logger.warning(
                 '``start_time`` and ``end_time`` should be declared for transient simulations. Setting them to "0s".'
             )
@@ -5639,9 +5515,8 @@ class Icepak(FieldAnalysis3D):
         props["ExtractFace"] = extract_face
         props["Thermal Condition"] = thermal_specification
         if isinstance(assignment_value, (dict, BoundaryDictionary)):
-            if not self.solution_type == "Transient":
-                self.logger.error("Transient assignment is supported only in transient designs.")
-                return None
+            if self.solution_type != SOLUTIONS.Icepak.Transient:
+                raise AEDTRuntimeError("Transient assignment is supported only in transient designs.")
             assignment = self._parse_variation_data(
                 assignment_dict[thermal_specification],
                 "Transient",
@@ -5654,9 +5529,9 @@ class Icepak(FieldAnalysis3D):
         if thermal_specification == "Conductance":
             props["External Temp"] = conductance_external_temperature
         if isinstance(flow_assignment, (dict, BoundaryDictionary)):
-            if not self.solution_type == "Transient":
-                self.logger.error("Transient assignment is supported only in transient designs.")
-                return None
+            if self.solution_type != SOLUTIONS.Icepak.Transient:
+                raise AEDTRuntimeError("Transient assignment is supported only in transient designs.")
+
             assignment = self._parse_variation_data(
                 flow_specification + " Rate",
                 "Transient",
@@ -5671,21 +5546,19 @@ class Icepak(FieldAnalysis3D):
         else:
             props["Supply Flow Direction"] = "Specified"
             if not (isinstance(flow_direction, list)):
-                self.logger.error("``flow_direction`` can be only ``None`` or a list of strings or floats.")
-                return False
+                raise TypeError("``flow_direction`` can only be ``None`` or a list of strings or floats.")
             elif len(flow_direction) != 3:
-                self.logger.error("``flow_direction`` must have only three components.")
-                return False
+                raise ValueError("``flow_direction`` must have only three components.")
             for direction, val in zip(["X", "Y", "Z"], flow_direction):
                 props[direction] = str(val)
-        if self.solution_type == "Transient":
+        if self.solution_type == SOLUTIONS.Icepak.Transient:
             props["Start"] = start_time
             props["End"] = end_time
         if not boundary_name:
             boundary_name = generate_unique_name("Recirculating")
 
-        bound = BoundaryObject(self, boundary_name, props, "Recirculating")
-        return _create_boundary(bound)
+        bound = self._create_boundary(boundary_name, props, "Recirculating")
+        return bound
 
     @pyaedt_function_handler()
     def assign_blower_type1(
@@ -5737,12 +5610,11 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
         ----------
-
         >>> oModule.AssignBlowerBoundary
 
         Examples
@@ -5820,12 +5692,11 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
         ----------
-
         >>> oModule.AssignBlowerBoundary
 
         Examples
@@ -5877,14 +5748,14 @@ class Icepak(FieldAnalysis3D):
         props["Blower Power"] = blower_power
         props["DimUnits"] = [fan_curve_flow_unit, fan_curve_pressure_unit]
         if len(fan_curve_flow) != len(fan_curve_pressure):
-            self.logger.error("``fan_curve_flow`` and ``fan_curve_pressure`` must have the same length.")
-            return False
+            raise ValueError("``fan_curve_flow`` and ``fan_curve_pressure`` must have the same length.")
+
         props["X"] = [str(pt) for pt in fan_curve_flow]
         props["Y"] = [str(pt) for pt in fan_curve_pressure]
         if not boundary_name:
             boundary_name = generate_unique_name("Blower")
-        bound = BoundaryObject(self, boundary_name, props, "Blower")
-        return _create_boundary(bound)
+        bound = self._create_boundary(boundary_name, props, "Blower")
+        return bound
 
     @pyaedt_function_handler()
     def assign_conducting_plate(
@@ -5952,7 +5823,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         """
@@ -6003,8 +5874,8 @@ class Icepak(FieldAnalysis3D):
         props["Shell Conduction"] = shell_conduction
         if not boundary_name:
             boundary_name = generate_unique_name("Plate")
-        bound = BoundaryObject(self, boundary_name, props, "Conducting Plate")
-        return _create_boundary(bound)
+        bound = self._create_boundary(boundary_name, props, "Conducting Plate")
+        return bound
 
     def assign_conducting_plate_with_thickness(
         self,
@@ -6051,7 +5922,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         """
@@ -6108,7 +5979,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         """
@@ -6164,7 +6035,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         """
@@ -6220,7 +6091,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         """
@@ -6251,19 +6122,17 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        bool or :class:`PieceWiseLinearDictionary`
+        bool or :class:`ansys.aedt.core.modules.boundary.icepak_boundary.PieceWiseLinearDictionary`
             Created dataset condition assignments when successful, ``False`` when failed.
         """
         ds = None
         try:
             if ds_name.startswith("$"):
-                self.logger.error("Only design datasets are supported.")
-                return False
+                raise ValueError("Only design datasets are supported.")
             else:
                 ds = self.design_datasets[ds_name]
         except KeyError:
-            self.logger.error(f"Dataset {ds_name} not found.")
-            return False
+            raise AEDTRuntimeError(f"Dataset {ds_name} not found.")
         if not isinstance(scale, str):
             scale = str(scale)
         return PieceWiseLinearDictionary(type_assignment, ds, scale)
@@ -6282,7 +6151,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.PieceWiseLinearDictionary`
+        :class:`ansys.aedt.core.modules.boundary.icepak_boundary.PieceWiseLinearDictionary`
             Boundary dictionary object that can be passed to boundary condition assignment functions.
 
         """
@@ -6302,7 +6171,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.PieceWiseLinearDictionary`
+        :class:`ansys.aedt.core.modules.boundary.icepak_boundary.PieceWiseLinearDictionary`
             Boundary dictionary object that can be passed to boundary condition assignment functions.
 
         """
@@ -6330,7 +6199,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.LinearDictionary`
+        :class:`ansys.aedt.core.modules.boundary.icepak_boundary.LinearDictionary`
             Boundary dictionary object that can be passed to boundary condition assignment functions.
         """
         return LinearDictionary(intercept, slope)
@@ -6357,7 +6226,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.PowerLawDictionary`
+        :class:`ansys.aedt.core.modules.boundary.icepak_boundary.PowerLawDictionary`
             Boundary dictionary object that can be passed to boundary condition assignment functions.
         """
         return PowerLawDictionary(intercept, coefficient, scaling_exponent)
@@ -6384,7 +6253,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.ExponentialDictionary`
+        :class:`ansys.aedt.core.modules.boundary.icepak_boundary.ExponentialDictionary`
             Boundary dictionary object that can be passed to boundary condition assignment functions.
         """
         return ExponentialDictionary(vertical_offset, coefficient, exponent_coefficient)
@@ -6413,7 +6282,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.SinusoidalDictionary`
+        :class:`ansys.aedt.core.modules.boundary.icepak_boundary.SinusoidalDictionary`
             Boundary dictionary object that can be passed to boundary condition assignment functions.
         """
         return SinusoidalDictionary(vertical_offset, vertical_scaling, period, period_offset)
@@ -6438,15 +6307,14 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.SquareWaveDictionary`
+        :class:`ansys.aedt.core.modules.boundary.icepak_boundary.SquareWaveDictionary`
             Boundary dictionary object that can be passed to boundary condition assignment functions.
         """
         return SquareWaveDictionary(on_value, initial_time_off, on_time, off_time, off_value)
 
     @pyaedt_function_handler()
     def clear_linked_data(self):
-        """
-        Clear the linked data of all the solution setups.
+        """Clear the linked data of all the solution setups.
 
         Returns
         -------
@@ -6455,57 +6323,10 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oDesign.ClearLinkedData
         """
         try:
             self.odesign.ClearLinkedData()
-        except:
-            return False
-        else:
-            return True
-
-
-class IcepakDesignSettingsManipulation(DesignSettingsManipulation):
-    def __init__(self, app):
-        self.app = app
-
-    def execute(self, k, v):
-        if k in ["AmbTemp", "AmbRadTemp"]:
-            if k == "AmbTemp" and isinstance(v, (dict, BoundaryDictionary)):
-                self.app.logger.error("Failed. Use `edit_design_settings` function.")
-                return self.app.design_settings["AmbTemp"]
-                # FIXME: Bug in native API. Uncomment when fixed
-                # if not self.solution_type == "Transient":
-                #     self.logger.error("Transient assignment is supported only in transient designs.")
-                #     return False
-                # ambtemp = getattr(self, "_parse_variation_data")(
-                #     "AmbientTemperature",
-                #     "Transient",
-                #     variation_value=v["Values"],
-                #     function=v["Function"],
-                # )
-                # if ambtemp is not None:
-                #     return ambtemp
-                # else:
-                #     self.logger.error("Transient dictionary is not valid.")
-                #     return False
-            else:
-                return self.app.value_with_units(v, "cel")
-        elif k == "AmbGaugePressure":
-            return self.app.value_with_units(v, "n_per_meter_sq")
-        elif k == "GravityVec":
-            if isinstance(v, (float, int)):
-                self.app.design_settings["GravityDir"] = ["Positive", "Negative"][v // 3]
-                v = f'Global::{["X", "Y", "Z"][v - v // 3 * 3]}'
-                return v
-            else:
-                if len(v.split("::")) == 1 and len(v) < 3:
-                    if v.startswith("+") or v.startswith("-"):
-                        self.app.design_settings["GravityDir"] = ["Positive", "Negative"][int(v.startswith("-"))]
-                        v = v[-1]
-                    return f"Global::{v}"
-                else:
-                    return v
-        else:
-            return v
+        except Exception as e:
+            raise AEDTRuntimeError("Failed to clear linked data of all solution setups") from e
+        return True

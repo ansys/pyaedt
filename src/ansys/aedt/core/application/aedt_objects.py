@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -24,7 +24,9 @@
 
 import sys
 import time
+import warnings
 
+from ansys.aedt.core.application.aedt_units import AedtUnits
 from ansys.aedt.core.generic.desktop_sessions import _desktop_sessions
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -66,7 +68,7 @@ class AedtObjects(object):
         self._odefinition_manager = None
         self._omaterial_manager = None
         self._omodel_setup = None
-        self._o_maxwell_parameters = None
+        self._omaxwell_parameters = None
         self._omonitor = None
         self._osolution = None
         self._oexcitation = None
@@ -76,19 +78,31 @@ class AedtObjects(object):
         self._omeshmodule = None
         self._oeditor = None
         self._layouteditor = None
-        self._o_component_manager = None
-        self._o_model_manager = None
-        self._o_symbol_manager = None
-        self._opadstackmanager = None
+        self._ocomponent_manager = None
+        self._omodel_manager = None
+        self._osymbol_manager = None
+        self._opadstack_manager = None
         self._oradfield = None
+        self._onetwork_data_explorer = None
+        self.__aedtunits = AedtUnits(self)
+
+    @property
+    def units(self):
+        """PyAEDT default units.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.application.aedt_units.AedtUnits`
+
+        """
+        return self.__aedtunits
 
     @property
     def oradfield(self):
-        """AEDT Radiation Field Object.
+        """AEDT radiation field object.
 
         References
         ----------
-
         >>> oDesign.GetModule("RadField")
         """
         if self.design_type == "HFSS" and self._odesign.GetSolutionType() not in ["EigenMode", "Characteristic Mode"]:
@@ -97,7 +111,7 @@ class AedtObjects(object):
 
     @pyaedt_function_handler()
     def get_module(self, module_name):
-        """Aedt Module object."""
+        """AEDT module object."""
         if self.design_type not in ["EMIT"] and self._odesign:
             try:
                 return self._odesign.GetModule(module_name)
@@ -106,12 +120,11 @@ class AedtObjects(object):
         return None
 
     @property
-    def o_symbol_manager(self):
-        """Aedt Symbol Manager.
+    def osymbol_manager(self):
+        """AEDT symbol manager.
 
         References
         ----------
-
         >>> oSymbolManager = oDefinitionManager.GetManager("Symbol")
         """
         if self.odefinition_manager:
@@ -119,17 +132,50 @@ class AedtObjects(object):
         return
 
     @property
-    def opadstackmanager(self):
-        """AEDT oPadstackManager.
+    def o_symbol_manager(self):  # pragma: no cover
+        """AEDT symbol manager.
+
+        .. deprecated:: 0.15.0
+           Use :func:`osymbol_manager` property instead.
 
         References
         ----------
+        >>> oSymbolManager = oDefinitionManager.GetManager("Symbol")
+        """
+        warnings.warn(
+            "`o_symbol_manager` is deprecated. Use `osymbol_manager` instead.",
+            DeprecationWarning,
+        )
+        return self.osymbol_manager
 
+    @property
+    def opadstack_manager(self):
+        """AEDT padstack manager.
+
+        References
+        ----------
         >>> oPadstackManger = oDefinitionManager.GetManager("Padstack")
         """
-        if self._oproject and not self._opadstackmanager:
-            self._opadstackmanager = self._oproject.GetDefinitionManager().GetManager("Padstack")
-        return self._opadstackmanager
+        if self._oproject and not self._opadstack_manager:
+            self._opadstack_manager = self._oproject.GetDefinitionManager().GetManager("Padstack")
+        return self._opadstack_manager
+
+    @property
+    def opadstackmanager(self):  # pragma: no cover
+        """AEDT oPadstackManager.
+
+        .. deprecated:: 0.15.0
+           Use :func:`opadstack_manager` property instead.
+
+        References
+        ----------
+        >>> oPadstackManger = oDefinitionManager.GetManager("Padstack")
+        """
+        warnings.warn(
+            "`opadstackmanager` is deprecated. Use `opadstack_manager` instead.",
+            DeprecationWarning,
+        )
+        return self.opadstack_manager
 
     @property
     def design_type(self):
@@ -153,7 +199,6 @@ class AedtObjects(object):
 
         References
         ----------
-
         >>> oDesktop.GetTool("ImportExport")
         """
         if not self._oimport_export:
@@ -166,7 +211,6 @@ class AedtObjects(object):
 
         References
         ----------
-
         >>> oDesign.GetModule("Optimetrics")
         """
         if not self._ooptimetrics and self.design_type not in ["Circuit Netlist", "Maxwell Circuit", "EMIT"]:
@@ -179,7 +223,6 @@ class AedtObjects(object):
 
         References
         ----------
-
         >>> oDesign.GetModule("OutputVariable")
         """
         if not self._ooutput_variable and self.design_type not in ["EMIT", "Maxwell Circuit", "Circuit Netlist"]:
@@ -192,7 +235,6 @@ class AedtObjects(object):
 
         References
         ----------
-
         >>> oDesign.GetModule("SolveSetups")
         >>> oDesign.GetModule("SimSetup")
         >>> oDesign.GetModule("AnalysisSetup")
@@ -215,7 +257,6 @@ class AedtObjects(object):
 
         References
         ----------
-
         >>> oDefinitionManager = oProject.GetDefinitionManager()
         """
         if not self._odefinition_manager and self._oproject:
@@ -228,7 +269,6 @@ class AedtObjects(object):
 
         References
         ----------
-
         >>> oMaterialManager = oDefinitionManager.GetManager("Material")
         """
         if self.odefinition_manager and not self._omaterial_manager:
@@ -241,7 +281,6 @@ class AedtObjects(object):
 
         References
         ----------
-
         >>> oDesign.GetModule("ModelSetup")
         """
         if self.design_type not in ["Maxwell 3D", "Maxwell 2D", "HFSS"]:
@@ -256,19 +295,35 @@ class AedtObjects(object):
         return self._omodel_setup
 
     @property
-    def o_maxwell_parameters(self):
+    def omaxwell_parameters(self):
         """AEDT Maxwell Parameter Setup Object.
 
         References
         ----------
-
         >>> oDesign.GetModule("MaxwellParameterSetup")
         """
         if self._odesign and self.design_type not in ["Maxwell 3D", "Maxwell 2D"]:
             return
-        if not self._o_maxwell_parameters:
-            self._o_maxwell_parameters = self.get_module("MaxwellParameterSetup")
-        return self._o_maxwell_parameters
+        if not self._omaxwell_parameters:
+            self._omaxwell_parameters = self.get_module("MaxwellParameterSetup")
+        return self._omaxwell_parameters
+
+    @property
+    def o_maxwell_parameters(self):  # pragma: no cover
+        """AEDT Maxwell Parameter Setup Object.
+
+        .. deprecated:: 0.15.0
+           Use :func:`omaxwell_parameters` property instead.
+
+        References
+        ----------
+        >>> oDesign.GetModule("MaxwellParameterSetup")
+        """
+        warnings.warn(
+            "`o_maxwell_parameters` is deprecated. Use `omaxwell_parameters` instead.",
+            DeprecationWarning,
+        )
+        return self.omaxwell_parameters
 
     @property
     def omonitor(self):
@@ -285,7 +340,6 @@ class AedtObjects(object):
 
         References
         ----------
-
         >>> oModule = oDesign.GetModule("Solutions")
         """
         if not self._osolution:
@@ -310,7 +364,6 @@ class AedtObjects(object):
 
         References
         ----------
-
         >>> oModule = oDesign.GetModule("Excitations")
         """
         if self.design_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
@@ -339,7 +392,6 @@ class AedtObjects(object):
 
         References
         ----------
-
         >>> oDesign.GetModule("FieldsReporter")
         """
         if self.design_type in [
@@ -366,7 +418,6 @@ class AedtObjects(object):
 
         References
         ----------
-
         >>> oDesign.GetModule("ReportSetup")
         """
         if not self._oreportsetup:
@@ -379,7 +430,6 @@ class AedtObjects(object):
 
         References
         ----------
-
         >>> oDesign.GetModule("MeshRegion")
         """
         meshers = {
@@ -403,16 +453,20 @@ class AedtObjects(object):
 
         References
         ----------
-
         >>> oEditor = oDesign.SetActiveEditor("SchematicEditor")"""
         if not self._oeditor and self._odesign:
-            if self.design_type in ["Circuit Design", "Twin Builder", "Maxwell Circuit", "EMIT"]:
+            if self.design_type in ["Circuit Design"]:
+                self._oeditor = self._odesign.GetEditor("SchematicEditor")
+                if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
+                    time.sleep(1)
+                    self.desktop_class.close_windows()
+            elif self.design_type in ["Twin Builder", "Maxwell Circuit", "EMIT"]:
                 self._oeditor = self._odesign.SetActiveEditor("SchematicEditor")
                 if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
                     time.sleep(1)
                     self.desktop_class.close_windows()
             elif self.design_type in ["HFSS 3D Layout Design", "HFSS3DLayout"]:
-                self._oeditor = self._odesign.SetActiveEditor("Layout")
+                self._oeditor = self._odesign.GetEditor("Layout")
             elif self.design_type in ["RMxprt", "RMxprtSolution"]:
                 self._oeditor = self._odesign.SetActiveEditor("Machine")
             elif self.design_type in ["Circuit Netlist"]:
@@ -427,23 +481,61 @@ class AedtObjects(object):
 
         References
         ----------
-
         >>> oDesign.SetActiveEditor("Layout")
         """
         if not self._layouteditor and self.design_type in ["Circuit Design"]:
-            self._layouteditor = self._odesign.SetActiveEditor("Layout")
+            self._layouteditor = self._odesign.GetEditor("Layout")
         return self._layouteditor
 
     @property
-    def o_component_manager(self):
+    def ocomponent_manager(self):
         """Component manager object."""
-        if not self._o_component_manager and self.odefinition_manager:
-            self._o_component_manager = self.odefinition_manager.GetManager("Component")
-        return self._o_component_manager
+        if not self._ocomponent_manager and self.odefinition_manager:
+            self._ocomponent_manager = self.odefinition_manager.GetManager("Component")
+        return self._ocomponent_manager
 
     @property
-    def o_model_manager(self):
+    def o_component_manager(self):  # pragma: no cover
+        """Component manager object.
+
+        .. deprecated:: 0.15.0
+           Use :func:`ocomponent_manager` property instead.
+        """
+        warnings.warn(
+            "`o_component_manager` is deprecated. Use `ocomponent_manager` instead.",
+            DeprecationWarning,
+        )
+        return self.ocomponent_manager
+
+    @property
+    def omodel_manager(self):
         """Model manager object."""
-        if not self._o_model_manager and self.odefinition_manager:
-            self._o_model_manager = self.odefinition_manager.GetManager("Model")
-        return self._o_model_manager
+        if not self._omodel_manager and self.odefinition_manager:
+            self._omodel_manager = self.odefinition_manager.GetManager("Model")
+        return self._omodel_manager
+
+    @property
+    def o_model_manager(self):  # pragma: no cover
+        """Model manager object.
+
+        .. deprecated:: 0.15.0
+           Use :func:`omodel_manager` property instead.
+
+        """
+        warnings.warn(
+            "`o_model_manager` is deprecated. Use `omodel_manager` instead.",
+            DeprecationWarning,
+        )
+        return self.omodel_manager
+
+    @property
+    def onetwork_data_explorer(self):
+        """Network data explorer module.
+
+        References
+        ----------
+        >>> oDesktop.GetTool("NdExplorer")
+        """
+        if not self._onetwork_data_explorer:
+            self._onetwork_data_explorer = self._odesktop.GetTool("NdExplorer")
+        return self._onetwork_data_explorer

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+from pathlib import Path
 import signal
 import sys
 import tempfile
@@ -139,7 +140,7 @@ safe_attrs = {
 
 
 def pyaedt_service_manager(port=17878, aedt_version=None, student_version=False):
-    """Starts the PyAEDT service manager using RPyC server on CPython.
+    """Start the PyAEDT service manager using RPyC server on CPython.
 
     This method, which must run on a server machine, is used as a service on the
     server machine to listen on a dedicated port for inbound requests to launch
@@ -205,7 +206,7 @@ def pyaedt_service_manager(port=17878, aedt_version=None, student_version=False)
 
 
 def launch_server(port=18000, ansysem_path=None, non_graphical=False, threaded=True):
-    """Starts an RPyC server and listens on a specified port.
+    """Start an RPyC server and listens on a specified port.
 
     This method must run on a server machine only.
 
@@ -361,10 +362,10 @@ def connect(server_name, aedt_client_port):
         except AttributeError:
             pass
         settings.remote_rpc_session = client
-        settings.remote_rpc_session_temp_folder = os.path.join(
-            tempfile.gettempdir(), server_name + "_" + str(aedt_client_port)
+        settings.remote_rpc_session_temp_folder = Path(tempfile.gettempdir()) / str(
+            server_name + "_" + str(aedt_client_port)
         )
-        if not os.path.exists(settings.remote_rpc_session_temp_folder):
+        if not Path(settings.remote_rpc_session_temp_folder).exists():
             os.makedirs(settings.remote_rpc_session_temp_folder)
         return client
     except Exception:

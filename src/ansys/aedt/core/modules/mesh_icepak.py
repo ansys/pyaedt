@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -26,12 +26,13 @@ import os.path
 import warnings
 
 from ansys.aedt.core.generic.data_handlers import _dict2arg
-from ansys.aedt.core.generic.general_methods import GrpcApiError
-from ansys.aedt.core.generic.general_methods import _dim_arg
-from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.errors import GrpcApiError
+from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers import _units_assignment
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
+from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modules.mesh import MeshOperation
 from ansys.aedt.core.modules.mesh import meshers
@@ -48,9 +49,9 @@ class CommonRegion(object):
 
     @property
     def padding_types(self):
-        """
-        Get a list of strings containing thepadding types used,
-        one for each direction, in the following order:
+        """Get a list of strings containing the padding types used.
+
+        One for each direction in the following order:
         +X, -X, +Y, -Y, +Z, -Z.
 
         Returns
@@ -62,9 +63,9 @@ class CommonRegion(object):
 
     @property
     def padding_values(self):
-        """
-        Get a list of padding values (string or float) used,
-        one for each direction, in the following order:
+        """Get a list of padding values (string or float) used.
+
+        Get one for each direction, in the following order:
         +X, -X, +Y, -Y, +Z, -Z.
 
         Returns
@@ -312,7 +313,7 @@ class CommonRegion(object):
         region = self.object
         create_region = region.history()
         set_type = ["Data", "Type"][int(padding_type)]
-        create_region.props[f"{direction} Padding {set_type}"] = value
+        create_region.properties[f"{direction} Padding {set_type}"] = value
 
     def _update_region_data(self):
         region = self.object
@@ -320,9 +321,9 @@ class CommonRegion(object):
         self._padding_type = []
         self._padding_value = []
         for padding_direction in ["+X", "-X", "+Y", "-Y", "+Z", "-Z"]:
-            self._padding_type.append(create_region.props[f"{padding_direction} Padding Type"])
-            self._padding_value.append(create_region.props[f"{padding_direction} Padding Data"])
-            self._coordinate_system = create_region.props["Coordinate System"]
+            self._padding_type.append(create_region.properties[f"{padding_direction} Padding Type"])
+            self._padding_value.append(create_region.properties[f"{padding_direction} Padding Data"])
+            self._coordinate_system = create_region.properties["Coordinate System"]
 
     def _get_region_data(self, direction=None, padding_type=True):
         self._update_region_data()
@@ -394,7 +395,7 @@ class SubRegion(CommonRegion):
         """
         Delete the subregion object.
 
-         Returns
+        Returns
         -------
         bool
            ``True`` when successful, ``False`` when failed.
@@ -413,26 +414,23 @@ class SubRegion(CommonRegion):
         """
         Parts included in the subregion.
 
-         Returns
+        Returns
         -------
         dict
             Dictionary with the part names as keys and ::class::modeler.cad.object_3d.Object3d as values.
         """
         if self.object:
-            return {
-                obj_name: self._app.modeler[obj_name]
-                for obj_name in self.object.history().props["Part Names"].split(",")
-            }
+            history = self.object.history().properties
+            return {obj_name: self._app.modeler[obj_name] for obj_name in history["Part Names"].split(",")}
         else:
             return {}
 
     @parts.setter
     def parts(self, parts):
-        """
-        Parts included in the subregion.
+        """Parts included in the subregion.
 
         Parameters
-        -------
+        ----------
         parts : List[str]
             List of strings containing all the parts that must be included in the subregion.
         """
@@ -440,8 +438,7 @@ class SubRegion(CommonRegion):
 
 
 class MeshSettings(object):
-    """
-    Class for managing mesh settings.
+    """Manages mesh settings.
 
     It can be used like a dictionary. Available keys change according
     to the type of settings chosen (manual or automatic).
@@ -497,8 +494,7 @@ class MeshSettings(object):
                 del self._instance_settings[arg]
 
     def parse_settings_as_args(self):
-        """
-        Parse mesh region settings.
+        """Parse mesh region settings.
 
         Returns
         -------
@@ -509,14 +505,13 @@ class MeshSettings(object):
         for k, v in self._instance_settings.items():
             out.append(k + ":=")
             if k in ["MaxElementSizeX", "MaxElementSizeY", "MaxElementSizeZ", "MinGapX", "MinGapY", "MinGapZ"]:
-                v = _dim_arg(v, self._mesh_class._model_units)
+                v = self._app.value_with_units(v, self._mesh_class._model_units)
             out.append(v)
         out += ["UserSpecifiedSettings:=", self._mesh_class.manual_settings]
         return out
 
     def parse_settings_as_dictionary(self):
-        """
-        Parse mesh region settings.
+        """Parse mesh region settings.
 
         Returns
         -------
@@ -527,13 +522,12 @@ class MeshSettings(object):
         for k in self.keys():
             v = self._instance_settings[k]
             if k in ["MaxElementSizeX", "MaxElementSizeY", "MaxElementSizeZ", "MinGapX", "MinGapY", "MinGapZ"]:
-                v = _dim_arg(v, getattr(self._mesh_class, "_model_units"))
+                v = self._app.value_with_units(v, getattr(self._mesh_class, "_model_units"))
             out[k] = v
         return out
 
     def keys(self):
-        """
-        Get mesh region settings keys.
+        """Get mesh region settings keys.
 
         Returns
         -------
@@ -546,8 +540,7 @@ class MeshSettings(object):
             return set(self._automatic_mesh_settings.keys()) | set(self._common_mesh_settings.keys())
 
     def values(self):
-        """
-        Get mesh region settings values.
+        """Get mesh region settings values.
 
         Returns
         -------
@@ -579,6 +572,7 @@ class MeshSettings(object):
             raise KeyError("Setting not available.")
 
     def __setitem__(self, key, value):
+        value = _units_assignment(value)
         if key == "Level":  # backward compatibility
             key = "MeshRegionResolution"
         if key in self.keys():
@@ -614,7 +608,7 @@ class MeshSettings(object):
         return x in self.keys()
 
 
-class MeshRegionCommon(object):
+class MeshRegionCommon(BinaryTreeNode):
     """
     Manages Icepak mesh region settings.
 
@@ -633,45 +627,91 @@ class MeshRegionCommon(object):
         self._name = name
         self._model_units = units
         self._app = app
+        self._initialize_tree_node()
+
+    @property
+    def _child_object(self):
+        """Object-oriented properties.
+
+        Returns
+        -------
+        class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTreeNode`
+
+        """
+        child_object = None
+        design_childs = self._app.get_oo_name(self._app.odesign)
+
+        if "Mesh" in design_childs:
+            cc = self._app.get_oo_object(self._app.odesign, "Mesh")
+            cc_names = self._app.get_oo_name(cc)
+            if self._name in cc_names:
+                child_object = cc.GetChildObject(self._name)
+        return child_object
 
     @abstractmethod
     def update(self):
-        """
-        Update the mesh region object.
-        """
+        """Update the mesh region object."""
 
     @abstractmethod
     def delete(self):
-        """
-        Delete the mesh region object.
-        """
+        """Delete the mesh region object."""
 
     @abstractmethod
     def create(self):
-        """
-        Create the mesh region object.
-        """
+        """Create the mesh region object."""
+
+    @pyaedt_function_handler()
+    def _initialize_tree_node(self):
+        if self._name == "Settings":
+            return True
+
+        if self._child_object:
+            child_object = self._app.get_oo_object(self._app.odesign, f"Mesh/{self._name}")
+            if child_object:
+                BinaryTreeNode.__init__(self, self._name, child_object, False, app=self._app)
+                return True
+        return False
 
     # backward compatibility
     def __getattr__(self, name):
-        if "settings" in self.__dict__ and name in self.__dict__["settings"]:
-            return self.__dict__["settings"][name]
-        elif name == "UserSpecifiedSettings":
-            return self.__dict__["manual_settings"]
-        else:
-            return self.__dict__[name]
+        try:
+            self.__getattribute__(name)
+        except AttributeError:
+            if "settings" in self.__dict__ and name in self.__dict__["settings"]:
+                return self.__dict__["settings"][name]
+            elif name == "UserSpecifiedSettings":
+                return self.__dict__["manual_settings"]
+            else:
+                return self.__dict__[name]
 
     def __setattr__(self, name, value):
+        skip_properties = [
+            "manual_settings",
+            "settings",
+            "_name",
+            "_model_units",
+            "_app",
+            "_assignment",
+            "enable",
+            "name",
+        ]
+        skip_properties_binary = [
+            "_props",
+            "_saved_root_name",
+            "_get_child_obj_arg",
+            "_node",
+            "child_object",
+            "auto_update",
+            "_children",
+            "_BinaryTreeNode__first_level",
+        ]
         if ("settings" in self.__dict__) and (name in self.settings):
             self.settings[name] = value
         elif name == "UserSpecifiedSettings":
             self.__dict__["manual_settings"] = value
-        elif (
-            ("settings" in self.__dict__)
-            and not (name in self.settings)
-            and name
-            not in ["manual_settings", "settings", "_name", "_model_units", "_app", "_assignment", "enable", "name"]
-        ):
+        elif name in skip_properties_binary:
+            super(BinaryTreeNode, self).__setattr__(name, value)
+        elif ("settings" in self.__dict__) and not (name in self.settings) and name not in skip_properties:
             self._app.logger.error(
                 f"Setting name {name} is not available. Available parameters are: {', '.join(self.settings.keys())}."
             )
@@ -692,9 +732,7 @@ class GlobalMeshRegion(MeshRegionCommon):
 
     @property
     def name(self):
-        """
-        Mesh region name.
-        """
+        """Mesh region name."""
         return "Global"
 
     @pyaedt_function_handler
@@ -708,7 +746,6 @@ class GlobalMeshRegion(MeshRegionCommon):
 
         References
         ----------
-
         >>> oModule.EditGlobalMeshRegion
         """
         args = ["NAME:Settings"]
@@ -724,25 +761,20 @@ class GlobalMeshRegion(MeshRegionCommon):
 
     @property
     def Objects(self):
-        """
-        Get the region object from the modeler.
-        """
+        """Get the region object from the modeler."""
         return self.global_region.name
 
     def delete(self):
-        """
-        Delete the region object in the modeler.
-        """
+        """Delete the region object in the modeler."""
         self.global_region.object.delete()
         self.global_region = None
 
     def create(self):
-        """
-        Create the region object in the modeler.
-        """
+        """Create the region object in the modeler."""
         self.delete()
         self.global_region = Region(self._app)
         self.global_region.create(self.padding_types, self.padding_values)
+        return self._initialize_tree_node()
 
 
 class MeshRegion(MeshRegionCommon):
@@ -810,6 +842,8 @@ class MeshRegion(MeshRegionCommon):
         -------
         str
         """
+        if self._child_object:
+            self._name = str(self.properties["Name"])
         return self._name
 
     @name.setter
@@ -826,7 +860,8 @@ class MeshRegion(MeshRegionCommon):
         )
         self._app.modeler.refresh()
         self._name = value
-        if isinstance(self.assignment, SubRegion):
+        result = self._initialize_tree_node()
+        if isinstance(self.assignment, SubRegion) and result:
             self._assignment = self.assignment
 
     @pyaedt_function_handler
@@ -840,7 +875,6 @@ class MeshRegion(MeshRegionCommon):
 
         References
         ----------
-
         >>> oModule.EditMeshRegion
         """
         args = ["NAME:" + self.name, "Enable:=", self.enable]
@@ -849,7 +883,7 @@ class MeshRegion(MeshRegionCommon):
         args += ["UserSpecifiedSettings:=", self.manual_settings]
         try:
             self._app.omeshmodule.EditMeshRegion(self.name, args)
-            return True
+            return self._initialize_tree_node()
         except GrpcApiError:  # pragma : no cover
             return False
 
@@ -864,7 +898,6 @@ class MeshRegion(MeshRegionCommon):
 
         References
         ----------
-
         >>> oModule.DeleteMeshRegions()
         """
         self._app.omeshmodule.DeleteMeshRegions([self.name])
@@ -881,36 +914,41 @@ class MeshRegion(MeshRegionCommon):
         list
         """
         if isinstance(self._assignment, SubRegion):
-            # try to update name
             if self.name in self._app.odesign.GetChildObject("Mesh").GetChildNames():
-                parts = []
-                subparts = []
-                if "Parts" in self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropNames():
-                    parts = self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropValue("Parts")
-                if "Submodels" in self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropNames():
-                    subparts = (
-                        self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropValue("Submodels")
+                # try to update name, APIs lacking an easy method before 242
+                if self._app.settings.aedt_version < "2024.2":  # pragma: no cover
+                    parts = []
+                    subparts = []
+                    if "Parts" in self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropNames():
+                        parts = self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropValue("Parts")
+                    if "Submodels" in self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropNames():
+                        subparts = (
+                            self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropValue("Submodels")
+                        )
+                    if not isinstance(parts, list):
+                        parts = [parts]
+                    if not isinstance(subparts, list):
+                        subparts = [subparts]
+                    parts += subparts
+                    sub_regions = self._app.modeler.non_model_objects
+                    for sr in sub_regions:
+                        p1 = []
+                        p2 = []
+                        if "Part Names" in self._app.modeler[sr].history().properties:
+                            p1 = self._app.modeler[sr].history().properties.get("Part Names", None)
+                            if not isinstance(p1, list):
+                                p1 = [p1]
+                        elif "Submodel Names" in self._app.modeler[sr].history().properties:
+                            p2 = self._app.modeler[sr].history().properties.get("Submodel Names", None)
+                            if not isinstance(p2, list):
+                                p2 = [p2]
+                        p1 += p2
+                        if "CreateSubRegion" == self._app.modeler[sr].history().command and all(p in p1 for p in parts):
+                            self._assignment.name = sr
+                else:
+                    self._assignment.name = (
+                        self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropValue("Assignment")
                     )
-                if not isinstance(parts, list):
-                    parts = [parts]
-                if not isinstance(subparts, list):
-                    subparts = [subparts]
-                parts += subparts
-                sub_regions = self._app.modeler.non_model_objects
-                for sr in sub_regions:
-                    p1 = []
-                    p2 = []
-                    if "Part Names" in self._app.modeler[sr].history().props:
-                        p1 = self._app.modeler[sr].history().props.get("Part Names", None)
-                        if not isinstance(p1, list):
-                            p1 = [p1]
-                    elif "Submodel Names" in self._app.modeler[sr].history().props:
-                        p2 = self._app.modeler[sr].history().props.get("Submodel Names", None)
-                        if not isinstance(p2, list):
-                            p2 = [p2]
-                    p1 += p2
-                    if "CreateSubRegion" == self._app.modeler[sr].history().command and all(p in p1 for p in parts):
-                        self._assignment.name = sr
             return self._assignment
         elif isinstance(self._assignment, list):
             return self._assignment
@@ -937,7 +975,6 @@ class MeshRegion(MeshRegionCommon):
 
         References
         ----------
-
         >>> oModule.AssignMeshRegion
         """
         if self.name == "Settings":
@@ -949,8 +986,10 @@ class MeshRegion(MeshRegionCommon):
         self._app.omeshmodule.AssignMeshRegion(args)
         self._app.mesh.meshregions.append(self)
         self._app.modeler.refresh_all_ids()
-        self._assignment = self.assignment
-        return True
+        result = self._initialize_tree_node()
+        if result:
+            self._assignment = self.assignment
+        return result
 
     # backward compatibility
     @property
@@ -1035,13 +1074,10 @@ class IcepakMesh(object):
         self._app = app
 
         self._odesign = self._app._odesign
-        self.modeler = self._app.modeler
         design_type = self._odesign.GetDesignType()
         if design_type not in meshers:
             raise RuntimeError(f"Invalid design type {design_type}")  # pragma: no cover
         self.id = 0
-        self._oeditor = self.modeler.oeditor
-        self._model_units = self.modeler.model_units
         self.meshoperations = self._get_design_mesh_operations()
         self.meshregions = self._get_design_mesh_regions()
         try:
@@ -1049,6 +1085,18 @@ class IcepakMesh(object):
         except IndexError:
             self.global_mesh_region = GlobalMeshRegion(app)
         self._priorities_args = []
+
+    @property
+    def _modeler(self):
+        return self._app.modeler
+
+    @property
+    def _oeditor(self):
+        return self._app.oeditor
+
+    @property
+    def _model_units(self):
+        return self._modeler.model_units
 
     @property
     def meshregions_dict(self):
@@ -1065,7 +1113,6 @@ class IcepakMesh(object):
     @pyaedt_function_handler()
     def _refresh_mesh_operations(self):
         """Refresh all mesh operations."""
-
         self._meshoperations = self._get_design_mesh_operations()
         return len(self.meshoperations)
 
@@ -1075,7 +1122,6 @@ class IcepakMesh(object):
 
         References
         ----------
-
         >>> oDesign.GetModule("MeshRegion")
         """
         return self._app.omeshmodule
@@ -1083,7 +1129,7 @@ class IcepakMesh(object):
     @property
     def boundingdimension(self):
         """Bounding dimension."""
-        return self.modeler.get_bounding_dimension()
+        return self._modeler.get_bounding_dimension()
 
     @pyaedt_function_handler()
     def _get_design_mesh_operations(self):
@@ -1183,12 +1229,11 @@ class IcepakMesh(object):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modules.mesh.MeshOperation`
+        list[:class:`ansys.aedt.core.modules.mesh.MeshOperation`]
             ``True`` when successful, ``False`` when failed.
 
         References
         ----------
-
         >>> oModule.AssignMeshOperation
         """
         level_order = {}
@@ -1229,7 +1274,6 @@ class IcepakMesh(object):
 
         References
         ----------
-
         >>> oModule.AssignMeshOperation
         """
         objs = self._app.modeler.convert_to_selections(assignment, True)
@@ -1272,7 +1316,6 @@ class IcepakMesh(object):
 
         References
         ----------
-
         >>> oModule.EditMeshOperation
         """
         warnings.warn("This method was deprecated in version 8.14.", DeprecationWarning)
@@ -1296,7 +1339,9 @@ class IcepakMesh(object):
 
     @pyaedt_function_handler(accuracy2="accuracy", stairStep="enable_stair_step")
     def automatic_mesh_3D(self, accuracy, enable_stair_step=True):
-        """Create a generic custom mesh for a custom 3D object.
+        """Create a generic custom mesh.
+
+        .. deprecated:: 0.13.0
 
         Parameters
         ----------
@@ -1313,20 +1358,19 @@ class IcepakMesh(object):
 
         References
         ----------
-
         >>> oModule.EditMeshOperation
         """
         xsize = self.boundingdimension[0] / (10 * accuracy * accuracy)
         ysize = self.boundingdimension[1] / (10 * accuracy * accuracy)
         zsize = self.boundingdimension[2] / (10 * accuracy)
-        self.global_mesh_region.MaxElementSizeX = xsize
-        self.global_mesh_region.MaxElementSizeY = ysize
-        self.global_mesh_region.MaxElementSizeZ = zsize
-        self.global_mesh_region.UserSpecifiedSettings = True
-        self.global_mesh_region.MinGapX = str(xsize / 100)
-        self.global_mesh_region.MinGapY = str(ysize / 100)
-        self.global_mesh_region.MinGapZ = str(zsize / 100)
-        self.global_mesh_region.StairStepMeshing = enable_stair_step
+        self.global_mesh_region.manual_settings = True
+        self.global_mesh_region.settings["MaxElementSizeX"] = xsize
+        self.global_mesh_region.settings["MaxElementSizeY"] = ysize
+        self.global_mesh_region.settings["MaxElementSizeZ"] = zsize
+        self.global_mesh_region.settings["MinGapX"] = str(xsize / 100)
+        self.global_mesh_region.settings["MinGapY"] = str(ysize / 100)
+        self.global_mesh_region.settings["MinGapZ"] = str(zsize / 100)
+        self.global_mesh_region.settings["StairStepMeshing"] = enable_stair_step
         self.global_mesh_region.update()
         return True
 
@@ -1349,24 +1393,22 @@ class IcepakMesh(object):
 
         References
         ----------
-
         >>> oEditor.UpdatePriorityList
 
         Examples
         --------
-
         >>> ipk.mesh.assign_priorities([["Box1", "Rectangle1"], ["Box2", "Fan1_1"], ["Heatsink1_1"]])
         """
         if not assignment or not isinstance(assignment, list) or not isinstance(assignment[0], list):
             raise AttributeError("``assignment`` input must be a list of lists.")
         props = {"PriorityListParameters": []}
         self._app.logger.info("Parsing input objects information for priority assignment. This operation can take time")
-        udc = self.modeler.user_defined_components
+        udc = self._modeler.user_defined_components
         udc._parse_objs()
         for level, objects in enumerate(assignment):
             level += 1
             if isinstance(objects[0], str):
-                objects = [self.modeler.objects_by_name.get(o, udc.get(o, None)) for o in objects]
+                objects = [self._modeler.objects_by_name.get(o, udc.get(o, None)) for o in objects]
             obj_3d = [
                 o
                 for o in objects
@@ -1409,7 +1451,7 @@ class IcepakMesh(object):
         self._app.logger.info("Input objects information for priority assignment completed.")
         args = []
         _dict2arg(props, args)
-        self.modeler.oeditor.UpdatePriorityList(args[0])
+        self._modeler.oeditor.UpdatePriorityList(args[0])
         return True
 
     @pyaedt_function_handler(obj_list="assignment", comp_name="component")
@@ -1439,12 +1481,10 @@ class IcepakMesh(object):
 
         References
         ----------
-
         >>> oEditor.UpdatePriorityList
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Icepak
         >>> app = Icepak()
         >>> app.mesh.add_priority(entity_type=1,assignment=app.modeler.object_names,priority=3)
@@ -1477,7 +1517,7 @@ class IcepakMesh(object):
             self._priorities_args.append(prio)
             args += self._priorities_args
         elif entity_type == 2:
-            o = self.modeler.user_defined_components[component]
+            o = self._modeler.user_defined_components[component]
             if (all(part.is3d for part in o.parts.values()) is False) and (
                 any(part.is3d for part in o.parts.values()) is True
             ):
@@ -1533,8 +1573,8 @@ class IcepakMesh(object):
                 self._priorities_args.append(prio_2d)
 
             args += self._priorities_args
-        self.modeler.oeditor.UpdatePriorityList(["NAME:UpdatePriorityListData"])
-        self.modeler.oeditor.UpdatePriorityList(args)
+        self._modeler.oeditor.UpdatePriorityList(["NAME:UpdatePriorityListData"])
+        self._modeler.oeditor.UpdatePriorityList(args)
         return True
 
     @pyaedt_function_handler(objectlist="assignment")
@@ -1558,21 +1598,20 @@ class IcepakMesh(object):
 
         References
         ----------
-
         >>> oModule.AssignMeshRegion
         """
         if not name:
             name = generate_unique_name("MeshRegion")
         if assignment is None:
-            assignment = [i for i in self.modeler.object_names]
+            assignment = [i for i in self._modeler.object_names]
         meshregion = MeshRegion(self._app, assignment, name)
         meshregion.manual_settings = False
         meshregion.settings["MeshRegionResolution"] = level
-        all_objs = [i for i in self.modeler.object_names]
+        all_objs = [i for i in self._modeler.object_names]
         created = bool(meshregion)
         if created:
             if settings.aedt_version < "2024.1":
-                objectlist2 = self.modeler.object_names
+                objectlist2 = self._modeler.object_names
                 added_obj = [i for i in objectlist2 if i not in all_objs]
                 if not added_obj:
                     added_obj = [i for i in objectlist2 if i not in all_objs or i in assignment]
@@ -1599,7 +1638,6 @@ class IcepakMesh(object):
 
         References
         ----------
-
         >>> oDesign.GenerateMesh
         """
         if name is None:
@@ -1641,7 +1679,6 @@ class IcepakMesh(object):
 
         References
         ----------
-
         >>> oModule.AssignMeshOperation
         """
         if name:
@@ -1684,7 +1721,6 @@ class IcepakMesh(object):
 
         References
         ----------
-
         >>> oModule.AssignMeshOperation
         """
         if not os.path.exists(mesh_file):

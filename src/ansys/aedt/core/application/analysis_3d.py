@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -23,14 +23,21 @@
 # SOFTWARE.
 
 import csv
-import ntpath
 import os
+from pathlib import Path
+from typing import List
+from typing import Union
+import warnings
 
 from ansys.aedt.core.application.analysis import Analysis
+from ansys.aedt.core.generic.checks import min_aedt_version
 from ansys.aedt.core.generic.configurations import Configurations
 from ansys.aedt.core.generic.constants import unit_converter
-from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.file_utils import check_if_path_exists
+from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.file_utils import get_dxf_layers
+from ansys.aedt.core.generic.file_utils import open_file
+from ansys.aedt.core.generic.file_utils import read_component_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 
@@ -163,16 +170,15 @@ class FieldAnalysis3D(Analysis, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.mesh.Mesh` or :class:`ansys.aedt.core.modules.mesh_icepak.IcepakMesh`
+        :class:`ansys.aedt.core.modules.mesh.Mesh`
             Mesh object.
         """
         if self._mesh is None and self._odesign:
             self.logger.reset_timer()
 
             from ansys.aedt.core.modules.mesh import Mesh
-            from ansys.aedt.core.modules.mesh_icepak import IcepakMesh
 
-            self._mesh = IcepakMesh(self) if self.design_type == "Icepak" else Mesh(self)
+            self._mesh = Mesh(self)
             self.logger.info_timer("Mesh class has been initialized!")
 
         return self._mesh
@@ -183,8 +189,7 @@ class FieldAnalysis3D(Analysis, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.visualization.post.post_common_3d.PostProcessor3D` or
-        :class:`ansys.aedt.core.visualization.post.post_icepak.PostProcessorIcepak`
+        :class:`ansys.aedt.core.visualization.post.post_common_3d.PostProcessor3D`
             PostProcessor object.
         """
         if self._post is None and self._odesign:
@@ -209,23 +214,18 @@ class FieldAnalysis3D(Analysis, object):
         # libs = [syslib, userlib]
 
         libs = [
-            os.path.join(self.syslib, "3DComponents", self._design_type),
-            os.path.join(self.userlib, "3DComponents", self._design_type),
+            Path(self.syslib) / "3DComponents" / self._design_type,
+            Path(self.userlib) / "3DComponents" / self._design_type,
         ]
 
         for lib in libs:
-            if os.path.exists(lib):
-                listfiles = []
-                for root, _, files in os.walk(lib):
-                    for file in files:
-                        if file.endswith(".a3dcomp"):
-                            listfiles.append(os.path.join(root, file))
-                for el in listfiles:
-                    head, tail = ntpath.split(el)
-                    components_dict[tail[:-8]] = el
+            if lib.exists():
+                for file in lib.rglob("*.a3dcomp"):
+                    components_dict[file.stem] = str(file)
         return components_dict
 
     @pyaedt_function_handler(objects="assignment", export_path="output_file")
+    @min_aedt_version("2021.2")
     def plot(
         self,
         assignment=None,
@@ -282,26 +282,23 @@ class FieldAnalysis3D(Analysis, object):
         :class:`ansys.aedt.core.generic.plot.ModelPlotter`
             Model Object.
         """
-        if self._aedt_version < "2021.2":
-            self.logger.warning("Plot is supported from AEDT 2021 R2.")
-        else:
-            return self.post.plot_model_obj(
-                objects=assignment,
-                show=show,
-                export_path=output_file,
-                plot_as_separate_objects=plot_as_separate_objects,
-                plot_air_objects=plot_air_objects,
-                force_opacity_value=force_opacity_value,
-                clean_files=clean_files,
-                view=view,
-                show_legend=show_legend,
-                dark_mode=dark_mode,
-                show_bounding=show_bounding,
-                show_grid=show_grid,
-            )
+        return self.post.plot_model_obj(
+            objects=assignment,
+            show=show,
+            export_path=output_file,
+            plot_as_separate_objects=plot_as_separate_objects,
+            plot_air_objects=plot_air_objects,
+            force_opacity_value=force_opacity_value,
+            clean_files=clean_files,
+            view=view,
+            show_legend=show_legend,
+            dark_mode=dark_mode,
+            show_bounding=show_bounding,
+            show_grid=show_grid,
+        )
 
-    @pyaedt_function_handler(setup_name="setup", variation_string="variations")
-    def export_mesh_stats(self, setup, variations="", mesh_path=None):
+    @pyaedt_function_handler(setup_name="setup", variation_string="variations", mesh_path="output_file")
+    def export_mesh_stats(self, setup, variations="", output_file=None):
         """Export mesh statistics to a file.
 
         Parameters
@@ -310,7 +307,7 @@ class FieldAnalysis3D(Analysis, object):
             Setup name.
         variations : str, optional
             Variation list. The default is ``""``.
-        mesh_path : str, optional
+        output_file : str, optional
             Full path to the mesh statistics file. The default is ``None``, in which
             caswe the working directory is used.
 
@@ -323,14 +320,37 @@ class FieldAnalysis3D(Analysis, object):
         ----------
         >>> oDesign.ExportMeshStats
         """
-        if not mesh_path:
-            mesh_path = os.path.join(self.working_directory, "meshstats.ms")
-        self.odesign.ExportMeshStats(setup, variations, mesh_path)
-        return mesh_path
+        if not output_file:
+            output_file = str(Path(self.working_directory) / "meshstats.ms")
+        self.odesign.ExportMeshStats(setup, variations, output_file)
+        return output_file
+
+    @pyaedt_function_handler()
+    def get_component_variables(self, name: Union[str, Path]) -> dict:
+        """Read component file and extract variables.
+
+        Parameters
+        ----------
+        name : str or :class:`pathlib.Path`
+            Name of the 3D component, which must be in the ``syslib`` or ``userlib`` directory.
+            Otherwise, you must specify the full absolute path to the component file.
+
+        Returns
+        -------
+        dict
+            Dictionary of variables in the component file.
+        """
+        if str(name) not in self.components3d:
+            return read_component_file(name)
+        else:
+            return read_component_file(self.components3d[name])
 
     @pyaedt_function_handler(component3dname="component_name")
     def get_components3d_vars(self, component_name):
         """Read the A3DCOMP file and check for variables.
+
+        .. deprecated:: 0.15.1
+            Use :func:`get_component_variables` method instead.
 
         Parameters
         ----------
@@ -343,43 +363,10 @@ class FieldAnalysis3D(Analysis, object):
         dict
             Dictionary of variables in the A3DCOMP file.
         """
-        vars = {}
-        if component_name not in self.components3d:
-            aedt_fh = open_file(component_name, "rb")
-            if aedt_fh:
-                temp = aedt_fh.read().splitlines()
-                _all_lines = []
-                for line in temp:
-                    try:
-                        _all_lines.append(line.decode("utf-8").lstrip("\t"))
-                    except UnicodeDecodeError:
-                        break
-                for line in _all_lines:
-                    if "VariableProp(" in line:
-                        line_list = line.split("'")
-                        if not [
-                            c for c in line_list[len(line_list) - 2] if c in ["+", "-", "*", "'" "," "/", "(", ")"]
-                        ]:
-                            self[line_list[1]] = line_list[len(line_list) - 2]
-                        else:
-                            vars[line_list[1]] = line_list[len(line_list) - 2]
-                aedt_fh.close()
-                return vars
-            else:
-                return False
-        with open_file(self.components3d[component_name], "rb") as aedt_fh:
-            temp = aedt_fh.read().splitlines()
-        _all_lines = []
-        for line in temp:
-            try:
-                _all_lines.append(line.decode("utf-8").lstrip("\t"))
-            except UnicodeDecodeError:
-                break
-        for line in _all_lines:
-            if "VariableProp(" in line:
-                line_list = line.split("'")
-                vars[line_list[1]] = line_list[len(line_list) - 2]
-        return vars
+        warnings.warn(
+            "`get_components3d_vars` is deprecated. Use `get_component_variables` method instead.", DeprecationWarning
+        )
+        return self.get_component_variables(component_name)
 
     @pyaedt_function_handler(objectname="assignment", property="property_name", type="property_type")
     def get_property_value(self, assignment, property_name, property_type=None):
@@ -402,7 +389,6 @@ class FieldAnalysis3D(Analysis, object):
 
         References
         ----------
-
         >>> oDesign.GetPropertyValue
         """
         boundary = {"HFSS": "HfssTab", "Icepak": "Icepak", "Q3D": "Q3D", "Maxwell3D": "Maxwell3D"}
@@ -445,6 +431,7 @@ class FieldAnalysis3D(Analysis, object):
     @pyaedt_function_handler(object_list="assignment")
     def copy_solid_bodies_from(self, design, assignment=None, no_vacuum=True, no_pec=True, include_sheets=False):
         """Copy a list of objects and user defined models from one design to the active design.
+
         If user defined models are selected, the project will be saved automatically.
 
         Parameters
@@ -588,7 +575,6 @@ class FieldAnalysis3D(Analysis, object):
 
         References
         ----------
-
         >>> oEditor.Import
         """
         return self.modeler.import_3d_cad(
@@ -651,7 +637,6 @@ class FieldAnalysis3D(Analysis, object):
 
         References
         ----------
-
         >>> oEditor.Export
         """
         return self.modeler.export_3d_model(
@@ -675,7 +660,6 @@ class FieldAnalysis3D(Analysis, object):
 
         References
         ----------
-
         >>> oModule.GetAllSources
         """
         return list(self.osolution.GetAllSources())
@@ -691,7 +675,6 @@ class FieldAnalysis3D(Analysis, object):
 
         References
         ----------
-
         >>> oModule.GetAllSources
         """
         return list(self.osolution.GetAllSourceModes())
@@ -714,7 +697,6 @@ class FieldAnalysis3D(Analysis, object):
 
         References
         ----------
-
         >>> oModule.SetSourceContexts
         """
 
@@ -747,7 +729,6 @@ class FieldAnalysis3D(Analysis, object):
 
         References
         ----------
-
         >>> oEditor.AssignMaterial
 
         Examples
@@ -846,7 +827,6 @@ class FieldAnalysis3D(Analysis, object):
 
         References
         ----------
-
         >>> oEditor.GetObjectsByMaterial
         """
         if len(self.modeler.objects) != len(self.modeler.object_names):
@@ -918,7 +898,6 @@ class FieldAnalysis3D(Analysis, object):
 
         References
         ----------
-
         >>> oEditor.AssignMaterial
         """
         with open_file(material_file) as csvfile:
@@ -1061,7 +1040,9 @@ class FieldAnalysis3D(Analysis, object):
 
     @pyaedt_function_handler(component_name="components")
     def flatten_3d_components(self, components=None, purge_history=True, password=None):
-        """Flatten one or multiple 3d components in the actual layout. Each 3d Component is replaced with objects.
+        """Flatten one or multiple 3d components in the actual layout.
+
+        Each 3d Component is replaced with objects.
         This function will work only if the reference coordinate system of the 3d component is the global one.
 
         Parameters
@@ -1153,10 +1134,12 @@ class FieldAnalysis3D(Analysis, object):
         return True
 
     @pyaedt_function_handler(object_name="assignment")
+    @min_aedt_version("2023.2")
     def identify_touching_conductors(self, assignment=None):
         # type: (str) -> dict
-        """Identify all touching components and group in a dictionary. This method requires that
-        the ``pyvista`` package is installed.
+        """Identify all touching components and group in a dictionary.
+
+        This method requires that the ``pyvista`` package is installed.
 
         Parameters
         ----------
@@ -1168,10 +1151,7 @@ class FieldAnalysis3D(Analysis, object):
         dict
 
         """
-        if settings.aedt_version < "2023.2":  # pragma: no cover
-            self.logger.error("This method requires CPython and PyVista.")
-            return {}
-        if settings.aedt_version >= "2023.2" and self.design_type == "HFSS":  # pragma: no cover
+        if self.design_type == "HFSS":  # pragma: no cover
             nets_aedt = self.oboundary.IdentifyNets(True)
             nets = {}
             for net in nets_aedt[1:]:
@@ -1237,14 +1217,16 @@ class FieldAnalysis3D(Analysis, object):
                     break
         return nets
 
-    @pyaedt_function_handler()
-    def get_dxf_layers(self, file_path):
-        # type: (str) -> list[str]
+    @pyaedt_function_handler(file_path="input_file")
+    def get_dxf_layers(self, input_file: Union[str, Path]) -> List[str]:
         """Read a DXF file and return all layer names.
+
+        .. deprecated:: 0.15.1
+            Use :func:`ansys.aedt.core.generic.file_utils.get_dxf_layers` method instead.
 
         Parameters
         ----------
-        file_path : str
+        input_file : str or :class:`pathlib.Path`
             Full path to the DXF file.
 
         Returns
@@ -1252,37 +1234,35 @@ class FieldAnalysis3D(Analysis, object):
         list
             List of layers in the DXF file.
         """
-        layer_names = []
-        with open_file(file_path, encoding="utf8") as f:
-            lines = f.readlines()
-            indices = self._find_indices(lines, "AcDbLayerTableRecord\n")
-            for idx in indices:
-                if "2" in lines[idx + 1]:
-                    layer_names.append(lines[idx + 2].replace("\n", ""))
-            return layer_names
+        warnings.warn(
+            "`get_dxf_layers` is deprecated. "
+            "Use `ansys.aedt.core.generic.file_utils.get_dxf_layers` method instead.",
+            DeprecationWarning,
+        )
 
-    @pyaedt_function_handler(layers_list="layers")
+        return get_dxf_layers(input_file)
+
+    @pyaedt_function_handler(layers_list="layers", file_path="input_file")
     def import_dxf(
         self,
-        file_path,
-        layers,
-        auto_detect_close=True,
-        self_stitch=True,
-        self_stitch_tolerance=0,
-        scale=0.001,
-        defeature_geometry=False,
-        defeature_distance=0,
-        round_coordinates=False,
-        round_num_digits=4,
-        write_poly_with_width_as_filled_poly=False,
-        import_method=1,
-    ):  # pragma: no cover
-        # type: (str, list, bool, bool, float, float, bool, float, bool, int, bool, int, bool) -> bool
+        input_file: Union[str, Path],
+        layers: List[str],
+        auto_detect_close: bool = True,
+        self_stitch: bool = True,
+        self_stitch_tolerance: float = 0.0,
+        scale: float = 0.001,
+        defeature_geometry: bool = False,
+        defeature_distance: float = 0.0,
+        round_coordinates: bool = False,
+        round_num_digits: int = 4,
+        write_poly_with_width_as_filled_poly: bool = False,
+        import_method: Union[int, bool] = 1,
+    ) -> bool:  # pragma: no cover
         """Import a DXF file.
 
         Parameters
         ----------
-        file_path : str
+        input_file : str or :class:`pathlib.Path`
             Path to the DXF file.
         layers : list
             List of layer names to import. To get the dxf_layers in the DXF file,
@@ -1295,7 +1275,7 @@ class FieldAnalysis3D(Analysis, object):
             Whether to join multiple straight line segments to form polylines.
             The default is ``True``.
         self_stitch_tolerance : float, optional
-            Self stitch tolerance value. The default is ``0``.
+            Self stitch tolerance value. If negative, let importer use its default tolerance. The default is ``0``.
         scale : float, optional
             Scaling factor. The default is ``0.001``. The units are ``mm``.
         defeature_geometry : bool, optional
@@ -1312,12 +1292,9 @@ class FieldAnalysis3D(Analysis, object):
             The default is ``4``.
         write_poly_with_width_as_filled_poly : bool, optional
             Imports wide polylines as polygons. The default is ``False``.
-        import_method : int, bool
+        import_method : int or bool, optional
             Whether the import method is ``Script`` or ``Acis``.
             The default is ``1``, which means that the ``Acis`` is used.
-        sheet_bodies_2d : bool, optional
-            Whether importing as 2D sheet bodies causes imported objects to
-            be organized in terms of 2D sheets. The default is ``True``.
 
         Returns
         -------
@@ -1326,14 +1303,14 @@ class FieldAnalysis3D(Analysis, object):
 
         References
         ----------
-
         >>> oEditor.ImportDXF
 
         """
-        if self.desktop_class.non_graphical:
+        input_file = Path(input_file)
+        if self.desktop_class.non_graphical and self.desktop_class.aedt_version_id < "2024.2":  # pragma: no cover
             self.logger.error("Method is supported only in graphical mode.")
             return False
-        dxf_layers = self.get_dxf_layers(file_path)
+        dxf_layers = get_dxf_layers(input_file)
         for layer in layers:
             if layer not in dxf_layers:
                 self.logger.error(f"{layer} does not exist in specified dxf.")
@@ -1345,11 +1322,12 @@ class FieldAnalysis3D(Analysis, object):
             sheet_bodies_2d = True
 
         vArg1 = ["NAME:options"]
-        vArg1.append("FileName:="), vArg1.append(file_path.replace(os.sep, "/"))
+        vArg1.append("FileName:="), vArg1.append(str(input_file.as_posix()))
         vArg1.append("Scale:="), vArg1.append(scale)
         vArg1.append("AutoDetectClosed:="), vArg1.append(auto_detect_close)
         vArg1.append("SelfStitch:="), vArg1.append(self_stitch)
-        vArg1.append("SelfStitchTolerance:="), vArg1.append(self_stitch_tolerance)
+        if self_stitch_tolerance >= 0.0:
+            vArg1.append("SelfStitchTolerance:="), vArg1.append(self_stitch_tolerance)
         vArg1.append("DefeatureGeometry:="), vArg1.append(defeature_geometry)
         vArg1.append("DefeatureDistance:="), vArg1.append(defeature_distance)
         vArg1.append("RoundCoordinates:="), vArg1.append(round_coordinates)
@@ -1372,7 +1350,7 @@ class FieldAnalysis3D(Analysis, object):
         return True
 
     @pyaedt_function_handler(gds_file="input_file", gds_number="mapping_layers", unit="units")
-    def import_gds_3d(self, input_file, mapping_layers, units="um", import_method=1):  # pragma: no cover
+    def import_gds_3d(self, input_file: str, mapping_layers: dict, units: str = "um", import_method: int = 1) -> bool:
         """Import a GDSII file.
 
         Parameters
@@ -1380,8 +1358,8 @@ class FieldAnalysis3D(Analysis, object):
         input_file : str
             Path to the GDS file.
         mapping_layers : dict
-            Dictionary keys are GDS layer numbers, and the value is a tuple with the thickness and elevation.
-        units : string, optional
+            Dictionary keys are GDS layer numbers, and the value is a tuple with the elevation and thickness.
+        units : str, optional
             Length unit values. The default is ``"um"``.
         import_method : integer, optional
             GDSII import method. The default is ``1``. Options are:
@@ -1410,10 +1388,10 @@ class FieldAnalysis3D(Analysis, object):
 
         """
 
-        if self.desktop_class.non_graphical:
+        if self.desktop_class.non_graphical and self.desktop_class.aedt_version_id < "2024.1":  # pragma: no cover
             self.logger.error("Method is supported only in graphical mode.")
             return False
-        if not os.path.exists(input_file):
+        if not check_if_path_exists(input_file):
             self.logger.error("GDSII file does not exist. No layer is imported.")
             return False
         if len(mapping_layers) == 0:
@@ -1470,26 +1448,3 @@ class FieldAnalysis3D(Analysis, object):
         )
         self.logger.info("GDS layer imported with elevations and thickness.")
         return True
-
-    @pyaedt_function_handler()
-    def _find_indices(self, list_to_check, item_to_find):
-        # type: (list, str|int) -> list
-        """Given a list, returns the list of indices for all occurrences of a given element.
-
-        Parameters
-        ----------
-        list_to_check: list
-            List to check.
-        item_to_find: str, int
-            Element to search for in the list.
-
-        Returns
-        -------
-        list
-            Indices of the occurrences of a given element.
-        """
-        indices = []
-        for idx, value in enumerate(list_to_check):
-            if value == item_to_find:
-                indices.append(idx)
-        return indices

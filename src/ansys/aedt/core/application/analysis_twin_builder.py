@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+import warnings
 
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -31,27 +32,29 @@ from ansys.aedt.core.modules.solve_setup import SetupCircuit
 
 class AnalysisTwinBuilder(Analysis):
     """Provides the Twin Builder Analysis Setup (TwinBuilder).
+
     It is automatically initialized by Application call (Twin Builder).
     Refer to Application function for inputs definition
 
     Parameters
     ----------
-
-    Returns
-    -------
-
     """
 
     @property
     def existing_analysis_setups(self):
-        """Get all analysis solution setups.
+        """Existing analysis setups.
 
-        References
-        ----------
+        .. deprecated:: 0.15.0
+            Use :func:`setup_names` from setup object instead.
 
-        >>> oModule.GetAllSolutionSetups"""
-        setups = list(self.oanalysis.GetAllSolutionSetups())
-        return setups
+        Returns
+        -------
+        list of str
+            List of all analysis setups in the design.
+        """
+        msg = "`existing_analysis_setups` is deprecated. " "Use `setup_names` method from setup object instead."
+        warnings.warn(msg, DeprecationWarning)
+        return self.setup_names
 
     @property
     def setup_names(self):
@@ -59,9 +62,8 @@ class AnalysisTwinBuilder(Analysis):
 
         References
         ----------
-
         >>> oModule.GetAllSolutionSetups"""
-        return list(self.oanalysis.GetAllSolutionSetups())
+        return [i.split(" : ")[0] for i in self.oanalysis.GetAllSolutionSetups()]
 
     def __init__(
         self,
@@ -102,18 +104,6 @@ class AnalysisTwinBuilder(Analysis):
         if not settings.lazy_load:
             self._modeler = self.modeler
             self._post = self.post
-
-    @property
-    def existing_analysis_sweeps(self):
-        """Get all existing analysis setups.
-
-        Returns
-        -------
-        list of str
-            List of all analysis setups in the design.
-
-        """
-        return self.existing_analysis_setups
 
     @property
     def modeler(self):
