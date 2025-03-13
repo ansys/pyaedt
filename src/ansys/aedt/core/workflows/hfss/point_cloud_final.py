@@ -28,11 +28,13 @@ from tkinter import messagebox
 
 import ansys.aedt.core
 from ansys.aedt.core import Hfss
+from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 from ansys.aedt.core.workflows.misc import get_aedt_version
 from ansys.aedt.core.workflows.misc import get_arguments
 from ansys.aedt.core.workflows.misc import get_port
 from ansys.aedt.core.workflows.misc import get_process_id
 from ansys.aedt.core.workflows.misc import is_student
+import pyvista as pv
 
 port = get_port()
 version = get_aedt_version()
@@ -40,13 +42,12 @@ aedt_process_id = get_process_id()
 is_student = is_student()
 
 # Extension batch arguments
-extension_arguments = {"file_path": "", "choice": ""}
-extension_description = "Point cloud for HFSS SBR+ Near field simulation"
+extension_arguments = {"choice": "", "points": 1000}
+extension_description = "Point cloud generator"
 
 
 def frontend():
-    import tkinter as tk
-    from tkinter import filedialog
+    import tkinter
     import tkinter.ttk as ttk
 
     import PIL.Image
@@ -55,7 +56,7 @@ def frontend():
 
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
-        specified_version=version,
+        version=version,
         port=port,
         aedt_process_id=aedt_process_id,
         student_version=is_student,
@@ -77,7 +78,7 @@ def frontend():
     hfss = Hfss(project_name, design_name)
 
     # Create UI
-    master = tk.Tk()
+    master = tkinter.Tk()
 
     master.geometry()
 
@@ -115,51 +116,36 @@ def frontend():
         messagebox.showerror("Error", msg)
         app.logger.error(msg)
         hfss.release_desktop(False, False)
-        output_dict = {"choice": "", "file_path": ""}
+        output_dict = {}
         return output_dict
 
-    # Origin x entry
-    origin_x_label = ttk.Label(master, text="Origin X:", width=20, style="PyAEDT.TLabel")
-    origin_x_label.grid(row=0, column=0, padx=15, pady=10)
-    origin_x_entry = tk.Text(master, width=40, height=1)
-    origin_x_entry.grid(row=0, column=1, pady=15, padx=10)
-    origin_x_entry.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
+    # Dropdown label
+    label = ttk.Label(master, text="Select Object or Surface:", width=20, style="PyAEDT.TLabel")
+    label.grid(row=0, column=0, pady=10)
 
-    # Origin y entry
-    origin_y_label = ttk.Label(master, text="Origin Y:", width=20, style="PyAEDT.TLabel")
-    origin_y_label.grid(row=1, column=0, padx=15, pady=10)
-    origin_y_entry = tk.Text(master, width=40, height=1)
-    origin_y_entry.grid(row=1, column=1, pady=15, padx=10)
-    origin_y_entry.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
+    # Dropdown menu for objects and surfaces
+    combo = ttk.Combobox(master, width=30, style="PyAEDT.TCombobox")
 
-    # Origin z entry
-    origin_z_label = ttk.Label(master, text="Origin Y:", width=20, style="PyAEDT.TLabel")
-    origin_z_label.grid(row=2, column=0, padx=15, pady=10)
-    origin_z_entry = tk.Text(master, width=40, height=1)
-    origin_z_entry.grid(row=2, column=1, pady=15, padx=10)
-    origin_z_entry.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
+    values = ["--- Objects ---"]
+    if aedt_solids:
+        values.extend(aedt_solids)
 
-    # Radius entry
-    radius_label = ttk.Label(master, text="Radius:", width=20, style="PyAEDT.TLabel")
-    radius_label.grid(row=3, column=0, padx=15, pady=10)
-    radius_entry = tk.Text(master, width=40, height=1)
-    radius_entry.grid(row=3, column=1, pady=15, padx=10)
-    radius_entry.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
+    values.append("--- Surfaces ---")
+    if aedt_sheets:
+        values.extend(aedt_sheets)
+    combo["values"] = values
 
-    # Browse file entry
-    browse_file_label = ttk.Label(master, text="Browse File:", width=20, style="PyAEDT.TLabel")
-    browse_file_label.grid(row=4, column=0, pady=10)
-    browse_file_entry = tk.Text(master, width=40, height=1)
-    browse_file_entry.grid(row=4, column=1, pady=15, padx=10)
-    browse_file_entry.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
+    combo.current(1)
+    combo.grid(row=0, column=1, pady=10, padx=5)
+    combo.focus_set()
 
-    # Project name info
-    project_name_label = ttk.Label(master, text="Project Name:", width=20, style="PyAEDT.TLabel")
-    project_name_label.grid(row=5, column=0, pady=10)
-    project_name_entry = tk.Text(master, width=40, height=1)
-    project_name_entry.insert(tk.INSERT, active_project_name)
-    project_name_entry.grid(row=5, column=1, pady=15, padx=10)
-    project_name_entry.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
+    # Points entry
+    points_label = ttk.Label(master, text="Number of Points:", width=20, style="PyAEDT.TLabel")
+    points_label.grid(row=1, column=0, padx=15, pady=10)
+    points_entry = tkinter.Text(master, width=40, height=1)
+    points_entry.insert(tkinter.END, "1000")
+    points_entry.grid(row=1, column=1, pady=15, padx=10)
+    points_entry.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
 
     def toggle_theme():
         if master.theme == "light":
@@ -171,22 +157,7 @@ def frontend():
 
     def set_light_theme():
         master.configure(bg=theme.light["widget_bg"])
-        origin_x_entry.configure(
-            background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
-        )
-        origin_y_entry.configure(
-            background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
-        )
-        origin_z_entry.configure(
-            background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
-        )
-        radius_entry.configure(
-            background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
-        )
-        browse_file_entry.configure(
-            background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
-        )
-        project_name_entry.configure(
+        points_entry.configure(
             background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
         )
         theme.apply_light_theme(style)
@@ -194,60 +165,93 @@ def frontend():
 
     def set_dark_theme():
         master.configure(bg=theme.dark["widget_bg"])
-        origin_x_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        origin_y_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        origin_z_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        radius_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        browse_file_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        project_name_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
+        points_entry.configure(background=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
         theme.apply_dark_theme(style)
         change_theme_button.config(text="\u2600")
 
+    # Create a frame for the toggle button to position it correctly
+    button_frame = ttk.Frame(master, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2)
+    button_frame.grid(row=3, column=2, pady=10, padx=10)
+
+    # Add the toggle theme button inside the frame
+    change_theme_button = ttk.Button(
+        button_frame, width=20, text="\u263D", command=toggle_theme, style="PyAEDT.TButton"
+    )
+
+    change_theme_button.grid(row=0, column=0, padx=0)
+
     def callback():
-        master.origin_x = origin_x_entry.get("1.0", tk.END).strip()
-        master.origin_y = origin_y_entry.get("1.0", tk.END).strip()
-        master.origin_z = origin_z_entry.get("1.0", tk.END).strip()
-        master.radius = radius_entry.get("1.0", tk.END).strip()
+        master.flag = True
+        selected_item = combo.get()
+        if selected_item in ["--- Objects ---", "--- Surfaces ---", ""]:
+            messagebox.showerror("Error", "Please select a valid object or surface.")
+            master.flag = False
+
+        points = points_entry.get("1.0", tkinter.END).strip()
+        num_points = int(points)
+        if num_points <= 0:
+            master.flag = False
+            messagebox.showerror("Error", "Number of points must be greater than zero.")
+
+        master.assignment = selected_item
+        master.points = points
+
         master.destroy()
 
-    def browse_files():
-        filename = filedialog.askopenfilename(
-            initialdir="/",
-            title="Select an Electronics File",
-            filetypes=(("AEDT", ".aedt"), ("all files", "*.*")),
-        )
-        browse_file_entry.insert(tk.END, filename)
-        master.file_path = browse_file_entry.get("1.0", tk.END).strip()
-        master.destroy()
+    def preview():
+        try:
+            selected_item = combo.get()
+            if selected_item in ["--- Objects ---", "--- Surfaces ---", ""]:
+                messagebox.showerror("Error", "Please select a valid object or surface.")
+                return None
+            points = points_entry.get("1.0", tkinter.END).strip()
+            num_points = int(points)
+            if num_points <= 0:
+                messagebox.showerror("Error", "Number of points must be greater than zero.")
+                return None
 
-    # Create button to browse an AEDT file
-    browse_button = ttk.Button(master, text="...", command=browse_files, width=10, style="PyAEDT.TButton")
-    browse_button.grid(row=4, column=2, pady=10, padx=15)
+            # Export the mesh and generate point cloud
+            output_file = hfss.post.export_model_obj(assignment=selected_item)
 
-    # Create buttons to create sphere and change theme color
-    create_button = ttk.Button(master, text="Create Sphere", command=callback, style="PyAEDT.TButton")
-    change_theme_button = ttk.Button(master, text="\u263D", width=2, command=toggle_theme, style="PyAEDT.TButton")
-    create_button.grid(row=6, column=0, padx=15, pady=10)
-    change_theme_button.grid(row=6, column=2, pady=10)
+            if not output_file or not Path(output_file[0][0]).is_file():
+                messagebox.showerror("Error", "Object could not be exported.")
+                hfss.release_desktop(False, False)
+                output_dict = {"choice": "", "file_path": ""}
+                return output_dict
 
-    tk.mainloop()
+            goemetry_file = output_file[0][0]
 
-    origin_x = getattr(master, "origin_x", extension_arguments["origin_x"])
-    origin_y = getattr(master, "origin_y", extension_arguments["origin_y"])
-    origin_z = getattr(master, "origin_z", extension_arguments["origin_z"])
-    radius = getattr(master, "radius", extension_arguments["radius"])
-    file_path = getattr(master, "file_path", extension_arguments["file_path"])
+            # Generate and visualize the point cloud
+            model_plotter = ModelPlotter()
+            model_plotter.add_object(goemetry_file)
+            point_cloud = model_plotter.point_cloud(points=num_points)
 
-    output_dict = {
-        "origin_x": origin_x,
-        "origin_y": origin_y,
-        "origin_z": origin_z,
-        "radius": radius,
-        "file_path": file_path,
-    }
+            plotter = pv.Plotter()
+            for _, actor in point_cloud.values():
+                plotter.add_mesh(actor, color="white", point_size=5, render_points_as_spheres=True)
+            plotter.show()
 
-    app.release_desktop(False, False)
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
+            hfss.release_desktop(False, False)
+            output_dict = {}
+            return output_dict
 
+    b2 = ttk.Button(master, text="Preview", width=40, command=preview, style="PyAEDT.TButton")
+    b2.grid(row=3, column=0, pady=10, padx=10)
+
+    b3 = ttk.Button(master, text="Generate", width=40, command=callback, style="PyAEDT.TButton")
+    b3.grid(row=3, column=1, pady=10, padx=10)
+
+    tkinter.mainloop()
+
+    assignment = getattr(master, "assignment", extension_arguments["choice"])
+    points = getattr(master, "points", extension_arguments["points"])
+
+    hfss.release_desktop(False, False)
+    output_dict = {}
+    if master.flag:
+        output_dict = {"choice": assignment, "points": points}
     return output_dict
 
 
@@ -269,19 +273,23 @@ def main(extension_args):
     else:
         design_name = active_design.GetName()
 
-    aedtapp = get_pyaedt_app(project_name, design_name)
+    hfss = Hfss(project_name, design_name)
 
-    origin_x = extension_args.get("origin_x", extension_arguments["origin_x"])
-    origin_y = extension_args.get("origin_y", extension_arguments["origin_y"])
-    origin_z = extension_args.get("origin_z", extension_arguments["origin_z"])
-    radius = extension_args.get("radius", extension_arguments["radius"])
-    file_path = extension_args.get("file_path", extension_arguments["file_path"])
+    assignment = extension_args.get("choice", extension_arguments["choice"])
+    points = extension_args.get("points", extension_arguments["points"])
 
-    # Your script
-    if file_path:
-        aedtapp.load_project(file_path, set_active=True)
-    else:
-        aedtapp.modeler.create_sphere([origin_x, origin_y, origin_z], radius)
+    # Export the mesh and generate point cloud
+    output_file = hfss.post.export_model_obj(assignment=assignment)
+
+    goemetry_file = output_file[0][0]
+
+    # Generate and visualize the point cloud
+    model_plotter = ModelPlotter()
+    model_plotter.add_object(goemetry_file)
+    point_values = model_plotter.point_cloud(points=int(points))
+
+    for input_file, _ in point_values.values():
+        _ = hfss.insert_near_field_points(input_file=input_file)
 
     if not extension_args["is_test"]:  # pragma: no cover
         app.release_desktop(False, False)
@@ -298,5 +306,6 @@ if __name__ == "__main__":
             for output_name, output_value in output.items():
                 if output_name in extension_arguments:
                     args[output_name] = output_value
-
-    main(args)
+            main(args)
+    else:
+        main(args)

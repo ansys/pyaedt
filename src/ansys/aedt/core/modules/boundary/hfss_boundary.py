@@ -134,6 +134,8 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode):
             self._app.oradfield.InsertRectangleSetup(self._get_args())
         elif self.type == "NearFieldLine":
             self._app.oradfield.InsertLineSetup(self._get_args())
+        elif self.type == "NearFieldPoints":
+            self._app.oradfield.InsertPointListSetup(self._get_args())
         elif self.type == "AntennaOverlay":
             self._app.oradfield.AddAntennaOverlay(self._get_args())
         elif self.type == "FieldSourceGroup":
