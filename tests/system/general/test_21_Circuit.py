@@ -763,15 +763,20 @@ class TestClass:
         myind = self.aedtapp.modeler.schematic.create_inductor("L101", location=[0.02, 0.0])
         myres = self.aedtapp.modeler.schematic.create_resistor("R101", location=[0.0, 0.0])
         myres2 = self.aedtapp.modeler.components.get_component(myres.composed_name)
-        self.aedtapp.modeler.schematic.create_wire(
+        w1 = self.aedtapp.modeler.schematic.create_wire(
             [myind.pins[0].location, myres.pins[1].location], name="wire_name_test"
         )
         wire_names = []
         for key in self.aedtapp.modeler.schematic.wires.keys():
             wire_names.append(self.aedtapp.modeler.schematic.wires[key].name)
         assert "wire_name_test" in wire_names
-        assert not self.aedtapp.modeler.schematic.create_wire(
-            [["100mil", "0"], ["100mil", "100mil"]], name="wire_name_test1"
+        with pytest.raises(ValueError):
+            assert self.aedtapp.modeler.schematic.create_wire(
+                [["100mil", "aa"], ["100mil", "100mil"]], name="wire_name_test1"
+            )
+        self.aedtapp["wl"] = "1mm"
+        assert self.aedtapp.modeler.schematic.create_wire(
+            [["100mil", "wl"], ["100mil", "100mil"]], name="wire_name_test1"
         )
         self.aedtapp.modeler.schematic.create_wire([[0.02, 0.02], [0.04, 0.02]], name="wire_test1")
         wire_keys = [key for key in self.aedtapp.modeler.schematic.wires]
@@ -791,12 +796,16 @@ class TestClass:
                     assert point_list[3] == 0.02
 
     def test_43_display_wire_properties(self):
-        self.aedtapp.set_active_design("CreateWireTest")
-        wire = self.aedtapp.modeler.components.get_wire_by_name("wire_name_test")
-        assert wire.display_wire_properties(
-            name="wire_name_test", property_to_display="NetName", visibility="Value", location="Top"
+        self.aedtapp.insert_design("display_wire")
+        wire = self.aedtapp.modeler.schematic.create_wire(
+            [["100mil", "0"], ["100mil", "100mil"]], name="wire_name_test1"
         )
-
+        assert wire.display_wire_properties(
+            name="wire_name_test1", property_to_display="NetName", visibility="Value", location="Top"
+        )
+        assert isinstance(wire.get_net_name(), str)
+        wire.set_net_name("test_net_1")
+        assert wire.get_net_name() == "test_net_1"
         assert not self.aedtapp.modeler.wire.display_wire_properties(
             name="invalid", property_to_display="NetName", visibility="Value", location="Top"
         )

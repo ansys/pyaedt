@@ -156,7 +156,7 @@ class TestClass:
         portname = self.aedtapp.modeler.schematic.create_page_port(
             "Link1",
             [hfss_pin2location["J3B2.3.USBH2_DP_CH"][0], hfss_pin2location["J3B2.3.USBH2_DP_CH"][1]],
-            180,
+            90,
         )
         assert "Link1" in portname.composed_name
 
@@ -168,7 +168,7 @@ class TestClass:
         portname = self.aedtapp.modeler.schematic.create_page_port(
             "Link2",
             [hfss_pin2location["L3M1.3.USBH2_DN_CH"][0], hfss_pin2location["L3M1.3.USBH2_DN_CH"][1]],
-            180,
+            270,
         )
         assert "Link2" in portname.composed_name
 
