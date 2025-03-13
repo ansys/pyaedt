@@ -38,17 +38,22 @@ jobs:
           token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
           bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
           bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
+          use-upper-case: true
 
   pr-title:
-    if: github.event_name == 'pull_request'
-    name: Check the title of the pull request
+    name: Check the title of the PR (if needed)
     runs-on: ubuntu-latest
     steps:
       - name: Check the title of the pull request
+        if: github.event_name == 'pull_request'
         uses: ansys/actions/check-pr-title@v8
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           use-upper-case: true
+      - name: Check the title of the pull request
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: echo "::notice::Skipping PR title check for non-PR events"
 
   doc-style:
     name: Documentation style check
@@ -96,8 +101,6 @@ jobs:
       - name: Import python package
         run: |
           python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
-
-
 
   unit-tests:
     name: Running unit tests

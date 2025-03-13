@@ -25,6 +25,7 @@
 import ctypes
 from enum import Enum
 import os
+import re
 import threading
 import time
 from typing import Callable
@@ -46,11 +47,16 @@ class DllInterface:
 
     def _init_dll_path(self, version):
         """Set DLL path and print the status of the DLL access to the screen."""
+        current_version = aedt_versions.current_version
         latest_version = aedt_versions.latest_version
-        if latest_version == "":  # pragma: no cover
+        if current_version:
+            applied_version = current_version
+        else:
+            applied_version = latest_version
+        if applied_version == "":  # pragma: no cover
             raise Exception("AEDT is not installed on your system. Install AEDT 2025 R1 or later.")
         if version is None:
-            version = latest_version
+            version = applied_version
         if not (version in aedt_versions.installed_versions) and not (
             version + "CL" in aedt_versions.installed_versions
         ):
@@ -81,7 +87,7 @@ class DllInterface:
             status = self._dll.startApplication(False)
             self.raise_error(status)
 
-        print("DLL Loaded:", self.api_version())
+        print(f"DLL Loaded: FilterSolutions API Version {self.api_version()} (Beta)")
         print("API Ready")
         print("")
 
@@ -177,8 +183,12 @@ class DllInterface:
         str
             API version.
         """
-        version = self.get_string(self._dll.getVersion)
-        return version
+        api_version = self.get_string(self._dll.getVersion)
+        match = re.search(r"Version (\d{4}) R(\d+)", api_version)
+        api_version_year = match.group(1)
+        api_version_release = match.group(2)
+        api_version = f"{api_version_year}.{api_version_release}"
+        return api_version
 
     def raise_error(self, error_status):
         """Raise an exception if the error status is not 0.
