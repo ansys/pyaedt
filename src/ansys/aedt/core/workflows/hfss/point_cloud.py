@@ -130,7 +130,7 @@ def frontend():
     label.grid(row=0, column=0, pady=10)
 
     # Dropdown menu for objects and surfaces
-    combo = ttk.Combobox(master, width=30, style="PyAEDT.TCombobox")
+    combo = ttk.Combobox(master, width=30, style="PyAEDT.TCombobox", state="readonly")
 
     values = ["--- Objects ---"]
     if aedt_solids:
