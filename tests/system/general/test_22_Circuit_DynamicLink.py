@@ -44,7 +44,14 @@ else:
     linked_project_name = "Filter_Board"
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="class", autouse=True)
+def dummy_prj(add_app):
+    app = add_app("Dummy_license_checkout_prj")
+    yield app
+    app.close_project(app.project_name)
+
+
+@pytest.fixture()
 def aedtapp(add_app, local_scratch):
     example_project = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfloder, test_project_name + ".aedt")
     test_project = local_scratch.copyfile(example_project)

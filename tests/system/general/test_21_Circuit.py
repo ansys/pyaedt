@@ -26,6 +26,7 @@ from pathlib import Path
 import time
 
 from ansys.aedt.core import Circuit
+from ansys.aedt.core import generate_unique_name
 from ansys.aedt.core.generic.settings import is_linux
 import pytest
 
@@ -46,9 +47,17 @@ touchstone2 = "V3P3S0.ts"
 ami_project = "AMI_Example"
 
 
+@pytest.fixture(scope="class", autouse=True)
+def dummy_prj(add_app):
+    app = add_app("Dummy_license_checkout_prj", application=Circuit, subfolder=test_subfolder)
+    yield app
+    app.close_project(app.project_name)
+
+
 @pytest.fixture()
 def aedtapp(add_app):
-    app = add_app(application=Circuit, subfolder=test_subfolder)
+    prj = generate_unique_name("Circuit")
+    app = add_app(prj, application=Circuit, subfolder=test_subfolder)
     app.modeler.schematic_units = "mil"
     yield app
     app.odesktop.ClearMessages("", "", 0, 3)
