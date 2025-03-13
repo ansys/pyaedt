@@ -125,4 +125,4 @@ general:
   # Block figure plot during python script run
   block_figure_plot: false
   # Skip license check during Desktop initialization
-  skip_license_check: false
+  skip_license_check: true
