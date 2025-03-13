@@ -1,1 +1,1 @@
-from ansys.aedt.core.generic.design_types import *
+from ansys.aedt.core.internal.design_types import *

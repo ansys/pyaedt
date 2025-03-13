@@ -2139,7 +2139,7 @@ class ConfigurationsIcepak(Configurations):
                 ]["DefnLink"]["Project"] not in [self._app.project_file or "This Project*"]:
                     prj = list(set(self._app.project_list) - prj_list)[0]
                     design = nc_dict["NativeComponentDefinitionProvider"]["DefnLink"]["Design"]
-                    from ansys.aedt.core.generic.design_types import get_pyaedt_app
+                    from ansys.aedt.core.internal.design_types import get_pyaedt_app
 
                     app = get_pyaedt_app(prj, design)
                     app.oproject.Close()

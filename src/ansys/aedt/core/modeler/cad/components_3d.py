@@ -895,7 +895,7 @@ class UserDefinedComponent(object):
         new_project = [i for i in self._primitives._app.project_list if i not in project_list]
 
         if new_project:
-            from ansys.aedt.core.generic.design_types import get_pyaedt_app
+            from ansys.aedt.core.internal.design_types import get_pyaedt_app
 
             project = self._primitives._app.desktop_class.active_project(new_project[0])
             # project = self._primitives._app.odesktop.GetActiveProject()

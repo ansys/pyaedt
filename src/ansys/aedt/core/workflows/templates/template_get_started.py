@@ -26,7 +26,7 @@
 from pathlib import Path
 
 import ansys.aedt.core
-from ansys.aedt.core.generic.design_types import get_pyaedt_app
+from ansys.aedt.core.internal.design_types import get_pyaedt_app
 from ansys.aedt.core.workflows.misc import get_aedt_version
 from ansys.aedt.core.workflows.misc import get_arguments
 from ansys.aedt.core.workflows.misc import get_port
