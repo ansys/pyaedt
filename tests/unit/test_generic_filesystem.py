@@ -24,7 +24,7 @@
 
 from unittest import mock
 
-from ansys.aedt.core.generic.filesystem import is_safe_path
+from ansys.aedt.core.internal.filesystem import is_safe_path
 import pytest
 
 

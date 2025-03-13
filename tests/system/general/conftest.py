@@ -73,8 +73,8 @@ from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.desktop import Desktop
 from ansys.aedt.core.desktop import _delete_objects
 from ansys.aedt.core.generic.file_utils import generate_unique_name
-from ansys.aedt.core.generic.filesystem import Scratch
 from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
+from ansys.aedt.core.internal.filesystem import Scratch
 
 local_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(local_path)
