@@ -77,7 +77,7 @@ def frontend():
 
     hfss = get_pyaedt_app(project_name, design_name)
 
-    if aedtapp.design_type != "HFSS":  # pragma: no cover
+    if hfss.design_type != "HFSS":  # pragma: no cover
         app.logger.error("Active design is not HFSS.")
         hfss.release_desktop(False, False)
         output_dict = {"choice": "", "file_path": ""}
