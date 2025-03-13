@@ -51,7 +51,7 @@ ami_project = "AMI_Example"
 def dummy_prj(add_app):
     app = add_app("Dummy_license_checkout_prj", application=Circuit, subfolder=test_subfolder)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture()
@@ -61,14 +61,14 @@ def aedtapp(add_app):
     app.modeler.schematic_units = "mil"
     yield app
     app.odesktop.ClearMessages("", "", 0, 3)
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture()
 def circuitprj(add_app):
     app = add_app(diff_proj_name, application=Circuit, subfolder=test_subfolder)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture(scope="class", autouse=True)

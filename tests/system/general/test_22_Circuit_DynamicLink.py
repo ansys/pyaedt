@@ -48,7 +48,7 @@ else:
 def uusb(examples, add_app):
     app = add_app(project_name=examples[0], design_name="uUSB", just_open=True)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture()
@@ -81,7 +81,7 @@ def aedtapp(add_app, local_scratch):
 
     app = add_app(application=Circuit, project_name=test_project, just_open=True)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture(scope="class", autouse=True)
