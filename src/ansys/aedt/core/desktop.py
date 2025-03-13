@@ -1048,7 +1048,7 @@ class Desktop(object):
             os.environ["DesktopPluginPyAEDT"] = str(Path(settings.aedt_install_dir) / "PythonFiles" / "DesktopPlugin")
             launch_msg = f"AEDT installation Path {base_path}"
             self.logger.info(launch_msg)
-            from ansys.aedt.core.generic.grpc_plugin_dll_class import AEDT
+            from ansys.aedt.core.internal.grpc_plugin_dll_class import AEDT
 
             if settings.use_multi_desktop:
                 os.environ["DesktopPluginPyAEDT"] = str(
