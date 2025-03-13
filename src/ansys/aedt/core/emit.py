@@ -190,7 +190,7 @@ class Emit(Design, object):
             # set the default units here to make sure the EmitApi level
             # stays synced with pyaedt
             unit_types = ["Power", "Frequency", "Length", "Time", "Voltage", "Data Rate", "Resistance"]
-            unit_values = ["dBm", "MHz", "meter", "ns", "mV", "bps", "ohm"]
+            unit_values = ["dBm", "MHz", "meter", "ns", "mV", "bps", "Ohm"]
             self.set_units(unit_types, unit_values)
 
     def _init_from_design(self, *args, **kwargs):

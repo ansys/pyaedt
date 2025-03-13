@@ -65,51 +65,51 @@ class Revision:
 
     def __init__(self, parent_results, emit_obj, name=None):
         self.emit_project = emit_obj
-        """EMIT project."""
+        """EMIT project"""
 
         self.parent_results = parent_results
         """Parent Results object"""
 
         self.aedt_version = int(parent_results.emit_project.aedt_version_id[-3:])
+        """AEDT version"""
+
+        self.results_index = None
+        """Index of the result for this revision, 0 if current, kept otherwise"""
+
         if self.aedt_version > 251:
             self._emit_com = emit_obj.odesign.GetModule("EmitCom")
-            if name == None:
-                self.results_index = 0
-            else:
+
+            if name:
                 self.results_index = self._emit_com.GetKeptResultIndex(name)
-
-            # Get the SimulationNodeID for the current result
-            self._sim_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Simulation")
-        else:
-            if not name:
-                name = emit_obj.odesign.GetCurrentResult()
-                if not name:
-                    name = emit_obj.odesign.AddResult("")
             else:
-                if name not in emit_obj.odesign.GetResultList():
-                    name = emit_obj.odesign.AddResult(name)
-            full = emit_obj.odesign.GetResultDirectory(name)
+                # Index 0 is always the current result
+                self.results_index = 0
+                name = ''
 
-            self.name = name
-            """Name of the revision."""
+                # Creating a revision for the current result- save the project to force the files to be written
+                emit_obj.oproject.Save()
 
-            self.path = full
-            """Full path of the revision."""
+            # Get the SimulationNodeID for the specified result
+            self._sim_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Simulation")
+
+            self.path = emit_obj.odesign.GetResultDirectory(name)
+            """Path to the EMIT result folder for the revision"""
 
             raw_props = emit_obj.odesign.GetResultProperties(name)
             key = lambda s: s.split("=", 1)[0]
             val = lambda s: s.split("=", 1)[1]
             props = {key(s): val(s) for s in raw_props}
 
-            self.revision_number = int(props["Revision"])
-            """Unique revision number from the EMIT design"""
-
             self.timestamp = props["Timestamp"]
             """Unique timestamp for the revision"""
+            
+            self.name = name if name else 'Current'
+            """Name of the revision."""
 
             # load the revision after creating it
             self.revision_loaded = False
             """``True`` if the revision is loaded and ``False`` if it is not."""
+
             self._load_revision()
 
     @pyaedt_function_handler()
