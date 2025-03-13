@@ -1,3 +1,34 @@
+## [0.15.1](https://github.com/ansys/pyaedt/releases/tag/v0.15.1) - March 13, 2025
+
+
+.. tab-set::
+  
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+    
+        * - Unstable test fix due to FilterSolutions DLL
+          - [#5843](https://github.com/ansys/pyaedt/pull/5843)
+    
+        * - Licensingclient path update for version 252
+          - [#5854](https://github.com/ansys/pyaedt/pull/5854)
+      
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+    
+        * - Ensure bot uses upper case
+          - [#5899](https://github.com/ansys/pyaedt/pull/5899)
+    
+        * - Fix release workflow
+          - [#5900](https://github.com/ansys/pyaedt/pull/5900)
+      
 ## [0.15.1](https://github.com/ansys/pyaedt/releases/tag/v0.15.1) - March 12, 2025
 
 No significant changes.
