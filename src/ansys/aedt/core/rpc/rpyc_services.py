@@ -33,7 +33,7 @@ from ansys.aedt.core import Q2d
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Mechanical
-from ansys.aedt.core.generic.aedt_versions import aedt_versions
+from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
 
 class FileManagement(object):
