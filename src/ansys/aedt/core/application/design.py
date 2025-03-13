@@ -66,7 +66,6 @@ from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import unit_system
 from ansys.aedt.core.generic.data_handlers import variation_string_to_dict
-from ansys.aedt.core.generic.errors import GrpcApiError
 from ansys.aedt.core.generic.file_utils import check_and_download_file
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import is_project_locked
@@ -83,6 +82,7 @@ from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.generic.load_aedt_file import load_entire_aedt_file
 from ansys.aedt.core.generic.numbers import _units_assignment
 from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
 from ansys.aedt.core.modules.boundary.layout_boundary import BoundaryObject3dLayout

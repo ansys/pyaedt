@@ -36,11 +36,11 @@ import time
 import traceback
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger
-from ansys.aedt.core.generic.errors import GrpcApiError
-from ansys.aedt.core.generic.errors import MethodNotSupportedError
 from ansys.aedt.core.generic.numbers import _units_assignment
 from ansys.aedt.core.generic.settings import inner_project_settings  # noqa: F401
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.errors import GrpcApiError
+from ansys.aedt.core.internal.errors import MethodNotSupportedError
 import psutil
 
 is_linux = os.name == "posix"

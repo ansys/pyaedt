@@ -27,7 +27,7 @@ import os
 import re
 import shutil
 
-from ansys.aedt.core.generic.errors import AEDTRuntimeError
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 import pytest
 
 from tests import TESTS_GENERAL_PATH
