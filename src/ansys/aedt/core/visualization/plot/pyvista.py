@@ -1064,8 +1064,6 @@ class ModelPlotter(CommonPlotter):
                     delimiter = " "
                 if len(lines) > 2000 and not field._is_frame:
                     lines = list(dict.fromkeys(lines))
-                    # decimate = 2
-                    # del lines[decimate - 1 :: decimate]
             except Exception:
                 lines = []
                 message = "Unable to update mesh because it is\n"
@@ -1148,7 +1146,7 @@ class ModelPlotter(CommonPlotter):
                     self._read_case(field)
                 elif ".aedtplt" in field.path:  # pragma no cover
                     self._read_aedtplt(field)
-                else:  # Read field data from a file
+                else:
                     self._read_fld(field)
 
     @pyaedt_function_handler()
@@ -1288,7 +1286,6 @@ class ModelPlotter(CommonPlotter):
         for field in self._fields:
             sargs["title"] = field.label
             if field.is_vector:
-                # field._cached_polydata.set_active_vectors(field.scalar_name)  # For complex vectors, real part only.
                 field._cached_polydata[field.scalar_name] *= self.vector_field_scale * field.vector_scale
                 if not field._cached_polydata.arrows:
                     arrows = field._cached_polydata.glyph(orient=field.scalar_name, scale=field.scalar_name, factor=1)
