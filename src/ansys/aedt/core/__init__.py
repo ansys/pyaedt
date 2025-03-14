@@ -92,7 +92,6 @@ from ansys.aedt.core.generic.design_types import Circuit
 from ansys.aedt.core.generic.design_types import CircuitNetlist
 from ansys.aedt.core.generic.design_types import Desktop
 from ansys.aedt.core.generic.design_types import Emit
-from ansys.aedt.core.generic.design_types import FilterSolutions
 from ansys.aedt.core.generic.design_types import Hfss
 from ansys.aedt.core.generic.design_types import Hfss3dLayout
 from ansys.aedt.core.generic.design_types import Icepak
