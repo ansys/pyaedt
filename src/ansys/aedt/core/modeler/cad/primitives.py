@@ -2987,7 +2987,7 @@ class GeometryModeler(Modeler):
             "AngleStr:=",
             self._app.value_with_units(angle, "deg"),
             "Numclones:=",
-            str(clones),
+            str(int(clones)),
         ]
         vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
         self.add_new_objects()

@@ -692,7 +692,7 @@ class ReportPlotter:
         from PIL import Image
 
         if not self.logo:
-            self.logo = os.path.join(os.path.dirname(__file__), "../../generic/Ansys.png")
+            self.logo = os.path.join(os.path.dirname(__file__), "../../misc/Ansys.png")
         image = Image.open(self.logo)  # Open the image
         image_array = np.array(image)  # Convert to a numpy array
         return image_array  # Output

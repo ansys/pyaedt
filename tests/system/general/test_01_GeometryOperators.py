@@ -53,8 +53,8 @@ def desktop():
 
 class TestClass:
     def test_List2list(self):
-        from ansys.aedt.core.generic.clr_module import Double
-        from ansys.aedt.core.generic.clr_module import List
+        from ansys.aedt.core.internal.clr_module import Double
+        from ansys.aedt.core.internal.clr_module import List
 
         List_str = List[str]()
         List_str.Add("one")

@@ -164,9 +164,9 @@ def get_pyaedt_app(project_name=None, design_name=None, desktop=None):
     Returns
     -------
     :def :`ansys.aedt.core.Hfss`
-        Any of the Pyaedt App initialized.
+        Any of the PyAEDT App initialized.
     """
-    from ansys.aedt.core.generic.desktop_sessions import _desktop_sessions
+    from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
     odesktop = None
     process_id = None

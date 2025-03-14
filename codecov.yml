@@ -5,7 +5,7 @@ ignore:
   - "src/ansys/aedt/core/workflows/installer"
   - "src/ansys/aedt/core/workflows/templates"
   - "src/ansys/aedt/core/common_rpc.py"
-  - "src/ansys/aedt/core/generic/grpc_plugin_dll_class.py"
+  - "src/ansys/aedt/core/internal/grpc_plugin_dll_class.py"
   - "src/ansys/aedt/core/edb.py"
   - "src/ansys/aedt/core/filtersolutions_core" # ignore filtersolutions feature for the current release pending 2025R1 update
   - "src/ansys/aedt/core/filtersolutions.py" # ignore filtersolutions feature for the current release pending 2025R1 update
