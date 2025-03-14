@@ -29,9 +29,9 @@ import shutil
 from typing import Union
 import warnings
 
-from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.generic.file_utils import read_csv
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
 @pyaedt_function_handler()

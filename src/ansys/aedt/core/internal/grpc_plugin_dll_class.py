@@ -33,10 +33,10 @@ import re
 import socket
 import types
 
-from ansys.aedt.core.generic.errors import GrpcApiError
 from ansys.aedt.core.generic.general_methods import _retry_ntimes
 from ansys.aedt.core.generic.general_methods import inclusion_list
 from ansys.aedt.core.generic.general_methods import settings
+from ansys.aedt.core.internal.errors import GrpcApiError
 import grpc
 
 logger = settings.logger

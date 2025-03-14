@@ -27,8 +27,8 @@ import filecmp
 import os
 import sys
 
-from ansys.aedt.core.generic.load_aedt_file import load_entire_aedt_file
-from ansys.aedt.core.generic.load_aedt_file import load_keyword_in_aedt_file
+from ansys.aedt.core.internal.load_aedt_file import load_entire_aedt_file
+from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 import pytest
 
 from tests import TESTS_GENERAL_PATH
