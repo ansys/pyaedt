@@ -1,0 +1,12 @@
+# Thu Mar 13 11:23:54 2025
+# EnSight Gold Model
+# Produced with EnSight Ouput API, version 1.0.4
+
+FORMAT
+type:                   ensight gold
+
+GEOMETRY
+model:                  Ohmic_Loss1.geo
+
+VARIABLE
+scalar per node:           Ohmic_Loss Ohmic_Loss1.Ohmic_Loss0000

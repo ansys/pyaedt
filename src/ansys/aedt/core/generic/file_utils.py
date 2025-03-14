@@ -499,6 +499,39 @@ def read_csv_pandas(input_file: Union[str, Path], encoding: str = "utf-8"):
         return None
 
 
+@pyaedt_function_handler()
+def convert_fld(
+    output_file: str, input_data: str, delimiter: str = ",", quote_char: str = "|", quoting: int = csv.QUOTE_MINIMAL
+) -> bool:
+    """Convert a list to a FLD file.
+
+    Parameters
+    ----------
+    output_file : str
+        Full path and name of the FLD file to write the data to.
+    list_data : list
+        Data to be written to the specified output file.
+
+    Returns
+    -------
+    bool
+        ``True`` when successful, ``False`` when failed.
+    """
+    with open_file(input_data, "r") as f:
+        lines = f.read().splitlines()
+        delimiter = " "
+        if len(lines) > 2000:
+            lines = list(dict.fromkeys(lines))
+        lines = lines[2:]
+        csv_data = []
+        for line in lines:
+            tmp = line.strip().split(delimiter)
+            tmp = [i for i in tmp if i and i.lower() != "nan"]
+            if len(tmp) > 1:
+                csv_data.append(tmp)
+        return write_csv(output_file, csv_data, delimiter=delimiter, quote_char=quote_char, quoting=quoting)
+
+
 @pyaedt_function_handler(output="output_file", quotechar="quote_char")
 def write_csv(
     output_file: str, list_data: list, delimiter: str = ",", quote_char: str = "|", quoting: int = csv.QUOTE_MINIMAL
