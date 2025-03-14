@@ -1,7 +1,7 @@
 Point cloud generator
 =====================
 
-With this extension you can generate object and surface conforming point clouds.
+With this extension, you can generate point clouds that conform to objects and surfaces.
 
 You can access the extension from the icon created on the **Automation** tab using the Extension Manager.
 
