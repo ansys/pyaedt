@@ -22,4 +22,77 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-pass
+from pathlib import Path
+import shutil
+
+from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
+import pytest
+
+from tests import TESTS_VISUALIZATION_PATH
+
+test_subfolder = "T50"
+
+
+@pytest.fixture(scope="module", autouse=True)
+def desktop():
+    """Override the desktop fixture to DO NOT open the Desktop when running this test class"""
+    return
+
+
+@pytest.fixture(scope="class")
+def setup_test_data(request, local_scratch):
+    vector_field_path = Path(TESTS_VISUALIZATION_PATH) / "example_models" / test_subfolder / "vector_field"
+    vector_dir = Path(local_scratch.path) / "vector_files"
+    shutil.copytree(vector_field_path, vector_dir)
+
+    vector_file_fld = vector_dir / "SurfaceAcForceDensity.fld"
+    request.cls.field_fld = str(vector_file_fld)
+
+    vector_file_aedtplt = vector_dir / "SurfaceAcForceDensity.aedtplt"
+    request.cls.field_aedtplt = str(vector_file_aedtplt)
+
+    case_path = vector_field_path / "case"
+    vector_file_case = case_path / "SurfaceAcForceDensity.case"
+    request.cls.field_case = str(vector_file_case)
+
+    scalar_field_path = Path(TESTS_VISUALIZATION_PATH) / "example_models" / test_subfolder / "scalar_field"
+    scalar_dir = Path(local_scratch.path) / "scalar_files"
+    shutil.copytree(vector_field_path, scalar_dir)
+
+    scalar_file_fld = scalar_dir / "Ohmic_Loss.fld"
+    request.cls.scalar_fld = str(scalar_file_fld)
+
+    scalar_file_aedtplt = scalar_dir / "Ohmic_Loss.aedtplt"
+    request.cls.scalar_aedtplt = str(scalar_file_aedtplt)
+
+    case_path = scalar_field_path / "case"
+    scalar_file_case = case_path / "Ohmic_Loss.case"
+    request.cls.scalar_case = str(scalar_file_case)
+    yield
+
+
+@pytest.mark.usefixtures("setup_test_data")
+class TestClass:
+    def test_add_field_file(self):
+        # vector field
+        model_pv = ModelPlotter()
+        assert not model_pv.fields
+        model_pv.add_field_from_file(self.field_fld)
+        assert isinstance(model_pv.fields, list)
+        assert len(model_pv.fields) == 1
+        model_pv.add_field_from_file(self.field_aedtplt)
+        assert len(model_pv.fields) == 2
+        model_pv.add_field_from_file(self.field_case)
+        assert len(model_pv.fields) == 3
+        # scalar field
+
+    def test_populate_pyvista_object(self):
+        # vector field
+        model_pv = ModelPlotter()
+        model_pv.add_field_from_file(self.field_fld)
+        model_pv.populate_pyvista_object()
+        assert model_pv.pv
+        assert model_pv.pv.mesh
+        assert len(model_pv.pv.mesh.points) == len(model_pv.pv.mesh.active_scalars)
+        assert len(model_pv.pv.mesh.points) == len(model_pv.pv.mesh.active_vectors)
+        # scalar field
