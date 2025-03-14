@@ -23,19 +23,23 @@
 # SOFTWARE.
 
 import socket
+from unittest.mock import MagicMock
+from unittest.mock import PropertyMock
 from unittest.mock import patch
 
 from ansys.aedt.core.desktop import Desktop
 from ansys.aedt.core.desktop import _find_free_port
 from ansys.aedt.core.desktop import _is_port_occupied
 from ansys.aedt.core.desktop import run_process
+from ansys.aedt.core.generic.settings import Settings
 import pytest
 
 
 @pytest.fixture(scope="module", autouse=True)
-def desktop():
-    """Override the desktop fixture to DO NOT open the Desktop when running this test class"""
-    return
+def mock_desktop():
+    """Fixture used to mock the creation of a Desktop instance."""
+    with patch("ansys.aedt.core.desktop.Desktop.__init__", lambda x: None):
+        yield
 
 
 # Test _is_port_occupied
@@ -73,3 +77,29 @@ def test_get_available_toolkits():
     toolkits = Desktop.get_available_toolkits()
     result = ["Circuit", "HFSS", "HFSS3DLayout", "Icepak", "Maxwell3D", "Project", "TwinBuilder"]
     all(elem in toolkits for elem in result)
+
+
+@patch.object(Settings, "use_grpc_api", new_callable=lambda: True)
+@patch("time.sleep", return_value=None)
+def test_desktop_odesktop_retries(mock_settings, mock_sleep):
+    """Test Desktop.odesktop property retries to get the odesktop object."""
+    desktop = Desktop()
+    desktop.grpc_plugin = MagicMock()
+    aedt_app = MagicMock()
+    mock_odesktop = PropertyMock(name="oui", side_effect=[Exception("Failure"), aedt_app])
+    # NOTE: Use of type(...) is required for odesktop to be defined as a property and
+    # not an attribute. Without it, the side effect does not work.
+    type(desktop.grpc_plugin).odesktop = mock_odesktop
+
+    assert aedt_app == desktop.odesktop
+    assert mock_odesktop.call_count == 2
+
+
+def test_desktop_odesktop_setter():
+    """Test Desktop.odesktop property retries to get the odesktop object."""
+    desktop = Desktop()
+    aedt_app = MagicMock()
+
+    desktop.odesktop = aedt_app
+
+    assert desktop._odesktop == aedt_app
