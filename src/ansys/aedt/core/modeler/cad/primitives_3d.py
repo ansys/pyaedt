@@ -2452,9 +2452,9 @@ class Primitives3D(GeometryModeler):
         out_rad_wind = values["Outer Winding"]["Outer Radius"]
         height_wind = values["Outer Winding"]["Height"]
         w_dia = values["Outer Winding"]["Wire Diameter"]
-        turns = values["Outer Winding"]["Turns"]
-        turns2 = values["Mid Winding"]["Turns"]
-        turns3 = values["Inner Winding"]["Turns"]
+        turns = int(values["Outer Winding"]["Turns"])
+        turns2 = int(values["Mid Winding"]["Turns"])
+        turns3 = int(values["Inner Winding"]["Turns"])
         teta = values["Outer Winding"]["Coil Pit(deg)"]
         teta2 = values["Mid Winding"]["Coil Pit(deg)"]
         teta3 = values["Inner Winding"]["Coil Pit(deg)"]
