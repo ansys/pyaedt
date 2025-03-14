@@ -981,10 +981,17 @@ def available_license_feature(
             port = name_env[0]
             name = name_env[1]
 
-    if not input_dir:
+    if not input_dir and aedt_versions.current_version:
         input_dir = Path(aedt_versions.installed_versions[aedt_versions.current_version])
+    elif not input_dir:
+        input_dir = Path(aedt_versions.installed_versions[aedt_versions.latest_version])
     else:
         input_dir = Path(input_dir)
+
+    # Starting with 25R2, the licensingclient directory is located one level higher in the installation
+    # path. If the folder isn't found in the legacy location, use the parent directory.
+    if not check_if_path_exists(os.path.join(input_dir, "licensingclient")):
+        input_dir = Path(os.path.dirname(input_dir))
 
     if is_linux:
         ansysli_util_path = input_dir / "licensingclient" / "linx64" / "lmutil"
