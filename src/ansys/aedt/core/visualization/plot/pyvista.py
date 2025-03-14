@@ -1640,13 +1640,13 @@ class ModelPlotter(CommonPlotter):
             # Create a point cloud from the sampled points
             pcd = pv.PolyData(np.array(sampled_points))
 
-            points = np.asarray(pcd.points)
+            point_nodes = np.asarray(pcd.points)
             extension = ".pts"
             pts_file = Path(pyvista_object.path).parent / f"{pyvista_object.name}{extension}"
 
             with open(pts_file, "w", newline="") as file:
                 writer = csv.writer(file, delimiter="\t")
-                for point in points:
+                for point in point_nodes:
                     writer.writerow(point / 1000)
 
             output.append(pts_file)
