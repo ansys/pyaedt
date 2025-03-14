@@ -88,6 +88,19 @@ def launch_aedt(
     """Launch AEDT in gRPC mode."""
 
     def launch_desktop_on_port():
+        full_path = Path(full_path)
+        if not full_path.exists() or not full_path.name.lower() in {
+            "ansysedt",
+            "ansysedtsv",
+            "ansysedtsv.exe",
+            "ansysedt.exe",
+        }:
+            raise ValueError(f"The file {full_path} is not a valid executable.")
+        try:
+            port = int(port)
+        except ValueError:
+            raise ValueError(f"The port {port} is not a valid integer.")
+
         command = [str(full_path), "-grpcsrv", str(port)]
         if non_graphical:
             command.append("-ng")
