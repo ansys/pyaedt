@@ -63,7 +63,7 @@ app = Maxwell3d()
 Connect to a running application with given project name and design name:
 ```{python}
 #| eval: false
-from ansys.aedt.core.internal.design_types import get_pyaedt_app
+from ansys.aedt.core.generic.design_types import get_pyaedt_app
 app = get_pyaedt_app(project_name="project_name", design="design_name")
 ```
 
