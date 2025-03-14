@@ -40,6 +40,7 @@ twinbuilder_circuit = "TB_test"
 report = "report"
 fields_calculator = "fields_calculator_solved"
 m2d_electrostatic = "maxwell_fields_calculator"
+point_cloud_generator = "point_cloud_generator"
 
 test_subfolder = "T45"
 TEST_REVIEW_FLAG = True
@@ -645,4 +646,15 @@ class TestClass:
         )
 
         assert len(aedtapp.post.all_report_names) == 2
+        aedtapp.close_project(aedtapp.project_name)
+
+    @pytest.mark.skipif(is_linux, reason="Simulation takes too long in Linux machine.")
+    def test_20_point_cloud(self, add_app, local_scratch):
+        aedtapp = add_app(project_name=point_cloud_generator, subfolder=test_subfolder)
+
+        from ansys.aedt.core.workflows.hfss.point_cloud import main
+
+        # No choice
+        assert main({"is_test": True, "choice": "Torus1", "points": 1000})
+
         aedtapp.close_project(aedtapp.project_name)

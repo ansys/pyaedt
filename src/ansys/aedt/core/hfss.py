@@ -29,6 +29,7 @@ import math
 import os
 from pathlib import Path
 import tempfile
+from typing import Union
 import warnings
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
@@ -5416,6 +5417,48 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         props["Line"] = assignment
 
         bound = NearFieldSetup(self, name, props, "NearFieldLine")
+        if bound.create():
+            self.field_setups.append(bound)
+            return bound
+        return False
+
+    @pyaedt_function_handler()
+    def insert_near_field_points(
+        self,
+        input_file: Union[str, Path] = None,
+        coordinate_system="Global",
+        name=None,
+    ):
+        """Create a near field line.
+
+        .. note::
+           This method is not supported by HFSS ``EigenMode`` and ``CharacteristicMode`` solution types.
+
+        Parameters
+        ----------
+        input_file : str or :class:`pathlib.Path`
+            Point list file with. Extension must be ``.pts``.
+        coordinate_system : str, optional
+            Local coordinate system to use. The default is ``"Global``.
+        name : str, optional
+            Name of the point list. The default is ``None``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
+        """
+        point_file = Path(input_file)
+        if not self.oradfield:  # pragma: no cover
+            raise AEDTRuntimeError("Radiation Field not available in this solution.")
+        if not name:
+            name = generate_unique_name("Point")
+
+        props = dict({"UseCustomRadiationSurface": False})
+
+        props["CoordSystem"] = coordinate_system
+        props["PointListFile"] = str(point_file)
+
+        bound = NearFieldSetup(self, name, props, "NearFieldPoints")
         if bound.create():
             self.field_setups.append(bound)
             return bound
