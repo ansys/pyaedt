@@ -1348,7 +1348,7 @@ def ibis_parsing(file):
     with open_file(file, "r") as fp:
         ibis_data = list(enumerate(fp))
 
-    ibis_file = Path(__file__).parent / "misc" / "ibis_v7.json"
+    ibis_file = Path(__file__).parents[1] / "misc" / "ibis_v7.json"
     with open_file(ibis_file, "r") as f:
         ibis_ref = json.load(f)
     ibis_ref = lowercase_json(ibis_ref)
