@@ -204,7 +204,7 @@ jobs:
           PYTHONMALLOC: malloc
         run: |
           .venv\Scripts\Activate.ps1
-          pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m solvers --deselect=tests/system/solvers/test_45_FilterSolutions/test_filter/test_ideal_response.py
+          pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m solvers
 
       - uses: codecov/codecov-action@v5
         with:
