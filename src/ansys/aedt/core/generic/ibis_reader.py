@@ -879,7 +879,7 @@ class IbisReader(object):
             args.append(arg_buffers)
             args.append(arg_components)
 
-            self._circuit.modeler.schematic.ocomponent_manager.ImportModelsFromFile(self._filename, args)
+            self._circuit.modeler.schematic.ocomponent_manager.ImportModelsFromFile(str(self._filename), args)
 
         return ibis_info
 
