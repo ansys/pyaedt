@@ -78,8 +78,6 @@ tests = [
     "pyvista[io]>=0.38.0,<0.45",
     "ansys-tools-visualization-interface; python_version >= '3.10'",
     "tables; python_version >= '3.10'",
-    # Never directly imported but required when loading ML related file see #4713
-    "scikit-learn>=1.0.0,<1.7",
     "scikit-rf>=0.30.0,<1.7",
     "pytest-timeout>=2.3.0,<2.4",
 ]
@@ -115,8 +113,6 @@ all = [
     "fast-simplification>=0.1.7",
     "ansys-tools-visualization-interface; python_version >= '3.10'",
     "tables; python_version >= '3.10'",
-    # Never directly imported but required when loading ML related file see #4713
-    "scikit-learn>=1.0.0,<1.7",
     "scikit-rf>=0.30.0,<1.7",
 ]
 installer = [
@@ -128,8 +124,6 @@ installer = [
     "pyvista[io]>=0.38.0,<0.45",
     "fast-simplification>=0.1.7",
     "ansys-tools-visualization-interface; python_version >= '3.10'",
-    # Never directly imported but required when loading ML related file see #4713
-    "scikit-learn>=1.0.0,<1.7",
     "scikit-rf>=0.30.0,<1.7",
     "jupyterlab>=3.6.0,<4.4",
     "ipython>=7.30.0,<9.1",
