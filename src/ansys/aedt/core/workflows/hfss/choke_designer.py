@@ -369,6 +369,7 @@ def main(extension_args):
     list_object = hfss.modeler.create_choke(str(json_path))
 
     if not list_object:  # pragma: no cover
+        app.logger.error("No object associated to chocke creation.")
         if temp_dir.exists():
             shutil.rmtree(temp_dir, ignore_errors=True)
 
