@@ -46,7 +46,7 @@ extension_arguments = {"choice": "", "points": 1000}
 extension_description = "Point cloud generator"
 
 
-def frontend():
+def frontend():  # pragma: no cover
     import tkinter
     import tkinter.ttk as ttk
 
