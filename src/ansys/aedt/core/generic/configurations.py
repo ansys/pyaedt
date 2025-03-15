@@ -2386,3 +2386,4 @@ class ConfigurationsNexxim(Configurations):
                     self._app.modeler.schematic.create_gnd(gnd_pin.location, gnd_pin.angle, page=i)
             else:
                 pins[0].connect_to_component(pins[1:], page_name=i)
+        return data
