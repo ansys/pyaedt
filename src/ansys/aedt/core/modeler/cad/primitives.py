@@ -2957,7 +2957,7 @@ class GeometryModeler(Modeler):
             Coordinate system axis or the Application.AXIS object.
         angle : float, optional
             Angle rotation in degees. The default is ``90``.
-        clones : int, optional
+        clones : int or str, optional
             Number of clones. The default is ``2``.
         create_new_objects :
             Whether to create the copies as new objects. The
@@ -2978,6 +2978,8 @@ class GeometryModeler(Modeler):
         selections = self.convert_to_selections(assignment)
 
         vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
+        if isinstance(clones, float):
+            clones = int(clones)
         vArg2 = [
             "NAME:DuplicateAroundAxisParameters",
             "CreateNewObjects:=",
@@ -2987,7 +2989,7 @@ class GeometryModeler(Modeler):
             "AngleStr:=",
             self._app.value_with_units(angle, "deg"),
             "Numclones:=",
-            str(int(clones)),
+            str(clones),
         ]
         vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
         self.add_new_objects()
