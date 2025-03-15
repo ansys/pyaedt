@@ -486,7 +486,7 @@ class CircuitComponents(object):
             bmp_file_name = os.path.basename(image_subcircuit_path)
 
         if not port_names:
-            port_names = ["Port" + str(i + 1) for i in range(num_terminal)]
+            port_names = [str(i + 1) for i in range(num_terminal)]
         arg = [
             "NAME:" + model_name,
             "Name:=",
@@ -724,7 +724,7 @@ class CircuitComponents(object):
         if model_name in list(self.omodel_manager.GetNames()):
             model_name = generate_unique_name(model_name, n=2)
 
-        port_names = ["Port" + str(i + 1) for i in range(num_terminal)]
+        port_names = [str(i + 1) for i in range(num_terminal)]
         arg = [
             "NAME:" + model_name,
             "Name:=",

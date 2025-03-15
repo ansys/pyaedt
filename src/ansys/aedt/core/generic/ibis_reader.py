@@ -875,6 +875,9 @@ class IbisReader(object):
                         arg_component.append([False, False])
                     else:
                         arg_component.append([True, False])
+                        if hasattr(pin, "negative_pin"):
+                            arg_component.append(f"{pin.short_name}:=")
+                            arg_component.append([True, True])
                 arg_components.append(arg_component)
 
             args.append(arg_buffers)
@@ -899,7 +902,11 @@ class IbisReader(object):
 
         """
         for model_info in model_list:
-            model_spec_info = model_info["model"].strip().split("\n")
+            if "model" in model_info:
+                model_spec_info = model_info["model"].strip().split("\n")
+            elif "model selector" in model_info:
+                model_spec_info = model_info["model selector"].strip().split("\n")
+                model_spec_info = [i.split(" ")[0] for i in model_spec_info]
             for idx, model_spec in enumerate(model_spec_info):
                 if not idx:
                     model = Model()
@@ -1294,6 +1301,9 @@ class AMIReader(IbisReader):
                         arg_component.append([False, flag])
                     else:
                         arg_component.append([True, flag])
+                        if hasattr(pin, "negative_pin"):
+                            arg_component.append(f"{pin.short_name}:=")
+                            arg_component.append([True, True])
                 arg_components.append(arg_component)
 
             args.append(arg_buffers)
