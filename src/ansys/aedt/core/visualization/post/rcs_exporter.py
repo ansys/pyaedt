@@ -28,10 +28,10 @@ from pathlib import Path
 import shutil
 
 from ansys.aedt.core.generic.constants import unit_converter
-from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.generic.file_utils import check_and_download_folder
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
 
 DEFAULT_EXPRESSION = "ComplexMonostaticRCSTheta"
@@ -103,7 +103,7 @@ class MonostaticRCSExporter:
         self.variations = variations
         self.overwrite = overwrite
 
-        if frequencies is not None and not isinstance(frequencies, list):
+        if frequencies is not None and isinstance(frequencies, (float, int, str)):
             self.frequencies = [frequencies]
         else:
             self.frequencies = frequencies
@@ -152,10 +152,10 @@ class MonostaticRCSExporter:
         :class:`ansys.aedt.core.modules.solutions.SolutionData`
             Solution Data object.
         """
-        variations = self.variations
+        variations = {i: k for i, k in self.variations.items()}
         variations["IWaveTheta"] = ["All"]
         variations["IWavePhi"] = ["All"]
-        frequencies = self.frequencies
+        frequencies = self.frequencies[::]
         if frequencies is not None:
             frequencies = [str(freq) for freq in frequencies]
         variations["Freq"] = frequencies
@@ -237,7 +237,9 @@ class MonostaticRCSExporter:
                 if not data or data.number_of_variations != 1:  # pragma: no cover
                     raise AEDTRuntimeError("Data can not be obtained.")
 
-                df = data.full_matrix_real_imag[0] + complex(0, 1) * data.full_matrix_real_imag[1]
+                df = data.full_matrix_real_imag[0].astype("float64") + complex(0, 1) * data.full_matrix_real_imag[
+                    1
+                ].astype("float64")
                 df.index.names = [*data.variations[0].keys(), *data.intrinsics.keys()]
 
                 df = df.reset_index(level=[*data.variations[0].keys()], drop=True)

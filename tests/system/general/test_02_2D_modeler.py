@@ -29,7 +29,7 @@ import os
 import sys
 
 from ansys.aedt.core.generic.general_methods import is_linux
-from ansys.aedt.core.generic.numbers import isclose
+from ansys.aedt.core.generic.numbers import is_close
 from ansys.aedt.core.maxwell import Maxwell2d
 import pytest
 
@@ -75,7 +75,7 @@ class TestClass:
         assert rect1.model
         assert rect1.material_name == "vacuum"
         assert rect2.color == test_color
-        assert isclose(rect1.faces[0].area, 3.0 * 8.0)
+        assert is_close(rect1.faces[0].area, 3.0 * 8.0)
 
         list_of_pos = [ver.position for ver in rect1.vertices]
         assert sorted(list_of_pos) == [[0.0, -2.0, -2.0], [0.0, 6.0, -2.0], [3.0, -2.0, -2.0], [3.0, 6.0, -2.0]]
@@ -83,7 +83,7 @@ class TestClass:
         assert rect2.solve_inside
         assert rect2.model
         assert rect2.material_name == "copper"
-        assert isclose(rect2.faces[0].area, 3.0 * 10.0)
+        assert is_close(rect2.faces[0].area, 3.0 * 10.0)
 
         list_of_pos = [ver.position for ver in rect2.vertices]
         assert sorted(list_of_pos) == [[10.0, -2.0, -2.0], [10.0, 8.0, -2.0], [13.0, -2.0, -2.0], [13.0, 8.0, -2.0]]
@@ -138,12 +138,12 @@ class TestClass:
         assert circle1.solve_inside
         assert circle1.model
         assert circle1.material_name == "vacuum"
-        assert isclose(circle1.faces[0].area, math.pi * 3.0 * 3.0)
+        assert is_close(circle1.faces[0].area, math.pi * 3.0 * 3.0)
 
         assert circle2.solve_inside
         assert circle2.model
         assert circle2.material_name == "copper"
-        assert isclose(circle1.faces[0].area, math.pi * 3.0 * 3.0)
+        assert is_close(circle1.faces[0].area, math.pi * 3.0 * 3.0)
         circle3 = self.aedtapp.modeler.create_circle(
             position=[0, 4, -2],
             radius=2,
@@ -181,12 +181,12 @@ class TestClass:
         assert ellipse1.solve_inside
         assert ellipse1.model
         assert ellipse1.material_name == "vacuum"
-        assert isclose(ellipse2.faces[0].area, math.pi * 4.0 * 4.0 * 3, relative_tolerance=0.1)
+        assert is_close(ellipse2.faces[0].area, math.pi * 4.0 * 4.0 * 3, relative_tolerance=0.1)
 
         assert ellipse2.solve_inside
         assert ellipse2.model
         assert ellipse2.material_name == "copper"
-        assert isclose(ellipse2.faces[0].area, math.pi * 4.0 * 4.0 * 3, relative_tolerance=0.1)
+        assert is_close(ellipse2.faces[0].area, math.pi * 4.0 * 4.0 * 3, relative_tolerance=0.1)
 
     def test_08_create_regular_polygon(self):
         pg1 = self.aedtapp.modeler.create_regular_polygon([0, 0, 0], [0, 0, 2])
@@ -197,13 +197,13 @@ class TestClass:
         assert pg1.model
         assert pg1.material_name == "vacuum"
         assert not pg1.is_conductor
-        assert isclose(pg1.faces[0].area, 10.392304845413264)
+        assert is_close(pg1.faces[0].area, 10.392304845413264)
 
         assert pg2.solve_inside
         assert pg2.model
         assert pg2.material_name == "copper"
         assert pg2.is_conductor
-        assert isclose(pg2.faces[0].area, 5.196152422706631)
+        assert is_close(pg2.faces[0].area, 5.196152422706631)
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_09_plot(self):
@@ -223,6 +223,8 @@ class TestClass:
         assert os.path.exists(obj2.image_file)
         obj3 = self.aedtapp.plot(show=False, output_file=os.path.join(self.local_scratch.path, "image.jpg"), view="xy1")
         assert filecmp.cmp(obj.image_file, obj3.image_file)
+        obj4 = self.aedtapp.plot(show=False)
+        assert isinstance(obj4.point_cloud(), dict)
 
     def test_10_edit_menu_commands(self):
         rect1 = self.aedtapp.modeler.create_rectangle([1, 0, -2], [8, 3])

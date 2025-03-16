@@ -50,38 +50,6 @@ from ansys.aedt.core.twinbuilder import TwinBuilder
 Simplorer = TwinBuilder
 
 
-def FilterSolutions(
-    version=None,
-):
-    """Initialize a ``FilterSolutions` instance.
-
-    Parameters
-    ----------
-    version : str optional
-        Version of AEDT to use in ``xxxx.x`` format to use. The default is ``None``, in which case the
-        active setup or latest installed version is used.
-
-    Returns
-    -------
-    :class:`ansys.aedt.core.filtersolutions.FilterSolutions`
-
-    Examples
-    --------
-    Define a band-pass Butterworth filter with a center frequency of 1 GHz and a pass band width of 500 MHz.
-
-    design = ansys.aedt.core.LumpedDesign(version="2025.1")
-    design.attributes.filter_class = FilterClass.BAND_PASS
-    design.attributes.filter_type = FilterType.BUTTERWORTH
-    design.attributes.pass_band_center_frequency = "1G"
-    design.attributes.pass_band_width_frequency = "500M"
-    """
-    from ansys.aedt.core.filtersolutions import FilterSolutions as app
-
-    return app(
-        version=version,
-    )
-
-
 def launch_desktop(
     version=None,
     non_graphical=False,
@@ -196,9 +164,9 @@ def get_pyaedt_app(project_name=None, design_name=None, desktop=None):
     Returns
     -------
     :def :`ansys.aedt.core.Hfss`
-        Any of the Pyaedt App initialized.
+        Any of the PyAEDT App initialized.
     """
-    from ansys.aedt.core.generic.desktop_sessions import _desktop_sessions
+    from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
     odesktop = None
     process_id = None

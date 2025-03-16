@@ -29,6 +29,7 @@ import math
 import os
 from pathlib import Path
 import tempfile
+from typing import Union
 import warnings
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
@@ -37,7 +38,6 @@ from ansys.aedt.core.generic.constants import INFINITE_SPHERE_TYPE
 from ansys.aedt.core.generic.constants import SOLUTIONS
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.data_handlers import str_to_bool
-from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.file_utils import parse_excitation_file
@@ -47,6 +47,7 @@ from ansys.aedt.core.generic.numbers import Quantity
 from ansys.aedt.core.generic.numbers import _units_assignment
 from ansys.aedt.core.generic.numbers import is_number
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modeler import cad
 from ansys.aedt.core.modeler.cad.component_array import ComponentArray
@@ -5422,6 +5423,48 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         return False
 
     @pyaedt_function_handler()
+    def insert_near_field_points(
+        self,
+        input_file: Union[str, Path] = None,
+        coordinate_system="Global",
+        name=None,
+    ):
+        """Create a near field line.
+
+        .. note::
+           This method is not supported by HFSS ``EigenMode`` and ``CharacteristicMode`` solution types.
+
+        Parameters
+        ----------
+        input_file : str or :class:`pathlib.Path`
+            Point list file with. Extension must be ``.pts``.
+        coordinate_system : str, optional
+            Local coordinate system to use. The default is ``"Global``.
+        name : str, optional
+            Name of the point list. The default is ``None``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
+        """
+        point_file = Path(input_file)
+        if not self.oradfield:  # pragma: no cover
+            raise AEDTRuntimeError("Radiation Field not available in this solution.")
+        if not name:
+            name = generate_unique_name("Point")
+
+        props = dict({"UseCustomRadiationSurface": False})
+
+        props["CoordSystem"] = coordinate_system
+        props["PointListFile"] = str(point_file)
+
+        bound = NearFieldSetup(self, name, props, "NearFieldPoints")
+        if bound.create():
+            self.field_setups.append(bound)
+            return bound
+        return False
+
+    @pyaedt_function_handler()
     def set_sbr_current_sources_options(self, conformance=False, thin_sources=False, power_fraction=0.95):
         """Set SBR+ setup options for the current source.
 
@@ -5899,7 +5942,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         else:  # pragma: no cover
             self.logger.info("Frequencies could not be obtained.")
             return False
-        frequencies = [self.value_with_units(i, self.units.frequency, "Freq") for i in frequencies]
+        frequencies = [
+            self.value_with_units(i, self.units.frequency, "Freq") if not isinstance(i, Quantity) else str(i)
+            for i in frequencies
+        ]
         ffd = FfdSolutionDataExporter(
             self,
             sphere_name=sphere,

@@ -725,7 +725,7 @@ class PowerIQSource(Sources, object):
 
     @file.setter
     def file(self, value):
-        self._props["file"] = value
+        self._props["file"] = str(value)
         self.update()
 
 
@@ -845,8 +845,8 @@ class VoltageFrequencyDependentSource(Sources, object):
             self._props["fds_filename"] = None
             self._update_prop()
         else:
-            self._props["fds_filename"] = name
-            self._props["FreqDependentSourceData"] = "voltage_source_file=" + name
+            self._props["fds_filename"] = str(name)
+            self._props["FreqDependentSourceData"] = "voltage_source_file=" + str(name)
             self.update()
 
     @pyaedt_function_handler()

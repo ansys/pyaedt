@@ -29,10 +29,11 @@ import re
 import subprocess  # nosec
 import warnings
 
+from ansys.aedt.core import Edb
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
-from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
 try:
     import numpy as np
@@ -60,7 +61,6 @@ except ImportError:  # pragma: no cover
         "Install with \n\npip install scikit-rf"
     )
     rf = None
-
 
 REAL_IMAG = "RI"
 MAG_ANGLE = "MA"
@@ -114,7 +114,14 @@ class TouchstoneData(rf.Network):
 
     @pyaedt_function_handler()
     def get_coupling_in_range(
-        self, start_frequency=1e9, low_loss=-40, high_loss=-60, frequency_sample=5, output_file=None
+        self,
+        start_frequency=1e9,
+        low_loss=-40,
+        high_loss=-60,
+        frequency_sample=5,
+        output_file=None,
+        aedb_path=None,
+        design_name=None,
     ):
         """Get coupling losses, excluding return loss, that has at least one frequency point between a range of
         losses.
@@ -131,6 +138,10 @@ class TouchstoneData(rf.Network):
             Specify frequency sample at which coupling check will be done. The default is ``5``.
         output_file : path, optional
             Output file path to save where identified coupling will be listed. The default is ``None``.
+        aedb_path : path, optional
+            Full path to the ``aedb`` folder. This project is used to identify ports location. The default is ``None``.
+        design_name : string, optional
+            Design name from the project where to identify ports location. The default is ``None``.
 
         Returns
         -------
@@ -151,32 +162,66 @@ class TouchstoneData(rf.Network):
             else:
                 k = k + 1
 
-        port_names = self.port_names
-        nb_port = len(port_names)
         s_db = self.s_db[:, :, :]
         temp_list = []
         temp_file = []
-
-        for i in range(nb_port):
-            for j in range(i, nb_port):
-                if i == j:
-                    continue
-                for k in range(k_start, nb_freq, frequency_sample):
-                    loss = s_db[k, i, j]
-                    if high_loss < loss < low_loss:
-                        temp_list.append((i, j))
-                        sxy = f"S({self.port_names[i]} , {self.port_names[j]})"
-                        line = f"{sxy} Loss = {loss:.2f} dB Freq = {(self.f[k] * 1e-9):.3f} GHz\n"
-                        temp_file.append(line)
-                        break
+        if aedb_path is not None:
+            edbapp = Edb(edbpath=aedb_path, cellname=design_name, edbversion=aedt_versions.latest_version)
+            for i in range(self.number_of_ports):
+                for j in range(i, self.number_of_ports):
+                    if i == j:
+                        continue
+                    for k in range(k_start, nb_freq, frequency_sample):
+                        loss = s_db[k, i, j]
+                        if high_loss < loss < low_loss:
+                            temp_list.append((i, j))
+                            port1 = self.port_names[i]
+                            port2 = self.port_names[j]
+                            # This if statement is mandatory as the codeword to use is different with regard to
+                            # port type: Circuit(.location) or Gap(.position)
+                            if edbapp.ports[port1].hfss_type == "Circuit":
+                                loc_port_1 = edbapp.ports[port1].location
+                            else:
+                                loc_port_1 = edbapp.ports[port1].position
+                            if edbapp.ports[port2].hfss_type == "Circuit":
+                                loc_port_2 = edbapp.ports[port2].location
+                            else:
+                                loc_port_2 = edbapp.ports[port2].position
+                            # This if statement is mandatory as some port return None for port location which will
+                            # issue error on the formatting
+                            if loc_port_1 is not None:
+                                loc_port_1[0] = f"{loc_port_1[0]:.4f}"
+                                loc_port_1[1] = f"{loc_port_1[1]:.4f}"
+                            if loc_port_2 is not None:
+                                loc_port_2[0] = f"{loc_port_2[0]:.4f}"
+                                loc_port_2[1] = f"{loc_port_2[1]:.4f}"
+                            sxy = f"S({port1},{port2})"
+                            ports_location = f"{port1}: {loc_port_1}, {port2}: {loc_port_2}"
+                            line = f"{sxy} Loss= {loss:.2f}dB Freq= {(self.f[k] * 1e-9):.3f}GHz, {ports_location}\n"
+                            temp_file.append(line)
+                            break
+            edbapp.close()
+        else:
+            for i in range(self.number_of_ports):
+                for j in range(i, self.number_of_ports):
+                    if i == j:
+                        continue
+                    for k in range(k_start, nb_freq, frequency_sample):
+                        loss = s_db[k, i, j]
+                        if high_loss < loss < low_loss:
+                            temp_list.append((i, j))
+                            sxy = f"S({self.port_names[i]},{self.port_names[j]})"
+                            line = f"{sxy} Loss= {loss:.2f}dB Freq= {(self.f[k] * 1e-9):.3f}GHz\n"
+                            temp_file.append(line)
+                            break
         if output_file is not None:
             if os.path.exists(output_file):
                 logger.info("File " + output_file + " exist and we be replace by new one.")
-                with open_file(output_file, "w") as f:
-                    for s in temp_file:
-                        f.write(s)
-                logger.info("File " + output_file + " created.")
-
+            with open_file(output_file, "w") as f:
+                for s in temp_file:
+                    f.write(s)
+            logger.info("File " + output_file + " created.")
+            f.close()
         return temp_list
 
     @pyaedt_function_handler()

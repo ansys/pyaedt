@@ -27,7 +27,7 @@
 This module provides for interacting with EMIT Analysis and Results windows.
 """
 
-from ansys.aedt.core.generic.checks import min_aedt_version
+from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class CouplingsEmit(object):

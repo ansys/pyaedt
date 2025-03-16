@@ -2957,7 +2957,7 @@ class GeometryModeler(Modeler):
             Coordinate system axis or the Application.AXIS object.
         angle : float, optional
             Angle rotation in degees. The default is ``90``.
-        clones : int, optional
+        clones : int or str, optional
             Number of clones. The default is ``2``.
         create_new_objects :
             Whether to create the copies as new objects. The
@@ -2978,6 +2978,8 @@ class GeometryModeler(Modeler):
         selections = self.convert_to_selections(assignment)
 
         vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
+        if isinstance(clones, float):
+            clones = int(clones)
         vArg2 = [
             "NAME:DuplicateAroundAxisParameters",
             "CreateNewObjects:=",
@@ -3168,7 +3170,7 @@ class GeometryModeler(Modeler):
         ----------
         assignment : list, str, int, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Name or ID of the object.
-        sweep_vector : float
+        sweep_vector : list
             List of ``[x1, y1, z1]`` coordinates or Application.Position object for
             the vector.
         draft_angle : float, optional
