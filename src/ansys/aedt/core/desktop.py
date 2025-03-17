@@ -72,6 +72,7 @@ from ansys.aedt.core.generic.general_methods import get_string_version
 from ansys.aedt.core.generic.general_methods import grpc_active_sessions
 from ansys.aedt.core.generic.general_methods import inside_desktop
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.settings import Settings
 from ansys.aedt.core.generic.settings import settings
 
 pathname = Path(__file__)
@@ -96,10 +97,7 @@ def launch_aedt(
             "ansysedt.exe",
         }:
             raise ValueError(f"The file {full_path} is not a valid executable.")
-        try:
-            port = int(port)
-        except ValueError:
-            raise ValueError(f"The port {port} is not a valid integer.")
+        _check_port(port)
 
         command = [str(full_path), "-grpcsrv", str(port)]
         if non_graphical:
@@ -164,6 +162,9 @@ def launch_aedt(
 @pyaedt_function_handler()
 def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
     """Launch AEDT in LSF in gRPC mode."""
+    _check_port(port)
+    _check_settings(settings)
+
     if not settings.custom_lsf_command:  # pragma: no cover
         if hasattr(settings, "lsf_osrel") and hasattr(settings, "lsf_ui"):
             select_str = (
@@ -173,32 +174,19 @@ def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
             select_str = f'"select[(ui={settings.lsf_ui}) rusage[mem={settings.lsf_ram}]]"'
         else:
             select_str = f'"-R rusage[mem={settings.lsf_ram}"'
+        command = [
+            "bsub",
+            "-n",
+            str(settings.lsf_num_cores),
+            "-R",
+            select_str,
+            "-Is",
+            settings.lsf_aedt_command,
+            "-grpcsrv",
+            str(port),
+        ]
         if settings.lsf_queue:
-            command = [
-                "bsub",
-                "-n",
-                str(settings.lsf_num_cores),
-                "-R",
-                select_str,
-                f'"rusage[mem={settings.lsf_ram}]"',
-                f"-q {settings.lsf_queue}",
-                "-Is",
-                settings.lsf_aedt_command,
-                "-grpcsrv",
-                str(port),
-            ]
-        else:
-            command = [
-                "bsub",
-                "-n",
-                str(settings.lsf_num_cores),
-                "-R",
-                select_str,
-                "-Is",
-                settings.lsf_aedt_command,
-                "-grpcsrv",
-                str(port),
-            ]
+            command.append(f"-q {settings.lsf_queue}")
         if non_graphical:
             command.append("-ng")
         if settings.wait_for_license:
@@ -237,6 +225,24 @@ def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
         i += 1
         time.sleep(1)
     return False, err
+
+
+def _check_port(port):
+    """Check port."""
+    try:
+        port = int(port)
+    except ValueError:
+        raise ValueError(f"The port {port} is not a valid integer.")
+
+
+def _check_settings(settings: Settings):
+    """Check settings."""
+    if not isinstance(settings.lsf_num_cores, int) or settings.lsf_num_cores <= 0:
+        raise ValueError("Invalid number of cores.")
+    if not isinstance(settings.lsf_ram, int) or settings.lsf_ram <= 0:
+        raise ValueError("Invalid memory value.")
+    if not settings.lsf_aedt_command:
+        raise ValueError(f"Invalid LSF AEDT command.")
 
 
 def _is_port_occupied(port, machine_name=""):
@@ -1808,7 +1814,10 @@ class Desktop(object):
         ...                        results_folder='via_gsg_results')
         >>> d.release_desktop(False,False)
         """
-        command = [Path(self.install_path) / "common" / "AnsysCloudCLI" / "AnsysCloudCli.exe"]
+        ansys_cloud_cli_path = Path(self.install_path) / "common" / "AnsysCloudCLI" / "AnsysCloudCli.exe"
+        if not Path(ansys_cloud_cli_path).exists():
+            raise FileNotFoundError("Ansys Cloud CLI not found. Check the installation path.")
+        command = [ansys_cloud_cli_path]
         if job_name:
             command += ["jobinfo", "-j", job_name]
         elif job_id:
@@ -1921,7 +1930,10 @@ class Desktop(object):
         ...                        results_folder='via_gsg_results')
         >>> d.release_desktop(False,False)
         """
-        command = [Path(self.install_path) / "common" / "AnsysCloudCLI" / "AnsysCloudCli.exe"]
+        ansys_cloud_cli_path = Path(self.install_path) / "common" / "AnsysCloudCLI" / "AnsysCloudCli.exe"
+        if not Path(ansys_cloud_cli_path).exists():
+            raise FileNotFoundError("Ansys Cloud CLI not found. Check the installation path.")
+        command = [ansys_cloud_cli_path]
         ver = self.aedt_version_id.replace(".", "R")
         command += ["getQueues", "-p", "AEDT", "-v", ver, "--details"]
         cloud_info = Path(tempfile.gettempdir()) / generate_unique_name("cloud_info")
@@ -2079,6 +2091,8 @@ class Desktop(object):
 
     def __run_student(self):  # pragma: no cover
         executable = Path(Path(settings.aedt_install_dir) / "ansysedtsv.exe").resolve(strict=True)
+        if not executable.exists():
+            raise FileNotFoundError(f"Student version executable {executable} not found")
         pid = subprocess.Popen([executable], creationflags=subprocess.DETACHED_PROCESS)  # nosec
         self.logger.debug(f"Running Electronic Desktop Student Version with PID {pid}")
         time.sleep(5)
