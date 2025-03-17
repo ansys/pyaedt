@@ -601,7 +601,8 @@ class AedtLogger(object):
 
         if not level:
             level = "Design"
-
+        if level in "Design" and not self.design_name:
+            level = "Global"
         if level not in message_levels:
             raise ValueError("Message level must be 'Design', 'Project', or 'Global'.")
 
@@ -864,7 +865,7 @@ class AedtLogger(object):
                 msg1 = msg
         else:
             msg1 = msg
-        self._log_on_dekstop(0, msg1, "Global")
+        self._log_on_dekstop(0, msg1, "Design")
         return self._log_on_handler(0, msg, *args, **kwargs)
 
     def info_timer(self, msg, start_time=None, *args, **kwargs):
@@ -891,7 +892,7 @@ class AedtLogger(object):
                 msg1 = msg
         else:
             msg1 = msg
-        self._log_on_dekstop(0, msg1, "Global")
+        self._log_on_dekstop(0, msg1, "Design")
         return self._log_on_handler(0, msg, *args, **kwargs)
 
     def warning(self, msg, *args, **kwargs):
@@ -905,7 +906,7 @@ class AedtLogger(object):
                 msg1 = msg
         else:
             msg1 = msg
-        self._log_on_dekstop(1, msg1, "Global")
+        self._log_on_dekstop(1, msg1, "Design")
         return self._log_on_handler(1, msg, *args, **kwargs)
 
     def error(self, msg, *args, **kwargs):
@@ -917,7 +918,7 @@ class AedtLogger(object):
                 msg1 = msg
         else:
             msg1 = msg
-        self._log_on_dekstop(2, msg1, "Global")
+        self._log_on_dekstop(2, msg1, "Design")
         return self._log_on_handler(2, msg, *args, **kwargs)
 
     def debug(self, msg, *args, **kwargs):
@@ -932,7 +933,7 @@ class AedtLogger(object):
         else:
             msg1 = msg
         if not settings.enable_debug_grpc_api_logger:
-            self._log_on_dekstop(0, msg1, "Global")
+            self._log_on_dekstop(0, msg1, "Design")
         return self._log_on_handler(3, msg, *args, **kwargs)
 
     @property
