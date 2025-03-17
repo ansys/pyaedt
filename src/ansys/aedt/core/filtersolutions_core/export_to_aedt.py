@@ -184,6 +184,8 @@ class ExportToAedt:
         self._dll_interface = ansys.aedt.core.filtersolutions_core._dll_interface()
         self._define_export_to_desktop_dll_functions()
         self._substrate_er = SubstrateEr.AIR.value  # Default to AIR's Er value
+        if self._dll_interface.api_version() >= "2025.2":
+            self.define_export_to_desktop_distributed_dll_functions()
 
     def _define_export_to_desktop_dll_functions(self):
         """Define C++ API DLL functions."""
@@ -492,6 +494,8 @@ class ExportToAedt:
         self._dll.removeModelithicsResistorsFamily.argtype = c_char_p
         self._dll.removeModelithicsResistorsFamily.restype = c_int
 
+    def define_export_to_desktop_distributed_dll_functions(self):
+        """Define C++ API DLL functions for distributed filter."""
         self._dll.setCircuitDesign.argtype = c_bool
         self._dll.setCircuitDesign.restype = c_int
         self._dll.getCircuitDesign.argtype = POINTER(c_bool)

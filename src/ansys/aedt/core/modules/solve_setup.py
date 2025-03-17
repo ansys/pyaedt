@@ -37,11 +37,11 @@ import warnings
 
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.data_handlers import _dict2arg
-from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.modules.solve_sweeps import SetupProps
@@ -161,13 +161,13 @@ class CommonSetup(PropsManager, BinaryTreeNode):
                     .adaptive_settings.adaptive_frequency_data_list[0]
                     .adaptive_frequency
                 )
-                intrinsics["Phase"] = "All"
+                intrinsics["Phase"] = "0deg"
                 return intrinsics
             except Exception:
                 settings.logger.debug("Failed to retrieve adaptive frequency.")
         if self._app.design_type in ["Twin Builder"]:
             if "Tend" in self.properties:
-                intrinsics["Time"] = "All"
+                intrinsics["Time"] = "0s"
             elif "StartFrequency" in self.properties:
                 intrinsics["Freq"] = "All"
             return intrinsics
@@ -176,7 +176,7 @@ class CommonSetup(PropsManager, BinaryTreeNode):
                 i in self.props
                 for i in ["TransientData", "QuickEyeAnalysis", "AMIAnalysis", "HSPICETransientData", "SystemFDAnalysis"]
             ):
-                intrinsics["Time"] = "All"
+                intrinsics["Time"] = "0s"
             else:
                 intrinsics["Freq"] = "All"
             return intrinsics
@@ -189,9 +189,9 @@ class CommonSetup(PropsManager, BinaryTreeNode):
                 else:
                     intrinsics[i] = "All"
             elif i == "Phase":
-                intrinsics[i] = "All"
+                intrinsics[i] = "0deg"
             elif i == "Time":
-                intrinsics[i] = "All"
+                intrinsics[i] = "0s"
         return intrinsics
 
     def __repr__(self):

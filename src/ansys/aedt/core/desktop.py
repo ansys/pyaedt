@@ -48,11 +48,11 @@ import warnings
 from ansys.aedt.core import __version__ as pyaedt_version
 from ansys.aedt.core.aedt_logger import AedtLogger
 from ansys.aedt.core.aedt_logger import pyaedt_logger
-from ansys.aedt.core.generic.checks import min_aedt_version
-from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
+from ansys.aedt.core.internal.checks import min_aedt_version
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 import grpc
 
 if is_linux:
@@ -61,9 +61,6 @@ if is_linux:
 import subprocess  # nosec
 
 from ansys.aedt.core import __version__
-from ansys.aedt.core.generic.aedt_versions import aedt_versions
-from ansys.aedt.core.generic.desktop_sessions import _desktop_sessions
-from ansys.aedt.core.generic.desktop_sessions import _edb_sessions
 from ansys.aedt.core.generic.file_utils import available_license_feature
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import active_sessions
@@ -74,6 +71,9 @@ from ansys.aedt.core.generic.general_methods import inside_desktop
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import Settings
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.aedt_versions import aedt_versions
+from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
+from ansys.aedt.core.internal.desktop_sessions import _edb_sessions
 
 pathname = Path(__file__)
 
@@ -2098,7 +2098,7 @@ class Desktop(object):
         time.sleep(5)
 
     def __dispatch_win32(self, version):  # pragma: no cover
-        from ansys.aedt.core.generic.clr_module import win32_client
+        from ansys.aedt.core.internal.clr_module import win32_client
 
         o_ansoft_app = win32_client.Dispatch(version)
         self.odesktop = o_ansoft_app.GetAppDesktop()
@@ -2158,7 +2158,7 @@ class Desktop(object):
                 if m:
                     obj = running_coms.GetObject(monikier)
                     self.isoutsideDesktop = True
-                    from ansys.aedt.core.generic.clr_module import win32_client
+                    from ansys.aedt.core.internal.clr_module import win32_client
 
                     self.odesktop = win32_client.Dispatch(obj.QueryInterface(pythoncom.IID_IDispatch))
                     if student_version:
@@ -2186,7 +2186,7 @@ class Desktop(object):
         is_grpc=True,
     ):
         if not is_grpc:  # pragma: no cover
-            from ansys.aedt.core.generic.clr_module import _clr
+            from ansys.aedt.core.internal.clr_module import _clr
 
             _clr.AddReference("Ansys.Ansoft.CoreCOMScripting")
             AnsoftCOMUtil = __import__("Ansys.Ansoft.CoreCOMScripting")
@@ -2209,7 +2209,7 @@ class Desktop(object):
             os.environ["DesktopPluginPyAEDT"] = str(Path(settings.aedt_install_dir) / "PythonFiles" / "DesktopPlugin")
             launch_msg = f"AEDT installation Path {base_path}"
             self.logger.info(launch_msg)
-            from ansys.aedt.core.generic.grpc_plugin_dll_class import AEDT
+            from ansys.aedt.core.internal.grpc_plugin_dll_class import AEDT
 
             if settings.use_multi_desktop:
                 os.environ["DesktopPluginPyAEDT"] = str(

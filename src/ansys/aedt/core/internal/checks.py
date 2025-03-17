@@ -24,7 +24,7 @@
 
 """Provides functions for performing common checks."""
 
-from ansys.aedt.core.generic.errors import AEDTRuntimeError
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
 def min_aedt_version(min_version: str):

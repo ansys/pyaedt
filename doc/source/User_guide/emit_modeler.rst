@@ -45,7 +45,7 @@ EMIT-HFSS link creation example:
     import os
     import ansys.aedt.core
     from ansys.aedt.core import Emit
-    from ansys.aedt.core.generic.filesystem import Scratch
+    from ansys.aedt.core.internal.filesystem import Scratch
 
     scratch_path = ansys.aedt.core.generate_unique_folder_name()
     temp_folder = os.path.join(scratch_path, ("EmitHFSSExample"))

@@ -26,8 +26,8 @@ import os
 import re
 
 from ansys.aedt.core import Icepak
-from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
@@ -64,6 +64,13 @@ en_PreserveResults = True
 link_data = [proj_name, design_name, solution_name, en_ForceSimulation, en_PreserveResults]
 solution_freq = "2.5GHz"
 resolution = 2
+
+
+@pytest.fixture(scope="class", autouse=True)
+def dummy_prj(add_app):
+    app = add_app("Dummy_license_checkout_prj")
+    yield app
+    app.close_project(app.project_name)
 
 
 @pytest.fixture(autouse=True)
