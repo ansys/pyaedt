@@ -1933,9 +1933,8 @@ class Desktop(object):
         ansys_cloud_cli_path = Path(self.install_path) / "common" / "AnsysCloudCLI" / "AnsysCloudCli.exe"
         if not Path(ansys_cloud_cli_path).exists():
             raise FileNotFoundError("Ansys Cloud CLI not found. Check the installation path.")
-        command = [ansys_cloud_cli_path]
         ver = self.aedt_version_id.replace(".", "R")
-        command += ["getQueues", "-p", "AEDT", "-v", ver, "--details"]
+        command = [ansys_cloud_cli_path, "getQueues", "-p", "AEDT", "-v", ver, "--details"]
         cloud_info = Path(tempfile.gettempdir()) / generate_unique_name("cloud_info")
         try:
             with open_file(cloud_info, "w") as outfile:
