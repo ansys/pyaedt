@@ -117,3 +117,11 @@ class TestClass:
         # model_pv_scalar1 = ModelPlotter()
         # model_pv_scalar1.add_field_from_file(self.scalar_aedtplt)
         # model_pv_scalar1.populate_pyvista_object()
+
+    def test_vector_field_scale(self):
+        model_pv_vector = ModelPlotter()
+        model_pv_vector.add_field_from_file(self.field_fld)
+        model_pv_vector.populate_pyvista_object()
+        assert model_pv_vector.vector_field_scale == 1
+        model_pv_vector.vector_field_scale = 5
+        assert model_pv_vector.vector_field_scale == 5

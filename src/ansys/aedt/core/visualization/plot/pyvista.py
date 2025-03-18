@@ -1070,7 +1070,6 @@ class ModelPlotter(CommonPlotter):
                 message = "Unable to update mesh because it is\n"
                 message += "already defined."
                 pyaedt_logger.warning(message)
-            line_no = 1
             for line in lines:
                 tmp = line.strip().split(delimiter)
                 tmp = [i for i in tmp if i and i.lower() != "nan"]
@@ -1091,10 +1090,6 @@ class ModelPlotter(CommonPlotter):
                     is_vector = field.is_vector = True
                 elif len(tmp) == 4:
                     values.append(float(tmp[3]))
-                else:
-                    warning_message = f"Unable to read data on line {line_no} of file '{os.path.basename(field.path)}'."
-                    pyaedt_logger.warning(warning_message)
-                line_no += 1
         if self.convert_fields_in_db:
             if not isinstance(values[0], list):
                 values = [self.log_multiplier * math.log10(abs(i)) for i in values]
@@ -1143,11 +1138,11 @@ class ModelPlotter(CommonPlotter):
                 obj_to_iterate.append(i)
         for field in obj_to_iterate:
             if field.path and not field._cached_polydata:
-                if ".case" in field.path:
+                if field.path and field.path.endswith(".case"):
                     self._read_case(field)
-                elif ".aedtplt" in field.path:  # pragma no cover
+                elif field.path and field.path.endswith(".aedtplt"):
                     self._read_aedtplt(field)
-                else:
+                elif field.path and field.path.endswith(".fld"):
                     self._read_fld(field)
 
     @pyaedt_function_handler()
