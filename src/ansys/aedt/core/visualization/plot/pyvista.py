@@ -27,6 +27,7 @@ import csv
 from datetime import datetime
 import math
 import os
+from pathlib import Path
 import tempfile
 import time
 import warnings
@@ -1587,6 +1588,73 @@ class ModelPlotter(CommonPlotter):
                 translated_mesh.translate(offset_xyz, inplace=True)
                 self.meshes += translated_mesh
         return self.meshes
+
+    @pyaedt_function_handler()
+    def point_cloud(self, points: int = 10) -> dict:
+        """Generate point cloud with available objects.
+
+        Parameters
+        ----------
+        points : int, optional
+            Number of points to generate. The default is ``10``.
+
+        Returns
+        -------
+        dict
+            Dictionary containing the point cloud for each object. Each entry has the object name as the key and a list
+            with two elements: the path to the output ``.pts`` file and the ``pyvista.PolyData`` object.
+        """
+        point_cloud = {}
+        for pyvista_object in self.objects:
+            # Load the mesh
+            mesh = pv.read(pyvista_object.path)
+
+            # Ensure the mesh is triangulated
+            mesh = mesh.triangulate()
+
+            # Get the areas of each triangle
+            triangle_areas = mesh.compute_cell_sizes()["Area"]
+
+            # Normalize the areas to get probabilities
+            probabilities = triangle_areas / triangle_areas.sum()
+
+            # Randomly sample triangles based on area
+            sampled_triangle_indices = np.random.choice(len(probabilities), size=points, p=probabilities)
+
+            # Get the vertices of the sampled triangles
+            sampled_points = []
+            for idx in sampled_triangle_indices:
+                triangle = mesh.extract_cells(idx)
+                vertices = triangle.points
+                # Sample a random point inside the triangle using barycentric coordinates
+                r1, r2 = np.random.rand(2)
+                sqrt_r1 = np.sqrt(r1)
+                u = 1 - sqrt_r1
+                v = r2 * sqrt_r1
+                w = 1 - u - v
+                random_point = u * vertices[0] + v * vertices[1] + w * vertices[2]
+                sampled_points.append(random_point)
+
+            point_cloud[pyvista_object.name] = None
+
+            output = []
+            # Create a point cloud from the sampled points
+            pcd = pv.PolyData(np.array(sampled_points))
+
+            point_nodes = np.asarray(pcd.points)
+            extension = ".pts"
+            pts_file = Path(pyvista_object.path).parent / f"{pyvista_object.name}{extension}"
+
+            with open(pts_file, "w", newline="") as file:
+                writer = csv.writer(file, delimiter="\t")
+                for point in point_nodes:
+                    writer.writerow(point / 1000)
+
+            output.append(pts_file)
+            output.append(pcd)
+            point_cloud[pyvista_object.name] = output
+
+        return point_cloud
 
     def close(self):
         """Close the render window."""

@@ -33,6 +33,7 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import write_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers import _units_assignment
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modeler.cad.elements_3d import HistoryProps
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
@@ -641,7 +642,7 @@ class CommonReport(BinaryTreeNode):
         except Exception:
             return _traces
         for el in oo_names:
-            if "Families" not in oo.GetChildObject(el).GetPropNames():
+            if {"Families", "Source"}.isdisjoint(set(oo.GetChildObject(el).GetPropNames())):
                 continue
             try:
                 oo1 = oo.GetChildObject(el)
@@ -2641,6 +2642,67 @@ class CommonReport(BinaryTreeNode):
             self._post.logger.error(msg)
             return False
         self._post.oreportsetup.ApplyReportTemplate(self.plot_name, input_file, property_type)
+        return True
+
+    @pyaedt_function_handler(trace_name="name")
+    def add_trace_characteristics(self, name, arguments=None, solution_range=None):
+        """Add a trace characteristic to the plot.
+
+        Parameters
+        ----------
+        name : str
+            Name of the trace characteristic.
+        arguments : list, optional
+            Arguments if any. The default is ``None``.
+        solution_range : list, optional
+            Output range. The default is ``None``, in which case
+            the full range is used.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if not arguments:
+            arguments = []
+        if not solution_range:
+            solution_range = ["Full"]
+        self._post.oreportsetup.AddTraceCharacteristics(self.plot_name, name, arguments, solution_range)
+        return True
+
+    @pyaedt_function_handler()
+    def export_table_to_file(self, plot_name, output_file, table_type="Marker"):
+        """Export a marker table or a legend (with trace characteristics result) from a report to a file.
+
+        Parameters
+        ----------
+        plot_name : str
+            Plot name.
+        output_file : str
+            Full path of the outputted file.
+            Valid extensions for the output file are: ``.tab``, ``.csv``
+        table_type : str
+            Valid table types are: ``Marker``, ``DeltaMarker``, ``Legend``.
+            Default table_type is ``Marker``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.ExportTableToFile
+        """
+        plot_names = [plot.plot_name for plot in self._post.plots]
+        if plot_name not in plot_names:
+            raise AEDTRuntimeError("Please enter a plot name.")
+        extension = os.path.splitext(output_file)[1]
+        if extension not in [".tab", ".csv"]:
+            raise AEDTRuntimeError("Please enter a valid file extension: ``.tab``, ``.csv``.")
+        if table_type not in ["Marker", "DeltaMarker", "Legend"]:
+            raise AEDTRuntimeError("Please enter a valid file extension: ``Marker``, ``DeltaMarker``, ``Legend``.")
+        self._post.oreportsetup.ExportTableToFile(plot_name, output_file, table_type)
         return True
 
     @staticmethod

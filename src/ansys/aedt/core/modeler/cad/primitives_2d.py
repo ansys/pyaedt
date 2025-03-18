@@ -64,7 +64,7 @@ class Primitives2D(GeometryModeler, object):
         ----------
         origin : list
             ApplicationName.modeler.Position(x,y,z) object
-        radius : float
+        radius : float or str
             Radius of the object.
         num_sides : int, optional
             Number of sides. The default is ``0``, which is correct for a circle.

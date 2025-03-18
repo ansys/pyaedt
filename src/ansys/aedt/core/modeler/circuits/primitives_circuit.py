@@ -24,6 +24,7 @@
 
 import math
 import os
+from pathlib import Path
 import secrets
 import warnings
 
@@ -33,8 +34,9 @@ from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.file_utils import recursive_glob
 from ansys.aedt.core.generic.general_methods import filter_string
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.load_aedt_file import load_keyword_in_aedt_file
-from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.generic.numbers import Quantity
+from ansys.aedt.core.generic.numbers import is_number
+from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import Wire
 
@@ -222,34 +224,36 @@ class CircuitComponents(object):
 
         It is rounded to the nearest 100 mil which is minimum schematic snap unit.
         """
+
         xpos = point[0]
         ypos = point[1]
-
-        if isinstance(point[0], (float, int)):
-            xpos = (
-                round(point[0] * AEDT_UNITS["Length"][self.schematic_units] / AEDT_UNITS["Length"]["mil"], -2)
-                * AEDT_UNITS["Length"]["mil"]
-            )
+        if is_number(xpos):
+            xpos = Quantity(xpos, self.schematic_units)
+        elif xpos in self._app.variable_manager.variables:
+            xpos = Quantity(self._app[xpos])
         else:
-            decomposed = decompose_variable_value(point[0])
-            if decomposed[1] != "":
-                xpos = (
-                    round(decomposed[0] * AEDT_UNITS["Length"][decomposed[1]] / AEDT_UNITS["Length"]["mil"], -2)
-                    * AEDT_UNITS["Length"]["mil"]
-                )
-        if isinstance(point[1], (float, int)):
-            ypos = (
-                round(point[1] * AEDT_UNITS["Length"][self.schematic_units] / AEDT_UNITS["Length"]["mil"], -2)
-                * AEDT_UNITS["Length"]["mil"]
-            )
+            try:
+                xpos = Quantity(xpos)
+            except:
+                raise ValueError("Units must be in length units")
+        if is_number(ypos):
+            ypos = Quantity(ypos, self.schematic_units)
+        elif ypos in self._app.variable_manager.variables:
+            ypos = Quantity(self._app[ypos])
         else:
-            decomposed = decompose_variable_value(point[1])
-            if decomposed[1] != "":
-                ypos = (
-                    round(decomposed[0] * AEDT_UNITS["Length"][decomposed[1]] / AEDT_UNITS["Length"]["mil"], -2)
-                    * AEDT_UNITS["Length"]["mil"]
-                )
-        return xpos, ypos
+            try:
+                ypos = Quantity(ypos)
+            except:
+                raise ValueError("Units must be in length units")
+        if xpos.unit_system != "Length" or ypos.unit_system != "Length":
+            raise ValueError("Units must be in length units")
+        xpos = xpos.to("mil")
+        ypos = ypos.to("mil")
+        xpos.value = round(xpos.value, -2)
+        ypos.value = round(ypos.value, -2)
+        xpos = xpos.to("meter")
+        ypos = ypos.to("meter")
+        return xpos.value, ypos.value
 
     @pyaedt_function_handler()
     def _convert_point_to_units(self, point):
@@ -363,7 +367,7 @@ class CircuitComponents(object):
         return False
 
     @pyaedt_function_handler()
-    def create_page_port(self, name, location=None, angle=0):
+    def create_page_port(self, name, location=None, angle=0, label_position="Auto"):
         """Create a page port.
 
         Parameters
@@ -373,8 +377,11 @@ class CircuitComponents(object):
         location : list, optional
             Position on the X and Y axis.
             If not provided the default is ``None``, in which case an empty list is set.
-        angle : optional
+        angle : int, optional
             Angle rotation in degrees. The default is ``0``.
+        label_position : str, optional
+            Label position. The default is ``"auto"``.
+            Options are ''"Center"``, ``"Left"``, ``"Right"``, ``"Top"``, ``"Bottom"``.
 
         Returns
         -------
@@ -391,11 +398,49 @@ class CircuitComponents(object):
         id = self.create_unique_id()
         id = self.oeditor.CreatePagePort(
             ["NAME:PagePortProps", "Name:=", name, "Id:=", id],
-            ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False],
+            [
+                "NAME:Attributes",
+                "Page:=",
+                1,
+                "X:=",
+                xpos,
+                "Y:=",
+                ypos,
+                "Angle:=",
+                angle * math.pi / 180,
+                "Flip:=",
+                False,
+            ],
         )
+
         id = int(id.split(";")[1])
         # self.refresh_all_ids()
         self.add_id_to_component(id)
+        if label_position == "Auto":
+            if angle == 270:
+                new_loc = "Top"
+            elif angle == 180:
+                new_loc = "Right"
+            elif angle == 90:
+                new_loc = "Bottom"
+            else:
+                new_loc = "Left"
+            self.oeditor.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:PropDisplayPropTab",
+                        [
+                            "NAME:PropServers",
+                            self.components[id].composed_name,
+                        ],
+                        [
+                            "NAME:ChangedProps",
+                            ["NAME:PortName", "Format:=", "Value", "Location:=", "Center", "NewLocation:=", new_loc],
+                        ],
+                    ],
+                ]
+            )
         return self.components[id]
 
     @pyaedt_function_handler()
@@ -966,18 +1011,21 @@ class CircuitComponents(object):
         --------
 
         >>> from ansys.aedt.core import Circuit
+        >>> from pathlib import Path
         >>> cir = Circuit()
         >>> comps = cir.modeler.components
-        >>> s_parameter_path = os.path.join("your_path", "s_param_file_name.s4p")
+        >>> s_parameter_path = Path("your_path") / "s_param_file_name.s4p"
         >>> circuit_comp = comps.create_touchstone_component(s_parameter_path, location=[0.0, 0.0], show_bitmap=False)
         """
-        if not os.path.exists(model_name):
+        if not Path(model_name):
             raise FileNotFoundError("File not found.")
-        model_name = self.create_model_from_touchstone(model_name, show_bitmap=show_bitmap)
+        model_name = self.create_model_from_touchstone(str(model_name), show_bitmap=show_bitmap)
         if location is None:
             location = []
         xpos, ypos = self._get_location(location)
         id = self.create_unique_id()
+        if Path(model_name).exists():
+            model_name = self.create_model_from_touchstone(str(model_name), show_bitmap=show_bitmap)
         arg1 = ["NAME:ComponentProps", "Name:=", model_name, "Id:=", str(id)]
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         id = self.oeditor.CreateComponent(arg1, arg2)
@@ -997,7 +1045,7 @@ class CircuitComponents(object):
 
                 Parameters
                 ----------
-                model_name : str
+                model_name : str, Path
                     Name of the Touchstone model or full path to touchstone file.
                     If full touchstone is provided then, new model will be created.
                 num_terminal : int
@@ -1020,14 +1068,14 @@ class CircuitComponents(object):
                 >>> oEditor.CreateComponent
 
         """
-        if not os.path.exists(model_name):
+        if not Path(model_name):
             raise FileNotFoundError("File not found.")
-        model_name = self.create_model_from_nexxim_state_space(model_name, num_terminal)
+        model_name = self.create_model_from_nexxim_state_space(str(model_name), num_terminal)
         if location is None:
             location = []
         xpos, ypos = self._get_location(location)
         id = self.create_unique_id()
-        arg1 = ["NAME:ComponentProps", "Name:=", model_name, "Id:=", str(id)]
+        arg1 = ["NAME:ComponentProps", "Name:=", str(model_name), "Id:=", str(id)]
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         self.oeditor.CreateComponent(arg1, arg2)
         self.add_id_to_component(id)
@@ -1325,12 +1373,12 @@ class CircuitComponents(object):
                     o = CircuitComponent(self, tabname=self.tab_name)
                     o.name = name[0]
                     if len(name) == 2:
-                        o.schematic_id = name[1]
+                        o.schematic_id = int(name[1])
                         objID = int(o.schematic_id)
                     else:
                         o.id = int(name[1])
                         o.schematic_id = name[2]
-                        objID = o.id
+                        objID = int(o.schematic_id)
                     self.components[objID] = o
         return len(self.components)
 

@@ -26,33 +26,36 @@ import os
 import sys
 import uuid
 
+import ansys.aedt.core
 from ansys.aedt.core import Quantity
 from ansys.aedt.core.generic.file_utils import read_json
 from ansys.aedt.core.generic.general_methods import is_linux
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.plot.pyvista import _parse_aedtplt
 from ansys.aedt.core.visualization.plot.pyvista import _parse_streamline
 import pytest
 
-from tests import TESTS_GENERAL_PATH
-from tests.system.general.conftest import config
+from tests import TESTS_VISUALIZATION_PATH
+from tests.system.visualization.conftest import config
 
-test_field_name = "Potter_Horn_231"
 test_project_name = "coax_setup_solved_231"
-array = "array_simple_231"
-sbr_file = "poc_scat_small_solved"
-q3d_file = "via_gsg_231"
-m2d_file = "m2d_field_lines_test_231"
+m2d_trace_export_table = "m2d_trace_export_table"
 
 
 test_circuit_name = "Switching_Speed_FET_And_Diode"
-eye_diagram = "SimpleChannel"
-ami = "ami"
 test_subfolder = "T12"
 
 
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
     app = add_app(project_name=test_project_name, subfolder=test_subfolder)
+    yield app
+    app.close_project(app.project_name)
+
+
+@pytest.fixture(scope="class")
+def m2d_app(add_app):
+    app = add_app(project_name=m2d_trace_export_table, subfolder=test_subfolder, application=ansys.aedt.core.Maxwell2d)
     yield app
     app.close_project(app.project_name)
 
@@ -373,6 +376,9 @@ class TestClass:
 
         # test import with correct inputs from csv
         assert new_report.import_traces(csv_file_path, plot_name)
+
+        assert len(new_report.traces) == 4
+
         # test import with correct inputs from rdat
         assert new_report.import_traces(rdat_file_path, plot_name)
         # test import with not existing plot_name
@@ -766,18 +772,20 @@ class TestClass:
         assert aedtapp.post.reports_by_category.eigenmode()
 
     def test_59_test_parse_vector(self):
-        out = _parse_aedtplt(os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "test_vector.aedtplt"))
+        out = _parse_aedtplt(
+            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "test_vector.aedtplt")
+        )
         assert isinstance(out[0], list)
         assert isinstance(out[1], list)
         assert isinstance(out[2], list)
         assert isinstance(out[3], bool)
         assert _parse_aedtplt(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "test_vector_no_solutions.aedtplt")
+            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "test_vector_no_solutions.aedtplt")
         )
 
     def test_60_test_parse_vector(self):
         out = _parse_streamline(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "test_streamline.fldplt")
+            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "test_streamline.fldplt")
         )
         assert isinstance(out, list)
 
@@ -786,7 +794,7 @@ class TestClass:
 
     def test_67_sweep_from_json(self, aedtapp):
         dict_vals = read_json(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", "report_json", "Modal_Report_Simple.json")
+            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", "report_json", "Modal_Report_Simple.json")
         )
         assert aedtapp.post.create_report_from_configuration(report_settings=dict_vals)
         assert aedtapp.post.create_report_from_configuration(report_settings=dict_vals, matplotlib=True)
@@ -796,10 +804,11 @@ class TestClass:
     )
     def test_70_sweep_from_json(self, aedtapp):
         assert aedtapp.post.create_report_from_configuration(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", "report_json", "Modal_Report.json")
+            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", "report_json", "Modal_Report.json")
         )
         assert aedtapp.post.create_report_from_configuration(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", "report_json", "Modal_Report.json"), matplotlib=True
+            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", "report_json", "Modal_Report.json"),
+            matplotlib=True,
         )
 
     def test_74_dynamic_update(self, aedtapp):
@@ -812,3 +821,20 @@ class TestClass:
         setup_derivative_auto = aedtapp.setups[2]
         assert setup_derivative.set_tuning_offset({"inner_radius": 0.1})
         assert setup_derivative_auto.set_tuning_offset({"inner_radius": 0.1})
+
+    def test_trace_characteristics(self, m2d_app, local_scratch):
+        m2d_app.set_active_design("Design1")
+        assert m2d_app.post.plots[0].add_trace_characteristics("XAtYVal", arguments=["0"], solution_range=["Full"])
+
+    def test_trace_export_table(self, m2d_app, local_scratch):
+        m2d_app.set_active_design("Design2")
+        plot_name = m2d_app.post.plots[0].plot_name
+        output_file_path = os.path.join(local_scratch.path, "zeroes.tab")
+        assert m2d_app.post.plots[0].export_table_to_file(plot_name, output_file_path, "Legend")
+        assert os.path.exists(output_file_path)
+        with pytest.raises(AEDTRuntimeError):
+            m2d_app.post.plots[0].export_table_to_file("Invalid Name", output_file_path, "Legend")
+        with pytest.raises(AEDTRuntimeError):
+            m2d_app.post.plots[0].export_table_to_file(plot_name, "Invalid Path", "Legend")
+        with pytest.raises(AEDTRuntimeError):
+            m2d_app.post.plots[0].export_table_to_file(plot_name, output_file_path, "Invalid Export Type")

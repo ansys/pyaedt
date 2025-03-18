@@ -33,6 +33,7 @@ import atexit
 import datetime
 import gc
 import os
+from pathlib import Path
 import pkgutil
 import re
 import shutil
@@ -57,9 +58,6 @@ if is_linux:
 import subprocess
 
 from ansys.aedt.core import __version__
-from ansys.aedt.core.generic.aedt_versions import aedt_versions
-from ansys.aedt.core.generic.desktop_sessions import _desktop_sessions
-from ansys.aedt.core.generic.desktop_sessions import _edb_sessions
 from ansys.aedt.core.generic.file_utils import available_license_feature
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import active_sessions
@@ -69,8 +67,11 @@ from ansys.aedt.core.generic.general_methods import grpc_active_sessions
 from ansys.aedt.core.generic.general_methods import inside_desktop
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.aedt_versions import aedt_versions
+from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
+from ansys.aedt.core.internal.desktop_sessions import _edb_sessions
 
-pathname = os.path.dirname(__file__)
+pathname = Path(__file__)
 
 pyaedtversion = __version__
 
@@ -82,7 +83,7 @@ def launch_aedt(full_path, non_graphical, port, student_version, first_run=True)
     """Launch AEDT in gRPC mode."""
 
     def launch_desktop_on_port():
-        command = [full_path, "-grpcsrv", str(port)]
+        command = [str(full_path), "-grpcsrv", str(port)]
         if non_graphical:
             command.append("-ng")
         if settings.wait_for_license:
@@ -395,8 +396,8 @@ def run_process(command, bufsize=None):
 
 
 def is_student_version(oDesktop):
-    edt_root = os.path.normpath(oDesktop.GetExeDir())
-    if is_windows and os.path.isdir(edt_root):
+    edt_root = Path(oDesktop.GetExeDir())
+    if is_windows and Path(edt_root).is_dir():
         if any("ansysedtsv" in fn.lower() for fn in os.listdir(edt_root)):  # pragma no cover
             return True
     return False
@@ -779,10 +780,22 @@ class Desktop(object):
         """
         if not project_object:
             project_object = self.active_project()
+        if not project_object:
+            return None
         if not name:
-            active_design = project_object.GetActiveDesign()
+            active_design = None
+            try:
+                active_design = project_object.GetActiveDesign()
+            except Exception:
+                active_design = project_object.SetActiveDesign(self.design_list(project_object.GetName())[0])
+            finally:
+                if not active_design and self.design_list(project_object.GetName()):
+                    active_design = project_object.SetActiveDesign(self.design_list(project_object.GetName())[0])
         else:
-            active_design = project_object.SetActiveDesign(name)
+            try:
+                active_design = project_object.SetActiveDesign(name)
+            except Exception:
+                return None
         if is_linux and settings.aedt_version == "2024.1" and design_type == "Circuit Design":  # pragma: no cover
             time.sleep(1)
             self.close_windows()
@@ -807,8 +820,13 @@ class Desktop(object):
         """
         if not name:
             active_project = self.odesktop.GetActiveProject()
+            if not active_project and self.project_list():
+                active_project = self.odesktop.SetActiveProject(self.project_list()[0])
         else:
-            active_project = self.odesktop.SetActiveProject(name)
+            try:
+                active_project = self.odesktop.SetActiveProject(name)
+            except Exception:
+                return None
         if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
             time.sleep(1)
             self.close_windows()
@@ -914,13 +932,12 @@ class Desktop(object):
     @staticmethod
     def _run_student():  # pragma: no cover
         DETACHED_PROCESS = 0x00000008
-        pid = subprocess.Popen(
-            [os.path.join(settings.aedt_install_dir, "ansysedtsv.exe")], creationflags=DETACHED_PROCESS
-        ).pid
+        path = Path(Path(settings.aedt_install_dir) / "ansysedtsv.exe").resolve(strict=True)
+        _ = subprocess.Popen([path], creationflags=DETACHED_PROCESS).pid
         time.sleep(5)
 
     def _dispatch_win32(self, version):  # pragma: no cover
-        from ansys.aedt.core.generic.clr_module import win32_client
+        from ansys.aedt.core.internal.clr_module import win32_client
 
         o_ansoft_app = win32_client.Dispatch(version)
         self.odesktop = o_ansoft_app.GetAppDesktop()
@@ -945,7 +962,7 @@ class Desktop(object):
             )
         base_path = settings.aedt_install_dir
         sys.path.insert(0, base_path)
-        sys.path.insert(0, os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
+        sys.path.insert(0, str(Path(base_path) / "PythonFiles" / "DesktopPlugin"))
         launch_msg = f"AEDT installation Path {base_path}."
         self.logger.info(launch_msg)
         processID = []
@@ -980,7 +997,7 @@ class Desktop(object):
                 if m:
                     obj = running_coms.GetObject(monikier)
                     self.isoutsideDesktop = True
-                    from ansys.aedt.core.generic.clr_module import win32_client
+                    from ansys.aedt.core.internal.clr_module import win32_client
 
                     self.odesktop = win32_client.Dispatch(obj.QueryInterface(pythoncom.IID_IDispatch))
                     if student_version:
@@ -1008,7 +1025,7 @@ class Desktop(object):
         is_grpc=True,
     ):
         if not is_grpc:  # pragma: no cover
-            from ansys.aedt.core.generic.clr_module import _clr
+            from ansys.aedt.core.internal.clr_module import _clr
 
             _clr.AddReference("Ansys.Ansoft.CoreCOMScripting")
             AnsoftCOMUtil = __import__("Ansys.Ansoft.CoreCOMScripting")
@@ -1024,18 +1041,18 @@ class Desktop(object):
             self.is_grpc_api = True
             base_path = settings.aedt_install_dir
             sys.path.insert(0, base_path)
-            sys.path.insert(0, os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
+            sys.path.insert(0, str(Path(base_path) / "PythonFiles" / "DesktopPlugin"))
             if is_linux:
-                pyaedt_path = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), ".."))
-                os.environ["PATH"] = pyaedt_path + os.pathsep + os.environ["PATH"]
-            os.environ["DesktopPluginPyAEDT"] = os.path.join(settings.aedt_install_dir, "PythonFiles", "DesktopPlugin")
+                pyaedt_path = Path(__file__).parent
+                os.environ["PATH"] = str(pyaedt_path) + os.pathsep + os.environ["PATH"]
+            os.environ["DesktopPluginPyAEDT"] = str(Path(settings.aedt_install_dir) / "PythonFiles" / "DesktopPlugin")
             launch_msg = f"AEDT installation Path {base_path}"
             self.logger.info(launch_msg)
-            from ansys.aedt.core.generic.grpc_plugin_dll_class import AEDT
+            from ansys.aedt.core.internal.grpc_plugin_dll_class import AEDT
 
             if settings.use_multi_desktop:
-                os.environ["DesktopPluginPyAEDT"] = os.path.join(
-                    list(self.installed_versions.values())[0], "PythonFiles", "DesktopPlugin"
+                os.environ["DesktopPluginPyAEDT"] = str(
+                    Path(list(self.installed_versions.values())[0]) / "PythonFiles" / "DesktopPlugin"
                 )
             self.grpc_plugin = AEDT(os.environ["DesktopPluginPyAEDT"])
             oapp = self.grpc_plugin.CreateAedtApplication(machine, port, non_graphical, new_session)
@@ -1152,14 +1169,14 @@ class Desktop(object):
                 self.logger.error(f"Failed to start LSF job on machine: {self.machine}.")
                 return
         elif new_aedt_session:
-            installer = os.path.join(settings.aedt_install_dir, "ansysedt")
+            installer = Path(settings.aedt_install_dir) / "ansysedt"
             if student_version:  # pragma: no cover
-                installer = os.path.join(settings.aedt_install_dir, "ansysedtsv")
+                installer = Path(settings.aedt_install_dir) / "ansysedtsv"
             if not is_linux:
                 if student_version:  # pragma: no cover
-                    installer = os.path.join(settings.aedt_install_dir, "ansysedtsv.exe")
+                    installer = Path(settings.aedt_install_dir) / "ansysedtsv.exe"
                 else:
-                    installer = os.path.join(settings.aedt_install_dir, "ansysedt.exe")
+                    installer = Path(settings.aedt_install_dir) / "ansysedt.exe"
 
             out, self.port = launch_aedt(installer, non_graphical, self.port, student_version)
             self.launched_by_pyaedt = True
@@ -1203,7 +1220,7 @@ class Desktop(object):
                 project_dir = self.odesktop.GetProjectDirectory()
             else:
                 project_dir = tempfile.gettempdir()
-            self.logfile = os.path.join(project_dir, f"pyaedt{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.log")
+            self.logfile = Path(project_dir) / f"pyaedt{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
         self._logger = AedtLogger(desktop=self)
         return True
 
@@ -1476,7 +1493,7 @@ class Desktop(object):
             Full absolute path for the ``python`` directory.
 
         """
-        return os.path.dirname(os.path.realpath(__file__))
+        return Path(__file__)
 
     @property
     def pyaedt_dir(self):
@@ -1488,7 +1505,7 @@ class Desktop(object):
            Full absolute path for the ``pyaedt`` directory.
 
         """
-        return os.path.realpath(os.path.join(self.src_dir, ".."))
+        return Path(__file__).parent
 
     def _exception(self, ex_value, tb_data):  # pragma: no cover
         """Write the trace stack to AEDT when a Python error occurs.
@@ -1536,8 +1553,8 @@ class Desktop(object):
         >>> oDesktop.OpenProject
 
         """
-        if os.path.splitext(os.path.split(project_file)[-1])[0] in self.project_list():
-            proj = self.active_project(os.path.splitext(os.path.split(project_file)[-1])[0])
+        if Path(project_file).stem in self.project_list():
+            proj = self.active_project(Path(project_file).stem)
         else:
             proj = self.odesktop.OpenProject(project_file)
         if proj:
@@ -1881,19 +1898,19 @@ class Desktop(object):
         >>> oDesktop.SubmitJob
         """
 
-        project_path = os.path.dirname(project_file)
-        project_name = os.path.basename(project_file).split(".")[0]
+        project_path = Path(project_file).parent
+        project_name = Path(project_file).stem
         if not aedt_full_exe_path:
             version = self.odesktop.GetVersion()[2:6]
             if version >= "22.2":
                 version_name = "v" + version.replace(".", "")
             else:
                 version_name = "AnsysEM" + version
-            if os.path.exists(r"\\" + clustername + r"\AnsysEM\{}\Win64\ansysedt.exe".format(version_name)):
+            if Path(r"\\" + clustername + r"\AnsysEM\{}\Win64\ansysedt.exe".format(version_name)).exists():
                 aedt_full_exe_path = (
                     r"\\\\\\\\" + clustername + r"\\\\AnsysEM\\\\{}\\\\Win64\\\\ansysedt.exe".format(version_name)
                 )
-            elif os.path.exists(r"\\" + clustername + r"\AnsysEM\{}\Linux64\ansysedt".format(version_name)):
+            elif Path(r"\\" + clustername + r"\AnsysEM\{}\Linux64\ansysedt".format(version_name)).exists():
                 aedt_full_exe_path = (
                     r"\\\\\\\\" + clustername + r"\\\\AnsysEM\\\\{}\\\\Linux64\\\\ansysedt".format(version_name)
                 )
@@ -1901,16 +1918,16 @@ class Desktop(object):
                 self.logger.error("AEDT shared path does not exist. Provide a full path.")
                 return False
         else:
-            if not os.path.exists(aedt_full_exe_path):
+            if not Path(aedt_full_exe_path).exists():
                 self.logger.warning("The AEDT executable path not visible from the client.")
             aedt_full_exe_path.replace("\\", "\\\\")
         if project_name in self.project_list():
             self.odesktop.CloseProject(project_name)
-        path_file = os.path.dirname(__file__)
-        destination_reg = os.path.join(project_path, "Job_settings.areg")
+        path_file = Path(__file__)
+        destination_reg = Path(project_path) / "Job_settings.areg"
         if not setting_file:
-            setting_file = os.path.join(path_file, "misc", "Job_Settings.areg")
-        if os.path.exists(setting_file):
+            setting_file = Path(path_file) / "misc" / "Job_Settings.areg"
+        if Path(setting_file).exists():
             f1 = open_file(destination_reg, "w")
             with open_file(setting_file) as f:
                 lines = f.readlines()
@@ -2005,17 +2022,17 @@ class Desktop(object):
         ...                        results_folder='via_gsg_results')
         >>> d.release_desktop(False,False)
         """
-        project_path = os.path.dirname(project_file)
-        project_name = os.path.basename(project_file).split(".")[0]
+        project_path = Path(project_file).parent
+        project_name = Path(project_file).stem
         if not job_name:
             job_name = generate_unique_name(project_name)
         if project_name in self.project_list():
             self.odesktop.CloseProject(project_name)
-        path_file = os.path.dirname(__file__)
+        path_file = Path(__file__)
         reg_name = generate_unique_name("ansys_cloud") + ".areg"
-        destination_reg = os.path.join(project_path, reg_name)
+        destination_reg = Path(project_path) / reg_name
         if not setting_file:
-            setting_file = os.path.join(path_file, "misc", "ansys_cloud.areg")
+            setting_file = Path(path_file) / "misc" / "ansys_cloud.areg"
         shutil.copy(setting_file, destination_reg)
 
         f1 = open_file(destination_reg, "w")
@@ -2094,13 +2111,13 @@ class Desktop(object):
         ...                        results_folder='via_gsg_results')
         >>> d.release_desktop(False,False)
         """
-        command = os.path.join(self.install_path, "common", "AnsysCloudCLI", "AnsysCloudCli.exe")
+        command = Path(self.install_path) / "common" / "AnsysCloudCLI" / "AnsysCloudCli.exe"
 
         if job_name:
             command = [command, "jobinfo", "-j", job_name]
         elif job_id:
             command = [command, "jobinfo", "-i", job_id]
-        cloud_info = os.path.join(tempfile.gettempdir(), generate_unique_name("job_info"))
+        cloud_info = Path(tempfile.gettempdir()) / generate_unique_name("job_info")
         with open_file(cloud_info, "w") as outfile:
             subprocess.Popen(" ".join(command), stdout=outfile).wait()
         out = {}
@@ -2203,10 +2220,10 @@ class Desktop(object):
         ...                        results_folder='via_gsg_results')
         >>> d.release_desktop(False,False)
         """
-        command = os.path.join(self.install_path, "common", "AnsysCloudCLI", "AnsysCloudCli.exe")
+        command = Path(self.install_path) / "common" / "AnsysCloudCLI" / "AnsysCloudCli.exe"
         ver = self.aedt_version_id.replace(".", "R")
         command = [command, "getQueues", "-p", "AEDT", "-v", ver, "--details"]
-        cloud_info = os.path.join(tempfile.gettempdir(), generate_unique_name("cloud_info"))
+        cloud_info = Path(tempfile.gettempdir()) / generate_unique_name("cloud_info")
         with open_file(cloud_info, "w") as outfile:
             subprocess.Popen(" ".join(command), stdout=outfile).wait()
 

@@ -28,7 +28,7 @@ import shutil
 from ansys.aedt.core import Hfss
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Mechanical
-from ansys.aedt.core.generic.errors import AEDTRuntimeError
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 import pytest
 
 from tests.system.general.conftest import config

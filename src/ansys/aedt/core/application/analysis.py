@@ -393,7 +393,7 @@ class Analysis(Design, object):
                         val = k.split(" : ")
                         if len(val) == 2 and val[0] == el:
                             sweep_list[el]["Nominal"] = val[1]
-                if "GetSweeps" in dir(self.oanalysis):
+                if self.solution_type != "Eigenmode" and "GetSweeps" in dir(self.oanalysis):
                     try:
                         sweep_list[el]["Sweeps"].extend(list(self.oanalysis.GetSweeps(el)))
                     except Exception:
@@ -629,10 +629,14 @@ class Analysis(Design, object):
         """
         _dict_out = {}
         for bound in self.design_excitations.values():
-            if bound.type in _dict_out:
-                _dict_out[bound.type].append(bound)
+            if self.design_type == "Circuit Design":
+                bound_type = "InterfacePort"
             else:
-                _dict_out[bound.type] = [bound]
+                bound_type = bound.type
+            if bound_type in _dict_out:
+                _dict_out[bound_type].append(bound)
+            else:
+                _dict_out[bound_type] = [bound]
         return _dict_out
 
     @property
@@ -2128,7 +2132,7 @@ class Analysis(Design, object):
         else:
             if sweep_name is None:
                 for sol in self.existing_analysis_sweeps:
-                    if setup_name == sol.split(":")[0].strip():
+                    if setup_name == sol.split(":")[0].strip() and ":" in sol:
                         sweep_name = sol.split(":")[1].strip()
                         break
 

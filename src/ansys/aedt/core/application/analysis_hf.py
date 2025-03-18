@@ -377,6 +377,9 @@ class ScatteringMethods(object):
         ----------
         >>> oDesign.ExportNetworkData
         """
+        if output_file is not None:
+            output_file = str(output_file)
+
         return self._app._export_touchstone(
             setup_name=setup,
             sweep_name=sweep,

@@ -53,21 +53,20 @@ dependencies = [
 unit-tests = [
     "pytest>=7.4.0,<8.4",
     "pytest-cov>=4.0.0,<6.1",
-    "mock>=5.1.0,<5.2",
+    "mock>=5.1.0,<5.3",
 ]
 integration-tests = [
     "matplotlib>=3.5.0,<3.11",
-    "mock>=5.1.0,<5.2",
+    "mock>=5.1.0,<5.3",
     "numpy>=1.20.0,<2.3",
     "pandas>=1.1.0,<2.3",
     "pytest>=7.4.0,<8.4",
     "pytest-cov>=4.0.0,<6.1",
 ]
 tests = [
-    "ipython>=7.30.0,<8.34",
-    "joblib>=1.0.0,<1.5",
+    "ipython>=7.30.0,<9.1",
     "matplotlib>=3.5.0,<3.11",
-    "mock>=5.1.0,<5.2",
+    "mock>=5.1.0,<5.3",
     "numpy>=1.20.0,<2.3",
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<2.1",
@@ -78,8 +77,6 @@ tests = [
     "pyvista[io]>=0.38.0,<0.45",
     "ansys-tools-visualization-interface; python_version >= '3.10'",
     "tables; python_version >= '3.10'",
-    # Never directly imported but required when loading ML related file see #4713
-    "scikit-learn>=1.0.0,<1.7",
     "scikit-rf>=0.30.0,<1.7",
     "pytest-timeout>=2.3.0,<2.4",
 ]
@@ -115,8 +112,6 @@ all = [
     "fast-simplification>=0.1.7",
     "ansys-tools-visualization-interface; python_version >= '3.10'",
     "tables; python_version >= '3.10'",
-    # Never directly imported but required when loading ML related file see #4713
-    "scikit-learn>=1.0.0,<1.7",
     "scikit-rf>=0.30.0,<1.7",
 ]
 installer = [
@@ -128,11 +123,9 @@ installer = [
     "pyvista[io]>=0.38.0,<0.45",
     "fast-simplification>=0.1.7",
     "ansys-tools-visualization-interface; python_version >= '3.10'",
-    # Never directly imported but required when loading ML related file see #4713
-    "scikit-learn>=1.0.0,<1.7",
     "scikit-rf>=0.30.0,<1.7",
     "jupyterlab>=3.6.0,<4.4",
-    "ipython>=7.30.0,<8.34",
+    "ipython>=7.30.0,<9.1",
     "ipyvtklink>=0.2.0,<0.2.4",
 ]
 
@@ -145,6 +138,7 @@ Documentation = "https://aedt.docs.pyansys.com"
 Source = "https://github.com/ansys/pyaedt"
 Discussions = "https://github.com/ansys/pyaedt/discussions"
 Releases = "https://github.com/ansys/pyaedt/releases"
+Changelog = "https://github.com/ansys/pyaedt/blob/main/doc/source/changelog.rst"
 
 [tool.black]
 line-length = 120
@@ -213,3 +207,47 @@ exclude = [
     '\.tests',  # missing docstring for tests
     'HistoryProps.',  # bad RT05 because of the base class named OrderedDict
 ]
+
+[tool.towncrier]
+package = "ansys.aedt.core"
+directory = "doc/changelog.d"
+filename = "doc/source/changelog.rst"
+start_string = ".. towncrier release notes start\n"
+template = "doc/changelog.d/changelog_template.jinja"
+title_format = "`{version} <https://github.com/ansys/pyaedt/releases/tag/v{version}>`_ - {project_date}"
+issue_format = "`#{issue} <https://github.com/ansys/pyaedt/pull/{issue}>`_"
+
+[[tool.towncrier.type]]
+directory = "added"
+name = "Added"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "dependencies"
+name = "Dependencies"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "documentation"
+name = "Documentation"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "fixed"
+name = "Fixed"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "maintenance"
+name = "Maintenance"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "miscellaneous"
+name = "Miscellaneous"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "test"
+name = "Test"
+showcontent = true

@@ -348,7 +348,11 @@ def main(extension_args):
         design_name = active_design.GetName()
 
     if not hfss:  # pragma: no cover
-        hfss = Hfss(project_name, design_name)
+        if app.design_type(project_name, design_name) == "HFSS":
+            hfss = Hfss(project_name, design_name)
+        else:
+            hfss = Hfss()
+            hfss.save_project()
 
     hfss.solution_type = "Terminal"
 
@@ -363,6 +367,15 @@ def main(extension_args):
 
     # Create choke geometry
     list_object = hfss.modeler.create_choke(str(json_path))
+
+    if not list_object:  # pragma: no cover
+        app.logger.error("No object associated to chocke creation.")
+        if temp_dir.exists():
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
+        if not extension_args["is_test"]:  # pragma: no cover
+            app.release_desktop(False, False)
+        return False
 
     # Get winding objects
     first_winding_list = list_object[2]
