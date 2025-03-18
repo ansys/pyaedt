@@ -105,21 +105,6 @@ class CommonReport(BinaryTreeNode):
         return True
 
     @property
-    def differential_pairs(self):
-        """Differential pairs flag.
-
-        Returns
-        -------
-        bool
-            ``True`` when differential pairs is enabled, ``False`` otherwise.
-        """
-        return self._legacy_props["context"].get("differential_pairs", False)
-
-    @differential_pairs.setter
-    def differential_pairs(self, value):
-        self._legacy_props["context"]["differential_pairs"] = value
-
-    @property
     def matrix(self):
         """Maxwell 2D/3D or Q2D/Q3D matrix name.
 
@@ -2355,3 +2340,25 @@ class CommonReport(BinaryTreeNode):
     def __props_with_default(dict_in, key, default_value=None):
         """Update dictionary value."""
         return dict_in[key] if dict_in.get(key, None) is not None else default_value
+
+
+class CircuitReport(CommonReport):
+    """Provides common reports."""
+
+    def __init__(self, app, report_category, setup_name, expressions=None):
+        super().__init__(app, report_category, setup_name, expressions)
+
+    @property
+    def differential_pairs(self):
+        """Differential pairs flag.
+
+        Returns
+        -------
+        bool
+            ``True`` when differential pairs is enabled, ``False`` otherwise.
+        """
+        return self._legacy_props["context"].get("differential_pairs", False)
+
+    @differential_pairs.setter
+    def differential_pairs(self, value):
+        self._legacy_props["context"]["differential_pairs"] = value
