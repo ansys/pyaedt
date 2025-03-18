@@ -1,1 +1,1 @@
-from ansys.aedt.core.generic.desktop_sessions import *
+from ansys.aedt.core.internal.desktop_sessions import *

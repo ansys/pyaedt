@@ -29,7 +29,7 @@ import shutil
 
 import ansys.aedt.core
 from ansys.aedt.core.generic.constants import SOLUTIONS
-from ansys.aedt.core.generic.errors import AEDTRuntimeError
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 import pytest
 
 from tests import TESTS_GENERAL_PATH

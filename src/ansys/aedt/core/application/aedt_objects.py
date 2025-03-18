@@ -27,10 +27,10 @@ import time
 import warnings
 
 from ansys.aedt.core.application.aedt_units import AedtUnits
-from ansys.aedt.core.generic.desktop_sessions import _desktop_sessions
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
+from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
 
 class AedtObjects(object):

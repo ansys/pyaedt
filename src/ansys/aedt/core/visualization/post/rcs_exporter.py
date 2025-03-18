@@ -28,10 +28,10 @@ from pathlib import Path
 import shutil
 
 from ansys.aedt.core.generic.constants import unit_converter
-from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.generic.file_utils import check_and_download_folder
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
 
 DEFAULT_EXPRESSION = "ComplexMonostaticRCSTheta"

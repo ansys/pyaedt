@@ -270,7 +270,7 @@ def add_script_to_menu(
     """
     logger = logging.getLogger("Global")
     if not personal_lib or not aedt_version:
-        from ansys.aedt.core.generic.desktop_sessions import _desktop_sessions
+        from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
         if not _desktop_sessions:  # pragma: no cover
             logger.error("Personallib or AEDT version is not provided and there is no available desktop session.")
