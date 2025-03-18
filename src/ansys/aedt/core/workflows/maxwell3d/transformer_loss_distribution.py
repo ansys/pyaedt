@@ -352,9 +352,11 @@ def main(extension_args):
     if export_option == "Ohmic loss":
         quantity = "Ohmic-Loss"
         file_header = "x,y,z,field"
+        is_scalar = True
     else:
         quantity = "SurfaceAcForceDensity"
         file_header = "r", "phi", "z", "fr_real", "fr_imag", "fphi_real", "fphi_imag", "fz_real", "fz_imag"
+        is_scalar = False
 
     setup_name = aedtapp.existing_analysis_sweeps[0].split(":")[0].strip()
     is_solved = [s.is_solved for s in aedtapp.setups if s.name == setup_name][0]
@@ -374,7 +376,14 @@ def main(extension_args):
     plotter.add_field_from_file(field_path)
     plotter.populate_pyvista_object()
 
-    field_coordinates = np.column_stack((np.array(plotter.pv.mesh.points), np.array(plotter.pv.mesh.active_scalars)))
+    if is_scalar:
+        field_coordinates = np.column_stack(
+            (np.array(plotter.pv.mesh.points), np.array(plotter.pv.mesh.active_scalars))
+        )
+    else:
+        field_coordinates = np.column_stack(
+            (np.array(plotter.pv.mesh.points), np.array(plotter.pv.mesh.active_vectors))
+        )
 
     if Path(export_file).suffix == ".npy":
         np.save(export_file, field_coordinates)
