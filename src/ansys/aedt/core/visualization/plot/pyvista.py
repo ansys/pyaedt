@@ -1010,6 +1010,8 @@ class ModelPlotter(CommonPlotter):
             and field._cached_polydata.point_data.active_vectors_name
         ):
             field.scalar_name = field._cached_polydata.point_data.active_vectors_name
+
+            # Vector scale has to be divided by 50 to match the same scales as fld and aedtplt scales
             field.vector_scale = (max(field._cached_polydata.bounds) - min(field._cached_polydata.bounds)) / (
                 50
                 * (
