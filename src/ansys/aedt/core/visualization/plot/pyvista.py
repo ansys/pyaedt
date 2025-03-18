@@ -26,7 +26,6 @@ from collections import defaultdict
 import csv
 from datetime import datetime
 import math
-import os
 from pathlib import Path
 import tempfile
 import time
@@ -327,7 +326,7 @@ class ObjClass(object):
         self.units = units
         self._cached_mesh = None
         self._cached_polydata = None
-        self.name = os.path.splitext(os.path.basename(self.path))[0]
+        self.name = Path(self.path).stem
 
     @property
     def color(self):
@@ -387,7 +386,7 @@ class FieldClass(object):
         self._cached_mesh = None
         self._cached_polydata = None
         self.label = label
-        self.name = os.path.splitext(os.path.basename(self.path))[0]
+        self.name = Path(self.path).stem
         self.color = (255, 0, 0)
         self.surface_mapping_tolerance = tolerance
         self.header_lines = headers
@@ -752,7 +751,7 @@ class CommonPlotter(object):
 
     @background_image.setter
     def background_image(self, value):
-        if os.path.exists(value):
+        if Path(value).exist():
             self._background_image = value
 
 
@@ -1002,7 +1001,8 @@ class ModelPlotter(CommonPlotter):
 
     @pyaedt_function_handler()
     def _read_case(self, field):
-        reader = pv.get_reader(os.path.abspath(field.path)).read()
+        file_path = Path(field.path).resolve()
+        reader = pv.get_reader(str(file_path)).read()
         field._cached_polydata = reader[reader.keys()[0]].extract_surface()
 
         if (
@@ -1140,11 +1140,12 @@ class ModelPlotter(CommonPlotter):
                 obj_to_iterate.append(i)
         for field in obj_to_iterate:
             if field.path and not field._cached_polydata:
-                if field.path and field.path.endswith(".case"):
+                field_path = Path(field.path)
+                if field_path.suffix == ".case":
                     self._read_case(field)
-                elif field.path and field.path.endswith(".aedtplt"):
+                elif field_path.suffix == ".aedtplt":
                     self._read_aedtplt(field)
-                elif field.path and field.path.endswith(".fld"):
+                elif field_path.suffix in [".fld", ".csv"]:
                     self._read_fld(field)
 
     @pyaedt_function_handler()
@@ -1377,22 +1378,23 @@ class ModelPlotter(CommonPlotter):
         """
         self.populate_pyvista_object()
         if export_image_path:
-            path_image = os.path.dirname(export_image_path)
-            root_name, format = os.path.splitext(os.path.basename(export_image_path))
+            path_image = Path(export_image_path).parent
+            file_path = Path(export_image_path)
+            root_name, file_extension = file_path.stem, file_path.suffix
         else:
-            path_image = tempfile.gettempdir()  # pragma: no cover
-            format = ".png"  # pragma: no cover
+            path_image = Path(tempfile.gettempdir())  # pragma: no cover
+            file_extension = ".png"  # pragma: no cover
             root_name = "Image"  # pragma: no cover
 
         def s_callback():  # pragma: no cover
             """Save screenshots."""
-            exp = os.path.join(path_image, f'{root_name}{datetime.now().strftime("%Y_%M_%d_%H-%M-%S")}{format}')
-            self.pv.screenshot(exp, return_img=False)
+            exp = path_image / f"{root_name}{datetime.now().strftime('%Y_%m_%d_%H-%M-%S')}{file_extension}"
+            self.pv.screenshot(str(exp), return_img=False)
 
         self.pv.add_key_event("s", s_callback)
         if export_image_path:  # pragma: no cover
             supported_export = [".svg", ".pdf", ".eps", ".ps", ".tex"]
-            extension = os.path.splitext(export_image_path)[1]
+            extension = file_ext = Path(export_image_path).suffix
             if extension in supported_export:
                 self.pv.save_graphic(export_image_path)
             else:
@@ -1421,15 +1423,18 @@ class ModelPlotter(CommonPlotter):
         """
         if remove_objs:
             for el in self.objects:
-                if os.path.exists(el.path):
-                    os.remove(el.path)
+                file_path = Path(el.path)
+                if file_path.exists():
+                    file_path.unlink()
                 if clean_cache:
                     el._cached_mesh = None
                     el._cached_polydata = None
+
         if remove_fields:
             for el in self.fields:
-                if os.path.exists(el.path):
-                    os.remove(el.path)
+                file_path = Path(el.path)
+                if file_path.exists():
+                    file_path.unlink()
                 if clean_cache:
                     el._cached_mesh = None
                     el._cached_polydata = None
