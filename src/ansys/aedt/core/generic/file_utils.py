@@ -499,6 +499,43 @@ def read_csv_pandas(input_file: Union[str, Path], encoding: str = "utf-8"):
         return None
 
 
+@pyaedt_function_handler()
+def convert_fld(input_data: str, quote_char: str = "|", quoting: int = csv.QUOTE_MINIMAL) -> bool:
+    """Convert a .fld file to a .csv file.
+
+    The .csv file is saved in the same working directory where the .fld is located.
+    The name used for the .csv file is the same as the .fld one.
+
+    Parameters
+    ----------
+    input_data : str
+        Full path of the .fld file to convert.
+    quote_char : str, optional
+        pass
+    quoting : str, optional
+        pass
+
+    Returns
+    -------
+    bool
+        ``True`` when successful, ``False`` when failed.
+    """
+    output_file = str(Path(input_data).with_suffix(".csv"))
+    with open_file(input_data, "r") as f:
+        lines = f.read().splitlines()
+        delimiter = " "
+        if len(lines) > 2000:
+            lines = list(dict.fromkeys(lines))
+        lines = lines[2:]
+        csv_data = [["x", "y", "z"]]
+        for line in lines:
+            tmp = line.strip().split(delimiter)
+            tmp = [i for i in tmp if i and i.lower() != "nan"]
+            if len(tmp) > 1:
+                csv_data.append(tmp)
+        return write_csv(output_file, csv_data, delimiter=delimiter, quote_char=quote_char, quoting=quoting)
+
+
 @pyaedt_function_handler(output="output_file", quotechar="quote_char")
 def write_csv(
     output_file: str, list_data: list, delimiter: str = ",", quote_char: str = "|", quoting: int = csv.QUOTE_MINIMAL
