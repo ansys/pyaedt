@@ -31,6 +31,7 @@ from ansys.aedt.core import Quantity
 from ansys.aedt.core.generic.file_utils import read_json
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 from ansys.aedt.core.visualization.plot.pyvista import _parse_aedtplt
 from ansys.aedt.core.visualization.plot.pyvista import _parse_streamline
 import pytest
@@ -266,7 +267,6 @@ class TestClass:
             is_vector=True,
             intrinsics="5GHz",
         )
-        from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 
         assert os.path.exists(file_path)
         model_pv = ModelPlotter()
