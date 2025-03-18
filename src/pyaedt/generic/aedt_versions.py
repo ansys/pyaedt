@@ -1,1 +1,1 @@
-from ansys.aedt.core.generic.aedt_versions import *
+from ansys.aedt.core.internal.aedt_versions import *

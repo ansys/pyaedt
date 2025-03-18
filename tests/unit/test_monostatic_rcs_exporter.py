@@ -26,8 +26,8 @@ import logging
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
-from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.generic.settings import Settings
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.post.rcs_exporter import DEFAULT_EXPRESSION
 from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
 import pytest

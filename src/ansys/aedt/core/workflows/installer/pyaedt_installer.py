@@ -47,7 +47,7 @@ def add_pyaedt_to_aedt(
     """
     logger = logging.getLogger("Global")
     if not personal_lib or not aedt_version:
-        from ansys.aedt.core.generic.desktop_sessions import _desktop_sessions
+        from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
         if not _desktop_sessions:
             logger.error("'personal_lib' or AEDT version is not provided. There is no available desktop session.")

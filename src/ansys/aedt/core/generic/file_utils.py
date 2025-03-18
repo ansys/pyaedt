@@ -38,11 +38,11 @@ from typing import TextIO
 from typing import Union
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger
-from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.constants import CSS4_COLORS
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers import Quantity
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
 is_linux = os.name == "posix"
 is_windows = not is_linux
@@ -960,7 +960,7 @@ def available_license_feature(
         Feature increment name. The default is the ``"electronics_desktop"``.
     input_dir: str or :class:`pathlib.Path`, optional
         AEDT installation path. The default is ``None``, in which case the first identified AEDT
-        installation from :func:`ansys.aedt.core.generic.aedt_versions.installed_versions`
+        installation from :func:`ansys.aedt.core.internal.aedt_versions.installed_versions`
         method is taken.
     port : int, optional
         Server port number. The default is ``1055``.
