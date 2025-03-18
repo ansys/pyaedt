@@ -41,6 +41,7 @@ def desktop():
 
 @pytest.fixture(scope="class")
 def setup_test_data(request, local_scratch):
+    # vector field files
     vector_field_path = Path(TESTS_VISUALIZATION_PATH) / "example_models" / test_subfolder / "vector_field"
     vector_dir = Path(local_scratch.path) / "vector_files"
     shutil.copytree(vector_field_path, vector_dir)
@@ -55,9 +56,10 @@ def setup_test_data(request, local_scratch):
     vector_file_case = case_path / "SurfaceAcForceDensity.case"
     request.cls.field_case = str(vector_file_case)
 
+    # scalar field files
     scalar_field_path = Path(TESTS_VISUALIZATION_PATH) / "example_models" / test_subfolder / "scalar_field"
     scalar_dir = Path(local_scratch.path) / "scalar_files"
-    shutil.copytree(vector_field_path, scalar_dir)
+    shutil.copytree(scalar_field_path, scalar_dir)
 
     scalar_file_fld = scalar_dir / "Ohmic_Loss.fld"
     request.cls.scalar_fld = str(scalar_file_fld)
@@ -75,24 +77,43 @@ def setup_test_data(request, local_scratch):
 class TestClass:
     def test_add_field_file(self):
         # vector field
-        model_pv = ModelPlotter()
-        assert not model_pv.fields
-        model_pv.add_field_from_file(self.field_fld)
-        assert isinstance(model_pv.fields, list)
-        assert len(model_pv.fields) == 1
-        model_pv.add_field_from_file(self.field_aedtplt)
-        assert len(model_pv.fields) == 2
-        model_pv.add_field_from_file(self.field_case)
-        assert len(model_pv.fields) == 3
+        model_pv_vector = ModelPlotter()
+        assert not model_pv_vector.fields
+        model_pv_vector.add_field_from_file(self.field_fld)
+        assert isinstance(model_pv_vector.fields, list)
+        assert len(model_pv_vector.fields) == 1
+        model_pv_vector.add_field_from_file(self.field_aedtplt)
+        assert len(model_pv_vector.fields) == 2
+        model_pv_vector.add_field_from_file(self.field_case)
+        assert len(model_pv_vector.fields) == 3
         # scalar field
+        model_pv_scalar = ModelPlotter()
+        assert not model_pv_scalar.fields
+        model_pv_scalar.add_field_from_file(self.scalar_fld)
+        assert isinstance(model_pv_scalar.fields, list)
+        assert len(model_pv_scalar.fields) == 1
+        model_pv_scalar.add_field_from_file(self.scalar_aedtplt)
+        assert len(model_pv_scalar.fields) == 2
+        model_pv_scalar.add_field_from_file(self.scalar_case)
+        assert len(model_pv_scalar.fields) == 3
 
     def test_populate_pyvista_object(self):
         # vector field
-        model_pv = ModelPlotter()
-        model_pv.add_field_from_file(self.field_fld)
-        model_pv.populate_pyvista_object()
-        assert model_pv.pv
-        assert model_pv.pv.mesh
-        assert len(model_pv.pv.mesh.points) == len(model_pv.pv.mesh.active_scalars)
-        assert len(model_pv.pv.mesh.points) == len(model_pv.pv.mesh.active_vectors)
+        model_pv_vector = ModelPlotter()
+        model_pv_vector.add_field_from_file(self.field_fld)
+        model_pv_vector.populate_pyvista_object()
+        assert model_pv_vector.pv
+        assert model_pv_vector.pv.mesh
+        assert len(model_pv_vector.pv.mesh.points) == len(model_pv_vector.pv.mesh.active_scalars)
+        assert len(model_pv_vector.pv.mesh.points) == len(model_pv_vector.pv.mesh.active_vectors)
         # scalar field
+        model_pv_scalar = ModelPlotter()
+        model_pv_scalar.add_field_from_file(self.scalar_fld)
+        model_pv_scalar.populate_pyvista_object()
+        assert model_pv_scalar.pv
+        assert model_pv_scalar.pv.mesh
+        assert len(model_pv_scalar.pv.mesh.points) == len(model_pv_scalar.pv.mesh.active_scalars)
+        assert not model_pv_scalar.pv.mesh.active_vectors
+        # model_pv_scalar1 = ModelPlotter()
+        # model_pv_scalar1.add_field_from_file(self.scalar_aedtplt)
+        # model_pv_scalar1.populate_pyvista_object()
