@@ -51,8 +51,7 @@ extension_description = "Export of transformer loss distribution"
 def frontend():
     import tkinter as tk
     from tkinter import filedialog
-
-    # from tkinter import messagebox
+    from tkinter import messagebox
     import tkinter.ttk as ttk
 
     import PIL.Image
@@ -233,8 +232,7 @@ def frontend():
         theme.apply_dark_theme(style)
         # change_theme_button.config(text="\u2600")
 
-    def callback():
-        master.flag = True
+    def callback(button_id):
         master.points_file = sample_points_entry.get("1.0", tk.END).strip()
         master.export_file = export_file_entry.get("1.0", tk.END).strip()
         selected_export = export_options_lb.curselection()
@@ -242,16 +240,50 @@ def frontend():
         selected_objects = objects_list_lb.curselection()
         master.objects_list = [objects_list_lb.get(i) for i in selected_objects]
         master.solution_option = selected_value.get()
-        master.destroy()
+        if button_id == 1:
+            master.flag = True
+            master.destroy()
+        elif button_id == 2:
+            master.flag = False
+            # objects
+            if not master.objects_list:
+                assignment = "AllObjects"
+            elif isinstance(master.objects_list, list) and len(master.objects_list) > 1:
+                if len(maxwell.modeler.user_lists) == 0:
+                    objects_list = maxwell.modeler.create_object_list(master.objects_list, "ObjectList1")
+                else:
+                    objects_list = maxwell.modeler.create_object_list(
+                        master.objects_list, f"ObjectList{len(maxwell.modeler.user_lists) + 1}"
+                    )
+                assignment = objects_list.name
+            else:
+                assignment = master.objects_list[0]
+            # setup
+            setup_name = master.solution_option.split(":")[0].strip()
+            is_solved = [s.is_solved for s in maxwell.setups if s.name == setup_name][0]
+            if not is_solved:
+                messagebox.showerror("Error", "Selected setup is not solved.")
+                return None
+            # export
+            field_path = str(Path(master.export_file).with_suffix(".fld"))
+            if master.export_option == "Ohmic loss":
+                quantity = "Ohmic-Loss"
+            else:
+                quantity = "SurfaceAcForceDensity"
+            maxwell.post.export_field_file(
+                quantity=quantity,
+                solution=master.solution_option,
+                output_file=field_path,
+                sample_points_file=master.points_file,
+                assignment=assignment,
+            )
 
-    # def plot_preview():
-    #     try:
-    #         setup_name = maxwell.existing_analysis_sweeps[0].split(":")[0].strip()
-    #         is_solved = [s.is_solved for s in maxwell.setups if s.name == setup_name][0]
-    #         if not is_solved:
-    #             messagebox.showerror("Error", "Object could not be exported.")
-    #     except:
-    #         pass
+            # Populate PyVista object
+            plotter = ansys.aedt.core.visualization.plot.pyvista.ModelPlotter()
+            plotter.add_field_from_file(field_path, show_edges=False)
+            plotter.populate_pyvista_object()
+
+            plotter.plot()
 
     def browse_files():
         filename = filedialog.askopenfilename(
@@ -294,10 +326,14 @@ def frontend():
     buttons_frame = tk.Frame(master, width=20)
     buttons_frame.grid(row=6, column=0, pady=10, padx=15, sticky="ew")
     buttons_frame.config(bg="white")
-    export_button = ttk.Button(buttons_frame, text="Export", command=callback, width=10, style="PyAEDT.TButton")
-    preview_button = ttk.Button(buttons_frame, text="Preview plot", command=callback, width=10, style="PyAEDT.TButton")
+    export_button = ttk.Button(
+        buttons_frame, text="Export", command=lambda: callback(1), width=10, style="PyAEDT.TButton"
+    )
+    preview_button = ttk.Button(
+        buttons_frame, text="Preview plot", command=lambda: callback(2), width=10, style="PyAEDT.TButton"
+    )
     export_button.pack(side="left", expand=True)
-    preview_button.pack(side="left", expand=True, command="")
+    preview_button.pack(side="left", expand=True)
 
     # Create buttons to change theme color
     change_theme_button = ttk.Button(master, text="\u263D", width=2, command=toggle_theme, style="PyAEDT.TButton")
@@ -359,7 +395,7 @@ def main(extension_args):
             objects_list = aedtapp.modeler.create_object_list(objects_list, "ObjectList1")
         else:
             objects_list = aedtapp.modeler.create_object_list(
-                objects_list, f"ObjectList{len(aedtapp.modeler.user_lists)+1}"
+                objects_list, f"ObjectList{len(aedtapp.modeler.user_lists) + 1}"
             )
         assignment = objects_list.name
     else:
@@ -374,7 +410,7 @@ def main(extension_args):
         file_header = "r", "phi", "z", "fr_real", "fr_imag", "fphi_real", "fphi_imag", "fz_real", "fz_imag"
         is_scalar = False
 
-    setup_name = aedtapp.existing_analysis_sweeps[0].split(":")[0].strip()
+    setup_name = solution_option.split(":")[0].strip()
     is_solved = [s.is_solved for s in aedtapp.setups if s.name == setup_name][0]
     if not is_solved:
         aedtapp.logger.error("The setup is not solved. Please solve the setup before exporting the field data.")
