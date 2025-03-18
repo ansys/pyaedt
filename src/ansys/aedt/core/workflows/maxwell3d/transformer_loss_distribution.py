@@ -51,6 +51,8 @@ extension_description = "Export of transformer loss distribution"
 def frontend():
     import tkinter as tk
     from tkinter import filedialog
+
+    # from tkinter import messagebox
     import tkinter.ttk as ttk
 
     import PIL.Image
@@ -242,6 +244,15 @@ def frontend():
         master.solution_option = selected_value.get()
         master.destroy()
 
+    # def plot_preview():
+    #     try:
+    #         setup_name = maxwell.existing_analysis_sweeps[0].split(":")[0].strip()
+    #         is_solved = [s.is_solved for s in maxwell.setups if s.name == setup_name][0]
+    #         if not is_solved:
+    #             messagebox.showerror("Error", "Object could not be exported.")
+    #     except:
+    #         pass
+
     def browse_files():
         filename = filedialog.askopenfilename(
             initialdir="/",
@@ -280,8 +291,13 @@ def frontend():
     save_as_button.pack(side=tk.RIGHT, padx=10)
 
     # Create button to export fields data
-    export_button = ttk.Button(master, text="Export", command=callback, width=10, style="PyAEDT.TButton")
-    export_button.grid(row=6, column=0, pady=10, padx=15)
+    buttons_frame = tk.Frame(master, width=20)
+    buttons_frame.grid(row=6, column=0, pady=10, padx=15, sticky="ew")
+    buttons_frame.config(bg="white")
+    export_button = ttk.Button(buttons_frame, text="Export", command=callback, width=10, style="PyAEDT.TButton")
+    preview_button = ttk.Button(buttons_frame, text="Preview plot", command=callback, width=10, style="PyAEDT.TButton")
+    export_button.pack(side="left", expand=True)
+    preview_button.pack(side="left", expand=True, command="")
 
     # Create buttons to change theme color
     change_theme_button = ttk.Button(master, text="\u263D", width=2, command=toggle_theme, style="PyAEDT.TButton")
