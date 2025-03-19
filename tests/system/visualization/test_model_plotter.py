@@ -106,26 +106,37 @@ class TestClass:
         assert model_pv_vector.pv.mesh
         assert len(model_pv_vector.pv.mesh.points) == len(model_pv_vector.pv.mesh.active_scalars)
         assert len(model_pv_vector.pv.mesh.points) == len(model_pv_vector.pv.mesh.active_vectors)
+        # model_pv_vector1 = ModelPlotter()
+        # model_pv_vector1.add_field_from_file(self.field_case)
+        # model_pv_vector1.populate_pyvista_object()
+        # assert model_pv_vector1.pv
+        # assert model_pv_vector1.pv.mesh
+        # assert len(model_pv_vector1.pv.mesh.points) == len(model_pv_vector1.pv.mesh.active_scalars)
+        # assert len(model_pv_vector1.pv.mesh.points) == len(model_pv_vector1.pv.mesh.active_vectors)
         # scalar field
-        model_pv_scalar = ModelPlotter()
-        model_pv_scalar.add_field_from_file(self.scalar_fld)
-        model_pv_scalar.range_min = 0.0001
-        model_pv_scalar.range_max = 1
-        model_pv_scalar.populate_pyvista_object()
-        assert model_pv_scalar.pv
-        assert model_pv_scalar.pv.mesh
-        assert len(model_pv_scalar.pv.mesh.points) == len(model_pv_scalar.pv.mesh.active_scalars)
-        assert not model_pv_scalar.pv.mesh.active_vectors
-        model_pv_scalar1 = ModelPlotter()
-        model_pv_scalar1.add_field_from_file(self.scalar_fld)
-        model_pv_scalar1.populate_pyvista_object()
-        assert model_pv_scalar1.pv
-        assert model_pv_scalar1.pv.mesh
-        assert len(model_pv_scalar1.pv.mesh.points) == len(model_pv_scalar1.pv.mesh.active_scalars)
-        assert not model_pv_scalar1.pv.mesh.active_vectors
-        # model_pv_scalar1 = ModelPlotter()
-        # model_pv_scalar1.add_field_from_file(self.scalar_aedtplt)
-        # model_pv_scalar1.populate_pyvista_object()
+        model_pv_scalar2 = ModelPlotter()
+        model_pv_scalar2.add_field_from_file(self.scalar_fld)
+        model_pv_scalar2.range_min = 0.0001
+        model_pv_scalar2.range_max = 1
+        model_pv_scalar2.populate_pyvista_object()
+        assert model_pv_scalar2.pv
+        assert model_pv_scalar2.pv.mesh
+        assert len(model_pv_scalar2.pv.mesh.points) == len(model_pv_scalar2.pv.mesh.active_scalars)
+        assert not model_pv_scalar2.pv.mesh.active_vectors
+        model_pv_scalar3 = ModelPlotter()
+        model_pv_scalar3.add_field_from_file(self.scalar_fld)
+        model_pv_scalar3.populate_pyvista_object()
+        assert model_pv_scalar3.pv
+        assert model_pv_scalar3.pv.mesh
+        assert len(model_pv_scalar3.pv.mesh.points) == len(model_pv_scalar3.pv.mesh.active_scalars)
+        assert not model_pv_scalar3.pv.mesh.active_vectors
+        model_pv_scalar4 = ModelPlotter()
+        model_pv_scalar4.add_field_from_file(self.scalar_aedtplt)
+        model_pv_scalar4.populate_pyvista_object()
+        assert model_pv_scalar4.pv
+        assert model_pv_scalar4.pv.mesh
+        assert len(model_pv_scalar4.pv.mesh.points) == len(model_pv_scalar4.pv.mesh.active_scalars)
+        assert not model_pv_scalar4.pv.mesh.active_vectors
 
     def test_vector_field_scale(self):
         model_pv_vector = ModelPlotter()
