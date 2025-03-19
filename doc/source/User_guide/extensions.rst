@@ -151,6 +151,14 @@ They are small automated workflows with a simple GUI.
             Shielding effectiveness automated workflow HFSS.
 
 
+.. grid-item-card:: Point cloud generator
+            :link: pyaedt_extensions_doc/hfss/point_cloud_generator
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Generate object- and surface-conforming point clouds.
+
+
 Icepak extensions
 ~~~~~~~~~~~~~~~~~
 

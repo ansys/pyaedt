@@ -38,17 +38,22 @@ jobs:
           token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
           bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
           bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
+          use-upper-case: true
 
   pr-title:
-    if: github.event_name == 'pull_request'
-    name: Check the title of the pull request
+    name: Check the title of the PR (if needed)
     runs-on: ubuntu-latest
     steps:
       - name: Check the title of the pull request
+        if: github.event_name == 'pull_request'
         uses: ansys/actions/check-pr-title@v8
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           use-upper-case: true
+      - name: Check the title of the pull request
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: echo "::notice::Skipping PR title check for non-PR events"
 
   doc-style:
     name: Documentation style check
@@ -77,6 +82,10 @@ jobs:
   smoke-tests:
     name: Build wheelhouse and smoke tests
     runs-on: ${{ matrix.os }}
+    permissions:
+      attestations: write
+      contents: read
+      id-token: write
     needs: [pr-title]
     strategy:
       fail-fast: false
@@ -92,12 +101,11 @@ jobs:
           operating-system: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
           target: ${{ matrix.target }}
+          attest-provenance: true
 
       - name: Import python package
         run: |
           python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
-
-
 
   unit-tests:
     name: Running unit tests
@@ -537,12 +545,17 @@ jobs:
             system-tests-visualization-linux,
             doc-build]
     runs-on: ubuntu-latest
+    permissions:
+      attestations: write
+      contents: read
+      id-token: write
     steps:
       - name: Build library source and wheel artifacts
         uses: ansys/actions/build-library@v8
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          attest-provenance: true
 
   # TODO: Si if we can fix the PDF issue and leverage classic ansys/release-github
   release:
@@ -566,6 +579,9 @@ jobs:
         uses: ansys/actions/release-github@v8
         with:
           library-name: ${{ env.PACKAGE_NAME }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          generate_release_notes: false
+          add-artifact-attestation-notes: true
 
   upload-release-doc:
     name: Upload release documentation

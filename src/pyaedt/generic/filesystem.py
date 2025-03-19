@@ -1,1 +1,1 @@
-from ansys.aedt.core.generic.filesystem import *
+from ansys.aedt.core.internal.filesystem import *

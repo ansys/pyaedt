@@ -41,9 +41,9 @@ class ReportSpec:
     document_prefix: str = "ANSS"
     ansys_version: str = "2025R1"
     revision: str = "Rev 1.0"
-    logo_name: str = os.path.join(os.path.dirname(__file__), "../../generic/Ansys.png")
+    logo_name: str = os.path.join(os.path.dirname(__file__), "../../misc/Ansys.png")
     company_name: str = "Ansys Inc."
-    template_name: str = os.path.join(os.path.dirname(__file__), "../../generic/AnsysTemplate.json")
+    template_name: str = os.path.join(os.path.dirname(__file__), "../../misc/AnsysTemplate.json")
     design_name: str = "Design1"
     project_name: str = "Project1"
     pyaedt_version: str = __version__

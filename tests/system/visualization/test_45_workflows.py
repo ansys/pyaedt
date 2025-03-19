@@ -40,6 +40,7 @@ twinbuilder_circuit = "TB_test"
 report = "report"
 fields_calculator = "fields_calculator_solved"
 m2d_electrostatic = "maxwell_fields_calculator"
+point_cloud_generator = "point_cloud_generator"
 
 test_subfolder = "T45"
 TEST_REVIEW_FLAG = True
@@ -647,7 +648,18 @@ class TestClass:
         assert len(aedtapp.post.all_report_names) == 2
         aedtapp.close_project(aedtapp.project_name)
 
-    def test_20_layout_design_toolkit_antipad_1(self, add_app, local_scratch):
+    @pytest.mark.skipif(is_linux, reason="Simulation takes too long in Linux machine.")
+    def test_20_point_cloud(self, add_app, local_scratch):
+        aedtapp = add_app(project_name=point_cloud_generator, subfolder=test_subfolder)
+
+        from ansys.aedt.core.workflows.hfss.point_cloud import main
+
+        # No choice
+        assert main({"is_test": True, "choice": "Torus1", "points": 1000})
+
+        aedtapp.close_project(aedtapp.project_name)
+
+    def test_21_layout_design_toolkit_antipad_1(self, add_app, local_scratch):
         from ansys.aedt.core.workflows.hfss3dlayout.post_layout_design_toolkit import BackendAntipad
 
         h3d = add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder=test_subfolder)
@@ -656,7 +668,7 @@ class TestClass:
         app_antipad.create(selections=["Via79", "Via78"], radius="1mm", race_track=True)
         h3d.close_project()
 
-    def test_20_layout_design_toolkit_antipad_2(self, add_app, local_scratch):
+    def test_21_layout_design_toolkit_antipad_2(self, add_app, local_scratch):
         from ansys.aedt.core.workflows.hfss3dlayout.post_layout_design_toolkit import BackendAntipad
 
         h3d = add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder=test_subfolder)
@@ -666,7 +678,7 @@ class TestClass:
         app_antipad.create(selections=["Via1", "Via2"], radius="1mm", race_track=False)
         h3d.close_project()
 
-    def test_20_layout_design_toolkit_micro_via(self, add_app, local_scratch):
+    def test_21_layout_design_toolkit_micro_via(self, add_app, local_scratch):
         from ansys.aedt.core.workflows.hfss3dlayout.post_layout_design_toolkit import BackendMircoVia
 
         h3d = add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder=test_subfolder)

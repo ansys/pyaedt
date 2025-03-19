@@ -25,7 +25,7 @@
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
-from ansys.aedt.core.generic.errors import AEDTRuntimeError
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.maxwell import Maxwell3d
 import pytest
 

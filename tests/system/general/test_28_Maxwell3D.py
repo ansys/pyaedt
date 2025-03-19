@@ -28,9 +28,9 @@ import shutil
 
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.generic.constants import SOLUTIONS
-from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 import pytest
 
@@ -50,6 +50,13 @@ test_subfolder = "TMaxwell"
 cyl_gap_name = "Motor3D_cyl_gap"
 
 layout_component_name = "LayoutForce"
+
+
+@pytest.fixture(scope="class", autouse=True)
+def dummy_prj(add_app):
+    app = add_app("Dummy_license_checkout_prj")
+    yield app
+    app.close_project(app.project_name)
 
 
 @pytest.fixture()
