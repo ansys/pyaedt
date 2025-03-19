@@ -1109,7 +1109,7 @@ class ModelPlotter(CommonPlotter):
                     (max(filedata.bounds) - min(filedata.bounds))
                     / (50 * (np.vstack(values).max() - np.vstack(values).min()))
                 )
-                if isinstance(type(values[0][0]), complex):
+                if isinstance(values[0][0], complex):
                     values_np = np.array(values, dtype=np.complex128)
                     filedata["real_vector"] = values_np.real
                     filedata["imag_vector"] = values_np.imag
