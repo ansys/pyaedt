@@ -40,11 +40,23 @@ class TestClass:
 
     def test_row(self, lumped_design):
         lumped_design.topology.complex_termination = True
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.source_impedance_table.row(100)
+        assert info.value.args[0] == "The input index is larger than table rows"
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.load_impedance_table.row(100)
+        assert info.value.args[0] == "The input index is larger than table rows"
         assert lumped_design.source_impedance_table.row(0) == ("0.100G", "1.000", "0.000")
         assert lumped_design.load_impedance_table.row(0) == ("0.100G", "1.000", "0.000")
 
     def test_update_row(self, lumped_design):
         lumped_design.topology.complex_termination = True
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.source_impedance_table.update_row(100)
+        assert info.value.args[0] == "The input index is larger than table rows"
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.load_impedance_table.update_row(100)
+        assert info.value.args[0] == "The input index is larger than table rows"
         with pytest.raises(RuntimeError) as info:
             lumped_design.source_impedance_table.update_row(0)
         assert info.value.args[0] == "There is no input value to update"
@@ -76,10 +88,23 @@ class TestClass:
 
     def test_insert_row(self, lumped_design):
         lumped_design.topology.complex_termination = True
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.source_impedance_table.insert_row(100)
+        assert info.value.args[0] == "The input index is larger than table rows"
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.load_impedance_table.insert_row(100)
+        assert info.value.args[0] == "The input index is larger than table rows"
+        assert lumped_design.source_impedance_table.row_count == 3
+        assert lumped_design.source_impedance_table.row(0) == ("0.100G", "1.000", "0.000")
         lumped_design.source_impedance_table.insert_row(0, "2G", "50", "0")
+        assert lumped_design.source_impedance_table.row_count == 4
         assert lumped_design.source_impedance_table.row(0) == ("2G", "50", "0")
+        assert lumped_design.source_impedance_table.row(1) == ("0.100G", "1.000", "0.000")
+        assert lumped_design.load_impedance_table.row_count == 3
         lumped_design.load_impedance_table.insert_row(0, "2G", "50", "0")
+        assert lumped_design.load_impedance_table.row_count == 4
         assert lumped_design.load_impedance_table.row(0) == ("2G", "50", "0")
+        assert lumped_design.load_impedance_table.row(1) == ("0.100G", "1.000", "0.000")
 
     def test_remove_row(self, lumped_design):
         lumped_design.topology.complex_termination = True

@@ -157,6 +157,11 @@ class LumpedTerminationImpedance:
         self._dll.getLumpedComplexCompOrder.argtypes = [POINTER(c_int), c_bool]
         self._dll.getLumpedComplexCompOrder.restype = c_int
 
+    def _bytes_or_none(self, str_value):
+        if str_value:
+            return bytes(str_value, "ascii")
+        return None
+
     def table_type_to_bool(self):
         """Set a flag to recognize source and load complex table.
 
@@ -216,7 +221,7 @@ class LumpedTerminationImpedance:
         imag_value_string = imag_value_buffer.value.decode("utf-8")
         return frequency_value_string, real_value_string, imag_value_string
 
-    def update_row(self, row_index, frequency="", real="", imag=""):
+    def update_row(self, row_index, frequency=None, real=None, imag=None):
         """Update frequency and complex impedance at a specified index in the complex impedance table.
 
         Parameters
@@ -230,65 +235,56 @@ class LumpedTerminationImpedance:
         imag: str, optional
             The imaginary part of the complex impedance to update. If not specified, it remains unchanged.
         """
-        frequency_bytes_value = bytes(frequency, "ascii")
-        real_bytes_value = bytes(real, "ascii")
-        imag_bytes_value = bytes(imag, "ascii")
         status = self._dll.updateComplexTableRow(
             row_index,
-            frequency_bytes_value,
-            real_bytes_value,
-            imag_bytes_value,
+            self._bytes_or_none(frequency),
+            self._bytes_or_none(real),
+            self._bytes_or_none(imag),
             self.table_type_to_bool(),
         )
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
-    def append_row(self, frequency, real, imag):
+    def append_row(self, frequency=None, real=None, imag=None):
         """Append frequency and complex impedance values to the last row of
         both the source and load complex impedance table.
 
 
         Parameters
         ----------
-        frequency: str
+        frequency: str, optional
             The frequency value to append.
-        real: str
+        real: str, optional
             The real part of the complex impedance to append.
-        imag: str
+        imag: str, optional
             The imaginary part of the complex impedance to append.
         """
-        frequency_bytes_value = bytes(frequency, "ascii")
-        real_bytes_value = bytes(real, "ascii")
-        imag_bytes_value = bytes(imag, "ascii")
         status = self._dll.appendComplexTableRow(
-            frequency_bytes_value,
-            real_bytes_value,
-            imag_bytes_value,
+            self._bytes_or_none(frequency),
+            self._bytes_or_none(real),
+            self._bytes_or_none(imag),
             self.table_type_to_bool(),
         )
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
-    def insert_row(self, row_index, frequency, real, imag):
+    def insert_row(self, row_index, frequency=None, real=None, imag=None):
         """Insert frequency and complex impedance values at a specified index in the complex impedance table.
 
         Parameters
         ----------
         row_index : int
             Row index in the complex impedance table, starting at ``0`` and with a maximum value of ``99``.
-        frequency : str
+        frequency : str, optional
             The frequency value to insert.
-        real : str
+        real : str, optional
             The real part of the complex impedance to insert.
-        imag : str
+        imag : str, optional
             The imaginary part of the complex impedance to insert.
         """
-        frequency_bytes_value = bytes(frequency, "ascii")
-        real_bytes_value = bytes(real, "ascii")
-        imag_bytes_value = bytes(imag, "ascii")
         status = self._dll.insertComplexTableRow(
             row_index,
-            frequency_bytes_value,
-            real_bytes_value,
-            imag_bytes_value,
+            self._bytes_or_none(frequency),
+            self._bytes_or_none(real),
+            self._bytes_or_none(imag),
             self.table_type_to_bool(),
         )
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)

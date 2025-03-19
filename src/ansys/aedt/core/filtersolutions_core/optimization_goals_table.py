@@ -86,13 +86,40 @@ class OptimizationGoalsTable:
         self._dll.getOptimizationGoalDefinitionRow.argtype = [c_int, POINTER(c_char_p), c_int]
         self._dll.getOptimizationGoalDefinitionRow.restype = c_int
 
-        self._dll.updateOptimizationGoalDefinitionRow.argtype = [c_int, c_int, c_char_p]
+        self._dll.updateOptimizationGoalDefinitionRow.argtype = [
+            c_int,
+            c_char_p,
+            c_char_p,
+            c_char_p,
+            c_char_p,
+            c_char_p,
+            c_char_p,
+            c_char_p,
+        ]
         self._dll.updateOptimizationGoalDefinitionRow.restype = c_int
 
-        self._dll.appendOptimizationGoalDefinitionRow.argtype = [c_int, c_char_p]
+        self._dll.appendOptimizationGoalDefinitionRow.argtype = [
+            c_int,
+            c_char_p,
+            c_char_p,
+            c_char_p,
+            c_char_p,
+            c_char_p,
+            c_char_p,
+            c_char_p,
+        ]
         self._dll.appendOptimizationGoalDefinitionRow.restype = c_int
 
-        self._dll.insertOptimizationGoalDefinitionRow.argtypes = [c_int, c_char_p, c_char_p]
+        self._dll.insertOptimizationGoalDefinitionRow.argtypes = [
+            c_int,
+            c_char_p,
+            c_char_p,
+            c_char_p,
+            c_char_p,
+            c_char_p,
+            c_char_p,
+            c_char_p,
+        ]
         self._dll.insertOptimizationGoalDefinitionRow.restype = c_int
 
         self._dll.removeOptimizationGoalDefinitionRow.argtype = c_int
