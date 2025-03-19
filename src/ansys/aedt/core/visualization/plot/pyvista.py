@@ -751,7 +751,7 @@ class CommonPlotter(object):
 
     @background_image.setter
     def background_image(self, value):
-        if Path(value).exist():
+        if Path(value).exists():
             self._background_image = value
 
 
