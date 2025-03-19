@@ -70,6 +70,14 @@ def setup_test_data(request, local_scratch):
     case_path = scalar_field_path / "case"
     scalar_file_case = case_path / "Ohmic_Loss.case"
     request.cls.scalar_case = str(scalar_file_case)
+
+    # cartesian field files
+    cartesian_field_path = Path(TESTS_VISUALIZATION_PATH) / "example_models" / test_subfolder
+    cartesian_dir = Path(local_scratch.path) / "cartesian_files"
+    shutil.copytree(cartesian_field_path, cartesian_dir)
+
+    cartesian_field_file = cartesian_dir / "E_xyz.fld"
+    request.cls.cartesian_fld = str(cartesian_field_file)
     yield
 
 
@@ -131,6 +139,14 @@ class TestClass:
         assert model_pv_scalar3.pv.mesh
         assert len(model_pv_scalar3.pv.mesh.points) == len(model_pv_scalar3.pv.mesh.active_scalars)
         assert not model_pv_scalar3.pv.mesh.active_vectors
+        # cartesian field
+        model_pv_scalar4 = ModelPlotter()
+        model_pv_scalar4.add_field_from_file(self.cartesian_fld)
+        model_pv_scalar4.populate_pyvista_object()
+        assert model_pv_scalar4.pv
+        assert model_pv_scalar4.pv.mesh
+        assert len(model_pv_scalar4.pv.mesh.points) == len(model_pv_scalar4.pv.mesh.active_scalars)
+        assert len(model_pv_scalar4.pv.mesh.points) == len(model_pv_scalar4.pv.mesh.active_vectors)
 
     def test_vector_field_scale(self):
         model_pv_vector = ModelPlotter()
