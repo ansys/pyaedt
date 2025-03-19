@@ -601,7 +601,7 @@ class AedtLogger(object):
 
         if not level:
             level = "Design"
-        if level in "Design" and not self.design_name:
+        if level == "Design" and not self.design_name:
             level = "Global"
         if level not in message_levels:
             raise ValueError("Message level must be 'Design', 'Project', or 'Global'.")
