@@ -272,6 +272,7 @@ class TestClass:
         model_pv = ModelPlotter()
         model_pv.add_field_from_file(file_path)
         assert model_pv.plot(show=False)
+        model_pv.clean_cache_and_files(clean_cache=True)
         file_path = aedtapp.post.export_field_file_on_grid(
             "E",
             "Setup1 : LastAdaptive",
@@ -743,6 +744,10 @@ class TestClass:
             show=False, export_path=os.path.join(local_scratch.path, "image2.jpg"), plot_as_separate_objects=False
         )
         assert os.path.exists(obj2.image_file)
+        obj3 = aedtapp.post.plot_model_obj(
+            show=False, export_path=os.path.join(local_scratch.path, "image2.jpg"), clean_files=True
+        )
+        assert os.path.exists(obj3.image_file)
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_16_create_field_plot(self, aedtapp):

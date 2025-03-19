@@ -109,11 +109,20 @@ class TestClass:
         # scalar field
         model_pv_scalar = ModelPlotter()
         model_pv_scalar.add_field_from_file(self.scalar_fld)
+        model_pv_scalar.range_min = 0.0001
+        model_pv_scalar.range_max = 1
         model_pv_scalar.populate_pyvista_object()
         assert model_pv_scalar.pv
         assert model_pv_scalar.pv.mesh
         assert len(model_pv_scalar.pv.mesh.points) == len(model_pv_scalar.pv.mesh.active_scalars)
         assert not model_pv_scalar.pv.mesh.active_vectors
+        model_pv_scalar1 = ModelPlotter()
+        model_pv_scalar1.add_field_from_file(self.scalar_fld)
+        model_pv_scalar1.populate_pyvista_object()
+        assert model_pv_scalar1.pv
+        assert model_pv_scalar1.pv.mesh
+        assert len(model_pv_scalar1.pv.mesh.points) == len(model_pv_scalar1.pv.mesh.active_scalars)
+        assert not model_pv_scalar1.pv.mesh.active_vectors
         # model_pv_scalar1 = ModelPlotter()
         # model_pv_scalar1.add_field_from_file(self.scalar_aedtplt)
         # model_pv_scalar1.populate_pyvista_object()
