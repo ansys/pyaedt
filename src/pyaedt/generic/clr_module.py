@@ -1,1 +1,1 @@
-from ansys.aedt.core.generic.clr_module import *
+from ansys.aedt.core.internal.clr_module import *

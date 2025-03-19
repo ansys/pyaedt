@@ -26,8 +26,8 @@ import os
 import re
 
 from ansys.aedt.core import Icepak
-from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts

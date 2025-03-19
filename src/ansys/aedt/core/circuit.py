@@ -39,11 +39,11 @@ from ansys.aedt.core.generic.data_handlers import from_rkm_to_aedt
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.file_utils import read_configuration_file
-from ansys.aedt.core.generic.filesystem import search_files
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
+from ansys.aedt.core.internal.filesystem import search_files
 from ansys.aedt.core.modules.boundary.circuit_boundary import CurrentSinSource
 from ansys.aedt.core.modules.boundary.circuit_boundary import PowerIQSource
 from ansys.aedt.core.modules.boundary.circuit_boundary import PowerSinSource
