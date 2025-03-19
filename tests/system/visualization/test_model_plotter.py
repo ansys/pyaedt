@@ -106,13 +106,13 @@ class TestClass:
         assert model_pv_vector.pv.mesh
         assert len(model_pv_vector.pv.mesh.points) == len(model_pv_vector.pv.mesh.active_scalars)
         assert len(model_pv_vector.pv.mesh.points) == len(model_pv_vector.pv.mesh.active_vectors)
-        # model_pv_vector1 = ModelPlotter()
-        # model_pv_vector1.add_field_from_file(self.field_case)
-        # model_pv_vector1.populate_pyvista_object()
-        # assert model_pv_vector1.pv
-        # assert model_pv_vector1.pv.mesh
-        # assert len(model_pv_vector1.pv.mesh.points) == len(model_pv_vector1.pv.mesh.active_scalars)
-        # assert len(model_pv_vector1.pv.mesh.points) == len(model_pv_vector1.pv.mesh.active_vectors)
+        model_pv_vector1 = ModelPlotter()
+        model_pv_vector1.add_field_from_file(self.field_aedtplt)
+        model_pv_vector1.populate_pyvista_object()
+        assert model_pv_vector1.pv
+        assert model_pv_vector1.pv.mesh
+        assert len(model_pv_vector1.pv.mesh.points) == len(model_pv_vector1.pv.mesh.active_scalars)
+        assert len(model_pv_vector1.pv.mesh.points) == len(model_pv_vector1.pv.mesh.active_vectors)
         # scalar field
         model_pv_scalar2 = ModelPlotter()
         model_pv_scalar2.add_field_from_file(self.scalar_fld)
@@ -124,19 +124,13 @@ class TestClass:
         assert len(model_pv_scalar2.pv.mesh.points) == len(model_pv_scalar2.pv.mesh.active_scalars)
         assert not model_pv_scalar2.pv.mesh.active_vectors
         model_pv_scalar3 = ModelPlotter()
-        model_pv_scalar3.add_field_from_file(self.scalar_fld)
+        model_pv_scalar3.add_field_from_file(self.scalar_aedtplt)
+        model_pv_scalar3.convert_fields_in_db = True
         model_pv_scalar3.populate_pyvista_object()
         assert model_pv_scalar3.pv
         assert model_pv_scalar3.pv.mesh
         assert len(model_pv_scalar3.pv.mesh.points) == len(model_pv_scalar3.pv.mesh.active_scalars)
         assert not model_pv_scalar3.pv.mesh.active_vectors
-        model_pv_scalar4 = ModelPlotter()
-        model_pv_scalar4.add_field_from_file(self.scalar_aedtplt)
-        model_pv_scalar4.populate_pyvista_object()
-        assert model_pv_scalar4.pv
-        assert model_pv_scalar4.pv.mesh
-        assert len(model_pv_scalar4.pv.mesh.points) == len(model_pv_scalar4.pv.mesh.active_scalars)
-        assert not model_pv_scalar4.pv.mesh.active_vectors
 
     def test_vector_field_scale(self):
         model_pv_vector = ModelPlotter()
