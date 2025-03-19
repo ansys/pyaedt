@@ -1109,7 +1109,7 @@ class ModelPlotter(CommonPlotter):
                     (max(filedata.bounds) - min(filedata.bounds))
                     / (50 * (np.vstack(values).max() - np.vstack(values).min()))
                 )
-                if type(values[0][0]) == complex:
+                if isinstance(type(values[0][0]), complex):
                     values_np = np.array(values, dtype=np.complex128)
                     filedata["real_vector"] = values_np.real
                     filedata["imag_vector"] = values_np.imag
@@ -1394,7 +1394,7 @@ class ModelPlotter(CommonPlotter):
         self.pv.add_key_event("s", s_callback)
         if export_image_path:  # pragma: no cover
             supported_export = [".svg", ".pdf", ".eps", ".ps", ".tex"]
-            extension = file_ext = Path(export_image_path).suffix
+            extension = Path(export_image_path).suffix
             if extension in supported_export:
                 self.pv.save_graphic(export_image_path)
             else:
