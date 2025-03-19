@@ -30,8 +30,8 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.load_aedt_file import load_entire_aedt_file
 from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.internal.load_aedt_file import load_entire_aedt_file
 
 
 class Cable:

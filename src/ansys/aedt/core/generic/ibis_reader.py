@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 import json
-import os
+from pathlib import Path
 import re
 import traceback
 
@@ -49,9 +49,10 @@ class Component:
 
         Examples
         --------
-        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> from pathlib import Path
+        >>> ibis_file = Path(path_to_ibis_files) / "u26a_800_modified.ibs"
+        >>> ibis = ibis_reader.IbisReader(ibis_file, circuit)
         >>> ibis.components["MT47H64M4BP-3_25"].name
-        'MT47H64M4BP-3_25'
 
         """
 
@@ -67,9 +68,10 @@ class Component:
 
         Examples
         --------
-        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, 'u26a_800_modified.ibs'), circuit)
+        >>> from pathlib import Path
+        >>> ibis_file = Path(path_to_ibis_files) / "u26a_800_modified.ibs"
+        >>> ibis = ibis_reader.IbisReader(ibis_file, circuit)
         >>> ibis.components["MT47H64M4BP-3_25"].manufacturer
-        'Micron Technology, Inc.'
 
         """
 
@@ -85,7 +87,9 @@ class Component:
 
         Examples
         --------
-        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> from pathlib import Path
+        >>> ibis_file = Path(path_to_ibis_files) / "u26a_800_modified.ibs"
+        >>> ibis = ibis_reader.IbisReader(ibis_file, circuit)
         >>> pins = ibis.components["MT47H64M4BP-3_25"].pins
 
         """
@@ -140,10 +144,10 @@ class Pin:
 
         Examples
         --------
-        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> from pathlib import Path
+        >>> ibis_file = Path(path_to_ibis_files) / "u26a_800_modified.ibs"
+        >>> ibis = ibis_reader.IbisReader(ibis_file, circuit)
         >>> ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800"].name
-        'A1_MT47H64M4BP-3_25_u26a_800'
-
         """
         return self._name
 
@@ -158,10 +162,10 @@ class Pin:
 
         Examples
         --------
-        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> from pathlib import Path
+        >>> ibis_file = Path(path_to_ibis_files) / "u26a_800_modified.ibs"
+        >>> ibis = ibis_reader.IbisReader(ibis_file, circuit)
         >>> ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800"].short_name
-        'A1'
-
         """
         return self._short_name
 
@@ -175,10 +179,10 @@ class Pin:
 
         Examples
         --------
-        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> from pathlib import Path
+        >>> ibis_file = Path(path_to_ibis_files) / "u26a_800_modified.ibs"
+        >>> ibis = ibis_reader.IbisReader(ibis_file, circuit)
         >>> ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800"].signal
-        'VDD'
-
         """
         return self._signal
 
@@ -192,10 +196,10 @@ class Pin:
 
         Examples
         --------
-        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> from pathlib import Path
+        >>> ibis_file = Path(path_to_ibis_files) / "u26a_800_modified.ibs"
+        >>> ibis = ibis_reader.IbisReader(ibis_file, circuit)
         >>> ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800"].signal
-        'POWER'
-
         """
         return self._model
 
@@ -209,10 +213,10 @@ class Pin:
 
         Examples
         --------
-        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> from pathlib import Path
+        >>> ibis_file = Path(path_to_ibis_files) / "u26a_800_modified.ibs"
+        >>> ibis = ibis_reader.IbisReader(ibis_file, circuit)
         >>> ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800"].r_value
-        '44.3m'
-
         """
 
         return self._r_value
@@ -227,10 +231,10 @@ class Pin:
 
         Examples
         --------
-        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> from pathlib import Path
+        >>> ibis_file = Path(path_to_ibis_files) / "u26a_800_modified.ibs"
+        >>> ibis = ibis_reader.IbisReader(ibis_file, circuit)
         >>> ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800"].l_value
-        '1.99nH'
-
         """
         return self._l_value
 
@@ -244,10 +248,10 @@ class Pin:
 
         Examples
         --------
-        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> from pathlib import Path
+        >>> ibis_file = Path(path_to_ibis_files) / "u26a_800_modified.ibs"
+        >>> ibis = ibis_reader.IbisReader(ibis_file, circuit)
         >>> ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800"].c_value
-        '0.59pF'
-
         """
         return self._c_value
 
@@ -332,10 +336,10 @@ class DifferentialPin:
 
         Examples
         --------
-        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> from pathlib import Path
+        >>> ibis_file = Path(path_to_ibis_files) / "u26a_800_modified.ibs"
+        >>> ibis = ibis_reader.IbisReader(ibis_file, circuit)
         >>> ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800"].signal
-        'POWER'
-
         """
         return self._model
 
@@ -409,10 +413,10 @@ class DifferentialPin:
 
         Examples
         --------
-        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> from pathlib import Path
+        >>> ibis_file = Path(path_to_ibis_files) / "u26a_800_modified.ibs"
+        >>> ibis = ibis_reader.IbisReader(ibis_file, circuit)
         >>> ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800"].name
-        'A1_MT47H64M4BP-3_25_u26a_800'
-
         """
         return self._name
 
@@ -767,31 +771,25 @@ class IbisReader(object):
 
     Parameters
     ----------
-    filename : str
+    filename : str or :class:`pathlib.Path`
         Name of ibis model.
     circuit : class:`ansys.aedt.core.circuit.Circuit`
         Circuit in which the ibis components will be used.
     """
 
     def __init__(self, filename, circuit):
+        filename = Path(filename)
         self._filename = filename
         self._circuit = circuit
         self._ibis_model = None
 
     @property
     def ibis_model(self):
-        "Ibis model gathering the entire set of data extracted from the \\*.ibis file."
+        """Ibis model gathering the entire set of data extracted from the \\*.ibis file."""
         return self._ibis_model
 
     def parse_ibis_file(self):
         """Read \\*.ibis file content.
-
-        Parameters
-        ----------
-        filename : str
-            Name of ibis model.
-        circuit : class:`ansys.aedt.core.circuit.Circuit`
-            Circuit in which the ibis components will be used.
 
         Returns
         ----------
@@ -801,13 +799,14 @@ class IbisReader(object):
         Examples
         --------
         Read u26a_800.ibs file provided in the AEDT suit installation.
-        >>> import os
+        >>> from pathlib import Path
         >>> from ansys.aedt.core import Desktop
         >>> from ansys.aedt.core.circuit import Circuit
         >>> from ansys.aedt.core.generic import ibis_reader
         >>> desktop = Desktop()
         >>> circuit = Circuit()
-        >>> ibis = ibis_reader.IbisReader(os.path.join(desktop.install_path, "buflib", "IBIS", "u26a_800.ibs"), circuit)
+        >>> ibis_file = Path(desktop.install_path) / "buflib" / "IBIS" / "u26a_800.ibs"
+        >>> ibis = ibis_reader.IbisReader(ibis_file, circuit)
 
         """
 
@@ -880,7 +879,7 @@ class IbisReader(object):
             args.append(arg_buffers)
             args.append(arg_components)
 
-            self._circuit.modeler.schematic.ocomponent_manager.ImportModelsFromFile(self._filename, args)
+            self._circuit.modeler.schematic.ocomponent_manager.ImportModelsFromFile(str(self._filename), args)
 
         return ibis_info
 
@@ -1203,34 +1202,28 @@ class AMIReader(IbisReader):
 
     @property
     def ami_model(self):
-        "Ibis-AMI model gathering the entire set of data extracted from the \\*.ami file."
+        """Ibis-AMI model gathering the entire set of data extracted from the \\*.ami file."""
         return self._ami_model
 
     def parse_ibis_file(self):
         """Reads \\*.ami file content.
 
-        Parameters
-        ----------
-        filename : str
-            Name of ibis model.
-        circuit : class:`ansys.aedt.core.circuit.Circuit`
-            Circuit in which the ibis components will be used.
-
         Returns
-        ----------
+        -------
         :class:`ansys.aedt.core.generic.ibis_reader.Ibis`
             Ibis object exposing all data from the ibis file.
 
         Examples
         --------
         Read u26a_800.ibs file provided in the AEDT suit installation.
-        >>> import os
+        >>> from pathlib import Path
         >>> from ansys.aedt.core import Desktop
         >>> from ansys.aedt.core.circuit import Circuit
         >>> from ansys.aedt.core.generic import ibis_reader
         >>> desktop = Desktop()
         >>> circuit = Circuit()
-        >>> ibis = ibis_reader.IbisReader(os.path.join(desktop.install_path, "buflib", "IBIS", "u26a_800.ibs"), circuit)
+        >>> ibis_file = Path(desktop.install_path) / "buflib" / "IBIS" / "u26a_800.ibs"
+        >>> ibis = ibis_reader.IbisReader(ibis_file, circuit)
         """
 
         if not check_if_path_exists(self._filename):
@@ -1355,7 +1348,8 @@ def ibis_parsing(file):
     with open_file(file, "r") as fp:
         ibis_data = list(enumerate(fp))
 
-    with open_file(os.path.join(os.path.dirname(os.path.abspath(__file__)), "ibis_v7.json"), "r") as f:
+    ibis_file = Path(__file__).parents[1] / "misc" / "ibis_v7.json"
+    with open_file(ibis_file, "r") as f:
         ibis_ref = json.load(f)
     ibis_ref = lowercase_json(ibis_ref)
 

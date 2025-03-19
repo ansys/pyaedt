@@ -126,7 +126,7 @@ The following table list the name changes with the old and new paths:
 +----------------------------------------------------------------+--------------------------------------------------------------------------+
 | pyaedt\\generic\\DataHandlers.py                               | src\\ansys\\aedt\\core\\generic\\data_handlers.py                        |
 +----------------------------------------------------------------+--------------------------------------------------------------------------+
-| pyaedt\\generic\\LoadAEDTFile.py                               | src\\ansys\\aedt\\core\\generic\\load_aedt_file.py                       |
+| pyaedt\\generic\\LoadAEDTFile.py                               | src\\ansys\\aedt\\core\\internal\\load_aedt_file.py                      |
 +----------------------------------------------------------------+--------------------------------------------------------------------------+
 | pyaedt\\modeler\\modeler2d.py                                  | src\\ansys\\aedt\\core\\modeler\\modeler_2d.py                           |
 +----------------------------------------------------------------+--------------------------------------------------------------------------+
