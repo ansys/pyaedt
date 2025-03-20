@@ -180,6 +180,7 @@ def frontend():
         change_theme_button.config(text="\u2600")
 
     def callback():
+        master.flag = True
         master.origin_x = origin_x_entry.get("1.0", tk.END).strip()
         master.origin_y = origin_y_entry.get("1.0", tk.END).strip()
         master.origin_z = origin_z_entry.get("1.0", tk.END).strip()
@@ -214,16 +215,17 @@ def frontend():
     radius = getattr(master, "radius", extension_arguments["radius"])
     file_path = getattr(master, "file_path", extension_arguments["file_path"])
 
-    output_dict = {
-        "origin_x": origin_x,
-        "origin_y": origin_y,
-        "origin_z": origin_z,
-        "radius": radius,
-        "file_path": file_path,
-    }
-
     app.release_desktop(False, False)
 
+    output_dict = {}
+    if master.flag:
+        output_dict = {
+            "origin_x": origin_x,
+            "origin_y": origin_y,
+            "origin_z": origin_z,
+            "radius": radius,
+            "file_path": file_path,
+        }
     return output_dict
 
 
@@ -274,5 +276,6 @@ if __name__ == "__main__":
             for output_name, output_value in output.items():
                 if output_name in extension_arguments:
                     args[output_name] = output_value
-
-    main(args)
+            main(args)
+    else:
+        main(args)
