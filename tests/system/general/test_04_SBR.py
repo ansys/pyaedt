@@ -32,8 +32,8 @@ try:
 except ImportError:
     osmnx = None
 
-from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.generic.settings import is_linux
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import desktop_version

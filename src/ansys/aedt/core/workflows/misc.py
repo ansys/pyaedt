@@ -27,7 +27,7 @@ import argparse
 import os
 import sys
 
-from ansys.aedt.core.generic.aedt_versions import aedt_versions
+from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
 
 def get_process_id():
