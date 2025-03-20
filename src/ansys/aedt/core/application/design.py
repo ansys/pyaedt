@@ -4044,7 +4044,7 @@ class Design(AedtObjects):
             )
             eval_value = self._variable_manager.variables[variable_name].value
             # Extract the numeric value of the expression (in SI units!)
-            self._variable_manager.delete_variable(variable_name)
+            self.odesign.Undo()
             return eval_value
         except Exception:
             self.logger.warning(f"Invalid string expression {expression}")
