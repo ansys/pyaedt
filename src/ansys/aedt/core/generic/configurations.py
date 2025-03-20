@@ -2217,7 +2217,6 @@ class ConfigurationsNexxim(Configurations):
         ]
         for comp in list(self._app.modeler.schematic.components.values()):
             properties = {}
-            name = []
             num_terminals = None
             refdes = comp.refdes
             position = comp.location
@@ -2272,7 +2271,6 @@ class ConfigurationsNexxim(Configurations):
             else:
                 model = {component: {"type": type, "file_path": path}}
             data_models.update(model)
-            print(data_refdes)
 
         for k, v in pin_nets.items():
             pin_mapping[v].append(k)
