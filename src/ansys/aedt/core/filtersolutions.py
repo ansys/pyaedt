@@ -49,7 +49,15 @@ class FilterDesignBase:
     This class has access to ideal filter attributes and calculated output parameters.
     """
 
+    _active_design = None
+
     def __init__(self, version=None):
+        if FilterDesignBase._active_design is not None:
+            raise Exception(
+                "A design is already opened. Close the current design "
+                "using 'design_name.close()' before opening a new one."
+            )
+        FilterDesignBase._active_design = self
         self.version = version if version else settings.aedt_version
         ansys.aedt.core.filtersolutions_core._dll_interface(version)
         self.attributes = Attributes()
@@ -58,6 +66,13 @@ class FilterDesignBase:
         self.transmission_zeros_ratio = TransmissionZeros(TableFormat.RATIO)
         self.transmission_zeros_bandwidth = TransmissionZeros(TableFormat.BANDWIDTH)
         self.export_to_aedt = ExportToAedt()
+
+    def close(self):
+        """Closes the current design and clears the active design."""
+        if FilterDesignBase._active_design == self:
+            FilterDesignBase._active_design = None
+        else:
+            raise Exception("This design is not the active design.")
 
 
 class LumpedDesign(FilterDesignBase):
