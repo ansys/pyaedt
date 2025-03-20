@@ -734,10 +734,6 @@ class AedtLogger(object):
     @odesign.setter
     def odesign(self, val):
         self._odesign = val
-        try:
-            self._design_name = self._odesign.GetName()
-        except AttributeError:  # pragma: no cover
-            self._design_name = ""
 
     @property
     def design_name(self):
@@ -747,6 +743,8 @@ class AedtLogger(object):
         -------
         str
         """
+        if not self._design_name and self.odesign:
+            self._design_name = self.odesign.GetName()
         return self._design_name
 
     @property
