@@ -44,8 +44,8 @@ def clean_environment():
     initial_sys_modules = sys.modules.copy()
     initial_os_environ = os.environ.copy()
 
-    if "ansys.aedt.core.generic.clr_module" in sys.modules:
-        del sys.modules["ansys.aedt.core.genericclr_module"]
+    if "ansys.aedt.core.internal.clr_module" in sys.modules:
+        del sys.modules["ansys.aedt.core.internal.clr_module"]
     if "DOTNET_ROOT" in os.environ:
         del os.environ["DOTNET_ROOT"]
 
@@ -65,7 +65,7 @@ def test_use_system_dotnet(mock_get_coreclr, mock_load, clean_environment):
     mock_runtime.dotnet_root = DOTNET_ROOT_PATH
     mock_get_coreclr.return_value = mock_runtime
 
-    import ansys.aedt.core.generic.clr_module as cm
+    import ansys.aedt.core.internal.clr_module as cm
 
     assert cm.is_clr
     assert DOTNET_ROOT_PATH.as_posix() == os.environ["DOTNET_ROOT"]
@@ -78,7 +78,7 @@ def test_use_system_dotnet(mock_get_coreclr, mock_load, clean_environment):
 @patch("clr_loader.get_coreclr", side_effect=Exception("Dummy exception"))
 @patch.object(warnings, "warn")
 def test_use_dotnetcore2(mock_warn, mock_get_coreclr, mock_load, clean_environment):
-    import ansys.aedt.core.generic.clr_module as cm
+    import ansys.aedt.core.internal.clr_module as cm
 
     assert cm.is_clr
     assert DOTNETCORE2_BIN == os.environ["DOTNET_ROOT"]
@@ -93,7 +93,7 @@ def test_use_dotnet_root_env_variable_failure(mock_find_runtimes, mock_load, cle
     os.environ["DOTNET_ROOT"] = DOTNET_ROOT
 
     with pytest.raises(RuntimeError):
-        import ansys.aedt.core.generic.clr_module  # noqa: F401
+        import ansys.aedt.core.internal.clr_module  # noqa: F401
 
 
 @pytest.mark.skipif(os.name != "posix", reason="test for linux behavior")
@@ -103,7 +103,7 @@ def test_use_dotnet_root_env_variable_failure(mock_find_runtimes, mock_load, cle
 def test_use_dotnet_root_env_variable_success_dotnetcore2(mock_warn, mock_load, clean_environment, capsys):
     os.environ["DOTNET_ROOT"] = DOTNETCORE2_BIN
 
-    import ansys.aedt.core.generic.clr_module as cm
+    import ansys.aedt.core.internal.clr_module as cm
 
     assert cm.is_clr
     assert DOTNETCORE2_BIN == os.environ["DOTNET_ROOT"]
@@ -120,6 +120,6 @@ def test_use_dotnet_root_env_variable_success(mock_find_runtimes, mock_load, cle
     mock_runtime.name = "Microsoft.NETCore.App"
     mock_find_runtimes.return_value = [mock_runtime]
 
-    import ansys.aedt.core.generic.clr_module  # noqa: F401
+    import ansys.aedt.core.internal.clr_module  # noqa: F401
 
     assert os.environ["DOTNET_ROOT"]

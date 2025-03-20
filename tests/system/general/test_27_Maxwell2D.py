@@ -29,7 +29,7 @@ import shutil
 
 import ansys.aedt.core
 from ansys.aedt.core.generic.constants import SOLUTIONS
-from ansys.aedt.core.generic.errors import AEDTRuntimeError
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 import pytest
 
 from tests import TESTS_GENERAL_PATH
@@ -49,6 +49,13 @@ sinusoidal_name = "Sinusoidal"
 m2d_transient_ec = "Setup_Transient_EC"
 
 export_rl_c_matrix = "export_matrix"
+
+
+@pytest.fixture(scope="class", autouse=True)
+def dummy_prj(add_app):
+    app = add_app("Dummy_license_checkout_prj")
+    yield app
+    app.close_project(app.project_name)
 
 
 @pytest.fixture()

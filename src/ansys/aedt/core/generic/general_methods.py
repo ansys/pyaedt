@@ -36,11 +36,11 @@ import time
 import traceback
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger
-from ansys.aedt.core.generic.errors import GrpcApiError
-from ansys.aedt.core.generic.errors import MethodNotSupportedError
 from ansys.aedt.core.generic.numbers import _units_assignment
 from ansys.aedt.core.generic.settings import inner_project_settings  # noqa: F401
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.errors import GrpcApiError
+from ansys.aedt.core.internal.errors import MethodNotSupportedError
 import psutil
 
 is_linux = os.name == "posix"
@@ -138,7 +138,7 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
 
     message_to_print = ""
     messages = ""
-    from ansys.aedt.core.generic.desktop_sessions import _desktop_sessions
+    from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
     if len(list(_desktop_sessions.values())) == 1:
         try:
@@ -182,7 +182,7 @@ def _check_types(arg):
 def raise_exception_or_return_false(e):
     if not settings.enable_error_handler:
         if settings.release_on_exception:
-            from ansys.aedt.core.generic.desktop_sessions import _desktop_sessions
+            from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
             for v in list(_desktop_sessions.values())[:]:
                 v.release_desktop(v.launched_by_pyaedt, v.launched_by_pyaedt)
