@@ -113,7 +113,7 @@ def frontend():
     # Export options
     export_options_frame = tk.Frame(master, width=20)
     export_options_frame.grid(row=0, column=0, pady=10, padx=10, sticky="ew")
-    export_options_list = ["Ohmic loss", "AC Force Density"]
+    export_options_list = ["Ohmic loss", "Surface AC Force Density"]
     export_options_label = ttk.Label(
         export_options_frame, text="Export options:", width=15, style="PyAEDT.TLabel", justify=tk.CENTER, anchor="w"
     )
@@ -236,7 +236,7 @@ def frontend():
         master.points_file = sample_points_entry.get("1.0", tk.END).strip()
         master.export_file = export_file_entry.get("1.0", tk.END).strip()
         selected_export = export_options_lb.curselection()
-        master.export_option = [export_options_lb.get(i) for i in selected_export]
+        master.export_option = [export_options_lb.get(i) for i in selected_export][0]
         selected_objects = objects_list_lb.curselection()
         master.objects_list = [objects_list_lb.get(i) for i in selected_objects]
         master.solution_option = selected_value.get()
@@ -270,18 +270,23 @@ def frontend():
                 quantity = "Ohmic-Loss"
             else:
                 quantity = "SurfaceAcForceDensity"
+
+            if maxwell.is3d:
+                objects_type = "Surf"
             maxwell.post.export_field_file(
                 quantity=quantity,
                 solution=master.solution_option,
                 output_file=field_path,
                 sample_points_file=master.points_file,
                 assignment=assignment,
+                objects_type=objects_type,
             )
 
             # Populate PyVista object
             plotter = ansys.aedt.core.visualization.plot.pyvista.ModelPlotter()
             plotter.add_field_from_file(field_path, show_edges=False)
             plotter.populate_pyvista_object()
+            plotter.show_grid = False
 
             plotter.plot()
 
@@ -348,7 +353,7 @@ def frontend():
     objects_list = getattr(master, "objects_list", extension_arguments["objects_list"])
     solution_option = getattr(master, "solution_option", extension_arguments["solution_option"])
 
-    app.release_desktop(False, False)
+    maxwell.release_desktop(False, False)
 
     output_dict = {}
     if master.flag:
@@ -403,11 +408,11 @@ def main(extension_args):
 
     if export_option == "Ohmic loss":
         quantity = "Ohmic-Loss"
-        file_header = "x,y,z,field"
+        # file_header = "x,y,z,field"
         is_scalar = True
     else:
         quantity = "SurfaceAcForceDensity"
-        file_header = "r", "phi", "z", "fr_real", "fr_imag", "fphi_real", "fphi_imag", "fz_real", "fz_imag"
+        # file_header = "r, phi, z, fr_real, fr_imag, fphi_real, fphi_imag, fz_real, fz_imag"
         is_scalar = False
 
     setup_name = solution_option.split(":")[0].strip()
@@ -415,12 +420,16 @@ def main(extension_args):
     if not is_solved:
         aedtapp.logger.error("The setup is not solved. Please solve the setup before exporting the field data.")
     field_path = str(Path(export_file).with_suffix(".fld"))
+
+    if aedtapp.is3d:
+        objects_type = "Surf"
     aedtapp.post.export_field_file(
         quantity=quantity,
         solution=solution_option,
         output_file=field_path,
         sample_points_file=points_file,
         assignment=assignment,
+        objects_type=objects_type,
     )
 
     # Populate PyVista object
@@ -444,7 +453,7 @@ def main(extension_args):
             export_file,
             field_coordinates,
             delimiter=",",
-            header=file_header,
+            # header=file_header,
             comments="",
         )
     elif Path(export_file).suffix == ".tab":
@@ -452,7 +461,7 @@ def main(extension_args):
             export_file,
             field_coordinates,
             delimiter="\t",
-            header=file_header,
+            # header=file_header,
             comments="",
         )
 
