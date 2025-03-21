@@ -144,7 +144,7 @@ class Settings(object):
         # Settings related to logging
         self.__logger: Optional[logging.Logger] = None
         self.__enable_logger: bool = True
-        self.__enable_desktop_logs: bool = True
+        self.__enable_desktop_logs: bool = False
         self.__enable_screen_logs: bool = True
         self.__enable_file_logs: bool = True
         self.__logger_file_path: Optional[str] = None
