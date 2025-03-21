@@ -91,9 +91,7 @@ class CircuitPins(object):
         for net in self._circuit_comp._circuit_components.nets:
             conns = self._oeditor.GetNetConnections(net)
             for conn in conns:
-                if conn.endswith(self.name) and (
-                    f";{self._circuit_comp.id};" in conn or f";{self._circuit_comp.id} " in conn
-                ):
+                if self._circuit_comp.composed_name in conn and conn.endswith(self.name):
                     return net
         return ""
 
