@@ -14,7 +14,7 @@ from ansys.aedt.core.generic.general_methods import env_path
 
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core import is_windows
-from ansys.aedt.core.generic.filesystem import is_safe_path
+from ansys.aedt.core.internal.filesystem import is_safe_path
 
 import subprocess  # nosec
 
@@ -33,7 +33,7 @@ from ansys.aedt.core import Q2d
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Mechanical
-from ansys.aedt.core.generic.aedt_versions import aedt_versions
+from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
 
 class FileManagement(object):
@@ -960,7 +960,7 @@ class GlobalService(rpyc.Service):
         -------
         int
         """
-        from ansys.aedt.core.generic.desktop_sessions import _desktop_sessions
+        from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
         if _desktop_sessions:
             return list(_desktop_sessions.values())[0].port
         return 0
@@ -973,7 +973,7 @@ class GlobalService(rpyc.Service):
         -------
         str
         """
-        from ansys.aedt.core.generic.desktop_sessions import _desktop_sessions
+        from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
         if _desktop_sessions:
             return list(_desktop_sessions.values())[0].aedt_version_id
         return ""
@@ -986,7 +986,7 @@ class GlobalService(rpyc.Service):
         -------
         bool
         """
-        from ansys.aedt.core.generic.desktop_sessions import _desktop_sessions
+        from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
         if _desktop_sessions:
             return list(_desktop_sessions.values())[0].student_version
         return False

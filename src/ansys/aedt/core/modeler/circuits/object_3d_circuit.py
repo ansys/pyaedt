@@ -1212,3 +1212,46 @@ class Wire(object):
         except ValueError as e:
             self.logger.error(str(e))
             return False
+
+    @pyaedt_function_handler()
+    def get_net_name(self):
+        """Get the wire net name.
+
+        Returns
+        -------
+        str
+            Wire net name.
+        """
+        return self.composed_name.split("@")[1].split(";")[0]
+
+    @pyaedt_function_handler()
+    def set_net_name(self, name, split_wires=False):
+        """Set wire net name.
+
+        Parameters
+        ----------
+        name : str
+            Name of the wire.
+        split_wires : bool, optional
+            Whether if the wires with same net name should be split or not. Default is ``False``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        self._oeditor.ChangeProperty(
+            [
+                "NAME:AllTabs",
+                [
+                    "NAME:ComponentTab",
+                    ["NAME:PropServers", self.composed_name],
+                    [
+                        "NAME:ChangedProps",
+                        ["NAME:NetName", "ExtraText:=", name, "Name:=", name, "SplitWires:=", split_wires],
+                    ],
+                ],
+            ]
+        )
+        self.composed_name = f"Wire@{name};{self.composed_name.split(';')[1]}"
+        return True

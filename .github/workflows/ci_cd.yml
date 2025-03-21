@@ -82,6 +82,10 @@ jobs:
   smoke-tests:
     name: Build wheelhouse and smoke tests
     runs-on: ${{ matrix.os }}
+    permissions:
+      attestations: write
+      contents: read
+      id-token: write
     needs: [pr-title]
     strategy:
       fail-fast: false
@@ -97,6 +101,7 @@ jobs:
           operating-system: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
           target: ${{ matrix.target }}
+          attest-provenance: true
 
       - name: Import python package
         run: |
@@ -540,12 +545,17 @@ jobs:
             system-tests-visualization-linux,
             doc-build]
     runs-on: ubuntu-latest
+    permissions:
+      attestations: write
+      contents: read
+      id-token: write
     steps:
       - name: Build library source and wheel artifacts
         uses: ansys/actions/build-library@v8
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          attest-provenance: true
 
   # TODO: Si if we can fix the PDF issue and leverage classic ansys/release-github
   release:
@@ -570,6 +580,8 @@ jobs:
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
+          generate_release_notes: false
+          add-artifact-attestation-notes: true
 
   upload-release-doc:
     name: Upload release documentation

@@ -36,13 +36,13 @@ from math import tan
 import os
 
 from ansys.aedt.core import Edb
-from ansys.aedt.core.generic import load_aedt_file
-from ansys.aedt.core.generic.desktop_sessions import _edb_sessions
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import generate_unique_project_name
 from ansys.aedt.core.generic.file_utils import normalize_path
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.internal import load_aedt_file
+from ansys.aedt.core.internal.desktop_sessions import _edb_sessions
 from ansys.aedt.core.modeler.advanced_cad.actors import Bird
 from ansys.aedt.core.modeler.advanced_cad.actors import Person
 from ansys.aedt.core.modeler.advanced_cad.actors import Vehicle
@@ -2452,9 +2452,9 @@ class Primitives3D(GeometryModeler):
         out_rad_wind = values["Outer Winding"]["Outer Radius"]
         height_wind = values["Outer Winding"]["Height"]
         w_dia = values["Outer Winding"]["Wire Diameter"]
-        turns = values["Outer Winding"]["Turns"]
-        turns2 = values["Mid Winding"]["Turns"]
-        turns3 = values["Inner Winding"]["Turns"]
+        turns = int(values["Outer Winding"]["Turns"])
+        turns2 = int(values["Mid Winding"]["Turns"])
+        turns3 = int(values["Inner Winding"]["Turns"])
         teta = values["Outer Winding"]["Coil Pit(deg)"]
         teta2 = values["Mid Winding"]["Coil Pit(deg)"]
         teta3 = values["Inner Winding"]["Coil Pit(deg)"]
@@ -2543,7 +2543,7 @@ class Primitives3D(GeometryModeler):
                 self.logger.info("Creating triple winding")
         else:
             list_object = self._make_winding(
-                name_wind, material_wind, in_rad_wind, out_rad_wind, height_wind, teta, turns, chamf, sep_layer
+                name_wind, material_wind, in_rad_wind, out_rad_wind, height_wind, teta, int(turns), chamf, sep_layer
             )
             self.logger.info("Creating single winding")
         list_duplicated_object = []

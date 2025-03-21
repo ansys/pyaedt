@@ -35,7 +35,7 @@ def post_processor(app=None, project=None, design=None, version=None):
     """
     if not app:
         from ansys.aedt.core.generic.design_types import get_pyaedt_app
-        from ansys.aedt.core.generic.desktop_sessions import _desktop_sessions
+        from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
         if not _desktop_sessions:
             from ansys.aedt.core.desktop import Desktop

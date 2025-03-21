@@ -26,9 +26,12 @@ import os
 import sys
 import uuid
 
+import ansys.aedt.core
 from ansys.aedt.core import Quantity
 from ansys.aedt.core.generic.file_utils import read_json
 from ansys.aedt.core.generic.general_methods import is_linux
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 from ansys.aedt.core.visualization.plot.pyvista import _parse_aedtplt
 from ansys.aedt.core.visualization.plot.pyvista import _parse_streamline
 import pytest
@@ -36,23 +39,24 @@ import pytest
 from tests import TESTS_VISUALIZATION_PATH
 from tests.system.visualization.conftest import config
 
-test_field_name = "Potter_Horn_231"
 test_project_name = "coax_setup_solved_231"
-array = "array_simple_231"
-sbr_file = "poc_scat_small_solved"
-q3d_file = "via_gsg_231"
-m2d_file = "m2d_field_lines_test_231"
+m2d_trace_export_table = "m2d_trace_export_table"
 
 
 test_circuit_name = "Switching_Speed_FET_And_Diode"
-eye_diagram = "SimpleChannel"
-ami = "ami"
 test_subfolder = "T12"
 
 
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
     app = add_app(project_name=test_project_name, subfolder=test_subfolder)
+    yield app
+    app.close_project(app.project_name)
+
+
+@pytest.fixture(scope="class")
+def m2d_app(add_app):
+    app = add_app(project_name=m2d_trace_export_table, subfolder=test_subfolder, application=ansys.aedt.core.Maxwell2d)
     yield app
     app.close_project(app.project_name)
 
@@ -263,8 +267,12 @@ class TestClass:
             is_vector=True,
             intrinsics="5GHz",
         )
-        assert os.path.exists(file_path)
 
+        assert os.path.exists(file_path)
+        model_pv = ModelPlotter()
+        model_pv.add_field_from_file(file_path)
+        assert model_pv.plot(show=False)
+        model_pv.clean_cache_and_files(clean_cache=True)
         file_path = aedtapp.post.export_field_file_on_grid(
             "E",
             "Setup1 : LastAdaptive",
@@ -736,6 +744,10 @@ class TestClass:
             show=False, export_path=os.path.join(local_scratch.path, "image2.jpg"), plot_as_separate_objects=False
         )
         assert os.path.exists(obj2.image_file)
+        obj3 = aedtapp.post.plot_model_obj(
+            show=False, export_path=os.path.join(local_scratch.path, "image2.jpg"), clean_files=True
+        )
+        assert os.path.exists(obj3.image_file)
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_16_create_field_plot(self, aedtapp):
@@ -818,3 +830,20 @@ class TestClass:
         setup_derivative_auto = aedtapp.setups[2]
         assert setup_derivative.set_tuning_offset({"inner_radius": 0.1})
         assert setup_derivative_auto.set_tuning_offset({"inner_radius": 0.1})
+
+    def test_trace_characteristics(self, m2d_app, local_scratch):
+        m2d_app.set_active_design("Design1")
+        assert m2d_app.post.plots[0].add_trace_characteristics("XAtYVal", arguments=["0"], solution_range=["Full"])
+
+    def test_trace_export_table(self, m2d_app, local_scratch):
+        m2d_app.set_active_design("Design2")
+        plot_name = m2d_app.post.plots[0].plot_name
+        output_file_path = os.path.join(local_scratch.path, "zeroes.tab")
+        assert m2d_app.post.plots[0].export_table_to_file(plot_name, output_file_path, "Legend")
+        assert os.path.exists(output_file_path)
+        with pytest.raises(AEDTRuntimeError):
+            m2d_app.post.plots[0].export_table_to_file("Invalid Name", output_file_path, "Legend")
+        with pytest.raises(AEDTRuntimeError):
+            m2d_app.post.plots[0].export_table_to_file(plot_name, "Invalid Path", "Legend")
+        with pytest.raises(AEDTRuntimeError):
+            m2d_app.post.plots[0].export_table_to_file(plot_name, output_file_path, "Invalid Export Type")
