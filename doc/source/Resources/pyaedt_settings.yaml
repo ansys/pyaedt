@@ -20,7 +20,7 @@ log:
   # Enable or disable the logging of methods' arguments at debug level
   enable_debug_methods_argument_logger: false
   # Enable or disable the logging to the AEDT message window
-  enable_desktop_logs: true
+  enable_desktop_logs: false
   # Enable or disable the logging to a file
   enable_file_logs: true
   # Enable or disable the global PyAEDT log file located in the global temp folder
