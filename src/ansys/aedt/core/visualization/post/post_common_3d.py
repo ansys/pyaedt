@@ -234,6 +234,8 @@ class PostProcessor3D(PostProcessorCommon):
                 elif k in ["Phase", "phase"]:
                     intrinsics["Phase"] = v
                 elif k in ["Time", "time"]:
+                    if self._app.solution_type == "SteadyState":
+                        continue
                     intrinsics["Time"] = v
                 if input_phase:
                     intrinsics["Phase"] = input_phase
