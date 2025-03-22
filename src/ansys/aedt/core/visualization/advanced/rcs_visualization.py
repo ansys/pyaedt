@@ -1214,10 +1214,10 @@ class MonostaticRCSPlotter(object):
             Color of the cone. The default is green (``"#00ff00"``).
         """
         size_range = unit_converter(
-            size_range, unit_system="Length", input_units="meters", output_units=self.model_units
+            size_range, unit_system="Length", input_units="meter", output_units=self.model_units
         )
         range_resolution = unit_converter(
-            range_resolution, unit_system="Length", input_units="meters", output_units=self.model_units
+            range_resolution, unit_system="Length", input_units="meter", output_units=self.model_units
         )
         # Compute parameters
         range_max = size_range - range_resolution
@@ -1450,16 +1450,16 @@ class MonostaticRCSPlotter(object):
             Color of the line. The default is red (``"#ff0000"``).
         """
         size_range = unit_converter(
-            size_range, unit_system="Length", input_units="meters", output_units=self.model_units
+            size_range, unit_system="Length", input_units="meter", output_units=self.model_units
         )
         range_resolution = unit_converter(
-            range_resolution, unit_system="Length", input_units="meters", output_units=self.model_units
+            range_resolution, unit_system="Length", input_units="meter", output_units=self.model_units
         )
         size_cross_range = unit_converter(
-            size_cross_range, unit_system="Length", input_units="meters", output_units=self.model_units
+            size_cross_range, unit_system="Length", input_units="meter", output_units=self.model_units
         )
         cross_range_resolution = unit_converter(
-            cross_range_resolution, unit_system="Length", input_units="meters", output_units=self.model_units
+            cross_range_resolution, unit_system="Length", input_units="meter", output_units=self.model_units
         )
 
         # Compute parameters
@@ -1613,22 +1613,22 @@ class MonostaticRCSPlotter(object):
             Color of the line. The default is red (``"#ff0000"``).
         """
         size_range = unit_converter(
-            size_range, unit_system="Length", input_units="meters", output_units=self.model_units
+            size_range, unit_system="Length", input_units="meter", output_units=self.model_units
         )
         range_resolution = unit_converter(
-            range_resolution, unit_system="Length", input_units="meters", output_units=self.model_units
+            range_resolution, unit_system="Length", input_units="meter", output_units=self.model_units
         )
         size_cross_range = unit_converter(
-            size_cross_range, unit_system="Length", input_units="meters", output_units=self.model_units
+            size_cross_range, unit_system="Length", input_units="meter", output_units=self.model_units
         )
         cross_range_resolution = unit_converter(
-            cross_range_resolution, unit_system="Length", input_units="meters", output_units=self.model_units
+            cross_range_resolution, unit_system="Length", input_units="meter", output_units=self.model_units
         )
         size_elevation_range = unit_converter(
-            size_elevation_range, unit_system="Length", input_units="meters", output_units=self.model_units
+            size_elevation_range, unit_system="Length", input_units="meter", output_units=self.model_units
         )
         elevation_range_resolution = unit_converter(
-            elevation_range_resolution, unit_system="Length", input_units="meters", output_units=self.model_units
+            elevation_range_resolution, unit_system="Length", input_units="meter", output_units=self.model_units
         )
 
         # Compute parameters
