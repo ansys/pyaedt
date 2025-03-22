@@ -1,0 +1,6 @@
+﻿read\_tab
+=========
+
+.. currentmodule:: ansys.aedt.core.generic.file_utils
+
+.. autofunction:: read_tab
