@@ -1051,8 +1051,10 @@ class MonostaticRCSPlotter(object):
             "y_label": ylabel,
         }
 
-        new.add_trace(plot_data, 2, props)
-        _ = new.plot_contour(trace=0, polar=False, snapshot_path=output_file, show=show, figure=figure)
+        new.add_trace(plot_data, 0, props)
+        _ = new.plot_contour(
+            trace=0, polar=False, snapshot_path=output_file, show=show, figure=figure, is_spherical=False
+        )
         return new
 
     @pyaedt_function_handler()

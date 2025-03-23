@@ -1316,7 +1316,16 @@ class ReportPlotter:
 
     @pyaedt_function_handler()
     def plot_contour(
-        self, trace=0, polar=False, levels=64, max_theta=180, color_bar=None, snapshot_path=None, show=True, figure=None
+        self,
+        trace=0,
+        polar=False,
+        levels=64,
+        max_theta=180,
+        color_bar=None,
+        snapshot_path=None,
+        show=True,
+        figure=None,
+        is_spherical=True,
     ):
         """Create a Matplotlib figure contour based on a list of data.
 
@@ -1344,6 +1353,8 @@ class ReportPlotter:
         figure : :class:`matplotlib.pyplot.Figure`, optional
             An existing Matplotlib `Figure` to which the plot is added.
             If not provided, a new `Figure` and `Axes` object are created.
+        is_spherical : bool, optional
+            Whether to use spherical or cartesian data. The default is ``True``.
 
         Returns
         -------
@@ -1374,6 +1385,12 @@ class ReportPlotter:
         ph = tr._spherical_data[2]
         th = tr._spherical_data[1]
         data_to_plot = tr._spherical_data[0]
+
+        if not is_spherical:
+            ph = tr._cartesian_data[2]
+            th = tr._cartesian_data[1]
+            data_to_plot = tr._cartesian_data[0]
+
         contour = self.ax.contourf(
             ph,
             th,
