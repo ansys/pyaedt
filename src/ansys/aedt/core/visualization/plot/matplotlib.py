@@ -1321,6 +1321,7 @@ class ReportPlotter:
         polar=False,
         levels=64,
         max_theta=180,
+        min_theta=0,
         color_bar=None,
         snapshot_path=None,
         show=True,
@@ -1343,6 +1344,8 @@ class ReportPlotter:
             The default is ``180``, which plots the data for all angles.
             Setting ``max_theta`` to 90 limits the displayed data to the upper
             hemisphere, that is (0 < theta < 90).
+        min_theta : float or int, optional
+            Minimum theta angle for plotting. It applies only for polar plots. The default is ``0``.
         color_bar : str, optional
             Color bar title. The default is ``None`` in which case the color bar is not included.
         snapshot_path : str, optional
@@ -1354,7 +1357,7 @@ class ReportPlotter:
             An existing Matplotlib `Figure` to which the plot is added.
             If not provided, a new `Figure` and `Axes` object are created.
         is_spherical : bool, optional
-            Whether to use spherical or cartesian data. The default is ``True``.
+            Whether to use spherical or cartesian data.
 
         Returns
         -------
@@ -1377,7 +1380,9 @@ class ReportPlotter:
 
         self.ax.set_xlabel(tr.x_label)
         if polar:
-            self.ax.set_rticks(np.linspace(0, max_theta, 3))
+            self.ax.set_rticks(np.linspace(min_theta, max_theta, 3))
+            self.ax.set_theta_zero_location("N")
+            self.ax.set_theta_direction(-1)
         else:
             self.ax.set_ylabel(tr.y_label)
 

@@ -972,18 +972,17 @@ class MonostaticRCSPlotter(object):
         ra, ph = np.meshgrid(ranges, phis)
 
         if is_polar:
-            x = ra
-            y = ph
-            values = values.T
+            x = ph
+            y = ra
             xlabel = " "
             ylabel = " "
         else:
-            x = ph.T
-            y = ra.T
+            x = ra
+            y = ph
             xlabel = "Range (m)"
             ylabel = "Phi (deg)"
 
-        plot_data = [values, x, y]
+        plot_data = [values.T, y, x]
 
         new = ReportPlotter()
         new.size = size
@@ -994,8 +993,17 @@ class MonostaticRCSPlotter(object):
             "y_label": ylabel,
         }
 
-        new.add_trace(plot_data, 2, props)
-        _ = new.plot_contour(trace=0, polar=is_polar, snapshot_path=output_file, show=show, figure=figure)
+        new.add_trace(plot_data, 0, props)
+        _ = new.plot_contour(
+            trace=0,
+            polar=is_polar,
+            snapshot_path=output_file,
+            show=show,
+            figure=figure,
+            is_spherical=False,
+            max_theta=ra.max(),
+            min_theta=ra.min(),
+        )
         return new
 
     @pyaedt_function_handler()
