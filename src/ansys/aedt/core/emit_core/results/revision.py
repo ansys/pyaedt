@@ -95,7 +95,7 @@ class Revision:
             self.path = emit_obj.odesign.GetResultDirectory(name)
             """Path to the EMIT result folder for the revision."""
 
-            raw_props = emit_obj.odesign.GetResultProperties(name)
+            raw_props = emit_obj.odesign.GetKeptResultProperties(name)
             key = lambda s: s.split("=", 1)[0]
             val = lambda s: s.split("=", 1)[1]
             props = {key(s): val(s) for s in raw_props}
