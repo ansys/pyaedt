@@ -972,18 +972,17 @@ class MonostaticRCSPlotter(object):
         ra, ph = np.meshgrid(ranges, phis)
 
         if is_polar:
-            x = ra
-            y = ph
-            values = values.T
+            x = ph
+            y = ra
             xlabel = " "
             ylabel = " "
         else:
-            x = ph.T
-            y = ra.T
+            x = ra
+            y = ph
             xlabel = "Range (m)"
             ylabel = "Phi (deg)"
 
-        plot_data = [values, x, y]
+        plot_data = [values.T, y, x]
 
         new = ReportPlotter()
         new.size = size
@@ -994,8 +993,17 @@ class MonostaticRCSPlotter(object):
             "y_label": ylabel,
         }
 
-        new.add_trace(plot_data, 2, props)
-        _ = new.plot_contour(trace=0, polar=is_polar, snapshot_path=output_file, show=show, figure=figure)
+        new.add_trace(plot_data, 0, props)
+        _ = new.plot_contour(
+            trace=0,
+            polar=is_polar,
+            snapshot_path=output_file,
+            show=show,
+            figure=figure,
+            is_spherical=False,
+            max_theta=ra.max(),
+            min_theta=ra.min(),
+        )
         return new
 
     @pyaedt_function_handler()
@@ -1051,8 +1059,10 @@ class MonostaticRCSPlotter(object):
             "y_label": ylabel,
         }
 
-        new.add_trace(plot_data, 2, props)
-        _ = new.plot_contour(trace=0, polar=False, snapshot_path=output_file, show=show, figure=figure)
+        new.add_trace(plot_data, 0, props)
+        _ = new.plot_contour(
+            trace=0, polar=False, snapshot_path=output_file, show=show, figure=figure, is_spherical=False
+        )
         return new
 
     @pyaedt_function_handler()
@@ -1214,10 +1224,10 @@ class MonostaticRCSPlotter(object):
             Color of the cone. The default is green (``"#00ff00"``).
         """
         size_range = unit_converter(
-            size_range, unit_system="Length", input_units="meters", output_units=self.model_units
+            size_range, unit_system="Length", input_units="meter", output_units=self.model_units
         )
         range_resolution = unit_converter(
-            range_resolution, unit_system="Length", input_units="meters", output_units=self.model_units
+            range_resolution, unit_system="Length", input_units="meter", output_units=self.model_units
         )
         # Compute parameters
         range_max = size_range - range_resolution
@@ -1450,16 +1460,16 @@ class MonostaticRCSPlotter(object):
             Color of the line. The default is red (``"#ff0000"``).
         """
         size_range = unit_converter(
-            size_range, unit_system="Length", input_units="meters", output_units=self.model_units
+            size_range, unit_system="Length", input_units="meter", output_units=self.model_units
         )
         range_resolution = unit_converter(
-            range_resolution, unit_system="Length", input_units="meters", output_units=self.model_units
+            range_resolution, unit_system="Length", input_units="meter", output_units=self.model_units
         )
         size_cross_range = unit_converter(
-            size_cross_range, unit_system="Length", input_units="meters", output_units=self.model_units
+            size_cross_range, unit_system="Length", input_units="meter", output_units=self.model_units
         )
         cross_range_resolution = unit_converter(
-            cross_range_resolution, unit_system="Length", input_units="meters", output_units=self.model_units
+            cross_range_resolution, unit_system="Length", input_units="meter", output_units=self.model_units
         )
 
         # Compute parameters
@@ -1613,22 +1623,22 @@ class MonostaticRCSPlotter(object):
             Color of the line. The default is red (``"#ff0000"``).
         """
         size_range = unit_converter(
-            size_range, unit_system="Length", input_units="meters", output_units=self.model_units
+            size_range, unit_system="Length", input_units="meter", output_units=self.model_units
         )
         range_resolution = unit_converter(
-            range_resolution, unit_system="Length", input_units="meters", output_units=self.model_units
+            range_resolution, unit_system="Length", input_units="meter", output_units=self.model_units
         )
         size_cross_range = unit_converter(
-            size_cross_range, unit_system="Length", input_units="meters", output_units=self.model_units
+            size_cross_range, unit_system="Length", input_units="meter", output_units=self.model_units
         )
         cross_range_resolution = unit_converter(
-            cross_range_resolution, unit_system="Length", input_units="meters", output_units=self.model_units
+            cross_range_resolution, unit_system="Length", input_units="meter", output_units=self.model_units
         )
         size_elevation_range = unit_converter(
-            size_elevation_range, unit_system="Length", input_units="meters", output_units=self.model_units
+            size_elevation_range, unit_system="Length", input_units="meter", output_units=self.model_units
         )
         elevation_range_resolution = unit_converter(
-            elevation_range_resolution, unit_system="Length", input_units="meters", output_units=self.model_units
+            elevation_range_resolution, unit_system="Length", input_units="meter", output_units=self.model_units
         )
 
         # Compute parameters
