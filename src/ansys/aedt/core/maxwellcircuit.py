@@ -223,7 +223,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
 
         Parameters
         ----------
-        output_file : str
+        output_file : str or :class:`pathlib.Path`
             File path to export the netlist to.
 
         Returns
