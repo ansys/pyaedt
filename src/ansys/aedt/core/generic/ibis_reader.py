@@ -897,11 +897,14 @@ class IbisReader(object):
             for comp_value in self._ibis_model.components.values():
                 arg_component = [f"NAME:{comp_value.name}"]
                 for pin in comp_value.pins.values():
+                    flag = True
+                    if not isinstance(pin, DifferentialPin):
+                        flag = False
                     arg_component.append(f"{pin.short_name}:=")
                     if pin.model not in model_selector_names:
-                        arg_component.append([False, False])
+                        arg_component.append([flag, flag])
                     else:
-                        arg_component.append([True, False])
+                        arg_component.append([True, flag])
                         if hasattr(pin, "negative_pin"):
                             arg_component.append(f"{pin.short_name}:=")
                             arg_component.append([True, True])
@@ -1329,7 +1332,7 @@ class AMIReader(IbisReader):
                         model_selector_names
                         and self._ibis_model.components[component].pins[pin].model not in model_selector_names
                     ):
-                        arg_component.append([False, flag])
+                        arg_component.append([flag, flag])
                     else:
                         arg_component.append([True, flag])
                         if hasattr(pin, "negative_pin"):
