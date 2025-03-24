@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from collections import defaultdict
 import copy
 from datetime import datetime
 import json
@@ -2166,3 +2167,223 @@ class ConfigurationsIcepak(Configurations):
                             native_dict["Instances"],
                         )
         return True
+
+
+class ConfigurationsNexxim(Configurations):
+    """Enables export and import configuration options to be applied to a new or existing Nexxim design."""
+
+    @pyaedt_function_handler()
+    def export_config(self, config_file=None, overwrite=False):
+        """Export current design properties to a JSON or TOML file.
+
+        Parameters
+        ----------
+        config_file : str, optional
+            Full path to json file. If ``None``, then the config file will be saved in working directory.
+        overwrite : bool, optional
+            If ``True`` the json file will be overwritten if already existing.
+            If ``False`` and the version is compatible, the data in the existing file will be updated.
+            Default is ``False``.
+
+        Returns
+        -------
+        str
+            Exported config file.
+        """
+
+        if not config_file:
+            config_file = os.path.join(
+                self._app.working_directory, generate_unique_name(self._app.design_name) + ".json"
+            )
+        # dict_out = {}
+        # self._export_general(dict_out)
+        pin_mapping = defaultdict(list)
+        data_refdes = {}
+        data_models = {}
+        pin_nets = {}
+        skip_list = [
+            "LabelID",
+            "ADD_NOISE",
+            "DTEMP",
+            "ModelName",
+            "CosimDefinition",
+            "CoSimulator",
+            "InstanceName",
+            "NexximNetlist",
+            "Name",
+            "COMPONENT",
+            "EyeMeasurementFunctions",
+            "ACMAG",
+        ]
+        for comp in list(self._app.modeler.schematic.components.values()):
+            properties = {}
+            num_terminals = None
+            refdes = comp.refdes
+            position = comp.location
+            angle = comp.angle
+            parameters = comp.parameters
+            if not comp.component_info:
+                continue
+            else:
+                component = comp.component_info["Component"]
+            path = comp.component_path
+            if not path:
+                component_type = "Nexxim Component"
+                path = ""
+                for param, value in parameters.items():
+                    if param in skip_list:
+                        continue
+                    elif value and value[-1] == "'" and value[1] == "'":
+                        value = value[-1:1]
+                    properties[param] = value
+            elif path[-4:] == ".ibs":
+                if "AMI_Version" in parameters:
+                    component_type = "ami"
+                else:
+                    component_type = "ibis"
+                for prop, value in parameters.items():
+                    if value and value[-1] == '"' and value[0] == '"':
+                        value = value[1:-1]
+                    properties[prop] = value
+            elif path[-4:] in [".LIB", ".lib"] or path[-3:] == ".sp":
+                component_type = "spice"
+            elif path[-1:] == "p" and path[-2:-1].isdigit():
+                component_type = "touchstone"
+            elif path[-4:] == ".sss":
+                component_type = "nexxim state space"
+                num_terminals = comp.model_data.props["numberofports"]
+
+            for pin in comp.pins:
+                if pin.net == "0":
+                    net = "gnd"
+                else:
+                    net = pin.net
+                temp_dict = {pin: net}
+                pin_nets.update(temp_dict)
+
+            temp_dict2 = {
+                refdes: {"component": component, "properties": properties, "position": position, "angle": angle}
+            }
+            data_refdes.update(temp_dict2)
+            if num_terminals:
+                model = {
+                    component: {"component_type": component_type, "file_path": path, "num_terminals": num_terminals}
+                }
+                num_terminals = None
+            else:
+                model = {component: {"component_type": component_type, "file_path": path}}
+            data_models.update(model)
+
+        for k, v in pin_nets.items():
+            pin_mapping[v].append(k)
+
+        if "" in pin_mapping:
+            del pin_mapping[""]
+        for k, l in pin_mapping.items():
+            temp_dict3 = {}
+            for i in l:
+                temp_dict3.update({i._circuit_comp.refdes: i.name})
+            pin_mapping[k] = temp_dict3
+
+        dict_out = {
+            "models": data_models,
+            "refdes": data_refdes,
+            "pin_mapping": pin_mapping,
+        }  # Call private export method to update dict_out.
+
+        # update the json if it exists already
+
+        if os.path.exists(config_file) and not overwrite:
+            dict_in = read_configuration_file(config_file)
+            try:  # TODO: Allow import of config created with other versions of pyaedt.
+                if dict_in["general"]["pyaedt_version"] == __version__:
+                    for k, v in dict_in.items():
+                        if k not in dict_out:
+                            dict_out[k] = v
+                        elif isinstance(v, dict):
+                            for i, j in v.items():
+                                if i not in dict_out[k]:
+                                    dict_out[k][i] = j
+            except KeyError as e:
+                self._app.logger.error(str(e))
+
+        # write the updated dict to file
+        if write_configuration_file(dict_out, config_file):
+            self._app.logger.info(f"Json file {config_file} created correctly.")
+            return config_file
+        self._app.logger.error(f"Error creating json file {config_file}.")
+        return False
+
+    @pyaedt_function_handler()
+    def import_config(self, config_file, *args):
+        """Import configuration settings from a JSON or TOML file and apply it to the current design.
+
+
+        Parameters
+        ----------
+        config_file : str
+            Full path to json file.
+
+        Returns
+        -------
+        dict, bool
+            Config dictionary.
+        """
+        if len(args) > 0:  # pragma: no cover
+            raise TypeError("import_config expected at most 1 arguments, got %d" % (len(args) + 1))
+        self.results._reset_results()
+
+        data = read_configuration_file(config_file)
+        for i, j in data["refdes"].items():
+            for k, l in data["models"].items():
+                if k == j["component"]:
+                    component_type = l["component_type"]
+                    if component_type == "Nexxim Component":
+                        new_comp = self._app.modeler.components.create_component(
+                            name=i,
+                            component_library="",
+                            component_name=j["component"],
+                            location=j["position"],
+                            angle=j["angle"],
+                        )
+                    elif component_type in ["ibis", "ami"]:
+                        if component_type == "ami":
+                            ami = True
+                        else:
+                            ami = False
+                        comp_set = self._app.get_ibis_model_from_file(l["file_path"], ami).components.values()
+                        for comp in comp_set:
+                            for pin in comp.pins.values():
+                                if pin.buffer_name == k:
+                                    new_comp = pin.insert(j["position"][0], j["position"][1])
+                    elif component_type == "touchstone":
+                        new_comp = self._app.modeler.schematic.create_touchstone_component(
+                            l["file_path"], location=j["position"], angle=j["angle"]
+                        )
+                    elif component_type == "spice":
+                        new_comp = self._app.modeler.schematic.create_component_from_spicemodel(
+                            input_file=l["file_path"], location=j["position"]
+                        )
+                    elif component_type == "nexxim state space":
+                        new_comp = self._app.modeler.schematic.create_nexxim_state_space_component(
+                            l["file_path"], l["num_terminals"], location=j["position"], angle=j["angle"]
+                        )
+                    for name, parameter in j["properties"].items():
+                        new_comp.parameters[name] = parameter
+
+        for i, j in data["pin_mapping"].items():
+            pins = []
+            for k, l in j.items():
+                for comp in list(self._app.modeler.schematic.components.values()):
+                    if not comp.refdes:
+                        continue
+                    elif comp.refdes == k:
+                        for pin in comp.pins:
+                            if pin.name == l:
+                                pins.append(pin)
+            if i == "gnd":
+                for gnd_pin in pins:
+                    self._app.modeler.schematic.create_gnd(gnd_pin.location, gnd_pin.angle, page=i)
+            else:
+                pins[0].connect_to_component(pins[1:], page_name=i)
+        return data

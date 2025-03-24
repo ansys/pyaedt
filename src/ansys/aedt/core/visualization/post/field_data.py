@@ -156,6 +156,8 @@ class ColorMapSettings(BaseFolderPlot):
         """
         if self.map_type == "Spectrum":
             self._validate_color_spectrum(v)
+            if v == "Magenta":
+                v = "Megenta"
             self._color_spectrum = v
         else:
             self._validate_color(v)
@@ -166,9 +168,9 @@ class ColorMapSettings(BaseFolderPlot):
 
     @staticmethod
     def _validate_color_spectrum(value):
-        if value not in ["Magenta", "Rainbow", "Temperature", "Gray"]:
+        if value not in ["Magenta", "Rainbow", "Temperature", "Grayscale"]:
             raise ValueError(
-                f"{value} is not valid. Only 'Magenta', 'Rainbow', 'Temperature', and 'Gray' are accepted."
+                f"{value} is not valid. Only 'Magenta', 'Rainbow', 'Temperature', and 'Grayscale' are accepted."
             )
 
     @staticmethod

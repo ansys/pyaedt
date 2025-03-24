@@ -102,3 +102,8 @@ class TestClass:
             os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "ibis_ami_example_tx.ibs"), is_ami=True
         )
         assert ibis_model.buffers["example_model_tx_ibis_ami_example_tx"].insert(0, 0)
+        assert (
+            ibis_model.components["example_device_tx"]
+            .pins["14_example_device_tx_ibis_ami_example_tx_diff"]
+            .insert(0, 0.0512)
+        )

@@ -1916,7 +1916,7 @@ class TestClass:
         with pytest.raises(ValueError):
             fs.color_map_settings.color = "Hot"
         assert fs.color_map_settings.color == "Rainbow"
-        fs.color_map_settings.color = "Temperature"
+        fs.color_map_settings.color = "Magenta"
         assert isinstance(fs.color_map_settings.to_dict(), dict)
         assert isinstance(fs.to_dict(), dict)
         fs.update()
