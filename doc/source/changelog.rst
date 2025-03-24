@@ -9,6 +9,48 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`0.15.2 <https://github.com/ansys/pyaedt/releases/tag/v0.15.2>`_ - March 24, 2025
+=================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - circuit configuration
+          - `#5920 <https://github.com/ansys/pyaedt/pull/5920>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Reduce number of units call from odesktop
+          - `#5927 <https://github.com/ansys/pyaedt/pull/5927>`_
+
+        * - colormap names in folder settings
+          - `#5935 <https://github.com/ansys/pyaedt/pull/5935>`_
+
+        * - RCS postprocessing
+          - `#5942 <https://github.com/ansys/pyaedt/pull/5942>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - add arg coefficient in core loss mat
+          - `#5939 <https://github.com/ansys/pyaedt/pull/5939>`_
+
+
 `0.15.2 <https://github.com/ansys/pyaedt/releases/tag/v0.15.2>`_ - March 21, 2025
 =================================================================================
 
