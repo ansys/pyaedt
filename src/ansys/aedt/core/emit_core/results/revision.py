@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import time
 import warnings
 
 from ansys.aedt.core.emit_core.emit_constants import EmiCategoryFilter
@@ -47,7 +48,7 @@ class Revision:
          ``Emit`` object that this revision is associated with.
     name : str, optional
         Name of the revision to create. The default is ``None``, in which
-        case the name of the current design revision is used.
+        case a timestamp is used.
 
     Raises
     ------
@@ -65,35 +66,34 @@ class Revision:
 
     def __init__(self, parent_results, emit_obj, name=None):
         self.emit_project = emit_obj
-        """EMIT project"""
+        """EMIT project."""
 
         self.parent_results = parent_results
-        """Parent Results object"""
+        """Parent Results object."""
 
         self.aedt_version = int(parent_results.emit_project.aedt_version_id[-3:])
-        """AEDT version"""
-
-        self.results_index = None
-        """Index of the result for this revision, 0 if current, kept otherwise"""
+        """AEDT version."""
 
         if self.aedt_version > 251:
             self._emit_com = emit_obj.odesign.GetModule("EmitCom")
 
-            if name:
-                self.results_index = self._emit_com.GetKeptResultIndex(name)
-            else:
-                # Index 0 is always the current result
-                self.results_index = 0
-                name = ''
+            if not name:
+                # User didn't specify a specific revision name to load- create a new Kept revision
+                timestamp = time.strftime("%Y%m%d_%H%M%S")
+                name = emit_obj.odesign.KeepResult(timestamp)
 
-                # Creating a revision for the current result- save the project to force the files to be written
-                emit_obj.oproject.Save()
+            kept_result_names = emit_obj.odesign.GetKeptResultNames()
+            if not (name in kept_result_names):
+                raise ValueError(f'Revision "{name}" does not exist in the project.')
+
+            self.results_index = self._emit_com.GetKeptResultIndex(name)
+            """Index of the result for this revision."""
 
             # Get the SimulationNodeID for the specified result
-            self._sim_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Simulation")
+            # self._sim_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Simulation")
 
             self.path = emit_obj.odesign.GetResultDirectory(name)
-            """Path to the EMIT result folder for the revision"""
+            """Path to the EMIT result folder for the revision."""
 
             raw_props = emit_obj.odesign.GetResultProperties(name)
             key = lambda s: s.split("=", 1)[0]
@@ -101,9 +101,9 @@ class Revision:
             props = {key(s): val(s) for s in raw_props}
 
             self.timestamp = props["Timestamp"]
-            """Unique timestamp for the revision"""
+            """Unique timestamp for the revision."""
             
-            self.name = name if name else 'Current'
+            self.name = name
             """Name of the revision."""
 
             # load the revision after creating it
@@ -899,25 +899,6 @@ class Revision:
         component_nodes = [self._get_node(node_id) for node_id in component_node_ids]
         return component_nodes
     
-    @pyaedt_function_handler
-    @error_if_below_aedt_version(251)
-    def get_all_component_nodes(self) -> list[EmitNode]:
-        """Gets all component nodes from this revision.
-
-        Returns
-        -------
-        component_nodes: list
-            List of component nodes.
-
-        Examples
-        --------
-        >>> nodes = revision.get_all_component_nodes()
-        """
-        component_names = self._get_all_component_names()
-        component_node_ids = [self._emit_com.GetComponentNodeID(self.results_index, name) for name in component_names]
-        component_nodes = [self._get_node(node_id) for node_id in component_node_ids]
-        return component_nodes
-
     @pyaedt_function_handler
     @error_if_below_aedt_version(251)
     def _get_all_node_ids(self) -> list[int]:
