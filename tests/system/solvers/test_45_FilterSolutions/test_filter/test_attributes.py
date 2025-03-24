@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import ansys.aedt.core.filtersolutions
 from ansys.aedt.core.filtersolutions_core.attributes import BesselRipplePercentage
 from ansys.aedt.core.filtersolutions_core.attributes import DiplexerType
 from ansys.aedt.core.filtersolutions_core.attributes import FilterClass
@@ -50,6 +51,24 @@ changed_ripple = ".03"
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
 class TestClass:
+    def test_multiple_designs(self, lumped_design):
+        lumped_design.attributes.filter_class = FilterClass.BAND_PASS
+        assert lumped_design.attributes.filter_class == FilterClass.BAND_PASS
+        lumped_design.attributes.filter_type = FilterType.ELLIPTIC
+        assert lumped_design.attributes.filter_type == FilterType.ELLIPTIC
+        lumped_design.attributes.filter_order = 8
+        assert lumped_design.attributes.filter_order == 8
+        with pytest.warns(
+            UserWarning,
+            match="FilterSolutions API currently supports only one design at a time. \n"
+            "Opening a new design will overwrite the existing design with default values.",
+        ):
+            new_lumped_design = ansys.aedt.core.filtersolutions.LumpedDesign()
+        new_lumped_design = ansys.aedt.core.filtersolutions.LumpedDesign()
+        assert new_lumped_design.attributes.filter_class == FilterClass.LOW_PASS
+        assert new_lumped_design.attributes.filter_type == FilterType.BUTTERWORTH
+        assert new_lumped_design.attributes.filter_order == 5
+
     def test_filter_type(self, lumped_design):
         assert lumped_design.attributes.filter_type == FilterType.BUTTERWORTH
         assert len(FilterType) == 10

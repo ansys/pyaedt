@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import warnings
+
 from ansys.aedt.core import settings
 import ansys.aedt.core.filtersolutions_core
 from ansys.aedt.core.filtersolutions_core.attributes import Attributes
@@ -52,10 +54,12 @@ class FilterDesignBase:
     _active_design = None
 
     def __init__(self, version=None):
-        if FilterDesignBase._active_design is not None:
-            raise Exception(
-                "A design is already opened. Close the current design "
-                "using 'design_name.close()' before opening a new one."
+        if FilterDesignBase._active_design:
+            self._active_design.close()
+            warnings.warn(
+                "FilterSolutions API currently supports only one design at a time. \n"
+                "Opening a new design will overwrite the existing design with default values.",
+                UserWarning,
             )
         FilterDesignBase._active_design = self
         self.version = version if version else settings.aedt_version
@@ -71,8 +75,6 @@ class FilterDesignBase:
         """Closes the current design and clears the active design."""
         if FilterDesignBase._active_design == self:
             FilterDesignBase._active_design = None
-        else:
-            raise Exception("This design is not the active design.")
 
 
 class LumpedDesign(FilterDesignBase):
