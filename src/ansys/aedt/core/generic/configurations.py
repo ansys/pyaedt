@@ -2227,8 +2227,8 @@ class ConfigurationsNexxim(Configurations):
             else:
                 component = comp.component_info["Component"]
             path = comp.component_path
-            if path == False:
-                type = "Nexxim Component"
+            if not path:
+                component_type = "Nexxim Component"
                 path = ""
                 for param, value in parameters.items():
                     if param in skip_list:
@@ -2238,19 +2238,19 @@ class ConfigurationsNexxim(Configurations):
                     properties[param] = value
             elif path[-4:] == ".ibs":
                 if "AMI_Version" in parameters:
-                    type = "ami"
+                    component_type = "ami"
                 else:
-                    type = "ibis"
+                    component_type = "ibis"
                 for prop, value in parameters.items():
                     if value and value[-1] == '"' and value[0] == '"':
                         value = value[1:-1]
                     properties[prop] = value
             elif path[-4:] in [".LIB", ".lib"] or path[-3:] == ".sp":
-                type = "spice"
+                component_type = "spice"
             elif path[-1:] == "p" and path[-2:-1].isdigit():
-                type = "touchstone"
+                component_type = "touchstone"
             elif path[-4:] == ".sss":
-                type = "nexxim state space"
+                component_type = "nexxim state space"
                 num_terminals = comp.model_data.props["numberofports"]
 
             for pin in comp.pins:
@@ -2266,10 +2266,12 @@ class ConfigurationsNexxim(Configurations):
             }
             data_refdes.update(temp_dict2)
             if num_terminals:
-                model = {component: {"type": type, "file_path": path, "num_terminals": num_terminals}}
+                model = {
+                    component: {"component_type": component_type, "file_path": path, "num_terminals": num_terminals}
+                }
                 num_terminals = None
             else:
-                model = {component: {"type": type, "file_path": path}}
+                model = {component: {"component_type": component_type, "file_path": path}}
             data_models.update(model)
 
         for k, v in pin_nets.items():
@@ -2335,8 +2337,8 @@ class ConfigurationsNexxim(Configurations):
         for i, j in data["refdes"].items():
             for k, l in data["models"].items():
                 if k == j["component"]:
-                    type = l["type"]
-                    if type == "Nexxim Component":
+                    component_type = l["component_type"]
+                    if component_type == "Nexxim Component":
                         new_comp = self._app.modeler.components.create_component(
                             name=i,
                             component_library="",
@@ -2344,8 +2346,8 @@ class ConfigurationsNexxim(Configurations):
                             location=j["position"],
                             angle=j["angle"],
                         )
-                    elif type in ["ibis", "ami"]:
-                        if type == "ami":
+                    elif component_type in ["ibis", "ami"]:
+                        if component_type == "ami":
                             ami = True
                         else:
                             ami = False
@@ -2354,15 +2356,15 @@ class ConfigurationsNexxim(Configurations):
                             for pin in comp.pins.values():
                                 if pin.buffer_name == k:
                                     new_comp = pin.insert(j["position"][0], j["position"][1])
-                    elif type == "touchstone":
+                    elif component_type == "touchstone":
                         new_comp = self._app.modeler.schematic.create_touchstone_component(
                             l["file_path"], location=j["position"], angle=j["angle"]
                         )
-                    elif type == "spice":
+                    elif component_type == "spice":
                         new_comp = self._app.modeler.schematic.create_component_from_spicemodel(
                             input_file=l["file_path"], location=j["position"]
                         )
-                    elif type == "nexxim state space":
+                    elif component_type == "nexxim state space":
                         new_comp = self._app.modeler.schematic.create_nexxim_state_space_component(
                             l["file_path"], l["num_terminals"], location=j["position"], angle=j["angle"]
                         )
