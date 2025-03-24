@@ -2381,7 +2381,7 @@ class Material(CommonMaterial, object):
             core_loss_model_type=core_loss_model_type,
             thickness=thickness,
             conductivity=conductivity,
-            coefficient_setup=coefficient_setup
+            coefficient_setup=coefficient_setup,
         )
         if core_loss_model_type == "Electrical Steel":
             self._props["core_loss_kh"] = str(coefficients[0])
