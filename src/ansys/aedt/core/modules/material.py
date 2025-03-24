@@ -2377,7 +2377,11 @@ class Material(CommonMaterial, object):
                 self._props["AttachedData"]["CoreLossMultiCurveData"]["AllCurves"]["OneCurve"].append(one_curve)
 
         coefficients = self.get_core_loss_coefficients(
-            points_at_frequency, thickness=thickness, conductivity=conductivity, coefficient_setup=coefficient_setup
+            points_at_frequency,
+            core_loss_model_type=core_loss_model_type,
+            thickness=thickness,
+            conductivity=conductivity,
+            coefficient_setup=coefficient_setup
         )
         if core_loss_model_type == "Electrical Steel":
             self._props["core_loss_kh"] = str(coefficients[0])
