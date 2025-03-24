@@ -24,6 +24,7 @@
 import warnings
 
 from ansys.aedt.core.application.analysis import Analysis
+from ansys.aedt.core.generic.configurations import ConfigurationsNexxim
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
@@ -91,9 +92,20 @@ class FieldAnalysisCircuit(Analysis):
         self._post = None
         self._internal_excitations = None
         self._internal_sources = None
+        self._configurations = ConfigurationsNexxim(self)
         if not settings.lazy_load:
             self._modeler = self.modeler
             self._post = self.post
+
+    @property
+    def configurations(self):
+        """Property to import and export configuration files.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.generic.configurations.Configurations`
+        """
+        return self._configurations
 
     @pyaedt_function_handler(setupname="name")
     def delete_setup(self, name):
