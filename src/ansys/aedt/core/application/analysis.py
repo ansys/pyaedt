@@ -2255,16 +2255,10 @@ class Analysis(Design, object):
 
         if units is None:
             if units_system == "Length":
-                if "GetModelUnits" in dir(self.oeditor):
-                    units = self.oeditor.GetModelUnits()
-                elif "GetActiveUnits" in dir(self.oeditor):
-                    units = self.oeditor.GetActiveUnits()
-                else:
-                    units = self.odesktop.GetDefaultUnit(units_system)
+                units = self.units.length
             else:
-                try:
-                    units = self.odesktop.GetDefaultUnit(units_system)
-                except Exception:
+                units = self.units.get_unit_by_system(units_system)
+                if not units:
                     self.logger.warning("Defined unit system is incorrect.")
                     units = ""
 
