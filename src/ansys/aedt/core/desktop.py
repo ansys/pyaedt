@@ -99,29 +99,20 @@ def launch_aedt(full_path, non_graphical, port, student_version, first_run=True)
             command.append("-waitforlicense")
         if settings.aedt_log_file:
             command.extend(["-Logfile", settings.aedt_log_file])
-        my_env = os.environ.copy()
-        for env, val in settings.aedt_environment_variables.items():
-            my_env[env] = val
+
         if is_linux:  # pragma: no cover
             command.append("&")
-            subprocess.Popen(
-                command, env=my_env, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
-            )
+            subprocess.Popen(command, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         else:
             subprocess.Popen(
                 " ".join(command),
-                env=my_env,
                 stdin=subprocess.DEVNULL,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
                 creationflags=subprocess.DETACHED_PROCESS,
             )
 
-    import threading
-
-    _aedt_process_thread = threading.Thread(target=launch_desktop_on_port)
-    _aedt_process_thread.daemon = True
-    _aedt_process_thread.start()
+    launch_desktop_on_port()
 
     on_ci = os.getenv("ON_CI", "False")
     if not student_version and on_ci != "True" and not settings.skip_license_check:
@@ -1179,17 +1170,15 @@ class Desktop(object):
                 self.logger.error(f"Failed to start LSF job on machine: {self.machine}.")
                 return
         elif new_aedt_session:
-            # installer = Path(settings.aedt_install_dir) / "ansysedt"
-            # if student_version:  # pragma: no cover
-            #     installer = Path(settings.aedt_install_dir) / "ansysedtsv"
-            # if not is_linux:
-            #     if student_version:  # pragma: no cover
-            #         installer = Path(settings.aedt_install_dir) / "ansysedtsv.exe"
-            #     else:
-            #         installer = Path(settings.aedt_install_dir) / "ansysedt.exe"
-            # #out, self.port = launch_aedt(installer, non_graphical, self.port, student_version)
-            out = False
-            self.launched_by_pyaedt = True
+            installer = Path(settings.aedt_install_dir) / "ansysedt"
+            if student_version:  # pragma: no cover
+                installer = Path(settings.aedt_install_dir) / "ansysedtsv"
+            if not is_linux:
+                if student_version:  # pragma: no cover
+                    installer = Path(settings.aedt_install_dir) / "ansysedtsv.exe"
+                else:
+                    installer = Path(settings.aedt_install_dir) / "ansysedt.exe"
+            out, self.port = launch_aedt(installer, non_graphical, self.port, student_version)
             oApp = self._initialize(
                 is_grpc=True,
                 non_graphical=non_graphical,
@@ -1198,18 +1187,6 @@ class Desktop(object):
                 new_session=not out,
                 version=version_key,
             )
-            if not grpc_server_on(f"127.0.0.1:{self.port}"):  # pragma: no cover
-                self.logger.error("Failed to connect to AEDT using gRPC plugin.")
-                self.port = _find_free_port()
-                self.logger.error(f"Checking a new port:{self.port}")
-                oApp = self._initialize(
-                    is_grpc=True,
-                    non_graphical=non_graphical,
-                    machine=self.machine,
-                    port=self.port,
-                    new_session=not out,
-                    version=version_key,
-                )
             self.launched_by_pyaedt = True if oApp else False
             if not self.launched_by_pyaedt:  # pragma: no cover
                 self.logger.error("Failed to connect to AEDT using gRPC plugin.")
