@@ -149,6 +149,14 @@ solutions_types = {
             "default_adaptive": "Transient",
             "intrinsics": ["Time"],
         },
+        "Transient APhi": {
+            "name": "Transient APhi",
+            "options": None,
+            "report_type": "Transient",
+            "default_setup": 56,
+            "default_adaptive": "Transient",
+            "intrinsics": ["Time"],
+        },
         "Electrostatic": {
             "name": "Electrostatic",
             "options": None,
@@ -173,6 +181,13 @@ solutions_types = {
         },
         "ElectroDCConduction": {
             "name": "ElectroDCConduction",
+            "options": None,
+            "report_type": None,
+            "default_setup": 9,
+            "default_adaptive": "LastAdaptive",
+        },
+        "Electric DC Conduction": {
+            "name": "Electric DC Conduction",
             "options": None,
             "report_type": None,
             "default_setup": 9,

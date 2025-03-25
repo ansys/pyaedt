@@ -914,7 +914,10 @@ class TestClass:
         setup = m3d_app.create_setup(setup_type=m3d_app.solution_type)
         assert setup
         setup.delete()
-        m3d_app.solution_type = SOLUTIONS.Maxwell3d.ElectroDCConduction
+        if desktop_version < "2025.2":
+            m3d_app.solution_type = SOLUTIONS.Maxwell3d.ElectroDCConduction
+        else:
+            m3d_app.solution_type = SOLUTIONS.Maxwell3d.ElectricDCConduction
         setup = m3d_app.create_setup(setup_type=m3d_app.solution_type)
         assert setup
         setup.delete()
@@ -922,7 +925,10 @@ class TestClass:
         setup = m3d_app.create_setup(setup_type=m3d_app.solution_type)
         assert setup
         setup.delete()
-        m3d_app.solution_type = SOLUTIONS.Maxwell3d.TransientAPhiFormulation
+        if desktop_version < "2025.2":
+            m3d_app.solution_type = SOLUTIONS.Maxwell3d.TransientAPhiFormulation
+        else:
+            m3d_app.solution_type = SOLUTIONS.Maxwell3d.TransientAPhi
         setup = m3d_app.create_setup(setup_type=m3d_app.solution_type)
         assert setup
         setup.delete()
