@@ -367,4 +367,5 @@ class TestClass:
         assert os.path.exists(path)
         app.insert_design("new_import")
         app.configurations.import_config(path)
+        app.save_project()
         assert app.configurations.export_config(os.path.join(local_scratch.path, "export_config.json"))
