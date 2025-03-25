@@ -9,6 +9,38 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`0.15.2 <https://github.com/ansys/pyaedt/releases/tag/v0.15.2>`_ - March 25, 2025
+=================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Add setuptools bound to avoid PEP639 issues
+          - `#5949 <https://github.com/ansys/pyaedt/pull/5949>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - "Time" removed from intrinsincs keys in Steady State simulations
+          - `#5928 <https://github.com/ansys/pyaedt/pull/5928>`_
+
+        * - Fixed IBIS differential buffer creation
+          - `#5947 <https://github.com/ansys/pyaedt/pull/5947>`_
+
+        * - Modify SolveSetup for Parametrics
+          - `#5948 <https://github.com/ansys/pyaedt/pull/5948>`_
+
+
 `0.15.2 <https://github.com/ansys/pyaedt/releases/tag/v0.15.2>`_ - March 24, 2025
 =================================================================================
 
