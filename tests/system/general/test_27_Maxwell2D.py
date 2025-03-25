@@ -823,7 +823,7 @@ class TestClass:
         with pytest.raises(AEDTRuntimeError):
             m2d_export_matrix.export_rl_matrix("Matrix1", export_path)
         # no setup
-        if config["desktopVersion"] < "2025.2":
+        if config["desktopVersion"] < "2025.2":  # AEDT API not raising exception
             m2d_export_matrix.set_active_design("export_rl_eddycurrent_unsolved")
             with pytest.raises(AEDTRuntimeError):
                 m2d_export_matrix.export_rl_matrix("Matrix1", export_path, False, 10, 3, True)
