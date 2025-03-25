@@ -2445,7 +2445,7 @@ class ConfigurationsNexxim(Configurations):
                         )
                     if j.get("mirror", False):
                         new_comp.mirror = True
-                    new_comp_params = {i: k for i, k in new_comp.parameters.items()}
+                    new_comp_params = {i: k[1:-1] if k.startswith('"') else k for i, k in new_comp.parameters.items()}
                     for name, parameter in j["properties"].items():
                         if new_comp_params.get(name, None) != parameter:
                             new_comp.parameters[name] = parameter
