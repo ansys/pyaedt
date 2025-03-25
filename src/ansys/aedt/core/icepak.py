@@ -35,12 +35,12 @@ from ansys.aedt.core.generic.constants import SOLUTIONS
 from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.data_handlers import random_string
-from ansys.aedt.core.generic.errors import AEDTRuntimeError
-from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
@@ -306,7 +306,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Parameters
         ----------
-        air_faces : list
+        air_faces : list or :class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`
             List of face names.
 
         Returns
@@ -3418,8 +3418,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
             },
             "SchematicData": ({}),
         }
-
-        self.modeler.primitives[object_name].material_name = "Ceramic_material"
         bound = self._create_boundary(object_name, props, "Network")
         return bound
 

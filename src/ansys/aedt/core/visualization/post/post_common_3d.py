@@ -40,9 +40,9 @@ from typing import Tuple
 import warnings
 
 from ansys.aedt.core.generic.constants import unit_converter
-from ansys.aedt.core.generic.general_methods import check_and_download_file
-from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.file_utils import check_and_download_file
+from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
@@ -234,6 +234,8 @@ class PostProcessor3D(PostProcessorCommon):
                 elif k in ["Phase", "phase"]:
                     intrinsics["Phase"] = v
                 elif k in ["Time", "time"]:
+                    if self._app.solution_type == "SteadyState":
+                        continue
                     intrinsics["Time"] = v
                 if input_phase:
                     intrinsics["Phase"] = input_phase
@@ -870,7 +872,7 @@ class PostProcessor3D(PostProcessorCommon):
         >>>                                     )
         """
         intrinsics = self._check_intrinsics(intrinsics, phase, solution, return_list=True)
-        self.logger.info("Exporting %s field. Be patient", quantity)
+        self.logger.info(f"Exporting '{quantity}' field. Please be patient.")
         if not solution:
             if not self._app.existing_analysis_sweeps:
                 self.logger.error("There are no existing sweeps.")

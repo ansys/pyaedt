@@ -29,7 +29,7 @@ import time
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Q2d
 from ansys.aedt.core.generic.constants import AXIS
-from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.object_3d import Object3d
@@ -2032,6 +2032,7 @@ class TestClass:
         assert all(isinstance(o, Object3d) for o in out_obj)
 
     @pytest.mark.skipif(config["desktopVersion"] < "2024.1", reason="Feature not available until 2024.1")
+    @pytest.mark.skipif(config["desktopVersion"] < "2027.1", reason="Very long test skipping it.")
     def test_93_import_discovery(self):
         self.aedtapp.insert_design("DiscoImport")
         assert not self.aedtapp.modeler.objects

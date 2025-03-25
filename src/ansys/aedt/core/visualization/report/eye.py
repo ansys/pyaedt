@@ -30,7 +30,7 @@ This module provides all functionalities for creating and editing reports.
 """
 import os
 
-from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.visualization.report.common import CommonReport
@@ -446,32 +446,6 @@ class AMIConturEyeDiagram(CommonReport):
             ``True`` when successful, ``False`` when failed.
         """
         self._post.oreportsetup.ClearAllTraceCharacteristics(self.plot_name)
-        return True
-
-    @pyaedt_function_handler(trace_name="name")
-    def add_trace_characteristics(self, name, arguments=None, solution_range=None):
-        """Add a trace characteristic to the plot.
-
-        Parameters
-        ----------
-        name : str
-            Name of the trace characteristic.
-        arguments : list, optional
-            Arguments if any. The default is ``None``.
-        solution_range : list, optional
-            Output range. The default is ``None``, in which case
-            the full range is used.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
-        if not arguments:
-            arguments = []
-        if not solution_range:
-            solution_range = ["Full"]
-        self._post.oreportsetup.AddTraceCharacteristics(self.plot_name, name, arguments, solution_range)
         return True
 
     @pyaedt_function_handler(out_file="output_file")
@@ -1033,32 +1007,6 @@ class AMIEyeDiagram(CommonReport):
             ``True`` when successful, ``False`` when failed.
         """
         self._post.oreportsetup.ClearAllTraceCharacteristics(self.plot_name)
-        return True
-
-    @pyaedt_function_handler(trace_name="name")
-    def add_trace_characteristics(self, name, arguments=None, solution_range=None):
-        """Add a trace characteristic to the plot.
-
-        Parameters
-        ----------
-        name : str
-            Name of the trace characteristic.
-        arguments : list, optional
-            Arguments if any. The default is ``None``.
-        solution_range : list, optional
-            Output range. The default is ``None``, in which case
-            the full range is used.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
-        if not arguments:
-            arguments = []
-        if not solution_range:
-            solution_range = ["Full"]
-        self._post.oreportsetup.AddTraceCharacteristics(self.plot_name, name, arguments, solution_range)
         return True
 
     @pyaedt_function_handler(out_file="output_file")

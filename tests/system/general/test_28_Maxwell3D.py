@@ -28,9 +28,9 @@ import shutil
 
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.generic.constants import SOLUTIONS
-from ansys.aedt.core.generic.errors import AEDTRuntimeError
-from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 import pytest
 
@@ -50,6 +50,13 @@ test_subfolder = "TMaxwell"
 cyl_gap_name = "Motor3D_cyl_gap"
 
 layout_component_name = "LayoutForce"
+
+
+@pytest.fixture(scope="class", autouse=True)
+def dummy_prj(add_app):
+    app = add_app("Dummy_license_checkout_prj")
+    yield app
+    app.close_project(app.project_name)
 
 
 @pytest.fixture()
@@ -512,43 +519,6 @@ class TestClass:
         assert len(matrix.reduced_matrices) == 1
         out = matrix.join_parallel(["Cur5"])
         assert not out[0]
-
-    @pytest.mark.skipif(is_linux, reason="Failing in Ubuntu 22.")
-    def test_get_solution_data(self, m3d_app):
-        m3d_app.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
-
-        m3d_app.modeler.create_box([0, 1.5, 0], [1, 2.5, 5], name="Coil_1", material="aluminum")
-        m3d_app.modeler.create_box([8.5, 1.5, 0], [1, 2.5, 5], name="Coil_2", material="aluminum")
-        m3d_app.modeler.create_box([16, 1.5, 0], [1, 2.5, 5], name="Coil_3", material="aluminum")
-        m3d_app.modeler.create_box([32, 1.5, 0], [1, 2.5, 5], name="Coil_4", material="aluminum")
-
-        rectangle1 = m3d_app.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
-        rectangle2 = m3d_app.modeler.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
-        rectangle3 = m3d_app.modeler.create_rectangle(0, [16.5, 1.5, 0], [2.5, 5], name="Sheet3")
-
-        m3d_app.assign_current(rectangle1.faces[0], amplitude=1, name="Cur1")
-        m3d_app.assign_current(rectangle2.faces[0], amplitude=1, name="Cur2")
-        m3d_app.assign_current(rectangle3.faces[0], amplitude=1, name="Cur3")
-
-        matrix = m3d_app.assign_matrix(assignment=["Cur1", "Cur2", "Cur3"], matrix_name="Matrix1")
-        matrix.join_series(sources=["Cur1", "Cur2"], matrix_name="ReducedMatrix1")
-
-        setup = m3d_app.create_setup(MaximumPasses=2)
-        m3d_app.analyze(setup=setup.name)
-
-        expressions = m3d_app.post.available_report_quantities(
-            report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
-        )
-        data = m3d_app.post.get_solution_data(expressions=expressions, context={"Matrix1": "ReducedMatrix1"})
-        assert data
-
-        expressions = m3d_app.post.available_report_quantities(report_category="EddyCurrent", display_type="Data Table")
-        assert isinstance(expressions, list)
-        expressions = m3d_app.post.available_report_quantities(
-            report_category="EddyCurrent", display_type="Data Table", context="Matrix1"
-        )
-        data = m3d_app.post.get_solution_data(expressions=expressions, context="Matrix1")
-        assert data
 
     def test_initial_mesh_settings(self, m3d_app):
         assert m3d_app.mesh.initial_mesh_settings

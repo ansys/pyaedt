@@ -32,10 +32,11 @@ This module provides all functionalities for common AEDT post processing.
 import os
 import re
 
+from ansys.aedt.core import Quantity
 from ansys.aedt.core.generic.data_handlers import _dict_items_to_list_items
-from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.general_methods import read_configuration_file
 from ansys.aedt.core.generic.numbers import _units_assignment
 from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 from ansys.aedt.core.visualization.post.solution_data import SolutionData
@@ -87,7 +88,7 @@ class PostProcessorCommon(object):
     --------
     >>> from ansys.aedt.core import Q3d
     >>> q3d = Q3d()
-    >>> q.post.get_solution_data(domain="Original")
+    >>> q3d.post.get_solution_data(domain="Original")
     """
 
     def __init__(self, app):
@@ -505,7 +506,7 @@ class PostProcessorCommon(object):
                     if this_name:
                         sweep_names.append(this_name)
             if len(sweep_names) > 1:
-                warning_str = f"More than one sweep with name '{setup_sweep_name}' found. "
+                warning_str = f"More than one sweep with name '{sweep_name}' found. "
                 warning_str += f"Returning '{sweep_names[0]}'."
                 self.logger.warning(warning_str)
                 return sweep_names[0]
@@ -1152,7 +1153,7 @@ class PostProcessorCommon(object):
                     setup_sweep_name = f"{k} : {setup_sweep_name}"
                     break
         setup_name = setup_sweep_name.split(":")[0].strip()
-        if self._app.design_type is not "Twin Builder" and setup_name not in self._app.setup_sweeps_names:
+        if self._app.design_type != "Twin Builder" and setup_name not in self._app.setup_sweeps_names:
             raise KeyError(f"Setup {setup_name} not available in current design.")
         # Domain
         if not domain:
@@ -1355,7 +1356,6 @@ class PostProcessorCommon(object):
         -------
         :class:`ansys.aedt.core.modules.report_templates.Standard`
             ``True`` when successful, ``False`` when failed.
-
 
         References
         ----------
@@ -1622,7 +1622,7 @@ class PostProcessorCommon(object):
 
         Create report from dictionary.
         >>> from ansys.aedt.core import Hfss
-        >>> from ansys.aedt.core.generic.general_methods import read_json
+        >>> from ansys.aedt.core.generic.file_utils import read_json
         >>> hfss = Hfss()
         >>> dict_vals = read_json("Report_Simple.json")
         >>> hfss.post.create_report_from_configuration(report_settings=dict_vals)
@@ -1839,12 +1839,12 @@ class PostProcessorCommon(object):
         if isinstance(sweeps, list):
             return sweeps
         sweep_list = []
-        for el in sweeps:
+        for el, val in sweeps.items():
             sweep_list.append(el + ":=")
-            if isinstance(sweeps[el], list):
-                sweep_list.append(sweeps[el])
+            if isinstance(val, list):
+                sweep_list.append([str(i) if isinstance(i, Quantity) else i for i in val])
             else:
-                sweep_list.append([sweeps[el]])
+                sweep_list.append([str(val) if isinstance(val, Quantity) else val])
         return sweep_list
 
     @staticmethod
@@ -1853,7 +1853,7 @@ class PostProcessorCommon(object):
         for k, v in report_settings.items():
             if k in props:
                 if isinstance(v, dict):
-                    props[k] = apply_settings(props[k], v)
+                    props[k] = super().__apply_settings(props[k], v)
                 else:
                     props[k] = v
             else:

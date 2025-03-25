@@ -26,11 +26,11 @@ import os
 import warnings
 
 import ansys.aedt.core
-from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import generate_unique_project_name
-from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.file_utils import generate_unique_project_name
+from ansys.aedt.core.generic.file_utils import open_file
+from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.general_methods import read_configuration_file
 from jsonschema import exceptions
 from jsonschema import validate
 
@@ -620,9 +620,10 @@ class FieldsCalculator:
         for k, v in self.__app.variable_manager.design_variables.items():
             args.append(f"{k}:=")
             args.append(v.expression)
-        if intrinsics is None:
-            intrinsics = self.__app.get_setup(setup_name).default_intrinsics
+        intrinsics = self.__app.post._check_intrinsics(intrinsics)
         for k, v in intrinsics.items():
+            if k == "Time" and self.__app.solution_type == "SteadyState":
+                continue
             args.append(f"{k}:=")
             args.append(v)
         self.ofieldsreporter.CalculatorWrite(output_file, ["Solution:=", setup], args)

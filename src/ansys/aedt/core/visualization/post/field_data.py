@@ -34,19 +34,20 @@ import warnings
 from ansys.aedt.core.generic.constants import AllowedMarkers
 from ansys.aedt.core.generic.constants import EnumUnits
 from ansys.aedt.core.generic.data_handlers import _dict2arg
-from ansys.aedt.core.generic.errors import GrpcApiError
-from ansys.aedt.core.generic.general_methods import check_and_download_file
-from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.file_utils import check_and_download_file
+from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.load_aedt_file import load_keyword_in_aedt_file
+from ansys.aedt.core.internal.errors import GrpcApiError
+from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 
 try:
     import pandas as pd
 except ImportError:  # pragma: no cover
     warnings.warn(
-        "The Matplotlib module is required to run functionalities of ansys.aedt.core.visualization.post.field_data.\n"
-        "Install with \n\npip install matplotlib"
+        "The Pandas module is required to run functionalities of ansys.aedt.core.visualization.post.field_data.\n"
+        "Install with \n"
+        """>> pip install pandas"""
     )
     pd = None
 
@@ -155,6 +156,8 @@ class ColorMapSettings(BaseFolderPlot):
         """
         if self.map_type == "Spectrum":
             self._validate_color_spectrum(v)
+            if v == "Magenta":
+                v = "Megenta"
             self._color_spectrum = v
         else:
             self._validate_color(v)
@@ -165,9 +168,9 @@ class ColorMapSettings(BaseFolderPlot):
 
     @staticmethod
     def _validate_color_spectrum(value):
-        if value not in ["Magenta", "Rainbow", "Temperature", "Gray"]:
+        if value not in ["Magenta", "Rainbow", "Temperature", "Grayscale"]:
             raise ValueError(
-                f"{value} is not valid. Only 'Magenta', 'Rainbow', 'Temperature', and 'Gray' are accepted."
+                f"{value} is not valid. Only 'Magenta', 'Rainbow', 'Temperature', and 'Grayscale' are accepted."
             )
 
     @staticmethod

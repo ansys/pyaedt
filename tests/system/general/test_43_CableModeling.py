@@ -24,7 +24,7 @@
 
 import os
 
-from ansys.aedt.core.generic.general_methods import read_json
+from ansys.aedt.core.generic.file_utils import read_json
 from ansys.aedt.core.modules.cable_modeling import Cable
 import pytest
 

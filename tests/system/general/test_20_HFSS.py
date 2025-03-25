@@ -27,10 +27,11 @@ import os
 import re
 import shutil
 
-from ansys.aedt.core.generic.errors import AEDTRuntimeError
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 import pytest
 
 from tests import TESTS_GENERAL_PATH
+from tests import TESTS_SOLVERS_PATH
 from tests.system.general.conftest import config
 from tests.system.general.conftest import settings
 
@@ -1313,7 +1314,7 @@ class TestClass:
     )
     def test_51a_array(self):
         self.aedtapp.insert_design("Array_simple", "Modal")
-        from ansys.aedt.core.generic.general_methods import read_json
+        from ansys.aedt.core.generic.file_utils import read_json
 
         if config["desktopVersion"] > "2023.1":
             dict_in = read_json(
@@ -1893,3 +1894,9 @@ class TestClass:
         assert aedtapp.wave_port(c.name, integration_line=[start, end], modes=3)
 
         aedtapp.close_project(save=False)
+
+    def test_75_create_near_field_point(self, add_app):
+        sample_points_file = os.path.join(TESTS_SOLVERS_PATH, "example_models", "T00", "temp_points.pts")
+        aedtapp = add_app(project_name="test_75", solution_type="SBR+")
+        bound = aedtapp.insert_near_field_points(input_file=sample_points_file)
+        assert bound

@@ -144,7 +144,7 @@ class Settings(object):
         # Settings related to logging
         self.__logger: Optional[logging.Logger] = None
         self.__enable_logger: bool = True
-        self.__enable_desktop_logs: bool = True
+        self.__enable_desktop_logs: bool = False
         self.__enable_screen_logs: bool = True
         self.__enable_file_logs: bool = True
         self.__logger_file_path: Optional[str] = None
@@ -204,7 +204,7 @@ class Settings(object):
         self.__wait_for_license: bool = False
         self.__lazy_load: bool = True
         self.__objects_lazy_load: bool = True
-        self.__skip_license_check: bool = False
+        self.__skip_license_check: bool = True
         # Previously 'public' attributes
         self.__formatter: Optional[logging.Formatter] = None
         self.__remote_rpc_session: Any = None

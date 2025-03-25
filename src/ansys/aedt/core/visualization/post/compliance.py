@@ -28,13 +28,13 @@ import time
 
 from ansys.aedt.core import settings
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
-from ansys.aedt.core.generic.filesystem import search_files
-from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.file_utils import read_configuration_file
+from ansys.aedt.core.generic.file_utils import read_csv
+from ansys.aedt.core.generic.file_utils import write_configuration_file
+from ansys.aedt.core.generic.file_utils import write_csv
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.general_methods import read_configuration_file
-from ansys.aedt.core.generic.general_methods import read_csv
-from ansys.aedt.core.generic.general_methods import write_configuration_file
-from ansys.aedt.core.generic.general_methods import write_csv
+from ansys.aedt.core.internal.filesystem import search_files
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 from ansys.aedt.core.visualization.post.spisim import SpiSim

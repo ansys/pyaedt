@@ -30,7 +30,7 @@ This module provides all functionalities for creating and editing reports.
 """
 import re
 
-from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.visualization.report.common import CommonReport
@@ -447,7 +447,30 @@ class Standard(CommonReport):
         elif self.differential_pairs:
             ctxt = ["Diff:=", "differential_pairs", "Domain:=", self.domain]
         else:
-            ctxt = ["Domain:=", self.domain]
+            if self.domain == "Time" and self._app.solution_type in ["Modal", "Terminal"]:
+                ctxt = [
+                    "Domain:=",
+                    self.domain,
+                    "HoldTime:=",
+                    1,
+                    "RiseTime:=",
+                    self.pulse_rise_time,
+                    "StepTime:=",
+                    self.step_time,
+                    "Step:=",
+                    True,
+                    "WindowWidth:=",
+                    1,
+                    "WindowType:=",
+                    self.time_windowing,
+                    "KaiserParameter:=",
+                    1,
+                    "MaximumTime:=",
+                    self.maximum_time,
+                ]
+            else:
+                ctxt = ["Domain:=", self.domain]
+
         return ctxt
 
 

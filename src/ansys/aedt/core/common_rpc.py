@@ -30,8 +30,8 @@ import tempfile
 import time
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
-from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
 # import sys
 from ansys.aedt.core.rpc.rpyc_services import FileManagement

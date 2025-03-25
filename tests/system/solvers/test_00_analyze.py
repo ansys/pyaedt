@@ -33,8 +33,8 @@ from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core import Rmxprt
-from ansys.aedt.core.generic.errors import AEDTRuntimeError
 from ansys.aedt.core.generic.settings import is_linux
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.post.spisim import SpiSim
 import pytest
 
@@ -233,7 +233,7 @@ class TestClass:
     )
     def test_02_hfss_export_results(self, hfss_app):
         hfss_app.insert_design("Array_simple_resuts", "Modal")
-        from ansys.aedt.core.generic.general_methods import read_json
+        from ansys.aedt.core.generic.file_utils import read_json
 
         if desktop_version > "2023.1":
             dict_in = read_json(os.path.join(local_path, "example_models", test_subfolder, "array_simple_232.json"))

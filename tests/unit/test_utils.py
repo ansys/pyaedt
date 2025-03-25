@@ -32,8 +32,6 @@ from unittest.mock import MagicMock
 from unittest.mock import PropertyMock
 from unittest.mock import patch
 
-from ansys.aedt.core.generic.checks import AEDTRuntimeError
-from ansys.aedt.core.generic.checks import min_aedt_version
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import ALLOWED_AEDT_ENV_VAR_SETTINGS
 from ansys.aedt.core.generic.settings import ALLOWED_GENERAL_SETTINGS
@@ -41,6 +39,8 @@ from ansys.aedt.core.generic.settings import ALLOWED_LOG_SETTINGS
 from ansys.aedt.core.generic.settings import ALLOWED_LSF_SETTINGS
 from ansys.aedt.core.generic.settings import Settings
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.checks import AEDTRuntimeError
+from ansys.aedt.core.internal.checks import min_aedt_version
 import pytest
 
 SETTINGS_RELEASE_ON_EXCEPTION = settings.release_on_exception
@@ -67,7 +67,7 @@ def foo(trigger_exception=True):
 
 
 @patch.object(Settings, "logger", new_callable=PropertyMock)
-@patch("ansys.aedt.core.generic.desktop_sessions._desktop_sessions")
+@patch("ansys.aedt.core.internal.desktop_sessions._desktop_sessions")
 def test_handler_release_on_exception_called(mock_sessions, mock_logger):
     """Test handler while activating error handler."""
     mock_session = MagicMock()
@@ -85,7 +85,7 @@ def test_handler_release_on_exception_called(mock_sessions, mock_logger):
 
 
 @patch.object(Settings, "logger", new_callable=PropertyMock)
-@patch("ansys.aedt.core.generic.desktop_sessions._desktop_sessions")
+@patch("ansys.aedt.core.internal.desktop_sessions._desktop_sessions")
 def test_handler_release_on_exception_not_called(mock_sessions, mock_logger):
     """Test handler while deactivating error handler."""
     mock_session = MagicMock()
@@ -249,7 +249,7 @@ def test_settings_check_allowed_env_variables():
 
 def test_read_toml(tmp_path):
     """Test loading a TOML file."""
-    from ansys.aedt.core.generic.general_methods import read_toml
+    from ansys.aedt.core.generic.file_utils import read_toml
 
     file_path = tmp_path / "dummy.toml"
     content = """
@@ -267,7 +267,7 @@ def test_read_toml(tmp_path):
 
 def test_write_toml(tmp_path):
     """Test writing a TOML file."""
-    from ansys.aedt.core.generic.general_methods import _create_toml_file
+    from ansys.aedt.core.generic.file_utils import _create_toml_file
 
     file_path = tmp_path / "dummy.toml"
     _create_toml_file(TOML_DATA, file_path)

@@ -30,9 +30,9 @@ from typing import Optional
 
 from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.data_handlers import _dict2arg
+from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import PropsManager
-from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modules.optimetrics_templates import defaultdoeSetup
 from ansys.aedt.core.modules.optimetrics_templates import defaultdxSetup
@@ -945,7 +945,8 @@ class SetupParam(CommonOptimetrics, object):
         if not units:
             units = self._app.variable_manager[sweep_variable].units
         start_point = self._app.value_with_units(start_point, units)
-        end_point = self._app.value_with_units(end_point, units)
+        if variation_type != "SingleValue":
+            end_point = self._app.value_with_units(end_point, units)
         if variation_type == "LinearCount":
             sweep_range = f"LINC {start_point} {end_point} {step}"
         elif variation_type == "LinearStep":
@@ -1159,7 +1160,7 @@ class ParametricSetups(object):
         ----------
         variable : str
             Name of the variable.
-        start_point : float or int
+        start_point : float, int or str
             Variation Start Point if a variation is defined or Single Value.
         end_point : float or int, optional
             Variation End Point. This parameter is optional if a Single Value is defined.

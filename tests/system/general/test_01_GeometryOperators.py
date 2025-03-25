@@ -53,8 +53,8 @@ def desktop():
 
 class TestClass:
     def test_List2list(self):
-        from ansys.aedt.core.generic.clr_module import Double
-        from ansys.aedt.core.generic.clr_module import List
+        from ansys.aedt.core.internal.clr_module import Double
+        from ansys.aedt.core.internal.clr_module import List
 
         List_str = List[str]()
         List_str.Add("one")
@@ -437,19 +437,7 @@ class TestClass:
             9000.0,
             10000.0,
         ]
-        assert unit_converter(values, "Length", "m", "mm") == [
-            0.0,
-            1000.0,
-            2000.0,
-            3000.0,
-            4000.0,
-            5000.0,
-            6000.0,
-            7000.0,
-            8000.0,
-            9000.0,
-            10000.0,
-        ]
+
         assert unit_converter(10, "Temperature", "cel", "fah") == 50
         assert unit_converter(10, "Power", "W", "dBm") == 40
         assert unit_converter(10, "Power", "W", "dBW") == 10

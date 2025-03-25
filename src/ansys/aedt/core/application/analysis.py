@@ -49,14 +49,16 @@ from ansys.aedt.core.generic.constants import PLANE
 from ansys.aedt.core.generic.constants import SETUPS
 from ansys.aedt.core.generic.constants import SOLUTIONS
 from ansys.aedt.core.generic.constants import VIEW
-from ansys.aedt.core.generic.general_methods import _arg_with_dim
+from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import filter_tuple
-from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
-from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+
+# from ansys.aedt.core.generic.numbers import Quantity
 from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.generic.numbers import is_number
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
@@ -391,7 +393,7 @@ class Analysis(Design, object):
                         val = k.split(" : ")
                         if len(val) == 2 and val[0] == el:
                             sweep_list[el]["Nominal"] = val[1]
-                if "GetSweeps" in dir(self.oanalysis):
+                if self.solution_type != "Eigenmode" and "GetSweeps" in dir(self.oanalysis):
                     try:
                         sweep_list[el]["Sweeps"].extend(list(self.oanalysis.GetSweeps(el)))
                     except Exception:
@@ -627,10 +629,14 @@ class Analysis(Design, object):
         """
         _dict_out = {}
         for bound in self.design_excitations.values():
-            if bound.type in _dict_out:
-                _dict_out[bound.type].append(bound)
+            if self.design_type == "Circuit Design":
+                bound_type = "InterfacePort"
             else:
-                _dict_out[bound.type] = [bound]
+                bound_type = bound.type
+            if bound_type in _dict_out:
+                _dict_out[bound_type].append(bound)
+            else:
+                _dict_out[bound_type] = [bound]
         return _dict_out
 
     @property
@@ -777,7 +783,6 @@ class Analysis(Design, object):
     @pyaedt_function_handler()
     def export_results(
         self,
-        analyze=False,
         export_folder=None,
         matrix_name="Original",
         matrix_type="S",
@@ -788,13 +793,12 @@ class Analysis(Design, object):
         include_gamma_comment=True,
         support_non_standard_touchstone_extension=False,
         variations=None,
+        **kwargs,
     ):
         """Export all available reports to a file, including profile, and convergence and sNp when applicable.
 
         Parameters
         ----------
-        analyze : bool
-            Whether to analyze before export. Solutions must be present for the design.
         export_folder : str, optional
             Full path to the project folder. The default is ``None``, in which case the
             working directory is used.
@@ -843,6 +847,14 @@ class Analysis(Design, object):
         >>> aedtapp.analyze()
         >>> exported_files = aedtapp.export_results()
         """
+        analyze = False
+        if "analyze" in kwargs:
+            warnings.warn(
+                "The ``analyze`` argument will be deprecated in future versions." "Analyze before exporting results.",
+                DeprecationWarning,
+            )
+            analyze = kwargs["analyze"]
+
         exported_files = []
         if not export_folder:
             export_folder = self.working_directory
@@ -1119,10 +1131,24 @@ class Analysis(Design, object):
             self.logger.debug("Failed to add native component object.")
         return boundaries
 
-    class AxisDir(object):
-        """Contains constants for the axis directions."""
+    @property
+    def AxisDir(self):
+        """Contains constants for the axis directions.
 
-        (XNeg, YNeg, ZNeg, XPos, YPos, ZPos) = range(0, 6)
+        .. deprecated:: 0.15.1
+            Use :func:`axis_dir` instead.
+        """
+        warnings.warn(
+            "Accessing AxisDir is deprecated and will be removed in future versions. "
+            "Use axis_directions method instead.",
+            DeprecationWarning,
+        )
+        return self.axis_directions
+
+    @property
+    def axis_directions(self):
+        """Contains constants for the axis directions."""
+        return self.GRAVITY
 
     @pyaedt_function_handler()
     def get_setups(self):
@@ -1813,7 +1839,7 @@ class Analysis(Design, object):
         else:
             try:
                 self.logger.info("Solving Optimetrics")
-                self.ooptimetrics.SolveSetup(name)
+                self.ooptimetrics.SolveSetup(name, blocking)
             except Exception:  # pragma: no cover
                 if set_custom_dso and active_config:
                     self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
@@ -2106,7 +2132,7 @@ class Analysis(Design, object):
         else:
             if sweep_name is None:
                 for sol in self.existing_analysis_sweeps:
-                    if setup_name == sol.split(":")[0].strip():
+                    if setup_name == sol.split(":")[0].strip() and ":" in sol:
                         sweep_name = sol.split(":")[1].strip()
                         break
 
@@ -2229,20 +2255,17 @@ class Analysis(Design, object):
 
         if units is None:
             if units_system == "Length":
-                if "GetModelUnits" in dir(self.oeditor):
-                    units = self.oeditor.GetModelUnits()
-                elif "GetActiveUnits" in dir(self.oeditor):
-                    units = self.oeditor.GetActiveUnits()
-                else:
-                    units = self.odesktop.GetDefaultUnit(units_system)
+                units = self.units.length
             else:
-                try:
-                    units = self.odesktop.GetDefaultUnit(units_system)
-                except Exception:
+                units = self.units.get_unit_by_system(units_system)
+                if not units:
                     self.logger.warning("Defined unit system is incorrect.")
                     units = ""
 
-        return _arg_with_dim(value, units)
+        if not is_number(value):
+            return value
+        else:
+            return str(f"{value}{units}")
 
     @pyaedt_function_handler()
     def change_property(self, aedt_object, tab_name, property_object, property_name, property_value):

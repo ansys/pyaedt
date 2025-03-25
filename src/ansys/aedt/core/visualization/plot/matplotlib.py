@@ -344,8 +344,8 @@ class Trace:
     def cartesian_data(self, val):
         self._cartesian_data = []
         for el in val:
-            if isinstance(el, (list, tuple)):
-                self._cartesian_data.append(np.array(el))
+            if not isinstance(el, (float, int, str)):
+                self._cartesian_data.append(np.array(el, dtype=float))
             else:
                 self._cartesian_data.append(el)
         if len(self._cartesian_data) == 2:
@@ -367,8 +367,8 @@ class Trace:
     def spherical_data(self, rthetaphi):
         self._spherical_data = []
         for el in rthetaphi:
-            if isinstance(el, (list, tuple)):
-                self._spherical_data.append(np.array(el))
+            if not isinstance(el, (float, int, str)):
+                self._spherical_data.append(np.array(el, dtype=float))
             else:
                 self._spherical_data.append(el)
         self.spherical2car()
@@ -391,6 +391,8 @@ class Trace:
         list, list
             R and theta.
         """
+        x = np.array(x, dtype=float)
+        y = np.array(y, dtype=float)
         rate = 1
         if not is_degree:
             rate = np.pi / 180
@@ -401,9 +403,9 @@ class Trace:
     @pyaedt_function_handler()
     def car2spherical(self):
         """Convert cartesian data to spherical and assigns to property spherical data."""
-        x = self._cartesian_data[0]
-        y = self._cartesian_data[1]
-        z = self._cartesian_data[2]
+        x = np.array(self.cartesian_data[0], dtype=float)
+        y = np.array(self.cartesian_data[1], dtype=float)
+        z = np.array(self.cartesian_data[2], dtype=float)
         r = np.sqrt(x * x + y * y + z * z)
         theta = np.arccos(z / r) * 180 / math.pi  # to degrees
         phi = np.arctan2(y, x) * 180 / math.pi
@@ -412,13 +414,13 @@ class Trace:
     @pyaedt_function_handler()
     def spherical2car(self):
         """Convert sherical data to cartesian data and assign to cartesian data property."""
-        r = self._spherical_data[0]
-        theta = self._spherical_data[1] * math.pi / 180  # to radian
-        phi = self._spherical_data[2] * math.pi / 180
+        r = np.array(self._spherical_data[0], dtype=float)
+        theta = np.array(self._spherical_data[1] * math.pi / 180, dtype=float)  # to radian
+        phi = np.array(self._spherical_data[2] * math.pi / 180, dtype=float)
         x = r * np.sin(theta) * np.cos(phi)
         y = r * np.sin(theta) * np.sin(phi)
         z = r * np.cos(theta)
-        self._cartesian_data = [x, y, z]
+        self.cartesian_data = [x, y, z]
 
     @pyaedt_function_handler()
     def polar2car(self, r, theta):
@@ -434,6 +436,8 @@ class Trace:
         list
             List of [x,y].
         """
+        r = np.array(r, dtype=float)
+        theta = np.array(theta, dtype=float)
         x = r * np.cos(np.radians(theta))
         y = r * np.sin(np.radians(theta))
         return [x, y]
@@ -688,7 +692,7 @@ class ReportPlotter:
         from PIL import Image
 
         if not self.logo:
-            self.logo = os.path.join(os.path.dirname(__file__), "../../generic/Ansys.png")
+            self.logo = os.path.join(os.path.dirname(__file__), "../../misc/Ansys.png")
         image = Image.open(self.logo)  # Open the image
         image_array = np.array(image)  # Convert to a numpy array
         return image_array  # Output
@@ -1312,7 +1316,17 @@ class ReportPlotter:
 
     @pyaedt_function_handler()
     def plot_contour(
-        self, trace=0, polar=False, levels=64, max_theta=180, color_bar=None, snapshot_path=None, show=True, figure=None
+        self,
+        trace=0,
+        polar=False,
+        levels=64,
+        max_theta=180,
+        min_theta=0,
+        color_bar=None,
+        snapshot_path=None,
+        show=True,
+        figure=None,
+        is_spherical=True,
     ):
         """Create a Matplotlib figure contour based on a list of data.
 
@@ -1330,6 +1344,8 @@ class ReportPlotter:
             The default is ``180``, which plots the data for all angles.
             Setting ``max_theta`` to 90 limits the displayed data to the upper
             hemisphere, that is (0 < theta < 90).
+        min_theta : float or int, optional
+            Minimum theta angle for plotting. It applies only for polar plots. The default is ``0``.
         color_bar : str, optional
             Color bar title. The default is ``None`` in which case the color bar is not included.
         snapshot_path : str, optional
@@ -1340,6 +1356,8 @@ class ReportPlotter:
         figure : :class:`matplotlib.pyplot.Figure`, optional
             An existing Matplotlib `Figure` to which the plot is added.
             If not provided, a new `Figure` and `Axes` object are created.
+        is_spherical : bool, optional
+            Whether to use spherical or cartesian data.
 
         Returns
         -------
@@ -1362,7 +1380,9 @@ class ReportPlotter:
 
         self.ax.set_xlabel(tr.x_label)
         if polar:
-            self.ax.set_rticks(np.linspace(0, max_theta, 3))
+            self.ax.set_rticks(np.linspace(min_theta, max_theta, 3))
+            self.ax.set_theta_zero_location("N")
+            self.ax.set_theta_direction(-1)
         else:
             self.ax.set_ylabel(tr.y_label)
 
@@ -1370,6 +1390,12 @@ class ReportPlotter:
         ph = tr._spherical_data[2]
         th = tr._spherical_data[1]
         data_to_plot = tr._spherical_data[0]
+
+        if not is_spherical:
+            ph = tr._cartesian_data[2]
+            th = tr._cartesian_data[1]
+            data_to_plot = tr._cartesian_data[0]
+
         contour = self.ax.contourf(
             ph,
             th,
