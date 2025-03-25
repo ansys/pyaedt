@@ -1314,6 +1314,8 @@ class Configurations(object):
 
     @pyaedt_function_handler()
     def _export_boundaries(self, dict_out):
+        if self._app.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design", "Circuit Netlist"]:
+            return
         if self._app.boundaries:
             dict_out["boundaries"] = {}
             for boundary in self._app.boundaries:
@@ -1327,6 +1329,8 @@ class Configurations(object):
 
     @pyaedt_function_handler()
     def _export_coordinate_systems(self, dict_out):
+        if self._app.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design", "Circuit Netlist"]:
+            return
         if self._app.modeler.coordinate_systems:
             dict_out["coordinatesystems"] = {}
             for cs in self._app.modeler.coordinate_systems:
@@ -1348,6 +1352,8 @@ class Configurations(object):
 
     @pyaedt_function_handler()
     def _export_objects_properties(self, dict_out):
+        if self._app.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design", "Circuit Netlist"]:
+            return
         dict_out["objects"] = {}
         for val in self._app.modeler.objects.values():
             dict_out["objects"][val.name] = {}
@@ -1366,6 +1372,8 @@ class Configurations(object):
 
     @pyaedt_function_handler()
     def _export_mesh_operations(self, dict_out):
+        if self._app.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design", "Circuit Netlist"]:
+            return
         if self._app.mesh.meshoperations:
             dict_out["mesh"] = {}
             for mesh in self._app.mesh.meshoperations:
@@ -1396,6 +1404,8 @@ class Configurations(object):
 
     @pyaedt_function_handler()
     def _export_monitor(self, dict_out):
+        if self._app.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design", "Circuit Netlist"]:
+            return
         dict_monitors = []
         native_parts = [
             part.name
@@ -1435,6 +1445,8 @@ class Configurations(object):
 
     @pyaedt_function_handler()
     def _export_materials(self, dict_out):
+        if self._app.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design", "Circuit Netlist"]:
+            return
         output_dict = {}
         for el, val in self._app.materials.material_keys.items():
             output_dict[val.name] = copy.deepcopy(val._props)
@@ -2197,6 +2209,12 @@ class ConfigurationsNexxim(Configurations):
             )
         # dict_out = {}
         # self._export_general(dict_out)
+        dict_out = {}
+        self._export_general(dict_out)
+        for key, value in vars(self.options).items():  # Retrieve the dict() from the object.
+            if key.startswith("_export_") and value:
+                getattr(self, key)(dict_out)  # Call private export method to update dict_out.
+
         pin_mapping = defaultdict(list)
         data_refdes = {}
         data_models = {}
@@ -2214,6 +2232,16 @@ class ConfigurationsNexxim(Configurations):
             "COMPONENT",
             "EyeMeasurementFunctions",
             "ACMAG",
+            "buffer",
+            "polarity",
+            "LIBRARY_W32",
+            "LIBRARY_W64",
+            "LIBRARY_L32",
+            "LIBRARY_L64",
+            "PARAMETERS_FILE",
+            "IBIS_Model_Text",
+            "aminetlist_example_model_rx",
+            "CoSimulator",
         ]
         for comp in list(self._app.modeler.schematic.components.values()):
             properties = {}
@@ -2221,12 +2249,14 @@ class ConfigurationsNexxim(Configurations):
             refdes = comp.refdes
             position = comp.location
             angle = comp.angle
+            mirror = comp.mirror
             parameters = comp.parameters
             if not comp.component_info:
                 continue
             else:
                 component = comp.component_info["Component"]
             path = comp.component_path
+            port_names = None
             if not path:
                 component_type = "Nexxim Component"
                 path = ""
@@ -2241,6 +2271,7 @@ class ConfigurationsNexxim(Configurations):
                     component_type = "ami"
                 else:
                     component_type = "ibis"
+                component = parameters["comp_name"] if parameters.get("comp_name", None) else parameters["model"][1:-1]
                 for prop, value in parameters.items():
                     if value and value[-1] == '"' and value[0] == '"':
                         value = value[1:-1]
@@ -2252,6 +2283,7 @@ class ConfigurationsNexxim(Configurations):
             elif path[-4:] == ".sss":
                 component_type = "nexxim state space"
                 num_terminals = comp.model_data.props["numberofports"]
+                port_names = comp.model_data.props["PortNames"]
 
             for pin in comp.pins:
                 if pin.net == "0":
@@ -2262,16 +2294,24 @@ class ConfigurationsNexxim(Configurations):
                 pin_nets.update(temp_dict)
 
             temp_dict2 = {
-                refdes: {"component": component, "properties": properties, "position": position, "angle": angle}
+                refdes: {
+                    "component": component,
+                    "properties": properties,
+                    "position": position,
+                    "angle": angle,
+                    "mirror": mirror,
+                }
             }
             data_refdes.update(temp_dict2)
+            if "$PROJECTDIR" in path:
+                path = path.replace("$PROJECTDIR", self._app.project_path)
+            elif "<Project>" in path:
+                path = path.replace("<Project>", self._app.project_path + "/")
+            model = {component: {"component_type": component_type, "file_path": path}}
             if num_terminals:
-                model = {
-                    component: {"component_type": component_type, "file_path": path, "num_terminals": num_terminals}
-                }
-                num_terminals = None
-            else:
-                model = {component: {"component_type": component_type, "file_path": path}}
+                model[component]["num_terminals"] = num_terminals
+            if port_names:
+                model[component]["port_names"] = port_names
             data_models.update(model)
 
         for k, v in pin_nets.items():
@@ -2285,11 +2325,13 @@ class ConfigurationsNexxim(Configurations):
                 temp_dict3.update({i._circuit_comp.refdes: i.name})
             pin_mapping[k] = temp_dict3
 
-        dict_out = {
-            "models": data_models,
-            "refdes": data_refdes,
-            "pin_mapping": pin_mapping,
-        }  # Call private export method to update dict_out.
+        dict_out.update(
+            {
+                "models": data_models,
+                "refdes": data_refdes,
+                "pin_mapping": pin_mapping,
+            }
+        )  # Call private export method to update dict_out.
 
         # update the json if it exists already
 
@@ -2334,6 +2376,23 @@ class ConfigurationsNexxim(Configurations):
         self.results._reset_results()
 
         data = read_configuration_file(config_file)
+
+        if self.options.import_variables:
+            try:
+                for k, v in data["general"]["variables"].items():
+                    self._app.variable_manager.set_variable(k, v)
+            except KeyError:
+                self.results.import_variables = False
+            else:
+                self.results.import_variables = True
+            try:
+                for k, v in data["general"]["postprocessing_variables"].items():
+                    self._app.variable_manager.set_variable(k, v, is_post_processing=True)
+            except KeyError:
+                self.results.import_postprocessing_variables = False
+            else:
+                self.results.import_postprocessing_variables = True
+
         for i, j in data["refdes"].items():
             for k, l in data["models"].items():
                 if k == j["component"]:
@@ -2351,11 +2410,23 @@ class ConfigurationsNexxim(Configurations):
                             ami = True
                         else:
                             ami = False
-                        comp_set = self._app.get_ibis_model_from_file(l["file_path"], ami).components.values()
-                        for comp in comp_set:
-                            for pin in comp.pins.values():
-                                if pin.buffer_name == k:
-                                    new_comp = pin.insert(j["position"][0], j["position"][1])
+                        ibis = self._app.get_ibis_model_from_file(l["file_path"], ami)
+                        if j["component"] in ibis.buffers:
+                            new_comp = ibis.buffers[j["component"]].insert(
+                                j["position"][0], j["position"][1], j["angle"]
+                            )
+                        elif "diff_pin_name" in j["properties"]:
+                            new_comp = (
+                                ibis.components[j["component"]]
+                                .differential_pins[j["properties"]["diff_pin_name"]]
+                                .insert(j["position"][0], j["position"][1], j["angle"])
+                            )
+                        else:
+                            new_comp = (
+                                ibis.components[j["component"]]
+                                .pins[j["properties"]["pin_name"]]
+                                .insert(j["position"][0], j["position"][1], j["angle"])
+                            )
                     elif component_type == "touchstone":
                         new_comp = self._app.modeler.schematic.create_touchstone_component(
                             l["file_path"], location=j["position"], angle=j["angle"]
@@ -2366,10 +2437,18 @@ class ConfigurationsNexxim(Configurations):
                         )
                     elif component_type == "nexxim state space":
                         new_comp = self._app.modeler.schematic.create_nexxim_state_space_component(
-                            l["file_path"], l["num_terminals"], location=j["position"], angle=j["angle"]
+                            l["file_path"],
+                            l["num_terminals"],
+                            location=j["position"],
+                            angle=j["angle"],
+                            port_names=l.get("port_names", []),
                         )
+                    if j.get("mirror", False):
+                        new_comp.mirror = True
+                    new_comp_params = {i: k for i, k in new_comp.parameters.items()}
                     for name, parameter in j["properties"].items():
-                        new_comp.parameters[name] = parameter
+                        if new_comp_params.get(name, None) != parameter:
+                            new_comp.parameters[name] = parameter
 
         for i, j in data["pin_mapping"].items():
             pins = []
@@ -2384,6 +2463,34 @@ class ConfigurationsNexxim(Configurations):
             if i == "gnd":
                 for gnd_pin in pins:
                     self._app.modeler.schematic.create_gnd(gnd_pin.location, gnd_pin.angle, page=i)
-            else:
+            elif len(pins) > 1:
                 pins[0].connect_to_component(pins[1:], page_name=i)
+
+        if self.options.import_setups and data.get("setups", None):
+            self.results.import_setup = True
+            for setup, props in data["setups"].items():
+                if not self._update_setup(setup, props):
+                    self.results.import_setup = False
+
+        if self.options.import_output_variables:
+            try:
+                for k, v in data["general"]["output_variables"].items():
+                    self._app.create_output_variable(k, v)
+            except KeyError:
+                self.results.import_variables = False
+            else:
+                self.results.import_variables = True
+
+        if self.options.import_optimizations and data.get("optimizations", None):
+            self.results.import_optimizations = True
+            for setup, props in data["optimizations"].items():
+                if not self._update_optimetrics(setup, props):
+                    self.results.import_optimizations = False
+
+        if self.options.import_parametrics and data.get("parametrics", None):
+            self.results.import_parametrics = True
+            for setup, props in data["parametrics"].items():
+                if not self._update_parametrics(setup, props):
+                    self.results.import_parametrics = False
+
         return data

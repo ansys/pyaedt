@@ -42,6 +42,7 @@ class Component:
         self._name = None
         self._manufacturer = None
         self._pins = {}
+        self._differential_pins = {}
 
     @property
     def name(self):
@@ -99,6 +100,25 @@ class Component:
     @pins.setter
     def pins(self, value):
         self._pins = value
+
+    @property
+    def differential_pins(self):
+        """Pins of the component.
+
+        Examples
+        --------
+        >>> from pathlib import Path
+        >>> ibis_file = Path(path_to_ibis_files) / "u26a_800_modified.ibs"
+        >>> ibis = ibis_reader.IbisReader(ibis_file, circuit)
+        >>> pins = ibis.components["MT47H64M4BP-3_25"].differential_pins
+
+        """
+
+        return self._differential_pins
+
+    @differential_pins.setter
+    def differential_pins(self, value):
+        self._differential_pins = value
 
 
 class Pin:
@@ -852,11 +872,11 @@ class IbisReader(object):
         buffers = {}
         for model_selector in ibis.model_selectors:
             buffer = Buffer(ibis_name, model_selector.name, self)
-            buffers[buffer.name] = buffer
+            buffers[buffer.short_name] = buffer
 
         for model in ibis.models:
             buffer = Buffer(ibis_name, model.name, self)
-            buffers[buffer.name] = buffer
+            buffers[buffer.short_name] = buffer
 
         ibis.buffers = buffers
         self._ibis_model = ibis
@@ -897,17 +917,17 @@ class IbisReader(object):
             for comp_value in self._ibis_model.components.values():
                 arg_component = [f"NAME:{comp_value.name}"]
                 for pin in comp_value.pins.values():
-                    flag = True
-                    if not isinstance(pin, DifferentialPin):
-                        flag = False
                     arg_component.append(f"{pin.short_name}:=")
                     if pin.model not in model_selector_names:
-                        arg_component.append([flag, flag])
+                        arg_component.append([False, False])
                     else:
-                        arg_component.append([True, flag])
-                        if hasattr(pin, "negative_pin"):
-                            arg_component.append(f"{pin.short_name}:=")
-                            arg_component.append([True, True])
+                        arg_component.append([True, False])
+                for pin in comp_value.differential_pins.values():
+                    arg_component.append(f"{pin.short_name}:=")
+                    if pin.model not in model_selector_names:
+                        arg_component.append([False, True])
+                    else:
+                        arg_component.append([True, True])
                 arg_components.append(arg_component)
 
             args.append(arg_buffers)
@@ -1039,14 +1059,14 @@ class IbisReader(object):
             pin_list = comp_info["pin"]["pin"].strip().split("\n")[1:]
             for pin_info in pin_list:
                 pin = self.make_pin_object(pin_info, component.name, ibis)
-                component.pins[pin.name] = pin
+                component.pins[pin.short_name] = pin
 
             try:
                 diff_pin_list = comp_info["diff pin"]["diff pin"].strip().split("\n")[1:]
                 for pin_info in diff_pin_list:
 
                     pin = self.make_diff_pin_object(pin_info, component, ibis)
-                    component.pins[pin.name] = pin
+                    component.differential_pins[pin.short_name] = pin
             except Exception as error:  # pragma: no cover
                 logger.warning(f"Cannot find Diff Pin. Ignore it. Exception message: {error}")
             ibis.components[component.name] = component
@@ -1133,8 +1153,8 @@ class IbisReader(object):
 
         single_ended_pin_name = pin_name + "_" + component_name + "_" + ibis.name
         diff_pin_name = single_ended_pin_name + "_diff"
-        for pin_name, pinval in component.pins.items():
-            if single_ended_pin_name == pin_name:
+        for p_name, pinval in component.pins.items():
+            if pin_name == p_name:
                 pin = DifferentialPin(diff_pin_name, pinval.buffer_name + "_diff", self)
                 pin._short_name = pinval.short_name
                 pin._tdelay_max = tdelay_max
@@ -1172,10 +1192,10 @@ class IbisReader(object):
         pin_name = self.get_first_parameter(current_string)
         current_string = current_string[len(pin_name) + 1 :].strip()
 
-        signal = self.get_first_parameter(current_string)
+        signal = self.get_first_parameter(current_string).replace(",", "")
         current_string = current_string[len(signal) + 1 :].strip()
 
-        model = self.get_first_parameter(current_string)
+        model = self.get_first_parameter(current_string).replace(",", "")
         current_string = current_string[len(model) + 1 :].strip()
 
         r_value = self.get_first_parameter(current_string)
@@ -1288,11 +1308,11 @@ class AMIReader(IbisReader):
         buffers = {}
         for model_selector in ibis.model_selectors:
             buffer = Buffer(ami_name, model_selector.name, self)
-            buffers[buffer.name] = buffer
+            buffers[buffer.short_name] = buffer
 
         for model in ibis.models:
             buffer = Buffer(ami_name, model.name, self)
-            buffers[buffer.name] = buffer
+            buffers[buffer.short_name] = buffer
 
         ibis.buffers = buffers
 
@@ -1323,21 +1343,18 @@ class AMIReader(IbisReader):
             arg_components = ["NAME:Components"]
             for component in self._ibis_model.components:
                 arg_component = [f"NAME:{self._ibis_model.components[component].name}"]
-                for pin in self._ibis_model.components[component].pins:
-                    arg_component.append(f"{self._ibis_model.components[component].pins[pin].short_name}:=")
-                    flag = True
-                    if not isinstance(self._ibis_model.components[component].pins[pin], DifferentialPin):
-                        flag = False
-                    if (
-                        model_selector_names
-                        and self._ibis_model.components[component].pins[pin].model not in model_selector_names
-                    ):
-                        arg_component.append([flag, flag])
+                for pin in self._ibis_model.components[component].pins.values():
+                    arg_component.append(f"{pin.short_name}:=")
+                    if model_selector_names and pin.model not in model_selector_names:
+                        arg_component.append([False, False])
                     else:
-                        arg_component.append([True, flag])
-                        if hasattr(pin, "negative_pin"):
-                            arg_component.append(f"{pin.short_name}:=")
-                            arg_component.append([True, True])
+                        arg_component.append([True, False])
+                for pin in self._ibis_model.components[component].differential_pins.values():
+                    arg_component.append(f"{pin.short_name}:=")
+                    if model_selector_names and pin.model not in model_selector_names:
+                        arg_component.append([False, True])
+                    else:
+                        arg_component.append([True, True])
                 arg_components.append(arg_component)
 
             args.append(arg_buffers)
