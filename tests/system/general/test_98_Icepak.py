@@ -54,6 +54,7 @@ comp_priority = "3DCompPriority"
 fan_op_point = "FanOpPoint"
 native_import = "one_native_component"
 network_test = "NetworkTest"
+max_temp = "maxT"
 
 # Filter board import
 proj_name = None
@@ -1916,7 +1917,7 @@ class TestClass:
         with pytest.raises(ValueError):
             fs.color_map_settings.color = "Hot"
         assert fs.color_map_settings.color == "Rainbow"
-        fs.color_map_settings.color = "Temperature"
+        fs.color_map_settings.color = "Magenta"
         assert isinstance(fs.color_map_settings.to_dict(), dict)
         assert isinstance(fs.to_dict(), dict)
         fs.update()
@@ -1948,7 +1949,7 @@ class TestClass:
         assert obj_mat_prop["myBox"]["thermal_conductivity"] == "205"
 
     @pytest.mark.parametrize("ipk", [transient_fs], indirect=True)
-    def test081__get_max_temp_location(self, ipk):
+    def test081__get_max_temp_location_transient(self, ipk):
         with pytest.raises(ValueError):
             ipk.post.get_temperature_extremum(assignment="Box2", max_min="Max", location="Surface")
         max_temp = ipk.post.get_temperature_extremum(assignment="Box1", max_min="Max", location="Surface", time="1s")
@@ -1956,6 +1957,17 @@ class TestClass:
         assert len(max_temp[0]) == 3
         assert isinstance(max_temp[1], float)
         min_temp = ipk.post.get_temperature_extremum(assignment="Box1", max_min="Min", location="Volume", time="1s")
+        assert isinstance(min_temp, tuple)
+        assert len(min_temp[0]) == 3
+        assert isinstance(min_temp[1], float)
+
+    @pytest.mark.parametrize("ipk", [max_temp], indirect=True)
+    def test082__get_max_temp_location_steadystate(self, ipk):
+        max_temp = ipk.post.get_temperature_extremum(assignment="Box1", max_min="Max", location="Surface")
+        assert isinstance(max_temp, tuple)
+        assert len(max_temp[0]) == 3
+        assert isinstance(max_temp[1], float)
+        min_temp = ipk.post.get_temperature_extremum(assignment="Box2", max_min="Min", location="Volume")
         assert isinstance(min_temp, tuple)
         assert len(min_temp[0]) == 3
         assert isinstance(min_temp[1], float)
