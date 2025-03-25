@@ -32,7 +32,7 @@ jobs:
   system-tests-solvers-windows:
     name: Testing solvers and coverage (Windows)
     if: github.event.pull_request.draft == false
-    runs-on: [ self-hosted, Windows, pyaedt, pre_release ]
+    runs-on: [ self-hosted, Windows, pyaedt, pre_release, test ]
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@v4
