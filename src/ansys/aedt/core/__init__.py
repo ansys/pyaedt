@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+from pathlib import Path
 import sys
 import warnings
 
@@ -70,7 +71,7 @@ deprecation_warning()
 
 #
 
-pyaedt_path = os.path.dirname(__file__)
+pyaedt_path = Path(__file__).parent
 __version__ = "0.16.dev0"
 version = __version__
 
