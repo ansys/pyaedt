@@ -355,36 +355,6 @@ class PostProcessor3D(PostProcessorCommon):
                     )  # pragma: no cover
         return plots
 
-    # TODO: define a fields calculator module and make robust !!
-    @pyaedt_function_handler(object_name="assignment")
-    def volumetric_loss(self, assignment):
-        """Use the field calculator to create a variable for volumetric losses.
-
-        Parameters
-        ----------
-        assignment : str
-            Name of the object to compute volumetric losses on.
-
-        Returns
-        -------
-        str
-            Name of the variable created.
-
-        References
-        ----------
-        >>> oModule.EnterQty
-        >>> oModule.EnterVol
-        >>> oModule.CalcOp
-        >>> oModule.AddNamedExpression
-        """
-        oModule = self.ofieldsreporter
-        oModule.EnterQty("OhmicLoss")
-        oModule.EnterVol(assignment)
-        oModule.CalcOp("Integrate")
-        name = f"P_{assignment}"  # Need to check for uniqueness !
-        oModule.AddNamedExpression(name, "Fields")
-        return name
-
     @pyaedt_function_handler(plotname="plot_name", propertyname="property_name", propertyval="property_value")
     def change_field_property(self, plot_name, property_name, property_value):
         """Modify a field plot property.
