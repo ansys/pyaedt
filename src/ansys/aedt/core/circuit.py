@@ -39,11 +39,11 @@ from ansys.aedt.core.generic.data_handlers import from_rkm_to_aedt
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.file_utils import read_configuration_file
-from ansys.aedt.core.generic.filesystem import search_files
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
+from ansys.aedt.core.internal.filesystem import search_files
 from ansys.aedt.core.modules.boundary.circuit_boundary import CurrentSinSource
 from ansys.aedt.core.modules.boundary.circuit_boundary import PowerIQSource
 from ansys.aedt.core.modules.boundary.circuit_boundary import PowerSinSource
@@ -2256,16 +2256,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                 n_pin2 = subx[rx_schematic_differential_pins[j]]
 
             if use_ibis_buffer:
-                buf = [k for k, _ in ibis.buffers.items() if k.startswith(tx_buffer_name + "_")]
-                if differential:
-                    buf = [k for k in buf if k.endswith("diff")]
-                tx = ibis.buffers[buf[0]].insert(pos_x, pos_y)
+                tx = ibis.buffers[tx_buffer_name].insert(pos_x, pos_y)
                 if tx.location[0] > tx.pins[0].location[0]:
                     tx.angle = 180
-                buf = [k for k, _ in ibis_rx.buffers.items() if k.startswith(rx_buffer_name + "_")]
-                if differential:
-                    buf = [k for k in buf if k.endswith("diff")]
-                rx = ibis_rx.buffers[buf[0]].insert(pos_x_rx, pos_y_rx, 180)
+                rx = ibis_rx.buffers[rx_buffer_name].insert(pos_x_rx, pos_y_rx, 180)
                 if rx.location[0] < rx.pins[0].location[0]:
                     rx.angle = 0
             else:
@@ -2279,16 +2273,16 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                     cmp_rx = cmp_tx
                 else:
                     cmp_rx = list(ibis_rx.components.values())[0]
-                buf = [k for k in cmp_tx.pins.keys() if k.startswith(tx_buffer_name + "_")]
                 if differential:
-                    buf = [k for k in buf if k.endswith("diff")]
-                tx = cmp_tx.pins[buf[0]].insert(pos_x, pos_y)
+                    tx = cmp_tx.differential_pins[tx_buffer_name].insert(pos_x, pos_y)
+                else:
+                    tx = cmp_tx.pins[tx_buffer_name].insert(pos_x, pos_y)
                 if tx.location[0] > tx.pins[0].location[0]:
                     tx.angle = 180
-                buf = [k for k in cmp_rx.pins.keys() if k.startswith(rx_buffer_name + "_")]
                 if differential:
-                    buf = [k for k in buf if k.endswith("diff")]
-                rx = cmp_rx.pins[buf[0]].insert(pos_x_rx, pos_y_rx, 180)
+                    rx = cmp_rx.differential_pins[rx_buffer_name].insert(pos_x_rx, pos_y_rx, 180)
+                else:
+                    rx = cmp_rx.pins[rx_buffer_name].insert(pos_x_rx, pos_y_rx, 180)
                 if rx.location[0] < rx.pins[0].location[0]:
                     rx.angle = 0
             _, first_tx, second_tx = tx.pins[0].connect_to_component(p_pin1, page_port_angle=180)

@@ -30,7 +30,7 @@ import threading
 import time
 from typing import Callable
 
-from ansys.aedt.core.generic.aedt_versions import aedt_versions
+from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
 
 class DllInterface:

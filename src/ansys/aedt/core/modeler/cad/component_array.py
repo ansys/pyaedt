@@ -26,11 +26,11 @@
 import os
 import re
 
-from ansys.aedt.core.generic.checks import min_aedt_version
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.file_utils import _uname
 from ansys.aedt.core.generic.file_utils import read_csv
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class ComponentArray(object):

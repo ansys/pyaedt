@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools<67.0.0", "wheel"] # THIS SHOULD BE REVERTED TO '["setuptools", "wheel"]'
 build-backend = "setuptools.build_meta"
 
 
@@ -65,7 +65,6 @@ integration-tests = [
 ]
 tests = [
     "ipython>=7.30.0,<9.1",
-    "joblib>=1.0.0,<1.5",
     "matplotlib>=3.5.0,<3.11",
     "mock>=5.1.0,<5.3",
     "numpy>=1.20.0,<2.3",
@@ -78,8 +77,6 @@ tests = [
     "pyvista[io]>=0.38.0,<0.45",
     "ansys-tools-visualization-interface; python_version >= '3.10'",
     "tables; python_version >= '3.10'",
-    # Never directly imported but required when loading ML related file see #4713
-    "scikit-learn>=1.0.0,<1.7",
     "scikit-rf>=0.30.0,<1.7",
     "pytest-timeout>=2.3.0,<2.4",
 ]
@@ -115,8 +112,6 @@ all = [
     "fast-simplification>=0.1.7",
     "ansys-tools-visualization-interface; python_version >= '3.10'",
     "tables; python_version >= '3.10'",
-    # Never directly imported but required when loading ML related file see #4713
-    "scikit-learn>=1.0.0,<1.7",
     "scikit-rf>=0.30.0,<1.7",
 ]
 installer = [
@@ -128,8 +123,6 @@ installer = [
     "pyvista[io]>=0.38.0,<0.45",
     "fast-simplification>=0.1.7",
     "ansys-tools-visualization-interface; python_version >= '3.10'",
-    # Never directly imported but required when loading ML related file see #4713
-    "scikit-learn>=1.0.0,<1.7",
     "scikit-rf>=0.30.0,<1.7",
     "jupyterlab>=3.6.0,<4.4",
     "ipython>=7.30.0,<9.1",
@@ -145,6 +138,7 @@ Documentation = "https://aedt.docs.pyansys.com"
 Source = "https://github.com/ansys/pyaedt"
 Discussions = "https://github.com/ansys/pyaedt/discussions"
 Releases = "https://github.com/ansys/pyaedt/releases"
+Changelog = "https://github.com/ansys/pyaedt/blob/main/doc/source/changelog.rst"
 
 [tool.black]
 line-length = 120
@@ -217,12 +211,11 @@ exclude = [
 [tool.towncrier]
 package = "ansys.aedt.core"
 directory = "doc/changelog.d"
-filename = "CHANGELOG.md"
-start_string = "<!-- towncrier release notes start -->\n"
-underlines = ["", "", ""]
+filename = "doc/source/changelog.rst"
+start_string = ".. towncrier release notes start\n"
 template = "doc/changelog.d/changelog_template.jinja"
-title_format = "## [{version}](https://github.com/ansys/pyaedt/releases/tag/v{version}) - {project_date}"
-issue_format = "[#{issue}](https://github.com/ansys/pyaedt/pull/{issue})"
+title_format = "`{version} <https://github.com/ansys/pyaedt/releases/tag/v{version}>`_ - {project_date}"
+issue_format = "`#{issue} <https://github.com/ansys/pyaedt/pull/{issue}>`_"
 
 [[tool.towncrier.type]]
 directory = "added"

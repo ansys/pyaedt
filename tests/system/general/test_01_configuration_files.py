@@ -27,6 +27,7 @@ import json
 import os
 import time
 
+from ansys.aedt.core import Circuit
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Q2d
@@ -50,11 +51,18 @@ diff_proj_name = "test_42"
 hfss3dl_existing_setup_proj_name = (
     f"existing_hfss3dl_setup_v{config['desktopVersion'][-4:-2]}{config['desktopVersion'][-1:]}"
 )
+circuit_project_name = "differential_pairs.aedt"
 
 
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
     app = add_app(project_name=test_project_name, subfolder=test_subfolder)
+    return app
+
+
+@pytest.fixture(scope="class")
+def circuittest(add_app):
+    app = add_app(project_name=circuit_project_name, subfolder="T21", application=Circuit)
     return app
 
 
@@ -342,3 +350,21 @@ class TestClass:
         setup3 = hfss3dl_b.create_setup("My_HFSS_Setup_3")
         assert setup3.import_from_json(export_path)
         assert setup3.update()
+
+    def test_06_circuit(self, circuittest, local_scratch):
+        path = circuittest.configurations.export_config()
+        assert os.path.exists(path)
+        circuittest.insert_design("new_import")
+        circuittest.configurations.import_config(path)
+        assert circuittest.configurations.export_config(os.path.join(local_scratch.path, "export_config.json"))
+
+    def test_07_circuit(self, add_app, local_scratch):
+        example_project = os.path.join(TESTS_GENERAL_PATH, "example_models/T01/models")
+        dest_folder = os.path.join(local_scratch.path, "models")
+        local_scratch.copyfolder(example_project, dest_folder)
+        app = add_app(application=Circuit, project_name="AMI_Example", subfolder="T01")
+        path = app.configurations.export_config()
+        assert os.path.exists(path)
+        app.insert_design("new_import")
+        app.configurations.import_config(path)
+        assert app.configurations.export_config(os.path.join(local_scratch.path, "export_config.json"))
