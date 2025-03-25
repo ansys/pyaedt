@@ -49,6 +49,7 @@ import ansys.aedt.core.visualization.report.standard
 TEMPLATES_BY_NAME = {
     "Standard": ansys.aedt.core.visualization.report.standard.Standard,
     "EddyCurrent": ansys.aedt.core.visualization.report.standard.Standard,
+    "AC Magnetic": ansys.aedt.core.visualization.report.standard.Standard,
     "Modal Solution Data": ansys.aedt.core.visualization.report.standard.Standard,
     "Terminal Solution Data": ansys.aedt.core.visualization.report.standard.Standard,
     "Fields": ansys.aedt.core.visualization.report.field.Fields,
@@ -401,6 +402,7 @@ class PostProcessorCommon(object):
                 context = ["Diff:=", "differential_pairs", "Domain:=", "Sweep"]
         elif self._app.design_type in ["Maxwell 2D", "Maxwell 3D"] and self._app.solution_type in [
             "EddyCurrent",
+            "AC Magnetic",
             "Electrostatic",
         ]:
             if isinstance(context, dict):
@@ -1232,7 +1234,7 @@ class PostProcessorCommon(object):
         elif (
             self._app.design_type in ["Maxwell 2D", "Maxwell 3D"]
             and context
-            and self._app.solution_type in ["EddyCurrent", "Electrostatic"]
+            and self._app.solution_type in ["EddyCurrent", "Electrostatic", "AC Magnetic"]
         ):
             if isinstance(context, dict):
                 for k, v in context.items():

@@ -363,7 +363,7 @@ class Maxwell(CreateBoundaryMixin):
                 else:
                     self.logger.warning("Group of sources is not a dictionary")
                     group_sources = None
-        elif self.solution_type == SOLUTIONS.Maxwell3d.EddyCurrent:
+        elif self.solution_type in [SOLUTIONS.Maxwell3d.EddyCurrent, SOLUTIONS.Maxwell3d.ACMagnetic]:
             group_sources = None
             branches = None
             turns = ["1"] * len(assignment)
@@ -393,7 +393,7 @@ class Maxwell(CreateBoundaryMixin):
             if any(item in return_path for item in assignment):
                 raise AEDTRuntimeError("Return path specified must not be included in sources")
 
-            if group_sources and self.solution_type in ["EddyCurrent", "Magnetostatic"]:
+            if group_sources and self.solution_type in ["EddyCurrent", "Magnetostatic", "AC Magnetic"]:
                 props = dict({"MatrixEntry": dict({"MatrixEntry": []}), "MatrixGroup": dict({"MatrixGroup": []})})
             else:
                 props = dict({"MatrixEntry": dict({"MatrixEntry": []}), "MatrixGroup": []})
@@ -407,7 +407,7 @@ class Maxwell(CreateBoundaryMixin):
                             "ReturnPath": return_path[element],
                         }
                     )
-                elif self.solution_type == SOLUTIONS.Maxwell3d.EddyCurrent:
+                elif self.solution_type in [SOLUTIONS.Maxwell3d.EddyCurrent, SOLUTIONS.Maxwell3d.ACMagnetic]:
                     prop = dict({"Source": assignment[element], "ReturnPath": return_path[element]})
                 else:
                     prop = dict({"Source": assignment[element], "NumberOfTurns": turns[element]})

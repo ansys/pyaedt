@@ -201,7 +201,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode):
 
     @pyaedt_function_handler()
     def _create_matrix_reduction(self, red_type, sources, matrix_name=None, join_name=None):
-        if not self._app.solution_type == "EddyCurrent":
+        if self._app.solution_type not in ["EddyCurrent", "AC Magnetic"]:
             self._app.logger.error("Matrix reduction is possible only in Eddy current solvers.")
             return False, False
         if not matrix_name:

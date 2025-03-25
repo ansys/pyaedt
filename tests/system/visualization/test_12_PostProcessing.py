@@ -954,16 +954,33 @@ class TestClass:
         setup = m3d_app.create_setup(MaximumPasses=2)
         m3d_app.analyze(setup=setup.name)
 
-        expressions = m3d_app.post.available_report_quantities(
-            report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
-        )
-        data = m3d_app.post.get_solution_data(expressions=expressions, context={"Matrix1": "ReducedMatrix1"})
-        assert data
-
-        expressions = m3d_app.post.available_report_quantities(report_category="EddyCurrent", display_type="Data Table")
-        assert isinstance(expressions, list)
-        expressions = m3d_app.post.available_report_quantities(
-            report_category="EddyCurrent", display_type="Data Table", context="Matrix1"
-        )
-        data = m3d_app.post.get_solution_data(expressions=expressions, context="Matrix1")
-        assert data
+        if config["desktopVersion"] < "2025.2":
+            expressions = m3d_app.post.available_report_quantities(
+                report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
+            )
+            data = m3d_app.post.get_solution_data(expressions=expressions, context={"Matrix1": "ReducedMatrix1"})
+            assert data
+            expressions = m3d_app.post.available_report_quantities(
+                report_category="EddyCurrent", display_type="Data Table"
+            )
+            assert isinstance(expressions, list)
+            expressions = m3d_app.post.available_report_quantities(
+                report_category="EddyCurrent", display_type="Data Table", context="Matrix1"
+            )
+            data = m3d_app.post.get_solution_data(expressions=expressions, context="Matrix1")
+            assert data
+        else:
+            expressions = m3d_app.post.available_report_quantities(
+                report_category="AC Magnetic", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
+            )
+            data = m3d_app.post.get_solution_data(expressions=expressions, context={"Matrix1": "ReducedMatrix1"})
+            assert data
+            expressions = m3d_app.post.available_report_quantities(
+                report_category="AC Magnetic", display_type="Data Table"
+            )
+            assert isinstance(expressions, list)
+            expressions = m3d_app.post.available_report_quantities(
+                report_category="AC Magnetic", display_type="Data Table", context="Matrix1"
+            )
+            data = m3d_app.post.get_solution_data(expressions=expressions, context="Matrix1")
+            assert data
