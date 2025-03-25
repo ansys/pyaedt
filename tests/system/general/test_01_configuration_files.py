@@ -357,3 +357,14 @@ class TestClass:
         circuittest.insert_design("new_import")
         circuittest.configurations.import_config(path)
         assert circuittest.configurations.export_config(os.path.join(local_scratch.path, "export_config.json"))
+
+    def test_07_circuit(self, add_app, local_scratch):
+        example_project = os.path.join(TESTS_GENERAL_PATH, "example_models/T01/models")
+        dest_folder = os.path.join(local_scratch.path, "models")
+        local_scratch.copyfolder(example_project, dest_folder)
+        app = add_app(application=Circuit, project_name="AMI_Example", subfolder="T01")
+        path = app.configurations.export_config()
+        assert os.path.exists(path)
+        app.insert_design("new_import")
+        app.configurations.import_config(path)
+        assert app.configurations.export_config(os.path.join(local_scratch.path, "export_config.json"))
