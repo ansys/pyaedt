@@ -77,7 +77,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode):
             Dictionary of reduced matrices where the key is the name of the parent matrix
             and the values are in a list of reduced matrix groups.
         """
-        if self._app.solution_type == "EddyCurrent":
+        if self._app.solution_type in ["EddyCurrent", "AC Magnetic"]:
             self.__reduced_matrices = {}
             cc = self._app.odesign.GetChildObject("Parameters")
             parents = cc.GetChildNames()
@@ -276,7 +276,7 @@ class MaxwellMatrix(object):
     @property
     def sources(self):
         """List of matrix sources."""
-        if self._app.solution_type == "EddyCurrent":
+        if self._app.solution_type in ["EddyCurrent", "AC Magnetic"]:
             sources = (
                 self._app.odesign.GetChildObject("Parameters")
                 .GetChildObject(self.parent_matrix)

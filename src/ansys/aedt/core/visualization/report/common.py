@@ -485,7 +485,10 @@ class CommonReport(BinaryTreeNode):
         """
         if self._is_created and (
             self._app.design_type in ["Q3D Extractor", "2D Extractor"]
-            or (self._app.design_type in ["Maxwell 2D", "Maxwell 3D"] and self._app.solution_type == "EddyCurrent")
+            or (
+                self._app.design_type in ["Maxwell 2D", "Maxwell 3D"]
+                and self._app.solution_type in ["EddyCurrent", "AC Magnetic"]
+            )
         ):
             try:
                 if "Parameter" in self.traces[0].properties:
@@ -1379,7 +1382,8 @@ class CommonReport(BinaryTreeNode):
             output_dict["context"]["polyline"] = self.polyline
             output_dict["context"]["point_number"] = self.point_number
         elif self._app.design_type in ["Q3D Extractor", "2D Extractor"] or (
-            self._app.design_type in ["Maxwell 2D", "Maxwell 3D"] and self._app.solution_type == "EddyCurrent"
+            self._app.design_type in ["Maxwell 2D", "Maxwell 3D"]
+            and self._app.solution_type in ["EddyCurrent", "AC Magnetic"]
         ):
             output_dict["context"]["matrix"] = self.matrix
         elif self.traces and any(
