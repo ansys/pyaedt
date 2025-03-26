@@ -296,7 +296,7 @@ class TestClass:
         assert os.path.isfile(output_file2)
 
     @pytest.mark.skipif(is_linux, reason="feature supported in Cpython")
-    def test_16_read_hdm(self):
+    def test_read_hdm(self):
         self.aedtapp.insert_design("hdm")
         hdm_path = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "freighter_rays.hdm")
         stl_path = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "freighter_ship.stl")
@@ -311,7 +311,7 @@ class TestClass:
         plotter.plot_rays(os.path.join(self.local_scratch.path, "bounce2.jpg"))
         assert os.path.exists(os.path.join(self.local_scratch.path, "bounce2.jpg"))
 
-    def test_17_boundary_perfect_e(self):
+    def test_boundary_perfect_e(self):
         self.aedtapp.insert_design("sbr_boundaries_perfect_e")
         b = self.aedtapp.modeler.create_box([0, 0, 0], [10, 20, 30])
         model_units = self.aedtapp.modeler.model_units
@@ -325,7 +325,10 @@ class TestClass:
         with pytest.raises(AEDTRuntimeError):
             self.aedtapp.assign_perfect_e(name="b1", assignment=[b, b.faces[0]], height_deviation="3mm")
 
-    def test_18_boundary_perfect_h(self):
+        with pytest.raises(AEDTRuntimeError):
+            self.aedtapp.assign_perfect_e(assignment="invented")
+
+    def test_boundary_perfect_h(self):
         self.aedtapp.insert_design("sbr_boundaries_perfect_h")
         b = self.aedtapp.modeler.create_box([0, 0, 0], [10, 20, 30])
         model_units = self.aedtapp.modeler.model_units
@@ -339,13 +342,55 @@ class TestClass:
         with pytest.raises(AEDTRuntimeError):
             self.aedtapp.assign_perfect_h(name="b1", assignment=[b, b.faces[0]], height_deviation="3mm")
 
-    def test_19_boundaries_finite_conductivity(self):
-        self.aedtapp.insert_design("sbr_boundaries")
+        with pytest.raises(AEDTRuntimeError):
+            self.aedtapp.assign_perfect_h(assignment="invented")
 
-        # Finite Conductivity
-        bound = self.aedtapp.assign_finite_conductivity(assignment=[b, b.faces[0]], height_deviation="2mm")
-        bound.properties["SBR+ Rough Surface Height Standard Deviation"] == "2mm"
+    def test_boundaries_finite_conductivity(self):
+        self.aedtapp.insert_design("hfss_finite_conductivity")
+        b = self.aedtapp.modeler.create_box([0, 0, 0], [10, 20, 30])
 
-        pass
+        args = {
+            "material": "aluminum",
+            "use_thickness": True,
+            "thickness": "0.5mm",
+            "is_two_side": True,
+            "is_shell_element": True,
+            "use_huray": True,
+            "radius": "0.75um",
+            "ratio": "3",
+            "height_deviation": 1,
+            "roughness": 0.5,
+            "name": "b1",
+        }
 
-        # self.aedtapp.assign_layered_impendance()
+        coat = self.aedtapp.assign_finite_conductivity([b.id, b.name, b.faces[0]], **args)
+        coat.name = "Coating1inner"
+        assert coat.update()
+        assert coat.properties
+        material = coat.props.get("Material", "")
+        assert material == "aluminum"
+
+        args = {
+            "material": None,
+            "use_thickness": False,
+            "thickness": "0.5mm",
+            "is_two_side": False,
+            "is_shell_element": False,
+            "use_huray": False,
+            "radius": "0.75um",
+            "ratio": "3",
+            "height_deviation": 1,
+            "roughness": 0.5,
+            "name": "b2",
+        }
+
+        coat2 = self.aedtapp.assign_finite_conductivity([b.id, b.name, b.faces[0]], **args)
+        assert (
+            coat2.properties["SBR+ Rough Surface Height Standard Deviation"] == f"1{self.aedtapp.modeler.model_units}"
+        )
+
+        with pytest.raises(AEDTRuntimeError):
+            self.aedtapp.assign_finite_conductivity([b.id, b.name, b.faces[0]], **args)
+
+        with pytest.raises(AEDTRuntimeError):
+            self.aedtapp.assign_finite_conductivity(["insulator2"])

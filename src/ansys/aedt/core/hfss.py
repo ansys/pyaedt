@@ -768,7 +768,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         use_huray=False,
         radius="0.5um",
         ratio="2.9",
-        height_deviation="0.0mm",
+        height_deviation=0.0,
         name=None,
     ):
         """Assign finite conductivity to one or more objects or faces of a given material.
@@ -789,7 +789,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             Whether to use thickness. The default is ``False``.
         thickness : str, optional
             Thickness value if ``usethickness=True``. The default is ``"0.1mm"``.
-        roughness : str, optional
+        roughness : int, float or str, optional
             Roughness value with units. The default is ``"0um"``.
         is_infinite_ground : bool, optional
             Whether the finite conductivity is an infinite ground. The default is ``False``.
@@ -806,8 +806,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             Radius value if ``usehuray=True``. The default is ``"0.5um"``.
         ratio : str, optional
             Ratio value if ``usehuray=True``. The default is ``"2.9"``.
-        height_deviation : str, optional
-            Height standard deviation. This parameter is only valid in SBR+ designs. The default is ``"0.0mm"``.
+        height_deviation : float, int or str, optional
+            Height standard deviation. This parameter is only valid in SBR+ designs. The default is ``0.0``.
         name : str
             Name of the boundary.
 
@@ -857,6 +857,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             props["Faces"] = lstface
             lstface = [str(i) for i in lstface]
             listobjname = listobjname + "_" + "_".join(lstface)
+
         if material:
             if self.materials[material]:
                 props["UseMaterial"] = True
@@ -867,7 +868,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             props["UseMaterial"] = False
             props["Conductivity"] = str(conductivity)
             props["Permeability"] = str(str(permittivity))
+
         props["UseThickness"] = use_thickness
+
+        roughness = Quantity(roughness, self.modeler.model_units)
+
         if use_thickness:
             props["Thickness"] = thickness
         if use_huray:
@@ -877,6 +882,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         else:
             props["Roughness"] = roughness
             props["InfGroundPlane"] = is_infinite_ground
+
         props["IsTwoSided"] = is_two_side
 
         if is_two_side:
@@ -885,8 +891,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             props["IsInternal"] = is_internal
 
         if self.solution_type == "SBR+":
+            height_deviation = Quantity(height_deviation, self.modeler.model_units)
             props["SbrRoughSurfaceHeightStdDev"] = height_deviation
             props["SbrRoughSurfaceRoughess"] = roughness
+
         if not name:
             name = "Coating_" + listobjname[1:]
         return self._create_boundary(name, props, "Finite Conductivity")
