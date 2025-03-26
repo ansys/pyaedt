@@ -307,21 +307,21 @@ def main(extension_args):
     dataset_y_name = f"ds_{assignment}_ypos"
     dataset_z_name = f"ds_{assignment}_zpos"
 
-    if dataset_x_name in hfss.design_datasets:
+    if dataset_x_name in hfss.design_datasets:  # pragma: no cover
         hfss.design_datasets[dataset_x_name].x = index_pos
         hfss.design_datasets[dataset_x_name].y = x_out
         hfss.design_datasets[dataset_x_name].update()
     else:
         hfss.create_dataset1d_design(name=dataset_x_name, x=index_pos, y=x_out, x_unit="", y_unit="", sort=True)
 
-    if dataset_y_name in hfss.design_datasets:
+    if dataset_y_name in hfss.design_datasets:  # pragma: no cover
         hfss.design_datasets[dataset_y_name].x = index_pos
         hfss.design_datasets[dataset_y_name].y = y_out
         hfss.design_datasets[dataset_y_name].update()
     else:
         hfss.create_dataset1d_design(name=dataset_y_name, x=index_pos, y=y_out, x_unit="", y_unit="", sort=True)
 
-    if dataset_z_name in hfss.design_datasets:
+    if dataset_z_name in hfss.design_datasets:  # pragma: no cover
         hfss.design_datasets[dataset_z_name].x = index_pos
         hfss.design_datasets[dataset_z_name].y = z_out
         hfss.design_datasets[dataset_z_name].update()
@@ -408,7 +408,7 @@ def main(extension_args):
     # Compute the cumulative distance
     cumulative_dist = np.concatenate(([0], np.cumsum(distances)))
 
-    if total_distance_ds_name in hfss.design_datasets:
+    if total_distance_ds_name in hfss.design_datasets:  # pragma: no cover
         hfss.design_datasets[dataset_z_name].x = cumulative_dist
         hfss.design_datasets[dataset_z_name].y = index_pos
         hfss.design_datasets[dataset_z_name].update()

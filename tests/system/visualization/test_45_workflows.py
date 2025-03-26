@@ -659,19 +659,19 @@ class TestClass:
         aedtapp.close_project(aedtapp.project_name)
 
     def test_21_move_it(self, add_app, local_scratch):
-        aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="se")
+        from ansys.aedt.core.modeler.cad.object_3d import PolylineSegment
 
+        aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="move_it")
         aedtapp["p1"] = "100mm"
         aedtapp["p2"] = "71mm"
         test_points = [["0mm", "p1", "0mm"], ["-p1", "0mm", "0mm"], ["-p1/2", "-p1/2", "0mm"], ["0mm", "0mm", "0mm"]]
 
-        p2 = self.aedtapp.modeler.create_polyline(
+        p2 = aedtapp.modeler.create_polyline(
             points=test_points, segment_type=PolylineSegment("Spline", num_points=4), name="spline_4pt"
         )
 
         from ansys.aedt.core.workflows.hfss.move_it import main
 
-        # No choice
         assert main({"is_test": True, "choice": p2.name, "velocity": 1.4, "acceleration": 0, "delay": 0})
 
         aedtapp.close_project(aedtapp.project_name)
