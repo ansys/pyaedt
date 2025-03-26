@@ -913,7 +913,7 @@ class QExtractor(FieldAnalysis3D, object):
         >>> net = aedtapp.assign_net(box,"my_net")
         >>> source = aedtapp.assign_source_to_objectface(box.bottom_face_z.id, axisdir=0,
         ...     source_name="Source1", net_name=net.name)
-        >>> sink = aedtapp.assign_sink_to_objectface(box.top_face_z.id,direction=0,name="Sink1",net_name=net.name)
+        >>> sink = aedtapp.sink(box.top_face_z.id,direction=0,name="Sink1",net_name=net.name)
         >>> aedtapp["d"] = "20mm"
         >>> aedtapp.modeler.duplicate_along_line(objid="Box1",vector=[0, "d", 0])
         >>> mysetup = aedtapp.create_setup()
