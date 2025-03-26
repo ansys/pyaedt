@@ -394,3 +394,49 @@ class TestClass:
 
         with pytest.raises(AEDTRuntimeError):
             self.aedtapp.assign_finite_conductivity(["insulator2"])
+
+    def test_boundaries_layered_impedance(self):
+        self.aedtapp.insert_design("hfss_layered_impedance")
+        b = self.aedtapp.modeler.create_box([0, 0, 0], [10, 20, 30])
+
+        args = {
+            "material": ["aluminum", "vacuum"],
+            "thickness": ["0.5mm", "1mm"],
+            "is_two_side": False,
+            "is_shell_element": False,
+            "height_deviation": 1,
+            "roughness": 0.5,
+            "name": "b1",
+        }
+
+        coat = self.aedtapp.assign_layered_impedance([b.id, b.name, b.faces[0]], **args)
+        coat.name = "Coating1inner"
+        assert coat.update()
+        assert coat.properties
+        material = coat.props.get("Material", "")
+        assert material == "aluminum"
+
+        args = {
+            "material": None,
+            "use_thickness": False,
+            "thickness": "0.5mm",
+            "is_two_side": False,
+            "is_shell_element": False,
+            "use_huray": False,
+            "radius": "0.75um",
+            "ratio": "3",
+            "height_deviation": 1,
+            "roughness": 0.5,
+            "name": "b2",
+        }
+
+        coat2 = self.aedtapp.assign_finite_conductivity([b.id, b.name, b.faces[0]], **args)
+        assert (
+            coat2.properties["SBR+ Rough Surface Height Standard Deviation"] == f"1{self.aedtapp.modeler.model_units}"
+        )
+
+        with pytest.raises(AEDTRuntimeError):
+            self.aedtapp.assign_finite_conductivity([b.id, b.name, b.faces[0]], **args)
+
+        with pytest.raises(AEDTRuntimeError):
+            self.aedtapp.assign_finite_conductivity(["insulator2"])

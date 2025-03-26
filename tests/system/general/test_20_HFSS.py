@@ -157,6 +157,8 @@ class TestClass:
         o6 = self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.YZ, udp, 10, name="sheet1a")
         self.aedtapp.modeler.subtract(o6, "inner_1", keep_originals=True)
 
+        self.aedtapp.assign_finite_conductivity(material="aluminum", assignment="inner_1")
+
         port = self.aedtapp.wave_port(
             assignment=o6,
             reference=[outer_1.name],

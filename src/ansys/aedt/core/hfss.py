@@ -1049,6 +1049,133 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             raise AEDTRuntimeError(f"Boundary {name} already exists.")
         return self._create_boundary(name, props, "Perfect H")
 
+    @pyaedt_function_handler()
+    def assign_layered_impedance(
+        self,
+        assignment,
+        is_two_side=False,
+        material=None,
+        thickness=None,
+        is_infinite_ground=False,
+        is_shell_element=False,
+        roughness=0.0,
+        height_deviation=0.0,
+        name=None,
+    ):
+        """Assign finite conductivity to one or more objects or faces of a given material.
+
+        Parameters
+        ----------
+        assignment : str or list
+            One or more objects or faces to assign finite conductivity to.
+        is_two_side : bool, optional
+            Whether the finite conductivity is two-sided. The default is ``False``.
+        material : list or str, optional
+            Material of each layer. The default is ``None``.
+        thickness : float, optional
+            Thickness of each layer. The default is ``None``.
+        roughness : int, float or str, optional
+            Roughness value with units. The default is ``"0um"``.
+        is_infinite_ground : bool, optional
+            Whether the finite conductivity is an infinite ground. The default is ``False``.
+        is_shell_element : bool, optional
+            Whether the finite conductivity is a shell element.
+            The default is ``False``.
+        height_deviation : float, int or str, optional
+            Height standard deviation. This parameter is only valid in SBR+ designs. The default is ``0.0``.
+        name : str
+            Name of the boundary.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
+            Boundary object.
+
+        References
+        ----------
+        >>> oModule.AssignFiniteCond
+
+        Examples
+        --------
+
+        Create two cylinders in the XY working plane and assign a copper coating of 0.2 mm to the inner cylinder and
+        outer face.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> origin = hfss.modeler.Position(0, 0, 0)
+        >>> inner = hfss.modeler.create_cylinder(hfss.PLANE.XY,origin,3,200,0,"inner")
+        >>> outer = hfss.modeler.create_cylinder(hfss.PLANE.XY,origin,4,200,0,"outer")
+        >>> coat = hfss.assign_finite_conductivity(["inner", outer.faces[2].id], "copper", use_thickness=True,
+        ...                                         thickness="0.2mm")
+
+        """
+
+        userlst = self.modeler.convert_to_selections(assignment, True)
+        lstobj = []
+        lstface = []
+        for selection in userlst:
+            if selection in self.modeler.model_objects:
+                lstobj.append(selection)
+            elif isinstance(selection, int) and self.modeler._find_object_from_face_id(selection):
+                lstface.append(selection)
+
+        if not lstface and not lstobj:
+            raise AEDTRuntimeError("Objects or Faces selected do not exist in the design.")
+
+        listobjname = ""
+        props = {}
+        if lstobj:
+            listobjname = listobjname + "_" + "_".join(lstobj)
+            props["Objects"] = lstobj
+        if lstface:
+            props["Faces"] = lstface
+            lstface = [str(i) for i in lstface]
+            listobjname = listobjname + "_" + "_".join(lstface)
+
+        props["IsTwoSided"] = is_two_side
+        props["IsShellElement"] = is_shell_element
+        props["Frequency"] = "0GHz"
+
+        if is_two_side:
+            props["IsShellElement"] = is_shell_element
+        else:
+            if material is None:
+                material = ["vacuum"]
+            elif isinstance(material, str):
+                material = [material]
+
+            # if thickness is None: esto va arriba
+            #     thickness = ["1um"] * len(material)
+            # elif isinstance(thickness, (str, float, int)):
+            #     thickness = [Quantity(thickness, self.modeler.model_units)] * len(material)
+            # elif len(thickness) != len(material):
+            #     raise AttributeError("Thickness and material must have the same number of elements.")
+
+            cont = 1
+            layer = {}
+            for mat, thick in zip(material, thickness):
+                layer[f"Layer{cont}"] = {}
+                layer[f"Layer{cont}"]["LayerType"] = "Infinite"
+                layer[f"Layer{cont}"]["Thickness"] = "1um"
+                layer[f"Layer{cont}"]["Material"] = mat
+                cont += 1
+            props["Layers"] = layer
+
+        roughness = Quantity(roughness, self.modeler.model_units)
+
+        if self.solution_type == "SBR+":
+            height_deviation = Quantity(height_deviation, self.modeler.model_units)
+            props["SbrRoughSurfaceHeightStdDev"] = height_deviation
+            props["SbrRoughSurfaceRoughess"] = roughness
+            props["Roughness"] = "0um"
+        else:
+            props["Roughness"] = roughness
+            props["InfGroundPlane"] = is_infinite_ground
+        if not name:
+            name = "Coating_" + listobjname[1:]
+        return self._create_boundary(name, props, "Layered Impedance")
+
     @pyaedt_function_handler(
         startobj="assignment",
         endobj="reference",
