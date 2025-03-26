@@ -1900,3 +1900,16 @@ class TestClass:
         aedtapp = add_app(project_name="test_75", solution_type="SBR+")
         bound = aedtapp.insert_near_field_points(input_file=sample_points_file)
         assert bound
+
+    def test_76_boundaries(self):
+        self.aedtapp.insert_design("hfss_boundaries")
+        b = self.aedtapp.modeler.create_box([0, 0, 0], [10, 20, 30])
+
+        bound = self.aedtapp.assign_perfect_e(name="b1", assignment=b.faces[0], is_infinite_ground=True)
+        assert bound.properties["Inf Ground Plane"]
+
+        bound2 = self.aedtapp.assign_perfect_e(name="b2", assignment=[b, b.faces[0]])
+        assert not bound2.properties["Inf Ground Plane"]
+
+        with pytest.raises(AEDTRuntimeError):
+            self.aedtapp.assign_perfect_e(name="b1", assignment=[b, b.faces[0]])

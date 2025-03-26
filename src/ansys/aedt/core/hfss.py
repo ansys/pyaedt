@@ -891,6 +891,83 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             name = "Coating_" + listobjname[1:]
         return self._create_boundary(name, props, "Finite Conductivity")
 
+    @pyaedt_function_handler()
+    def assign_perfect_e(
+        self,
+        assignment,
+        is_infinite_ground=False,
+        height_deviation=0.0,
+        roughness=0.0,
+        name=None,
+    ):
+        """Assign perfect electric boundary to one or more objects or faces.
+
+        Parameters
+        ----------
+        assignment : str or list
+            One or more objects or faces to assign finite conductivity to.
+        is_infinite_ground : bool, optional
+            Whether the boundary is an infinite ground. The default is ``False``.
+        height_deviation : float, int or str, optional
+            Surface height standard deviation. This parameter is only valid in SBR+ designs. The default is ``0.0``.
+        roughness : float, optional
+            Surface roughness. This parameter is only valid in SBR+ designs. The default is ``0.0``.
+        name : str
+            Name of the boundary.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
+            Boundary object.
+
+        References
+        ----------
+        >>> oModule.PerfectE
+
+        Examples
+        --------
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> origin = hfss.modeler.Position(0, 0, 0)
+        >>> inner = hfss.modeler.create_cylinder(hfss.PLANE.XY, origin,3, 200, 0, "inner")
+        >>> coat = hfss.assign_perfect_e(["inner", outer.faces[2].id])
+        """
+
+        userlst = self.modeler.convert_to_selections(assignment, True)
+        lstobj = []
+        lstface = []
+        for selection in userlst:
+            if selection in self.modeler.model_objects:
+                lstobj.append(selection)
+            elif isinstance(selection, int) and self.modeler._find_object_from_face_id(selection):
+                lstface.append(selection)
+
+        if not lstface and not lstobj:
+            raise AEDTRuntimeError("Objects or Faces selected do not exist in the design.")
+
+        listobjname = ""
+        props = {}
+        if lstobj:
+            listobjname = listobjname + "_" + "_".join(lstobj)
+            props["Objects"] = lstobj
+        if lstface:
+            props["Faces"] = lstface
+            lstface = [str(i) for i in lstface]
+            listobjname = listobjname + "_" + "_".join(lstface)
+
+        if self.solution_type == "SBR+":
+            height_deviation = Quantity(height_deviation, self.modeler.model_units)
+            props["SbrRoughSurfaceHeightStdDev"] = height_deviation
+            props["SbrRoughSurfaceRoughess"] = roughness
+        else:
+            props["InfGroundPlane"] = is_infinite_ground
+        if not name:
+            name = "PerfectE_" + listobjname[1:]
+        if name in self.boundaries:
+            raise AEDTRuntimeError(f"Boundary {name} already exists.")
+        return self._create_boundary(name, props, "Perfect E")
+
     @pyaedt_function_handler(
         startobj="assignment",
         endobj="reference",
@@ -1035,6 +1112,103 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         elif name in self.modeler.get_boundaries_name():
             name = generate_unique_name(name)
         return self.create_boundary(self.BoundaryType.PerfectH, sheet_name, name)
+
+    @pyaedt_function_handler(sheet_list="assignment", sourcename="name", is_infinite_gnd="is_infinite_ground")
+    def assign_perfecte_to_sheets(self, assignment, name=None, is_infinite_ground=False):
+        """Create a Perfect E taking one sheet.
+
+        Parameters
+        ----------
+        assignment : str or list
+            One or more names of the sheets to apply the boundary to.
+        name : str, optional
+            Name of the Perfect E source. The default is ``None``.
+        is_infinite_ground : bool, optional
+            Whether the Perfect E is an infinite ground. The default is ``False``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
+            Boundary object.
+
+        References
+        ----------
+        >>> oModule.AssignPerfectE
+
+        Examples
+        --------
+
+        Create a sheet and use it to create a Perfect E.
+
+        >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY, [0, 0, -90],
+        ...                                       [10, 2], name="PerfectESheet", material="Copper")
+        >>> perfect_e_from_sheet = hfss.assign_perfecte_to_sheets(sheet.name,"PerfectEFromSheet")
+        >>> type(perfect_e_from_sheet)
+        <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
+
+        """
+        if self.solution_type not in (
+            SOLUTIONS.Hfss.DrivenModal,
+            SOLUTIONS.Hfss.DrivenTerminal,
+            SOLUTIONS.Hfss.Transient,
+            SOLUTIONS.Hfss.SBR,
+            SOLUTIONS.Hfss.EigenMode,
+        ):
+            raise AEDTRuntimeError("Invalid solution type.")
+
+        assignment = self.modeler.convert_to_selections(assignment, True)
+        if not name:
+            name = generate_unique_name("PerfE")
+        elif name in self.modeler.get_boundaries_name():
+            name = generate_unique_name(name)
+        return self.create_boundary(self.BoundaryType.PerfectE, assignment, name, is_infinite_ground)
+
+    @pyaedt_function_handler(sheet_list="assignment", sourcename="name")
+    def assign_perfecth_to_sheets(self, assignment, name=None):
+        """Assign a Perfect H to sheets.
+
+        Parameters
+        ----------
+        assignment : list
+            List of sheets to apply the boundary to.
+        name : str, optional
+            Perfect H name. The default is ``None``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
+            Boundary object.
+
+        References
+        ----------
+        >>> oModule.AssignPerfectH
+
+        Examples
+        --------
+
+        Create a sheet and use it to create a Perfect H.
+
+        >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY, [0, 0, -90],
+        ...                                       [10, 2], name="PerfectHSheet", material="Copper")
+        >>> perfect_h_from_sheet = hfss.assign_perfecth_to_sheets(sheet.name,"PerfectHFromSheet")
+        >>> type(perfect_h_from_sheet)
+        <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
+
+        """
+        if self.solution_type not in (
+            SOLUTIONS.Hfss.DrivenModal,
+            SOLUTIONS.Hfss.DrivenTerminal,
+            SOLUTIONS.Hfss.Transient,
+            SOLUTIONS.Hfss.SBR,
+            SOLUTIONS.Hfss.EigenMode,
+        ):
+            raise AEDTRuntimeError("Invalid solution type.")
+
+        if not name:
+            name = generate_unique_name("PerfH")
+        elif name in self.modeler.get_boundaries_name():
+            name = generate_unique_name(name)
+        return self.create_boundary(self.BoundaryType.PerfectH, assignment, name)
 
     @pyaedt_function_handler(
         startobj="start_assignment",
@@ -1195,103 +1369,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         else:
             return None
         return self._create_boundary(name, props, boundary_type)
-
-    @pyaedt_function_handler(sheet_list="assignment", sourcename="name", is_infinite_gnd="is_infinite_ground")
-    def assign_perfecte_to_sheets(self, assignment, name=None, is_infinite_ground=False):
-        """Create a Perfect E taking one sheet.
-
-        Parameters
-        ----------
-        assignment : str or list
-            One or more names of the sheets to apply the boundary to.
-        name : str, optional
-            Name of the Perfect E source. The default is ``None``.
-        is_infinite_ground : bool, optional
-            Whether the Perfect E is an infinite ground. The default is ``False``.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
-            Boundary object.
-
-        References
-        ----------
-        >>> oModule.AssignPerfectE
-
-        Examples
-        --------
-
-        Create a sheet and use it to create a Perfect E.
-
-        >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY, [0, 0, -90],
-        ...                                       [10, 2], name="PerfectESheet", material="Copper")
-        >>> perfect_e_from_sheet = hfss.assign_perfecte_to_sheets(sheet.name,"PerfectEFromSheet")
-        >>> type(perfect_e_from_sheet)
-        <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
-
-        """
-        if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
-            SOLUTIONS.Hfss.SBR,
-            SOLUTIONS.Hfss.EigenMode,
-        ):
-            raise AEDTRuntimeError("Invalid solution type.")
-
-        assignment = self.modeler.convert_to_selections(assignment, True)
-        if not name:
-            name = generate_unique_name("PerfE")
-        elif name in self.modeler.get_boundaries_name():
-            name = generate_unique_name(name)
-        return self.create_boundary(self.BoundaryType.PerfectE, assignment, name, is_infinite_ground)
-
-    @pyaedt_function_handler(sheet_list="assignment", sourcename="name")
-    def assign_perfecth_to_sheets(self, assignment, name=None):
-        """Assign a Perfect H to sheets.
-
-        Parameters
-        ----------
-        assignment : list
-            List of sheets to apply the boundary to.
-        name : str, optional
-            Perfect H name. The default is ``None``.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
-            Boundary object.
-
-        References
-        ----------
-        >>> oModule.AssignPerfectH
-
-        Examples
-        --------
-
-        Create a sheet and use it to create a Perfect H.
-
-        >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY, [0, 0, -90],
-        ...                                       [10, 2], name="PerfectHSheet", material="Copper")
-        >>> perfect_h_from_sheet = hfss.assign_perfecth_to_sheets(sheet.name,"PerfectHFromSheet")
-        >>> type(perfect_h_from_sheet)
-        <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
-
-        """
-        if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
-            SOLUTIONS.Hfss.SBR,
-            SOLUTIONS.Hfss.EigenMode,
-        ):
-            raise AEDTRuntimeError("Invalid solution type.")
-
-        if not name:
-            name = generate_unique_name("PerfH")
-        elif name in self.modeler.get_boundaries_name():
-            name = generate_unique_name(name)
-        return self.create_boundary(self.BoundaryType.PerfectH, assignment, name)
 
     # Radiation and Hybrid
     @pyaedt_function_handler(obh_names="assignment", boundary_name="name")
