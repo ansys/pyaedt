@@ -257,7 +257,7 @@ class QExtractor(FieldAnalysis3D, object):
         """
         if not output_file:
             output_file = Path(self.working_directory) / "meshstats.ms"
-        self.odesign.ExportMeshStats(setup, variations, setup_type, output_file)
+        self.odesign.ExportMeshStats(setup, variations, setup_type, str(output_file))
         return str(output_file)
 
     @pyaedt_function_handler()
