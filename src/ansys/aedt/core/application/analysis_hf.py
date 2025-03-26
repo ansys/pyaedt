@@ -169,13 +169,14 @@ class ScatteringMethods(object):
                                 spar.append(f"S({x1},{y1})")
                             break
         else:
-            for i, j in zip(drivers, receivers):
-                if i == j:
-                    continue
-                if math_formula:
-                    spar.append(f"{math_formula}(S({i},{j}))")
-                else:
-                    spar.append(f"S({i},{j})")
+            for i in drivers:
+                for j in receivers:
+                    if i == j:
+                        continue
+                    if math_formula:
+                        spar.append(f"{math_formula}(S({i},{j}))")
+                    else:
+                        spar.append(f"S({i},{j})")
         return spar
 
     @pyaedt_function_handler(trlist="drivers", tx_prefix="drivers_prefix_name", net_list="nets")
