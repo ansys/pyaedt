@@ -162,7 +162,7 @@ class ScatteringMethods(object):
                 y = [i for i in receivers if el in i]
                 for x1 in x:
                     for y1 in y:
-                        if x1[-2:] == y1[-2:]:
+                        if x1[-2:] == y1[-2:] and x1 != y1:
                             if math_formula:
                                 spar.append(f"{math_formula}(S({x1},{y1}))")
                             else:
@@ -170,6 +170,8 @@ class ScatteringMethods(object):
                             break
         else:
             for i, j in zip(drivers, receivers):
+                if i == j:
+                    continue
                 if math_formula:
                     spar.append(f"{math_formula}(S({i},{j}))")
                 else:
