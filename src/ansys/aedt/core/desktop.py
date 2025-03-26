@@ -38,6 +38,7 @@ import pkgutil
 import re
 import shutil
 import socket
+import subprocess  # nosec
 import sys
 import tempfile
 import time
@@ -45,40 +46,31 @@ import traceback
 from typing import Union
 import warnings
 
-from ansys.aedt.core import __version__ as pyaedt_version
+from ansys.aedt.core import __version__
 from ansys.aedt.core.aedt_logger import AedtLogger
 from ansys.aedt.core.aedt_logger import pyaedt_logger
-from ansys.aedt.core.generic.file_utils import generate_unique_name
-from ansys.aedt.core.generic.general_methods import is_linux
-from ansys.aedt.core.generic.general_methods import is_windows
-from ansys.aedt.core.internal.checks import min_aedt_version
-from ansys.aedt.core.internal.errors import AEDTRuntimeError
-import grpc
-
-if is_linux:
-    os.environ["ANS_NODEPCHECK"] = str(1)
-
-import subprocess  # nosec
-
-from ansys.aedt.core import __version__
 from ansys.aedt.core.generic.file_utils import available_license_feature
+from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import active_sessions
 from ansys.aedt.core.generic.general_methods import com_active_sessions
 from ansys.aedt.core.generic.general_methods import get_string_version
 from ansys.aedt.core.generic.general_methods import grpc_active_sessions
 from ansys.aedt.core.generic.general_methods import inside_desktop
+from ansys.aedt.core.generic.general_methods import is_linux
+from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import Settings
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
+from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 from ansys.aedt.core.internal.desktop_sessions import _edb_sessions
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
+import grpc
 
 pathname = Path(__file__)
-
 pyaedtversion = __version__
-
 modules = [tup[1] for tup in pkgutil.iter_modules()]
 
 
@@ -97,35 +89,32 @@ def launch_aedt(
 ):  # pragma: no cover
     """Launch AEDT in gRPC mode."""
 
-    def launch_desktop_on_port():
-        full_path = Path(full_path)
-        if not full_path.exists() or not full_path.name.lower() in {
-            "ansysedt",
-            "ansysedtsv",
-            "ansysedtsv.exe",
-            "ansysedt.exe",
-        }:
-            raise ValueError(f"The file {full_path} is not a valid executable.")
-        _check_port(port)
+    full_path = Path(full_path)
+    if not full_path.exists() or not full_path.name.lower() in {
+        "ansysedt",
+        "ansysedtsv",
+        "ansysedtsv.exe",
+        "ansysedt.exe",
+    }:
+        raise ValueError(f"The path {full_path} is not a valid executable.")
+    _check_port(port)
 
-        command = [str(full_path), "-grpcsrv", str(port)]
-        if non_graphical:
-            command.append("-ng")
-        if settings.wait_for_license:
-            command.append("-waitforlicense")
-        if settings.aedt_log_file:
-            command.extend(["-Logfile", settings.aedt_log_file])
+    command = [str(full_path), "-grpcsrv", str(port)]
+    if non_graphical:
+        command.append("-ng")
+    if settings.wait_for_license:
+        command.append("-waitforlicense")
+    if settings.aedt_log_file:
+        command.extend(["-Logfile", settings.aedt_log_file])
 
-        kwargs = {
-            "stdin": subprocess.DEVNULL,
-            "stdout": subprocess.DEVNULL,
-            "stderr": subprocess.DEVNULL,
-        }
-        if is_windows:
-            kwargs["creationflags"] = subprocess.DETACHED_PROCESS
-        subprocess.Popen(command, **kwargs)  # nosec
-
-    launch_desktop_on_port()
+    kwargs = {
+        "stdin": subprocess.DEVNULL,
+        "stdout": subprocess.DEVNULL,
+        "stderr": subprocess.DEVNULL,
+    }
+    if is_windows:
+        kwargs["creationflags"] = subprocess.DETACHED_PROCESS
+    subprocess.Popen(command, **kwargs)  # nosec
 
     on_ci = os.getenv("ON_CI", "False")
     if not student_version and on_ci != "True" and not settings.skip_license_check:
@@ -205,7 +194,7 @@ def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
     try:
         p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)  # nosec
     except FileNotFoundError as e:
-        raise AEDTRuntimeError("Failed to start AEDT in LSF. Check the LSF configuration.") from e
+        raise AEDTRuntimeError("Failed to start AEDT in LSF. Check the LSF configuration settings.") from e
 
     timeout = settings.lsf_timeout
     i = 0
@@ -300,28 +289,6 @@ def exception_to_desktop(ex_value, tb_data):  # pragma: no cover
         pyaedt_logger.error(el)
 
 
-def run_process(command, bufsize=None):  # pragma no cover
-    """Run a process with a subprocess.
-
-    Parameters
-    ----------
-    command : str
-        Command to execute.
-    bufsize : int, optional
-        Buffer size. The default is ``None``.
-
-    """
-    warnings.warn(
-        "This method is deprecated. Please, directly use subprocess if required.",
-        DeprecationWarning,
-    )
-
-    if bufsize:
-        return subprocess.call(command, bufsize=bufsize)  # nosec
-    else:
-        return subprocess.call(command)  # nosec
-
-
 def is_student_version(oDesktop):
     edt_root = Path(oDesktop.GetExeDir())
     if is_windows and Path(edt_root).is_dir():
@@ -408,7 +375,7 @@ class Desktop(object):
         aedt_process_id = kwargs.get("aedt_process_id") or None if (not args or len(args) < 8) else args[7]
         if not settings.remote_api:
             pyaedt_logger.info(f"Python version {sys.version}.")
-        pyaedt_logger.info(f"PyAEDT version {pyaedt_version}.")
+        pyaedt_logger.info(f"PyAEDT version {__version__}.")
         if settings.use_multi_desktop and not inside_desktop and new_desktop:
             pyaedt_logger.info("Initializing new Desktop session.")
             return object.__new__(cls)
@@ -1823,7 +1790,7 @@ class Desktop(object):
         if job_name:
             command += ["jobinfo", "-j", job_name]
         elif job_id:
-            command = +["jobinfo", "-i", job_id]
+            command += ["jobinfo", "-i", job_id]
         cloud_info = Path(tempfile.gettempdir()) / generate_unique_name("job_info")
 
         try:
@@ -2035,7 +2002,7 @@ class Desktop(object):
 
     def __init_desktop(self):
         # run it after the settings.non_graphical is set
-        self.pyaedt_version = pyaedtversion
+        self.pyaedt_version = __version__
         settings.aedt_version = self.odesktop.GetVersion()[0:6]
         self.odesktop.RestoreWindow()
         settings.aedt_install_dir = self.odesktop.GetExeDir()
@@ -2095,7 +2062,7 @@ class Desktop(object):
         if not executable.exists():
             raise FileNotFoundError(f"Student version executable {executable} not found")
         pid = subprocess.Popen([executable], creationflags=subprocess.DETACHED_PROCESS)  # nosec
-        self.logger.debug(f"Running Electronic Desktop Student Version with PID {pid}")
+        self.logger.debug(f"Running Electronic Desktop Student Version with PID {pid}.")
         time.sleep(5)
 
     def __dispatch_win32(self, version):  # pragma: no cover
