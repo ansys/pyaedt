@@ -133,9 +133,9 @@ class TestClass:
         assert len(aedtapp.get_all_sparameter_list) == 3
         assert len(aedtapp.get_all_return_loss_list()) == 2
         assert len(aedtapp.get_all_return_loss_list(math_formula="abs")) == 2
-        assert len(aedtapp.get_all_insertion_loss_list()) == 2
-        assert len(aedtapp.get_all_insertion_loss_list(math_formula="abs")) == 2
-        assert len(aedtapp.get_all_insertion_loss_list(math_formula="abs", nets="ive")) == 2
+        assert len(aedtapp.get_all_insertion_loss_list()) == 1
+        assert len(aedtapp.get_all_insertion_loss_list(math_formula="abs")) == 1
+        assert len(aedtapp.get_all_insertion_loss_list(math_formula="abs", nets="ive")) == 1
         assert len(aedtapp.get_next_xtalk_list()) == 1
         assert len(aedtapp.get_next_xtalk_list(math_formula="abs")) == 1
         assert len(aedtapp.get_fext_xtalk_list()) == 2

@@ -163,9 +163,13 @@ class ScatteringMethods(object):
                 for x1 in x:
                     for y1 in y:
                         if x1[-2:] == y1[-2:] and x1 != y1:
-                            if math_formula:
+                            if (
+                                math_formula
+                                and f"{math_formula}(S({x1},{y1}))" not in spar
+                                and f"{math_formula}(S({y1},{x1}))" not in spar
+                            ):
                                 spar.append(f"{math_formula}(S({x1},{y1}))")
-                            else:
+                            elif not math_formula and f"S({y1},{x1})" not in spar and f"S({x1},{y1})" not in spar:
                                 spar.append(f"S({x1},{y1})")
                             break
         else:
@@ -173,9 +177,13 @@ class ScatteringMethods(object):
                 for j in receivers:
                     if i == j:
                         continue
-                    if math_formula:
+                    if (
+                        math_formula
+                        and f"{math_formula}(S({j},{i}))" not in spar
+                        and f"{math_formula}(S({i},{j}))" not in spar
+                    ):
                         spar.append(f"{math_formula}(S({i},{j}))")
-                    else:
+                    elif not math_formula and f"S({i},{j})" not in spar and f"S({j},{i})" not in spar:
                         spar.append(f"S({i},{j})")
         return spar
 
