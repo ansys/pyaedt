@@ -150,7 +150,7 @@ They are small automated workflows with a simple GUI.
             :link-type: doc
             :margin: 2 2 0 0
 
-            Generate object- and surface-conforming point clouds.
+            Generate object and surface conforming point clouds.
 
 
 Icepak extensions
