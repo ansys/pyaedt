@@ -311,7 +311,7 @@ class TestClass:
         plotter.plot_rays(os.path.join(self.local_scratch.path, "bounce2.jpg"))
         assert os.path.exists(os.path.join(self.local_scratch.path, "bounce2.jpg"))
 
-    def test_18_boundary_perfect_e(self):
+    def test_17_boundary_perfect_e(self):
         self.aedtapp.insert_design("sbr_boundaries_perfect_e")
         b = self.aedtapp.modeler.create_box([0, 0, 0], [10, 20, 30])
         model_units = self.aedtapp.modeler.model_units
@@ -325,7 +325,21 @@ class TestClass:
         with pytest.raises(AEDTRuntimeError):
             self.aedtapp.assign_perfect_e(name="b1", assignment=[b, b.faces[0]], height_deviation="3mm")
 
-    def test_19_boundaries_perfect_h(self):
+    def test_18_boundary_perfect_h(self):
+        self.aedtapp.insert_design("sbr_boundaries_perfect_h")
+        b = self.aedtapp.modeler.create_box([0, 0, 0], [10, 20, 30])
+        model_units = self.aedtapp.modeler.model_units
+
+        bound = self.aedtapp.assign_perfect_h(name="b1", assignment=[b, b.faces[0]], height_deviation=2, roughness=0.4)
+        assert bound.properties["SBR+ Rough Surface Height Standard Deviation"] == f"2{model_units}"
+
+        bound2 = self.aedtapp.assign_perfect_h(assignment=[b, b.faces[0]], height_deviation="3mm")
+        assert bound2.properties["SBR+ Rough Surface Height Standard Deviation"] == f"3mm"
+
+        with pytest.raises(AEDTRuntimeError):
+            self.aedtapp.assign_perfect_h(name="b1", assignment=[b, b.faces[0]], height_deviation="3mm")
+
+    def test_19_boundaries_finite_conductivity(self):
         self.aedtapp.insert_design("sbr_boundaries")
 
         # Finite Conductivity

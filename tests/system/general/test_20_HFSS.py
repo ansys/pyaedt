@@ -1901,8 +1901,8 @@ class TestClass:
         bound = aedtapp.insert_near_field_points(input_file=sample_points_file)
         assert bound
 
-    def test_76_boundaries(self):
-        self.aedtapp.insert_design("hfss_boundaries")
+    def test_76_perfect_e(self):
+        self.aedtapp.insert_design("hfss_perfect_e")
         b = self.aedtapp.modeler.create_box([0, 0, 0], [10, 20, 30])
 
         bound = self.aedtapp.assign_perfect_e(name="b1", assignment=b.faces[0], is_infinite_ground=True)
@@ -1913,3 +1913,12 @@ class TestClass:
 
         with pytest.raises(AEDTRuntimeError):
             self.aedtapp.assign_perfect_e(name="b1", assignment=[b, b.faces[0]])
+
+    def test_77_perfect_h(self):
+        self.aedtapp.insert_design("hfss_perfect_h")
+        b = self.aedtapp.modeler.create_box([0, 0, 0], [10, 20, 30])
+
+        assert self.aedtapp.assign_perfect_h(name="b1", assignment=[b, b.faces[0]])
+
+        with pytest.raises(AEDTRuntimeError):
+            self.aedtapp.assign_perfect_h(name="b1", assignment=[b, b.faces[0]], height_deviation="3mm")

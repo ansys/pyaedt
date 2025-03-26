@@ -912,8 +912,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             Surface height standard deviation. This parameter is only valid in SBR+ designs. The default is ``0.0``.
         roughness : float, optional
             Surface roughness. This parameter is only valid in SBR+ designs. The default is ``0.0``.
-        name : str
-            Name of the boundary.
+        name : str, optional
+            Name of the boundary. . The default is ``None``.
 
         Returns
         -------
@@ -967,6 +967,79 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         if name in self.boundaries:
             raise AEDTRuntimeError(f"Boundary {name} already exists.")
         return self._create_boundary(name, props, "Perfect E")
+
+    @pyaedt_function_handler()
+    def assign_perfect_h(
+        self,
+        assignment,
+        height_deviation=0.0,
+        roughness=0.0,
+        name=None,
+    ):
+        """Assign perfect magnetic boundary to one or more objects or faces.
+
+        Parameters
+        ----------
+        assignment : str or list
+            One or more objects or faces to assign finite conductivity to.
+        height_deviation : float, int or str, optional
+            Surface height standard deviation. This parameter is only valid in SBR+ designs. The default is ``0.0``.
+        roughness : float, optional
+            Surface roughness. This parameter is only valid in SBR+ designs. The default is ``0.0``.
+        name : str, optional
+            Name of the boundary. . The default is ``None``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
+            Boundary object.
+
+        References
+        ----------
+        >>> oModule.PerfectH
+
+        Examples
+        --------
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> origin = hfss.modeler.Position(0, 0, 0)
+        >>> inner = hfss.modeler.create_cylinder(hfss.PLANE.XY, origin,3, 200, 0, "inner")
+        >>> coat = hfss.assign_perfect_h(["inner", outer.faces[2].id])
+        """
+
+        userlst = self.modeler.convert_to_selections(assignment, True)
+        lstobj = []
+        lstface = []
+        for selection in userlst:
+            if selection in self.modeler.model_objects:
+                lstobj.append(selection)
+            elif isinstance(selection, int) and self.modeler._find_object_from_face_id(selection):
+                lstface.append(selection)
+
+        if not lstface and not lstobj:
+            raise AEDTRuntimeError("Objects or Faces selected do not exist in the design.")
+
+        listobjname = ""
+        props = {}
+        if lstobj:
+            listobjname = listobjname + "_" + "_".join(lstobj)
+            props["Objects"] = lstobj
+        if lstface:
+            props["Faces"] = lstface
+            lstface = [str(i) for i in lstface]
+            listobjname = listobjname + "_" + "_".join(lstface)
+
+        if self.solution_type == "SBR+":
+            height_deviation = Quantity(height_deviation, self.modeler.model_units)
+            props["SbrRoughSurfaceHeightStdDev"] = height_deviation
+            props["SbrRoughSurfaceRoughess"] = roughness
+
+        if not name:
+            name = "PerfectH_" + listobjname[1:]
+        if name in self.boundaries:
+            raise AEDTRuntimeError(f"Boundary {name} already exists.")
+        return self._create_boundary(name, props, "Perfect H")
 
     @pyaedt_function_handler(
         startobj="assignment",
@@ -1041,7 +1114,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             name = generate_unique_name("PerfE")
         elif name in self.modeler.get_boundaries_name():
             name = generate_unique_name(name)
-        return self.create_boundary(self.BoundaryType.PerfectE, sheet_name, name, is_infinite_ground)
+        return self.assign_perfect_e(assignment=sheet_name, name=name, is_infinite_ground=is_infinite_ground)
 
     @pyaedt_function_handler(
         startobj="assignment",
@@ -1111,7 +1184,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             name = generate_unique_name("PerfH")
         elif name in self.modeler.get_boundaries_name():
             name = generate_unique_name(name)
-        return self.create_boundary(self.BoundaryType.PerfectH, sheet_name, name)
+        return self.assign_perfect_h(assignment=sheet_name, name=name)
 
     @pyaedt_function_handler(sheet_list="assignment", sourcename="name", is_infinite_gnd="is_infinite_ground")
     def assign_perfecte_to_sheets(self, assignment, name=None, is_infinite_ground=False):
@@ -1161,7 +1234,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             name = generate_unique_name("PerfE")
         elif name in self.modeler.get_boundaries_name():
             name = generate_unique_name(name)
-        return self.create_boundary(self.BoundaryType.PerfectE, assignment, name, is_infinite_ground)
+        return self.assign_perfect_e(assignment=assignment, name=name, is_infinite_ground=is_infinite_ground)
 
     @pyaedt_function_handler(sheet_list="assignment", sourcename="name")
     def assign_perfecth_to_sheets(self, assignment, name=None):
@@ -1208,7 +1281,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             name = generate_unique_name("PerfH")
         elif name in self.modeler.get_boundaries_name():
             name = generate_unique_name(name)
-        return self.create_boundary(self.BoundaryType.PerfectH, assignment, name)
+        return self.assign_perfect_h(assignment=assignment, name=name)
 
     @pyaedt_function_handler(
         startobj="start_assignment",
