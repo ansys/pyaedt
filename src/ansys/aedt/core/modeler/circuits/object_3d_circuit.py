@@ -91,9 +91,7 @@ class CircuitPins(object):
         for net in self._circuit_comp._circuit_components.nets:
             conns = self._oeditor.GetNetConnections(net)
             for conn in conns:
-                if conn.endswith(self.name) and (
-                    f";{self._circuit_comp.id};" in conn or f";{self._circuit_comp.id} " in conn
-                ):
+                if self._circuit_comp.composed_name in conn and conn.endswith(" " + self.name):
                     return net
         return ""
 
@@ -276,6 +274,13 @@ class CircuitPins(object):
         if page_name is None:
             page_name = f"{self._circuit_comp.composed_name.replace('CompInst@', '').replace(';', '_')}_{self.name}"
 
+        if (
+            len(assignment) == 1
+            and (abs(self.location[1] - assignment[0].location[1]) + abs(self.location[0] - assignment[0].location[0]))
+            < 0.01524
+        ):
+            self._circuit_comp._circuit_components.create_wire([self.location, assignment[0].location], name=page_name)
+            return True
         if "Port" in self._circuit_comp.composed_name:
             try:
                 page_name = self._circuit_comp.name.split("@")[1].replace(";", "_")
@@ -291,33 +296,16 @@ class CircuitPins(object):
                         self._component._circuit_components.logger.debug(
                             "Cannot parse page name from circuit component name"
                         )
-        try:
-            x_loc = AEDT_UNITS["Length"][decompose_variable_value(self._circuit_comp.location[0])[1]] * float(
-                decompose_variable_value(self._circuit_comp.location[1])[0]
-            )
-        except Exception:
-            x_loc = float(self._circuit_comp.location[0])
-        if page_port_angle is not None:
-            angle = page_port_angle * math.pi / 180
-        elif self.location[0] < x_loc:
-            angle = comp_angle
+        if self.location[0] > self._circuit_comp.location[0]:
+            angle = 180
         else:
-            angle = math.pi + comp_angle
+            angle = 0
         ret1 = self._circuit_comp._circuit_components.create_page_port(page_name, self.location, angle=angle)
         for cmp in assignment:
-            try:
-                x_loc = AEDT_UNITS["Length"][decompose_variable_value(cmp._circuit_comp.location[0])[1]] * float(
-                    decompose_variable_value(cmp._circuit_comp.location[0])[0]
-                )
-            except Exception:
-                x_loc = float(cmp._circuit_comp.location[0])
-            comp_pin_angle = cmp._circuit_comp.angle * math.pi / 180
-            if len(cmp._circuit_comp.pins) == 2:
-                comp_pin_angle += math.pi / 2
-            if cmp.location[0] < x_loc:
-                angle = comp_pin_angle
+            if cmp.location[0] > cmp._circuit_comp.location[0]:
+                angle = 180
             else:
-                angle = math.pi + comp_pin_angle
+                angle = 0
             ret2 = self._circuit_comp._circuit_components.create_page_port(
                 page_name, location=cmp.location, angle=angle
             )

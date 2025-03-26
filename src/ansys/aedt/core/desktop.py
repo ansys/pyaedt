@@ -82,10 +82,19 @@ pyaedtversion = __version__
 modules = [tup[1] for tup in pkgutil.iter_modules()]
 
 
+def grpc_server_on(channel, timeout_sec=5) -> bool:
+    try:
+        grpc_channel = grpc.insecure_channel(channel)
+        grpc.channel_ready_future(grpc_channel).result(timeout_sec)
+        return True
+    except grpc.FutureTimeoutError:  # pragma: no cover
+        return False
+
+
 @pyaedt_function_handler()
 def launch_aedt(
     full_path: Union[str, Path], non_graphical: bool, port: int, student_version: bool, first_run: bool = True
-):
+):  # pragma: no cover
     """Launch AEDT in gRPC mode."""
 
     def launch_desktop_on_port():
@@ -106,12 +115,8 @@ def launch_aedt(
             command.append("-waitforlicense")
         if settings.aedt_log_file:
             command.extend(["-Logfile", settings.aedt_log_file])
-        my_env = os.environ.copy()
-        for env, val in settings.aedt_environment_variables.items():
-            my_env[env] = val
 
         kwargs = {
-            "env": my_env,
             "stdin": subprocess.DEVNULL,
             "stdout": subprocess.DEVNULL,
             "stderr": subprocess.DEVNULL,
@@ -120,11 +125,8 @@ def launch_aedt(
             kwargs["creationflags"] = subprocess.DETACHED_PROCESS
         subprocess.Popen(command, **kwargs)  # nosec
 
-    import threading
+    launch_desktop_on_port()
 
-    _aedt_process_thread = threading.Thread(target=launch_desktop_on_port)
-    _aedt_process_thread.daemon = True
-    _aedt_process_thread.start()
     on_ci = os.getenv("ON_CI", "False")
     if not student_version and on_ci != "True" and not settings.skip_license_check:
         available_licenses = available_license_feature()

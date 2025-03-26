@@ -234,6 +234,8 @@ class PostProcessor3D(PostProcessorCommon):
                 elif k in ["Phase", "phase"]:
                     intrinsics["Phase"] = v
                 elif k in ["Time", "time"]:
+                    if self._app.solution_type == "SteadyState":
+                        continue
                     intrinsics["Time"] = v
                 if input_phase:
                     intrinsics["Phase"] = input_phase
@@ -870,7 +872,7 @@ class PostProcessor3D(PostProcessorCommon):
         >>>                                     )
         """
         intrinsics = self._check_intrinsics(intrinsics, phase, solution, return_list=True)
-        self.logger.info("Exporting %s field. Be patient", quantity)
+        self.logger.info(f"Exporting '{quantity}' field. Please be patient.")
         if not solution:
             if not self._app.existing_analysis_sweeps:
                 self.logger.error("There are no existing sweeps.")

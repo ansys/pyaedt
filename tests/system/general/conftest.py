@@ -215,6 +215,7 @@ def add_app(local_scratch):
             "design": design_name,
             "version": desktop_version,
             "non_graphical": NONGRAPHICAL,
+            "remove_lock": True,
         }
         if solution_type:
             args["solution_type"] = solution_type

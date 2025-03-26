@@ -3418,8 +3418,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
             },
             "SchematicData": ({}),
         }
-
-        self.modeler.primitives[object_name].material_name = "Ceramic_material"
         bound = self._create_boundary(object_name, props, "Network")
         return bound
 
