@@ -1875,7 +1875,7 @@ class Maxwell(CreateBoundaryMixin):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if self.solution_type != SOLUTIONS.Maxwell3d.TransientAPhiFormulation:
+        if self.solution_type not in [SOLUTIONS.Maxwell3d.TransientAPhiFormulation, SOLUTIONS.Maxwell3d.TransientAPhi]:
             raise AEDTRuntimeError("This methods work only with Maxwell TransientAPhiFormulation Analysis.")
 
         args = [
