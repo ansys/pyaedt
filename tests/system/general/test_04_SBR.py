@@ -310,3 +310,15 @@ class TestClass:
         assert plotter
         plotter.plot_rays(os.path.join(self.local_scratch.path, "bounce2.jpg"))
         assert os.path.exists(os.path.join(self.local_scratch.path, "bounce2.jpg"))
+
+    def test_18_boundaries(self):
+        self.aedtapp.insert_design("sbr_boundaries")
+        b = self.aedtapp.modeler.create_box([0, 0, 0], [10, 20, 30])
+
+        # Finite Conductivity
+        bound = self.aedtapp.assign_finite_conductivity(assignment=[b, b.faces[0]], height_deviation="2mm")
+        bound.properties["SBR+ Rough Surface Height Standard Deviation"] == "2mm"
+
+        pass
+
+        # self.aedtapp.assign_layered_impendance()

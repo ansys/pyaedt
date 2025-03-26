@@ -632,6 +632,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         props["UseAnalyticAlignment"] = False
         return self._create_boundary(port_name, props, "Wave Port")
 
+    # Boundaries
     @pyaedt_function_handler(
         obj="assignment",
         mat="material",
@@ -661,8 +662,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         radius="0.5um",
         ratio="2.9",
         name=None,
-    ):
+    ):  # pragma: no cover
         """Assign finite conductivity to one or more objects or faces of a given material.
+
+        .. deprecated:: 0.15.3
+            Use assign_finite_conductivity method instead.
 
         Parameters
         ----------
@@ -720,7 +724,115 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         >>> origin = hfss.modeler.Position(0, 0, 0)
         >>> inner = hfss.modeler.create_cylinder(hfss.PLANE.XY,origin,3,200,0,"inner")
         >>> outer = hfss.modeler.create_cylinder(hfss.PLANE.XY,origin,4,200,0,"outer")
-        >>> coat = hfss.assign_coating(["inner", outer.faces[2].id], "copper", use_thickness=True, thickness="0.2mm")
+        >>> coat = hfss.assign_finite_conductivity(["inner", outer.faces[2].id], "copper", use_thickness=True,
+        ...                                         thickness="0.2mm")
+
+        """
+        warnings.warn(
+            "This method is deprecated in 0.15.3. Use the assign_finite_conductivity method.",
+            DeprecationWarning,
+        )
+
+        return self.assign_finite_conductivity(
+            assignment,
+            material,
+            conductivity,
+            permittivity,
+            use_thickness,
+            thickness,
+            roughness,
+            is_infinite_ground,
+            is_two_side,
+            is_internal,
+            is_shell_element,
+            use_huray,
+            radius,
+            ratio,
+            name,
+        )
+
+    @pyaedt_function_handler()
+    def assign_finite_conductivity(
+        self,
+        assignment,
+        material=None,
+        conductivity=58000000,
+        permittivity=1,
+        use_thickness=False,
+        thickness="0.1mm",
+        roughness="0um",
+        is_infinite_ground=False,
+        is_two_side=False,
+        is_internal=True,
+        is_shell_element=False,
+        use_huray=False,
+        radius="0.5um",
+        ratio="2.9",
+        height_deviation="0.0mm",
+        name=None,
+    ):
+        """Assign finite conductivity to one or more objects or faces of a given material.
+
+        Parameters
+        ----------
+        assignment : str or list
+            One or more objects or faces to assign finite conductivity to.
+        material : str, optional
+            Material to use. The default is ``None``.
+        conductivity : float, optional
+            Conductivity. The default is ``58000000``.
+            If no material is provided, a value must be supplied.
+        permittivity : float, optional
+            Permittivity. The default is ``1``. If no
+            material is provided, a value must be supplied.
+        use_thickness : bool, optional
+            Whether to use thickness. The default is ``False``.
+        thickness : str, optional
+            Thickness value if ``usethickness=True``. The default is ``"0.1mm"``.
+        roughness : str, optional
+            Roughness value with units. The default is ``"0um"``.
+        is_infinite_ground : bool, optional
+            Whether the finite conductivity is an infinite ground. The default is ``False``.
+        is_two_side : bool, optional
+            Whether the finite conductivity is two-sided. The default is ``False``.
+        is_internal : bool, optional
+            Whether the finite conductivity is internal. The default is ``True``.
+        is_shell_element : bool, optional
+            Whether the finite conductivity is a shell element.
+            The default is ``False``.
+        use_huray : bool, optional
+            Whether to use a Huray coefficient. The default is ``False``.
+        radius : str, optional
+            Radius value if ``usehuray=True``. The default is ``"0.5um"``.
+        ratio : str, optional
+            Ratio value if ``usehuray=True``. The default is ``"2.9"``.
+        height_deviation : str, optional
+            Height standard deviation. This parameter is only valid in SBR+ designs. The default is ``"0.0mm"``.
+        name : str
+            Name of the boundary.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
+            Boundary object.
+
+        References
+        ----------
+        >>> oModule.AssignFiniteCond
+
+        Examples
+        --------
+
+        Create two cylinders in the XY working plane and assign a copper coating of 0.2 mm to the inner cylinder and
+        outer face.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> origin = hfss.modeler.Position(0, 0, 0)
+        >>> inner = hfss.modeler.create_cylinder(hfss.PLANE.XY,origin,3,200,0,"inner")
+        >>> outer = hfss.modeler.create_cylinder(hfss.PLANE.XY,origin,4,200,0,"outer")
+        >>> coat = hfss.assign_finite_conductivity(["inner", outer.faces[2].id], "copper", use_thickness=True,
+        ...                                         thickness="0.2mm")
 
         """
 
@@ -771,9 +883,581 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             props["IsShellElement"] = is_shell_element
         else:
             props["IsInternal"] = is_internal
+
+        if self.solution_type == "SBR+":
+            props["SbrRoughSurfaceHeightStdDev"] = height_deviation
+            props["SbrRoughSurfaceRoughess"] = roughness
         if not name:
             name = "Coating_" + listobjname[1:]
         return self._create_boundary(name, props, "Finite Conductivity")
+
+    @pyaedt_function_handler(
+        startobj="assignment",
+        endobj="reference",
+        sourcename="name",
+        is_infinite_gnd="is_infinite_ground",
+        bound_on_plane="is_boundary_on_plane",
+        axisdir="start_direction",
+    )
+    def create_perfecte_from_objects(
+        self, assignment, reference, start_direction=0, name=None, is_infinite_ground=False, is_boundary_on_plane=True
+    ):
+        """Create a Perfect E taking the closest edges of two objects.
+
+        Parameters
+        ----------
+        assignment : str or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+            Starting object for the integration line.
+        reference :  str or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+           Ending object for the integration line.
+        start_direction : int or :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir`, optional
+            Start direction for the boundary location. It should be one of the values for
+            ``Application.AxisDir``, which are: ``XNeg``, ``YNeg``,
+            ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.  The default
+            is ``Application.AxisDir.XNeg``.
+        name : str, optional
+            Perfect E name. The default is ``None``, in which
+            case a name is automatically assigned.
+        is_infinite_ground : bool, optional
+            Whether the Perfect E is an infinite ground. The default is ``False``.
+        is_boundary_on_plane : bool, optional
+            Whether to create the Perfect E on the plane orthogonal to
+            the axis direction. The default is ``True``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject` or bool
+            Boundary object if successful, ``False`` otherwise.
+
+        References
+        ----------
+        >>> oModule.AssignPerfectE
+
+        Examples
+        --------
+
+        Create two boxes for creating a Perfect E named ``'PerfectE'``.
+
+        >>> box1 = hfss.modeler.create_box([0,0,0],[10,10,5],"perfect1","Copper")
+        >>> box2 = hfss.modeler.create_box([0, 0, 10],[10, 10, 5],"perfect2","copper")
+        >>> perfect_e = hfss.create_perfecte_from_objects("perfect1","perfect2",hfss.AxisDir.ZNeg,"PerfectE")
+        PyAEDT INFO: Connection Correctly created
+        >>> type(perfect_e)
+        <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
+
+        """
+
+        if not self.modeler.does_object_exists(assignment) or not self.modeler.does_object_exists(reference):
+            raise ValueError("One or both objects do not exist. Check and retry.")
+        if self.solution_type not in (
+            SOLUTIONS.Hfss.DrivenModal,
+            SOLUTIONS.Hfss.DrivenTerminal,
+            SOLUTIONS.Hfss.Transient,
+        ):
+            raise AEDTRuntimeError("Invalid solution type.")
+
+        sheet_name, _, _ = self.modeler._create_sheet_from_object_closest_edge(
+            assignment, reference, start_direction, is_boundary_on_plane
+        )
+
+        if not name:
+            name = generate_unique_name("PerfE")
+        elif name in self.modeler.get_boundaries_name():
+            name = generate_unique_name(name)
+        return self.create_boundary(self.BoundaryType.PerfectE, sheet_name, name, is_infinite_ground)
+
+    @pyaedt_function_handler(
+        startobj="assignment",
+        endobject="reference",
+        sourcename="name",
+        bound_on_plane="is_boundary_on_plane",
+        axisdir="start_direction",
+    )
+    def create_perfecth_from_objects(
+        self, assignment, reference, start_direction=0, name=None, is_boundary_on_plane=True
+    ):
+        """Create a Perfect H taking the closest edges of two objects.
+
+        Parameters
+        ----------
+        assignment : str or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+            Starting object for the integration line.
+        reference : str or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+            Ending object for the integration line.
+        start_direction : int or :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir`, optional
+            Start direction for the boundary location. It should be one of the values for ``Application.AxisDir``,
+            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
+            The default is ``Application.AxisDir.XNeg``.
+        name : str, optional
+            Perfect H name. The default is ``None``,
+             in which case a name is automatically assigned.
+        is_boundary_on_plane : bool, optional
+            Whether to create the Perfect H on the plane
+            orthogonal to the axis direction. The default is ``True``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject` or bool
+            Boundary object if successful, ``False`` otherwise.
+
+        References
+        ----------
+        >>> oModule.AssignPerfectH
+
+        Examples
+        --------
+
+        Create two boxes for creating a Perfect H named ``'PerfectH'``.
+
+        >>> box1 = hfss.modeler.create_box([0,0,20],[10,10,5],"perfect1","Copper")
+        >>> box2 = hfss.modeler.create_box([0, 0, 30],[10, 10, 5],"perfect2","copper")
+        >>> perfect_h = hfss.create_perfecth_from_objects("perfect1","perfect2",hfss.AxisDir.ZNeg,"Perfect H")
+        PyAEDT INFO: Connection Correctly created
+        >>> type(perfect_h)
+        <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
+
+        """
+
+        if not self.modeler.does_object_exists(assignment) or not self.modeler.does_object_exists(reference):
+            raise ValueError("One or both objects do not exist. Check and retry.")
+        if self.solution_type not in (
+            SOLUTIONS.Hfss.DrivenModal,
+            SOLUTIONS.Hfss.DrivenTerminal,
+            SOLUTIONS.Hfss.Transient,
+        ):
+            raise AEDTRuntimeError("Invalid solution type.")
+
+        sheet_name, _, _ = self.modeler._create_sheet_from_object_closest_edge(
+            assignment, reference, start_direction, is_boundary_on_plane
+        )
+        if not name:
+            name = generate_unique_name("PerfH")
+        elif name in self.modeler.get_boundaries_name():
+            name = generate_unique_name(name)
+        return self.create_boundary(self.BoundaryType.PerfectH, sheet_name, name)
+
+    @pyaedt_function_handler(
+        startobj="start_assignment",
+        endobject="end_assignment",
+        axisdir="start_direction",
+        sourcename="source_name",
+        is_infground="is_infinite_ground",
+    )
+    def create_impedance_between_objects(
+        self,
+        start_assignment,
+        end_assignment,
+        start_direction=0,
+        source_name=None,
+        resistance=50,
+        reactance=0,
+        is_infinite_ground=False,
+        bound_on_plane=True,
+    ):
+        """Create an impedance taking the closest edges of two objects.
+
+        Parameters
+        ----------
+        start_assignment : str or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+            Starting object for the integration line.
+        end_assignment : str or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+            Ending object for the integration line.
+        start_direction : int or :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir`, optional
+            Start direction for the boundary location. It should be one of the values for ``Application.AxisDir``,
+            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
+            The default is ``Application.AxisDir.XNeg``.
+        source_name : str, optional
+            Name of the impedance. The default is ``None``.
+        resistance : float, optional
+            Resistance value in ohms. The default is ``50``. If ``None``,
+            this parameter is disabled.
+        reactance : optional
+            Reactance value in ohms. The default is ``0``. If ``None``,
+            this parameter is disabled.
+        is_infinite_ground : bool, optional
+            Whether the impendance is an infinite ground. The default is ``False``.
+        bound_on_plane : bool, optional
+            Whether to create the impedance on the plane orthogonal to ``AxisDir``.
+            The default is ``True``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject` or bool
+            Boundary object if successful, ``False`` otherwise.
+
+        References
+        ----------
+        >>> oModule.AssignImpedance
+
+        Examples
+        --------
+
+        Create two boxes for creating an impedance named ``'ImpedanceExample'``.
+
+        >>> box1 = hfss.modeler.create_box([0, 0, 70],[10, 10, 5],"box1","copper")
+        >>> box2 = hfss.modeler.create_box([0, 0, 80],[10, 10, 5],"box2","copper")
+        >>> impedance = hfss.create_impedance_between_objects("box1", "box2", hfss.AxisDir.XPos,
+        ...                                                   "ImpedanceExample", 100, 50)
+        PyAEDT INFO: Connection Correctly created
+
+        """
+
+        if not self.modeler.does_object_exists(start_assignment) or not self.modeler.does_object_exists(end_assignment):
+            raise AEDTRuntimeError("One or both objects do not exist. Check and retry.")
+        if self.solution_type not in (
+            SOLUTIONS.Hfss.DrivenModal,
+            SOLUTIONS.Hfss.DrivenTerminal,
+            SOLUTIONS.Hfss.Transient,
+        ):
+            raise AEDTRuntimeError("Invalid solution type.")
+
+        sheet_name, _, _ = self.modeler._create_sheet_from_object_closest_edge(
+            start_assignment, end_assignment, start_direction, bound_on_plane
+        )
+
+        if not source_name:
+            source_name = generate_unique_name("Imped")
+        elif source_name in self.modeler.get_boundaries_name():
+            source_name = generate_unique_name(source_name)
+        props = dict(
+            {
+                "Objects": [sheet_name],
+                "Resistance": str(resistance),
+                "Reactance": str(reactance),
+                "InfGroundPlane": is_infinite_ground,
+            }
+        )
+        return self._create_boundary(source_name, props, "Impedance")
+
+    @pyaedt_function_handler(sheet_name="assignment", boundary_name="name", is_inifinite_gnd="is_inifinite_ground")
+    def create_boundary(
+        self, boundary_type=BoundaryType.PerfectE, assignment=None, name=None, is_inifinite_ground=False
+    ):
+        """Assign a boundary condition to a sheet or surface.
+
+        This method is generally used by other methods in the ``Hfss`` class such as the
+        :meth:``Hfss.assign_febi`` or :meth:``Hfss.assign_radiation_boundary_to_faces`` method.
+
+        Parameters
+        ----------
+        boundary_type : int, optional
+            Type of boundary condition to assign to a sheet or surface. The
+            default is ``Hfss.BoundaryType.PerfectE``. Options are the properties of the
+            :class:``Hfss.BoundaryType`` class. For example:
+
+                - ``Hfss.BoundaryType.PerfectE``
+                - ``Hfss.BoundaryType.PerfectH``
+                - ``Hfss.BoundaryType.Radiation``
+                - ``Hfss.BoundaryType.Impedance``
+                - ``Hfss.BoundaryType.LumpedRLC``
+                - ``Hfss.BoundaryType.FEBI``
+
+        assignment : int, str, or list, optional
+            Name of the sheet or face to assign the boundary condition to. The
+            default is ``None``. You can provide an integer (face ID), a string (sheet),
+            or a list of integers and strings.
+        name : str, optional
+            Name of the boundary. The default is ``None``.
+        is_inifinite_ground : bool, optional
+            Whether the boundary is an infinite ground. The default is ``False``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
+            Boundary object.
+
+        """
+        props = {}
+        assignment = self.modeler.convert_to_selections(assignment, True)
+        if type(assignment) is list:
+            if type(assignment[0]) is str:
+                props["Objects"] = assignment
+            else:
+                props["Faces"] = assignment
+
+        if boundary_type == self.BoundaryType.PerfectE:
+            props["InfGroundPlane"] = is_inifinite_ground
+            boundary_type = "Perfect E"
+        elif boundary_type == self.BoundaryType.PerfectH:
+            boundary_type = "Perfect H"
+        elif boundary_type == self.BoundaryType.Aperture:
+            boundary_type = "Aperture"
+        elif boundary_type == self.BoundaryType.Radiation:
+            props["IsFssReference"] = False
+            props["IsForPML"] = False
+            boundary_type = "Radiation"
+        elif boundary_type == self.BoundaryType.Hybrid:
+            props["IsLinkedRegion"] = False
+            props["Type"] = "SBR+"
+            boundary_type = "Hybrid"
+        elif boundary_type == self.BoundaryType.FEBI:
+            boundary_type = "FE-BI"
+        else:
+            return None
+        return self._create_boundary(name, props, boundary_type)
+
+    @pyaedt_function_handler(sheet_list="assignment", sourcename="name", is_infinite_gnd="is_infinite_ground")
+    def assign_perfecte_to_sheets(self, assignment, name=None, is_infinite_ground=False):
+        """Create a Perfect E taking one sheet.
+
+        Parameters
+        ----------
+        assignment : str or list
+            One or more names of the sheets to apply the boundary to.
+        name : str, optional
+            Name of the Perfect E source. The default is ``None``.
+        is_infinite_ground : bool, optional
+            Whether the Perfect E is an infinite ground. The default is ``False``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
+            Boundary object.
+
+        References
+        ----------
+        >>> oModule.AssignPerfectE
+
+        Examples
+        --------
+
+        Create a sheet and use it to create a Perfect E.
+
+        >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY, [0, 0, -90],
+        ...                                       [10, 2], name="PerfectESheet", material="Copper")
+        >>> perfect_e_from_sheet = hfss.assign_perfecte_to_sheets(sheet.name,"PerfectEFromSheet")
+        >>> type(perfect_e_from_sheet)
+        <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
+
+        """
+        if self.solution_type not in (
+            SOLUTIONS.Hfss.DrivenModal,
+            SOLUTIONS.Hfss.DrivenTerminal,
+            SOLUTIONS.Hfss.Transient,
+            SOLUTIONS.Hfss.SBR,
+            SOLUTIONS.Hfss.EigenMode,
+        ):
+            raise AEDTRuntimeError("Invalid solution type.")
+
+        assignment = self.modeler.convert_to_selections(assignment, True)
+        if not name:
+            name = generate_unique_name("PerfE")
+        elif name in self.modeler.get_boundaries_name():
+            name = generate_unique_name(name)
+        return self.create_boundary(self.BoundaryType.PerfectE, assignment, name, is_infinite_ground)
+
+    @pyaedt_function_handler(sheet_list="assignment", sourcename="name")
+    def assign_perfecth_to_sheets(self, assignment, name=None):
+        """Assign a Perfect H to sheets.
+
+        Parameters
+        ----------
+        assignment : list
+            List of sheets to apply the boundary to.
+        name : str, optional
+            Perfect H name. The default is ``None``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
+            Boundary object.
+
+        References
+        ----------
+        >>> oModule.AssignPerfectH
+
+        Examples
+        --------
+
+        Create a sheet and use it to create a Perfect H.
+
+        >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY, [0, 0, -90],
+        ...                                       [10, 2], name="PerfectHSheet", material="Copper")
+        >>> perfect_h_from_sheet = hfss.assign_perfecth_to_sheets(sheet.name,"PerfectHFromSheet")
+        >>> type(perfect_h_from_sheet)
+        <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
+
+        """
+        if self.solution_type not in (
+            SOLUTIONS.Hfss.DrivenModal,
+            SOLUTIONS.Hfss.DrivenTerminal,
+            SOLUTIONS.Hfss.Transient,
+            SOLUTIONS.Hfss.SBR,
+            SOLUTIONS.Hfss.EigenMode,
+        ):
+            raise AEDTRuntimeError("Invalid solution type.")
+
+        if not name:
+            name = generate_unique_name("PerfH")
+        elif name in self.modeler.get_boundaries_name():
+            name = generate_unique_name(name)
+        return self.create_boundary(self.BoundaryType.PerfectH, assignment, name)
+
+    # Radiation and Hybrid
+    @pyaedt_function_handler(obh_names="assignment", boundary_name="name")
+    def assign_radiation_boundary_to_objects(self, assignment, name=None):
+        """Assign a radiation boundary to one or more objects (usually airbox objects).
+
+        Parameters
+        ----------
+        assignment : str or list or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+            One or more object names or IDs.
+        name : str, optional
+            Name of the boundary. The default is ``None``, in which case a name is automatically assigned.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
+            Boundary object.
+
+        References
+        ----------
+        >>> oModule.AssignRadiation
+
+        Examples
+        --------
+
+        Create a box and assign a radiation boundary to it.
+
+        >>> radiation_box = hfss.modeler.create_box([0, -200, -200],[200, 200, 200],name="Radiation_box")
+        >>> radiation = hfss.assign_radiation_boundary_to_objects("Radiation_box")
+        >>> type(radiation)
+        <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
+
+        """
+
+        object_list = self.modeler.convert_to_selections(assignment, return_list=True)
+        if name:
+            rad_name = name
+        else:
+            rad_name = generate_unique_name("Rad_")
+        return self.create_boundary(self.BoundaryType.Radiation, object_list, rad_name)
+
+    @pyaedt_function_handler(obj_names="assignment", boundary_name="name")
+    def assign_hybrid_region(self, assignment, name=None, hybrid_region="SBR+"):
+        """Assign a hybrid region to one or more objects.
+
+        Parameters
+        ----------
+        assignment : str or list or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+            One or more object names or IDs.
+        name : str, optional
+            Name of the boundary. The default is ``None``, in which case a name is automatically assigned.
+        hybrid_region : str, optional
+            Hybrid region to assign. The default is `"SBR+"``. Options are ``"IE"``, ``"PO"``
+            and ``"SBR+"``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
+            Boundary object.
+
+        References
+        ----------
+        >>> oModule.AssignHybridRegion
+
+        Examples
+        --------
+
+        Create a box and assign a hybrid boundary to it.
+
+        >>> box = hfss.modeler.create_box([0, -200, -200],[200, 200, 200],name="Radiation_box")
+        >>> sbr_box = hfss.assign_hybrid_region("Radiation_box")
+        >>> type(sbr_box)
+        <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
+
+        """
+
+        object_list = self.modeler.convert_to_selections(assignment, return_list=True)
+        if name:
+            region_name = name
+        else:
+            region_name = generate_unique_name("Hybrid_")
+        bound = self.create_boundary(self.BoundaryType.Hybrid, object_list, region_name)
+        if hybrid_region != "SBR+":
+            bound.props["Type"] = hybrid_region
+        return bound
+
+    @pyaedt_function_handler(obj_names="assignment", boundary_name="name")
+    def assign_febi(self, assignment, name=None):
+        """Assign an FE-BI region to one or more objects.
+
+        Parameters
+        ----------
+        assignment : str or list or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+            One or more object names or IDs.
+        name : str, optional
+            Name of the boundary. The default is ``None``, in which case a name is automatically assigned.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
+            Boundary object.
+
+        References
+        ----------
+        >>> oModule.AssignFEBI
+
+        Examples
+        --------
+
+        Create a box and assign an FE-BI boundary to it.
+
+        >>> box = hfss.modeler.create_box([0, -200, -200],[200, 200, 200],name="Radiation_box")
+        >>> febi_box = hfss.assign_febi("Radiation_box")
+        >>> type(febi_box)
+        <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
+
+        """
+
+        object_list = self.modeler.convert_to_selections(assignment, return_list=True)
+        if name:
+            region_name = name
+        else:
+            region_name = generate_unique_name("FEBI_")
+        bound = self.create_boundary(self.BoundaryType.FEBI, object_list, region_name)
+
+        return bound
+
+    @pyaedt_function_handler(faces_id="assignment", boundary_name="name")
+    def assign_radiation_boundary_to_faces(self, assignment, name=None):
+        """Assign a radiation boundary to one or more faces.
+
+        Parameters
+        ----------
+        assignment :
+            Face ID to assign the boundary condition to.
+        name : str, optional
+            Name of the boundary. The default is ``None``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
+            Boundary object.
+
+        References
+        ----------
+        >>> oModule.AssignRadiation
+
+        Examples
+        --------
+
+        Create a box. Select the faces of this box and assign a radiation
+        boundary to them.
+
+        >>> radiation_box = hfss.modeler.create_box([0 , -100, 0],[200, 200, 200],name="RadiationForFaces")
+        >>> ids = [i.id for i in hfss.modeler["RadiationForFaces"].faces]
+        >>> radiation = hfss.assign_radiation_boundary_to_faces(ids)
+        >>> type(radiation)
+        <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
+
+        """
+        faces_list = self.modeler.convert_to_selections(assignment, True)
+        if name:
+            rad_name = name
+        else:
+            rad_name = generate_unique_name("Rad_")
+        return self.create_boundary(self.BoundaryType.Radiation, faces_list, rad_name)
 
     @pyaedt_function_handler(setupname="name", setuptype="setup_type")
     def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
@@ -2666,151 +3350,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         return True
 
     @pyaedt_function_handler(
-        startobj="assignment",
-        endobj="reference",
-        sourcename="name",
-        is_infinite_gnd="is_infinite_ground",
-        bound_on_plane="is_boundary_on_plane",
-        axisdir="start_direction",
-    )
-    def create_perfecte_from_objects(
-        self, assignment, reference, start_direction=0, name=None, is_infinite_ground=False, is_boundary_on_plane=True
-    ):
-        """Create a Perfect E taking the closest edges of two objects.
-
-        Parameters
-        ----------
-        assignment : str or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
-            Starting object for the integration line.
-        reference :  str or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
-           Ending object for the integration line.
-        start_direction : int or :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir`, optional
-            Start direction for the boundary location. It should be one of the values for
-            ``Application.AxisDir``, which are: ``XNeg``, ``YNeg``,
-            ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.  The default
-            is ``Application.AxisDir.XNeg``.
-        name : str, optional
-            Perfect E name. The default is ``None``, in which
-            case a name is automatically assigned.
-        is_infinite_ground : bool, optional
-            Whether the Perfect E is an infinite ground. The default is ``False``.
-        is_boundary_on_plane : bool, optional
-            Whether to create the Perfect E on the plane orthogonal to
-            the axis direction. The default is ``True``.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject` or bool
-            Boundary object if successful, ``False`` otherwise.
-
-        References
-        ----------
-        >>> oModule.AssignPerfectE
-
-        Examples
-        --------
-
-        Create two boxes for creating a Perfect E named ``'PerfectE'``.
-
-        >>> box1 = hfss.modeler.create_box([0,0,0],[10,10,5],"perfect1","Copper")
-        >>> box2 = hfss.modeler.create_box([0, 0, 10],[10, 10, 5],"perfect2","copper")
-        >>> perfect_e = hfss.create_perfecte_from_objects("perfect1","perfect2",hfss.AxisDir.ZNeg,"PerfectE")
-        PyAEDT INFO: Connection Correctly created
-        >>> type(perfect_e)
-        <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
-
-        """
-
-        if not self.modeler.does_object_exists(assignment) or not self.modeler.does_object_exists(reference):
-            raise ValueError("One or both objects do not exist. Check and retry.")
-        if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
-        ):
-            raise AEDTRuntimeError("Invalid solution type.")
-
-        sheet_name, _, _ = self.modeler._create_sheet_from_object_closest_edge(
-            assignment, reference, start_direction, is_boundary_on_plane
-        )
-
-        if not name:
-            name = generate_unique_name("PerfE")
-        elif name in self.modeler.get_boundaries_name():
-            name = generate_unique_name(name)
-        return self.create_boundary(self.BoundaryType.PerfectE, sheet_name, name, is_infinite_ground)
-
-    @pyaedt_function_handler(
-        startobj="assignment",
-        endobject="reference",
-        sourcename="name",
-        bound_on_plane="is_boundary_on_plane",
-        axisdir="start_direction",
-    )
-    def create_perfecth_from_objects(
-        self, assignment, reference, start_direction=0, name=None, is_boundary_on_plane=True
-    ):
-        """Create a Perfect H taking the closest edges of two objects.
-
-        Parameters
-        ----------
-        assignment : str or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
-            Starting object for the integration line.
-        reference : str or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
-            Ending object for the integration line.
-        start_direction : int or :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir`, optional
-            Start direction for the boundary location. It should be one of the values for ``Application.AxisDir``,
-            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
-            The default is ``Application.AxisDir.XNeg``.
-        name : str, optional
-            Perfect H name. The default is ``None``,
-             in which case a name is automatically assigned.
-        is_boundary_on_plane : bool, optional
-            Whether to create the Perfect H on the plane
-            orthogonal to the axis direction. The default is ``True``.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject` or bool
-            Boundary object if successful, ``False`` otherwise.
-
-        References
-        ----------
-        >>> oModule.AssignPerfectH
-
-        Examples
-        --------
-
-        Create two boxes for creating a Perfect H named ``'PerfectH'``.
-
-        >>> box1 = hfss.modeler.create_box([0,0,20],[10,10,5],"perfect1","Copper")
-        >>> box2 = hfss.modeler.create_box([0, 0, 30],[10, 10, 5],"perfect2","copper")
-        >>> perfect_h = hfss.create_perfecth_from_objects("perfect1","perfect2",hfss.AxisDir.ZNeg,"Perfect H")
-        PyAEDT INFO: Connection Correctly created
-        >>> type(perfect_h)
-        <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
-
-        """
-
-        if not self.modeler.does_object_exists(assignment) or not self.modeler.does_object_exists(reference):
-            raise ValueError("One or both objects do not exist. Check and retry.")
-        if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
-        ):
-            raise AEDTRuntimeError("Invalid solution type.")
-
-        sheet_name, _, _ = self.modeler._create_sheet_from_object_closest_edge(
-            assignment, reference, start_direction, is_boundary_on_plane
-        )
-        if not name:
-            name = generate_unique_name("PerfH")
-        elif name in self.modeler.get_boundaries_name():
-            name = generate_unique_name(name)
-        return self.create_boundary(self.BoundaryType.PerfectH, sheet_name, name)
-
-    @pyaedt_function_handler(
         Tissue_object_List_ID="assignment",
         TissueMass="tissue_mass",
         MaterialDensity="material_density",
@@ -3006,166 +3545,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         return self._create_boundary(name, props, "Lumped RLC")
 
-    @pyaedt_function_handler(
-        startobj="start_assignment",
-        endobject="end_assignment",
-        axisdir="start_direction",
-        sourcename="source_name",
-        is_infground="is_infinite_ground",
-    )
-    def create_impedance_between_objects(
-        self,
-        start_assignment,
-        end_assignment,
-        start_direction=0,
-        source_name=None,
-        resistance=50,
-        reactance=0,
-        is_infinite_ground=False,
-        bound_on_plane=True,
-    ):
-        """Create an impedance taking the closest edges of two objects.
-
-        Parameters
-        ----------
-        start_assignment : str or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
-            Starting object for the integration line.
-        end_assignment : str or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
-            Ending object for the integration line.
-        start_direction : int or :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir`, optional
-            Start direction for the boundary location. It should be one of the values for ``Application.AxisDir``,
-            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
-            The default is ``Application.AxisDir.XNeg``.
-        source_name : str, optional
-            Name of the impedance. The default is ``None``.
-        resistance : float, optional
-            Resistance value in ohms. The default is ``50``. If ``None``,
-            this parameter is disabled.
-        reactance : optional
-            Reactance value in ohms. The default is ``0``. If ``None``,
-            this parameter is disabled.
-        is_infinite_ground : bool, optional
-            Whether the impendance is an infinite ground. The default is ``False``.
-        bound_on_plane : bool, optional
-            Whether to create the impedance on the plane orthogonal to ``AxisDir``.
-            The default is ``True``.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject` or bool
-            Boundary object if successful, ``False`` otherwise.
-
-        References
-        ----------
-        >>> oModule.AssignImpedance
-
-        Examples
-        --------
-
-        Create two boxes for creating an impedance named ``'ImpedanceExample'``.
-
-        >>> box1 = hfss.modeler.create_box([0, 0, 70],[10, 10, 5],"box1","copper")
-        >>> box2 = hfss.modeler.create_box([0, 0, 80],[10, 10, 5],"box2","copper")
-        >>> impedance = hfss.create_impedance_between_objects("box1", "box2", hfss.AxisDir.XPos,
-        ...                                                   "ImpedanceExample", 100, 50)
-        PyAEDT INFO: Connection Correctly created
-
-        """
-
-        if not self.modeler.does_object_exists(start_assignment) or not self.modeler.does_object_exists(end_assignment):
-            raise AEDTRuntimeError("One or both objects do not exist. Check and retry.")
-        if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
-        ):
-            raise AEDTRuntimeError("Invalid solution type.")
-
-        sheet_name, _, _ = self.modeler._create_sheet_from_object_closest_edge(
-            start_assignment, end_assignment, start_direction, bound_on_plane
-        )
-
-        if not source_name:
-            source_name = generate_unique_name("Imped")
-        elif source_name in self.modeler.get_boundaries_name():
-            source_name = generate_unique_name(source_name)
-        props = dict(
-            {
-                "Objects": [sheet_name],
-                "Resistance": str(resistance),
-                "Reactance": str(reactance),
-                "InfGroundPlane": is_infinite_ground,
-            }
-        )
-        return self._create_boundary(source_name, props, "Impedance")
-
-    @pyaedt_function_handler(sheet_name="assignment", boundary_name="name", is_inifinite_gnd="is_inifinite_ground")
-    def create_boundary(
-        self, boundary_type=BoundaryType.PerfectE, assignment=None, name=None, is_inifinite_ground=False
-    ):
-        """Assign a boundary condition to a sheet or surface.
-
-        This method is generally used by other methods in the ``Hfss`` class such as the
-        :meth:``Hfss.assign_febi`` or :meth:``Hfss.assign_radiation_boundary_to_faces`` method.
-
-        Parameters
-        ----------
-        boundary_type : int, optional
-            Type of boundary condition to assign to a sheet or surface. The
-            default is ``Hfss.BoundaryType.PerfectE``. Options are the properties of the
-            :class:``Hfss.BoundaryType`` class. For example:
-
-                - ``Hfss.BoundaryType.PerfectE``
-                - ``Hfss.BoundaryType.PerfectH``
-                - ``Hfss.BoundaryType.Radiation``
-                - ``Hfss.BoundaryType.Impedance``
-                - ``Hfss.BoundaryType.LumpedRLC``
-                - ``Hfss.BoundaryType.FEBI``
-
-        assignment : int, str, or list, optional
-            Name of the sheet or face to assign the boundary condition to. The
-            default is ``None``. You can provide an integer (face ID), a string (sheet),
-            or a list of integers and strings.
-        name : str, optional
-            Name of the boundary. The default is ``None``.
-        is_inifinite_ground : bool, optional
-            Whether the boundary is an infinite ground. The default is ``False``.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
-            Boundary object.
-
-        """
-        props = {}
-        assignment = self.modeler.convert_to_selections(assignment, True)
-        if type(assignment) is list:
-            if type(assignment[0]) is str:
-                props["Objects"] = assignment
-            else:
-                props["Faces"] = assignment
-
-        if boundary_type == self.BoundaryType.PerfectE:
-            props["InfGroundPlane"] = is_inifinite_ground
-            boundary_type = "Perfect E"
-        elif boundary_type == self.BoundaryType.PerfectH:
-            boundary_type = "Perfect H"
-        elif boundary_type == self.BoundaryType.Aperture:
-            boundary_type = "Aperture"
-        elif boundary_type == self.BoundaryType.Radiation:
-            props["IsFssReference"] = False
-            props["IsForPML"] = False
-            boundary_type = "Radiation"
-        elif boundary_type == self.BoundaryType.Hybrid:
-            props["IsLinkedRegion"] = False
-            props["Type"] = "SBR+"
-            boundary_type = "Hybrid"
-        elif boundary_type == self.BoundaryType.FEBI:
-            boundary_type = "FE-BI"
-        else:
-            return None
-        return self._create_boundary(name, props, boundary_type)
-
     @pyaedt_function_handler()
     def _get_reference_and_integration_points(self, sheet, axisdir, obj_name=None):
         if isinstance(sheet, int):
@@ -3314,103 +3693,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             point0, point1 = self.modeler.get_mid_points_on_dir(assignment, start_direction)
         name = self._get_unique_source_name(name, "Current")
         return self.create_source_excitation(assignment, point0, point1, name, source_type="Current")
-
-    @pyaedt_function_handler(sheet_list="assignment", sourcename="name", is_infinite_gnd="is_infinite_ground")
-    def assign_perfecte_to_sheets(self, assignment, name=None, is_infinite_ground=False):
-        """Create a Perfect E taking one sheet.
-
-        Parameters
-        ----------
-        assignment : str or list
-            One or more names of the sheets to apply the boundary to.
-        name : str, optional
-            Name of the Perfect E source. The default is ``None``.
-        is_infinite_ground : bool, optional
-            Whether the Perfect E is an infinite ground. The default is ``False``.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
-            Boundary object.
-
-        References
-        ----------
-        >>> oModule.AssignPerfectE
-
-        Examples
-        --------
-
-        Create a sheet and use it to create a Perfect E.
-
-        >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY, [0, 0, -90],
-        ...                                       [10, 2], name="PerfectESheet", material="Copper")
-        >>> perfect_e_from_sheet = hfss.assign_perfecte_to_sheets(sheet.name,"PerfectEFromSheet")
-        >>> type(perfect_e_from_sheet)
-        <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
-
-        """
-        if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
-            SOLUTIONS.Hfss.SBR,
-            SOLUTIONS.Hfss.EigenMode,
-        ):
-            raise AEDTRuntimeError("Invalid solution type.")
-
-        assignment = self.modeler.convert_to_selections(assignment, True)
-        if not name:
-            name = generate_unique_name("PerfE")
-        elif name in self.modeler.get_boundaries_name():
-            name = generate_unique_name(name)
-        return self.create_boundary(self.BoundaryType.PerfectE, assignment, name, is_infinite_ground)
-
-    @pyaedt_function_handler(sheet_list="assignment", sourcename="name")
-    def assign_perfecth_to_sheets(self, assignment, name=None):
-        """Assign a Perfect H to sheets.
-
-        Parameters
-        ----------
-        assignment : list
-            List of sheets to apply the boundary to.
-        name : str, optional
-            Perfect H name. The default is ``None``.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
-            Boundary object.
-
-        References
-        ----------
-        >>> oModule.AssignPerfectH
-
-        Examples
-        --------
-
-        Create a sheet and use it to create a Perfect H.
-
-        >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY, [0, 0, -90],
-        ...                                       [10, 2], name="PerfectHSheet", material="Copper")
-        >>> perfect_h_from_sheet = hfss.assign_perfecth_to_sheets(sheet.name,"PerfectHFromSheet")
-        >>> type(perfect_h_from_sheet)
-        <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
-
-        """
-        if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
-            SOLUTIONS.Hfss.SBR,
-            SOLUTIONS.Hfss.EigenMode,
-        ):
-            raise AEDTRuntimeError("Invalid solution type.")
-
-        if not name:
-            name = generate_unique_name("PerfH")
-        elif name in self.modeler.get_boundaries_name():
-            name = generate_unique_name(name)
-        return self.create_boundary(self.BoundaryType.PerfectH, assignment, name)
 
     @pyaedt_function_handler(
         sheet_name="assignment",
@@ -4445,171 +4727,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             name, "Eigenmode Parameters", "Rectangular Plot", setup + " : LastAdaptive", [], args, args2, []
         )
         return True
-
-    @pyaedt_function_handler(obh_names="assignment", boundary_name="name")
-    def assign_radiation_boundary_to_objects(self, assignment, name=None):
-        """Assign a radiation boundary to one or more objects (usually airbox objects).
-
-        Parameters
-        ----------
-        assignment : str or list or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
-            One or more object names or IDs.
-        name : str, optional
-            Name of the boundary. The default is ``None``, in which case a name is automatically assigned.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
-            Boundary object.
-
-        References
-        ----------
-        >>> oModule.AssignRadiation
-
-        Examples
-        --------
-
-        Create a box and assign a radiation boundary to it.
-
-        >>> radiation_box = hfss.modeler.create_box([0, -200, -200],[200, 200, 200],name="Radiation_box")
-        >>> radiation = hfss.assign_radiation_boundary_to_objects("Radiation_box")
-        >>> type(radiation)
-        <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
-
-        """
-
-        object_list = self.modeler.convert_to_selections(assignment, return_list=True)
-        if name:
-            rad_name = name
-        else:
-            rad_name = generate_unique_name("Rad_")
-        return self.create_boundary(self.BoundaryType.Radiation, object_list, rad_name)
-
-    @pyaedt_function_handler(obj_names="assignment", boundary_name="name")
-    def assign_hybrid_region(self, assignment, name=None, hybrid_region="SBR+"):
-        """Assign a hybrid region to one or more objects.
-
-        Parameters
-        ----------
-        assignment : str or list or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
-            One or more object names or IDs.
-        name : str, optional
-            Name of the boundary. The default is ``None``, in which case a name is automatically assigned.
-        hybrid_region : str, optional
-            Hybrid region to assign. The default is `"SBR+"``. Options are ``"IE"``, ``"PO"``
-            and ``"SBR+"``.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
-            Boundary object.
-
-        References
-        ----------
-        >>> oModule.AssignHybridRegion
-
-        Examples
-        --------
-
-        Create a box and assign a hybrid boundary to it.
-
-        >>> box = hfss.modeler.create_box([0, -200, -200],[200, 200, 200],name="Radiation_box")
-        >>> sbr_box = hfss.assign_hybrid_region("Radiation_box")
-        >>> type(sbr_box)
-        <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
-
-        """
-
-        object_list = self.modeler.convert_to_selections(assignment, return_list=True)
-        if name:
-            region_name = name
-        else:
-            region_name = generate_unique_name("Hybrid_")
-        bound = self.create_boundary(self.BoundaryType.Hybrid, object_list, region_name)
-        if hybrid_region != "SBR+":
-            bound.props["Type"] = hybrid_region
-        return bound
-
-    @pyaedt_function_handler(obj_names="assignment", boundary_name="name")
-    def assign_febi(self, assignment, name=None):
-        """Assign an FE-BI region to one or more objects.
-
-        Parameters
-        ----------
-        assignment : str or list or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
-            One or more object names or IDs.
-        name : str, optional
-            Name of the boundary. The default is ``None``, in which case a name is automatically assigned.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
-            Boundary object.
-
-        References
-        ----------
-        >>> oModule.AssignFEBI
-
-        Examples
-        --------
-
-        Create a box and assign an FE-BI boundary to it.
-
-        >>> box = hfss.modeler.create_box([0, -200, -200],[200, 200, 200],name="Radiation_box")
-        >>> febi_box = hfss.assign_febi("Radiation_box")
-        >>> type(febi_box)
-        <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
-
-        """
-
-        object_list = self.modeler.convert_to_selections(assignment, return_list=True)
-        if name:
-            region_name = name
-        else:
-            region_name = generate_unique_name("FEBI_")
-        bound = self.create_boundary(self.BoundaryType.FEBI, object_list, region_name)
-
-        return bound
-
-    @pyaedt_function_handler(faces_id="assignment", boundary_name="name")
-    def assign_radiation_boundary_to_faces(self, assignment, name=None):
-        """Assign a radiation boundary to one or more faces.
-
-        Parameters
-        ----------
-        assignment :
-            Face ID to assign the boundary condition to.
-        name : str, optional
-            Name of the boundary. The default is ``None``.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
-            Boundary object.
-
-        References
-        ----------
-        >>> oModule.AssignRadiation
-
-        Examples
-        --------
-
-        Create a box. Select the faces of this box and assign a radiation
-        boundary to them.
-
-        >>> radiation_box = hfss.modeler.create_box([0 , -100, 0],[200, 200, 200],name="RadiationForFaces")
-        >>> ids = [i.id for i in hfss.modeler["RadiationForFaces"].faces]
-        >>> radiation = hfss.assign_radiation_boundary_to_faces(ids)
-        >>> type(radiation)
-        <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
-
-        """
-        faces_list = self.modeler.convert_to_selections(assignment, True)
-        if name:
-            rad_name = name
-        else:
-            rad_name = generate_unique_name("Rad_")
-        return self.create_boundary(self.BoundaryType.Radiation, faces_list, rad_name)
 
     @pyaedt_function_handler()
     def _create_sbr_doppler_setup(

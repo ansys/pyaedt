@@ -127,7 +127,7 @@ class TestClass:
         assert self.aedtapp.modeler["inner_1"].material_name == "copper"
         assert cyl_1.material_name == "teflon_based"
 
-    def test_04_assign_coating(self):
+    def test_04_assign_finite_conductivity(self):
         id = self.aedtapp.modeler.get_obj_id(
             "inner_1",
         )
@@ -141,14 +141,14 @@ class TestClass:
             "radius": "0.75um",
             "ratio": "3",
         }
-        coat = self.aedtapp.assign_coating([id, "inner_1", 41], **args)
+        coat = self.aedtapp.assign_finite_conductivity([id, "inner_1", 41], **args)
         coat.name = "Coating1inner"
         assert coat.update()
         assert coat.properties
         material = coat.props.get("Material", "")
         assert material == "aluminum"
         with pytest.raises(AEDTRuntimeError, match="Objects or Faces selected do not exist in the design."):
-            self.aedtapp.assign_coating(["insulator2", 45])
+            self.aedtapp.assign_finite_conductivity(["insulator2", 45])
 
     def test_05_create_wave_port_from_sheets(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
