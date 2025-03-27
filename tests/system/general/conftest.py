@@ -133,7 +133,7 @@ def _delete_objects():
     try:
         del sys.modules["glob"]
     except Exception:
-        pass
+        logger.debug("Failed to delete glob module")
     gc.collect()
 
 

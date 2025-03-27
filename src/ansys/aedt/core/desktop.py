@@ -245,7 +245,7 @@ def _check_settings(settings: Settings):
     if not isinstance(settings.lsf_ram, int) or settings.lsf_ram <= 0:
         raise ValueError("Invalid memory value.")
     if not settings.lsf_aedt_command:
-        raise ValueError(f"Invalid LSF AEDT command.")
+        raise ValueError("Invalid LSF AEDT command.")
 
 
 def _is_port_occupied(port, machine_name=""):
@@ -608,7 +608,7 @@ class Desktop(object):
     def __exit__(self, ex_type, ex_value, ex_traceback):  # pragma no cover
         # Write the trace stack to the log file if an exception occurred in the main script.
         if ex_type:
-            err = self.__exception(ex_value, ex_traceback)
+            self.__exception(ex_value, ex_traceback)
         if self.close_on_exit:
             self.release_desktop(close_projects=self.close_on_exit, close_on_exit=self.close_on_exit)
             self.__closed = True
