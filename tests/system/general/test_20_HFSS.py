@@ -127,29 +127,6 @@ class TestClass:
         assert self.aedtapp.modeler["inner_1"].material_name == "copper"
         assert cyl_1.material_name == "teflon_based"
 
-    def test_04_assign_coating(self):
-        id = self.aedtapp.modeler.get_obj_id(
-            "inner_1",
-        )
-        args = {
-            "material": "aluminum",
-            "use_thickness": True,
-            "thickness": "0.5mm",
-            "is_two_side": True,
-            "is_shell_element": True,  # TODO: Is "sheelElement" a typo in native API?
-            "use_huray": True,
-            "radius": "0.75um",
-            "ratio": "3",
-        }
-        coat = self.aedtapp.assign_coating([id, "inner_1", 41], **args)
-        coat.name = "Coating1inner"
-        assert coat.update()
-        assert coat.properties
-        material = coat.props.get("Material", "")
-        assert material == "aluminum"
-        with pytest.raises(AEDTRuntimeError, match="Objects or Faces selected do not exist in the design."):
-            self.aedtapp.assign_coating(["insulator2", 45])
-
     def test_05_create_wave_port_from_sheets(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         o5 = self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.YZ, udp, 10, name="sheet1")
@@ -179,6 +156,8 @@ class TestClass:
         udp = self.aedtapp.modeler.Position(80, 0, 0)
         o6 = self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.YZ, udp, 10, name="sheet1a")
         self.aedtapp.modeler.subtract(o6, "inner_1", keep_originals=True)
+
+        self.aedtapp.assign_finite_conductivity(material="aluminum", assignment="inner_1")
 
         port = self.aedtapp.wave_port(
             assignment=o6,
@@ -695,6 +674,10 @@ class TestClass:
             box1.name, box2.name, self.aedtapp.AxisDir.ZNeg, is_boundary_on_plane=False
         )
 
+        assert self.aedtapp.create_perfecth_from_objects(
+            box1.name, box2.name, self.aedtapp.AxisDir.ZNeg, is_boundary_on_plane=False, name=ph.name
+        )
+
         pe = self.aedtapp.create_perfecte_from_objects(
             box1.name, box2.name, self.aedtapp.AxisDir.ZNeg, is_boundary_on_plane=False
         )
@@ -713,8 +696,7 @@ class TestClass:
         assert imp.name in self.aedtapp.modeler.get_boundaries_name()
         assert imp.update()
 
-    pytest.mark.skipif(config["desktopVersion"] > "2023.2", reason="Crashing Desktop")
-
+    @pytest.mark.skipif(config["desktopVersion"] > "2023.2", reason="Crashing Desktop")
     def test_14_create_lumpedrlc_on_objects(self):
         box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "rlc1", "Copper")
         box2 = self.aedtapp.modeler.create_box([0, 0, 10], [10, 10, 5], "rlc2", "copper")
@@ -746,7 +728,11 @@ class TestClass:
         assert perfect_h_eigen.name in self.aedtapp.modeler.get_boundaries_name()
         perfect_e_eigen = self.aedtapp.assign_perfecte_to_sheets(rect.name)
         assert perfect_e_eigen.name in self.aedtapp.modeler.get_boundaries_name()
-        self.aedtapp.solution_type = "solution_type"
+
+        perfect_e_eigen = self.aedtapp.assign_perfecte_to_sheets(rect.name, name=perfect_e_eigen.name)
+        assert perfect_e_eigen.name in self.aedtapp.modeler.get_boundaries_name()
+
+        self.aedtapp.solution_type = solution_type
 
     def test_16_a_create_impedance_on_sheets(self):
         rect = self.aedtapp.modeler.create_rectangle(
@@ -1900,3 +1886,150 @@ class TestClass:
         aedtapp = add_app(project_name="test_75", solution_type="SBR+")
         bound = aedtapp.insert_near_field_points(input_file=sample_points_file)
         assert bound
+
+    def test_perfect_e(self):
+        self.aedtapp.insert_design("hfss_perfect_e")
+        b = self.aedtapp.modeler.create_box([0, 0, 0], [10, 20, 30])
+
+        bound = self.aedtapp.assign_perfect_e(name="b1", assignment=b.faces[0], is_infinite_ground=True)
+        assert bound.properties["Inf Ground Plane"]
+
+        bound2 = self.aedtapp.assign_perfect_e(name="b2", assignment=[b, b.faces[0]])
+        assert not bound2.properties["Inf Ground Plane"]
+
+        with pytest.raises(AEDTRuntimeError):
+            self.aedtapp.assign_perfect_e(name="b1", assignment=[b, b.faces[0]])
+
+        with pytest.raises(AEDTRuntimeError):
+            self.aedtapp.assign_perfect_e("insulator2")
+
+    def test_perfect_h(self):
+        self.aedtapp.insert_design("hfss_perfect_h")
+        b = self.aedtapp.modeler.create_box([0, 0, 0], [10, 20, 30])
+
+        assert self.aedtapp.assign_perfect_h(name="b1", assignment=[b, b.faces[0]])
+
+        with pytest.raises(AEDTRuntimeError):
+            self.aedtapp.assign_perfect_h(name="b1", assignment=[b, b.faces[0]])
+
+        with pytest.raises(AEDTRuntimeError):
+            self.aedtapp.assign_perfect_h("insulator2")
+
+    def test_finite_conductivity(self):
+        self.aedtapp.insert_design("hfss_finite_conductivity")
+        b = self.aedtapp.modeler.create_box([0, 0, 0], [10, 20, 30])
+
+        args = {
+            "material": "aluminum",
+            "use_thickness": True,
+            "thickness": "0.5mm",
+            "is_two_side": True,
+            "is_shell_element": True,
+            "use_huray": True,
+            "radius": "0.75um",
+            "ratio": "3",
+            "name": "b1",
+        }
+
+        coat = self.aedtapp.assign_finite_conductivity([b.id, b.name, b.faces[0]], **args)
+        coat.name = "Coating1inner"
+        assert coat.update()
+        assert coat.properties
+        material = coat.props.get("Material", "")
+        assert material == "aluminum"
+
+        args = {
+            "material": None,
+            "use_thickness": False,
+            "thickness": "0.5mm",
+            "is_two_side": False,
+            "is_shell_element": False,
+            "use_huray": False,
+            "radius": "0.75um",
+            "ratio": "3",
+            "name": "b2",
+        }
+
+        coat2 = self.aedtapp.assign_finite_conductivity([b.id, b.name, b.faces[0]], **args)
+        assert coat2.properties["Surface Roughness Model"] == "Groiss"
+
+        with pytest.raises(AEDTRuntimeError):
+            self.aedtapp.assign_finite_conductivity([b.id, b.name, b.faces[0]], **args)
+
+        with pytest.raises(AEDTRuntimeError):
+            self.aedtapp.assign_finite_conductivity(["insulator2"])
+
+    def test_boundaries_layered_impedance(self):
+        self.aedtapp.insert_design("hfss_layered_impedance")
+        b = self.aedtapp.modeler.create_box([0, 0, 0], [10, 20, 30])
+
+        args = {
+            "material": ["aluminum", "vacuum"],
+            "thickness": ["0.5mm", "PerfectE"],
+            "is_two_side": False,
+            "is_shell_element": False,
+            "height_deviation": 1,
+            "roughness": 0.5,
+        }
+
+        coat = self.aedtapp.assign_layered_impedance([b.id, b.name, b.faces[0]], **args)
+        coat.name = "Coating1inner"
+        assert coat.update()
+        assert coat.properties["Layer 2/Type"] == "PerfectE"
+
+        args = {
+            "material": None,
+            "thickness": None,
+            "is_two_side": True,
+            "is_shell_element": True,
+            "height_deviation": 1,
+            "roughness": 0.0,
+            "name": "b2",
+        }
+
+        coat2 = self.aedtapp.assign_layered_impedance(b.faces[0], **args)
+        assert coat2.properties["Shell Element"]
+
+        # Repeat name
+        with pytest.raises(AEDTRuntimeError):
+            self.aedtapp.assign_layered_impedance(b.faces[0], **args)
+
+        # Not existing assignment
+        with pytest.raises(AEDTRuntimeError):
+            self.aedtapp.assign_layered_impedance(["insulator2"])
+
+        args = {
+            "material": "aluminum",
+            "thickness": "1mm",
+            "is_two_side": False,
+            "is_shell_element": False,
+            "is_infinite_ground": True,
+            "name": "b3",
+        }
+
+        coat3 = self.aedtapp.assign_layered_impedance(b.faces[0], **args)
+        assert coat3.properties["Inf Ground Plane"]
+
+        args = {
+            "material": ["aluminum", "aluminum"],
+            "thickness": ["1mm"],
+            "is_two_side": False,
+            "is_shell_element": False,
+            "height_deviation": 1,
+            "roughness": 0.5,
+            "name": "b3",
+        }
+        with pytest.raises(AttributeError):
+            self.aedtapp.assign_layered_impedance([b.id, b.name, b.faces[0]], **args)
+
+        # Two side
+        args = {
+            "material": ["aluminum", "vacuum"],
+            "thickness": ["0.5mm", "1um"],
+            "is_two_side": True,
+            "is_shell_element": False,
+            "name": "b4",
+        }
+
+        coat4 = self.aedtapp.assign_layered_impedance([b.id, b.name, b.faces[0]], **args)
+        assert coat4.properties["Layer 2/Material"] == "vacuum"
