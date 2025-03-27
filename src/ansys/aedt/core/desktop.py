@@ -87,7 +87,13 @@ def grpc_server_on(channel, timeout_sec=5) -> bool:
 def launch_aedt(
     full_path: Union[str, Path], non_graphical: bool, port: int, student_version: bool, first_run: bool = True
 ):  # pragma: no cover
-    """Launch AEDT in gRPC mode."""
+    """Launch AEDT in gRPC mode.
+
+    .. warning::
+
+        Do not execute this function with untrusted input parameters.
+        See the :ref:`security guide<security_launch_aedt>` for details.
+    """
 
     full_path = Path(full_path)
     if not full_path.exists() or not full_path.name.lower() in {
@@ -152,7 +158,13 @@ def launch_aedt(
 
 @pyaedt_function_handler()
 def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
-    """Launch AEDT in LSF in gRPC mode."""
+    """Launch AEDT in LSF in gRPC mode.
+
+    .. warning::
+
+        Do not execute this function with untrusted input parameters.
+        See the :ref:`security guide<security_launch_aedt>` for details.
+    """
     _check_port(port)
     _check_settings(settings)
 
@@ -418,6 +430,7 @@ class Desktop(object):
         port=0,
         aedt_process_id=None,
     ):
+        """Initialize desktop."""
         # Used to track whether desktop release must be performed at exit or not.
         self.__closed = False
         if _desktop_sessions and version is None:
@@ -437,8 +450,6 @@ class Desktop(object):
         self.parent_desktop_id = []
         self._odesktop = None
         self._connected_app_instances = 0
-
-        """Initialize desktop."""
         self.launched_by_pyaedt = False
 
         # Used in unit tests. The ``PYAEDT_NON_GRAPHICAL`` environment variable overrides
@@ -1753,6 +1764,11 @@ class Desktop(object):
     def get_ansyscloud_job_info(self, job_id=None, job_name=None):  # pragma: no cover
         """Monitor a job submitted to Ansys Cloud.
 
+        .. warning::
+
+            Do not execute this function with untrusted environment variables.
+            See the :ref:`security guide<security_ansys_cloud>` for details.
+
         Parameters
         ----------
         job_id : str, optional
@@ -1764,7 +1780,7 @@ class Desktop(object):
         -------
         dict
 
-                Examples
+        Examples
         --------
         >>> from ansys.aedt.core import Desktop
 
@@ -1867,6 +1883,11 @@ class Desktop(object):
     @pyaedt_function_handler()
     def get_available_cloud_config(self, region="westeurope"):  # pragma: no cover
         """Get available Ansys Cloud machines configuration.
+
+        .. warning::
+
+            Do not execute this function with untrusted environment variables.
+            See the :ref:`security guide<security_ansys_cloud>` for details.
 
         Parameters
         ----------
