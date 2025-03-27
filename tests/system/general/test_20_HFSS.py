@@ -692,8 +692,7 @@ class TestClass:
         assert imp.name in self.aedtapp.modeler.get_boundaries_name()
         assert imp.update()
 
-    pytest.mark.skipif(config["desktopVersion"] > "2023.2", reason="Crashing Desktop")
-
+    @pytest.mark.skipif(config["desktopVersion"] > "2023.2", reason="Crashing Desktop")
     def test_14_create_lumpedrlc_on_objects(self):
         box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "rlc1", "Copper")
         box2 = self.aedtapp.modeler.create_box([0, 0, 10], [10, 10, 5], "rlc2", "copper")
@@ -1951,3 +1950,79 @@ class TestClass:
 
         with pytest.raises(AEDTRuntimeError):
             self.aedtapp.assign_finite_conductivity(["insulator2"])
+
+    def test_boundaries_layered_impedance(self):
+        self.aedtapp.insert_design("hfss_layered_impedance")
+        b = self.aedtapp.modeler.create_box([0, 0, 0], [10, 20, 30])
+        model_units = self.aedtapp.modeler.model_units
+
+        args = {
+            "material": ["aluminum", "vacuum"],
+            "thickness": ["0.5mm", "PerfectE"],
+            "is_two_side": False,
+            "is_shell_element": False,
+            "height_deviation": 1,
+            "roughness": 0.5,
+        }
+
+        coat = self.aedtapp.assign_layered_impedance([b.id, b.name, b.faces[0]], **args)
+        coat.name = "Coating1inner"
+        assert coat.update()
+        assert coat.properties["Layer 2/Type"] == "PerfectE"
+
+        args = {
+            "material": None,
+            "thickness": None,
+            "is_two_side": True,
+            "is_shell_element": True,
+            "height_deviation": 1,
+            "roughness": 0.0,
+            "name": "b2",
+        }
+
+        coat2 = self.aedtapp.assign_layered_impedance(b.faces[0], **args)
+        assert coat2.properties["Shell Element"] == True
+
+        # Repeat name
+        with pytest.raises(AEDTRuntimeError):
+            self.aedtapp.assign_layered_impedance(b.faces[0], **args)
+
+        # Not existing assignment
+        with pytest.raises(AEDTRuntimeError):
+            self.aedtapp.assign_layered_impedance(["insulator2"])
+
+        args = {
+            "material": "aluminum",
+            "thickness": "1mm",
+            "is_two_side": False,
+            "is_shell_element": False,
+            "is_infinite_ground": True,
+            "name": "b3",
+        }
+
+        coat3 = self.aedtapp.assign_layered_impedance(b.faces[0], **args)
+        assert coat3.properties["Inf Ground Plane"] == True
+
+        args = {
+            "material": ["aluminum", "aluminum"],
+            "thickness": ["1mm"],
+            "is_two_side": False,
+            "is_shell_element": False,
+            "height_deviation": 1,
+            "roughness": 0.5,
+            "name": "b3",
+        }
+        with pytest.raises(AttributeError):
+            self.aedtapp.assign_layered_impedance([b.id, b.name, b.faces[0]], **args)
+
+        # Two side
+        args = {
+            "material": ["aluminum", "vacuum"],
+            "thickness": ["0.5mm", "1um"],
+            "is_two_side": True,
+            "is_shell_element": False,
+            "name": "b4",
+        }
+
+        coat4 = self.aedtapp.assign_layered_impedance([b.id, b.name, b.faces[0]], **args)
+        assert coat4.properties["Layer 2/Material"] == "vacuum"

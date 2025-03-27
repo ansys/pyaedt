@@ -1137,30 +1137,30 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         props["IsShellElement"] = is_shell_element
         props["Frequency"] = "0GHz"
 
-        if is_two_side:
-            props["IsShellElement"] = is_shell_element
-        else:
-            if material is None:
-                material = ["vacuum"]
-            elif isinstance(material, str):
-                material = [material]
+        if material is None:
+            material = ["vacuum"]
+        elif isinstance(material, str):
+            material = [material]
 
-            # if thickness is None: esto va arriba
-            #     thickness = ["1um"] * len(material)
-            # elif isinstance(thickness, (str, float, int)):
-            #     thickness = [Quantity(thickness, self.modeler.model_units)] * len(material)
-            # elif len(thickness) != len(material):
-            #     raise AttributeError("Thickness and material must have the same number of elements.")
+        if thickness is None:
+            thickness = ["1um"] * len(material)
+        elif isinstance(thickness, (str, float, int)) and thickness not in ["Infinite", "PerfectE", "PerfectH"]:
+            thickness = [Quantity(thickness, self.modeler.model_units)] * len(material)
+        elif len(thickness) != len(material):
+            raise AttributeError("Thickness and material must have the same number of elements.")
 
-            cont = 1
-            layer = {}
-            for mat, thick in zip(material, thickness):
-                layer[f"Layer{cont}"] = {}
-                layer[f"Layer{cont}"]["LayerType"] = "Infinite"
-                layer[f"Layer{cont}"]["Thickness"] = "1um"
-                layer[f"Layer{cont}"]["Material"] = mat
-                cont += 1
-            props["Layers"] = layer
+        cont = 1
+        layer = {}
+        num_layers = len(material)
+        for mat, thick in zip(material, thickness):
+            layer[f"Layer{cont}"] = {}
+            if cont == num_layers and not is_two_side:
+                layer[f"Layer{cont}"]["LayerType"] = thick
+            else:
+                layer[f"Layer{cont}"]["Thickness"] = thick
+            layer[f"Layer{cont}"]["Material"] = mat
+            cont += 1
+        props["Layers"] = layer
 
         roughness = Quantity(roughness, self.modeler.model_units)
 
@@ -1168,7 +1168,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             height_deviation = Quantity(height_deviation, self.modeler.model_units)
             props["SbrRoughSurfaceHeightStdDev"] = height_deviation
             props["SbrRoughSurfaceRoughess"] = roughness
-            props["Roughness"] = "0um"
+            props["Roughness"] = Quantity("0um")
         else:
             props["Roughness"] = roughness
             props["InfGroundPlane"] = is_infinite_ground

@@ -574,7 +574,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
         elif bound_type == "Impedance":
             self._app.oboundary.EditImpedance(self.name, self._get_args())
         elif bound_type == "Layered Impedance":
-            self._app.oboundary.EditLayeredImpedance(self.name, self._get_args())
+            self._app.oboundary.EditLayeredImp(self.name, self._get_args())
         elif bound_type == "Anisotropic Impedance":
             self._app.oboundary.EditAssignAnisotropicImpedance(self.name, self._get_args())  # pragma: no cover
         elif bound_type == "Primary":
