@@ -320,7 +320,7 @@ class TestClass:
         assert bound.properties["SBR+ Rough Surface Height Standard Deviation"] == f"2{model_units}"
 
         bound2 = self.aedtapp.assign_perfect_e(assignment=[b, b.faces[0]], height_deviation="3mm")
-        assert bound2.properties["SBR+ Rough Surface Height Standard Deviation"] == f"3mm"
+        assert bound2.properties["SBR+ Rough Surface Height Standard Deviation"] == "3mm"
 
         with pytest.raises(AEDTRuntimeError):
             self.aedtapp.assign_perfect_e(name="b1", assignment=[b, b.faces[0]], height_deviation="3mm")
@@ -337,7 +337,7 @@ class TestClass:
         assert bound.properties["SBR+ Rough Surface Height Standard Deviation"] == f"2{model_units}"
 
         bound2 = self.aedtapp.assign_perfect_h(assignment=[b, b.faces[0]], height_deviation="3mm")
-        assert bound2.properties["SBR+ Rough Surface Height Standard Deviation"] == f"3mm"
+        assert bound2.properties["SBR+ Rough Surface Height Standard Deviation"] == "3mm"
 
         with pytest.raises(AEDTRuntimeError):
             self.aedtapp.assign_perfect_h(name="b1", assignment=[b, b.faces[0]], height_deviation="3mm")

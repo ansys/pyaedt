@@ -1954,7 +1954,6 @@ class TestClass:
     def test_boundaries_layered_impedance(self):
         self.aedtapp.insert_design("hfss_layered_impedance")
         b = self.aedtapp.modeler.create_box([0, 0, 0], [10, 20, 30])
-        model_units = self.aedtapp.modeler.model_units
 
         args = {
             "material": ["aluminum", "vacuum"],
@@ -1981,7 +1980,7 @@ class TestClass:
         }
 
         coat2 = self.aedtapp.assign_layered_impedance(b.faces[0], **args)
-        assert coat2.properties["Shell Element"] == True
+        assert coat2.properties["Shell Element"]
 
         # Repeat name
         with pytest.raises(AEDTRuntimeError):
@@ -2001,7 +2000,7 @@ class TestClass:
         }
 
         coat3 = self.aedtapp.assign_layered_impedance(b.faces[0], **args)
-        assert coat3.properties["Inf Ground Plane"] == True
+        assert coat3.properties["Inf Ground Plane"]
 
         args = {
             "material": ["aluminum", "aluminum"],
