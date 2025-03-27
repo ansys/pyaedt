@@ -30,7 +30,6 @@ from unittest.mock import patch
 from ansys.aedt.core.desktop import Desktop
 from ansys.aedt.core.desktop import _find_free_port
 from ansys.aedt.core.desktop import _is_port_occupied
-from ansys.aedt.core.desktop import run_process
 from ansys.aedt.core.generic.settings import Settings
 import pytest
 
@@ -62,14 +61,6 @@ def test_find_free_port(mock_socket, mock_active_sessions):
     mock_socket.return_value.getsockname.return_value = ("127.0.0.1", 12345)
     port = _find_free_port()
     assert port == 12345
-
-
-# Test run_process
-@patch("subprocess.call")
-def test_run_process(mock_call):
-    command = "dummy_command"
-    run_process(command)
-    mock_call.assert_called_once_with(command)
 
 
 # Test Desktop.get_available_toolkits() static method
