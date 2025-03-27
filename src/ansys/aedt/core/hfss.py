@@ -6039,6 +6039,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             self.logger.info("Frequencies could not be obtained.")
             return False
 
+        frequencies = list(frequencies)
+
         rcs = MonostaticRCSExporter(
             self,
             setup_name=setup,

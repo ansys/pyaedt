@@ -25,7 +25,7 @@
 """This module contains the ``MaxwellCircuit`` class."""
 
 import math
-import os
+from pathlib import Path
 
 from ansys.aedt.core.application.analysis_maxwell_circuit import AnalysisMaxwellCircuit
 from ansys.aedt.core.generic.file_utils import open_file
@@ -223,7 +223,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
 
         Parameters
         ----------
-        output_file : str
+        output_file : str or :class:`pathlib.Path`
             File path to export the netlist to.
 
         Returns
@@ -232,7 +232,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
             Netlist file path when successful, ``False`` when failed.
 
         """
-        if os.path.splitext(output_file)[1] != ".sph":
+        if Path(output_file).suffix != ".sph":
             self.logger.error("Invalid file extension. It must be ``.sph``.")
             return False
         try:
