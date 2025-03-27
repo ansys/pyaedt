@@ -674,6 +674,10 @@ class TestClass:
             box1.name, box2.name, self.aedtapp.AxisDir.ZNeg, is_boundary_on_plane=False
         )
 
+        assert self.aedtapp.create_perfecth_from_objects(
+            box1.name, box2.name, self.aedtapp.AxisDir.ZNeg, is_boundary_on_plane=False, name=ph.name
+        )
+
         pe = self.aedtapp.create_perfecte_from_objects(
             box1.name, box2.name, self.aedtapp.AxisDir.ZNeg, is_boundary_on_plane=False
         )
@@ -724,7 +728,11 @@ class TestClass:
         assert perfect_h_eigen.name in self.aedtapp.modeler.get_boundaries_name()
         perfect_e_eigen = self.aedtapp.assign_perfecte_to_sheets(rect.name)
         assert perfect_e_eigen.name in self.aedtapp.modeler.get_boundaries_name()
-        self.aedtapp.solution_type = "solution_type"
+
+        perfect_e_eigen = self.aedtapp.assign_perfecte_to_sheets(rect.name, name=perfect_e_eigen.name)
+        assert perfect_e_eigen.name in self.aedtapp.modeler.get_boundaries_name()
+
+        self.aedtapp.solution_type = solution_type
 
     def test_16_a_create_impedance_on_sheets(self):
         rect = self.aedtapp.modeler.create_rectangle(
@@ -1902,7 +1910,7 @@ class TestClass:
         assert self.aedtapp.assign_perfect_h(name="b1", assignment=[b, b.faces[0]])
 
         with pytest.raises(AEDTRuntimeError):
-            self.aedtapp.assign_perfect_h(name="b1", assignment=[b, b.faces[0]], height_deviation="3mm")
+            self.aedtapp.assign_perfect_h(name="b1", assignment=[b, b.faces[0]])
 
         with pytest.raises(AEDTRuntimeError):
             self.aedtapp.assign_perfect_h("insulator2")

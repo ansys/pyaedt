@@ -972,8 +972,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             props["InfGroundPlane"] = is_infinite_ground
         if not name:
             name = "PerfectE_" + listobjname[1:]
-        if name in self.boundaries:
-            raise AEDTRuntimeError(f"Boundary {name} already exists.")
         return self._create_boundary(name, props, "Perfect E")
 
     @pyaedt_function_handler()
@@ -1045,8 +1043,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         if not name:
             name = "PerfectH_" + listobjname[1:]
-        if name in self.boundaries:
-            raise AEDTRuntimeError(f"Boundary {name} already exists.")
         return self._create_boundary(name, props, "Perfect H")
 
     @pyaedt_function_handler()
@@ -1361,7 +1357,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             SOLUTIONS.Hfss.Transient,
             SOLUTIONS.Hfss.SBR,
             SOLUTIONS.Hfss.EigenMode,
-        ):
+        ):  # pragma: no cover
             raise AEDTRuntimeError("Invalid solution type.")
 
         assignment = self.modeler.convert_to_selections(assignment, True)
