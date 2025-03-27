@@ -1847,7 +1847,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         savedir : str, optional
             Directory to save the CSV file to. The default is ``None``, in which
             case the file is exported to the working directory.
-        filename : str, optional
+        filename : str or :class:`pathlib.Path`, optional
             Name of the CSV file. The default is ``None``, in which case the default
             name is used.
         sweep_name : str, optional
@@ -1882,7 +1882,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         string = ""
         for el in parameter_dict_with_values:
             string += el + "='" + parameter_dict_with_values[el] + "' "
-        filename = Path(savedir) / (filename + ".csv")
+        filename = str(Path(savedir) / (filename + ".csv"))
         self.osolution.ExportFieldsSummary(
             [
                 "SolutionName:=",
