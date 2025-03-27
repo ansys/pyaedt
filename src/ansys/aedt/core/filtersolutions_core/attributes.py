@@ -1776,7 +1776,7 @@ class Attributes:
 
     @property
     def standard_delay_equ_pass_band_attenuation_value_db(self) -> str:
-        """Filter standard delay equalizer cut Off attenuation in dB.
+        """Filter standard delay equalizer cut off attenuation in dB.
 
         The default is ''3.01 dB''.
 
