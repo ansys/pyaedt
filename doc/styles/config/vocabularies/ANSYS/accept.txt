@@ -14,7 +14,7 @@ busbars
 Bz
 CHECKIN
 [Cc]ircuit
-Cloud
+[Cc]loud
 codecov
 (?i)Com
 COM interface
