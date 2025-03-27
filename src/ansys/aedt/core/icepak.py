@@ -1952,7 +1952,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         string = ""
         for el in parameter_dict_with_values:
             string += el + "='" + parameter_dict_with_values[el] + "' "
-        filename = Path(savedir) / (filename + ".csv")
+        filename = str(Path(savedir) / (filename + ".csv"))
         self.osolution.ExportFieldsSummary(
             [
                 "SolutionName:=",
