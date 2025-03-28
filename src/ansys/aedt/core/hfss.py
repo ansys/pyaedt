@@ -2681,7 +2681,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         if assignment.project_name == self.project_name:
             project_name = "This Project*"
         else:
-            project_name = str(Path(assignment.project_path) / (assignment.project_name + ".aedt"))
+            project_name = Path(assignment.project_path) / (assignment.project_name + ".aedt")
         design_name = assignment.design_name
         if not setup:
             setup = assignment.nominal_adaptive
@@ -2696,7 +2696,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                 "Unit": self.modeler.model_units,
                 "Version": 0,
                 "Is Parametric Array": False,
-                "Project": project_name,
+                "Project": str(project_name),
                 "Product": "HFSS",
                 "Design": design_name,
                 "Soln": setup,
