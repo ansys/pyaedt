@@ -1083,7 +1083,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         i = 2
         if validate == 0:
             priority_list = []
-            with open_file(temp_log, "r") as f:
+            with open_file(str(temp_log), "r") as f:
                 lines = f.readlines()
                 for line in lines:
                     if "[error]" in line and component_prefix in line and "intersect" in line:
