@@ -76,10 +76,8 @@ class PostProcessorMaxwell(PostProcessor3D):
         self._app.desktop_class.close_windows()
         try:
             self._app.modeler.fit_all()
-        except Exception:
-            self.logger.debug(
-                "Something went wrong with `fit_all` while creating field plot with line traces."
-            )  # pragma: no cover
+        except Exception:  # pragma: no cover
+            self.logger.debug("Something went wrong with `fit_all` while creating field plot with line traces.")
         self._desktop.TileWindows(0)
         self._app.desktop_class.active_design(self._oproject, self._app.design_name)
 
@@ -101,8 +99,6 @@ class PostProcessorMaxwell(PostProcessor3D):
         plot.plot_folder = plot_name
 
         plt = plot.create()
-        if "Maxwell" in self._app.design_type and self.post_solution_type == "Transient":
-            self.ofieldsreporter.SetPlotsViewSolutionContext([plot_name], setup, "Time:" + intrinsics["Time"])
         if plt:
             self.field_plots[plot_name] = plot
             return plot

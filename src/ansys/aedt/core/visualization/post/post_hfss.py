@@ -31,6 +31,7 @@ It contains all advanced postprocessing functionalities for creating and editing
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.visualization.post.post_3dlayout import PostProcessor3DLayout
 from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+from ansys.aedt.core.visualization.post.vrt_data import VRTFieldPlot
 
 
 class PostProcessorHFSS(PostProcessor3D):

@@ -315,6 +315,7 @@ class TestClass:
         )
         assert data.units_sweeps["Phase"] == "deg"
 
+        assert field_test.post.get_far_field_data(expressions="RealizedGainTotal", domain="3D")
         assert field_test.post.get_far_field_data(
             expressions="RealizedGainTotal", setup_sweep_name=field_test.nominal_adaptive, domain="3D"
         )
@@ -745,6 +746,8 @@ class TestClass:
         setup_name = "test"
         m2dtest.create_setup(name=setup_name)
         m2dtest.analyze_setup(setup_name)
+        plot = m2dtest.post.create_fieldplot_line_traces(["Ground", "Electrode"], "Region")
+        assert plot
         plot = m2dtest.post.create_fieldplot_line_traces(["Ground", "Electrode"], "Region", plot_name="LineTracesTest4")
         assert plot
         assert m2dtest.post.create_fieldplot_line_traces(["Ground", "Electrode"], "Region", plot_name="LineTracesTest4")
