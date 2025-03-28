@@ -3952,9 +3952,10 @@ class PostProcessor3D(PostProcessorCommon):
 
         position = []
         for d in ["X", "Y", "Z"]:
+            self.fields_calculator.delete_expression("__pyaedt_internal_MaxMinPos")
             xpr = self.fields_calculator.add_expression(
                 {
-                    "name": "MaxMinPos",
+                    "name": "__pyaedt_internal_MaxMinPos",
                     "design_type": [self._app.design_type],
                     "fields_type": ["Fields"],
                     "primary_sweep": "",
