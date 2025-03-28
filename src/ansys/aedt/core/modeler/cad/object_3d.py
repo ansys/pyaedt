@@ -34,7 +34,7 @@ objects (points, lines, sheets, and solids) within the AEDT 3D Modeler.
 """
 
 import math
-import os
+from pathlib import Path
 import re
 
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -184,11 +184,11 @@ class Object3d(object):
 
         """
         tmp_path = self._primitives._app.working_directory
-        filename = os.path.join(tmp_path, self.name + ".sat")
+        filename = Path(tmp_path) / (self.name + ".sat")
 
         self._primitives._app.export_3d_model(self.name, tmp_path, ".sat", [self.name])
 
-        if not os.path.isfile(filename):
+        if not Path(filename).is_file():
             raise Exception(f"Cannot export the ACIS SAT file for object {self.name}")
 
         with open_file(filename, "r") as fh:
@@ -212,7 +212,7 @@ class Object3d(object):
             return False
 
         try:
-            os.remove(filename)
+            Path(filename).unlink()
         except Exception:
             self.logger.warning("ERROR: Cannot remove temp file.")
         return bb
@@ -309,7 +309,7 @@ class Object3d(object):
 
         Parameters
         ----------
-        output_file : str, optional
+        output_file : str or :class:`pathlib.Path`, optional
             File name with full path. If `None` the exported image will be a ``png`` file that
             will be saved in ``working_directory``.
             To access the ``working_directory`` the use ``app.working_directory`` property.
@@ -320,7 +320,7 @@ class Object3d(object):
             File path.
         """
         if not output_file:
-            output_file = os.path.join(self._primitives._app.working_directory, self.name + ".png")
+            output_file = Path(self._primitives._app.working_directory) / (self.name + ".png")
         model_obj = self._primitives._app.post.plot_model_obj(
             objects=[self.name],
             show=False,

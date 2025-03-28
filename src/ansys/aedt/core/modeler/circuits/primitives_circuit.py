@@ -736,7 +736,7 @@ class CircuitComponents(object):
         return model_name
 
     @pyaedt_function_handler(touchstone_full_path="input_file")
-    def create_model_from_nexxim_state_space(self, input_file, num_terminal, model_name=None):
+    def create_model_from_nexxim_state_space(self, input_file, num_terminal, model_name=None, port_names=None):
         """Create a model from a Touchstone file.
 
         Parameters
@@ -750,6 +750,8 @@ class CircuitComponents(object):
         show_bitmap : bool, optional
             Show bitmap image of schematic component.
             The default value is ``True``.
+        port_names : list, optional
+            List of port names. The default is ``None``.
 
         Returns
         -------
@@ -768,8 +770,8 @@ class CircuitComponents(object):
                 model_name = model_name.replace(".", "_")
         if model_name in list(self.omodel_manager.GetNames()):
             model_name = generate_unique_name(model_name, n=2)
-
-        port_names = ["Port" + str(i + 1) for i in range(num_terminal)]
+        if not port_names:
+            port_names = [str(i + 1) for i in range(num_terminal)]
         arg = [
             "NAME:" + model_name,
             "Name:=",
@@ -1040,6 +1042,7 @@ class CircuitComponents(object):
         num_terminal,
         location=None,
         angle=0,
+        port_names=None,
     ):
         """Create a component from a Touchstone model.
 
@@ -1054,6 +1057,8 @@ class CircuitComponents(object):
                     Position on the X  and Y axis.
                 angle : float, optional
                     Angle rotation in degrees. The default is ``0``.
+                port_names : list, optional
+                    Name of ports.
         .
 
                 Returns
@@ -1070,7 +1075,7 @@ class CircuitComponents(object):
         """
         if not Path(model_name):
             raise FileNotFoundError("File not found.")
-        model_name = self.create_model_from_nexxim_state_space(str(model_name), num_terminal)
+        model_name = self.create_model_from_nexxim_state_space(str(model_name), num_terminal, port_names=port_names)
         if location is None:
             location = []
         xpos, ypos = self._get_location(location)

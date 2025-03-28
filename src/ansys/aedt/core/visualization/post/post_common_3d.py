@@ -34,6 +34,7 @@ import ast
 import os
 import random
 import string
+from typing import Dict
 from typing import Literal
 from typing import Optional
 from typing import Tuple
@@ -234,6 +235,8 @@ class PostProcessor3D(PostProcessorCommon):
                 elif k in ["Phase", "phase"]:
                     intrinsics["Phase"] = v
                 elif k in ["Time", "time"]:
+                    if self._app.solution_type == "SteadyState":
+                        continue
                     intrinsics["Time"] = v
                 if input_phase:
                     intrinsics["Phase"] = input_phase
@@ -3913,7 +3916,7 @@ class PostProcessor3D(PostProcessorCommon):
         location: Literal["Surface", "Volume"],
         field: str,
         setup: Optional[str] = None,
-        intrinsics: Optional[dict[str, str]] = None,
+        intrinsics: Optional[Dict[str, str]] = None,
     ) -> Tuple[Tuple[float, float, float], float]:
         """
         Calculates the position and value of the field maximum or minimum.
