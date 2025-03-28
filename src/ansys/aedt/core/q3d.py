@@ -24,7 +24,7 @@
 
 """This module contains these classes: ``Q2d``, ``Q3d``, and ``QExtractor``."""
 
-import os
+from pathlib import Path
 import re
 import warnings
 
@@ -59,7 +59,7 @@ class QExtractor(FieldAnalysis3D, object):
     @property
     def design_file(self):
         """Design file."""
-        design_file = os.path.join(self.working_directory, "design_data.json")
+        design_file = Path(self.working_directory) / "design_data.json"
         return design_file
 
     def __init__(
@@ -239,7 +239,7 @@ class QExtractor(FieldAnalysis3D, object):
             Setup name.
         variations : str, optional
             Variation list. The default is ``""``.
-        output_file : str, optional
+        output_file : str or :class:`pathlib.Path`, optional
             Full path to the mesh statistics file. The default is ``None``, in which
             case the working directory is used.
         setup_type : str, optional
@@ -256,9 +256,9 @@ class QExtractor(FieldAnalysis3D, object):
         >>> oDesign.ExportMeshStats
         """
         if not output_file:
-            output_file = os.path.join(self.working_directory, "meshstats.ms")
-        self.odesign.ExportMeshStats(setup, variations, setup_type, output_file)
-        return output_file
+            output_file = Path(self.working_directory) / "meshstats.ms"
+        self.odesign.ExportMeshStats(setup, variations, setup_type, str(output_file))
+        return str(output_file)
 
     @pyaedt_function_handler()
     def edit_sources(
@@ -503,7 +503,7 @@ class QExtractor(FieldAnalysis3D, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if os.path.splitext(file_name)[1] not in [".m", ".lvl", ".csv", ".txt"]:
+        if Path(file_name).suffix not in [".m", ".lvl", ".csv", ".txt"]:
             self.logger.error("Extension is invalid. Possible extensions are *.m, *.lvl, *.csv, and *.txt.")
             return False
 
@@ -921,7 +921,7 @@ class QExtractor(FieldAnalysis3D, object):
         >>> aedtapp.export_equivalent_circuit(output_file="test_export_circuit.cir",
         ...                                   setup=mysetup.name,sweep="LastAdaptive", variations=["d: 20mm"])
         """
-        if os.path.splitext(output_file)[1] not in [
+        if Path(output_file).suffix not in [
             ".cir",
             ".sml",
             ".sp",
@@ -2507,7 +2507,7 @@ class Q2d(QExtractor, CreateBoundaryMixin):
         analyze : bool, optional
             Whether to analyze before export. Solutions must be present for the design.
             The default is ``False``.
-        export_folder : str, optional
+        export_folder : str or :class:`pathlib.Path`, optional
             Full path to the folder to export files to. The default is ``None``, in
             which case the working directory is used.
 
@@ -2519,8 +2519,8 @@ class Q2d(QExtractor, CreateBoundaryMixin):
         exported_files = []
         if not export_folder:
             export_folder = self.working_directory
-        if not os.path.exists(export_folder):
-            os.makedirs(export_folder)
+        if not Path(export_folder).exists():
+            Path(export_folder).mkdir()
         if analyze:
             self.analyze()
         setups = self.oanalysis.GetSetups()
@@ -2535,12 +2535,12 @@ class Q2d(QExtractor, CreateBoundaryMixin):
                 if len(variation_array) == 1:
                     try:
                         export_file = f"{self.project_name}_{s}_{sweep}.sp"
-                        export_path = os.path.join(export_folder, export_file)
+                        export_path = Path(export_folder) / export_file
                         subckt_name = f"w_{self.project_name}"
                         self.oanalysis.ExportCircuit(
                             solution_name,
                             variation_array[0],
-                            export_path,
+                            str(export_path),
                             [
                                 "NAME:CircuitData",
                                 "MatrixName:=",
@@ -2579,12 +2579,12 @@ class Q2d(QExtractor, CreateBoundaryMixin):
                         varCount += 1
                         try:
                             export_file = f"{self.project_name}_{s}_{sweep}_{varCount}.sp"
-                            export_path = os.path.join(export_folder, export_file)
+                            export_path = Path(export_folder) / export_file
                             subckt_name = f"w_{self.project_name}_{varCount}"
                             self.oanalysis.ExportCircuit(
                                 solution_name,
                                 variation,
-                                export_path,
+                                str(export_path),
                                 [
                                     "NAME:CircuitData",
                                     "MatrixName:=",

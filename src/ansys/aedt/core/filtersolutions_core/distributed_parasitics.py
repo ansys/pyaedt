@@ -236,7 +236,7 @@ class DistributedParasitics:
 
     @property
     def line_odd_resistance(self) -> str:
-        """Odd-mode conductor resistance value of the line per unit length."
+        """Odd-mode conductor resistance value of the line per unit length.
         This parameter is defined for standard ``RLGC`` transmission line model substrate types.
         The default is ``0``.
 
@@ -253,7 +253,7 @@ class DistributedParasitics:
 
     @property
     def line_even_resistance(self) -> str:
-        """Even-mode conductor resistance value of the line per unit length."
+        """Even-mode conductor resistance value of the line per unit length.
         This parameter is defined for standard ``RLGC`` transmission line model substrate types.
         The default is ``0``.
 

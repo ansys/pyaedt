@@ -45,7 +45,7 @@ They are accessible through:
     design = ansys.aedt.core.filtersolutions.LumpedDesign(version= "2025.1")
     # This property in the Attributes class specifies the filter class as band pass
     design.attributes.filter_class = FilterClass.BAND_PASS
-    # This property in the Attributes class specifies the filter type as Elliptic
+    # This property in the Attributes class specifies the filter type as elliptic
     design.attributes.filter_type = FilterType.ELLIPTIC   
     # This property in the LumpedTopology class enables the trap topology by setting it to true
     design.topology.trap_topology = True
