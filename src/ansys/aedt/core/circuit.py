@@ -1659,6 +1659,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         use_convolution=True,
         analyze=True,
         design_name="LNA",
+        impedance=50,
     ):
         """Create a schematic from a Touchstone file and automatically setup a TDR transient analysis.
 
@@ -1685,6 +1686,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
              Whether to automatically assign differential pairs. The default is ``False``.
         design_name : str, optional
             New schematic name. The default is ``"LNA"``.
+        impedance : float, optional
+            TDR single ended impedance. The default is ``50``. For differential tdr, it will be computed by PyAEDT.
 
         Returns
         -------
@@ -1717,6 +1720,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             pos_y = unit_converter(delta_y - left * 1000, input_units="mil", output_units=self.modeler.schematic_units)
             left += 1
             new_tdr_comp = tdr_probe.place("Tdr_probe", [center_x, center_y + pos_y], angle=-90)
+            new_tdr_comp.parameters["Z0"] = 2 * impedance if differential else impedance
             try:
                 if isinstance(probe_pin, int):
                     p_pin = probe_pin
@@ -1742,7 +1746,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                             name=pin.name, location=[loc[0] + loc1, loc[1]]
                         )
                     p1.pins[0].connect_to_component(pin, use_wire=True)
-
+                    p1.impedance = [f"{impedance}ohm", "0ohm"]
             _, first, second = new_tdr_comp.pins[0].connect_to_component(p_pin)
             self.modeler.move(first, [0, 100], "mil")
             if second.pins[0].location[0] > center_x:
