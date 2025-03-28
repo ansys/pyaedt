@@ -494,7 +494,7 @@ class Desktop(object):
             self._logger.info("Debug logger is enabled. PyAEDT methods will be logged.")
         else:
             self._logger.info("Debug logger is disabled. PyAEDT methods will not be logged.")
-        student_version_flag, version_key, version = self.__assert_version(version, student_version)
+        student_version_flag, version_key, version = self.__check_version(version, student_version)
 
         # start the AEDT opening decision tree
         # starting_mode can be one of these: "grpc", "com", "console_in", "console_out"
@@ -2028,9 +2028,9 @@ class Desktop(object):
         self.odesktop.RestoreWindow()
         settings.aedt_install_dir = self.odesktop.GetExeDir()
 
-    def __assert_version(self, specified_version, student_version):
+    def __check_version(self, specified_version, student_version):
         if self.current_version == "" and aedt_versions.latest_version == "":
-            raise Exception("AEDT is not installed on your system. Install AEDT version 2022 R2 or higher.")
+            raise AEDTRuntimeError("AEDT is not installed on your system. Install AEDT version 2022 R2 or higher.")
         if not specified_version:
             if student_version and self.current_student_version:
                 specified_version = self.current_student_version
