@@ -78,8 +78,17 @@ pyaedtversion = __version__
 modules = [tup[1] for tup in pkgutil.iter_modules()]
 
 
+def grpc_server_on(channel, timeout_sec=5) -> bool:
+    try:
+        grpc_channel = grpc.insecure_channel(channel)
+        grpc.channel_ready_future(grpc_channel).result(timeout_sec)
+        return True
+    except grpc.FutureTimeoutError:  # pragma: no cover
+        return False
+
+
 @pyaedt_function_handler()
-def launch_aedt(full_path, non_graphical, port, student_version, first_run=True):
+def launch_aedt(full_path, non_graphical, port, student_version, first_run=True):  # pragma: no cover
     """Launch AEDT in gRPC mode."""
 
     def launch_desktop_on_port():
@@ -90,29 +99,21 @@ def launch_aedt(full_path, non_graphical, port, student_version, first_run=True)
             command.append("-waitforlicense")
         if settings.aedt_log_file:
             command.extend(["-Logfile", settings.aedt_log_file])
-        my_env = os.environ.copy()
-        for env, val in settings.aedt_environment_variables.items():
-            my_env[env] = val
+
         if is_linux:  # pragma: no cover
             command.append("&")
-            subprocess.Popen(
-                command, env=my_env, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
-            )
+            subprocess.Popen(command, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         else:
             subprocess.Popen(
                 " ".join(command),
-                env=my_env,
                 stdin=subprocess.DEVNULL,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
                 creationflags=subprocess.DETACHED_PROCESS,
             )
 
-    import threading
+    launch_desktop_on_port()
 
-    _aedt_process_thread = threading.Thread(target=launch_desktop_on_port)
-    _aedt_process_thread.daemon = True
-    _aedt_process_thread.start()
     on_ci = os.getenv("ON_CI", "False")
     if not student_version and on_ci != "True" and not settings.skip_license_check:
         available_licenses = available_license_feature()
@@ -1177,9 +1178,7 @@ class Desktop(object):
                     installer = Path(settings.aedt_install_dir) / "ansysedtsv.exe"
                 else:
                     installer = Path(settings.aedt_install_dir) / "ansysedt.exe"
-
             out, self.port = launch_aedt(installer, non_graphical, self.port, student_version)
-            self.launched_by_pyaedt = True
             oApp = self._initialize(
                 is_grpc=True,
                 non_graphical=non_graphical,
@@ -1188,6 +1187,10 @@ class Desktop(object):
                 new_session=not out,
                 version=version_key,
             )
+            self.launched_by_pyaedt = True if oApp else False
+            if not self.launched_by_pyaedt:  # pragma: no cover
+                self.logger.error("Failed to connect to AEDT using gRPC plugin.")
+                self.logger.error("Check installation, license and environment variables.")
         else:
             oApp = self._initialize(
                 is_grpc=True,

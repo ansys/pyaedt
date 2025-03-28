@@ -900,7 +900,7 @@ class DistributedTopology:
         )
 
     def netlist(self):
-        """Calculate and generate spice nelist of the synthesized circuit"""
+        """Calculate and generate spice netlist of the synthesized circuit"""
         size = c_int()
         status = self._dll.getDistributedNetlistSize(byref(size))
         self._dll_interface.raise_error(status)

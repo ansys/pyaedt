@@ -2047,7 +2047,7 @@ class Patch(CommonObject, object):
                 name=patch_name,
                 material=signal_layer.material_name,
             )
-            application.assign_coating(self._aedt_object.name, signal_layer.material)
+            application.assign_finite_conductivity(self._aedt_object.name, signal_layer.material)
         application.modeler.set_working_coordinate_system("Global")
         application.modeler.subtract(blank_list=[signal_layer.name], tool_list=[patch_name], keep_originals=True)
 

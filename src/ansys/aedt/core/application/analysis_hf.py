@@ -162,18 +162,29 @@ class ScatteringMethods(object):
                 y = [i for i in receivers if el in i]
                 for x1 in x:
                     for y1 in y:
-                        if x1[-2:] == y1[-2:]:
-                            if math_formula:
+                        if x1[-2:] == y1[-2:] and x1 != y1:
+                            if (
+                                math_formula
+                                and f"{math_formula}(S({x1},{y1}))" not in spar
+                                and f"{math_formula}(S({y1},{x1}))" not in spar
+                            ):
                                 spar.append(f"{math_formula}(S({x1},{y1}))")
-                            else:
+                            elif not math_formula and f"S({y1},{x1})" not in spar and f"S({x1},{y1})" not in spar:
                                 spar.append(f"S({x1},{y1})")
                             break
         else:
-            for i, j in zip(drivers, receivers):
-                if math_formula:
-                    spar.append(f"{math_formula}(S({i},{j}))")
-                else:
-                    spar.append(f"S({i},{j})")
+            for i in drivers:
+                for j in receivers:
+                    if i == j:
+                        continue
+                    if (
+                        math_formula
+                        and f"{math_formula}(S({j},{i}))" not in spar
+                        and f"{math_formula}(S({i},{j}))" not in spar
+                    ):
+                        spar.append(f"{math_formula}(S({i},{j}))")
+                    elif not math_formula and f"S({i},{j})" not in spar and f"S({j},{i})" not in spar:
+                        spar.append(f"S({i},{j})")
         return spar
 
     @pyaedt_function_handler(trlist="drivers", tx_prefix="drivers_prefix_name", net_list="nets")

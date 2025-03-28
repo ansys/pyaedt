@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+from pathlib import Path
 import sys
 import tempfile
 
@@ -567,8 +568,8 @@ class TestClass:
         assert isinstance(out, list)
 
     def test_61_export_mesh(self, q3dtest):
-        assert os.path.exists(q3dtest.export_mesh_stats("Setup1"))
-        assert os.path.exists(q3dtest.export_mesh_stats("Setup1"))
+        assert Path(q3dtest.export_mesh_stats("Setup1")).exists()
+        assert Path(q3dtest.export_mesh_stats("Setup1")).exists()
 
     def test_62_eye_diagram(self, eye_test):
         rep = eye_test.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
