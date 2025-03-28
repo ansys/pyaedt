@@ -1077,13 +1077,13 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         ----------
         >>> oEditor.UpdatePriorityList
         """
-        temp_log = Path(self.working_directory) / "validation.log"
+        temp_log = str(Path(self.working_directory) / "validation.log")
         validate = self.odesign.ValidateDesign(temp_log)
         self.save_project()
         i = 2
         if validate == 0:
             priority_list = []
-            with open_file(str(temp_log), "r") as f:
+            with open_file(temp_log, "r") as f:
                 lines = f.readlines()
                 for line in lines:
                     if "[error]" in line and component_prefix in line and "intersect" in line:
