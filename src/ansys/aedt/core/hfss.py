@@ -4829,7 +4829,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         if not output_dir:
             output_dir = self.working_directory
         pname = self.project_name
-        validation_log_file = Path(output_dir) / (pname + "_" + design + "_validation.log")
+        validation_log_file = str(Path(output_dir) / (pname + "_" + design + "_validation.log"))
 
         # Desktop Messages
         msg = "Desktop messages:"
