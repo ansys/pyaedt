@@ -144,7 +144,6 @@ def test_desktop_check_port_failure():
         _check_port(port)
 
 
-@pytest.mark.current
 @patch("ansys.aedt.core.desktop.aedt_versions")
 def test_desktop_check_version_failure(mock_aedt_versions, mock_desktop):
     mock_specified_version = MagicMock()
@@ -159,7 +158,6 @@ def test_desktop_check_version_failure(mock_aedt_versions, mock_desktop):
         desktop._Desktop__check_version(mock_specified_version, mock_student_version)
 
 
-@pytest.mark.current
 @patch("ansys.aedt.core.desktop.aedt_versions")
 def test_desktop_check_version_failure_with_old_specified_version(mock_aedt_versions, mock_desktop):
     mock_student_version = MagicMock()
@@ -172,7 +170,6 @@ def test_desktop_check_version_failure_with_old_specified_version(mock_aedt_vers
         desktop._Desktop__check_version(specified_version, mock_student_version)
 
 
-@pytest.mark.current
 @patch("ansys.aedt.core.desktop.aedt_versions")
 def test_desktop_check_version_failure_with_unknown_specified_version(mock_aedt_versions, mock_desktop):
     desktop = Desktop()
