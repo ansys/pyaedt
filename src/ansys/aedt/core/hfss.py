@@ -4829,7 +4829,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         if not output_dir:
             output_dir = self.working_directory
         pname = self.project_name
-        validation_log_file = str(Path(output_dir) / (pname + "_" + design + "_validation.log"))
+        validation_log_file = Path(output_dir) / (pname + "_" + design + "_validation.log")
 
         # Desktop Messages
         msg = "Desktop messages:"
@@ -4852,7 +4852,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         msg = "Design validation messages:"
         val_list.append(msg)
         if Path(temp_val_file).is_file() or settings.remote_rpc_session:
-            with open_file(temp_val_file, "r") as df:
+            with open_file(str(temp_val_file), "r") as df:
                 temp = df.read().splitlines()
                 val_list.extend(temp)
             os.remove(temp_val_file)
@@ -4909,7 +4909,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             msg = "No setup is detected."
             val_list.append(msg)
 
-        with open_file(validation_log_file, "w") as f:
+        with open_file(str(validation_log_file), "w") as f:
             for item in val_list:
                 f.write("%s\n" % item)
         return val_list, validation_ok  # Return all the information in a list for later use.
