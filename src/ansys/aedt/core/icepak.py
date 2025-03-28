@@ -2918,7 +2918,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         object_lists = self.modeler.convert_to_selections(object_lists, True)
         file_name = self.project_name
         sab_file_pointer = Path(self.working_directory) / (file_name + ".sab")
-        mesh_file_pointer = Path(self.working_directory)(file_name + ".msh")
+        mesh_file_pointer = Path(self.working_directory) / (file_name + ".msh")
         fl_uscript_file_pointer = Path(self.working_directory) / "FLUscript.jou"
         if Path(mesh_file_pointer).exists():
             Path(mesh_file_pointer).unlink()
