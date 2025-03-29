@@ -1,0 +1,6 @@
+﻿write\_configuration\_file
+==========================
+
+.. currentmodule:: ansys.aedt.core.generic.file_utils
+
+.. autofunction:: write_configuration_file

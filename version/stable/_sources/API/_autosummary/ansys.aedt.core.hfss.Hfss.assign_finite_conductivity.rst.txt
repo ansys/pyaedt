@@ -1,0 +1,6 @@
+assign\_finite\_conductivity
+============================
+
+.. currentmodule:: ansys.aedt.core.hfss
+
+.. automethod:: Hfss.assign_finite_conductivity
