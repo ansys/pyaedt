@@ -34,6 +34,7 @@ import ast
 import os
 import random
 import string
+from typing import Dict
 from typing import Literal
 from typing import Optional
 from typing import Tuple
@@ -234,6 +235,8 @@ class PostProcessor3D(PostProcessorCommon):
                 elif k in ["Phase", "phase"]:
                     intrinsics["Phase"] = v
                 elif k in ["Time", "time"]:
+                    if self._app.solution_type == "SteadyState":
+                        continue
                     intrinsics["Time"] = v
                 if input_phase:
                     intrinsics["Phase"] = input_phase
@@ -870,7 +873,7 @@ class PostProcessor3D(PostProcessorCommon):
         >>>                                     )
         """
         intrinsics = self._check_intrinsics(intrinsics, phase, solution, return_list=True)
-        self.logger.info("Exporting %s field. Be patient", quantity)
+        self.logger.info(f"Exporting '{quantity}' field. Please be patient.")
         if not solution:
             if not self._app.existing_analysis_sweeps:
                 self.logger.error("There are no existing sweeps.")
@@ -3913,7 +3916,7 @@ class PostProcessor3D(PostProcessorCommon):
         location: Literal["Surface", "Volume"],
         field: str,
         setup: Optional[str] = None,
-        intrinsics: Optional[dict[str, str]] = None,
+        intrinsics: Optional[Dict[str, str]] = None,
     ) -> Tuple[Tuple[float, float, float], float]:
         """
         Calculates the position and value of the field maximum or minimum.
@@ -3949,9 +3952,10 @@ class PostProcessor3D(PostProcessorCommon):
 
         position = []
         for d in ["X", "Y", "Z"]:
+            self.fields_calculator.delete_expression("__pyaedt_internal_MaxMinPos")
             xpr = self.fields_calculator.add_expression(
                 {
-                    "name": "MaxMinPos",
+                    "name": "__pyaedt_internal_MaxMinPos",
                     "design_type": [self._app.design_type],
                     "fields_type": ["Fields"],
                     "primary_sweep": "",

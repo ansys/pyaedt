@@ -73,3 +73,8 @@ class TestClass:
         assert Path(metadata_file).is_file()
         assert not rcs_exporter.rcs_data
         assert isinstance(rcs_exporter.model_info, dict)
+        rcs_exporter.frequencies = ["9GHz"]
+        rcs_exporter.setup_name = "rcs_setup : Sweep"
+        metadata_file2 = rcs_exporter.export_rcs()
+        assert Path(metadata_file2).is_file()
+        assert rcs_exporter.rcs_data

@@ -201,8 +201,7 @@ def _function_handler_wrapper(user_function, **deprecated_kwargs):
         try:
             settings.time_tick = time.time()
             out = user_function(*args, **kwargs)
-            if settings.enable_debug_logger or settings.enable_debug_edb_logger:
-                _log_method(user_function, args, kwargs)
+            _log_method(user_function, args, kwargs)
             return out
         except MethodNotSupportedError as e:
             message = "This method is not supported in current AEDT design type."
@@ -284,6 +283,8 @@ def check_numeric_equivalence(a, b, relative_tolerance=1e-7):
 
 
 def _log_method(func, new_args, new_kwargs):
+    if not (settings.enable_debug_logger or settings.enable_debug_edb_logger):
+        return
     if not settings.enable_debug_internal_methods_logger and str(func.__name__)[0] == "_":
         return
     if not settings.enable_debug_geometry_operator_logger and "GeometryOperators" in str(func):

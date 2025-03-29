@@ -1,0 +1,25 @@
+(IBIS_AMI_EXAMPLE
+(Reserved_Parameters
+    (AMI_Version (Usage Info) (Type String) (Value "5.1")
+        (Description "Valid for AMI_Version 5.1 and above"))
+    (Ignore_Bits (Usage Info)(Type Integer)(Default 4)
+        (Description "Ignore 4 bits to fill up tapped delay line"))
+    (Max_Init_Aggressors (Usage Info) (Type Integer)(Default 10)
+        (Description "Number of aggressors supported by the model"))
+    (Init_Returns_Impulse (Usage Info) (Type Boolean)(Default True)
+        (Description "AMI_Init function returns impulse and parameters_out"))
+    (GetWave_Exists (Usage Info)(Type Boolean)(Default True)
+        (Description "yes, it exists"))
+) | End Reserved_Parameters
+(Model_Specific
+    | method = 1 applies the tap weights inside AMI_Init() to the channel impulse.
+    | method = 2 applies the tap weights inside AMI_Getwave() to the wave.
+    | Results of both methods should be nearly identical in AMI, but not in VerifEye
+    | because we ignore the GetWave function there!  method = 1 is faster
+    (method (Usage In)(Type Integer)(Default 1) ) 
+    (clock_threshold (Usage In)(Type Float)(Default 0.4)
+        (Description "clock threshold for the receiver"))
+    (ffe_weight_1  (Usage In)(Type Float)(Default 1.0))
+    (ffe_weight_2  (Usage In)(Type Float)(Default 0.0))
+    (ffe_weight_3  (Usage In)(Type Float)(Default 0.0))
+))
