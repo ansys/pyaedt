@@ -63,7 +63,8 @@ jobs:
       - name: Check documentation style
         uses: ansys/actions/doc-style@v8
         with:
-         token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fail-level: 'warning'
 
   doc-build:
     name: Documentation build
