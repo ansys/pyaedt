@@ -45,6 +45,19 @@ first_modelithics_capacitor = "Amotech -> CAP_AMH_0201_001 A60Z"
 second_modelithics_capacitor = "Murata -> CAP_MUR_0805_004 GRM219"
 first_modelithics_resistor = "AVX -> RES_AVX_0402_001 UBR0402"
 second_modelithics_resistor = "Vishay -> RES_VIS_0603_001 D11"
+full_parametrization_error = (
+    "The full parametrization option is not available for distributed filters exporting "
+    "to circuit design format or designs with tuning ports included"
+)
+reverse_x_axis_error = (
+    "The flip on X axis direction option is not available for distributed filters exporting "
+    "to circuit design format or designs with tuning ports included"
+)
+
+reverse_y_axis_error = (
+    "The flip on Y axis direction option is not available for distributed filters exporting "
+    "to circuit design format or designs with tuning ports included"
+)
 
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
@@ -411,7 +424,14 @@ class TestClass:
         assert lumped_design.export_to_aedt.optimize_after_export_enabled == True
 
     def test_export_design(self, lumped_design):
-        export_path = resource_path("Test_Export/test_exported_design.py")
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.export_to_aedt.export_design(
+                export_format=ExportFormat.PYTHON_SCRIPT,
+                export_creation_mode=ExportCreationMode.OVERWRITE,
+                export_path="",
+            )
+        assert info.value.args[0] == "Python export path is not specified"
+        export_path = resource_path("test_exported_design.py")
         lumped_design.export_to_aedt.export_design(
             export_format=ExportFormat.PYTHON_SCRIPT,
             export_creation_mode=ExportCreationMode.OVERWRITE,
@@ -421,7 +441,6 @@ class TestClass:
         directory_path = os.path.dirname(export_path)
         assert os.path.exists(directory_path)
         os.remove(export_path)
-        os.rmdir(directory_path)
 
     def test_load_library_parts_config(self, lumped_design):
         lumped_design.export_to_aedt.load_library_parts_config(resource_path("library_parts.cfg"))
@@ -458,6 +477,9 @@ class TestClass:
         )
 
     def test_part_libraries(self, lumped_design):
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.export_to_aedt.part_libraries = "INVALID_LIBRARY"
+        assert info.value.args[0] == "The part library is not available"
         assert lumped_design.export_to_aedt.part_libraries == PartLibraries.LUMPED
         assert len(PartLibraries) == 3
         lumped_design.export_to_aedt.part_libraries = PartLibraries.INTERCONNECT
@@ -541,6 +563,9 @@ class TestClass:
         assert lumped_design.export_to_aedt.interconnect_geometry_optimization_enabled == False
 
     def test_substrate_type(self, lumped_design):
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.export_to_aedt.substrate_type = "INVALID_TYPE"
+        assert info.value.args[0] == "The substrate type is not available"
         assert lumped_design.export_to_aedt.substrate_type == SubstrateType.MICROSTRIP
         assert len(SubstrateType) == 5
         for substrate in SubstrateType:
@@ -552,38 +577,45 @@ class TestClass:
         assert len(SubstrateEr) == 17
         with pytest.raises(ValueError) as info:
             lumped_design.export_to_aedt.substrate_er = 3.2
-        assert str(info.value) == "Invalid substrate input. Must be a SubstrateEr enum member or a string."
+        assert str(info.value) == "Invalid substrate input. Must be a SubstrateEr enum member or a string"
         for er in SubstrateEr:
             lumped_design.export_to_aedt.substrate_er = er
             assert lumped_design.export_to_aedt.substrate_er == er
         lumped_design.export_to_aedt.substrate_er = "3.2"
         assert lumped_design.export_to_aedt.substrate_er == "3.2"
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.export_to_aedt.substrate_er = ""
+        assert info.value.args[0] == "The substrate Er is not defined"
 
     def test_substrate_resistivity(self, lumped_design):
         assert lumped_design.export_to_aedt.substrate_resistivity == SubstrateResistivity.GOLD
         assert len(SubstrateResistivity) == 11
         with pytest.raises(ValueError) as info:
             lumped_design.export_to_aedt.substrate_resistivity = 0.02
-        assert str(info.value) == "Invalid substrate input. Must be a SubstrateResistivity enum member or a string."
+        assert str(info.value) == "Invalid substrate input. Must be a SubstrateResistivity enum member or a string"
         for resistivity in SubstrateResistivity:
             lumped_design.export_to_aedt.substrate_resistivity = resistivity
             assert lumped_design.export_to_aedt.substrate_resistivity == resistivity
         lumped_design.export_to_aedt.substrate_resistivity = "0.02"
         assert lumped_design.export_to_aedt.substrate_resistivity == "0.02"
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.export_to_aedt.substrate_resistivity = ""
+        assert info.value.args[0] == "The substrate resistivity is not defined"
 
     def test_substrate_loss_tangent(self, lumped_design):
         assert lumped_design.export_to_aedt.substrate_loss_tangent == SubstrateEr.ALUMINA
         assert len(SubstrateEr) == 17
+        with pytest.raises(ValueError) as info:
+            lumped_design.export_to_aedt.substrate_loss_tangent = 0.0002
+        assert str(info.value) == "Invalid substrate input. Must be a SubstrateEr enum member or a string"
         for loss in SubstrateEr:
             lumped_design.export_to_aedt.substrate_loss_tangent = loss
             assert lumped_design.export_to_aedt.substrate_loss_tangent == loss
         lumped_design.export_to_aedt.substrate_loss_tangent = "0.0002"
         assert lumped_design.export_to_aedt.substrate_loss_tangent == "0.0002"
-
-    def test_substrate_loss_tangent_invalid_input(self, lumped_design):
-        with pytest.raises(ValueError) as info:
-            lumped_design.export_to_aedt.substrate_loss_tangent = 0.0002
-        assert str(info.value) == "Invalid substrate input. Must be a SubstrateEr enum member or a string."
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.export_to_aedt.substrate_loss_tangent = ""
+        assert info.value.args[0] == "The substrate loss tangent is not defined"
 
     def test_substrate_conductor_thickness(self, lumped_design):
         assert lumped_design.export_to_aedt.substrate_conductor_thickness == "2.54 um"
@@ -596,19 +628,42 @@ class TestClass:
         assert lumped_design.export_to_aedt.substrate_dielectric_height == "1.22 mm"
 
     def test_substrate_unbalanced_lower_dielectric_height(self, lumped_design):
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.export_to_aedt.substrate_unbalanced_lower_dielectric_height = "5.2 mm"
+        assert info.value.args[0] == (
+            "The lower dielectric height is not defined for MICROSTRIP substrate, "
+            "the substrate type must be set to STRIPLINE to use unbalanced lower dielectric height"
+        )
         lumped_design.export_to_aedt.substrate_type = SubstrateType.STRIPLINE
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.export_to_aedt.substrate_unbalanced_lower_dielectric_height = "5.2 mm"
+        assert info.value.args[0] == "The unbalanced option for stripline substrate is not enabled"
         lumped_design.export_to_aedt.substrate_unbalanced_stripline_enabled = True
         assert lumped_design.export_to_aedt.substrate_unbalanced_lower_dielectric_height == "6.35 mm"
         lumped_design.export_to_aedt.substrate_unbalanced_lower_dielectric_height = "5.2 mm"
         assert lumped_design.export_to_aedt.substrate_unbalanced_lower_dielectric_height == "5.2 mm"
 
     def test_substrate_suspend_dielectric_height(self, lumped_design):
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.export_to_aedt.substrate_suspend_dielectric_height = "5.2 mm"
+        assert info.value.args[0] == (
+            "The suspend dielectric height is not defined for MICROSTRIP substrate, "
+            "the substrate type must be set to SUSPEND to use suspend dielectric height"
+        )
         lumped_design.export_to_aedt.substrate_type = SubstrateType.SUSPEND
         assert lumped_design.export_to_aedt.substrate_suspend_dielectric_height == "1.27 mm"
         lumped_design.export_to_aedt.substrate_suspend_dielectric_height = "3.2 mm"
         assert lumped_design.export_to_aedt.substrate_suspend_dielectric_height == "3.2 mm"
 
     def test_substrate_cover_height(self, lumped_design):
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.export_to_aedt.substrate_type = SubstrateType.STRIPLINE
+            lumped_design.export_to_aedt.substrate_cover_height = "5.2 mm"
+        assert info.value.args[0] == "The substrate cover height is not defined for STRIPLINE substrate"
+        lumped_design.export_to_aedt.substrate_type = SubstrateType.MICROSTRIP
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.export_to_aedt.substrate_cover_height = "5.2 mm"
+        assert info.value.args[0] == "The cover option for MICROSTRIP substrate is not enabled"
         lumped_design.export_to_aedt.substrate_cover_height_enabled = True
         assert lumped_design.export_to_aedt.substrate_cover_height == "6.35 mm"
         lumped_design.export_to_aedt.substrate_cover_height = "2.5 mm"
@@ -621,12 +676,20 @@ class TestClass:
         assert info.value.args[0] == "The part library is not set to Modelithics"
 
     def test_substrate_unbalanced_stripline_enabled(self, lumped_design):
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.export_to_aedt.substrate_unbalanced_stripline_enabled = True
+        assert info.value.args[0] == "The unbalanced topology is not available for MICROSTRIP substrate"
         lumped_design.export_to_aedt.substrate_type = SubstrateType.STRIPLINE
         assert lumped_design.export_to_aedt.substrate_unbalanced_stripline_enabled == False
         lumped_design.export_to_aedt.substrate_unbalanced_stripline_enabled = True
         assert lumped_design.export_to_aedt.substrate_unbalanced_stripline_enabled == True
 
     def test_substrate_cover_height_enabled(self, lumped_design):
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.export_to_aedt.substrate_type = SubstrateType.STRIPLINE
+            lumped_design.export_to_aedt.substrate_cover_height_enabled = True
+        assert info.value.args[0] == "The grounded cover above line topology is not available for STRIPLINE substrate"
+        lumped_design.export_to_aedt.substrate_type = SubstrateType.MICROSTRIP
         assert lumped_design.export_to_aedt.substrate_cover_height_enabled == False
         lumped_design.export_to_aedt.substrate_cover_height_enabled = True
         assert lumped_design.export_to_aedt.substrate_cover_height_enabled == True
@@ -647,6 +710,16 @@ class TestClass:
         assert distributed_design.export_to_aedt.insert_hfss_3dl_design is False
 
     def test_full_parametrization_enabled(self, distributed_design):
+        distributed_design.export_to_aedt.insert_circuit_design = True
+        with pytest.raises(RuntimeError) as info:
+            distributed_design.export_to_aedt.full_parametrization_enabled = True
+        assert info.value.args[0] == full_parametrization_error
+        distributed_design.export_to_aedt.insert_hfss_3dl_design = True
+        distributed_design.export_to_aedt.export_with_tuning_port_format_enabled = True
+        with pytest.raises(RuntimeError) as info:
+            distributed_design.export_to_aedt.full_parametrization_enabled = True
+        assert info.value.args[0] == full_parametrization_error
+        distributed_design.export_to_aedt.export_with_tuning_port_format_enabled = False
         assert distributed_design.export_to_aedt.full_parametrization_enabled
         distributed_design.export_to_aedt.full_parametrization_enabled = False
         assert distributed_design.export_to_aedt.full_parametrization_enabled is False
@@ -657,21 +730,56 @@ class TestClass:
         assert distributed_design.export_to_aedt.ports_always_on_sides_enabled
 
     def test_reverse_x_axis_enabled(self, distributed_design):
+        distributed_design.export_to_aedt.insert_circuit_design = True
+        with pytest.raises(RuntimeError) as info:
+            distributed_design.export_to_aedt.reverse_x_axis_enabled = True
+        assert info.value.args[0] == reverse_x_axis_error
+        distributed_design.export_to_aedt.insert_hfss_3dl_design = True
+        distributed_design.export_to_aedt.export_with_tuning_port_format_enabled = True
+        with pytest.raises(RuntimeError) as info:
+            distributed_design.export_to_aedt.reverse_x_axis_enabled = True
+        assert info.value.args[0] == reverse_x_axis_error
+        distributed_design.export_to_aedt.export_with_tuning_port_format_enabled = False
         assert distributed_design.export_to_aedt.reverse_x_axis_enabled is False
         distributed_design.export_to_aedt.reverse_x_axis_enabled = True
         assert distributed_design.export_to_aedt.reverse_x_axis_enabled
 
     def test_reverse_y_axis_enabled(self, distributed_design):
+        distributed_design.export_to_aedt.insert_circuit_design = True
+        with pytest.raises(RuntimeError) as info:
+            distributed_design.export_to_aedt.reverse_y_axis_enabled = True
+        assert info.value.args[0] == reverse_y_axis_error
+        distributed_design.export_to_aedt.insert_hfss_3dl_design = True
+        distributed_design.export_to_aedt.export_with_tuning_port_format_enabled = True
+        with pytest.raises(RuntimeError) as info:
+            distributed_design.export_to_aedt.reverse_y_axis_enabled = True
+        assert info.value.args[0] == reverse_y_axis_error
+        distributed_design.export_to_aedt.export_with_tuning_port_format_enabled = False
         assert distributed_design.export_to_aedt.reverse_y_axis_enabled is False
         distributed_design.export_to_aedt.reverse_y_axis_enabled = True
         assert distributed_design.export_to_aedt.reverse_y_axis_enabled
 
     def test_export_with_tuning_port_format_enabled(self, distributed_design):
+        distributed_design.export_to_aedt.insert_circuit_design = True
+        with pytest.raises(RuntimeError) as info:
+            distributed_design.export_to_aedt.export_with_tuning_port_format_enabled = True
+        assert info.value.args[0] == (
+            "The export with port tuning format is not available for distributed filters exporting to circuit design"
+        )
+        distributed_design.export_to_aedt.insert_hfss_3dl_design = True
         assert distributed_design.export_to_aedt.export_with_tuning_port_format_enabled is False
         distributed_design.export_to_aedt.export_with_tuning_port_format_enabled = True
         assert distributed_design.export_to_aedt.export_with_tuning_port_format_enabled
 
     def test_use_series_horizontal_ports_enabled(self, distributed_design):
+        distributed_design.export_to_aedt.insert_circuit_design = True
+        with pytest.raises(RuntimeError) as info:
+            distributed_design.export_to_aedt.use_series_horizontal_ports_enabled = True
+        assert info.value.args[0] == (
+            "The horizontal series ports option is only available for distributed filters"
+            "exporting to HFSS 3D Layout design"
+        )
+        distributed_design.export_to_aedt.insert_hfss_3dl_design = True
         assert distributed_design.export_to_aedt.use_series_horizontal_ports_enabled
         distributed_design.export_to_aedt.use_series_horizontal_ports_enabled = False
         assert distributed_design.export_to_aedt.use_series_horizontal_ports_enabled is False

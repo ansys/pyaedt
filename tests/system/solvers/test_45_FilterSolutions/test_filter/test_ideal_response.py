@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from ansys.aedt.core.filtersolutions_core.attributes import FilterClass
 from ansys.aedt.core.filtersolutions_core.ideal_response import FrequencyResponseColumn
 from ansys.aedt.core.filtersolutions_core.ideal_response import PoleZerosResponseColumn
 from ansys.aedt.core.filtersolutions_core.ideal_response import SParametersResponseColumn
@@ -87,6 +88,10 @@ class TestClass:
         assert freqs[100] == 2392202091.5388284
         assert freqs[300] == 8669097136.772985
         assert freqs[-1] == 31214328219.225075
+        lumped_design.attributes.filter_class = FilterClass.DIPLEXER_1
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.ideal_response._frequency_response_getter(FrequencyResponseColumn.MAGNITUDE_DB)
+        assert info.value.args[0] == "The frequency response data is not available for diplexer filters"
 
     def test_time_response_getter(self, lumped_design):
         step_response = lumped_design.ideal_response._time_response_getter(TimeResponseColumn.STEP_RESPONSE)
@@ -124,6 +129,10 @@ class TestClass:
         assert time[1] == pytest.approx(3.3333333333333335e-11)
         assert time[200] == pytest.approx(6.666666666666667e-09)
         assert time[-1] == pytest.approx(9.966666666666667e-09)
+        lumped_design.attributes.filter_class = FilterClass.DIPLEXER_1
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.ideal_response._time_response_getter(TimeResponseColumn.STEP_RESPONSE)
+        assert info.value.args[0] == "The time response data is not available for diplexer filters"
 
     def test_sparameters_response_getter(self, lumped_design):
         s11_response_db = lumped_design.ideal_response._sparamaters_response_getter(SParametersResponseColumn.S11_DB)
@@ -151,6 +160,10 @@ class TestClass:
         assert freqs[100] == pytest.approx(2392202091.5388284)
         assert freqs[300] == pytest.approx(8669097136.772985)
         assert freqs[-1] == pytest.approx(31214328219.225075)
+        lumped_design.attributes.filter_class = FilterClass.DIPLEXER_1
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.ideal_response._sparamaters_response_getter(SParametersResponseColumn.S11_DB)
+        assert info.value.args[0] == "The S parameters data is not available for diplexer filters"
 
     def test_pole_zeros_response_getter(self, lumped_design):
         pole_zero_den_x = lumped_design.ideal_response._pole_zeros_response_getter(
@@ -269,6 +282,10 @@ class TestClass:
         assert proto_rx_zero_num_y[2] == pytest.approx(0.0)
         assert proto_rx_zero_num_y[3] == pytest.approx(0.0)
         assert proto_rx_zero_num_y[4] == pytest.approx(0.0)
+        lumped_design.attributes.filter_class = FilterClass.DIPLEXER_1
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.ideal_response._pole_zeros_response_getter(PoleZerosResponseColumn.RX_ZERO_DEN_X)
+        assert info.value.args[0] == "The reflection zero data is not available for diplexer filters"
 
     def test_filter_vsg_analysis_enabled(self, lumped_design):
         assert lumped_design.ideal_response.vsg_analysis_enabled is False

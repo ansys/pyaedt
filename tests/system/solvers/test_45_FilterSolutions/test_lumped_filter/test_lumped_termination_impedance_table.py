@@ -34,37 +34,52 @@ from tests.system.solvers.conftest import config
 @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
 class TestClass:
     def test_row_count(self, lumped_design):
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.source_impedance_table.row_count
+        assert info.value.args[0] == "The Complex Termination option is not enabled for this filter"
         lumped_design.topology.complex_termination = True
         assert lumped_design.source_impedance_table.row_count == 3
         assert lumped_design.load_impedance_table.row_count == 3
 
     def test_row(self, lumped_design):
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.source_impedance_table.row(0)
+        assert info.value.args[0] == "The Complex Termination option is not enabled for this filter"
         lumped_design.topology.complex_termination = True
         assert lumped_design.source_impedance_table.row(0) == ("0.100G", "1.000", "0.000")
         assert lumped_design.load_impedance_table.row(0) == ("0.100G", "1.000", "0.000")
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.source_impedance_table.row(4)
+        assert info.value.args[0] == "No value is set for this row"
 
     def test_update_row(self, lumped_design):
-        lumped_design.topology.complex_termination = True
         with pytest.raises(RuntimeError) as info:
             lumped_design.source_impedance_table.update_row(0)
-        assert info.value.args[0] == "There is no input value to update"
-        with pytest.raises(RuntimeError) as info:
-            lumped_design.load_impedance_table.update_row(0)
-        assert info.value.args[0] == "There is no input value to update"
+        assert info.value.args[0] == "The Complex Termination option is not enabled for this filter"
+        lumped_design.topology.complex_termination = True
         lumped_design.source_impedance_table.update_row(0, "2G", "22", "11")
         assert lumped_design.source_impedance_table.row(0) == ("2G", "22", "11")
         lumped_design.load_impedance_table.update_row(0, "2G", "22", "11")
         assert lumped_design.load_impedance_table.row(0) == ("2G", "22", "11")
-        lumped_design.source_impedance_table.update_row(0, frequency="4G")
+        lumped_design.source_impedance_table.update_row(0, frequency="4G", real="", imag="")
         assert lumped_design.source_impedance_table.row(0) == ("4G", "22", "11")
-        lumped_design.load_impedance_table.update_row(0, frequency="4G")
+        lumped_design.load_impedance_table.update_row(0, frequency="4G", real="", imag="")
         assert lumped_design.load_impedance_table.row(0) == ("4G", "22", "11")
         lumped_design.source_impedance_table.update_row(0, "2G", "50", "0")
         assert lumped_design.source_impedance_table.row(0) == ("2G", "50", "0")
         lumped_design.load_impedance_table.update_row(0, "2G", "50", "0")
         assert lumped_design.load_impedance_table.row(0) == ("2G", "50", "0")
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.source_impedance_table.update_row(4, "2G", "50")
+        assert info.value.args[0] == "No value is set for this row"
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.load_impedance_table.update_row(4, "2G", "50")
+        assert info.value.args[0] == "No value is set for this row"
 
     def test_append_row(self, lumped_design):
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.source_impedance_table.append_row("100M", "10", "20")
+        assert info.value.args[0] == "The Complex Termination option is not enabled for this filter"
         lumped_design.topology.complex_termination = True
         lumped_design.source_impedance_table.append_row("100M", "10", "20")
         assert lumped_design.source_impedance_table.row_count == 4
@@ -75,26 +90,38 @@ class TestClass:
         assert lumped_design.load_impedance_table.row(3) == ("100M", "10", "20")
 
     def test_insert_row(self, lumped_design):
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.source_impedance_table.insert_row(0, "100M", "10", "20")
+        assert info.value.args[0] == "The Complex Termination option is not enabled for this filter"
         lumped_design.topology.complex_termination = True
         lumped_design.source_impedance_table.insert_row(0, "2G", "50", "0")
         assert lumped_design.source_impedance_table.row(0) == ("2G", "50", "0")
         lumped_design.load_impedance_table.insert_row(0, "2G", "50", "0")
         assert lumped_design.load_impedance_table.row(0) == ("2G", "50", "0")
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.source_impedance_table.insert_row(150, "2G", "50", "0")
+        assert info.value.args[0] == "The input index is larger than table rows"
 
     def test_remove_row(self, lumped_design):
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.source_impedance_table.remove_row(0)
+        assert info.value.args[0] == "The Complex Termination option is not enabled for this filter"
         lumped_design.topology.complex_termination = True
         lumped_design.source_impedance_table.remove_row(0)
         assert lumped_design.source_impedance_table.row(0) == ("1.000G", "1.000", "0.000")
         with pytest.raises(RuntimeError) as info:
             lumped_design.source_impedance_table.row(2)
-        assert info.value.args[0] == "No value is set for this band"
+        assert info.value.args[0] == "No value is set for this row"
         lumped_design.load_impedance_table.remove_row(0)
         assert lumped_design.load_impedance_table.row(0) == ("1.000G", "1.000", "0.000")
         with pytest.raises(RuntimeError) as info:
             lumped_design.load_impedance_table.row(2)
-        assert info.value.args[0] == "No value is set for this band"
+        assert info.value.args[0] == "No value is set for this row"
 
     def test_complex_definition(self, lumped_design):
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.source_impedance_table.complex_definition
+        assert info.value.args[0] == "The Complex Termination option is not enabled for this filter"
         lumped_design.topology.complex_termination = True
         assert len(ComplexTerminationDefinition) == 4
         assert lumped_design.source_impedance_table.complex_definition == ComplexTerminationDefinition.CARTESIAN
@@ -107,6 +134,9 @@ class TestClass:
             assert lumped_design.load_impedance_table.complex_definition == cdef
 
     def test_reactance_type(self, lumped_design):
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.source_impedance_table.reactance_type
+        assert info.value.args[0] == "The Complex Termination option is not enabled for this filter"
         lumped_design.topology.complex_termination = True
         assert len(ComplexReactanceType) == 3
         assert lumped_design.source_impedance_table.reactance_type == ComplexReactanceType.REAC
@@ -118,7 +148,22 @@ class TestClass:
             lumped_design.load_impedance_table.reactance_type = creac
             assert lumped_design.load_impedance_table.reactance_type == creac
 
+    def test_element_tune_enabled(self, lumped_design):
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.source_impedance_table.element_tune_enabled
+        assert info.value.args[0] == "The Complex Termination option is not enabled for this filter"
+        lumped_design.topology.complex_termination = True
+        assert lumped_design.source_impedance_table.element_tune_enabled
+        lumped_design.source_impedance_table.element_tune_enabled = False
+        assert lumped_design.source_impedance_table.element_tune_enabled is False
+        assert lumped_design.load_impedance_table.element_tune_enabled is False
+        lumped_design.load_impedance_table.element_tune_enabled = True
+        assert lumped_design.load_impedance_table.element_tune_enabled
+
     def test_compensation_enabled(self, lumped_design):
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.source_impedance_table.compensation_enabled
+        assert info.value.args[0] == "The Complex Termination option is not enabled for this filter"
         lumped_design.topology.complex_termination = True
         assert lumped_design.source_impedance_table.compensation_enabled is False
         lumped_design.source_impedance_table.compensation_enabled = True
@@ -128,7 +173,13 @@ class TestClass:
         assert lumped_design.load_impedance_table.compensation_enabled
 
     def test_compensation_order(self, lumped_design):
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.source_impedance_table.compensation_order
+        assert info.value.args[0] == "The Complex Termination option is not enabled for this filter"
         lumped_design.topology.complex_termination = True
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.source_impedance_table.compensation_order
+        assert info.value.args[0] == "The impedance compensation parameter is not set"
         lumped_design.source_impedance_table.compensation_enabled = True
         assert lumped_design.source_impedance_table.compensation_order == 2
         with pytest.raises(RuntimeError) as info:

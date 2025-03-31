@@ -49,9 +49,9 @@ class DistributedSubstrate:
 
     def _define_substrate_dll_functions(self):
         """Define C++ API DLL functions."""
-        self._dll.setDistributedSubstrateType.argtype = c_char_p
+        self._dll.setDistributedSubstrateType.argtype = c_int
         self._dll.setDistributedSubstrateType.restype = int
-        self._dll.getDistributedSubstrateType.argtypes = [c_char_p, c_int]
+        self._dll.getDistributedSubstrateType.argtype = POINTER(c_int)
         self._dll.getDistributedSubstrateType.restype = int
 
         self._dll.setDistributedEr.argtype = [c_char_p, c_int]
@@ -106,7 +106,7 @@ class DistributedSubstrate:
 
     @property
     def substrate_type(self) -> SubstrateType:
-        """Subctrate type of the filter.
+        """Subctrate type of the filter. The default is ``MICROSTRIP`` if not specified.
 
         The ``SubstrateType`` enum provides a list of all substrate types.
 
@@ -114,14 +114,21 @@ class DistributedSubstrate:
         -------
         :enum:`SubstrateType`
         """
-        type_string = self._dll_interface.get_string(self._dll.getDistributedSubstrateType)
-        return self._dll_interface.string_to_enum(SubstrateType, type_string)
+        index = c_int()
+        substrate_type_list = list(SubstrateType)
+        status = self._dll.getDistributedSubstrateType(byref(index))
+        self._dll_interface.raise_error(status)
+        substrate_type = substrate_type_list[index.value]
+        return substrate_type
 
     @substrate_type.setter
     def substrate_type(self, substrate_type: SubstrateType):
-        if substrate_type:
-            string_value = self._dll_interface.enum_to_string(substrate_type)
-            self._dll_interface.set_string(self._dll.setDistributedSubstrateType, string_value)
+        if isinstance(substrate_type, SubstrateType):
+            status = self._dll.setDistributedSubstrateType(substrate_type.value)
+        else:
+            string_value = str(substrate_type)
+            status = self._dll_interface.set_string(self._dll.setDistributedSubstrateType, string_value)
+        self._dll_interface.raise_error(status)
 
     @property
     def substrate_er(self) -> Union[SubstrateType, str]:
@@ -153,7 +160,7 @@ class DistributedSubstrate:
             substrate_er_value = substrate_input
             substrate_er_index = -1
         else:
-            raise ValueError("Invalid substrate input. Must be a SubstrateEr enum member or a string.")
+            raise ValueError("Invalid substrate input. Must be a SubstrateEr enum member or a string")
 
         substrate_er_value_bytes = bytes(substrate_er_value, "ascii")
         status = self._dll.setDistributedEr(substrate_er_value_bytes, substrate_er_index)
@@ -190,7 +197,7 @@ class DistributedSubstrate:
             substrate_resistivity_value = substrate_input
             substrate_resistivity_index = -1
         else:
-            raise ValueError("Invalid substrate input. Must be a SubstrateResistivity enum member or a string.")
+            raise ValueError("Invalid substrate input. Must be a SubstrateResistivity enum member or a string")
         substrate_resistivity_value_bytes = bytes(substrate_resistivity_value, "ascii")
         status = self._dll.setDistributedResistivity(substrate_resistivity_value_bytes, substrate_resistivity_index)
         self._dll_interface.raise_error(status)
@@ -226,7 +233,7 @@ class DistributedSubstrate:
             substrate_loss_tangent_value = substrate_input
             substrate_loss_tangent_index = -1
         else:
-            raise ValueError("Invalid substrate input. Must be a SubstrateEr enum member or a string.")
+            raise ValueError("Invalid substrate input. Must be a SubstrateEr enum member or a string")
         substrate_loss_tangent_value_bytes = bytes(substrate_loss_tangent_value, "ascii")
         status = self._dll.setDistributedLossTangent(substrate_loss_tangent_value_bytes, substrate_loss_tangent_index)
         self._dll_interface.raise_error(status)
