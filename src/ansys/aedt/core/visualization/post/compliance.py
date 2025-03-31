@@ -1278,8 +1278,8 @@ class VirtualCompliance:
             report.add_section()
             report.add_chapter("Summary")
             failed_tests = 0
-            for sum in self._summary:
-                if not "PASSED" in sum[-1]:
+            for sum_el in self._summary:
+                if not "PASSED" in sum_el[-1]:
                     failed_tests += 1
             if failed_tests > 0:
                 report.add_text("The virtual compliance on the project has failed.")
