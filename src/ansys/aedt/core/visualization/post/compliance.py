@@ -1195,9 +1195,13 @@ class VirtualCompliance:
                         report.add_image(file, caption=caption, height=report.eph - 100)
             settings.logger.info("Specifications info added to the report.")
         if self.dut_image:
+            report.add_section()
             report.add_chapter("Device under test")
             caption = "HFSS 3D Layout DUT victims and aggressors."
-            report.add_image(self.dut_image, caption=caption, width=report.epw - 50)
+            if self.use_portrait:
+                report.add_image(self.dut_image, caption=caption, width=report.epw - 50)
+            else:  # pragma: no cover
+                report.add_image(self.dut_image, caption=caption, height=report.eph - 100)
         self._create_parameters(report)
         self._create_aedt_reports(report)
         if self._add_project_info:
