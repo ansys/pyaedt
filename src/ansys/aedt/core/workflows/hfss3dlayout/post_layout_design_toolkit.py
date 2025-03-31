@@ -116,7 +116,7 @@ class Frontend:  # pragma: no cover
             self.angle = tk.DoubleVar()
 
             self.only_signal_var.set(True)
-            self.angle.set(15)
+            self.angle.set(75)
 
         def create_ui(self, master):
             grid_params = {"padx": 15, "pady": 15}
@@ -394,10 +394,11 @@ class BackendMircoVia(BackendBase):
         BackendBase.__init__(self, h3d)
 
     def create(self, selection, signal_only, angle):
+        filtered_nets = self.pedb.nets.signal if signal_only else self.pedb.nets.nets
         for i in selection:
-            self.pedb.padstacks[i].convert_to_3d_microvias(
-                convert_only_signal_vias=signal_only, hole_wall_angle=angle, delete_padstack_def=True
-            )
+            for ps in self.pedb.padstacks[i].instances:
+                if ps.net_name in filtered_nets:
+                    ps.convert_hole_to_conical_shape(angle)
 
         edb_path = Path(self.pedb.edbpath)
 
