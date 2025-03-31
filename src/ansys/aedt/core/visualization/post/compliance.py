@@ -696,14 +696,17 @@ class VirtualCompliance:
                 start = False
             if group and report_type in ["standard", "frequency", "time"]:
                 new_dict = {}
+                idx = 0
                 for trace in traces:
                     if local_config.get("expressions", {}):
                         if isinstance(local_config["expressions"], dict):
                             if trace in local_config["expressions"]:
                                 new_dict[trace] = local_config["expressions"][trace]
+                            elif len(local_config["expressions"]) > idx:
+                                new_dict[trace] = list(local_config["expressions"].values())[idx]
                             else:
                                 new_dict[trace] = {}
-
+                    idx += 1
                 local_config["expressions"] = new_dict
                 image_name = name
                 sw_name = self._get_sweep_name(_design, local_config.get("solution_name", None))
@@ -770,7 +773,7 @@ class VirtualCompliance:
                                 local_config["expressions"] = {trace: {}}
                     image_name = name + f"_{trace}"
                     sw_name = self._get_sweep_name(_design, local_config.get("solution_name", None))
-                    _design.logger.info(f"Creating report {name} for trace {trace}")
+                    _design.logger.info(f"Creating report {name}")
                     aedt_report = _design.post.create_report_from_configuration(
                         report_settings=local_config, solution_name=sw_name
                     )
