@@ -109,6 +109,7 @@ class TestClass(object):
         compliance_folder = os.path.join(local_scratch.path, "vc")
         os.makedirs(compliance_folder, exist_ok=True)
         vc = VirtualComplianceGenerator("Test_full", "Diff_Via")
+        vc.dut_image = os.path.join(local_path, "example_models", test_subfolder, "nets.jpg")
         for plot in aedtapp.post.plots[::]:
             try:
                 plot.export_config(f"{compliance_folder}\\report_{plot.plot_name}.json")

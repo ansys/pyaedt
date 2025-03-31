@@ -427,6 +427,20 @@ class VirtualCompliance:
         self._output_folder = None
         self._parse_template()
         self._desktop_class = desktop
+        self._dut = None
+
+    @property
+    def dut_image(self):
+        """DUT image.
+
+        Returns
+        -------
+        str"""
+        return self._dut
+
+    @dut_image.setter
+    def dut_image(self, val):
+        self._dut = val
 
     @pyaedt_function_handler()
     @pyaedt_function_handler()
@@ -1180,6 +1194,10 @@ class VirtualCompliance:
                     else:
                         report.add_image(file, caption=caption, height=report.eph - 100)
             settings.logger.info("Specifications info added to the report.")
+        if self.dut_image:
+            report.add_chapter("Device under test")
+            caption = "HFSS 3D Layout DUT victims and aggressors."
+            report.add_image(self.dut_image, caption=caption, width=report.epw - 50)
         self._create_parameters(report)
         self._create_aedt_reports(report)
         if self._add_project_info:
