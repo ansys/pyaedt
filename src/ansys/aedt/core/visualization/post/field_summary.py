@@ -232,13 +232,7 @@ class FieldSummary:
                 df = pd.DataFrame.from_dict(out_dict)
                 for col in ["Min", "Max", "Mean", "Stdev", "Total"]:
                     if col in df.columns:
-                        try:
-                            df[col] = df[col].astype(float)
-                        except ValueError as e:
-                            self._app.logger.warning(
-                                f"Failed to convert elements in column '{col}' to float. "
-                                f"Keeping string type. Error details: {e}"
-                            )
+                        df[col] = pd.to_numeric(df[col], errors="coerce")
                 return df
         return out_dict
 
