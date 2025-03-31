@@ -205,7 +205,7 @@ class ParametersTemplate(CommonTemplate):
     def __init__(self, report):
         CommonTemplate.__init__(self, report)
         self.trace_pins = report.get("trace_pins", [])
-        self.pass_fail_criteria = report.get("pass_fail", 0)
+        self.pass_fail_criteria = report.get("pass_fail_criteria", 1e9)
 
     @property
     def trace_pins(self):
