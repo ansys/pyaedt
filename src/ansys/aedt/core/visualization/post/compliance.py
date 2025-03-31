@@ -936,7 +936,10 @@ class VirtualCompliance:
                     erl_value = spisim.compute_erl(specify_through_ports=trace_pin, config_file=config_file)
                     if erl_value:
                         if pass_fail:
-                            failed = True if float(erl_value) > float(pass_fail_criteria) else False
+                            try:
+                                failed = True if float(erl_value) > float(pass_fail_criteria) else False
+                            except ValueError:
+                                failed = True
                             table_out.append([trace_name, erl_value, "PASS" if not failed else "FAIL"])
                             self._summary.append(
                                 ["Effective Return Loss", "COMPLIANCE PASSED" if not failed else "COMPLIANCE FAILED"]
