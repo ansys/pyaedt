@@ -428,6 +428,8 @@ class VirtualCompliance:
         self._parse_template()
         self._desktop_class = desktop
         self._dut = None
+        self._summary = [["Test", "Results"]]
+        self._summary_font = [["", None]]
 
     @property
     def dut_image(self):
@@ -719,6 +721,9 @@ class VirtualCompliance:
                     )
                     if not aedt_report:  # pragma: no cover
                         _design.logger.error(f"Failed to create report {name}")
+                        self._summary.append([template_report.name, "FAILED TO CREATE THE REPORT"])
+                        self._summary_font.append([None, [255, 0, 0]])
+
                         continue
                     aedt_report.hide_legend()
                     time.sleep(1)
@@ -757,7 +762,22 @@ class VirtualCompliance:
                     ):  # pragma: no cover
                         _design.logger.info("Checking lines violations")
                         table = self._add_lna_violations(aedt_report, pdf_report, image_name, local_config)
+                        failed = "COMPLIANCE PASSED"
+                        if table:
+                            for i in table:
+                                if i[-1] == "FAIL":
+                                    failed = "COMPLIANCE FAILED"
+                                    break
+                        self._summary.append([template_report.name, failed])
+                        self._summary_font.append(
+                            [None, [255, 0, 0]] if self._summary[template_report.name] else ["", None]
+                        )
+
                         write_csv(os.path.join(self._output_folder, f"{name}_pass_fail.csv"), table)
+                    else:
+                        self._summary.append([template_report.name, "NO PASS/FAIL"])
+                        self._summary_font.append(["", None])
+
                     if self.local_config.get("delete_after_export", True):
                         aedt_report.delete()
                     _design.logger.info(f"Successfully parsed report {name}")
@@ -780,6 +800,12 @@ class VirtualCompliance:
                         aedt_report = _design.post.create_report_from_configuration(
                             report_settings=local_config, solution_name=sw_name
                         )
+                        if not aedt_report:  # pragma: no cover
+                            _design.logger.error(f"Failed to create report {name}")
+                            self._summary.append([template_report.name, "FAILED TO CREATE THE REPORT"])
+                            self._summary_font.append([None, [255, 0, 0]])
+
+                            continue
                         if report_type != "contour eye diagram" and "3D" not in local_config["report_type"]:
                             aedt_report.hide_legend()
                         time.sleep(1)
@@ -831,10 +857,25 @@ class VirtualCompliance:
                                     table = self._add_contour_eye_diagram_violations(
                                         aedt_report, pdf_report, image_name, local_config
                                     )
+                                failed = "COMPLIANCE PASSED"
+                                if table:
+                                    for i in table:
+                                        if "FAIL" in i[-1]:
+                                            failed = "COMPLIANCE FAILED"
+                                            break
+                                self._summary.append([template_report.name, failed])
+                                self._summary_font.append(
+                                    [None, [255, 0, 0]] if "FAIL" in self._summary[template_report.name] else ["", None]
+                                )
+
                                 if table:  # pragma: no cover
                                     write_csv(os.path.join(self._output_folder, f"{name}{trace}_pass_fail.csv"), table)
                                 else:
                                     _design.logger.warning(f"Failed to compute violation for chart {name}{trace}")
+                            else:
+                                self._summary.append([template_report.name, "NO PASS/FAIL"])
+                                self._summary_font.append(["", None])
+
                             if report_type in ["eye diagram", "statistical eye"]:
                                 _design.logger.info("Adding eye measurements.")
                                 table = self._add_eye_measurement(aedt_report, pdf_report, image_name)
@@ -855,6 +896,8 @@ class VirtualCompliance:
                 settings.logger.info(f"Report {template_report.name} added to the pdf.")
             except Exception:
                 settings.logger.error(f"Failed to add {template_report.name} to the pdf.")
+                self._summary.append([template_report.name, "Failed to create report"])
+                self._summary_font.append([None, [255, 0, 0]])
 
     @pyaedt_function_handler()
     def _create_parameters(self, pdf_report):
@@ -895,7 +938,18 @@ class VirtualCompliance:
                             _design.logger.error("Port not found.")
                     erl_value = spisim.compute_erl(specify_through_ports=trace_pin, config_file=config_file)
                     if erl_value:
-                        table_out.append([trace_name, erl_value, "PASS" if pass_fail_criteria else "FAIL"])
+                        failed = True if erl_value > pass_fail_criteria else False
+                        table_out.append([trace_name, erl_value, "PASS" if not failed else "FAIL"])
+                        self._summary.append(
+                            ["Effective Return Loss", "COMPLIANCE PASSED" if not failed else "COMPLIANCE FAILED"]
+                        )
+
+                        self._summary_font.append([None, [255, 0, 0]] if failed else ["", None])
+
+                    else:
+                        self._summary.append(["Effective Return Loss", "Failed to compute ERL."])
+                        self._summary_font.append([None, [255, 0, 0]])
+
                 pdf_report.add_table(
                     "Effective Return Losses",
                     table_out,
@@ -1216,6 +1270,13 @@ class VirtualCompliance:
         if self._add_project_info:
             self._create_project_info(report)
             settings.logger.info("Project info added to the report.")
+
+        if len(self._summary) > 1:
+            report.add_section()
+            report.add_chapter("Summary")
+
+            report.add_table(f"Simulation Summary", self._summary, self._summary_font)
+
         report.add_toc()
         output = report.save_pdf(self._output_folder, file_name=file_name)
         if close_project:
