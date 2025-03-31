@@ -769,9 +769,7 @@ class VirtualCompliance:
                                     failed = "COMPLIANCE FAILED"
                                     break
                         self._summary.append([template_report.name, failed])
-                        self._summary_font.append(
-                            [None, [255, 0, 0]] if self._summary[template_report.name] else ["", None]
-                        )
+                        self._summary_font.append([None, [255, 0, 0]] if "FAIL" in failed else ["", None])
 
                         write_csv(os.path.join(self._output_folder, f"{name}_pass_fail.csv"), table)
                     else:
@@ -864,9 +862,7 @@ class VirtualCompliance:
                                             failed = "COMPLIANCE FAILED"
                                             break
                                 self._summary.append([template_report.name, failed])
-                                self._summary_font.append(
-                                    [None, [255, 0, 0]] if "FAIL" in self._summary[template_report.name] else ["", None]
-                                )
+                                self._summary_font.append([None, [255, 0, 0]] if "FAIL" in failed else ["", None])
 
                                 if table:  # pragma: no cover
                                     write_csv(os.path.join(self._output_folder, f"{name}{trace}_pass_fail.csv"), table)
@@ -912,6 +908,7 @@ class VirtualCompliance:
                 self._desktop_class.logger.error(f"{config_file} not found.")
                 continue
             name = template_report.name
+            pass_fail = template_report.pass_fail
             pass_fail_criteria = template_report.pass_fail_criteria
             design_name = template_report.design_name
             if _design and _design.design_name != design_name or _design is None:
@@ -938,14 +935,17 @@ class VirtualCompliance:
                             _design.logger.error("Port not found.")
                     erl_value = spisim.compute_erl(specify_through_ports=trace_pin, config_file=config_file)
                     if erl_value:
-                        failed = True if erl_value > pass_fail_criteria else False
-                        table_out.append([trace_name, erl_value, "PASS" if not failed else "FAIL"])
-                        self._summary.append(
-                            ["Effective Return Loss", "COMPLIANCE PASSED" if not failed else "COMPLIANCE FAILED"]
-                        )
+                        if pass_fail:
+                            failed = True if float(erl_value) > float(pass_fail_criteria) else False
+                            table_out.append([trace_name, erl_value, "PASS" if not failed else "FAIL"])
+                            self._summary.append(
+                                ["Effective Return Loss", "COMPLIANCE PASSED" if not failed else "COMPLIANCE FAILED"]
+                            )
 
-                        self._summary_font.append([None, [255, 0, 0]] if failed else ["", None])
-
+                            self._summary_font.append([None, [255, 0, 0]] if failed else ["", None])
+                        else:
+                            self._summary.append(["Effective Return Loss", "COMPLIANCE PASSED"])
+                            self._summary_font.append(["", None])
                     else:
                         self._summary.append(["Effective Return Loss", "Failed to compute ERL."])
                         self._summary_font.append([None, [255, 0, 0]])
@@ -1274,6 +1274,15 @@ class VirtualCompliance:
         if len(self._summary) > 1:
             report.add_section()
             report.add_chapter("Summary")
+            failed_tests = 0
+            for sum in self._summary:
+                if not "PASSED" in sum[-1]:
+                    failed_tests += 1
+            if failed_tests > 0:
+                report.add_text("The virtual compliance on the project has failed.")
+                report.add_text(f"There are {failed_tests} failed tests.")
+            else:
+                report.add_text("The virtual compliance on the project has successfully passed.")
 
             report.add_table(f"Simulation Summary", self._summary, self._summary_font)
 
