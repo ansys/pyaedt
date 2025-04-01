@@ -232,7 +232,7 @@ class FieldSummary:
                 df = pd.DataFrame.from_dict(out_dict)
                 for col in ["Min", "Max", "Mean", "Stdev", "Total"]:
                     if col in df.columns:
-                        df[col] = df[col].astype(float)
+                        df[col] = pd.to_numeric(df[col], errors="coerce")
                 return df
         return out_dict
 
