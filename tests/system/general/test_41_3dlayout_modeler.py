@@ -26,6 +26,7 @@ import os
 import tempfile
 import time
 
+from ansys.aedt.core import Hfss
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -49,13 +50,29 @@ else:
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
     app = add_app(project_name=test_project_name, application=Hfss3dLayout)
-    return app
+    yield app
+    app.close_project(app.project_name)
 
 
 @pytest.fixture(scope="class")
 def hfss3dl(add_app):
     app = add_app(project_name=diff_proj_name, application=Hfss3dLayout, subfolder=test_subfolder)
-    return app
+    yield app
+    app.close_project(app.project_name)
+
+
+@pytest.fixture(scope="class")
+def maxwell(add_app):
+    app = add_app(project_name=test_post, application=Maxwell3d, subfolder=test_subfolder)
+    yield app
+    app.close_project(app.project_name)
+
+
+@pytest.fixture(scope="class")
+def hfss(add_app):
+    app = add_app(project_name=test_post, application=Hfss, subfolder=test_subfolder)
+    yield app
+    app.close_project(app.project_name)
 
 
 @pytest.fixture(scope="class", autouse=True)
@@ -749,67 +766,64 @@ class TestClass:
     @pytest.mark.skipif(not config["use_grpc"], reason="Not running in COM mode")
     @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
     @pytest.mark.skipif(is_linux, reason="PyEDB is failing in Linux.")
-    def test_42_post_processing(self, add_app):
-        test_post1 = add_app(project_name=test_post, application=Maxwell3d, subfolder=test_subfolder)
-        field_plot_layers = test_post1.post.create_fieldplot_layers(
+    def test_42_post_processing(self, maxwell, hfss):
+        field_plot_layers = maxwell.post.create_fieldplot_layers(
             [],
             "Mag_H",
             intrinsics={"Time": "1ms"},
             nets=["GND", "V3P3_S5"],
         )
         assert field_plot_layers
-        assert test_post1.post.create_fieldplot_layers(
+        assert maxwell.post.create_fieldplot_layers(
             [], "Mag_H", intrinsics={"Time": "1ms"}, nets=["GND", "V3P3_S5"], name=field_plot_layers.name
         )
 
-        assert test_post1.post.create_fieldplot_layers(
+        assert maxwell.post.create_fieldplot_layers(
             ["UNNAMED_006"],
             "Mag_H",
             intrinsics={"Time": "1ms"},
         )
-        assert test_post1.post.create_fieldplot_layers_nets(
+        assert maxwell.post.create_fieldplot_layers_nets(
             [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
             "Mag_Volume_Force_Density",
             intrinsics={"Time": "1ms"},
             plot_name="Test_Layers",
         )
-        assert test_post1.post.create_fieldplot_layers_nets(
+        assert maxwell.post.create_fieldplot_layers_nets(
             [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
             "Mag_Volume_Force_Density",
             intrinsics={"Time": "1ms"},
             plot_name="Test_Layers",
         )
-        assert test_post1.post.create_fieldplot_layers_nets(
+        assert maxwell.post.create_fieldplot_layers_nets(
             [["TOP"], ["PWR", "V3P3_S5"]],
             "Mag_Volume_Force_Density",
             intrinsics={"Time": "1ms"},
             plot_name="Test_Layers2",
         )
-        assert test_post1.post.create_fieldplot_layers_nets(
+        assert maxwell.post.create_fieldplot_layers_nets(
             [["no-layer", "GND"]],
             "Mag_Volume_Force_Density",
             intrinsics={"Time": "1ms"},
             plot_name="Test_Layers3",
         )
-        test_post2 = add_app(project_name=test_post1.project_name, just_open=True)
-        assert test_post2.post.create_fieldplot_layers_nets(
+        assert hfss.post.create_fieldplot_layers_nets(
             [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
             "Mag_E",
             intrinsics={"Freq": "1GHz", "Phase": "0deg"},
             plot_name="Test_Layers4",
         )
-        assert test_post2.post.create_fieldplot_layers(
+        assert hfss.post.create_fieldplot_layers(
             ["TOP"],
             "Mag_E",
             intrinsics={"Freq": "1GHz", "Phase": "0deg"},
         )
-        assert test_post2.post.create_fieldplot_layers(
+        assert hfss.post.create_fieldplot_layers(
             ["TOP", "UNNAMED_004"],
             "Mag_E",
             intrinsics={"Freq": "1GHz", "Phase": "0deg"},
             nets=["GND", "V3P3_S5"],
         )
-        self.aedtapp.close_project(test_post2.project_name)
 
     @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
     @pytest.mark.skipif(is_linux, reason="PyEDB failing in Linux")
@@ -864,8 +878,6 @@ class TestClass:
 
         assert pl2
         assert pl2.export_image_from_aedtplt(tempfile.gettempdir())
-
-        self.aedtapp.close_project(test.project_name)
 
     @pytest.mark.skipif(is_linux, reason="Bug on linux")
     def test_90_set_differential_pairs(self, hfss3dl):
