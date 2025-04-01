@@ -42,6 +42,7 @@ directory as this module. An example of the contents of local_config.json
 
 """
 
+import gc
 import json
 import os
 import random
@@ -71,7 +72,6 @@ from ansys.aedt.core import Edb
 from ansys.aedt.core import Hfss
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.desktop import Desktop
-from ansys.aedt.core.desktop import _delete_objects
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 from ansys.aedt.core.internal.filesystem import Scratch
@@ -125,6 +125,16 @@ def generate_random_string(length):
 def generate_random_ident():
     ident = "-" + generate_random_string(6) + "-" + generate_random_string(6) + "-" + generate_random_string(6)
     return ident
+
+
+def _delete_objects():
+    settings.remote_api = False
+    pyaedt_logger.remove_all_project_file_logger()
+    try:
+        del sys.modules["glob"]
+    except Exception:
+        logger.debug("Failed to delete glob module")
+    gc.collect()
 
 
 @pytest.fixture(scope="session", autouse=True)
