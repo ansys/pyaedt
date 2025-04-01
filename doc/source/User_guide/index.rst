@@ -82,7 +82,7 @@ For end-to-end examples, see `Examples <https://examples.aedt.docs.pyansys.com>`
             How to create and analyze EMIT designs.
 
    .. grid-item-card:: Security considerations
-            :link: emit_modeler
+            :link: security_consideration
             :link-type: doc
             :margin: 2 2 0 0
 
