@@ -11,8 +11,8 @@ accept untrusted input.
 Launching AEDT
 --------------
 
-The :py:func:`.launch_aedt` and `launch_aedt_in_lsf` functions can be used to
-launch AEDT. The executable which is launched is configured with the function
+The :py:func:`.launch_aedt` and :py:func:`.launch_aedt_in_lsf` functions can be used
+to launch AEDT. The executable which is launched is configured with the function
 parameters, environment variables and the
 `settings <https://aedt.docs.pyansys.com/version/stable/User_guide/settings.html>`_.
 This may allow an attacker to launch arbitrary executables on the system. When
