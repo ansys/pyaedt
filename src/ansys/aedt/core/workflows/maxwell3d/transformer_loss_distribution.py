@@ -271,15 +271,15 @@ def frontend():
             else:
                 quantity = "SurfaceAcForceDensity"
 
-            if maxwell.is3d:
-                objects_type = "Surf"
+            # if maxwell.is3d:
+            #     objects_type = "Surf"
             maxwell.post.export_field_file(
                 quantity=quantity,
                 solution=master.solution_option,
                 output_file=field_path,
                 sample_points_file=master.points_file,
                 assignment=assignment,
-                objects_type=objects_type,
+                objects_type="Surf",
             )
 
             # Populate PyVista object
@@ -386,7 +386,7 @@ def main(extension_args):
 
     points_file = extension_args.get("points_file", extension_arguments["points_file"])
     export_file = extension_args.get("export_file", extension_arguments["export_file"])
-    export_option = extension_args.get("export_option", extension_arguments["export_option"])[0]
+    export_option = extension_args.get("export_option", extension_arguments["export_option"])
     objects_list = extension_args.get("objects_list", extension_arguments["objects_list"])
     solution_option = extension_args.get("solution_option", extension_arguments["solution_option"])
 
@@ -421,15 +421,15 @@ def main(extension_args):
         aedtapp.logger.error("The setup is not solved. Please solve the setup before exporting the field data.")
     field_path = str(Path(export_file).with_suffix(".fld"))
 
-    if aedtapp.is3d:
-        objects_type = "Surf"
+    # if aedtapp.is3d:
+    #     objects_type = "Surf"
     aedtapp.post.export_field_file(
         quantity=quantity,
         solution=solution_option,
         output_file=field_path,
         sample_points_file=points_file,
         assignment=assignment,
-        objects_type=objects_type,
+        objects_type="Surf",
     )
 
     # Populate PyVista object
