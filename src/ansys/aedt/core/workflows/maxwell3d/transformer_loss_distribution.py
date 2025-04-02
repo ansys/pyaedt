@@ -25,6 +25,7 @@ from pathlib import Path
 
 import ansys.aedt.core
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
+from ansys.aedt.core.generic.file_utils import write_csv
 from ansys.aedt.core.workflows.misc import get_aedt_version
 from ansys.aedt.core.workflows.misc import get_arguments
 from ansys.aedt.core.workflows.misc import get_port
@@ -148,9 +149,8 @@ def frontend():
         objects_list_lb.insert(tk.END, obj)
 
     # Solution
-    solution_frame = tk.Frame(master, width=20)
+    solution_frame = tk.Frame(master, width=20, bg="white")
     solution_frame.grid(row=2, column=0, pady=10, padx=10, sticky="ew")
-    solution_frame.config(bg="white")
     solution_label = ttk.Label(solution_frame, text="Solution:", style="PyAEDT.TLabel", justify=tk.CENTER, anchor="w")
     solution_label.pack(side=tk.LEFT, fill=tk.BOTH)
     selected_value = tk.StringVar(solution_frame)
@@ -161,28 +161,24 @@ def frontend():
     solution_dropdown.pack(pady=20)
 
     # Sample points file
-    sample_points_frame = tk.Frame(master, width=20)
+    sample_points_frame = tk.Frame(master, width=20, bg="white")
     sample_points_frame.grid(row=3, column=0, pady=10, padx=10, sticky="ew")
-    sample_points_frame.config(bg="white")
     sample_points_label = ttk.Label(
         sample_points_frame, text="Sample points file:", width=15, style="PyAEDT.TLabel", justify=tk.CENTER, anchor="w"
     )
     sample_points_label.pack(side=tk.TOP, fill=tk.BOTH)
-    sample_points_entry = tk.Text(sample_points_frame, height=1, width=40)
+    sample_points_entry = tk.Text(sample_points_frame, height=1, width=40, wrap=tk.WORD)
     sample_points_entry.pack(expand=True, fill=tk.BOTH, side=tk.LEFT)
-    sample_points_entry.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
 
     # Export file
-    export_file_frame = tk.Frame(master, width=20)
+    export_file_frame = tk.Frame(master, width=20, bg="white")
     export_file_frame.grid(row=4, column=0, pady=10, padx=10, sticky="ew")
-    export_file_frame.config(bg="white")
     export_file_label = ttk.Label(
         export_file_frame, text="Output file location:", width=20, style="PyAEDT.TLabel", justify=tk.CENTER, anchor="w"
     )
     export_file_label.pack(side=tk.TOP, fill=tk.BOTH)
-    export_file_entry = tk.Text(export_file_frame, width=40, height=1)
+    export_file_entry = tk.Text(export_file_frame, width=40, height=1, wrap=tk.WORD)
     export_file_entry.pack(expand=True, fill=tk.BOTH, side=tk.LEFT)
-    export_file_entry.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
 
     def toggle_theme():
         if master.theme == "light":
@@ -194,41 +190,77 @@ def frontend():
 
     def set_light_theme():
         master.configure(bg=theme.light["widget_bg"])
+        export_options_label.configure(
+            background=theme.light["widget_bg"], foreground=theme.light["text"], font=theme.default_font
+        )
         export_options_frame.configure(bg=theme.light["widget_bg"])
+        objects_list_label.configure(
+            background=theme.light["widget_bg"], foreground=theme.light["text"], font=theme.default_font
+        )
         objects_list_frame.configure(bg=theme.light["widget_bg"])
+        solution_label.configure(
+            background=theme.light["widget_bg"], foreground=theme.light["text"], font=theme.default_font
+        )
         solution_frame.configure(bg=theme.light["widget_bg"])
+        sample_points_label.configure(
+            background=theme.light["widget_bg"], foreground=theme.light["text"], font=theme.default_font
+        )
         sample_points_frame.configure(bg=theme.light["widget_bg"])
+        export_file_label.configure(
+            background=theme.light["widget_bg"], foreground=theme.light["text"], font=theme.default_font
+        )
         export_file_frame.configure(bg=theme.light["widget_bg"])
         export_options_lb.configure(
-            background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
+            background=theme.light["widget_bg"], foreground=theme.light["text"], font=theme.default_font
         )
         objects_list_lb.configure(
-            background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
+            background=theme.light["widget_bg"], foreground=theme.light["text"], font=theme.default_font
         )
-        scroll_bar.configure(background=theme.light["pane_bg"])
-        solution_dropdown.configure(background=theme.light["pane_bg"], foreground=theme.light["text"])
+        if len(objects_list) > 6:
+            scroll_bar.configure(background=theme.light["widget_bg"])
+        solution_dropdown.configure(background=theme.light["widget_bg"], foreground=theme.light["text"])
         export_file_entry.configure(
-            background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
+            background=theme.light["widget_bg"], foreground=theme.light["text"], font=theme.default_font
         )
         sample_points_entry.configure(
-            background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
+            background=theme.light["widget_bg"], foreground=theme.light["text"], font=theme.default_font
         )
+        buttons_frame.configure(bg=theme.light["widget_bg"])
         theme.apply_light_theme(style)
         # change_theme_button.config(text="\u263D")
 
     def set_dark_theme():
         master.configure(bg=theme.dark["widget_bg"])
+        export_options_label.configure(
+            background=theme.dark["widget_bg"], foreground=theme.dark["text"], font=theme.default_font
+        )
         export_options_frame.configure(bg=theme.dark["widget_bg"])
+        objects_list_label.configure(
+            background=theme.dark["widget_bg"], foreground=theme.dark["text"], font=theme.default_font
+        )
         objects_list_frame.configure(bg=theme.dark["widget_bg"])
+        solution_label.configure(
+            background=theme.dark["widget_bg"], foreground=theme.dark["text"], font=theme.default_font
+        )
         solution_frame.configure(bg=theme.dark["widget_bg"])
+        sample_points_label.configure(
+            background=theme.dark["widget_bg"], foreground=theme.dark["text"], font=theme.default_font
+        )
         sample_points_frame.configure(bg=theme.dark["widget_bg"])
+        export_file_label.configure(
+            background=theme.dark["widget_bg"], foreground=theme.dark["text"], font=theme.default_font
+        )
         export_file_frame.configure(bg=theme.dark["widget_bg"])
-        export_options_lb.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        objects_list_lb.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        scroll_bar.configure(bg=theme.dark["pane_bg"])
-        solution_dropdown.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"])
-        export_file_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        sample_points_entry.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
+        export_options_lb.configure(bg=theme.dark["widget_bg"], foreground=theme.dark["text"], font=theme.default_font)
+        objects_list_lb.configure(bg=theme.dark["widget_bg"], foreground=theme.dark["text"], font=theme.default_font)
+        if len(objects_list) > 6:
+            scroll_bar.configure(bg=theme.dark["widget_bg"])
+        solution_dropdown.configure(bg=theme.dark["widget_bg"], foreground=theme.dark["text"])
+        export_file_entry.configure(bg=theme.dark["widget_bg"], foreground=theme.dark["text"], font=theme.default_font)
+        sample_points_entry.configure(
+            bg=theme.dark["widget_bg"], foreground=theme.dark["text"], font=theme.default_font
+        )
+        buttons_frame.configure(bg=theme.dark["widget_bg"])
         theme.apply_dark_theme(style)
         # change_theme_button.config(text="\u2600")
 
@@ -245,50 +277,27 @@ def frontend():
             master.destroy()
         elif button_id == 2:
             master.flag = False
-            # objects
-            if not master.objects_list:
-                assignment = "AllObjects"
-            elif isinstance(master.objects_list, list) and len(master.objects_list) > 1:
-                if len(maxwell.modeler.user_lists) == 0:
-                    objects_list = maxwell.modeler.create_object_list(master.objects_list, "ObjectList1")
-                else:
-                    objects_list = maxwell.modeler.create_object_list(
-                        master.objects_list, f"ObjectList{len(maxwell.modeler.user_lists) + 1}"
-                    )
-                assignment = objects_list.name
-            else:
-                assignment = master.objects_list[0]
-            # setup
             setup_name = master.solution_option.split(":")[0].strip()
             is_solved = [s.is_solved for s in maxwell.setups if s.name == setup_name][0]
             if not is_solved:
                 messagebox.showerror("Error", "Selected setup is not solved.")
                 return None
+
             # export
-            field_path = str(Path(master.export_file).with_suffix(".fld"))
             if master.export_option == "Ohmic loss":
-                quantity = "Ohmic-Loss"
+                quantity = "Ohmic_Loss"
             else:
-                quantity = "SurfaceAcForceDensity"
+                quantity = "Surface_AC_Force_Density"
 
-            # if maxwell.is3d:
-            #     objects_type = "Surf"
-            maxwell.post.export_field_file(
+            maxwell.post.plot_field(
                 quantity=quantity,
-                solution=master.solution_option,
-                output_file=field_path,
-                sample_points_file=master.points_file,
-                assignment=assignment,
-                objects_type="Surf",
+                assignment=master.objects_list,
+                plot_type="Surface",
+                setup=master.solution_option,
+                plot_cad_objs=False,
+                keep_plot_after_generation=False,
+                show_grid=False,
             )
-
-            # Populate PyVista object
-            plotter = ansys.aedt.core.visualization.plot.pyvista.ModelPlotter()
-            plotter.add_field_from_file(field_path, show_edges=False)
-            plotter.populate_pyvista_object()
-            plotter.show_grid = False
-
-            plotter.plot()
 
     def browse_files():
         filename = filedialog.askopenfilename(
@@ -328,9 +337,8 @@ def frontend():
     save_as_button.pack(side=tk.RIGHT, padx=10)
 
     # Create button to export fields data
-    buttons_frame = tk.Frame(master, width=20)
+    buttons_frame = tk.Frame(master, width=20, bg="white")
     buttons_frame.grid(row=6, column=0, pady=10, padx=15, sticky="ew")
-    buttons_frame.config(bg="white")
     export_button = ttk.Button(
         buttons_frame, text="Export", command=lambda: callback(1), width=10, style="PyAEDT.TButton"
     )
@@ -407,13 +415,9 @@ def main(extension_args):
         assignment = objects_list[0]
 
     if export_option == "Ohmic loss":
-        quantity = "Ohmic-Loss"
-        # file_header = "x,y,z,field"
-        is_scalar = True
+        quantity = "Ohmic_Loss"
     else:
         quantity = "SurfaceAcForceDensity"
-        # file_header = "r, phi, z, fr_real, fr_imag, fphi_real, fphi_imag, fz_real, fz_imag"
-        is_scalar = False
 
     setup_name = solution_option.split(":")[0].strip()
     is_solved = [s.is_solved for s in aedtapp.setups if s.name == setup_name][0]
@@ -421,8 +425,6 @@ def main(extension_args):
         aedtapp.logger.error("The setup is not solved. Please solve the setup before exporting the field data.")
     field_path = str(Path(export_file).with_suffix(".fld"))
 
-    # if aedtapp.is3d:
-    #     objects_type = "Surf"
     aedtapp.post.export_field_file(
         quantity=quantity,
         solution=solution_option,
@@ -432,38 +434,24 @@ def main(extension_args):
         objects_type="Surf",
     )
 
-    # Populate PyVista object
-    plotter = ansys.aedt.core.visualization.plot.pyvista.ModelPlotter()
-    plotter.add_field_from_file(field_path)
-    plotter.populate_pyvista_object()
+    with open(field_path, "r") as file:
+        for _ in range(2):
+            file.readline()
 
-    if is_scalar:
-        field_coordinates = np.column_stack(
-            (np.array(plotter.pv.mesh.points), np.array(plotter.pv.mesh.active_scalars))
-        )
-    else:
-        field_coordinates = np.column_stack(
-            (np.array(plotter.pv.mesh.points), np.array(plotter.pv.mesh.active_vectors))
-        )
+        csv_data = []
+        for line in file:
+            tmp = line.strip().split(" ")
+            tmp = [element.replace("\t\t", "") for element in tmp]
+            if len(tmp) > 1:
+                csv_data.append(tmp)
 
-    if Path(export_file).suffix == ".npy":
-        np.save(export_file, field_coordinates)
-    elif Path(export_file).suffix == ".csv":
-        np.savetxt(
-            export_file,
-            field_coordinates,
-            delimiter=",",
-            # header=file_header,
-            comments="",
-        )
-    elif Path(export_file).suffix == ".tab":
-        np.savetxt(
-            export_file,
-            field_coordinates,
-            delimiter="\t",
-            # header=file_header,
-            comments="",
-        )
+    if Path(export_file).suffix == ".csv" or Path(export_file).suffix == ".tab":
+        output_file = Path(export_file).with_suffix(Path(export_file).suffix)
+        write_csv(output_file, csv_data)
+    elif Path(export_file).suffix == ".npy":
+        output_file = Path(export_file).with_suffix(".npy")
+        array = np.array(csv_data)
+        np.save(output_file, array)
 
     if not extension_args["is_test"]:  # pragma: no cover
         app.release_desktop(False, False)
