@@ -61,8 +61,8 @@ DISCLAIMER = (
 UNKNOWN_VERSION = "Unknown"
 
 
-def get_latest_version(package_name):
-    response = requests.get(f"https://pypi.org/pypi/{package_name}/json")
+def get_latest_version(package_name, timeout=20):
+    response = requests.get(f"https://pypi.org/pypi/{package_name}/json", timeout=timeout)
     if response.status_code == 200:
         data = response.json()
         return data["info"]["version"]
