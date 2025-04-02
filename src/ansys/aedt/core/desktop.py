@@ -729,8 +729,6 @@ class Desktop(object):
                 if file.name.lower() == match_name:
                     return str(file.resolve())
 
-        return None
-
     @property
     def logger(self):
         """AEDT logger."""
