@@ -665,6 +665,9 @@ class VirtualCompliance:
         _design = None
         first_trace = True
         for template_report in self._reports.values():
+            if self._desktop_class:
+                time.sleep(1)
+                self._desktop_class.odesktop.CloseAllWindows()
             try:
                 settings.logger.info(f"Adding report  {template_report.name}.")
                 config_file = template_report.config_file
@@ -687,6 +690,7 @@ class VirtualCompliance:
                 if _design and _design.design_name != design_name or _design is None:
                     try:
                         _design = get_pyaedt_app(template_report.project_name, design_name)
+                        self._desktop_class.odesktop.CloseAllWindows()
                     except Exception:  # pragma: no cover
                         self._desktop_class.logger.error(f"Failed to retrieve design {design_name}")
                         continue
