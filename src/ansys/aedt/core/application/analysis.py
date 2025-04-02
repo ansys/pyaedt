@@ -1953,13 +1953,13 @@ class Analysis(Design, object):
            ``True`` when successful, ``False`` when failed.
         """
         try:
-            port = int(port)
+            cores = int(cores)
         except ValueError:
-            raise ValueError(f"The port {port} is not a valid integer.")
+            raise ValueError(f"The number of cores is not a valid integer.")
         try:
             tasks = int(tasks)
         except ValueError:
-            raise ValueError(f"The tasks {tasks} is not a valid integer.")
+            raise ValueError(f"The number of tasks is not a valid integer.")
 
         inst_dir = self.desktop_install_dir
         self.last_run_log = ""
