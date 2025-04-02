@@ -30,6 +30,7 @@ import inspect
 import itertools
 import logging
 import os
+from pathlib import Path
 import re
 import sys
 import time
@@ -37,7 +38,6 @@ import traceback
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.numbers import _units_assignment
-from ansys.aedt.core.generic.settings import inner_project_settings  # noqa: F401
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.internal.errors import MethodNotSupportedError
@@ -961,10 +961,16 @@ def install_with_pip(package_name, package_path=None, upgrade=False, uninstall=F
     uninstall : bool, optional
         Whether to install the package or uninstall the package.
     """
-    import subprocess  # nosec B404
+    import subprocess  # nosec
+
+    if not bool(re.fullmatch(r"[a-zA-Z0-9_-]+", package_name)):
+        raise ValueError(f"Invalid package name: {package_name}")
+    if package_path:
+        package_path = Path(package_path)
+        if not package_path.exists():
+            raise ValueError(f"Invalid package path: {package_path}")
 
     executable = f'"{sys.executable}"' if is_windows else sys.executable
-
     commands = []
     if uninstall:
         commands.append([executable, "-m", "pip", "uninstall", "--yes", package_name])
@@ -976,14 +982,10 @@ def install_with_pip(package_name, package_path=None, upgrade=False, uninstall=F
             command = [executable, "-m", "pip", "install", package_name]
         if upgrade:
             command.append("-U")
-
         commands.append(command)
+
     for command in commands:
-        if is_linux:
-            p = subprocess.Popen(command)
-        else:
-            p = subprocess.Popen(" ".join(command))
-        p.wait()
+        subprocess.run(command, check=True)  # nosec
 
 
 class Help:  # pragma: no cover
@@ -1063,24 +1065,5 @@ class Help:  # pragma: no cover
         url = "https://developer.ansys.com/"
         self._launch_ur(url)
 
-
-# class Property(property):
-#
-#     @pyaedt_function_handler()
-#     def getter(self, fget):
-#         """Property getter."""
-#         return self.__class__.__base__(fget, self.fset, self.fdel, self.__doc__)
-#
-#     @pyaedt_function_handler()
-#     def setter(self, fset):
-#         """Property setter."""
-#         return self.__class__.__base__(self.fget, fset, self.fdel, self.__doc__)
-#
-#     @pyaedt_function_handler()
-#     def deleter(self, fdel):
-#         """Property deleter."""
-#         return self.__class__.__base__(self.fget, self.fset, fdel, self.__doc__)
-
-# property = Property
 
 online_help = Help()
