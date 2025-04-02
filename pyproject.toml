@@ -127,7 +127,7 @@ examples = [
     "pyvista==0.44.2",
     "fast-simplification==0.1.9",
     "joblib==1.4.2",
-    "plotly==5.24.0",
+    "plotly==6.0.1",
     "scikit-rf==1.6.2",
 ]
 
