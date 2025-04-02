@@ -85,7 +85,7 @@ class TestClass:
             assert lumped_design.export_to_aedt.modelithics_capacitor_list_count == 2
         assert info.value.args[0] == "The part library is not set to Modelithics"
         lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
-        assert lumped_design.export_to_aedt.modelithics_inductor_list_count == 116
+        assert lumped_design.export_to_aedt.modelithics_inductor_list_count == 118
 
     @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_inductor_list(self, lumped_design):
@@ -171,7 +171,7 @@ class TestClass:
             assert lumped_design.export_to_aedt.modelithics_capacitor_list_count == first_modelithics_capacitor
         assert info.value.args[0] == "The part library is not set to Modelithics"
         lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
-        assert lumped_design.export_to_aedt.modelithics_capacitor_list_count == 143
+        assert lumped_design.export_to_aedt.modelithics_capacitor_list_count == 146
 
     @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_capacitor_list(self, lumped_design):
@@ -258,7 +258,7 @@ class TestClass:
             assert lumped_design.export_to_aedt.modelithics_resistor_list_count == 2
         assert info.value.args[0] == "The part library is not set to Modelithics"
         lumped_design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
-        assert lumped_design.export_to_aedt.modelithics_resistor_list_count == 39
+        assert lumped_design.export_to_aedt.modelithics_resistor_list_count == 43
 
     @pytest.mark.skipif(config["skip_modelithics"], reason="Modelithics is not installed.")
     def test_modelithics_resistor_list(self, lumped_design):
@@ -776,7 +776,7 @@ class TestClass:
         with pytest.raises(RuntimeError) as info:
             distributed_design.export_to_aedt.use_series_horizontal_ports_enabled = True
         assert info.value.args[0] == (
-            "The horizontal series ports option is only available for distributed filters"
+            "The horizontal series ports option is only available for distributed filters "
             "exporting to HFSS 3D Layout design"
         )
         distributed_design.export_to_aedt.insert_hfss_3dl_design = True
