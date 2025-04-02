@@ -3639,7 +3639,7 @@ class Design(AedtObjects):
         if set_active_design:
             self._close_edb()
             self._init_design(project_name=self.project_name, design_name=new_designname)
-            self.set_active_design(active_design)
+            self.set_active_design(new_designname)
         # return the pasted design name
         return new_designname
 

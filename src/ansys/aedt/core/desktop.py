@@ -70,6 +70,7 @@ from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 from ansys.aedt.core.internal.desktop_sessions import _edb_sessions
+from difflib import get_close_matches
 
 pathname = Path(__file__)
 
@@ -841,6 +842,44 @@ class Desktop(object):
             return self.installed_versions[version_key]
         except Exception:  # pragma: no cover
             return self.installed_versions[version_key + "CL"]
+
+    @pyaedt_function_handler()
+    def get_example(self, example_name, folder_name="."):
+        """Retrieve the path to a built-in example project.
+
+        Parameters
+        ----------
+        example_name : str
+            Name of the example for which the full path is desired.
+        folder_name : str, optional
+            Name of the example for which the full path is desired.
+
+        Returns
+        -------
+        str
+            Return the full path and name of the example file if found, otherwise ``None``.
+        """
+
+        root = Path(self.install_path) / "Examples" / folder_name
+
+        # Gather all files
+        all_files = [f for f in root.rglob("*") if f.is_file() and not f.suffix.lower() == ".pdf"]
+
+        # Normalize names for fuzzy matching
+        filenames = [f.name.lower() for f in all_files]
+        name_lower = example_name.lower()
+
+        # Get close matches
+        close = get_close_matches(name_lower, filenames, n=1, cutoff=0.6)
+
+        if close:
+            match_name = close[0]
+            # Find the original Path object that matches the filename (case-insensitive)
+            for file in all_files:
+                if file.name.lower() == match_name:
+                    return str(file.resolve())
+
+        return None
 
     @pyaedt_function_handler()
     def close_windows(self):
