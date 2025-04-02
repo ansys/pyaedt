@@ -28,9 +28,9 @@ import csv
 import os
 from pathlib import Path
 import re
+import subprocess  # nosec
 import warnings
 
-import ansys.aedt.core
 from ansys.aedt.core.application.analysis_icepak import FieldAnalysisIcepak
 from ansys.aedt.core.generic.constants import SOLUTIONS
 from ansys.aedt.core.generic.data_handlers import _arg2dict
@@ -3013,12 +3013,16 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         else:
             fl_ucommand = ["bash"] + fl_ucommand + ['"' + fl_uscript_file_pointer + '"']
         self.logger.info(" ".join(fl_ucommand))
-        ansys.aedt.core.desktop.run_process(fl_ucommand)
+        try:
+            subprocess.run(fl_ucommand, check=True)  # nosec
+        except subprocess.CalledProcessError as e:
+            raise AEDTRuntimeError("An error occurred while creating Fluent mesh") from e
+
         if Path(mesh_file_pointer).exists():
             self.logger.info("'" + mesh_file_pointer + "' has been created.")
             return self.mesh.assign_mesh_from_file(object_lists, mesh_file_pointer)
 
-        raise AEDTRuntimeError("Failed to create mesh file")
+        raise AEDTRuntimeError("Failed to create Fluent mesh file")
 
     @pyaedt_function_handler()
     def apply_icepak_settings(

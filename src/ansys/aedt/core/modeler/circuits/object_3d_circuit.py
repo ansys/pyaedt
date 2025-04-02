@@ -530,6 +530,8 @@ class CircuitComponent(object):
                 proparray[tab] = []
 
         for tab, props in proparray.items():
+            if not props:
+                continue
             for j in props:
                 propval = self._oeditor.GetPropertyValue(tab, self.composed_name, j)
                 _parameters[j] = propval
