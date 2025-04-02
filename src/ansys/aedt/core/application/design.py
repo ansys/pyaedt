@@ -60,7 +60,7 @@ from ansys.aedt.core.application.design_solutions import model_names
 from ansys.aedt.core.application.design_solutions import solutions_defaults
 from ansys.aedt.core.application.variables import DataSet
 from ansys.aedt.core.application.variables import VariableManager
-from ansys.aedt.core.desktop import _init_desktop_from_design
+from ansys.aedt.core.desktop import Desktop
 from ansys.aedt.core.desktop import exception_to_desktop
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import unit_system
@@ -196,7 +196,7 @@ class Design(AedtObjects):
         self._design_datasets: List = []
         self.close_on_exit: bool = close_on_exit
         self._desktop_class = None
-        self._desktop_class = _init_desktop_from_design(
+        self._desktop_class = self.__init_desktop_from_design(
             version,
             non_graphical,
             new_desktop,
@@ -4233,6 +4233,12 @@ class Design(AedtObjects):
         self.odesign.EditNotes(text)
         return True
 
+    @classmethod
+    def __init_desktop_from_design(cls, *args, **kwargs):
+        """Internal instantiation of the ``Desktop`` class."""
+        Desktop._invoked_from_design = True
+        return Desktop(*args, **kwargs)
+
 
 class DesignSettings:
     """Get design settings for the current AEDT app.
@@ -4245,20 +4251,6 @@ class DesignSettings:
     def __init__(self, app):
         self._app: Any = app
         self.manipulate_inputs: Optional[DesignSettingsManipulation] = None
-
-    @property
-    def design_settings(self) -> Optional[Any]:
-        """Design settings."""
-        try:
-            return self._app.odesign.GetChildObject("Design Settings")
-        except GrpcApiError:  # pragma: no cover
-            self._app.logger.error("Failed to retrieve design settings.")
-            return None
-
-    @property
-    def available_properties(self) -> List[str]:
-        """Available properties names for the current design."""
-        return [prop for prop in self.design_settings.GetPropNames() if not prop.endswith("/Choices")]
 
     def __repr__(self) -> str:
         lines = ["{"]
@@ -4293,6 +4285,20 @@ class DesignSettings:
 
     def __contains__(self, item: str) -> bool:
         return item in self.available_properties
+
+    @property
+    def design_settings(self) -> Optional[Any]:
+        """Design settings."""
+        try:
+            return self._app.odesign.GetChildObject("Design Settings")
+        except GrpcApiError:  # pragma: no cover
+            self._app.logger.error("Failed to retrieve design settings.")
+            return None
+
+    @property
+    def available_properties(self) -> List[str]:
+        """Available properties names for the current design."""
+        return [prop for prop in self.design_settings.GetPropNames() if not prop.endswith("/Choices")]
 
 
 class DesignSettingsManipulation:
