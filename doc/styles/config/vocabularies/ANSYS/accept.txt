@@ -14,6 +14,7 @@ busbars
 Bz
 CHECKIN
 [Cc]ircuit
+[Cc]loud
 codecov
 (?i)Com
 COM interface
@@ -98,6 +99,7 @@ subcircuit
 [Tt]oolkit [Mm]anager
 Twin Builder
 Uncomment
+untrusted
 utils
 vias
 manual_settings
