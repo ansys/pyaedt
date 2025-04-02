@@ -58,6 +58,10 @@ class FilterDesignBase:
         self.transmission_zeros_ratio = TransmissionZeros(TableFormat.RATIO)
         self.transmission_zeros_bandwidth = TransmissionZeros(TableFormat.BANDWIDTH)
         self.export_to_aedt = ExportToAedt()
+        self._dll_interface = ansys.aedt.core.filtersolutions_core._dll_interface()
+
+    def close(self):
+        self._dll_interface.close_project()
 
 
 class LumpedDesign(FilterDesignBase):

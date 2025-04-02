@@ -39,6 +39,7 @@ class DllInterface:
     def __init__(self, show_gui=False, version=None):
         self._init_dll_path(version)
         self._init_dll(show_gui)
+        self._define_dll_functions()
 
     def restore_defaults(self):
         """Restore the state of the API, including all options and values, to the initial startup state."""
@@ -101,6 +102,8 @@ class DllInterface:
         """Define DLL function."""
         self._dll.getVersion.argtypes = [ctypes.c_char_p, ctypes.c_int]
         self._dll.getVersion.restype = ctypes.c_int
+        self._dll.closeProject.argtype = ctypes.c_int
+        self._dll.closeProject.restype = ctypes.c_int
 
     def get_string(self, dll_function: Callable, max_size=100) -> str:
         """Call a DLL function that returns a string.
@@ -206,3 +209,6 @@ class DllInterface:
         if error_status != 0:
             error_message = self.get_string(self._dll.getErrorMessage, 4096)
             raise RuntimeError(error_message)
+
+    def close_project(self):
+        self._dll.closeProject()
