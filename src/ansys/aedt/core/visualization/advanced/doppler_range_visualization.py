@@ -25,6 +25,8 @@
 from pathlib import Path
 import sys
 
+from scipy.signal import find_peaks
+
 current_python_version = sys.version_info[:2]
 if current_python_version < (3, 10):  # pragma: no cover
     raise Exception("Python 3.10 or higher is required for Monostatic RCS post-processing.")
@@ -100,14 +102,14 @@ class RangeDopplerData(object):
         self.__radar_channels = None
         self.__time_start = None
         self.__time_stop = None
-        self.__time_step = None
+        self.__time_number = None
         self.__time_sweep = None
         self.__time_delta = None
         self.__time_duration = None
         self.__frequency_domain_type = None
         self.__frequency_start = None
         self.__frequency_stop = None
-        self.__frequency_step = None
+        self.__frequency_numbe = None
         self.__frequency_sweep = None
         self.__frequency_delta = None
         self.__frequency_bandwidth = None
@@ -169,8 +171,8 @@ class RangeDopplerData(object):
         return self.__time_stop
 
     @property
-    def time_step(self):
-        return self.__time_step
+    def time_number(self):
+        return self.__time_number
 
     @property
     def time_sweep(self):
@@ -197,8 +199,8 @@ class RangeDopplerData(object):
         return self.__frequency_stop
 
     @property
-    def frequency_step(self):
-        return self.__frequency_step
+    def frequency_number(self):
+        return self.__frequency_number
 
     @property
     def frequency_sweep(self):
@@ -245,7 +247,9 @@ class RangeDopplerData(object):
     @property
     def range_period(self):
         rr = self.range_resolution
-        max_range = rr * self.frequency_step
+        max_range = rr * self.frequency_number
+        if self.col_count != 2:  # I
+            max_range = max_range / 2.0
         return max_range
 
     @property
@@ -258,71 +262,113 @@ class RangeDopplerData(object):
     @property
     def velocity_period(self):
         vr = self.velocity_resolution
-        time_step = self.time_step
+        time_step = self.time_number
         vp = time_step * vr
         return vp
 
     @pyaedt_function_handler()
-    def load_data(self, order="FreqPulse"):
-        """Provides range doppler data.
+    def load_data(self, order="frequency_pulse"):
+        """Load and return range doppler data.
 
         Parameters
         ----------
         order : str, optional
-            DESCRIPTION. order is either 'FreqPulse' or 'PulseFreq'. this is
-            the index order of the array, [numFreq][numPulse] or [numPulse][numFreq]
-            many of the post processing depend on this order so just choose accordingly
+            The order of the data array. It can be either ``"frequency_pulse"`` or ``"pulse_frequency"``.
+            ``"frequency_pulse"`` indicates the array order is [frequency_number][pulse_number],
+            while ``"pulse_frequency"`` indicates the array order is [pulse_number][frequency_number].
+            The choice of order affects many post-processing steps, so choose accordingly.
+            The default is ``"frequency_pulse"``.
 
         Returns
         -------
         dict
-            DESCRIPTION.
 
         """
-        if order.lower() == "freqpulse":
+
+        if order.lower() == "frequency_pulse":
             for ch in self.all_data.keys():
                 self.__all_data[ch] = self.all_data[ch].T
             return self.all_data
         else:
-            # This is how the data is read in with [pulse][freq] order
             return self.all_data
+
+    @pyaedt_function_handler()
+    def range_profile(self, window=False):
+        """
+        range profile calculation
+
+        input: 1D array [freq_samples]
+
+        returns: 1D array in original_lenth * upsample
+
+        """
+        for n, p in enumerate(self.all_data):
+            nfreq = int(np.shape(np.squeeze(p))[0])
+            # scale factors used for windowing function
+            if window:
+                win_range = np.hanning(nfreq)
+                win_range_sum = np.sum(win_range)
+                sf_rng = len(win_range) / (win_range_sum)
+                win_range = win_range * sf_rng
+            else:
+                win_range = 1
+
+            # perform ifft on each channel
+            pulse_f = data
+            pulse_f_win = np.multiply(pulse_f, win_range)  # apply windowing
+
+            sf_upsample = nfreq * upsample / nfreq
+            # should probably upsample to closest power of 2 for faster processing, but not going to for now
+            pulse_t_win_up = sf_upsample * ifft(pulse_f_win, n=nfreq * upsample)
+        return pulse_t_win_up
 
     @pyaedt_function_handler()
     def range_doppler_map(self, channel, size=(256, 256)):
         """
-        range doppler calculation
+        Calculate the range-doppler map.
 
-        input: 2D array [freq_samples][pulses], size is desired output in (ndoppler,nrange)
+        Parameters
+        ----------
+        channel : str
+            The channel name to process.
+        size : tuple of int, optional
+            Desired output size in (ndoppler, nrange). The default is ``(256, 256)``.
 
-        returns: 2D array in [range][doppler]
-
+        Returns
+        -------
+        tuple
+            A tuple containing:
+            - 2D numpy array: The range-Doppler map in [range][doppler].
+            - int: Reserved for future use, currently returns 0.
+            - float: Frames per second (FPS) of the processing.
         """
 
         time_before = walltime.time()
+
         # I think something is wrong with data being returned as opposite, freq and pulse are swapped
-        nfreq = int(np.shape(self.all_data[channel])[0])
-        ntime = int(np.shape(self.all_data[channel])[1])
+        frequency_number = int(np.shape(self.all_data[channel])[0])
+        time_number = int(np.shape(self.all_data[channel])[1])
 
-        rPixels = size[0]
-        dPixels = size[1]
+        range_pixels = size[0]
+        doppler_pixels = size[1]
 
-        h_dop = np.hanning(ntime)
+        h_dop = np.hanning(time_number)
         sf_dop = len(h_dop) / np.sum(h_dop)
-        sf_upsample_dop = dPixels / ntime
+        sf_upsample_dop = doppler_pixels / time_number
 
-        h_rng = np.hanning(nfreq)
+        h_rng = np.hanning(frequency_number)
         sf_rng = len(h_rng) / np.sum(h_rng)
-        sf_upsample_rng = rPixels / nfreq
+        sf_upsample_rng = range_pixels / frequency_number
 
         h_dop = h_dop * sf_rng
         h_rng = h_rng * sf_dop
 
         fp_win = sf_upsample_dop * np.multiply(self.all_data[channel], h_dop)
-        s1 = np.fft.ifft(fp_win, n=dPixels)
+        s1 = np.fft.ifft(fp_win, n=doppler_pixels)
         s1 = np.rot90(s1)
 
         s1_win = sf_upsample_rng * np.multiply(h_rng, s1)
-        s2 = np.fft.ifft(s1_win, n=rPixels)
+        s2 = np.fft.ifft(s1_win, n=range_pixels)
         s2 = np.rot90(s2)
         s2_shift = np.fft.fftshift(s2, axes=1)
         # range_doppler = np.flipud(s2_shift)
@@ -338,44 +384,27 @@ class RangeDopplerData(object):
         return range_doppler, rp, duration_fps
 
     @pyaedt_function_handler()
-    def range_profile(self, window=False, size=1024):
+    def convert_frequency_pulse_to_range_pulse(self, data, output_size=256, pulse=None):
         """
-        range profile calculation
+        Convert frequency-pulse data to range-pulse data.
 
-        input: 1D array [freq_samples]
+        Parameters
+        ----------
+        data : 3D array
+            Input data array with dimensions [channel][freq_samples][pulses].
+        output_size : int, optional
+            Desired output size in range dimensions. Default is 256.
+        pulse : int, optional
+            Pulse index to use. If None, the center pulse is used. Default is None.
 
-        returns: 1D array in original_lenth * upsample
-
-        """
-
-        nfreq = int(np.shape(np.squeeze(self.all_data))[0])
-        # scale factors used for windowing function
-        if window:
-            win_range = np.hanning(nfreq)
-            win_range_sum = np.sum(win_range)
-            sf_rng = nfreq / win_range_sum
-            win_range = win_range * sf_rng
-            pulse_f = np.multiply(self.all_data, win_range)  # apply windowing
-        else:
-            pulse_f = self.all_data
-
-        sf_upsample = size / nfreq
-
-        # should probably upsample to closest power of 2 for faster processing, but not going to for now
-        pulse_t_win_up = sf_upsample * np.fft.ifft(pulse_f, n=size)
-
-        return pulse_t_win_up
-
-    @pyaedt_function_handler()
-    def convert_freqpulse_to_rangepulse(self, data, output_size=256, pulse=None):
-        """
-        input: 3D array [channel][freq_samples][pulses], size is desired output in (ndoppler,nrange)
-                output_size is up/down sampling in range dimensions
-                pulse=None, this is the pulse to use, if set to none it will extract from center pulse
-        returns: 3D array in [channel][range]
+        Returns
+        -------
+        3D array
+            Converted data array with dimensions [channel][range].
         """
 
-        rPixels = output_size
+        range_pixels = output_size
+
         # input shape
         rng_dims = np.shape(data)[1]
         dop_dims = np.shape(data)[2]
@@ -392,14 +421,15 @@ class RangeDopplerData(object):
         # window
         h_rng = np.hanning(rng_dims)
         sf_rng = len(h_rng) / np.sum(h_rng)
-        sf_upsample_rng = rPixels / rng_dims
+        sf_upsample_rng = range_pixels / rng_dims
         h_rng = h_rng * sf_rng
 
         # apply windowing
         ch_freq_win = sf_upsample_rng * np.multiply(ch_freq, h_rng)
 
         # take fft
-        ch_rng_win = np.fft.ifft(ch_freq_win, n=rPixels)  # [ch][range][dop]fft across dop dimensions
+        # [ch][range][dop] fft across dop dimensions
+        ch_rng_win = np.fft.ifft(ch_freq_win, n=range_pixels)
         ch_rng_win = np.fliplr(ch_rng_win)
 
         return ch_rng_win
@@ -408,41 +438,58 @@ class RangeDopplerData(object):
     def range_angle_map(
         self,
         data,
-        antenna_spacing_wl=0.5,
-        source_data="RangeDoppler",
+        antenna_spacing=0.5,
+        source_data="range_doppler",
         doa_method="fft",
-        fov=[-90, 90],
+        field_of_view=None,
         out_size=(256, 256),
         range_bin_idx=-1,
     ):
         """
-        range calculating calculation
+        Calculate the range-angle map.
 
-        input: 3D array [channel][freq_samples][pulses], in case of FreqPulse mode
-                    or
-               3D array [channel][range][doppler], in case of RangeDoppler mode
-               source_data = 'RangeDoppler' or 'FreqPulse'
+        Parameters
+        ----------
+        data : numpy.ndarray
+            3D array of input data. Format can be [channel][freq_samples][pulses] for FreqPulse mode
+            or [channel][range][doppler] for RangeDoppler mode.
+        antenna_spacing : float, optional
+            Spacing between antennas in wavelengths. Default is 0.5.
+        source_data : str, optional
+            Source data format. Can be 'range_doppler' or 'frequency_pulse'. Default is 'range_doppler'.
+        doa_method : str, optional
+            Direction of Arrival (DoA) method. Options are 'fft', 'bartlett', 'capon', 'mem', 'music'.
+            Default is 'fft'.
+        field_of_view : list of float, optional
+            Field of view in degrees. Default is [-90, 90].
+        out_size : tuple of int, optional
+            Output size in (range, cross-range). Default is (256, 256).
+        range_bin_idx : int, optional
+            Index of the specific range bin to process. Default is -1 (process all range bins).
 
-               DoA_method, 'fft', Bartlett, Capon, MEM, MUSIC
-
-               out_size, output size in [range][xrange]
-               range_bin=-1 do all range bins, or if specified do only specific range bin index
-
-        returns: 2D array of size [range][xrange]
-
+        Returns
+        -------
+        numpy.ndarray
+            2D array of size [range][cross-range] representing the range-angle map.
+        float
+            Frames per second (FPS) of the processing.
         """
+        if field_of_view is None:
+            field_of_view = [-90, 90]
+
         time_before = walltime.time()
 
-        rPixels = out_size[0]
+        range_pixels = out_size[0]
         xrPixels = out_size[1]
 
         xrng_dims = np.shape(data)[0]
         nchannel = xrng_dims
 
         doa_method = doa_method.lower()
-
-        if source_data == "FreqPulse":
-            ch_range = self.convert_freqpulse_to_rangepulse(data, output_size=rPixels)
+        rng_xrng = None
+        range_bin = None
+        if source_data == "frequency_pulse":
+            ch_range = self.convert_frequency_pulse_to_range_pulse(data, output_size=range_pixels)
             if doa_method == "fft":
                 h_xrng = np.hanning(xrng_dims)
                 sf_xrng = len(h_xrng) / np.sum(h_xrng)
@@ -455,19 +502,20 @@ class RangeDopplerData(object):
                 rng_xrng = np.fft.ifft(rng_ch_win, n=xrPixels)
                 rng_xrng = np.fft.fftshift(rng_xrng, axes=1)
 
-            else:  # for DoA_method = bartlett, capon mem and music
-                ang_stop = fov[1] + 90  # offset fov because beam search is from 0 to 180
-                ang_start = fov[0] + 90
+            else:
+                # for DoA_method = bartlett, capon mem and music
+                ang_stop = field_of_view[1] + 90  # offset fov because beam search is from 0 to 180
+                ang_start = field_of_view[0] + 90
                 range_ch = np.swapaxes(ch_range, 0, 1)
-                array_alignment = np.arange(0, nchannel, 1) * antenna_spacing_wl
+                array_alignment = np.arange(0, nchannel, 1) * antenna_spacing
                 incident_angles = np.linspace(ang_start, ang_stop, num=xrPixels)
-                ula_scanning_vectors = self.gen_ula_scanning_vectors(array_alignment, incident_angles)
+                ula_scanning_vectors = self.generate_ula_scanning_vectors(array_alignment, incident_angles)
                 sf = len(incident_angles) / xrng_dims
                 if range_bin_idx != -1:  # do only specific range bin
-                    rPixels = 1
+                    range_pixels = 1
                     range_ch = np.atleast_2d(range_ch[range_bin_idx])
 
-                rng_xrng = np.zeros((rPixels, xrPixels), dtype=complex)  # (pulse,range)
+                rng_xrng = np.zeros((range_pixels, xrPixels), dtype=complex)  # (pulse,range)
                 for n, rb in enumerate(range_ch):  # if range bin is specified it will only go once
                     ## R matrix calculation
                     rb = np.reshape(rb, (1, nchannel))
@@ -482,9 +530,12 @@ class RangeDopplerData(object):
                         range_bin = self.DOA_MEM(R, ula_scanning_vectors, column_select=0)
                     elif doa_method == "music":
                         range_bin = self.DOA_MUSIC(R, ula_scanning_vectors, signal_dimension=1)
+                    if range_bin is None:
+                        self.__logger.error(f"Invalid DoA method {doa_method}.")
+                        return
                     rng_xrng[n] = range_bin * sf
 
-        elif source_data == "RangeDoppler":
+        elif source_data == "range_doppler":
             if doa_method == "fft":
                 # fft to get to range vs pulse
                 ch_rng_pulse = np.fft.fft(data)
@@ -523,11 +574,11 @@ class RangeDopplerData(object):
                 range_ch = np.swapaxes(ch_rng_pulse, 2, 0)
                 range_ch = range_ch[int(dop_dims / 2)]
 
-                ang_stop = fov[1] + 90  # offset fov because beam search is from 0 to 180
-                ang_start = fov[0] + 90
-                array_alignment = np.arange(0, nchannel, 1) * antenna_spacing_wl
+                ang_stop = field_of_view[1] + 90  # offset fov because beam search is from 0 to 180
+                ang_start = field_of_view[0] + 90
+                array_alignment = np.arange(0, nchannel, 1) * antenna_spacing
                 incident_angles = np.linspace(ang_start, ang_stop, num=xrPixels)
-                ula_scanning_vectors = self.gen_ula_scanning_vectors(array_alignment, incident_angles)
+                ula_scanning_vectors = self.generate_ula_scanning_vectors(array_alignment, incident_angles)
 
                 sf = len(incident_angles) / xrng_dims
                 if range_bin_idx != -1:  # do only specific range bin
@@ -548,7 +599,14 @@ class RangeDopplerData(object):
                         range_bin = self.DOA_MEM(R, ula_scanning_vectors, column_select=0)
                     elif doa_method == "music":
                         range_bin = self.DOA_MUSIC(R, ula_scanning_vectors, signal_dimension=1)
+
+                    if range_bin is None:
+                        self.__logger.error(f"Invalid DoA method {doa_method}.")
+
                     rng_xrng[n] = range_bin * sf
+
+        if rng_xrng is None:
+            return
 
         rng_xrng = np.flipud(rng_xrng)
 
@@ -560,37 +618,261 @@ class RangeDopplerData(object):
 
         return rng_xrng, duration_fps
 
-    def gen_ula_scanning_vectors(self, array_alignment, thetas):
+    @pyaedt_function_handler()
+    def generate_ula_scanning_vectors(self, array_alignment, thetas):
         """
-        Description:
-        ------------
-            This function prepares scanning vectorors for Linear array antenna systems
+        Generate scanning vectors for Uniform Linear Array (ULA) antenna systems.
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
+        array_alignment : numpy.ndarray
+            A 1D array containing the distances between the antenna elements.
+            e.g., [0, 0.5*lambda, 1*lambda, ...]
+        thetas : numpy.ndarray
+            A 1D array containing the incident angles in degrees.
+            e.g., [0, 1, 2, ..., 180]
 
-            :param array_alignment : A vector containing the distances between the antenna elements.
-                                    e.g.: [0, 0.5*lambda, 1*lambda, ... ]
-            :param  thetas : A vector containing the incident angles e.g.: [0deg, 1deg, 2deg, ..., 180 deg]
-
-            :type array_alignment: 1D numpy array
-            :type thetas: 1D numpy array
-
-        Return values:
-        -------------
-
-            :return scanning_vectors : Estimated signal dimension
-            :rtype scanning_vectors: 2D numpy array with size: M x P, where P is the number of incident angles
-
+        Returns
+        -------
+        numpy.ndarray
+            A 2D array of complex numbers with shape (M, P), where M is the number of antenna elements
+            and P is the number of incident angles. Each column represents a scanning vector for a specific angle.
         """
         M = np.size(array_alignment, 0)  # Number of antenna elements
         scanning_vectors = np.zeros((M, np.size(thetas)), dtype=complex)
         for i in range(np.size(thetas)):
-            scanning_vectors[:, i] = np.exp(
-                array_alignment * 1j * 2 * np.pi * np.cos(np.radians(thetas[i]))
-            )  # Scanning vector
+            scanning_vectors[:, i] = np.exp(array_alignment * 1j * 2 * np.pi * np.cos(np.radians(thetas[i])))
 
         return scanning_vectors
+
+    @pyaedt_function_handler()
+    def create_target_list(
+        self,
+        rd_all_channels_az=None,
+        rd_all_channels_el=None,
+        rngDomain=None,
+        velDomain=None,
+        azPixels=256,
+        elPixels=256,
+        antenna_spacing_wl=0.5,
+        radar_fov=[-90, 90],
+        centerFreq=76.5e9,
+        rcs_min_detect=0,
+        min_detect_range=7.5,
+        rel_peak_threshold=1e-2,
+        max_detections=100,
+        return_cfar=False,
+    ):
+
+        if rd_all_channels_el is None:
+            includes_elevation = False
+        else:
+            includes_elevation = True
+
+        time_before_target_list = walltime.time()
+        target_list = {}
+        # this CA_CFAR is too slow, doing to just use local peak detection instead
+        # rd_cfar, cfar_fps = pp.CA_CFAR(rd, win_len=50,win_width=50,guard_len=10,guard_width=10, threshold=20)
+        rd_cfar, fps_cfar = self.peak_detector2(
+            rd_all_channels_az[0], max_detections=max_detections, threshold_rel=rel_peak_threshold
+        )
+        target_index = np.where(rd_cfar == 1)  # any where there is a hit, get the index of that location
+        num_targets = len(target_index[0])
+        if num_targets == 0:
+            print("no targets")
+            target_list = None
+
+        hit_idx = 0  # some hit targets may generate multiple hits (ie, multiple at same range, but different azimuth)
+        for hit in range(num_targets):
+
+            loc_dict = {}
+            ddim_idx = target_index[1][hit]  # index  in doopper dimension
+            rdim_idx = target_index[0][hit]  # index  in range dimension
+            doa_az, all_doa_az_bins = self.target_DOA_estimation(
+                rd_all_channels_az,
+                azPixels,
+                rdim_idx,
+                ddim_idx,
+                antenna_spacing_wl=antenna_spacing_wl,
+                fov=radar_fov,
+                DOA_method="Bartlett",
+            )
+
+            if includes_elevation == False:
+                doa_el = 0
+                all_doa_el_bins = [0]
+            elif len(rd_all_channels_el) < 2:  # needs to have at least 2 channel to get elevation
+                doa_el = 0
+                all_doa_el_bins = [0]
+            else:
+                doa_el, all_doa_el_bins = target_DOA_estimation(
+                    rd_all_channels_el, elPixels, rdim_idx, ddim_idx, fov=[radar_fov[0], 0], DOA_method="Bartlett"
+                )
+
+            R_dist = rngDomain[rdim_idx]  # get range at index where peak/hit was detected
+            loc_dict["range"] = R_dist
+            # ignore hits that are closer than this distance and further than 90%of max range
+            # for doa_az_peak in all_doa_az_bins:
+            #     for doa_el_peak in all_doa_el_bins:
+            if (loc_dict["range"] > min_detect_range) and (loc_dict["range"] < np.max(rngDomain) * 0.9):
+                loc_dict["azimuth"] = doa_az  # in degrees
+                loc_dict["elevation"] = doa_el
+                loc_dict["cross_range_dist"] = rngDomain[rdim_idx] * np.sin(doa_az * np.pi / 180)
+                loc_dict["xpos"] = R_dist * np.cos(
+                    doa_az * np.pi / 180
+                )  # this is distance as defined in +x in front of sensor
+                loc_dict["ypos"] = R_dist * np.sin(doa_az * np.pi / 180)  # +y and -y is cross range dimenionson,
+                loc_dict["zpos"] = R_dist * np.sin(doa_el * np.pi / 180)
+                loc_dict["velocity"] = velDomain[ddim_idx]
+                Pr = np.abs(rd_all_channels_az[0][rdim_idx][ddim_idx])
+                loc_dict["p_received"] = Pr
+                Pr_dB = 10 * np.log10(Pr)
+                # TODO get transmit power from API
+                Pt = 1  # 1Watt, input power, 0dBw is source power
+                Pt_dB = 10 * np.log10(Pt)
+
+                # user radar range equation to scale results by range to get relative rcs
+                # is there a better way to do this? This will not work for objects in near field
+                # gain used in dB, should probably use the actual antenna pattern gain,
+                # but
+                # this
+                # will
+                # be
+                # used
+                # for testing
+                #     Gt = 10.67  # this is about the gain for hpbw =120deg
+                Gr = 10.67
+                # radar range equation in dB
+                rcs_scaled_dB = (
+                    Pr_dB
+                    + 30 * np.log10(4 * np.pi)
+                    + 40 * np.log10(R_dist)
+                    - (Pt_dB + Gt + Gr + 20 * np.log10(3e8 / (centerFreq)))
+                )
+                if rcs_scaled_dB > rcs_min_detect:  # only add if peak rcs is above min value specified
+                    loc_dict["rcs"] = rcs_scaled_dB
+                    target_list[hit_idx] = deepcopy(loc_dict)
+                    hit_idx += 1
+                    # target_list['original_time_index'] = time
+        # if target recorded, add it to the list
+
+        time_after_target_list = walltime.time()
+        time_target_list = time_after_target_list - time_before_target_list
+        if time_target_list == 0:
+            time_target_list = 1
+        fps_target_list = 1 / time_target_list
+
+        if return_cfar:
+            return target_list, fps_target_list, rd_cfar
+        else:
+            return target_list, fps_target_list
+
+    @pyaedt_function_handler()
+    def peak_detector2(self, data, max_detections=20, threshold_rel=1e-2):
+        time_before = walltime.time()
+        size = np.shape(data)
+        if len(size) > 2:
+            data = data[0]
+
+        data = np.abs(data)
+        coordinates, properties = find_peaks(data.flatten(), distance=5, height=threshold_rel * data.max())
+        coordinates = np.column_stack(np.unravel_index(coordinates, data.shape))
+
+        # Sort peaks by height and select the top max_detections peaks
+        if len(properties["peak_heights"]) > max_detections:
+            sorted_indices = np.argsort(properties["peak_heights"])[-max_detections:]
+            coordinates = coordinates[sorted_indices]
+
+        peak_mask = np.zeros_like(data, dtype=bool)
+        peak_mask[tuple(coordinates.T)] = True
+
+        time_after = walltime.time()
+        duration_time = time_after - time_before
+        if duration_time == 0:
+            duration_time = 1
+        duration_fps = 1 / duration_time
+
+        return peak_mask.astype(int), duration_fps
+
+    @pyaedt_function_handler()
+    def target_DOA_estimation(
+        data, xrPixels, range_idx, doppler_idx, fov=[-90, 90], antenna_spacing_wl=0.5, DOA_method="Bartlett"
+    ):
+        """
+            Performs DOA (Direction of Arrival) estimation for the given hits.
+            To speed up the calculation for multiple
+            hits this function requires the calculated range-Doppler maps from all the surveillance channels.
+
+        Parameters:
+        -----------
+            :param: rd_maps: range-Doppler matrices from which the azimuth vector can be extracted
+            :param: hit_list: Contains the delay and Doppler coordinates of the targets.
+            :param: DOA_method: Name of the required algorithm to use for the estimation
+            :param: array_alignment: One dimensional array, which describes the active antenna positions
+
+            :type : rd_maps: complex valued numpy array with the size of  Μ x D x R , where R is equal to
+                                    the number of range cells, and D denotes the number of Doppler cells.
+            :type: hit_list: Python list [[delay1, Doppler1],[delay2, Doppler2]...].
+            :type: DOA_method: string
+            :type: array_alignment: real valued numpy array with size of 1 x M, where M is the number of
+                                surveillance antenna channels.
+
+        Return values:
+        --------------
+            target_doa : Measured incident angles of the targets
+
+        TODO: Extend with decorrelation support
+        """
+        size = np.shape(data)
+        doa_list = []  # This list will contains the measured DOA values
+        nchannel = int(size[0])
+
+        ang_stop = fov[1] + 90  # offset fov because beam search is from 0 to 180
+        ang_start = fov[0] + 90
+
+        array_alignment = np.arange(0, nchannel, 1) * antenna_spacing_wl
+
+        incident_angles = np.linspace(ang_start, ang_stop, num=xrPixels)
+        ula_scanning_vectors = self.generate_ula_scanning_vectors(array_alignment, incident_angles)
+        DOA_method = DOA_method.lower()
+        azimuth_vector = data[:, range_idx, doppler_idx]
+        R = np.outer(azimuth_vector, azimuth_vector.conj())
+        if DOA_method == "bartlett":
+            doa_res = de.DOA_Bartlett(R, ula_scanning_vectors)
+        elif DOA_method == "capon":
+            doa_res = de.DOA_Capon(R, ula_scanning_vectors)
+        elif DOA_method == "mem":
+            doa_res = de.DOA_MEM(R, ula_scanning_vectors, column_select=0)
+        elif DOA_method == "music":
+            doa_res = de.DOA_MUSIC(R, ula_scanning_vectors, signal_dimension=1)
+
+        doa_res_abs = np.abs(doa_res)
+        max_location = np.argmax(doa_res_abs)
+        # this is slowing down post processing and is not currently used
+        # commenting out for now
+        # max_value = np.max(doa_res_abs)
+        # peaks_indices = find_peaks(doa_res_abs)
+        # peaks_indices = peaks_indices[0]
+        # peaks_values = doa_res_abs[peaks_indices]
+        # #find_peaks does not identify peaks and start or end of data set. I'll
+        # #check if the max value is not in the peak dataset, if it isn't add it
+        # if max_location not in peaks_indices:
+        #     peaks_indices = np.append(peaks_indices,max_location)
+        #     peaks_values = np.append(peaks_values,max_value)
+        # peaks = list(zip(peaks_indices, peaks_values))
+        # peaks = np.array(peaks)
+
+        # threshold = 0.9 * max_value
+
+        # filtered_peaks_indices = [int(index) for index, value in peaks if value > threshold]
+
+        # minus 90 because original scan was 0 to 180,
+        # coordinate sys for osi would mean these angles are reversed
+        # assumes the Y axis is to the left if the vehicke is looking forward
+        hit_doa = -1 * (incident_angles[max_location] - 90)
+        # hit_doa_all = -1*(incident_angles[filtered_peaks_indices]-90)
+        hit_doa_all = []
+        return hit_doa, hit_doa_all
 
     def DOA_Bartlett(self, R, scanning_vectors):
         """
@@ -1063,8 +1345,9 @@ class RangeDopplerData(object):
                     pass
                 elif "DlxCdVersion" in line_str:
                     dlxcd_vers_line = line_str
-                    vers = dlxcd_vers_line.split("=")
-                    self.__dlxcd_vers = vers
+                    c = dlxcd_vers_line.split("=")
+                    c = c[1].replace("\n", "").replace('"', "").replace(" ", "")
+                    self.__dlxcd_vers = int(c)
                 elif "@ RowCount" in line_str:
                     c = line_str.split("=")
                     c = c[1].replace("\n", "").replace('"', "").replace(" ", "")
@@ -1091,13 +1374,16 @@ class RangeDopplerData(object):
                 elif "@ BinaryRecordLength " in line_str:
                     bin_record_length_line = line_str
                     c = bin_record_length_line.split("=")
-                    self.__binary_record_length = c[1]
+                    c = c[1].replace("\n", "").replace('"', "").replace(" ", "")
+                    self.__binary_record_length = int(c)
                 elif "@ BinaryStartByte " in line_str:
                     c = line_str.split("=")
                     c = c[1].replace("\n", "").replace('"', "").replace(" ", "")
                     self.__binary_start_byte = int(c)
                 elif "@ BinaryRecordSchema " in line_str:
-                    self.__binary_byte_type_line = line_str
+                    c = line_str.split("=")
+                    c = c[1].replace("\n", "").replace('"', "").replace(" ", "")
+                    self.__binary_byte_type_line = c
                 elif "@ RadarWaveform " in line_str:
                     radarwaveform_line = line_str
                     rw = radarwaveform_line.split("=")
@@ -1116,13 +1402,14 @@ class RangeDopplerData(object):
                     c = time_steps_line.split("=")
                     c = c[1].split(" ")
                     c = [i for i in c if i]
-                    self.__time_step = int(c[2].replace('"', "")) + 1
-                    self.__time_sweep = np.linspace(self.time_start, self.time_stop, num=self.time_step)
+                    self.__time_number = int(c[2].replace('"', "")) + 1
+                    self.__time_sweep = np.linspace(self.time_start, self.time_stop, num=self.time_number)
                     self.__time_delta = self.time_sweep[1] - self.time_sweep[0]
                     self.__time_duration = self.time_sweep[-1] - self.time_sweep[0]
                 elif "@ FreqDomainType " in line_str:
                     freq_dom_type_line = line_str
-                    self.__frequency_domain_type = freq_dom_type_line.split("=")[1]
+                    rc = freq_dom_type_line.split("=")
+                    self.__frequency_domain_type = rc[1].replace("\n", "").replace('"', "").replace(" ", "")
                 elif "@ FreqSweep " in line_str:
                     freq_sweep_line = line_str
                     c = freq_sweep_line.split("=")
@@ -1133,15 +1420,15 @@ class RangeDopplerData(object):
                     c = [i for i in c if i]
                     self.__frequency_start = float(c[0])
                     self.__frequency_stop = float(c[1])
-                    self.__frequency_step = int(c[2].replace('"', "")) + 1
+                    self.__frequency_number = int(c[2].replace('"', "")) + 1
                     if self.radar_waveform == "CS-FMCW" and self.radar_channels == "I":
-                        self.__frequency_step = int(self.frequency_step / 2)
+                        self.__frequency_number = int(self.frequency_number / 2)
                     self.__frequency_sweep = np.linspace(
-                        self.frequency_start, self.frequency_stop, num=self.frequency_step
+                        self.frequency_start, self.frequency_stop, num=self.frequency_number
                     )
                     self.__frequency_delta = self.frequency_sweep[1] - self.frequency_sweep[0]
                     self.__frequency_bandwidth = self.frequency_sweep[-1] - self.frequency_sweep[0]
-                    center_index = int(self.frequency_step / 2)
+                    center_index = int(self.frequency_number / 2)
                     self.__frequency_center = float(self.frequency_sweep[center_index])
                 elif "@ AntennaNames " in line_str:
                     ant_names_line = line_str
@@ -1183,17 +1470,17 @@ class RangeDopplerData(object):
         # cdat_real = np.moveaxis(cdat_real,-1,0)
         if self.col_count == 2:
             cdat_real = np.reshape(
-                raw_data[self.col_header1], (self.channel_number, self.time_step, self.frequency_step)
+                raw_data[self.col_header1], (self.channel_number, self.time_number, self.frequency_number)
             )
             cdat_imag = np.reshape(
-                raw_data[self.col_header2], (self.channel_number, self.time_step, self.frequency_step)
+                raw_data[self.col_header2], (self.channel_number, self.time_number, self.frequency_number)
             )
             # cdat_imag = np.moveaxis(cdat_imag,-1,0)
             for n, ch in enumerate(self.channel_names):
                 self.__all_data[ch] = cdat_real[n] + cdat_imag[n] * 1j
         else:
             cdat_real = np.reshape(
-                raw_data[self.col_header1], (self.channel_number, self.time_step, int(self.frequency_step * 2))
+                raw_data[self.col_header1], (self.channel_number, self.time_number, int(self.frequency_number * 2))
             )  # fmcw I channel
             for n, ch in enumerate(self.channel_names):
                 temp = cdat_real[n]
@@ -1221,39 +1508,52 @@ class RangeDopplerPlotter(object):
 
     def __init__(self, doppler_data):
 
+        if not isinstance(doppler_data, list):
+            doppler_data = [doppler_data]
+
         # Private
         self.__doppler_data = doppler_data
         self.__logger = logger
+        self.__oversampling = 2
 
-    # def peak_detector2(self, data, max_detections=20, threshold_rel=1e-2):
-    #     '''
-    #     passing data in as linear, but converting to dB seems to work
-    #     '''
-    #     time_before = walltime.time()
-    #     size = np.shape(data)
-    #     if len(size) > 2:
-    #         data = data[0]
-    #
-    #     data = np.abs(data)
-    #     # data = 20*np.log10(np.abs(data))
-    #     # threshold_rel*max_val of plot is the minimum threshold returned
-    #
-    #     coordinates = peak_local_max(data, min_distance=5,
-    #                                  threshold_rel=threshold_rel, num_peaks=max_detections,
-    #                                  exclude_border=False)
-    #
-    #     peak_mask = np.zeros_like(data, dtype=bool)
-    #     peak_mask[tuple(coordinates.T)] = True
-    #
-    #     time_after = walltime.time()
-    #     duration_time = time_after - time_before
-    #     if duration_time == 0:
-    #         duration_time = 1
-    #     duration_fps = 1 / duration_time
-    #
-    #     # return as 1 or zero to be consistent with CFAR processing below
-    #     return peak_mask.astype(int), duration_fps
-    #
+    @property
+    def doppler_data(self):
+        return self.__doppler_data
+
+    @property
+    def oversampling(self):
+        return self.__oversampling
+
+    @oversampling.setter
+    def oversampling(self, value):
+        self.__oversampling = value
+
+    @pyaedt_function_handler()
+    def power_range(
+        self,
+        chirp,
+    ):
+        curves = []
+        for cont, doppler_data in enumerate(self.doppler_data):
+            # IFFT over the frequency, over the channels at a given chirp
+            range_arr = doppler_data.range(chirp, cont, self.oversampling)
+            if range_arr is None:
+                self.__logger.error(f"Power range could not be computer for chirp number {chirp}. ")
+            x = np.linspace(0, doppler_data.range_period, np.shape(range_arr)[1])
+            y = 20 * np.log10(np.abs(range_arr[0, :].T))
+            curves.append([x, y])
+
+        if curves is not None:
+            new = ReportPlotter()
+            # new.show_legend = show_legend
+            # new.title = title
+            # new.size = size
+
+            for data in curves:
+                new.add_trace(data[:2], 0)
+            _ = new.plot_2d(None, output_file, show)
+            return new
+
     # def peak_detector(data, max_detections=20):
     #     '''
     #     passing data in as linear, but converting to dB seems to work
@@ -1385,190 +1685,10 @@ class RangeDopplerPlotter(object):
     #     duration_fps = 1 / duration_time
     #     return hit_matrix, duration_fps
     #
-    # def target_DOA_estimation(data, xrPixels, range_idx, doppler_idx, fov=[-90, 90], antenna_spacing_wl=0.5,
-    #                           DOA_method="Bartlett"):
-    #     """
-    #         Performs DOA (Direction of Arrival) estimation for the given hits.
-    #         To speed up the calculation for multiple
-    #         hits this function requires the calculated range-Doppler maps from all the surveillance channels.
-    #
-    #     Parameters:
-    #     -----------
-    #         :param: rd_maps: range-Doppler matrices from which the azimuth vector can be extracted
-    #         :param: hit_list: Contains the delay and Doppler coordinates of the targets.
-    #         :param: DOA_method: Name of the required algorithm to use for the estimation
-    #         :param: array_alignment: One dimensional array, which describes the active antenna positions
-    #
-    #         :type : rd_maps: complex valued numpy array with the size of  Μ x D x R , where R is equal to
-    #                                 the number of range cells, and D denotes the number of Doppler cells.
-    #         :type: hit_list: Python list [[delay1, Doppler1],[delay2, Doppler2]...].
-    #         :type: DOA_method: string
-    #         :type: array_alignment: real valued numpy array with size of 1 x M, where M is the number of
-    #                             surveillance antenna channels.
-    #
-    #     Return values:
-    #     --------------
-    #         target_doa : Measured incident angles of the targets
-    #
-    #     TODO: Extend with decorrelation support
-    #     """
-    #     size = np.shape(data)
-    #     doa_list = []  # This list will contains the measured DOA values
-    #     nchannel = int(size[0])
-    #
-    #     ang_stop = fov[1] + 90  # offset fov because beam search is from 0 to 180
-    #     ang_start = fov[0] + 90
-    #
-    #     array_alignment = np.arange(0, nchannel, 1) * antenna_spacing_wl
-    #
-    #     incident_angles = np.linspace(ang_start, ang_stop, num=xrPixels)
-    #     ula_scanning_vectors = de.gen_ula_scanning_vectors(array_alignment, incident_angles)
-    #     DOA_method = DOA_method.lower()
-    #     azimuth_vector = data[:, range_idx, doppler_idx]
-    #     R = np.outer(azimuth_vector, azimuth_vector.conj())
-    #     if DOA_method == "bartlett":
-    #         doa_res = de.DOA_Bartlett(R, ula_scanning_vectors)
-    #     elif DOA_method == "capon":
-    #         doa_res = de.DOA_Capon(R, ula_scanning_vectors)
-    #     elif DOA_method == "mem":
-    #         doa_res = de.DOA_MEM(R, ula_scanning_vectors, column_select=0)
-    #     elif DOA_method == "music":
-    #         doa_res = de.DOA_MUSIC(R, ula_scanning_vectors, signal_dimension=1)
-    #
-    #     doa_res_abs = np.abs(doa_res)
-    #     max_location = np.argmax(doa_res_abs)
-    #     # this is slowing down post processing and is not currently used
-    #     # commenting out for now
-    #     # max_value = np.max(doa_res_abs)
-    #     # peaks_indices = find_peaks(doa_res_abs)
-    #     # peaks_indices = peaks_indices[0]
-    #     # peaks_values = doa_res_abs[peaks_indices]
-    #     # #find_peaks does not identify peaks and start or end of data set. I'll
-    #     # #check if the max value is not in the peak dataset, if it isn't add it
-    #     # if max_location not in peaks_indices:
-    #     #     peaks_indices = np.append(peaks_indices,max_location)
-    #     #     peaks_values = np.append(peaks_values,max_value)
-    #     # peaks = list(zip(peaks_indices, peaks_values))
-    #     # peaks = np.array(peaks)
-    #
-    #     # threshold = 0.9 * max_value
-    #
-    #     # filtered_peaks_indices = [int(index) for index, value in peaks if value > threshold]
-    #
-    #     # minus 90 because original scan was 0 to 180,
-    #     # coordinate sys for osi would mean these angles are reversed
-    #     # assumes the Y axis is to the left if the vehicke is looking forward
-    #     hit_doa = -1 * (incident_angles[max_location] - 90)
-    #     # hit_doa_all = -1*(incident_angles[filtered_peaks_indices]-90)
-    #     hit_doa_all = []
-    #     return hit_doa, hit_doa_all
-    #
-    # def create_target_list(rd_all_channels_az=None,
-    #                        rd_all_channels_el=None,
-    #                        rngDomain=None,
-    #                        velDomain=None,
-    #                        azPixels=256, elPixels=256,
-    #                        antenna_spacing_wl=0.5,
-    #                        radar_fov=[-90, 90],
-    #                        centerFreq=76.5e9,
-    #                        rcs_min_detect=0,
-    #                        min_detect_range=7.5,
-    #                        rel_peak_threshold=1e-2,
-    #                        max_detections=100,
-    #                        return_cfar=False):
-    #
-    #     if rd_all_channels_el is None:
-    #         includes_elevation = False
-    #     else:
-    #         includes_elevation = True
-    #
-    #     time_before_target_list = walltime.time()
-    #     target_list = {}
-    #     # this CA_CFAR is too slow, doing to just use local peak detection instead
-    #     # rd_cfar, cfar_fps = pp.CA_CFAR(rd, win_len=50,win_width=50,guard_len=10,guard_width=10, threshold=20)
-    #     rd_cfar, fps_cfar = peak_detector2(rd_all_channels_az[0], max_detections=max_detections,
-    #                                        threshold_rel=rel_peak_threshold)
-    #     target_index = np.where(rd_cfar == 1)  # any where there is a hit, get the index of that location
-    #     num_targets = len(target_index[0])
-    #     if num_targets == 0:
-    #         print('no targets')
-    #         target_list = None
-    #
-    #     hit_idx = 0  # some hit targets may generate multiple hits (ie, multiple at same range, but different azimuth)
-    #     for hit in range(num_targets):
-    #
-    #         loc_dict = {}
-    #         ddim_idx = target_index[1][hit]  # index  in doopper dimension
-    #         rdim_idx = target_index[0][hit]  # index  in range dimension
-    #         doa_az, all_doa_az_bins = target_DOA_estimation(rd_all_channels_az, azPixels,
-    #                                                         rdim_idx, ddim_idx, antenna_spacing_wl=antenna_spacing_wl,
-    #                                                         fov=radar_fov,
-    #                                                         DOA_method="Bartlett")
-    #
-    #         if includes_elevation == False:
-    #             doa_el = 0
-    #             all_doa_el_bins = [0]
-    #         elif len(rd_all_channels_el) < 2:  # needs to have at least 2 channel to get elevation
-    #             doa_el = 0
-    #             all_doa_el_bins = [0]
-    #         else:
-    #             doa_el, all_doa_el_bins = target_DOA_estimation(rd_all_channels_el, elPixels,
-    #                                                             rdim_idx, ddim_idx,
-    #                                                             fov=[radar_fov[0], 0],
-    #                                                             DOA_method="Bartlett")
-    #
-    #         R_dist = rngDomain[rdim_idx]  # get range at index where peak/hit was detected
-    #         loc_dict['range'] = R_dist
-    #         # ignore hits that are closer than this distance and further than 90%of max range
-    #         # for doa_az_peak in all_doa_az_bins:
-    #         #     for doa_el_peak in all_doa_el_bins:
-    #         if ((loc_dict['range'] > min_detect_range) and (loc_dict['range'] < np.max(rngDomain) * .9)):
-    #             loc_dict['azimuth'] = doa_az  # in degrees
-    #             loc_dict['elevation'] = doa_el
-    #             loc_dict['cross_range_dist'] = rngDomain[rdim_idx] * np.sin(doa_az * np.pi / 180)
-    #             loc_dict['xpos'] = R_dist * np.cos(
-    #                 doa_az * np.pi / 180)  # this is distance as defined in +x in front of sensor
-    #             loc_dict['ypos'] = R_dist * np.sin(doa_az * np.pi / 180)  # +y and -y is cross range dimenionson,
-    #             loc_dict['zpos'] = R_dist * np.sin(doa_el * np.pi / 180)
-    #             loc_dict['velocity'] = velDomain[ddim_idx]
-    #             Pr = np.abs(rd_all_channels_az[0][rdim_idx][ddim_idx])
-    #             loc_dict['p_received'] = Pr
-    #             Pr_dB = 10 * np.log10(Pr)
-    #             # TODO get transmit power from API
-    #             Pt = 1  # 1Watt, input power, 0dBw is source power
-    #             Pt_dB = 10 * np.log10(Pt)
-    #
-    #             # user radar range equation to scale results by range to get relative rcs
-    #             # is there a better way to do this? This will not work for objects in near field
-    #             # gain used in dB, should probably use the actual antenna pattern gain,
-    #             but this will be used for testing
-    #             Gt = 10.67  # this is about the gain for hpbw =120deg
-    #             Gr = 10.67
-    #             # radar range equation in dB
-    #             rcs_scaled_dB = Pr_dB + 30 * np.log10(4 * np.pi) + 40 * np.log10(R_dist) - (
-    #                         Pt_dB + Gt + Gr + 20 * np.log10(3e8 / (centerFreq)))
-    #             if rcs_scaled_dB > rcs_min_detect:  # only add if peak rcs is above min value specified
-    #                 loc_dict['rcs'] = rcs_scaled_dB
-    #                 target_list[hit_idx] = deepcopy(loc_dict)
-    #                 hit_idx += 1
-    #                 # target_list['original_time_index'] = time
-    #     # if target recorded, add it to the list
-    #
-    #     time_after_target_list = walltime.time()
-    #     time_target_list = time_after_target_list - time_before_target_list
-    #     if time_target_list == 0:
-    #         time_target_list = 1
-    #     fps_target_list = 1 / time_target_list
-    #
-    #     if return_cfar:
-    #         return target_list, fps_target_list, rd_cfar
-    #     else:
-    #         return target_list, fps_target_list
 
 
 @pyaedt_function_handler()
 def get_results_files(input_file, var_name="time_var"):
-
     path = Path(input_file)
 
     # Find all CSV files recursively
