@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools<67.0.0", "wheel"] # THIS SHOULD BE REVERTED TO '["setuptools", "wheel"]'
+requires = ["setuptools<67.0.0", "wheel<0.46.0"] # THIS SHOULD BE REVERTED TO '["setuptools", "wheel"]'
 build-backend = "setuptools.build_meta"
 
 
@@ -38,8 +38,7 @@ dependencies = [
     "jsonschema",
     "psutil",
     "pyedb>=0.4.0; python_version == '3.7'",
-    "pyedb>=0.24.0; python_version > '3.7'",
-    "pyedb!=0.28.0; python_version > '3.7'",
+    "pyedb>=0.24.0,!=0.28.0; python_version > '3.7'",
     "tomli; python_version < '3.11'",
     "tomli-w",
     "rpyc>=6.0.0,<6.1",
@@ -113,20 +112,23 @@ all = [
     "ansys-tools-visualization-interface; python_version >= '3.10'",
     "tables; python_version >= '3.10'",
     "scikit-rf>=0.30.0,<1.7",
-]
-installer = [
-    "matplotlib>=3.5.0,<3.11",
-    "numpy>=1.20.0,<2.3",
-    "openpyxl>=3.1.0,<3.3",
-    "osmnx>=1.1.0,<2.1",
-    "pandas>=1.1.0,<2.3",
-    "pyvista[io]>=0.38.0,<0.45",
-    "fast-simplification>=0.1.7",
-    "ansys-tools-visualization-interface; python_version >= '3.10'",
-    "scikit-rf>=0.30.0,<1.7",
     "jupyterlab>=3.6.0,<4.4",
     "ipython>=7.30.0,<9.1",
     "ipyvtklink>=0.2.0,<0.2.4",
+]
+# Set of dependencies used to run our examples with CPython 3.10
+examples = [
+    "imageio==2.37.0",
+    "matplotlib==3.10.1",
+    "numpy==2.2.3",
+    "openpyxl==3.1.5",
+    "osmnx==2.0.1",
+    "pandas==2.2.3",
+    "pyvista==0.44.2",
+    "fast-simplification==0.1.9",
+    "joblib==1.4.2",
+    "plotly==6.0.1",
+    "scikit-rf==1.6.2",
 ]
 
 [tool.setuptools.dynamic]

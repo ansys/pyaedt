@@ -25,6 +25,7 @@
 import os
 
 from ansys.aedt.core import Circuit
+from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
 from ansys.aedt.core.visualization.post.compliance import VirtualComplianceGenerator
@@ -109,6 +110,7 @@ class TestClass(object):
         compliance_folder = os.path.join(local_scratch.path, "vc")
         os.makedirs(compliance_folder, exist_ok=True)
         vc = VirtualComplianceGenerator("Test_full", "Diff_Via")
+        vc.dut_image = os.path.join(local_path, "example_models", test_subfolder, "nets.jpg")
         for plot in aedtapp.post.plots[::]:
             try:
                 plot.export_config(f"{compliance_folder}\\report_{plot.plot_name}.json")
@@ -121,23 +123,24 @@ class TestClass(object):
             group_plots=True,
             project=aedtapp.project_file,
         )
-        vc.add_erl_parameters(
-            design_name=aedtapp.design_name,
-            config_file=f"{compliance_folder}\\config.cfg",
-            traces=["RX1", "RX3"],
-            pins=[
-                [
-                    "X1_A5_PCIe_Gen4_RX1_P",
-                    "X1_A6_PCIe_Gen4_RX1_N",
-                    "U1_AR25_PCIe_Gen4_RX1_P",
-                    "U1_AP25_PCIe_Gen4_RX1_N",
+        if is_windows:
+            vc.add_erl_parameters(
+                design_name=aedtapp.design_name,
+                config_file=f"{compliance_folder}\\config.cfg",
+                traces=["RX1", "RX3"],
+                pins=[
+                    [
+                        "X1_A5_PCIe_Gen4_RX1_P",
+                        "X1_A6_PCIe_Gen4_RX1_N",
+                        "U1_AR25_PCIe_Gen4_RX1_P",
+                        "U1_AP25_PCIe_Gen4_RX1_N",
+                    ],
+                    [7, 8, 18, 17],
                 ],
-                [7, 8, 18, 17],
-            ],
-            pass_fail=True,
-            pass_fail_criteria=3,
-            name="ERL",
-        )
+                pass_fail=True,
+                pass_fail_criteria=3,
+                name="ERL",
+            )
         vc.save_configuration(f"{compliance_folder}\\main.json")
         assert os.path.exists(os.path.join(compliance_folder, "main.json"))
         v = VirtualCompliance(aedtapp.desktop_class, template)
