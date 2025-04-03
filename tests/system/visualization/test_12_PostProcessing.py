@@ -149,7 +149,7 @@ class TestClass:
     def init(self, local_scratch):
         self.local_scratch = local_scratch
 
-    def test_09_manipulate_report(self, field_test):
+    def test_manipulate_report(self, field_test):
         variations = field_test.available_variations.get_independent_nominal_values()
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
@@ -198,7 +198,7 @@ class TestClass:
         )
         # Comment: Does not test whether the reports are correctly create
 
-    def test_09_manipulate_report_B(self, field_test):
+    def test_manipulate_report_B(self, field_test):
         variations = field_test.available_variations.get_independent_nominal_values()
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
@@ -241,7 +241,7 @@ class TestClass:
 
         assert field_test.post.create_report_from_configuration(template)
 
-    def test_09_manipulate_report_C(self, field_test):
+    def test_manipulate_report_C(self, field_test):
         variations = field_test.available_variations.get_independent_nominal_values()
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
@@ -262,7 +262,7 @@ class TestClass:
             show=False,
         )
 
-    def test_09_manipulate_report_D(self, field_test):
+    def test_manipulate_report_D(self, field_test):
         variations = field_test.available_variations.get_independent_nominal_values()
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
@@ -286,7 +286,7 @@ class TestClass:
             "S(1,1)", field_test.nominal_sweep, variations=variations, plot_type="Smith Chart"
         )
 
-    def test_09_manipulate_report_E(self, field_test):
+    def test_manipulate_report_E(self, field_test):
         field_test.modeler.create_polyline([[0, 0, 0], [0, 5, 30]], name="Poly1", non_model=True)
         variations2 = field_test.available_variations.get_independent_nominal_values()
 
@@ -327,23 +327,23 @@ class TestClass:
             is None
         )
 
-    def test_09b_export_report_A(self, circuit_test):
+    def test_export_report_A(self, circuit_test):
         files = circuit_test.export_results()
         assert len(files) > 0
         report = AnsysReport()
         report.create()
         assert report.add_project_info(circuit_test)
 
-    def test_09b_export_report_B(self, q2dtest):
+    def test_export_report_B(self, q2dtest):
         files = q2dtest.export_results()
         assert len(files) > 0
 
-    def test_09b_export_report_C(self, q3dtest):
+    def test_export_report_C(self, q3dtest):
         files = q3dtest.export_results()
         assert len(files) > 0
 
     @pytest.mark.skipif(is_linux, reason="Crashing on Linux")
-    def test_17_circuit(self, circuit_test):
+    def test_circuit(self, circuit_test):
 
         assert circuit_test.setups[0].is_solved
         assert circuit_test.nominal_adaptive == circuit_test.nominal_sweep
@@ -410,7 +410,7 @@ class TestClass:
         assert not set1.is_solved
 
     @pytest.mark.skipif(is_linux, reason="Crashing on Linux")
-    def test_18_diff_plot(self, diff_test):
+    def test_diff_plot(self, diff_test):
         assert len(diff_test.post.available_display_types()) > 0
         assert len(diff_test.post.available_report_types) > 0
         assert len(diff_test.post.available_report_quantities()) > 0
@@ -464,13 +464,13 @@ class TestClass:
         )
 
     @pytest.mark.skipif(is_linux, reason="Failing on Linux")
-    def test_51_get_efields(self, field_test):
+    def test_get_efields(self, field_test):
         assert field_test.post.get_efields_data(ff_setup="3D")
 
     @pytest.mark.skipif(
         is_linux or sys.version_info < (3, 8), reason="plot_scene method is not supported in ironpython"
     )
-    def test_55_time_plot(self, sbr_test):
+    def test_time_plot(self, sbr_test):
         assert sbr_test.setups[0].is_solved
         solution_data = sbr_test.post.get_solution_data(
             expressions=["NearEX", "NearEY", "NearEZ"], report_category="Near Fields", context="Near_Field"
@@ -501,7 +501,7 @@ class TestClass:
         )
         assert os.path.exists(os.path.join(sbr_test.working_directory, "animation2.gif"))
 
-    def test_56_test_export_q3d_results(self, q3dtest):
+    def test_test_export_q3d_results(self, q3dtest):
         assert os.path.exists(q3dtest.export_convergence("Setup1"))
         assert os.path.exists(q3dtest.export_profile("Setup1"))
         new_report = q3dtest.post.reports_by_category.standard(q3dtest.get_traces_for_plot())
@@ -515,7 +515,7 @@ class TestClass:
         assert new_report.create()
         assert len(q3dtest.post.plots) == 6
 
-    def test_57_test_export_q2d_results(self, q2dtest):
+    def test_test_export_q2d_results(self, q2dtest):
         assert os.path.exists(q2dtest.export_convergence("Setup1"))
         assert os.path.exists(q2dtest.export_profile("Setup1"))
         new_report = q2dtest.post.reports_by_category.standard(q2dtest.get_traces_for_plot())
@@ -535,16 +535,16 @@ class TestClass:
         new_report = q2dtest.post.reports_by_category.standard()
         assert new_report.get_solution_data()
 
-    def test_58_test_no_report(self, q3dtest):
+    def test_test_no_report(self, q3dtest):
         assert not q3dtest.post.reports_by_category.modal_solution()
         assert not q3dtest.post.reports_by_category.terminal_solution()
 
-    def test_58_test_no_report_B(self, q2dtest):
+    def test_test_no_report_B(self, q2dtest):
         assert not q2dtest.post.reports_by_category.far_field()
         assert not q2dtest.post.reports_by_category.near_field()
         assert not q2dtest.post.reports_by_category.eigenmode()
 
-    def test_59_test_parse_vector(self):
+    def test_test_parse_vector(self):
         out = _parse_aedtplt(
             os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "test_vector.aedtplt")
         )
@@ -556,17 +556,17 @@ class TestClass:
             os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "test_vector_no_solutions.aedtplt")
         )
 
-    def test_60_test_parse_vector(self):
+    def test_test_parse_vector(self):
         out = _parse_streamline(
             os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "test_streamline.fldplt")
         )
         assert isinstance(out, list)
 
-    def test_61_export_mesh(self, q3dtest):
+    def test_export_mesh(self, q3dtest):
         assert Path(q3dtest.export_mesh_stats("Setup1")).exists()
         assert Path(q3dtest.export_mesh_stats("Setup1")).exists()
 
-    def test_62_eye_diagram(self, eye_test):
+    def test_eye_diagram(self, eye_test):
         rep = eye_test.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
         rep.time_start = "0ps"
         rep.time_stop = "50us"
@@ -576,7 +576,7 @@ class TestClass:
     @pytest.mark.skipif(
         config["desktopVersion"] < "2022.2", reason="Not working in non graphical in version lower than 2022.2"
     )
-    def test_63_mask(self, eye_test):
+    def test_mask(self, eye_test):
         rep = eye_test.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
         rep.time_start = "0ps"
         rep.time_stop = "50us"
@@ -594,7 +594,7 @@ class TestClass:
     @pytest.mark.skipif(
         config["desktopVersion"] < "2022.2", reason="Not working in non graphical in version lower than 2022.2"
     )
-    def test_64_eye_meas(self, eye_test):
+    def test_eye_meas(self, eye_test):
         rep = eye_test.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
         rep.time_start = "0ps"
         rep.time_stop = "50us"
@@ -604,13 +604,13 @@ class TestClass:
         assert rep.clear_all_eye_measurements()
         assert rep.add_trace_characteristics("MinEyeHeight")
 
-    def test_65_eye_from_json(self, eye_test):
+    def test_eye_from_json(self, eye_test):
         assert eye_test.post.create_report_from_configuration(
             os.path.join(TESTS_VISUALIZATION_PATH, "example_models", "report_json", "EyeDiagram_Report_simple.json"),
             solution_name="QuickEyeAnalysis",
         )
 
-    def test_66_spectral_from_json(self, circuit_test):
+    def test_spectral_from_json(self, circuit_test):
 
         assert circuit_test.post.create_report_from_configuration(
             os.path.join(TESTS_VISUALIZATION_PATH, "example_models", "report_json", "Spectral_Report_Simple.json"),
@@ -620,7 +620,7 @@ class TestClass:
     @pytest.mark.skipif(
         config["desktopVersion"] < "2022.2", reason="Not working in non graphical in version lower than 2022.2"
     )
-    def test_68_eye_from_json(self, eye_test):
+    def test_eye_from_json(self, eye_test):
         assert eye_test.post.create_report_from_configuration(
             os.path.join(TESTS_VISUALIZATION_PATH, "example_models", "report_json", "EyeDiagram_Report.toml"),
             solution_name="QuickEyeAnalysis",
@@ -629,13 +629,13 @@ class TestClass:
     @pytest.mark.skipif(
         config["desktopVersion"] < "2022.2", reason="Not working in non graphical in version lower than 2022.2"
     )
-    def test_69_spectral_from_json(self, circuit_test):
+    def test_spectral_from_json(self, circuit_test):
         assert circuit_test.post.create_report_from_configuration(
             os.path.join(TESTS_VISUALIZATION_PATH, "example_models", "report_json", "Spectral_Report.json"),
             solution_name="Transient",
         )
 
-    def test_73_ami_solution_data(self, ami_test):
+    def test_ami_solution_data(self, ami_test):
         ami_test.solution_type = "NexximAMI"
         assert ami_test.post.get_solution_data(
             expressions="WaveAfterProbe<b_input_43.int_ami_rx>",
@@ -714,7 +714,7 @@ class TestClass:
         assert len(data2[0]) == 3
         settings.enable_pandas_output = True
 
-    def test_75_plot_field_line_traces(self, m2dtest):
+    def test_plot_field_line_traces(self, m2dtest):
         m2dtest.modeler.model_units = "mm"
         rect = m2dtest.modeler.create_rectangle(
             origin=["1mm", "5mm", "0mm"], sizes=["-1mm", "-10mm", 0], name="Ground", material="copper"
@@ -775,7 +775,7 @@ class TestClass:
         assert not plot.update()
 
     @pytest.mark.skipif(config["desktopVersion"] < "2024.1", reason="EMI receiver available from 2024R1.")
-    def test_76_emi_receiver(self, emi_receiver_test):
+    def test_emi_receiver(self, emi_receiver_test):
         new_report = emi_receiver_test.post.reports_by_category.emi_receiver()
         new_report.band = "2"
         new_report.rbw = "2"
@@ -793,7 +793,7 @@ class TestClass:
         new_report2.time_stop = "2.5us"
         assert new_report2.create()
 
-    def test_98_get_variations(self, field_test):
+    def test_get_variations(self, field_test):
         setup = field_test.existing_analysis_sweeps[0]
         variations = field_test.available_variations.variations(setup)
         assert isinstance(variations, list)
@@ -802,16 +802,16 @@ class TestClass:
         assert isinstance(vars_dict, list)
         assert isinstance(vars_dict[0], dict)
 
-    def test_z99_delete_variations(self, q3dtest):
+    def test_delete_variations(self, q3dtest):
         assert q3dtest.cleanup_solution()
 
-    def test_z99_delete_variations_B(self, field_test):
+    def test_delete_variations_B(self, field_test):
         setup = field_test.existing_analysis_sweeps
         variations = field_test.available_variations._get_variation_strings(setup[0])
         assert field_test.cleanup_solution(variations, entire_solution=False)
         assert field_test.cleanup_solution(variations, entire_solution=True)
 
-    def test_100_ipk_get_scalar_field_value(self, icepak_post):
+    def test_ipk_get_scalar_field_value(self, icepak_post):
         assert icepak_post.post.get_scalar_field_value(
             "Heat_Flow_Rate",
             scalar_function="Integrate",
@@ -886,7 +886,7 @@ class TestClass:
         )
 
     @pytest.mark.skipif(config["NonGraphical"], reason="Method does not work in non-graphical mode.")
-    def test_101_markers(self, add_app):
+    def test_markers(self, add_app):
         ipk = add_app(project_name=ipk_markers_proj, application=Icepak, subfolder=test_subfolder)
 
         f1 = ipk.modeler["Region"].top_face_z
