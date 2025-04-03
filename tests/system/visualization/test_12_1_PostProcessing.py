@@ -641,7 +641,7 @@ class TestClass:
             intrinsics=intrinsic,
             mesh_on_fields=False,
             view="isometric",
-            show=True,
+            show=False,
             export_path=local_scratch.path,
             image_format="jpg",
         )
