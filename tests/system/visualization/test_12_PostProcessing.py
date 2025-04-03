@@ -53,17 +53,10 @@ ipk_markers_proj = "ipk_markers"
 
 
 test_circuit_name = "Switching_Speed_FET_And_Diode_Solved"
-if config["desktopVersion"] > "2024.2":
-    test_emi_name = "EMI_RCV_251"
-else:
-    test_emi_name = "EMI_RCV_241"
-
+test_emi_name = "EMI_RCV_251"
 eye_diagram = "channel_solved"
 ami = "ami"
-if config["desktopVersion"] > "2024.2":
-    ipk_post_proj = "for_icepak_post_parasolid"
-else:
-    ipk_post_proj = "for_icepak_post"
+ipk_post_proj = "for_icepak_post_parasolid"
 test_subfolder = "T12"
 
 
@@ -203,6 +196,7 @@ class TestClass:
             primary_sweep_variable="Time",
             report_category="Modal Solution Data",
         )
+        # Comment: Does not test whether the reports are correctly create
 
     def test_09_manipulate_report_B(self, field_test):
         variations = field_test.available_variations.get_independent_nominal_values()
