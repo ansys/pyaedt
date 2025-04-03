@@ -48,6 +48,7 @@ extension_description = "Point cloud generator"
 
 def frontend():  # pragma: no cover
     import tkinter
+    from tkinter import filedialog
     import tkinter.ttk as ttk
 
     import PIL.Image
@@ -75,13 +76,7 @@ def frontend():  # pragma: no cover
     project_name = active_project.GetName()
     design_name = active_design.GetName()
 
-    hfss = get_pyaedt_app(project_name, design_name)
-
-    # if hfss.design_type != "HFSS":  # pragma: no cover
-    #     app.logger.error("Active design is not HFSS.")
-    #     hfss.release_desktop(False, False)
-    #     output_dict = {"choice": "", "file_path": ""}
-    #     return output_dict
+    aedtapp = get_pyaedt_app(project_name, design_name)
 
     # Create UI
     master = tkinter.Tk()
@@ -111,17 +106,17 @@ def frontend():  # pragma: no cover
     # Set background color of the window (optional)
     master.configure(bg=theme.light["widget_bg"])
 
-    hfss.modeler.model_units = "mm"
-    hfss.modeler.set_working_coordinate_system(name="Global")
+    aedtapp.modeler.model_units = "mm"
+    aedtapp.modeler.set_working_coordinate_system(name="Global")
 
-    aedt_solids = hfss.modeler.get_objects_in_group("Solids")
-    aedt_sheets = hfss.modeler.get_objects_in_group("Sheets")
+    aedt_solids = aedtapp.modeler.get_objects_in_group("Solids")
+    aedt_sheets = aedtapp.modeler.get_objects_in_group("Sheets")
 
     if not aedt_solids and not aedt_sheets:
         msg = "No solids or sheets are defined in this design."
         messagebox.showerror("Error", msg)
         app.logger.error(msg)
-        hfss.release_desktop(False, False)
+        aedtapp.release_desktop(False, False)
         output_dict = {}
         return output_dict
 
@@ -139,14 +134,19 @@ def frontend():  # pragma: no cover
         values.extend(aedt_sheets)
     # Determine the height of the ListBox
     listbox_height = min(len(values), 6)
+    objects_list_frame = tkinter.Frame(master, width=20)
+    objects_list_frame.grid(row=0, column=1, pady=10, padx=10, sticky="ew")
     objects_list_lb = tkinter.Listbox(
-        master, selectmode=tkinter.MULTIPLE, justify=tkinter.CENTER, exportselection=False, height=listbox_height
+        objects_list_frame,
+        selectmode=tkinter.MULTIPLE,
+        justify=tkinter.CENTER,
+        exportselection=False,
+        height=listbox_height,
     )
-    objects_list_lb.grid(row=0, column=1, padx=10, pady=10)
-    # objects_list_lb.pack(expand=True, fill=tk.BOTH, side=tk.LEFT)
+    objects_list_lb.pack(expand=True, fill=tkinter.BOTH, side=tkinter.LEFT)
     if len(values) > 6:
-        scroll_bar = tkinter.Scrollbar(master, orient=tkinter.VERTICAL, command=objects_list_lb.yview)
-        # scroll_bar.pack(side=tk.RIGHT, fill=tk.Y)
+        scroll_bar = tkinter.Scrollbar(objects_list_frame, orient=tkinter.VERTICAL, command=objects_list_lb.yview)
+        scroll_bar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
         objects_list_lb.config(yscrollcommand=scroll_bar.set, height=listbox_height)
     for obj in values:
         objects_list_lb.insert(tkinter.END, obj)
@@ -158,6 +158,13 @@ def frontend():  # pragma: no cover
     points_entry.insert(tkinter.END, "1000")
     points_entry.grid(row=1, column=1, pady=15, padx=10)
     points_entry.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
+
+    # output file entry
+    output_file_label = ttk.Label(master, text="Output File:", width=20, style="PyAEDT.TLabel")
+    output_file_label.grid(row=2, column=0, padx=15, pady=10)
+    output_file_entry = tkinter.Text(master, width=40, height=1, wrap=tkinter.WORD)
+    output_file_entry.grid(row=2, column=1, pady=15, padx=10)
+    output_file_entry.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
 
     def toggle_theme():
         if master.theme == "light":
@@ -172,14 +179,42 @@ def frontend():  # pragma: no cover
         points_entry.configure(
             background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
         )
+        objects_list_lb.configure(
+            background=theme.light["widget_bg"], foreground=theme.light["text"], font=theme.default_font
+        )
+        if len(values) > 6:
+            scroll_bar.configure(background=theme.light["widget_bg"])
+        output_file_entry.configure(
+            background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
+        )
         theme.apply_light_theme(style)
         change_theme_button.config(text="\u263D")
 
     def set_dark_theme():
         master.configure(bg=theme.dark["widget_bg"])
         points_entry.configure(background=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
+        objects_list_lb.configure(
+            background=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font
+        )
+        if len(values) > 6:
+            scroll_bar.configure(background=theme.dark["widget_bg"])
+        output_file_entry.configure(
+            background=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font
+        )
         theme.apply_dark_theme(style)
         change_theme_button.config(text="\u2600")
+
+    def browse_location():
+        filename = filedialog.asksaveasfilename(
+            initialdir="/",
+            defaultextension=".pts",
+            filetypes=(("Points file", ".pts"), ("all files", "*.*")),
+        )
+        output_file_entry.insert(tkinter.END, filename)
+        master.file_path = output_file_entry.get("1.0", tkinter.END).strip()
+
+    output_file_button = ttk.Button(master, text="Save as..", width=20, command=browse_location, style="PyAEDT.TButton")
+    output_file_button.grid(row=2, column=2, padx=0)
 
     # Create a frame for the toggle button to position it correctly
     button_frame = ttk.Frame(master, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2)
@@ -208,9 +243,7 @@ def frontend():  # pragma: no cover
             master.flag = False
             messagebox.showerror("Error", "Number of points must be greater than zero.")
 
-        # master.assignment = selected_item
         master.points = points
-
         master.destroy()
 
     def preview():
@@ -228,11 +261,11 @@ def frontend():  # pragma: no cover
                 return None
 
             # Export the mesh and generate point cloud
-            output_file = hfss.post.export_model_obj(assignment=selected_objects)
+            output_file = aedtapp.post.export_model_obj(assignment=selected_objects)
 
             if not output_file or not Path(output_file[0][0]).is_file():
                 messagebox.showerror("Error", "Object could not be exported.")
-                hfss.release_desktop(False, False)
+                aedtapp.release_desktop(False, False)
                 output_dict = {"choice": "", "file_path": ""}
                 return output_dict
 
@@ -250,7 +283,7 @@ def frontend():  # pragma: no cover
 
         except Exception as e:
             messagebox.showerror("Error", str(e))
-            hfss.release_desktop(False, False)
+            aedtapp.release_desktop(False, False)
             output_dict = {}
             return output_dict
 
@@ -265,7 +298,7 @@ def frontend():  # pragma: no cover
     assignment = getattr(master, "assignment", extension_arguments["choice"])
     points = getattr(master, "points", extension_arguments["points"])
 
-    hfss.release_desktop(False, False)
+    aedtapp.release_desktop(False, False)
     output_dict = {}
     if master.flag:
         output_dict = {"choice": assignment, "points": points}
@@ -290,19 +323,13 @@ def main(extension_args):
     else:
         design_name = active_design.GetName()
 
-    hfss = get_pyaedt_app(project_name, design_name)
-
-    # if hfss.design_type != "HFSS":  # pragma: no cover
-    #     app.logger.error("Active design is not HFSS.")
-    #     if not extension_args["is_test"]:
-    #         app.release_desktop(False, False)
-    #     return False
+    aedtapp = get_pyaedt_app(project_name, design_name)
 
     assignment = extension_args.get("choice", extension_arguments["choice"])
     points = extension_args.get("points", extension_arguments["points"])
 
     # Export the mesh and generate point cloud
-    output_file = hfss.post.export_model_obj(assignment=assignment)
+    output_file = aedtapp.post.export_model_obj(assignment=assignment)
 
     goemetry_file = output_file[0][0]
 
@@ -311,9 +338,9 @@ def main(extension_args):
     model_plotter.add_object(goemetry_file)
     point_values = model_plotter.point_cloud(points=int(points))
 
-    if hfss.design_type == "HFSS":
+    if aedtapp.design_type == "HFSS":
         for input_file, _ in point_values.values():
-            _ = hfss.insert_near_field_points(input_file=input_file)
+            _ = aedtapp.insert_near_field_points(input_file=input_file)
 
     if not extension_args["is_test"]:  # pragma: no cover
         app.release_desktop(False, False)
