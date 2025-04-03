@@ -130,8 +130,6 @@ def frontend():  # pragma: no cover
     label.grid(row=0, column=0, pady=10)
 
     # Dropdown menu for objects and surfaces
-    combo = ttk.Combobox(master, width=30, style="PyAEDT.TCombobox", state="readonly")
-
     values = ["--- Objects ---"]
     if aedt_solids:
         values.extend(aedt_solids)
@@ -139,11 +137,19 @@ def frontend():  # pragma: no cover
     values.append("--- Surfaces ---")
     if aedt_sheets:
         values.extend(aedt_sheets)
-    combo["values"] = values
-
-    combo.current(1)
-    combo.grid(row=0, column=1, pady=10, padx=5)
-    combo.focus_set()
+    # Determine the height of the ListBox
+    listbox_height = min(len(values), 6)
+    objects_list_lb = tkinter.Listbox(
+        master, selectmode=tkinter.MULTIPLE, justify=tkinter.CENTER, exportselection=False, height=listbox_height
+    )
+    objects_list_lb.grid(row=0, column=1, padx=10, pady=10)
+    # objects_list_lb.pack(expand=True, fill=tk.BOTH, side=tk.LEFT)
+    if len(values) > 6:
+        scroll_bar = tkinter.Scrollbar(master, orient=tkinter.VERTICAL, command=objects_list_lb.yview)
+        # scroll_bar.pack(side=tk.RIGHT, fill=tk.Y)
+        objects_list_lb.config(yscrollcommand=scroll_bar.set, height=listbox_height)
+    for obj in values:
+        objects_list_lb.insert(tkinter.END, obj)
 
     # Points entry
     points_label = ttk.Label(master, text="Number of Points:", width=20, style="PyAEDT.TLabel")
@@ -188,8 +194,11 @@ def frontend():  # pragma: no cover
 
     def callback():
         master.flag = True
-        selected_item = combo.get()
-        if selected_item in ["--- Objects ---", "--- Surfaces ---", ""]:
+        selected_objects = objects_list_lb.curselection()
+        master.objects_list = [objects_list_lb.get(i) for i in selected_objects]
+        if not selected_objects or any(
+            element in selected_objects for element in ["--- Objects ---", "--- Surfaces ---", ""]
+        ):
             messagebox.showerror("Error", "Please select a valid object or surface.")
             master.flag = False
 
@@ -199,17 +208,19 @@ def frontend():  # pragma: no cover
             master.flag = False
             messagebox.showerror("Error", "Number of points must be greater than zero.")
 
-        master.assignment = selected_item
+        # master.assignment = selected_item
         master.points = points
 
         master.destroy()
 
     def preview():
         try:
-            selected_item = combo.get()
-            if selected_item in ["--- Objects ---", "--- Surfaces ---", ""]:
+            selected_objects = objects_list_lb.curselection()
+            if not selected_objects or any(
+                element in selected_objects for element in ["--- Objects ---", "--- Surfaces ---", ""]
+            ):
                 messagebox.showerror("Error", "Please select a valid object or surface.")
-                return None
+                master.flag = False
             points = points_entry.get("1.0", tkinter.END).strip()
             num_points = int(points)
             if num_points <= 0:
@@ -217,7 +228,7 @@ def frontend():  # pragma: no cover
                 return None
 
             # Export the mesh and generate point cloud
-            output_file = hfss.post.export_model_obj(assignment=selected_item)
+            output_file = hfss.post.export_model_obj(assignment=selected_objects)
 
             if not output_file or not Path(output_file[0][0]).is_file():
                 messagebox.showerror("Error", "Object could not be exported.")
@@ -300,7 +311,7 @@ def main(extension_args):
     model_plotter.add_object(goemetry_file)
     point_values = model_plotter.point_cloud(points=int(points))
 
-    if hfss.design_type != "HFSS":
+    if hfss.design_type == "HFSS":
         for input_file, _ in point_values.values():
             _ = hfss.insert_near_field_points(input_file=input_file)
 
