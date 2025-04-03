@@ -42,8 +42,8 @@ aedt_process_id = get_process_id()
 is_student = is_student()
 
 # Extension batch arguments
-extension_arguments = {"choice": "", "points": 1000}
-extension_description = "Point cloud generator"
+extension_arguments = {"choice": "", "points": 1000, "output_file": ""}
+extension_description = "Points cloud generator"
 
 
 def frontend():  # pragma: no cover
@@ -213,7 +213,9 @@ def frontend():  # pragma: no cover
         output_file_entry.insert(tkinter.END, filename)
         master.file_path = output_file_entry.get("1.0", tkinter.END).strip()
 
-    output_file_button = ttk.Button(master, text="Save as..", width=20, command=browse_location, style="PyAEDT.TButton")
+    output_file_button = ttk.Button(
+        master, text="Save as...", width=20, command=browse_location, style="PyAEDT.TButton"
+    )
     output_file_button.grid(row=2, column=2, padx=0)
 
     # Create a frame for the toggle button to position it correctly
@@ -244,6 +246,7 @@ def frontend():  # pragma: no cover
             messagebox.showerror("Error", "Number of points must be greater than zero.")
 
         master.points = points
+        master.output_file = output_file_entry.get("1.0", tkinter.END).strip()
         master.destroy()
 
     def preview():
@@ -297,11 +300,12 @@ def frontend():  # pragma: no cover
 
     assignment = getattr(master, "assignment", extension_arguments["choice"])
     points = getattr(master, "points", extension_arguments["points"])
+    output_file = getattr(master, "output_file", extension_arguments["output_file"])
 
     aedtapp.release_desktop(False, False)
     output_dict = {}
     if master.flag:
-        output_dict = {"choice": assignment, "points": points}
+        output_dict = {"choice": assignment, "points": points, "output_file": output_file}
     return output_dict
 
 
@@ -327,9 +331,10 @@ def main(extension_args):
 
     assignment = extension_args.get("choice", extension_arguments["choice"])
     points = extension_args.get("points", extension_arguments["points"])
+    output_file = extension_args.get("output_file", extension_arguments["output_file"])
 
     # Export the mesh and generate point cloud
-    output_file = aedtapp.post.export_model_obj(assignment=assignment)
+    output_file = aedtapp.post.export_model_obj(assignment=assignment, export_path=Path(output_file).parent)
 
     goemetry_file = output_file[0][0]
 
