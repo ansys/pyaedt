@@ -77,11 +77,11 @@ def frontend():  # pragma: no cover
 
     hfss = get_pyaedt_app(project_name, design_name)
 
-    if hfss.design_type != "HFSS":  # pragma: no cover
-        app.logger.error("Active design is not HFSS.")
-        hfss.release_desktop(False, False)
-        output_dict = {"choice": "", "file_path": ""}
-        return output_dict
+    # if hfss.design_type != "HFSS":  # pragma: no cover
+    #     app.logger.error("Active design is not HFSS.")
+    #     hfss.release_desktop(False, False)
+    #     output_dict = {"choice": "", "file_path": ""}
+    #     return output_dict
 
     # Create UI
     master = tkinter.Tk()
@@ -117,7 +117,7 @@ def frontend():  # pragma: no cover
     aedt_solids = hfss.modeler.get_objects_in_group("Solids")
     aedt_sheets = hfss.modeler.get_objects_in_group("Sheets")
 
-    if not aedt_solids and aedt_sheets:
+    if not aedt_solids and not aedt_sheets:
         msg = "No solids or sheets are defined in this design."
         messagebox.showerror("Error", msg)
         app.logger.error(msg)
@@ -281,11 +281,11 @@ def main(extension_args):
 
     hfss = get_pyaedt_app(project_name, design_name)
 
-    if hfss.design_type != "HFSS":  # pragma: no cover
-        app.logger.error("Active design is not HFSS.")
-        if not extension_args["is_test"]:
-            app.release_desktop(False, False)
-        return False
+    # if hfss.design_type != "HFSS":  # pragma: no cover
+    #     app.logger.error("Active design is not HFSS.")
+    #     if not extension_args["is_test"]:
+    #         app.release_desktop(False, False)
+    #     return False
 
     assignment = extension_args.get("choice", extension_arguments["choice"])
     points = extension_args.get("points", extension_arguments["points"])
@@ -300,8 +300,9 @@ def main(extension_args):
     model_plotter.add_object(goemetry_file)
     point_values = model_plotter.point_cloud(points=int(points))
 
-    for input_file, _ in point_values.values():
-        _ = hfss.insert_near_field_points(input_file=input_file)
+    if hfss.design_type != "HFSS":
+        for input_file, _ in point_values.values():
+            _ = hfss.insert_near_field_points(input_file=input_file)
 
     if not extension_args["is_test"]:  # pragma: no cover
         app.release_desktop(False, False)
