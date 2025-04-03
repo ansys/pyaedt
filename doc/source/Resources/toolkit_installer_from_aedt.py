@@ -81,7 +81,7 @@ if __name__ == "__main__":
 
     python_interpreter = os.getenv(pyaedt_enviroment_variable)
     if python_interpreter:
-        oDesktop.AddMessage("", "", 0, "Using python environment defined with the environment variable PYAEDT_INTERPRETER.")
+        oDesktop.AddMessage("", "", 0, "Using Python environment defined with the environment variable PYAEDT_INTERPRETER.")
         if os.path.exists(python_interpreter):
             oDesktop.AddMessage("", "", 2, "Python environment does not exist.")
             sys.exit()
