@@ -41,6 +41,7 @@ report = "report"
 fields_calculator = "fields_calculator_solved"
 m2d_electrostatic = "maxwell_fields_calculator"
 point_cloud_generator = "point_cloud_generator"
+transformer_loss_distribution = "transformer_loss_distribution"
 
 test_subfolder = "T45"
 TEST_REVIEW_FLAG = True
@@ -674,4 +675,25 @@ class TestClass:
 
         assert main({"is_test": True, "choice": p2.name, "velocity": 1.4, "acceleration": 0, "delay": 0})
 
+        aedtapp.close_project(aedtapp.project_name)
+
+    def test_transformer_loss_distribution(self, add_app, local_scratch):
+        from ansys.aedt.core.workflows.maxwell3d.transformer_loss_distribution import main
+
+        aedtapp = add_app(
+            application=ansys.aedt.core.Maxwell2d, subfolder=test_subfolder, project_name=transformer_loss_distribution
+        )
+
+        file_path = os.path.join(local_scratch.path, "loss_distribution.csv")
+        assert main(
+            {
+                "is_test": True,
+                "points_file": "",
+                "export_file": file_path,
+                "export_option": "Ohmic loss",
+                "objects_list": ["hv_terminal"],
+                "solution_option": "Setup1 : LastAdaptive",
+            }
+        )
+        assert os.path.isfile(file_path)
         aedtapp.close_project(aedtapp.project_name)
