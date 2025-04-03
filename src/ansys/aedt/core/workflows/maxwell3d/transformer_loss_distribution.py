@@ -46,7 +46,7 @@ extension_arguments = {
     "objects_list": [],
     "solution_option": "",
 }
-extension_description = "Export of transformer loss distribution"
+extension_description = "Transformer loss distribution"
 
 
 def frontend():
