@@ -307,7 +307,7 @@ def frontend():
         )
         sample_points_entry.insert(tk.END, filename)
         master.file_path = sample_points_entry.get("1.0", tk.END).strip()
-        master.destroy()
+        # master.destroy()
 
     # Export points file button
     export_points_button = ttk.Button(
@@ -435,7 +435,10 @@ def main(extension_args):
     )
 
     with open(field_path, "r") as file:
-        for _ in range(2):
+        lins_to_skip = 2
+        if points_file:
+            lins_to_skip = 1
+        for _ in range(lins_to_skip):
             file.readline()
 
         csv_data = []
