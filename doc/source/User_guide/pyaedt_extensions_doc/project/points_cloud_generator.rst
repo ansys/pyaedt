@@ -9,7 +9,7 @@ The following image shows the extension user interface:
 
 .. image:: ../../../_static/extensions/points_cloud_ui.png
   :width: 800
-  :alt: Point Cloud Generator UI
+  :alt: Points Cloud Generator UI
 
 
 Enables conformal domains for near-field calculations.
