@@ -1,13 +1,13 @@
-Point cloud generator
-=====================
+Points cloud generator
+======================
 
-With this extension, you can generate point clouds that conform to objects and surfaces.
+With this extension, you can generate points clouds that conform to objects and surfaces.
 
 You can access the extension from the icon created on the **Automation** tab using the Extension Manager.
 
 The following image shows the extension user interface:
 
-.. image:: ../../../_static/extensions/point_cloud_ui.png
+.. image:: ../../../_static/extensions/points_cloud_ui.png
   :width: 800
   :alt: Point Cloud Generator UI
 
