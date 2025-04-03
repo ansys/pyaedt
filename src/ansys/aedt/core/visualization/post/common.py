@@ -49,8 +49,8 @@ import ansys.aedt.core.visualization.report.standard
 TEMPLATES_BY_NAME = {
     "Standard": ansys.aedt.core.visualization.report.standard.Standard,
     "EddyCurrent": ansys.aedt.core.visualization.report.standard.Standard,
-    "Modal Solution Data": ansys.aedt.core.visualization.report.standard.Standard,
-    "Terminal Solution Data": ansys.aedt.core.visualization.report.standard.Standard,
+    "Modal Solution Data": ansys.aedt.core.visualization.report.standard.HFSSStandard,
+    "Terminal Solution Data": ansys.aedt.core.visualization.report.standard.HFSSStandard,
     "Fields": ansys.aedt.core.visualization.report.field.Fields,
     "CG Fields": ansys.aedt.core.visualization.report.field.Fields,
     "DC R/L Fields": ansys.aedt.core.visualization.report.field.Fields,
@@ -95,7 +95,11 @@ class PostProcessorCommon(object):
         self._app = app
         self._scratch = self._app.working_directory
         self.plots = self._get_plot_inputs()
-        self.reports_by_category = Reports(self, self._app.design_type)
+        design_type = self._app.design_type
+        if design_type == "HFSS":
+            self.reports_by_category = HFSSReports(self)
+        else:
+            self.reports_by_category = Reports(self, self._app.design_type)
 
     @property
     def available_report_types(self):
@@ -1891,7 +1895,7 @@ class Reports(object):
         Parameters
         ----------
         expressions : str or list
-            Expression List to add into the report. The expression can be any of the available formula
+            Expression list to add into the report. The expression can be any of the available formula
             you can enter into the Electronics Desktop Report Editor.
         setup : str, optional
             Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
@@ -2125,56 +2129,6 @@ class Reports(object):
                 rep = ansys.aedt.core.visualization.report.field.Fields(self._post_app, "RL Fields", setup)
             rep.polyline = polyline
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
-        return rep
-
-    @pyaedt_function_handler(setup_name="setup")
-    def far_field(self, expressions=None, setup=None, sphere_name=None, source_context=None, **variations):
-        """Create a Far Field Report object.
-
-        Parameters
-        ----------
-        expressions : str or list
-            Expression List to add into the report. The expression can be any of the available formula
-            you can enter into the Electronics Desktop Report Editor.
-        setup : str, optional
-            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
-            setup is used. Be sure to build a setup string in the form of
-            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
-            use in the export or ``LastAdaptive``.
-        sphere_name : str, optional
-            Name of the sphere to create the far field on.
-        source_context : str, optional
-            Name of the active source to create the far field on.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.report_templates.FarField`
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss(my_project)
-        >>> report = hfss.post.reports_by_category.far_field("GainTotal", "Setup : LastAdaptive", "3D_Sphere")
-        >>> report.primary_sweep = "Phi"
-        >>> report.create()
-        >>> solutions = report.get_solution_data()
-        """
-        if not setup:
-            setup = self._post_app._app.nominal_sweep
-        rep = None
-        if "Far Fields" in self._templates:
-            setup = self._post_app._get_setup_from_sweep_name(setup)
-            rep = ansys.aedt.core.visualization.report.field.FarField(self._post_app, "Far Fields", setup, **variations)
-            rep.far_field_sphere = sphere_name
-            rep.source_context = source_context
-            rep.report_type = "Radiation Pattern"
-            if expressions:
-                if type(expressions) == list:
-                    rep.expressions = expressions
-                else:
-                    rep.expressions = [expressions]
-            else:
-                rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
     @pyaedt_function_handler(setup_name="setup", sphere_name="infinite_sphere")
@@ -2554,4 +2508,110 @@ class Reports(object):
                         rep.net = net_name
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup_name)
 
+        return rep
+
+
+class HFSSReports(object):
+    """Provides the names of default solution types."""
+
+    def __init__(self, post_app):
+        self.__post_app = post_app
+        self._templates = TEMPLATES_BY_DESIGN.get("HFSS", None)
+
+    @pyaedt_function_handler()
+    def _retrieve_default_expressions(self, expressions, report, setup_sweep_name):
+        if expressions:
+            return expressions
+        is_siwave_dc = False
+        return self.__post_app.available_report_quantities(
+            solution=setup_sweep_name, context=report._context, is_siwave_dc=is_siwave_dc
+        )
+
+    @pyaedt_function_handler(setup_name="setup")
+    def standard(self, expressions=None, setup=None):
+        """Create a standard or default report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List to add into the report. The expression can be any of the available formula
+            you can enter into the Electronics Desktop Report Editor.
+        setup : str, optional
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.report_templates.Standard`
+
+        Examples
+        --------
+
+        >>> from ansys.aedt.core import Circuit
+        >>> cir = Circuit(my_project)
+        >>> report = cir.post.reports_by_category.standard("dB(S(1,1))","LNA")
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        >>> report2 = cir.post.reports_by_category.standard(["dB(S(2,1))", "dB(S(2,2))"],"LNA")
+
+        """
+        if not setup:
+            setup = self.__post_app._app.nominal_sweep
+        rep = None
+        report_type = self.__post_app._app.design_solutions.report_type
+        if report_type:
+            rep = ansys.aedt.core.visualization.report.standard.HFSSStandard(self.__post_app, report_type, setup)
+        rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
+        return rep
+
+    @pyaedt_function_handler(setup_name="setup")
+    def far_field(self, expressions=None, setup=None, sphere_name=None, source_context=None, **variations):
+        """Create a Far Field Report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List to add into the report. The expression can be any of the available formula
+            you can enter into the Electronics Desktop Report Editor.
+        setup : str, optional
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
+        sphere_name : str, optional
+            Name of the sphere to create the far field on.
+        source_context : str, optional
+            Name of the active source to create the far field on.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.report_templates.FarField`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss(my_project)
+        >>> report = hfss.post.reports_by_category.far_field("GainTotal", "Setup : LastAdaptive", "3D_Sphere")
+        >>> report.primary_sweep = "Phi"
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        """
+        if not setup:
+            setup = self._post_app._app.nominal_sweep
+        rep = None
+        if "Far Fields" in self._templates:
+            setup = self._post_app._get_setup_from_sweep_name(setup)
+            rep = ansys.aedt.core.visualization.report.field.FarField(self._post_app, "Far Fields", setup, **variations)
+            rep.far_field_sphere = sphere_name
+            rep.source_context = source_context
+            rep.report_type = "Radiation Pattern"
+            if expressions:
+                if type(expressions) == list:
+                    rep.expressions = expressions
+                else:
+                    rep.expressions = [expressions]
+            else:
+                rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep

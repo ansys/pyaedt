@@ -474,6 +474,158 @@ class Standard(CommonReport):
         return ctxt
 
 
+class HFSSStandard(CommonReport):
+    """Provides a reporting class that fits HFSS standard reports."""
+
+    def __init__(self, app, report_category, setup_name, expressions=None):
+        CommonReport.__init__(self, app, report_category, setup_name, expressions)
+
+    @property
+    def pulse_rise_time(self):
+        """Value of Pulse rise time for TDR plot.
+
+        Returns
+        -------
+        float
+            Pulse rise time.
+        """
+        return self._legacy_props["context"].get("pulse_rise_time", 0) if self.domain == "Time" else 0
+
+    @pulse_rise_time.setter
+    def pulse_rise_time(self, val):
+        self._legacy_props["context"]["pulse_rise_time"] = val
+
+    @property
+    def use_pulse_in_tdr(self):
+        """Value of Pulse rise time for TDR plot.
+
+        Returns
+        -------
+        float
+            Pulse rise time.
+        """
+        return self._legacy_props["context"].get("use_pulse_in_tdr", False) if self.domain == "Time" else False
+
+    @use_pulse_in_tdr.setter
+    def use_pulse_in_tdr(self, val):
+        self._legacy_props["context"]["use_pulse_in_tdr"] = val
+
+    @property
+    def maximum_time(self):
+        """Value of maximum time for TDR plot.
+
+        Returns
+        -------
+        float
+            Maximum time.
+        """
+        return self._legacy_props["context"].get("maximum_time", 0) if self.domain == "Time" else 0
+
+    @maximum_time.setter
+    def maximum_time(self, val):
+        self._legacy_props["context"]["maximum_time"] = val
+
+    @property
+    def step_time(self):
+        """Value of step time for TDR plot.
+
+        Returns
+        -------
+        float
+            step time.
+        """
+        return self._legacy_props["context"].get("step_time", 0) if self.domain == "Time" else 0
+
+    @step_time.setter
+    def step_time(self, val):
+        self._legacy_props["context"]["step_time"] = val
+
+    @property
+    def time_windowing(self):
+        """Returns the TDR time windowing.
+
+        Options are:
+            * ``0`` : Rectangular
+            * ``1`` : Bartlett
+            * ``2`` : Blackman
+            * ``3`` : Hamming
+            * ``4`` : Hanning
+            * ``5`` : Kaiser
+            * ``6`` : Welch
+            * ``7`` : Weber
+            * ``8`` : Lanzcos.
+
+        Returns
+        -------
+        int
+            Time windowing.
+        """
+        _time_windowing = self._legacy_props["context"].get("time_windowing", 0)
+        return _time_windowing if self.domain == "Time" and self.pulse_rise_time != 0 else 0
+
+    @time_windowing.setter
+    def time_windowing(self, val):
+        available_values = {
+            "rectangular": 0,
+            "bartlett": 1,
+            "blackman": 2,
+            "hamming": 3,
+            "hanning": 4,
+            "kaiser": 5,
+            "welch": 6,
+            "weber": 7,
+            "lanzcos": 8,
+        }
+        if isinstance(val, int):
+            self._legacy_props["context"]["time_windowing"] = val
+        elif isinstance(val, str) and val.lower in available_values:
+            self._legacy_props["context"]["time_windowing"] = available_values[val.lower()]
+
+    @property
+    def window_width(self):
+        """Window width from 0 to 1.
+
+        Returns
+        -------
+        float
+            Window width.
+        """
+        _window_width = self._legacy_props["context"].get("window_width", 1.0)
+        return _window_width if self.domain == "Time" and self.pulse_rise_time != 0 else 1.0
+
+    @window_width.setter
+    def window_width(self, val):
+        self._legacy_props["context"]["window_width"] = val
+
+    @property
+    def _context(self):
+        if self.domain == "Time" and self._app.solution_type in ["Modal", "Terminal"]:
+            ctxt = [
+                "Domain:=",
+                self.domain,
+                "HoldTime:=",
+                1,
+                "RiseTime:=",
+                self.pulse_rise_time,
+                "StepTime:=",
+                self.step_time,
+                "Step:=",
+                not self.use_pulse_in_tdr,
+                "WindowWidth:=",
+                self.window_width,
+                "WindowType:=",
+                self.time_windowing,
+                "KaiserParameter:=",
+                1,
+                "MaximumTime:=",
+                self.maximum_time,
+            ]
+        else:
+            ctxt = ["Domain:=", self.domain]
+
+        return ctxt
+
+
 class Spectral(CommonReport):
     """Provides for managing spectral reports from transient data."""
 
