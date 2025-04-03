@@ -9,6 +9,71 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`0.15.4 <https://github.com/ansys/pyaedt/releases/tag/v0.15.4>`_ - April 03, 2025
+=================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Added DUT Image to the Compliance report
+          - `#5985 <https://github.com/ansys/pyaedt/pull/5985>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update install targets and dependencies
+          - `#5997 <https://github.com/ansys/pyaedt/pull/5997>`_
+
+        * - Temporary add bound to wheel
+          - `#6002 <https://github.com/ansys/pyaedt/pull/6002>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Improve robustness of field summary dictionary to DataFrame conversion
+          - `#5986 <https://github.com/ansys/pyaedt/pull/5986>`_
+
+        * - Copy Design #5623
+          - `#5993 <https://github.com/ansys/pyaedt/pull/5993>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - update CHANGELOG for v0.15.3
+          - `#5981 <https://github.com/ansys/pyaedt/pull/5981>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Improve API and security in Desktop
+          - `#5892 <https://github.com/ansys/pyaedt/pull/5892>`_
+
+        * - split post_common_3d.py application
+          - `#5955 <https://github.com/ansys/pyaedt/pull/5955>`_
+
+
 `0.15.3 <https://github.com/ansys/pyaedt/releases/tag/v0.15.3>`_ - March 28, 2025
 =================================================================================
 
