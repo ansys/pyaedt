@@ -61,8 +61,8 @@ DISCLAIMER = (
 UNKNOWN_VERSION = "Unknown"
 
 
-def get_latest_version(package_name):
-    response = requests.get(f"https://pypi.org/pypi/{package_name}/json")
+def get_latest_version(package_name, timeout=20):
+    response = requests.get(f"https://pypi.org/pypi/{package_name}/json", timeout=timeout)
     if response.status_code == 200:
         data = response.json()
         return data["info"]["version"]
@@ -417,12 +417,23 @@ class VersionManager:
             self.clicked_refresh(need_restart=True)
 
     def update_from_wheelhouse(self):
+        def version_is_leq(version, other_version):
+            version_parts = [int(part) for part in version.split(".")]
+            target_parts = [int(part) for part in other_version.split(".")]
+            if version_parts == target_parts:
+                return True
+            for v, t in zip(version_parts, target_parts):
+                if v < t:
+                    return True
+                elif v > t:
+                    return False
+
         file_selected = filedialog.askopenfilename(title="Select Wheelhouse")
 
         if file_selected:
             fpath = Path(file_selected)
             file_name = fpath.stem
-            _, _, wh_pkg_type, _, _, _, wh_python_version = file_name.split("-")
+            _, pyaedt_version, wh_pkg_type, _, _, _, wh_python_version = file_name.split("-")
 
             msg = []
             correct_wheelhouse = file_name
@@ -437,9 +448,16 @@ class VersionManager:
                 )
                 correct_wheelhouse = correct_wheelhouse.replace(wh_python_version, self.python_version)
 
-            if wh_pkg_type != "installer":
-                correct_wheelhouse = correct_wheelhouse.replace(f"-{wh_pkg_type}-", "-installer-")
-                msg.extend(["", "This wheelhouse doesn't contain required packages to add PyAEDT buttons."])
+            # NOTE: For compatibility reasons, we compare with 'installer' install target
+            # when PyAEDT's version is 0.15.3 or lower.
+            if version_is_leq(pyaedt_version, "0.15.3"):
+                if wh_pkg_type != "installer":
+                    correct_wheelhouse = correct_wheelhouse.replace(f"-{wh_pkg_type}-", "-installer-")
+                    msg.extend(["", "This wheelhouse doesn't contain required packages to add PyAEDT buttons."])
+            else:
+                if wh_pkg_type != "all":
+                    correct_wheelhouse = correct_wheelhouse.replace(f"-{wh_pkg_type}-", "-installer-")
+                    msg.extend(["", "This wheelhouse doesn't contain required packages to use every PyAEDT features."])
 
             if msg is not []:
                 msg.extend(["", f"Please download {correct_wheelhouse}."])
@@ -465,7 +483,7 @@ class VersionManager:
                     "--no-cache-dir",
                     "--no-index",
                     f"--find-links=file:///{str(unzipped_path)}",
-                    "pyaedt[installer]",
+                    "pyaedt[all]",
                 ],
                 check=True,
             )  # nosec
