@@ -3377,7 +3377,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         is_voltage: bool, optional
             Balloon type. This option is valid for Electrostatic solvers only.
             Possible options are: "Voltage" or "Charge".
-            The default is ``False´´.
+            The default is ``False´´ in which case the "Charge" type is selected.
 
         Returns
         -------
