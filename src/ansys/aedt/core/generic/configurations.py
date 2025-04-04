@@ -2453,13 +2453,12 @@ class ConfigurationsNexxim(Configurations):
                         if new_comp_params.get(name, None) != parameter:
                             new_comp.parameters[name] = parameter
 
+        comp_list = list(self._app.modeler.schematic.components.values())
         for i, j in data["pin_mapping"].items():
             pins = []
             for k, l in j.items():
-                for comp in list(self._app.modeler.schematic.components.values()):
-                    if "PagePort" in comp.composed_name:
-                        continue
-                    elif comp.refdes == k:
+                for comp in comp_list:
+                    if comp.refdes == k:
                         for pin in comp.pins:
                             if pin.name in l:
                                 pins.append(pin)
