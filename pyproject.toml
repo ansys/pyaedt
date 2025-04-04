@@ -122,7 +122,7 @@ examples = [
     "matplotlib==3.10.1",
     "numpy==2.2.3",
     "openpyxl==3.1.5",
-    "osmnx==2.0.1",
+    "osmnx==2.0.2",
     "pandas==2.2.3",
     "pyvista==0.44.2",
     "fast-simplification==0.1.9",
