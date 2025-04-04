@@ -3364,7 +3364,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         return read_configuration_file(design_file)
 
     @pyaedt_function_handler(edge_list="assignment", bound_name="boundary")
-    def assign_balloon(self, assignment, boundary=None):
+    def assign_balloon(self, assignment, boundary=None, is_voltage=False):
         """Assign a balloon boundary to a list of edges.
 
         Parameters
@@ -3374,6 +3374,9 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         boundary : str, optional
             Name of the boundary. The default is ``None``, in which
             case the default name is used.
+        is_voltage: bool, optional
+            'Balloon Type' in Electrostatic solver: ``True´´ for 'Voltage' and ``False´´ for 'Charge'.
+            The default is ``False´´.
 
         Returns
         -------
@@ -3399,8 +3402,9 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
         if not boundary:
             boundary = generate_unique_name("Balloon")
-
-        props = dict({"Edges": assignment})
+        props = {"Edges": assignment}
+        if self.solution_type == "Electrostatic":
+            props["IsOfTypeVoltage"] = is_voltage
         return self._create_boundary(boundary, props, "Balloon")
 
     @pyaedt_function_handler(input_edge="assignment", vectorvalue="vector_value", bound_name="boundary")
