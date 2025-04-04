@@ -696,4 +696,56 @@ class TestClass:
             }
         )
         assert os.path.isfile(file_path)
+
+        file_path = os.path.join(local_scratch.path, "loss_distribution.csv")
+        assert main(
+            {
+                "is_test": True,
+                "points_file": "",
+                "export_file": file_path,
+                "export_option": "Ohmic loss",
+                "objects_list": ["hv_terminal", "lv_turn1"],
+                "solution_option": "Setup1 : LastAdaptive",
+            }
+        )
+        assert os.path.isfile(file_path)
+
+        assert main(
+            {
+                "is_test": True,
+                "points_file": "",
+                "export_file": file_path,
+                "export_option": "Ohmic loss",
+                "objects_list": "",
+                "solution_option": "Setup1 : LastAdaptive",
+            }
+        )
+        assert os.path.isfile(file_path)
+
+        file_path = os.path.join(local_scratch.path, "loss_distribution.csv")
+        assert main(
+            {
+                "is_test": True,
+                "points_file": "",
+                "export_file": file_path,
+                "export_option": "Surface AC Force Density",
+                "objects_list": ["hv_terminal"],
+                "solution_option": "Setup1 : LastAdaptive",
+            }
+        )
+        assert os.path.isfile(file_path)
+
+        file_path = os.path.join(local_scratch.path, "loss_distribution.npy")
+        assert main(
+            {
+                "is_test": True,
+                "points_file": "",
+                "export_file": file_path,
+                "export_option": "Surface AC Force Density",
+                "objects_list": ["hv_terminal"],
+                "solution_option": "Setup1 : LastAdaptive",
+            }
+        )
+        assert os.path.isfile(file_path)
+
         aedtapp.close_project(aedtapp.project_name)
