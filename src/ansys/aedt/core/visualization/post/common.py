@@ -1227,7 +1227,8 @@ class PostProcessorCommon(object):
         if secondary_sweep_variable and secondary_sweep_variable not in variations:
             variations[secondary_sweep_variable] = "All"
         report.variations = variations
-        report.sub_design_id = subdesign_id
+        if self._app.design_type in ["Circuit Design"]:
+            report.sub_design_id = subdesign_id
         report.point_number = polyline_points
         if context == "Differential Pairs":
             report.differential_pairs = True
