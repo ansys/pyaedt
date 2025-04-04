@@ -25,6 +25,7 @@
 import os
 from pathlib import Path
 import signal
+import socket
 import sys
 import tempfile
 import time
@@ -187,7 +188,11 @@ def pyaedt_service_manager(port=17878, aedt_version=None, student_version=False)
     os.environ["PYAEDT_SERVER_AEDT_NG"] = "True"
     os.environ["ANS_NODEPCHECK"] = str(1)
 
-    hostname = "0.0.0.0"
+    default_host = socket.gethostname()
+    hostname = os.getenv("AEDT_HOST", default_host)
+    if hostname == "0.0.0.0":  # nosec
+        logger.warning("The service is exposed on all network interfaces. This is a security risk.")
+
     t = ThreadedServer(
         ServiceManager,
         hostname=hostname,
@@ -248,7 +253,11 @@ def launch_server(port=18000, ansysem_path=None, non_graphical=False, threaded=T
     os.environ["ANS_NO_MONO_CLEANUP"] = str(1)
     os.environ["ANS_NODEPCHECK"] = str(1)
 
-    hostname = "0.0.0.0"
+    default_host = socket.gethostname()
+    hostname = os.getenv("AEDT_HOST", default_host)
+    if hostname == "0.0.0.0":  # nosec
+        logger.warning("The service is exposed on all network interfaces. This is a security risk.")
+
     if threaded:
         service = ThreadedServer
     else:

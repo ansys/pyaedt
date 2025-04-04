@@ -31,6 +31,8 @@ Ideally, it should be the same as ``conftest.default_version``"""
 import os
 import warnings
 
+from ansys.aedt.core.generic import settings
+
 CURRENT_STABLE_AEDT_VERSION = 2025.1
 
 
@@ -106,7 +108,8 @@ class AedtVersions:
                         v_key = f"20{version}.{release}"
                     return_dict[v_key] = os.environ[version_env_var]
                 except Exception:  # pragma: no cover
-                    pass
+                    if settings.logger:
+                        settings.logger.debug(f"Failed to parse version and release from {current_version_id}")
             self._installed_versions = return_dict
         return self._installed_versions
 
