@@ -3375,7 +3375,8 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
             Name of the boundary. The default is ``None``, in which
             case the default name is used.
         is_voltage: bool, optional
-            'Balloon Type' in Electrostatic solver: ``True´´ for 'Voltage' and ``False´´ for 'Charge'.
+            Balloon type. This option is valid for Electrostatic solvers only.
+            Possible options are: "Voltage" or "Charge".
             The default is ``False´´.
 
         Returns
