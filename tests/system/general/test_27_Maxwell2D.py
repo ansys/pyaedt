@@ -174,6 +174,8 @@ class TestClass:
     def test_assign_balloon(self, aedtapp):
         region = aedtapp.modeler["Region"]
         aedtapp.assign_balloon(region.edges)
+        aedtapp.solution_type = "Electrostatic"
+        aedtapp.assign_balloon(region.edges, is_voltage=True)
 
     def test_generate_design_data(self, aedtapp):
         assert aedtapp.generate_design_data()
