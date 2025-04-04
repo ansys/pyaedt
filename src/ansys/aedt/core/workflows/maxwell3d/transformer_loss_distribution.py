@@ -49,7 +49,7 @@ extension_arguments = {
 extension_description = "Transformer loss distribution"
 
 
-def frontend():
+def frontend():  # pragma: no cover
     import tkinter as tk
     from tkinter import filedialog
     from tkinter import messagebox
