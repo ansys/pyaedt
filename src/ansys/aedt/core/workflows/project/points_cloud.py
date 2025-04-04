@@ -232,12 +232,15 @@ def frontend():  # pragma: no cover
     def callback():
         master.flag = True
         selected_objects = objects_list_lb.curselection()
-        master.objects_list = [objects_list_lb.get(i) for i in selected_objects]
+        master.assignment = [objects_list_lb.get(i) for i in selected_objects]
         if not selected_objects or any(
             element in selected_objects for element in ["--- Objects ---", "--- Surfaces ---", ""]
         ):
             messagebox.showerror("Error", "Please select a valid object or surface.")
             master.flag = False
+            aedtapp.release_desktop(False, False)
+            output_dict = {}
+            return output_dict
 
         points = points_entry.get("1.0", tkinter.END).strip()
         num_points = int(points)
@@ -251,12 +254,15 @@ def frontend():  # pragma: no cover
 
     def preview():
         try:
-            selected_objects = objects_list_lb.curselection()
+            selected_objects = [objects_list_lb.get(i) for i in objects_list_lb.curselection()]
             if not selected_objects or any(
                 element in selected_objects for element in ["--- Objects ---", "--- Surfaces ---", ""]
             ):
                 messagebox.showerror("Error", "Please select a valid object or surface.")
                 master.flag = False
+                aedtapp.release_desktop(False, False)
+                output_dict = {}
+                return output_dict
             points = points_entry.get("1.0", tkinter.END).strip()
             num_points = int(points)
             if num_points <= 0:
