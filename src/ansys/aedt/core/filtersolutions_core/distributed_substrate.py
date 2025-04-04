@@ -106,7 +106,7 @@ class DistributedSubstrate:
 
     @property
     def substrate_type(self) -> SubstrateType:
-        """Subctrate type of the filter.
+        """Substrate type of the filter.
 
         The ``SubstrateType`` enum provides a list of all substrate types.
 

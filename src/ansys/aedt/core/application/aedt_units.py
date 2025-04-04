@@ -46,6 +46,16 @@ class AedtUnits:
         self._mass = self._get_model_unit("Mass")
         self._conductance = self._get_model_unit("Conductance")
         self._rescale_model = False
+        self._units_by_system = {}
+
+    def get_unit_by_system(self, unit_system):
+        if unit_system in self._units_by_system:
+            return self._units_by_system[unit_system]
+        val = self._get_model_unit(unit_system)
+        if val:
+            self._units_by_system[unit_system] = val
+            return self._units_by_system[unit_system]
+        return
 
     @property
     def rescale_model(self):
@@ -63,7 +73,10 @@ class AedtUnits:
 
     def _get_model_unit(self, unit_system):
         if self.__app:
-            return self.__app._odesktop.GetDefaultUnit(unit_system)
+            try:
+                return self.__app._odesktop.GetDefaultUnit(unit_system)
+            except Exception:
+                return
 
     @property
     def frequency(self):

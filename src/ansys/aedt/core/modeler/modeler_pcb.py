@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
+from pathlib import Path
 import re
 from warnings import warn
 
@@ -134,11 +134,11 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
     @property
     def _edb_folder(self):
-        return os.path.join(self._app.project_path, self._app.project_name + ".aedb")
+        return Path(self._app.project_path) / (self._app.project_name + ".aedb")
 
     @property
     def _edb_file(self):
-        return os.path.join(self._edb_folder, "edb.def")
+        return Path(self._edb_folder) / "edb.def"
 
     @property
     def edb(self):
@@ -156,7 +156,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             from pyedb import Edb
 
             self._edb = None
-            if os.path.exists(self._edb_file) or inside_desktop:
+            if Path(self._edb_file).exists() or inside_desktop:
                 self._edb = Edb(
                     self._edb_folder,
                     self._app.design_name,
@@ -519,7 +519,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         output_dir : str, optional
             Path where the EDB is to be created. The default is ``None``, in which
             case the project directory is used.
-        name : str, optional
+        name : str or :class:`pathlib.Path`, optional
             Name of the EDB. The default is ``None``, in which
             case the board name is used.
 
@@ -535,11 +535,11 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         if not output_dir:
             output_dir = self.projdir
         if not name:
-            name = os.path.basename(input_file)
-            name = os.path.splitext(name)[0]
+            name = Path(input_file).name
+            name = Path(name).stem
 
         self._oimportexport.ImportExtracta(
-            input_file, os.path.join(output_dir, name + ".aedb"), os.path.join(output_dir, name + ".xml")
+            input_file, str(Path(output_dir) / (name + ".aedb")), str(Path(output_dir) / (name + ".xml"))
         )
         self._app.__init__(self._app.desktop_class.active_project().GetName())
         return True
@@ -572,7 +572,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         output_dir : str, optional
             Path where the EDB is to be created. The default is ``None``, in which
             case the project directory is used.
-        name : str, optional
+        name : str or :class:`pathlib.Path`, optional
             Name of the EDB. The default is ``None``, in which
             case the board name is used.
 
@@ -588,11 +588,11 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         if not output_dir:
             output_dir = self.projdir
         if not name:
-            name = os.path.basename(input_file)
-            name = os.path.splitext(name)[0]
+            name = Path(input_file).name
+            name = Path(name).stem
 
         self._oimportexport.ImportIPC(
-            input_file, os.path.join(output_dir, name + ".aedb"), os.path.join(output_dir, name + ".xml")
+            input_file, str(Pathn(output_dir) / (name + ".aedb")), str(Path(output_dir) / (name + ".xml"))
         )
         self._app.__init__(self._app.desktop_class.active_project().GetName())
         return True
@@ -955,9 +955,9 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         ----------
         assignment : str
             Name of the component.
-        input_file : str, optional
+        input_file : str or :class:`pathlib.Path`, optional
             Full path to the model file. The default is ``None``.
-        model_name : str, optional
+        model_name : str or :class:`pathlib.Path`, optional
             Name of the model. The default is ``None``, in which case the model name is the file name without an
             extension.
 
@@ -977,12 +977,12 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         """
 
         if not model_name:
-            model_name = os.path.splitext(os.path.basename(input_file))[0]
+            model_name = Path(Path(input_file).name).stem
             if "." in model_name:
                 model_name = model_name.replace(".", "_")
         if model_name in list(self.omodel_manager.GetNames()):
             model_name = generate_unique_name(model_name, n=2)
-        num_terminal = int(os.path.splitext(input_file)[1].lower().strip(".sp"))
+        num_terminal = int(Path(input_file).suffix.lower().strip(".sp"))
 
         port_names = []
         with open_file(input_file, "r") as f:
@@ -1019,7 +1019,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             ["NAME:PortInfoBlk"],
             ["NAME:PortOrderBlk"],
             "filename:=",
-            input_file,
+            str(input_file),
             "numberofports:=",
             num_terminal,
             "sssfilename:=",

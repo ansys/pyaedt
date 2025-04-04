@@ -648,13 +648,30 @@ class TestClass:
         assert len(aedtapp.post.all_report_names) == 2
         aedtapp.close_project(aedtapp.project_name)
 
-    @pytest.mark.skipif(is_linux, reason="Simulation takes too long in Linux machine.")
     def test_20_point_cloud(self, add_app, local_scratch):
         aedtapp = add_app(project_name=point_cloud_generator, subfolder=test_subfolder)
 
-        from ansys.aedt.core.workflows.hfss.point_cloud import main
+        from ansys.aedt.core.workflows.project.points_cloud import main
 
         # No choice
-        assert main({"is_test": True, "choice": "Torus1", "points": 1000})
+        assert main({"is_test": True, "choice": "Torus1", "points": 1000, "output_file": local_scratch.path})
+
+        aedtapp.close_project(aedtapp.project_name)
+
+    def test_21_move_it(self, add_app, local_scratch):
+        from ansys.aedt.core.modeler.cad.object_3d import PolylineSegment
+
+        aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="move_it")
+        aedtapp["p1"] = "100mm"
+        aedtapp["p2"] = "71mm"
+        test_points = [["0mm", "p1", "0mm"], ["-p1", "0mm", "0mm"], ["-p1/2", "-p1/2", "0mm"], ["0mm", "0mm", "0mm"]]
+
+        p2 = aedtapp.modeler.create_polyline(
+            points=test_points, segment_type=PolylineSegment("Spline", num_points=4), name="spline_4pt"
+        )
+
+        from ansys.aedt.core.workflows.hfss.move_it import main
+
+        assert main({"is_test": True, "choice": p2.name, "velocity": 1.4, "acceleration": 0, "delay": 0})
 
         aedtapp.close_project(aedtapp.project_name)

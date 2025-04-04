@@ -65,29 +65,22 @@ class TestClass:
         assert ibis_models[16].name == "NF_IN_800"
 
         # Test pin characteristics
-        assert (
-            ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800_modified"].name
-            == "A1_MT47H64M4BP-3_25_u26a_800_modified"
-        )
-        assert ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800_modified"].short_name == "A1"
-        assert ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800_modified"].signal == "VDD"
-        assert ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800_modified"].model == "POWER"
-        assert ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800_modified"].r_value == "44.3m"
-        assert ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800_modified"].l_value == "1.99nH"
-        assert ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800_modified"].c_value == "0.59pF"
+        assert ibis.components["MT47H64M4BP-3_25"].pins["A1"].name == "A1_MT47H64M4BP-3_25_u26a_800_modified"
+        assert ibis.components["MT47H64M4BP-3_25"].pins["A1"].short_name == "A1"
+        assert ibis.components["MT47H64M4BP-3_25"].pins["A1"].signal == "VDD"
+        assert ibis.components["MT47H64M4BP-3_25"].pins["A1"].model == "POWER"
+        assert ibis.components["MT47H64M4BP-3_25"].pins["A1"].r_value == "44.3m"
+        assert ibis.components["MT47H64M4BP-3_25"].pins["A1"].l_value == "1.99nH"
+        assert ibis.components["MT47H64M4BP-3_25"].pins["A1"].c_value == "0.59pF"
 
         # Add pin
-        ibis.components["MT47H32M8BP-3_25"].pins["A8_MT47H32M8BP-3_25_u26a_800_modified"].add()
-        pin = (
-            ibis.components["MT47H32M8BP-3_25"]
-            .pins["A8_MT47H32M8BP-3_25_u26a_800_modified"]
-            .insert(0.1016, 0.05334, 0.0)
-        )
+        ibis.components["MT47H32M8BP-3_25"].pins["A8"].add()
+        pin = ibis.components["MT47H32M8BP-3_25"].pins["A8"].insert(0.1016, 0.05334, 0.0)
         assert pin.name == "CompInst@DQS#_MT47H32M8BP-3_25_u26a_800_modified"
 
         # Add buffer
-        ibis.buffers["RDQS#_u26a_800_modified"].add()
-        buffer = ibis.buffers["RDQS#_u26a_800_modified"].insert(0.1016, 0.05334, 0.0)
+        ibis.buffers["RDQS#"].add()
+        buffer = ibis.buffers["RDQS#"].insert(0.1016, 0.05334, 0.0)
         assert buffer.name == "CompInst@RDQS#_u26a_800_modified"
 
     def test_02_read_ibis_from_circuit(self):
@@ -101,4 +94,5 @@ class TestClass:
         ibis_model = self.aedtapp.get_ibis_model_from_file(
             os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "ibis_ami_example_tx.ibs"), is_ami=True
         )
-        assert ibis_model.buffers["example_model_tx_ibis_ami_example_tx"].insert(0, 0)
+        assert ibis_model.buffers["example_model_tx"].insert(0, 0)
+        assert ibis_model.components["example_device_tx"].differential_pins["14"].insert(0, 0.0512)
