@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
+from pathlib import Path
 
 from ansys.aedt.core import Q2d
 import pytest
@@ -59,29 +59,29 @@ class TestClass:
         self.local_scratch = local_scratch
 
     def test_01_export_w_elements_from_sweep(self, q2d_solved_sweep_app, local_scratch):
-        export_folder = os.path.join(local_scratch.path, "export_folder")
+        export_folder = Path(local_scratch.path) / "export_folder"
         files = q2d_solved_sweep_app.export_w_elements(False, export_folder)
         assert len(files) == 3
         for file in files:
-            _, ext = os.path.splitext(file)
+            ext = Path(file).suffix
             assert ext == ".sp"
-            assert os.path.isfile(file)
+            assert Path(file).is_file()
 
     def test_02_export_w_elements_from_nominal(self, q2d_solved_nominal_app, local_scratch):
-        export_folder = os.path.join(local_scratch.path, "export_folder")
+        export_folder = Path(local_scratch.path) / "export_folder"
         files = q2d_solved_nominal_app.export_w_elements(False, export_folder)
         assert len(files) == 1
         for file in files:
-            _, ext = os.path.splitext(file)
+            ext = Path(file).suffix
             assert ext == ".sp"
-            assert os.path.isfile(file)
+            assert Path(file).is_file()
 
     def test_03_export_w_elements_to_working_directory(self, q2d_solved_nominal_app):
         files = q2d_solved_nominal_app.export_w_elements(False)
         assert len(files) == 1
         for file in files:
-            _, ext = os.path.splitext(file)
+            ext = Path(file).suffix
             assert ext == ".sp"
-            assert os.path.isfile(file)
-            file_dir = os.path.abspath(os.path.dirname(file))
-            assert file_dir == os.path.abspath(self.q2d_solved_nominal_app.working_directory)
+            assert Path(file).is_file()
+            file_dir = Path(file).parent.absolute()
+            assert file_dir == Path(self.q2d_solved_nominal_app.working_directory).absolute()

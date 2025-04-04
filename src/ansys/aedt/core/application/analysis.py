@@ -1839,7 +1839,7 @@ class Analysis(Design, object):
         else:
             try:
                 self.logger.info("Solving Optimetrics")
-                self.ooptimetrics.SolveSetup(name)
+                self.ooptimetrics.SolveSetup(name, blocking)
             except Exception:  # pragma: no cover
                 if set_custom_dso and active_config:
                     self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)

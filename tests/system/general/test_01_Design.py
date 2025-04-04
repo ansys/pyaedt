@@ -206,6 +206,12 @@ class TestClass:
         new_design = self.aedtapp.copy_design_from(origin, "myduplicateddesign")
         assert new_design in self.aedtapp.design_list
 
+    def test_15c_copy_example(self):
+        example_name = self.aedtapp.desktop_class.get_example("5G_SIW_Aperture_Antenna")
+        self.aedtapp.copy_design_from(example_name, "0_5G Aperture Element")
+        assert self.aedtapp.design_name == "0_5G Aperture Element"
+        assert not self.aedtapp.desktop_class.get_example("fake")
+
     def test_16_renamedesign(self, add_app, test_project_file):
         prj_file = test_project_file(test_project_name)
         self.aedtapp.load_project(file_name=prj_file, design="myname", close_active=True)

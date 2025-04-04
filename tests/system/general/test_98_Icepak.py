@@ -1832,6 +1832,11 @@ class TestClass:
         df = fs.get_field_summary_data(pandas_output=True)
         assert not df["Mean"].empty
 
+        fs2 = ipk.post.create_field_summary()
+        fs2.add_calculation("Boundary", "Surface", "Network1", "Temperature", time="4s")
+        df = fs2.get_field_summary_data(pandas_output=True)
+        assert not df["Mean"].empty
+
     @pytest.mark.parametrize("ipk", [transient_fs], indirect=True)
     def test078__folder_settings(self, ipk):
         plot_object = ipk.post.create_fieldplot_surface(
@@ -1951,7 +1956,7 @@ class TestClass:
     @pytest.mark.parametrize("ipk", [transient_fs], indirect=True)
     def test081__get_max_temp_location_transient(self, ipk):
         with pytest.raises(ValueError):
-            ipk.post.get_temperature_extremum(assignment="Box2", max_min="Max", location="Surface")
+            ipk.post.get_temperature_extremum(assignment="Box3", max_min="Max", location="Surface")
         max_temp = ipk.post.get_temperature_extremum(assignment="Box1", max_min="Max", location="Surface", time="1s")
         assert isinstance(max_temp, tuple)
         assert len(max_temp[0]) == 3
