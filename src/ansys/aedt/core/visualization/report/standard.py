@@ -34,6 +34,7 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.visualization.report.common import CommonReport
+from ansys.aedt.core.visualization.report.common import CommonReport2
 
 
 class Standard(CommonReport):
@@ -474,11 +475,47 @@ class Standard(CommonReport):
         return ctxt
 
 
-class HFSSStandard(CommonReport):
+class HFSSStandard(CommonReport2):
     """Provides a reporting class that fits HFSS standard reports."""
 
     def __init__(self, app, report_category, setup_name, expressions=None):
-        CommonReport.__init__(self, app, report_category, setup_name, expressions)
+        CommonReport2.__init__(self, app, report_category, setup_name, expressions)
+
+    @property
+    def domain(self):
+        """Plot domain.
+
+        Returns
+        -------
+        str
+            Plot domain.
+        """
+        if self._is_created:
+            try:
+                return self.traces[0].properties["Domain"]
+            except Exception:
+                self._app.logger.debug("Something went wrong while accessing trace's Domain property.")
+        return self._legacy_props["context"]["domain"]
+
+    @domain.setter
+    def domain(self, domain):
+        self._legacy_props["context"]["domain"] = domain
+
+        if self.primary_sweep == "Freq" and domain == "Time":
+            self.primary_sweep = "Time"
+            if isinstance(self._legacy_props["context"]["variations"], dict):
+                self._legacy_props["context"]["variations"].pop("Freq", None)
+                self._legacy_props["context"]["variations"]["Time"] = ["All"]
+            else:  # pragma: no cover
+                self._legacy_props["context"]["variations"] = {"Time": "All"}
+
+        elif self.primary_sweep == "Time" and domain == "Sweep":
+            self.primary_sweep = "Freq"
+            if isinstance(self._legacy_props["context"]["variations"], dict):
+                self._legacy_props["context"]["variations"].pop("Time", None)
+                self._legacy_props["context"]["variations"]["Freq"] = ["All"]
+            else:  # pragma: no cover
+                self._legacy_props["context"]["variations"] = {"Freq": "All"}
 
     @property
     def pulse_rise_time(self):
