@@ -652,10 +652,10 @@ class TestClass:
     def test_20_point_cloud(self, add_app, local_scratch):
         aedtapp = add_app(project_name=point_cloud_generator, subfolder=test_subfolder)
 
-        from ansys.aedt.core.workflows.hfss.point_cloud import main
+        from ansys.aedt.core.workflows.project.points_cloud import main
 
         # No choice
-        assert main({"is_test": True, "choice": "Torus1", "points": 1000})
+        assert main({"is_test": True, "choice": "Torus1", "points": 1000, "output_file": local_scratch.path})
 
         aedtapp.close_project(aedtapp.project_name)
 
