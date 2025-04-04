@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools<67.0.0", "wheel<0.46.0"] # THIS SHOULD BE REVERTED TO '["setuptools", "wheel"]'
+requires = ["setuptools<79.0.0", "wheel<0.46.0"] # THIS SHOULD BE REVERTED TO '["setuptools", "wheel"]'
 build-backend = "setuptools.build_meta"
 
 
