@@ -166,12 +166,16 @@ class TestClass:
         assert lumped_design.topology.netlist().splitlines() == read_resource_file("high_low_pass.ckt", "Lumped")
 
     def test_lumped_high_low_pass_min_ind(self, lumped_design):
+        misspelled_error = "High Low pass with Minmum Inductors topology is not applicable for this type of filter"  # codespell:ignore  # noqa: E501
         with pytest.raises(RuntimeError) as info:
             lumped_design.topology.high_low_pass_min_ind = True
-        assert (
-            info.value.args[0]
-            == "High Low pass with Minimum Inductors topology is not applicable for this type of filter"
-        )
+        if config["desktopVersion"] > "2025.1":
+            assert (
+                info.value.args[0]
+                == "High Low pass with Minimum Inductors topology is not applicable for this type of filter"
+            )
+        else:
+            assert info.value.args[0] == misspelled_error
         lumped_design.attributes.filter_class = FilterClass.BAND_PASS
         lumped_design.attributes.filter_type = FilterType.ELLIPTIC
         assert lumped_design.attributes.filter_class == FilterClass.BAND_PASS
@@ -199,7 +203,10 @@ class TestClass:
     def test_lumped_min_ind(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.topology.min_ind = True
-        assert info.value.args[0] == "Minimum Inductors topology is not applicable for this type of filter"
+        if config["desktopVersion"] > "2025.1":
+            assert info.value.args[0] == "Minimum Inductors topology is not applicable for this type of filter"
+        else:
+            assert info.value.args[0] == "Minimum Inductor topology is not applicable for this type of filter"
         lumped_design.attributes.filter_class = FilterClass.BAND_PASS
         lumped_design.attributes.filter_type = FilterType.ELLIPTIC
         lumped_design.topology.zig_zag = True
@@ -214,7 +221,10 @@ class TestClass:
     def test_lumped_min_cap(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.topology.min_cap = True
-        assert info.value.args[0] == "Minimum Capacitors topology is not applicable for this type of filter"
+        if config["desktopVersion"] > "2025.1":
+            assert info.value.args[0] == "Minimum Capacitors topology is not applicable for this type of filter"
+        else:
+            assert info.value.args[0] == "Minimum Capacitor topology is not applicable for this type of filter"
         lumped_design.attributes.filter_class = FilterClass.BAND_PASS
         lumped_design.attributes.filter_type = FilterType.ELLIPTIC
         lumped_design.topology.zig_zag = True
@@ -229,7 +239,10 @@ class TestClass:
     def test_lumped_set_source_res(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.topology.set_source_res = True
-        assert info.value.args[0] == "Zig Zag Source Resistance topology is not applicable for this type of filter"
+        if config["desktopVersion"] > "2025.1":
+            assert info.value.args[0] == "Zig Zag Source Resistance topology is not applicable for this type of filter"
+        else:
+            assert info.value.args[0] == "Zig Zag Source topology is not applicable for this type of filter"
         lumped_design.attributes.filter_class = FilterClass.BAND_PASS
         lumped_design.attributes.filter_type = FilterType.ELLIPTIC
         lumped_design.topology.zig_zag = True
@@ -293,7 +306,10 @@ class TestClass:
     def test_complex_element_tune_enabled(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.topology.complex_element_tune_enabled = True
-        assert info.value.args[0] == "The Complex Termination option is not enabled for this filter"
+        if config["desktopVersion"] > "2025.1":
+            assert info.value.args[0] == "The Complex Termination option is not enabled for this filter"
+        else:
+            assert info.value.args[0] == "The Butterworth filter does not have complex termination"
         lumped_design.topology.complex_termination = True
         assert lumped_design.topology.complex_element_tune_enabled
         lumped_design.topology.complex_element_tune_enabled = False

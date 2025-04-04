@@ -89,9 +89,15 @@ class TestClass:
         assert freqs[300] == 8669097136.772985
         assert freqs[-1] == 31214328219.225075
         lumped_design.attributes.filter_class = FilterClass.DIPLEXER_1
+        misspelled_error = (
+            "The frequency repsonse data is not available for diplexer filters"  # codespell:ignore  # noqa: E501
+        )
         with pytest.raises(RuntimeError) as info:
             lumped_design.ideal_response._frequency_response_getter(FrequencyResponseColumn.MAGNITUDE_DB)
-        assert info.value.args[0] == "The frequency response data is not available for diplexer filters"
+            if config["desktopVersion"] > "2025.1":
+                assert info.value.args[0] == "The frequency response data is not available for diplexer filters"
+            else:
+                assert info.value.args[0] == misspelled_error
 
     def test_time_response_getter(self, lumped_design):
         step_response = lumped_design.ideal_response._time_response_getter(TimeResponseColumn.STEP_RESPONSE)
@@ -130,9 +136,15 @@ class TestClass:
         assert time[200] == pytest.approx(6.666666666666667e-09)
         assert time[-1] == pytest.approx(9.966666666666667e-09)
         lumped_design.attributes.filter_class = FilterClass.DIPLEXER_1
+        misspelled_error = (
+            "The time repsonse data is not available for diplexer filters"  # codespell:ignore  # noqa: E501
+        )
         with pytest.raises(RuntimeError) as info:
             lumped_design.ideal_response._time_response_getter(TimeResponseColumn.STEP_RESPONSE)
-        assert info.value.args[0] == "The time response data is not available for diplexer filters"
+        if config["desktopVersion"] > "2025.1":
+            assert info.value.args[0] == "The time response data is not available for diplexer filters"
+        else:
+            assert info.value.args[0] == misspelled_error
 
     def test_sparameters_response_getter(self, lumped_design):
         s11_response_db = lumped_design.ideal_response._sparamaters_response_getter(SParametersResponseColumn.S11_DB)
@@ -161,9 +173,15 @@ class TestClass:
         assert freqs[300] == pytest.approx(8669097136.772985)
         assert freqs[-1] == pytest.approx(31214328219.225075)
         lumped_design.attributes.filter_class = FilterClass.DIPLEXER_1
+        misspelled_error = (
+            "The S paramaters data is not available for diplexer filters"  # codespell:ignore  # noqa: E501
+        )
         with pytest.raises(RuntimeError) as info:
             lumped_design.ideal_response._sparamaters_response_getter(SParametersResponseColumn.S11_DB)
-        assert info.value.args[0] == "The S parameters data is not available for diplexer filters"
+        if config["desktopVersion"] > "2025.1":
+            assert info.value.args[0] == "The S parameters data is not available for diplexer filters"
+        else:
+            assert info.value.args[0] == misspelled_error
 
     def test_pole_zeros_response_getter(self, lumped_design):
         pole_zero_den_x = lumped_design.ideal_response._pole_zeros_response_getter(

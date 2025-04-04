@@ -61,14 +61,16 @@ reverse_y_axis_error = (
 
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
-@pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
+@pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.2")
 class TestClass:
 
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
     def test_lumped_export_to_aedt(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.insert_circuit_design = True
         assert info.value.args[0] == "This property is not applicable to lumped designs in the export page"
 
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
     def test_distributed_export_to_aedt(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
             distributed_design.export_to_aedt.part_libraries = PartLibraries.LUMPED
@@ -430,7 +432,10 @@ class TestClass:
                 export_creation_mode=ExportCreationMode.OVERWRITE,
                 export_path="",
             )
-        assert info.value.args[0] == "Python export path is not specified"
+        if config["desktopVersion"] > "2025.1":
+            assert info.value.args[0] == "Python export path is not specified"
+        else:
+            assert info.value.args[0] == "Python export path is not specified."
         export_path = resource_path("test_exported_design.py")
         lumped_design.export_to_aedt.export_design(
             export_format=ExportFormat.PYTHON_SCRIPT,
@@ -563,9 +568,10 @@ class TestClass:
         assert lumped_design.export_to_aedt.interconnect_geometry_optimization_enabled == False
 
     def test_substrate_type(self, lumped_design):
-        with pytest.raises(RuntimeError) as info:
-            lumped_design.export_to_aedt.substrate_type = "INVALID_TYPE"
-        assert info.value.args[0] == "The substrate type is not available"
+        if config["desktopVersion"] > "2025.1":
+            with pytest.raises(RuntimeError) as info:
+                lumped_design.export_to_aedt.substrate_type = "INVALID_TYPE"
+            assert info.value.args[0] == "The substrate type is not available"
         assert lumped_design.export_to_aedt.substrate_type == SubstrateType.MICROSTRIP
         assert len(SubstrateType) == 5
         for substrate in SubstrateType:
@@ -583,9 +589,10 @@ class TestClass:
             assert lumped_design.export_to_aedt.substrate_er == er
         lumped_design.export_to_aedt.substrate_er = "3.2"
         assert lumped_design.export_to_aedt.substrate_er == "3.2"
-        with pytest.raises(RuntimeError) as info:
-            lumped_design.export_to_aedt.substrate_er = ""
-        assert info.value.args[0] == "The substrate Er is not defined"
+        if config["desktopVersion"] > "2025.1":
+            with pytest.raises(RuntimeError) as info:
+                lumped_design.export_to_aedt.substrate_er = ""
+            assert info.value.args[0] == "The substrate Er is not defined"
 
     def test_substrate_resistivity(self, lumped_design):
         assert lumped_design.export_to_aedt.substrate_resistivity == SubstrateResistivity.GOLD
@@ -598,9 +605,10 @@ class TestClass:
             assert lumped_design.export_to_aedt.substrate_resistivity == resistivity
         lumped_design.export_to_aedt.substrate_resistivity = "0.02"
         assert lumped_design.export_to_aedt.substrate_resistivity == "0.02"
-        with pytest.raises(RuntimeError) as info:
-            lumped_design.export_to_aedt.substrate_resistivity = ""
-        assert info.value.args[0] == "The substrate resistivity is not defined"
+        if config["desktopVersion"] > "2025.1":
+            with pytest.raises(RuntimeError) as info:
+                lumped_design.export_to_aedt.substrate_resistivity = ""
+            assert info.value.args[0] == "The substrate resistivity is not defined"
 
     def test_substrate_loss_tangent(self, lumped_design):
         assert lumped_design.export_to_aedt.substrate_loss_tangent == SubstrateEr.ALUMINA
@@ -613,9 +621,10 @@ class TestClass:
             assert lumped_design.export_to_aedt.substrate_loss_tangent == loss
         lumped_design.export_to_aedt.substrate_loss_tangent = "0.0002"
         assert lumped_design.export_to_aedt.substrate_loss_tangent == "0.0002"
-        with pytest.raises(RuntimeError) as info:
-            lumped_design.export_to_aedt.substrate_loss_tangent = ""
-        assert info.value.args[0] == "The substrate loss tangent is not defined"
+        if config["desktopVersion"] > "2025.1":
+            with pytest.raises(RuntimeError) as info:
+                lumped_design.export_to_aedt.substrate_loss_tangent = ""
+            assert info.value.args[0] == "The substrate loss tangent is not defined"
 
     def test_substrate_conductor_thickness(self, lumped_design):
         assert lumped_design.export_to_aedt.substrate_conductor_thickness == "2.54 um"
@@ -630,10 +639,13 @@ class TestClass:
     def test_substrate_unbalanced_lower_dielectric_height(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.substrate_unbalanced_lower_dielectric_height = "5.2 mm"
-        assert info.value.args[0] == (
-            "The lower dielectric height is not defined for MICROSTRIP substrate, "
-            "the substrate type must be set to STRIPLINE to use unbalanced lower dielectric height"
-        )
+        if config["desktopVersion"] > "2025.1":
+            assert info.value.args[0] == (
+                "The lower dielectric height is not defined for MICROSTRIP substrate, "
+                "the substrate type must be set to STRIPLINE to use unbalanced lower dielectric height"
+            )
+        else:
+            assert info.value.args[0] == "The lower dielectric height is not defined for Microstrip substrate"
         lumped_design.export_to_aedt.substrate_type = SubstrateType.STRIPLINE
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.substrate_unbalanced_lower_dielectric_height = "5.2 mm"
@@ -646,10 +658,13 @@ class TestClass:
     def test_substrate_suspend_dielectric_height(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.substrate_suspend_dielectric_height = "5.2 mm"
-        assert info.value.args[0] == (
-            "The suspend dielectric height is not defined for MICROSTRIP substrate, "
-            "the substrate type must be set to SUSPEND to use suspend dielectric height"
-        )
+        if config["desktopVersion"] > "2025.1":
+            assert info.value.args[0] == (
+                "The suspend dielectric height is not defined for MICROSTRIP substrate, "
+                "the substrate type must be set to SUSPEND to use suspend dielectric height"
+            )
+        else:
+            assert info.value.args[0] == "The suspend dielectric height is not defined for Microstrip substrate"
         lumped_design.export_to_aedt.substrate_type = SubstrateType.SUSPEND
         assert lumped_design.export_to_aedt.substrate_suspend_dielectric_height == "1.27 mm"
         lumped_design.export_to_aedt.substrate_suspend_dielectric_height = "3.2 mm"
@@ -659,11 +674,17 @@ class TestClass:
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.substrate_type = SubstrateType.STRIPLINE
             lumped_design.export_to_aedt.substrate_cover_height = "5.2 mm"
-        assert info.value.args[0] == "The substrate cover height is not defined for STRIPLINE substrate"
+        if config["desktopVersion"] > "2025.1":
+            assert info.value.args[0] == "The substrate cover height is not defined for STRIPLINE substrate"
+        else:
+            assert info.value.args[0] == "The coveric height is not defined for Stripline substrate"
         lumped_design.export_to_aedt.substrate_type = SubstrateType.MICROSTRIP
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.substrate_cover_height = "5.2 mm"
-        assert info.value.args[0] == "The cover option for MICROSTRIP substrate is not enabled"
+            if config["desktopVersion"] > "2025.1":
+                assert info.value.args[0] == "The cover option for MICROSTRIP substrate is not enabled"
+            else:
+                assert info.value.args[0] == "The cover option for Microstrip substrate is not enabled"
         lumped_design.export_to_aedt.substrate_cover_height_enabled = True
         assert lumped_design.export_to_aedt.substrate_cover_height == "6.35 mm"
         lumped_design.export_to_aedt.substrate_cover_height = "2.5 mm"
@@ -678,7 +699,10 @@ class TestClass:
     def test_substrate_unbalanced_stripline_enabled(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.substrate_unbalanced_stripline_enabled = True
-        assert info.value.args[0] == "The unbalanced topology is not available for MICROSTRIP substrate"
+            if config["desktopVersion"] > "2025.1":
+                assert info.value.args[0] == "The unbalanced topology is not available for STRIPLINE substrate"
+            else:
+                assert info.value.args[0] == "The unbalanced topology is not available for Stripline substrate"
         lumped_design.export_to_aedt.substrate_type = SubstrateType.STRIPLINE
         assert lumped_design.export_to_aedt.substrate_unbalanced_stripline_enabled == False
         lumped_design.export_to_aedt.substrate_unbalanced_stripline_enabled = True
@@ -688,27 +712,38 @@ class TestClass:
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.substrate_type = SubstrateType.STRIPLINE
             lumped_design.export_to_aedt.substrate_cover_height_enabled = True
-        assert info.value.args[0] == "The grounded cover above line topology is not available for STRIPLINE substrate"
+        if config["desktopVersion"] > "2025.1":
+            assert (
+                info.value.args[0] == "The grounded cover above line topology is not available for STRIPLINE substrate"
+            )
+        else:
+            assert (
+                info.value.args[0] == "The grounded cover above line topology is not available for Stripline substrate"
+            )
         lumped_design.export_to_aedt.substrate_type = SubstrateType.MICROSTRIP
         assert lumped_design.export_to_aedt.substrate_cover_height_enabled == False
         lumped_design.export_to_aedt.substrate_cover_height_enabled = True
         assert lumped_design.export_to_aedt.substrate_cover_height_enabled == True
 
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
     def test_insert_circuit_design(self, distributed_design):
         assert distributed_design.export_to_aedt.insert_circuit_design is False
         distributed_design.export_to_aedt.insert_circuit_design = True
         assert distributed_design.export_to_aedt.insert_circuit_design
 
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
     def test_insert_hfss_design(self, distributed_design):
         assert distributed_design.export_to_aedt.insert_hfss_design is False
         distributed_design.export_to_aedt.insert_hfss_design = True
         assert distributed_design.export_to_aedt.insert_hfss_design
 
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
     def test_insert_hfss_3dl_design(self, distributed_design):
         assert distributed_design.export_to_aedt.insert_hfss_3dl_design
         distributed_design.export_to_aedt.insert_hfss_3dl_design = False
         assert distributed_design.export_to_aedt.insert_hfss_3dl_design is False
 
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
     def test_full_parametrization_enabled(self, distributed_design):
         distributed_design.export_to_aedt.insert_circuit_design = True
         with pytest.raises(RuntimeError) as info:
@@ -724,11 +759,13 @@ class TestClass:
         distributed_design.export_to_aedt.full_parametrization_enabled = False
         assert distributed_design.export_to_aedt.full_parametrization_enabled is False
 
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
     def test_ports_always_on_sides_enabled(self, distributed_design):
         assert distributed_design.export_to_aedt.ports_always_on_sides_enabled is False
         distributed_design.export_to_aedt.ports_always_on_sides_enabled = True
         assert distributed_design.export_to_aedt.ports_always_on_sides_enabled
 
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
     def test_reverse_x_axis_enabled(self, distributed_design):
         distributed_design.export_to_aedt.insert_circuit_design = True
         with pytest.raises(RuntimeError) as info:
@@ -744,6 +781,7 @@ class TestClass:
         distributed_design.export_to_aedt.reverse_x_axis_enabled = True
         assert distributed_design.export_to_aedt.reverse_x_axis_enabled
 
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
     def test_reverse_y_axis_enabled(self, distributed_design):
         distributed_design.export_to_aedt.insert_circuit_design = True
         with pytest.raises(RuntimeError) as info:
@@ -759,6 +797,7 @@ class TestClass:
         distributed_design.export_to_aedt.reverse_y_axis_enabled = True
         assert distributed_design.export_to_aedt.reverse_y_axis_enabled
 
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
     def test_export_with_tuning_port_format_enabled(self, distributed_design):
         distributed_design.export_to_aedt.insert_circuit_design = True
         with pytest.raises(RuntimeError) as info:
@@ -771,6 +810,7 @@ class TestClass:
         distributed_design.export_to_aedt.export_with_tuning_port_format_enabled = True
         assert distributed_design.export_to_aedt.export_with_tuning_port_format_enabled
 
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
     def test_use_series_horizontal_ports_enabled(self, distributed_design):
         distributed_design.export_to_aedt.insert_circuit_design = True
         with pytest.raises(RuntimeError) as info:

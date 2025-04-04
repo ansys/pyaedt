@@ -203,6 +203,6 @@ class DllInterface:
         RuntimeError
             If the error status is not 0, an exception is raised.
         """
-        if error_status != 0:
+        if error_status != 0 and error_status is not None:
             error_message = self.get_string(self._dll.getErrorMessage, 4096)
             raise RuntimeError(error_message)

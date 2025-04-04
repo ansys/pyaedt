@@ -57,14 +57,24 @@ class TestClass:
         lumped_design.transmission_zeros_ratio.append_row(zero="1.5", position="2")
         lumped_design.transmission_zeros_ratio.update_row(0, zero="1.6", position="1")
         assert lumped_design.transmission_zeros_ratio.row(0) == ("1.6", "1")
-        lumped_design.transmission_zeros_ratio.update_row(0, zero="", position="2")
-        assert lumped_design.transmission_zeros_ratio.row(0) == ("1.6", "2")
+        if config["desktopVersion"] > "2025.1":
+            lumped_design.transmission_zeros_ratio.update_row(0, zero="", position="2")
+            assert lumped_design.transmission_zeros_ratio.row(0) == ("1.6", "2")
+        else:
+            with pytest.raises(RuntimeError) as info:
+                lumped_design.transmission_zeros_ratio.update_row(0, zero="", position="2")
+            assert info.value.args[0] == self.input_value_blank_msg
         lumped_design.transmission_zeros_ratio.clear_table()
         lumped_design.transmission_zeros_bandwidth.append_row(zero="1600M", position="2")
         lumped_design.transmission_zeros_bandwidth.update_row(0, zero="1.3G", position="1")
         assert lumped_design.transmission_zeros_bandwidth.row(0) == ("1.3G", "1")
-        lumped_design.transmission_zeros_bandwidth.update_row(0, zero="", position="2")
-        assert lumped_design.transmission_zeros_bandwidth.row(0) == ("1.3G", "2")
+        if config["desktopVersion"] > "2025.1":
+            lumped_design.transmission_zeros_bandwidth.update_row(0, zero="", position="2")
+            assert lumped_design.transmission_zeros_bandwidth.row(0) == ("1.3G", "2")
+        else:
+            with pytest.raises(RuntimeError) as info:
+                lumped_design.transmission_zeros_bandwidth.update_row(0, zero="", position="2")
+            assert info.value.args[0] == self.input_value_blank_msg
         lumped_design.transmission_zeros_bandwidth.clear_table()
 
     def test_append_row(self, lumped_design):

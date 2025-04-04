@@ -40,9 +40,10 @@ class TestClass:
         lumped_design.optimization_goals_table.restore_design_goals()
         assert lumped_design.optimization_goals_table.row_count == 2
         lumped_design.export_to_aedt.optimitrics_enabled = False
-        with pytest.raises(RuntimeError) as info:
-            lumped_design.optimization_goals_table.row_count
-        assert info.value.args[0] == "The optimetric export to AEDT is not enabled"
+        if config["desktopVersion"] > "2025.1":
+            with pytest.raises(RuntimeError) as info:
+                lumped_design.optimization_goals_table.row_count
+            assert info.value.args[0] == "The optimetric export to AEDT is not enabled"
 
     def test_row(self, lumped_design):
         lumped_design.optimization_goals_table.restore_design_goals()
@@ -116,11 +117,12 @@ class TestClass:
             "0.3",
             "Y",
         ]
-        with pytest.raises(RuntimeError) as info:
-            lumped_design.optimization_goals_table.append_row(
-                "100 MHz", "", "-3", ">", "dB(S(Port2,Port2))", "0.3", "Y"
-            )
-        assert info.value.args[0] == "It is not possible to append a row with an empty value to table"
+        if config["desktopVersion"] > "2025.1":
+            with pytest.raises(RuntimeError) as info:
+                lumped_design.optimization_goals_table.append_row(
+                    "100 MHz", "", "-3", ">", "dB(S(Port2,Port2))", "0.3", "Y"
+                )
+            assert info.value.args[0] == "It is not possible to append a row with an empty value to table"
 
     def test_insert_row(self, lumped_design):
         lumped_design.optimization_goals_table.restore_design_goals()
@@ -141,11 +143,12 @@ class TestClass:
                 5, "100 MHz", "2 GHz", "-3", ">", "dB(S(Port2,Port2))", "0.3", "Y"
             )
         assert info.value.args[0] == "The rowIndex is greater than row count or less than zero"
-        with pytest.raises(RuntimeError) as info:
-            lumped_design.optimization_goals_table.insert_row(
-                5, "100 MHz", "", "-3", ">", "dB(S(Port2,Port2))", "0.3", "Y"
-            )
-        assert info.value.args[0] == "It is not possible to append a row with an empty value to table"
+        if config["desktopVersion"] > "2025.1":
+            with pytest.raises(RuntimeError) as info:
+                lumped_design.optimization_goals_table.insert_row(
+                    5, "100 MHz", "", "-3", ">", "dB(S(Port2,Port2))", "0.3", "Y"
+                )
+            assert info.value.args[0] == "It is not possible to append a row with an empty value to table"
 
     def test_remove_row(self, lumped_design):
         lumped_design.optimization_goals_table.restore_design_goals()

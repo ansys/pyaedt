@@ -366,10 +366,16 @@ class ExportToAedt:
         self._dll.getInterconnectGeometryOptimization.argtype = POINTER(c_bool)
         self._dll.getInterconnectGeometryOptimization.restype = c_int
 
-        self._dll.setSubstrateType.argtype = c_int
-        self._dll.setSubstrateType.restype = int
-        self._dll.getSubstrateType.argtype = POINTER(c_int)
-        self._dll.getSubstrateType.restype = int
+        if self._dll_interface.api_version() >= "2025.2":
+            self._dll.setSubstrateType.argtype = c_int
+            self._dll.setSubstrateType.restype = c_int
+            self._dll.getSubstrateType.argtype = POINTER(c_int)
+            self._dll.getSubstrateType.restype = c_int
+        else:
+            self._dll.setSubstrateType.argtype = c_char_p
+            self._dll.setSubstrateType.restype = c_int
+            self._dll.getSubstrateType.argtypes = [c_char_p, c_int]
+            self._dll.getSubstrateType.restype = c_int
 
         self._dll.setEr.argtype = [c_char_p, c_int]
         self._dll.setEr.restype = c_int
@@ -1288,20 +1294,29 @@ class ExportToAedt:
         -------
         :enum:`SubstrateType`
         """
-        index = c_int()
-        substrate_type_list = list(SubstrateType)
-        status = self._dll.getSubstrateType(byref(index))
-        self._dll_interface.raise_error(status)
-        substrate_type = substrate_type_list[index.value]
-        return substrate_type
+        if self._dll_interface.api_version() >= "2025.2":
+            index = c_int()
+            substrate_type_list = list(SubstrateType)
+            status = self._dll.getSubstrateType(byref(index))
+            self._dll_interface.raise_error(status)
+            substrate_type = substrate_type_list[index.value]
+            return substrate_type
+        else:
+            type_string = self._dll_interface.get_string(self._dll.getSubstrateType)
+            return self._dll_interface.string_to_enum(SubstrateType, type_string)
 
     @substrate_type.setter
     def substrate_type(self, substrate_type: SubstrateType):
-        if isinstance(substrate_type, SubstrateType):
-            status = self._dll.setSubstrateType(substrate_type.value)
+        if self._dll_interface.api_version() >= "2025.2":
+            if isinstance(substrate_type, SubstrateType):
+                status = self._dll.setSubstrateType(substrate_type.value)
+            else:
+                string_value = str(substrate_type)
+                status = self._dll_interface.set_string(self._dll.setSubstrateType, string_value)
         else:
-            string_value = str(substrate_type)
-            status = self._dll_interface.set_string(self._dll.setSubstrateType, string_value)
+            if substrate_type:
+                string_value = self._dll_interface.enum_to_string(substrate_type)
+                status = self._dll_interface.set_string(self._dll.setSubstrateType, string_value)
         self._dll_interface.raise_error(status)
 
     @property

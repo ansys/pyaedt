@@ -109,7 +109,10 @@ class TestClass:
         lumped_design.attributes.filter_multiple_bands_enabled = True
         with pytest.raises(RuntimeError) as info:
             lumped_design.multiple_bands_table.remove_row(12)
-        assert info.value.args[0] == "The rowIndex must be greater than zero and less than row count"
+        if config["desktopVersion"] > "2025.1":
+            assert info.value.args[0] == "The rowIndex must be greater than zero and less than row count"
+        else:
+            assert info.value.args[0] == "The rowIndex must be greater than zero and less than row count."
         lumped_design.multiple_bands_table.remove_row(0)
         assert lumped_design.multiple_bands_table.row(0) == ("4G", "5G")
         with pytest.raises(RuntimeError) as info:
