@@ -2322,7 +2322,10 @@ class ConfigurationsNexxim(Configurations):
         for k, l in pin_mapping.items():
             temp_dict3 = {}
             for i in l:
-                temp_dict3.update({i._circuit_comp.refdes: i.name})
+                if i._circuit_comp.refdes in temp_dict3.keys():
+                    temp_dict3[i._circuit_comp.refdes].append(i.name)
+                else:
+                    temp_dict3.update({i._circuit_comp.refdes: [i.name]})
             pin_mapping[k] = temp_dict3
 
         dict_out.update(
@@ -2454,17 +2457,20 @@ class ConfigurationsNexxim(Configurations):
             pins = []
             for k, l in j.items():
                 for comp in list(self._app.modeler.schematic.components.values()):
-                    if not comp.refdes:
+                    if "PagePort" in comp.composed_name:
                         continue
                     elif comp.refdes == k:
                         for pin in comp.pins:
-                            if pin.name == l:
+                            if pin.name in l:
                                 pins.append(pin)
             if i == "gnd":
                 for gnd_pin in pins:
-                    self._app.modeler.schematic.create_gnd(gnd_pin.location, gnd_pin.angle, page=i)
+                    location = [x - y for x, y in zip(gnd_pin.location, [0, 0.00254])]
+                    self._app.modeler.schematic.create_gnd(location, page=i)
             elif len(pins) > 1:
                 pins[0].connect_to_component(pins[1:], page_name=i)
+            else:
+                self._app.modeler.schematic.create_interface_port(name=i, location=pins[0].location)
 
         if self.options.import_setups and data.get("setups", None):
             self.results.import_setup = True
