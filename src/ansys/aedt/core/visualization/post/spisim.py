@@ -51,6 +51,7 @@ class SpiSim:
             self.desktop_install_dir = os.environ[env_value(settings.aedt_version)]
         else:
             self.desktop_install_dir = os.environ[env_value(aedt_versions.current_version)]
+        os.environ["ANSYSEM_ROOT_PATH"] = self.desktop_install_dir
         self.logger = settings.logger
         self._working_directory = ""
 

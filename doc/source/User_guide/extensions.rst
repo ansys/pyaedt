@@ -153,6 +153,14 @@ They are small automated workflows with a simple GUI.
             Generate object and surface conforming point clouds.
 
 
+   .. grid-item-card:: Move it
+            :link: pyaedt_extensions_doc/hfss/move_it
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            From a line generate the parameters needed to simulate a trajectory.
+
+
 Icepak extensions
 ~~~~~~~~~~~~~~~~~
 

@@ -112,7 +112,7 @@ The following table illustrates the recommended conventions:
      - ``Hfss.create_setup()``, ``Hfss.create_linear_step_sweep()``
    * - ``usethickness``
      - ``thickness``
-     - ``Hfss.assign_coating()``
+     - ``Hfss.assign_finite_conductivity()``
    * - ``entities``
      - ``assignment``
      - ``Maxwell.assign_current_density()``
