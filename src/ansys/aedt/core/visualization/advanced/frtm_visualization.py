@@ -37,7 +37,12 @@ import warnings
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.constants import SpeedOfLight
+from ansys.aedt.core.generic.general_methods import conversion_function
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+
+# import matplotlib.pyplot as plt
+# from matplotlib.animation import FuncAnimation
 
 try:
     import numpy as np
@@ -64,10 +69,10 @@ except ImportError:  # pragma: no cover
     pd = None
 
 
-class RangeDopplerData(object):
-    """Provides range doppler data.
+class FRTMData(object):
+    """Provides FRTM data.
 
-    Read FRTM data and return the Python interface to analyze the range doppler data. All units are in SI.
+    Read FRTM data and return the Python interface to analyze the data. All units are in SI.
 
     Parameters
     ----------
@@ -76,7 +81,7 @@ class RangeDopplerData(object):
 
     Examples
     --------
-    >>> from ansys.aedt.core.visualization.advanced.doppler_range_visualization import RangeDopplerData
+    >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FR
     >>> file = "RxSignal.frtm"
     >>> data = RangeDopplerData(file)
     """
@@ -90,7 +95,7 @@ class RangeDopplerData(object):
         # Private
         self.__logger = logger
         self.__input_file = input_file
-        self.__dlxcd_vers = None
+        self.__dlxcd_version = None
         self.__frequency_bandwidth = None
         self.__row_count = None
         self.__col_header1 = None
@@ -104,7 +109,7 @@ class RangeDopplerData(object):
         self.__time_stop = None
         self.__time_number = None
         self.__time_sweep = None
-        self.__time_delta = None
+        self.__pulse_repetition = None
         self.__time_duration = None
         self.__frequency_domain_type = None
         self.__frequency_start = None
@@ -119,12 +124,13 @@ class RangeDopplerData(object):
         self.__coupling_combos = None
         self.__channel_names = []
         self.__all_data = {}
+        self.__data_conversion_function = "dB20"
 
         self.__read_frtm()
 
     @property
-    def dlxcd_vers(self):
-        return self.__dlxcd_vers
+    def dlxcd_version(self):
+        return self.__dlxcd_version
 
     @property
     def row_count(self):
@@ -172,6 +178,7 @@ class RangeDopplerData(object):
 
     @property
     def time_number(self):
+        """Number of pulses for Pulse-Doppler or number of chirps for FMCW radar."""
         return self.__time_number
 
     @property
@@ -179,8 +186,9 @@ class RangeDopplerData(object):
         return self.__time_sweep
 
     @property
-    def time_delta(self):
-        return self.__time_delta
+    def pulse_repetition(self):
+        """Pulse repetition."""
+        return self.__pulse_repetition
 
     @property
     def time_duration(self):
@@ -292,8 +300,31 @@ class RangeDopplerData(object):
         else:
             return self.all_data
 
+    @property
+    def data_conversion_function(self):
+        """RCS data conversion function.
+
+        The available functions are:
+
+        - `"dB10"`: Converts the data to decibels using base 10 logarithm.
+        - `"dB20"`: Converts the data to decibels using base 20 logarithm.
+        - `"abs"`: Computes the absolute value of the data.
+        - `"real"`: Computes the real part of the data.
+        - `"imag"`: Computes the imaginary part of the data.
+        - `"norm"`: Normalizes the data to have values between 0 and 1.
+        - `"ang"`: Computes the phase angle of the data in radians.
+        - `"ang_deg"`: Computes the phase angle of the data in degrees.
+        """
+        return self.__data_conversion_function
+
+    @data_conversion_function.setter
+    def data_conversion_function(self, val):
+        available_functions = ["dB10", "dB20", "abs", "real", "imag", "norm", "ang", "ang_deg", None]
+        if val in available_functions:
+            self.__data_conversion_function = val
+
     @pyaedt_function_handler()
-    def range_profile(self, window=False):
+    def range_profile(self, data_channel, upsample=1, window=None, window_size=None):
         """
         range profile calculation
 
@@ -302,25 +333,73 @@ class RangeDopplerData(object):
         returns: 1D array in original_lenth * upsample
 
         """
-        for n, p in enumerate(self.all_data):
-            nfreq = int(np.shape(np.squeeze(p))[0])
-            # scale factors used for windowing function
-            if window:
-                win_range = np.hanning(nfreq)
-                win_range_sum = np.sum(win_range)
-                sf_rng = len(win_range) / (win_range_sum)
-                win_range = win_range * sf_rng
-            else:
-                win_range = 1
+        value = None
+        if self.all_data:
+            data_conversion_function_original = self.data_conversion_function
+            self.data_conversion_function = None
+            if not window_size:
+                window_size = self.frequency_number
 
-            # perform ifft on each channel
-            pulse_f = data
-            pulse_f_win = np.multiply(pulse_f, win_range)  # apply windowing
+            # Compute window
+            win_range, _ = self.window_function(window, window_size)
+            windowed_data = data_channel * win_range
 
-            sf_upsample = nfreq * upsample / nfreq
-            # should probably upsample to closest power of 2 for faster processing, but not going to for now
-            pulse_t_win_up = sf_upsample * ifft(pulse_f_win, n=nfreq * upsample)
-        return pulse_t_win_up
+            # Perform FFT
+            new_frequency_size = window_size * upsample
+            windowed_data = np.fft.fftshift(upsample * np.fft.ifft(windowed_data, n=new_frequency_size))
+
+            self.data_conversion_function = data_conversion_function_original
+            value = conversion_function(windowed_data, self.data_conversion_function)
+
+        return value
+
+        # nfreq = int(np.shape(np.squeeze(data))[0])
+        # # scale factors used for windowing function
+        # if window:
+        #     win_range = np.hanning(nfreq)
+        #     win_range_sum = np.sum(win_range)
+        #     sf_rng = len(win_range) / (win_range_sum)
+        #     win_range = win_range * sf_rng
+        # else:
+        #     win_range = 1
+        #
+        # # perform ifft on each channel
+        # pulse_f = data
+        # pulse_f_win = np.multiply(pulse_f, win_range)  # apply windowing
+        #
+        # sf_upsample = nfreq * upsample / nfreq
+        # # should probably upsample to closest power of 2 for faster processing, but not going to for now
+        # pulse_t_win_up = sf_upsample * ifft(pulse_f_win, n=nfreq * upsample)
+        # return pulse_t_win_up
+
+    @staticmethod
+    def window_function(window="Flat", size=512):
+        """Window function.
+
+        Parameters
+        ----------
+        window : str, optional.
+            Window function. The default is ``"Flat"``. Options are ``"Flat"``, ``"Hamming``", and ``"Hann"``.
+        size : int, optional
+            Window size. The default is ``512``.
+
+        Returns
+        -------
+        tuple
+            Data windowed and data sum.
+        """
+        if window is None or window == "Flat":
+            win = np.ones(size)
+        elif window == "Hann":
+            win = np.hanning(size)
+        elif window == "Hamming":
+            win = np.hamming(size)
+        else:
+            raise ValueError(f"Window function {window} not supported.")
+
+        win_sum = np.sum(win)
+        win *= size / win_sum
+        return win, win_sum
 
     @pyaedt_function_handler()
     def range_doppler_map(self, channel, size=(256, 256)):
@@ -1347,7 +1426,7 @@ class RangeDopplerData(object):
                     dlxcd_vers_line = line_str
                     c = dlxcd_vers_line.split("=")
                     c = c[1].replace("\n", "").replace('"', "").replace(" ", "")
-                    self.__dlxcd_vers = int(c)
+                    self.__dlxcd_version = int(c)
                 elif "@ RowCount" in line_str:
                     c = line_str.split("=")
                     c = c[1].replace("\n", "").replace('"', "").replace(" ", "")
@@ -1404,7 +1483,7 @@ class RangeDopplerData(object):
                     c = [i for i in c if i]
                     self.__time_number = int(c[2].replace('"', "")) + 1
                     self.__time_sweep = np.linspace(self.time_start, self.time_stop, num=self.time_number)
-                    self.__time_delta = self.time_sweep[1] - self.time_sweep[0]
+                    self.__pulse_repetition = self.time_sweep[1] - self.time_sweep[0]
                     self.__time_duration = self.time_sweep[-1] - self.time_sweep[0]
                 elif "@ FreqDomainType " in line_str:
                     freq_dom_type_line = line_str
@@ -1489,7 +1568,7 @@ class RangeDopplerData(object):
                 self.__all_data[ch] = temp
 
 
-class RangeDopplerPlotter(object):
+class FRTMPlotter(object):
     """Provides range doppler data.
 
     Read FRTM data and return the Python interface to analyze the range doppler data. All units are in SI.
@@ -1506,15 +1585,97 @@ class RangeDopplerPlotter(object):
     >>> data = RangeDopplerData(file)
     """
 
-    def __init__(self, doppler_data):
+    def __init__(self, frtm_data):
 
-        if not isinstance(doppler_data, list):
-            doppler_data = [doppler_data]
+        if not isinstance(frtm_data, list):
+            frtm_data = [frtm_data]
 
         # Private
-        self.__doppler_data = doppler_data
+        self.__all_data = frtm_data
         self.__logger = logger
-        self.__oversampling = 2
+
+    @property
+    def all_data(self):
+        """RCS data object."""
+        return self.__all_data
+
+    @pyaedt_function_handler()
+    def plot_range_profile(
+        self,
+        channel=None,
+        pulse=None,
+        chirp=None,
+        title="Range profile",
+        output_file=None,
+        show=True,
+        show_legend=True,
+        size=(1920, 1440),
+    ):
+        """Create a 2D plot of the range profile.
+
+        Parameters
+        ----------
+        title : str, optional
+            Plot title. The default is ``"RectangularPlot"``.
+        output_file : str, optional
+            Full path for the image file. The default is ``None``, in which case an image in not exported.
+        show : bool, optional
+            Whether to show the plot. The default is ``True``.
+            If ``False``, the Matplotlib instance of the plot is shown.
+        show_legend : bool, optional
+            Whether to display the legend or not. The default is ``True``.
+        size : tuple, optional
+            Image size in pixel (width, height).
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
+            PyAEDT matplotlib figure object.
+        """
+        all_data = self.all_data
+        if pulse is not None:
+            all_data = [self.all_data[pulse]]
+
+        curve_list = []
+        new = ReportPlotter()
+        new.show_legend = show_legend
+        new.title = title
+        new.size = size
+        for pulse, data in enumerate(all_data):
+            if channel is not None and channel not in data.channel_names:
+                raise ValueError(f"Channel {channel} not found in data.")
+            elif channel is None:
+                channel = data.channel_names[0]
+
+            if chirp is None:
+                chirp = int(data.time_number / 2)
+            elif chirp >= (data.time_number - 1):
+                raise ValueError(f"Chirp {chirp} is out of range.")
+
+            data_range_profile = data.range_profile(data.all_data[channel])
+            range_profile_chirp = data_range_profile[chirp]
+
+            x = np.linspace(0, data.range_period, np.shape(range_profile_chirp)[0])
+            y = range_profile_chirp
+
+            legend = f"pulse {pulse}, chirp {chirp}"
+            curve = [x.tolist(), y.tolist(), legend]
+            curve_list.append(curve)
+
+            if len(all_data) == 1:
+                # Single plot
+                props = {"x_label": "Range (m)", "y_label": f"Range Profile ({data.data_conversion_function})"}
+                name = curve[2]
+                new.add_trace(curve[:2], 0, props, name)
+                _ = new.plot_2d(None, output_file, show)
+                return new
+            else:
+                props = {"x_label": "Range (m)", "y_label": f"Range Profile ({data.data_conversion_function})"}
+                name = curve[2]
+                new.add_trace(curve[:2], 0, props, name)
+
+        new.animate_2d(show=show, snapshot_path=output_file)
+        return new
 
     @property
     def doppler_data(self):
@@ -1687,68 +1848,107 @@ class RangeDopplerPlotter(object):
     #
 
 
+# def get_results_files(path, wildcard=''):
+#     """
+#     wildcard is if we want to separate different results folder
+#     different solution setups would be named something like
+#     DV551_S17_V518_Data.transient
+#     where the wild card could be "s17_V518" to indicate that specific setup
+#     """
+#     results_files = []
+#     all_paths = glob.glob(path + '\\*' + wildcard + '_Data.transient')
+#     index_num = []
+#     for filename in all_paths:
+#         index_num.append(int(filename.split('\\DV')[1].split('_')[0]))
+#
+#     all_paths_sorted = sorted(zip(index_num, all_paths))
+#     # all_paths = sorted(all_paths)
+#     for each in all_paths_sorted:
+#         results_files.append(each[1] + '\\RxSignal.frtm')
+#     return results_files
+
+
 @pyaedt_function_handler()
-def get_results_files(input_file, var_name="time_var"):
-    path = Path(input_file)
+def get_results_files(input_dir, var_name="time_var"):
+    path = Path(input_dir)
 
     # Find all CSV files recursively
     index_files = list(path.rglob("*.csv"))
+    sol_files = []
 
     if not index_files:
-        logger.error("FRTM Index file not found, check path")
-        return None
 
-    # If multiple files are found, use the first one
-    index_file_full_path = index_files[0].resolve()
+        all_paths = list(Path(path).rglob(f"*_Data.transient"))
+        index_files = []
+        for filename in all_paths:
+            index_files.append(int(filename.stem.split("DV")[1].split("_")[0]))
 
-    if len(index_files) > 1:
-        logger.warning(f"Multiple index files found, using {index_file_full_path}")
+        if not index_files:
+            logger.error("FRTM files not found.")
+            return None
+
+        all_paths_sorted = sorted(zip(index_files, all_paths))
+        all_frtm_dict = {}
+        for each in all_paths_sorted:
+            frtm_file = each[1] / "RxSignal.frtm"
+            if not frtm_file.is_file():
+                logger.error(f"{str(frtm_file)} does not exist.")
+                return
+            all_frtm_dict[each[0]] = frtm_file
+
     else:
-        logger.info(f"Index file found, using {index_file_full_path}")
 
-    # Extract base path and filename
-    base_path = index_file_full_path.parent
+        # If multiple files are found, use the first one
+        index_file_full_path = index_files[0].resolve()
 
-    # Find all .frtm files in the base directory
-    sol_files = list(base_path.glob("*.frtm"))
+        if len(index_files) > 1:
+            logger.warning(f"Multiple index files found, using {index_file_full_path}")
+        else:
+            logger.info(f"Index file found, using {index_file_full_path}")
 
-    if not sol_files:
-        logger.error("No .frtm solution files found in the base directory.")
-        return
+        # Extract base path and filename
+        base_path = index_file_full_path.parent
 
-    # Extract the first .frtm file's name prefix
-    file_name_prefix = sol_files[0].stem.split("_DV")[0]
+        # Find all .frtm files in the base directory
+        sol_files = list(base_path.glob("*.frtm"))
 
-    var_IDS = []
-    var_vals = []
-    with open(index_file_full_path, mode="r") as csv_file:
-        csv_reader = csv.DictReader(csv_file)
-        line_count = 0
-        for row in csv_reader:
-            if line_count == 0:
-                # print(f'Column names are {", ".join(row)}')
+        if not sol_files:
+            logger.error("No .frtm solution files found in the base directory.")
+            return
+
+        # Extract the first .frtm file's name prefix
+        file_name_prefix = sol_files[0].stem.split("_DV")[0]
+
+        var_IDS = []
+        var_vals = []
+        with open(index_file_full_path, mode="r") as csv_file:
+            csv_reader = csv.DictReader(csv_file)
+            line_count = 0
+            for row in csv_reader:
+                if line_count == 0:
+                    # print(f'Column names are {", ".join(row)}')
+                    line_count += 1
+                if row["Var_ID"] not in var_IDS:
+                    var_IDS.append(row["Var_ID"])
+                    if "s" in row[var_name]:
+                        val = float(row[var_name].replace("s", ""))
+                    else:
+                        val = float(row[var_name])
+                    var_vals.append(val)
+
                 line_count += 1
-            if row["Var_ID"] not in var_IDS:
-                var_IDS.append(row["Var_ID"])
-                if "s" in row[var_name]:
-                    val = float(row[var_name].replace("s", ""))
-                else:
-                    val = float(row[var_name])
-                var_vals.append(val)
 
-            line_count += 1
+        variation_var_IDS = sorted(zip(var_vals, var_IDS))
 
-    variation_var_IDS = sorted(zip(var_vals, var_IDS))
+        all_frtm = []
+        all_frtm_dict = {}
+        for var_val, id_num in variation_var_IDS:
+            # all_frtm[var_val]=f'{path}/{file_name_prefix}_DV{id_num}.frtm'
+            all_frtm.append(f"{path}/{file_name_prefix}_DV{id_num}.frtm")
+            all_frtm_dict[var_val] = f"{path}/{file_name_prefix}_DV{id_num}.frtm"
 
-    all_frtm = []
-    all_frtm_dict = {}
-    for var_val, id_num in variation_var_IDS:
-        # all_frtm[var_val]=f'{path}/{file_name_prefix}_DV{id_num}.frtm'
-        all_frtm.append(f"{path}/{file_name_prefix}_DV{id_num}.frtm")
-        all_frtm_dict[var_val] = f"{path}/{file_name_prefix}_DV{id_num}.frtm"
-
-    print(f"Variations Found: {len(all_frtm)}.")
-    all_frtm_dict = dict(sorted(all_frtm_dict.items()))
+        print(f"Variations Found: {len(all_frtm)}.")
+        all_frtm_dict = dict(sorted(all_frtm_dict.items()))
     return all_frtm_dict
 
 
