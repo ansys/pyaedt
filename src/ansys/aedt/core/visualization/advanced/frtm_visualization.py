@@ -41,9 +41,6 @@ from ansys.aedt.core.generic.general_methods import conversion_function
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
-# import matplotlib.pyplot as plt
-# from matplotlib.animation import FuncAnimation
-
 try:
     import numpy as np
 except ImportError:  # pragma: no cover
