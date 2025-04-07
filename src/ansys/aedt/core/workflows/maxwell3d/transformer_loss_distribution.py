@@ -309,9 +309,43 @@ def frontend():  # pragma: no cover
         master.file_path = sample_points_entry.get("1.0", tk.END).strip()
         # master.destroy()
 
+    def show_popup():
+        popup = tk.Toplevel(master)
+        popup.title("Select an Option")
+
+        tk.Label(popup, text="Choose an option:").pack(pady=10)
+
+        option_var = tk.StringVar(value="Option 1")
+
+        tk.Radiobutton(popup, text="Generate mesh grid", variable=option_var, value="Option 1").pack(anchor=tk.W)
+        number_points_label = tk.Label(popup, text="Number of Points:")
+        number_points_label.pack(anchor=tk.W, pady=(5, 5))
+        text_widget = tk.Text(popup, wrap=tk.WORD, width=20, height=1)
+        text_widget.pack(pady=20, padx=20)
+        tk.Radiobutton(popup, text="Import .pts file", variable=option_var, value="Option 2").pack(anchor=tk.W)
+
+        def submit():
+            if option_var.get() == "Option 1":
+                # from ansys.aedt.core.workflows.project.points_cloud import frontend as points_frontend
+                from ansys.aedt.core.workflows.project.points_cloud import main as points_main
+
+                # output = points_frontend()
+                if output:
+                    for output_name, output_value in output.items():
+                        if output_name in extension_arguments:
+                            args[output_name] = output_value
+                    points_main({"is_test": True, "choice": "Torus1", "points": 1000})
+                    points_main(args)
+            else:
+                browse_files()
+            # messagebox.showinfo("Selection", f"You selected: {option_var.get()}")
+            popup.destroy()
+
+        tk.Button(popup, text="OK", command=submit).pack(pady=10)
+
     # Export points file button
     export_points_button = ttk.Button(
-        sample_points_frame, text="...", command=browse_files, width=10, style="PyAEDT.TButton"
+        sample_points_frame, text="...", command=show_popup, width=10, style="PyAEDT.TButton"
     )
     export_points_button.pack(side=tk.RIGHT, padx=10)
 
