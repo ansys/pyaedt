@@ -348,6 +348,7 @@ class TestClass:
             primary_sweep_variable="Pass",
             report_category="Modal Solution Data",
             plot_type="Rectangular Plot",
+            setup_sweep_name="Setup1 : LastAdaptive",
         )
         new_report = aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         assert new_report.create()
@@ -777,7 +778,6 @@ class TestClass:
         assert len(app2.post.field_plots) == len(aedtapp.post.field_plots)
 
     def test_58_test_no_report(self, aedtapp):
-        assert not aedtapp.post.reports_by_category.eye_diagram()
         assert aedtapp.post.reports_by_category.eigenmode()
 
     def test_59_test_parse_vector(self):

@@ -2418,11 +2418,13 @@ class HFSSReports(object):
         >>> solutions = report.get_solution_data()
         """
         if not setup:
-            setup = self._post_app._app.nominal_sweep
+            setup = self.__post_app._app.nominal_sweep
         rep = None
         if "Far Fields" in self._templates:
-            setup = self._post_app._get_setup_from_sweep_name(setup)
-            rep = ansys.aedt.core.visualization.report.field.FarField(self._post_app, "Far Fields", setup, **variations)
+            setup = self.__post_app._get_setup_from_sweep_name(setup)
+            rep = ansys.aedt.core.visualization.report.field.FarField(
+                self.__post_app, "Far Fields", setup, **variations
+            )
             rep.far_field_sphere = sphere_name
             rep.source_context = source_context
             rep.report_type = "Radiation Pattern"
@@ -2469,10 +2471,10 @@ class HFSSReports(object):
         """
         if not setup:
             # setup = self._post_app._app.nominal_sweep
-            setup = self._post_app._app.nominal_adaptive
+            setup = self.__post_app._app.nominal_adaptive
         rep = None
         if "Fields" in self._templates:
-            rep = ansys.aedt.core.visualization.report.field.Fields(self._post_app, "Fields", setup)
+            rep = ansys.aedt.core.visualization.report.field.Fields(self.__post_app, "Fields", setup)
             rep.polyline = polyline
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
@@ -2507,11 +2509,11 @@ class HFSSReports(object):
         >>> solutions = report.get_solution_data()
         """
         if not setup:
-            setup = self._post_app._app.nominal_sweep
+            setup = self.__post_app._app.nominal_sweep
         rep = None
         if "Antenna Parameters" in self._templates:
             rep = ansys.aedt.core.visualization.report.field.AntennaParameters(
-                self._post_app, "Antenna Parameters", setup, infinite_sphere
+                self.__post_app, "Antenna Parameters", setup, infinite_sphere
             )
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
@@ -2545,10 +2547,10 @@ class HFSSReports(object):
         >>> solutions = report.get_solution_data()
         """
         if not setup:
-            setup = self._post_app._app.nominal_sweep
+            setup = self.__post_app._app.nominal_sweep
         rep = None
         if "Near Fields" in self._templates:
-            rep = ansys.aedt.core.visualization.report.field.NearField(self._post_app, "Near Fields", setup)
+            rep = ansys.aedt.core.visualization.report.field.NearField(self.__post_app, "Near Fields", setup)
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
@@ -2580,11 +2582,11 @@ class HFSSReports(object):
         >>> solutions = report.get_solution_data()
         """
         if not setup:
-            setup = self._post_app._app.nominal_sweep
+            setup = self.__post_app._app.nominal_sweep
         rep = None
         if "Modal Solution Data" in self._templates:
             rep = ansys.aedt.core.visualization.report.standard.HFSSStandard(
-                self._post_app, "Modal Solution Data", setup
+                self.__post_app, "Modal Solution Data", setup
             )
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
@@ -2617,11 +2619,11 @@ class HFSSReports(object):
         >>> solutions = report.get_solution_data()
         """
         if not setup:
-            setup = self._post_app._app.nominal_sweep
+            setup = self.__post_app._app.nominal_sweep
         rep = None
         if "Terminal Solution Data" in self._templates:
             rep = ansys.aedt.core.visualization.report.standard.HFSSStandard(
-                self._post_app, "Terminal Solution Data", setup
+                self.__post_app, "Terminal Solution Data", setup
             )
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
@@ -2654,11 +2656,11 @@ class HFSSReports(object):
         >>> solutions = report.get_solution_data()
         """
         if not setup:
-            setup = self._post_app._app.nominal_sweep
+            setup = self.__post_app._app.nominal_sweep
         rep = None
         if "Eigenmode Parameters" in self._templates:
             rep = ansys.aedt.core.visualization.report.standard.HFSSStandard(
-                self._post_app, "Eigenmode Parameters", setup
+                self.__post_app, "Eigenmode Parameters", setup
             )
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
