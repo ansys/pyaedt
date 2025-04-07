@@ -19,7 +19,8 @@ offering full control over report customization.
    :nosignatures:
 
    standard.Standard
-   standard.Spectral
+   standard.HFSSStandard
+   spectral.Spectral
    field.AntennaParameters
    field.Fields
    field.NearField

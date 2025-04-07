@@ -44,6 +44,7 @@ from ansys.aedt.core.visualization.report.constants import TEMPLATES_BY_DESIGN
 import ansys.aedt.core.visualization.report.emi
 import ansys.aedt.core.visualization.report.eye
 import ansys.aedt.core.visualization.report.field
+import ansys.aedt.core.visualization.report.spectral
 import ansys.aedt.core.visualization.report.standard
 
 TEMPLATES_BY_NAME = {
@@ -63,7 +64,7 @@ TEMPLATES_BY_NAME = {
     "Statistical Eye": ansys.aedt.core.visualization.report.eye.AMIEyeDiagram,
     "AMI Contour": ansys.aedt.core.visualization.report.eye.AMIConturEyeDiagram,
     "Eigenmode Parameters": ansys.aedt.core.visualization.report.standard.HFSSStandard,
-    "Spectrum": ansys.aedt.core.visualization.report.standard.Spectral,
+    "Spectrum": ansys.aedt.core.visualization.report.spectral.Spectral,
     "EMIReceiver": ansys.aedt.core.visualization.report.emi.EMIReceiver,
 }
 
@@ -2279,8 +2280,6 @@ class Reports(object):
         rep = None
         if "Spectrum" in self._templates:
             rep = self._post_app._get_report_object(expressions=expressions, setup_sweep_name=setup, domain="Spectrum")
-            # rep = ansys.aedt.core.visualization.report.standard.Spectral(self._post_app, "Spectrum", setup)
-            # rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
     @pyaedt_function_handler()
