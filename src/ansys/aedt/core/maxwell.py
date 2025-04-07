@@ -3376,7 +3376,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
             case the default name is used.
         is_voltage: bool, optional
             Whether the boundary is of type voltage or not. The default is ``False``.
-            If ``True``, this option is valid for Electrostatic solvers only.
+            This option is valid for Electrostatic solvers only.
 
         Returns
         -------
