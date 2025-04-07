@@ -62,6 +62,13 @@ They are small automated workflows with a simple GUI.
 
             Manage pyaedt and pyedb versions.
 
+   .. grid-item-card:: Points cloud generator
+            :link: pyaedt_extensions_doc/project/points_cloud_generator
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Generate and import points list from a geometry.
+
 
 HFSS 3D Layout extensions
 ~~~~~~~~~~~~~~~~~~~~~~~~~
