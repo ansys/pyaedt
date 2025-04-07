@@ -332,6 +332,62 @@ class CommonOptimetrics(PropsManager, object):
         return True
 
     @pyaedt_function_handler()
+    def add_calculation(
+        self,
+        calculation,
+        ranges=None,
+        variables=None,
+        solution=None,
+        context=None,
+        subdesign_id=None,
+        polyline_points=1001,
+        report_type=None,
+    ):
+        """Add a calculation to the setup.
+
+        Parameters
+        ----------
+        calculation : str, optional
+            Name of the calculation.
+        ranges : dict, optional
+            Dictionary of ranges with respective values.
+            Values can be: `None` for all values, a List of Discrete Values, a tuple of start and stop range.
+            It includes intrinsics like "Freq", "Time", "Theta", "Distance".
+            The default is ``None``, to be used e.g. in "Eigenmode" design type.
+        solution : str, optional
+            Type of the solution. The default is ``None``, in which case the default
+            solution is used.
+        context : str, optional
+            Calculation contexts. It can be a sphere, a matrix or a polyline.
+        subdesign_id : int, optional
+            Subdesign id for Circuit and HFSS 3D Layout objects.
+        polyline_points : int, optional
+            Number of points for Polyline context.
+        report_type : str, optional
+            Override the auto computation of Calculation Type.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.EditSetup
+        """
+        return self._add_calculation(
+            calculation,
+            ranges,
+            variables,
+            solution,
+            context,
+            subdesign_id,
+            polyline_points,
+            report_type,
+            is_goal=False,
+        )
+
+    @pyaedt_function_handler()
     def _add_calculation(
         self,
         calculation,
@@ -628,62 +684,6 @@ class SetupOpti(CommonOptimetrics, object):
         self.omodule.DeleteSetups([self.name])
         self._app.optimizations.setups.remove(self)
         return True
-
-    @pyaedt_function_handler()
-    def add_calculation(
-        self,
-        calculation,
-        ranges=None,
-        variables=None,
-        solution=None,
-        context=None,
-        subdesign_id=None,
-        polyline_points=1001,
-        report_type=None,
-    ):
-        """Add a calculation to the setup.
-
-        Parameters
-        ----------
-        calculation : str, optional
-            Name of the calculation.
-        ranges : dict, optional
-            Dictionary of ranges with respective values.
-            Values can be: `None` for all values, a List of Discrete Values, a tuple of start and stop range.
-            It includes intrinsics like "Freq", "Time", "Theta", "Distance".
-            The default is ``None``, to be used e.g. in "Eigenmode" design type.
-        solution : str, optional
-            Type of the solution. The default is ``None``, in which case the default
-            solution is used.
-        context : str, optional
-            Calculation contexts. It can be a sphere, a matrix or a polyline.
-        subdesign_id : int, optional
-            Subdesign id for Circuit and HFSS 3D Layout objects.
-        polyline_points : int, optional
-            Number of points for Polyline context.
-        report_type : str, optional
-            Override the auto computation of Calculation Type.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oModule.EditSetup
-        """
-        return self._add_calculation(
-            calculation,
-            ranges,
-            variables,
-            solution,
-            context,
-            subdesign_id,
-            polyline_points,
-            report_type,
-            is_goal=False,
-        )
 
     @pyaedt_function_handler()
     def add_goal(
@@ -1037,52 +1037,6 @@ class SetupParam(CommonOptimetrics, object):
             return False
         self.auto_update = legacy_update
         return True
-
-    @pyaedt_function_handler()
-    def add_calculation(
-        self,
-        calculation,
-        ranges,
-        solution=None,
-        context=None,
-        subdesign_id=None,
-        polyline_points=1001,
-        report_type=None,
-    ):
-        """Add a calculation to the parametric setup.
-
-        Parameters
-        ----------
-        calculation : str, optional
-            Name of the calculation.
-        ranges : dict
-            Dictionary of ranges with respective values.
-            Values can be: `None` for all values, a List of Discrete Values, a tuple of start and stop range.
-            It includes intrinsics like "Freq", "Time", "Theta", "Distance".
-        solution : str, optional
-            Type of the solution. The default is ``None``, in which case the default
-            solution is used.
-        context : str, optional
-            Calculation contexts. It can be a sphere, a matrix or a polyline.
-        subdesign_id : int, optional
-            Subdesign id for Circuit and HFSS 3D Layout objects.
-        polyline_points : int, optional
-            Number of points for Polyline context.
-        report_type : str, optional
-            Override the auto computation of Calculation Type.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oModule.EditSetup
-        """
-        return self._add_calculation(
-            calculation, ranges, None, solution, context, subdesign_id, polyline_points, report_type, is_goal=False
-        )
 
     @pyaedt_function_handler(filename="output_file")
     def export_to_csv(self, output_file):
