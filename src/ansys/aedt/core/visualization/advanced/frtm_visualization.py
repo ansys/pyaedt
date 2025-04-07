@@ -1612,8 +1612,13 @@ class FRTMPlotter(object):
 
         Parameters
         ----------
+        channel : str, optional
+        pulse : int, optional
+        chirp : int, optional
         title : str, optional
-            Plot title. The default is ``"RectangularPlot"``.
+        output_file : str, optional
+            Full path for the image file. The default is ``None``, in which case an image in not exported.
+
         output_file : str, optional
             Full path for the image file. The default is ``None``, in which case an image in not exported.
         show : bool, optional
