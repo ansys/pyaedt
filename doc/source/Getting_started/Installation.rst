@@ -97,12 +97,6 @@ If you are not utilizing gRPC, you can install the required dotnet dependencies 
 
     pip install pyaedt[dotnet]
 
-If you want to install the PyAEDT panels in the AEDT Automation tab, use the following command:
-
-.. code:: python
-
-    pip install pyaedt[installer]
-
 Finally, in the Python console, run the following commands:
 
 .. code::
@@ -153,12 +147,6 @@ For example, on Windows with Python 3.10, install PyAEDT and all its dependencie
 .. code::
 
     pip install --no-cache-dir --no-index --find-links=file:///<path_to_wheelhouse>/PyAEDT-v<release_version>-wheelhouse-Windows-3.10 pyaedt[all]
-
-If you want to add the PyAEDT panels in the AEDT Automation tab, you need first to install the installer dependencies:
-
-.. code::
-
-    pip install --no-cache-dir --no-index --find-links=file:///<path_to_wheelhouse>/PyAEDT-v<release_version>-wheelhouse-Windows-3.10 pyaedt[installer]
 
 Finally, in the Python console, run the following commands:
 
