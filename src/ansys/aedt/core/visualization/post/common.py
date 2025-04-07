@@ -62,7 +62,7 @@ TEMPLATES_BY_NAME = {
     "Eye Diagram": ansys.aedt.core.visualization.report.eye.EyeDiagram,
     "Statistical Eye": ansys.aedt.core.visualization.report.eye.AMIEyeDiagram,
     "AMI Contour": ansys.aedt.core.visualization.report.eye.AMIConturEyeDiagram,
-    "Eigenmode Parameters": ansys.aedt.core.visualization.report.standard.Standard,
+    "Eigenmode Parameters": ansys.aedt.core.visualization.report.standard.HFSSStandard,
     "Spectrum": ansys.aedt.core.visualization.report.standard.Spectral,
     "EMIReceiver": ansys.aedt.core.visualization.report.emi.EMIReceiver,
 }
