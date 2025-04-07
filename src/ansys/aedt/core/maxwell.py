@@ -3375,9 +3375,8 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
             Name of the boundary. The default is ``None``, in which
             case the default name is used.
         is_voltage: bool, optional
-            Balloon type. This option is valid for Electrostatic solvers only.
-            If ``True`` boundary type is "Voltage" otherwise is "Charge".
-            The default is ``False´´ in which case the "Charge" type is selected.
+            Whether the boundary is of type voltage or not. The default is ``False``.
+            If ``True``, this option is valid for Electrostatic solvers only.
 
         Returns
         -------
@@ -3406,6 +3405,8 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         props = {"Edges": assignment}
         if self.solution_type == "Electrostatic":
             props["IsOfTypeVoltage"] = is_voltage
+        else:
+            self.logger.warning("Balloon boundary with type voltage is only valid for Electrostatic solvers.")
         return self._create_boundary(boundary, props, "Balloon")
 
     @pyaedt_function_handler(input_edge="assignment", vectorvalue="vector_value", bound_name="boundary")
