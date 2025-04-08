@@ -99,6 +99,8 @@ class PostProcessorCommon(object):
         design_type = self._app.design_type
         if design_type == "HFSS":
             self.reports_by_category = HFSSReports(self)
+        elif design_type == "Circuit Design":
+            self.reports_by_category = CircuitReports(self)
         else:
             self.reports_by_category = Reports(self, self._app.design_type)
 
@@ -2340,9 +2342,8 @@ class HFSSReports(object):
     def _retrieve_default_expressions(self, expressions, report, setup_sweep_name):
         if expressions:
             return expressions
-        is_siwave_dc = False
         return self.__post_app.available_report_quantities(
-            solution=setup_sweep_name, context=report._context, is_siwave_dc=is_siwave_dc
+            solution=setup_sweep_name, context=report._context, is_siwave_dc=False
         )
 
     @pyaedt_function_handler(setup_name="setup")
@@ -2662,4 +2663,258 @@ class HFSSReports(object):
                 self.__post_app, "Eigenmode Parameters", setup
             )
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
+        return rep
+
+
+class CircuitReports(object):
+    """Provides the names of default solution types."""
+
+    def __init__(self, post_app):
+        self.__post_app = post_app
+        self._templates = TEMPLATES_BY_DESIGN.get("Circuit Design", None)
+
+    @pyaedt_function_handler()
+    def _retrieve_default_expressions(self, expressions, report, setup_sweep_name):
+        if expressions:
+            return expressions
+        return self.__post_app.available_report_quantities(
+            solution=setup_sweep_name, context=report._context, is_siwave_dc=False
+        )
+
+    @pyaedt_function_handler(setup_name="setup")
+    def spectral(self, expressions=None, setup=None):
+        """Create a Spectral Report object.
+
+        Parameters
+        ----------
+        expressions : str or list, optional
+            Expression List to add into the report. The expression can be any of the available formula
+            you can enter into the Electronics Desktop Report Editor.
+        setup : str, optional
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.report_templates.Spectrum`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> cir= Circuit()
+        >>> new_eye = cir.post.reports_by_category.spectral("V(Vout)")
+        >>> new_eye.create()
+
+        """
+        if not setup:
+            setup = self.__post_app._app.nominal_sweep
+        rep = None
+        if "Spectrum" in self._templates:
+            rep = self.__post_app._get_report_object(expressions=expressions, setup_sweep_name=setup, domain="Spectrum")
+        return rep
+
+    @pyaedt_function_handler()
+    def emi_receiver(self, expressions=None, setup_name=None):
+        """Create an EMI receiver report.
+
+        Parameters
+        ----------
+        expressions : str or list, optional
+            One or more expressions to add into the report. An expression can be any of the formulas that
+            can be entered into the Electronics Desktop Report Editor.
+        setup_name : str, optional
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is either the sweep name
+            to use in the export or ``LastAdaptive``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.report_templates.EMIReceiver`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> cir= Circuit()
+        >>> new_eye = cir.post.emi_receiver()
+        >>> new_eye.create()
+        """
+        if not setup_name:
+            setup_name = self.__post_app._app.nominal_sweep
+        rep = None
+        if "EMIReceiver" in self._templates and self.__post_app._app.desktop_class.aedt_version_id > "2023.2":
+            rep = ansys.aedt.core.visualization.report.emi.EMIReceiver(self.__post_app, setup_name)
+            if not expressions:
+                expressions = f"Average[{rep.net}]"
+            else:
+                if not isinstance(expressions, list):
+                    expressions = [expressions]
+                pattern = r"\w+\[(.*?)\]"
+                for expression in expressions:
+                    match = re.search(pattern, expression)
+                    if match:
+                        net_name = match.group(1)
+                        rep.net = net_name
+            rep.expressions = self._retrieve_default_expressions(expressions, rep, setup_name)
+
+        return rep
+
+    @pyaedt_function_handler(setup_name="setup")
+    def statistical_eye_contour(self, expressions=None, setup=None, quantity_type=3):
+        """Create a standard statistical AMI contour plot.
+
+        Parameters
+        ----------
+        expressions : str
+            Expression to add into the report. The expression can be any of the available formula
+            you can enter into the Electronics Desktop Report Editor.
+        setup : str, optional
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is either the sweep
+             name to use in the export or ``LastAdaptive``.
+        quantity_type : int, optional
+            For AMI analysis only, the quantity type. The default is ``3``. Options are:
+
+            - ``0`` for Initial Wave
+            - ``1`` for Wave after Source
+            - ``2`` for Wave after Channel
+            - ``3`` for Wave after Probe.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.report_templates.AMIConturEyeDiagram`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> cir= Circuit()
+        >>> new_eye = cir.post.reports_by_category.statistical_eye_contour("V(Vout)")
+        >>> new_eye.unit_interval = "1e-9s"
+        >>> new_eye.time_stop = "100ns"
+        >>> new_eye.create()
+
+        """
+        if not setup:
+            for setup in self.__post_app._app.setups:
+                if "AMIAnalysis" in setup.props:
+                    setup = setup.name
+            if not setup:
+                self.__post_app._app.logger.error("AMI analysis is needed to create this report.")
+                return False
+
+            if isinstance(expressions, list):
+                expressions = expressions[0]
+            report_cat = "Standard"
+            rep = ansys.aedt.core.visualization.report.eye.AMIConturEyeDiagram(self.__post_app, report_cat, setup)
+            rep.quantity_type = quantity_type
+            rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
+
+            return rep
+        return
+
+    @pyaedt_function_handler(setup_name="setup")
+    def eye_diagram(
+        self, expressions=None, setup=None, quantity_type=3, statistical_analysis=True, unit_interval="1ns"
+    ):
+        """Create a Standard or Default Report object.
+
+        Parameters
+        ----------
+        expressions : str
+            Expression to add into the report. The expression can be any of the available formula
+            you can enter into the Electronics Desktop Report Editor.
+        setup : str, optional
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
+        quantity_type : int, optional
+            For AMI Analysis only, specify the quantity type. Options are: 0 for Initial Wave,
+            1 for Wave after Source, 2 for Wave after Channel and 3 for Wave after Probe. Default is 3.
+        statistical_analysis : bool, optional
+            For AMI Analysis only, whether to plot the statistical eye plot or transient eye plot.
+            The default is ``True``.
+        unit_interval : str, optional
+            Unit interval for the eye diagram.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.report_templates.Standard`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> cir= Circuit()
+        >>> new_eye = cir.post.reports_by_category.eye_diagram("V(Vout)")
+        >>> new_eye.unit_interval = "1e-9s"
+        >>> new_eye.time_stop = "100ns"
+        >>> new_eye.create()
+        """
+        if not setup:
+            setup = self.__post_app._app.nominal_sweep
+        if "Eye Diagram" in self._templates:
+            if "AMIAnalysis" in self.__post_app._app.get_setup(setup).props:
+
+                report_cat = "Eye Diagram"
+                if statistical_analysis:
+                    report_cat = "Statistical Eye"
+                rep = ansys.aedt.core.visualization.report.eye.AMIEyeDiagram(self._post_app, report_cat, setup)
+                rep.quantity_type = quantity_type
+                expressions = self._retrieve_default_expressions(expressions, rep, setup)
+                if isinstance(expressions, list):
+                    rep.expressions = expressions[0]
+                return rep
+
+            else:
+                rep = ansys.aedt.core.visualization.report.eye.EyeDiagram(self.__post_app, "Eye Diagram", setup)
+            rep.unit_interval = unit_interval
+            rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
+            return rep
+
+        return
+
+    @pyaedt_function_handler(setup_name="setup")
+    def standard(self, expressions=None, setup=None):
+        """Create a standard or default report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression list to add into the report. The expression can be any of the available formula
+            you can enter into the Electronics Desktop Report Editor.
+        setup : str, optional
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.report_templates.Standard`
+
+        Examples
+        --------
+
+        >>> from ansys.aedt.core import Circuit
+        >>> cir = Circuit(my_project)
+        >>> report = cir.post.reports_by_category.standard("dB(S(1,1))","LNA")
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        >>> report2 = cir.post.reports_by_category.standard(["dB(S(2,1))", "dB(S(2,2))"],"LNA")
+
+        """
+        if not setup:
+            setup = self._post_app._app.nominal_sweep
+        rep = None
+        if "Standard" in self._templates:
+            rep = ansys.aedt.core.visualization.report.standard.Standard(self._post_app, "Standard", setup)
+
+        elif self._post_app._app.design_solutions.report_type:
+            rep = ansys.aedt.core.visualization.report.standard.Standard(
+                self._post_app, self._post_app._app.design_solutions.report_type, setup
+            )
+        rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
