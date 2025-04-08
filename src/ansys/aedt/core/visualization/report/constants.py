@@ -62,6 +62,7 @@ TEMPLATES_BY_DESIGN = {
     "Q3D Extractor": ["Matrix", "CG Fields", "DC R/L Fields", "AC R/L Fields"],
     "2D Extractor": ["Matrix", "CG Fields", "RL Fields"],
     "Twin Builder": ["Standard", "Spectrum"],
+    "RMxprt": ["RMxprt"],
 }
 
 ORIENTATION_TO_VIEW = {

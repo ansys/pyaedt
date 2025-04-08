@@ -48,24 +48,60 @@ import ansys.aedt.core.visualization.report.spectral
 import ansys.aedt.core.visualization.report.standard
 
 TEMPLATES_BY_NAME = {
-    "Standard": ansys.aedt.core.visualization.report.standard.Standard,
-    "EddyCurrent": ansys.aedt.core.visualization.report.standard.Standard,
-    "Modal Solution Data": ansys.aedt.core.visualization.report.standard.HFSSStandard,
-    "Terminal Solution Data": ansys.aedt.core.visualization.report.standard.HFSSStandard,
-    "Fields": ansys.aedt.core.visualization.report.field.Fields,
-    "CG Fields": ansys.aedt.core.visualization.report.field.Fields,
-    "DC R/L Fields": ansys.aedt.core.visualization.report.field.Fields,
-    "AC R/L Fields": ansys.aedt.core.visualization.report.field.Fields,
-    "Matrix": ansys.aedt.core.visualization.report.standard.Standard,
-    "Monitor": ansys.aedt.core.visualization.report.standard.Standard,
-    "Far Fields": ansys.aedt.core.visualization.report.field.FarField,
-    "Near Fields": ansys.aedt.core.visualization.report.field.NearField,
-    "Eye Diagram": ansys.aedt.core.visualization.report.eye.EyeDiagram,
-    "Statistical Eye": ansys.aedt.core.visualization.report.eye.AMIEyeDiagram,
-    "AMI Contour": ansys.aedt.core.visualization.report.eye.AMIConturEyeDiagram,
-    "Eigenmode Parameters": ansys.aedt.core.visualization.report.standard.HFSSStandard,
-    "Spectrum": ansys.aedt.core.visualization.report.spectral.Spectral,
-    "EMIReceiver": ansys.aedt.core.visualization.report.emi.EMIReceiver,
+    "Twin Builder": {"Standard": ansys.aedt.core.visualization.report.standard.TwinBuilderStandard},
+    "RMxprtSolution": {"RMxprt": ansys.aedt.core.visualization.report.standard.RMxprtStandard},
+    "Circuit Design": {
+        "Standard": ansys.aedt.core.visualization.report.standard.CircuitStandard,
+        "Spectrum": ansys.aedt.core.visualization.report.spectral.Spectral,
+        "EMIReceiver": ansys.aedt.core.visualization.report.emi.EMIReceiver,
+        "Eye Diagram": ansys.aedt.core.visualization.report.eye.EyeDiagram,
+        "Statistical Eye": ansys.aedt.core.visualization.report.eye.AMIEyeDiagram,
+        "AMI Contour": ansys.aedt.core.visualization.report.eye.AMIConturEyeDiagram,
+    },
+    "HFSS": {
+        "Modal Solution Data": ansys.aedt.core.visualization.report.standard.HFSSStandard,
+        "Terminal Solution Data": ansys.aedt.core.visualization.report.standard.HFSSStandard,
+        "Far Fields": ansys.aedt.core.visualization.report.field.FarField,
+        "Near Fields": ansys.aedt.core.visualization.report.field.NearField,
+        "Eigenmode Parameters": ansys.aedt.core.visualization.report.standard.HFSSStandard,
+        "Fields": ansys.aedt.core.visualization.report.field.Fields,
+    },
+    "HFSS 3D Layout": {
+        "Standard": ansys.aedt.core.visualization.report.standard.Standard,
+        "Fields": ansys.aedt.core.visualization.report.field.Fields,
+    },
+    "Icepak": {
+        "Standard": ansys.aedt.core.visualization.report.standard.Standard,
+        "Fields": ansys.aedt.core.visualization.report.field.Fields,
+        "Monitor": ansys.aedt.core.visualization.report.standard.Standard,
+    },
+    "Mechanical": {
+        "Standard": ansys.aedt.core.visualization.report.standard.Standard,
+        "Fields": ansys.aedt.core.visualization.report.field.Fields,
+    },
+    "Q3D Extractor": {
+        "Standard": ansys.aedt.core.visualization.report.standard.Standard,
+        "CG Fields": ansys.aedt.core.visualization.report.field.Fields,
+        "DC R/L Fields": ansys.aedt.core.visualization.report.field.Fields,
+        "AC R/L Fields": ansys.aedt.core.visualization.report.field.Fields,
+        "Matrix": ansys.aedt.core.visualization.report.standard.Standard,
+    },
+    "2D Extractor": {
+        "Standard": ansys.aedt.core.visualization.report.standard.Standard,
+        "CG Fields": ansys.aedt.core.visualization.report.field.Fields,
+        "AC R/L Fields": ansys.aedt.core.visualization.report.field.Fields,
+        "Matrix": ansys.aedt.core.visualization.report.standard.Standard,
+    },
+    "Maxwell 3D": {
+        "Standard": ansys.aedt.core.visualization.report.standard.Standard,
+        "EddyCurrent": ansys.aedt.core.visualization.report.standard.Standard,
+        "Fields": ansys.aedt.core.visualization.report.field.Fields,
+    },
+    "Maxwell 2D": {
+        "Standard": ansys.aedt.core.visualization.report.standard.Standard,
+        "EddyCurrent": ansys.aedt.core.visualization.report.standard.Standard,
+        "Fields": ansys.aedt.core.visualization.report.field.Fields,
+    },
 }
 
 
@@ -99,8 +135,12 @@ class PostProcessorCommon(object):
         design_type = self._app.design_type
         if design_type == "HFSS":
             self.reports_by_category = HFSSReports(self)
-        elif design_type == "Circuit Design":
+        elif design_type in ["Circuit Design", "Circuit Netlist"]:
             self.reports_by_category = CircuitReports(self)
+        elif design_type in ["Twin Builder"]:
+            self.reports_by_category = TwinBuilderReports(self)
+        elif design_type in ["RMxprt", "RMxprtSolution"]:
+            self.reports_by_category = RMxprtReports(self)
         else:
             self.reports_by_category = Reports(self, self._app.design_type)
 
@@ -529,14 +569,24 @@ class PostProcessorCommon(object):
         names = self._app.get_oo_name(self.oreportsetup)
         plots = []
         skip_plot = False
-        if self._app.design_type == "Circuit Netlist" and self._app.desktop_class.non_graphical:
+        design_type = self._app.design_type
+        if design_type == "Circuit Netlist" and self._app.desktop_class.non_graphical:
             skip_plot = True
         if names and not skip_plot:
             for name in names:
                 obj = self._app.get_oo_object(self.oreportsetup, name)
                 report_type = obj.GetPropValue("Report Type")
 
-                report = TEMPLATES_BY_NAME.get(report_type, TEMPLATES_BY_NAME["Standard"])
+                report_template_types = TEMPLATES_BY_NAME.get(design_type, None)
+                if report_template_types is None:  # pragma: no cover
+                    self.logger.warning(f"Plot {name} not supported in {design_type}.")
+                    continue
+
+                report = report_template_types.get(report_type, None)
+
+                if report is None:  # pragma: no cover
+                    self.logger.warning(f"Plot {name} not supported.")
+                    continue
 
                 plots.append(report(self, report_type, None))
                 plots[-1]._legacy_props["plot_name"] = name
@@ -2907,14 +2957,132 @@ class CircuitReports(object):
 
         """
         if not setup:
-            setup = self._post_app._app.nominal_sweep
+            setup = self.__post_app._app.nominal_sweep
         rep = None
         if "Standard" in self._templates:
-            rep = ansys.aedt.core.visualization.report.standard.Standard(self._post_app, "Standard", setup)
+            rep = ansys.aedt.core.visualization.report.standard.CircuitStandard(self.__post_app, "Standard", setup)
 
-        elif self._post_app._app.design_solutions.report_type:
-            rep = ansys.aedt.core.visualization.report.standard.Standard(
-                self._post_app, self._post_app._app.design_solutions.report_type, setup
+        elif self.__post_app._app.design_solutions.report_type:
+            rep = ansys.aedt.core.visualization.report.standard.CircuitStandard(
+                self.__post_app, self._post_app._app.design_solutions.report_type, setup
+            )
+        rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
+        return rep
+
+
+class TwinBuilderReports(object):
+    """Provides the names of default solution types."""
+
+    def __init__(self, post_app):
+        self.__post_app = post_app
+        self._templates = TEMPLATES_BY_DESIGN.get("Twin Builder", None)
+
+    @pyaedt_function_handler()
+    def _retrieve_default_expressions(self, expressions, report, setup_sweep_name):
+        if expressions:
+            return expressions
+        return self.__post_app.available_report_quantities(
+            solution=setup_sweep_name, context=report._context, is_siwave_dc=False
+        )
+
+    @pyaedt_function_handler(setup_name="setup")
+    def standard(self, expressions=None, setup=None):
+        """Create a standard or default report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression list to add into the report. The expression can be any of the available formula
+            you can enter into the Electronics Desktop Report Editor.
+        setup : str, optional
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.report_templates.Standard`
+
+        Examples
+        --------
+
+        >>> from ansys.aedt.core import Circuit
+        >>> cir = Circuit(my_project)
+        >>> report = cir.post.reports_by_category.standard("dB(S(1,1))","LNA")
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        >>> report2 = cir.post.reports_by_category.standard(["dB(S(2,1))", "dB(S(2,2))"],"LNA")
+
+        """
+        if not setup:
+            setup = self.__post_app._app.nominal_sweep
+        rep = None
+        if "Standard" in self._templates:
+            rep = ansys.aedt.core.visualization.report.standard.TwinBuilderStandard(self.__post_app, "Standard", setup)
+
+        elif self.__post_app._app.design_solutions.report_type:
+            rep = ansys.aedt.core.visualization.report.standard.TwinBuilderStandard(
+                self.__post_app, self._post_app._app.design_solutions.report_type, setup
+            )
+        rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
+        return rep
+
+
+class RMxprtReports(object):
+    """Provides the names of default solution types."""
+
+    def __init__(self, post_app):
+        self.__post_app = post_app
+        self._templates = TEMPLATES_BY_DESIGN.get("RMxprt", None)
+
+    @pyaedt_function_handler()
+    def _retrieve_default_expressions(self, expressions, report, setup_sweep_name):
+        if expressions:
+            return expressions
+        return self.__post_app.available_report_quantities(
+            solution=setup_sweep_name, context=report._context, is_siwave_dc=False
+        )
+
+    @pyaedt_function_handler()
+    def standard(self, expressions=None, setup=None):
+        """Create a standard or default report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression list to add into the report. The expression can be any of the available formula
+            you can enter into the Electronics Desktop Report Editor.
+        setup : str, optional
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.report_templates.Standard`
+
+        Examples
+        --------
+
+        >>> from ansys.aedt.core import Circuit
+        >>> cir = Circuit(my_project)
+        >>> report = cir.post.reports_by_category.standard("dB(S(1,1))","LNA")
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        >>> report2 = cir.post.reports_by_category.standard(["dB(S(2,1))", "dB(S(2,2))"],"LNA")
+
+        """
+        if not setup:
+            setup = self.__post_app._app.nominal_sweep + " : Performance"
+        rep = None
+        if "RMxprt" in self._templates:
+            rep = ansys.aedt.core.visualization.report.standard.RMxprtStandard(self.__post_app, "RMxprt", setup)
+
+        elif self.__post_app._app.design_solutions.report_type:
+            rep = ansys.aedt.core.visualization.report.standard.RMxprtStandard(
+                self.__post_app, self._post_app._app.design_solutions.report_type, setup
             )
         rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep

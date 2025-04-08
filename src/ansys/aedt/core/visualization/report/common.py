@@ -2367,11 +2367,26 @@ class CommonReport2(BinaryTreeNode):
         self.setup = setup_name
         self._legacy_props["report_type"] = "Rectangular Plot"
         self._legacy_props["context"] = {}
-        self._legacy_props["context"]["domain"] = "Sweep"
+        design_type = self._app.design_type
+
+        if design_type in ["RMxprt", "RMxprtSolution"]:
+            self._legacy_props["context"]["domain"] = "Angle"
+            self._legacy_props["context"]["primary_sweep"] = "Ang"
+        elif design_type == "Twin Builder":
+            self._legacy_props["context"]["domain"] = "Time"
+            self._legacy_props["context"]["primary_sweep"] = "Time"
+        else:
+            self._legacy_props["context"]["domain"] = "Sweep"
+            self._legacy_props["context"]["primary_sweep"] = "Freq"
+
         self._legacy_props["context"]["primary_sweep"] = "Freq"
         self._legacy_props["context"]["primary_sweep_range"] = ["All"]
         self._legacy_props["context"]["secondary_sweep_range"] = ["All"]
-        self._legacy_props["context"]["variations"] = {"Freq": ["All"]}
+
+        if design_type in ["RMxprt", "RMxprtSolution", "Twin Builder"]:
+            self._legacy_props["context"]["variations"] = {}
+        else:
+            self._legacy_props["context"]["variations"] = {"Freq": ["All"]}
         if hasattr(self._app, "available_variations") and self._app.available_variations:
             nominal_variation = self._app.available_variations.get_independent_nominal_values()
             for el, k in nominal_variation.items():
@@ -2381,7 +2396,6 @@ class CommonReport2(BinaryTreeNode):
         if expressions:
             self.expressions = expressions
         self._is_created = False
-        self.siwave_dc_category = 0
         self._traces = []
         self._initialize_tree_node()
 
@@ -2420,43 +2434,6 @@ class CommonReport2(BinaryTreeNode):
                 del i
                 break
         return True
-
-    # @property
-    # def domain(self):
-    #     """Plot domain.
-    #
-    #     Returns
-    #     -------
-    #     str
-    #         Plot domain.
-    #     """
-    #     if self._is_created:
-    #         try:
-    #             return self.traces[0].properties["Domain"]
-    #         except Exception:
-    #             self._app.logger.debug("Something went wrong while accessing trace's Domain property.")
-    #     return self._legacy_props["context"]["domain"]
-    #
-    # @domain.setter
-    # def domain(self, domain):
-    #     self._legacy_props["context"]["domain"] = domain
-    #     if self._app.design_type in ["Maxwell 3D", "Maxwell 2D"]:
-    #         return
-    #     if self.primary_sweep == "Freq" and domain == "Time":
-    #         self.primary_sweep = "Time"
-    #         if isinstance(self._legacy_props["context"]["variations"], dict):
-    #             self._legacy_props["context"]["variations"].pop("Freq", None)
-    #             self._legacy_props["context"]["variations"]["Time"] = ["All"]
-    #         else:  # pragma: no cover
-    #             self._legacy_props["context"]["variations"] = {"Time": "All"}
-    #
-    #     elif self.primary_sweep == "Time" and domain == "Sweep":
-    #         self.primary_sweep = "Freq"
-    #         if isinstance(self._legacy_props["context"]["variations"], dict):
-    #             self._legacy_props["context"]["variations"].pop("Time", None)
-    #             self._legacy_props["context"]["variations"]["Freq"] = ["All"]
-    #         else:  # pragma: no cover
-    #             self._legacy_props["context"]["variations"] = {"Freq": "All"}
 
     @property
     def expressions(self):
@@ -3214,7 +3191,11 @@ class CommonReport2(BinaryTreeNode):
             self.setup not in self._app.existing_analysis_sweeps
             and "AdaptivePass" not in self.setup
             and " : Table" not in self.setup
+            and " : Performance" not in self.setup
         ):
+            # Performance is a special case for RMxpert
+            # AdaptivePass is a special case for Mesh passes (e.g. HFSS, Icepak, Maxwell...)
+            # Table is a special case for Q3D
             self._app.logger.error("Setup doesn't exist in this design.")
             return False
         self.__post.oreportsetup.CreateReport(

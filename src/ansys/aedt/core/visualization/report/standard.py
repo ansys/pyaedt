@@ -849,16 +849,25 @@ class CircuitStandard(CommonReport2):
     def window_width(self, val):
         self._legacy_props["context"]["window_width"] = val
 
+    @property
+    def _did(self):
+        if self.domain == "Sweep":
+            return 3
+        elif self.domain == "Clock Times":
+            return 55827
+        elif self.domain in [
+            "UI",
+        ]:
+            return 55819
+        elif self.domain in ["Initial Response"]:
+            return 55824
+        else:
+            return 1
+
+    @property
     def _context(self):
         ctxt = []
-        if self._post.post_solution_type in ["TR", "AC", "DC"]:
-            ctxt = [
-                "NAME:Context",
-                "SimValueContext:=",
-                [self._did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0],
-            ]
-
-        elif self._post.post_solution_type in ["NexximLNA", "NexximTransient"]:
+        if self._app.solution_type in ["NexximLNA", "NexximTransient"]:
             ctxt = [
                 "NAME:Context",
                 "SimValueContext:=",
@@ -954,7 +963,7 @@ class CircuitStandard(CommonReport2):
                     ctxt[2].extend(["WS", False, self.time_start])
                 if self.time_stop:
                     ctxt[2].extend(["WE", False, self.time_stop])
-        elif self._post.post_solution_type in ["NexximAMI"]:
+        elif self._app.post_solution_type in ["NexximAMI"]:
             ctxt = [
                 "NAME:Context",
                 "SimValueContext:=",
@@ -1011,4 +1020,114 @@ class CircuitStandard(CommonReport2):
         elif self.differential_pairs:
             ctxt = ["Diff:=", "differential_pairs", "Domain:=", self.domain]
 
+        return ctxt
+
+
+class TwinBuilderStandard(CommonReport2):
+    """Provides a reporting class that fits TwinBuilder standard reports."""
+
+    def __init__(self, app, report_category, setup_name, expressions=None):
+        CommonReport2.__init__(self, app, report_category, setup_name, expressions)
+
+    @property
+    def domain(self):
+        """Plot domain.
+
+        Returns
+        -------
+        str
+            Plot domain.
+        """
+        if self._is_created:
+            try:
+                return self.traces[0].properties["Domain"]
+            except Exception:
+                self._app.logger.debug("Something went wrong while accessing trace's Domain property.")
+        return self._legacy_props["context"]["domain"]
+
+    @domain.setter
+    def domain(self, domain):
+        self._legacy_props["context"]["domain"] = domain
+
+        if self.primary_sweep == "Freq" and domain == "Time":
+            self.primary_sweep = "Time"
+            if isinstance(self._legacy_props["context"]["variations"], dict):
+                self._legacy_props["context"]["variations"].pop("Freq", None)
+                self._legacy_props["context"]["variations"]["Time"] = ["All"]
+            else:  # pragma: no cover
+                self._legacy_props["context"]["variations"] = {"Time": "All"}
+
+        elif self.primary_sweep == "Time" and domain == "Sweep":
+            self.primary_sweep = "Freq"
+            if isinstance(self._legacy_props["context"]["variations"], dict):
+                self._legacy_props["context"]["variations"].pop("Time", None)
+                self._legacy_props["context"]["variations"]["Freq"] = ["All"]
+            else:  # pragma: no cover
+                self._legacy_props["context"]["variations"] = {"Freq": "All"}
+
+    @property
+    def _did(self):
+        if self.domain == "Sweep":
+            return 3
+        else:
+            return 1
+
+    @property
+    def _context(self):
+        ctxt = []
+        if self._app.solution_type in ["TR", "AC", "DC"]:
+            ctxt = [
+                "NAME:Context",
+                "SimValueContext:=",
+                [self._did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0],
+            ]
+
+        return ctxt
+
+
+class RMxprtStandard(CommonReport2):
+    """Provides a reporting class that fits RMxprt standard reports."""
+
+    def __init__(self, app, report_category, setup_name, expressions=None):
+        CommonReport2.__init__(self, app, report_category, setup_name, expressions)
+
+    @property
+    def domain(self):
+        """Plot domain.
+
+        Returns
+        -------
+        str
+            Plot domain.
+        """
+        if self._is_created:
+            try:
+                return self.traces[0].properties["Domain"]
+            except Exception:
+                self._app.logger.debug("Something went wrong while accessing trace's Domain property.")
+        return self._legacy_props["context"]["domain"]
+
+    @domain.setter
+    def domain(self, domain):
+        self._legacy_props["context"]["domain"] = domain
+
+        if self.primary_sweep == "X" and domain == "Angle":
+            self.primary_sweep = "Angle"
+            if isinstance(self._legacy_props["context"]["variations"], dict):
+                self._legacy_props["context"]["variations"].pop("X", None)
+                self._legacy_props["context"]["variations"]["Ang"] = ["All"]
+            else:  # pragma: no cover
+                self._legacy_props["context"]["variations"] = {"Ang": "All"}
+
+        elif self.primary_sweep == "Ang" and domain == "Parameter":
+            self.primary_sweep = "X"
+            if isinstance(self._legacy_props["context"]["variations"], dict):
+                self._legacy_props["context"]["variations"].pop("Ang", None)
+                self._legacy_props["context"]["variations"]["X"] = ["All"]
+            else:  # pragma: no cover
+                self._legacy_props["context"]["variations"] = {"X": "All"}
+
+    @property
+    def _context(self):
+        ctxt = ["Domain:=", self.domain]
         return ctxt
