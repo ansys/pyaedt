@@ -22,6 +22,8 @@
 # SOFTWARE.
 
 from pathlib import Path
+import tkinter as tk
+from tkinter.font import Font
 
 import ansys.aedt.core
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
@@ -49,8 +51,29 @@ extension_arguments = {
 extension_description = "Transformer loss distribution"
 
 
+def _text_size(path, entry):
+    # Calculate the length of the text
+    text_length = len(path)
+
+    # Adjust font size based on text length
+    if text_length < 20:
+        font_size = 20
+    elif text_length < 50:
+        font_size = 15
+    else:
+        font_size = 10
+
+    # Set the font size
+    text_font = Font(size=font_size)
+    entry.configure(font=text_font)
+
+    # Adjust the width of the Text widget based on text length
+    entry.configure(width=max(20, text_length // 2))
+
+    entry.insert(tk.END, path)
+
+
 def frontend():  # pragma: no cover
-    import tkinter as tk
     from tkinter import filedialog
     from tkinter import messagebox
     import tkinter.ttk as ttk
@@ -319,26 +342,23 @@ def frontend():  # pragma: no cover
 
         tk.Radiobutton(popup, text="Generate mesh grid", variable=option_var, value="Option 1").pack(anchor=tk.W)
         number_points_label = tk.Label(popup, text="Number of Points:")
-        number_points_label.pack(anchor=tk.W, pady=(5, 5))
-        text_widget = tk.Text(popup, wrap=tk.WORD, width=20, height=1)
-        text_widget.pack(pady=20, padx=20)
+        number_points_label.pack(anchor=tk.W, pady=5, padx=20)
+        points_entry = tk.Text(popup, wrap=tk.WORD, width=20, height=1)
+        points_entry.pack(pady=5, padx=20)
         tk.Radiobutton(popup, text="Import .pts file", variable=option_var, value="Option 2").pack(anchor=tk.W)
 
         def submit():
             if option_var.get() == "Option 1":
-                # from ansys.aedt.core.workflows.project.points_cloud import frontend as points_frontend
                 from ansys.aedt.core.workflows.project.points_cloud import main as points_main
 
-                # output = points_frontend()
-                if output:
-                    for output_name, output_value in output.items():
-                        if output_name in extension_arguments:
-                            args[output_name] = output_value
-                    points_main({"is_test": True, "choice": "Torus1", "points": 1000})
-                    points_main(args)
+                selected_objects = objects_list_lb.curselection()
+                master.objects_list = [objects_list_lb.get(i) for i in selected_objects]
+                points = points_entry.get("1.0", tk.END).strip()
+                pts_path = points_main({"is_test": False, "choice": master.objects_list, "points": int(points)})
+
+                _text_size(pts_path, sample_points_entry)
             else:
                 browse_files()
-            # messagebox.showinfo("Selection", f"You selected: {option_var.get()}")
             popup.destroy()
 
         tk.Button(popup, text="OK", command=submit).pack(pady=10)
@@ -360,7 +380,7 @@ def frontend():  # pragma: no cover
                 ("Numpy array", ".npy"),
             ],
         )
-        export_file_entry.insert(tk.END, filename)
+        _text_size(filename, export_file_entry)
         master.file_path = export_file_entry.get("1.0", tk.END).strip()
         # master.destroy()
 
