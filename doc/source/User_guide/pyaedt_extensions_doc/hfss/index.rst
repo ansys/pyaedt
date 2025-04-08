@@ -26,9 +26,9 @@ HFSS extensions
             Shielding effectiveness workflow in HFSS.
 
 
-   .. grid-item-card:: Point cloud generator
-            :link: point_cloud_generator
+   .. grid-item-card:: Move it
+            :link: move_it
             :link-type: doc
             :margin: 2 2 0 0
 
-            Generate and import point list from a geometry in HFSS.
+            From a line generate the parameters needed to simulate a trajectory.
