@@ -199,9 +199,9 @@ class TransmissionZeros:
 
         Parameters
         ----------
-        zero: str, optional
+        zero: str
             Transmission zero ratio or bandwidth value.
-        position: str,  optional
+        position: str
             Position of the element creating transmission zero in the associated circuit.
         """
         status = self._dll.appendTransmissionZerosTableRow(
@@ -218,9 +218,9 @@ class TransmissionZeros:
         ----------
         row_index: int
             Index for the new row in the transmission zeros table. Valid values range from ``0`` to ``9``, inclusive.
-        zero: str, optional
+        zero: str
             Transmission zero ratio or bandwidth value.
-        position: str, optional
+        position: str
             Position of the element creating transmission zero in the associated circuit.
         """
         status = self._dll.insertTransmissionZerosTableRow(

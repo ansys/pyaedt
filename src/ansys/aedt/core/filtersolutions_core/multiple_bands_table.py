@@ -136,9 +136,9 @@ class MultipleBandsTable:
 
         Parameters
         ----------
-        lower_frequency: str, optional
+        lower_frequency: str
             Lower frequency value for the new row.
-        upper_frequency: str, optional
+        upper_frequency: str
             Upper frequency value for the new row.
         """
         status = self._dll.appendMultipleBandsTableRow(
@@ -154,9 +154,9 @@ class MultipleBandsTable:
         ----------
         row_index: int
             Index of the row. Valid values range from ``0`` to ``6``, inclusive.
-        lower_frequency: str, optional
+        lower_frequency: str
             Lower frequency value to insert.
-        upper_frequency: str, optional
+        upper_frequency: str
             Upper frequency value to insert.
         """
         status = self._dll.insertMultipleBandsTableRow(

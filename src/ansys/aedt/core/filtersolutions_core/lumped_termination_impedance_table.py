@@ -195,7 +195,7 @@ class LumpedTerminationImpedance:
         Parameters
         ----------
         row_index: int
-            Row index on complex impedance table, starting at ``0`` and with a maximum value of ``99``.
+            Row index on complex impedance table, starting at ``0`` and with a maximum value of ``149``.
 
         Returns
         -------
@@ -227,7 +227,7 @@ class LumpedTerminationImpedance:
         Parameters
         ----------
         row_index: int
-            Row index on complex impedance table, starting at ``0`` and with a maximum value of ``99``.
+            Row index on complex impedance table, starting at ``0`` and with a maximum value of ``149``.
         frequency: str, optional
             The frequency value to update. If not specified, it remains unchanged.
         real: str, optional
@@ -251,11 +251,11 @@ class LumpedTerminationImpedance:
 
         Parameters
         ----------
-        frequency: str, optional
+        frequency: str
             The frequency value to append.
-        real: str, optional
+        real: str
             The real part of the complex impedance to append.
-        imag: str, optional
+        imag: str
             The imaginary part of the complex impedance to append.
         """
         status = self._dll.appendComplexTableRow(
@@ -272,12 +272,12 @@ class LumpedTerminationImpedance:
         Parameters
         ----------
         row_index : int
-            Row index in the complex impedance table, starting at ``0`` and with a maximum value of ``99``.
-        frequency : str, optional
+            Row index in the complex impedance table, starting at ``0`` and with a maximum value of ``149``.
+        frequency : str
             The frequency value to insert.
-        real : str, optional
+        real : str
             The real part of the complex impedance to insert.
-        imag : str, optional
+        imag : str
             The imaginary part of the complex impedance to insert.
         """
         status = self._dll.insertComplexTableRow(
@@ -295,7 +295,7 @@ class LumpedTerminationImpedance:
         Parameters
         ----------
         row_index : int
-            Row index in the complex impedance table, starting at ``0`` and with a maximum value of ``99``.
+            Row index in the complex impedance table, starting at ``0`` and with a maximum value of ``149``.
         """
         status = self._dll.removeComplexTableRow(row_index, self.table_type_to_bool())
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)

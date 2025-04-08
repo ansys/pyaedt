@@ -33,6 +33,22 @@ from tests.system.solvers.conftest import config
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
 class TestClass:
+    if config["desktopVersion"] > "2025.1":
+        row_excess_err_msg = "The Complex Table supports up to 150 rows, the input index must be less than 150"
+    else:
+        row_excess_err_msg = "No value is set for this band"
+
+    empty_row_err_msg = "No value is set for this band"
+    if config["desktopVersion"] > "2025.1":
+        empty_row_update_err_msg = "It is not possible to update the table with empty values"
+    else:
+        empty_row_update_err_msg = "No value is set for this band"
+    empty_parameter_update_err_msg = "There is no input value to update"
+    empty_parameter_append_err_msg = "Unable to append a new row, one or more required parameters are missing"
+    empty_parameter_insert_err_msg = "Unable to insert a new row, one or more required parameters are missing"
+    empty_row_insert_err_msg = "Insertion at row index 5 is not permitted, valid indices range from 0 to 3"
+    empty_row_remove_err_msg = "Removal of row at index 5 is not permitted, valid indices range from 0 to 2"
+
     def test_row_count(self, lumped_design):
         lumped_design.topology.complex_termination = True
         assert lumped_design.source_impedance_table.row_count == 3
@@ -42,27 +58,39 @@ class TestClass:
         lumped_design.topology.complex_termination = True
         with pytest.raises(RuntimeError) as info:
             lumped_design.source_impedance_table.row(100)
-        assert info.value.args[0] == "The input index is larger than table rows"
+        assert info.value.args[0] == self.empty_row_err_msg
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.source_impedance_table.row(150)
+        assert info.value.args[0] == self.row_excess_err_msg
         with pytest.raises(RuntimeError) as info:
             lumped_design.load_impedance_table.row(100)
-        assert info.value.args[0] == "The input index is larger than table rows"
+        assert info.value.args[0] == self.empty_row_err_msg
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.load_impedance_table.row(150)
+        assert info.value.args[0] == self.row_excess_err_msg
         assert lumped_design.source_impedance_table.row(0) == ("0.100G", "1.000", "0.000")
         assert lumped_design.load_impedance_table.row(0) == ("0.100G", "1.000", "0.000")
 
     def test_update_row(self, lumped_design):
         lumped_design.topology.complex_termination = True
         with pytest.raises(RuntimeError) as info:
-            lumped_design.source_impedance_table.update_row(100)
-        assert info.value.args[0] == "The input index is larger than table rows"
+            lumped_design.source_impedance_table.update_row(150)
+        assert info.value.args[0] == self.row_excess_err_msg
         with pytest.raises(RuntimeError) as info:
-            lumped_design.load_impedance_table.update_row(100)
-        assert info.value.args[0] == "The input index is larger than table rows"
+            lumped_design.load_impedance_table.update_row(150)
+        assert info.value.args[0] == self.row_excess_err_msg
         with pytest.raises(RuntimeError) as info:
-            lumped_design.source_impedance_table.update_row(0)
-        assert info.value.args[0] == "There is no input value to update"
+            lumped_design.source_impedance_table.update_row(5, "2G", "22", "11")
+        assert info.value.args[0] == self.empty_row_update_err_msg
         with pytest.raises(RuntimeError) as info:
-            lumped_design.load_impedance_table.update_row(0)
-        assert info.value.args[0] == "There is no input value to update"
+            lumped_design.source_impedance_table.update_row(0, "", "", "")
+        assert info.value.args[0] == self.empty_parameter_update_err_msg
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.load_impedance_table.update_row(5, "2G", "22", "11")
+        assert info.value.args[0] == self.empty_row_update_err_msg
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.load_impedance_table.update_row(0, "", "", "")
+        assert info.value.args[0] == self.empty_parameter_update_err_msg
         lumped_design.source_impedance_table.update_row(0, "2G", "22", "11")
         assert lumped_design.source_impedance_table.row(0) == ("2G", "22", "11")
         lumped_design.load_impedance_table.update_row(0, "2G", "22", "11")
@@ -88,23 +116,42 @@ class TestClass:
 
     def test_insert_row(self, lumped_design):
         lumped_design.topology.complex_termination = True
-        with pytest.raises(RuntimeError) as info:
-            lumped_design.source_impedance_table.insert_row(100)
-        assert info.value.args[0] == "The input index is larger than table rows"
-        with pytest.raises(RuntimeError) as info:
-            lumped_design.load_impedance_table.insert_row(100)
-        assert info.value.args[0] == "The input index is larger than table rows"
         assert lumped_design.source_impedance_table.row_count == 3
         assert lumped_design.source_impedance_table.row(0) == ("0.100G", "1.000", "0.000")
         lumped_design.source_impedance_table.insert_row(0, "2G", "50", "0")
-        assert lumped_design.source_impedance_table.row_count == 4
-        assert lumped_design.source_impedance_table.row(0) == ("2G", "50", "0")
-        assert lumped_design.source_impedance_table.row(1) == ("0.100G", "1.000", "0.000")
+        if config["desktopVersion"] > "2025.1":
+            assert lumped_design.source_impedance_table.row_count == 4
+            assert lumped_design.source_impedance_table.row(0) == ("2G", "50", "0")
+            assert lumped_design.source_impedance_table.row(1) == ("0.100G", "1.000", "0.000")
+        else:
+            assert lumped_design.source_impedance_table.row_count == 3
+            assert lumped_design.source_impedance_table.row(0) == ("2G", "50", "0")
+            assert lumped_design.source_impedance_table.row(1) == ("1.000G", "1.000", "0.000")
         assert lumped_design.load_impedance_table.row_count == 3
         lumped_design.load_impedance_table.insert_row(0, "2G", "50", "0")
-        assert lumped_design.load_impedance_table.row_count == 4
-        assert lumped_design.load_impedance_table.row(0) == ("2G", "50", "0")
-        assert lumped_design.load_impedance_table.row(1) == ("0.100G", "1.000", "0.000")
+        if config["desktopVersion"] > "2025.1":
+            assert lumped_design.load_impedance_table.row_count == 4
+            assert lumped_design.load_impedance_table.row(0) == ("2G", "50", "0")
+            assert lumped_design.load_impedance_table.row(1) == ("0.100G", "1.000", "0.000")
+        else:
+            assert lumped_design.load_impedance_table.row_count == 3
+            assert lumped_design.load_impedance_table.row(0) == ("2G", "50", "0")
+            assert lumped_design.load_impedance_table.row(1) == ("1.000G", "1.000", "0.000")
+        if config["desktopVersion"] > "2025.1":
+            lumped_design.source_impedance_table.remove_row(3)
+            lumped_design.load_impedance_table.remove_row(3)
+            with pytest.raises(RuntimeError) as info:
+                lumped_design.source_impedance_table.insert_row(0, "2G", "22", "")
+            assert info.value.args[0] == self.empty_parameter_insert_err_msg
+            with pytest.raises(RuntimeError) as info:
+                lumped_design.load_impedance_table.insert_row(0, "2G", "", "0")
+            assert info.value.args[0] == self.empty_parameter_insert_err_msg
+            with pytest.raises(RuntimeError) as info:
+                lumped_design.source_impedance_table.insert_row(5, "2G", "22", "0")
+            assert info.value.args[0] == self.empty_row_insert_err_msg
+            with pytest.raises(RuntimeError) as info:
+                lumped_design.load_impedance_table.insert_row(5, "2G", "22", "0")
+            assert info.value.args[0] == self.empty_row_insert_err_msg
 
     def test_remove_row(self, lumped_design):
         lumped_design.topology.complex_termination = True
@@ -118,6 +165,13 @@ class TestClass:
         with pytest.raises(RuntimeError) as info:
             lumped_design.load_impedance_table.row(2)
         assert info.value.args[0] == "No value is set for this band"
+        if config["desktopVersion"] > "2025.1":
+            with pytest.raises(RuntimeError) as info:
+                lumped_design.source_impedance_table.remove_row(5)
+            assert info.value.args[0] == self.empty_row_remove_err_msg
+            with pytest.raises(RuntimeError) as info:
+                lumped_design.load_impedance_table.remove_row(5)
+            assert info.value.args[0] == self.empty_row_remove_err_msg
 
     def test_complex_definition(self, lumped_design):
         lumped_design.topology.complex_termination = True
